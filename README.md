@@ -52,10 +52,52 @@ Note that the `/path/to/zuluru` will be the folder that contains things like `sr
 
 If you have a custom theme set up, your command line should reference it as well:
 
-    env DOMAIN_PLUGIN=
+    cd /path/to/zuluru && env DOMAIN_PLUGIN="Xyz" HTTP_HOST= ...
 
 If you are running under Windows, something similar can be set up through the Task Scheduler.
 
 ### Troubleshooting
 
 If you get error messages about invalid time zones, you may need to follow the instructions from http://dev.mysql.com/doc/refman/5.7/en/mysql-tzinfo-to-sql.html
+
+### Updates
+
+Ideally, you will never need to update any core Zuluru files. Assuming that this is the case, you should be able to simply update the source with:
+
+    git pull
+
+If this gives you errors because you have made changes in files that there are also new changes in, this may work:
+
+    git stash
+    git pull
+    git stash pop
+
+However, you should do this on a copy of your site instead of the live version, as any conflicts between your changes and those from the main repository
+will cause errors which will render your site inoperative!
+
+Regardless of which way you do the update, there may be database changes required.
+If the `pull` operation reports any new files under `/config/Migrations`, you will need to:
+
+    bin/cake migrations migrate
+    bin/cake orm_cache clear
+
+If you're not sure whether this is required, you can just run it; it's harmless if there is nothing to be done.
+It's good practice to always take a database backup before doing any of this, just in case!
+
+### Updating from Zuluru 1
+
+The number of people running Zuluru 1, outside of sites that I control and can do manual updates on, is quite small, so not worth spending the time building an automated upgrade process.
+
+If you need to do such an update, my recommendation would be for you to follow the install instructions above to get Zuluru 3 in a separate directory, and in a fresh database, in order to get the config files you need (`.env` and `app_local.php`).
+
+Then, edit the `.env` to point at your existing database, and change the SECURITY_SALT value to match your existing install (old one will be in `/config/core.php`).
+
+Then from the command line, in the new folder, run
+
+	bin/cake migrations migrate
+
+to bring your existing database up-to-date with the latest changes.
+
+Do a backup of everything first, obviously!
+
+At this point, you should have a functional version of Z3 with all your existing data.
