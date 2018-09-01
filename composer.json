@@ -1,0 +1,66 @@
+{
+    "name": "zuluru/zuluru3",
+    "description": "Zuluru sports league management",
+    "homepage": "https://zuluru.org",
+    "type": "project",
+    "license": "GPL-3.0",
+    "support": {
+        "email": "admin@zuluru.org",
+        "forum": "https://zuluru.org/forums/",
+        "source": "https://github.com/Zuluru/Zuluru3"
+    },
+    "require": {
+        "php": ">=5.5.9",
+        "cakephp/cakephp": "3.3.*",
+        "mobiledetect/mobiledetectlib": "2.*",
+        "cakephp/migrations": "~1.0",
+        "cakephp/plugin-installer": "*",
+        "dereuromark/cakephp-ajax": "dev-master",
+        "elboletaire/twbs-cake-plugin": "master",
+        "cakephp/bake": "1.1.*",
+        "giggsey/libphonenumber-for-php": "~7.0",
+        "commerceguys/addressing": "~0.8",
+        "commerceguys/intl": "~0.7",
+        "symfony/validator": "~2.8",
+        "muffin/footprint": "dev-master",
+        "josegonzalez/cakephp-upload": "^3.0",
+        "league/flysystem-aws-s3-v3": "^1.0",
+        "soundasleep/html2text": "~0.2",
+        "zuluru/cakephp-jquery": "dev-master",
+        "zuluru/cakephp-bootstrap": "dev-master",
+        "trentrichardson/cakephp-scheduler": "^3.0",
+        "josegonzalez/dotenv": "^3.2",
+        "cakephp-app-installer/installer": "^2.0"
+    },
+    "require-dev": {
+        "cakephp/debug_kit": "3.2.*",
+        "psy/psysh": "@stable",
+        "phpunit/phpunit": "^5.3"
+    },
+    "suggest": {
+        "phpunit/phpunit": "Allows automated tests to be run without system-wide install.",
+        "cakephp/cakephp-codesniffer": "Allows to check the code against the coding standards used in CakePHP."
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src",
+            "Install\\": "./plugins/Install/src"
+        },
+        "files": [
+            "vendor/zuluru/compatibility/stats.php",
+            "vendor/zuluru/zuluru/lib.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "App\\Test\\": "tests",
+            "Cake\\Test\\": "vendor/cakephp/cakephp/tests"
+        }
+    },
+    "scripts": {
+        "post-install-cmd": "App\\Console\\Installer::postInstall",
+        "post-autoload-dump": "Cake\\Composer\\Installer\\PluginInstaller::postAutoloadDump"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

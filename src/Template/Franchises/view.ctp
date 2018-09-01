@@ -1,0 +1,126 @@
+<?php
+use Cake\Core\Configure;
+
+$this->Html->addCrumb(__('Franchises'));
+$this->Html->addCrumb(h($franchise->name));
+$this->Html->addCrumb(__('View'));
+?>
+
+<?php
+$franchises = $this->UserCache->read('FranchiseIDs');
+$is_owner = is_array($franchises) && in_array($franchise->id, $franchises);
+?>
+
+<div class="franchises view">
+	<h2><?= h($franchise->name) ?></h2>
+	<dl class="dl-horizontal">
+<?php
+if (count($affiliates) > 1):
+?>
+		<dt><?= __('Affiliate') ?></dt>
+		<dd><?= $this->Html->link($franchise->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', 'affiliate' => $franchise->affiliate->id]) ?></dd>
+<?php
+endif;
+?>
+		<dt><?= __n('Owner', 'Owners', count($franchise->people)) ?></dt>
+		<dd><?php
+		$owners = [];
+		foreach ($franchise->people as $person) {
+			$owner = $this->element('People/block', compact('person'));
+			if ((Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_owner) && count($franchise->people) > 1) {
+				$owner .= '&nbsp;' .
+					$this->Html->tag('span',
+						$this->Form->iconPostLink('delete_24.png',
+							['controller' => 'Franchises', 'action' => 'remove_owner', 'franchise' => $franchise->id, 'person' => $person->id],
+							['alt' => __('Remove'), 'title' => __('Remove')]),
+						['class' => 'actions']);
+			}
+			$owners[] = $owner;
+		}
+		echo implode('<br />', $owners);
+		?></dd>
+<?php
+if (Configure::read('feature.urls') && !empty($franchise->website)):
+?>
+		<dt><?= __('Website') ?></dt>
+		<dd><?= $this->Html->link($franchise->website, $franchise->website) ?></dd>
+<?php
+endif;
+?>
+	</dl>
+</div>
+
+<div class="actions columns">
+	<ul class="nav nav-pills">
+<?php
+if ($is_owner) {
+	echo $this->Html->tag('li', $this->Html->iconLink('team_add_32.png',
+		['action' => 'add_team', 'franchise' => $franchise->id],
+		['alt' => __('Add Team'), 'title' => __('Add Team')]));
+}
+if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_owner) {
+	echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
+		['action' => 'edit', 'franchise' => $franchise->id],
+		['alt' => __('Edit'), 'title' => __('Edit Franchise')]));
+	echo $this->Html->tag('li', $this->Html->iconLink('move_32.png',
+		['action' => 'add_owner', 'franchise' => $franchise->id],
+		['alt' => __('Add Owner'), 'title' => __('Add Owner')]));
+}
+if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
+		['action' => 'delete', 'franchise' => $franchise->id],
+		['alt' => __('Delete'), 'title' => __('Delete Franchise')],
+		['confirm' => __('Are you sure you want to delete this franchise?')]));
+}
+?>
+	</ul>
+</div>
+
+<?php
+if (Configure::read('Perm.is_logged_in')):
+?>
+<div class="related row">
+	<div class="column">
+		<div class="table-responsive">
+		<table class="table table-striped table-hover table-condensed">
+			<thead>
+				<tr>
+					<th><?= __('Team') ?></th>
+					<th><?= __('Division') ?></th>
+					<th class="actions"><?= __('Actions') ?></th>
+				</tr>
+			</thead>
+			<tbody>
+<?php
+	foreach ($franchise->teams as $team):
+?>
+				<tr>
+					<td><?= $this->element('Teams/block', compact('team')) ?></td>
+					<td><?php
+					if ($team->division_id) {
+						echo $this->element('Divisions/block', ['division' => $team->division, 'field' => 'full_league_name']);
+					} else {
+						echo __('Unassigned');
+					}
+					?></td>
+					<td class="actions"><?php
+					if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_owner) {
+						echo $this->Form->iconPostLink('delete_24.png',
+							['action' => 'remove_team', 'franchise' => $franchise->id, 'team' => $team->id],
+							['alt' => __('Remove'), 'title' => __('Remove Team from this Franchise')],
+							['confirm' => __('Are you sure you want to remove this team?')]);
+					}
+					echo $this->element('Teams/actions', ['team' => $team, 'division' => $team->division, 'league' => $team->division->league]);
+					?></td>
+				</tr>
+
+<?php
+	endforeach;
+?>
+			</tbody>
+		</table>
+		</div>
+	</div>
+</div>
+<?php
+endif;

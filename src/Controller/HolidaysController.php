@@ -1,0 +1,163 @@
+<?php
+namespace App\Controller;
+
+use Cake\Core\Configure;
+use Cake\Datasource\Exception\InvalidPrimaryKeyException;
+use Cake\Datasource\Exception\RecordNotFoundException;
+
+/**
+ * Holidays Controller
+ *
+ * @property \App\Model\Table\HolidaysTable $Holidays
+ */
+class HolidaysController extends AppController {
+
+	/**
+	 * isAuthorized method
+	 *
+	 * @return bool true if access allowed
+	 */
+	public function isAuthorized() {
+		try {
+			if ($this->UserCache->read('Person.status') == 'locked') {
+				return false;
+			}
+
+			if (Configure::read('Perm.is_manager')) {
+				// Managers can perform these operations
+				if (in_array($this->request->params['action'], [
+					'index',
+					'add',
+				])) {
+					return true;
+				}
+
+				// Managers can perform these operations in affiliates they manage
+				if (in_array($this->request->params['action'], [
+					'edit',
+					'delete',
+				])) {
+					// If a holiday id is specified, check if we're a manager of that holiday's affiliate
+					$holiday = $this->request->query('holiday');
+					if ($holiday) {
+						if (in_array($this->Holidays->affiliate($holiday), $this->UserCache->read('ManagedAffiliateIDs'))) {
+							return true;
+						} else {
+							Configure::write('Perm.is_manager', false);
+						}
+					}
+				}
+			}
+		} catch (RecordNotFoundException $ex) {
+		} catch (InvalidPrimaryKeyException $ex) {
+		}
+
+		return false;
+	}
+
+	/**
+	 * Index method
+	 *
+	 * @return void|\Cake\Network\Response
+	 */
+	public function index() {
+		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->paginate['contain'] = ['Affiliates'];
+		$this->paginate['conditions'] = ['Holidays.affiliate_id IN' => $affiliates];
+		$this->paginate['order'] = ['date'];
+		$holidays = $this->paginate($this->Holidays);
+
+		$this->set(compact('holidays', 'affiliates'));
+		$this->set('_serialize', true);
+	}
+
+	/**
+	 * Add method
+	 *
+	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 */
+	public function add() {
+		$holiday = $this->Holidays->newEntity();
+		if ($this->request->is('post')) {
+			$holiday = $this->Holidays->patchEntity($holiday, $this->request->data);
+			if ($this->Holidays->save($holiday)) {
+				$this->Flash->success(__('The holiday has been saved.'));
+				return $this->redirect(['action' => 'index']);
+			} else {
+				$this->Flash->warning(__('The holiday could not be saved. Please correct the errors below and try again.'));
+				$this->Configuration->loadAffiliate($holiday->affiliate_id);
+			}
+		}
+
+		$affiliates = $this->_applicableAffiliates(true);
+		$this->set(compact('holiday', 'affiliates'));
+		$this->set('_serialize', true);
+		$this->render('edit');
+	}
+
+	/**
+	 * Edit method
+	 *
+	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 */
+	public function edit() {
+		$id = $this->request->query('holiday');
+		try {
+			$holiday = $this->Holidays->get($id, [
+				'contain' => []
+			]);
+		} catch (RecordNotFoundException $ex) {
+			$this->Flash->info(__('Invalid holiday.'));
+			return $this->redirect(['action' => 'index']);
+		} catch (InvalidPrimaryKeyException $ex) {
+			$this->Flash->info(__('Invalid holiday.'));
+			return $this->redirect(['action' => 'index']);
+		}
+		$this->Configuration->loadAffiliate($holiday->affiliate_id);
+
+		if ($this->request->is(['patch', 'post', 'put'])) {
+			$holiday = $this->Holidays->patchEntity($holiday, $this->request->data);
+			if ($this->Holidays->save($holiday)) {
+				$this->Flash->success(__('The holiday has been saved.'));
+				return $this->redirect(['action' => 'index']);
+			} else {
+				$this->Flash->warning(__('The holiday could not be saved. Please correct the errors below and try again.'));
+			}
+		}
+
+		$affiliates = $this->_applicableAffiliates(true);
+		$this->set(compact('holiday', 'affiliates'));
+		$this->set('_serialize', true);
+	}
+
+	/**
+	 * Delete method
+	 *
+	 * @return void|\Cake\Network\Response Redirects to index.
+	 */
+	public function delete() {
+		$this->request->allowMethod(['post', 'delete']);
+
+		$id = $this->request->query('holiday');
+		try {
+			$holiday = $this->Holidays->get($id);
+		} catch (RecordNotFoundException $ex) {
+			$this->Flash->info(__('Invalid holiday.'));
+			return $this->redirect(['action' => 'index']);
+		} catch (InvalidPrimaryKeyException $ex) {
+			$this->Flash->info(__('Invalid holiday.'));
+			return $this->redirect(['action' => 'index']);
+		}
+
+		if ($this->Holidays->delete($holiday)) {
+			$this->Flash->success(__('The holiday has been deleted.'));
+		} else if ($holiday->errors('delete')) {
+			$this->Flash->warning(current($holiday->errors('delete')));
+		} else {
+			$this->Flash->warning(__('The holiday could not be deleted. Please, try again.'));
+		}
+
+		return $this->redirect(['action' => 'index']);
+	}
+
+}

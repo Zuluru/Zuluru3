@@ -1,0 +1,1 @@
+<?= $this->element('People/search_results', ['extra_url' => [__('Add preregistration') => ['controller' => 'Preregistrations', 'action' => 'add', 'event' => $event->id]]]);

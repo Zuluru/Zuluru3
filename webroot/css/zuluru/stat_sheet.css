@@ -1,0 +1,22 @@
+@page {
+	margin: 0.25in;
+}
+
+h2
+{
+	text-align: center;
+	color: black;
+}
+
+.stat-sheet table
+{
+	font-size: 18px;
+	border-collapse: collapse;
+	width: 100%;
+	margin-bottom: 1em;
+}
+
+.stat-sheet th, .stat-sheet td
+{
+	border: 1px solid #ccc;
+}

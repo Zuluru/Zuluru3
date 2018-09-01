@@ -1,0 +1,71 @@
+Following is the full list of available fixtures, in the order they need to be included:
+
+		'app.event_types', //
+		'app.affiliates',
+			'app.users',
+				'app.people',
+					'app.affiliates_people',
+					'app.people_people', //
+					'app.skills',
+					'app.credits',
+			'app.groups',
+				'app.groups_people',
+			'app.upload_types', //
+				'app.uploads', //
+			'app.regions',
+				'app.facilities',
+					'app.fields',
+			'app.leagues',
+				'app.divisions',
+					'app.teams',
+						'app.teams_people', //
+						'app.team_events',
+						'app.teams_facilities',
+					'app.divisions_days', //
+					'app.game_slots', //
+						'app.divisions_gameslots',
+					'app.divisions_people', //
+					'app.pools', //
+						'app.pools_teams', //
+					'app.games', //
+						'app.games_allstars',
+						'app.score_entries',
+						'app.spirit_entries',
+						'app.incidents',
+						'app.stats',
+						'app.score_details',
+							'app.score_detail_stats',
+				'app.leagues_stat_types',
+			'app.attendances',
+			'app.franchises', //
+				'app.franchises_people', //
+				'app.franchises_teams',
+			'app.questions',
+				'app.answers',
+			'app.questionnaires',
+				'app.questionnaires_questions',
+			'app.events', //
+				'app.prices', //
+					'app.registrations', //
+						'app.payments', //
+							'app.registration_audits',
+						'app.responses',
+				'app.preregistrations',
+				'app.events_connections',
+			'app.categories',
+				'app.tasks',
+					'app.task_slots',
+			'app.badges', //
+				'app.badges_people', //
+			'app.mailing_lists',
+				'app.newsletters',
+				'app.subscriptions',
+			'app.activity_logs',
+			'app.contacts',
+			'app.holidays',
+			//'app.notices',
+				'app.notices_people',
+			'app.notes',
+			'app.settings',
+			'app.waivers',
+				'app.waivers_people',

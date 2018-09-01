@@ -1,0 +1,660 @@
+/**
+ * Styles controlling the layout of Zuluru pages (e.g. positioning, borders, etc.).
+ * These should not generally need to be changed from site to site.
+ *
+ * Almost everything here has .zuluru on the beginning.  This is because we don't
+ * want styles on general elements (e.g. fieldset, td, etc.) to change the look
+ * of the rest of the site, just the Zuluru parts.  But because of the cascade
+ * rules, things with IDs are seen as being more specific than general classes.
+ * Thus, even where we are really only defining a class that will be used internally
+ * (e.g. .error-message), we need to make it more specific by putting .zuluru on
+ * the beginning of the definition.
+ */
+
+/** General Style Info **/
+*
+{
+	margin:0;
+	padding:0;
+}
+body.map
+{
+	padding: 0;
+	background-image: none;
+}
+
+.zuluru
+{
+	text-align: left;
+	padding: 1em;
+}
+.zuluru h1,
+.zuluru h2,
+.zuluru h3,
+.zuluru h4
+{
+	margin: 0 0 0.5em 0;
+}
+.zuluru p
+{
+	margin: 1em 0;
+}
+.zuluru a
+{
+	text-decoration: none;
+}
+.zuluru a img
+{
+	border: none;
+	padding: 0;
+	background: transparent;
+	box-shadow: 0;
+}
+.zuluru #content ol,
+.zuluru #content ul
+{
+	padding-left: 2em;
+}
+.zuluru .center
+{
+	text-align: center;
+}
+
+.clear-float
+{
+	clear: both;
+}
+
+.zuluru div.caption
+{
+	float: left;
+}
+
+.zuluru div.checkout div.caption
+{
+	width: 100px;
+	text-align: center;
+}
+
+/** Specific areas **/
+.zuluru #content,
+.zuluru div.splash
+{
+	margin-top: 0;
+	padding: 0;
+}
+.zuluru .sponsor
+{
+	margin: 1em 0;
+}
+.zuluru .sidebar-left
+{
+	width: 10em;
+	text-align: left;
+}
+.zuluru .sidebar-left ul
+{
+	padding-left: 0em;
+}
+
+/** Tables **/
+.zuluru table.list
+{
+	border-collapse: collapse;
+	border: 1px solid;
+	clear: both;
+	margin-bottom: 10px;
+	width: 100%;
+}
+.zuluru table.table th
+{
+	border-bottom: 1px solid;
+}
+/** View pages **
+TODOBOOTSTRAP: Fix the below for the games view page
+*/
+.zuluru fieldset.wide-labels dd
+{
+	margin-left: 20em;
+}
+.zuluru dd p
+{
+	margin-top: 0;
+}
+.zuluru .dl-horizontal dd:after {
+	clear: none;
+}
+
+/** Forms **/
+.zuluru span.input-group-addon
+{
+	display: block;
+	border: 1px solid red;
+}
+.zuluru p.help-block
+{
+	margin-top: 5px;
+	font-size: 90%;
+}
+.zuluru .no-labels .col-md-offset-2
+{
+	margin-left: 5%;
+}
+.zuluru td .form-group .col-md-6
+{
+	width: 100%;
+	padding: 0;
+}
+.zuluru .selector div.select
+{
+	clear: none;
+	float: left;
+	margin-bottom: 1em;
+}
+.zuluru .selector label
+{
+	padding: 0 5px;
+	width: auto;
+}
+.zuluru .selector .form-control
+{
+	height: auto;
+	width: auto;
+	padding: 2px 4px;
+}
+
+/** Notices and Errors **/
+.zuluru div.error-message
+{
+	clear: both;
+	font-weight: bold;
+	margin: 0 0 1em 0;
+	padding: 5px;
+}
+.zuluru p.error
+{
+	font-family: Courier, monospace;
+	font-size: 120%;
+	line-height: 140%;
+	padding: 0.8em;
+	margin: 1em 0;
+}
+.zuluru p.error em
+{
+	font-weight: normal;
+	line-height: 140%;
+}
+.zuluru .notice
+{
+	display: block;
+	font-family: Courier, monospace;
+	font-size: 120%;
+	line-height: 140%;
+	padding: 0.8em;
+	margin: 1em 0;
+}
+
+/**  Actions  **/
+.zuluru div.actions ul
+{
+	padding: 0.5em 0;
+	line-height: 32px;
+}
+.zuluru .actions a
+{
+	font-weight: normal;
+	font-size: 80%;
+	padding: 2px 4px;
+	margin: 0 3px 2px;
+	border: 1px solid;
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
+	text-decoration: none;
+	white-space: nowrap;
+	min-width: 0;
+}
+.zuluru .actions a.icon
+{
+	padding: 0 4px;
+	margin: 0;
+	border: 0;
+}
+.zuluru .actions a img
+{
+	margin-top: 4px;
+}
+.zuluru .actions .zuluru-in-place-widget a img
+{
+	margin-top: 0;
+}
+.zuluru table.list th.splash-action,
+.zuluru table.list td.splash-action,
+.zuluru div.schedule table.table td.splash-action
+{
+	text-align: right;
+}
+
+#kick_start div.actions ul li
+{
+	float: none;
+	font-size: 150%;
+	margin: 0 0 10px;
+}
+#kick_start .actions a
+{
+	padding: 4px 10px;
+}
+/* Make the More widget the same height as other nav pills */
+.nav > li > span.zuluru-in-place-widget a {
+	display: block;
+}
+
+/** Related **/
+div.related
+{
+	clear: both;
+	display: block;
+}
+
+/** Miscellaneous **/
+.zuluru .team-highlight
+{
+	font-weight: bold;
+}
+
+.zuluru img.thumbnail
+{
+	margin: 0 5px;
+	border: 1px solid black;
+}
+
+.zuluru img.profile-photo
+{
+	float: right;
+}
+
+.spirit-comments, .spirit-highlights, .spirit-incident
+{
+	white-space: pre-wrap;
+	word-wrap: break-word;
+}
+
+.breadcrumb
+{
+	float: left;
+}
+
+/* Attendance and roster change styling. */
+.attendance .table-responsive > .table > thead > tr > th,
+.attendance .table-responsive > .table > tbody > tr > th,
+.attendance .table-responsive > .table > tfoot > tr > th
+{
+	white-space: normal;
+}
+
+.zuluru-in-place-widget-options
+{
+	cursor: pointer;
+	position: absolute;
+	background: white;
+	padding: 0 1px;
+	line-height: 1.4em;
+	border: 1px solid black;
+	z-index: 99;
+}
+.zuluru-in-place-widget-options div:hover
+{
+	background-color: #cccccc;
+}
+.zuluru-in-place-widget-options div a
+{
+	display: block;
+}
+
+.zuluru div.form div.MostSpiritedDetails
+{
+	padding: 0;
+	margin: 0;
+}
+
+.zuluru div.form div.MostSpiritedDetails p
+{
+	margin-top: 0;
+}
+
+/* Tooltip styling. By default the element to be styled is .ui-tooltip  */
+.ui-tooltip
+{
+	text-align: left;
+}
+.ui-tooltip h2
+{
+	font-size: 12pt;
+	margin: 0;
+}
+.ui-tooltip dt
+{
+	line-height: 1.5em;
+	margin-bottom: 0;
+	float: none;
+	width: 10em;
+}
+.ui-tooltip dd
+{
+	line-height: 1.5em;
+	margin: -1.5em 0 0 11em;
+}
+
+.ui-tooltip img.thumbnail
+{
+	float: right;
+	border: 0;
+	margin: -4px -4px 0 0;
+}
+
+/* Help styling. */
+.zuluru .help-block
+{
+	padding: 0 0 0 50px;
+}
+
+div.help-dialog
+{
+	display: none;
+	text-align: left;
+	font-size: 100%;
+}
+
+div.help-dialog p
+{
+	margin: 1em 0;
+}
+
+div.register-help
+{
+	border: 1px solid #555;
+	padding: 0 10px 0 44px;
+	margin: 0 0 10px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+div.register-help img
+{
+	float: left;
+	margin-left: -29px;
+}
+
+/* Live scoring styling. */
+.zuluru div.score-box
+{
+	width: 49%;
+	float: left;
+}
+
+.zuluru div.score-box table
+{
+	width: 100%;
+	border: 1px solid;
+	margin-bottom: 1em;
+}
+
+.zuluru div.score-box td
+{
+	text-align: center;
+	width: 25%;
+	padding: 2px;
+}
+
+.zuluru div.score-box td.score
+{
+	font-size: 100px;
+	height: 125px;
+}
+
+.zuluru div.score-box td.up, .zuluru div.score-box td.down
+{
+	font-size: 250%;
+}
+
+/* Tournament styling. */
+.zuluru div.pool-results
+{
+	float: left;
+	margin: 0 1em 1em 0;
+}
+
+.zuluru div.bracket
+{
+	width: 100%;
+	clear: left;
+}
+
+.zuluru .rounds1
+{
+	height: 150px;
+}
+
+.zuluru .rounds2
+{
+	height: 300px;
+}
+
+.zuluru .rounds3
+{
+	height: 600px;
+}
+
+.zuluru .rounds4
+{
+	height: 1200px;
+}
+
+.zuluru .rounds5
+{
+	height: 2400px;
+}
+
+.zuluru .round
+{
+	float: left;
+	width: 24.5%;
+}
+
+.zuluru .rounds4 .round
+{
+	width: 19.5%;
+}
+
+.zuluru .rounds5 .round
+{
+	width: 16.6%;
+}
+
+.zuluru .round0
+{
+	height: 49%;
+	border-bottom: 1px solid black;
+	position: relative;
+}
+
+.zuluru .round0 .winner
+{
+	position: absolute;
+	bottom: 0;
+	left: 5px;
+}
+
+.zuluru .round1
+{
+	height: 75%;
+}
+
+.zuluru .round1 .game
+{
+	height: 100%;
+}
+
+.zuluru .round2
+{
+	height: 87.5%;
+}
+
+.zuluru .round2 .game
+{
+	height: 50%;
+}
+
+.zuluru .round3
+{
+	height: 93.75%;
+}
+
+.zuluru .round3 .game
+{
+	height: 25%;
+}
+
+.zuluru .round4
+{
+	height: 96.875%;
+}
+
+.zuluru .round4 .game
+{
+	height: 12.5%;
+}
+
+.zuluru .round5
+{
+	height: 98.4375%;
+}
+
+.zuluru .round5 .game
+{
+	height: 6.25%;
+}
+
+.zuluru .round .home
+{
+	height: 40%;
+	position: relative;
+}
+
+.zuluru .round .details
+{
+	height: 30%;
+	position: relative;
+	border-top: 1px solid black;
+	border-right: 1px solid black;
+}
+
+.zuluru .round .away
+{
+	height: 30%;
+	position: relative;
+	border-bottom: 1px solid black;
+	border-right: 1px solid black;
+}
+
+.zuluru .round .team
+{
+	width: 80%;
+	position: absolute;
+	bottom: 0;
+	left: 5px;
+}
+
+.zuluru .round .score
+{
+	position: absolute;
+	bottom: 0;
+	right: 5px;
+}
+
+.zuluru .round .details .name
+{
+	position: absolute;
+	bottom: 0;
+	left: 25px;
+}
+
+.zuluru .round .details .date
+{
+	position: absolute;
+	bottom: 0;
+	right: 5px;
+	font-size: 80%;
+}
+
+/* Stat sheet styling. */
+.zuluru .stat-sheet table
+{
+	border-collapse: collapse;
+	width: 100%;
+	margin-bottom: 1em;
+}
+
+.zuluru .stat-sheet th, .zuluru .stat-sheet td
+{
+	border: 1px solid #ccc !important;
+	background: transparent !important;
+}
+
+/* Add in some overrides of styles from jQueryUI */
+.ui-front
+{
+	z-index: 1000;
+}
+
+/* Add in some overrides of styles from Bootstrap */
+.zuluru td div.form-group
+{
+	margin: 0;
+}
+.zuluru .row
+{
+	margin: 0;
+}
+
+/* Fix for Firefox rendering issue: details are at
+ * https://stackoverflow.com/questions/17408815/fieldset-resizes-wrong-appears-to-have-unremovable-min-width-min-content/17863685#17863685
+ */
+@-moz-document url-prefix() {
+	fieldset {
+		display: table-cell;
+	}
+}
+
+/* Adjustments for mobile devices */
+@media all and (max-width: 480px) {
+	.zuluru
+	{
+		padding: 0;
+	}
+}
+
+@media (min-width: 768px) {
+	/* Fix padding in bootstrap expanded top-nav */
+	.zuluru .navbar-collapse { padding-left: 0; }
+
+	/* Add in some overrides of styles from Bootstrap */
+	.zuluru .dl-horizontal dt
+	{
+		width: 14em;
+	}
+	.zuluru .dl-horizontal dd
+	{
+		margin-left: 15em;
+	}
+	.zuluru .dl-horizontal.narrow dt
+	{
+		width: 8em;
+	}
+	.zuluru .dl-horizontal.narrow dd
+	{
+		margin-left: 9em;
+	}
+}

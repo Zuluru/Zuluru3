@@ -1,0 +1,620 @@
+<?php
+/**
+ * Component for helping with cached user data.
+ * TODO: Make this a trait instead? Some models, etc. now use it through getInstance.
+ */
+namespace App\Core;
+
+use App\Event\FlashTrait;
+use Cake\Cache\Cache;
+use Cake\Core\Configure;
+use Cake\Datasource\Exception\InvalidPrimaryKeyException;
+use Cake\Datasource\Exception\RecordNotFoundException;
+use Cake\I18n\FrozenDate;
+use Cake\Network\Exception\BadRequestException;
+use Cake\ORM\Query;
+use Cake\ORM\TableRegistry;
+use App\Controller\AppController;
+use Cake\Routing\Router;
+
+class UserCache {
+
+	use FlashTrait;
+
+	private static $instance = null;
+	private $my_id = null;
+	private $other_id = null;
+	private $data = [];
+
+	public static function &getInstance($reset = false) {
+		if ($reset || !self::$instance) {
+			self::$instance =& new UserCache();
+		}
+		return self::$instance;
+	}
+
+	public function initializeData() {
+		$this->my_id = null;
+		$this->other_id = null;
+		$this->data = [];
+	}
+
+	// TODO: Is there a better way to handle all of this?
+	public function initializeIdForTests($my_id) {
+		if (Router::getRequest()) {
+			throw new \Exception('initializeIdForTests is only for use in non-controller tests.');
+		}
+		$this->my_id = $my_id;
+	}
+
+	public function initializeId() {
+		if ($this->my_id) {
+			return;
+		}
+
+		$request = Router::getRequest();
+		if (!$request) {
+			trigger_error('No request object found!', E_USER_ERROR);
+			exit;
+		}
+		$session = $request->session();
+
+		// If this is the home page, and "act as" is temporary, we reset it.
+		if ($request->here == '/' && $session->check('Zuluru.act_as_temporary')) {
+			$session->write('Zuluru.default_tab_id', $session->read('Zuluru.act_as_id'));
+			$session->delete('Zuluru.act_as_id');
+			$session->delete('Zuluru.act_as_temporary');
+		}
+
+		// We must have the my_id variable set, or else later $this->read calls go recursive
+		$acting_as = $session->read('Zuluru.act_as_id');
+		if ($acting_as) {
+			$this->my_id = $acting_as;
+		} else {
+			$this->my_id = $session->read('Zuluru.zuluru_person_id');
+		}
+
+		if ($this->my_id) {
+			// Check for a temporary "act as" request.
+			$act_as = $request->query('act_as');
+			if ($act_as) {
+				if ($act_as == $session->read('Zuluru.zuluru_person_id')) {
+					$session->delete('Zuluru.act_as_id');
+					$session->delete('Zuluru.act_as_temporary');
+					$this->my_id = $session->read('Zuluru.zuluru_person_id');
+				} else {
+					$this->data[$this->my_id] = [];
+					$relatives = $this->allActAs();
+					$groups = $this->read('GroupIDs');
+					if ($act_as == $acting_as || array_key_exists($act_as, $relatives) || in_array(GROUP_ADMIN, $groups)) {
+						$session->write('Zuluru.act_as_id', $act_as);
+						$session->write('Zuluru.act_as_temporary', true);
+						unset($this->data[$this->my_id]);
+						$this->my_id = $act_as;
+					} else {
+						// TODO: More graceful way to handle this situation; somehow redirect to '/' instead of throwing.
+						//$this->Flash('warning', __('You do not have permission to act as that person.'));
+						throw new BadRequestException(__('You do not have permission to act as that person.'));
+					}
+				}
+			}
+
+			$this->data[$this->my_id] = [];
+		}
+	}
+
+	public function currentId() {
+		// TODO: The first part of this test is solely to support non-controller tests
+		if (Router::getRequest() && Router::getRequest()->params['controller'] == 'CakeError') {
+			return null;
+		}
+		$self =& UserCache::getInstance();
+		$self->initializeId();
+		return $self->my_id;
+	}
+
+	public function realId() {
+		if (Router::getRequest()->params['controller'] == 'CakeError') {
+			return null;
+		}
+		return Router::getRequest()->session()->read('Zuluru.zuluru_person_id');
+	}
+
+	public function read($key, $id = null, $internal = false) {
+		$self =& UserCache::getInstance();
+		if (!$id) {
+			$self->initializeId();
+			$id = $self->my_id;
+			if (!$id) {
+				return ($internal ? false : []);
+			}
+		}
+
+		// We always have our own id as a key in the data array, so if
+		// the new key doesn't exist, we'll throw away anything we might
+		// have had before, so that we only keep one other user's data
+		// in the memory cache. This prevents massive memory usage.
+		if (!array_key_exists($id, $self->data)) {
+			if ($self->other_id) {
+				unset($self->data[$self->other_id]);
+			}
+			$self->other_id = $id;
+			$self->data[$id] = [];
+		}
+
+		if (strpos($key, '.') !== false) {
+			list($key, $subkey) = explode('.', $key);
+		} else {
+			$subkey = null;
+		}
+
+		if (array_key_exists($key, $self->data[$id])) {
+			if ($internal) {
+				return true;
+			} else if ($subkey) {
+				return $self->data[$id][$key][$subkey];
+			} else {
+				return $self->data[$id][$key];
+			}
+		}
+
+		$self->data[$id] = Cache::read("person/$id", 'long_term');
+		if (!$self->data[$id]) {
+			$self->data[$id] = [];
+		}
+
+		// Find any data that we don't already have cached
+		if (!array_key_exists($key, $self->data[$id])) {
+			switch ($key) {
+				case 'Affiliates':
+					$affiliates_table = TableRegistry::get('Affiliates');
+					$self->data[$id][$key] = $affiliates_table->readByPlayerId($id);
+
+					// If affiliates are disabled, make sure that they are in affiliate 1
+					if (empty($self->data[$id][$key]) && !Configure::read('feature.affiliates')) {
+						$affiliates_table->AffiliatesPeople->save($affiliates_table->AffiliatesPeople->newEntity(['person_id' => $id, 'affiliate_id' => AFFILIATE_DUMMY]));
+						$self->data[$id][$key] = $affiliates_table->readByPlayerId($id);
+					}
+					break;
+
+				case 'AffiliateIDs':
+					if ($self->read('Affiliates', $id, true)) {
+						$self->data[$id][$key] = collection($self->data[$id]['Affiliates'])->extract('id')->toArray();
+					}
+					break;
+
+				case 'AllOwnedTeams':
+					$self->data[$id][$key] = TableRegistry::get('Teams')->find()
+						->contain(['Divisions' => ['Leagues']])
+						->matching('People', function (Query $q) use ($id) {
+							return $q
+								->where(['People.id' => $id]);
+						})
+						->where([
+							'TeamsPeople.role IN' => Configure::read('privileged_roster_roles'),
+							'TeamsPeople.status' => ROSTER_APPROVED,
+						])
+						->toArray();
+					break;
+
+				case 'AllOwnedTeamIDs':
+					if ($self->read('AllOwnedTeams', $id, true)) {
+						$self->data[$id][$key] = collection($self->data[$id]['AllOwnedTeams'])->extract('id')->toArray();
+					}
+					break;
+
+				case 'AllRelativeTeamIDs':
+					$relatives = $this->read('RelativeIDs', $id);
+					if (!empty($relatives)) {
+						$self->data[$id][$key] = TableRegistry::get('Teams')->find()
+							->matching('People', function (Query $q) use ($relatives) {
+								return $q
+									->where(['People.id IN' => $relatives]);
+							})
+							->combine('id', 'id')
+							->toArray();
+					}
+					break;
+
+				case 'AllTeams':
+					$self->data[$id][$key] = TableRegistry::get('Teams')->readByPlayerId($id, false);
+					break;
+
+				case 'AllTeamIDs':
+					if ($self->read('AllTeams', $id, true)) {
+						$self->data[$id][$key] = collection($self->data[$id]['AllTeams'])->extract('id')->toArray();
+					}
+					break;
+
+				case 'Credits':
+					$self->data[$id][$key] = TableRegistry::get('Credits')->find()
+						->where([
+							'person_id' => $id,
+							'amount != amount_used',
+						])
+						->toArray();
+					break;
+
+				case 'Divisions':
+					$self->data[$id][$key] = TableRegistry::get('Divisions')->readByPlayerId($id, true, true);
+					break;
+
+				case 'DivisionIDs':
+					if ($self->read('Divisions', $id, true)) {
+						$self->data[$id][$key] = collection($self->data[$id]['Divisions'])->extract('id')->toArray();
+					}
+					break;
+
+				case 'Documents':
+					$self->data[$id][$key] = TableRegistry::get('Uploads')->find()
+						->contain(['UploadTypes'])
+						->where([
+							'person_id' => $id,
+							'type_id IS NOT' => null,
+						])
+						->toArray();
+					break;
+
+				case 'Franchises':
+					$self->data[$id][$key] = TableRegistry::get('Franchises')->readByPlayerId($id);
+					break;
+
+				case 'FranchiseIDs':
+					if ($self->read('Franchises', $id, true)) {
+						$self->data[$id][$key] = collection($self->data[$id]['Franchises'])->extract('id')->toArray();
+					}
+					break;
+
+				case 'Groups':
+					if ($self->read('Person', $id, true)) {
+						$self->data[$id][$key] = $self->data[$id]['Person']->groups;
+					}
+					break;
+
+				case 'GroupIDs':
+					if ($self->read('Groups', $id, true)) {
+						$self->data[$id][$key] = collection($self->data[$id]['Groups'])->extract('id')->toArray();
+					}
+					break;
+
+				case 'ManagedAffiliates':
+					if ($self->read('Affiliates', $id, true)) {
+						$self->data[$id][$key] = collection($self->data[$id]['Affiliates'])->match(['_matchingData.AffiliatesPeople.position' => 'manager'])->toArray();
+					}
+					break;
+
+				case 'ManagedAffiliateIDs':
+					if ($self->read('ManagedAffiliates', $id, true)) {
+						$self->data[$id][$key] = collection($self->data[$id]['ManagedAffiliates'])->extract('id')->toArray();
+					}
+					break;
+
+				case 'OwnedTeams':
+					if ($self->read('Teams', $id, true)) {
+						$roles = Configure::read('privileged_roster_roles');
+						$self->data[$id][$key] = collection($self->data[$id]['Teams'])->filter(function ($team) use ($roles) {
+							return ($team->_matchingData['TeamsPeople']->status == ROSTER_APPROVED && in_array($team->_matchingData['TeamsPeople']->role, $roles));
+						})->toArray();
+					}
+					break;
+
+				case 'OwnedTeamIDs':
+					if ($self->read('OwnedTeams', $id, true)) {
+						$self->data[$id][$key] = collection($self->data[$id]['OwnedTeams'])->extract('id')->toArray();
+					}
+					break;
+
+				case 'Person':
+					try {
+						$self->data[$id][$key] = TableRegistry::get('People')->get($id, [
+							'contain' => [Configure::read('Security.authModel'), 'Groups']
+						]);
+					} catch (RecordNotFoundException $ex) {
+						$self->data[$id][$key] = [];
+					} catch (InvalidPrimaryKeyException $ex) {
+						$self->data[$id][$key] = [];
+					}
+					break;
+
+				case 'Preregistrations':
+					$self->data[$id][$key] = TableRegistry::get('Preregistrations')->find()
+						->contain(['Events'])
+						->where(['person_id' => $id])
+						->toArray();
+					break;
+
+				case 'Registrations':
+					$self->data[$id][$key] = TableRegistry::get('Registrations')->find()
+						->contain([
+							'Events' => ['EventTypes', 'Prices'],
+							'Prices',
+							'Payments',
+						])
+						->where(['person_id' => $id])
+						->order('created DESC')
+						->toArray();
+					break;
+
+				case 'RegistrationsCanPay':
+					if ($self->read('Registrations', $id, true)) {
+						$payments = Configure::read('registration_delinquent');
+						$self->data[$id][$key] = collection($self->data[$id]['Registrations'])->filter(function ($registration) use ($payments) {
+							return in_array($registration->payment, $payments);
+						})->toArray();
+					}
+					break;
+
+				case 'RegistrationsPaid':
+					if ($self->read('Registrations', $id, true)) {
+						$self->data[$id][$key] = collection($self->data[$id]['Registrations'])->filter(function ($registration) {
+							return ($registration->payment == 'Paid');
+						})->toArray();
+					}
+					break;
+
+				case 'RegistrationsReserved':
+					if ($self->read('Registrations', $id, true)) {
+						$payments = Configure::read('registration_reserved');
+						$self->data[$id][$key] = collection($self->data[$id]['Registrations'])->filter(function ($registration) use ($payments) {
+							return in_array($registration->payment, $payments);
+						})->toArray();
+					}
+					break;
+
+				case 'RegistrationsUnpaid':
+					if ($self->read('Registrations', $id, true)) {
+						$payments = Configure::read('registration_unpaid');
+						$self->data[$id][$key] = collection($self->data[$id]['Registrations'])->filter(function ($registration) use ($payments) {
+							return in_array($registration->payment, $payments);
+						})->toArray();
+					}
+					break;
+
+				case 'RelatedTo':
+					try {
+						$person = TableRegistry::get('People')->get($id, [
+							'contain' => ['Related'],
+						]);
+						$self->data[$id][$key] = $person->related;
+					} catch (RecordNotFoundException $ex) {
+						$self->data[$id][$key] = [];
+					} catch (InvalidPrimaryKeyException $ex) {
+						$self->data[$id][$key] = [];
+					}
+					break;
+
+				case 'RelatedToIDs':
+					if ($self->read('RelatedTo', $id, true)) {
+						$self->data[$id][$key] = collection($self->data[$id]['RelatedTo'])->match(['_joinData.approved' => true])->extract('id')->toArray();
+					}
+					break;
+
+				case 'Relatives':
+					try {
+						$person = TableRegistry::get('People')->get($id, [
+							'contain' => ['Relatives'],
+						]);
+						$self->data[$id][$key] = $person->relatives;
+					} catch (RecordNotFoundException $ex) {
+						$self->data[$id][$key] = [];
+					} catch (InvalidPrimaryKeyException $ex) {
+						$self->data[$id][$key] = [];
+					}
+					break;
+
+				case 'RelativeIDs':
+					if ($self->read('Relatives', $id, true)) {
+						$self->data[$id][$key] = collection($self->data[$id]['Relatives'])->match(['_joinData.approved' => true])->extract('id')->toArray();
+					}
+					break;
+
+				case 'RelativeTeamIDs':
+					if ($self->read('Relatives', $id, true)) {
+						$self->data[$id][$key] = [];
+						foreach ($self->data[$id]['Relatives'] as $relative) {
+							$self->data[$id][$key] = array_merge($self->data[$id][$key], $self->read('TeamIDs', $relative['Relative']['id']));
+						}
+						$self->data[$id][$key] = array_unique($self->data[$id][$key]);
+					}
+					break;
+
+				case 'Skills':
+					$self->data[$id][$key] = TableRegistry::get('Skills')->find()
+						->where(['person_id' => $id])
+						->order('Skills.sport')
+						->toArray();
+					break;
+
+				case 'Tasks':
+					$self->data[$id][$key] = TableRegistry::get('TaskSlots')->find('assigned', ['person' => $id])->toArray();
+					break;
+
+				case 'Teams':
+					$self->data[$id][$key] = TableRegistry::get('Teams')->readByPlayerId($id);
+					break;
+
+				case 'TeamIDs':
+					if ($self->read('Teams', $id, true)) {
+						$self->data[$id][$key] = collection($self->data[$id]['Teams'])->extract('id')->toArray();
+					}
+					break;
+
+				case 'User':
+					$user_id = $this->read('Person.user_id');
+					try {
+						if ($user_id) {
+							$self->data[$id][$key] = TableRegistry::get(Configure::read('Security.authModel'))->get($user_id, [
+								'contain' => ['People']
+							]);
+						} else {
+							$user = TableRegistry::get(Configure::read('Security.authModel'))->newEntity();
+							$user->person = TableRegistry::get('People')->get($id);
+							$self->data[$id][$key] = $user;
+						}
+					} catch (RecordNotFoundException $ex) {
+						$self->data[$id][$key] = [];
+					} catch (InvalidPrimaryKeyException $ex) {
+						$self->data[$id][$key] = [];
+					}
+					break;
+
+				case 'Waivers':
+					$self->data[$id][$key] = TableRegistry::get('Waivers')->find()
+						->matching('People', function (Query $q) use ($id) {
+							return $q
+								->where(['People.id' => $id]);
+						})
+						->toArray();
+					break;
+
+				case 'WaiversCurrent':
+					if ($self->read('Waivers', $id, true)) {
+						$date = FrozenDate::now();
+						$self->data[$id][$key] = collection($self->data[$id]['Waivers'])->filter(function ($waiver) use ($date) {
+							return $date->between($waiver->_matchingData['WaiversPeople']->valid_from, $waiver->_matchingData['WaiversPeople']->valid_until);
+						})->toArray();
+					}
+					break;
+
+				default:
+					trigger_error("Read $key", E_USER_ERROR);
+			}
+
+			// Make sure that anything empty is an array, as that's what everything will want.
+			if (empty($self->data[$id][$key])) {
+				$self->data[$id][$key] = [];
+			}
+			Cache::write("person/$id", $self->data[$id], 'long_term');
+		}
+
+		if (!$self->data[$id][$key]) {
+			if ($subkey) {
+				return ($internal ? false : null);
+			} else {
+				return ($internal ? false : []);
+			}
+		} else if ($internal) {
+			return true;
+		} else if ($subkey) {
+			return $self->data[$id][$key][$subkey];
+		} else {
+			return $self->data[$id][$key];
+		}
+	}
+
+	public function clear($key, $id = null) {
+		$self =& UserCache::getInstance();
+		if (!$id) {
+			$self->initializeId();
+			$id = $self->my_id;
+			if (!$id) {
+				return;
+			}
+		}
+
+		if (empty($self->data[$id])) {
+			$self->data[$id] = Cache::read("person/$id", 'long_term');
+			if (empty($self->data[$id])) {
+				$self->data[$id] = [];
+			}
+		}
+
+		if (strpos($key, '.') !== false) {
+			list($key, $subkey) = explode('.', $key);
+		} else {
+			$subkey = null;
+		}
+
+		if (!array_key_exists($key, $self->data[$id]) || (!empty($subkey) && !array_key_exists($subkey, $self->data[$id][$key]))) {
+			return;
+		}
+
+		if ($subkey) {
+			unset($self->data[$id][$key][$subkey]);
+		} else {
+			unset($self->data[$id][$key]);
+		}
+
+		Cache::write("person/$id", $self->data[$id], 'long_term');
+	}
+
+	public static function delete($id) {
+		Cache::delete("person/$id", 'long_term');
+	}
+
+	public function allActAs($for_menu = false, $field = 'full_name') {
+		$act_as = [];
+		if (!$this->currentId()) {
+			return $act_as;
+		}
+
+		$include = [$this->currentId() => true];
+
+		// If we're acting as someone, maybe add the real user and their relatives
+		if ($this->currentId() != $this->realId()) {
+			if (in_array($this->realId(), $this->read('RelatedToIDs'))) {
+				// If the user is a relative, assume it's a parent acting as a child or similar
+				$include[$this->realId()] = true;
+			} else if (AppController::_isChild($this->read('Person'))) {
+				// Otherwise, assume it's an admin, and if it's a youth account, find the first parent
+				$related = $this->read('RelatedToIDs');
+				if (!empty($related)) {
+					$include[min($related)] = true;
+				}
+			}
+		}
+
+		if (!$for_menu) {
+			// If this is not for a menu, we want the real user last, if not already in the list.
+			// This will put admins last when acting as someone else.
+			$include[$this->realId()] = true;
+		}
+
+		// Add the included user and their relatives relatives
+		foreach (array_keys($include) as $id) {
+			$act_as[$id] = $this->read("Person.$field", $id);
+			$relatives = $this->read('Relatives', $id);
+			foreach ($relatives as $relative) {
+				if ($relative['_joinData']['approved']) {
+					$act_as[$relative['id']] = $relative[$field];
+				}
+			}
+		}
+
+		// And finally remove the current user, if present; they get special treatment everywhere
+		unset($act_as[$this->currentId()]);
+
+		return $act_as;
+	}
+
+	/**
+	 * Delete all of the cached information related to teams.
+	 */
+	public function _deleteTeamData($id = null) {
+		$this->clear('Teams', $id);
+		$this->clear('TeamIDs', $id);
+		$this->clear('OwnedTeams', $id);
+		$this->clear('OwnedTeamIDs', $id);
+	}
+
+	/**
+	 * Delete all of the cached information related to franchises.
+	 */
+	public function _deleteFranchiseData($id = null) {
+		$this->clear('Franchises', $id);
+		$this->clear('FranchiseIDs', $id);
+	}
+
+	/**
+	 * Delete all of the cached information related to registrations.
+	 */
+	public function _deleteRegistrationData($id = null) {
+		$this->clear('Preregistrations', $id);
+		$this->clear('Registrations', $id);
+		$this->clear('RegistrationsCanPay', $id);
+		$this->clear('RegistrationsPaid', $id);
+		$this->clear('RegistrationsReserved', $id);
+		$this->clear('RegistrationsUnpaid', $id);
+	}
+
+}

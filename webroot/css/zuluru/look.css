@@ -1,0 +1,368 @@
+/**
+ * Styles controlling the look of Zuluru pages (primarily, colours).
+ * These can easily be changed from site to site to match your branding.
+ *
+ * Almost everything here has .zuluru on the beginning.  This is because we don't
+ * want styles on general elements (e.g. fieldset, td, etc.) to change the look
+ * of the rest of the site, just the Zuluru parts.  But because of the cascade
+ * rules, things with IDs are seen as being more specific than general classes.
+ * Thus, even where we are really only defining a class that will be used internally
+ * (e.g. .error-message), we need to make it more specific by putting .zuluru on
+ * the beginning of the definition.
+ */
+
+/** General Style Info **/
+#content
+{
+	background: #fff;
+	color: #333;
+}
+
+/** Tables **/
+.zuluru table.list
+{
+	border-color: #ccc;
+}
+.zuluru table.list th
+{
+	border-color:#555;
+}
+.zuluru table.list th,
+.zuluru table.list th h1,
+.zuluru table.list th h2,
+.zuluru table.list th h3,
+.zuluru table.list th h4,
+.zuluru table.list th h5,
+.zuluru table.list th h6
+{
+	color: #333;
+	background: #b9d3fb;
+}
+.zuluru table.list tr:nth-child(2n) td
+{
+	background: #f5f5f5;
+}
+.zuluru table td.inner-border
+{
+	border-top: 1px solid #ccc;
+}
+
+/** Forms **/
+.zuluru optgroup option
+{
+	margin-left: 2em;
+}
+
+/** Notices and Errors **/
+.zuluru .error-message, .zuluru .field-usage-highlight
+{
+	color: red;
+}
+.zuluru .warning-message, .zuluru .highlight-message, .help-dialog .warning-message, .help-dialog .highlight-message
+{
+	color: #AA0000;
+}
+.zuluru .error-message, .zuluru .warning-message, .zuluru .highlight-message, .help-dialog .warning-message, .help-dialog .highlight-message
+{
+	font-weight: bold;
+}
+.zuluru p.error
+{
+	background-color: #e32;
+	color: #fff;
+}
+.zuluru p.error em
+{
+	color: #000;
+}
+.zuluru .notice
+{
+	background: #ffcc00;
+	color: #000;
+}
+.zuluru .success
+{
+	background: green;
+	color: #fff;
+}
+
+.zuluru div.message
+{
+	border: 1px solid;
+	margin: 10px 0;
+	padding:15px 10px;
+}
+.zuluru #authMessage, .zuluru #SystemNotice, .zuluru div.info, .zuluru div.success, .zuluru div.warning, .zuluru div.error
+{
+	border: 1px solid;
+	margin: 10px 0;
+	padding:15px 10px 15px 50px;
+	background-repeat: no-repeat;
+	background-position: 10px center;
+	font-size: 125%;
+}
+.zuluru #authMessage, .zuluru #SystemNotice, .zuluru div.info
+{
+	border-color: #00529B;
+	background-color: #BDE5F8;
+	background-image: url('images/message/info.png');
+}
+.zuluru div.success
+{
+	color: black;
+	border-color: #4F8A10;
+	background-color: #DFF2BF;
+	background-image:url('images/message/success.png');
+}
+.zuluru div.warning
+{
+	border-color: #9F6000;
+	background-color: #FFFABF;
+	background-image: url('images/message/warning.png');
+}
+.zuluru div.error
+{
+	border-color: #D8000C;
+	background-color: #FFBABA;
+	background-image: url('images/message/error.png');
+}
+
+/**  Actions  **/
+.zuluru .actions a
+{
+	background: #d1d9ec;
+	background: -webkit-gradient(linear, left top, left bottom, from(#e5eaf5), to(#d1d9ec));
+	background-image: -moz-linear-gradient(top, #e5eaf5, #d1d9ec);
+	color: #333;
+	border-color: #aaac62;
+	text-shadow: #fff 0 1px 0;
+}
+.zuluru .actions a:hover
+{
+	background: #e6ebf6;
+	background: -webkit-gradient(linear, left top, left bottom, from(#f2f5fa), to(#e6ebf6));
+	background-image: -moz-linear-gradient(top, #f2f5fa, #e6ebf6);
+}
+.zuluru .actions .zuluru-in-place-widget-options a,
+.zuluru .actions .zuluru-in-place-widget-options a:hover,
+.zuluru .actions a.icon
+{
+	background: transparent;
+	border: 0;
+}
+
+/** Debug email formatting **/
+.alert-email
+{
+	font-family: serif;
+	border: 1px solid #ccc;
+	padding: 10px;
+	margin-bottom: 10px;
+	background-color: #ffeeaa;
+}
+
+.alert-email pre
+{
+	font-family: serif;
+	font-size: 100%;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+	border: 0;
+	padding: 0 0 0 10px;
+	background: inherit;
+}
+
+/** Miscellaneous **/
+.zuluru tr.tier-highlight td, .zuluru tr:nth-child(2n) td.sub-total
+{
+	background-color: #afffaf !important;
+}
+.zuluru tr.tier-highlight:nth-child(2n) td, .zuluru .sub-total
+{
+	background-color: #cfffcf !important;
+}
+.zuluru tr.unpublished td, .zuluru td.unpublished, .zuluru div.unpublished
+{
+	background-color: #ffff00;
+	height: auto;
+}
+.zuluru table.list tr.unpublished:nth-child(2n) td, .zuluru table.list tr:nth-child(2n) td.unpublished
+{
+	background-color: #ffff44;
+}
+.zuluru .winning
+{
+	background-color: #dfd !important;
+}
+.zuluru .losing
+{
+	background-color: #fdd !important;
+}
+.zuluru .free
+{
+	color: #00cc00;
+}
+.zuluru .open
+{
+	color: green;
+}
+.zuluru .closed
+{
+	color: red;
+}
+.zuluru td.price-point
+{
+	padding-left: 5em;
+}
+
+/* Hide registration help by default */
+.zuluru .register-help {
+	display: none;
+}
+
+/* Attendance styling. */
+.zuluru .attending, .zuluru .attending a:link, .zuluru .attending a:visited
+{
+	color: #00cc00;
+}
+.zuluru .absent, .zuluru .absent a:link, .zuluru .absent a:visited
+{
+	color: #cc0000;
+}
+
+/* Tooltip styling. By default the element to be styled is .ui-tooltip  */
+.ui-tooltip
+{
+	height: 166px;
+	width: 320px;
+	float: none;
+	border: 0;
+	max-width: inherit;
+}
+
+.ui-tooltip-content
+{
+	font-size: 11px;
+	color: #000;
+	height: 160px;
+	overflow: auto;
+}
+
+/* Tournament bracket styling. */
+.zuluru .round .winner a
+{
+	color: green;
+}
+
+.zuluru .round .loser a
+{
+	color: red;
+}
+
+/* Stat page styling. TODO: switch _ to - in class names, but they're in the database */
+.zuluru .stat_games
+{
+}
+
+.zuluru .stat_game
+{
+}
+
+.zuluru .stat_total
+{
+	background-color: #fce5cd !important;
+}
+
+.zuluru .stat_per_game
+{
+	background-color: #cfe2f3 !important;
+}
+
+.zuluru .stat_season
+{
+	background-color: #d9ead3 !important;
+}
+
+/* Top banner selectors */
+.session-options.zuluru-in-place-widget, .uls-trigger
+{
+	margin: 0 5px;
+	cursor: pointer;
+}
+
+/* Photo upload styles */
+#croppie-wrap
+{
+	height: 350px;
+}
+
+#croppie
+{
+	height: 300px;
+	width: 300px;
+}
+
+#croppie-msg
+{
+	height: 300px;
+	width: 300px;
+	background: #ddd;
+	border: 1px solid #333;
+}
+
+#croppie-msg p
+{
+	text-align: center;
+	font-size: large;
+}
+
+.upload .step2
+{
+	display: none;
+}
+
+/* Add in some overrides of styles from jQueryUI */
+.ui-widget-content a, .ui-tooltip-content a
+{
+	color: #4C5EA8;
+	text-decoration: none;
+}
+
+/* Extra dropdown menu formatting */
+.dropdown-menu > li.menu_section > a
+{
+	font-weight: bold;
+}
+
+/* Add in some overrides of styles from Bootstrap */
+.zuluru div.form-group.has-error ul
+{
+	font-size: 90%;
+	color: #A94442;
+}
+
+.zuluru .panel-heading .accordion-toggle:before {
+	/* symbol for "opening" panels */
+	font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
+	content: "\e114";    /* adjust as needed, taken from bootstrap.css */
+	color: grey;         /* adjust as needed */
+	padding-right: 0.5em;
+}
+
+.zuluru .panel-heading .accordion-toggle.collapsed:before {
+	/* symbol for "collapsed" panels */
+	content: "\e080";    /* adjust as needed, taken from bootstrap.css */
+}
+
+.zuluru .form-group.checkbox
+{
+	margin-top: -15px;
+	margin-bottom: 15px;
+	padding-top: 0px;
+}
+
+.zuluru .form-group.time .form-control, .zuluru .form-group.date .form-control, .zuluru .form-group.datetime .form-control
+{
+	display: inline;
+	width: auto;
+}

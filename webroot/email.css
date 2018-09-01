@@ -1,0 +1,35 @@
+/* Styles for system-generated emails */
+
+body
+{
+	font-family: Verdana,Helvetica,Arial,sans-serif;
+	color: black;
+	background-color: white;
+}
+
+#content {
+	margin: 1em;
+	padding: 1em;
+	border: 1px solid #e0a65a;
+	background-color: #ffe2bd;
+}
+
+h1, h2, h3, h4, h5, h6
+{
+	color: #3a93d2;
+}
+
+p
+{
+	margin: 1em 0;
+}
+
+a img
+{
+	border: none;
+}
+
+.center
+{
+	text-align: center;
+}
