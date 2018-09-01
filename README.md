@@ -39,6 +39,23 @@ To run the install process, go to
 
 You will first need to have an empty database created and configured with a login. To date, Zuluru has only been tested on MySQL.
 
+### Periodic Tasks
+
+Zuluru has a number of processes that should happen on a daily (or even more often) basis, such as sending roster and attendance emails,
+opening and closing leagues, deactivating old player profiles, etc. These are handled through a command-line task.
+
+You should set up the following command to be run regularly (every 10 minutes is recommended) by your `cron` (under Linux/UNIX).
+
+    cd /path/to/zuluru && env HTTP_HOST="yourdomain.com" bin/cake scheduler > /dev/null
+
+Note that the `/path/to/zuluru` will be the folder that contains things like `src`, `config` and `webroot`.
+
+If you have a custom theme set up, your command line should reference it as well:
+
+    env DOMAIN_PLUGIN=
+
+If you are running under Windows, something similar can be set up through the Task Scheduler.
+
 ### Troubleshooting
 
 If you get error messages about invalid time zones, you may need to follow the instructions from http://dev.mysql.com/doc/refman/5.7/en/mysql-tzinfo-to-sql.html

@@ -2,7 +2,7 @@
 
 Zuluru is a web-based sports league management application.
 
-Copyright 2011-2015 Greg Schmidt
+Copyright 2011-2018 Greg Schmidt
 
 Portions copyright 2002 David O'Neill
 
@@ -21,11 +21,11 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 The license is located in gpl-3.0.txt.
 
 For more information about Zuluru or to contact the author, visit
-[http://zuluru.org/](http://zuluru.org/)
+[https://zuluru.org/](http://zuluru.org/)
 
 Zuluru is based in part on Leaguerunner, written by
 
