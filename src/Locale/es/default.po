@@ -7264,22 +7264,6 @@ msgstr "Mostrar todo"
 msgid "Shirt colour"
 msgstr "color de la camisa"
 
-#: Template/Element/version_check.ctp:10
-msgid "This is Zuluru version {0}.{1}.{2}, database schema version {3}."
-msgstr "Esta es la versión Zuluru {0}.{1}.{2}, la versión de esquema de base de {3}."
-
-#: Template/Element/version_check.ctp:11
-msgid "Your installation of version {0}, database schema version {1}, is dated {2}."
-msgstr "La instalación de la versión {0}, la versión del esquema de la base {1}, es de fecha {2}."
-
-#: Template/Element/version_check.ctp:12
-msgid "To ensure proper operation, please"
-msgstr "Para garantizar un funcionamiento correcto, por favor"
-
-#: Template/Element/version_check.ctp:13
-msgid "complete your update"
-msgstr "completar su actualización"
-
 #: Template/Element/All/kickstart.ctp:15
 msgid "You have enabled the affiliate option, but have not yet created any affiliates. "
 msgstr "Ha habilitado la opción de afiliados, pero aún no se ha creado ninguna afiliados. "

@@ -10,9 +10,6 @@ $this->Html->addCrumb($this->UserCache->read('Person.full_name'));
 <?php
 echo $this->element('Layout/announcement');
 
-if (Configure::read('Perm.is_admin')) {
-	echo $this->element('version_check');
-}
 if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
 	if (isset($new_accounts)) {
 		echo $this->Html->para(null, __('There are {0} new {1}.', $new_accounts,
