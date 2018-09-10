@@ -178,6 +178,12 @@ class ScoreEntriesTable extends AppTable {
 					return true;
 				}
 
+				// Divisions that use a gender ratio that doesn't permit variations don't use this field
+				$gender_ratio_options = Configure::read("sports.{$options['game']->division->league->sport}.gender_ratio.{$options['game']->division->ratio_rule}");
+				if (empty($gender_ratio_options)) {
+					return true;
+				}
+
 				$rule = new InConfigRule("sports.{$options['game']->division->league->sport}.gender_ratio.{$options['game']->division->ratio_rule}");
 				return $rule($entity, $options);
 			}, 'validGenderRatio', [
