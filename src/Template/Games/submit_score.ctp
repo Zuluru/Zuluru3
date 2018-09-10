@@ -169,7 +169,7 @@ if (Configure::read('scoring.incident_reports')):
 		'secure' => false,
 	], [
 		'selector' => '#IncidentDetails',
-	]), ['class' => 'no-labels']);
+	]), ['class' => 'no-labels', 'style' => 'margin-top: 15px;']);
 
 	if (!empty($game->incidents) && $game->incidents[0]->has('id')) {
 		echo $this->Form->hidden('incidents.0.id', [
