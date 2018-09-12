@@ -61,8 +61,6 @@ class RuleAttribute extends Rule {
 					$key = strtolower($key);
 					$data = $data->$key;
 				} else {
-					trigger_error('TODOTESTING', E_USER_WARNING);
-					exit;
 					return '';
 				}
 			}
