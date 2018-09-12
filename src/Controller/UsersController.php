@@ -582,7 +582,7 @@ class UsersController extends AppController {
 	}
 
 	protected function _passwordCode($user) {
-		return str_replace('/', '_', substr($user->password, -8));
+		return \App\Lib\base64_url_encode(substr($user->password, -8));
 	}
 
 	protected function _emailResetCode($user, $person) {

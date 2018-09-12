@@ -403,7 +403,7 @@ class AffiliatesControllerTest extends ControllerTestCase {
 			'sort' => 'last_name',
 			'direction' => 'asc',
 		]);
-		$return = urlencode(trim(base64_encode('/affiliates/add_manager?affiliate=' . AFFILIATE_ID_CLUB), '='));
+		$return = urlencode(\App\Lib\base64_url_encode('/affiliates/add_manager?affiliate=' . AFFILIATE_ID_CLUB));
 		$this->assertResponseRegExp('#/affiliates/add_manager\?person=' . PERSON_ID_PLAYER . '&amp;return=' . $return . '&amp;affiliate=' . AFFILIATE_ID_CLUB . '#ms');
 
 		// Try to add the manager

@@ -129,6 +129,24 @@ function ical_encode($text) {
 	return $text;
 }
 
+// Base 64 encode a string for easy URL manipulation, trim any = from the end
+function base64_url_encode($value) {
+	return trim(base64_encode($value), '=');
+}
+
+function base64_url_decode($value) {
+	// Base 64 input must have a length that's a multiple of 4, add = to pad it out
+	while (strlen($value) % 4) {
+		$value .= '=';
+	}
+
+	// Encoding can include + signs, which get converted to spaces. Put them back...
+	$value = str_replace(' ', '+', $value);
+
+	// Base 64 decode to recover the original input
+	return base64_decode($value);
+}
+
 class contextSortHelper {
 	private $value_compare_func;
 	private $context;

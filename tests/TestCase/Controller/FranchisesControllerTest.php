@@ -674,7 +674,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 			'sort' => 'last_name',
 			'direction' => 'asc',
 		]);
-		$return = urlencode(trim(base64_encode('/franchises/add_owner?franchise=' . FRANCHISE_ID_RED), '='));
+		$return = urlencode(\App\Lib\base64_url_encode('/franchises/add_owner?franchise=' . FRANCHISE_ID_RED));
 		$this->assertResponseRegExp('#/franchises/add_owner\?person=' . PERSON_ID_PLAYER . '&amp;return=' . $return . '&amp;franchise=' . FRANCHISE_ID_RED . '#ms');
 
 		$this->assertAccessRedirect(['controller' => 'Franchises', 'action' => 'add_owner', 'person' => PERSON_ID_PLAYER, 'franchise' => FRANCHISE_ID_RED],

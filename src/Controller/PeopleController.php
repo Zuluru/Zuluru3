@@ -2414,17 +2414,7 @@ class PeopleController extends AppController {
 		}
 
 		if (array_key_exists('rule64', $params)) {
-			// Base 64 input must have a length that's a multiple of 4, add = to pad it out
-			while (strlen($params['rule64']) % 4)
-			{
-				$params['rule64'] .= '=';
-			}
-
-			// Encoding can include + signs, which get converted to spaces. Put them back...
-			$params['rule64'] = str_replace(' ', '+', $params['rule64']);
-
-			// Base 64 decode to recover the original input
-			$params['rule'] = base64_decode($params['rule64']);
+			$params['rule'] = \App\Lib\base64_url_decode($params['rule64']);
 		}
 
 		if (array_key_exists('rule', $params)) {
@@ -2435,9 +2425,7 @@ class PeopleController extends AppController {
 				return false;
 			}
 			if (!array_key_exists('rule64', $params)) {
-				// Base 64 encode the rule for easy URL manipulation, trim any = from the end
-				$url['rule64'] = base64_encode($params['rule']);
-				$url['rule64'] = trim($url['rule64'], '=');
+				$url['rule64'] = \App\Lib\base64_url_encode($params['rule']);
 			}
 			$this->set(compact('url', 'params'));
 

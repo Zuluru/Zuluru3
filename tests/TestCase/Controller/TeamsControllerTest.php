@@ -1548,7 +1548,7 @@ class TeamsControllerTest extends ControllerTestCase {
 				'sort' => 'last_name',
 				'direction' => 'asc',
 			]);
-		$return = urlencode(trim(base64_encode('/teams/add_player?team=' . TEAM_ID_OAKS), '='));
+		$return = urlencode(\App\Lib\base64_url_encode('/teams/add_player?team=' . TEAM_ID_OAKS));
 		$this->assertResponseRegExp('#/teams/roster_add\?person=' . PERSON_ID_PLAYER . '&amp;return=' . $return . '&amp;team=' . TEAM_ID_OAKS . '#ms');
 	}
 

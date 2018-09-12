@@ -509,16 +509,7 @@ class AppController extends Controller {
 	}
 
 	private function decodeRedirect($url) {
-		// Base 64 input must have a length that's a multiple of 4, add = to pad it out
-		while (strlen($url) % 4) {
-			$url .= '=';
-		}
-
-		// Encoding can include + signs, which get converted to spaces. Put them back...
-		$url = str_replace(' ', '+', $url);
-
-		// Base 64 decode to recover the original input
-		$url = base64_decode($url);
+		$url = \App\Lib\base64_url_decode($url);
 
 		if (strpos($url, '?') !== false) {
 			list($short_url, $querystr) = explode('?', $url);
@@ -1759,7 +1750,7 @@ class AppController extends Controller {
 		if (empty($url)) {
 			$url = '/';
 		}
-		return trim(base64_encode($url), '=');
+		return \App\Lib\base64_url_encode($url);
 	}
 
 }
