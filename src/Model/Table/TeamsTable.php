@@ -226,6 +226,7 @@ class TeamsTable extends AppTable {
 
 		if ($entity->dirty('name') || $entity->dirty('division_id') || $entity->dirty('website')
 			|| $entity->dirty('shirt_colour') || $entity->dirty('logo') || $entity->dirty('short_name')
+			|| $entity->dirty('track_attendance')
 		) {
 			if (!$entity->has('people')) {
 				$this->loadInto($entity, ['People']);
