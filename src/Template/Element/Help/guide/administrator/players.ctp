@@ -27,7 +27,7 @@ use Cake\Core\Configure;
 <p><?= __('By merging backwards, the new account information (username, password, contact information, etc.) is written into the old record, then the new record is deleted. If they have registered for anything or been added to any teams in the meantime, those records are also adjusted. This process retains all historical information (team history, registrations, etc.), while allowing the user to log in with their newly chosen credentials.') ?></p>
 
 <h3><?= __('Roles') ?></h3>
-<p><?= __('Once approved, users can be promoted to greater levels of authority by editing the "accout type" in their profile. The account types available to you will depend on system settings. The possible options are:') ?></p>
+<p><?= __('Once approved, users can be promoted to greater levels of authority by editing the "account type" in their profile. The account types available to you will depend on system settings. The possible options are:') ?></p>
 <ul>
 <li><?= __('Parent: Someone who has a child that plays in your leagues.') ?></li>
 <li><?= __('Player: A typical player.') ?></li>

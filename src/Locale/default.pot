@@ -9000,8 +9000,8 @@ msgstr ""
 msgid "Roles"
 msgstr ""
 
-#: Template/Element/Help/guide/administrator/players.ctp:32
-msgid "Once approved, users can be promoted to greater levels of authority by editing the \"accout type\" in their profile. The account types available to you will depend on system settings. The possible options are:"
+#: Template/Element/Help/guide/administrator/players.ctp:30
+msgid "Once approved, users can be promoted to greater levels of authority by editing the \"account type\" in their profile. The account types available to you will depend on system settings. The possible options are:"
 msgstr ""
 
 #: Template/Element/Help/guide/administrator/players.ctp:34

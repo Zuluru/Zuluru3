@@ -17,10 +17,10 @@ msgstr ""
 msgid "Courts"
 msgstr ""
 
-msgid "cout"
+msgid "court"
 msgstr ""
 
-msgid "couts"
+msgid "courts"
 msgstr ""
 
 msgid "Pitch"

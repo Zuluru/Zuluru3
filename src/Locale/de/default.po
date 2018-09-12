@@ -9000,8 +9000,8 @@ msgid "Roles"
 msgstr "Rollen"
 
 #: Template/Element/Help/guide/administrator/players.ctp:32
-msgid "Once approved, users can be promoted to greater levels of authority by editing the \"accout type\" in their profile. The account types available to you will depend on system settings. The possible options are:"
-msgstr "Nach der Genehmigung kann der Anwender auf ein höheres Maß an Autorität gefördert werden, indem Sie den \"accout Typ\" in ihrem Profil. Die Kontotypen für Sie auf Systemeinstellungen abhängig. Die möglichen Optionen sind:"
+msgid "Once approved, users can be promoted to greater levels of authority by editing the \"account type\" in their profile. The account types available to you will depend on system settings. The possible options are:"
+msgstr "Nach der Genehmigung kann der Anwender auf ein höheres Maß an Autorität gefördert werden, indem Sie den \"Konto Typ\" in ihrem Profil. Die Kontotypen für Sie auf Systemeinstellungen abhängig. Die möglichen Optionen sind:"
 
 #: Template/Element/Help/guide/administrator/players.ctp:34
 msgid "Parent: Someone who has a child that plays in your leagues."
