@@ -74,7 +74,6 @@ class UserJoomlaTable extends UsersTable {
 			require_once JPATH_BASE . '/configuration.php';
 			$config = new \JConfig;
 			Configure::write('Security.joomlaPrefix', $config->dbprefix);
-			Configure::write('Security.joomlaSecret', $config->secret);
 		}
 	}
 

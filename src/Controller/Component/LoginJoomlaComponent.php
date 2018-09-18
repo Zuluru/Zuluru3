@@ -16,46 +16,41 @@ class LoginJoomlaComponent extends LoginComponent {
 	public $components = ['Auth'];
 
 	public function login(Table $users_table) {
-		// Check if we're running under Joomla
-		$session_name = md5(md5(Configure::read('Security.joomlaSecret') . 'site'));
+		$joomla_session = Router::getRequest()->session()->read('joomla');
+		if (!$joomla_session) {
+			return;
+		}
+
+		$joomla_session = unserialize(base64_decode($joomla_session));
+		$joomla_user = $joomla_session->get('__default.user');
+
+		// Check if we're logged in to Joomla
+		if (!$joomla_user || empty($joomla_user->id)) {
+			Router::getRequest()->session()->delete('Zuluru.zuluru_person_id');
+			return;
+		}
 
 		// Hide login/logout menu items
 		Router::getRequest()->session()->write('Zuluru.external_login', true);
 
-		$session = $this->request->cookie($session_name);
-		if ($session) {
-			$user = $users_table->find()
-				->matching('JoomlaSessions', function (Query $q) use ($session) {
-					return $q->where(['JoomlaSessions.session_id' => $session]);
-				})
-				->contain([
-					'People' => ['Groups'],
-				])
-				->first();
+		$user = $users_table->get($joomla_user->id, [
+			'contain' => ['People' => ['Groups']]
+		]);
 
-			// Check if we're logged in to Joomla
-			if (!$user || empty($user->id)) {
-				Router::getRequest()->session()->delete('Zuluru.joomla_session');
-				Router::getRequest()->session()->delete('Zuluru.zuluru_person_id');
-				return;
-			}
-
-			// If there is no person record for this user, create it.
-			if (!$user->has('person')) {
-				$user->person = $users_table->People->createPersonRecord($user);
-			}
-
-			$this->Auth->setUser($user);
-			Router::getRequest()->session()->write('Zuluru.joomla_session', $session);
-			Router::getRequest()->session()->write('Zuluru.zuluru_person_id', $user->person->id);
+		// If there is no person record for this user, create it.
+		if (!$user->has('person')) {
+			$user->person = $users_table->People->createPersonRecord($user);
 		}
+
+		$this->Auth->setUser($user);
+		Router::getRequest()->session()->write('Zuluru.zuluru_person_id', $user->person->id);
 	}
 
 	// We might have session information but the user has logged out of Joomla
 	public function expired() {
 		if (Router::getRequest()->session()->read('Zuluru.external_login')) {
-			$session_name = md5(md5(Configure::read('Security.joomlaSecret') . 'site'));
-			if ($this->request->cookie($session_name) != Router::getRequest()->session()->read('Zuluru.joomla_session')) {
+			$joomla_session = Router::getRequest()->session()->read('joomla');
+			if (!$joomla_session) {
 				return true;
 			}
 			return false;

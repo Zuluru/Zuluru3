@@ -25,10 +25,10 @@ class JoomlaPasswordHasher extends AbstractPasswordHasher {
 		UserJoomlaTable::initializeJoomlaConfig();
 
 		require_once JPATH_BASE . '/includes/defines.php';
-		require_once JPATH_LIBRARIES . '/joomla/user/helper.php';
+		require_once JPATH_LIBRARIES . '/src/User/UserHelper.php';
 
-		$salt = JUserHelper::genRandomPassword(32);
-		$crypt = JUserHelper::getCryptedPassword($password, $salt);
+		$salt = \JUserHelper::genRandomPassword(32);
+		$crypt = \JUserHelper::getCryptedPassword($password, $salt);
 		return "$crypt:$salt";
 	}
 
@@ -36,14 +36,14 @@ class JoomlaPasswordHasher extends AbstractPasswordHasher {
 		UserJoomlaTable::initializeJoomlaConfig();
 
 		require_once JPATH_BASE . '/includes/defines.php';
-		require_once JPATH_LIBRARIES . '/joomla/user/helper.php';
+		require_once JPATH_LIBRARIES . '/src/User/UserHelper.php';
 
 		if (strpos($hashedPassword, ':') !== false) {
 			list($hash, $salt) = explode(':', $hashedPassword);
 			$crypt = crypt($password, $hash);
 			return ("$crypt:$salt" == $hashedPassword);
 		} else {
-			return JUserHelper::verifyPassword($password, $hashedPassword);
+			return \JUserHelper::verifyPassword($password, $hashedPassword);
 		}
 	}
 
