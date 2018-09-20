@@ -74,7 +74,6 @@ class AffiliatesController extends AppController {
 			]);
 
 		$this->set(compact('affiliates'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -108,7 +107,6 @@ class AffiliatesController extends AppController {
 		}
 
 		$this->set(compact('affiliate'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -133,7 +131,6 @@ class AffiliatesController extends AppController {
 			}
 		}
 		$this->set(compact('affiliate'));
-		$this->set('_serialize', true);
 		$this->render('edit');
 	}
 
@@ -170,7 +167,6 @@ class AffiliatesController extends AppController {
 			}
 		}
 		$this->set(compact('affiliate'));
-		$this->set('_serialize', true);
 	}
 
 	/**

@@ -18,7 +18,6 @@ class GroupsController extends AppController {
 	 */
 	public function index() {
 		$this->set('groups', $this->Groups->find('all'));
-		$this->set('_serialize', true);
 	}
 
 	/**

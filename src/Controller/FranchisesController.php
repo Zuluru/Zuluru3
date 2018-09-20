@@ -141,8 +141,6 @@ class FranchisesController extends AppController {
 			->order(['letter'])
 			->toArray();
 		$this->set(compact('letters'));
-
-		$this->set('_serialize', true);
 	}
 
 	public function letter() {
@@ -179,7 +177,6 @@ class FranchisesController extends AppController {
 			->toArray();
 
 		$this->set(compact('franchises', 'letters', 'letter'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -213,8 +210,6 @@ class FranchisesController extends AppController {
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$this->set(compact('franchise', 'affiliates'));
-
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -242,8 +237,6 @@ class FranchisesController extends AppController {
 		}
 		$this->set(compact('franchise'));
 		$this->set('affiliates', $this->_applicableAffiliates(true));
-
-		$this->set('_serialize', true);
 		$this->render('edit');
 	}
 
@@ -284,7 +277,6 @@ class FranchisesController extends AppController {
 
 		$affiliates = $this->_applicableAffiliates(true);
 		$this->set(compact('franchise', 'affiliates', 'people', 'teams'));
-		$this->set('_serialize', true);
 	}
 
 	/**

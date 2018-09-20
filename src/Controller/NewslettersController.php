@@ -96,7 +96,6 @@ class NewslettersController extends AppController {
 		$this->set('newsletters', $this->paginate($this->Newsletters));
 		$this->set('current', true);
 		$this->set(compact('affiliates'));
-		$this->set('_serialize', true);
 	}
 
 	public function past() {
@@ -113,7 +112,6 @@ class NewslettersController extends AppController {
 		$this->set('newsletters', $this->paginate($this->Newsletters));
 		$this->set('current', false);
 		$this->set(compact('affiliates'));
-		$this->set('_serialize', true);
 		$this->render('index');
 	}
 
@@ -138,7 +136,6 @@ class NewslettersController extends AppController {
 		$this->Configuration->loadAffiliate($newsletter->mailing_list->affiliate_id);
 
 		$this->set(compact('newsletter'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -170,8 +167,6 @@ class NewslettersController extends AppController {
 			$mailingLists = current($mailingLists);
 		}
 		$this->set(compact('newsletter', 'mailingLists'));
-		$this->set('_serialize', true);
-
 		$this->render('edit');
 	}
 

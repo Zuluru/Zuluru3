@@ -114,7 +114,6 @@ class FacilitiesController extends AppController {
 
 		$this->set('closed', false);
 		$this->set(compact('affiliates', 'regions'));
-		$this->set('_serialize', true);
 	}
 
 	public function closed() {
@@ -141,7 +140,6 @@ class FacilitiesController extends AppController {
 
 		$this->set('closed', true);
 		$this->set(compact('affiliates', 'regions'));
-		$this->set('_serialize', true);
 		$this->render('index');
 	}
 
@@ -173,7 +171,6 @@ class FacilitiesController extends AppController {
 		$this->Configuration->loadAffiliate($facility->region->affiliate_id);
 
 		$this->set(compact('facility'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -220,8 +217,6 @@ class FacilitiesController extends AppController {
 		$this->set(compact('facility', 'regions', 'affiliates'));
 		$this->_loadAddressOptions();
 		$this->set('region', $this->request->query('region'));
-
-		$this->set('_serialize', true);
 		$this->render('edit');
 	}
 
@@ -275,7 +270,6 @@ class FacilitiesController extends AppController {
 		$this->set(compact('facility', 'regions', 'affiliates'));
 		$this->_loadAddressOptions();
 		$this->set('region', $this->request->query('region'));
-		$this->set('_serialize', true);
 	}
 
 	/**

@@ -58,5 +58,4 @@ $compact = ["'" . $singularName . "'"];
 		endforeach;
 %>
 		$this->set(compact(<%= join(', ', $compact) %>));
-		$this->set('_serialize', true);
 	}

@@ -27,5 +27,4 @@
 		];
 <% endif; %>
 		$this->set('<%= $pluralName %>', $this->paginate($this-><%= $currentModelName %>));
-		$this->set('_serialize', true);
 	}

@@ -274,7 +274,7 @@ class GamesController extends AppController {
 		$this->set('is_coordinator', in_array($game->division_id, $this->UserCache->read('DivisionIDs')));
 		// Captains get extra contact info in the view; only provide that if the division is currently open
 		$this->set('is_captain', $game->division->is_open && (in_array($game->home_team_id, $this->UserCache->read('OwnedTeamIDs')) || in_array($game->away_team_id, $this->UserCache->read('OwnedTeamIDs'))));
-		$this->set('_serialize', true);
+		$this->set('_serialize', ['game']);
 	}
 
 	/**
@@ -499,8 +499,6 @@ class GamesController extends AppController {
 
 		$this->set(compact(['game', 'spirit_obj']));
 		$this->set('is_coordinator', in_array($game->division_id, $this->UserCache->read('DivisionIDs')));
-
-		$this->set('_serialize', true);
 	}
 
 	public function edit_boxscore() {
@@ -575,7 +573,6 @@ class GamesController extends AppController {
 		}
 
 		$this->set(compact('game'));
-		$this->set('_serialize', true);
 	}
 
 	public function delete_score() {
@@ -784,7 +781,6 @@ class GamesController extends AppController {
 		}
 
 		$this->set(compact('game', 'note'));
-		$this->set('_serialize', true);
 	}
 
 	public function delete_note() {
@@ -919,7 +915,7 @@ class GamesController extends AppController {
 		$attendance = $this->Games->readAttendance($team_id, collection($game->division->days)->extract('id')->toArray(), $id);
 		$this->set(compact('game', 'team', 'opponent', 'attendance'));
 		$this->set('is_captain', in_array($team_id, $this->UserCache->read('OwnedTeamIDs')));
-		$this->set('_serialize', true);
+		$this->set('_serialize', ['game', 'team', 'opponent', 'attendance']);
 	}
 
 	public function TODOLATER_add_sub() {
@@ -1116,7 +1112,6 @@ class GamesController extends AppController {
 		}
 
 		$this->set(compact('attendance', 'game', 'date', 'team', 'opponent', 'attendance_options', 'is_captain', 'is_me'));
-		$this->set('_serialize', true);
 	}
 
 	protected function _updateAttendanceStatus($attendance, $game, $date, $team, $opponent, $is_captain, $is_me, $days_to_game, $past, $attendance_options) {
@@ -1289,7 +1284,6 @@ class GamesController extends AppController {
 		$attendance = $this->Games->readAttendance($team_id, collection($game->division->days)->extract('id')->toArray(), $id);
 		$this->set(compact('game', 'team', 'opponent', 'attendance'));
 		$this->set('is_captain', in_array($team_id, $this->UserCache->read('OwnedTeamIDs')));
-		$this->set('_serialize', true);
 	}
 
 	public function TODOLATER_live_score() {
@@ -2365,7 +2359,6 @@ class GamesController extends AppController {
 		}
 
 		$this->set(compact('game', 'team_id', 'attendance', 'home_attendance', 'away_attendance', 'sport_obj'));
-		$this->set('_serialize', true);
 	}
 
 	public function stats() {
@@ -2464,8 +2457,6 @@ class GamesController extends AppController {
 		if ($this->request->is('csv')) {
 			$this->response->download("Stats - Game {$game->id}.csv");
 		}
-
-		$this->set('_serialize', true);
 	}
 
 	public function future($limit = null) {
@@ -2499,6 +2490,7 @@ class GamesController extends AppController {
 			->toArray();
 
 		$this->set(compact('games'));
+		$this->set('_serialize', ['games']);
 	}
 
 	function results() {

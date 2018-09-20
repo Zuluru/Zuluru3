@@ -178,7 +178,6 @@ class EventsController extends AppController {
 			->toArray();
 
 		$this->set(compact('affiliates', 'events', 'years', 'year'));
-		$this->set('_serialize', true);
 	}
 
 	public function wizard($step = null) {
@@ -354,7 +353,6 @@ class EventsController extends AppController {
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$this->set(compact('id', 'event', 'facilities', 'times', 'affiliates'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -422,8 +420,6 @@ class EventsController extends AppController {
 		}
 
 		$this->set(compact('event', 'affiliates', 'event_obj'));
-		$this->set('_serialize', true);
-
 		$this->render('edit');
 	}
 
@@ -486,7 +482,6 @@ class EventsController extends AppController {
 		$type = $this->Events->EventTypes->field('type', ['id' => $event->event_type_id]);
 		$event_obj = $this->moduleRegistry->load("EventType:{$type}");
 		$this->set(compact('event', 'affiliates', 'event_obj'));
-		$this->set('_serialize', true);
 	}
 
 	public function event_type_fields() {

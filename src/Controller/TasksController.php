@@ -123,7 +123,6 @@ class TasksController extends AppController {
 		}
 
 		$this->set(compact('tasks'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -179,7 +178,6 @@ class TasksController extends AppController {
 				->toArray();
 		}
 		$this->set(compact('task', 'affiliates', 'people'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -218,7 +216,6 @@ class TasksController extends AppController {
 			->combine('id', 'full_name')
 			->toArray();
 		$this->set(compact('task', 'affiliates', 'categories', 'people'));
-		$this->set('_serialize', true);
 		$this->render('edit');
 	}
 
@@ -272,7 +269,6 @@ class TasksController extends AppController {
 			->combine('id', 'full_name')
 			->toArray();
 		$this->set(compact('task', 'affiliates', 'categories', 'people'));
-		$this->set('_serialize', true);
 	}
 
 	/**

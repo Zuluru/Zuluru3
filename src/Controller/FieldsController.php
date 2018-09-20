@@ -280,7 +280,6 @@ class FieldsController extends AppController {
 		$this->Configuration->loadAffiliate($field->facility->region->affiliate_id);
 
 		$this->set(compact('field'));
-		$this->set('_serialize', true);
 	}
 
 }

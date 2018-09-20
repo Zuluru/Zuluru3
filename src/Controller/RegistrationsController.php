@@ -303,7 +303,6 @@ class RegistrationsController extends AppController {
 		}
 
 		$this->set(compact('event'));
-		$this->set('_serialize', true);
 	}
 
 	public function summary() {
@@ -438,7 +437,6 @@ class RegistrationsController extends AppController {
 			->toArray();
 
 		$this->set(compact('events', 'years'));
-		$this->set('_serialize', true);
 	}
 
 	public function report() {
@@ -560,7 +558,6 @@ class RegistrationsController extends AppController {
 		$registration->event->mergeAutoQuestions($event_obj, $registration->person->id, true);
 
 		$this->set(compact('registration'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -705,7 +702,6 @@ class RegistrationsController extends AppController {
 		}
 
 		$this->set(compact('id', 'event', 'price_id', 'event_obj', 'waiting', 'registration'));
-		$this->set('_serialize', true);
 	}
 
 	public function register_payment_fields() {
@@ -866,7 +862,6 @@ class RegistrationsController extends AppController {
 		}
 
 		$this->set(compact('registration'));
-		$this->set('_serialize', true);
 	}
 
 	public function checkout() {
@@ -1178,7 +1173,6 @@ class RegistrationsController extends AppController {
 		$payment = $this->Registrations->Payments->newEntity();
 
 		$this->set(compact('registration', 'payment'));
-		$this->set('_serialize', true);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			// Handle credit redemption
@@ -1269,7 +1263,6 @@ class RegistrationsController extends AppController {
 			$payment_obj = null;
 		}
 		$this->set(compact('registration', 'payment', 'refund', 'payment_obj'));
-		$this->set('_serialize', true);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			// The form has a positive amount to be refunded, which needs to be retained in case of an error.
@@ -1386,7 +1379,6 @@ class RegistrationsController extends AppController {
 		}
 
 		$this->set(compact('registration', 'payment', 'credit'));
-		$this->set('_serialize', true);
 	}
 
 	public function transfer_payment() {
@@ -1532,7 +1524,6 @@ class RegistrationsController extends AppController {
 		}
 
 		$this->set(compact('registration', 'payment', 'unpaid'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -1654,7 +1645,6 @@ class RegistrationsController extends AppController {
 		$registration->responses = $responses;
 
 		$this->set(compact('registration'));
-		$this->set('_serialize', true);
 	}
 
 	public function unpaid() {
@@ -1748,7 +1738,6 @@ class RegistrationsController extends AppController {
 		}
 
 		$this->set(compact('event'));
-		$this->set('_serialize', true);
 	}
 
 }

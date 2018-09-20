@@ -50,6 +50,9 @@ class UserDrupal extends User {
 	protected $_hidden = [
 		'pass',
 		'password',
+		'name',
+		'mail',
+		'login',
 	];
 
 	protected function _getId() {

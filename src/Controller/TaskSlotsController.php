@@ -123,7 +123,6 @@ class TaskSlotsController extends AppController {
 		$this->Configuration->loadAffiliate($task_slot->task->category->affiliate_id);
 
 		$this->set(compact('task_slot'));
-		$this->set('_serialize', true);
 	}
 
 	// This function takes the parameters the old-fashioned way, to try to be more third-party friendly
@@ -198,7 +197,6 @@ class TaskSlotsController extends AppController {
 
 		$affiliates = $this->_applicableAffiliates(true);
 		$this->set(compact('affiliates', 'task', 'task_slot'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -236,7 +234,6 @@ class TaskSlotsController extends AppController {
 			}
 		}
 		$this->set(compact('task_slot'));
-		$this->set('_serialize', true);
 	}
 
 	/**

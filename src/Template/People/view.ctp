@@ -1,13 +1,9 @@
 <?php
 /**
  * @type \App\Model\Entity\Person $person
- * @type \App\Model\Entity\Person[] $relatives
- * @type \App\Model\Entity\Person[] $related_to
  * @type \App\Model\Entity\Upload $photo
  * @type boolean $is_me
  * @type boolean $is_relative
- * @type boolean $is_coordinator
- * @type boolean $is_captain
  */
 
 use App\Controller\AppController;
@@ -28,49 +24,50 @@ $this->Html->addCrumb(__('View'));
 	?></h2>
 
 <?php
-$view_contact = $is_me || $is_relative || Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator || $is_captain || $is_my_captain || $is_my_coordinator || $is_division_captain;
 $has_visible_contact = false;
-
-$this_is_player = collection($groups)->some(function ($group) { return $group->id == GROUP_PLAYER; });
-$this_is_parent = collection($groups)->some(function ($group) { return $group->id == GROUP_PARENT; });
+$visible_properties = $person->visibleProperties();
+$is_player = collection($person->groups)->some(function ($group) { return $group->id == GROUP_PLAYER; });
 ?>
 	<dl class="dl-horizontal">
 <?php
-if ($is_me || $is_relative || Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
-	if ($person->user_id):
+if ($person->user_id):
+	if (in_array('user_name', $visible_properties)):
 ?>
 		<dt><?= __('Username') ?></dt>
 		<dd><?= $person->user_name ?></dd>
 <?php
-		if (Configure::read('feature.external_accounts')):
+	endif;
+
+	if (in_array('user_id', $visible_properties)):
 ?>
 		<dt><?= __('{0} User Id', Configure::read('feature.manage_name')) ?></dt>
 		<dd><?= $person->user_id ?></dd>
 <?php
-		endif;
 	endif;
+
+	if (in_array('id', $visible_properties)):
 ?>
 		<dt><?= __('Zuluru Id') ?></dt>
 		<dd><?= $person->id ?></dd>
 <?php
+	endif;
 endif;
 
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
-	if (!empty($person->last_login)):
+if (in_array('last_login', $visible_properties) && !empty($person->last_login)):
 ?>
 		<dt><?= __('Last Login') ?></dt>
 		<dd><?= $this->Time->datetime($person->last_login) ?></dd>
 <?php
-	endif;
-	if (!empty($person->client_ip)):
+endif;
+
+if (in_array('client_ip', $visible_properties) && !empty($person->client_ip)):
 ?>
 		<dt><?= __('IP Address') ?></dt>
 		<dd><?= $person->client_ip ?></dd>
 <?php
-	endif;
 endif;
 
-if (($view_contact || (Configure::read('Perm.is_logged_in') && $person->publish_email)) && !empty($person->email)):
+if (in_array('email', $visible_properties) && !empty($person->email)):
 ?>
 		<dt><?= __('Email Address') ?></dt>
 		<dd><?php
@@ -81,7 +78,7 @@ if (($view_contact || (Configure::read('Perm.is_logged_in') && $person->publish_
 <?php
 endif;
 
-if (($view_contact || (Configure::read('Perm.is_logged_in') && $person->publish_alternate_email)) && !empty($person->alternate_email)):
+if (in_array('alternate_email', $visible_properties) && !empty($person->alternate_email)):
 ?>
 		<dt><?= __('Alternate Email Address') ?></dt>
 		<dd><?php
@@ -92,8 +89,7 @@ if (($view_contact || (Configure::read('Perm.is_logged_in') && $person->publish_
 <?php
 endif;
 
-if (Configure::read('profile.home_phone') && !empty($person->home_phone) &&
-	($view_contact || (Configure::read('Perm.is_logged_in') && $person->publish_home_phone))):
+if (in_array('home_phone', $visible_properties) && !empty($person->home_phone)):
 ?>
 		<dt><?= __('Phone (home)') ?></dt>
 		<dd><?php
@@ -104,8 +100,7 @@ if (Configure::read('profile.home_phone') && !empty($person->home_phone) &&
 <?php
 endif;
 
-if (Configure::read('profile.work_phone') && !empty($person->work_phone) &&
-	($view_contact || (Configure::read('Perm.is_logged_in') && $person->publish_work_phone))):
+if (in_array('work_phone', $visible_properties) && !empty($person->work_phone)):
 ?>
 		<dt><?= __('Phone (work)') ?></dt>
 		<dd><?php
@@ -119,8 +114,7 @@ if (Configure::read('profile.work_phone') && !empty($person->work_phone) &&
 <?php
 endif;
 
-if (Configure::read('profile.mobile_phone') && !empty($person->mobile_phone) &&
-	($view_contact || (Configure::read('Perm.is_logged_in') && $person->publish_mobile_phone))):
+if (in_array('mobile_phone', $visible_properties) && !empty($person->mobile_phone)):
 ?>
 		<dt><?= __('Phone (mobile)') ?></dt>
 		<dd><?php
@@ -131,16 +125,14 @@ if (Configure::read('profile.mobile_phone') && !empty($person->mobile_phone) &&
 <?php
 endif;
 
-if ($this_is_parent):
-	if (!empty($person->alternate_full_name)):
+if (in_array('alternate_full_name', $visible_properties) && !empty($person->alternate_full_name)):
 ?>
 		<dt><?= __('Alternate Contact') ?></dt>
 		<dd><?= $person->alternate_full_name ?></dd>
 <?php
-	endif;
+endif;
 
-	if (Configure::read('profile.work_phone') && !empty($person->alternate_work_phone) &&
-		($view_contact || (Configure::read('Perm.is_logged_in') && $person->publish_alternate_work_phone))):
+if (in_array('alternate_work_phone', $visible_properties) && !empty($person->alternate_work_phone)):
 ?>
 		<dt><?= __('Phone (work)') ?></dt>
 		<dd><?php
@@ -152,10 +144,9 @@ if ($this_is_parent):
 			echo ' (' . ($person->publish_alternate_work_phone ? __('published') : __('private')) . ')';
 		?></dd>
 <?php
-	endif;
+endif;
 
-	if (Configure::read('profile.mobile_phone') && !empty($person->alternate_mobile_phone) &&
-		($view_contact || (Configure::read('Perm.is_logged_in') && $person->publish_alternate_mobile_phone))):
+if (in_array('alternate_mobile_phone', $visible_properties) && !empty($person->alternate_mobile_phone)):
 ?>
 		<dt><?= __('Phone (mobile)') ?></dt>
 		<dd><?php
@@ -164,12 +155,10 @@ if ($this_is_parent):
 			echo ' (' . ($person->publish_alternate_mobile_phone ? __('published') : __('private')) . ')';
 		?></dd>
 <?php
-	endif;
 endif;
 
-if ($is_me || $is_relative || Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
-	$label = __('Address');
-	if (Configure::read('profile.addr_street') && !empty($person->addr_street)):
+$label = __('Address');
+if (in_array('addr_street', $visible_properties) && !empty($person->addr_street)):
 ?>
 		<dt><?= $label ?></dt>
 		<dd><?php
@@ -177,37 +166,34 @@ if ($is_me || $is_relative || Configure::read('Perm.is_admin') || Configure::rea
 			$label = '&nbsp;';
 		?></dd>
 <?php
-	endif;
+endif;
 
-	$addr = [];
-	if (Configure::read('profile.addr_city') && !empty($person->addr_city)) {
-		$addr[] = $person->addr_city;
-	}
-	if (Configure::read('profile.addr_prov') && !empty($person->addr_prov)) {
-		$addr[] = __($person->addr_prov);
-	}
-	if (Configure::read('profile.addr_country') && !empty($person->addr_country)) {
-		$addr[] = __($person->addr_country);
-	}
-	if (!empty($addr)):
+$addr = [];
+if (in_array('addr_city', $visible_properties) && !empty($person->addr_city)) {
+	$addr[] = $person->addr_city;
+}
+if (in_array('addr_prov', $visible_properties) && !empty($person->addr_prov)) {
+	$addr[] = __($person->addr_prov);
+}
+if (in_array('addr_country', $visible_properties) && !empty($person->addr_country)) {
+	$addr[] = __($person->addr_country);
+}
+if (!empty($addr)):
 ?>
 		<dt><?= $label ?></dt>
 		<dd><?= implode(', ', $addr) ?></dd>
 <?php
-		$label = '&nbsp;';
-	endif;
+	$label = '&nbsp;';
+endif;
 
-	if (Configure::read('profile.addr_postalcode') && !empty($person->addr_postalcode)):
+if (in_array('addr_postalcode', $visible_properties) && !empty($person->addr_postalcode)):
 ?>
 		<dt><?= $label ?></dt>
 		<dd><?= $person->addr_postalcode ?></dd>
 <?php
-	endif;
 endif;
 
-if ($this_is_player):
-	if ($is_me || $is_relative || Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
-		if (Configure::read('profile.birthdate')):
+if (in_array('birthdate', $visible_properties)):
 ?>
 		<dt><?= __('Birthdate') ?></dt>
 		<dd><?php
@@ -222,39 +208,37 @@ if ($this_is_player):
 			}
 		?></dd>
 <?php
-		endif;
-	endif;
+endif;
 
-	if ($is_me || Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
+if (in_array('gender_display', $visible_properties)):
 ?>
 		<dt><?= __('Gender') ?></dt>
 		<dd><?= __($person->gender_display) ?>&nbsp;</dd>
 <?php
-	endif;
+endif;
 
-	if ($is_me || $is_relative || Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator || $is_captain):
-		if (Configure::read('profile.height') && !empty($person->height)):
+if (in_array('height', $visible_properties) && !empty($person->height)):
 ?>
 		<dt><?= __('Height') ?></dt>
 		<dd><?= $person->height . ' ' . (Configure::read('feature.units') == 'Metric' ? __('cm') : __('inches')) ?></dd>
 <?php
-		endif;
+endif;
 
-		if (Configure::read('profile.shirt_size') && !empty($person->shirt_size)):
+if (in_array('shirt_size', $visible_properties) && !empty($person->shirt_size)):
 ?>
 		<dt><?= __('Shirt Size') ?></dt>
 		<dd><?= __($person->shirt_size) ?></dd>
 <?php
-		endif;
-	endif;
+endif;
 
-	if (Configure::read('profile.skill_level') && !empty($skills)):
+if (in_array('skills', $visible_properties) && !empty($person->skills)):
+	if (Configure::read('profile.skill_level')):
 ?>
 		<dt><?= __('Skill Level') ?></dt>
 		<dd><?php
 			$sports = [];
 			$sport_count = count(Configure::read('options.sport'));
-			foreach ($skills as $skill) {
+			foreach ($person->skills as $skill) {
 				if ($sport_count > 1) {
 					$sports[] = Inflector::humanize($skill->sport) . ': ' . __(Configure::read("options.skill.{$skill->skill_level}"));
 				} else {
@@ -266,13 +250,13 @@ if ($this_is_player):
 <?php
 	endif;
 
-	if (Configure::read('Perm.is_logged_in') && Configure::read('profile.year_started') && !empty($skills)):
+	if (Configure::read('profile.year_started')):
 ?>
 		<dt><?= __('Year Started') ?></dt>
 		<dd><?php
 			$sports = [];
 			$sport_count = count(Configure::read('options.sport'));
-			foreach ($skills as $skill) {
+			foreach ($person->skills as $skill) {
 				if ($sport_count > 1) {
 					$sports[] = Inflector::humanize($skill->sport) . ': ' . $skill->year_started;
 				} else {
@@ -285,12 +269,12 @@ if ($this_is_player):
 	endif;
 endif;
 
-if ($is_me || $is_relative || Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
+if (in_array('groups', $visible_properties)):
 ?>
-		<dt><?= __n('Account Class', 'Account Classes', count($groups)) ?></dt>
+		<dt><?= __n('Account Class', 'Account Classes', count($person->groups)) ?></dt>
 		<dd><?php
 			$names = [];
-			foreach ($groups as $group) {
+			foreach ($person->groups as $group) {
 				$names[] = __($group->name);
 			}
 			if (empty($names)) {
@@ -299,22 +283,28 @@ if ($is_me || $is_relative || Configure::read('Perm.is_admin') || Configure::rea
 				echo implode(', ', $names);
 			}
 		?></dd>
+<?php
+endif;
+
+if (in_array('status', $visible_properties)):
+?>
 		<dt><?= __('Account Status') ?></dt>
 		<dd><?= __($person->status) ?></dd>
 <?php
-	if (Configure::read('feature.dog_questions')):
+endif;
+
+if (in_array('has_dog', $visible_properties)):
 ?>
 		<dt><?= __('Has Dog') ?></dt>
 		<dd><?= $person->has_dog ? __('Yes') : __('No') ?></dd>
 <?php
-	endif;
+endif;
 
-	if (Configure::read('profile.contact_for_feedback')):
+if (in_array('contact_for_feedback', $visible_properties)):
 ?>
 		<dt><?= __('Contact For Feedback') ?></dt>
 		<dd><?= $person->contact_for_feedback ? __('Yes') : __('No') ?></dd>
 <?php
-	endif;
 endif;
 ?>
 	</dl>
@@ -399,13 +389,13 @@ if (!empty($person->notes)):
 <?php
 endif;
 
-if ($view_contact && \App\Controller\AppController::_isChild($person) && !empty($related_to)):
+if (in_array('related_to', $visible_properties) && AppController::_isChild($person) && !empty($person->related_to)):
 ?>
 <div class="related">
 	<h3><?= __('Contacts') ?></h3>
 	<dl class="dl-horizontal">
 <?php
-	foreach ($related_to as $relative):
+	foreach ($person->related_to as $relative):
 		if ($relative->_joinData->approved):
 ?>
 		<dt><?= __('Name') ?></dt>
@@ -431,7 +421,7 @@ if ($view_contact && \App\Controller\AppController::_isChild($person) && !empty(
 <?php
 			endif;
 
-			if (Configure::read('profile.home_phone') && !empty($relative->home_phone)):
+			if (in_array('home_phone', $visible_properties) && !empty($relative->home_phone)):
 ?>
 		<dt><?= __('Phone (home)') ?></dt>
 		<dd><?php
@@ -441,7 +431,7 @@ if ($view_contact && \App\Controller\AppController::_isChild($person) && !empty(
 <?php
 			endif;
 
-			if (Configure::read('profile.work_phone') && !empty($relative->work_phone)):
+			if (in_array('work_phone', $visible_properties) && !empty($relative->work_phone)):
 ?>
 		<dt><?= __('Phone (work)') ?></dt>
 		<dd><?php
@@ -454,7 +444,7 @@ if ($view_contact && \App\Controller\AppController::_isChild($person) && !empty(
 <?php
 			endif;
 
-			if (Configure::read('profile.mobile_phone') && !empty($relative->mobile_phone)):
+			if (in_array('mobile_phone', $visible_properties) && !empty($relative->mobile_phone)):
 ?>
 		<dt><?= __('Phone (mobile)') ?></dt>
 		<dd><?php
@@ -472,18 +462,18 @@ if ($view_contact && \App\Controller\AppController::_isChild($person) && !empty(
 endif;
 
 $all_teams = $this->UserCache->read('AllTeamIDs', $person->id);
-if (Configure::read('Perm.is_logged_in') && ($this_is_player || !empty($all_teams))):
+if (in_array('teams', $visible_properties) && ($is_player || !empty($all_teams))):
 ?>
 <div class="related">
 	<h3><?= __('Teams') ?></h3>
 <?php
-	if (!empty($teams)):
+	if (!empty($person->teams)):
 ?>
 	<div class="table-responsive">
 		<table class="table table-striped table-hover table-condensed">
 			<tbody>
 <?php
-		foreach ($teams as $team):
+		foreach ($person->teams as $team):
 ?>
 				<tr>
 					<td><?php
@@ -522,7 +512,7 @@ echo $this->Html->tag('li', $this->Html->link(__('Show Team History'), ['control
 <?php
 endif;
 
-if ((Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_me || $is_relative) && (!empty($relatives) || !empty($related_to))):
+if ((in_array('relatives', $visible_properties)) && (!empty($person->relatives) || !empty($person->related_to))):
 ?>
 <div class="related">
 	<h3><?= __('Relatives') ?></h3>
@@ -537,7 +527,7 @@ if ((Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $
 			</thead>
 			<tbody>
 <?php
-	foreach ($relatives as $relative):
+	foreach ($person->relatives as $relative):
 ?>
 				<tr>
 					<td><?php
@@ -558,7 +548,7 @@ if ((Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $
 <?php
 	endforeach;
 
-	foreach ($related_to as $relative):
+	foreach ($person->related_to as $relative):
 ?>
 			<tr>
 				<td><?php
@@ -606,7 +596,7 @@ echo $this->Html->tag('li', $this->Html->link(__('Link a relative'), ['controlle
 <?php
 endif;
 
-if (Configure::read('Perm.is_logged_in') && Configure::read('feature.badges') && !empty($person->badges)):
+if (in_array('badges', $visible_properties) && !empty($person->badges)):
 ?>
 <div class="related">
 	<h3><?= __('Badges') ?></h3>
@@ -620,7 +610,7 @@ if (Configure::read('Perm.is_logged_in') && Configure::read('feature.badges') &&
 <?php
 endif;
 
-if (!empty($divisions)):
+if (!empty($person->divisions)):
 ?>
 <div class="related">
 	<h3><?= __('Divisions') ?></h3>
@@ -628,7 +618,7 @@ if (!empty($divisions)):
 		<table class="table table-striped table-hover table-condensed">
 			<tbody>
 <?php
-	foreach ($divisions as $division):
+	foreach ($person->divisions as $division):
 ?>
 				<tr>
 					<td><?php
@@ -647,12 +637,12 @@ if (!empty($divisions)):
 <?php
 endif;
 
-if (Configure::read('scoring.allstars') && (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator) && ($this_is_player || !empty($allstars))):
+if (in_array('allstars', $visible_properties) && !empty($person->allstars)):
 ?>
 <div class="related">
 	<h3><?= __('Allstar Nominations') ?></h3>
 <?php
-	if (!empty($allstars)):
+	if (!empty($person->allstars)):
 ?>
 	<div class="table-responsive">
 		<table class="table table-striped table-hover table-condensed">
@@ -666,7 +656,7 @@ if (Configure::read('scoring.allstars') && (Configure::read('Perm.is_admin') || 
 			</thead>
 			<tbody>
 <?php
-		foreach ($allstars as $allstar):
+		foreach ($person->allstars as $allstar):
 ?>
 				<tr>
 					<td><?= $this->Html->link($this->Time->datetime($allstar->score_entry->game->game_slot->start_time), ['controller' => 'Games', 'action' => 'view', 'game' => $allstar->score_entry->game_id]) ?></td>
@@ -694,13 +684,12 @@ if (Configure::read('scoring.allstars') && (Configure::read('Perm.is_admin') || 
 <?php
 endif;
 
-if (Configure::read('feature.registration')):
-	if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || (($is_me || $is_relative) && !empty($preregistrations))):
+if (in_array('preregistrations', $visible_properties) || (($is_me || $is_relative) && !empty($person->preregistrations))):
 ?>
 <div class="related">
 	<h3><?= __('Preregistrations') ?></h3>
 <?php
-		if (!empty($preregistrations)):
+	if (!empty($person->preregistrations)):
 ?>
 	<div class="table-responsive">
 		<table class="table table-striped table-hover table-condensed">
@@ -712,7 +701,7 @@ if (Configure::read('feature.registration')):
 			</thead>
 			<tbody>
 <?php
-			foreach ($preregistrations as $preregistration):
+		foreach ($person->preregistrations as $preregistration):
 ?>
 			<tr>
 				<td><?= $this->Html->link($preregistration->event->name, ['controller' => 'Events', 'action' => 'view', 'event' => $preregistration->event->id]) ?></td>
@@ -725,15 +714,15 @@ if (Configure::read('feature.registration')):
 			</tr>
 
 <?php
-			endforeach;
+		endforeach;
 ?>
 			</tbody>
 		</table>
 	</div>
 <?php
-		endif;
+	endif;
 
-		if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
+	if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
 ?>
 	<div class="actions columns">
 		<ul class="nav nav-pills">
@@ -743,13 +732,13 @@ echo $this->Html->tag('li', $this->Html->link(__('Add Preregistration'), ['contr
 		</ul>
 	</div>
 <?php
-		endif;
+	endif;
 ?>
 </div>
 <?php
-	endif;
+endif;
 
-	if ((Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_me || $is_relative) && !empty($registrations)):
+if ((in_array('registrations', $visible_properties)) && !empty($person->registrations)):
 ?>
 <div class="related">
 	<h3><?= __('Recent Registrations') ?></h3>
@@ -765,7 +754,7 @@ echo $this->Html->tag('li', $this->Html->link(__('Add Preregistration'), ['contr
 			</thead>
 			<tbody>
 <?php
-		foreach ($registrations as $registration):
+	foreach ($person->registrations as $registration):
 ?>
 				<tr>
 					<td><?= $this->Html->link($registration->event->name, ['controller' => 'Events', 'action' => 'view', 'event' => $registration->event->id]) ?></td>
@@ -775,7 +764,7 @@ echo $this->Html->tag('li', $this->Html->link(__('Add Preregistration'), ['contr
 				</tr>
 
 <?php
-		endforeach;
+	endforeach;
 ?>
 			</tbody>
 		</table>
@@ -783,15 +772,15 @@ echo $this->Html->tag('li', $this->Html->link(__('Add Preregistration'), ['contr
 	<div class="actions columns">
 		<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('Show Registration History'), ['controller' => 'People', 'action' => 'registrations', 'person' => $person->id]));
+	echo $this->Html->tag('li', $this->Html->link(__('Show Registration History'), ['controller' => 'People', 'action' => 'registrations', 'person' => $person->id]));
 ?>
 		</ul>
 	</div>
 </div>
 <?php
-	endif;
+endif;
 
-	if ((Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_me || $is_relative) && !empty($credits)):
+if ((in_array('credits', $visible_properties)) && !empty($person->credits)):
 ?>
 <div class="related">
 	<h3><?= __('Available Credits') ?></h3>
@@ -808,7 +797,7 @@ echo $this->Html->tag('li', $this->Html->link(__('Show Registration History'), [
 			</thead>
 			<tbody>
 <?php
-		foreach ($credits as $credit):
+	foreach ($person->credits as $credit):
 ?>
 				<tr>
 					<td><?= $this->Time->date($credit->created) ?></td>
@@ -818,7 +807,7 @@ echo $this->Html->tag('li', $this->Html->link(__('Show Registration History'), [
 				</tr>
 
 <?php
-		endforeach;
+	endforeach;
 ?>
 			</tbody>
 		</table>
@@ -826,21 +815,20 @@ echo $this->Html->tag('li', $this->Html->link(__('Show Registration History'), [
 	<div class="actions columns">
 		<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('Show Credit History'), ['controller' => 'People', 'action' => 'credits', 'person' => $person->id]));
+	echo $this->Html->tag('li', $this->Html->link(__('Show Credit History'), ['controller' => 'People', 'action' => 'credits', 'person' => $person->id]));
 ?>
 		</ul>
 	</div>
 </div>
 <?php
-	endif;
 endif;
 
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_me || $is_relative):
+if (in_array('waivers', $visible_properties)):
 ?>
 <div class="related">
 	<h3><?= __('Waivers') ?></h3>
 <?php
-	if (!empty($waivers)):
+	if (!empty($person->waivers)):
 ?>
 	<div class="table-responsive">
 		<table class="table table-striped table-hover table-condensed">
@@ -855,7 +843,7 @@ if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $i
 			</thead>
 			<tbody>
 <?php
-		foreach ($waivers as $waiver):
+		foreach ($person->waivers as $waiver):
 ?>
 				<tr>
 					<td><?= $waiver->name ?></td>
@@ -890,12 +878,12 @@ echo $this->Html->tag('li', $this->Html->link(__('Show Waiver History'), ['contr
 <?php
 endif;
 
-if (Configure::read('feature.documents') && (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_me || $is_relative)):
+if (in_array('uploads', $visible_properties)):
 ?>
 <div class="related">
 	<h3><?= __('Documents') ?></h3>
 <?php
-	if (!empty($documents)):
+	if (!empty($person->uploads)):
 ?>
 	<div class="table-responsive">
 		<table class="table table-striped table-hover table-condensed">
@@ -909,15 +897,15 @@ if (Configure::read('feature.documents') && (Configure::read('Perm.is_admin') ||
 			</thead>
 			<tbody>
 <?php
-		foreach ($documents as $document):
+		foreach ($person->uploads as $upload):
 ?>
 				<tr>
-					<td><?= $document->upload_type->name ?></td>
+					<td><?= $upload->upload_type->name ?></td>
 <?php
 			if ($document->approved):
 ?>
-					<td><?= $this->Time->date($document->valid_from) ?></td>
-					<td><?= $this->Time->date($document->valid_until) ?></td>
+					<td><?= $this->Time->date($upload->valid_from) ?></td>
+					<td><?= $this->Time->date($upload->valid_until) ?></td>
 <?php
 			else:
 ?>
@@ -926,17 +914,17 @@ if (Configure::read('feature.documents') && (Configure::read('Perm.is_admin') ||
 			endif;
 ?>
 					<td class="actions"><?php
-						echo $this->Html->link(__('View'), ['action' => 'document', 'document' => $document->id], ['target' => 'preview']);
+						echo $this->Html->link(__('View'), ['action' => 'document', 'document' => $upload->id], ['target' => 'preview']);
 						if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
-							if ($document->approved) {
-								echo $this->Html->link(__('Edit'), ['action' => 'edit_document', 'document' => $document->id, 'return' => AppController::_return()]);
+							if ($upload->approved) {
+								echo $this->Html->link(__('Edit'), ['action' => 'edit_document', 'document' => $upload->id, 'return' => AppController::_return()]);
 							} else {
-								echo $this->Html->link(__('Approve'), ['action' => 'approve_document', 'document' => $document->id, 'return' => AppController::_return()]);
+								echo $this->Html->link(__('Approve'), ['action' => 'approve_document', 'document' => $upload->id, 'return' => AppController::_return()]);
 							}
 						}
 
 						echo $this->Jquery->ajaxLink($this->Html->iconImg('delete_24.png', ['alt' => __('Delete'), 'title' => __('Delete')]), [
-							'url' => ['action' => 'delete_document', 'document' => $document->id],
+							'url' => ['action' => 'delete_document', 'document' => $upload->id],
 							'confirm' => __('Are you sure you want to delete this document?'),
 							'disposition' => 'remove_closest',
 							'selector' => 'tr',
@@ -966,7 +954,7 @@ echo $this->Html->tag('li', $this->Html->link(__('Upload New Document'), ['actio
 <?php
 endif;
 
-if ((Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_me || $is_relative) && !empty($tasks)):
+if ((in_array('tasks', $visible_properties)) && !empty($person->tasks)):
 ?>
 <div class="related">
 	<h3><?= __('Assigned Tasks') ?></h3>
@@ -981,7 +969,7 @@ if ((Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $
 			</thead>
 			<tbody>
 <?php
-	foreach ($tasks as $task_slot):
+	foreach ($person->tasks as $task_slot):
 ?>
 				<tr>
 					<td class="splash_item"><?php

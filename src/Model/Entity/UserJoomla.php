@@ -48,6 +48,10 @@ class UserJoomla extends User {
 	 */
 	protected $_hidden = [
 		'password',
+		'username',
+		'email',
+		'registerDate',
+		'lastvisitDate',
 	];
 
 	protected function _getUserName() {

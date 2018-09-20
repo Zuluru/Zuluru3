@@ -98,7 +98,6 @@ class MailingListsController extends AppController {
 
 		$this->set('mailingLists', $this->paginate($this->MailingLists));
 		$this->set(compact('affiliates'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -123,8 +122,6 @@ class MailingListsController extends AppController {
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$this->set(compact('mailing_list', 'affiliates'));
-
-		$this->set('_serialize', true);
 	}
 
 	public function preview() {
@@ -225,7 +222,6 @@ class MailingListsController extends AppController {
 
 		$affiliates = $this->_applicableAffiliates(true);
 		$this->set(compact('mailing_list', 'affiliates'));
-		$this->set('_serialize', true);
 		$this->render('edit');
 	}
 
@@ -259,7 +255,6 @@ class MailingListsController extends AppController {
 
 		$affiliates = $this->_applicableAffiliates(true);
 		$this->set(compact('mailing_list', 'affiliates'));
-		$this->set('_serialize', true);
 	}
 
 	/**

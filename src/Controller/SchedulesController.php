@@ -209,7 +209,6 @@ class SchedulesController extends AppController {
 		}
 
 		$this->set(compact(['id', 'division']));
-		$this->set('_serialize', true);
 
 		$func = "_{$division->_options->step}";
 		return $this->$func($division, $stage);

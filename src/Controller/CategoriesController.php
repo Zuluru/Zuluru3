@@ -89,7 +89,6 @@ class CategoriesController extends AppController {
 			->contain(['Affiliates'])
 			->where(['affiliate_id IN' => $affiliates])
 			->order(['Affiliates.name', 'Categories.name']));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -119,7 +118,6 @@ class CategoriesController extends AppController {
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$this->set(compact('category', 'affiliates'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -146,7 +144,6 @@ class CategoriesController extends AppController {
 		}
 		$affiliates = $this->_applicableAffiliates(true);
 		$this->set(compact('category', 'affiliates'));
-		$this->set('_serialize', true);
 		$this->render('edit');
 	}
 
@@ -186,7 +183,6 @@ class CategoriesController extends AppController {
 		}
 		$affiliates = $this->_applicableAffiliates(true);
 		$this->set(compact('category', 'affiliates'));
-		$this->set('_serialize', true);
 	}
 
 	/**

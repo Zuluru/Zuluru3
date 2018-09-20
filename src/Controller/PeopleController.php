@@ -309,7 +309,6 @@ class PeopleController extends AppController {
 
 			$this->set('people', $this->paginate($query));
 		}
-		$this->set('_serialize', true);
 	}
 
 	public function statistics() {
@@ -550,9 +549,9 @@ class PeopleController extends AppController {
 			throw new GoneException();
 		}
 
-		$groups = $this->UserCache->read('Groups', $person->id);
-		$skills = collection($this->UserCache->read('Skills', $person->id))->filter(function ($skill) { return $skill->enabled; })->toArray();
-		$teams = $this->UserCache->read('Teams', $person->id);
+		$person->groups = $this->UserCache->read('Groups', $person->id);
+		$person->skills = collection($this->UserCache->read('Skills', $person->id))->filter(function ($skill) { return $skill->enabled; })->toArray();
+		$person->teams = $this->UserCache->read('Teams', $person->id);
 		$photo = null;
 
 		if (Configure::read('Perm.is_logged_in')) {
@@ -561,17 +560,17 @@ class PeopleController extends AppController {
 				Configure::write('Perm.is_manager', false);
 			}
 
-			$relatives = $this->UserCache->read('Relatives', $person->id);
-			$related_to = $this->UserCache->read('RelatedTo', $person->id);
-			$divisions = $this->UserCache->read('Divisions', $person->id);
-			$waivers = $this->UserCache->read('WaiversCurrent', $person->id);
+			$person->relatives = $this->UserCache->read('Relatives', $person->id);
+			$person->related_to = $this->UserCache->read('RelatedTo', $person->id);
+			$person->divisions = $this->UserCache->read('Divisions', $person->id);
+			$person->waivers = $this->UserCache->read('WaiversCurrent', $person->id);
 			if (Configure::read('feature.registration')) {
-				$registrations = array_slice($this->UserCache->read('Registrations', $person->id), 0, 4);
-				$preregistrations = $this->UserCache->read('Preregistrations', $person->id);
-				$credits = $this->UserCache->read('Credits', $person->id);
+				$person->registrations = array_slice($this->UserCache->read('Registrations', $person->id), 0, 4);
+				$person->preregistrations = $this->UserCache->read('Preregistrations', $person->id);
+				$person->credits = $this->UserCache->read('Credits', $person->id);
 			}
 			if (Configure::read('scoring.allstars')) {
-				$allstars = $this->People->GamesAllstars->find()
+				$person->allstars = $this->People->GamesAllstars->find()
 					->contain([
 						'ScoreEntries' => [
 							'Games' => [
@@ -600,7 +599,7 @@ class PeopleController extends AppController {
 					->first();
 			}
 			if (Configure::read('feature.documents')) {
-				$documents = $this->UserCache->read('Documents', $person->id);
+				$person->uploads = $this->UserCache->read('Documents', $person->id);
 			}
 			if (Configure::read('feature.annotations')) {
 				$visibility = [VISIBILITY_PUBLIC];
@@ -619,7 +618,7 @@ class PeopleController extends AppController {
 					->toArray();
 			}
 			if (Configure::read('feature.tasks') && ($id == Configure::read('Perm.my_id') || Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager'))) {
-				$tasks = $this->UserCache->read('Tasks', $person->id);
+				$person->tasks = $this->UserCache->read('Tasks', $person->id);
 			}
 			if (Configure::read('feature.badges')) {
 				$badge_obj = $this->moduleRegistry->load('Badge');
@@ -640,11 +639,12 @@ class PeopleController extends AppController {
 			}
 		}
 
-		$this->set(compact('person', 'groups', 'teams', 'skills', 'relatives', 'related_to', 'divisions', 'waivers', 'registrations', 'preregistrations', 'credits', 'allstars', 'photo', 'documents', 'tasks'));
-		$this->set('is_me', ($id == Configure::read('Perm.my_id')));
-		$this->set('is_relative', in_array($id, $this->UserCache->read('RelativeIDs')));
-
-		$this->set($this->_connections($id));
+		$is_me = ($id == Configure::read('Perm.my_id'));
+		$is_relative = in_array($id, $this->UserCache->read('RelativeIDs'));
+		$person->updateHidden(array_merge($this->_connections($id), compact('is_me', 'is_relative')));
+		$photo_url = $person->photoUrl($photo);
+		$this->set(compact('person', 'photo', 'photo_url', 'is_me', 'is_relative'));
+		$this->set('_serialize', ['person', 'photo_url']);
 	}
 
 	public function tooltip() {
@@ -696,7 +696,6 @@ class PeopleController extends AppController {
 		$this->set(compact('person', 'photo'));
 		$this->set('is_me', ($id == $this->UserCache->currentId()));
 		$this->set($this->_connections($id));
-		$this->set('_serialize', true);
 	}
 
 	protected function _connections($id) {
@@ -890,7 +889,6 @@ class PeopleController extends AppController {
 		}
 
 		$this->set(compact('person'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -926,7 +924,6 @@ class PeopleController extends AppController {
 		}
 
 		$this->set(compact('person'));
-		$this->set('_serialize', true);
 	}
 
 	public function confirm() {
@@ -1006,7 +1003,6 @@ class PeopleController extends AppController {
 		}
 
 		$this->set(compact('person', 'note'));
-		$this->set('_serialize', true);
 	}
 
 	public function delete_note() {
@@ -1076,7 +1072,6 @@ class PeopleController extends AppController {
 		}
 
 		$this->set(compact('id', 'person', 'settings'));
-		$this->set('_serialize', true);
 	}
 
 	public function add_relative() {
@@ -1126,7 +1121,6 @@ class PeopleController extends AppController {
 		}
 
 		$this->set(compact('person'));
-		$this->set('_serialize', true);
 	}
 
 	public function link_relative() {
@@ -1594,8 +1588,6 @@ class PeopleController extends AppController {
 			]))
 			{
 				$this->Flash->warning(__('Error sending email to {0}.', $photo->person->full_name));
-				// Successful completion, but we still need this message sent
-				$this->set('_serialize', true);
 			}
 		}
 	}
@@ -1737,7 +1729,6 @@ class PeopleController extends AppController {
 		}
 
 		$this->set(compact('person', 'types', 'upload'));
-		$this->set('_serialize', true);
 	}
 
 	public function approve_documents() {
@@ -1800,7 +1791,6 @@ class PeopleController extends AppController {
 		}
 
 		$this->set(compact('document'));
-		$this->set('_serialize', true);
 	}
 
 	public function edit_document() {
@@ -1845,8 +1835,6 @@ class PeopleController extends AppController {
 			$this->request->data = $document;
 		}
 		$this->set(compact('document'));
-
-		$this->set('_serialize', true);
 		$this->render('approve_document');
 	}
 
@@ -2175,8 +2163,6 @@ class PeopleController extends AppController {
 				]))
 				{
 					$this->Flash->warning(__('Error sending email to {0}.', $link->nominated_by->full_name));
-					// Successful completion, but we still need this message sent
-					$this->set('_serialize', true);
 				}
 
 				// Inform the recipient
@@ -2189,8 +2175,6 @@ class PeopleController extends AppController {
 				]))
 				{
 					$this->Flash->warning(__('Error sending email to {0}.', $link->person->full_name));
-					// Successful completion, but we still need this message sent
-					$this->set('_serialize', true);
 				}
 			}
 		}
@@ -2238,8 +2222,6 @@ class PeopleController extends AppController {
 					])
 					) {
 						$this->Flash->warning(__('Error sending email to {0}.', $link->person->full_name));
-						// Successful completion, but we still need this message sent
-						$this->set('_serialize', true);
 					}
 				} else {
 					// Inform the nominator
@@ -2252,8 +2234,6 @@ class PeopleController extends AppController {
 					])
 					) {
 						$this->Flash->warning(__('Error sending email to {0}.', $link->nominated_by->full_name));
-						// Successful completion, but we still need this message sent
-						$this->set('_serialize', true);
 					}
 				}
 			}

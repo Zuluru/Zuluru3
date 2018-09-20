@@ -102,7 +102,6 @@ class WaiversController extends AppController {
 			->order(['Affiliates.name']);
 		$this->set('waivers', $this->paginate($query));
 		$this->set(compact('affiliates'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -127,7 +126,6 @@ class WaiversController extends AppController {
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$this->set(compact('waiver', 'affiliates'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -149,8 +147,6 @@ class WaiversController extends AppController {
 		}
 		$this->set('affiliates', $this->_applicableAffiliates(true));
 		$this->set(compact('waiver', 'affiliates'));
-		$this->set('_serialize', true);
-
 		$this->render('edit');
 	}
 
@@ -192,7 +188,6 @@ class WaiversController extends AppController {
 
 		$affiliates = $this->_applicableAffiliates(true);
 		$this->set(compact('waiver', 'affiliates'));
-		$this->set('_serialize', true);
 	}
 
 	/**

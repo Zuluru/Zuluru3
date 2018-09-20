@@ -68,7 +68,6 @@ class HolidaysController extends AppController {
 		$holidays = $this->paginate($this->Holidays);
 
 		$this->set(compact('holidays', 'affiliates'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -91,7 +90,6 @@ class HolidaysController extends AppController {
 
 		$affiliates = $this->_applicableAffiliates(true);
 		$this->set(compact('holiday', 'affiliates'));
-		$this->set('_serialize', true);
 		$this->render('edit');
 	}
 
@@ -127,7 +125,6 @@ class HolidaysController extends AppController {
 
 		$affiliates = $this->_applicableAffiliates(true);
 		$this->set(compact('holiday', 'affiliates'));
-		$this->set('_serialize', true);
 	}
 
 	/**

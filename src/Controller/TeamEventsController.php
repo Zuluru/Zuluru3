@@ -145,7 +145,6 @@ class TeamEventsController extends AppController {
 		$attendance = $this->TeamEvents->readAttendance($team_event->team, $id)->attendances;
 		$this->set(compact('team_event', 'attendance'));
 		$this->set('is_captain', in_array($team_event->team->id, $this->UserCache->read('OwnedTeamIDs')));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -263,7 +262,6 @@ class TeamEventsController extends AppController {
 		$this->_loadAddressOptions();
 
 		$this->set(compact('team_event'));
-		$this->set('_serialize', true);
 		$this->render('edit');
 	}
 
@@ -303,7 +301,6 @@ class TeamEventsController extends AppController {
 		$this->_loadAddressOptions();
 
 		$this->set(compact('team_event'));
-		$this->set('_serialize', true);
 	}
 
 	/**

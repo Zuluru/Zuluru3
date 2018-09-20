@@ -200,7 +200,6 @@ class BadgesController extends AppController {
 		$badge->people = $this->paginate($query);
 
 		$this->set(compact('badge'));
-		$this->set('_serialize', true);
 	}
 
 	public function initialize_awards() {
@@ -270,7 +269,6 @@ class BadgesController extends AppController {
 
 		$this->Configuration->loadAffiliate($badge->affiliate_id);
 		$this->set(compact('badge'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -297,7 +295,6 @@ class BadgesController extends AppController {
 		}
 		$affiliates = $this->_applicableAffiliates(true);
 		$this->set(compact('badge', 'affiliates'));
-		$this->set('_serialize', true);
 		$this->render('edit');
 	}
 
@@ -335,7 +332,6 @@ class BadgesController extends AppController {
 		}
 		$affiliates = $this->_applicableAffiliates(true);
 		$this->set(compact('badge', 'affiliates'));
-		$this->set('_serialize', true);
 	}
 
 	/**

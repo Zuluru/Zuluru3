@@ -112,7 +112,6 @@ class GameSlotsController extends AppController {
 		$this->Configuration->loadAffiliate($game_slot->field->facility->region->affiliate_id);
 
 		$this->set(compact('game_slot'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -319,8 +318,6 @@ class GameSlotsController extends AppController {
 
 		$this->set(compact('game_slot', 'affiliate', 'divisions', 'holidays', 'times', 'weeks', 'skipped'));
 		$this->set('days', $divisions_table->Days->find('list'));
-
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -368,8 +365,6 @@ class GameSlotsController extends AppController {
 			->toArray();
 
 		$this->set(compact('game_slot', 'affiliate', 'divisions'));
-
-		$this->set('_serialize', true);
 	}
 
 	/**

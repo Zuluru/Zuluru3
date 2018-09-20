@@ -173,8 +173,6 @@ class LeaguesController extends AppController {
 			->order(['Leagues.open'])
 			->toArray()
 		]);
-
-		$this->set('_serialize', true);
 	}
 
 	public function summary() {
@@ -227,7 +225,6 @@ class LeaguesController extends AppController {
 		$this->set('is_coordinator', $this->Leagues->is_coordinator($league));
 
 		$this->set(compact('league', 'league_obj', 'affiliates'));
-		$this->set('_serialize', true);
 	}
 
 	public function tooltip() {
@@ -355,8 +352,6 @@ class LeaguesController extends AppController {
 		$this->set('affiliates', $this->_applicableAffiliates(true));
 		$this->set('days', $this->Leagues->Divisions->Days->find('list'));
 		$this->set('stat_types', $this->Leagues->StatTypes->find());
-		$this->set('_serialize', true);
-
 		$this->render('edit');
 	}
 
@@ -417,8 +412,6 @@ class LeaguesController extends AppController {
 		if (count($league->divisions) == 1) {
 			$this->set('league_obj', $this->moduleRegistry->load("LeagueType:{$league->divisions[0]->schedule_type}"));
 		}
-
-		$this->set('_serialize', true);
 	}
 
 	/**

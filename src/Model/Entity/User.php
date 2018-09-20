@@ -38,8 +38,12 @@ class User extends Entity {
 	 * @var array
 	 */
 	protected $_hidden = [
-        'password'
-    ];
+		'password',
+		'user_name',
+		'email',
+		'last_login',
+		'client_ip',
+	];
 
 	protected function _setPassword($value) {
 		$hasher = new DefaultPasswordHasher();

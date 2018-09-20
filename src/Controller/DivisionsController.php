@@ -194,7 +194,6 @@ class DivisionsController extends AppController {
 
 		$this->set(compact('division', 'league_obj'));
 		$this->set('is_coordinator', in_array($id, $this->UserCache->read('DivisionIDs')));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -302,7 +301,6 @@ class DivisionsController extends AppController {
 
 		$this->set(compact('division', 'sport_obj'));
 		$this->set('is_coordinator', in_array($id, $this->UserCache->read('DivisionIDs')));
-		$this->set('_serialize', true);
 
 		if ($this->request->is('csv')) {
 			$this->response->download("Stats - {$division->name}.csv");
@@ -359,7 +357,6 @@ class DivisionsController extends AppController {
 			$this->set('league_obj', $this->moduleRegistry->load("LeagueType:{$division->schedule_type}"));
 		}
 		$this->set('is_coordinator', false);
-		$this->set('_serialize', true);
 
 		$this->render('edit');
 	}
@@ -402,7 +399,6 @@ class DivisionsController extends AppController {
 		$this->set('days', $this->Divisions->Days->find('list')->toArray());
 		$this->set('league_obj', $this->moduleRegistry->load("LeagueType:{$division->schedule_type}"));
 		$this->set('is_coordinator', in_array($id, $this->UserCache->read('DivisionIDs')));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -584,7 +580,6 @@ class DivisionsController extends AppController {
 		}
 
 		$this->set(compact('division'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -640,7 +635,6 @@ class DivisionsController extends AppController {
 		}
 
 		$this->set(compact('division'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -704,7 +698,6 @@ class DivisionsController extends AppController {
 		}
 
 		$this->set(compact('division'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -880,7 +873,6 @@ class DivisionsController extends AppController {
 
 		$division->games = collection($division->games)->indexBy('id')->toArray();
 		$this->set(compact('id', 'division', 'edit_date', 'game_slots', 'is_coordinator', 'is_tournament', 'multi_day'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -949,7 +941,6 @@ class DivisionsController extends AppController {
 		}
 		$this->set(compact('division', 'league_obj', 'spirit_obj', 'team_id', 'show_teams', 'more_before', 'more_after'));
 		$this->set('is_coordinator', in_array($id, $this->UserCache->read('DivisionIDs')));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -1017,7 +1008,6 @@ class DivisionsController extends AppController {
 
 		$this->set(compact('division'));
 		$this->set('is_coordinator', in_array($id, $this->UserCache->read('DivisionIDs')));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -1091,7 +1081,6 @@ class DivisionsController extends AppController {
 
 		$this->set(compact('division', 'league_obj', 'game_slots'));
 		$this->set('is_coordinator', in_array($id, $this->UserCache->read('DivisionIDs')));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -1180,7 +1169,6 @@ class DivisionsController extends AppController {
 		}
 
 		$this->set(compact('division', 'dates', 'date', 'slots', 'is_tournament'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -1324,7 +1312,6 @@ class DivisionsController extends AppController {
 		}
 
 		$this->set(compact('division', 'regions', 'regions_used', 'fields', 'stats', 'playoffs_included', 'league_obj'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -1368,7 +1355,6 @@ class DivisionsController extends AppController {
 			->toArray();
 
 		$this->set(compact('division', 'allstars', 'min'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -1405,7 +1391,6 @@ class DivisionsController extends AppController {
 
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 		$this->set(compact('division'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -1462,7 +1447,6 @@ class DivisionsController extends AppController {
 
 		usort($division->games, ['App\Model\Table\GamesTable', 'compareDateAndField']);
 		$this->set(compact('division', 'spirit_obj'));
-		$this->set('_serialize', true);
 
 		if ($this->request->is('csv')) {
 			$this->response->download("Spirit - {$division->full_league_name}.csv");
@@ -1548,7 +1532,6 @@ class DivisionsController extends AppController {
 
 		$this->set(compact('division'));
 		$this->set('is_coordinator', in_array($id, $this->UserCache->read('DivisionIDs')));
-		$this->set('_serialize', true);
 	}
 
 	/**

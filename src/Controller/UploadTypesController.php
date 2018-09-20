@@ -82,7 +82,6 @@ class UploadTypesController extends AppController {
 			->toArray());
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$this->set(compact('affiliates'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -115,7 +114,6 @@ class UploadTypesController extends AppController {
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$this->set(compact('upload_type', 'affiliates'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -143,7 +141,6 @@ class UploadTypesController extends AppController {
 
 		$affiliates = $this->_applicableAffiliates(true);
 		$this->set(compact('upload_type', 'affiliates'));
-		$this->set('_serialize', true);
 		$this->render('edit');
 	}
 
@@ -184,7 +181,6 @@ class UploadTypesController extends AppController {
 		$this->Configuration->loadAffiliate($upload_type->affiliate_id);
 		$affiliates = $this->_applicableAffiliates(true);
 		$this->set(compact('upload_type', 'affiliates'));
-		$this->set('_serialize', true);
 	}
 
 	/**

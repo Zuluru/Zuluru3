@@ -112,7 +112,6 @@ class QuestionnairesController extends AppController {
 		$this->set('questionnaires', $this->paginate($query));
 		$this->set('active', true);
 		$this->set(compact('affiliates'));
-		$this->set('_serialize', true);
 	}
 
 	public function deactivated() {
@@ -133,7 +132,6 @@ class QuestionnairesController extends AppController {
 		$this->set('questionnaires', $this->paginate($query));
 		$this->set('active', false);
 		$this->set(compact('affiliates'));
-		$this->set('_serialize', true);
 		$this->render('index');
 	}
 
@@ -177,7 +175,6 @@ class QuestionnairesController extends AppController {
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$this->set(compact('questionnaire', 'affiliates'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -205,7 +202,6 @@ class QuestionnairesController extends AppController {
 
 		$affiliates = $this->_applicableAffiliates(true);
 		$this->set(compact('questionnaire', 'affiliates'));
-		$this->set('_serialize', true);
 		$this->render('edit');
 	}
 
@@ -248,7 +244,6 @@ class QuestionnairesController extends AppController {
 
 		$affiliates = $this->_applicableAffiliates(true);
 		$this->set(compact('questionnaire', 'affiliates'));
-		$this->set('_serialize', true);
 	}
 
 	/**

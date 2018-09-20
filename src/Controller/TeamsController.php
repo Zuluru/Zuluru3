@@ -256,7 +256,6 @@ class TeamsController extends AppController {
 			->count();
 
 		$this->set(compact('affiliates', 'affiliate', 'teams', 'letters', 'leagues'));
-		$this->set('_serialize', true);
 	}
 
 	public function letter() {
@@ -831,8 +830,7 @@ class TeamsController extends AppController {
 		}
 
 		$this->set('team', $team);
-
-		$this->set('_serialize', true);
+		$this->set('_serialize', ['team']);
 	}
 
 	public function numbers() {
@@ -920,7 +918,6 @@ class TeamsController extends AppController {
 		}
 
 		$this->set(compact('team', 'is_captain', 'person_id', 'person'));
-		$this->set('_serialize', true);
 	}
 
 	public function stats() {
@@ -1178,7 +1175,6 @@ class TeamsController extends AppController {
 		}
 
 		$this->set(compact('team', 'affiliates', 'regions', 'facilities'));
-		$this->set('_serialize', true);
 		$this->render('edit');
 	}
 
@@ -1280,7 +1276,6 @@ class TeamsController extends AppController {
 		}
 
 		$this->set(compact('team', 'affiliates', 'regions', 'facilities'));
-		$this->set('_serialize', true);
 	}
 
 	public function note() {
@@ -1353,7 +1348,6 @@ class TeamsController extends AppController {
 		}
 
 		$this->set(compact('team', 'note'));
-		$this->set('_serialize', true);
 	}
 
 	public function delete_note() {
@@ -1570,6 +1564,7 @@ class TeamsController extends AppController {
 		$this->set('spirit_obj', $this->moduleRegistry->load("Spirit:{$team->division->league->sotg_questions}"));
 		$this->set('display_attendance', $team->track_attendance && (in_array($team->id, $this->UserCache->read('AllTeamIDs')) || in_array($team->id, $this->UserCache->read('AllRelativeTeamIDs'))));
 		$this->set('annotate', Configure::read('feature.annotations') && in_array($team->id, $this->UserCache->read('TeamIDs')));
+		$this->set('_serialize', ['team']);
 	}
 
     /**

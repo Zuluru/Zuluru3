@@ -121,7 +121,6 @@ class PreregistrationsController extends AppController {
 		}
 		$this->set('preregistrations', $this->paginate($this->Preregistrations));
 		$this->set(compact('event', 'affiliates'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -219,7 +218,6 @@ class PreregistrationsController extends AppController {
 		}
 
 		$this->set(compact('event', 'events', 'affiliates'));
-		$this->set('_serialize', true);
 	}
 
 	/**

@@ -79,7 +79,6 @@ class RegionsController extends AppController {
 			->contain(['Affiliates'])
 			->order(['Affiliates.name', 'Regions.name'])
 			->toArray());
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -105,7 +104,6 @@ class RegionsController extends AppController {
 
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$this->set(compact('region', 'affiliates'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -127,7 +125,6 @@ class RegionsController extends AppController {
 		}
 		$affiliates = $this->_applicableAffiliates(true);
 		$this->set(compact('region', 'affiliates'));
-		$this->set('_serialize', true);
 		$this->render('edit');
 	}
 
@@ -162,7 +159,6 @@ class RegionsController extends AppController {
 		$this->Configuration->loadAffiliate($region->affiliate_id);
 		$affiliates = $this->_applicableAffiliates(true);
 		$this->set(compact('region', 'affiliates'));
-		$this->set('_serialize', true);
 	}
 
 	/**

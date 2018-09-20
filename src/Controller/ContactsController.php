@@ -96,7 +96,6 @@ class ContactsController extends AppController {
 		$contacts = $this->paginate($query);
 
 		$this->set(compact('affiliates', 'affiliate', 'contacts'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -124,7 +123,6 @@ class ContactsController extends AppController {
 
 		$affiliates = $this->_applicableAffiliates(true);
 		$this->set(compact('contact', 'affiliates'));
-		$this->set('_serialize', true);
 		$this->render('edit');
 	}
 
@@ -163,7 +161,6 @@ class ContactsController extends AppController {
 
 		$affiliates = $this->_applicableAffiliates(true);
 		$this->set(compact('contact', 'affiliates'));
-		$this->set('_serialize', true);
 	}
 
 	/**
@@ -265,6 +262,5 @@ class ContactsController extends AppController {
 		}
 
 		$this->set(compact('message'));
-		$this->set('_serialize', true);
 	}
 }
