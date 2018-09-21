@@ -43,4 +43,9 @@ class DrupalPasswordHasher extends AbstractPasswordHasher {
 		return user_check_password($password, $account);
 	}
 
+	public function needsRehash($password) {
+		// TODO: Include Drupal-specific checks?
+		return false;
+	}
+
 }

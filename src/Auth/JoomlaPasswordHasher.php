@@ -47,4 +47,9 @@ class JoomlaPasswordHasher extends AbstractPasswordHasher {
 		}
 	}
 
+	public function needsRehash($password) {
+		// TODO: Include Joomla-specific checks?
+		return false;
+	}
+
 }

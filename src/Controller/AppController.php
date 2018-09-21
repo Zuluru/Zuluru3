@@ -115,7 +115,7 @@ class AppController extends Controller {
 			throw new Exception(__('Security.authModel is incorrectly configured!'));
 		}
 
-		if ($users_table->manageAccounts) {
+		if ($this->_userModel == 'Users') {
 			// If Zuluru handles account management, handle old passwords and migrate them
 			$hashMethod = Configure::read('Security.hashMethod') ?: $users_table->hashMethod;
 
@@ -128,7 +128,9 @@ class AppController extends Controller {
 				],
 			];
 		} else {
-			$hasher = null;
+			$hasher = [
+				'className' => $users_table->manageName,
+			];
 		}
 
 		if ($this->request->is('json')) {
@@ -150,6 +152,7 @@ class AppController extends Controller {
 						'userModel' => $this->_userModel,
 						'fields' => [
 							'username' => $users_table->primaryKey(),
+							'password' => $users_table->pwdField,
 						],
 
 						'parameter' => 'token',
@@ -261,10 +264,10 @@ class AppController extends Controller {
 	public function afterIdentify(CakeEvent $cakeEvent, $data, $auth) {
 		$users_table = TableRegistry::get($this->_userModel);
 
-		$this->UserCache->clear('Person', $data['id']);
-		$this->UserCache->clear('User', $data['id']);
+		$this->UserCache->clear('Person', $data[$users_table->primaryKey()]);
+		$this->UserCache->clear('User', $data[$users_table->primaryKey()]);
 
-		$user = $users_table->get($data['id'], [
+		$user = $users_table->get($data[$users_table->primaryKey()], [
 			'contain' => ['People']
 		]);
 		$user->last_login = FrozenTime::now();
