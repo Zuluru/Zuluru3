@@ -2,7 +2,6 @@ config/.env
 config/.env_test
 config/app_local.php
 config/Migrations/schema-dump-default.lock
-composer.lock
 .idea/
 logs/
 tmp/
