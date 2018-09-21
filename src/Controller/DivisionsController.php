@@ -47,6 +47,15 @@ class DivisionsController extends AppController {
 	}
 
 	/**
+	 * _publicJsonActions method
+	 *
+	 * @return array of JSON actions that can be taken even by visitors that are not logged in.
+	 */
+	protected function _publicJsonActions() {
+		return ['view', 'schedule', 'standings'];
+	}
+
+	/**
 	 * isAuthorized method
 	 *
 	 * @return bool true if access allowed
@@ -194,6 +203,7 @@ class DivisionsController extends AppController {
 
 		$this->set(compact('division', 'league_obj'));
 		$this->set('is_coordinator', in_array($id, $this->UserCache->read('DivisionIDs')));
+		$this->set('_serialize', ['division']);
 	}
 
 	/**
@@ -873,6 +883,7 @@ class DivisionsController extends AppController {
 
 		$division->games = collection($division->games)->indexBy('id')->toArray();
 		$this->set(compact('id', 'division', 'edit_date', 'game_slots', 'is_coordinator', 'is_tournament', 'multi_day'));
+		$this->set('_serialize', ['division']);
 	}
 
 	/**
@@ -883,7 +894,7 @@ class DivisionsController extends AppController {
 	public function standings() {
 		$id = intval($this->request->query('division'));
 		$team_id = $this->request->query('team');
-		$show_all = $this->request->query('full');
+		$show_all = $this->request->query('full') || $this->request->is('json');
 
 		try {
 			$division = $this->Divisions->get($id, [
@@ -941,6 +952,7 @@ class DivisionsController extends AppController {
 		}
 		$this->set(compact('division', 'league_obj', 'spirit_obj', 'team_id', 'show_teams', 'more_before', 'more_after'));
 		$this->set('is_coordinator', in_array($id, $this->UserCache->read('DivisionIDs')));
+		$this->set('_serialize', ['division']);
 	}
 
 	/**

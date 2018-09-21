@@ -49,7 +49,7 @@ class SchedulesController extends AppController {
 	 * @return array of JSON actions that can be taken even by visitors that are not logged in.
 	 */
 	protected function _publicJsonActions() {
-		return ['today', 'day'];
+		return ['today'];
 	}
 
 	public function isAuthorized() {

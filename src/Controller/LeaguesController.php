@@ -38,6 +38,15 @@ class LeaguesController extends AppController {
 	}
 
 	/**
+	 * _publicJsonActions method
+	 *
+	 * @return array of JSON actions that can be taken even by visitors that are not logged in.
+	 */
+	protected function _publicJsonActions() {
+		return ['index', 'view', 'schedule', 'standings'];
+	}
+
+	/**
 	 * _freeActions method
 	 *
 	 * @return array list of actions that people can perform even if the system wants them to do something else
@@ -173,6 +182,7 @@ class LeaguesController extends AppController {
 			->order(['Leagues.open'])
 			->toArray()
 		]);
+		$this->set('_serialize', ['league', 'years']);
 	}
 
 	public function summary() {
@@ -225,6 +235,7 @@ class LeaguesController extends AppController {
 		$this->set('is_coordinator', $this->Leagues->is_coordinator($league));
 
 		$this->set(compact('league', 'league_obj', 'affiliates'));
+		$this->set('_serialize', ['league']);
 	}
 
 	public function tooltip() {
@@ -625,6 +636,7 @@ class LeaguesController extends AppController {
 
 		$league->games = collection($league->games)->indexBy('id')->toArray();
 		$this->set(compact('id', 'league', 'edit_date', 'game_slots', 'is_coordinator', 'is_tournament', 'multi_day'));
+		$this->set('_serialize', ['league']);
 	}
 
 	public function standings() {
@@ -720,6 +732,7 @@ class LeaguesController extends AppController {
 
 		$this->set(compact('league', 'league_obj', 'spirit_obj'));
 		$this->set('is_coordinator', $this->Leagues->is_coordinator($league));
+		$this->set('_serialize', ['league']);
 	}
 
 	public function slots() {
