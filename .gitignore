@@ -6,6 +6,7 @@ composer.lock
 .idea/
 logs/
 tmp/
+vendor/admad/
 vendor/aura/
 vendor/autoload.php
 vendor/aws/
@@ -20,6 +21,7 @@ vendor/dnoegel/
 vendor/doctrine/
 vendor/elboletaire/
 vendor/empty
+vendor/firebase/
 vendor/friendsofcake/
 vendor/giggsey/
 vendor/guzzlehttp/

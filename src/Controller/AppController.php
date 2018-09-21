@@ -90,7 +90,9 @@ class AppController extends Controller {
 		parent::initialize();
 
 		$this->loadComponent('Security');
-		$this->loadComponent('Csrf');
+		if (!$this->request->is('json')) {
+			$this->loadComponent('Csrf');
+		}
 		// TODOLATER: https://book.cakephp.org/3.0/en/controllers/middleware.html#encrypted-cookie-middleware
 		$this->loadComponent('Cookie', ['expires' => '+1 year']);
 		$this->loadComponent('Flash');
@@ -129,29 +131,67 @@ class AppController extends Controller {
 			$hasher = null;
 		}
 
-		$this->loadComponent('Auth', [
-			'authenticate' => [
-				'Form' => [
-					'userModel' => $this->_userModel,
-					'fields' => [
-						'username' => $users_table->userField,
-						'password' => $users_table->pwdField,
-						'email' => $users_table->emailField,
+		if ($this->request->is('json')) {
+			$this->loadComponent('Auth', [
+				'storage' => 'Memory',
+				'authenticate' => [
+					'Form' => [
+						'userModel' => $this->_userModel,
+						'fields' => [
+							'username' => $users_table->userField,
+							'password' => $users_table->pwdField,
+							'email' => $users_table->emailField,
+						],
+						'passwordHasher' => $hasher,
+						'contain' => ['People'],
+						'finder' => 'auth',
 					],
-					'passwordHasher' => $hasher,
-					'contain' => ['People'],
-					'finder' => 'auth',
+					'ADmad/JwtAuth.Jwt' => [
+						'userModel' => $this->_userModel,
+						'fields' => [
+							'username' => $users_table->primaryKey(),
+						],
+
+						'parameter' => 'token',
+
+						// Boolean indicating whether the "sub" claim of JWT payload
+						// should be used to query the Users model and get user info.
+						// If set to `false` JWT's payload is directly returned.
+						'queryDatasource' => true,
+					]
 				],
-			],
 
-			// By default, we tell people they need to log in. May be overridden later.
-			'authError' => __('You must login to access full site functionality.'),
+				'unauthorizedRedirect' => false,
 
-			// Set up various URLs to use
-			'logoutAction' => Configure::read('App.urls.logout'),
-			'loginRedirect' => '/',
-			'logoutRedirect' => '/',
-		]);
+				// If you don't have a login action in your application set
+				// 'loginAction' to false to prevent getting a MissingRouteException.
+				'loginAction' => false,
+			]);
+		} else {
+			$this->loadComponent('Auth', [
+				'authenticate' => [
+					'Form' => [
+						'userModel' => $this->_userModel,
+						'fields' => [
+							'username' => $users_table->userField,
+							'password' => $users_table->pwdField,
+							'email' => $users_table->emailField,
+						],
+						'passwordHasher' => $hasher,
+						'contain' => ['People'],
+						'finder' => 'auth',
+					],
+				],
+
+				// By default, we tell people they need to log in. May be overridden later.
+				'authError' => __('You must login to access full site functionality.'),
+
+				// Set up various URLs to use
+				'logoutAction' => Configure::read('App.urls.logout'),
+				'loginRedirect' => '/',
+				'logoutRedirect' => '/',
+			]);
+		}
 
 		EventManager::instance()->on('Auth.afterIdentify', [$this, 'afterIdentify']);
 
@@ -195,14 +235,18 @@ class AppController extends Controller {
 
 		// If the user has no session but does have "remember me" login information
 		// saved in a cookie, try to log them in with that.
-		if (!$user && $this->Cookie->read('Auth.User')) {
-			$saved_data = $this->request->data;
-			$this->request->data = $this->Cookie->read('Auth.User');
-			$user = $this->Auth->identify();
+		if (!$user) {
+			if ($this->request->is('json')) {
+				$user = $this->Auth->identify();
+			} else if ($this->Cookie->read('Auth.User')) {
+				$saved_data = $this->request->data;
+				$this->request->data = $this->Cookie->read('Auth.User');
+				$user = $this->Auth->identify();
+				$this->request->data = $saved_data;
+			}
 			if ($user) {
 				$this->Auth->setUser($user);
 			}
-			$this->request->data = $saved_data;
 		}
 
 		// TODO: Read these from site configuration
@@ -666,7 +710,7 @@ class AppController extends Controller {
 			$this->Auth->allow();
 		} else {
 			// Check what actions anyone (logged on or not) is allowed in this controller.
-			$allowed = $this->_publicActions();
+			$allowed = $this->request->is('json') ? $this->_publicJsonActions() : $this->_publicActions();
 
 			// An empty array here means the controller has *no* public actions, but an empty
 			// array passed to Auth->allow means *everything* is public.
@@ -689,6 +733,18 @@ class AppController extends Controller {
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
 	protected function _publicActions() {
+		return [];
+	}
+
+	/**
+	 * _publicJsonActions method
+	 *
+	 * By default, nothing is public. Any controller with special permissions
+	 * must override this function.
+	 *
+	 * @return array of JSON actions that can be taken even by visitors that are not logged in.
+	 */
+	protected function _publicJsonActions() {
 		return [];
 	}
 

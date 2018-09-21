@@ -5,7 +5,10 @@ use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Datasource\RulesChecker;
+use Cake\Network\Exception\UnauthorizedException;
 use Cake\ORM\TableRegistry;
+use Cake\Utility\Security;
+use Firebase\JWT\JWT;
 
 /**
  * Users Controller
@@ -21,6 +24,15 @@ class UsersController extends AppController {
 	 */
 	protected function _publicActions() {
 		return ['logout', 'create_account', 'reset_password'];
+	}
+
+	/**
+	 * _publicJsonActions method
+	 *
+	 * @return array of JSON actions that can be taken even by visitors that are not logged in.
+	 */
+	protected function _publicJsonActions() {
+		return ['token'];
 	}
 
 	/**
@@ -459,6 +471,27 @@ class UsersController extends AppController {
 
 		$affiliates = $this->_applicableAffiliates(true);
 		$this->set(compact('user', 'affiliates', 'succeeded', 'resolved', 'failed'));
+	}
+
+	public function token() {
+		if (!$this->request->is('json')) {
+			throw new UnauthorizedException(__('Tokens are only valid for JSON requests'));
+		}
+		$user = $this->Auth->identify();
+		if (!$user) {
+			throw new UnauthorizedException(__('Invalid username or password'));
+		}
+
+		$this->set([
+			'success' => true,
+			'data' => [
+				'token' => JWT::encode([
+					'sub' => $user[TableRegistry::get(Configure::read('Security.authModel'))->primaryKey()],
+					'exp' =>  time() + 604800
+				], Security::salt())
+			],
+			'_serialize' => ['success', 'data']
+		]);
 	}
 
 	public function change_password() {

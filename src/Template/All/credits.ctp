@@ -5,6 +5,9 @@
 ) ?></p>
 <?php
 $plugins = [
+	'ADmad' => [
+		'cakephp-jwt-auth' => 'https://github.com/ADmad/cakephp-jwt-auth',
+	],
 	'Anuj Sharma' => [
 		'CakePHP-App-Installer' => 'https://github.com/anuj9196/CakePHP-App-Installer',
 	],

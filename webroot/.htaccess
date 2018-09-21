@@ -1,5 +1,11 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
+
+    # Work around common server misconfiguration. For additional details, see
+    # https://github.com/ADmad/cakephp-jwt-auth/blob/master/README.md#known-issue
+    RewriteCond %{HTTP:Authorization} ^(.*)
+    RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
+
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>

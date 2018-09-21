@@ -229,6 +229,7 @@ Plugin::load('Ajax');
 Plugin::load('Bootstrap', ['bootstrap' => true]);
 Plugin::load('Josegonzalez/Upload');
 Plugin::load('Muffin/Footprint');
+Plugin::load('ADmad/JwtAuth');
 
 // Only try to load DebugKit in development mode
 // Debug Kit should not be installed on a production system

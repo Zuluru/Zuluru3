@@ -45,6 +45,15 @@ class PeopleController extends AppController {
 	}
 
 	/**
+	 * _publicJsonActions method
+	 *
+	 * @return array of JSON actions that can be taken even by visitors that are not logged in.
+	 */
+	protected function _publicJsonActions() {
+		return ['view'];
+	}
+
+	/**
 	 * _freeActions method
 	 *
 	 * @return array list of actions that people can perform even if the system wants them to do something else
