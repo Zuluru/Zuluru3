@@ -51,6 +51,15 @@ class GamesController extends AppController {
 	}
 
 	/**
+	 * _publicJsonActions method
+	 *
+	 * @return array of JSON actions that can be taken even by visitors that are not logged in.
+	 */
+	protected function _publicJsonActions() {
+		return ['results'];
+	}
+
+	/**
 	 * isAuthorized method
 	 *
 	 * @return bool true if access allowed

@@ -43,6 +43,15 @@ class SchedulesController extends AppController {
 		return ['today', 'day'];
 	}
 
+	/**
+	 * _publicJsonActions method
+	 *
+	 * @return array of JSON actions that can be taken even by visitors that are not logged in.
+	 */
+	protected function _publicJsonActions() {
+		return ['today', 'day'];
+	}
+
 	public function isAuthorized() {
 		try {
 			if ($this->UserCache->read('Person.status') == 'locked') {
