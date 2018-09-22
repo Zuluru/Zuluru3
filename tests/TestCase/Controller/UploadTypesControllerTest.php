@@ -21,6 +21,8 @@ class UploadTypesControllerTest extends ControllerTestCase {
 				'app.groups_people',
 			'app.upload_types',
 				'app.uploads',
+			'app.leagues',
+				'app.divisions',
 			'app.settings',
 	];
 

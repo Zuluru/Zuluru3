@@ -21,6 +21,8 @@ class ContactsControllerTest extends ControllerTestCase {
 					'app.people_people',
 			'app.groups',
 				'app.groups_people',
+			'app.leagues',
+				'app.divisions',
 			'app.contacts',
 			'app.settings',
 	];

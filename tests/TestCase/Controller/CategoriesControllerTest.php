@@ -19,6 +19,8 @@ class CategoriesControllerTest extends ControllerTestCase {
 					'app.people_people',
 			'app.groups',
 				'app.groups_people',
+			'app.leagues',
+				'app.divisions',
 			'app.categories',
 				'app.tasks',
 			'app.settings',

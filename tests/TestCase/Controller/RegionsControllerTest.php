@@ -22,6 +22,8 @@ class RegionsControllerTest extends ControllerTestCase {
 			'app.regions',
 				'app.facilities',
 					'app.fields',
+			'app.leagues',
+				'app.divisions',
 			'app.settings',
 	];
 

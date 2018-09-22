@@ -25,6 +25,8 @@ class UsersControllerTest extends ControllerTestCase {
 					'app.skills',
 			'app.groups',
 				'app.groups_people',
+			'app.leagues',
+				'app.divisions',
 			'app.settings',
 	];
 

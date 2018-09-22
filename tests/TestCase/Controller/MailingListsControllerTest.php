@@ -19,6 +19,8 @@ class MailingListsControllerTest extends ControllerTestCase {
 					'app.people_people',
 			'app.groups',
 				'app.groups_people',
+			'app.leagues',
+				'app.divisions',
 			'app.mailing_lists',
 				'app.newsletters',
 				'app.subscriptions',
