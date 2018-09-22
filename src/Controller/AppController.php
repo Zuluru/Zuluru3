@@ -115,7 +115,7 @@ class AppController extends Controller {
 			throw new Exception(__('Security.authModel is incorrectly configured!'));
 		}
 
-		if ($this->_userModel == 'Users') {
+		if ($users_table->manageName == 'Zuluru') {
 			// If Zuluru handles account management, handle old passwords and migrate them
 			$hashMethod = Configure::read('Security.hashMethod') ?: $users_table->hashMethod;
 
