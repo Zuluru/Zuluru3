@@ -19,6 +19,8 @@ class WaiversControllerTest extends ControllerTestCase {
 					'app.people_people',
 			'app.groups',
 				'app.groups_people',
+			'app.leagues',
+				'app.divisions',
 			'app.settings',
 			'app.waivers',
 				'app.waivers_people',
