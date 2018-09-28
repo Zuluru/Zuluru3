@@ -520,10 +520,10 @@ $config['sports'] = [
 
 				__('With respect to playing defense, you:') => [
 					0 => __('understand some basics, and are learning how to read the play, no/limited experience with defense strategies'),
-					1 => __('know the basics, but you\'re sometimes behind the play, learned a bit about man defense strategies'),
-					2 => __('can stay with the play and sometimes make the D, understand the basics of man & zone style defense strategies'),
-					3 => __('can read and anticipate the play and get in position to increase the chances of make the D, comfortable with both man/zone style defense strategies'),
-					4 => __('always think ahead of the play and can often make the D, proficient at both man/zone style defense strategies and maybe know a few more'),
+					1 => __('know the basics, but you\'re sometimes behind the play, learned a bit about match defense strategies'),
+					2 => __('can stay with the play and sometimes make the D, understand the basics of match & zone style defense strategies'),
+					3 => __('can read and anticipate the play and get in position to increase the chances of make the D, comfortable with both match/zone style defense strategies'),
+					4 => __('always think ahead of the play and can often make the D, proficient at both match/zone style defense strategies and maybe know a few more'),
 				],
 
 				__('With respect to playing offense, you:') => [
