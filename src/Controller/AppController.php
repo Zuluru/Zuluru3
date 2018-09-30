@@ -95,7 +95,7 @@ class AppController extends Controller {
 			$this->loadComponent('Csrf', ['className' => 'App\Controller\Component\CsrfComponent']);
 		}
 		// TODOLATER: https://book.cakephp.org/3.0/en/controllers/middleware.html#encrypted-cookie-middleware
-		$this->loadComponent('Cookie', ['expires' => '+1 year']);
+		$this->loadComponent('Cookie', ['expires' => '+1 year', 'path' => '/' . trim($this->request->webroot, '/')]);
 		$this->loadComponent('Flash');
 		$this->loadComponent('Ajax.Ajax');	// Must be before RequestHandler for correct redirect handling
 		$this->loadComponent('RequestHandler');
