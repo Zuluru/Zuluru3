@@ -31,8 +31,7 @@
         "trentrichardson/cakephp-scheduler": "^3.0",
         "josegonzalez/dotenv": "^3.2",
         "cakephp-app-installer/installer": "^2.0",
-        "admad/cakephp-jwt-auth": "2.2.0",
-        "dflydev/fig-cookies": "^1.0"
+        "admad/cakephp-jwt-auth": "2.2.0"
     },
     "require-dev": {
         "cakephp/debug_kit": "3.2.*",
