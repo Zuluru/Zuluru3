@@ -91,7 +91,8 @@ class AppController extends Controller {
 
 		$this->loadComponent('Security');
 		if (!$this->request->is('json')) {
-			$this->loadComponent('Csrf');
+			// Use our own CSRF component, to ensure that cookie paths are not slash-terminated
+			$this->loadComponent('Csrf', ['className' => 'App\Controller\Component\CsrfComponent']);
 		}
 		// TODOLATER: https://book.cakephp.org/3.0/en/controllers/middleware.html#encrypted-cookie-middleware
 		$this->loadComponent('Cookie', ['expires' => '+1 year']);
