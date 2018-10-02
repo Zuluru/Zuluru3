@@ -377,7 +377,7 @@ class RegistrationsController extends AppController {
 			->select(['count' => 'COUNT(answer_id)', 'question_id' => 'question_id', 'answer_id' => 'answer_id'])
 			->where([
 				'event_id' => $id,
-				'answer_id IS' => null,
+				'answer_id IS NOT' => null,
 			])
 			->group(['question_id', 'answer_id'])
 			->order(['question_id'])
