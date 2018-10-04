@@ -509,7 +509,7 @@ class PeopleTable extends AppTable {
 		// current user, and the UsersTable is associated with the PeopleTable, meaning that this function
 		// right here is called before the settings are actually loaded into the global config. :-(
 		$rules->add(function (EntityInterface $entity, Array $options) {
-			if (empty($entity->groups) || !collection($entity->groups)->some(function (Group $group) {
+			if (!Configure::read('profile.height') || empty($entity->groups) || !collection($entity->groups)->some(function (Group $group) {
 				return $group->id == GROUP_PLAYER;
 			})) {
 				return true;
