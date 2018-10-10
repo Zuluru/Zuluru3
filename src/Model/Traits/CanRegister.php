@@ -69,7 +69,7 @@ trait CanRegister {
 
 		// TODO: Eliminate hard-coded event types
 		$event_type = $event->event_type;
-		if (!in_array(GROUP_PLAYER, $this->_person->group_ids) && in_array($event_type->type, ['membership', 'individual'])) {
+		if ((!is_array($this->_person->group_ids) || !in_array(GROUP_PLAYER, $this->_person->group_ids)) && in_array($event_type->type, ['membership', 'individual'])) {
 			return [[
 				'text' => __('Only players are allowed to register for this type of event.'),
 				'class' => 'warning-message',
@@ -117,8 +117,12 @@ trait CanRegister {
 		}
 
 		// Pull out the registration record(s) for the current event, if any.
-		$registrations = collection($this->_person->registrations)->match(['event_id' => $event->id])->toList();
-		$is_registered = !empty($registrations);
+		if (!empty($this->_person->registrations)) {
+			$registrations = collection($this->_person->registrations)->match(['event_id' => $event->id])->toList();
+			$is_registered = !empty($registrations);
+		} else {
+			$is_registered = false;
+		}
 
 		// Some tests based on whether the person has already registered for this.
 		$notices = [];
