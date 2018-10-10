@@ -15,7 +15,7 @@ use Cake\Core\Configure;
 	<dd><?php
 		echo $this->Html->link($game->home_team->name,
 			['controller' => 'Teams', 'action' => 'view', 'team' => $game->home_team->id]);
-		if (Configure::read('feature.shirt_colour') && array_key_exists('shirt_colour', $game->home_team)) {
+		if (Configure::read('feature.shirt_colour') && !empty($game->home_team->shirt_colour)) {
 			echo ' ' . $this->element('shirt', ['colour' => $game->home_team->shirt_colour]);
 		}
 	?></dd>
@@ -26,7 +26,7 @@ if ($game->division->schedule_type != 'competition'):
 	<dd><?php
 		echo $this->Html->link($game->away_team->name,
 			['controller' => 'Teams', 'action' => 'view', 'team' => $game->away_team->id]);
-		if (Configure::read('feature.shirt_colour') && array_key_exists('shirt_colour', $game->away_team)) {
+		if (Configure::read('feature.shirt_colour') && !empty($game->away_team->shirt_colour)) {
 			echo ' ' . $this->element('shirt', ['colour' => $game->away_team->shirt_colour]);
 		}
 	?></dd>
