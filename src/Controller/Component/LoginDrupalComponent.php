@@ -47,6 +47,11 @@ class LoginDrupalComponent extends LoginComponent {
 				$user->person = $users_table->People->createPersonRecord($user);
 			}
 
+			// Check if we're already logged in to Zuluru as the Drupal user
+			if ($this->Auth->user('uid') == $user->uid) {
+				return;
+			}
+
 			$this->Auth->setUser($user);
 			Router::getRequest()->session()->write('Zuluru.drupal_session', $session);
 			Router::getRequest()->session()->write('Zuluru.zuluru_person_id', $user->person->id);
