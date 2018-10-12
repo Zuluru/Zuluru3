@@ -42,6 +42,11 @@ class LoginJoomlaComponent extends LoginComponent {
 			$user->person = $users_table->People->createPersonRecord($user);
 		}
 
+		// Check if we're already logged in to Zuluru as the Joomla user
+		if ($this->Auth->user('id') == $user->id) {
+			return;
+		}
+
 		$this->Auth->setUser($user);
 		Router::getRequest()->session()->write('Zuluru.zuluru_person_id', $user->person->id);
 	}
