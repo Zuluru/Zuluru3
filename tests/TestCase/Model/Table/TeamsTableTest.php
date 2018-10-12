@@ -108,7 +108,7 @@ class TeamsTableTest extends TableTestCase {
 	public function testCompareRoster() {
 		UserCache::getInstance()->initializeIdForTests(PERSON_ID_CAPTAIN);
 
-		$event = new CakeEvent('Controller.initialize', $this);
+		$event = new CakeEvent('Configuration.initialize', $this);
 		EventManager::instance()->dispatch($event);
 
 		$team = $this->TeamsTable->get(TEAM_ID_RED, ['contain' => ['People' => ['Skills']]]);

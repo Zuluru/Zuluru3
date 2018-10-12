@@ -33,43 +33,43 @@ if (!isset($tournaments)) {
 $controller = ($tournaments ? 'Tournaments' : 'Leagues');
 $model = ($tournaments ? 'tournament' : 'league');
 
-if ($this->request->params['controller'] != 'Leagues' || $this->request->params['action'] != 'view') {
+if ($this->request->getParam('controller') != 'Leagues' || $this->request->getParam('action') != 'view') {
 	$links[] = $this->Html->iconLink("view_$size.png",
 		['controller' => $controller, 'action' => 'view', $model => $league->id],
 		['alt' => __('Details'), 'title' => $tournaments ? __('View Tournament Details') : __('View League Details')]);
 }
 $schedule_types = array_unique(collection($league->divisions)->extract('schedule_type')->toList());
 if (!empty($schedule_types) && ($schedule_types[0] != 'none' || count($schedule_types) > 1)) {
-	if ($this->request->params['controller'] != 'Leagues' || $this->request->params['action'] != 'schedule') {
+	if ($this->request->getParam('controller') != 'Leagues' || $this->request->getParam('action') != 'schedule') {
 		$links[] = $this->Html->iconLink("schedule_$size.png",
 			['controller' => $controller, 'action' => 'schedule', $model => $league->id],
 			['alt' => __('Schedule'), 'title' => __('Schedule')]);
 	}
-	if ($this->request->params['controller'] != 'Leagues' || $this->request->params['action'] != 'standings') {
+	if ($this->request->getParam('controller') != 'Leagues' || $this->request->getParam('action') != 'standings') {
 		$links[] = $this->Html->iconLink("standings_$size.png",
 			['controller' => $controller, 'action' => 'standings', $model => $league->id],
 			['alt' => __('Standings'), 'title' => __('Standings')]);
 	}
 }
 if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || ($collapse && $is_coordinator)) {
-	if ($this->request->params['controller'] != 'Leagues' || $this->request->params['action'] != 'edit') {
+	if ($this->request->getParam('controller') != 'Leagues' || $this->request->getParam('action') != 'edit') {
 		$more[$tournaments ? __('Edit Tournament') : __('Edit League')] = [
 			'url' => ['controller' => $controller, 'action' => 'edit', $model => $league->id, 'return' => AppController::_return()],
 		];
 	}
-	if ($this->request->params['controller'] != 'Leagues' || $this->request->params['action'] != 'add') {
+	if ($this->request->getParam('controller') != 'Leagues' || $this->request->getParam('action') != 'add') {
 		$more[$tournaments ? __('Clone Tournament') : __('Clone League')] = [
 			'url' => ['controller' => $controller, 'action' => 'add', $model => $league->id, 'return' => $return],
 		];
 	}
-	if ($this->request->params['controller'] != 'Divisions' || $this->request->params['action'] != 'add') {
+	if ($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'add') {
 		$more[__('Add Division')] = [
 			'url' => ['controller' => 'Divisions', 'action' => 'add', 'league' => $league->id, 'return' => $return],
 		];
 	}
 
 	$url = ['controller' => $controller, 'action' => 'delete', $model => $league->id];
-	if ($this->request->params['controller'] != 'Leagues') {
+	if ($this->request->getParam('controller') != 'Leagues') {
 		$url['return'] = AppController::_return();
 	}
 	$more[$tournaments ? __('Delete Tournament') : __('Delete League')] = [
@@ -78,7 +78,7 @@ if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || ($
 		'method' => 'post',
 	];
 
-	if ($this->request->params['controller'] != 'Leagues' || $this->request->params['action'] != 'participation') {
+	if ($this->request->getParam('controller') != 'Leagues' || $this->request->getParam('action') != 'participation') {
 		$more[__('Participation Report')] = [
 			'url' => ['controller' => $controller, 'action' => 'participation', $model => $league->id]
 		];

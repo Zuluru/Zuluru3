@@ -5,6 +5,7 @@ use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Datasource\RulesChecker;
+use Cake\I18n\Time;
 use Cake\Network\Exception\UnauthorizedException;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Security;
@@ -56,13 +57,13 @@ class UsersController extends AppController {
 			}
 
 			// People can perform these operations on their own account
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'change_password',
 			]))
 			{
 				// If a player id is specified, check if it's the logged-in user
 				// If no player id is specified, it's always the logged-in user
-				$person = $this->request->query('user');
+				$person = $this->request->getQuery('user');
 				if (!$person || $person == $this->UserCache->read('Person.user_id')) {
 					return true;
 				}
@@ -86,14 +87,22 @@ class UsersController extends AppController {
 		if ($this->request->is('post')) {
 			$user = $this->Auth->identify();
 			if (!$user) {
-				$this->Flash->error(__('Username or password is incorrect'), 'default', [], 'auth');
+				$this->Flash->error(__('Username or password is incorrect'));
 				$this->set('failed', true);
 				return;
 			}
 			$this->Auth->setUser($user);
 
 			if (!empty($this->request->data['remember_me'])) {
-				$this->Cookie->write('Auth.User', ['user_name' => $this->request->data('user_name'), 'password' => $this->request->data('password')]);
+				$expires = new Time('+1 year');
+				$this->response = $this->response->withCookie('ZuluruAuth', [
+					'value' => [
+						'user_name' => $this->request->data('user_name'),
+						'password' => $this->request->data('password'),
+					],
+					'expire' => (int)$expires->format('U'),
+					'path' => '/' . trim($this->request->getAttribute('webroot'), '/'),
+				]);
 			}
 
 			return $this->redirect($this->Auth->redirectUrl());
@@ -101,8 +110,13 @@ class UsersController extends AppController {
 	}
 
 	public function logout() {
-		if ($this->Cookie->read('Auth.User')) {
-			$this->Cookie->delete('Auth.User');
+		if ($this->request->getCookie('ZuluruAuth')) {
+			$expires = new Time('-1 year');
+			$this->response = $this->response->withCookie('ZuluruAuth', [
+				'value' => '',
+				'expire' => (int)$expires->format('U'),
+				'path' => '/' . trim($this->request->getAttribute('webroot'), '/'),
+			]);
 		}
 		$this->request->session()->delete('Zuluru');
 		return $this->redirect($this->Auth->logout());
@@ -495,7 +509,7 @@ class UsersController extends AppController {
 	}
 
 	public function change_password() {
-		$id = $this->request->query('user');
+		$id = $this->request->getQuery('user');
 		if (!$id) {
 			$id = $this->UserCache->read('Person.user_id');
 		}
@@ -519,8 +533,16 @@ class UsersController extends AppController {
 			$user = $users_table->patchEntity($user, $this->request->data, ['validate' => 'password']);
 			if ($users_table->save($user)) {
 				// Update the "remember me" cookie, if there is one
-				if ($this->Cookie->read('Auth.User')) {
-					$this->Cookie->write('Auth.User', ['user_name' => $user->{$users_table->userField}, 'password' => $this->request->data($users_table->pwdField)]);
+				if ($this->request->getCookie('ZuluruAuth')) {
+					$expires = new Time('+1 year');
+					$this->response = $this->response->withCookie('ZuluruAuth', [
+						'value' => [
+							'user_name' => $user->{$users_table->userField},
+							'password' => $this->request->data($users_table->pwdField),
+						],
+						'expire' => (int)$expires->format('U'),
+						'path' => '/' . trim($this->request->getAttribute('webroot'), '/'),
+					]);
 				}
 
 				$this->Flash->success(__('The password has been updated.'));

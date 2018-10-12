@@ -1951,8 +1951,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 
 		$this->assertAccessRedirect(['controller' => 'Teams', 'action' => 'roster_role', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_RED_PAST],
-			PERSON_ID_CAPTAIN, 'postajax', ['role' => 'substitute'], [],
-			'The roster deadline for this division has already passed.');
+			PERSON_ID_CAPTAIN, 'postajax', ['role' => 'substitute']);
 
 		$this->assertAccessRedirect(['controller' => 'Teams', 'action' => 'roster_role', 'person' => PERSON_ID_COORDINATOR, 'team' => TEAM_ID_RED],
 			PERSON_ID_CAPTAIN, 'postajax', ['role' => 'substitute'], ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
@@ -2054,8 +2053,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 
 		$this->assertAccessRedirect(['controller' => 'Teams', 'action' => 'roster_position', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_RED_PAST],
-			PERSON_ID_CAPTAIN, 'postajax', ['position' => 'handler'], [],
-			'The roster deadline for this division has already passed.');
+			PERSON_ID_CAPTAIN, 'postajax', ['position' => 'handler']);
 
 		$this->assertAccessRedirect(['controller' => 'Teams', 'action' => 'roster_position', 'person' => PERSON_ID_COORDINATOR, 'team' => TEAM_ID_RED],
 			PERSON_ID_CAPTAIN, 'postajax', ['position' => 'handler'], ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],

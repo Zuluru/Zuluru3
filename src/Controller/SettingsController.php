@@ -26,11 +26,11 @@ class SettingsController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'edit',
 				])) {
 					// If an affiliate id is specified, check if we're a manager of that affiliate
-					$affiliate = $this->request->query('affiliate');
+					$affiliate = $this->request->getQuery('affiliate');
 					if ($affiliate && in_array($affiliate, $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					} else {
@@ -51,7 +51,7 @@ class SettingsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit($section) {
-		$affiliate = $this->request->query('affiliate');
+		$affiliate = $this->request->getQuery('affiliate');
 		$affiliates = $this->_applicableAffiliates();
 
 		$settings = $this->Settings->find()
@@ -146,7 +146,7 @@ class SettingsController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$affiliate = $this->request->query('affiliate');
+		$affiliate = $this->request->getQuery('affiliate');
 		$settings = $this->Settings->find()
 			->where([
 				'person_id IS' => null,

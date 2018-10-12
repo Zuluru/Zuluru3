@@ -67,7 +67,7 @@ class PaymentPaypal extends Payment {
 
 	public function process(Request $request, $checkHash = true) {
 		// PayPal sends data back through the URL
-		return $this->processData($request->query, $checkHash);
+		return $this->processData($request->getQueryParams(), $checkHash);
 	}
 
 	public function processData(Array $data, $checkHash = true) {

@@ -59,7 +59,7 @@ class SchedulesController extends AppController {
 			}
 
 			// People can perform these operations on divisions they coordinate
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'add',
 				'delete',
 				'reschedule',
@@ -67,7 +67,7 @@ class SchedulesController extends AppController {
 				'unpublish',
 			])) {
 				// If a division id is specified, check if we're a coordinator of that division
-				$division = $this->request->query('division');
+				$division = $this->request->getQuery('division');
 				if ($division) {
 					// If a division id is specified, check if we're a manager of that division's affiliate
 					if (Configure::read('Perm.is_manager')) {
@@ -84,7 +84,7 @@ class SchedulesController extends AppController {
 				}
 
 				// If a league id is specified, check if we're a coordinator of all divisions in that league
-				$league = $this->request->query('league');
+				$league = $this->request->getQuery('league');
 				if ($league) {
 					// If a league id is specified, check if we're a manager of that league's affiliate
 					if (Configure::read('Perm.is_manager')) {
@@ -114,7 +114,7 @@ class SchedulesController extends AppController {
 	}
 
 	public function add() {
-		$id = intval($this->request->query('division'));
+		$id = intval($this->request->getQuery('division'));
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -149,7 +149,7 @@ class SchedulesController extends AppController {
 		}
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
-		if ($this->request->query('playoff') ||
+		if ($this->request->getQuery('playoff') ||
 			($division->schedule_type != 'tournament' && $this->_unscheduledPools($division)))
 		{
 			$this->league_obj = $this->moduleRegistry->load('LeagueType:tournament');
@@ -177,7 +177,7 @@ class SchedulesController extends AppController {
 			// What's the default first step?
 			if (isset($this->pool)) {
 				$division->_options->step = 'type';
-			} else if ($this->request->query('playoff') || $division->schedule_type == 'tournament') {
+			} else if ($this->request->getQuery('playoff') || $division->schedule_type == 'tournament') {
 				$division->_options->step = 'pools';
 			} else if ($division->exclude_teams) {
 				$division->_options->step = 'exclude';
@@ -193,7 +193,7 @@ class SchedulesController extends AppController {
 
 		// Non-tournament divisions must currently have even # of teams for scheduling unless the exclude_teams flag is set
 		if ($this->_numTeams($division) % 2 && !$division->exclude_teams &&
-			$division->schedule_type != 'tournament' && !$this->request->query('playoff') && !$this->pool)
+			$division->schedule_type != 'tournament' && !$this->request->getQuery('playoff') && !$this->pool)
 		{
 			$this->Flash->html(__('Must currently have an even number of teams in your division. If you need a bye, please create a team named Bye and add it to your division. Otherwise, {0} and set the "exclude teams" flag.'), [
 				'params' => [
@@ -796,9 +796,9 @@ class SchedulesController extends AppController {
 	}
 
 	public function delete() {
-		$division_id = $this->request->query('division');
+		$division_id = $this->request->getQuery('division');
 		if (!$division_id) {
-			$league_id = $this->request->query('league');
+			$league_id = $this->request->getQuery('league');
 			if (!$league_id) {
 				$this->Flash->warning(__('Invalid division.'));
 				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
@@ -878,8 +878,8 @@ class SchedulesController extends AppController {
 		}
 		$this->set(compact('division_id', 'division', 'league_id', 'league'));
 
-		$date = $this->request->query('date');
-		$pool_id = $this->request->query('pool');
+		$date = $this->request->getQuery('date');
+		$pool_id = $this->request->getQuery('pool');
 		if (!$date && !$pool_id) {
 			$this->Flash->warning(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
@@ -976,7 +976,7 @@ class SchedulesController extends AppController {
 			}
 		}
 
-		if ($this->request->query('confirm')) {
+		if ($this->request->getQuery('confirm')) {
 			if ($this->Divisions->connection()->transactional(function () use ($games, $reset_pools, $same_pool, $dependent) {
 				// Reset dependencies for affected pools
 				if (!empty($reset_pools)) {
@@ -1017,8 +1017,8 @@ class SchedulesController extends AppController {
 	}
 
 	public function reschedule() {
-		$id = $this->request->query('division');
-		$date = $this->request->query('date');
+		$id = $this->request->getQuery('division');
+		$date = $this->request->getQuery('date');
 
 		try {
 			$division = $this->Divisions->get($id, ['contain' => [
@@ -1099,9 +1099,9 @@ class SchedulesController extends AppController {
 	}
 
 	protected function _publish($true, $publish, $published) {
-		$division_id = $this->request->query('division');
+		$division_id = $this->request->getQuery('division');
 		if (!$division_id) {
-			$league_id = $this->request->query('league');
+			$league_id = $this->request->getQuery('league');
 			if (!$league_id) {
 				$this->Flash->warning(__('Invalid division.'));
 				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
@@ -1160,8 +1160,8 @@ class SchedulesController extends AppController {
 
 			$multi_day = ($division->schedule_type != 'tournament' && count($division->days) > 1);
 		}
-		$date = $this->request->query('date');
-		$pool_id = $this->request->query('pool');
+		$date = $this->request->getQuery('date');
+		$pool_id = $this->request->getQuery('pool');
 
 		$query = $this->Divisions->Games->find()
 			->where(['Games.division_id IN' => $divisions]);
@@ -1241,7 +1241,7 @@ class SchedulesController extends AppController {
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			$date = $this->request->data['date']['year'] . '-' . $this->request->data['date']['month'] . '-' . $this->request->data['date']['day'];
 		} else {
-			$date = $this->request->query('date');
+			$date = $this->request->getQuery('date');
 		}
 		if (empty($date)) {
 			$date = FrozenDate::now();

@@ -340,7 +340,7 @@ echo $this->Html->tag('div',
 <div class="actions columns">
 	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('Download'), array_merge($this->request->query, ['_ext' => 'csv'])));
+echo $this->Html->tag('li', $this->Html->link(__('Download'), array_merge($this->request->getQueryParams(), ['_ext' => 'csv'])));
 ?>
 	</ul>
 </div>

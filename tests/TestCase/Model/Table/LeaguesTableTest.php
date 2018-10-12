@@ -77,7 +77,7 @@ class LeaguesTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testCompareLeagueAndDivision() {
-		$event = new CakeEvent('Controller.initialize', $this);
+		$event = new CakeEvent('Configuration.initialize', $this);
 		EventManager::instance()->dispatch($event);
 
 		// TODO: Add more league records, to more completely test the sort options

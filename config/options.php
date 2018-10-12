@@ -7,7 +7,7 @@
  * internationalization methods at output, leaving English in the
  * database. This way, a single site can support multiple languages.
  *
- * If you have any local configuration customizations, adjust the $config
+ * If you have any local configuration customizations, adjust the $options
  * array by adding, altering or unsetting values through a file called
  * options_custom.php (which you must create).
  */
@@ -42,7 +42,7 @@ if (!function_exists('App\Config\make_options')) {
 	}
 }
 
-$config['options'] = [
+$options['options'] = [
 	'enable' => [
 		false => __('Disabled'),
 		true => __('Enabled')
@@ -424,11 +424,11 @@ $config['options'] = [
 	],
 ];
 
-$config['options']['round'] = make_options(range(1, 5));
-$config['options']['games_before_repeat'] = range(0, 9);
+$options['options']['round'] = make_options(range(1, 5));
+$options['options']['games_before_repeat'] = range(0, 9);
 
 $year = FrozenTime::now()->year;
-$config['options']['year'] = [
+$options['options']['year'] = [
 	'started' => ['min' => 1986, 'max' => $year],
 	'born' => ['min' => $year - 75, 'max' => $year - 3],
 	'event' => ['min' => $year - 1, 'max' => $year + 1],
@@ -438,3 +438,5 @@ $config['options']['year'] = [
 if (file_exists(ZULURU_CONFIG . 'options_custom.php')) {
 	include(ZULURU_CONFIG . 'options_custom.php');
 }
+
+return $options;

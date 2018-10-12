@@ -71,7 +71,7 @@ class RegistrationsController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'report',
 					'unpaid',
 					'credits',
@@ -80,7 +80,7 @@ class RegistrationsController extends AppController {
 				]))
 				{
 					// If an affiliate id is specified, check if we're a manager of that affiliate
-					$affiliate = $this->request->query('affiliate');
+					$affiliate = $this->request->getQuery('affiliate');
 					if (!$affiliate) {
 						// If there's no affiliate, this is a top-level operation that all managers can perform
 						return true;
@@ -92,14 +92,14 @@ class RegistrationsController extends AppController {
 				}
 
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'summary',
 					'full_list',
 					'waiting',
 				]))
 				{
 					// If an event id is specified, check if we're a manager of that event's affiliate
-					$event = $this->request->query('event');
+					$event = $this->request->getQuery('event');
 					if ($event) {
 						if (in_array($this->Registrations->Events->affiliate($event), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -110,14 +110,14 @@ class RegistrationsController extends AppController {
 				}
 
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'view',
 					'edit',
 					'unregister',
 				]))
 				{
 					// If a registration id is specified, check if we're a manager of that registration's event's affiliate
-					$registration = $this->request->query('registration');
+					$registration = $this->request->getQuery('registration');
 					if ($registration) {
 						if (in_array($this->Registrations->affiliate($registration), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -128,7 +128,7 @@ class RegistrationsController extends AppController {
 				}
 
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'add_payment',
 					'refund_payment',
 					'credit_payment',
@@ -136,7 +136,7 @@ class RegistrationsController extends AppController {
 				]))
 				{
 					// If a payment id is specified, check if we're a manager of that payment's registration's event's affiliate
-					$payment = $this->request->query('payment');
+					$payment = $this->request->getQuery('payment');
 					if ($payment) {
 						if (in_array($this->Payments->affiliate($payment), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -150,14 +150,14 @@ class RegistrationsController extends AppController {
 			$divisions = $this->UserCache->read('DivisionIDs');
 			if (!empty($divisions)) {
 				// Coordinators can perform these operations for their divisions
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'summary',
 					'full_list',
 					'waiting',
 				]))
 				{
 					// If an event id is specified, check if we're a coordinator of that event's division
-					$event = $this->request->query('event');
+					$event = $this->request->getQuery('event');
 					if ($event) {
 						try {
 							$division = $this->Registrations->Events->field('division_id', ['id' => $event]);
@@ -172,7 +172,7 @@ class RegistrationsController extends AppController {
 			}
 
 			// Anyone that's logged in can perform these operations
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'register',
 				'register_payment_fields',
 				'checkout',
@@ -183,25 +183,25 @@ class RegistrationsController extends AppController {
 			}
 
 			// Anyone can perform these operations on their own registrations
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'redeem',
 				'unregister',
 			]))
 			{
 				// If a registration id is specified, check if we're the owner of that registration
-				$registration = $this->request->query('registration');
+				$registration = $this->request->getQuery('registration');
 				if ($registration) {
 					return $this->Registrations->field('person_id', ['id' => $registration]) == $this->UserCache->currentId();
 				}
 			}
 
 			// Anyone can perform these operations on their own unpaid registrations
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'edit',
 			]))
 			{
 				// If a registration id is specified, check if we're the owner of that registration
-				$registration = $this->request->query('registration');
+				$registration = $this->request->getQuery('registration');
 				if ($registration) {
 					return in_array($registration, collection($this->UserCache->read('RegistrationsUnpaid'))->extract('id')->toArray());
 				}
@@ -217,7 +217,7 @@ class RegistrationsController extends AppController {
 	public function beforeFilter(\Cake\Event\Event $event) {
 		parent::beforeFilter($event);
 		$this->Security->config('unlockedActions', ['payment']);
-		if (in_array($this->request->params['action'], ['payment'])) {
+		if (in_array($this->request->getParam('action'), ['payment'])) {
 			$this->eventManager()->off($this->Csrf);
 		}
 	}
@@ -234,7 +234,7 @@ class RegistrationsController extends AppController {
 		}
 
 		$this->paginate['order'] = ['Registrations.payment' => 'DESC', 'Registrations.created' => 'DESC'];
-		$id = $this->request->query('event');
+		$id = $this->request->getQuery('event');
 		try {
 			$event = $this->Registrations->Events->get($id, [
 				'contain' => [
@@ -310,7 +310,7 @@ class RegistrationsController extends AppController {
 			throw new MethodNotAllowedException('Registration is not enabled on this system.');
 		}
 
-		$id = $this->request->query('event');
+		$id = $this->request->getQuery('event');
 		try {
 			$event = $this->Registrations->Events->get($id, [
 				'contain' => [
@@ -391,7 +391,7 @@ class RegistrationsController extends AppController {
 			throw new MethodNotAllowedException('Registration is not enabled on this system.');
 		}
 
-		$year = $this->request->query('year');
+		$year = $this->request->getQuery('year');
 		if ($year === null) {
 			$year = FrozenTime::now()->year;
 		}
@@ -449,8 +449,8 @@ class RegistrationsController extends AppController {
 			$start_date = sprintf('%04d-%02d-%02d', $this->request->data['start_date']['year'], $this->request->data['start_date']['month'], $this->request->data['start_date']['day']);
 			$end_date = sprintf('%04d-%02d-%02d', $this->request->data['end_date']['year'], $this->request->data['end_date']['month'], $this->request->data['end_date']['day']);
 		} else {
-			$start_date = $this->request->query('start_date');
-			$end_date = $this->request->query('end_date');
+			$start_date = $this->request->getQuery('start_date');
+			$end_date = $this->request->getQuery('end_date');
 			if (!$start_date || !$end_date) {
 				// Just return, which will present the user with a date selection
 				return;
@@ -462,7 +462,7 @@ class RegistrationsController extends AppController {
 			return;
 		}
 
-		$affiliate = $this->request->query('affiliate');
+		$affiliate = $this->request->getQuery('affiliate');
 		$affiliates = $this->_applicableAffiliateIDs(true);
 
 		$query = $this->Registrations->find()
@@ -519,7 +519,7 @@ class RegistrationsController extends AppController {
 			throw new MethodNotAllowedException('Registration is not enabled on this system.');
 		}
 
-		$id = $this->request->query('registration');
+		$id = $this->request->getQuery('registration');
 		try {
 			$registration = $this->Registrations->get($id, [
 				'contain' => [
@@ -573,7 +573,7 @@ class RegistrationsController extends AppController {
 
 		$this->Registrations->expireReservations();
 
-		$id = $this->request->query('event');
+		$id = $this->request->getQuery('event');
 		try {
 			$event = $this->Registrations->Events->get($id, [
 				'contain' => [
@@ -609,7 +609,7 @@ class RegistrationsController extends AppController {
 
 		$registration = $this->Registrations->newEntity();
 		// TODO: Eliminate the 'option' option once all old links are gone
-		$price_id = $this->request->query('variant') ?: $this->request->query('option');
+		$price_id = $this->request->getQuery('variant') ?: $this->request->getQuery('option');
 		if (empty($price_id) && $this->request->is(['patch', 'post', 'put'])) {
 			$price_id = $this->request->data['price_id'];
 		}
@@ -626,7 +626,7 @@ class RegistrationsController extends AppController {
 		}
 
 		// Re-do "can register" checks to make sure someone hasn't hand-fed us a URL
-		$waiting = $this->request->query('waiting') && Configure::read('feature.waiting_list');
+		$waiting = $this->request->getQuery('waiting') && Configure::read('feature.waiting_list');
 		list($notices, $allowed, $redirect) = $this->canRegister($this->UserCache->currentId(), $event, $price, ['waiting' => $waiting, 'all_rules' => true]);
 		if (!$allowed) {
 			$this->Flash->html('{0}', ['params' => ['replacements' => $notices, 'class' => 'warning']]);
@@ -715,7 +715,7 @@ class RegistrationsController extends AppController {
 		$price_id = $this->request->data['price_id'];
 		if (!empty($price_id)) {
 			$contain = ['Events' => ['EventTypes']];
-			$registration = $this->request->query('registration_id');
+			$registration = $this->request->getQuery('registration_id');
 			if ($registration) {
 				$contain['Events']['Registrations'] = [
 					'queryBuilder' => function (Query $q) use ($registration) {
@@ -726,7 +726,7 @@ class RegistrationsController extends AppController {
 
 			try {
 				$price = $this->Registrations->Prices->get($price_id, compact('contain'));
-				$for_edit = $this->request->query('for_edit');
+				$for_edit = $this->request->getQuery('for_edit');
 				$this->canRegister(
 					$for_edit ? $price->event->registrations[0]->person_id : $this->UserCache->currentId(),
 					$price->event,
@@ -745,7 +745,7 @@ class RegistrationsController extends AppController {
 			throw new MethodNotAllowedException('Registration is not enabled on this system.');
 		}
 
-		$id = $this->request->query('registration');
+		$id = $this->request->getQuery('registration');
 		try {
 			$registration = $this->Registrations->get($id, [
 				'contain' => [
@@ -781,7 +781,7 @@ class RegistrationsController extends AppController {
 			return $this->redirect(['action' => 'checkout']);
 		}
 
-		$credit = $this->request->query('credit');
+		$credit = $this->request->getQuery('credit');
 		if ($credit) {
 			$credit = collection($registration->person->credits)->firstMatch(['id' => $credit]);
 			if (!$credit) {
@@ -848,7 +848,9 @@ class RegistrationsController extends AppController {
 			$credit->amount_used += $payment->payment_amount;
 
 			// We don't actually want to update the "modified" column in the people table here, but we do need to save the credit
-			$this->Registrations->People->removeBehavior('Timestamp');
+			if ($this->Registrations->People->hasBehavior('Timestamp')) {
+				$this->Registrations->People->removeBehavior('Timestamp');
+			}
 			$registration->dirty('person', true);
 			$registration->person->dirty('credits', true);
 
@@ -905,7 +907,7 @@ class RegistrationsController extends AppController {
 		]);
 
 		$other = [];
-		$affiliate = $this->request->query('affiliate');
+		$affiliate = $this->request->getQuery('affiliate');
 		foreach ($registrations as $key => $registration) {
 			// Check that we're still allowed to pay for this
 			if (!$registration->price->allow_late_payment && $registration->price->close->isPast()) {
@@ -979,7 +981,7 @@ class RegistrationsController extends AppController {
 		$this->request->allowMethod(['get', 'post', 'delete']);
 
 		try {
-			$registration = $this->Registrations->get($this->request->query('registration'), [
+			$registration = $this->Registrations->get($this->request->getQuery('registration'), [
 				'contain' => [
 					'Events' => ['EventTypes'],
 					'Prices',
@@ -1129,7 +1131,7 @@ class RegistrationsController extends AppController {
 			throw new MethodNotAllowedException('Registration is not enabled on this system.');
 		}
 
-		$id = $this->request->query('registration');
+		$id = $this->request->getQuery('registration');
 		try {
 			$registration = $this->Registrations->get($id, [
 				'contain' => [
@@ -1195,7 +1197,9 @@ class RegistrationsController extends AppController {
 					$registration->id, $registration->event->name);
 
 				// We don't actually want to update the "modified" column in the people table here, but we do need to save the credit
-				$this->Registrations->People->removeBehavior('Timestamp');
+				if ($this->Registrations->People->hasBehavior('Timestamp')) {
+					$this->Registrations->People->removeBehavior('Timestamp');
+				}
 				$registration->dirty('person', true);
 				$registration->person->dirty('credits', true);
 			}
@@ -1220,7 +1224,7 @@ class RegistrationsController extends AppController {
 			throw new MethodNotAllowedException('Registration is not enabled on this system.');
 		}
 
-		$id = $this->request->query('payment');
+		$id = $this->request->getQuery('payment');
 		try {
 			$registration_id = $this->Registrations->Payments->field('registration_id', compact('id'));
 			$registration = $this->Registrations->get($registration_id, [
@@ -1306,7 +1310,7 @@ class RegistrationsController extends AppController {
 			throw new MethodNotAllowedException('Registration is not enabled on this system.');
 		}
 
-		$id = $this->request->query('payment');
+		$id = $this->request->getQuery('payment');
 		try {
 			$registration_id = $this->Registrations->Payments->field('registration_id', compact('id'));
 			$registration = $this->Registrations->get($registration_id, [
@@ -1366,7 +1370,9 @@ class RegistrationsController extends AppController {
 			$registration->person->credits[] = $credit;
 
 			// We don't actually want to update the "modified" column in the people table here, but we do need to save the credit
-			$this->Registrations->People->removeBehavior('Timestamp');
+			if ($this->Registrations->People->hasBehavior('Timestamp')) {
+				$this->Registrations->People->removeBehavior('Timestamp');
+			}
 			$registration->dirty('person', true);
 			$registration->person->dirty('credits', true);
 
@@ -1386,7 +1392,7 @@ class RegistrationsController extends AppController {
 			throw new MethodNotAllowedException('Registration is not enabled on this system.');
 		}
 
-		$id = $this->request->query('payment');
+		$id = $this->request->getQuery('payment');
 		try {
 			$registration_id = $this->Registrations->Payments->field('registration_id', compact('id'));
 			$registration = $this->Registrations->get($registration_id, [
@@ -1537,7 +1543,7 @@ class RegistrationsController extends AppController {
 			throw new MethodNotAllowedException('Registration is not enabled on this system.');
 		}
 
-		$id = $this->request->query('registration');
+		$id = $this->request->getQuery('registration');
 		try {
 			$registration = $this->Registrations->get($id, [
 				'contain' => [
@@ -1707,7 +1713,7 @@ class RegistrationsController extends AppController {
 			return $this->redirect('/');
 		}
 
-		$id = $this->request->query('event');
+		$id = $this->request->getQuery('event');
 		try {
 			$event = $this->Registrations->Events->get($id, [
 				'contain' => [

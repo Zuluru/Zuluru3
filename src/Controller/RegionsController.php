@@ -25,12 +25,12 @@ class RegionsController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'index',
 					'add',
 				])) {
 					// If an affiliate id is specified, check if we're a manager of that affiliate
-					$affiliate = $this->request->query('affiliate');
+					$affiliate = $this->request->getQuery('affiliate');
 					if (!$affiliate) {
 						// If there's no affiliate id, this is a top-level operation that all managers can perform
 						return true;
@@ -42,13 +42,13 @@ class RegionsController extends AppController {
 				}
 
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'view',
 					'edit',
 					'delete',
 				])) {
 					// If a region id is specified, check if we're a manager of that region's affiliate
-					$region = $this->request->query('region');
+					$region = $this->request->getQuery('region');
 					if ($region) {
 						if (in_array($this->Regions->affiliate($region), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -87,7 +87,7 @@ class RegionsController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->query('region');
+		$id = $this->request->getQuery('region');
 		try {
 			$region = $this->Regions->get($id, [
 				'contain' => ['Affiliates', 'Facilities']
@@ -134,7 +134,7 @@ class RegionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->query('region');
+		$id = $this->request->getQuery('region');
 		try {
 			$region = $this->Regions->get($id, [
 				'contain' => []
@@ -169,7 +169,7 @@ class RegionsController extends AppController {
 	public function delete() {
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('region');
+		$id = $this->request->getQuery('region');
 		$dependencies = $this->Regions->dependencies($id);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this region, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);

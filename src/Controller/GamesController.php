@@ -32,7 +32,7 @@ class GamesController extends AppController {
 	protected function _publicActions() {
 		if (Configure::read('Perm.is_manager')) {
 			// If a game id is specified, check if we're a manager of that game's affiliate
-			$game = $this->request->query('game');
+			$game = $this->request->getQuery('game');
 			if ($game) {
 				if (!in_array($this->Games->affiliate($game), $this->UserCache->read('ManagedAffiliateIDs'))) {
 					Configure::write('Perm.is_manager', false);
@@ -71,7 +71,7 @@ class GamesController extends AppController {
 			}
 
 			// Permit managers and coordinators to perform these operations on their games
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'edit',
 				'edit_boxscore',
 				'delete_score',
@@ -81,7 +81,7 @@ class GamesController extends AppController {
 				'submit_stats',
 			]))
 			{
-				$game = $this->request->query('game');
+				$game = $this->request->getQuery('game');
 				if ($game) {
 					if (Configure::read('Perm.is_manager')) {
 						if (in_array($this->Games->affiliate($game), $this->UserCache->read('ManagedAffiliateIDs'))) {
@@ -98,7 +98,7 @@ class GamesController extends AppController {
 			}
 
 			// Anyone that's logged in can perform these operations
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'ratings_table',
 				'note',
 				'delete_note',
@@ -110,11 +110,11 @@ class GamesController extends AppController {
 			}
 
 			// Anyone that's logged in can perform these operations for themselves or relatives
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'future',
 			]))
 			{
-				$person = $this->request->query('person');
+				$person = $this->request->getQuery('person');
 				if (!$person || $person == $this->UserCache->currentId() || in_array($person, $this->UserCache->read('RelativeIDs'))) {
 					return true;
 				}
@@ -122,7 +122,7 @@ class GamesController extends AppController {
 
 			// Volunteers can perform these operations any time
 			/* TODOLATER: Revisit these permissions: there is currently no restriction on who can be a volunteer
-			if ((Configure::read('Perm.is_official') || Configure::read('Perm.is_volunteer')) && in_array($this->request->params['action'], [
+			if ((Configure::read('Perm.is_official') || Configure::read('Perm.is_volunteer')) && in_array($this->request->getParam('action'), [
 				'live_score',
 				'score_up',
 				'score_down',
@@ -137,7 +137,7 @@ class GamesController extends AppController {
 			*/
 
 			// People can perform these operations on teams they or their relatives are on
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'attendance',
 				'live_score',
 				'score_up',
@@ -146,21 +146,21 @@ class GamesController extends AppController {
 				'play',
 			]))
 			{
-				$team = $this->request->query('team');
+				$team = $this->request->getQuery('team');
 				if ($team && (in_array($team, $this->UserCache->read('TeamIDs')) || in_array($team, $this->UserCache->read('RelativeTeamIDs')))) {
 					return true;
 				}
 			}
 
 			// Captains are permitted to perform these operations for their teams
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'stat_sheet',
 				'submit_score',
 				'submit_stats',
 			]))
 			{
 				// If a team id is specified, check if it belongs to the logged-in user
-				$team = $this->request->query('team');
+				$team = $this->request->getQuery('team');
 				if ($team && in_array($team, $this->UserCache->read('OwnedTeamIDs'))) {
 					return true;
 				}
@@ -259,7 +259,7 @@ class GamesController extends AppController {
 			];
 		}
 
-		$id = $this->request->query('game');
+		$id = $this->request->getQuery('game');
 		try {
 			$game = $this->Games->get($id, [
 				'contain' => $contain,
@@ -295,7 +295,7 @@ class GamesController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('game');
+		$id = $this->request->getQuery('game');
 		try {
 			$game = $this->Games->get($id, [
 				'contain' => [
@@ -318,7 +318,7 @@ class GamesController extends AppController {
 	}
 
 	public function ratings_table() {
-		$id = $this->request->query('game');
+		$id = $this->request->getQuery('game');
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			$this->set('rating_home', $this->request->data['rating_home']);
 			$this->set('rating_away', $this->request->data['rating_away']);
@@ -393,7 +393,7 @@ class GamesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->query('game');
+		$id = $this->request->getQuery('game');
 		// We need some basic game information right off. Much of the
 		// data we display here doesn't come from the form, so we have
 		// to read the whole thing.
@@ -487,16 +487,24 @@ class GamesController extends AppController {
 			}
 
 			// We don't actually want to update the "modified" column in the score entries or people tables here
-			$this->Games->ScoreEntries->removeBehavior('Timestamp');
-			$this->Games->ScoreEntries->Allstars->removeBehavior('Timestamp');
+			if ($this->Games->ScoreEntries->hasBehavior('Timestamp')) {
+				$this->Games->ScoreEntries->removeBehavior('Timestamp');
+			}
+			if ($this->Games->ScoreEntries->Allstars->hasBehavior('Timestamp')) {
+				$this->Games->ScoreEntries->Allstars->removeBehavior('Timestamp');
+			}
 			// Or the current user on the score or spirit entries
-			$this->Games->ScoreEntries->removeBehavior('Footprint');
-			$this->Games->SpiritEntries->removeBehavior('Footprint');
+			if ($this->Games->ScoreEntries->hasBehavior('Footprint')) {
+				$this->Games->ScoreEntries->removeBehavior('Footprint');
+			}
+			if ($this->Games->SpiritEntries->hasBehavior('Footprint')) {
+				$this->Games->SpiritEntries->removeBehavior('Footprint');
+			}
 
 			if ($this->Games->save($game, compact('game'))) {
 				$this->Flash->success(__('The game has been saved.'));
 
-				if ($this->request->query('stats')) {
+				if ($this->request->getQuery('stats')) {
 					return $this->redirect(['action' => 'submit_stats', 'game' => $id]);
 				} else {
 					return $this->redirect(['action' => 'view', 'game' => $id]);
@@ -512,7 +520,7 @@ class GamesController extends AppController {
 
 	public function edit_boxscore() {
 		try {
-			$game = $this->Games->get($this->request->query('game'), [
+			$game = $this->Games->get($this->request->getQuery('game'), [
 				'contain' => [
 					'Divisions' => [
 						'Leagues' => [
@@ -571,7 +579,9 @@ class GamesController extends AppController {
 			}
 
 			// We don't actually want to update the "modified" column in the games table here
-			$this->Games->removeBehavior('Timestamp');
+			if ($this->Games->hasBehavior('Timestamp')) {
+				$this->Games->removeBehavior('Timestamp');
+			}
 
 			if ($this->Games->save($game)) {
 				$this->Flash->success(__('The score details have been saved.'));
@@ -588,8 +598,8 @@ class GamesController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('detail');
-		$game_id = $this->request->query('game');
+		$id = $this->request->getQuery('detail');
+		$game_id = $this->request->getQuery('game');
 		try {
 			$detail = $this->Games->ScoreDetails->get($id);
 			if ($detail->game_id != $game_id) {
@@ -612,7 +622,7 @@ class GamesController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$game_id = $this->request->query('game');
+		$game_id = $this->request->getQuery('game');
 
 		try {
 			$game = $this->Games->get($game_id, [
@@ -664,8 +674,8 @@ class GamesController extends AppController {
 	}
 
 	public function note() {
-		$game_id = $this->request->query('game');
-		$note_id = $this->request->query('note');
+		$game_id = $this->request->getQuery('game');
+		$note_id = $this->request->getQuery('note');
 
 		try {
 			$game = $this->Games->get($game_id, [
@@ -793,7 +803,7 @@ class GamesController extends AppController {
 	}
 
 	public function delete_note() {
-		$note_id = $this->request->query('note');
+		$note_id = $this->request->getQuery('note');
 
 		try {
 			$note = $this->Games->Notes->get($note_id);
@@ -825,7 +835,7 @@ class GamesController extends AppController {
 	public function delete() {
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('game');
+		$id = $this->request->getQuery('game');
 		try {
 			$game = $this->Games->get($id, [
 				'contain' => [
@@ -845,7 +855,7 @@ class GamesController extends AppController {
 		}
 		$this->Configuration->loadAffiliate($game->division->league->affiliate_id);
 
-		if (!$this->request->query('force')) {
+		if (!$this->request->getQuery('force')) {
 			if ($game->isFinalized()) {
 				$msg = __('The score for this game has already been finalized.');
 			}
@@ -886,8 +896,8 @@ class GamesController extends AppController {
 	}
 
 	public function attendance() {
-		$id = $this->request->query('game');
-		$team_id = $this->request->query('team');
+		$id = $this->request->getQuery('game');
+		$team_id = $this->request->getQuery('team');
 		try {
 			$game = $this->Games->get($id, [
 				'contain' => [
@@ -931,20 +941,20 @@ class GamesController extends AppController {
 	}
 
 	public function attendance_change() {
-		$id = $this->request->query('game');
-		$date = $this->request->query('date');
+		$id = $this->request->getQuery('game');
+		$date = $this->request->getQuery('date');
 		if (!$id && !$date) {
 			$this->Flash->info(__('Invalid game.'));
 			return $this->redirect('/');
 		}
 
-		$team_id = $this->request->query('team');
+		$team_id = $this->request->getQuery('team');
 		if (!$team_id) {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect('/');
 		}
 
-		$person_id = $this->request->query('person');
+		$person_id = $this->request->getQuery('person');
 		if (!$person_id) {
 			$person_id = Configure::read('Perm.my_id');
 			if (!$person_id) {
@@ -1064,7 +1074,7 @@ class GamesController extends AppController {
 
 		// We must do other permission checks here, because we allow non-logged-in users to accept
 		// through email links
-		$code = $this->request->query('code');
+		$code = $this->request->getQuery('code');
 		if ($code) {
 			// Authenticate the hash code
 			if ($this->_checkHash([$attendance->id, $attendance->team_id, $attendance->game_id, $attendance->person_id, $attendance->created], $code)) {
@@ -1078,7 +1088,7 @@ class GamesController extends AppController {
 			}
 
 			// Fake the posted data array with the status from the URL
-			$this->request->data = ['status' => $this->request->query('status')];
+			$this->request->data = ['status' => $this->request->getQuery('status')];
 		} else {
 			// Players can change their own attendance, captains and coordinators can change any attendance on their teams
 			if (!$is_me && !$is_captain && !$is_coordinator) {
@@ -1109,7 +1119,7 @@ class GamesController extends AppController {
 				}
 			} else {
 				if ($this->request->is('ajax')) {
-					$this->set('dedicated', $this->request->query('dedicated'));
+					$this->set('dedicated', $this->request->getQuery('dedicated'));
 				} else if (!Configure::read('Perm.is_logged_in')) {
 					return $this->redirect(['controller' => 'Teams', 'action' => 'view', 'team' => $team_id]);
 				} else if ($id) {
@@ -1231,8 +1241,8 @@ class GamesController extends AppController {
 	}
 
 	public function stat_sheet() {
-		$id = $this->request->query('game');
-		$team_id = $this->request->query('team');
+		$id = $this->request->getQuery('game');
+		$team_id = $this->request->getQuery('team');
 		try {
 			$game = $this->Games->get($id, [
 				'contain' => [
@@ -1298,8 +1308,8 @@ class GamesController extends AppController {
 	public function TODOLATER_live_score() {
 		$this->viewBuilder()->layout('bare');
 
-		$id = $this->request->query('game');
-		$team_id = $this->request->query('team');
+		$id = $this->request->getQuery('game');
+		$team_id = $this->request->getQuery('team');
 		$contain = [
 			'Division' => [
 				'League' => [
@@ -1390,13 +1400,13 @@ class GamesController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('game');
+		$id = $this->request->getQuery('game');
 		if (!$id) {
 			$this->set('error', __('Invalid game.'));
 			return;
 		}
 
-		$submitter = $this->request->query('team');
+		$submitter = $this->request->getQuery('team');
 		/* TODOLATER: Revisit these permissions: there is currently no restriction on who can be a volunteer */
 		//if (!Configure::read('Perm.is_volunteer') && !Configure::read('Perm.is_official') && !$submitter) {
 		if (!$submitter) {
@@ -1583,13 +1593,13 @@ class GamesController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('game');
+		$id = $this->request->getQuery('game');
 		if (!$id) {
 			$this->set('error', __('Invalid game.'));
 			return;
 		}
 
-		$submitter = $this->request->query('team');
+		$submitter = $this->request->getQuery('team');
 		/* TODOLATER: Revisit these permissions: there is currently no restriction on who can be a volunteer */
 		//if (!Configure::read('Perm.is_volunteer') && !Configure::read('Perm.is_official') && !$submitter) {
 		if (!$submitter) {
@@ -1721,13 +1731,13 @@ class GamesController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('game');
+		$id = $this->request->getQuery('game');
 		if (!$id) {
 			$this->set('error', __('Invalid game.'));
 			return;
 		}
 
-		$submitter = $this->request->query('team');
+		$submitter = $this->request->getQuery('team');
 		/* TODOLATER: Revisit these permissions: there is currently no restriction on who can be a volunteer */
 		//if (!Configure::read('Perm.is_volunteer') && !Configure::read('Perm.is_official') && !$submitter) {
 		if (!$submitter) {
@@ -1845,13 +1855,13 @@ class GamesController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('game');
+		$id = $this->request->getQuery('game');
 		if (!$id) {
 			$this->set('message', __('Invalid game.'));
 			return;
 		}
 
-		$submitter = $this->request->query('team');
+		$submitter = $this->request->getQuery('team');
 		/* TODOLATER: Revisit these permissions: there is currently no restriction on who can be a volunteer */
 		//if (!Configure::read('Perm.is_volunteer') && !Configure::read('Perm.is_official') && !$submitter) {
 		if (!$submitter) {
@@ -2019,8 +2029,8 @@ class GamesController extends AppController {
 	}
 
 	public function submit_score() {
-		$id = $this->request->query('game');
-		$team_id = $this->request->query('team');
+		$id = $this->request->getQuery('game');
+		$team_id = $this->request->getQuery('team');
 
 		if (Configure::read('scoring.allstars') || Configure::read('scoring.most_spirited')) {
 			// We need roster details for potential allstar nominations.
@@ -2163,7 +2173,9 @@ class GamesController extends AppController {
 			$game->score_entries[0]->person_id = $this->UserCache->currentId();
 
 			// We don't actually want to update the "modified" column in the games table here
-			$this->Games->removeBehavior('Timestamp');
+			if ($this->Games->hasBehavior('Timestamp')) {
+				$this->Games->removeBehavior('Timestamp');
+			}
 
 			if ($this->Games->save($game, ['game' => $game, 'team_id' => $team_id])) {
 				if ($game->division->league->hasStats() && $this->request->data['collect_stats']) {
@@ -2177,11 +2189,11 @@ class GamesController extends AppController {
 		} else {
 			// Include any parameters from emailed confirmation link
 			foreach (['status', 'score_for', 'score_against', 'home_carbon_flip'] as $field) {
-				if ($this->request->query($field)) {
+				if ($this->request->getQuery($field)) {
 					if (empty($game->score_entries)) {
 						$game->score_entries = [$this->Games->ScoreEntries->newEntity()];
 					}
-					$game->score_entries[0]->$field = $this->request->query($field);
+					$game->score_entries[0]->$field = $this->request->getQuery($field);
 				}
 			}
 		}
@@ -2191,7 +2203,7 @@ class GamesController extends AppController {
 	}
 
 	public function submit_stats() {
-		$id = $this->request->query('game');
+		$id = $this->request->getQuery('game');
 		try {
 			$game = $this->Games->get($id, [
 				'contain' => [
@@ -2224,7 +2236,7 @@ class GamesController extends AppController {
 		}
 		$this->Games->adjustEntryIndices($game);
 
-		$team_id = $this->request->query('team');
+		$team_id = $this->request->getQuery('team');
 		// Allow specified individuals (referees, umpires, volunteers) to submit stats without a team id
 		/* TODOLATER: Revisit these permissions: there is currently no restriction on who can be a volunteer */
 		//if (!Configure::read('Perm.is_volunteer') && !Configure::read('Perm.is_official') && !$team_id && !in_array($game->division_id, $this->UserCache->read('DivisionIDs'))) {
@@ -2291,7 +2303,9 @@ class GamesController extends AppController {
 			}
 
 			// We don't actually want to update the "modified" column in the games table here
-			$this->Games->removeBehavior('Timestamp');
+			if ($this->Games->hasBehavior('Timestamp')) {
+				$this->Games->removeBehavior('Timestamp');
+			}
 
 			if ($this->Games->connection()->transactional(function () use ($game, $to_delete) {
 				if (!empty($to_delete)) {
@@ -2371,8 +2385,8 @@ class GamesController extends AppController {
 	}
 
 	public function stats() {
-		$id = $this->request->query('game');
-		$team_id = $this->request->query('team');
+		$id = $this->request->getQuery('game');
+		$team_id = $this->request->getQuery('team');
 		try {
 			$game = $this->Games->get($id, [
 				'contain' => [
@@ -2469,7 +2483,7 @@ class GamesController extends AppController {
 	}
 
 	public function future($limit = null) {
-		$person = $this->request->query('person');
+		$person = $this->request->getQuery('person');
 		if (!$person) {
 			$person = $this->UserCache->currentId();
 		}

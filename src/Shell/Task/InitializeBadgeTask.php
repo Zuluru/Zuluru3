@@ -20,7 +20,7 @@ class InitializeBadgeTask extends Shell {
 
 	public function main() {
 		try {
-			$event = new CakeEvent('Controller.initialize', $this);
+			$event = new CakeEvent('Configuration.initialize', $this);
 			EventManager::instance()->dispatch($event);
 
 			$badges_table = TableRegistry::get('Badges');

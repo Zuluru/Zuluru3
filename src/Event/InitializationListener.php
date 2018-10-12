@@ -15,6 +15,11 @@ class InitializationListener implements EventListenerInterface {
 
 	public function implementedEvents() {
 		return [
+			// Dispatching the Controller.initialize event from non-controller
+			// contexts can cause problems. Use Configuration.initialize in
+			// those cases. But leave Controller.initialize handling as well,
+			// to keep controller-related code simple.
+			'Configuration.initialize' => 'beforeFilter',
 			'Controller.initialize' => 'beforeFilter',
 			'Controller.beforeRender' => 'beforeRender',
 		];

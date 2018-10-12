@@ -71,7 +71,7 @@ class ScoreEntriesTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testBeforeMarshal() {
-		$event = new CakeEvent('Controller.initialize', $this);
+		$event = new CakeEvent('Configuration.initialize', $this);
 		EventManager::instance()->dispatch($event);
 
 		$data = new \ArrayObject([

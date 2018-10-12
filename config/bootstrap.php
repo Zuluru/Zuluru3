@@ -13,29 +13,11 @@
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
-// You can remove this if you are confident that your PHP version is sufficient.
-if (version_compare(PHP_VERSION, '5.5.9') < 0) {
-	trigger_error('You PHP version must be equal or higher than 5.5.9 to use CakePHP.', E_USER_ERROR);
-}
-
-// You can remove this if you are confident you have intl installed.
-if (!extension_loaded('intl')) {
-	trigger_error('You must enable the intl extension to use CakePHP.', E_USER_ERROR);
-}
-
-// You can remove this if you are confident you have mbstring installed.
-if (!extension_loaded('mbstring')) {
-	trigger_error('You must enable the mbstring extension to use CakePHP.', E_USER_ERROR);
-}
-
 /**
  * Configure paths required to find CakePHP + general filepath
  * constants
  */
 require __DIR__ . '/paths.php';
-
-// Use composer to load the autoloader.
-require ROOT . DS . 'vendor' . DS . 'autoload.php';
 
 /**
  * Bootstrap CakePHP.
@@ -65,14 +47,13 @@ use Cake\Event\EventManager;
 use Cake\Log\Log;
 use Cake\Mailer\Email;
 use Cake\Network\Request;
-use Cake\Routing\DispatcherFactory;
 use Cake\Utility\Inflector;
 use Cake\Utility\Security;
 
 /**
  * Read .env file(s).
  */
-if (file_exists(ZULURU_CONFIG . '.env')) {
+if (!env('APP_NAME') && file_exists(ZULURU_CONFIG . '.env')) {
 	$dotenv = new \josegonzalez\Dotenv\Loader([ZULURU_CONFIG . '.env']);
 	$dotenv->parse()
 		->putenv(true)
@@ -120,12 +101,13 @@ try {
 
 Configure::load('features');
 
-// When debug = false the metadata cache should last
-// for a very very long time, as we don't want
-// to refresh the cache while users are doing requests.
-if (!Configure::read('debug')) {
-	Configure::write('Cache._cake_model_.duration', '+1 years');
-	Configure::write('Cache._cake_core_.duration', '+1 years');
+/*
+ * When debug = true the metadata cache should only last
+ * for a short time.
+ */
+if (Configure::read('debug')) {
+	Configure::write('Cache._cake_model_.duration', '+2 minutes');
+	Configure::write('Cache._cake_core_.duration', '+2 minutes');
 }
 
 /**
@@ -211,57 +193,21 @@ Request::addDetector('tablet', function ($request) {
  */
 
 /**
- * Plugins need to be loaded manually, you can either load them one by one or all of them in a single call
- * Uncomment one of the lines below, as you need. make sure you read the documentation on Plugin to use more
- * advanced ways of loading plugins
- *
- * Plugin::loadAll(); // Loads all plugins at once
- * Plugin::load('Migrations'); //Loads a single plugin named Migrations
- *
- */
-
-Plugin::load('Migrations');
-
-Configure::write('Installer.config', ['installer']);
-Plugin::load('Installer', ['bootstrap' => true, 'routes' => true]);
-
-Plugin::load('Ajax');
-Plugin::load('Bootstrap', ['bootstrap' => true]);
-Plugin::load('Josegonzalez/Upload');
-Plugin::load('Muffin/Footprint');
-Plugin::load('ADmad/JwtAuth');
-
-// Only try to load DebugKit in development mode
-// Debug Kit should not be installed on a production system
-if (Configure::read('debug')) {
-	Plugin::load('DebugKit', ['bootstrap' => true]);
-}
-
-Plugin::load('ZuluruBootstrap');
-Plugin::load('ZuluruJquery');
-
-/**
- * Connect middleware/dispatcher filters.
- */
-DispatcherFactory::add('Asset');
-DispatcherFactory::add('Routing');
-DispatcherFactory::add('ControllerFactory');
-DispatcherFactory::add('LocaleSelector');
-
-/**
  * Enable immutable time objects in the ORM.
  *
  * You can enable default locale format parsing by adding calls
  * to `useLocaleParser()`. This enables the automatic conversion of
  * locale specific date formats. For details see
- * @link http://book.cakephp.org/3.0/en/core-libraries/internationalization-and-localization.html#parsing-localized-datetime-data
+ * @link https://book.cakephp.org/3.0/en/core-libraries/internationalization-and-localization.html#parsing-localized-datetime-data
  */
 Type::build('time')
-    ->useImmutable();
+	->useImmutable();
 Type::build('date')
-    ->useImmutable();
+	->useImmutable();
 Type::build('datetime')
-    ->useImmutable();
+	->useImmutable();
+Type::build('timestamp')
+	->useImmutable();
 
 /**
  * Enable default locale format parsing.
@@ -295,6 +241,6 @@ Configure::write('App.globalListeners', $globalListeners);
 
 if (!defined('ZULURU_VERSION')) {
 	define('ZULURU_MAJOR', 3);
-	define('ZULURU_MINOR', 0);
+	define('ZULURU_MINOR', 1);
 	define('ZULURU_REVISION', 0);
 }

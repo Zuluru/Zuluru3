@@ -15,18 +15,18 @@ $unpaid = in_array($registration->payment, Configure::read('registration_unpaid'
 $unaccounted = $registration->payment == 'Paid' && $registration->total_payment != $registration->total_amount;
 
 if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
-	if ($this->request->params['controller'] != 'Registrations' || $this->request->params['action'] != 'view') {
+	if ($this->request->getParam('controller') != 'Registrations' || $this->request->getParam('action') != 'view') {
 		$links[] = $this->Html->iconLink("view_$size.png",
 			['controller' => 'Registrations', 'action' => 'view', 'registration' => $registration->id],
 			['alt' => __('View'), 'title' => __('View Registration')]
 		);
 	}
 	if (($unpaid || $unaccounted) && $registration->payment != 'Waiting') {
-		if ($this->request->params['controller'] != 'Registrations' || $this->request->params['action'] != 'add_payment') {
+		if ($this->request->getParam('controller') != 'Registrations' || $this->request->getParam('action') != 'add_payment') {
 			$links[] = $this->Html->link(__('Add Payment'), ['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => $registration->id]);
 		}
 	}
-	if ($this->request->params['controller'] != 'Registrations' || $this->request->params['action'] != 'edit') {
+	if ($this->request->getParam('controller') != 'Registrations' || $this->request->getParam('action') != 'edit') {
 		$links[] = $this->Html->iconLink("edit_$size.png",
 			['controller' => 'Registrations', 'action' => 'edit', 'registration' => $registration->id, 'return' => AppController::_return()],
 			['alt' => __('Edit'), 'title' => __('Edit Registration')]
@@ -35,7 +35,7 @@ if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
 }
 if (in_array($registration->payment, Configure::read('registration_none_paid')) || $registration->total_amount == 0) {
 	if (!Configure::read('Perm.is_admin') && !Configure::read('Perm.is_manager')) {
-		if ($this->request->params['controller'] != 'Registrations' || $this->request->params['action'] != 'edit') {
+		if ($this->request->getParam('controller') != 'Registrations' || $this->request->getParam('action') != 'edit') {
 			$links[] = $this->Html->iconLink("edit_$size.png",
 				['controller' => 'Registrations', 'action' => 'edit', 'registration' => $registration->id, 'return' => AppController::_return()],
 				['alt' => __('Edit'), 'title' => __('Edit Registration')]

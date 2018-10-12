@@ -41,7 +41,7 @@ class BadgesController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'add',
 					'deactivated',
 				])) {
@@ -49,7 +49,7 @@ class BadgesController extends AppController {
 				}
 
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'view',
 					'tooltip',
 					'edit',
@@ -57,7 +57,7 @@ class BadgesController extends AppController {
 					'deactivate',
 				])) {
 					// If a badge id is specified, check if we're a manager of that badge's affiliate
-					$badge = $this->request->query('badge');
+					$badge = $this->request->getQuery('badge');
 					if ($badge) {
 						if (in_array($this->Badges->affiliate($badge), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -69,7 +69,7 @@ class BadgesController extends AppController {
 			}
 
 			// Anyone that's logged in can perform these operations
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'index',
 				'view',
 				'tooltip',
@@ -159,7 +159,7 @@ class BadgesController extends AppController {
 			throw new MethodNotAllowedException('Badges are not enabled on this system.');
 		}
 
-		$id = $this->request->query('badge');
+		$id = $this->request->getQuery('badge');
 		try {
 			$badge = $this->Badges->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -207,7 +207,7 @@ class BadgesController extends AppController {
 			throw new MethodNotAllowedException('Badges are not enabled on this system.');
 		}
 
-		$id = $this->request->query('badge');
+		$id = $this->request->getQuery('badge');
 		try {
 			$badge = $this->Badges->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -245,7 +245,7 @@ class BadgesController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('badge');
+		$id = $this->request->getQuery('badge');
 		try {
 			$badge = $this->Badges->get($id, [
 				'contain' => ['People' => [
@@ -309,7 +309,7 @@ class BadgesController extends AppController {
 			throw new MethodNotAllowedException('Badges are not enabled on this system.');
 		}
 
-		$id = $this->request->query('badge');
+		$id = $this->request->getQuery('badge');
 		try {
 			$badge = $this->Badges->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -348,7 +348,7 @@ class BadgesController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('badge');
+		$id = $this->request->getQuery('badge');
 		try {
 			$badge = $this->Badges->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -382,7 +382,7 @@ class BadgesController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('badge');
+		$id = $this->request->getQuery('badge');
 		try {
 			$badge = $this->Badges->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -415,7 +415,7 @@ class BadgesController extends AppController {
 
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('badge');
+		$id = $this->request->getQuery('badge');
 		$dependencies = $this->Badges->dependencies($id);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this badge, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);

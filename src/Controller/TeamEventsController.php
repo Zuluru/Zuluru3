@@ -40,11 +40,11 @@ class TeamEventsController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'add',
 				])) {
 					// If a team id is specified, check if we're a manager of that team's affiliate
-					$team = $this->request->query('team');
+					$team = $this->request->getQuery('team');
 					if ($team) {
 						if (in_array($this->Teams->affiliate($team), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -53,14 +53,14 @@ class TeamEventsController extends AppController {
 						}
 					}
 				}
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'edit',
 					'delete',
 					'view',
 				]))
 				{
 					// If an event id is specified, check if we're a manager of that event's affiliate
-					$event = $this->request->query('event');
+					$event = $this->request->getQuery('event');
 					if ($event) {
 						if (in_array($this->TeamEvents->affiliate($event), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -72,20 +72,20 @@ class TeamEventsController extends AppController {
 			}
 
 			// People can perform these operations on teams they run
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'add',
 			])) {
 				// If a team id is specified, check if we're a captain of that team
-				$team = $this->request->query('team');
+				$team = $this->request->getQuery('team');
 				if ($team && in_array($team, $this->UserCache->read('OwnedTeamIDs'))) {
 					return true;
 				}
 			}
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'edit',
 				'delete',
 			])) {
-				$event = $this->request->query('event');
+				$event = $this->request->getQuery('event');
 				if ($event) {
 					$team = $this->TeamEvents->field('team_id', ['id' => $event]);
 					if ($team && in_array($team, $this->UserCache->read('OwnedTeamIDs'))) {
@@ -95,10 +95,10 @@ class TeamEventsController extends AppController {
 			}
 
 			// People can perform these operations on teams they or their relatives are on
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'view',
 			])) {
-				$event = $this->request->query('event');
+				$event = $this->request->getQuery('event');
 				if ($event) {
 					$team = $this->TeamEvents->field('team_id', ['id' => $event]);
 					if ($team) {
@@ -121,7 +121,7 @@ class TeamEventsController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->query('event');
+		$id = $this->request->getQuery('event');
 		try {
 			$team_event = $this->TeamEvents->get($id, [
 				'contain' => [
@@ -153,7 +153,7 @@ class TeamEventsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
-		$id = $this->request->query('team');
+		$id = $this->request->getQuery('team');
 		try {
 			$team = $this->TeamEvents->Teams->get($id, [
 				'contain' => ['Divisions' => ['Leagues']],
@@ -271,7 +271,7 @@ class TeamEventsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->query('event');
+		$id = $this->request->getQuery('event');
 		try {
 			$team_event = $this->TeamEvents->get($id, [
 				'contain' => [
@@ -311,7 +311,7 @@ class TeamEventsController extends AppController {
 	public function delete() {
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('event');
+		$id = $this->request->getQuery('event');
 		try {
 			$team_event = $this->TeamEvents->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -334,8 +334,8 @@ class TeamEventsController extends AppController {
 	}
 
 	public function attendance_change() {
-		$id = $this->request->query('event');
-		$person_id = $this->request->query('person') ?: Configure::read('Perm.my_id');
+		$id = $this->request->getQuery('event');
+		$person_id = $this->request->getQuery('person') ?: Configure::read('Perm.my_id');
 
 		$captains_contain = [
 			'queryBuilder' => function (Query $q) {
@@ -410,7 +410,7 @@ class TeamEventsController extends AppController {
 
 		// We must do other permission checks here, because we allow non-logged-in users to accept
 		// through email links
-		$code = $this->request->query('code');
+		$code = $this->request->getQuery('code');
 		if ($code) {
 			// Authenticate the hash code
 			if ($this->_checkHash([$attendance->id, $attendance->team_event_id, $attendance->person_id, $attendance->created], $code)) {
@@ -424,7 +424,7 @@ class TeamEventsController extends AppController {
 			}
 
 			// Fake the posted data array with the status from the URL
-			$this->request->data = ['status' => $this->request->query('status')];
+			$this->request->data = ['status' => $this->request->getQuery('status')];
 		} else {
 			// Players can change their own attendance, captains and coordinators can change any attendance on their teams
 			if (!$is_me && !$is_captain && !$is_coordinator) {
@@ -455,7 +455,7 @@ class TeamEventsController extends AppController {
 				}
 			} else {
 				if ($this->request->is('ajax')) {
-					$this->set('dedicated', $this->request->query('dedicated'));
+					$this->set('dedicated', $this->request->getQuery('dedicated'));
 				} else if (!Configure::read('Perm.is_logged_in')) {
 					return $this->redirect(['controller' => 'Teams', 'action' => 'view', 'team' => $team_id]);
 				} else {

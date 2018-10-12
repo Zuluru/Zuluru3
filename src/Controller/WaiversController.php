@@ -37,7 +37,7 @@ class WaiversController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'index',
 					'add',
 				]))
@@ -46,14 +46,14 @@ class WaiversController extends AppController {
 				}
 
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'view',
 					'edit',
 					'delete',
 				]))
 				{
 					// If a waiver id is specified, check if we're a manager of that waiver's affiliate
-					$waiver = $this->request->query('waiver');
+					$waiver = $this->request->getQuery('waiver');
 					if ($waiver) {
 						if (in_array($this->Waivers->affiliate($waiver), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -65,7 +65,7 @@ class WaiversController extends AppController {
 			}
 
 			// Anyone that's logged in can perform these operations
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'sign',
 				'review',
 			]))
@@ -110,7 +110,7 @@ class WaiversController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->query('waiver');
+		$id = $this->request->getQuery('waiver');
 		try {
 			$waiver = $this->Waivers->get($id, [
 				'contain' => ['Affiliates']
@@ -156,7 +156,7 @@ class WaiversController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->query('waiver');
+		$id = $this->request->getQuery('waiver');
 		try {
 			$waiver = $this->Waivers->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -198,7 +198,7 @@ class WaiversController extends AppController {
 	public function delete() {
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('waiver');
+		$id = $this->request->getQuery('waiver');
 		$dependencies = $this->Waivers->dependencies($id);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this waiver, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
@@ -227,7 +227,7 @@ class WaiversController extends AppController {
 	}
 
 	public function sign() {
-		$waiver_id = $this->request->query('waiver');
+		$waiver_id = $this->request->getQuery('waiver');
 
 		try {
 			$waiver = $this->Waivers->get($waiver_id);
@@ -245,7 +245,7 @@ class WaiversController extends AppController {
 		$this->Configuration->loadAffiliate($waiver->affiliate_id);
 
 		// Make sure they're waivering for a valid date
-		$date = $this->request->query('date');
+		$date = $this->request->getQuery('date');
 		if (!$date) {
 			$this->Flash->info(__('Invalid waiver date.'));
 			return $this->redirect('/');
@@ -315,7 +315,7 @@ class WaiversController extends AppController {
 	}
 
 	public function review() {
-		$waiver_id = $this->request->query('waiver');
+		$waiver_id = $this->request->getQuery('waiver');
 		if (!$waiver_id) {
 			$this->Flash->info(__('Invalid waiver.'));
 			return $this->redirect('/');
@@ -335,7 +335,7 @@ class WaiversController extends AppController {
 		$this->Configuration->loadAffiliate($waiver->affiliate_id);
 		$conditions = ['Waivers.id' => $waiver_id];
 
-		$date = $this->request->query('date');
+		$date = $this->request->getQuery('date');
 		if ($date) {
 			$date = new FrozenDate($date);
 			list($valid_from, $valid_until) = $waiver->validRange($date);

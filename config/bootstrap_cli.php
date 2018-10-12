@@ -13,8 +13,6 @@
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
 use Cake\Core\Configure;
-use Cake\Core\Exception\MissingPluginException;
-use Cake\Core\Plugin;
 
 /**
  * Additional bootstrapping and configuration for CLI environments should
@@ -30,14 +28,6 @@ Configure::write('Log.debug.file', 'cli-debug');
 Configure::write('Log.error.file', 'cli-error');
 Configure::write('Log.queries.file', 'cli-sql');
 Configure::write('Log.rules.file', 'cli-rules');
-
-try {
-    Plugin::load('Bake');
-} catch (MissingPluginException $e) {
-    // Do not halt if the plugin is missing
-}
-
-Plugin::load('Scheduler', ['autoload' => true]);
 
 // Set up scheduled tasks
 Configure::write('SchedulerShell.jobs', [

@@ -62,7 +62,7 @@ class ZuluruFormHelper extends FormHelper {
 			} while (is_numeric($model));
 			$model = Inflector::tableize($model);
 		} else {
-			$model = Inflector::tableize($this->request->params['controller']);
+			$model = Inflector::tableize($this->request->getParam('controller'));
 			$shortFieldName = $fieldName;
 		}
 		$value = $this->context()->val($fieldName);

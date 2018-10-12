@@ -34,7 +34,7 @@ class EventsController extends AppController {
 
 		if (Configure::read('Perm.is_manager')) {
 			// If an event id is specified, check if we're a manager of that event's affiliate
-			$event = $this->request->query('event');
+			$event = $this->request->getQuery('event');
 			if ($event) {
 				if (!in_array($this->Events->affiliate($event), $this->UserCache->read('ManagedAffiliateIDs'))) {
 					Configure::write('Perm.is_manager', false);
@@ -63,7 +63,7 @@ class EventsController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'add',
 					'add_price',
 					'event_type_fields',
@@ -72,13 +72,13 @@ class EventsController extends AppController {
 				}
 
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'edit',
 					'connections',
 					'delete',
 				])) {
 					// If an event id is specified, check if we're a manager of that event's affiliate
-					$event = $this->request->query('event');
+					$event = $this->request->getQuery('event');
 					if ($event) {
 						if (in_array($this->Events->affiliate($event), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -113,7 +113,7 @@ class EventsController extends AppController {
 		}
 
 		if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
-			$year = $this->request->query('year');
+			$year = $this->request->getQuery('year');
 			if ($year) {
 				$conditions = ['OR' => [
 					[
@@ -278,7 +278,7 @@ class EventsController extends AppController {
 
 		$this->Events->Registrations->expireReservations();
 
-		$id = $this->request->query('event');
+		$id = $this->request->getQuery('event');
 		if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
 			// Admins and managers see things that have recently closed, or open far in the future
 			$close = FrozenDate::now()->subDays(30);
@@ -383,10 +383,10 @@ class EventsController extends AppController {
 				$this->Flash->warning(__('The event could not be saved. Please correct the errors below and try again.'));
 				$this->Configuration->loadAffiliate($event->affiliate_id);
 			}
-		} else if ($this->request->query('event')) {
+		} else if ($this->request->getQuery('event')) {
 			// To clone an event, read the old one and remove the id
 			try {
-				$event = $this->Events->cloneWithoutIds($this->request->query('event'), [
+				$event = $this->Events->cloneWithoutIds($this->request->getQuery('event'), [
 					'contain' => [
 						'EventTypes',
 						'Prices' => [
@@ -434,7 +434,7 @@ class EventsController extends AppController {
 			throw new MethodNotAllowedException('Registration is not enabled on this system.');
 		}
 
-		$id = $this->request->query('event');
+		$id = $this->request->getQuery('event');
 		try {
 			$event = $this->Events->get($id, [
 				'contain' => [
@@ -527,7 +527,7 @@ class EventsController extends AppController {
 
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('event');
+		$id = $this->request->getQuery('event');
 		$dependencies = $this->Events->dependencies($id, ['Prices', 'Predecessor', 'Successor', 'Alternate', 'PredecessorTo', 'SuccessorTo', 'AlternateTo']);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this event, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
@@ -559,7 +559,7 @@ class EventsController extends AppController {
 			throw new MethodNotAllowedException('Registration is not enabled on this system.');
 		}
 
-		$id = $this->request->query('event');
+		$id = $this->request->getQuery('event');
 		try {
 			$event = $this->Events->get($id, [
 				'contain' => [

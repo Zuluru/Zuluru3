@@ -206,14 +206,15 @@ return [
 		/**
 		 * Configure the cache used for general framework caching.
 		 * Translation cache files are stored with this configuration.
-		 * Duration will be set to '+1 year' in bootstrap.php when debug = false
+		 * Duration will be set to '+2 minutes' in bootstrap.php when debug = true
+		 * If you set 'className' => 'Null' core cache will be disabled.
 		 */
 		'_cake_core_' => [
 			'className' => 'File',
 			'prefix' => CACHE_PREFIX . 'zuluru_cake_core_',
 			'path' => CACHE . 'persistent' . DS,
 			'serialize' => true,
-			'duration' => '+2 minutes',
+			'duration' => '+1 years',
 			'url' => env('CACHE_CAKECORE_URL', null),
 		],
 
@@ -221,14 +222,14 @@ return [
 		 * Configure the cache for model and datasource caches. This cache
 		 * configuration is used to store schema descriptions, and table listings
 		 * in connections.
-		 * Duration will be set to '+1 year' in bootstrap.php when debug = false
+		 * Duration will be set to '+2 minutes' in bootstrap.php when debug = true
 		 */
 		'_cake_model_' => [
 			'className' => 'File',
 			'prefix' => CACHE_PREFIX . 'zuluru_cake_model_',
 			'path' => CACHE . 'models' . DS,
 			'serialize' => true,
-			'duration' => '+2 minutes',
+			'duration' => '+1 years',
 			'url' => env('CACHE_CAKEMODEL_URL', null),
 		],
 
@@ -290,7 +291,7 @@ return [
 	 *   breathing room to complete logging or error handling.
 	 */
 	'Error' => [
-		'errorLevel' => E_ALL & ~E_DEPRECATED,
+		'errorLevel' => E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED,
 		'exceptionRenderer' => 'Cake\Error\ExceptionRenderer',
 		'skipLog' => [
 			'Cake\Network\Exception\GoneException',

@@ -37,7 +37,7 @@ class ContactsController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'index',
 					'add',
 				])) {
@@ -45,12 +45,12 @@ class ContactsController extends AppController {
 				}
 
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'edit',
 					'delete',
 				])) {
 					// If a contact id is specified, check if we're a manager of that contact's affiliate
-					$contact = $this->request->query('contact');
+					$contact = $this->request->getQuery('contact');
 					if ($contact) {
 						if (in_array($this->Contacts->affiliate($contact), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -62,7 +62,7 @@ class ContactsController extends AppController {
 			}
 
 			// Anyone that's logged in can perform these operations
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'message',
 			])) {
 				return true;
@@ -85,7 +85,7 @@ class ContactsController extends AppController {
 			throw new MethodNotAllowedException('Contacts are not enabled on this system.');
 		}
 
-		$affiliate = $this->request->query('affiliate');
+		$affiliate = $this->request->getQuery('affiliate');
 		$affiliates = $this->_applicableAffiliateIDs();
 
 		$query = $this->Contacts->find()
@@ -137,7 +137,7 @@ class ContactsController extends AppController {
 			throw new MethodNotAllowedException('Contacts are not enabled on this system.');
 		}
 
-		$id = $this->request->query('contact');
+		$id = $this->request->getQuery('contact');
 		try {
 			$contact = $this->Contacts->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -176,7 +176,7 @@ class ContactsController extends AppController {
 
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('contact');
+		$id = $this->request->getQuery('contact');
 		$dependencies = $this->Contacts->dependencies($id);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this contact, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
@@ -226,7 +226,7 @@ class ContactsController extends AppController {
 			}
 		}
 
-		$id = $this->request->query('contact');
+		$id = $this->request->getQuery('contact');
 		if (!$id) {
 			$affiliates = $this->_applicableAffiliateIDs();
 			$contacts = $this->Contacts->find()

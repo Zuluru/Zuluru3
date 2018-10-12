@@ -25,7 +25,7 @@ class GameAttendanceTask extends Shell {
 	use HasherTrait;
 
 	public function main() {
-		$event = new CakeEvent('Controller.initialize', $this);
+		$event = new CakeEvent('Configuration.initialize', $this);
 		EventManager::instance()->dispatch($event);
 
 		$this->games_table = TableRegistry::get('Games');

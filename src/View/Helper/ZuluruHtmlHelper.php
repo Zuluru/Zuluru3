@@ -69,7 +69,7 @@ class ZuluruHtmlHelper extends HtmlHelper {
 		}
 
 		return $this->link(parent::image($img, $imgOptions),
-			$url, array_merge(['escape' => false], $linkOptions));
+			$url, array_merge(['escapeTitle' => false], $linkOptions));
 	}
 
 	/**
@@ -99,7 +99,7 @@ class ZuluruHtmlHelper extends HtmlHelper {
 		}
 		$linkOptions['class'] = 'icon';
 		return $this->link($this->iconImg($img, $imgOptions),
-			$url, array_merge(['escape' => false], $linkOptions));
+			$url, array_merge(['escapeTitle' => false], $linkOptions));
 	}
 
 	/**

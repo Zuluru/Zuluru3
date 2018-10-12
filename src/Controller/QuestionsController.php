@@ -33,7 +33,7 @@ class QuestionsController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'index',
 					'deactivated',
 					'add',
@@ -44,7 +44,7 @@ class QuestionsController extends AppController {
 				}
 
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'view',
 					'edit',
 					'add_answer',
@@ -54,7 +54,7 @@ class QuestionsController extends AppController {
 				]))
 				{
 					// If a question id is specified, check if we're a manager of that question's affiliate
-					$question = $this->request->query('question');
+					$question = $this->request->getQuery('question');
 					if ($question) {
 						if (in_array($this->Questions->affiliate($question), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -64,12 +64,12 @@ class QuestionsController extends AppController {
 					}
 				}
 
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'delete_answer',
 				]))
 				{
 					// If an answer id is specified, check if we're a manager of that answer's affiliate
-					$answer = $this->request->query('answer');
+					$answer = $this->request->getQuery('answer');
 					if ($answer) {
 						$question = $this->Questions->Answers->field('question_id', ['id' => $answer]);
 						if (in_array($this->Questions->affiliate($question), $this->UserCache->read('ManagedAffiliateIDs'))) {
@@ -153,7 +153,7 @@ class QuestionsController extends AppController {
 			throw new MethodNotAllowedException('Registration is not enabled on this system.');
 		}
 
-		$id = $this->request->query('question');
+		$id = $this->request->getQuery('question');
 		try {
 			$question = $this->Questions->get($id, [
 				'contain' => ['Affiliates', 'Questionnaires', 'Answers']
@@ -209,7 +209,7 @@ class QuestionsController extends AppController {
 			throw new MethodNotAllowedException('Registration is not enabled on this system.');
 		}
 
-		$id = $this->request->query('question');
+		$id = $this->request->getQuery('question');
 		try {
 			$question = $this->Questions->get($id, [
 				'contain' => [
@@ -257,7 +257,7 @@ class QuestionsController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('question');
+		$id = $this->request->getQuery('question');
 		try {
 			$question = $this->Questions->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -291,7 +291,7 @@ class QuestionsController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('question');
+		$id = $this->request->getQuery('question');
 		try {
 			$question = $this->Questions->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -324,7 +324,7 @@ class QuestionsController extends AppController {
 
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('question');
+		$id = $this->request->getQuery('question');
 		$dependencies = $this->Questions->dependencies($id);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this question, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
@@ -360,7 +360,7 @@ class QuestionsController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('question');
+		$id = $this->request->getQuery('question');
 		try {
 			$question = $this->Questions->get($id, [
 				'contain' => [
@@ -405,7 +405,7 @@ class QuestionsController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('answer');
+		$id = $this->request->getQuery('answer');
 		try {
 			$answer = $this->Questions->Answers->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -444,10 +444,10 @@ class QuestionsController extends AppController {
 		$this->request->allowMethod('ajax');
 
 		$conditions = [
-			'Questions.question LIKE' => '%' . $this->request->query('term') . '%',
+			'Questions.question LIKE' => '%' . $this->request->getQuery('term') . '%',
 			'Questions.active' => true,
 		];
-		$affiliate = $this->request->query('affiliate');
+		$affiliate = $this->request->getQuery('affiliate');
 		if ($affiliate && (Configure::read('Perm.is_admin') || in_array($affiliate, $this->UserCache->read('ManagedAffiliateIDs')))) {
 			$conditions['Questions.affiliate_id'] = $affiliate;
 

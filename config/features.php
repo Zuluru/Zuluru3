@@ -7,7 +7,7 @@
  *
  * Second, we set up some static global configuration. These items
  * generally won't change for different installations. If you have
- * any local configuration customizations, adjust the $config array
+ * any local configuration customizations, adjust the $features array
  * by adding, altering or unsetting values through a file called
  * features_custom.php (which you must create).
  */
@@ -104,7 +104,7 @@ if (!defined('GROUP_PLAYER')) {
 	define('MIN_FAKE_ID', 1000000000);
 }
 
-$config['season_is_indoor'] = [
+$features['season_is_indoor'] = [
 	'None'			=> false,
 	'Winter'		=> false,
 	'Winter Indoor'	=> true,
@@ -117,14 +117,14 @@ $config['season_is_indoor'] = [
 ];
 
 // List of game statuses that indicate that the game was not played.
-$config['unplayed_status'] = [
+$features['unplayed_status'] = [
 	'cancelled',
 	'forfeit',
 	'rescheduled',
 ];
 
 // List of stat types for various displays
-$config['stat_types'] = [
+$features['stat_types'] = [
 	'game' => [
 		'entered',
 		'game_calc',
@@ -136,14 +136,14 @@ $config['stat_types'] = [
 	],
 ];
 
-$config['approved_by'] = [
+$features['approved_by'] = [
 	APPROVAL_AUTOMATIC			=> 'automatic approval',
 	APPROVAL_AUTOMATIC_HOME		=> 'automatic approval using home submission',
 	APPROVAL_AUTOMATIC_AWAY		=> 'automatic approval using away submission',
 	APPROVAL_AUTOMATIC_FORFEIT	=> 'game automatically forfeited due to lack of score submission',
 ];
 
-$config['attendance'] = [
+$features['attendance'] = [
 	ATTENDANCE_ATTENDING	=> 'Attending',
 	ATTENDANCE_ABSENT		=> 'Absent',
 	ATTENDANCE_UNKNOWN		=> 'Unknown',
@@ -152,7 +152,7 @@ $config['attendance'] = [
 	ATTENDANCE_NO_SHOW		=> 'No Show',
 ];
 
-$config['attendance_alt'] = [
+$features['attendance_alt'] = [
 	ATTENDANCE_ATTENDING	=> 'Y',
 	ATTENDANCE_ABSENT		=> 'N',
 	ATTENDANCE_UNKNOWN		=> '?',
@@ -161,7 +161,7 @@ $config['attendance_alt'] = [
 	ATTENDANCE_NO_SHOW		=> 'X',
 ];
 
-$config['attendance_verb'] = [
+$features['attendance_verb'] = [
 	ATTENDANCE_ATTENDING	=> 'attending',
 	ATTENDANCE_ABSENT		=> 'absent for',
 	ATTENDANCE_UNKNOWN		=> 'unknown/undecided for',
@@ -170,7 +170,7 @@ $config['attendance_verb'] = [
 	ATTENDANCE_NO_SHOW		=> 'a no-show for',
 ];
 
-$config['event_attendance_verb'] = [
+$features['event_attendance_verb'] = [
 	ATTENDANCE_ATTENDING	=> 'attending',
 	ATTENDANCE_ABSENT		=> 'absent for',
 	ATTENDANCE_UNKNOWN		=> 'unknown/undecided for',
@@ -179,13 +179,13 @@ $config['event_attendance_verb'] = [
 	ATTENDANCE_NO_SHOW		=> 'a no-show for',
 ];
 
-$config['event_connection'] = [
+$features['event_connection'] = [
 	EVENT_PREDECESSOR => 'predecessor',
 	EVENT_SUCCESSOR => 'successor',
 	EVENT_ALTERNATE => 'alternate',
 ];
 
-$config['visibility'] = [
+$features['visibility'] = [
 	VISIBILITY_PRIVATE => 'Private',
 	VISIBILITY_CAPTAINS => 'Captains',
 	VISIBILITY_TEAM => 'Team',
@@ -195,10 +195,10 @@ $config['visibility'] = [
 ];
 
 // Percent likelihood that a notice will be shown, if there is one to show
-$config['notice_frequency'] = 20;
+$features['notice_frequency'] = 20;
 
 // List of colours to use for automatically-created teams
-$config['automatic_team_colours'] = [
+$features['automatic_team_colours'] = [
 	'Black',
 	'White',
 	'Red',
@@ -209,7 +209,7 @@ $config['automatic_team_colours'] = [
 	'Orange',
 ];
 
-$config['schedule_type'] = [
+$features['schedule_type'] = [
 	'roundrobin' => SCHEDULE_TYPE_LEAGUE,
 	'ratings_ladder' => SCHEDULE_TYPE_LEAGUE,
 	'competition' => SCHEDULE_TYPE_LEAGUE,
@@ -218,19 +218,19 @@ $config['schedule_type'] = [
 ];
 
 // The full list of options: 'Paid', 'Deposit', 'Partial', 'Pending', 'Reserved', 'Unpaid', 'Waiting', 'Cancelled'
-$config['registration_paid'] = ['Paid', 'Deposit', 'Partial', 'Pending'];
-$config['registration_unpaid'] = ['Deposit', 'Partial', 'Pending', 'Reserved', 'Unpaid', 'Waiting'];
-$config['registration_delinquent'] = ['Deposit', 'Partial', 'Pending', 'Reserved', 'Unpaid'];
-$config['registration_none_paid'] = ['Pending', 'Reserved', 'Unpaid', 'Waiting'];
-$config['registration_some_paid'] = ['Paid', 'Deposit', 'Partial'];
-$config['registration_reserved'] = ['Paid', 'Deposit', 'Partial', 'Pending', 'Reserved'];
-$config['registration_not_reserved'] = ['Unpaid', 'Waiting', 'Cancelled'];
-$config['registration_cancelled'] = ['Cancelled'];
+$features['registration_paid'] = ['Paid', 'Deposit', 'Partial', 'Pending'];
+$features['registration_unpaid'] = ['Deposit', 'Partial', 'Pending', 'Reserved', 'Unpaid', 'Waiting'];
+$features['registration_delinquent'] = ['Deposit', 'Partial', 'Pending', 'Reserved', 'Unpaid'];
+$features['registration_none_paid'] = ['Pending', 'Reserved', 'Unpaid', 'Waiting'];
+$features['registration_some_paid'] = ['Paid', 'Deposit', 'Partial'];
+$features['registration_reserved'] = ['Paid', 'Deposit', 'Partial', 'Pending', 'Reserved'];
+$features['registration_not_reserved'] = ['Unpaid', 'Waiting', 'Cancelled'];
+$features['registration_cancelled'] = ['Cancelled'];
 
-$config['payment_payment'] = ['Full', 'Deposit', 'Installment', 'Remaining Balance', 'Transfer'];
+$features['payment_payment'] = ['Full', 'Deposit', 'Installment', 'Remaining Balance', 'Transfer'];
 
 // MIME definitions for document types that CakePHP doesn't support
-$config['new_mime_types'] = [
+$features['new_mime_types'] = [
 	'dotx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.template',
 	'xltx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.template',
 	'potx' => 'application/vnd.openxmlformats-officedocument.presentationml.template',
@@ -241,7 +241,7 @@ $config['new_mime_types'] = [
 ];
 
 // Extensions that we want to send to the browser instead of downloading
-$config['no_download_extensions'] = [
+$features['no_download_extensions'] = [
 	'html', 'htm', 'txt', 'pdf',
 	'bmp', 'gif', 'jpe', 'jpeg', 'jpg', 'png', 'tif', 'tiff',
 ];
@@ -249,3 +249,5 @@ $config['no_download_extensions'] = [
 if (file_exists(ZULURU_CONFIG . 'features_custom.php')) {
 	include(ZULURU_CONFIG . 'features_custom.php');
 }
+
+return $features;

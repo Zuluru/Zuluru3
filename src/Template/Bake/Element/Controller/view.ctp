@@ -26,7 +26,7 @@ $allAssociations = array_merge(
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->query('<%= $singularName %>');
+		$id = $this->request->getQuery('<%= $singularName %>');
 		try {
 			$<%= $singularName%> = $this-><%= $currentModelName %>->get($id, [
 				'contain' => [<%= $this->Bake->stringifyList($allAssociations, ['indent' => false]) %>]

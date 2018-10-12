@@ -47,14 +47,14 @@ class TaskSlotsController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'add',
 				])) {
 					return true;
 				}
 
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'view',
 					'edit',
 					'assign',
@@ -62,7 +62,7 @@ class TaskSlotsController extends AppController {
 					'delete',
 				])) {
 					// If a task slot id is specified, check if we're a manager of that task slot's affiliate
-					$task_slot = $this->request->query('slot');
+					$task_slot = $this->request->getQuery('slot');
 					if ($task_slot) {
 						if (in_array($this->TaskSlots->affiliate($task_slot), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -75,11 +75,11 @@ class TaskSlotsController extends AppController {
 
 			if (Configure::read('Perm.is_volunteer')) {
 				// Volunteers can can perform these operations for themselves or relatives
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'assign',
 				])) {
 					// If a person id is specified, check the id
-					$person = $this->request->query('person');
+					$person = $this->request->getQuery('person');
 					$relatives = $this->UserCache->read('RelativeIDs');
 					if ($person && ($person == $this->UserCache->currentId() || in_array($person, $relatives))) {
 						return true;
@@ -104,7 +104,7 @@ class TaskSlotsController extends AppController {
 			throw new MethodNotAllowedException('Tasks are not enabled on this system.');
 		}
 
-		$id = $this->request->query('slot');
+		$id = $this->request->getQuery('slot');
 		try {
 			$task_slot = $this->TaskSlots->get($id, [
 				'contain' => [
@@ -165,7 +165,7 @@ class TaskSlotsController extends AppController {
 			throw new MethodNotAllowedException('Tasks are not enabled on this system.');
 		}
 
-		$id = $this->request->query('task');
+		$id = $this->request->getQuery('task');
 		try {
 			$task = $this->TaskSlots->Tasks->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -210,7 +210,7 @@ class TaskSlotsController extends AppController {
 			throw new MethodNotAllowedException('Tasks are not enabled on this system.');
 		}
 
-		$id = $this->request->query('slot');
+		$id = $this->request->getQuery('slot');
 		try {
 			$task_slot = $this->TaskSlots->get($id, [
 				'contain' => []
@@ -249,7 +249,7 @@ class TaskSlotsController extends AppController {
 
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('slot');
+		$id = $this->request->getQuery('slot');
 		$dependencies = $this->TaskSlots->dependencies($id);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this task slot, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
@@ -285,7 +285,7 @@ class TaskSlotsController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('slot');
+		$id = $this->request->getQuery('slot');
 		try {
 			$task_slot = $this->TaskSlots->get($id, [
 				'contain' => ['Tasks' => ['Categories']]
@@ -414,7 +414,7 @@ class TaskSlotsController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('slot');
+		$id = $this->request->getQuery('slot');
 		try {
 			$task_slot = $this->TaskSlots->get($id, [
 				'contain' => ['Tasks' => ['Categories']]

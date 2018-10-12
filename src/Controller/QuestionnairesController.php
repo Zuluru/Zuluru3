@@ -33,7 +33,7 @@ class QuestionnairesController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'index',
 					'deactivated',
 					'add',
@@ -42,7 +42,7 @@ class QuestionnairesController extends AppController {
 				}
 
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'view',
 					'edit',
 					'remove_question',
@@ -51,7 +51,7 @@ class QuestionnairesController extends AppController {
 					'delete',
 				])) {
 					// If a questionnaire id is specified, check if we're a manager of that questionnaire's affiliate
-					$questionnaire = $this->request->query('questionnaire');
+					$questionnaire = $this->request->getQuery('questionnaire');
 					if ($questionnaire) {
 						if (in_array($this->Questionnaires->affiliate($questionnaire), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -61,11 +61,11 @@ class QuestionnairesController extends AppController {
 					}
 				}
 
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'add_question',
 				])) {
 					// If a question id is specified, check if we're a manager of that question's affiliate
-					$question = $this->request->query('question');
+					$question = $this->request->getQuery('question');
 					if ($question) {
 						if (in_array($this->Questionnaires->Questions->affiliate($question), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -146,7 +146,7 @@ class QuestionnairesController extends AppController {
 			throw new MethodNotAllowedException('Registration is not enabled on this system.');
 		}
 
-		$id = $this->request->query('questionnaire');
+		$id = $this->request->getQuery('questionnaire');
 		try {
 			$questionnaire = $this->Questionnaires->get($id, [
 				'contain' => [
@@ -216,7 +216,7 @@ class QuestionnairesController extends AppController {
 			throw new MethodNotAllowedException('Registration is not enabled on this system.');
 		}
 
-		$id = $this->request->query('questionnaire');
+		$id = $this->request->getQuery('questionnaire');
 		try {
 			$questionnaire = $this->Questionnaires->get($id, [
 				'contain' => ['Questions']
@@ -260,7 +260,7 @@ class QuestionnairesController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('questionnaire');
+		$id = $this->request->getQuery('questionnaire');
 		try {
 			$questionnaire = $this->Questionnaires->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -294,7 +294,7 @@ class QuestionnairesController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('questionnaire');
+		$id = $this->request->getQuery('questionnaire');
 		try {
 			$questionnaire = $this->Questionnaires->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -327,7 +327,7 @@ class QuestionnairesController extends AppController {
 
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('questionnaire');
+		$id = $this->request->getQuery('questionnaire');
 		$dependencies = $this->Questionnaires->dependencies($id);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this questionnaire, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
@@ -363,7 +363,7 @@ class QuestionnairesController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$question_id = $this->request->query('question');
+		$question_id = $this->request->getQuery('question');
 		try {
 			$question = $this->Questionnaires->Questions->get($question_id);
 		} catch (RecordNotFoundException $ex) {
@@ -374,7 +374,7 @@ class QuestionnairesController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		}
 
-		$questionnaire_id = $this->request->query('questionnaire');
+		$questionnaire_id = $this->request->getQuery('questionnaire');
 		try {
 			$questionnaire = $this->Questionnaires->get($questionnaire_id, [
 				'contain' => [
@@ -409,7 +409,7 @@ class QuestionnairesController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$question_id = $this->request->query('question');
+		$question_id = $this->request->getQuery('question');
 		try {
 			$question = $this->Questionnaires->Questions->get($question_id);
 		} catch (RecordNotFoundException $ex) {
@@ -420,7 +420,7 @@ class QuestionnairesController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		}
 
-		$questionnaire_id = $this->request->query('questionnaire');
+		$questionnaire_id = $this->request->getQuery('questionnaire');
 		try {
 			$questionnaire = $this->Questionnaires->get($questionnaire_id, [
 				'contain' => [

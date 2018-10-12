@@ -36,12 +36,12 @@ class PreregistrationsController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'index',
 					'add',
 				])) {
 					// If an event id is specified, check if we're a manager of that event's affiliate
-					$event = $this->request->query('event');
+					$event = $this->request->getQuery('event');
 					if ($event) {
 						if (in_array($this->Preregistrations->Events->affiliate($event), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -54,10 +54,10 @@ class PreregistrationsController extends AppController {
 					}
 				}
 
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'delete',
 				])) {
-					$preregistration = $this->request->query('preregistration');
+					$preregistration = $this->request->getQuery('preregistration');
 					if ($preregistration) {
 						if (in_array($this->Preregistrations->affiliate($preregistration), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -97,8 +97,8 @@ class PreregistrationsController extends AppController {
 			],
 		];
 
-		if ($this->request->query('event')) {
-			$event_id = $this->request->query('event');
+		if ($this->request->getQuery('event')) {
+			$event_id = $this->request->getQuery('event');
 			if (!$event_id) {
 				$this->Flash->info(__('Invalid event.'));
 				return $this->redirect(['controller' => 'Events', 'action' => 'index']);
@@ -134,8 +134,8 @@ class PreregistrationsController extends AppController {
 			throw new MethodNotAllowedException('Registration is not enabled on this system.');
 		}
 
-		$event_id = $this->request->query('event');
-		$person_id = $this->request->query('person');
+		$event_id = $this->request->getQuery('event');
+		$person_id = $this->request->getQuery('person');
 
 		// If we have an event ID, verify it
 		if (!empty($event_id)) {
@@ -233,7 +233,7 @@ class PreregistrationsController extends AppController {
 
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('preregistration');
+		$id = $this->request->getQuery('preregistration');
 		try {
 			$preregistration = $this->Preregistrations->get($id);
 		} catch (RecordNotFoundException $ex) {

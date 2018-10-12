@@ -31,12 +31,12 @@ class AnswersController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'activate',
 					'deactivate',
 				])) {
 					// If an answer id is specified, check if we're a manager of that answer's affiliate
-					$answer = $this->request->query('answer');
+					$answer = $this->request->getQuery('answer');
 					if ($answer) {
 						if (in_array($this->Answers->affiliate($answer), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -67,7 +67,7 @@ class AnswersController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('answer');
+		$id = $this->request->getQuery('answer');
 		try {
 			$answer = $this->Answers->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -101,7 +101,7 @@ class AnswersController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('answer');
+		$id = $this->request->getQuery('answer');
 		try {
 			$answer = $this->Answers->get($id);
 		} catch (RecordNotFoundException $ex) {

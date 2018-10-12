@@ -18,7 +18,7 @@ use Cake\ORM\TableRegistry;
 class FinalizeGamesTask extends Shell {
 
 	public function main() {
-		$event = new CakeEvent('Controller.initialize', $this);
+		$event = new CakeEvent('Configuration.initialize', $this);
 		EventManager::instance()->dispatch($event);
 
 		$this->games_table = TableRegistry::get('Games');

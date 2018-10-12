@@ -1482,7 +1482,9 @@ class GamesTable extends AppTable {
 						'game_date' => $date,
 					]);
 				}
-				$this->Attendances->removeBehavior('Timestamp');
+				if ($this->Attendances->hasBehavior('Timestamp')) {
+					$this->Attendances->removeBehavior('Timestamp');
+				}
 			} else {
 				// We didn't find any appropriate record, so create a new one
 				$record = $this->Attendances->newEntity([
@@ -1492,7 +1494,9 @@ class GamesTable extends AppTable {
 					'person_id' => $person->id,
 					'status' => ATTENDANCE_UNKNOWN,
 				]);
-				$this->Attendances->addBehavior('Timestamp');
+				if (!$this->Attendances->hasBehavior('Timestamp')) {
+					$this->Attendances->addBehavior('Timestamp');
+				}
 			}
 
 			// It's possible that there were no patches made, in which case this is a no-op

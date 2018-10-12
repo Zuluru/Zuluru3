@@ -41,12 +41,12 @@ class MailingListsController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'index',
 					'add',
 				])) {
 					// If an affiliate id is specified, check if we're a manager of that affiliate
-					$affiliate = $this->request->query('affiliate');
+					$affiliate = $this->request->getQuery('affiliate');
 					if (!$affiliate) {
 						// If there's no affiliate id, this is a top-level operation that all managers can perform
 						return true;
@@ -58,14 +58,14 @@ class MailingListsController extends AppController {
 				}
 
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'view',
 					'edit',
 					'preview',
 					'delete',
 				])) {
 					// If a list id is specified, check if we're a manager of that list's affiliate
-					$list = $this->request->query('mailing_list');
+					$list = $this->request->getQuery('mailing_list');
 					if ($list) {
 						if (in_array($this->MailingLists->affiliate($list), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -106,7 +106,7 @@ class MailingListsController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->query('mailing_list');
+		$id = $this->request->getQuery('mailing_list');
 		try {
 			$mailing_list = $this->MailingLists->get($id, [
 				'contain' => ['Affiliates', 'Newsletters']
@@ -125,7 +125,7 @@ class MailingListsController extends AppController {
 	}
 
 	public function preview() {
-		$id = $this->request->query('mailing_list');
+		$id = $this->request->getQuery('mailing_list');
 		try {
 			$mailing_list = $this->MailingLists->get($id, [
 				'contain' => [
@@ -231,7 +231,7 @@ class MailingListsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->query('mailing_list');
+		$id = $this->request->getQuery('mailing_list');
 		try {
 			$mailing_list = $this->MailingLists->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -265,7 +265,7 @@ class MailingListsController extends AppController {
 	public function delete() {
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('mailing_list');
+		$id = $this->request->getQuery('mailing_list');
 		$dependencies = $this->MailingLists->dependencies($id);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this mailing list, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
@@ -294,14 +294,14 @@ class MailingListsController extends AppController {
 	}
 
 	public function unsubscribe() {
-		$list_id = $this->request->query('list');
+		$list_id = $this->request->getQuery('list');
 		if (!$list_id) {
 			$this->Flash->info(__('Invalid mailing list.'));
 			return $this->redirect('/');
 		}
 		$this->Configuration->loadAffiliate($this->MailingLists->affiliate($list_id));
 
-		$person_id = $this->request->query('person');
+		$person_id = $this->request->getQuery('person');
 		if (!$person_id) {
 			$person_id = Configure::read('Perm.my_id');
 			if (!$person_id) {
@@ -312,7 +312,7 @@ class MailingListsController extends AppController {
 
 		// We must do other permission checks here, because we allow non-logged-in users to accept
 		// through email links
-		$code = $this->request->query('code');
+		$code = $this->request->getQuery('code');
 		if ($code || !Configure::read('Perm.my_id')) {
 			// Authenticate the hash code
 			if (!$this->_checkHash([$person_id, $list_id], $code)) {

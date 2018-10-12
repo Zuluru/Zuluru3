@@ -87,7 +87,7 @@ class <%= $name %>Controller extends AppController {
 		}
 
 		// Anyone that's logged in can perform these operations
-		if (in_array($this->request->params['action'], [
+		if (in_array($this->request->getParam('action'), [
 			'index',
 			'view',
 		]))
@@ -97,7 +97,7 @@ class <%= $name %>Controller extends AppController {
 
 		if (Configure::read('Perm.is_manager')) {
 			// Managers can perform these operations
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'add',
 			]))
 			{
@@ -105,13 +105,13 @@ class <%= $name %>Controller extends AppController {
 			}
 
 			// Managers can perform these operations in affiliates they manage
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'edit',
 				'delete',
 			]))
 			{
 				// If a <%= $singularName %> id is specified, check if we're a manager of that <%= $singularName %>'s affiliate
-				$<%= $singularName %> = $this->request->query('<%= $singularName %>');
+				$<%= $singularName %> = $this->request->getQuery('<%= $singularName %>');
 				if ($<%= $singularName %>) {
 					if (in_array($this-><%= $currentModelName %>->affiliate($<%= $singularName %>), $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;

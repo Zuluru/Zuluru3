@@ -3,7 +3,7 @@ use App\Controller\AppController;
 
 $relatives = $this->UserCache->allActAs();
 if (!empty($relatives)) {
-	$url = array_merge(['action' => $this->request->action], $this->request->query);
+	$url = array_merge(['action' => $this->request->action], $this->request->getQueryParams());
 	$links = [];
 
 	foreach ($relatives as $id => $relative) {

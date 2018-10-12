@@ -25,7 +25,7 @@ class HolidaysController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'index',
 					'add',
 				])) {
@@ -33,12 +33,12 @@ class HolidaysController extends AppController {
 				}
 
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'edit',
 					'delete',
 				])) {
 					// If a holiday id is specified, check if we're a manager of that holiday's affiliate
-					$holiday = $this->request->query('holiday');
+					$holiday = $this->request->getQuery('holiday');
 					if ($holiday) {
 						if (in_array($this->Holidays->affiliate($holiday), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -99,7 +99,7 @@ class HolidaysController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->query('holiday');
+		$id = $this->request->getQuery('holiday');
 		try {
 			$holiday = $this->Holidays->get($id, [
 				'contain' => []
@@ -135,7 +135,7 @@ class HolidaysController extends AppController {
 	public function delete() {
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('holiday');
+		$id = $this->request->getQuery('holiday');
 		try {
 			$holiday = $this->Holidays->get($id);
 		} catch (RecordNotFoundException $ex) {

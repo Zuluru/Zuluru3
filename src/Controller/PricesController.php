@@ -31,11 +31,11 @@ class PricesController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'delete',
 				])) {
 					// If a price id is specified, check if we're a manager of that price's affiliate
-					$price = $this->request->query('price');
+					$price = $this->request->getQuery('price');
 					if ($price) {
 						if (in_array($this->Prices->affiliate($price), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -65,7 +65,7 @@ class PricesController extends AppController {
 
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('price');
+		$id = $this->request->getQuery('price');
 		$dependencies = $this->Prices->dependencies($id);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this price point, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);

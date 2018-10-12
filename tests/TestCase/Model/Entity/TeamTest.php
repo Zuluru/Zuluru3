@@ -77,7 +77,7 @@ class TeamTest extends TestCase {
 		foreach (Configure::read('App.globalListeners') as $listener) {
 			EventManager::instance()->on($listener);
 		}
-		$event = new CakeEvent('Controller.initialize', $this);
+		$event = new CakeEvent('Configuration.initialize', $this);
 		EventManager::instance()->dispatch($event);
 
 		$teams = TableRegistry::get('Teams');

@@ -13,7 +13,7 @@ $gym = 'gym';
 $pitch = 'pitch';
 $rink = 'rink';
 
-$config['sports'] = [
+$sports['sports'] = [
 	'baseball' => [
 		'field' => $diamond,
 		'field_cap' => Inflector::humanize($diamond),
@@ -628,10 +628,12 @@ $config['sports'] = [
 	],
 ];
 
-foreach (array_keys($config['sports']) as $sport) {
+foreach (array_keys($sports['sports']) as $sport) {
 	if (file_exists(ZULURU_CONFIG . 'sport/' . $sport . '_custom.php')) {
 		include(ZULURU_CONFIG . 'sport/' . $sport . '_custom.php');
 	}
 
-	$config['sports'][$sport]['ratio_rule'] = make_human_options(array_keys($config['sports'][$sport]['roster_requirements']));
+	$sports['sports'][$sport]['ratio_rule'] = make_human_options(array_keys($sports['sports'][$sport]['roster_requirements']));
 }
+
+return $sports;

@@ -25,7 +25,7 @@ class RosterEmailsTask extends Shell {
 	use HasherTrait;
 
 	public function main() {
-		$event = new CakeEvent('Controller.initialize', $this);
+		$event = new CakeEvent('Configuration.initialize', $this);
 		EventManager::instance()->dispatch($event);
 
 		if (!Configure::read('feature.generate_roster_email')) {

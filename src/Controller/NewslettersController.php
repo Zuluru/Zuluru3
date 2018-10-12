@@ -33,13 +33,13 @@ class NewslettersController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'index',
 					'past',
 					'add',
 				])) {
 					// If an affiliate id is specified, check if we're a manager of that affiliate
-					$affiliate = $this->request->query('affiliate');
+					$affiliate = $this->request->getQuery('affiliate');
 					if (!$affiliate) {
 						// If there's no affiliate id, this is a top-level operation that all managers can perform
 						return true;
@@ -51,7 +51,7 @@ class NewslettersController extends AppController {
 				}
 
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'view',
 					'edit',
 					'send',
@@ -59,7 +59,7 @@ class NewslettersController extends AppController {
 					'delete',
 				])) {
 					// If a newsletter id is specified, check if we're a manager of that newsletter's affiliate
-					$newsletter = $this->request->query('newsletter');
+					$newsletter = $this->request->getQuery('newsletter');
 					if ($newsletter) {
 						if (in_array($this->Newsletters->affiliate($newsletter), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -121,7 +121,7 @@ class NewslettersController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->query('newsletter');
+		$id = $this->request->getQuery('newsletter');
 		try {
 			$newsletter = $this->Newsletters->get($id, [
 				'contain' => ['MailingLists']
@@ -176,7 +176,7 @@ class NewslettersController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->query('newsletter');
+		$id = $this->request->getQuery('newsletter');
 		try {
 			$newsletter = $this->Newsletters->get($id, [
 				'contain' => ['MailingLists']
@@ -217,7 +217,7 @@ class NewslettersController extends AppController {
 	public function delete() {
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('newsletter');
+		$id = $this->request->getQuery('newsletter');
 		$dependencies = $this->Newsletters->dependencies($id);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this newsletter, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
@@ -246,7 +246,7 @@ class NewslettersController extends AppController {
 	}
 
 	public function delivery() {
-		$id = $this->request->query('newsletter');
+		$id = $this->request->getQuery('newsletter');
 		try {
 			$newsletter = $this->Newsletters->get($id, [
 				'contain' => ['MailingLists', 'Deliveries']
@@ -274,9 +274,9 @@ class NewslettersController extends AppController {
 	}
 
 	public function send() {
-		$id = $this->request->query('newsletter');
-		$execute = $this->request->query('execute');
-		$test = $this->request->query('test');
+		$id = $this->request->getQuery('newsletter');
+		$execute = $this->request->getQuery('execute');
+		$test = $this->request->getQuery('test');
 		$this->set(compact('execute', 'test'));
 
 		$this->loadComponent('Lock');

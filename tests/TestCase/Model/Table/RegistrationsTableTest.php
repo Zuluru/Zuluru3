@@ -60,7 +60,7 @@ class RegistrationsTableTest extends TableTestCase {
 		$config = TableRegistry::exists('Registrations') ? [] : ['className' => 'App\Model\Table\RegistrationsTable'];
 		$this->RegistrationsTable = TableRegistry::get('Registrations', $config);
 
-		$event = new CakeEvent('Controller.initialize', $this);
+		$event = new CakeEvent('Configuration.initialize', $this);
 		EventManager::instance()->dispatch($event);
 	}
 

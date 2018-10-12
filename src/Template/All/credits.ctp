@@ -15,6 +15,9 @@ $plugins = [
 		'addressing' => 'https://github.com/commerceguys/addressing',
 		'intl' => 'https://github.com/commerceguys/intl',
 	],
+	'Flavien Beninca' => [
+		'cakephp-cors' => 'https://github.com/ozee31/cakephp-cors',
+	],
 	'Friends of Cake' => [
 		'bootstrap-ui' => 'https://github.com/friendsofcake/bootstrap-ui',
 	],

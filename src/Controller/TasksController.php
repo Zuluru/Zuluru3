@@ -32,20 +32,20 @@ class TasksController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'add',
 				])) {
 					return true;
 				}
 
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'view',
 					'edit',
 					'delete',
 				])) {
 					// If a task id is specified, check if we're a manager of that task's affiliate
-					$task = $this->request->query('task');
+					$task = $this->request->getQuery('task');
 					if ($task) {
 						if (in_array($this->Tasks->affiliate($task), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -58,7 +58,7 @@ class TasksController extends AppController {
 
 			if (Configure::read('Perm.is_manager') || Configure::read('Perm.is_official') || Configure::read('Perm.is_volunteer')) {
 				// Volunteers can can perform these operations
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'index',
 					'view',
 				])) {
@@ -136,7 +136,7 @@ class TasksController extends AppController {
 			throw new MethodNotAllowedException('Tasks are not enabled on this system.');
 		}
 
-		$id = $this->request->query('task');
+		$id = $this->request->getQuery('task');
 		try {
 			$task = $this->Tasks->get($id, [
 				'contain' => [
@@ -233,7 +233,7 @@ class TasksController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('task');
+		$id = $this->request->getQuery('task');
 		try {
 			$task = $this->Tasks->get($id, [
 				'contain' => ['Categories']
@@ -284,7 +284,7 @@ class TasksController extends AppController {
 
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('task');
+		$id = $this->request->getQuery('task');
 		$dependencies = $this->Tasks->dependencies($id);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this task, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);

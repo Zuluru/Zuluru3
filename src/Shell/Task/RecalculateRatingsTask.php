@@ -13,7 +13,7 @@ use Cake\ORM\TableRegistry;
 class RecalculateRatingsTask extends Shell {
 
 	public function main() {
-		$event = new CakeEvent('Controller.initialize', $this);
+		$event = new CakeEvent('Configuration.initialize', $this);
 		EventManager::instance()->dispatch($event);
 
 		// Find any leagues that are currently open, and possibly recalculate ratings

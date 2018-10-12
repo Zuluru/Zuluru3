@@ -30,7 +30,7 @@ class DivisionsController extends AppController {
 	protected function _publicActions() {
 		if (Configure::read('Perm.is_manager')) {
 			// If a division id is specified, check if we're a manager of that division's affiliate
-			$division = $this->request->query('division');
+			$division = $this->request->getQuery('division');
 			if ($division) {
 				if (!in_array($this->Divisions->affiliate($division), $this->UserCache->read('ManagedAffiliateIDs'))) {
 					Configure::write('Perm.is_manager', false);
@@ -68,11 +68,11 @@ class DivisionsController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'select',
 				])) {
 					// If an affiliate id is specified, check if we're a manager of that affiliate
-					$affiliate = $this->request->query('affiliate');
+					$affiliate = $this->request->getQuery('affiliate');
 					if ($affiliate && in_array($affiliate, $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					} else {
@@ -80,11 +80,11 @@ class DivisionsController extends AppController {
 					}
 				}
 
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'add',
 				])) {
 					// If a league id is specified, check if we're a manager of that league's affiliate
-					$league = $this->request->query('league');
+					$league = $this->request->getQuery('league');
 					if ($league) {
 						if (in_array($this->Divisions->Leagues->affiliate($league), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -94,7 +94,7 @@ class DivisionsController extends AppController {
 					}
 				}
 
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'edit',
 					'add_coordinator',
 					'remove_coordinator',
@@ -116,7 +116,7 @@ class DivisionsController extends AppController {
 					'delete_stage',
 				])) {
 					// If a division id is specified, check if we're a manager of that division's affiliate
-					$division = $this->request->query('division');
+					$division = $this->request->getQuery('division');
 					if ($division) {
 						if (in_array($this->Divisions->affiliate($division), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -128,7 +128,7 @@ class DivisionsController extends AppController {
 			}
 
 			// Managers and coordinators can perform these operations
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'scheduling_fields',
 			])) {
 				if ($this->UserCache->read('DivisionIDs') || Configure::read('Perm.is_manager')) {
@@ -137,7 +137,7 @@ class DivisionsController extends AppController {
 			}
 
 			// People can perform these operations on divisions they coordinate
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'edit',
 				'add_teams',
 				'approve_scores',
@@ -156,14 +156,14 @@ class DivisionsController extends AppController {
 				'delete_stage',
 			])) {
 				// If a division id is specified, check if we're a coordinator of that division
-				$division = $this->request->query('division');
+				$division = $this->request->getQuery('division');
 				if ($division && in_array($division, $this->UserCache->read('DivisionIDs'))) {
 					return true;
 				}
 			}
 
 			// Anyone that's logged in can perform these operations
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'scores',
 				'stats',
 			])) {
@@ -182,7 +182,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->query('division');
+		$id = $this->request->getQuery('division');
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -215,7 +215,7 @@ class DivisionsController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('division');
+		$id = $this->request->getQuery('division');
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -247,7 +247,7 @@ class DivisionsController extends AppController {
 	 * @return \Cake\Network\Response|void
 	 */
 	public function stats() {
-		$id = intval($this->request->query('division'));
+		$id = intval($this->request->getQuery('division'));
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -323,7 +323,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
-		$league_id = $this->request->query('league');
+		$league_id = $this->request->getQuery('league');
 		try {
 			$league = $this->Divisions->Leagues->get($league_id);
 		} catch (RecordNotFoundException $ex) {
@@ -344,10 +344,10 @@ class DivisionsController extends AppController {
 				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 			}
 			$this->Flash->warning(__('The division could not be saved. Please correct the errors below and try again.'));
-		} else if ($this->request->query('division')) {
+		} else if ($this->request->getQuery('division')) {
 			// To clone a division, read the old one and remove the id
 			try {
-				$division = $this->Divisions->cloneWithoutIds($this->request->query('division'), [
+				$division = $this->Divisions->cloneWithoutIds($this->request->getQuery('division'), [
 					'contain' => ['Days'],
 				]);
 			} catch (RecordNotFoundException $ex) {
@@ -377,7 +377,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = intval($this->request->query('division'));
+		$id = intval($this->request->getQuery('division'));
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => ['Leagues', 'Days'],
@@ -436,7 +436,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise
 	 */
 	public function add_coordinator() {
-		$id = $this->request->query('division');
+		$id = $this->request->getQuery('division');
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -460,7 +460,7 @@ class DivisionsController extends AppController {
 
 		$this->set(compact('division'));
 
-		$person_id = $this->request->query('person');
+		$person_id = $this->request->getQuery('person');
 		if ($person_id != null) {
 			try {
 				$person = $this->Divisions->People->get($person_id, [
@@ -510,8 +510,8 @@ class DivisionsController extends AppController {
 	public function remove_coordinator() {
 		$this->request->allowMethod(['post']);
 
-		$id = $this->request->query('division');
-		$person_id = $this->request->query('person');
+		$id = $this->request->getQuery('division');
+		$person_id = $this->request->getQuery('person');
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -552,7 +552,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise
 	 */
 	public function add_teams() {
-		$id = $this->request->query('division');
+		$id = $this->request->getQuery('division');
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -598,7 +598,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful save, renders view otherwise
 	 */
 	public function ratings() {
-		$id = intval($this->request->query('division'));
+		$id = intval($this->request->getQuery('division'));
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -653,7 +653,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful save, renders view otherwise
 	 */
 	public function seeds() {
-		$id = intval($this->request->query('division'));
+		$id = intval($this->request->getQuery('division'));
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -718,7 +718,7 @@ class DivisionsController extends AppController {
 	public function delete() {
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('division');
+		$id = $this->request->getQuery('division');
 		$dependencies = $this->Divisions->dependencies($id, ['Days', 'People']);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this division, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
@@ -753,7 +753,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
 	 */
 	public function schedule() {
-		$id = intval($this->request->query('division'));
+		$id = intval($this->request->getQuery('division'));
 
 		// Hopefully, everything we need is already cached
 		$division = Cache::remember("division/{$id}/schedule", function () use ($id) {
@@ -813,7 +813,7 @@ class DivisionsController extends AppController {
 
 		$is_coordinator = in_array($id, $this->UserCache->read('DivisionIDs'));
 		if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator) {
-			$edit_date = $this->request->query('edit_date');
+			$edit_date = $this->request->getQuery('edit_date');
 		} else {
 			$edit_date = null;
 		}
@@ -892,9 +892,9 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
 	 */
 	public function standings() {
-		$id = intval($this->request->query('division'));
-		$team_id = $this->request->query('team');
-		$show_all = $this->request->query('full') || $this->request->is('json');
+		$id = intval($this->request->getQuery('division'));
+		$team_id = $this->request->getQuery('team');
+		$show_all = $this->request->getQuery('full') || $this->request->is('json');
 
 		try {
 			$division = $this->Divisions->get($id, [
@@ -961,7 +961,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
 	 */
 	public function scores() {
-		$id = $this->request->query('division');
+		$id = $this->request->getQuery('division');
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -1028,7 +1028,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
 	 */
 	public function fields() {
-		$id = $this->request->query('division');
+		$id = $this->request->getQuery('division');
 
 		$conditions = [
 			'OR' => [
@@ -1037,7 +1037,7 @@ class DivisionsController extends AppController {
 			],
 		];
 
-		if ($this->request->query('published')) {
+		if ($this->request->getQuery('published')) {
 			$conditions['Games.published'] = true;
 			$this->set('published', true);
 		}
@@ -1101,7 +1101,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
 	 */
 	public function slots() {
-		$id = $this->request->query('division');
+		$id = $this->request->getQuery('division');
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => ['Leagues'],
@@ -1128,7 +1128,7 @@ class DivisionsController extends AppController {
 			->extract('game_date')
 			->toArray();
 
-		$date = $this->request->query('date');
+		$date = $this->request->getQuery('date');
 		if ($this->request->is('post') && array_key_exists('date', $this->request->data)) {
 			$date = $this->request->data['date'];
 			// TODO: Is there a way to make the Ajax form submitter not send the string literal "null"?
@@ -1189,7 +1189,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
 	 */
 	public function status() {
-		$id = $this->request->query('division');
+		$id = $this->request->getQuery('division');
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -1332,7 +1332,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
 	 */
 	public function allstars() {
-		$id = $this->request->query('division');
+		$id = $this->request->getQuery('division');
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -1349,7 +1349,7 @@ class DivisionsController extends AppController {
 
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
-		$min = $this->request->query('min');
+		$min = $this->request->getQuery('min');
 		if (!$min) {
 			$min = 2;
 		}
@@ -1375,7 +1375,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
 	 */
 	public function emails() {
-		$id = $this->request->query('division');
+		$id = $this->request->getQuery('division');
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -1411,7 +1411,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
 	 */
 	public function spirit() {
-		$id = $this->request->query('division');
+		$id = $this->request->getQuery('division');
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -1471,7 +1471,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
 	 */
 	public function approve_scores() {
-		$id = $this->request->query('division');
+		$id = $this->request->getQuery('division');
 		$roles = Configure::read('privileged_roster_roles');
 		try {
 			$division = $this->Divisions->get($id, [
@@ -1552,7 +1552,7 @@ class DivisionsController extends AppController {
 	 * @return \Cake\Network\Response Redirects to division view
 	 */
 	public function initialize_ratings() {
-		$id = intval($this->request->query('division'));
+		$id = intval($this->request->getQuery('division'));
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -1601,7 +1601,7 @@ class DivisionsController extends AppController {
 	 * @return \Cake\Network\Response Redirects to division schedule
 	 */
 	public function initialize_dependencies() {
-		$id = intval($this->request->query('division'));
+		$id = intval($this->request->getQuery('division'));
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -1659,7 +1659,7 @@ class DivisionsController extends AppController {
 			$conditions['NOT'] = ['Games.pool_id IN' => $finalized_pools];
 		}
 
-		$pool = $this->request->query('pool');
+		$pool = $this->request->getQuery('pool');
 		if ($pool) {
 			if (in_array($pool, $finalized_pools)) {
 				$this->Flash->warning(__('There are already games finalized in this pool. Unable to proceed.'));
@@ -1677,7 +1677,7 @@ class DivisionsController extends AppController {
 			->where($conditions)
 			->toArray();
 
-		$date = $this->request->query('date');
+		$date = $this->request->getQuery('date');
 		if ($date) {
 			$date = new FrozenDate($date);
 			$multi_day = ($division->schedule_type != 'tournament' && count($division->days) > 1);
@@ -1726,7 +1726,7 @@ class DivisionsController extends AppController {
 		$league_obj = $this->moduleRegistry->load("LeagueType:{$division->schedule_type}");
 		$spirit_obj = $this->moduleRegistry->load("Spirit:{$division->league->sotg_questions}");
 		$league_obj->sort($division, $division->league, $division->games, $spirit_obj, false);
-		$reset = $this->request->query('reset');
+		$reset = $this->request->getQuery('reset');
 		$operation = ($reset ? __('reset') : __('update'));
 
 		// Go through all games, updating seed dependencies
@@ -1872,8 +1872,8 @@ class DivisionsController extends AppController {
 	 * @return \Cake\Network\Response Redirects to "schedule add" page
 	 */
 	public function delete_stage() {
-		$id = intval($this->request->query('division'));
-		$stage = $this->request->query('stage');
+		$id = intval($this->request->getQuery('division'));
+		$stage = $this->request->getQuery('stage');
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -1939,7 +1939,7 @@ class DivisionsController extends AppController {
 		$query = $this->Divisions->find('open')
 			->find('date', ['date' => $date])
 			->contain(['Leagues'])
-			->where(['Leagues.affiliate_id' => $this->request->query('affiliate')]);
+			->where(['Leagues.affiliate_id' => $this->request->getQuery('affiliate')]);
 
 		$sport = $this->request->data['sport'];
 		if ($sport) {

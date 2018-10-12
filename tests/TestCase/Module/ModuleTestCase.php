@@ -24,7 +24,7 @@ class ModuleTestCase extends TestCase {
 			EventManager::instance()->on($listener);
 		}
 
-		$event = new CakeEvent('Controller.initialize', $this);
+		$event = new CakeEvent('Configuration.initialize', $this);
 		EventManager::instance()->dispatch($event);
 	}
 

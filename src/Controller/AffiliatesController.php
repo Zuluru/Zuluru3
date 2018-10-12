@@ -33,14 +33,14 @@ class AffiliatesController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// If an affiliate id is specified, check if we're a manager of that affiliate
-				$affiliate = $this->request->query('affiliate');
+				$affiliate = $this->request->getQuery('affiliate');
 				if ($affiliate && !in_array($affiliate, $this->UserCache->read('ManagedAffiliateIDs'))) {
 					Configure::write('Perm.is_manager', false);
 				}
 			}
 
 			// Anyone that's logged in can perform these operations
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'select',
 				'view_all',
 			])) {
@@ -87,7 +87,7 @@ class AffiliatesController extends AppController {
 			throw new MethodNotAllowedException('Affiliates are not enabled on this system.');
 		}
 
-		$id = $this->request->query('affiliate');
+		$id = $this->request->getQuery('affiliate');
 		try {
 			$affiliate = $this->Affiliates->get($id, [
 				'contain' => [
@@ -145,7 +145,7 @@ class AffiliatesController extends AppController {
 			throw new MethodNotAllowedException('Affiliates are not enabled on this system.');
 		}
 
-		$id = $this->request->query('affiliate');
+		$id = $this->request->getQuery('affiliate');
 		try {
 			$affiliate = $this->Affiliates->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -182,7 +182,7 @@ class AffiliatesController extends AppController {
 
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('affiliate');
+		$id = $this->request->getQuery('affiliate');
 		$dependencies = $this->Affiliates->dependencies($id, ['People', 'Settings']);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this affiliate, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
@@ -221,7 +221,7 @@ class AffiliatesController extends AppController {
 			throw new MethodNotAllowedException('Affiliates are not enabled on this system.');
 		}
 
-		$id = $this->request->query('affiliate');
+		$id = $this->request->getQuery('affiliate');
 		try {
 			$affiliate = $this->Affiliates->get($id, [
 				'contain' => [
@@ -242,7 +242,7 @@ class AffiliatesController extends AppController {
 
 		$this->set(compact('affiliate'));
 
-		$person_id = $this->request->query('person');
+		$person_id = $this->request->getQuery('person');
 		if ($person_id != null) {
 			try {
 				$person = $this->Affiliates->People->get($person_id, [
@@ -299,8 +299,8 @@ class AffiliatesController extends AppController {
 
 		$this->request->allowMethod(['post']);
 
-		$id = $this->request->query('affiliate');
-		$person_id = $this->request->query('person');
+		$id = $this->request->getQuery('affiliate');
+		$person_id = $this->request->getQuery('person');
 		try {
 			$affiliate = $this->Affiliates->get($id, [
 				'contain' => [

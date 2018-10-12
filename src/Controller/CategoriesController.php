@@ -31,12 +31,12 @@ class CategoriesController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'index',
 					'add',
 				])) {
 					// If an affiliate id is specified, check if we're a manager of that affiliate
-					$affiliate = $this->request->query('affiliate');
+					$affiliate = $this->request->getQuery('affiliate');
 					if (!$affiliate) {
 						// If there's no affiliate id, this is a top-level operation that all managers can perform
 						return true;
@@ -48,13 +48,13 @@ class CategoriesController extends AppController {
 				}
 
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'view',
 					'edit',
 					'delete',
 				])) {
 					// If a category id is specified, check if we're a manager of that category's affiliate
-					$category = $this->request->query('category');
+					$category = $this->request->getQuery('category');
 					if ($category) {
 						if (in_array($this->Categories->affiliate($category), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -102,7 +102,7 @@ class CategoriesController extends AppController {
 			throw new MethodNotAllowedException('Tasks are not enabled on this system.');
 		}
 
-		$id = $this->request->query('category');
+		$id = $this->request->getQuery('category');
 		try {
 			$category = $this->Categories->get($id, [
 				'contain' => ['Affiliates', 'Tasks' => ['People']]
@@ -158,7 +158,7 @@ class CategoriesController extends AppController {
 			throw new MethodNotAllowedException('Tasks are not enabled on this system.');
 		}
 
-		$id = $this->request->query('category');
+		$id = $this->request->getQuery('category');
 		try {
 			$category = $this->Categories->get($id, [
 				'contain' => []
@@ -198,7 +198,7 @@ class CategoriesController extends AppController {
 
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('category');
+		$id = $this->request->getQuery('category');
 		$dependencies = $this->Categories->dependencies($id);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this category, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);

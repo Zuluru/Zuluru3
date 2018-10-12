@@ -11,7 +11,11 @@ use Cake\Core\Configure;
 // Set cache to different files to prevent cross-contamination
 define('CACHE_PREFIX', 'cli_');
 
+require dirname(__DIR__) . '/vendor/autoload.php';
+
 require dirname(__DIR__) . '/config/bootstrap.php';
+
+$_SERVER['PHP_SELF'] = '/';
 
 // When testing controllers, set notice frequency to something under 0 so we don't need the fixture everywhere.
 Configure::write('notice_frequency', -1);

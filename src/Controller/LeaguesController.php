@@ -26,7 +26,7 @@ class LeaguesController extends AppController {
 	protected function _publicActions() {
 		if (Configure::read('Perm.is_manager')) {
 			// If a league id is specified, check if we're a manager of that league's affiliate
-			$league = $this->request->query('league') ?: $this->request->query('tournament');
+			$league = $this->request->getQuery('league') ?: $this->request->getQuery('tournament');
 			if ($league) {
 				if (!in_array($this->Leagues->affiliate($league), $this->UserCache->read('ManagedAffiliateIDs'))) {
 					Configure::write('Perm.is_manager', false);
@@ -68,7 +68,7 @@ class LeaguesController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'add',
 					'add_division',
 					'summary',
@@ -77,14 +77,14 @@ class LeaguesController extends AppController {
 				}
 
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'edit',
 					'delete',
 					'participation',
 					'slots',
 				])) {
 					// If a league id is specified, check if we're a manager of that league's affiliate
-					$league = $this->request->query('league') ?: $this->request->query('tournament');
+					$league = $this->request->getQuery('league') ?: $this->request->getQuery('tournament');
 					if ($league) {
 						if (in_array($this->Leagues->affiliate($league), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -96,13 +96,13 @@ class LeaguesController extends AppController {
 			}
 
 			// Coordinators can perform these operations on leagues where they coordinate the only division
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'add',
 				'edit',
 				'slots',
 			])) {
 				// If a league id is specified, check if we're a coordinator of all of that league's divisions
-				$league = $this->request->query('league') ?: $this->request->query('tournament');
+				$league = $this->request->getQuery('league') ?: $this->request->getQuery('tournament');
 				if ($league && $this->Leagues->is_coordinator($league, null, true)) {
 					return true;
 				} else {
@@ -128,7 +128,7 @@ class LeaguesController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function index() {
-		$year = $this->request->query('year');
+		$year = $this->request->getQuery('year');
 		if ($year === null) {
 			$conditions = ['OR' => [
 				'Leagues.is_open' => true,
@@ -138,16 +138,16 @@ class LeaguesController extends AppController {
 			$conditions = ['YEAR(Leagues.open)' => $year];
 		}
 
-		$affiliate = $this->request->query('affiliate');
+		$affiliate = $this->request->getQuery('affiliate');
 		$affiliates = $this->_applicableAffiliateIDs();
 		$conditions['Leagues.affiliate_id IN'] = $affiliates;
 
-		$sport = $this->request->query('sport');
+		$sport = $this->request->getQuery('sport');
 		if ($sport) {
 			$conditions['Leagues.sport'] = $sport;
 		}
 
-		$tournaments = $this->request->param('tournaments');
+		$tournaments = $this->request->getParam('tournaments');
 
 		$leagues = $this->Leagues->find()
 			->contain([
@@ -207,7 +207,7 @@ class LeaguesController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->query('league') ?: $this->request->query('tournament');
+		$id = $this->request->getQuery('league') ?: $this->request->getQuery('tournament');
 		try {
 			$league = $this->Leagues->get($id, [
 				'contain' => [
@@ -242,7 +242,7 @@ class LeaguesController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('league') ?: $this->request->query('tournament');
+		$id = $this->request->getQuery('league') ?: $this->request->getQuery('tournament');
 		try {
 			$league = $this->Leagues->get($id, [
 				'contain' => [
@@ -270,7 +270,7 @@ class LeaguesController extends AppController {
 	}
 
 	public function participation() {
-		$id = $this->request->query('league') ?: $this->request->query('tournament');
+		$id = $this->request->getQuery('league') ?: $this->request->getQuery('tournament');
 		$contain = [
 			'Divisions' => [
 				'Teams' => [
@@ -335,7 +335,7 @@ class LeaguesController extends AppController {
 				$this->Flash->warning(__('The league could not be saved. Please correct the errors below and try again.'));
 			}
 		} else {
-			$id = $this->request->query('league') ?: $this->request->query('tournament');
+			$id = $this->request->getQuery('league') ?: $this->request->getQuery('tournament');
 			if ($id) {
 				// To clone a league, read the old one and remove the id
 				try {
@@ -372,7 +372,7 @@ class LeaguesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->query('league') ?: $this->request->query('tournament');
+		$id = $this->request->getQuery('league') ?: $this->request->getQuery('tournament');
 		try {
 			$league = $this->Leagues->get($id, [
 				'contain' => [
@@ -449,7 +449,7 @@ class LeaguesController extends AppController {
 	public function delete() {
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('league') ?: $this->request->query('tournament');
+		$id = $this->request->getQuery('league') ?: $this->request->getQuery('tournament');
 		$dependencies = $this->Leagues->dependencies($id, [], ['Divisions' => ['Days', 'People']]);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this league, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
@@ -478,7 +478,7 @@ class LeaguesController extends AppController {
 	}
 
 	public function schedule() {
-		$id = intval($this->request->query('league') ?: $this->request->query('tournament'));
+		$id = intval($this->request->getQuery('league') ?: $this->request->getQuery('tournament'));
 
 		// Hopefully, everything we need is already cached
 		$league = Cache::remember("league/{$id}/schedule", function () use ($id) {
@@ -556,7 +556,7 @@ class LeaguesController extends AppController {
 
 		$is_coordinator = $this->Leagues->is_coordinator($league);
 		if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator) {
-			$edit_date = $this->request->query('edit_date');
+			$edit_date = $this->request->getQuery('edit_date');
 		} else {
 			$edit_date = null;
 		}
@@ -640,7 +640,7 @@ class LeaguesController extends AppController {
 	}
 
 	public function standings() {
-		$id = intval($this->request->query('league') ?: $this->request->query('tournament'));
+		$id = intval($this->request->getQuery('league') ?: $this->request->getQuery('tournament'));
 
 		// Hopefully, everything we need is already cached
 		$league = Cache::remember("league/{$id}/standings", function () use ($id) {
@@ -736,7 +736,7 @@ class LeaguesController extends AppController {
 	}
 
 	public function slots() {
-		$id = $this->request->query('league') ?: $this->request->query('tournament');
+		$id = $this->request->getQuery('league') ?: $this->request->getQuery('tournament');
 		try {
 			$league = $this->Leagues->get($id, [
 				'contain' => [
@@ -766,7 +766,7 @@ class LeaguesController extends AppController {
 			->extract('game_date')
 			->toArray();
 
-		$date = $this->request->query('date');
+		$date = $this->request->getQuery('date');
 		if ($this->request->is(['patch', 'post', 'put']) && array_key_exists('date', $this->request->data)) {
 			$date = $this->request->data['date'];
 			// TODO: Is there a way to make the Ajax form submitter not send the string literal "null"?

@@ -41,7 +41,7 @@ class TeamsController extends AppController {
 	protected function _publicActions() {
 		if (Configure::read('Perm.is_manager')) {
 			// If a team id is specified, check if we're a manager of that team's affiliate
-			$team = $this->request->query('team');
+			$team = $this->request->getQuery('team');
 			if ($team) {
 				if (!in_array($this->Teams->affiliate($team), $this->UserCache->read('ManagedAffiliateIDs'))) {
 					Configure::write('Perm.is_manager', false);
@@ -81,13 +81,13 @@ class TeamsController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'statistics',
 					'unassigned',
 				]))
 				{
 					// If an affiliate id is specified, check if we're a manager of that affiliate
-					$affiliate_id = $this->request->query('affiliate');
+					$affiliate_id = $this->request->getQuery('affiliate');
 					if (!$affiliate_id) {
 						// If there's no affiliate id, this is a top-level operation that all managers can perform
 						return true;
@@ -98,7 +98,7 @@ class TeamsController extends AppController {
 					}
 				}
 
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'edit',
 					'delete',
 					'roster_request',
@@ -110,7 +110,7 @@ class TeamsController extends AppController {
 				]))
 				{
 					// If a team id is specified, check if we're a manager of that team's affiliate
-					$team_id = $this->request->query('team');
+					$team_id = $this->request->getQuery('team');
 					if ($team_id) {
 						if (in_array($this->Teams->affiliate($team_id), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -122,13 +122,13 @@ class TeamsController extends AppController {
 			}
 
 			// People can perform these operations on divisions they coordinate
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'spirit',
 				'stat_sheet',
 			]))
 			{
 				// If a team id is specified, check if we're a coordinator of that team's division
-				$team_id = $this->request->query('team');
+				$team_id = $this->request->getQuery('team');
 				if ($team_id) {
 					$divisions = $this->UserCache->read('Divisions');
 					return collection($divisions)->extract('teams.{*}')->some(function ($team) use ($team_id) { return $team->id == $team_id; });
@@ -136,7 +136,7 @@ class TeamsController extends AppController {
 			}
 
 			// Anyone that's logged in can perform these operations
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'join',
 				'note',
 				'delete_note',
@@ -147,7 +147,7 @@ class TeamsController extends AppController {
 			}
 
 			// We have a special function just for checking these operations
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'add_player',
 				'add_from_team',
 				'add_from_event',
@@ -158,14 +158,14 @@ class TeamsController extends AppController {
 			]))
 			{
 				// If a team id is specified, check the permissions
-				$team_id = $this->request->query('team');
-				if ($team_id && $this->_canEditRoster($team_id, $this->request->params['action'] != 'add_from_event') === true) {
+				$team_id = $this->request->getQuery('team');
+				if ($team_id && $this->_canEditRoster($team_id, $this->request->getParam('action') != 'add_from_event') === true) {
 					return true;
 				}
 			}
 
 			// People can perform these operations on teams they run
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'edit',
 				'delete',
 				'emails',
@@ -173,14 +173,14 @@ class TeamsController extends AppController {
 			]))
 			{
 				// If a team id is specified, check if we're a captain of that team
-				$team_id = $this->request->query('team');
+				$team_id = $this->request->getQuery('team');
 				if ($team_id && in_array($team_id, $this->UserCache->read('OwnedTeamIDs'))) {
 					return true;
 				}
 			}
 
 			// People can perform these operations on their own account
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'roster_role',
 				'roster_position',
 				'roster_request',
@@ -189,7 +189,7 @@ class TeamsController extends AppController {
 			{
 				// If a player id is specified, check if it's the logged-in user, or a relative
 				// If no player id is specified, it's always the logged-in user
-				$person_id = $this->request->query('person');
+				$person_id = $this->request->getQuery('person');
 				$relatives = $this->UserCache->read('RelativeIDs');
 				if (!$person_id || $person_id == $this->UserCache->currentId() || in_array($person_id, $relatives)) {
 					return true;
@@ -197,11 +197,11 @@ class TeamsController extends AppController {
 			}
 
 			// People can perform these operations on teams they or their relatives are on
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'attendance',
 			]))
 			{
-				$team_id = $this->request->query('team');
+				$team_id = $this->request->getQuery('team');
 				if ($team_id) {
 					if (in_array($team_id, $this->UserCache->read('AllTeamIDs')) || in_array($team_id, $this->UserCache->read('AllRelativeTeamIDs'))) {
 						return true;
@@ -227,7 +227,7 @@ class TeamsController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function index() {
-		$affiliate = $this->request->query('affiliate');
+		$affiliate = $this->request->getQuery('affiliate');
 		$affiliates = $this->_applicableAffiliateIDs();
 
 		$query = $this->Teams->find()
@@ -268,13 +268,13 @@ class TeamsController extends AppController {
 	}
 
 	public function letter() {
-		$letter = strtoupper($this->request->query('letter'));
+		$letter = strtoupper($this->request->getQuery('letter'));
 		if (!$letter) {
 			$this->Flash->info(__('Invalid letter.'));
 			return $this->redirect(['action' => 'index']);
 		}
 
-		$affiliate = $this->request->query('affiliate');
+		$affiliate = $this->request->getQuery('affiliate');
 		$affiliates = $this->_applicableAffiliateIDs();
 
 		$teams = $this->Teams->find()
@@ -305,7 +305,7 @@ class TeamsController extends AppController {
 	}
 
 	public function join() {
-		$affiliate = $this->request->query('affiliate');
+		$affiliate = $this->request->getQuery('affiliate');
 		$affiliates = $this->_applicableAffiliateIDs();
 
 		$query = $this->Teams->find('openRoster', compact('affiliates'));
@@ -341,8 +341,8 @@ class TeamsController extends AppController {
 		$this->set(compact('affiliates'));
 
 		// Division conditions take precedence over year conditions
-		$division = $this->request->query('division');
-		$year = $this->request->query('year');
+		$division = $this->request->getQuery('division');
+		$year = $this->request->getQuery('year');
 		if ($division !== null) {
 			$conditions = ['Divisions.id' => $division];
 		} else if ($year === null) {
@@ -598,7 +598,7 @@ class TeamsController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->query('team');
+		$id = $this->request->getQuery('team');
 
 		if ($this->request->is('csv')) {
 			$contain = [
@@ -848,7 +848,7 @@ class TeamsController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		}
 
-		$person_id = $this->request->query('person');
+		$person_id = $this->request->getQuery('person');
 		if ($person_id) {
 			$people_query = ['queryBuilder' => function (Query $q) use ($person_id) {
 				return $q->where(compact('person_id'));
@@ -857,7 +857,7 @@ class TeamsController extends AppController {
 			$people_query = [];
 		}
 
-		$id = $this->request->query('team');
+		$id = $this->request->getQuery('team');
 		try {
 			$team = $this->Teams->get($id, [
 				'contain' => [
@@ -930,7 +930,7 @@ class TeamsController extends AppController {
 	}
 
 	public function stats() {
-		$id = intval($this->request->query('team'));
+		$id = intval($this->request->getQuery('team'));
 		$contain = [
 			'Divisions' => [
 				'Leagues' => [
@@ -1023,7 +1023,7 @@ class TeamsController extends AppController {
 	}
 
 	public function stat_sheet() {
-		$id = $this->request->query('team');
+		$id = $this->request->getQuery('team');
 		$team = $this->Teams->find()
 			->contain([
 				'Divisions' => [
@@ -1057,7 +1057,7 @@ class TeamsController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('team');
+		$id = $this->request->getQuery('team');
 		$contain = [
 			// Get the list of captains
 			'People' => [
@@ -1193,7 +1193,7 @@ class TeamsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->query('team');
+		$id = $this->request->getQuery('team');
 		try {
 			$team = $this->Teams->get($id, [
 				'contain' => [
@@ -1288,7 +1288,7 @@ class TeamsController extends AppController {
 	}
 
 	public function note() {
-		$note_id = $this->request->query('note');
+		$note_id = $this->request->getQuery('note');
 
 		if ($note_id) {
 			try {
@@ -1311,7 +1311,7 @@ class TeamsController extends AppController {
 			$team = $note->team;
 		} else {
 			try {
-				$team = $this->Teams->get($this->request->query('team'), [
+				$team = $this->Teams->get($this->request->getQuery('team'), [
 					'contain' => ['Divisions' => ['Leagues']]
 				]);
 			} catch (RecordNotFoundException $ex) {
@@ -1362,7 +1362,7 @@ class TeamsController extends AppController {
 	public function delete_note() {
 		$this->request->allowMethod(['post', 'delete']);
 
-		$note_id = $this->request->query('note');
+		$note_id = $this->request->getQuery('note');
 
 		try {
 			$note = $this->Teams->Notes->get($note_id);
@@ -1399,7 +1399,7 @@ class TeamsController extends AppController {
 	public function delete() {
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('team');
+		$id = $this->request->getQuery('team');
 		$dependencies = $this->Teams->dependencies($id);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this team, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
@@ -1434,7 +1434,7 @@ class TeamsController extends AppController {
 
 	// TODO: Method for moving multiple teams at once; jQuery "left and right" boxes?
 	public function move() {
-		$id = $this->request->query('team');
+		$id = $this->request->getQuery('team');
 		try {
 			$team = $this->Teams->get($id, [
 				'contain' => ['Divisions' => ['Leagues', 'People']]
@@ -1514,7 +1514,7 @@ class TeamsController extends AppController {
 	}
 
 	public function schedule() {
-		$id = $this->request->query('team');
+		$id = $this->request->getQuery('team');
 		try {
 			$team = $this->Teams->get($id, [
 				'contain' => [
@@ -1642,7 +1642,7 @@ class TeamsController extends AppController {
 	}
 
 	public function spirit() {
-		$id = $this->request->query('team');
+		$id = $this->request->getQuery('team');
 		try {
 			$team = $this->Teams->get($id, [
 				'contain' => ['Divisions' => ['Leagues']]
@@ -1691,7 +1691,7 @@ class TeamsController extends AppController {
 	}
 
 	public function attendance() {
-		$id = $this->request->query('team');
+		$id = $this->request->getQuery('team');
 		try {
 			$team = $this->Teams->get($id, [
 				'contain' => [
@@ -1777,7 +1777,7 @@ class TeamsController extends AppController {
 	}
 
 	public function emails() {
-		$id = $this->request->query('team');
+		$id = $this->request->getQuery('team');
 		try {
 			$team = $this->Teams->get($id, [
 				'contain' => [
@@ -1815,7 +1815,7 @@ class TeamsController extends AppController {
 	}
 
 	public function add_player() {
-		$id = $this->request->query('team');
+		$id = $this->request->getQuery('team');
 		try {
 			$team = $this->Teams->get($id, [
 				'contain' => [
@@ -1875,7 +1875,7 @@ class TeamsController extends AppController {
 	public function add_from_team() {
 		$this->request->allowMethod(['post']);
 
-		$id = $this->request->query('team');
+		$id = $this->request->getQuery('team');
 
 		// Read the current team roster
 		try {
@@ -1983,7 +1983,7 @@ class TeamsController extends AppController {
 	public function add_from_event() {
 		$this->request->allowMethod(['post']);
 
-		$id = $this->request->query('team');
+		$id = $this->request->getQuery('team');
 
 		try {
 			$team = $this->Teams->get($id, [
@@ -2114,7 +2114,7 @@ class TeamsController extends AppController {
 	}
 
 	public function roster_role() {
-		$person_id = $this->request->query('person');
+		$person_id = $this->request->getQuery('person');
 		if (!$person_id) {
 			$person_id = $this->UserCache->currentId();
 		}
@@ -2171,7 +2171,7 @@ class TeamsController extends AppController {
 	}
 
 	public function roster_position() {
-		$person_id = $this->request->query('person');
+		$person_id = $this->request->getQuery('person');
 		if (!$person_id) {
 			$person_id = $this->UserCache->currentId();
 		}
@@ -2220,7 +2220,7 @@ class TeamsController extends AppController {
 	}
 
 	public function roster_add() {
-		$person_id = $this->request->query('person');
+		$person_id = $this->request->getQuery('person');
 
 		try {
 			list($team, $person) = $this->_initTeamForRosterChange($person_id);
@@ -2327,7 +2327,7 @@ class TeamsController extends AppController {
 	}
 
 	public function roster_accept() {
-		$person_id = $this->request->query('person');
+		$person_id = $this->request->getQuery('person');
 		if (!$person_id) {
 			$person_id = Configure::read('Perm.my_id');
 		}
@@ -2352,7 +2352,7 @@ class TeamsController extends AppController {
 
 		// We must do other permission checks here, because we allow non-logged-in users to accept
 		// through email links
-		$code = $this->request->query('code');
+		$code = $this->request->getQuery('code');
 		if ($code) {
 			// Authenticate the hash code
 			if (!$this->_checkHash([$person->_joinData->id, $person->_joinData->team_id, $person->_joinData->person_id, $person->_joinData->role, $person->_joinData->created], $code)) {
@@ -2418,7 +2418,7 @@ class TeamsController extends AppController {
 	}
 
 	public function roster_decline() {
-		$person_id = $this->request->query('person');
+		$person_id = $this->request->getQuery('person');
 		if (!$person_id) {
 			$person_id = Configure::read('Perm.my_id');
 		}
@@ -2443,7 +2443,7 @@ class TeamsController extends AppController {
 
 		// We must do other permission checks here, because we allow non-logged-in users to accept
 		// through email links
-		$code = $this->request->query('code');
+		$code = $this->request->getQuery('code');
 		if ($code) {
 			// Authenticate the hash code
 			if (!$this->_checkHash([$person->_joinData->id, $person->_joinData->team_id, $person->_joinData->person_id, $person->_joinData->role, $person->_joinData->created], $code)) {
@@ -2495,7 +2495,7 @@ class TeamsController extends AppController {
 			throw new Exception(__('Invalid player.'));
 		}
 
-		$team_id = $this->request->query('team');
+		$team_id = $this->request->getQuery('team');
 		try {
 			$team = $this->Teams->get($team_id, [
 				'contain' => [
@@ -2917,7 +2917,7 @@ class TeamsController extends AppController {
 
 	protected function _sendDecline($person, $team, $role, $status) {
 		if ($status == ROSTER_INVITED) {
-			$is_player = ($this->request->query('code') !== null || $person->id == $this->UserCache->currentId() || in_array($person->id, $this->UserCache->read('RelativeIDs')));
+			$is_player = ($this->request->getQuery('code') !== null || $person->id == $this->UserCache->currentId() || in_array($person->id, $this->UserCache->read('RelativeIDs')));
 			$is_captain = in_array($team->id, $this->UserCache->read('OwnedTeamIDs'));
 
 			if (!$is_captain) {

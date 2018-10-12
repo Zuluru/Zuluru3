@@ -38,14 +38,14 @@ class FieldsController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'open',
 					'close',
 					'delete',
 					'bookings',
 				])) {
 					// If a field id is specified, check if we're a manager of that field's affiliate
-					$field = $this->request->query('field');
+					$field = $this->request->getQuery('field');
 					if ($field) {
 						if (in_array($this->Fields->affiliate($field), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -57,7 +57,7 @@ class FieldsController extends AppController {
 			}
 
 			// Anyone that's logged in can perform these operations
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'bookings',
 			])) {
 				return true;
@@ -84,7 +84,7 @@ class FieldsController extends AppController {
 	 * @return \Cake\Network\Response Redirects
 	 */
 	public function view() {
-		$id = $this->request->query('field');
+		$id = $this->request->getQuery('field');
 		try {
 			$facility_id = $this->Fields->field('facility_id', ['id' => $id]);
 		} catch (RecordNotFoundException $ex) {
@@ -104,7 +104,7 @@ class FieldsController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('field');
+		$id = $this->request->getQuery('field');
 		try {
 			$field = $this->Fields->get($id, [
 				'contain' => [
@@ -132,7 +132,7 @@ class FieldsController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('field');
+		$id = $this->request->getQuery('field');
 		try {
 			$field = $this->Fields->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -161,7 +161,7 @@ class FieldsController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('field');
+		$id = $this->request->getQuery('field');
 		try {
 			$field = $this->Fields->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -189,7 +189,7 @@ class FieldsController extends AppController {
 	public function delete() {
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('field');
+		$id = $this->request->getQuery('field');
 		$dependencies = $this->Fields->dependencies($id);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this {0}, so it cannot be deleted.', __(Configure::read('UI.field'))) . '<br>' . $dependencies, ['params' => ['escape' => false]]);
@@ -228,7 +228,7 @@ class FieldsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
 	 */
 	public function bookings() {
-		$id = $this->request->query('field');
+		$id = $this->request->getQuery('field');
 		if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
 			$conditions = ['OR' => [
 				'is_open' => true,

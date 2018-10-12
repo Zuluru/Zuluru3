@@ -25,7 +25,7 @@ class TeamEventAttendanceTask extends Shell {
 	use HasherTrait;
 
 	public function main() {
-		$event = new CakeEvent('Controller.initialize', $this);
+		$event = new CakeEvent('Configuration.initialize', $this);
 		EventManager::instance()->dispatch($event);
 
 		$this->events_table = TableRegistry::get('TeamEvents');

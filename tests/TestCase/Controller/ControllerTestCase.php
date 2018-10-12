@@ -98,26 +98,40 @@ class ControllerTestCase extends IntegrationTestCase {
 			if ($user) {
 				$redirect = '/';
 			} else {
-				$redirect = ['controller' => 'Users', 'action' => 'login'];
+				$redirect = ['controller' => 'Users', 'action' => 'login', 'redirect' => Router::url($url)];
 			}
 		}
 
-		if ($method == 'getajax' || $method == 'postajax') {
-			if ($message) {
-				$message = [
-					0 => [
-						'message' => $message,
-						'key' => 'flash',
-						'element' => 'Flash/info',
-						'params' => [],
-					],
-				];
+		if ($message === null) {
+			if ($user) {
+				$message = 'You do not have permission to access that page.';
+			} else {
+				$message = 'You must login to access full site functionality.';
 			}
+			$message_array = [
+				0 => [
+					'message' => $message,
+					'key' => 'flash',
+					'element' => 'Flash/error',
+					'params' => ['class' => 'error'],
+				],
+			];
+		} else if ($message) {
+			$message_array = [
+				0 => [
+					'message' => $message,
+					'key' => 'flash',
+					'element' => 'Flash/info',
+					'params' => [],
+				],
+			];
+		}
 
+		if ($method == 'getajax' || $method == 'postajax') {
 			$error = [
 				'error' => null,
 				'content' => null,
-				'_message' => $message,
+				'_message' => $message_array,
 				'_redirect' => [
 					'url' => Router::url($redirect, true),
 					'status' => 302,
@@ -131,15 +145,9 @@ class ControllerTestCase extends IntegrationTestCase {
 
 			if ($message !== false) {
 				if ($key === null) {
-					$key = 'Flash.auth.0.message';
+					$key = 'Flash.flash.0.message';
 				}
-				if ($message === null) {
-					if ($user) {
-						$message = 'You do not have permission to access that page.';
-					} else {
-						$message = 'You must login to access full site functionality.';
-					}
-				}
+
 				if ($message[0] == '#') {
 					$this->assertRegExp($message, $this->_requestSession->read($key));
 				} else {

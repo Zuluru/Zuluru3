@@ -31,7 +31,7 @@ class UploadTypesController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'index',
 					'add',
 				]))
@@ -40,14 +40,14 @@ class UploadTypesController extends AppController {
 				}
 
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'view',
 					'edit',
 					'delete',
 				]))
 				{
 					// If an upload type id is specified, check if we're a manager of that upload type's affiliate
-					$type = $this->request->query('type');
+					$type = $this->request->getQuery('type');
 					if ($type) {
 						if (in_array($this->UploadTypes->affiliate($type), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -95,7 +95,7 @@ class UploadTypesController extends AppController {
 			throw new MethodNotAllowedException('Document management is disabled on this site.');
 		}
 
-		$id = $this->request->query('type');
+		$id = $this->request->getQuery('type');
 		try {
 			$upload_type = $this->UploadTypes->get($id, [
 				'contain' => [
@@ -155,7 +155,7 @@ class UploadTypesController extends AppController {
 			throw new MethodNotAllowedException('Document management is disabled on this site.');
 		}
 
-		$id = $this->request->query('type');
+		$id = $this->request->getQuery('type');
 		try {
 			$upload_type = $this->UploadTypes->get($id, [
 				'contain' => []
@@ -196,7 +196,7 @@ class UploadTypesController extends AppController {
 
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('type');
+		$id = $this->request->getQuery('type');
 		$dependencies = $this->UploadTypes->dependencies($id);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this upload type, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);

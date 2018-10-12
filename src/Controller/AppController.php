@@ -28,7 +28,6 @@ use App\Model\Entity\Person;
 use Cake\Cache\Cache;
 use Cake\Controller\Controller;
 use Cake\Core\Configure;
-use Cake\Core\Plugin;
 use Cake\Event\Event as CakeEvent;
 use Cake\Event\EventManager;
 use Cake\I18n\FrozenDate;
@@ -54,7 +53,6 @@ use Psr\Log\LogLevel;
  * @package       cake
  * @subpackage    cake.cake.libs.controller
  * @property \Cake\Controller\Component\AuthComponent $Auth
- * @property \Cake\Controller\Component\CookieComponent $Cookie
  * @property \Cake\Controller\Component\FlashComponent $Flash
  * @property \Cake\Controller\Component\RequestHandlerComponent $RequestHandler
  * @property \App\Core\UserCache $UserCache
@@ -90,19 +88,30 @@ class AppController extends Controller {
 		parent::initialize();
 
 		$this->loadComponent('Security');
-		if (!$this->request->is('json')) {
-			// Use our own CSRF component, to ensure that cookie paths are not slash-terminated
-			$this->loadComponent('Csrf', ['className' => 'App\Controller\Component\CsrfComponent']);
-		}
-		// TODOLATER: https://book.cakephp.org/3.0/en/controllers/middleware.html#encrypted-cookie-middleware
-		$this->loadComponent('Cookie', ['expires' => '+1 year', 'path' => '/' . trim($this->request->webroot, '/')]);
 		$this->loadComponent('Flash');
-		$this->loadComponent('Ajax.Ajax');	// Must be before RequestHandler for correct redirect handling
-		$this->loadComponent('RequestHandler');
+		$this->loadComponent('RequestHandler', ['enableBeforeRedirect' => false]);
+		$this->loadComponent('Ajax.Ajax');
 
 		// Don't attempt to do anything database- or user-related during installation
 		if ($this->plugin == 'Installer') {
 			return;
+		}
+
+		// Temporary code to remove cookies with a trailing slash in the path. These are
+		// not sent by most browsers for equivalent paths that don't end in a slash. For
+		// example, if the URL is /zuluru, a cookie for /zuluru/ won't be sent. But such
+		// cookies *will* be sent for a URL like /zuluru/leagues; having cookies for both
+		// /zuluru and /zuluru/ causes issues. The latter were incorrectly issued by early
+		// versions of Zuluru 3, so here we remove them. See also CookiePathMiddleware.
+		// This can go away in 2020, when all such cookies will be expired even if the
+		// user never came back and hit this code in the meantime.
+		$webroot = $this->request->getAttribute('webroot');
+		if ($webroot != '/' && substr($webroot, -1) == '/') {
+			foreach (['Auth', Configure::read('Session.cookie')] as $name) {
+				if ($this->request->getCookieCollection()->get($name)) {
+					$this->response = $this->response->withCookie($name, ['path' => $webroot, 'domain' => Configure::read('App.domain')]);
+				}
+			}
 		}
 
 		$this->UserCache = UserCache::getInstance(true);
@@ -242,9 +251,9 @@ class AppController extends Controller {
 		if (!$user) {
 			if ($this->request->is('json')) {
 				$user = $this->Auth->identify();
-			} else if ($this->Cookie->read('Auth.User')) {
+			} else if ($this->request->getCookie('ZuluruAuth')) {
 				$saved_data = $this->request->data;
-				$this->request->data = $this->Cookie->read('Auth.User');
+				$this->request->data = $this->request->getCookie('ZuluruAuth');
 				$user = $this->Auth->identify();
 				$this->request->data = $saved_data;
 			}
@@ -299,8 +308,8 @@ class AppController extends Controller {
 
 		// Backward compatibility with old CakePHP-style named URLs
 		// TODO: Remove this in maybe 2020, once there's been a good time to update links
-		Router::parseNamedParams($this->request);
-		$this->request->query += $this->request->named;
+		$this->request = Router::parseNamedParams($this->request);
+		$this->request = $this->request->withQueryParams(array_merge($this->request->getQueryParams(), $this->request->getParam('named')));
 
 		$this->loadModel('Configuration');
 		$this->_setLanguage();
@@ -358,7 +367,7 @@ class AppController extends Controller {
 					// Allow people to change who they are acting as
 					($this->request->controller != 'People' || $this->request->action != 'act_as') &&
 					// We will let people look at information about teams that they've been invited to
-					($this->request->controller != 'Teams' || !in_array($this->request->query('team'), $response_required)) &&
+					($this->request->controller != 'Teams' || !in_array($this->request->getQuery('team'), $response_required)) &&
 					// Don't cause redirects for JSON requests
 					!$this->request->is('json')
 				) {
@@ -516,16 +525,16 @@ class AppController extends Controller {
 	 * @link http://book.cakephp.org/3.0/en/controllers.html#Controller::redirect
 	 */
 	public function redirect($url, $status = 302) {
-		if ($this->request->query('return')) {
+		if ($this->request->getQuery('return')) {
 			// If there's a return requested, and nothing already saved to return to, remember the referrer
-			$url = $this->decodeRedirect($this->request->query('return'));
+			$url = $this->decodeRedirect($this->request->getQuery('return'));
 		} else if ($this->request->session()->check('Navigation.redirect')) {
 			// If there's another page queued up, we go there
 			$url = $this->request->session()->read('Navigation.redirect');
 			$this->request->session()->delete('Navigation.redirect');
 		}
 
-		// String URLs might have come from $this->>here, or might be '/'.
+		// String URLs might have come from $this->here, or might be '/'.
 		// Either way, they need to be normalized.
 		if (is_string($url)) {
 			$url = Router::normalize($url);
@@ -784,7 +793,7 @@ class AppController extends Controller {
 		$this->loadModel('Affiliates');
 
 		// If there's something in the URL, perhaps only use that
-		$affiliate = $this->request->query('affiliate');
+		$affiliate = $this->request->getQuery('affiliate');
 		if ($affiliate === null) {
 			// If the user has selected a specific affiliate to view, perhaps only use that
 			$affiliate = $this->request->session()->read('Zuluru.CurrentAffiliate');
@@ -843,7 +852,7 @@ class AppController extends Controller {
 		// If there's something in the URL, perhaps only use that
 		$request = Router::getRequest();
 		if ($request) {
-			$affiliate = $request->query('affiliate');
+			$affiliate = $request->getQuery('affiliate');
 			if ($affiliate === null) {
 				// If the user has selected a specific affiliate to view, perhaps only use that
 				$affiliate = $request->session()->read('Zuluru.CurrentAffiliate');
@@ -1740,9 +1749,9 @@ class AppController extends Controller {
 
 	protected function _extractSearchParams(array $url_params = []) {
 		if ($this->request->is('post')) {
-			$params = $url = array_merge($this->request->data, $this->request->query);
+			$params = $url = array_merge($this->request->data, $this->request->getQueryParams());
 		} else {
-			$params = $url = $this->request->query;
+			$params = $url = $this->request->getQueryParams();
 		}
 		foreach (['sort', 'direction', 'page'] as $pagination) {
 			unset($params[$pagination]);

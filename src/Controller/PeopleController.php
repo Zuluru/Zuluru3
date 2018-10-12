@@ -70,9 +70,9 @@ class PeopleController extends AppController {
 	 */
 	public function isAuthorized() {
 		try {
-			if ($this->request->params['action'] == 'act_as') {
+			if ($this->request->getParam('action') == 'act_as') {
 				// People can always act as their real id, or as any relative of the current or real user
-				$person = $this->request->query('person');
+				$person = $this->request->getQuery('person');
 				if ($person) {
 					$relatives = $this->UserCache->allActAs();
 					if (array_key_exists($person, $relatives)) {
@@ -88,7 +88,7 @@ class PeopleController extends AppController {
 			}
 
 			if (!Configure::read('feature.badges')) {
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'nominate',
 					'nominate_badge',
 					'nominate_badge_reason',
@@ -103,7 +103,7 @@ class PeopleController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'index',
 					'list_new',
 					'statistics',
@@ -116,7 +116,7 @@ class PeopleController extends AppController {
 				]))
 				{
 					// If an affiliate id is specified, check if we're a manager of that affiliate
-					$affiliate = $this->request->query('affiliate');
+					$affiliate = $this->request->getQuery('affiliate');
 					if (!$affiliate) {
 						// If there's no affiliate id, this is a top-level operation that all managers can perform
 						return true;
@@ -127,14 +127,14 @@ class PeopleController extends AppController {
 					}
 				}
 
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'approve_badge',
 					'delete_badge',
 				]))
 				{
 					// If a badge id is specified, check if we're a manager of that badge's affiliate
 					// This isn't the real badge id, but the id of the badge/person join table
-					$badge = $this->request->query('badge');
+					$badge = $this->request->getQuery('badge');
 					if ($badge) {
 						if (in_array($this->People->BadgesPeople->affiliate($badge), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -144,11 +144,11 @@ class PeopleController extends AppController {
 					}
 				}
 
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'approve_document',
 					'edit_document',
 				])) {
-					$document = $this->request->query('document');
+					$document = $this->request->getQuery('document');
 					if ($document) {
 						if (in_array($this->People->Uploads->affiliate($document), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -158,7 +158,7 @@ class PeopleController extends AppController {
 					}
 				}
 
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'edit',
 					'deactivate',
 					'reactivate',
@@ -169,7 +169,7 @@ class PeopleController extends AppController {
 				]))
 				{
 					// If a person id is specified, check if we're a manager of that person's affiliate
-					$person = $this->request->query('person');
+					$person = $this->request->getQuery('person');
 					if ($person) {
 						if (!empty(array_intersect($this->UserCache->read('AffiliateIDs', $person), $this->UserCache->read('ManagedAffiliateIDs')))) {
 							return true;
@@ -181,7 +181,7 @@ class PeopleController extends AppController {
 			}
 
 			// Anyone that's logged in can perform these operations
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'search',
 				'teams',
 				'photo',
@@ -198,7 +198,7 @@ class PeopleController extends AppController {
 			}
 
 			// People can perform these operations on their own account
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'edit',
 				'deactivate',
 				'reactivate',
@@ -214,7 +214,7 @@ class PeopleController extends AppController {
 			{
 				// If a player id is specified, check if it's the logged-in user, or a relative
 				// If no player id is specified, it's always the logged-in user
-				$person = $this->request->query('person');
+				$person = $this->request->getQuery('person');
 				$relatives = $this->UserCache->read('RelativeIDs');
 				if (!$person || $person == $this->UserCache->currentId() || in_array($person, $relatives)) {
 					return true;
@@ -222,7 +222,7 @@ class PeopleController extends AppController {
 			}
 
 			// Parents can perform these operations on their own account
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'add_relative',
 			]))
 			{
@@ -233,12 +233,12 @@ class PeopleController extends AppController {
 
 			// Anyone can perform these actions on their own documents. Managers can perform them on documents belonging
 			// to their affiliates.
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'document',
 				'delete_document',
 			]))
 			{
-				$document = $this->request->query('document');
+				$document = $this->request->getQuery('document');
 				if ($document) {
 					$person = $this->People->Uploads->field('person_id', ['id' => $document]);
 					if ($person == $this->UserCache->currentId()) {
@@ -267,7 +267,7 @@ class PeopleController extends AppController {
 	public function index() {
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		$this->set(compact('affiliates'));
-		$group_id = $this->request->query('group');
+		$group_id = $this->request->getQuery('group');
 
 		// TODO: Multiple default sort fields break pagination links.
 		// https://github.com/cakephp/cakephp/issues/7324 has related info.
@@ -536,8 +536,8 @@ class PeopleController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->query('person');
-		$user_id = $this->request->query('user');
+		$id = $this->request->getQuery('person');
+		$user_id = $this->request->getQuery('user');
 
 		if ($user_id) {
 			try {
@@ -660,7 +660,7 @@ class PeopleController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('person');
+		$id = $this->request->getQuery('person');
 		$person = $this->UserCache->read('Person', $id);
 		if (empty($person)) {
 			$this->Flash->info(__('Invalid person.'));
@@ -744,7 +744,7 @@ class PeopleController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->query('person') ?: $this->UserCache->currentId();
+		$id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
 		$is_me = ($id === $this->UserCache->currentId());
 		$this->set(compact('id', 'is_me'));
 
@@ -863,7 +863,7 @@ class PeopleController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects
 	 */
 	public function deactivate() {
-		$id = $this->request->query('person') ?: $this->UserCache->currentId();
+		$id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
 		try {
 			$person = $this->People->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -906,7 +906,7 @@ class PeopleController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects
 	 */
 	public function reactivate() {
-		$id = $this->request->query('person') ?: $this->UserCache->currentId();
+		$id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
 		try {
 			$person = $this->People->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -951,7 +951,7 @@ class PeopleController extends AppController {
 	}
 
 	public function note() {
-		$note_id = $this->request->query('note');
+		$note_id = $this->request->getQuery('note');
 
 		if ($note_id) {
 			try {
@@ -974,7 +974,7 @@ class PeopleController extends AppController {
 			$person = $note->person;
 		} else {
 			try {
-				$person = $this->People->get($this->request->query('person'));
+				$person = $this->People->get($this->request->getQuery('person'));
 			} catch (RecordNotFoundException $ex) {
 				$this->Flash->info(__('Invalid person.'));
 				return $this->redirect('/');
@@ -1017,7 +1017,7 @@ class PeopleController extends AppController {
 	public function delete_note() {
 		$this->request->allowMethod(['post', 'delete']);
 
-		$note_id = $this->request->query('note');
+		$note_id = $this->request->getQuery('note');
 
 		try {
 			$note = $this->People->Notes->get($note_id);
@@ -1044,7 +1044,7 @@ class PeopleController extends AppController {
 	}
 
 	public function preferences() {
-		$id = $this->request->query('person') ?: $this->UserCache->currentId();
+		$id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
 		$person = $this->UserCache->read('Person', $id);
 		if (empty($person)) {
 			$this->Flash->info(__('Invalid person.'));
@@ -1133,7 +1133,7 @@ class PeopleController extends AppController {
 	}
 
 	public function link_relative() {
-		$person_id = $this->request->query('person');
+		$person_id = $this->request->getQuery('person');
 		if (!$person_id) {
 			$person_id = $this->UserCache->currentId();
 		}
@@ -1148,7 +1148,7 @@ class PeopleController extends AppController {
 		}
 		$this->set(compact('person'));
 
-		$relative_id = $this->request->query('relative');
+		$relative_id = $this->request->getQuery('relative');
 		if ($relative_id !== null) {
 			if ($relative_id == $person_id) {
 				$this->Flash->info(__('You can\'t link yourself as a relative!'));
@@ -1202,8 +1202,8 @@ class PeopleController extends AppController {
 	}
 
 	public function approve_relative() {
-		$person_id = $this->request->query('person');
-		$relative_id = $this->request->query('relative');
+		$person_id = $this->request->getQuery('person');
+		$relative_id = $this->request->getQuery('relative');
 		if ($relative_id === null || $person_id === null) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect(['action' => 'view', 'person' => $person_id]);
@@ -1217,7 +1217,7 @@ class PeopleController extends AppController {
 
 		// We must do other permission checks here, because we allow non-logged-in users to approve
 		// through email links
-		$code = $this->request->query('code');
+		$code = $this->request->getQuery('code');
 		if ($code) {
 			// Authenticate the hash code
 			if (!$this->_checkHash([$relation->_joinData->id, $relation->_joinData->person_id, $relation->_joinData->relative_id, $relation->_joinData->created], $code)) {
@@ -1263,8 +1263,8 @@ class PeopleController extends AppController {
 	}
 
 	public function remove_relative() {
-		$person_id = $this->request->query('person');
-		$relative_id = $this->request->query('relative');
+		$person_id = $this->request->getQuery('person');
+		$relative_id = $this->request->getQuery('relative');
 		if ($relative_id === null || $person_id === null) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect(['action' => 'view', 'person' => $person_id]);
@@ -1285,7 +1285,7 @@ class PeopleController extends AppController {
 
 		// We must do other permission checks here, because we allow non-logged-in users to remove
 		// through email links
-		$code = $this->request->query('code');
+		$code = $this->request->getQuery('code');
 		if ($code) {
 			// Authenticate the hash code
 			if (!$this->_checkHash([$relative->_joinData->id, $relative->_joinData->person_id, $relative->_joinData->relative_id, $relative->_joinData->created], $code)) {
@@ -1299,7 +1299,7 @@ class PeopleController extends AppController {
 			}
 
 			if (!Configure::read('Perm.is_admin') && !Configure::read('Perm.is_manager') && $person_id != $this->UserCache->currentId() && $relative_id != $this->UserCache->currentId()) {
-				$this->Flash->warning(__('You do not have permission to access that page.'), ['key' => 'auth']);
+				$this->Flash->warning(__('You do not have permission to access that page.'));
 				return $this->redirect(['action' => 'view', 'person' => $person_id]);
 			}
 		}
@@ -1448,7 +1448,7 @@ class PeopleController extends AppController {
 
 		$photo = $this->People->Uploads->find()
 			->where([
-				'person_id' => $this->request->query('person'),
+				'person_id' => $this->request->getQuery('person'),
 				'type_id IS' => null,
 			])
 			->first();
@@ -1465,7 +1465,9 @@ class PeopleController extends AppController {
 
 		// We don't want the Upload behavior here: we're getting an image from the
 		// cropping plugin in the browser, not from the standard form upload method.
-		$this->People->Uploads->removeBehavior('Upload');
+		if ($this->People->Uploads->hasBehavior('Upload')) {
+			$this->People->Uploads->removeBehavior('Upload');
+		}
 
 		$temp_dir = Configure::read('App.paths.files') . DS . 'temp';
 		if (!is_dir($temp_dir) || !is_writable($temp_dir)) {
@@ -1565,7 +1567,7 @@ class PeopleController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('person');
+		$id = $this->request->getQuery('person');
 		try {
 			$photo = $this->People->Uploads->find()
 				->contain(['People'])
@@ -1609,7 +1611,7 @@ class PeopleController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('person');
+		$id = $this->request->getQuery('person');
 		try {
 			$photo = $this->People->Uploads->find()
 				->contain(['People'])
@@ -1645,7 +1647,7 @@ class PeopleController extends AppController {
 		}
 
 		try {
-			$document = $this->People->Uploads->get($this->request->query('document'), [
+			$document = $this->People->Uploads->get($this->request->getQuery('document'), [
 				'contain' => ['People', 'UploadTypes']
 			]);
 		} catch (RecordNotFoundException $ex) {
@@ -1680,7 +1682,7 @@ class PeopleController extends AppController {
 			return $this->redirect('/');
 		}
 
-		$id = $this->request->query('person');
+		$id = $this->request->getQuery('person');
 		if ($id) {
 			try {
 				$person = $this->People->get($id);
@@ -1734,7 +1736,7 @@ class PeopleController extends AppController {
 				$this->Flash->warning(__('Failed to save your document.'));
 			}
 		} else {
-			$upload->type_id = $this->request->query('type');
+			$upload->type_id = $this->request->getQuery('type');
 		}
 
 		$this->set(compact('person', 'types', 'upload'));
@@ -1765,7 +1767,7 @@ class PeopleController extends AppController {
 		}
 
 		try {
-			$document = $this->People->Uploads->get($this->request->query('document'), [
+			$document = $this->People->Uploads->get($this->request->getQuery('document'), [
 				'contain' => ['People' => [Configure::read('Security.authModel')], 'UploadTypes']
 			]);
 		} catch (RecordNotFoundException $ex) {
@@ -1808,7 +1810,7 @@ class PeopleController extends AppController {
 		}
 
 		try {
-			$document = $this->People->Uploads->get($this->request->query('document'), [
+			$document = $this->People->Uploads->get($this->request->getQuery('document'), [
 				'contain' => ['People' => [Configure::read('Security.authModel')], 'UploadTypes']
 			]);
 		} catch (RecordNotFoundException $ex) {
@@ -1856,7 +1858,7 @@ class PeopleController extends AppController {
 		$this->request->allowMethod('ajax');
 
 		try {
-			$document = $this->People->Uploads->get($this->request->query('document'), [
+			$document = $this->People->Uploads->get($this->request->getQuery('document'), [
 				'contain' => ['People' => [Configure::read('Security.authModel')], 'UploadTypes']
 			]);
 		} catch (RecordNotFoundException $ex) {
@@ -1944,7 +1946,7 @@ class PeopleController extends AppController {
 			throw new MethodNotAllowedException('Badges are not enabled on this system.');
 		}
 
-		$badge_id = $this->request->query('badge');
+		$badge_id = $this->request->getQuery('badge');
 		if (!$badge_id) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['controller' => 'Badges', 'action' => 'index']);
@@ -1988,12 +1990,12 @@ class PeopleController extends AppController {
 			throw new MethodNotAllowedException('Badges are not enabled on this system.');
 		}
 
-		$badge_id = $this->request->query('badge');
+		$badge_id = $this->request->getQuery('badge');
 		if (!$badge_id) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['controller' => 'Badges', 'action' => 'index']);
 		}
-		$person_id = $this->request->query('person');
+		$person_id = $this->request->getQuery('person');
 		if (!$person_id) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect(['controller' => 'Badges', 'action' => 'index']);
@@ -2134,7 +2136,7 @@ class PeopleController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('badge');
+		$id = $this->request->getQuery('badge');
 		try {
 			$badges_table = TableRegistry::get('BadgesPeople');
 			$link = $badges_table->get($id, [
@@ -2197,7 +2199,7 @@ class PeopleController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('badge');
+		$id = $this->request->getQuery('badge');
 		try {
 			$badges_table = TableRegistry::get('BadgesPeople');
 			$link = $badges_table->get($id, [
@@ -2257,7 +2259,7 @@ class PeopleController extends AppController {
 	public function delete() {
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('person');
+		$id = $this->request->getQuery('person');
 		$dependencies = $this->People->dependencies($id, ['Affiliates', 'Groups', 'Relatives', 'Related', 'Skills', 'Settings', 'Subscriptions']);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this person, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
@@ -2288,7 +2290,7 @@ class PeopleController extends AppController {
 	}
 
 	public function act_as() {
-		$act_as = $this->request->query('person');
+		$act_as = $this->request->getQuery('person');
 		if ($act_as) {
 			if (!$this->UserCache->read('Person', $act_as)) {
 				$this->Flash->info(__('Invalid person.'));
@@ -2501,7 +2503,7 @@ class PeopleController extends AppController {
 	}
 
 	public function approve() {
-		$id = $this->request->query('person');
+		$id = $this->request->getQuery('person');
 
 		try {
 			$person = $this->People->get($id, [
@@ -2697,7 +2699,7 @@ class PeopleController extends AppController {
 
 	public function vcf() {
 		$this->viewBuilder()->layout('vcf');
-		$id = $this->request->query('person');
+		$id = $this->request->getQuery('person');
 		$person = $this->UserCache->read('Person', $id);
 		if (empty($person)) {
 			$this->Flash->info(__('Invalid person.'));
@@ -2779,7 +2781,7 @@ class PeopleController extends AppController {
 			throw new MethodNotAllowedException('Registration is not enabled on this system.');
 		}
 
-		$id = $this->request->query('person') ?: $this->UserCache->currentId();
+		$id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
 		$person = $this->UserCache->read('Person', $id);
 		if (empty($person)) {
 			$this->Flash->info(__('Invalid person.'));
@@ -2808,7 +2810,7 @@ class PeopleController extends AppController {
 			throw new MethodNotAllowedException('Registration is not enabled on this system.');
 		}
 
-		$id = $this->request->query('person') ?: $this->UserCache->currentId();
+		$id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
 		$affiliates = $this->_applicableAffiliateIDs(true);
 
 		try {
@@ -2836,7 +2838,7 @@ class PeopleController extends AppController {
 	}
 
 	public function teams() {
-		$id = $this->request->query('person') ?: $this->UserCache->currentId();
+		$id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
 		$person = $this->UserCache->read('Person', $id);
 		if (empty($person)) {
 			$this->Flash->info(__('Invalid person.'));
@@ -2848,7 +2850,7 @@ class PeopleController extends AppController {
 	}
 
 	public function waivers() {
-		$id = $this->request->query('person') ?: $this->UserCache->currentId();
+		$id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
 		$affiliates = $this->_applicableAffiliateIDs(true);
 		try {
 			$person = $this->People->get($id, [

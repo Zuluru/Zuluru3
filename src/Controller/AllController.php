@@ -29,7 +29,7 @@ class AllController extends AppController {
 	public function isAuthorized() {
 		try {
 			// Anyone that's logged in can perform these operations
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'splash',
 				'consolidated_schedule',
 			])) {
@@ -37,13 +37,13 @@ class AllController extends AppController {
 			}
 
 			// People can perform these operations on their own account
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'schedule',
 			]))
 			{
 				// If a player id is specified, check if it's the logged-in user, or a relative
 				// If no player id is specified, it's always the logged-in user
-				$person = $this->request->query('person');
+				$person = $this->request->getQuery('person');
 				$relatives = $this->UserCache->read('RelativeIDs');
 				if (!$person || $person == $this->UserCache->currentId() || in_array($person, $relatives)) {
 					return true;
@@ -94,7 +94,7 @@ class AllController extends AppController {
 	}
 
 	public function schedule() {
-		$id = $this->request->query('person');
+		$id = $this->request->getQuery('person');
 		if (!$id) {
 			$id = $this->UserCache->currentId();
 		}
@@ -289,7 +289,7 @@ class AllController extends AppController {
 	}
 
 	public function language() {
-		$lang = $this->request->query('lang');
+		$lang = $this->request->getQuery('lang');
 		if (!empty($lang)) {
 			$this->request->session()->write('Config.language', $lang);
 			if (Configure::read('Perm.is_logged_in')) {

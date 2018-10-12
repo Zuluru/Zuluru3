@@ -166,8 +166,8 @@ if (!$this->fetch('javascript_variables') && method_exists($this->Html, 'iconImg
 		'zuluru_close' => __('Close'),
 		'zuluru_open_help' => __('Open this help page in a new window'),
 	];
-	if ($this->request->param('_csrfToken')) {
-		$vars['zuluru_csrf_token'] = $this->request->param('_csrfToken');
+	if ($this->request->getParam('_csrfToken')) {
+		$vars['zuluru_csrf_token'] = $this->request->getParam('_csrfToken');
 	}
 
 	echo $this->Html->scriptBlock(implode("\n", array_map(function ($var, $value) {
@@ -296,7 +296,6 @@ $this->end();
 if (!$this->fetch('common_flash')) {
 	$this->start('common_flash');
 	if (isset($this->Flash)) {
-		echo $this->Flash->render('auth');
 		echo $this->Flash->render();
 		echo $this->Flash->render('email');
 	}

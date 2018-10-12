@@ -22,7 +22,7 @@
 	public function delete() {
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('<%= $singularName %>');
+		$id = $this->request->getQuery('<%= $singularName %>');
 		$dependencies = $this-><%= $currentModelName; %>->dependencies($id);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this <%= strtolower($singularHumanName) %>, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);

@@ -21,7 +21,7 @@ class FacilitiesController extends AppController {
 	protected function _publicActions() {
 		if (Configure::read('Perm.is_manager')) {
 			// If a facility id is specified, check if we're a manager of that facility's affiliate
-			$facility = $this->request->query('facility');
+			$facility = $this->request->getQuery('facility');
 			if ($facility) {
 				if (!in_array($this->Facilities->affiliate($facility), $this->UserCache->read('ManagedAffiliateIDs'))) {
 					Configure::write('Perm.is_manager', false);
@@ -45,7 +45,7 @@ class FacilitiesController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'add',
 					'add_field',
 					'closed',
@@ -54,14 +54,14 @@ class FacilitiesController extends AppController {
 				}
 
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'edit',
 					'open',
 					'close',
 					'delete',
 				])) {
 					// If a facility id is specified, check if we're a manager of that facility's affiliate
-					$facility = $this->request->query('facility');
+					$facility = $this->request->getQuery('facility');
 					if ($facility) {
 						if (in_array($this->Facilities->affiliate($facility), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -149,7 +149,7 @@ class FacilitiesController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->query('facility');
+		$id = $this->request->getQuery('facility');
 		try {
 			$facility = $this->Facilities->get($id, [
 				'contain' => [
@@ -216,7 +216,7 @@ class FacilitiesController extends AppController {
 		}
 		$this->set(compact('facility', 'regions', 'affiliates'));
 		$this->_loadAddressOptions();
-		$this->set('region', $this->request->query('region'));
+		$this->set('region', $this->request->getQuery('region'));
 		$this->render('edit');
 	}
 
@@ -226,7 +226,7 @@ class FacilitiesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->query('facility');
+		$id = $this->request->getQuery('facility');
 		try {
 			$facility = $this->Facilities->get($id, [
 				'contain' => [
@@ -269,7 +269,7 @@ class FacilitiesController extends AppController {
 		])->toArray();
 		$this->set(compact('facility', 'regions', 'affiliates'));
 		$this->_loadAddressOptions();
-		$this->set('region', $this->request->query('region'));
+		$this->set('region', $this->request->getQuery('region'));
 	}
 
 	/**
@@ -293,7 +293,7 @@ class FacilitiesController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('facility');
+		$id = $this->request->getQuery('facility');
 		try {
 			$facility = $this->Facilities->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -322,7 +322,7 @@ class FacilitiesController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('facility');
+		$id = $this->request->getQuery('facility');
 		try {
 			$facility = $this->Facilities->get($id, [
 				'contain' => ['Fields'],
@@ -357,7 +357,7 @@ class FacilitiesController extends AppController {
 	public function delete() {
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('facility');
+		$id = $this->request->getQuery('facility');
 		$dependencies = $this->Facilities->dependencies($id, [], ['Fields']);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this facility, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);

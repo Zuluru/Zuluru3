@@ -76,7 +76,7 @@ class UserCache {
 
 		if ($this->my_id) {
 			// Check for a temporary "act as" request.
-			$act_as = $request->query('act_as');
+			$act_as = $request->getQuery('act_as');
 			if ($act_as) {
 				if ($act_as == $session->read('Zuluru.zuluru_person_id')) {
 					$session->delete('Zuluru.act_as_id');

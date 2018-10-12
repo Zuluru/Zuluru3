@@ -44,7 +44,7 @@ class ZuluruGameHelper extends Helper {
 							__('Submit Stats'),
 							['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $team_id]);
 					}
-					if (($this->request->params['controller'] != 'Games' || $this->request->params['action'] != 'stats') && (Configure::read('Perm.is_logged_in') || Configure::read('feature.public'))) {
+					if (($this->request->getParam('controller') != 'Games' || $this->request->getParam('action') != 'stats') && (Configure::read('Perm.is_logged_in') || Configure::read('feature.public'))) {
 						$links[] = $this->ZuluruHtml->iconLink('stats_24.png',
 							['controller' => 'Games', 'action' => 'stats', 'game' => $game->id, 'team' => $show_score_for_team],
 							['alt' => __('Game Stats'), 'title' => __('Game Stats')]);

@@ -27,7 +27,7 @@ class FranchisesController extends AppController {
 
 		if (Configure::read('Perm.is_manager')) {
 			// If a franchise id is specified, check if we're a manager of that franchise's affiliate
-			$franchise = $this->request->query('franchise');
+			$franchise = $this->request->getQuery('franchise');
 			if ($franchise) {
 				if (!in_array($this->Franchises->affiliate($franchise), $this->UserCache->read('ManagedAffiliateIDs'))) {
 					Configure::write('Perm.is_manager', false);
@@ -55,7 +55,7 @@ class FranchisesController extends AppController {
 			}
 
 			// People can perform these operations on franchises they run
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'edit',
 				'delete',
 				'add_owner',
@@ -63,7 +63,7 @@ class FranchisesController extends AppController {
 				'remove_owner',
 			])) {
 				// If a franchise id is specified, check if we're the owner of that franchise
-				$franchise = $this->request->query('franchise');
+				$franchise = $this->request->getQuery('franchise');
 				if ($franchise && in_array($franchise, $this->UserCache->read('FranchiseIDs'))) {
 					return true;
 				}
@@ -79,21 +79,21 @@ class FranchisesController extends AppController {
 			}
 
 			// Anyone that's logged in can perform these operations
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'add',
 			])) {
 				return true;
 			}
 
 			// People can perform these operations on teams they run
-			if (in_array($this->request->params['action'], [
+			if (in_array($this->request->getParam('action'), [
 				'add_team',
 			])) {
 				// If a franchise id is specified, check if we're an owner of that franchise
-				$franchise = $this->request->query('franchise');
+				$franchise = $this->request->getQuery('franchise');
 				if ($franchise && in_array($franchise, $this->UserCache->read('FranchiseIDs'))) {
 					// If no team id is specified, or if we're the owner of the specified team, we can proceed
-					$team = $this->request->query('team');
+					$team = $this->request->getQuery('team');
 					if (!$team || in_array($team, $this->UserCache->read('AllOwnedTeamIDs'))) {
 						return true;
 					}
@@ -117,7 +117,7 @@ class FranchisesController extends AppController {
 			throw new MethodNotAllowedException('Franchises are not enabled on this system.');
 		}
 
-		$affiliate = $this->request->query('affiliate');
+		$affiliate = $this->request->getQuery('affiliate');
 		$affiliates = $this->_applicableAffiliateIDs();
 		$this->set(compact('affiliates', 'affiliate'));
 
@@ -148,13 +148,13 @@ class FranchisesController extends AppController {
 			throw new MethodNotAllowedException('Franchises are not enabled on this system.');
 		}
 
-		$letter = strtoupper($this->request->query('letter'));
+		$letter = strtoupper($this->request->getQuery('letter'));
 		if (!$letter) {
 			$this->Flash->info(__('Invalid letter.'));
 			return $this->redirect(['action' => 'index']);
 		}
 
-		$affiliate = $this->request->query('affiliate');
+		$affiliate = $this->request->getQuery('affiliate');
 		$affiliates = $this->_applicableAffiliateIDs();
 		$this->set(compact('letter', 'affiliates', 'affiliate'));
 
@@ -190,7 +190,7 @@ class FranchisesController extends AppController {
 			throw new MethodNotAllowedException('Franchises are not enabled on this system.');
 		}
 
-		$id = $this->request->query('franchise');
+		$id = $this->request->getQuery('franchise');
 		try {
 			$franchise = $this->Franchises->get($id, [
 				'contain' => [
@@ -251,7 +251,7 @@ class FranchisesController extends AppController {
 			throw new MethodNotAllowedException('Franchises are not enabled on this system.');
 		}
 
-		$id = $this->request->query('franchise');
+		$id = $this->request->getQuery('franchise');
 		try {
 			$franchise = $this->Franchises->get($id, [
 				'contain' => ['People']
@@ -292,7 +292,7 @@ class FranchisesController extends AppController {
 
 		$this->request->allowMethod(['post', 'delete']);
 
-		$id = $this->request->query('franchise');
+		$id = $this->request->getQuery('franchise');
 		$dependencies = $this->Franchises->dependencies($id, ['People']);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this franchise, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
@@ -333,7 +333,7 @@ class FranchisesController extends AppController {
 			throw new MethodNotAllowedException('Franchises are not enabled on this system.');
 		}
 
-		$id = $this->request->query('franchise');
+		$id = $this->request->getQuery('franchise');
 		try {
 			$franchise = $this->Franchises->get($id, [
 				'contain' => [
@@ -387,7 +387,7 @@ class FranchisesController extends AppController {
 
 		$this->request->allowMethod(['post']);
 
-		$id = $this->request->query('franchise');
+		$id = $this->request->getQuery('franchise');
 		try {
 			$franchise = $this->Franchises->get($id, [
 				'contain' => [
@@ -405,7 +405,7 @@ class FranchisesController extends AppController {
 
 		$this->Configuration->loadAffiliate($franchise->affiliate_id);
 
-		$team_id = $this->request->query('team');
+		$team_id = $this->request->getQuery('team');
 		if (!$team_id) {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect(['action' => 'view', 'franchise' => $id]);
@@ -465,7 +465,7 @@ class FranchisesController extends AppController {
 			throw new MethodNotAllowedException('Franchises are not enabled on this system.');
 		}
 
-		$id = $this->request->query('franchise');
+		$id = $this->request->getQuery('franchise');
 		try {
 			$franchise = $this->Franchises->get($id, [
 				'contain' => [
@@ -484,7 +484,7 @@ class FranchisesController extends AppController {
 
 		$this->set(compact('franchise'));
 
-		$person_id = $this->request->query('person');
+		$person_id = $this->request->getQuery('person');
 		if ($person_id != null) {
 			try {
 				$person = $this->Franchises->People->get($person_id, [
@@ -534,8 +534,8 @@ class FranchisesController extends AppController {
 
 		$this->request->allowMethod(['post']);
 
-		$id = $this->request->query('franchise');
-		$person_id = $this->request->query('person');
+		$id = $this->request->getQuery('franchise');
+		$person_id = $this->request->getQuery('person');
 		try {
 			$franchise = $this->Franchises->get($id, [
 				'contain' => [

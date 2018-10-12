@@ -26,11 +26,11 @@ class MapsController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'edit',
 				])) {
 					// If a field id is specified, check if we're a manager of that field's affiliate
-					$field = $this->request->query('field');
+					$field = $this->request->getQuery('field');
 					if ($field) {
 						if (in_array($this->Fields->affiliate($field), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -49,7 +49,7 @@ class MapsController extends AppController {
 
 	public function index() {
 		if (Configure::read('Perm.is_admin')) {
-			$closed = $this->request->query('closed');
+			$closed = $this->request->getQuery('closed');
 		} else {
 			$closed = false;
 		}
@@ -89,7 +89,7 @@ class MapsController extends AppController {
 	}
 
 	public function view() {
-		$id = $this->request->query('field');
+		$id = $this->request->getQuery('field');
 
 		try {
 			$facilities_table = TableRegistry::get('Facilities');
@@ -137,7 +137,7 @@ class MapsController extends AppController {
 	}
 
 	public function edit() {
-		$id = $this->request->query('field');
+		$id = $this->request->getQuery('field');
 
 		try {
 			$facilities_table = TableRegistry::get('Facilities');

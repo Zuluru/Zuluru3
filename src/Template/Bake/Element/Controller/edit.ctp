@@ -24,7 +24,7 @@ $compact = ["'" . $singularName . "'"];
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->query('<%= $singularName %>');
+		$id = $this->request->getQuery('<%= $singularName %>');
 		try {
 			$<%= $singularName %> = $this-><%= $currentModelName %>->get($id, [
 				'contain' => [<%= $this->Bake->stringifyList($belongsToMany, ['indent' => false]) %>]

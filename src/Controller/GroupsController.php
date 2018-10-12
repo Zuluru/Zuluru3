@@ -29,7 +29,7 @@ class GroupsController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('group');
+		$id = $this->request->getQuery('group');
 		try {
 			$group = $this->Groups->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -58,7 +58,7 @@ class GroupsController extends AppController {
 		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$id = $this->request->query('group');
+		$id = $this->request->getQuery('group');
 		try {
 			$group = $this->Groups->get($id);
 		} catch (RecordNotFoundException $ex) {

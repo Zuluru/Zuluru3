@@ -14,7 +14,7 @@ use Cake\ORM\TableRegistry;
 class DeactivateAccountsTask extends Shell {
 
 	public function main() {
-		$event = new CakeEvent('Controller.initialize', $this);
+		$event = new CakeEvent('Configuration.initialize', $this);
 		EventManager::instance()->dispatch($event);
 
 		$people_table = TableRegistry::get('People');
@@ -87,7 +87,9 @@ class DeactivateAccountsTask extends Shell {
 			$to_deactivate->andWhere(['id NOT IN' => array_unique($recent_people)]);
 		}
 
-		$people_table->removeBehavior('Timestamp');
+		if ($people_table->hasBehavior('Timestamp')) {
+			$people_table->removeBehavior('Timestamp');
+		}
 		foreach ($to_deactivate as $person) {
 			$person->status = 'inactive';
 			$people_table->save($person, ['checkRules' => false]);

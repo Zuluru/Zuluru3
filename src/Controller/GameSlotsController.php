@@ -28,11 +28,11 @@ class GameSlotsController extends AppController {
 
 			if (Configure::read('Perm.is_manager')) {
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'add',
 				])) {
 					// If an affiliate id is specified, check if we're a manager of that affiliate
-					$affiliate = $this->request->query('affiliate');
+					$affiliate = $this->request->getQuery('affiliate');
 					if ($affiliate && in_array($affiliate, $this->UserCache->read('ManagedAffiliateIDs'))) {
 						return true;
 					} else {
@@ -40,7 +40,7 @@ class GameSlotsController extends AppController {
 					}
 
 					// If a field id is specified, check if we're a manager of that field
-					$field = $this->request->query('field');
+					$field = $this->request->getQuery('field');
 					if ($field) {
 						if (in_array($this->GameSlots->Fields->affiliate($field), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -51,14 +51,14 @@ class GameSlotsController extends AppController {
 				}
 
 				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->params['action'], [
+				if (in_array($this->request->getParam('action'), [
 					'edit',
 					'view',
 					'delete',
 					'submit_score',
 				])) {
 					// If a game slot id is specified, check if we're a manager of that game slot's affiliate
-					$slot = $this->request->query('slot');
+					$slot = $this->request->getQuery('slot');
 					if ($slot) {
 						if (in_array($this->GameSlots->affiliate($slot), $this->UserCache->read('ManagedAffiliateIDs'))) {
 							return true;
@@ -87,7 +87,7 @@ class GameSlotsController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->query('slot');
+		$id = $this->request->getQuery('slot');
 		try {
 			$game_slot = $this->GameSlots->get($id, [
 				'contain' => [
@@ -120,9 +120,9 @@ class GameSlotsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
-		$field = $this->request->query('field');
+		$field = $this->request->getQuery('field');
 		if (Configure::read('feature.affiliates')) {
-			$affiliate = $this->request->query('affiliate');
+			$affiliate = $this->request->getQuery('affiliate');
 			if (!$affiliate && !$field) {
 				$this->Flash->info(__('Invalid affiliate.'));
 				return $this->redirect('/');
@@ -326,7 +326,7 @@ class GameSlotsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->query('slot');
+		$id = $this->request->getQuery('slot');
 		try {
 			$game_slot = $this->GameSlots->get($id, [
 				'contain' => ['Divisions', 'Fields']
@@ -376,7 +376,7 @@ class GameSlotsController extends AppController {
 		$this->request->allowMethod(['post', 'delete']);
 
 		try {
-			$game_slot = $this->GameSlots->get($this->request->query('slot'));
+			$game_slot = $this->GameSlots->get($this->request->getQuery('slot'));
 		} catch (RecordNotFoundException $ex) {
 			$this->Flash->info(__('Invalid game slot.'));
 			return $this->redirect('/');
@@ -397,7 +397,7 @@ class GameSlotsController extends AppController {
 	}
 
 	public function TODOLATER_submit_score() {
-		$id = $this->request->query('slot');
+		$id = $this->request->getQuery('slot');
 		$this->GameSlot->contain([
 				'Game' => [
 					'HomeTeam',

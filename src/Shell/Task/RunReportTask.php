@@ -18,7 +18,7 @@ use Cake\ORM\TableRegistry;
 class RunReportTask extends Shell {
 
 	public function main() {
-		$event = new CakeEvent('Controller.initialize', $this);
+		$event = new CakeEvent('Configuration.initialize', $this);
 		EventManager::instance()->dispatch($event);
 
 		$this->reports_table = TableRegistry::get('Reports');
