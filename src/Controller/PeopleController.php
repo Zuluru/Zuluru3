@@ -1716,7 +1716,7 @@ class PeopleController extends AppController {
 			$this->People->Uploads->behaviors()->get('Upload')->config([
 				'filename' => [
 					// Callbacks for adjusting the file name before saving. Both are required. :-(
-					'nameCallback' => function ($data) use ($filename) {
+					'nameCallback' => function (Table $table, Entity $entity, $data, $field, $settings) use ($filename) {
 						$f = new File($data['name']);
 						return $filename . '.' . strtolower($f->ext());
 					},
