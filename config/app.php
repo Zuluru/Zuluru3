@@ -295,6 +295,7 @@ return [
 		'exceptionRenderer' => 'Cake\Error\ExceptionRenderer',
 		'skipLog' => [
 			'Cake\Network\Exception\GoneException',
+			'Cake\Routing\Exception\MissingControllerException',
 		],
 		'log' => true,
 		'trace' => true,
