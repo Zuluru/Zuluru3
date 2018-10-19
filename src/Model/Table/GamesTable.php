@@ -423,11 +423,19 @@ class GamesTable extends AppTable {
 			if ($game_slot) {
 				// TODO: Use lazy loading to eliminate this?
 				if ($entity->dirty('home_team_id')) {
-					$entity->home_team = $this->HomeTeam->get($entity->home_team_id);
+					if ($entity->home_team_id) {
+						$entity->home_team = $this->HomeTeam->get($entity->home_team_id);
+					} else {
+						$entity->home_team = null;
+					}
 					$entity->dirty('home_team', false);
 				}
 				if ($entity->dirty('away_team_id')) {
-					$entity->away_team = $this->AwayTeam->get($entity->away_team_id);
+					if ($entity->away_team_id) {
+						$entity->away_team = $this->AwayTeam->get($entity->away_team_id);
+					} else {
+						$entity->away_team = null;
+					}
 					$entity->dirty('away_team', false);
 				}
 
