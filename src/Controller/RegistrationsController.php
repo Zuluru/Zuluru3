@@ -1109,9 +1109,14 @@ class RegistrationsController extends AppController {
 			$registrations = $this->Registrations->find()
 				->contain(['Payments' => ['RegistrationAudits']])
 				->where(['Registrations.id IN' => $registration_ids]);
+			if ($registrations->count() != count($registration_ids)) {
+				$this->Flash->warning(__('A registration in this email could not be loaded.'));
+				return;
+			}
 			if ($registrations->some(function (Registration $registration) {
-				if ($registration->payment == 'Paid') {}
-				return !empty($registration->payments);
+				if ($registration->payment == 'Paid') {
+					return !empty($registration->payments);
+				}
 			})) {
 				$this->Flash->warning(__('A registration in this email has already been marked as paid. All registrations must be unpaid before this can proceed.'));
 				return;
