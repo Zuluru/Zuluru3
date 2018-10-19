@@ -902,7 +902,7 @@ if (in_array('uploads', $visible_properties)):
 				<tr>
 					<td><?= $upload->upload_type->name ?></td>
 <?php
-			if ($document->approved):
+			if ($upload->approved):
 ?>
 					<td><?= $this->Time->date($upload->valid_from) ?></td>
 					<td><?= $this->Time->date($upload->valid_until) ?></td>
