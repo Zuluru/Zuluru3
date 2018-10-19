@@ -1436,6 +1436,7 @@ class DivisionsController extends AppController {
 			->find('played')
 			->contain([
 				'SpiritEntries' => ['MostSpirited'],
+				'ScoreEntries',
 				'Incidents',
 			])
 			->where([

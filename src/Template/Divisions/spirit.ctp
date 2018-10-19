@@ -1,6 +1,11 @@
 <?php
 use Cake\Core\Configure;
 
+/**
+ * @type \App\Model\Entity\Division $division
+ * @type \App\Module\Spirit $spirit_obj
+ */
+
 $this->Html->addCrumb(__('Divisions'));
 $this->Html->addCrumb($division->full_league_name);
 $this->Html->addCrumb(__('Spirit Report'));
@@ -28,6 +33,8 @@ if (Configure::read('scoring.missing_score_spirit_penalty')) {
 	$questions[] = 'score_entry_penalty';
 }
 
+$gender_ratio_options = Configure::read('scoring.gender_ratio') ? Configure::read("sports.{$division->league->sport}.gender_ratio.{$division->ratio_rule}") : null;
+
 $team_ids = collection($division->teams)->extract('id')->toArray();
 if (!empty($team_ids)) {
 	$team_records = [];
@@ -42,6 +49,7 @@ if (!empty($team_ids)) {
 					$team_records[$id] = [
 						'details' => $game->$team,
 						'summary' => array_fill_keys($questions, null),
+						'gender' => $gender_ratio_options ? array_fill_keys(array_keys($gender_ratio_options), 0) : null,
 						'games' => 0,
 					];
 				}
@@ -52,6 +60,13 @@ if (!empty($team_ids)) {
 					++ $team_records[$id]['games'];
 					foreach ($questions as $question) {
 						$team_records[$id]['summary'][$question] += $spirit_entry[$question];
+					}
+				}
+
+				if ($gender_ratio_options) {
+					$score_entry = $game->getScoreEntry($game->$opp->id);
+					if ($score_entry && !empty($score_entry->gender_ratio)) {
+						++ $team_records[$id]['gender'][$score_entry->gender_ratio];
 					}
 				}
 			}
@@ -334,6 +349,46 @@ echo $this->Html->tag('div',
 	$this->Html->tag('table', $this->Html->tableHeaders($header) . $this->Html->tableCells($rows), ['class' => 'table table-striped table-hover table-condensed']),
 	['class' => 'table-responsive']
 );
+
+if ($gender_ratio_options):
+	$team_records = collection($team_records)->sortBy('details.name', SORT_ASC, SORT_STRING | SORT_FLAG_CASE);
+?>
+
+<h3><?= __('Team Gender Ratio Summary') ?></h3>
+
+<?php
+	$header = $gender_ratio_options;
+	array_unshift($header, __('Team'));
+	$rows = [];
+	$overall = array_fill_keys(array_keys($gender_ratio_options), []);
+	foreach ($team_records as $team) {
+		$row = array_values($team['gender']);
+		array_unshift($row, $this->element('Teams/block', ['team' => $team['details'], 'show_shirt' => false]));
+		$rows[] = $row;
+
+		foreach (array_keys($gender_ratio_options) as $key) {
+			$overall[$key][] = $team['gender'][$key];
+		}
+	}
+
+	$average = [[__('Division average'), ['class' => 'summary']]];
+	$stddev = [[__('Division std dev'), ['class' => 'summary']]];
+	foreach ($overall as $col) {
+		$average[] = [sprintf('%0.2f', array_sum($col) / $team_count), ['class' => 'summary']];
+		if (count($col) > 1) {
+			$stddev[] = [sprintf('%0.2f', stats_standard_deviation($col)), ['class' => 'summary']];
+		} else {
+			$stddev[] = __('N/A');
+		}
+	}
+	$rows[] = $average;
+	$rows[] = $stddev;
+
+	echo $this->Html->tag('div',
+		$this->Html->tag('table', $this->Html->tableHeaders($header) . $this->Html->tableCells($rows), ['class' => 'table table-striped table-hover table-condensed']),
+		['class' => 'table-responsive']
+	);
+endif;
 ?>
 
 </div>

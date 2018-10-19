@@ -1,6 +1,11 @@
 <?php
 use Cake\Core\Configure;
 
+/**
+ * @type \App\Model\Entity\Division $division
+ * @type \App\Module\Spirit $spirit_obj
+ */
+
 $fp = fopen('php://output','w+');
 $header = [
 	__('Team'),
