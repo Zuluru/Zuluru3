@@ -1,5 +1,6 @@
 <?php
 use App\Controller\AppController;
+use App\Core\UserCache;
 use Cake\Core\Configure;
 
 if (!isset($format)) {
@@ -8,6 +9,9 @@ if (!isset($format)) {
 if (!isset($size)) {
 	$size = ($format == 'links' ? 24 : 32);
 }
+
+$divisions = UserCache::getInstance()->read('DivisionIDs');
+$is_event_coordinator = !empty($event->division_id) && !empty($divisions) && in_array($event->division_id, $divisions);
 
 $links = $more = [];
 
@@ -72,7 +76,9 @@ if (Configure::read('Perm.is_admin') || $is_event_manager) {
 	$more[__('List Preregistrations')] = [
 		'url' => ['controller' => 'Preregistrations', 'action' => 'index', 'event' => $event->id],
 	];
+}
 
+if (Configure::read('Perm.is_admin') || $is_event_manager || $is_event_coordinator) {
 	if ($this->request->getParam('controller') != 'Registrations' || $this->request->getParam('action') != 'summary') {
 		$more[__('Registration Summary')] = [
 			'url' => ['controller' => 'Registrations', 'action' => 'summary', 'event' => $event->id],
