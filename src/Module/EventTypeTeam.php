@@ -89,7 +89,7 @@ class EventTypeTeam extends EventType {
 					$teams = $teams_model->find()
 						->contain('Franchises')
 						->where([
-							'Teams.id IN' => UserCache::getInstance()->read('TeamIDs', $user_id),
+							'Teams.id IN' => UserCache::getInstance()->read('AllTeamIDs', $user_id),
 							'Teams.division_id IN' => $event->division->season_divisions,
 						])
 						->toArray();
