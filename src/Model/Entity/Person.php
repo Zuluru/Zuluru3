@@ -297,6 +297,7 @@ class Person extends Entity {
 		// These are player fields, which might not be present if the one being merged is a parent
 		$preserve_if_new_is_empty = ['gender', 'gender_description', 'roster_designation', 'birthdate', 'height', 'shirt_size'];
 
+		$new->updateHidden(['is_coordinator' => false, 'is_captain' => false, 'is_me' => false, 'is_relative' => false]);
 		foreach ($new->visibleProperties() as $prop) {
 			if ($this->accessible($prop) && !in_array($prop, $preserve)) {
 				if (is_array($new->$prop)) {
