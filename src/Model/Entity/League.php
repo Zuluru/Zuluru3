@@ -127,6 +127,10 @@ class League extends Entity {
 		if (!Configure::read('scoring.stat_tracking')) {
 			return false;
 		}
+		if ($this->schedule_type == 'none') {
+			return false;
+		}
+
 		return ($this->stat_tracking != 'never');
 	}
 
