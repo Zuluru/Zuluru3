@@ -99,9 +99,7 @@ else:
 		</table>
 	</div>
 	<nav class="paginator"><ul class="pagination">
-		<?= $this->Paginator->numbers(['prev' => true, 'next' => true, 'templates' => [
-			'number' => '<li><a href="{{url}}" rel="nofollow">{{text}}</a></li>',
-		]]) ?>
+		<?= $this->Paginator->numbers(['prev' => true, 'next' => true]) ?>
 	</ul></nav>
 <?php
 endif;
