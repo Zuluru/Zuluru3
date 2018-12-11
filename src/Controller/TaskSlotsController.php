@@ -151,7 +151,9 @@ class TaskSlotsController extends AppController {
 
 		$this->set('calendar_type', 'Task');
 		$this->set('calendar_name', 'Task');
+		$this->response->download("$id.ics");
 		$this->set(compact('task_slot'));
+		$this->RequestHandler->ext = 'ics';
 	}
 
 	/**
