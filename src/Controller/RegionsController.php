@@ -136,9 +136,7 @@ class RegionsController extends AppController {
 	public function edit() {
 		$id = $this->request->getQuery('region');
 		try {
-			$region = $this->Regions->get($id, [
-				'contain' => []
-			]);
+			$region = $this->Regions->get($id);
 		} catch (RecordNotFoundException $ex) {
 			$this->Flash->info(__('Invalid region.'));
 			return $this->redirect(['action' => 'index']);

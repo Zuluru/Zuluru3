@@ -231,9 +231,7 @@ class TeamEventsTable extends AppTable {
 	public function createAttendance($team, $event_id, $date) {
 		// Find event details
 		try {
-			$event = $this->get($event_id, [
-				'contain' => []
-			]);
+			$event = $this->get($event_id);
 		} catch (RecordNotFoundException $ex) {
 			return;
 		} catch (InvalidPrimaryKeyException $ex) {

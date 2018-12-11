@@ -328,7 +328,6 @@ class UsersController extends AppController {
 						}
 						if (!empty($data['Person']['id'])) {
 							$matches = $this->Person->find('count', [
-									'contain' => [],
 									'conditions' => ['id' => $data['Person']['id']],
 							]);
 							if ($matches) {
@@ -344,7 +343,6 @@ class UsersController extends AppController {
 								while (true) {
 									if (!in_array($user_name, $succeeded) && !in_array($user_name, $resolved)) {
 										$matches = $users_table->find('count', [
-												'contain' => [],
 												'conditions' => [$users_table->userField => $user_name],
 										]);
 										if (!$matches) {

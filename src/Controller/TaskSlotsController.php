@@ -212,9 +212,7 @@ class TaskSlotsController extends AppController {
 
 		$id = $this->request->getQuery('slot');
 		try {
-			$task_slot = $this->TaskSlots->get($id, [
-				'contain' => []
-			]);
+			$task_slot = $this->TaskSlots->get($id);
 		} catch (RecordNotFoundException $ex) {
 			$this->Flash->info(__('Invalid task slot.'));
 			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);

@@ -101,9 +101,7 @@ class HolidaysController extends AppController {
 	public function edit() {
 		$id = $this->request->getQuery('holiday');
 		try {
-			$holiday = $this->Holidays->get($id, [
-				'contain' => []
-			]);
+			$holiday = $this->Holidays->get($id);
 		} catch (RecordNotFoundException $ex) {
 			$this->Flash->info(__('Invalid holiday.'));
 			return $this->redirect(['action' => 'index']);

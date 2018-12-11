@@ -160,9 +160,7 @@ class CategoriesController extends AppController {
 
 		$id = $this->request->getQuery('category');
 		try {
-			$category = $this->Categories->get($id, [
-				'contain' => []
-			]);
+			$category = $this->Categories->get($id);
 		} catch (RecordNotFoundException  $ex) {
 			$this->Flash->info(__('Invalid category.'));
 			return $this->redirect(['action' => 'index']);

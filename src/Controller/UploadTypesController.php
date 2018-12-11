@@ -157,9 +157,7 @@ class UploadTypesController extends AppController {
 
 		$id = $this->request->getQuery('type');
 		try {
-			$upload_type = $this->UploadTypes->get($id, [
-				'contain' => []
-			]);
+			$upload_type = $this->UploadTypes->get($id);
 		} catch (RecordNotFoundException $ex) {
 			$this->Flash->info(__('Invalid upload type.'));
 			return $this->redirect(['action' => 'index']);
