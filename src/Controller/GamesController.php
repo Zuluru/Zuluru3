@@ -857,7 +857,7 @@ class GamesController extends AppController {
 
 		if (!$this->request->getQuery('force')) {
 			if ($game->isFinalized()) {
-				$msg = __('The score for this game has already been finalized.');
+				$msg = __('The score for that game has already been finalized.');
 			}
 			if (!empty($game->score_entries)) {
 				$msg = __('A score has already been submitted for this game.');
