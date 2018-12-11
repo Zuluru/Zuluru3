@@ -1353,9 +1353,10 @@ class DivisionsController extends AppController {
 		if (!$min) {
 			$min = 2;
 		}
-		$allstars = TableRegistry::get('GamesAllstars')->find()
+		$allstars_table = TableRegistry::get('GamesAllstars');
+		$allstars = $allstars_table->find()
 			->select(['count' => 'COUNT(GamesAllstars.score_entry_id)'])
-			->select($this->People)
+			->select($allstars_table->People)
 			->contain([
 				'ScoreEntries' => ['Games'],
 				'People',
