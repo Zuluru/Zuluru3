@@ -66,7 +66,7 @@ if (Configure::read('Perm.is_logged_in')) {
 <?php
 if (Configure::read('feature.registration')):
 ?>
-<h2>Registration</h2>
+<h2><?= __('Registration') ?></h2>
 <?php
 	echo $this->element('Help/topics', [
 		'section' => 'registration',
@@ -78,7 +78,7 @@ if (Configure::read('feature.registration')):
 	]);
 endif;
 ?>
-<h2>Teams</h2>
+<h2><?= __('Teams') ?></h2>
 <?php
 echo $this->element('Help/topics', [
 	'section' => 'teams',

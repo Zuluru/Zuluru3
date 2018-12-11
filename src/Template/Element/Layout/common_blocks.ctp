@@ -314,7 +314,8 @@ if (!$this->fetch('powered_by')):
 			$this->Html->link(ZULURU, 'https://zuluru.org/'),
 			ZULURU_MAJOR, ZULURU_MINOR, ZULURU_REVISION) . ' | ';
 		$body = htmlspecialchars(__('I found a bug in {0}', Router::url(Router::normalize($this->request->here()), true)));
-		echo $this->Html->link(__('Report a bug'), 'mailto:' . Configure::read('email.support_email') . '?subject=' . ZULURU . "%20Bug&body=$body") . ' on this page';
+		echo __('{0} on this page',
+			$this->Html->link(__('Report a bug'), 'mailto:' . Configure::read('email.support_email') . '?subject=' . ZULURU . "%20Bug&body=$body"));
 		echo ' | ' . $this->Html->link($this->Html->image('facebook.png'), 'https://facebook.com/Zuluru', ['escape' => false, 'target' => 'facebook']) . ' ' .
 			$this->Html->link(__('Follow Zuluru on Facebook'), 'https://facebook.com/Zuluru', ['target' => 'facebook']);
 	?></p>

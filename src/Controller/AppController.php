@@ -940,7 +940,7 @@ class AppController extends Controller {
 				$this->_addMenuItem(__('Upload document'), ['controller' => 'People', 'action' => 'document_upload'], __('My Profile'));
 			}
 			if (Configure::read('App.urls.privacyPolicy')) {
-				$this->_addMenuItem(__('Privacy policy'), Configure::read('App.urls.privacyPolicy'), 'My Profile');
+				$this->_addMenuItem(__('Privacy policy'), Configure::read('App.urls.privacyPolicy'), __('My Profile'));
 			}
 		}
 
@@ -1318,11 +1318,11 @@ class AppController extends Controller {
 	 */
 	protected function _initPersonalMenu($id = null, $name = null) {
 		if ($id) {
-			$this->_addMenuItem(__('View'), ['controller' => 'People', 'action' => 'view', 'act_as' => $id], ['My Profile', $name]);
-			$this->_addMenuItem(__('Edit'), ['controller' => 'People', 'action' => 'edit', 'act_as' => $id], ['My Profile', $name]);
-			$this->_addMenuItem(__('Preferences'), ['controller' => 'People', 'action' => 'preferences', 'act_as' => $id], ['My Profile', $name]);
-			$this->_addMenuItem(__('Waiver history'), ['controller' => 'People', 'action' => 'waivers', 'act_as' => $id], ['My Profile', $name]);
-			$this->_addMenuItem(__('Upload photo'), ['controller' => 'People', 'action' => 'photo_upload', 'act_as' => $id], ['My Profile', $name]);
+			$this->_addMenuItem(__('View'), ['controller' => 'People', 'action' => 'view', 'act_as' => $id], [__('My Profile'), $name]);
+			$this->_addMenuItem(__('Edit'), ['controller' => 'People', 'action' => 'edit', 'act_as' => $id], [__('My Profile'), $name]);
+			$this->_addMenuItem(__('Preferences'), ['controller' => 'People', 'action' => 'preferences', 'act_as' => $id], [__('My Profile'), $name]);
+			$this->_addMenuItem(__('Waiver history'), ['controller' => 'People', 'action' => 'waivers', 'act_as' => $id], [__('My Profile'), $name]);
+			$this->_addMenuItem(__('Upload photo'), ['controller' => 'People', 'action' => 'photo_upload', 'act_as' => $id], [__('My Profile'), $name]);
 
 			if (Configure::read('feature.registration')) {
 				if (!empty($this->UserCache->read('RegistrationsCanPay', $id))) {
