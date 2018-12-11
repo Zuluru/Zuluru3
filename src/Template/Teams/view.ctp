@@ -521,7 +521,7 @@ if (!empty($team->people) && (Configure::read('Perm.is_logged_in') || Configure:
 		!in_array($team->division->ratio_rule, ['mens', 'womens'])
 	):
 ?>
-	<p class="warning-message"><?= __('Notice: All teams are required to have a minimum of 1 man and 1 woman Captain (or Coach, where applicable) on their team roster. This does not include \'Assistant\' Captains, of which there is no minimum requirement. Your team roster is not considered valid until this corrected. To change a player\'s \'role\' please click on the role next to the player\'s name (e.g. Regular Player) and change to \'Captain\' or \'Coach\'.') ?></p>
+	<p class="warning-message"><?= __('Notice: All teams are required to have a minimum of 1 open and 1 woman Captain (or Coach, where applicable) on their team roster. This does not include \'Assistant\' Captains, of which there is no minimum requirement. Your team roster is not considered valid until this corrected. To change a player\'s \'role\' please click on the role next to the player\'s name (e.g. Regular Player) and change to \'Captain\' or \'Coach\'.') ?></p>
 <?php
 	endif;
 ?>
