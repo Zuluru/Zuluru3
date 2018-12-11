@@ -45,15 +45,15 @@ class RoundRobinRecord {
 		// What type of result was this?
 		if ($score_for > $score_against) {
 			++ $this->wins;
-			$streak_type = __('W');
+			$streak_type = __x('standings', 'W');
 			$points = $sport_obj->winValue();
 		} else if ($score_for < $score_against) {
 			++ $this->losses;
-			$streak_type = __('L');
+			$streak_type = __x('standings', 'L');
 			$points = $sport_obj->lossValue();
 		} else {
 			++ $this->ties;
-			$streak_type = __('T');
+			$streak_type = __x('standings', 'T');
 			$points = $sport_obj->tieValue();
 		}
 

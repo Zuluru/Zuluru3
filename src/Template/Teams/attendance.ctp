@@ -151,7 +151,7 @@ if ($team->display_gender):
 		foreach (array_keys($all_items) as $key) {
 			foreach ([Configure::read('gender.woman'), Configure::read('gender.man')] as $gender) {
 				if ($count[$status][$key][$gender]) {
-					$counts[$key][] = $count[$status][$key][$gender] . substr(__($gender), 0, 1);
+					$counts[$key][] = $count[$status][$key][$gender] . substr(__x('gender', $gender), 0, 1);
 				}
 			}
 		}

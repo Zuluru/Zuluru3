@@ -69,7 +69,7 @@ if ($display_gender):
 				$counts = [];
 				foreach ([Configure::read('gender.woman'), Configure::read('gender.man')] as $gender) {
 					if ($count[$status][$gender]) {
-						$counts[] = $count[$status][$gender] . substr(__($gender), 0, 1);
+						$counts[] = $count[$status][$gender] . substr(__x('gender', $gender), 0, 1);
 					}
 				}
 				if (!empty($counts)) {

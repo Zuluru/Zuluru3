@@ -20,7 +20,7 @@ foreach ($allstars as $allstar) {
 	// TODO: Eliminate gender breakdown for non-admin users, if we open up permissions
 	if ($allstar->person->$column != $gender) {
 		$gender = $allstar->person->$column;
-		$rows[] = [[$this->Html->tag('h3', __($gender)), ['colspan' => 3]]];
+		$rows[] = [[$this->Html->tag('h3', __x('gender', $gender)), ['colspan' => 3]]];
 	}
 	$rows[] = [
 		$this->element('People/block', ['person' => $allstar->person]),

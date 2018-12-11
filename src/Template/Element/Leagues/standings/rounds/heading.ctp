@@ -28,32 +28,32 @@ endif;
 <?php
 if ($division->current_round != 1):
 ?>
-	<th title="<?= __('Wins') ?>"><?= __('W') ?></th>
-	<th title="<?= __('Losses') ?>"><?= __('L') ?></th>
-	<th title="<?= __('Ties') ?>"><?= __('T') ?></th>
-	<th title="<?= __('Defaults') ?>"><?= __('D') ?></th>
-	<th title="<?= __('Points') ?>"><?= __('P') ?></th>
-	<th title="<?= __('Goals For') ?>"><?= __('GF') ?></th>
-	<th title="<?= __('Goals Against') ?>"><?= __('GA') ?></th>
-	<th title="<?= __('Plus/Minus') ?>"><?= __('+/-') ?></th>
+	<th title="<?= __('Wins') ?>"><?= __x('standings', 'W') ?></th>
+	<th title="<?= __('Losses') ?>"><?= __x('standings', 'L') ?></th>
+	<th title="<?= __('Ties') ?>"><?= __x('standings', 'T') ?></th>
+	<th title="<?= __('Defaults') ?>"><?= __x('standings', 'D') ?></th>
+	<th title="<?= __('Points') ?>"><?= __x('standings', 'P') ?></th>
+	<th title="<?= __('Goals For') ?>"><?= __x('standings', 'GF') ?></th>
+	<th title="<?= __('Goals Against') ?>"><?= __x('standings', 'GA') ?></th>
+	<th title="<?= __('Plus/Minus') ?>"><?= __x('standings', '+/-') ?></th>
 <?php
 endif;
 ?>
-	<th title="<?= __('Wins') ?>"><?= __('W') ?></th>
-	<th title="<?= __('Losses') ?>"><?= __('L') ?></th>
-	<th title="<?= __('Ties') ?>"><?= __('T') ?></th>
-	<th title="<?= __('Defaults') ?>"><?= __('D') ?></th>
-	<th title="<?= __('Points') ?>"><?= __('P') ?></th>
-	<th title="<?= __('Goals For') ?>"><?= __('GF') ?></th>
-	<th title="<?= __('Goals Against') ?>"><?= __('GA') ?></th>
-	<th title="<?= __('Plus/Minus') ?>"><?= __('+/-') ?></th>
+	<th title="<?= __('Wins') ?>"><?= __x('standings', 'W') ?></th>
+	<th title="<?= __('Losses') ?>"><?= __x('standings', 'L') ?></th>
+	<th title="<?= __('Ties') ?>"><?= __x('standings', 'T') ?></th>
+	<th title="<?= __('Defaults') ?>"><?= __x('standings', 'D') ?></th>
+	<th title="<?= __('Points') ?>"><?= __x('standings', 'P') ?></th>
+	<th title="<?= __('Goals For') ?>"><?= __x('standings', 'GF') ?></th>
+	<th title="<?= __('Goals Against') ?>"><?= __x('standings', 'GA') ?></th>
+	<th title="<?= __('Plus/Minus') ?>"><?= __x('standings', '+/-') ?></th>
 <?php
 if ($league->hasCarbonFlip()):
 ?>
-	<th title="<?= __('Wins') ?>"><?= __('W') ?></th>
-	<th title="<?= __('Losses') ?>"><?= __('L') ?></th>
-	<th title="<?= __('Ties') ?>"><?= __('T') ?></th>
-	<th title="<?= __('Average') ?>"><?= __('A') ?></th>
+	<th title="<?= __('Wins') ?>"><?= __x('standings', 'W') ?></th>
+	<th title="<?= __('Losses') ?>"><?= __x('standings', 'L') ?></th>
+	<th title="<?= __('Ties') ?>"><?= __x('standings', 'T') ?></th>
+	<th title="<?= __('Average') ?>"><?= __x('standings', 'A') ?></th>
 <?php
 endif;
 ?>

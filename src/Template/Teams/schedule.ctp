@@ -160,7 +160,7 @@ if (!empty($team['games'])):
 				}
 				krsort($counts);
 				$counts = collection($counts)->map(function ($count, $gender) {
-					return $count . substr(__($gender), 0, 1);
+					return $count . substr(__x('gender', $gender), 0, 1);
 				})->toArray();
 				echo implode(' / ', $counts);
 			}

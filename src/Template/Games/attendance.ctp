@@ -47,7 +47,7 @@ if ($display_gender):
 			foreach ([Configure::read('gender.woman'), Configure::read('gender.man')] as $gender) {
 				if ($count[$status][$gender]) {
 					// TODOFUO: Better option than the substr method, that's going to break
-					$counts[] = $count[$status][$gender] . substr(__($gender), 0, 1);
+					$counts[] = $count[$status][$gender] . substr(__x('gender', $gender), 0, 1);
 				}
 			}
 			if (!empty($counts)) {

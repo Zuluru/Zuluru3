@@ -21,7 +21,7 @@ foreach ($summary as $status => $genders) {
 	$text = '';
 	foreach ($genders as $gender => $players) {
 		if (!empty($players)) {
-			$text .= '<br />' . count($players) . ' ' . __($gender) . ': ' . implode(', ', $players);
+			$text .= '<br />' . count($players) . ' ' . __x('gender', $gender) . ': ' . implode(', ', $players);
 		}
 	}
 	if (!empty($text)) {

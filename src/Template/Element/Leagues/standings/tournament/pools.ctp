@@ -191,10 +191,10 @@ foreach ($games as $stage_id => $stage):
 							$class = ' class="unpublished"';
 						}
 ?>
-					<td<?= $class ?>><?= $this->Html->link($game->home_pool_team->alias . __('v') . $game->away_pool_team->alias, ['controller' => 'Games', 'action' => 'view', 'game' => $game->id]) ?></td>
+					<td<?= $class ?>><?= $this->Html->link($game->home_pool_team->alias . __x('standings', 'v') . $game->away_pool_team->alias, ['controller' => 'Games', 'action' => 'view', 'game' => $game->id]) ?></td>
 					<td<?= $class ?>><?php
 						if ($game->isFinalized()) {
-							echo $game->home_score . '-' . $game->away_score . ' ' . __('(F)');
+							echo $game->home_score . '-' . $game->away_score . ' ' . __x('standings', '(F)');
 						} else {
 							$entry = $game->getBestScoreEntry();
 							if ($entry) {

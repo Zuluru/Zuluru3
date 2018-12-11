@@ -23,7 +23,7 @@ foreach ($summary as $status => $genders) {
 	$text = '';
 	foreach ($genders as $gender => $players) {
 		if (!empty($players)) {
-			$text .= "\n" . count($players) . ' ' . __($gender) . ': ' . implode(', ', $players);
+			$text .= "\n" . count($players) . ' ' . __x('gender', $gender) . ': ' . implode(', ', $players);
 		}
 	}
 	if (!empty($text)) {
