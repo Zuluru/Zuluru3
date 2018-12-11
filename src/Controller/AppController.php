@@ -1782,8 +1782,7 @@ class AppController extends Controller {
 				$groups = [$groups];
 			}
 		} else {
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
+			$groups = UserCache::getInstance()->read('Groups', $person->id);
 		}
 		if (!collection($groups)->some(function ($group) {
 			return $group->id == GROUP_PLAYER;
