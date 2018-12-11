@@ -2409,10 +2409,10 @@ class TeamsController extends AppController {
 			}
 
 			$this->Flash->success(__('You have accepted this roster {0}.',
-				($person->_joinData->status == ROSTER_INVITED) ? __('invitation') : __('request')));
+				($oldStatus == ROSTER_INVITED) ? __('invitation') : __('request')));
 		} else {
 			$this->Flash->warning(__('The database failed to save the acceptance of this roster {0}.',
-				($person->_joinData->status == ROSTER_INVITED) ? __('invitation') : __('request')));
+				($oldStatus == ROSTER_INVITED) ? __('invitation') : __('request')));
 		}
 		return $this->redirect(['action' => 'view', 'team' => $team->id]);
 	}
