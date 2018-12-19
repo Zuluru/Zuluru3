@@ -72,6 +72,17 @@ if (!empty($team->division_id)):
 	?></dd>
 <?php
 endif;
+
+if (!empty($team->notes)):
+?>
+	<dt><?= __('Notes') ?></dt>
+	<dd><?php
+		foreach ($team->notes as $note) {
+			echo $note->note;
+		}
+	?></dd>
+<?php
+endif;
 ?>
 
 </dl>

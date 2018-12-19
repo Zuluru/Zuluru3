@@ -37,3 +37,9 @@ if ($this->Authorize->can('view_contacts', $person)) {
 		}
 	}
 }
+
+if (!empty($person->notes)) {
+	foreach ($person->notes as $note) {
+		echo $note->note;
+	}
+}
