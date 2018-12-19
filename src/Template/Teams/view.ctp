@@ -1,16 +1,17 @@
 <?php
-use Cake\Core\Configure;
-
 /**
  * @type \App\Model\Entity\Team $team
- * @type bool $is_coordinator
- * @type bool $is_captain
- * @type bool $can_edit_roster
  */
+
+use App\Authorization\ContextResource;
+use Cake\Core\Configure;
 
 $this->Html->addCrumb(__('Team'));
 $this->Html->addCrumb(h($team->name));
 $this->Html->addCrumb(__('View'));
+
+$identity = $this->Authorize->getIdentity();
+$context = new ContextResource($team, ['league' => $team->division->league, 'division' => $team->division, 'stat_types' => $team->division->league->stat_types]);
 ?>
 
 <div class="teams view">
@@ -85,16 +86,13 @@ endif;
 			echo $team->open_roster ? __('Open') : __('Closed');
 			echo ' ' . $this->Html->help(['action' => 'teams', 'edit', 'open_roster']);
 		?></dd>
-<?php
-if (Configure::read('feature.attendance')):
-?>
 		<dt><?= __('Track Attendance') ?></dt>
 		<dd><?php
 			echo $team->track_attendance ? __('Yes') : __('No');
 			echo ' ' . $this->Html->help(['action' => 'teams', 'edit', 'track_attendance']);
 		?></dd>
 <?php
-	if ($team->track_attendance):
+if ($team->track_attendance):
 ?>
 		<dt><?= __('Attendance Reminder') ?></dt>
 		<dd><?php
@@ -157,7 +155,6 @@ if (Configure::read('feature.attendance')):
 		}
 		?></dd>
 <?php
-	endif;
 endif;
 
 // TODO: Use an element to output this, for greater flexibility. Show the seed where appropriate.
@@ -221,15 +218,13 @@ if (!empty($team->notes)):
 					<td><?= $note->note ?></td>
 					<td><?= __(Configure::read("visibility.{$note->visibility}")) ?></td>
 					<td class="actions"><?php
-						if ($note->created_person_id == Configure::read('Perm.my_id')) {
+						if ($this->Authorize->can('edit_team', $note)) {
 							echo $this->Html->iconLink('edit_24.png',
 								['action' => 'note', 'note' => $note->id],
 								['alt' => __('Edit Note'), 'title' => __('Edit Note')]
 							);
 						}
-						// Admins and coordinators are the only ones that can see those notes (loaded or
-						// not based on conditions in the controller), and they can delete them too.
-						if ($note->created_person_id == Configure::read('Perm.my_id') || in_array($note->visibility, [VISIBILITY_ADMIN, VISIBILITY_COORDINATOR])) {
+						if ($this->Authorize->can('delete_team', $note)) {
 							echo $this->Form->iconPostLink('delete_24.png',
 								['action' => 'delete_note', 'note' => $note->id],
 								['alt' => __('Delete'), 'title' => __('Delete Note')],
@@ -252,21 +247,24 @@ endif;
 <div class="actions columns">
 <?php
 $extra = [];
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator || $is_captain) {
+if ($this->Authorize->can('download', $team)) {
 	$extra[__('Download')] = [
 		'url' => ['action' => 'view', 'team' => $team->id, '_ext' => 'csv'],
 	];
-	if ($team->division_id && Configure::read('scoring.stat_tracking') && $team->division->league->hasStats()) {
-		$extra[__('Stat Sheet')] = [
-			'url' => ['action' => 'stat_sheet', 'team' => $team->id],
-		];
-	}
+}
+
+if ($team->division_id && $this->Authorize->can('stat_sheet', $context)) {
+	$extra[__('Stat Sheet')] = [
+		'url' => ['action' => 'stat_sheet', 'team' => $team->id],
+	];
 }
 
 $has_numbers = Configure::read('feature.shirt_numbers') && $team->has('people') && collection($team->people)->some(function ($person) {
 	return $person->_joinData->number != null;
 });
-if (Configure::read('feature.shirt_numbers') && !$has_numbers && $can_edit_roster === true) {
+if (Configure::read('feature.shirt_numbers') && !$has_numbers &&
+	$this->Authorize->can('numbers', $context)
+) {
 	$extra[__('Jersey Numbers')] = [
 		'url' => ['action' => 'numbers', 'team' => $team->id],
 	];
@@ -281,13 +279,13 @@ if (empty($team->division_id)) {
 </div>
 
 <?php
-if (is_string($can_edit_roster)):
+if (isset($warning_message)):
 ?>
-<p class="warning-message"><?= $can_edit_roster ?></p>
+<p class="warning-message"><?= $warning_message ?></p>
 <?php
 endif;
 
-if (!empty($team->people) && (Configure::read('Perm.is_logged_in') || Configure::read('feature.public'))):
+if (!empty($team->people) && $this->Authorize->can('view_roster', \App\Controller\TeamsController::class)):
 ?>
 <div class="related row">
 	<div class="column">
@@ -318,7 +316,7 @@ if (!empty($team->people) && (Configure::read('Perm.is_logged_in') || Configure:
 		++$cols;
 	endif;
 
-	$display_gender = $team->display_gender;
+	$display_gender = $this->Authorize->can('display_gender', $context);
 	if ($display_gender):
 		$column = Configure::read('gender.column');
 ?>
@@ -334,7 +332,7 @@ if (!empty($team->people) && (Configure::read('Perm.is_logged_in') || Configure:
 		++$cols;
 	endif;
 
-	if (Configure::read('feature.badges') && Configure::read('Perm.is_logged_in')):
+	if ($this->Authorize->can('index', \App\Controller\BadgesController::class)):
 ?>
 						<th><?= __('Badges') ?></th>
 <?php
@@ -355,7 +353,7 @@ if (!empty($team->people) && (Configure::read('Perm.is_logged_in') || Configure:
 	}
 	foreach ($team->people as $person):
 		// Maybe add a warning
-		if (Configure::read('Perm.is_logged_in') && $person->can_add !== true && !$warning):
+		if ($identity && $identity->isLoggedIn() && $person->can_add !== true && !$warning):
 			$warning = true;
 			$class = ' class="warning-message"';
 ?>
@@ -397,7 +395,7 @@ if (!empty($team->people) && (Configure::read('Perm.is_logged_in') || Configure:
 			++$captains[$person->roster_designation];
 		}
 
-		if (Configure::read('Perm.is_logged_in')) {
+		if ($identity && $identity->isLoggedIn()) {
 			$conflicts = [];
 			if ($team->division_id) {
 				if (Configure::read('feature.registration') && $team->division->flag_membership && !$person->is_a_member) {
@@ -422,7 +420,7 @@ if (!empty($team->people) && (Configure::read('Perm.is_logged_in') || Configure:
 ?>
 						<td><?php
 							echo $this->element('People/block', compact('person'));
-							if (Configure::read('Perm.is_logged_in') && !empty($conflicts)) {
+							if ($identity && $identity->isLoggedIn() && !empty($conflicts)) {
 								echo $this->Html->tag('div',
 									'(' . implode(', ', $conflicts) . ')',
 									['class' => 'warning-message']);
@@ -430,7 +428,7 @@ if (!empty($team->people) && (Configure::read('Perm.is_logged_in') || Configure:
 						?></td>
 						<td<?= $warning ? ' class="warning-message"' : '' ?>><?php
 							echo $this->element('People/roster_role', ['roster' => $person->_joinData, 'division' => $team->division]);
-							if (Configure::read('Perm.is_logged_in') && $person->can_add !== true) {
+							if ($identity && $identity->isLoggedIn() && $person->can_add !== true) {
 								echo ' ' . $this->Html->iconImg('help_16.png', ['title' => $this->Html->formatMessage($person->can_add, null, true), 'alt' => '?']);
 							}
 						?></td>
@@ -453,11 +451,11 @@ if (!empty($team->people) && (Configure::read('Perm.is_logged_in') || Configure:
 <?php
 		endif;
 
-		if (Configure::read('feature.badges') && Configure::read('Perm.is_logged_in')):
+		if ($this->Authorize->can('index', \App\Controller\BadgesController::class)):
 ?>
 						<td><?php
 							foreach ($person->badges as $badge) {
-								if (($badge->visibility == BADGE_VISIBILITY_ADMIN && (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager'))) || $badge->visibility == BADGE_VISIBILITY_HIGH) {
+								if ($this->Authorize->can('view', $badge)) {
 									echo $this->Html->iconLink("{$badge->icon}_32.png", ['controller' => 'Badges', 'action' => 'view', 'badge' => $badge->id],
 										['alt' => $badge->name, 'title' => $badge->description]);
 								}
@@ -486,7 +484,7 @@ if (!empty($team->people) && (Configure::read('Perm.is_logged_in') || Configure:
 						<td><?= sprintf("%.2f", $skill_total / $skill_count) ?></td>
 						<td></td>
 <?php
-		if (Configure::read('feature.badges') && Configure::read('Perm.is_logged_in')):
+		if ($this->Authorize->can('index', \App\Controller\BadgesController::class)):
 ?>
 						<td></td>
 <?php
@@ -502,7 +500,7 @@ if (!empty($team->people) && (Configure::read('Perm.is_logged_in') || Configure:
 	</div>
 
 <?php
-	if ((Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator || $is_captain) && $roster_count < $roster_required && !$team->division->roster_deadline_passed):
+	if ($this->Authorize->can('add_player', $context) && $roster_count < $roster_required && !$team->division->roster_deadline_passed):
 ?>
 	<p class="warning-message"><?php
 		if ($team->division_id && !$team->division->is_playoff) {
@@ -515,7 +513,7 @@ if (!empty($team->people) && (Configure::read('Perm.is_logged_in') || Configure:
 	endif;
 
 	if ($team->division_id && ($team->division->is_open || $team->division->open->isFuture()) &&
-		(Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator || $is_captain) &&
+		$this->Authorize->can('roster_role', $context) &&
 		Configure::read('feature.female_captain') &&
 		($captains['Open'] == 0 || $captains['Woman'] == 0) &&
 		!in_array($team->division->ratio_rule, ['mens', 'womens'])

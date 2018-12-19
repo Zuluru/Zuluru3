@@ -14,7 +14,7 @@ $this->Html->addCrumb(__('View'));
 		<dt><?= __('Description') ?></dt>
 		<dd><?= $task->description ?></dd>
 <?php
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
+if ($this->Authorize->can('edit', $task)):
 ?>
 		<dt><?= __('Notes') ?></dt>
 		<dd><?= $task->notes ?></dd>
@@ -36,7 +36,7 @@ endif;
 echo $this->Html->tag('li', $this->Html->iconLink('view_32.png',
 	['action' => 'index'],
 	['alt' => __('List'), 'title' => __('List Tasks')]));
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+if ($this->Authorize->can('edit', $task)) {
 	echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
 		['action' => 'edit', 'task' => $task->id],
 		['alt' => __('Edit'), 'title' => __('Edit Task')]));
@@ -76,7 +76,7 @@ if (!empty($task->task_slots)):
 				<tbody>
 <?php
 	foreach ($task->task_slots as $task_slot) {
-		echo $this->element('Tasks/row', compact('task_slot'));
+		echo $this->element('Tasks/row', compact('task', 'task_slot'));
 	}
 ?>
 				</tbody>

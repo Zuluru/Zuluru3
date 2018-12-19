@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
 
@@ -35,6 +36,7 @@ class EventsControllerTest extends ControllerTestCase {
 					'app.divisions_days',
 					'app.game_slots',
 						'app.divisions_gameslots',
+					'app.divisions_people',
 			'app.franchises',
 				'app.franchises_teams',
 			'app.questionnaires',
@@ -51,286 +53,170 @@ class EventsControllerTest extends ControllerTestCase {
 	];
 
 	/**
-	 * Test index method as an admin
+	 * Test index method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsAdmin() {
+	public function testIndex() {
+		FrozenDate::setTestNow(new FrozenDate('first Monday of April'));
+
 		// Admins are allowed to view the index, with full edit permissions
-		$this->assertAccessOk(['controller' => 'Events', 'action' => 'index'], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/events/view\?event=' . EVENT_ID_LEAGUE_TEAM . '#ms');
-		$this->assertResponseRegExp('#/events/edit\?event=' . EVENT_ID_LEAGUE_TEAM . '#ms');
-		$this->assertResponseRegExp('#/events/delete\?event=' . EVENT_ID_LEAGUE_TEAM . '#ms');
-		$this->assertResponseRegExp('#/events/view\?event=' . EVENT_ID_LEAGUE_INDIVIDUAL_SUB . '#ms');
-		$this->assertResponseRegExp('#/events/edit\?event=' . EVENT_ID_LEAGUE_INDIVIDUAL_SUB . '#ms');
-		$this->assertResponseRegExp('#/events/delete\?event=' . EVENT_ID_LEAGUE_INDIVIDUAL_SUB . '#ms');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'index'], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/events/view?event=' . EVENT_ID_LEAGUE_TEAM);
+		$this->assertResponseContains('/events/edit?event=' . EVENT_ID_LEAGUE_TEAM);
+		$this->assertResponseContains('/events/delete?event=' . EVENT_ID_LEAGUE_TEAM);
+		$this->assertResponseContains('/events/view?event=' . EVENT_ID_LEAGUE_INDIVIDUAL_SUB);
+		$this->assertResponseContains('/events/edit?event=' . EVENT_ID_LEAGUE_INDIVIDUAL_SUB);
+		$this->assertResponseContains('/events/delete?event=' . EVENT_ID_LEAGUE_INDIVIDUAL_SUB);
 
-	/**
-	 * Test index method as a manager
-	 *
-	 * @return void
-	 */
-	public function testIndexAsManager() {
 		// Managers are allowed to view the index
-		$this->assertAccessOk(['controller' => 'Events', 'action' => 'index'], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/events/view\?event=' . EVENT_ID_LEAGUE_TEAM . '#ms');
-		$this->assertResponseRegExp('#/events/edit\?event=' . EVENT_ID_LEAGUE_TEAM . '#ms');
-		$this->assertResponseRegExp('#/events/delete\?event=' . EVENT_ID_LEAGUE_TEAM . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'index'], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/events/view?event=' . EVENT_ID_LEAGUE_TEAM);
+		$this->assertResponseContains('/events/edit?event=' . EVENT_ID_LEAGUE_TEAM);
+		$this->assertResponseContains('/events/delete?event=' . EVENT_ID_LEAGUE_TEAM);
 
-		// But cannot edit ones in other affiliates
+		// But are not allowed to edit ones in other affiliates
 		$this->session(['Zuluru.CurrentAffiliate' => AFFILIATE_ID_SUB]);
-		$this->assertAccessOk(['controller' => 'Events', 'action' => 'index'], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/events/view\?event=' . EVENT_ID_LEAGUE_INDIVIDUAL_SUB . '#ms');
-		$this->assertResponseNotRegExp('#/events/edit\?event=' . EVENT_ID_LEAGUE_INDIVIDUAL_SUB . '#ms');
-		$this->assertResponseNotRegExp('#/events/delete\?event=' . EVENT_ID_LEAGUE_INDIVIDUAL_SUB . '#ms');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'index'], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/events/view?event=' . EVENT_ID_LEAGUE_INDIVIDUAL_SUB);
+		$this->assertResponseNotContains('/events/edit?event=' . EVENT_ID_LEAGUE_INDIVIDUAL_SUB);
+		$this->assertResponseNotContains('/events/delete?event=' . EVENT_ID_LEAGUE_INDIVIDUAL_SUB);
+		$this->logout(); // clear that session setting
 
-	/**
-	 * Test index method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testIndexAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method as a captain
-	 *
-	 * @return void
-	 */
-	public function testIndexAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method as a player
-	 *
-	 * @return void
-	 */
-	public function testIndexAsPlayer() {
 		// Others are allowed to view the index, but have no edit permissions
-		$this->assertAccessOk(['controller' => 'Events', 'action' => 'index'], PERSON_ID_PLAYER);
-		$this->assertResponseRegExp('#/events/view\?event=' . EVENT_ID_LEAGUE_TEAM . '#ms');
-		$this->assertResponseNotRegExp('#/events/edit\?event=' . EVENT_ID_LEAGUE_TEAM . '#ms');
-		$this->assertResponseNotRegExp('#/events/delete\?event=' . EVENT_ID_LEAGUE_TEAM . '#ms');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'index'], PERSON_ID_COORDINATOR);
+		$this->assertResponseContains('/events/view?event=' . EVENT_ID_LEAGUE_TEAM);
+		$this->assertResponseNotContains('/events/edit?event=' . EVENT_ID_LEAGUE_TEAM);
+		$this->assertResponseNotContains('/events/delete?event=' . EVENT_ID_LEAGUE_TEAM);
 
-	/**
-	 * Test index method as someone else
-	 *
-	 * @return void
-	 */
-	public function testIndexAsVisitor() {
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'index'], PERSON_ID_CAPTAIN);
+		$this->assertResponseContains('/events/view?event=' . EVENT_ID_LEAGUE_TEAM);
+		$this->assertResponseNotContains('/events/edit?event=' . EVENT_ID_LEAGUE_TEAM);
+		$this->assertResponseNotContains('/events/delete?event=' . EVENT_ID_LEAGUE_TEAM);
+
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'index'], PERSON_ID_PLAYER);
+		$this->assertResponseContains('/events/view?event=' . EVENT_ID_LEAGUE_TEAM);
+		$this->assertResponseNotContains('/events/edit?event=' . EVENT_ID_LEAGUE_TEAM);
+		$this->assertResponseNotContains('/events/delete?event=' . EVENT_ID_LEAGUE_TEAM);
+
 		// Others are allowed to view the index, but have no edit permissions
-		$this->assertAccessOk(['controller' => 'Events', 'action' => 'index'], PERSON_ID_VISITOR);
-		$this->assertResponseRegExp('#/events/view\?event=' . EVENT_ID_LEAGUE_TEAM . '#ms');
-		$this->assertResponseNotRegExp('#/events/edit\?event=' . EVENT_ID_LEAGUE_TEAM . '#ms');
-		$this->assertResponseNotRegExp('#/events/delete\?event=' . EVENT_ID_LEAGUE_TEAM . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'index'], PERSON_ID_VISITOR);
+		$this->assertResponseContains('/events/view?event=' . EVENT_ID_LEAGUE_TEAM);
+		$this->assertResponseNotContains('/events/edit?event=' . EVENT_ID_LEAGUE_TEAM);
+		$this->assertResponseNotContains('/events/delete?event=' . EVENT_ID_LEAGUE_TEAM);
+
+		$this->assertGetAnonymousAccessOk(['controller' => 'Events', 'action' => 'index']);
+		$this->assertResponseContains('/events/view?event=' . EVENT_ID_LEAGUE_TEAM);
+		$this->assertResponseNotContains('/events/edit?event=' . EVENT_ID_LEAGUE_TEAM);
+		$this->assertResponseNotContains('/events/delete?event=' . EVENT_ID_LEAGUE_TEAM);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test index method without being logged in
+	 * Test wizard method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsAnonymous() {
-		// Others are allowed to view the index, but have no edit permissions
-		$this->assertAccessOk(['controller' => 'Events', 'action' => 'index']);
-		$this->assertResponseRegExp('#/events/view\?event=' . EVENT_ID_LEAGUE_TEAM . '#ms');
-		$this->assertResponseNotRegExp('#/events/edit\?event=' . EVENT_ID_LEAGUE_TEAM . '#ms');
-		$this->assertResponseNotRegExp('#/events/delete\?event=' . EVENT_ID_LEAGUE_TEAM . '#ms');
-	}
-
-	/**
-	 * Test wizard method as an admin
-	 *
-	 * @return void
-	 */
-	public function testWizardAsAdmin() {
+	public function testWizard() {
+		// The admin user here is not a player, so doesn't have access to individual or membership events.
 		FrozenTime::setTestNow(new FrozenTime('April 30 00:00:00'));
-		$this->assertAccessOk(['controller' => 'Events', 'action' => 'wizard'], PERSON_ID_ADMIN);
-		// The admin user here is not a player, so doesn't have access to individual or membership events.
-		$this->assertResponseRegExp('#/events/view\?event=' . EVENT_ID_LEAGUE_TEAM . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'wizard'], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/events/view?event=' . EVENT_ID_LEAGUE_TEAM);
 
-		FrozenTime::setTestNow(new FrozenTime('March 30 00:00:00'));
-		$this->assertAccessOk(['controller' => 'Events', 'action' => 'wizard'], PERSON_ID_ADMIN);
-		// The admin user here is not a player, so doesn't have access to individual or membership events.
 		// Admins get access to events before they open.
-		$this->assertResponseRegExp('#/events/view\?event=' . EVENT_ID_LEAGUE_TEAM . '#ms');
-	}
-
-	/**
-	 * Test wizard method as a manager
-	 *
-	 * @return void
-	 */
-	public function testWizardAsManager() {
-		FrozenTime::setTestNow(new FrozenTime('April 30 00:00:00'));
-		$this->assertAccessOk(['controller' => 'Events', 'action' => 'wizard'], PERSON_ID_MANAGER);
-		// The manager user here is not a player, so doesn't have access to individual or membership events.
-		$this->assertResponseRegExp('#/events/view\?event=' . EVENT_ID_LEAGUE_TEAM . '#ms');
-
 		FrozenTime::setTestNow(new FrozenTime('March 30 00:00:00'));
-		$this->assertAccessOk(['controller' => 'Events', 'action' => 'wizard'], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'wizard'], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/events/view?event=' . EVENT_ID_LEAGUE_TEAM);
+
 		// The manager user here is not a player, so doesn't have access to individual or membership events.
+		FrozenTime::setTestNow(new FrozenTime('April 30 00:00:00'));
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'wizard'], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/events/view?event=' . EVENT_ID_LEAGUE_TEAM);
+
 		// Managers get access to events before they open.
-		$this->assertResponseRegExp('#/events/view\?event=' . EVENT_ID_LEAGUE_TEAM . '#ms');
-	}
+		FrozenTime::setTestNow(new FrozenTime('March 30 00:00:00'));
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'wizard'], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/events/view?event=' . EVENT_ID_LEAGUE_TEAM);
 
-	/**
-	 * Test wizard method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testWizardAsCoordinator() {
-		FrozenTime::setTestNow(new FrozenTime('April 30 00:00:00'));
-		$this->assertAccessOk(['controller' => 'Events', 'action' => 'wizard'], PERSON_ID_COORDINATOR);
 		// The coordinator user here is not a player, so doesn't have access to individual or membership events.
-		$this->assertResponseRegExp('#/events/view\?event=' . EVENT_ID_LEAGUE_TEAM . '#ms');
-	}
-
-	/**
-	 * Test wizard method as a captain
-	 *
-	 * @return void
-	 */
-	public function testWizardAsCaptain() {
 		FrozenTime::setTestNow(new FrozenTime('April 30 00:00:00'));
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'wizard'], PERSON_ID_COORDINATOR);
+		$this->assertResponseContains('/events/view?event=' . EVENT_ID_LEAGUE_TEAM);
 
-		$this->assertAccessOk(['controller' => 'Events', 'action' => 'wizard'], PERSON_ID_CAPTAIN);
-		$this->assertResponseNotRegExp('#/events/wizard/membership#ms');
-		$this->assertResponseRegExp('#/events/wizard/league_team#ms');
-		$this->assertResponseRegExp('#/events/wizard/league_individual#ms');
-		$this->assertResponseNotRegExp('#/events/wizard/event_team#ms');
-		$this->assertResponseNotRegExp('#/events/wizard/event_individual#ms');
-	}
+		// Test as captain
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'wizard'], PERSON_ID_CAPTAIN);
+		$this->assertResponseNotContains('/events/wizard/membership');
+		$this->assertResponseContains('/events/wizard/league_team');
+		$this->assertResponseContains('/events/wizard/league_individual');
+		$this->assertResponseNotContains('/events/wizard/event_team');
+		$this->assertResponseNotContains('/events/wizard/event_individual');
 
-	/**
-	 * Test wizard method as a player
-	 *
-	 * @return void
-	 */
-	public function testWizardAsPlayer() {
-		FrozenTime::setTestNow(new FrozenTime('April 30 00:00:00'));
+		// Test as player
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'wizard'], PERSON_ID_PLAYER);
+		$this->assertResponseNotContains('/events/wizard/membership');
+		$this->assertResponseContains('/events/wizard/league_team');
+		$this->assertResponseContains('/events/wizard/league_individual');
+		$this->assertResponseNotContains('/events/wizard/event_team');
+		$this->assertResponseNotContains('/events/wizard/event_individual');
 
-		$this->assertAccessOk(['controller' => 'Events', 'action' => 'wizard'], PERSON_ID_PLAYER);
-		$this->assertResponseNotRegExp('#/events/wizard/membership#ms');
-		$this->assertResponseRegExp('#/events/wizard/league_team#ms');
-		$this->assertResponseRegExp('#/events/wizard/league_individual#ms');
-		$this->assertResponseNotRegExp('#/events/wizard/event_team#ms');
-		$this->assertResponseNotRegExp('#/events/wizard/event_individual#ms');
-	}
-
-	/**
-	 * Test wizard method as someone else
-	 *
-	 * @return void
-	 */
-	public function testWizardAsVisitor() {
-		FrozenTime::setTestNow(new FrozenTime('April 30 00:00:00'));
-
-		$this->assertAccessOk(['controller' => 'Events', 'action' => 'wizard'], PERSON_ID_VISITOR);
-		$this->assertResponseRegExp('#/events/wizard/membership#ms');
-		$this->assertResponseRegExp('#/events/wizard/league_team#ms');
-		$this->assertResponseRegExp('#/events/wizard/league_individual#ms');
-		$this->assertResponseNotRegExp('#/events/wizard/event_team#ms');
-		$this->assertResponseNotRegExp('#/events/wizard/event_individual#ms');
-	}
-
-	/**
-	 * Test wizard method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testWizardAsAnonymous() {
-		FrozenTime::setTestNow(new FrozenTime('April 30 00:00:00'));
+		// Test as visitor
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'wizard'], PERSON_ID_VISITOR);
+		$this->assertResponseContains('/events/wizard/membership');
+		$this->assertResponseContains('/events/wizard/league_team');
+		$this->assertResponseContains('/events/wizard/league_individual');
+		$this->assertResponseNotContains('/events/wizard/event_team');
+		$this->assertResponseNotContains('/events/wizard/event_individual');
 
 		// Wizard doesn't make sense for someone not logged in: it sends them to the event list instead
-		$this->assertAccessRedirect(['controller' => 'Events', 'action' => 'wizard'],
-			null, 'get', [], ['controller' => 'Events', 'action' => 'index'], false);
+		$this->assertGetAnonymousAccessRedirect(['controller' => 'Events', 'action' => 'wizard'],
+			['controller' => 'Events', 'action' => 'index']);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test view method as an admin
+	 * Test view method
 	 *
 	 * @return void
 	 */
-	public function testViewAsAdmin() {
+	public function testView() {
 		// Admins are allowed to view events, with full edit permissions
-		$this->assertAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/events/edit\?event=' . EVENT_ID_LEAGUE_TEAM . '#ms');
-		$this->assertResponseRegExp('#/events/delete\?event=' . EVENT_ID_LEAGUE_TEAM . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/events/edit?event=' . EVENT_ID_LEAGUE_TEAM);
+		$this->assertResponseContains('/events/delete?event=' . EVENT_ID_LEAGUE_TEAM);
 
-		$this->assertAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_SUB], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/events/edit\?event=' . EVENT_ID_LEAGUE_INDIVIDUAL_SUB . '#ms');
-		$this->assertResponseRegExp('#/events/delete\?event=' . EVENT_ID_LEAGUE_INDIVIDUAL_SUB . '#ms');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_SUB], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/events/edit?event=' . EVENT_ID_LEAGUE_INDIVIDUAL_SUB);
+		$this->assertResponseContains('/events/delete?event=' . EVENT_ID_LEAGUE_INDIVIDUAL_SUB);
 
-	/**
-	 * Test view method as a manager
-	 *
-	 * @return void
-	 */
-	public function testViewAsManager() {
 		// Managers are allowed to view events
-		$this->assertAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/events/edit\?event=' . EVENT_ID_LEAGUE_TEAM . '#ms');
-		$this->assertResponseRegExp('#/events/delete\?event=' . EVENT_ID_LEAGUE_TEAM . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/events/edit?event=' . EVENT_ID_LEAGUE_TEAM);
+		$this->assertResponseContains('/events/delete?event=' . EVENT_ID_LEAGUE_TEAM);
 
-		// But cannot edit ones in other affiliates
-		$this->assertAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_SUB], PERSON_ID_MANAGER);
-		$this->assertResponseNotRegExp('#/events/edit\?event=' . EVENT_ID_LEAGUE_INDIVIDUAL_SUB . '#ms');
-		$this->assertResponseNotRegExp('#/events/delete\?event=' . EVENT_ID_LEAGUE_INDIVIDUAL_SUB . '#ms');
-	}
+		// But are not allowed to edit ones in other affiliates
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_SUB], PERSON_ID_MANAGER);
+		$this->assertResponseNotContains('/events/edit?event=' . EVENT_ID_LEAGUE_INDIVIDUAL_SUB);
+		$this->assertResponseNotContains('/events/delete?event=' . EVENT_ID_LEAGUE_INDIVIDUAL_SUB);
 
-	/**
-	 * Test view method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testViewAsCoordinator() {
+		// Coordinators are allowed to view
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_COORDINATOR);
 		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_CAPTAIN);
 
-	/**
-	 * Test view method as a captain
-	 *
-	 * @return void
-	 */
-	public function testViewAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as a player
-	 *
-	 * @return void
-	 */
-	public function testViewAsPlayer() {
 		// Others are allowed to view events, but have no edit permissions
-		$this->assertAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_PLAYER);
-		$this->assertResponseNotRegExp('#/events/edit\?event=' . EVENT_ID_LEAGUE_TEAM . '#ms');
-		$this->assertResponseNotRegExp('#/events/delete\?event=' . EVENT_ID_LEAGUE_TEAM . '#ms');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_PLAYER);
+		$this->assertResponseNotContains('/events/edit?event=' . EVENT_ID_LEAGUE_TEAM);
+		$this->assertResponseNotContains('/events/delete?event=' . EVENT_ID_LEAGUE_TEAM);
 
-	/**
-	 * Test view method as someone else
-	 *
-	 * @return void
-	 */
-	public function testViewAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Visitors are allowed to view
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_VISITOR);
 
-	/**
-	 * Test view method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testViewAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are allowed to view
+		$this->assertGetAnonymousAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_LEAGUE_TEAM]);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -339,13 +225,13 @@ class EventsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsAdmin() {
-		// Admins can add new events anywhere
-		$this->assertAccessOk(['controller' => 'Events', 'action' => 'add'], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#<option value="1" selected="selected">Club</option>#ms');
-		$this->assertResponseRegExp('#<option value="2">Sub</option>#ms');
+		// Admins are allowed to add new events anywhere
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'add'], PERSON_ID_ADMIN);
+		$this->assertResponseContains('<option value="1" selected="selected">Club</option>');
+		$this->assertResponseContains('<option value="2">Sub</option>');
 
 		// If an event ID is given, we will clone that event
-		$this->assertAccessOk(['controller' => 'Events', 'action' => 'add', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'add', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_ADMIN);
 		$this->assertResponseRegExp('#<input type="text" name="name"[^>]*value="Membership"#ms');
 	}
 
@@ -355,58 +241,26 @@ class EventsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsManager() {
-		// Managers can add new events in their own affiliate, but not others
-		$this->assertAccessOk(['controller' => 'Events', 'action' => 'add'], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#<input type="hidden" name="affiliate_id" value="1"/>#ms');
-		$this->assertResponseNotRegExp('#<option value="2">Sub</option>#ms');
+		// Managers are allowed to add new events in their own affiliate, but not others
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'add'], PERSON_ID_MANAGER);
+		$this->assertResponseContains('<input type="hidden" name="affiliate_id" value="1"/>');
+		$this->assertResponseNotContains('<option value="2">Sub</option>');
 
-		$this->assertAccessRedirect(['controller' => 'Events', 'action' => 'add', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_SUB], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'add', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_SUB], PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test add method as a coordinator
+	 * Test add method as others
 	 *
 	 * @return void
 	 */
-	public function testAddAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as a captain
-	 *
-	 * @return void
-	 */
-	public function testAddAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as a player
-	 *
-	 * @return void
-	 */
-	public function testAddAsPlayer() {
-		// Others cannot add new events
-		$this->assertAccessRedirect(['controller' => 'Events', 'action' => 'add'], PERSON_ID_PLAYER);
-	}
-
-	/**
-	 * Test add method as someone else
-	 *
-	 * @return void
-	 */
-	public function testAddAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testAddAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testAddAsOthers() {
+		// Others are not allowed to add events
+		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'add'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'add'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'add'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'add'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Events', 'action' => 'add']);
 	}
 
 	/**
@@ -415,9 +269,9 @@ class EventsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsAdmin() {
-		// Admins can edit events anywhere
-		$this->assertAccessOk(['controller' => 'Events', 'action' => 'edit', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_ADMIN);
-		$this->assertAccessOk(['controller' => 'Events', 'action' => 'edit', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_SUB], PERSON_ID_ADMIN);
+		// Admins are allowed to edit events anywhere
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'edit', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'edit', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_SUB], PERSON_ID_ADMIN);
 	}
 
 	/**
@@ -426,181 +280,78 @@ class EventsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsManager() {
-		// Managers can edit events in their own affiliate, but not others
-		$this->assertAccessOk(['controller' => 'Events', 'action' => 'edit', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_MANAGER);
-		$this->assertAccessRedirect(['controller' => 'Events', 'action' => 'edit', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_SUB], PERSON_ID_MANAGER);
+		// Managers are allowed to edit events in their own affiliate, but not others
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'edit', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'edit', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_SUB], PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test edit method as a coordinator
+	 * Test edit method as others
 	 *
 	 * @return void
 	 */
-	public function testEditAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testEditAsOthers() {
+		// Others are not allowed to edit events
+		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'edit', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'edit', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'edit', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'edit', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Events', 'action' => 'edit', 'event' => EVENT_ID_LEAGUE_TEAM]);
 	}
 
 	/**
-	 * Test edit method as a captain
+	 * Test event_type_fields method
 	 *
 	 * @return void
 	 */
-	public function testEditAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testEventTypeFields() {
+		$this->enableCsrfToken();
+
+		// Admins are allowed to see event type fields
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Events', 'action' => 'event_type_fields'],
+			PERSON_ID_ADMIN, ['event_type_id' => EVENT_TYPE_ID_MEMBERSHIP]);
+
+		// Managers are allowed to see event type fields
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Events', 'action' => 'event_type_fields'],
+			PERSON_ID_MANAGER, ['event_type_id' => EVENT_TYPE_ID_MEMBERSHIP]);
+
+		// Others are not allowed to see event type fields
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Events', 'action' => 'event_type_fields'],
+			PERSON_ID_COORDINATOR, ['event_type_id' => EVENT_TYPE_ID_MEMBERSHIP]);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Events', 'action' => 'event_type_fields'],
+			PERSON_ID_CAPTAIN, ['event_type_id' => EVENT_TYPE_ID_MEMBERSHIP]);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Events', 'action' => 'event_type_fields'],
+			PERSON_ID_PLAYER, ['event_type_id' => EVENT_TYPE_ID_MEMBERSHIP]);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Events', 'action' => 'event_type_fields'],
+			PERSON_ID_VISITOR, ['event_type_id' => EVENT_TYPE_ID_MEMBERSHIP]);
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Events', 'action' => 'event_type_fields'],
+			['event_type_id' => EVENT_TYPE_ID_MEMBERSHIP]);
 	}
 
 	/**
-	 * Test edit method as a player
+	 * Test add_price method
 	 *
 	 * @return void
 	 */
-	public function testEditAsPlayer() {
-		// Others cannot edit events
-		$this->assertAccessRedirect(['controller' => 'Events', 'action' => 'edit', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_PLAYER);
-	}
+	public function testAddPrice() {
+		// Admins are allowed to add a price
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Events', 'action' => 'add_price'],
+			PERSON_ID_ADMIN);
 
-	/**
-	 * Test edit method as someone else
-	 *
-	 * @return void
-	 */
-	public function testEditAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Managers are allowed to add a price
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Events', 'action' => 'add_price'],
+			PERSON_ID_MANAGER);
 
-	/**
-	 * Test edit method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testEditAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test event_type_fields method as an admin
-	 *
-	 * @return void
-	 */
-	public function testEventTypeFieldsAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test event_type_fields method as a manager
-	 *
-	 * @return void
-	 */
-	public function testEventTypeFieldsAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test event_type_fields method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testEventTypeFieldsAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test event_type_fields method as a captain
-	 *
-	 * @return void
-	 */
-	public function testEventTypeFieldsAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test event_type_fields method as a player
-	 *
-	 * @return void
-	 */
-	public function testEventTypeFieldsAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test event_type_fields method as someone else
-	 *
-	 * @return void
-	 */
-	public function testEventTypeFieldsAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test event_type_fields method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testEventTypeFieldsAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_price method as an admin
-	 *
-	 * @return void
-	 */
-	public function testAddPriceAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_price method as a manager
-	 *
-	 * @return void
-	 */
-	public function testAddPriceAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_price method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testAddPriceAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_price method as a captain
-	 *
-	 * @return void
-	 */
-	public function testAddPriceAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_price method as a player
-	 *
-	 * @return void
-	 */
-	public function testAddPriceAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_price method as someone else
-	 *
-	 * @return void
-	 */
-	public function testAddPriceAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_price method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testAddPriceAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to add a price
+		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'add_price'],
+			PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'add_price'],
+			PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'add_price'],
+			PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'add_price'],
+			PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Events', 'action' => 'add_price']);
 	}
 
 	/**
@@ -613,10 +364,9 @@ class EventsControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		// Admins are allowed to delete events
-		$this->assertAccessRedirect(['controller' => 'Events', 'action' => 'delete', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_MONDAY],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Events', 'action' => 'index'],
-			'The event has been deleted.', 'Flash.flash.0.message');
-		$connections = TableRegistry::get('EventsConnections');
+		$this->assertPostAsAccessRedirect(['controller' => 'Events', 'action' => 'delete', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_MONDAY],
+			PERSON_ID_ADMIN, [], ['controller' => 'Events', 'action' => 'index'],
+			'The event has been deleted.');
 
 		// Make sure the connected event wasn't deleted, but the connection was
 		$events = TableRegistry::get('Events');
@@ -626,9 +376,9 @@ class EventsControllerTest extends ControllerTestCase {
 		$this->assertEquals(0, $query->count());
 
 		// But not ones with dependencies
-		$this->assertAccessRedirect(['controller' => 'Events', 'action' => 'delete', 'event' => EVENT_ID_MEMBERSHIP],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Events', 'action' => 'index'],
-			'#The following records reference this event, so it cannot be deleted#', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Events', 'action' => 'delete', 'event' => EVENT_ID_MEMBERSHIP],
+			PERSON_ID_ADMIN, [], ['controller' => 'Events', 'action' => 'index'],
+			'#The following records reference this event, so it cannot be deleted#');
 	}
 
 	/**
@@ -640,59 +390,35 @@ class EventsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		// Managers can delete events in their affiliate
-		$this->assertAccessRedirect(['controller' => 'Events', 'action' => 'delete', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_MONDAY],
-			PERSON_ID_MANAGER, 'post', [], ['controller' => 'Events', 'action' => 'index'],
-			'The event has been deleted.', 'Flash.flash.0.message');
+		// Managers are allowed to delete events in their affiliate
+		$this->assertPostAsAccessRedirect(['controller' => 'Events', 'action' => 'delete', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_MONDAY],
+			PERSON_ID_MANAGER, [], ['controller' => 'Events', 'action' => 'index'],
+			'The event has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Events', 'action' => 'delete', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_SUB],
-			PERSON_ID_MANAGER, 'post');
+		$this->assertPostAsAccessDenied(['controller' => 'Events', 'action' => 'delete', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_SUB],
+			PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test delete method as a coordinator
+	 * Test delete method as others
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testDeleteAsOthers() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
-	/**
-	 * Test delete method as a captain
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as a player
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to delete events
+		$this->assertPostAsAccessDenied(['controller' => 'Events', 'action' => 'delete', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_MONDAY],
+			PERSON_ID_COORDINATOR);
+		$this->assertPostAsAccessDenied(['controller' => 'Events', 'action' => 'delete', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_MONDAY],
+			PERSON_ID_CAPTAIN);
+		$this->assertPostAsAccessDenied(['controller' => 'Events', 'action' => 'delete', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_MONDAY],
+			PERSON_ID_PLAYER);
+		$this->assertPostAsAccessDenied(['controller' => 'Events', 'action' => 'delete', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_MONDAY],
+			PERSON_ID_VISITOR);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Events', 'action' => 'delete', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_MONDAY]);
 	}
 
 	/**
@@ -701,6 +427,8 @@ class EventsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testConnectionsAsAdmin() {
+		// Admins are allowed to edit event connections
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'connections', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -710,52 +438,23 @@ class EventsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testConnectionsAsManager() {
+		// Managers are allowed to edit event connections
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'connections', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test connections method as a coordinator
+	 * Test connections method as others
 	 *
 	 * @return void
 	 */
-	public function testConnectionsAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test connections method as a captain
-	 *
-	 * @return void
-	 */
-	public function testConnectionsAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test connections method as a player
-	 *
-	 * @return void
-	 */
-	public function testConnectionsAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test connections method as someone else
-	 *
-	 * @return void
-	 */
-	public function testConnectionsAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test connections method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testConnectionsAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testConnectionsAsOthers() {
+		// Others are not allowed to edit event connections
+		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'connections', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'connections', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'connections', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'connections', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Events', 'action' => 'connections', 'event' => EVENT_ID_LEAGUE_TEAM]);
 	}
 
 }

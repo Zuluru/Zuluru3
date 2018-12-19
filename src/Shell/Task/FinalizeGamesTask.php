@@ -1,6 +1,7 @@
 <?php
 namespace App\Shell\Task;
 
+use App\Middleware\ConfigurationLoader;
 use App\Model\Entity\Game;
 use Cake\Console\Shell;
 use Cake\Core\Configure;
@@ -18,9 +19,7 @@ use Cake\ORM\TableRegistry;
 class FinalizeGamesTask extends Shell {
 
 	public function main() {
-		$event = new CakeEvent('Configuration.initialize', $this);
-		EventManager::instance()->dispatch($event);
-
+		ConfigurationLoader::loadConfiguration();
 		$this->games_table = TableRegistry::get('Games');
 
 		$captain_contain = [

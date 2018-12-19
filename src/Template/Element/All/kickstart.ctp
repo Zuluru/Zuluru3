@@ -5,30 +5,19 @@ use Cake\I18n\FrozenDate;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 
-// There may be nothing to output, in which case we don't even want the wrapper div
-if ($id == Configure::read('Perm.my_id')) {
-	$this_is_admin = Configure::read('Perm.is_admin');
-	$this_is_manager = Configure::read('Perm.is_manager');
-	$this_is_player = Configure::read('Perm.is_player');
+$this->start('kickstart');
+$identity = $this->Authorize->getIdentity();
+if ($id == $identity->getIdentifier()) {
 	$act_as = null;
 } else {
-	$this_is_admin = $this_is_manager = false;
-	$this_is_player = in_array(GROUP_PLAYER, $this->UserCache->read('GroupIDs', $id));
 	$act_as = $id;
 }
 
-if (!$this_is_admin && !$this_is_manager && !($empty && $this_is_player)) {
-	return;
-}
-?>
-<div id="kick_start">
-<?php
-if ($this_is_admin):
-	if (Configure::read('feature.affiliates')):
-		if (empty($affiliates)):
-			echo $this->Html->para('warning-message', __('You have enabled the affiliate option, but have not yet created any affiliates. ') .
-				$this->Html->link(__('Create one now!'), ['controller' => 'Affiliates', 'action' => 'add', 'return' => AppController::_return()]));
-		elseif (!empty($unmanaged)):
+if ($this->Authorize->can('index', \App\Controller\AffiliatesController::class)):
+	if (empty($affiliates)):
+		echo $this->Html->para('warning-message', __('You have enabled the affiliate option, but have not yet created any affiliates. ') .
+			$this->Html->link(__('Create one now!'), ['controller' => 'Affiliates', 'action' => 'add', 'return' => AppController::_return()]));
+	elseif (!empty($unmanaged)):
 ?>
 	<p class="warning-message"><?= __('The following affiliates do not yet have managers assigned to them:') ?></p>
 	<div class="table-responsive">
@@ -41,7 +30,7 @@ if ($this_is_admin):
 			</thead>
 			<tbody>
 <?php
-			foreach ($unmanaged as $affiliate):
+		foreach ($unmanaged as $affiliate):
 ?>
 				<tr>
 					<td class="splash_item"><?= $affiliate->name ?></td>
@@ -59,19 +48,18 @@ if ($this_is_admin):
 					?></td>
 				</tr>
 <?php
-			endforeach;
+		endforeach;
 ?>
 			</tbody>
 		</table>
 	</div>
 <?php
-		endif;
 	endif;
 endif;
 
-if ($this_is_manager):
-	$my_affiliates = $this->UserCache->read('ManagedAffiliateIDs');
-	if ($this_is_admin || !empty($my_affiliates)):
+if ($identity->isManager()):
+	$my_affiliates = $identity->managedAffiliateIds();
+	if (!empty($my_affiliates)):
 		$facilities = TableRegistry::get('Facilities')->find('open', ['affiliates' => $my_affiliates]);
 		if ($facilities->count() == 0):
 			echo $this->Html->para('warning-message', __('You have no open facilities. {0}',
@@ -140,7 +128,7 @@ if ($this_is_manager):
 			}
 		}
 	endif;
-elseif ($empty && $this_is_player):
+elseif ($empty && $identity->isPlayer()):
 	// If the user has nothing going on, pull some more details to allow us to help them get started
 	$waivers = TableRegistry::get('Waivers')->find('active', ['affiliates' => $applicable_affiliates])->toArray();
 	$signed_waivers = $this->UserCache->read('Waivers', $act_as);
@@ -181,5 +169,11 @@ elseif ($empty && $this_is_player):
 		echo $this->Html->tag('div', $this->Html->nestedList($actions, ['class' => 'nav nav-pills']), ['class' => 'actions columns']);
 	}
 endif;
-?>
-</div>
+
+$this->end();
+
+// There may be nothing to output, in which case we don't even want the wrapper div
+$kickstart = $this->fetch('kickstart');
+if ($kickstart) {
+	echo $this->Html->tag('div', $kickstart, ['div id' => 'kick_start']);
+}

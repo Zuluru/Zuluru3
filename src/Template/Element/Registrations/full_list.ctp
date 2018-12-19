@@ -36,7 +36,7 @@ foreach ($registrations as $registration):
 				<tr>
 					<td><?php
 						$order = sprintf(Configure::read('registration.order_id_format'), $registration->id);
-						if (Configure::read('Perm.is_manager')) {
+						if ($this->Authorize->can('view', $registration)) {
 							echo $this->Html->link($order, ['controller' => 'Registrations', 'action' => 'view', 'registration' => $registration->id]);
 						} else {
 							echo $order;

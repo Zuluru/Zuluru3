@@ -39,38 +39,35 @@ if (Configure::read('feature.shirt_colour')) {
 	]);
 }
 
-if (Configure::read('feature.attendance')):
-	echo $this->Jquery->toggleInput('track_attendance', [
-		'type' => 'checkbox',
-		'help' => __('If selected, the system will help you to monitor attendance on a game-to-game basis.'),
-	], [
-		'selector' => '#AttendanceDetails',
-	]);
+echo $this->Jquery->toggleInput('track_attendance', [
+	'type' => 'checkbox',
+	'help' => __('If selected, the system will help you to monitor attendance on a game-to-game basis.'),
+], [
+	'selector' => '#AttendanceDetails',
+]);
 ?>
 		<fieldset id="AttendanceDetails">
 			<legend><?= __('Attendance') ?></legend>
 <?php
-	echo $this->Form->input('attendance_reminder', [
-		'size' => 1,
-		'help' => __('Reminder emails will be sent to players that have not finalized their attendance this many days before the game. 0 means the day of the game, -1 will disable these reminders.'),
-		'secure' => false,
-	]);
-	echo $this->Form->input('attendance_summary', [
-		'size' => 1,
-		'help' => __('Attendance summary emails will be sent to coaches/captains this many days before the game. 0 means the day of the game, -1 will disable these summaries.'),
-		'secure' => false,
-	]);
-	echo $this->Form->input('attendance_notification', [
-		'size' => 1,
-		'help' => __('Emails notifying coaches/captains about changes in attendance status will be sent starting this many days before the game. 0 means the day of the game, -1 will disable these notifications. You will never receive notifications about any changes that happen before this time.'),
-		'secure' => false,
-	]);
+echo $this->Form->input('attendance_reminder', [
+	'size' => 1,
+	'help' => __('Reminder emails will be sent to players that have not finalized their attendance this many days before the game. 0 means the day of the game, -1 will disable these reminders.'),
+	'secure' => false,
+]);
+echo $this->Form->input('attendance_summary', [
+	'size' => 1,
+	'help' => __('Attendance summary emails will be sent to coaches/captains this many days before the game. 0 means the day of the game, -1 will disable these summaries.'),
+	'secure' => false,
+]);
+echo $this->Form->input('attendance_notification', [
+	'size' => 1,
+	'help' => __('Emails notifying coaches/captains about changes in attendance status will be sent starting this many days before the game. 0 means the day of the game, -1 will disable these notifications. You will never receive notifications about any changes that happen before this time.'),
+	'secure' => false,
+]);
 ?>
 		</fieldset>
 <?php
-endif;
-
-$options = (Configure::read('Perm.is_admin') && Configure::read('feature.home_field')) + Configure::read('feature.facility_preference') + Configure::read('feature.region_preference');
+$options = ($this->Authorize->can('edit_home_field', $team)) + Configure::read('feature.facility_preference') + Configure::read('feature.region_preference');
 if ($options):
 ?>
 		<fieldset>
@@ -79,7 +76,7 @@ if ($options):
 				ZULURU, __(Configure::read('UI.fields')), $options > 1 ? __(', from top to bottom') : '') ?></p>
 
 <?php
-	if (Configure::read('Perm.is_admin') && Configure::read('feature.home_field')) {
+	if ($this->Authorize->can('edit_home_field', $team)) {
 		$fields = [];
 		foreach ($facilities as $facility) {
 			if (count($facility->fields) > 1) {
@@ -164,14 +161,14 @@ if (Configure::read('feature.urls')) {
 }
 
 if (Configure::read('feature.flickr')) {
-	if (Configure::read('Perm.is_admin')) {
+	if ($this->Authorize->getIdentity()->isManagerOf($team)) {
 		echo $this->Form->input('flickr_ban', [
 			'help' => __('If selected, this team\'s Flickr slideshow will no longer be shown. This is for use if teams repeatedly violate this site\'s terms of service.'),
 		]);
 	} else if ($team->flickr_ban) {
 		echo $this->Html->para('warning-message', __('Your team has been banned from using the Flickr slideshow. Contact an administrator if you believe this was done in error or would like to request a review.'));
 	}
-	if (Configure::read('Perm.is_admin') || !$team->flickr_ban) {
+	if ($this->Authorize->getIdentity()->isManagerOf($team) || !$team->flickr_ban) {
 		echo $this->Form->input('flickr_user', [
 			'help' => __('The URL for your photo set will be something like https://www.flickr.com/photos/abcdef/sets/12345678901234567/. abcdef is your username.'),
 		]);

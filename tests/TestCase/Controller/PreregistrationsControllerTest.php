@@ -22,80 +22,36 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 				'app.groups_people',
 			'app.leagues',
 				'app.divisions',
+					'app.teams',
+					'app.divisions_people',
 			'app.events',
 				'app.preregistrations',
 			'app.settings',
 	];
 
 	/**
-	 * Test index method as an admin
+	 * Test index method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsAdmin() {
-		// Admins are allowed to get the index
-		$this->assertAccessOk(['controller' => 'Preregistrations', 'action' => 'index'], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/preregistrations/delete\?preregistration=' . PREREGISTRATION_ID_ADMIN_MEMBERSHIP . '#ms');
-		$this->assertResponseRegExp('#/preregistrations/delete\?preregistration=' . PREREGISTRATION_ID_DUPLICATE_LEAGUE_INDIVIDUAL_SUB . '#ms');
+	public function testIndex() {
+		// Admins are allowed to see the index
+		$this->assertGetAsAccessOk(['controller' => 'Preregistrations', 'action' => 'index'], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/preregistrations/delete?preregistration=' . PREREGISTRATION_ID_ADMIN_MEMBERSHIP);
+		$this->assertResponseContains('/preregistrations/delete?preregistration=' . PREREGISTRATION_ID_DUPLICATE_LEAGUE_INDIVIDUAL_SUB);
 		$this->markTestIncomplete('Not implemented yet.');
-	}
 
-	/**
-	 * Test index method as a manager
-	 *
-	 * @return void
-	 */
-	public function testIndexAsManager() {
-		// Managers are allowed to get the index, but don't see preregistrations in other affiliates
-		$this->assertAccessOk(['controller' => 'Preregistrations', 'action' => 'index'], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/preregistrations/delete\?preregistration=' . PREREGISTRATION_ID_ADMIN_MEMBERSHIP . '#ms');
-		$this->assertResponseNotRegExp('#/preregistrations/delete\?preregistration=' . PREREGISTRATION_ID_DUPLICATE_LEAGUE_INDIVIDUAL_SUB . '#ms');
-	}
+		// Managers are allowed to see the index, but don't see preregistrations in other affiliates
+		$this->assertGetAsAccessOk(['controller' => 'Preregistrations', 'action' => 'index'], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/preregistrations/delete?preregistration=' . PREREGISTRATION_ID_ADMIN_MEMBERSHIP);
+		$this->assertResponseNotContains('/preregistrations/delete?preregistration=' . PREREGISTRATION_ID_DUPLICATE_LEAGUE_INDIVIDUAL_SUB);
 
-	/**
-	 * Test index method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testIndexAsCoordinator() {
-		// Others are not allowed to get the index
-		$this->assertAccessRedirect(['controller' => 'Preregistrations', 'action' => 'index'], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test index method as a captain
-	 *
-	 * @return void
-	 */
-	public function testIndexAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method as a player
-	 *
-	 * @return void
-	 */
-	public function testIndexAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method as someone else
-	 *
-	 * @return void
-	 */
-	public function testIndexAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testIndexAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to see the index
+		$this->assertGetAsAccessDenied(['controller' => 'Preregistrations', 'action' => 'index'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Preregistrations', 'action' => 'index'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Preregistrations', 'action' => 'index'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Preregistrations', 'action' => 'index'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Preregistrations', 'action' => 'index']);
 	}
 
 	/**
@@ -105,7 +61,7 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 	 */
 	public function testAddAsAdmin() {
 		// Admins are allowed to add preregistrations
-		$this->assertAccessOk(['controller' => 'Preregistrations', 'action' => 'add'], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Preregistrations', 'action' => 'add'], PERSON_ID_ADMIN);
 	}
 
 	/**
@@ -115,53 +71,21 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 	 */
 	public function testAddAsManager() {
 		// Managers are allowed to add preregistrations
-		$this->assertAccessOk(['controller' => 'Preregistrations', 'action' => 'add'], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Preregistrations', 'action' => 'add'], PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test add method as a coordinator
+	 * Test add method as others
 	 *
 	 * @return void
 	 */
-	public function testAddAsCoordinator() {
+	public function testAddAsOthers() {
 		// Others are not allowed to add preregistrations
-		$this->assertAccessRedirect(['controller' => 'Preregistrations', 'action' => 'add'], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test add method as a captain
-	 *
-	 * @return void
-	 */
-	public function testAddAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as a player
-	 *
-	 * @return void
-	 */
-	public function testAddAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as someone else
-	 *
-	 * @return void
-	 */
-	public function testAddAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testAddAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessDenied(['controller' => 'Preregistrations', 'action' => 'add'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Preregistrations', 'action' => 'add'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Preregistrations', 'action' => 'add'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Preregistrations', 'action' => 'add'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Preregistrations', 'action' => 'add']);
 	}
 
 	/**
@@ -174,9 +98,9 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		// Admins are allowed to delete preregistrations
-		$this->assertAccessRedirect(['controller' => 'Preregistrations', 'action' => 'delete', 'preregistration' => PREREGISTRATION_ID_ADMIN_MEMBERSHIP],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Preregistrations', 'action' => 'index'],
-			'The preregistration has been deleted.', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Preregistrations', 'action' => 'delete', 'preregistration' => PREREGISTRATION_ID_ADMIN_MEMBERSHIP],
+			PERSON_ID_ADMIN, [], ['controller' => 'Preregistrations', 'action' => 'index'],
+			'The preregistration has been deleted.');
 	}
 
 	/**
@@ -188,59 +112,35 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		// Managers can delete preregistrations in their affiliate
-		$this->assertAccessRedirect(['controller' => 'Preregistrations', 'action' => 'delete', 'preregistration' => PREREGISTRATION_ID_ADMIN_MEMBERSHIP],
-			PERSON_ID_MANAGER, 'post', [], ['controller' => 'Preregistrations', 'action' => 'index'],
-			'The preregistration has been deleted.', 'Flash.flash.0.message');
+		// Managers are allowed to delete preregistrations in their affiliate
+		$this->assertPostAsAccessRedirect(['controller' => 'Preregistrations', 'action' => 'delete', 'preregistration' => PREREGISTRATION_ID_ADMIN_MEMBERSHIP],
+			PERSON_ID_MANAGER, [], ['controller' => 'Preregistrations', 'action' => 'index'],
+			'The preregistration has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Preregistrations', 'action' => 'delete', 'preregistration' => PREREGISTRATION_ID_DUPLICATE_LEAGUE_INDIVIDUAL_SUB],
-			PERSON_ID_MANAGER, 'post');
+		$this->assertPostAsAccessDenied(['controller' => 'Preregistrations', 'action' => 'delete', 'preregistration' => PREREGISTRATION_ID_DUPLICATE_LEAGUE_INDIVIDUAL_SUB],
+			PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test delete method as a coordinator
+	 * Test delete method as others
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testDeleteAsOthers() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
-	/**
-	 * Test delete method as a captain
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as a player
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to delete preregistrations
+		$this->assertPostAsAccessDenied(['controller' => 'Preregistrations', 'action' => 'delete', 'preregistration' => PREREGISTRATION_ID_ADMIN_MEMBERSHIP],
+			PERSON_ID_COORDINATOR);
+		$this->assertPostAsAccessDenied(['controller' => 'Preregistrations', 'action' => 'delete', 'preregistration' => PREREGISTRATION_ID_ADMIN_MEMBERSHIP],
+			PERSON_ID_CAPTAIN);
+		$this->assertPostAsAccessDenied(['controller' => 'Preregistrations', 'action' => 'delete', 'preregistration' => PREREGISTRATION_ID_ADMIN_MEMBERSHIP],
+			PERSON_ID_PLAYER);
+		$this->assertPostAsAccessDenied(['controller' => 'Preregistrations', 'action' => 'delete', 'preregistration' => PREREGISTRATION_ID_ADMIN_MEMBERSHIP],
+			PERSON_ID_VISITOR);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Preregistrations', 'action' => 'delete', 'preregistration' => PREREGISTRATION_ID_ADMIN_MEMBERSHIP]);
 	}
 
 }

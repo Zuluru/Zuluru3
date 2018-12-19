@@ -1,7 +1,7 @@
 <?php
 namespace App\Controller;
 
-use Cake\Core\Configure;
+use App\Authorization\ContextResource;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\I18n\FrozenDate;
@@ -24,65 +24,12 @@ class WaiversController extends AppController {
 		return ['sign'];
 	}
 
-	/**
-	 * isAuthorized method
-	 *
-	 * @return bool true if access allowed
-	 */
-	public function isAuthorized() {
-		try {
-			if ($this->UserCache->read('Person.status') == 'locked') {
-				return false;
-			}
-
-			if (Configure::read('Perm.is_manager')) {
-				// Managers can perform these operations
-				if (in_array($this->request->getParam('action'), [
-					'index',
-					'add',
-				]))
-				{
-					return true;
-				}
-
-				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->getParam('action'), [
-					'view',
-					'edit',
-					'delete',
-				]))
-				{
-					// If a waiver id is specified, check if we're a manager of that waiver's affiliate
-					$waiver = $this->request->getQuery('waiver');
-					if ($waiver) {
-						if (in_array($this->Waivers->affiliate($waiver), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-				}
-			}
-
-			// Anyone that's logged in can perform these operations
-			if (in_array($this->request->getParam('action'), [
-				'sign',
-				'review',
-			]))
-			{
-				return true;
-			}
-		} catch (RecordNotFoundException $ex) {
-		} catch (InvalidPrimaryKeyException $ex) {
-		}
-
-		return false;
-	}
-
 	// TODO: Proper fix for black-holing when we add/edit waivers
 	public function beforeFilter(\Cake\Event\Event $event) {
 		parent::beforeFilter($event);
-		$this->Security->config('unlockedActions', ['add', 'edit']);
+		if (isset($this->Security)) {
+			$this->Security->config('unlockedActions', ['add', 'edit']);
+		}
 	}
 
 	/**
@@ -91,7 +38,8 @@ class WaiversController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function index() {
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->Authorization->authorize($this);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 
 		$this->paginate = [
 			'contain' => ['Affiliates'],
@@ -122,9 +70,11 @@ class WaiversController extends AppController {
 			$this->Flash->info(__('Invalid waiver.'));
 			return $this->redirect(['action' => 'index']);
 		}
+
+		$this->Authorization->authorize($waiver);
 		$this->Configuration->loadAffiliate($waiver->affiliate_id);
 
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		$this->set(compact('waiver', 'affiliates'));
 	}
 
@@ -135,6 +85,7 @@ class WaiversController extends AppController {
 	 */
 	public function add() {
 		$waiver = $this->Waivers->newEntity();
+		$this->Authorization->authorize($waiver);
 		if ($this->request->is('post')) {
 			$waiver = $this->Waivers->patchEntity($waiver, $this->request->data);
 			if ($this->Waivers->save($waiver)) {
@@ -145,7 +96,7 @@ class WaiversController extends AppController {
 				$this->Configuration->loadAffiliate($this->request->data['affiliate_id']);
 			}
 		}
-		$this->set('affiliates', $this->_applicableAffiliates(true));
+		$this->set('affiliates', $this->Authentication->applicableAffiliates(true));
 		$this->set(compact('waiver', 'affiliates'));
 		$this->render('edit');
 	}
@@ -167,6 +118,8 @@ class WaiversController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		}
 
+		$this->Authorization->authorize($waiver);
+
 		$can_edit_text = ($this->Waivers->dependencies($id) === false);
 		$this->set(compact('can_edit_text'));
 
@@ -186,7 +139,7 @@ class WaiversController extends AppController {
 		}
 		$this->Configuration->loadAffiliate($waiver->affiliate_id);
 
-		$affiliates = $this->_applicableAffiliates(true);
+		$affiliates = $this->Authentication->applicableAffiliates(true);
 		$this->set(compact('waiver', 'affiliates'));
 	}
 
@@ -199,12 +152,6 @@ class WaiversController extends AppController {
 		$this->request->allowMethod(['post', 'delete']);
 
 		$id = $this->request->getQuery('waiver');
-		$dependencies = $this->Waivers->dependencies($id);
-		if ($dependencies !== false) {
-			$this->Flash->warning(__('The following records reference this waiver, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
-			return $this->redirect(['action' => 'index']);
-		}
-
 		try {
 			$waiver = $this->Waivers->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -212,6 +159,14 @@ class WaiversController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		} catch (InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid waiver.'));
+			return $this->redirect(['action' => 'index']);
+		}
+
+		$this->Authorization->authorize($waiver);
+
+		$dependencies = $this->Waivers->dependencies($id);
+		if ($dependencies !== false) {
+			$this->Flash->warning(__('The following records reference this waiver, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
 			return $this->redirect(['action' => 'index']);
 		}
 
@@ -227,10 +182,10 @@ class WaiversController extends AppController {
 	}
 
 	public function sign() {
-		$waiver_id = $this->request->getQuery('waiver');
+		$id = $this->request->getQuery('waiver');
 
 		try {
-			$waiver = $this->Waivers->get($waiver_id);
+			$waiver = $this->Waivers->get($id);
 		} catch (RecordNotFoundException $ex) {
 			$this->Flash->info(__('Invalid waiver.'));
 			return $this->redirect('/');
@@ -238,23 +193,9 @@ class WaiversController extends AppController {
 			$this->Flash->info(__('Invalid waiver.'));
 			return $this->redirect('/');
 		}
-		if (!$waiver->active) {
-			$this->Flash->info(__('Invalid waiver.'));
-			return $this->redirect('/');
-		}
-		$this->Configuration->loadAffiliate($waiver->affiliate_id);
 
-		// Make sure they're waivering for a valid date
-		$date = $this->request->getQuery('date');
-		if (!$date) {
-			$this->Flash->info(__('Invalid waiver date.'));
-			return $this->redirect('/');
-		}
-		$date = new FrozenDate($date);
-		if (!$waiver->canSign($date)) {
-			$this->Flash->info(__('Invalid waiver date.'));
-			return $this->redirect('/');
-		}
+		$date = $this->request->getQuery('date') ? new FrozenDate($this->request->getQuery('date')) : null;
+		list($valid_from, $valid_until) = $waiver->validRange($date);
 
 		$person_id = $this->UserCache->currentId();
 		try {
@@ -262,8 +203,8 @@ class WaiversController extends AppController {
 				'contain' => [
 					'Groups',
 					'Waivers' => [
-						'queryBuilder' => function (Query $q) use ($waiver_id) {
-							return $q->where(['Waivers.id' => $waiver_id]);
+						'queryBuilder' => function (Query $q) use ($id) {
+							return $q->where(['Waivers.id' => $id]);
 						},
 					],
 				],
@@ -276,23 +217,8 @@ class WaiversController extends AppController {
 			return $this->redirect('/');
 		}
 
-		// Check if they have already signed this waiver
-		if ($this->Waivers->signed($person->waivers, $date)) {
-			$this->Flash->info(__('You have already accepted this waiver.'));
-			return $this->redirect('/');
-		}
-
-		list($valid_from, $valid_until) = $waiver->validRange($date);
-		if ($valid_from === false) {
-			$this->Flash->info(__('Invalid waiver date.'));
-			return $this->redirect('/');
-		}
-
-		// Don't allow adults to sign a waiver on behalf of another adult
-		if ($person_id != $this->UserCache->realId() && !$this->_isChild($person)) {
-			$this->Flash->info(__('You are not allowed to accept this waiver on behalf of another person.'));
-			return $this->forceRedirect('/');
-		}
+		$this->Authorization->authorize(new ContextResource($waiver, compact('person', 'date', 'valid_from', 'valid_until')));
+		$this->Configuration->loadAffiliate($waiver->affiliate_id);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			if ($this->request->data['signed'] == 'yes') {
@@ -315,13 +241,17 @@ class WaiversController extends AppController {
 	}
 
 	public function review() {
-		$waiver_id = $this->request->getQuery('waiver');
-		if (!$waiver_id) {
+		$id = $this->request->getQuery('waiver');
+		if (!$id) {
 			$this->Flash->info(__('Invalid waiver.'));
 			return $this->redirect('/');
 		}
-		$waiver = $this->Waivers->get($waiver_id);
-		if (!$waiver) {
+		try {
+			$waiver = $this->Waivers->get($id);
+		} catch (RecordNotFoundException $ex) {
+			$this->Flash->info(__('Invalid waiver.'));
+			return $this->redirect('/');
+		} catch (InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid waiver.'));
 			return $this->redirect('/');
 		}
@@ -332,8 +262,9 @@ class WaiversController extends AppController {
 			return $this->redirect('/');
 		}
 
+		$this->Authorization->authorize($waiver);
 		$this->Configuration->loadAffiliate($waiver->affiliate_id);
-		$conditions = ['Waivers.id' => $waiver_id];
+		$conditions = ['Waivers.id' => $id];
 
 		$date = $this->request->getQuery('date');
 		if ($date) {

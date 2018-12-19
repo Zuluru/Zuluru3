@@ -4,6 +4,7 @@ namespace App\View\Cell;
 use App\Core\UserCache;
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
+use Cake\Routing\Router;
 use Cake\View\Cell;
 
 /**
@@ -15,8 +16,10 @@ use Cake\View\Cell;
 class NoticesCell extends Cell {
 
 	public function next() {
+		$identity = Router::getRequest()->getAttribute('identity');
+
 		// Guests get no notices
-		if (empty(Configure::read('Perm.my_id')) || mt_rand(0, 100) > Configure::read('notice_frequency')) {
+		if (!$identity || mt_rand(0, 100) > Configure::read('notice_frequency')) {
 			$this->set(['notice' => null]);
 			return;
 		}
@@ -42,7 +45,7 @@ class NoticesCell extends Cell {
 
 		// Find the list of all notices the user has seen
 		$notices = $this->NoticesPeople->find()
-			->where(['person_id' => Configure::read('Perm.my_id')])
+			->where(['person_id' => $identity->getIdentifier()])
 			->combine('notice_id', 'created')
 			->toArray();
 
@@ -57,11 +60,32 @@ class NoticesCell extends Cell {
 
 		// Figure out which notices to include based on this user's current details
 		$display_to = ['all'];
-		foreach (['admin', 'manager', 'official', 'volunteer', 'coach', 'player', 'child', 'parent'] as $role) {
-			if (Configure::read("Perm.is_$role")) {
-				$display_to[] = $role;
-			}
+
+		if ($identity->isAdmin()) {
+			$display_to[] = 'admin';
 		}
+		if ($identity->isManager()) {
+			$display_to[] = 'manager';
+		}
+		if ($identity->isOfficial()) {
+			$display_to[] = 'official';
+		}
+		if ($identity->isVolunteer()) {
+			$display_to[] = 'volunteer';
+		}
+		if ($identity->isCoach()) {
+			$display_to[] = 'coach';
+		}
+		if ($identity->isPlayer()) {
+			$display_to[] = 'player';
+		}
+		if ($identity->isParent()) {
+			$display_to[] = 'parent';
+		}
+		if ($identity->isChild()) {
+			$display_to[] = 'child';
+		}
+
 		if (!empty(UserCache::getInstance()->read('OwnedTeamIDs'))) {
 			$display_to[] = 'captain';
 		}

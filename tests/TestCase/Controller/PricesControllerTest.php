@@ -22,6 +22,8 @@ class PricesControllerTest extends ControllerTestCase {
 				'app.groups_people',
 			'app.leagues',
 				'app.divisions',
+					'app.teams',
+					'app.divisions_people',
 			'app.events',
 				'app.prices',
 					'app.registrations',
@@ -38,19 +40,19 @@ class PricesControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		// Admins are allowed to delete prices
-		$this->assertAccessRedirect(['controller' => 'Prices', 'action' => 'delete', 'price' => PRICE_ID_LEAGUE_TEAM],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_LEAGUE_TEAM],
-			'The price point has been deleted.', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Prices', 'action' => 'delete', 'price' => PRICE_ID_LEAGUE_TEAM],
+			PERSON_ID_ADMIN, [], ['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_LEAGUE_TEAM],
+			'The price point has been deleted.');
 
 		// But not the last price on an event (league team 2 will be last, now that league team is gone)
-		$this->assertAccessRedirect(['controller' => 'Prices', 'action' => 'delete', 'price' => PRICE_ID_LEAGUE_TEAM2],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_LEAGUE_TEAM],
-			'You cannot delete the only price point on an event.', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Prices', 'action' => 'delete', 'price' => PRICE_ID_LEAGUE_TEAM2],
+			PERSON_ID_ADMIN, [], ['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_LEAGUE_TEAM],
+			'You cannot delete the only price point on an event.');
 
 		// And not ones with dependencies
-		$this->assertAccessRedirect(['controller' => 'Prices', 'action' => 'delete', 'price' => PRICE_ID_MEMBERSHIP],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_MEMBERSHIP],
-			'#The following records reference this price point, so it cannot be deleted#', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Prices', 'action' => 'delete', 'price' => PRICE_ID_MEMBERSHIP],
+			PERSON_ID_ADMIN, [], ['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_MEMBERSHIP],
+			'#The following records reference this price point, so it cannot be deleted#');
 	}
 
 	/**
@@ -62,59 +64,35 @@ class PricesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		// Managers can delete prices in their affiliate
-		$this->assertAccessRedirect(['controller' => 'Prices', 'action' => 'delete', 'price' => PRICE_ID_LEAGUE_TEAM],
-			PERSON_ID_MANAGER, 'post', [], ['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_LEAGUE_TEAM],
-			'The price point has been deleted.', 'Flash.flash.0.message');
+		// Managers are allowed to delete prices in their affiliate
+		$this->assertPostAsAccessRedirect(['controller' => 'Prices', 'action' => 'delete', 'price' => PRICE_ID_LEAGUE_TEAM],
+			PERSON_ID_MANAGER, [], ['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_LEAGUE_TEAM],
+			'The price point has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Prices', 'action' => 'delete', 'price' => PRICE_ID_LEAGUE_INDIVIDUAL_SUB],
-			PERSON_ID_MANAGER, 'post');
+		$this->assertPostAsAccessDenied(['controller' => 'Prices', 'action' => 'delete', 'price' => PRICE_ID_LEAGUE_INDIVIDUAL_SUB],
+			PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test delete method as a coordinator
+	 * Test delete method as others
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testDeleteAsOthers() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
-	/**
-	 * Test delete method as a captain
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as a player
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to delete prices
+		$this->assertPostAsAccessDenied(['controller' => 'Prices', 'action' => 'delete', 'price' => PRICE_ID_LEAGUE_TEAM],
+			PERSON_ID_COORDINATOR);
+		$this->assertPostAsAccessDenied(['controller' => 'Prices', 'action' => 'delete', 'price' => PRICE_ID_LEAGUE_TEAM],
+			PERSON_ID_CAPTAIN);
+		$this->assertPostAsAccessDenied(['controller' => 'Prices', 'action' => 'delete', 'price' => PRICE_ID_LEAGUE_TEAM],
+			PERSON_ID_PLAYER);
+		$this->assertPostAsAccessDenied(['controller' => 'Prices', 'action' => 'delete', 'price' => PRICE_ID_LEAGUE_TEAM],
+			PERSON_ID_VISITOR);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Prices', 'action' => 'delete', 'price' => PRICE_ID_LEAGUE_TEAM]);
 	}
 
 }

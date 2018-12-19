@@ -1,13 +1,15 @@
 <?php
-use App\Controller\AppController;
-
 $relatives = $this->UserCache->allActAs();
 if (!empty($relatives)) {
 	$url = array_merge(['action' => $this->request->action], $this->request->getQueryParams());
 	$links = [];
 
 	foreach ($relatives as $id => $relative) {
-		if (AppController::_showRegistration($id)) {
+		$person = \App\Core\UserCache::getInstance()->read('Person', $id);
+		$identity = new \App\Authentication\ActAsIdentity($this->request->getAttribute('authorization'),
+			$this->request->getAttribute('authentication')->buildIdentity($person)
+		);
+		if ($identity->can('show_registration', \App\Controller\PeopleController::class)) {
 			$url['act_as'] = $id;
 			$links[$id] = $this->Html->link($relative, $url);
 		}

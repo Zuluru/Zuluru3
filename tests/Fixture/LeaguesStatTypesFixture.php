@@ -22,8 +22,12 @@ class LeaguesStatTypesFixture extends TestFixture {
 	public function init() {
 		$this->records = [
 			[
-				'league_id' => LEAGUE_ID_MONDAY,
-				'stat_type_id' => 1,
+				'league_id' => LEAGUE_ID_THURSDAY,
+				'stat_type_id' => 1, // games played, calculated
+			],
+			[
+				'league_id' => LEAGUE_ID_THURSDAY,
+				'stat_type_id' => 9, // goals, entered
 			],
 		];
 

@@ -16,6 +16,7 @@ class MapsControllerTest extends ControllerTestCase {
 			'app.users',
 				'app.people',
 					'app.affiliates_people',
+					'app.people_people',
 			'app.groups',
 				'app.groups_people',
 			'app.regions',
@@ -23,152 +24,64 @@ class MapsControllerTest extends ControllerTestCase {
 					'app.fields',
 			'app.leagues',
 				'app.divisions',
+					'app.teams',
+					'app.divisions_people',
 			'app.settings',
 	];
 
 	/**
-	 * Test index method as an admin
+	 * Test index method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testIndex() {
+		// Anyone is allowed to see the index
+		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'index'], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'index'], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'index'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'index'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'index'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'index'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Maps', 'action' => 'index']);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test index method as a manager
+	 * Test view method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testView() {
+		// Anyone is allowed to view maps
+		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'view', 'field' => FIELD_ID_SUNNYBROOK_GREENSPACE], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'view', 'field' => FIELD_ID_SUNNYBROOK_GREENSPACE], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'view', 'field' => FIELD_ID_SUNNYBROOK_GREENSPACE], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'view', 'field' => FIELD_ID_SUNNYBROOK_GREENSPACE], PERSON_ID_CAPTAIN);
 
-	/**
-	 * Test index method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testIndexAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'view', 'field' => FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1], PERSON_ID_PLAYER);
+		$this->assertResponseContains('fields[' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1 . '] = {');
+		$this->assertResponseContains('fields[' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_2 . '] = {');
+		$this->assertResponseContains('fields[' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_3 . '] = {');
+		$this->assertResponseNotContains('fields[' . FIELD_ID_SUNNYBROOK_GREENSPACE . '] = {');
 
-	/**
-	 * Test index method as a captain
-	 *
-	 * @return void
-	 */
-	public function testIndexAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method as a player
-	 *
-	 * @return void
-	 */
-	public function testIndexAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method as someone else
-	 *
-	 * @return void
-	 */
-	public function testIndexAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testIndexAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as an admin
-	 *
-	 * @return void
-	 */
-	public function testViewAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as a manager
-	 *
-	 * @return void
-	 */
-	public function testViewAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testViewAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as a captain
-	 *
-	 * @return void
-	 */
-	public function testViewAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as a player
-	 *
-	 * @return void
-	 */
-	public function testViewAsPlayer() {
-		// Anyone is allowed to view maps from any affiliate
-		$this->assertAccessOk(['controller' => 'Maps', 'action' => 'view', 'field' => FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1], PERSON_ID_PLAYER);
-		$this->assertResponseRegExp('#fields\[' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1 . '\] = {#ms');
-		$this->assertResponseRegExp('#fields\[' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_2 . '\] = {#ms');
-		$this->assertResponseRegExp('#fields\[' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_3 . '\] = {#ms');
-		$this->assertResponseNotRegExp('#fields\[' . FIELD_ID_SUNNYBROOK_GREENSPACE . '\] = {#ms');
-
-		$this->assertAccessOk(['controller' => 'Maps', 'action' => 'view', 'field' => FIELD_ID_CENTRAL_TECH], PERSON_ID_PLAYER);
+		// From any affiliate
+		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'view', 'field' => FIELD_ID_CENTRAL_TECH], PERSON_ID_PLAYER);
 
 		// But not maps that haven't been created yet
-		$this->assertAccessRedirect(['controller' => 'Maps', 'action' => 'view', 'field' => FIELD_ID_MARILYN_BELL],
-			PERSON_ID_PLAYER, 'get', [], ['controller' => 'Facilities', 'action' => 'index'],
-			'That field has not yet been laid out.', 'Flash.flash.0.message');
+		$this->assertGetAsAccessRedirect(['controller' => 'Maps', 'action' => 'view', 'field' => FIELD_ID_MARILYN_BELL],
+			PERSON_ID_PLAYER, ['controller' => 'Facilities', 'action' => 'index'],
+			'That field has not yet been laid out.');
 
 		// When viewing closed fields, we get shown all fields at that facility, not just open ones
-		$this->assertAccessOk(['controller' => 'Maps', 'action' => 'view', 'field' => FIELD_ID_SUNNYBROOK_GREENSPACE], PERSON_ID_PLAYER);
-		$this->assertResponseRegExp('#fields\[' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1 . '\] = {#ms');
-		$this->assertResponseRegExp('#fields\[' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_2 . '\] = {#ms');
-		$this->assertResponseRegExp('#fields\[' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_3 . '\] = {#ms');
-		$this->assertResponseRegExp('#fields\[' . FIELD_ID_SUNNYBROOK_GREENSPACE . '\] = {#ms');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'view', 'field' => FIELD_ID_SUNNYBROOK_GREENSPACE], PERSON_ID_PLAYER);
+		$this->assertResponseContains('fields[' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1 . '] = {');
+		$this->assertResponseContains('fields[' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_2 . '] = {');
+		$this->assertResponseContains('fields[' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_3 . '] = {');
+		$this->assertResponseContains('fields[' . FIELD_ID_SUNNYBROOK_GREENSPACE . '] = {');
 
-	/**
-	 * Test view method as someone else
-	 *
-	 * @return void
-	 */
-	public function testViewAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testViewAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'view', 'field' => FIELD_ID_SUNNYBROOK_GREENSPACE], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Maps', 'action' => 'view', 'field' => FIELD_ID_SUNNYBROOK_GREENSPACE]);
 	}
 
 	/**
@@ -177,6 +90,8 @@ class MapsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsAdmin() {
+		// Admins are allowed to edit maps
+		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'edit', 'field' => FIELD_ID_SUNNYBROOK_GREENSPACE], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -186,52 +101,23 @@ class MapsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsManager() {
+		// Managers are allowed to edit maps
+		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'edit', 'field' => FIELD_ID_SUNNYBROOK_GREENSPACE], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test edit method as a coordinator
+	 * Test edit method as others
 	 *
 	 * @return void
 	 */
-	public function testEditAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as a captain
-	 *
-	 * @return void
-	 */
-	public function testEditAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as a player
-	 *
-	 * @return void
-	 */
-	public function testEditAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as someone else
-	 *
-	 * @return void
-	 */
-	public function testEditAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testEditAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testEditAsOthers() {
+		// Others are not allowed to edit maps
+		$this->assertGetAsAccessDenied(['controller' => 'Maps', 'action' => 'edit', 'field' => FIELD_ID_SUNNYBROOK_GREENSPACE], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Maps', 'action' => 'edit', 'field' => FIELD_ID_SUNNYBROOK_GREENSPACE], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Maps', 'action' => 'edit', 'field' => FIELD_ID_SUNNYBROOK_GREENSPACE], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Maps', 'action' => 'edit', 'field' => FIELD_ID_SUNNYBROOK_GREENSPACE], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Maps', 'action' => 'edit', 'field' => FIELD_ID_SUNNYBROOK_GREENSPACE]);
 	}
 
 }

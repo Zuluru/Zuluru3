@@ -27,8 +27,7 @@ if (!empty($teams) || $past_teams > 0):
 					}
 				?></td>
 				<td class="actions splash-action"><?php
-					$is_captain = in_array($team->id, $this->UserCache->read('OwnedTeamIDs'));
-					echo $this->element('Teams/actions', ['team' => $team, 'division' => $team->division, 'league' => $team->division->league, 'is_captain' => $is_captain, 'format' => 'links']);
+					echo $this->element('Teams/actions', ['team' => $team, 'division' => $team->division, 'league' => $team->division->league, 'format' => 'links']);
 				?></td>
 			</tr>
 <?php

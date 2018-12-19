@@ -1,14 +1,16 @@
 <?php
+/**
+ * @type \App\Model\Entity\Person $person
+ * @type \App\Model\Entity\TeamsPerson $roster
+ * @type \App\Model\Entity\Team $team
+ * @type \App\Model\Entity\Division $division
+ */
+
+use App\Authorization\ContextResource;
 use App\Controller\AppController;
 use Cake\Core\Configure;
-use Cake\ORM\TableRegistry;
 
-$teams_table = TableRegistry::get('Teams');
-$can_edit_roster = $teams_table->canEditRoster($team, Configure::read('Perm.is_admin'), Configure::read('Perm.is_manager'));
-$is_me = ($roster->person_id == Configure::read('Perm.my_id')) || in_array($roster->person_id, $this->UserCache->read('RelativeIDs'));
-$permission = ($can_edit_roster === true || (!$division->roster_deadline_passed && $is_me));
-
-if ($permission) {
+if ($this->Authorize->can('roster_position', new ContextResource($team, ['division' => $division, 'roster' => $roster]))) {
 	echo $this->Jquery->inPlaceWidget(__(Configure::read("sports.{$division->league->sport}.positions.{$roster->position}")), [
 		'type' => "{$division->league->sport}_roster_position",
 		'url' => [

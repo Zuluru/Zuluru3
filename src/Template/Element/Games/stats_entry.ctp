@@ -3,26 +3,21 @@ use Cake\Core\Configure;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\StatsTable;
 
-if (!$attendance->track_attendance && Configure::read('feature.attendance')) {
+if (!$attendance->track_attendance) {
 	echo $this->Html->para('warning-message', __('Because this team does not have attendance tracking enabled, the list below assumes that all regular players are attending and all subs are unknown. To enable attendance tracking, {0}.',
 		$this->Html->link(__('edit the team record'), ['controller' => 'Teams', 'action' => 'edit', 'team' => $attendance->id])));
 }
 
 $style = 'width:' . floor(80 / count($game->division->league->stat_types)) . '%;';
+$stats_table = TableRegistry::get('Stats');
 ?>
 <div class="table-responsive">
 	<table class="table table-striped table-hover table-condensed" id="team_<?= $attendance->id ?>">
 		<thead>
 			<tr>
 				<th><?= __('Player') ?></th>
-<?php
-if (Configure::read('feature.attendance')):
-?>
-
 				<th class="attendance_details"><?= __('Attendance') ?></th>
 <?php
-endif;
-
 foreach ($stat_types as $stat) {
 	echo $this->Html->tag('th', __($stat->name), compact('style'));
 }
@@ -39,29 +34,19 @@ foreach ($attendance->people as $person):
 
 			<tr class="<?= $record->status == ATTENDANCE_ATTENDING ? '' : 'attendance_details' ?>">
 				<td><?= $this->element('People/block', compact('person')) ?></td>
-<?php
-		if (Configure::read('feature.attendance')):
-?>
 				<td class="attendance_details"><?php
 					echo $this->element('Games/attendance_change', [
 						'team' => $attendance,
-						'game_id' => $game->id,
-						'game_time' => $game->game_slot->start_time,
+						'game' => $game,
 						'person_id' => $person->id,
 						'role' => $person->_joinData->role,
-						'status' => $record->status,
-						'comment' => $record->comment,
+						'attendance' => $record,
 						'dedicated' => true,
-						// Only captains and conveners have permission to enter stats, and they can also update attendance
-						'is_captain' => true,
 						// We need to display this even if teams have attendance tracking off
 						'force' => true,
 					]);
 				?></td>
 <?php
-		endif;
-
-		$stats_table = TableRegistry::get('Stats');
 		foreach ($stat_types as $stat):
 ?>
 				<td style="<?= $style ?>">
@@ -105,7 +90,7 @@ foreach ($attendance->people as $person):
 endforeach;
 
 // TODO: Add this feature
-if (0 && $attendance->track_attendance && Configure::read('feature.attendance')):
+if (0 && $attendance->track_attendance):
 ?>
 
 			<tr id="add_row_<?= $attendance->id ?>">
@@ -121,14 +106,8 @@ endif;
 
 			<tr id="sub_row">
 				<td><?= __('Unlisted Subs') ?></td>
-<?php
-if (Configure::read('feature.attendance')):
-?>
-
 				<td class="attendance_details"></td>
 <?php
-endif;
-
 foreach ($stat_types as $stat):
 ?>
 
@@ -166,14 +145,8 @@ endforeach;
 		<tfoot>
 			<tr>
 				<th><?= __('Total') ?></th>
-<?php
-if (Configure::read('feature.attendance')):
-?>
-
 				<th class="attendance_details"></th>
 <?php
-endif;
-
 foreach ($stat_types as $stat) {
 	echo $this->Html->tag('th', 0, ['class' => "stat_{$stat->id}", 'data-handler' => $stat->sum_function, 'data-formatter' => $stat->formatter_function]);
 }

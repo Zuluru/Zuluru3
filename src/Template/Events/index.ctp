@@ -14,7 +14,7 @@ $my_affiliates = $this->UserCache->read('ManagedAffiliateIDs');
 <div class="events index">
 	<h2><?= __('Registration Events List') ?><?= isset($year) ? ': ' . $year : '' ?></h2>
 <?php
-if (Configure::read('Perm.is_logged_in')) {
+if ($this->Identity->isLoggedIn()) {
 	echo $this->element('Registrations/relative_notice');
 }
 
@@ -24,7 +24,7 @@ if (empty($events)):
 <?php
 else:
 	echo $this->element('Registrations/notice');
-	if (!Configure::read('Perm.is_logged_in')) {
+	if (!$this->Identity->isLoggedIn()) {
 		echo $this->element('Events/not_logged_in');
 	}
 
@@ -55,18 +55,15 @@ else:
 		<tbody>
 <?php
 	$last_name = $affiliate_id = null;
-	$cols = 4 + (!Configure::read('Perm.is_admin'));
 	foreach ($events as $event):
-		// Perhaps remove manager status, if we're looking at a different affiliate
-		$is_event_manager = in_array($event->affiliate_id, $my_affiliates);
-
+		$can_edit = $this->Authorize->can('edit', $event->affiliate);
 		if (count($affiliates) > 1 && $event->affiliate_id != $affiliate_id):
 			$affiliate_id = $event->affiliate_id;
 ?>
 			<tr>
-				<th colspan="<?= $cols ?>"><h3 class="affiliate"><?= h($event->affiliate->name) ?></h3></th>
+				<th colspan="<?= 4 + !$can_edit ?>"><h3 class="affiliate"><?= h($event->affiliate->name) ?></h3></th>
 <?php
-			if (Configure::read('Perm.is_admin')):
+			if ($can_edit):
 ?>
 				<th class="actions"><?php
 				echo $this->Html->iconLink('edit_24.png',
@@ -137,14 +134,14 @@ else:
 				?></td>
 				<td><?= $this->Time->datetime($event->prices[0]->open) ?></td>
 				<td><?= $this->Time->datetime($event->prices[0]->close) ?></td>
-				<td class="actions"><?= $this->element('Events/actions', ['event' => $event, 'is_event_manager' => $is_event_manager]) ?></td>
+				<td class="actions"><?= $this->element('Events/actions', ['event' => $event]) ?></td>
 			</tr>
 <?php
 		else:
 ?>
 			<tr>
 				<td colspan="4"><h5><?= $this->Html->link($event->name, ['action' => 'view', 'event' => $event->id]) ?></h5></td>
-				<td class="actions"><?= $this->element('Events/actions', ['event' => $event, 'is_event_manager' => $is_event_manager]) ?></td>
+				<td class="actions"><?= $this->element('Events/actions', ['event' => $event]) ?></td>
 			</tr>
 <?php
 			foreach ($event->prices as $price):
@@ -168,7 +165,7 @@ else:
 				if (Configure::read('registration.register_now')) {
 					echo $this->Html->link(__('Register Now'), ['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id, 'price' => $price->id]);
 				}
-				if (Configure::read('Perm.is_admin') || $is_event_manager) {
+				if ($this->Authorize->can('delete', $price)) {
 					echo $this->Form->iconPostLink('delete_24.png',
 						['controller' => 'Prices', 'action' => 'delete', 'price' => $price->id],
 						['alt' => __('Delete'), 'title' => __('Delete')],
@@ -189,7 +186,7 @@ endif;
 ?>
 </div>
 <?php
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
+if ($this->Authorize->can('add', \App\Controller\EventsController::class)):
 ?>
 <div class="actions columns">
 	<ul class="nav nav-pills">

@@ -1,13 +1,14 @@
 <?php
-use Cake\Core\Configure;
-use Cake\ORM\TableRegistry;
+/**
+ * @type \App\Model\Entity\Person $person
+ * @type \App\Model\Entity\TeamsPerson $roster
+ * @type \App\Model\Entity\Team $team
+ * @type \App\Model\Entity\Division $division
+ */
 
-$teams_table = TableRegistry::get('Teams');
-$can_edit_roster = $teams_table->canEditRoster($team, Configure::read('Perm.is_admin'), Configure::read('Perm.is_manager'));
-$is_me = ($roster->person_id == Configure::read('Perm.my_id')) || in_array($roster->person_id, $this->UserCache->read('RelativeIDs'));
-$permission = ($can_edit_roster === true || (!$division->roster_deadline_passed && $is_me));
+use App\Authorization\ContextResource;
 
-if ($permission) {
+if ($this->Authorize->can('numbers', new ContextResource($team, ['division' => $division, 'roster' => $roster]))) {
 	$data = [
 		'url' => ['action' => 'numbers', 'team' => $team->id, 'person' => $person->id],
 		'dialog' => 'number_entry_div',

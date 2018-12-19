@@ -39,6 +39,11 @@ class DivisionsPeopleFixture extends TestFixture {
 				'position' => 'coordinator'
 			],
 			[
+				'division_id' => DIVISION_ID_MONDAY_PLAYOFF,
+				'person_id' => PERSON_ID_COORDINATOR,
+				'position' => 'coordinator'
+			],
+			[
 				'division_id' => DIVISION_ID_THURSDAY_ROUND_ROBIN,
 				'person_id' => PERSON_ID_COORDINATOR,
 				'position' => 'coordinator'

@@ -10,13 +10,13 @@ use App\Model\Entity\Division;
 use App\Model\Entity\Game;
 use App\Model\Entity\League;
 use App\Model\Entity\Pool;
+use Authorization\IdentityInterface;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
-use Cake\View\Helper\HtmlHelper;
 use App\Core\ModuleRegistry;
 use App\Exception\ScheduleException;
 use App\Model\Entity\Team;
@@ -39,12 +39,12 @@ abstract class LeagueType {
 	 * By default, there are no extra links.
 	 *
 	 * @param mixed $division Entity containing the division data
-	 * @param mixed $is_coordinator Indication of whether the user is a coordinator of this division (manager and admins also have "true" here)
-	 * @param mixed $controller The current controller
-	 * @param mixed $action The current action; links are not output if they matche the controller and action
+	 * @param \Authorization\IdentityInterface $identity Identity to use for checking link permissions
+	 * @param string $controller The current controller
+	 * @param string $action The current action; links are not output if they match the controller and action
 	 * @return array
 	 */
-	public function links(Division $division, $is_coordinator, $controller, $action) {
+	public function links(Division $division, IdentityInterface $identity = null, $controller, $action) {
 		return [];
 	}
 
@@ -58,7 +58,7 @@ abstract class LeagueType {
 	 * @return mixed An array containing the extra fields
 	 *
 	 */
-	public function schedulingFields($this_is_admin, $this_is_coordinator) {
+	public function schedulingFields($administrative) {
 		return [];
 	}
 

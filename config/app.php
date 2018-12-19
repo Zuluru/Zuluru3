@@ -175,6 +175,7 @@ return [
 	'Security' => [
 		// A random string used in security hashing methods. See details in .env
 		'salt' => env('SECURITY_SALT'),
+		'authenticators' => [],
 
 		// Which model to use for user authentication. Use 'Users' if you're
 		// not sure.
@@ -285,7 +286,7 @@ return [
 	 * - `skipLog` - array - List of exceptions to skip for logging. Exceptions that
 	 *   extend one of the listed exceptions will also be skipped for logging.
 	 *   E.g.:
-	 *   `'skipLog' => ['Cake\Network\Exception\NotFoundException', 'Cake\Network\Exception\UnauthorizedException']`
+	 *   `'skipLog' => ['Cake\Http\Exception\NotFoundException', 'Cake\Http\Exception\UnauthorizedException']`
 	 * - `extraFatalErrorMemory` - int - The number of megabytes to increase
 	 *   the memory limit by when a fatal error is encountered. This allows
 	 *   breathing room to complete logging or error handling.
@@ -294,7 +295,7 @@ return [
 		'errorLevel' => E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED,
 		'exceptionRenderer' => 'Cake\Error\ExceptionRenderer',
 		'skipLog' => [
-			'Cake\Network\Exception\GoneException',
+			'Cake\Http\Exception\GoneException',
 			'Cake\Routing\Exception\MissingControllerException',
 		],
 		'log' => true,
@@ -527,7 +528,7 @@ return [
 	 */
 	'Session' => [
 		'defaults' => $session_defaults,
-		'cookie' => 'ZULURUSID',
+		'cookie' => 'ZuluruSession',
 		'timeout' => 120,	// session times out after 2 hours of inactivity
 	],
 

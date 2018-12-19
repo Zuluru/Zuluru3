@@ -1,6 +1,7 @@
 <?php
 namespace App\Model\Table;
 
+use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
 
@@ -100,6 +101,14 @@ class PoolsTable extends AppTable {
 	public function buildRules(RulesChecker $rules) {
 		$rules->add($rules->existsIn(['division_id'], 'Divisions', __('You must select a valid division.')));
 		return $rules;
+	}
+
+	public function division($id) {
+		try {
+			return $this->field('division_id', ['id' => $id]);
+		} catch (RecordNotFoundException $ex) {
+			return null;
+		}
 	}
 
 }

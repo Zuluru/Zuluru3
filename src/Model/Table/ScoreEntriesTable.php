@@ -5,6 +5,7 @@ use App\Model\Rule\OrRule;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
+use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Event\Event as CakeEvent;
 use Cake\Event\EventManager;
 use Cake\ORM\RulesChecker;
@@ -267,6 +268,22 @@ class ScoreEntriesTable extends AppTable {
 		if (count($options['game']->score_entries) == 1) {
 			$event = new CakeEvent('Model.Game.scoreSubmission', $this, [$options['game']]);
 			EventManager::instance()->dispatch($event);
+		}
+	}
+
+	public function division($id) {
+		try {
+			return $this->Games->division($this->field('game_id', ['id' => $id]));
+		} catch (RecordNotFoundException $ex) {
+			return null;
+		}
+	}
+
+	public function team($id) {
+		try {
+			return $this->field('team_id', ['id' => $id]);
+		} catch (RecordNotFoundException $ex) {
+			return null;
 		}
 	}
 

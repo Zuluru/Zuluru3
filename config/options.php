@@ -135,10 +135,10 @@ $options['options'] = [
 	]),
 
 	'sotg_display' => make_human_options([
-		'coordinator_only',
-		'symbols_only',
-		'numeric',
-		'all',
+		'symbols_only', // admin gets to see the actual score
+		'coordinator_only', // admin and coordinator get to see the actual score
+		'numeric', // everyone gets to see the actual score
+		'all', // everyone gets to see the actual score
 	]),
 
 	'tie_breaker' => [
@@ -286,9 +286,9 @@ $options['options'] = [
 	],
 
 	'test_payment' => [
-		'0' => __('Nobody'),
-		'1' => __('Everybody'),
-		'2' => __('Admins'),
+		TEST_PAYMENTS_NOBODY => __('Nobody'),
+		TEST_PAYMENTS_EVERYBODY => __('Everybody'),
+		TEST_PAYMENTS_ADMINS => __('Admins'),
 	],
 
 	'currency' => [

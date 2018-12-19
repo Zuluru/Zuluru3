@@ -84,6 +84,15 @@ class TeamsPeopleFixture extends TestFixture {
 				'position' => 'unspecified'
 			],
 			[
+				'team_id' => TEAM_ID_RED,
+				'person_id' => PERSON_ID_CAPTAIN3,
+				'role' => 'player',
+				'status' => ROSTER_APPROVED,
+				'created' => FrozenDate::now(),
+				'number' => 2,
+				'position' => 'unspecified'
+			],
+			[
 				'team_id' => TEAM_ID_BLUE,
 				'person_id' => PERSON_ID_CAPTAIN2,
 				'role' => 'captain',
@@ -117,6 +126,24 @@ class TeamsPeopleFixture extends TestFixture {
 				'status' => ROSTER_APPROVED,
 				'created' => FrozenDate::now(),
 				'number' => 99,
+				'position' => 'unspecified'
+			],
+			[
+				'team_id' => TEAM_ID_YELLOW,
+				'person_id' => PERSON_ID_CAPTAIN3,
+				'role' => 'coach',
+				'status' => ROSTER_APPROVED,
+				'created' => FrozenDate::now(),
+				'number' => 99,
+				'position' => 'unspecified'
+			],
+			[
+				'team_id' => TEAM_ID_CHICKADEES,
+				'person_id' => PERSON_ID_CAPTAIN,
+				'role' => 'captain',
+				'status' => ROSTER_APPROVED,
+				'created' => FrozenDate::now(),
+				'number' => 1,
 				'position' => 'unspecified'
 			],
 			[

@@ -39,13 +39,6 @@ class UserZikulaTable extends UsersTable {
 	 */
 	public $hashMethod = 'sha256';
 
-	/**
-	 * Accounts (add, delete, passwords) are managed by Zikula, not Zuluru.
-	 */
-	public $manageAccounts = false;
-	public $manageName = 'Zikula';
-	public $loginComponent = 'LoginZikula';
-
 	public function initialize(array $config) {
 		parent::initialize($config);
 

@@ -2,6 +2,7 @@
 namespace App\Test\TestCase\Controller;
 
 use Cake\Core\Configure;
+use Cake\Filesystem\Folder;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\TableRegistry;
 
@@ -35,6 +36,7 @@ class PeopleControllerTest extends ControllerTestCase {
 				'app.divisions',
 					'app.teams',
 						'app.teams_people',
+						'app.team_events',
 					'app.divisions_days',
 					'app.divisions_people',
 					'app.game_slots',
@@ -42,6 +44,9 @@ class PeopleControllerTest extends ControllerTestCase {
 						'app.pools_teams',
 					'app.games',
 						'app.games_allstars',
+						'app.score_entries',
+						'app.stats',
+			'app.attendances',
 			'app.franchises',
 				'app.franchises_people',
 				'app.franchises_teams',
@@ -55,532 +60,359 @@ class PeopleControllerTest extends ControllerTestCase {
 					'app.task_slots',
 			'app.badges',
 				'app.badges_people',
+			'app.mailing_lists',
+				'app.subscriptions',
 			'app.notes',
 			'app.settings',
 			'app.waivers',
 				'app.waivers_people',
 	];
 
-	/**
-	 * Test index method as an admin
-	 *
-	 * @return void
-	 */
-	public function testIndexAsAdmin() {
-		// Admins are allowed to get the index
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'index'], PERSON_ID_ADMIN);
+	public function setUp() {
+		parent::setUp();
+
+		// TODO: Handle in the bootstrap?
+		Configure::write('App.paths.uploads', TESTS . 'test_app' . DS . 'upload');
+
+		// Copy the test uploads to the destination
+		// TODO: Handle this somehow via the uploads fixture, so changes are only required there when new ones are added
+		$dummy = TESTS . 'test_app' . DS . 'dummy.png';
+		$upload_path = Configure::read('App.paths.uploads') . DS;
+		$folder = new Folder($upload_path);
+		$folder->create($upload_path);
+		copy($dummy, $upload_path . PERSON_ID_CAPTAIN . '.png');
+		copy($dummy, $upload_path . PERSON_ID_PLAYER . '.png');
+		copy($dummy, $upload_path . PERSON_ID_CHILD . '_' . UPLOAD_ID_CHILD_WAIVER . '.png');
+		copy($dummy, $upload_path . PERSON_ID_CAPTAIN2 . '_' . UPLOAD_ID_DOG_WAIVER . '.png');
 	}
 
 	/**
-	 * Test index method as a manager
+	 * tearDown method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsManager() {
-		// Managers are allowed to get the index, but don't see people in other affiliates
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'index'], PERSON_ID_MANAGER);
+	public function tearDown() {
+		// Delete the temporary uploads
+		$upload_path = Configure::read('App.paths.uploads');
+		$folder = new Folder($upload_path);
+		$folder->delete();
+
+		parent::tearDown();
 	}
 
 	/**
-	 * Test index method as a coordinator
+	 * Test index method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsCoordinator() {
+	public function testIndex() {
+		// Admins are allowed to see the index
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'index'], PERSON_ID_ADMIN);
+
+		// Managers are allowed to see the index, but don't see people in other affiliates
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'index'], PERSON_ID_MANAGER);
+
 		// Anyone else is not allowed to get the index
-		$this->assertAccessRedirect(['controller' => 'People', 'action' => 'index'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'index'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'index'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'index'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'index'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'index']);
 	}
 
 	/**
-	 * Test index method as a captain
+	 * Test statistics method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method as a player
-	 *
-	 * @return void
-	 */
-	public function testIndexAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method as someone else
-	 *
-	 * @return void
-	 */
-	public function testIndexAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testIndexAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test statistics method as an admin
-	 *
-	 * @return void
-	 */
-	public function testStatisticsAsAdmin() {
+	public function testStatistics() {
 		// Admins are allowed to view the statistics page
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'statistics'], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#<h4 class="affiliate">Club</h4>.*<td>Ultimate</td>[\s]*<td>Woman</td>[\s]*<td>4</td>#ms');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'statistics'], PERSON_ID_ADMIN);
+		$this->assertResponseRegExp('#<h4 class="affiliate">Club</h4>.*<td>Ultimate</td>[\s]*<td>Woman</td>[\s]*<td>6</td>#ms');
 
-	/**
-	 * Test statistics method as a manager
-	 *
-	 * @return void
-	 */
-	public function testStatisticsAsManager() {
+		// Managers are allowed to view the statistics page
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'statistics'], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test statistics method as a coordinator
+	 * Test statistics method as others
 	 *
 	 * @return void
 	 */
-	public function testStatisticsAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testStatisticsAsOthers() {
+		// Others are not allowed to statistics
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'statistics'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'statistics'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'statistics'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'statistics'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'statistics']);
 	}
 
 	/**
-	 * Test statistics method as a captain
+	 * Test participation method
 	 *
 	 * @return void
 	 */
-	public function testStatisticsAsCaptain() {
+	public function testParticipation() {
+		// Admins are allowed to view the participation report
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'participation'], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
+
+		// Managers are allowed to view the participation report
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'participation'], PERSON_ID_MANAGER);
+		$this->markTestIncomplete('Not implemented yet.');
+
+		// Others are not allowed to view the participation report
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'participation'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'participation'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'participation'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'participation'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'participation']);
 	}
 
 	/**
-	 * Test statistics method as a player
+	 * Test retention method
 	 *
 	 * @return void
 	 */
-	public function testStatisticsAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testRetention() {
+		// Admins are allowed to view the retention report
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'retention'], PERSON_ID_ADMIN);
+
+		// Managers are allowed to view the retention report
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'retention'], PERSON_ID_MANAGER);
+
+		// Others are not allowed to view the retention report
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'retention'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'retention'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'retention'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'retention'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'retention']);
 	}
 
 	/**
-	 * Test statistics method as someone else
+	 * Test view method
 	 *
 	 * @return void
 	 */
-	public function testStatisticsAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test statistics method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testStatisticsAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test participation method as an admin
-	 *
-	 * @return void
-	 */
-	public function testParticipationAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test participation method as a manager
-	 *
-	 * @return void
-	 */
-	public function testParticipationAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test participation method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testParticipationAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test participation method as a captain
-	 *
-	 * @return void
-	 */
-	public function testParticipationAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test participation method as a player
-	 *
-	 * @return void
-	 */
-	public function testParticipationAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test participation method as someone else
-	 *
-	 * @return void
-	 */
-	public function testParticipationAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test participation method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testParticipationAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test retention method as an admin
-	 *
-	 * @return void
-	 */
-	public function testRetentionAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test retention method as a manager
-	 *
-	 * @return void
-	 */
-	public function testRetentionAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test retention method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testRetentionAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test retention method as a captain
-	 *
-	 * @return void
-	 */
-	public function testRetentionAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test retention method as a player
-	 *
-	 * @return void
-	 */
-	public function testRetentionAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test retention method as someone else
-	 *
-	 * @return void
-	 */
-	public function testRetentionAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test retention method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testRetentionAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as an admin
-	 *
-	 * @return void
-	 */
-	public function testViewAsAdmin() {
+	public function testView() {
 		// Admins are allowed to see all data
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_PLAYER], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_PLAYER], PERSON_ID_ADMIN);
 		$this->assertResponseContains('Phone (home)');
 		$this->assertResponseContains('Email Address');
 		$this->assertResponseContains('Birthdate');
 
-		// Admins can see and manipulate relatives
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_CAPTAIN], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/people/remove_relative\?person=' . PERSON_ID_CAPTAIN . '&amp;relative=' . PERSON_ID_CAPTAIN2 . '#ms');
+		// Admins are allowed to see and manipulate relatives
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_CAPTAIN], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/people/remove_relative?person=' . PERSON_ID_CAPTAIN . '&amp;relative=' . PERSON_ID_CAPTAIN2);
 		$this->assertResponseRegExp('#<td>Crystal can control <a[^>]*>Chuck Captain</a></td>\s*<td>Yes</td>#ms');
-		$this->assertResponseRegExp('#/people/remove_relative\?person=' . PERSON_ID_CAPTAIN2 . '&amp;relative=' . PERSON_ID_CAPTAIN . '#ms');
+		$this->assertResponseContains('/people/remove_relative?person=' . PERSON_ID_CAPTAIN2 . '&amp;relative=' . PERSON_ID_CAPTAIN);
 		$this->assertResponseRegExp('#<td><a[^>]*>Chuck Captain</a> can control Crystal</td>\s*<td>No</td>#ms');
-	}
 
-	/**
-	 * Test view method as a manager
-	 *
-	 * @return void
-	 */
-	public function testViewAsManager() {
 		// Managers are allowed to see all data for people in their affiliate
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_PLAYER], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_PLAYER], PERSON_ID_MANAGER);
 		$this->assertResponseContains('Phone (home)');
 		$this->assertResponseContains('Email Address');
 		$this->assertResponseContains('Birthdate');
 
 		// But only regular data for people in their own
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_ANDY_SUB], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_ANDY_SUB], PERSON_ID_MANAGER);
 		$this->assertResponseNotContains('Phone (home)');
 		$this->assertResponseNotContains('Email Address');
 		$this->assertResponseNotContains('Birthdate');
 
-		// Managers can see and manipulate relatives
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_CAPTAIN], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/people/remove_relative\?person=' . PERSON_ID_CAPTAIN . '&amp;relative=' . PERSON_ID_CAPTAIN2 . '#ms');
+		// Managers are allowed to see and manipulate relatives
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_CAPTAIN], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/people/remove_relative?person=' . PERSON_ID_CAPTAIN . '&amp;relative=' . PERSON_ID_CAPTAIN2);
 		$this->assertResponseRegExp('#<td>Crystal can control <a[^>]*>Chuck Captain</a></td>\s*<td>Yes</td>#ms');
-		$this->assertResponseRegExp('#/people/remove_relative\?person=' . PERSON_ID_CAPTAIN2 . '&amp;relative=' . PERSON_ID_CAPTAIN . '#ms');
+		$this->assertResponseContains('/people/remove_relative?person=' . PERSON_ID_CAPTAIN2 . '&amp;relative=' . PERSON_ID_CAPTAIN);
 		$this->assertResponseRegExp('#<td><a[^>]*>Chuck Captain</a> can control Crystal</td>\s*<td>No</td>#ms');
-	}
 
-	/**
-	 * Test view method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testViewAsCoordinator() {
-		// Coordinators can see contact info for their captains
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_CAPTAIN], PERSON_ID_COORDINATOR);
+		// Coordinators are allowed to see contact info for their captains
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_CAPTAIN], PERSON_ID_COORDINATOR);
 		$this->assertResponseContains('Phone (home)');
 		$this->assertResponseContains('Email Address');
 		$this->assertResponseNotContains('Birthdate');
 
 		// ...but not regular players
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_PLAYER], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_PLAYER], PERSON_ID_COORDINATOR);
 		$this->assertResponseNotContains('Phone (home)');
 		$this->assertResponseNotContains('Email Address');
 		$this->assertResponseNotContains('Birthdate');
-	}
 
-	/**
-	 * Test view method as a captain
-	 *
-	 * @return void
-	 */
-	public function testViewAsCaptain() {
-		// Captains can see contact info for their players
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_PLAYER], PERSON_ID_CAPTAIN);
+		// Captains are allowed to see contact info for their players
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_PLAYER], PERSON_ID_CAPTAIN);
 		$this->assertResponseContains('Phone (home)');
 		$this->assertResponseContains('Email Address');
 		$this->assertResponseNotContains('Birthdate');
 
 		// ...and their coordinator
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_COORDINATOR], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_COORDINATOR], PERSON_ID_CAPTAIN);
 		$this->assertResponseContains('Phone (home)');
 		$this->assertResponseContains('Email Address');
 
 		// ...but not others
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_MANAGER], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_MANAGER], PERSON_ID_CAPTAIN);
 		$this->assertResponseNotContains('Phone (home)');
 		$this->assertResponseContains('Email Address'); // Can see this because it's public
-	}
 
-	/**
-	 * Test view method as a player
-	 *
-	 * @return void
-	 */
-	public function testViewAsPlayer() {
-		// Players can see contact info for their captains
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_CAPTAIN], PERSON_ID_PLAYER);
+		// Players are allowed to see contact info for their captains
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_CAPTAIN], PERSON_ID_PLAYER);
 		$this->assertResponseContains('Phone (home)');
 		$this->assertResponseContains('Email Address');
 		$this->assertResponseNotContains('Birthdate');
 
 		// ...but not others
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_COORDINATOR], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_COORDINATOR], PERSON_ID_PLAYER);
 		$this->assertResponseContains('Phone (home)'); // Can see this because it's public
 		$this->assertResponseNotContains('Email Address');
-	}
+		$this->assertResponseNotContains('Birthdate');
 
-	/**
-	 * Test view method as someone else
-	 *
-	 * @return void
-	 */
-	public function testViewAsVisitor() {
+		// ...and this is still true if it's an admin acting as the player
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_COORDINATOR], [PERSON_ID_ADMIN, PERSON_ID_PLAYER]);
+		$this->assertResponseContains('Phone (home)'); // Can see this because it's public
+		$this->assertResponseNotContains('Email Address');
+		$this->assertResponseNotContains('Birthdate');
+
+		// ...or if it's a player acting as a (presumably related, though that's not checked here) admin
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_COORDINATOR], [PERSON_ID_PLAYER, PERSON_ID_ADMIN]);
+		$this->assertResponseContains('Phone (home)'); // Can see this because it's public
+		$this->assertResponseNotContains('Email Address');
+		$this->assertResponseNotContains('Birthdate');
+
+		// Visitors are allowed to view
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_PLAYER], PERSON_ID_VISITOR);
+		$this->assertResponseNotContains('Phone');
+		$this->assertResponseNotContains('Email Address');
+		$this->assertResponseNotContains('Birthdate');
+		$this->markTestIncomplete('Not implemented yet.');
+
+		// Others are allowed to view
+		$this->assertGetAnonymousAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_PLAYER]);
+		$this->assertResponseNotContains('Phone');
+		$this->assertResponseNotContains('Email Address');
+		$this->assertResponseNotContains('Birthdate');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test view method without being logged in
+	 * Test tooltip method
 	 *
 	 * @return void
 	 */
-	public function testViewAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test tooltip method as an admin
-	 *
-	 * @return void
-	 */
-	public function testTooltipAsAdmin() {
+	public function testTooltip() {
 		// Admins are allowed to view person tooltips, and have all information and options
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => PERSON_ID_PLAYER], PERSON_ID_ADMIN, 'getajax');
-		$this->assertResponseRegExp('#mailto:pam@zuluru.org#ms');
-		$this->assertResponseRegExp('#\(416\) 678-9012 \(home\)#ms');
-		$this->assertResponseRegExp('#\(416\) 789-0123 x456 \(work\)#ms');
-		$this->assertResponseRegExp('#/people\\\\/vcf\?person=' . PERSON_ID_PLAYER . '#ms');
-		$this->assertResponseRegExp('#/people\\\\/note\?person=' . PERSON_ID_PLAYER . '#ms');
-		$this->assertResponseRegExp('#/people\\\\/act_as\?person=' . PERSON_ID_PLAYER . '#ms');
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => PERSON_ID_PLAYER], PERSON_ID_ADMIN);
+		$this->assertResponseContains('mailto:pam@zuluru.org');
+		$this->assertResponseContains('(416) 678-9012 (home)');
+		$this->assertResponseContains('(416) 789-0123 x456 (work)');
+		$this->assertResponseContains('/people\\/vcf?person=' . PERSON_ID_PLAYER);
+		$this->assertResponseContains('/people\\/note?person=' . PERSON_ID_PLAYER);
+		$this->assertResponseContains('/people\\/act_as?person=' . PERSON_ID_PLAYER);
 
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => PERSON_ID_ANDY_SUB], PERSON_ID_ADMIN, 'getajax');
-		$this->assertResponseRegExp('#mailto:andy@zuluru.org#ms');
-		$this->assertResponseRegExp('#\(647\) 555-5555 \(home\)#ms');
-		$this->assertResponseRegExp('#\(647\) 555-5556 \(mobile\)#ms');
-		$this->assertResponseRegExp('#/people\\\\/vcf\?person=' . PERSON_ID_ANDY_SUB . '#ms');
-		$this->assertResponseRegExp('#/people\\\\/note\?person=' . PERSON_ID_ANDY_SUB . '#ms');
-		$this->assertResponseRegExp('#/people\\\\/act_as\?person=' . PERSON_ID_ANDY_SUB . '#ms');
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => PERSON_ID_ANDY_SUB], PERSON_ID_ADMIN);
+		$this->assertResponseContains('mailto:andy@zuluru.org');
+		$this->assertResponseContains('(647) 555-5555 (home)');
+		$this->assertResponseContains('(647) 555-5556 (mobile)');
+		$this->assertResponseContains('/people\\/vcf?person=' . PERSON_ID_ANDY_SUB);
+		$this->assertResponseContains('/people\\/note?person=' . PERSON_ID_ANDY_SUB);
+		$this->assertResponseContains('/people\\/act_as?person=' . PERSON_ID_ANDY_SUB);
 
-		$this->assertAccessRedirect(['controller' => 'People', 'action' => 'tooltip', 'person' => 10000],
-			PERSON_ID_ADMIN, 'getajax', [], null,
+		$this->assertGetAjaxAsAccessRedirect(['controller' => 'People', 'action' => 'tooltip', 'person' => 10000],
+			PERSON_ID_ADMIN, '/',
 			'Invalid person.');
-	}
 
-	/**
-	 * Test tooltip method as a manager
-	 *
-	 * @return void
-	 */
-	public function testTooltipAsManager() {
 		// Managers are allowed to view person tooltips, and have all information and options
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => PERSON_ID_PLAYER], PERSON_ID_MANAGER, 'getajax');
-		$this->assertResponseRegExp('#mailto:pam@zuluru.org#ms');
-		$this->assertResponseRegExp('#\(416\) 678-9012 \(home\)#ms');
-		$this->assertResponseRegExp('#\(416\) 789-0123 x456 \(work\)#ms');
-		$this->assertResponseRegExp('#/people\\\\/vcf\?person=' . PERSON_ID_PLAYER . '#ms');
-		$this->assertResponseRegExp('#/people\\\\/note\?person=' . PERSON_ID_PLAYER . '#ms');
-		$this->assertResponseRegExp('#/people\\\\/act_as\?person=' . PERSON_ID_PLAYER . '#ms');
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_MANAGER);
+		$this->assertResponseContains('mailto:pam@zuluru.org');
+		$this->assertResponseContains('(416) 678-9012 (home)');
+		$this->assertResponseContains('(416) 789-0123 x456 (work)');
+		$this->assertResponseContains('/people\\/vcf?person=' . PERSON_ID_PLAYER);
+		$this->assertResponseContains('/people\\/note?person=' . PERSON_ID_PLAYER);
+		$this->assertResponseContains('/people\\/act_as?person=' . PERSON_ID_PLAYER);
 
 		// But are restricted when viewing tooltip of people not in their affiliate
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => PERSON_ID_ANDY_SUB], PERSON_ID_MANAGER, 'getajax');
-		$this->assertResponseNotRegExp('#mailto#ms');
-		$this->assertResponseNotRegExp('#\(home\)#ms');
-		$this->assertResponseNotRegExp('#\(work\)#ms');
-		$this->assertResponseNotRegExp('#\(mobile\)#ms');
-		$this->assertResponseNotRegExp('#/people\\\\/vcf\?person=' . PERSON_ID_ANDY_SUB . '#ms');
-		$this->assertResponseRegExp('#/people\\\\/note\?person=' . PERSON_ID_ANDY_SUB . '#ms');
-		$this->assertResponseNotRegExp('#/people\\\\/act_as\?person=' . PERSON_ID_ANDY_SUB . '#ms');
-	}
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => PERSON_ID_ANDY_SUB],
+			PERSON_ID_MANAGER);
+		$this->assertResponseNotContains('mailto');
+		$this->assertResponseNotContains('(home)');
+		$this->assertResponseNotContains('(work)');
+		$this->assertResponseNotContains('(mobile)');
+		$this->assertResponseNotContains('/people\\/vcf?person=' . PERSON_ID_ANDY_SUB);
+		$this->assertResponseContains('/people\\/note?person=' . PERSON_ID_ANDY_SUB);
+		$this->assertResponseNotContains('/people\\/act_as?person=' . PERSON_ID_ANDY_SUB);
 
-	/**
-	 * Test tooltip method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testTooltipAsCoordinator() {
 		// Coordinator gets to see contact info for their captains
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => PERSON_ID_CAPTAIN], PERSON_ID_COORDINATOR, 'getajax');
-		$this->assertResponseRegExp('#mailto:crystal@zuluru.org#ms');
-		$this->assertResponseRegExp('#\(416\) 567-8910 \(home\)#ms');
-		$this->assertResponseRegExp('#/people\\\\/vcf\?person=' . PERSON_ID_CAPTAIN . '#ms');
-		$this->assertResponseRegExp('#/people\\\\/note\?person=' . PERSON_ID_CAPTAIN . '#ms');
-		$this->assertResponseNotRegExp('#/people\\\\/act_as\?person=' . PERSON_ID_CAPTAIN . '#ms');
-	}
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => PERSON_ID_CAPTAIN],
+			PERSON_ID_COORDINATOR);
+		$this->assertResponseContains('mailto:crystal@zuluru.org');
+		$this->assertResponseContains('(416) 567-8910 (home)');
+		$this->assertResponseContains('/people\\/vcf?person=' . PERSON_ID_CAPTAIN);
+		$this->assertResponseContains('/people\\/note?person=' . PERSON_ID_CAPTAIN);
+		$this->assertResponseNotContains('/people\\/act_as?person=' . PERSON_ID_CAPTAIN);
 
-	/**
-	 * Test tooltip method as a captain
-	 *
-	 * @return void
-	 */
-	public function testTooltipAsCaptain() {
 		// Captain gets to see contact info for their players
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => PERSON_ID_PLAYER], PERSON_ID_CAPTAIN, 'getajax');
-		$this->assertResponseRegExp('#mailto:pam@zuluru.org#ms');
-		$this->assertResponseRegExp('#\(416\) 678-9012 \(home\)#ms');
-		$this->assertResponseRegExp('#\(416\) 789-0123 x456 \(work\)#ms');
-		$this->assertResponseRegExp('#/people\\\\/vcf\?person=' . PERSON_ID_PLAYER . '#ms');
-		$this->assertResponseRegExp('#/people\\\\/note\?person=' . PERSON_ID_PLAYER . '#ms');
-		$this->assertResponseNotRegExp('#/people\\\\/act_as\?person=' . PERSON_ID_PLAYER . '#ms');
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_CAPTAIN);
+		$this->assertResponseContains('mailto:pam@zuluru.org');
+		$this->assertResponseContains('(416) 678-9012 (home)');
+		$this->assertResponseContains('(416) 789-0123 x456 (work)');
+		$this->assertResponseContains('/people\\/vcf?person=' . PERSON_ID_PLAYER);
+		$this->assertResponseContains('/people\\/note?person=' . PERSON_ID_PLAYER);
+		$this->assertResponseNotContains('/people\\/act_as?person=' . PERSON_ID_PLAYER);
 
 		// And for their coordinator
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => PERSON_ID_COORDINATOR], PERSON_ID_CAPTAIN, 'getajax');
-		$this->assertResponseRegExp('#mailto:cindy@zuluru.org#ms');
-		$this->assertResponseRegExp('#\(416\) 456-7890 \(home\)#ms');
-		$this->assertResponseRegExp('#/people\\\\/vcf\?person=' . PERSON_ID_COORDINATOR . '#ms');
-		$this->assertResponseRegExp('#/people\\\\/note\?person=' . PERSON_ID_COORDINATOR . '#ms');
-		$this->assertResponseNotRegExp('#/people\\\\/act_as\?person=' . PERSON_ID_COORDINATOR . '#ms');
-	}
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => PERSON_ID_COORDINATOR],
+			PERSON_ID_CAPTAIN);
+		$this->assertResponseContains('mailto:cindy@zuluru.org');
+		$this->assertResponseContains('(416) 456-7890 (home)');
+		$this->assertResponseContains('/people\\/vcf?person=' . PERSON_ID_COORDINATOR);
+		$this->assertResponseContains('/people\\/note?person=' . PERSON_ID_COORDINATOR);
+		$this->assertResponseNotContains('/people\\/act_as?person=' . PERSON_ID_COORDINATOR);
 
-	/**
-	 * Test tooltip method as a player
-	 *
-	 * @return void
-	 */
-	public function testTooltipAsPlayer() {
 		// Player gets to see contact info for their own captain
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => PERSON_ID_CAPTAIN], PERSON_ID_PLAYER, 'getajax');
-		$this->assertResponseRegExp('#mailto:crystal@zuluru.org#ms');
-		$this->assertResponseRegExp('#\(416\) 567-8910 \(home\)#ms');
-		$this->assertResponseRegExp('#/people\\\\/vcf\?person=' . PERSON_ID_CAPTAIN . '#ms');
-		$this->assertResponseRegExp('#/people\\\\/note\?person=' . PERSON_ID_CAPTAIN . '#ms');
-		$this->assertResponseNotRegExp('#/people\\\\/act_as\?person=' . PERSON_ID_CAPTAIN . '#ms');
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => PERSON_ID_CAPTAIN],
+			PERSON_ID_PLAYER);
+		$this->assertResponseContains('mailto:crystal@zuluru.org');
+		$this->assertResponseContains('(416) 567-8910 (home)');
+		$this->assertResponseContains('/people\\/vcf?person=' . PERSON_ID_CAPTAIN);
+		$this->assertResponseContains('/people\\/note?person=' . PERSON_ID_CAPTAIN);
+		$this->assertResponseNotContains('/people\\/act_as?person=' . PERSON_ID_CAPTAIN);
 
-		// And can act as their relatives
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => PERSON_ID_CHILD], PERSON_ID_PLAYER, 'getajax');
-		$this->assertResponseRegExp('#/people\\\\/note\?person=' . PERSON_ID_CHILD . '#ms');
-		$this->assertResponseRegExp('#/people\\\\/act_as\?person=' . PERSON_ID_CHILD . '#ms');
+		// And are allowed to act as their relatives
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => PERSON_ID_CHILD],
+			PERSON_ID_PLAYER);
+		$this->assertResponseContains('/people\\/note?person=' . PERSON_ID_CHILD);
+		$this->assertResponseContains('/people\\/act_as?person=' . PERSON_ID_CHILD);
 
 		// But sees less about other people
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => PERSON_ID_CAPTAIN2], PERSON_ID_PLAYER, 'getajax');
-		$this->assertResponseNotRegExp('#mailto#ms');
-		$this->assertResponseNotRegExp('#\(home\)#ms');
-		$this->assertResponseNotRegExp('#\(work\)#ms');
-		$this->assertResponseNotRegExp('#\(mobile\)#ms');
-		$this->assertResponseNotRegExp('#/people\\\\/vcf\?person=' . PERSON_ID_CAPTAIN2 . '#ms');
-		$this->assertResponseRegExp('#/people\\\\/note\?person=' . PERSON_ID_CAPTAIN2 . '#ms');
-		$this->assertResponseNotRegExp('#/people\\\\/act_as\?person=' . PERSON_ID_CAPTAIN2 . '#ms');
-	}
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => PERSON_ID_CAPTAIN2],
+			PERSON_ID_PLAYER);
+		$this->assertResponseNotContains('mailto');
+		$this->assertResponseNotContains('(home)');
+		$this->assertResponseNotContains('(work)');
+		$this->assertResponseNotContains('(mobile)');
+		$this->assertResponseNotContains('/people\\/vcf?person=' . PERSON_ID_CAPTAIN2);
+		$this->assertResponseContains('/people\\/note?person=' . PERSON_ID_CAPTAIN2);
+		$this->assertResponseNotContains('/people\\/act_as?person=' . PERSON_ID_CAPTAIN2);
 
-	/**
-	 * Test tooltip method as someone else
-	 *
-	 * @return void
-	 */
-	public function testTooltipAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Including inactive people, even if they've published info
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => PERSON_ID_INACTIVE],
+			PERSON_ID_PLAYER);
+		$this->assertResponseNotContains('mailto');
+		$this->assertResponseNotContains('(home)');
+		$this->assertResponseNotContains('(work)');
+		$this->assertResponseNotContains('(mobile)');
+		$this->assertResponseNotContains('/people\\/vcf?person=' . PERSON_ID_INACTIVE);
+		$this->assertResponseContains('/people\\/note?person=' . PERSON_ID_INACTIVE);
+		$this->assertResponseNotContains('/people\\/act_as?person=' . PERSON_ID_INACTIVE);
 
-	/**
-	 * Test tooltip method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testTooltipAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_VISITOR);
+
+		$this->assertGetAjaxAnonymousAccessOk(['controller' => 'People', 'action' => 'tooltip', 'person' => PERSON_ID_PLAYER]);
 	}
 
 	/**
@@ -589,6 +421,9 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsAdmin() {
+		// Admins are allowed to edit
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit'], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit', 'person' => PERSON_ID_PLAYER], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -598,6 +433,9 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsManager() {
+		// Managers are allowed to edit
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit'], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit', 'person' => PERSON_ID_PLAYER], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -607,6 +445,9 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsCoordinator() {
+		// Coordinators are allowed to edit themselves only
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'edit', 'person' => PERSON_ID_PLAYER], PERSON_ID_COORDINATOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -616,6 +457,10 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsCaptain() {
+		// Captains are allowed to edit themselves and their relatives only
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit', 'person' => PERSON_ID_CAPTAIN2], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'edit', 'person' => PERSON_ID_PLAYER], PERSON_ID_CAPTAIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -628,8 +473,12 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		$this->assertAccessRedirect(['controller' => 'People', 'action' => 'edit'],
-			PERSON_ID_PLAYER, 'post', ['shirt_size' => 'Mens Large'], null, 'Your profile has been saved.', 'Flash.flash.0.message');
+		// Players are allowed to edit themselves and their relatives only
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit'], PERSON_ID_PLAYER);
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'edit'],
+			PERSON_ID_PLAYER, ['shirt_size' => 'Mens Large'], '/', 'Your profile has been saved.');
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit', 'person' => PERSON_ID_CHILD], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'edit', 'person' => PERSON_ID_COORDINATOR], PERSON_ID_PLAYER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -639,6 +488,9 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsVisitor() {
+		// Visitors are allowed to edit themselves only
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'edit', 'person' => PERSON_ID_PLAYER], PERSON_ID_VISITOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -648,6 +500,9 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsAnonymous() {
+		// Others are not allowed to edit people
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'edit']);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'edit', 'person' => PERSON_ID_PLAYER]);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -657,6 +512,14 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDeactivateAsAdmin() {
+		// Admins are allowed to deactivate people
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'deactivate', 'person' => PERSON_ID_PLAYER], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'deactivate'], PERSON_ID_ADMIN);
+
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'deactivate'],
+			PERSON_ID_ADMIN, [], '/', 'Your profile has been deactivated; sorry to see you go. If you ever change your mind, you can just return to the site and reactivate your profile; we\'ll be happy to have you back!');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -666,6 +529,9 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDeactivateAsManager() {
+		// Managers are allowed to deactivate people
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'deactivate', 'person' => PERSON_ID_PLAYER], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'deactivate'], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -675,6 +541,11 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDeactivateAsCoordinator() {
+		// Coordinators are not allowed to deactivate others, or themselves while they're actively running a league
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'deactivate', 'person' => PERSON_ID_PLAYER], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'deactivate'],
+			PERSON_ID_COORDINATOR, '/',
+			'You cannot deactivate your account while you are coordinating an active division.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -684,6 +555,11 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDeactivateAsCaptain() {
+		// Captains are not allowed to deactivate others, or themselves while they're actively running a team
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'deactivate', 'person' => PERSON_ID_PLAYER], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'deactivate'],
+			PERSON_ID_CAPTAIN, '/',
+			'You cannot deactivate your account while you are on an active team.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -693,6 +569,11 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDeactivateAsPlayer() {
+		// Players are not allowed to deactivate others, or themselves while they're on an active team
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'deactivate', 'person' => PERSON_ID_VISITOR], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'deactivate'],
+			PERSON_ID_PLAYER, '/',
+			'You cannot deactivate your account while you are on an active team.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -702,6 +583,9 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDeactivateAsVisitor() {
+		// Visitors are allowed to deactivate themselves only
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'deactivate', 'person' => PERSON_ID_PLAYER], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'deactivate'], PERSON_ID_VISITOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -711,6 +595,9 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDeactivateAsAnonymous() {
+		// Others are not allowed to deactivate people
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'deactivate']);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'deactivate', 'person' => PERSON_ID_PLAYER]);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -720,6 +607,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testReactivateAsAdmin() {
+		// Admins are allowed to reactivate
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'reactivate', 'person' => PERSON_ID_INACTIVE], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -729,6 +618,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testReactivateAsManager() {
+		// Managers are allowed to reactivate
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'reactivate', 'person' => PERSON_ID_INACTIVE], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -738,6 +629,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testReactivateAsCoordinator() {
+		// Coordinators are allowed to reactivate
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'reactivate', 'person' => PERSON_ID_INACTIVE], PERSON_ID_COORDINATOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -747,6 +640,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testReactivateAsCaptain() {
+		// Captains are allowed to reactivate
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'reactivate', 'person' => PERSON_ID_INACTIVE], PERSON_ID_CAPTAIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -756,6 +651,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testReactivateAsPlayer() {
+		// Players are allowed to reactivate
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'reactivate', 'person' => PERSON_ID_INACTIVE], PERSON_ID_PLAYER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -765,6 +662,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testReactivateAsVisitor() {
+		// Visitors are allowed to reactivate
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'reactivate', 'person' => PERSON_ID_INACTIVE], PERSON_ID_VISITOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -774,6 +673,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testReactivateAsAnonymous() {
+		// Others are not allowed to reactivate people
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'reactivate', 'person' => PERSON_ID_INACTIVE]);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -783,6 +684,9 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testConfirmAsAdmin() {
+		// Admins are allowed to confirm
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'confirm'],
+			PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -792,6 +696,9 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testConfirmAsManager() {
+		// Managers are allowed to confirm
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'confirm'],
+			PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -801,6 +708,9 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testConfirmAsCoordinator() {
+		// Coordinators are allowed to confirm
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'confirm'],
+			PERSON_ID_COORDINATOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -810,6 +720,9 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testConfirmAsCaptain() {
+		// Captains are allowed to confirm
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'confirm'],
+			PERSON_ID_CAPTAIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -819,6 +732,9 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testConfirmAsPlayer() {
+		// Players are allowed to confirm
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'confirm'],
+			PERSON_ID_PLAYER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -828,6 +744,9 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testConfirmAsVisitor() {
+		// Visitors are allowed to confirm
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'confirm'],
+			PERSON_ID_VISITOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -837,6 +756,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testConfirmAsAnonymous() {
+		// Others are not allowed to confirm
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'confirm']);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -846,7 +767,91 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testNoteAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		// Admins are allowed to add notes
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'note', 'person' => PERSON_ID_PLAYER], PERSON_ID_ADMIN);
+
+		// Empty notes don't get added
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_ADMIN, [
+				'person_id' => PERSON_ID_PLAYER,
+				'visibility' => VISIBILITY_PRIVATE,
+				'note' => '',
+			], ['action' => 'view', 'person' => PERSON_ID_PLAYER], 'You entered no text, so no note was added.');
+
+		// Add a private note
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_ADMIN, [
+				'person_id' => PERSON_ID_PLAYER,
+				'visibility' => VISIBILITY_PRIVATE,
+				'note' => 'This is a private note.',
+			], ['action' => 'view', 'person' => PERSON_ID_PLAYER], 'The note has been saved.');
+
+		// Confirm there was no notification email
+		$this->assertEmpty(Configure::read('test_emails'));
+
+		// Add a note for all admins to see
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_ADMIN, [
+				'person_id' => PERSON_ID_PLAYER,
+				'visibility' => VISIBILITY_ADMIN,
+				'note' => 'This is an admin note.',
+			], ['action' => 'view', 'person' => PERSON_ID_PLAYER], 'The note has been saved.');
+
+		// Confirm there was no notification email
+		$this->assertEmpty(Configure::read('test_emails'));
+
+		// Make sure they were added successfully
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_PLAYER], PERSON_ID_ADMIN);
+		$this->assertResponseContains('This is a private note.');
+		$this->assertResponseContains('This is an admin note.');
+
+		// Check the manager can also see the admin one
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_PLAYER], PERSON_ID_MANAGER);
+		$this->assertResponseNotContains('This is a private note.');
+		$this->assertResponseContains('This is an admin note.');
+
+		// Empty notes don't get added
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_ADMIN, [
+				'person_id' => PERSON_ID_PLAYER,
+				'visibility' => VISIBILITY_PRIVATE,
+				'note' => '',
+			], ['action' => 'view', 'person' => PERSON_ID_PLAYER], 'You entered no text, so no note was added.');
+
+		// Add a private note
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_ADMIN, [
+				'person_id' => PERSON_ID_PLAYER,
+				'visibility' => VISIBILITY_PRIVATE,
+				'note' => 'This is a private note.',
+			], ['action' => 'view', 'person' => PERSON_ID_PLAYER], 'The note has been saved.');
+
+		// Confirm there was no notification email
+		$this->assertEmpty(Configure::read('test_emails'));
+
+		// Add a note for all admins to see
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_ADMIN, [
+				'person_id' => PERSON_ID_PLAYER,
+				'visibility' => VISIBILITY_ADMIN,
+				'note' => 'This is an admin note.',
+			], ['action' => 'view', 'person' => PERSON_ID_PLAYER], 'The note has been saved.');
+
+		// Confirm there was no notification email
+		$this->assertEmpty(Configure::read('test_emails'));
+
+		// Make sure they were added successfully
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_PLAYER], PERSON_ID_ADMIN);
+		$this->assertResponseContains('This is a private note.');
+		$this->assertResponseContains('This is an admin note.');
+
+		// Check the manager can also see the admin one
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_PLAYER], PERSON_ID_MANAGER);
+		$this->assertResponseNotContains('This is a private note.');
+		$this->assertResponseContains('This is an admin note.');
 	}
 
 	/**
@@ -855,7 +860,42 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testNoteAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		// Managers are allowed to add notes
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'note', 'person' => PERSON_ID_PLAYER], PERSON_ID_MANAGER);
+		// Add a private note
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_MANAGER, [
+				'person_id' => PERSON_ID_PLAYER,
+				'visibility' => VISIBILITY_PRIVATE,
+				'note' => 'This is a private note.',
+			], ['action' => 'view', 'person' => PERSON_ID_PLAYER], 'The note has been saved.');
+
+		// Confirm there was no notification email
+		$this->assertEmpty(Configure::read('test_emails'));
+
+		// Add a note for all admins to see
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_MANAGER, [
+				'person_id' => PERSON_ID_PLAYER,
+				'visibility' => VISIBILITY_ADMIN,
+				'note' => 'This is an admin note.',
+			], ['action' => 'view', 'person' => PERSON_ID_PLAYER], 'The note has been saved.');
+
+		// Confirm there was no notification email
+		$this->assertEmpty(Configure::read('test_emails'));
+
+		// Make sure they were added successfully
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_PLAYER], PERSON_ID_MANAGER);
+		$this->assertResponseContains('This is a private note.');
+		$this->assertResponseContains('This is an admin note.');
+
+		// Check the admin can also see the admin one
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_PLAYER], PERSON_ID_ADMIN);
+		$this->assertResponseNotContains('This is a private note.');
+		$this->assertResponseContains('This is an admin note.');
 	}
 
 	/**
@@ -864,7 +904,26 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testNoteAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		// Coordinators are allowed to add notes
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'note', 'person' => PERSON_ID_PLAYER], PERSON_ID_COORDINATOR);
+
+		// Add a private note
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_COORDINATOR, [
+				'person_id' => PERSON_ID_PLAYER,
+				'visibility' => VISIBILITY_PRIVATE,
+				'note' => 'This is a private note.',
+			], ['action' => 'view', 'person' => PERSON_ID_PLAYER], 'The note has been saved.');
+
+		// Confirm there was no notification email
+		$this->assertEmpty(Configure::read('test_emails'));
+
+		// Make sure it was added successfully
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_PLAYER], PERSON_ID_COORDINATOR);
+		$this->assertResponseContains('This is a private note.');
 	}
 
 	/**
@@ -873,6 +932,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testNoteAsCaptain() {
+		// Captains are allowed to add notes
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'note', 'person' => PERSON_ID_PLAYER], PERSON_ID_CAPTAIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -882,6 +943,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testNoteAsPlayer() {
+		// Players are allowed to add notes
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'note', 'person' => PERSON_ID_CAPTAIN], PERSON_ID_PLAYER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -891,6 +954,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testNoteAsVisitor() {
+		// Visitors are allowed to add notes
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'note', 'person' => PERSON_ID_PLAYER], PERSON_ID_VISITOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -900,6 +965,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testNoteAsAnonymous() {
+		// Others are not allowed to add notes
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'note', 'person' => PERSON_ID_PLAYER]);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -909,6 +976,22 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDeleteNoteAsAdmin() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		// Admins are allowed to delete admin notes
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'delete_note', 'note' => NOTE_ID_PERSON_PLAYER_ADMIN],
+			PERSON_ID_ADMIN, [], ['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_PLAYER],
+			'The note has been deleted.');
+
+		// But not other notes
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => NOTE_ID_PERSON_PLAYER_CAPTAIN],
+			PERSON_ID_ADMIN);
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => NOTE_ID_PERSON_PLAYER_PLAYER],
+			PERSON_ID_ADMIN);
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => NOTE_ID_PERSON_PLAYER_VISITOR],
+			PERSON_ID_ADMIN);
+
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -918,15 +1001,22 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDeleteNoteAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
-	/**
-	 * Test delete_note method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testDeleteNoteAsCoordinator() {
+		// Managers are allowed to delete admin notes
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'delete_note', 'note' => NOTE_ID_PERSON_PLAYER_ADMIN],
+			PERSON_ID_MANAGER, [], ['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_PLAYER],
+			'The note has been deleted.');
+
+		// But not other notes
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => NOTE_ID_PERSON_PLAYER_CAPTAIN],
+			PERSON_ID_MANAGER);
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => NOTE_ID_PERSON_PLAYER_PLAYER],
+			PERSON_ID_MANAGER);
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => NOTE_ID_PERSON_PLAYER_VISITOR],
+			PERSON_ID_MANAGER);
+
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -936,6 +1026,22 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDeleteNoteAsCaptain() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		// Captains are only allowed to delete notes they created
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'delete_note', 'note' => NOTE_ID_PERSON_PLAYER_CAPTAIN],
+			PERSON_ID_CAPTAIN, [], ['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_PLAYER],
+			'The note has been deleted.');
+
+		// But not other notes
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => NOTE_ID_PERSON_PLAYER_ADMIN],
+			PERSON_ID_CAPTAIN);
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => NOTE_ID_PERSON_PLAYER_PLAYER],
+			PERSON_ID_CAPTAIN);
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => NOTE_ID_PERSON_PLAYER_VISITOR],
+			PERSON_ID_CAPTAIN);
+
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -945,6 +1051,22 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDeleteNoteAsPlayer() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		// Players are only allowed to delete notes they created
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'delete_note', 'note' => NOTE_ID_PERSON_PLAYER_PLAYER],
+			PERSON_ID_PLAYER, [], ['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_PLAYER],
+			'The note has been deleted.');
+
+		// But not other notes
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => NOTE_ID_PERSON_PLAYER_ADMIN],
+			PERSON_ID_PLAYER);
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => NOTE_ID_PERSON_PLAYER_CAPTAIN],
+			PERSON_ID_PLAYER);
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => NOTE_ID_PERSON_PLAYER_VISITOR],
+			PERSON_ID_PLAYER);
+
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -954,6 +1076,22 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDeleteNoteAsVisitor() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		// Visitors are only allowed to delete notes they created
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'delete_note', 'note' => NOTE_ID_PERSON_PLAYER_VISITOR],
+			PERSON_ID_VISITOR, [], ['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_PLAYER],
+			'The note has been deleted.');
+
+		// But not other notes
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => NOTE_ID_PERSON_PLAYER_ADMIN],
+			PERSON_ID_VISITOR);
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => NOTE_ID_PERSON_PLAYER_CAPTAIN],
+			PERSON_ID_VISITOR);
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => NOTE_ID_PERSON_PLAYER_PLAYER],
+			PERSON_ID_VISITOR);
+
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -963,6 +1101,11 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDeleteNoteAsAnonymous() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		// Others are not allowed to delete notes
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => NOTE_ID_PERSON_PLAYER_PLAYER]);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -972,6 +1115,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testPreferencesAsAdmin() {
+		// Admins are allowed to edit their preferences
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'preferences'], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -981,6 +1126,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testPreferencesAsManager() {
+		// Managers are allowed to edit their preferences
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'preferences'], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -990,6 +1137,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testPreferencesAsCoordinator() {
+		// Coordinators are allowed to edit their preferences
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'preferences'], PERSON_ID_COORDINATOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -999,6 +1148,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testPreferencesAsCaptain() {
+		// Captains are allowed to edit their preferences
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'preferences'], PERSON_ID_CAPTAIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1008,6 +1159,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testPreferencesAsPlayer() {
+		// Players are allowed to edit their preferences
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'preferences'], PERSON_ID_PLAYER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1017,6 +1170,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testPreferencesAsVisitor() {
+		// Visitors are allowed to edit their preferences
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'preferences'], PERSON_ID_VISITOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1026,6 +1181,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testPreferencesAsAnonymous() {
+		// Others are allowed to edit their preferences
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'preferences']);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1038,8 +1195,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		$this->assertAccessRedirect(['controller' => 'People', 'action' => 'add_relative'],
-			PERSON_ID_PLAYER, 'post', [
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'add_relative'],
+			PERSON_ID_PLAYER, [
 				'groups' => ['_ids' => [GROUP_ID_PLAYER]],
 				'affiliates' => [['id' => AFFILIATE_ID_CLUB]],
 				'first_name' => 'Young',
@@ -1066,7 +1223,7 @@ class PeopleControllerTest extends ControllerTestCase {
 				],
 				'action' => 'create',
 			],
-			'/', 'The new profile has been saved. It must be approved by an administrator before you will have full access to the site.', 'Flash.flash.0.message'
+			'/', 'The new profile has been saved. It must be approved by an administrator before you will have full access to the site.'
 		);
 
 		$child = TableRegistry::get('People')->get(PERSON_ID_NEW, ['contain' => [
@@ -1102,41 +1259,42 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		// Anyone is allowed to link relatives
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'link_relative'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'link_relative'], PERSON_ID_PLAYER);
 
 		// Try the search page
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'link_relative'],
-			PERSON_ID_PLAYER, 'post', [
-			'affiliate_id' => '1',
-			'first_name' => '',
-			'last_name' => 'captain',
-			'sort' => 'last_name',
-			'direction' => 'asc',
-		]);
-		$this->assertResponseRegExp('#/people/link_relative\?relative=' . PERSON_ID_CAPTAIN . '&amp;person=' . PERSON_ID_PLAYER . '#ms');
-		$this->assertResponseRegExp('#/people/link_relative\?relative=' . PERSON_ID_CAPTAIN2 . '&amp;person=' . PERSON_ID_PLAYER . '#ms');
+		$this->assertPostAsAccessOk(['controller' => 'People', 'action' => 'link_relative'],
+			PERSON_ID_PLAYER, [
+				'affiliate_id' => '1',
+				'first_name' => '',
+				'last_name' => 'captain',
+				'sort' => 'last_name',
+				'direction' => 'asc',
+			]
+		);
+		$this->assertResponseContains('/people/link_relative?relative=' . PERSON_ID_CAPTAIN . '&amp;person=' . PERSON_ID_PLAYER);
+		$this->assertResponseContains('/people/link_relative?relative=' . PERSON_ID_CAPTAIN2 . '&amp;person=' . PERSON_ID_PLAYER);
 
-		$this->assertAccessRedirect(['controller' => 'People', 'action' => 'link_relative', 'relative' => PERSON_ID_CAPTAIN, 'person' => PERSON_ID_PLAYER],
-			PERSON_ID_PLAYER, 'get', [], null,
-			'Linked Crystal Captain as relative; you will not have access to their information until they have approved this.', 'Flash.flash.0.message');
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'link_relative', 'relative' => PERSON_ID_CAPTAIN, 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_PLAYER, '/',
+			'Linked Crystal Captain as relative; you will not have access to their information until they have approved this.');
 
 		// Confirm the notification email
 		$messages = Configure::read('test_emails');
 		$this->assertEquals(1, count($messages));
 
-		$this->assertRegExp('#From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;#ms', $messages[0]);
-		$this->assertRegExp('#Reply-To: &quot;Pam Player&quot; &lt;pam@zuluru.org&gt;#ms', $messages[0]);
-		$this->assertRegExp('#To: &quot;Crystal Captain&quot; &lt;crystal@zuluru.org&gt;#ms', $messages[0]);
-		$this->assertNotRegExp('#CC: #ms', $messages[0]);
-		$this->assertRegExp('#Subject: You have been linked as a relative#ms', $messages[0]);
-		$this->assertRegExp('#Pam Player has indicated on the Test Zuluru Affiliate web site that you are related to them.#ms', $messages[0]);
-		$this->assertRegExp('#If you accept, Pam will be granted access#ms', $messages[0]);
+		$this->assertContains('From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;', $messages[0]);
+		$this->assertContains('Reply-To: &quot;Pam Player&quot; &lt;pam@zuluru.org&gt;', $messages[0]);
+		$this->assertContains('To: &quot;Crystal Captain&quot; &lt;crystal@zuluru.org&gt;', $messages[0]);
+		$this->assertNotContains('CC: ', $messages[0]);
+		$this->assertContains('Subject: You have been linked as a relative', $messages[0]);
+		$this->assertContains('Pam Player has indicated on the Test Zuluru Affiliate web site that you are related to them.', $messages[0]);
+		$this->assertContains('If you accept, Pam will be granted access', $messages[0]);
 		$this->assertRegExp('#Accept the request here:\s*' . Configure::read('App.fullBaseUrl') . '/people/approve_relative\?person=' . PERSON_ID_CAPTAIN . '&relative=' . PERSON_ID_PLAYER . '#ms', $messages[0]);
 		$this->assertRegExp('#Decline the request here:\s*' . Configure::read('App.fullBaseUrl') . '/people/remove_relative\?person=' . PERSON_ID_CAPTAIN . '&relative=' . PERSON_ID_PLAYER . '#ms', $messages[0]);
 
 		// Make sure they were added successfully
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'view'], PERSON_ID_PLAYER);
-		$this->assertResponseRegExp('#/people/remove_relative\?person=' . PERSON_ID_PLAYER . '&amp;relative=' . PERSON_ID_CAPTAIN . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view'], PERSON_ID_PLAYER);
+		$this->assertResponseContains('/people/remove_relative?person=' . PERSON_ID_PLAYER . '&amp;relative=' . PERSON_ID_CAPTAIN);
 	}
 
 	/**
@@ -1145,6 +1303,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testLinkRelativeAsAnonymous() {
+		// Others are not allowed to link relatives
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'link_relative']);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1155,23 +1315,23 @@ class PeopleControllerTest extends ControllerTestCase {
 	 */
 	public function testApproveRelative() {
 		// The invited relative is allowed to approve the request
-		$this->assertAccessRedirect(['controller' => 'People', 'action' => 'approve_relative', 'person' => PERSON_ID_CAPTAIN, 'relative' => PERSON_ID_CAPTAIN2],
-			PERSON_ID_CAPTAIN, 'get', [], ['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_CAPTAIN],
-			'Approved the relative request.', 'Flash.flash.0.message');
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'approve_relative', 'person' => PERSON_ID_CAPTAIN, 'relative' => PERSON_ID_CAPTAIN2],
+			PERSON_ID_CAPTAIN, ['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_CAPTAIN],
+			'Approved the relative request.');
 
 		// Confirm the notification email
 		$messages = Configure::read('test_emails');
 		$this->assertEquals(1, count($messages));
 
-		$this->assertRegExp('#From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;#ms', $messages[0]);
-		$this->assertRegExp('#Reply-To: &quot;Crystal Captain&quot; &lt;crystal@zuluru.org&gt;#ms', $messages[0]);
-		$this->assertRegExp('#To: &quot;Chuck Captain&quot; &lt;chuck@zuluru.org&gt;#ms', $messages[0]);
-		$this->assertNotRegExp('#CC: #ms', $messages[0]);
-		$this->assertRegExp('#Subject: Crystal Captain approved your relative request#ms', $messages[0]);
-		$this->assertRegExp('#Your relative request to Crystal Captain on the Test Zuluru Affiliate web site has been approved.#ms', $messages[0]);
+		$this->assertContains('From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;', $messages[0]);
+		$this->assertContains('Reply-To: &quot;Crystal Captain&quot; &lt;crystal@zuluru.org&gt;', $messages[0]);
+		$this->assertContains('To: &quot;Chuck Captain&quot; &lt;chuck@zuluru.org&gt;', $messages[0]);
+		$this->assertNotContains('CC: ', $messages[0]);
+		$this->assertContains('Subject: Crystal Captain approved your relative request', $messages[0]);
+		$this->assertContains('Your relative request to Crystal Captain on the Test Zuluru Affiliate web site has been approved.', $messages[0]);
 
 		// Make sure they were added successfully
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_CAPTAIN], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_CAPTAIN], PERSON_ID_CAPTAIN);
 		$this->assertResponseRegExp('#<td>You can control <a[^>]*>Chuck Captain</a></td>\s*<td>Yes</td>#ms');
 		$this->assertResponseRegExp('#<td><a[^>]*>Chuck Captain</a> can control you</td>\s*<td>Yes</td>#ms');
 
@@ -1185,23 +1345,23 @@ class PeopleControllerTest extends ControllerTestCase {
 	 */
 	public function testRemoveRelativeAsPerson() {
 		// A person is allowed to remove their relations
-		$this->assertAccessRedirect(['controller' => 'People', 'action' => 'remove_relative', 'person' => PERSON_ID_CAPTAIN, 'relative' => PERSON_ID_CAPTAIN2],
-			PERSON_ID_CAPTAIN, 'get', [], ['controller' => 'People', 'action' => 'view'],
-			'Removed the relation.', 'Flash.flash.0.message');
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'remove_relative', 'person' => PERSON_ID_CAPTAIN, 'relative' => PERSON_ID_CAPTAIN2],
+			PERSON_ID_CAPTAIN, ['controller' => 'People', 'action' => 'view'],
+			'Removed the relation.');
 
 		// Confirm the notification email
 		$messages = Configure::read('test_emails');
 		$this->assertEquals(1, count($messages));
 
-		$this->assertRegExp('#From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;#ms', $messages[0]);
-		$this->assertRegExp('#Reply-To: &quot;Crystal Captain&quot; &lt;crystal@zuluru.org&gt;#ms', $messages[0]);
-		$this->assertRegExp('#To: &quot;Chuck Captain&quot; &lt;chuck@zuluru.org&gt;#ms', $messages[0]);
-		$this->assertNotRegExp('#CC: #ms', $messages[0]);
-		$this->assertRegExp('#Subject: Crystal Captain removed your relation#ms', $messages[0]);
-		$this->assertRegExp('#Crystal Captain has removed you as a relative on the Test Zuluru Affiliate web site.#ms', $messages[0]);
+		$this->assertContains('From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;', $messages[0]);
+		$this->assertContains('Reply-To: &quot;Crystal Captain&quot; &lt;crystal@zuluru.org&gt;', $messages[0]);
+		$this->assertContains('To: &quot;Chuck Captain&quot; &lt;chuck@zuluru.org&gt;', $messages[0]);
+		$this->assertNotContains('CC: ', $messages[0]);
+		$this->assertContains('Subject: Crystal Captain removed your relation', $messages[0]);
+		$this->assertContains('Crystal Captain has removed you as a relative on the Test Zuluru Affiliate web site.', $messages[0]);
 
 		// Make sure they were removed successfully
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_CAPTAIN], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_CAPTAIN], PERSON_ID_CAPTAIN);
 		$this->assertResponseNotRegExp('#<td>You can control <a[^>]*>Chuck Captain</a></td>#ms');
 		$this->assertResponseRegExp('#<a[^>]*>Chuck Captain</a> can control you</td>#ms');
 	}
@@ -1213,23 +1373,23 @@ class PeopleControllerTest extends ControllerTestCase {
 	 */
 	public function testRemoveRelativeAsRelative() {
 		// A person is allowed to remove relations in either direction
-		$this->assertAccessRedirect(['controller' => 'People', 'action' => 'remove_relative', 'person' => PERSON_ID_CAPTAIN2, 'relative' => PERSON_ID_CAPTAIN],
-			PERSON_ID_CAPTAIN, 'get', [], ['controller' => 'People', 'action' => 'view'],
-			'Removed the relation.', 'Flash.flash.0.message');
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'remove_relative', 'person' => PERSON_ID_CAPTAIN2, 'relative' => PERSON_ID_CAPTAIN],
+			PERSON_ID_CAPTAIN, ['controller' => 'People', 'action' => 'view'],
+			'Removed the relation.');
 
 		// Confirm the notification email
 		$messages = Configure::read('test_emails');
 		$this->assertEquals(1, count($messages));
 
-		$this->assertRegExp('#From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;#ms', $messages[0]);
-		$this->assertRegExp('#Reply-To: &quot;Crystal Captain&quot; &lt;crystal@zuluru.org&gt;#ms', $messages[0]);
-		$this->assertRegExp('#To: &quot;Chuck Captain&quot; &lt;chuck@zuluru.org&gt;#ms', $messages[0]);
-		$this->assertNotRegExp('#CC: #ms', $messages[0]);
-		$this->assertRegExp('#Subject: Crystal Captain removed your relation#ms', $messages[0]);
-		$this->assertRegExp('#Crystal Captain has removed you as a relative on the Test Zuluru Affiliate web site.#ms', $messages[0]);
+		$this->assertContains('From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;', $messages[0]);
+		$this->assertContains('Reply-To: &quot;Crystal Captain&quot; &lt;crystal@zuluru.org&gt;', $messages[0]);
+		$this->assertContains('To: &quot;Chuck Captain&quot; &lt;chuck@zuluru.org&gt;', $messages[0]);
+		$this->assertNotContains('CC: ', $messages[0]);
+		$this->assertContains('Subject: Crystal Captain removed your relation', $messages[0]);
+		$this->assertContains('Crystal Captain has removed you as a relative on the Test Zuluru Affiliate web site.', $messages[0]);
 
 		// Make sure they were removed successfully
-		$this->assertAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_CAPTAIN], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_CAPTAIN], PERSON_ID_CAPTAIN);
 		$this->assertResponseRegExp('#<td>You can control <a[^>]*>Chuck Captain</a></td>#ms');
 		$this->assertResponseNotRegExp('#<a[^>]*>Chuck Captain</a> can control you</td>#ms');
 	}
@@ -1239,15 +1399,15 @@ class PeopleControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRemoveRelativeAsOther() {
+	public function testRemoveRelativeAsOthers() {
 		// Others are not allowed to remove relatives
-		$this->assertAccessRedirect(['controller' => 'People', 'action' => 'remove_relative', 'person' => PERSON_ID_CAPTAIN, 'relative' => PERSON_ID_CAPTAIN2],
-			PERSON_ID_PLAYER, 'get', [], ['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_CAPTAIN]);
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'remove_relative', 'person' => PERSON_ID_PLAYER, 'relative' => PERSON_ID_CAPTAIN2],
+			PERSON_ID_PLAYER, ['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_PLAYER],
+			'The authorization code is invalid.');
 
 		// TODO: Test with codes
 		// TODO: Test as admin / manager
 	}
-
 
 	/**
 	 * Test authorize_twitter method as an admin
@@ -1255,7 +1415,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAuthorizeTwitterAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
@@ -1264,7 +1424,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAuthorizeTwitterAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
@@ -1273,7 +1433,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAuthorizeTwitterAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
@@ -1282,7 +1442,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAuthorizeTwitterAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
@@ -1291,7 +1451,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAuthorizeTwitterAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
@@ -1300,7 +1460,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAuthorizeTwitterAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
@@ -1309,7 +1469,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAuthorizeTwitterAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
@@ -1318,7 +1478,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRevokeTwitterAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
@@ -1327,7 +1487,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRevokeTwitterAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
@@ -1336,7 +1496,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRevokeTwitterAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
@@ -1345,7 +1505,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRevokeTwitterAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
@@ -1354,7 +1514,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRevokeTwitterAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
@@ -1363,7 +1523,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRevokeTwitterAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
@@ -1372,70 +1532,25 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRevokeTwitterAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
-	 * Test photo method as an admin
+	 * Test photo method
 	 *
 	 * @return void
 	 */
-	public function testPhotoAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testPhoto() {
+		// Anyone logged in is allowed to view photos
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'photo', 'person' => PERSON_ID_CAPTAIN], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'photo', 'person' => PERSON_ID_CAPTAIN], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'photo', 'person' => PERSON_ID_CAPTAIN], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'photo', 'person' => PERSON_ID_CAPTAIN], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'photo', 'person' => PERSON_ID_CAPTAIN], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'photo', 'person' => PERSON_ID_CAPTAIN], PERSON_ID_VISITOR);
 
-	/**
-	 * Test photo method as a manager
-	 *
-	 * @return void
-	 */
-	public function testPhotoAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test photo method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testPhotoAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test photo method as a captain
-	 *
-	 * @return void
-	 */
-	public function testPhotoAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test photo method as a player
-	 *
-	 * @return void
-	 */
-	public function testPhotoAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test photo method as someone else
-	 *
-	 * @return void
-	 */
-	public function testPhotoAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test photo method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testPhotoAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to view photos
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'photo', 'person' => PERSON_ID_CAPTAIN]);
 	}
 
 	/**
@@ -1444,6 +1559,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testPhotoUploadAsAdmin() {
+		// Admins are allowed to upload photos
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'photo_upload'], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1453,6 +1570,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testPhotoUploadAsManager() {
+		// Managers are allowed to upload photos
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'photo_upload'], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1462,6 +1581,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testPhotoUploadAsCoordinator() {
+		// Coordinators are allowed to upload photos
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'photo_upload'], PERSON_ID_COORDINATOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1471,6 +1592,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testPhotoUploadAsCaptain() {
+		// Captains are allowed to upload photos
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'photo_upload'], PERSON_ID_CAPTAIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1480,6 +1603,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testPhotoUploadAsPlayer() {
+		// Players are allowed to upload photos
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'photo_upload'], PERSON_ID_PLAYER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1489,6 +1614,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testPhotoUploadAsVisitor() {
+		// Visitors are allowed to upload photos
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'photo_upload'], PERSON_ID_VISITOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1498,133 +1625,29 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testPhotoUploadAsAnonymous() {
+		// Others are not allowed to upload photos
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'photo_upload']);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test photo_resize method as an admin
+	 * Test approve_photos method
 	 *
 	 * @return void
 	 */
-	public function testPhotoResizeAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testApprovePhotos() {
+		// Admins are allowed to approve photos
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'approve_photos'], PERSON_ID_ADMIN);
 
-	/**
-	 * Test photo_resize method as a manager
-	 *
-	 * @return void
-	 */
-	public function testPhotoResizeAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Managers are allowed to approve photos
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'approve_photos'], PERSON_ID_MANAGER);
 
-	/**
-	 * Test photo_resize method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testPhotoResizeAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test photo_resize method as a captain
-	 *
-	 * @return void
-	 */
-	public function testPhotoResizeAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test photo_resize method as a player
-	 *
-	 * @return void
-	 */
-	public function testPhotoResizeAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test photo_resize method as someone else
-	 *
-	 * @return void
-	 */
-	public function testPhotoResizeAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test photo_resize method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testPhotoResizeAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_photos method as an admin
-	 *
-	 * @return void
-	 */
-	public function testApprovePhotosAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_photos method as a manager
-	 *
-	 * @return void
-	 */
-	public function testApprovePhotosAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_photos method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testApprovePhotosAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_photos method as a captain
-	 *
-	 * @return void
-	 */
-	public function testApprovePhotosAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_photos method as a player
-	 *
-	 * @return void
-	 */
-	public function testApprovePhotosAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_photos method as someone else
-	 *
-	 * @return void
-	 */
-	public function testApprovePhotosAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_photos method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testApprovePhotosAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to approve photos
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve_photos'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve_photos'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve_photos'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve_photos'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'approve_photos']);
 	}
 
 	/**
@@ -1633,6 +1656,9 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testApprovePhotoAsAdmin() {
+		// Admins are allowed to approve photo
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'approve_photo', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1642,52 +1668,28 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testApprovePhotoAsManager() {
+		// Managers are allowed to approve photos
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'approve_photo', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test approve_photo method as a coordinator
+	 * Test approve_photo method as others
 	 *
 	 * @return void
 	 */
-	public function testApprovePhotoAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_photo method as a captain
-	 *
-	 * @return void
-	 */
-	public function testApprovePhotoAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_photo method as a player
-	 *
-	 * @return void
-	 */
-	public function testApprovePhotoAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_photo method as someone else
-	 *
-	 * @return void
-	 */
-	public function testApprovePhotoAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_photo method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testApprovePhotoAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testApprovePhotoAsOthers() {
+		// Others are not allowed to approve photos
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'approve_photo', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_COORDINATOR);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'approve_photo', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_CAPTAIN);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'approve_photo', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_PLAYER);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'approve_photo', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_VISITOR);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'People', 'action' => 'approve_photo', 'person' => PERSON_ID_PLAYER]);
 	}
 
 	/**
@@ -1696,6 +1698,9 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDeletePhotoAsAdmin() {
+		// Admins are allowed to delete photos
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'delete_photo', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1705,115 +1710,48 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDeletePhotoAsManager() {
+		// Managers are allowed to delete photos
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'delete_photo', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test delete_photo method as a coordinator
+	 * Test delete_photo method as others
 	 *
 	 * @return void
 	 */
-	public function testDeletePhotoAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testDeletePhotoAsOthers() {
+		// Others are not allowed to delete photos
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'delete_photo', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_COORDINATOR);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'delete_photo', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_CAPTAIN);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'delete_photo', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_PLAYER);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'delete_photo', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_VISITOR);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'People', 'action' => 'delete_photo', 'person' => PERSON_ID_PLAYER]);
 	}
 
 	/**
-	 * Test delete_photo method as a captain
+	 * Test document method
 	 *
 	 * @return void
 	 */
-	public function testDeletePhotoAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testDocument() {
+		// Admins are allowed to view documents
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'document', 'document' => UPLOAD_ID_CHILD_WAIVER], PERSON_ID_ADMIN);
 
-	/**
-	 * Test delete_photo method as a player
-	 *
-	 * @return void
-	 */
-	public function testDeletePhotoAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Managers are allowed to view documents
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'document', 'document' => UPLOAD_ID_CHILD_WAIVER], PERSON_ID_MANAGER);
 
-	/**
-	 * Test delete_photo method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeletePhotoAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete_photo method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeletePhotoAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test document method as an admin
-	 *
-	 * @return void
-	 */
-	public function testDocumentAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test document method as a manager
-	 *
-	 * @return void
-	 */
-	public function testDocumentAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test document method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testDocumentAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test document method as a captain
-	 *
-	 * @return void
-	 */
-	public function testDocumentAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test document method as a player
-	 *
-	 * @return void
-	 */
-	public function testDocumentAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test document method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDocumentAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test document method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDocumentAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to view documents
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'document', 'document' => UPLOAD_ID_CHILD_WAIVER], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'document', 'document' => UPLOAD_ID_CHILD_WAIVER], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'document', 'document' => UPLOAD_ID_CHILD_WAIVER], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'document', 'document' => UPLOAD_ID_CHILD_WAIVER], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'document', 'document' => UPLOAD_ID_CHILD_WAIVER]);
 	}
 
 	/**
@@ -1822,6 +1760,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDocumentUploadAsAdmin() {
+		// Admins are allowed to upload documents
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'document_upload'], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1831,6 +1771,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDocumentUploadAsManager() {
+		// Managers are allowed to upload documents
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'document_upload'], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1840,6 +1782,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDocumentUploadAsCoordinator() {
+		// Coordinators are allowed to upload documents
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'document_upload'], PERSON_ID_COORDINATOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1849,6 +1793,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDocumentUploadAsCaptain() {
+		// Captains are allowed to upload documents
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'document_upload'], PERSON_ID_CAPTAIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1858,6 +1804,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDocumentUploadAsPlayer() {
+		// Players are allowed to upload documents
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'document_upload'], PERSON_ID_PLAYER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1867,6 +1815,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDocumentUploadAsVisitor() {
+		// Visitors are allowed to upload documents
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'document_upload'], PERSON_ID_VISITOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1876,70 +1826,29 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDocumentUploadAsAnonymous() {
+		// Others are not allowed to upload documents
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'document_upload']);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test approve_documents method as an admin
+	 * Test approve_documents method
 	 *
 	 * @return void
 	 */
-	public function testApproveDocumentsAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testApproveDocuments() {
+		// Admins are allowed to approve documents
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'approve_documents'], PERSON_ID_ADMIN);
 
-	/**
-	 * Test approve_documents method as a manager
-	 *
-	 * @return void
-	 */
-	public function testApproveDocumentsAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Managers are allowed to approve documents
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'approve_documents'], PERSON_ID_MANAGER);
 
-	/**
-	 * Test approve_documents method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testApproveDocumentsAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_documents method as a captain
-	 *
-	 * @return void
-	 */
-	public function testApproveDocumentsAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_documents method as a player
-	 *
-	 * @return void
-	 */
-	public function testApproveDocumentsAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_documents method as someone else
-	 *
-	 * @return void
-	 */
-	public function testApproveDocumentsAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_documents method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testApproveDocumentsAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to approve documents
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve_documents'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve_documents'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve_documents'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve_documents'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'approve_documents']);
 	}
 
 	/**
@@ -1948,6 +1857,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testApproveDocumentAsAdmin() {
+		// Admins are allowed to approve documents
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'approve_document', 'document' => UPLOAD_ID_DOG_WAIVER], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1957,52 +1868,23 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testApproveDocumentAsManager() {
+		// Managers are allowed to approve documents
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'approve_document', 'document' => UPLOAD_ID_DOG_WAIVER], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test approve_document method as a coordinator
+	 * Test approve_document method as others
 	 *
 	 * @return void
 	 */
-	public function testApproveDocumentAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_document method as a captain
-	 *
-	 * @return void
-	 */
-	public function testApproveDocumentAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_document method as a player
-	 *
-	 * @return void
-	 */
-	public function testApproveDocumentAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_document method as someone else
-	 *
-	 * @return void
-	 */
-	public function testApproveDocumentAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_document method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testApproveDocumentAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testApproveDocumentAsOthers() {
+		// Others are not allowed to approve documents
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve_document', 'document' => UPLOAD_ID_DOG_WAIVER], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve_document', 'document' => UPLOAD_ID_DOG_WAIVER], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve_document', 'document' => UPLOAD_ID_DOG_WAIVER], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve_document', 'document' => UPLOAD_ID_DOG_WAIVER], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'approve_document', 'document' => UPLOAD_ID_DOG_WAIVER]);
 	}
 
 	/**
@@ -2011,6 +1893,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditDocumentAsAdmin() {
+		// Admins are allowed to edit documents
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit_document', 'document' => UPLOAD_ID_CHILD_WAIVER], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -2020,52 +1904,23 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditDocumentAsManager() {
+		// Managers are allowed to edit documents
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit_document', 'document' => UPLOAD_ID_CHILD_WAIVER], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test edit_document method as a coordinator
+	 * Test edit_document method as others
 	 *
 	 * @return void
 	 */
-	public function testEditDocumentAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit_document method as a captain
-	 *
-	 * @return void
-	 */
-	public function testEditDocumentAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit_document method as a player
-	 *
-	 * @return void
-	 */
-	public function testEditDocumentAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit_document method as someone else
-	 *
-	 * @return void
-	 */
-	public function testEditDocumentAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit_document method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testEditDocumentAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testEditDocumentAsOthers() {
+		// Others are not allowed to edit documents
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'edit_document', 'document' => UPLOAD_ID_CHILD_WAIVER], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'edit_document', 'document' => UPLOAD_ID_CHILD_WAIVER], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'edit_document', 'document' => UPLOAD_ID_CHILD_WAIVER], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'edit_document', 'document' => UPLOAD_ID_CHILD_WAIVER], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'edit_document', 'document' => UPLOAD_ID_CHILD_WAIVER]);
 	}
 
 	/**
@@ -2074,6 +1929,9 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDeleteDocumentAsAdmin() {
+		// Admins are allowed to delete documents
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'delete_document', 'document' => UPLOAD_ID_CHILD_WAIVER],
+			PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -2083,52 +1941,28 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDeleteDocumentAsManager() {
+		// Managers are allowed to delete documents
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'delete_document', 'document' => UPLOAD_ID_CHILD_WAIVER],
+			PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test delete_document method as a coordinator
+	 * Test delete_document method as others
 	 *
 	 * @return void
 	 */
-	public function testDeleteDocumentAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete_document method as a captain
-	 *
-	 * @return void
-	 */
-	public function testDeleteDocumentAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete_document method as a player
-	 *
-	 * @return void
-	 */
-	public function testDeleteDocumentAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete_document method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeleteDocumentAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete_document method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeleteDocumentAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testDeleteDocumentAsOthers() {
+		// Others are not allowed to delete documents
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'delete_document', 'document' => UPLOAD_ID_CHILD_WAIVER],
+			PERSON_ID_COORDINATOR);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'delete_document', 'document' => UPLOAD_ID_CHILD_WAIVER],
+			PERSON_ID_CAPTAIN);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'delete_document', 'document' => UPLOAD_ID_CHILD_WAIVER],
+			PERSON_ID_PLAYER);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'delete_document', 'document' => UPLOAD_ID_CHILD_WAIVER],
+			PERSON_ID_VISITOR);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'People', 'action' => 'delete_document', 'document' => UPLOAD_ID_CHILD_WAIVER]);
 	}
 
 	/**
@@ -2137,6 +1971,10 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testNominateAsAdmin() {
+		// Admins are allowed to nominate
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate'], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge', 'badge' => BADGE_ID_HALL_OF_FAME], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge_reason', 'badge' => BADGE_ID_HALL_OF_FAME, 'person' => PERSON_ID_INACTIVE], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -2146,6 +1984,10 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testNominateAsManager() {
+		// Managers are allowed to nominate
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate'], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge', 'badge' => BADGE_ID_HALL_OF_FAME], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge_reason', 'badge' => BADGE_ID_HALL_OF_FAME, 'person' => PERSON_ID_INACTIVE], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -2155,6 +1997,10 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testNominateAsCoordinator() {
+		// Coordinators are allowed to nominate
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge', 'badge' => BADGE_ID_HALL_OF_FAME], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge_reason', 'badge' => BADGE_ID_HALL_OF_FAME, 'person' => PERSON_ID_INACTIVE], PERSON_ID_COORDINATOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -2164,6 +2010,10 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testNominateAsCaptain() {
+		// Captains are allowed to nominate
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge', 'badge' => BADGE_ID_HALL_OF_FAME], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge_reason', 'badge' => BADGE_ID_HALL_OF_FAME, 'person' => PERSON_ID_INACTIVE], PERSON_ID_CAPTAIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -2173,6 +2023,10 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testNominateAsPlayer() {
+		// Players are allowed to nominate
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge', 'badge' => BADGE_ID_HALL_OF_FAME], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge_reason', 'badge' => BADGE_ID_HALL_OF_FAME, 'person' => PERSON_ID_INACTIVE], PERSON_ID_PLAYER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -2182,6 +2036,10 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testNominateAsVisitor() {
+		// Visitors are allowed to nominate
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge', 'badge' => BADGE_ID_HALL_OF_FAME], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge_reason', 'badge' => BADGE_ID_HALL_OF_FAME, 'person' => PERSON_ID_INACTIVE], PERSON_ID_VISITOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -2191,196 +2049,31 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testNominateAsAnonymous() {
+		// Others are not allowed to nominate
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'nominate']);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'nominate_badge', 'badge' => BADGE_ID_HALL_OF_FAME]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'nominate_badge_reason', 'badge' => BADGE_ID_HALL_OF_FAME, 'person' => PERSON_ID_INACTIVE]);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test nominate_badge method as an admin
+	 * Test approve_badges method
 	 *
 	 * @return void
 	 */
-	public function testNominateBadgeAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testApproveBadges() {
+		// Admins are allowed to approve badges
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'approve_badges'], PERSON_ID_ADMIN);
 
-	/**
-	 * Test nominate_badge method as a manager
-	 *
-	 * @return void
-	 */
-	public function testNominateBadgeAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Managers are allowed to approve badges
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'approve_badges'], PERSON_ID_MANAGER);
 
-	/**
-	 * Test nominate_badge method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testNominateBadgeAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test nominate_badge method as a captain
-	 *
-	 * @return void
-	 */
-	public function testNominateBadgeAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test nominate_badge method as a player
-	 *
-	 * @return void
-	 */
-	public function testNominateBadgeAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test nominate_badge method as someone else
-	 *
-	 * @return void
-	 */
-	public function testNominateBadgeAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test nominate_badge method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testNominateBadgeAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test nominate_badge_reason method as an admin
-	 *
-	 * @return void
-	 */
-	public function testNominateBadgeReasonAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test nominate_badge_reason method as a manager
-	 *
-	 * @return void
-	 */
-	public function testNominateBadgeReasonAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test nominate_badge_reason method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testNominateBadgeReasonAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test nominate_badge_reason method as a captain
-	 *
-	 * @return void
-	 */
-	public function testNominateBadgeReasonAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test nominate_badge_reason method as a player
-	 *
-	 * @return void
-	 */
-	public function testNominateBadgeReasonAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test nominate_badge_reason method as someone else
-	 *
-	 * @return void
-	 */
-	public function testNominateBadgeReasonAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test nominate_badge_reason method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testNominateBadgeReasonAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_badges method as an admin
-	 *
-	 * @return void
-	 */
-	public function testApproveBadgesAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_badges method as a manager
-	 *
-	 * @return void
-	 */
-	public function testApproveBadgesAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_badges method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testApproveBadgesAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_badges method as a captain
-	 *
-	 * @return void
-	 */
-	public function testApproveBadgesAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_badges method as a player
-	 *
-	 * @return void
-	 */
-	public function testApproveBadgesAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_badges method as someone else
-	 *
-	 * @return void
-	 */
-	public function testApproveBadgesAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_badges method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testApproveBadgesAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to approve badges
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve_badges'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve_badges'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve_badges'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve_badges'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'approve_badges']);
 	}
 
 	/**
@@ -2389,6 +2082,9 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testApproveBadgeAsAdmin() {
+		// Admins are allowed to approve badges
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'approve_badge', 'badge' => BADGE_ID_FOR_HALL_OF_FAME_CAPTAIN],
+			PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -2398,52 +2094,28 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testApproveBadgeAsManager() {
+		// Managers are allowed to approve badges
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'approve_badge', 'badge' => BADGE_ID_FOR_HALL_OF_FAME_CAPTAIN],
+			PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test approve_badge method as a coordinator
+	 * Test approve_badge method as others
 	 *
 	 * @return void
 	 */
-	public function testApproveBadgeAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_badge method as a captain
-	 *
-	 * @return void
-	 */
-	public function testApproveBadgeAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_badge method as a player
-	 *
-	 * @return void
-	 */
-	public function testApproveBadgeAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_badge method as someone else
-	 *
-	 * @return void
-	 */
-	public function testApproveBadgeAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_badge method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testApproveBadgeAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testApproveBadgeAsOthers() {
+		// Others are not allowed to approve badges
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'approve_badge', 'badge' => BADGE_ID_FOR_HALL_OF_FAME_CAPTAIN],
+			PERSON_ID_COORDINATOR);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'approve_badge', 'badge' => BADGE_ID_FOR_HALL_OF_FAME_CAPTAIN],
+			PERSON_ID_CAPTAIN);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'approve_badge', 'badge' => BADGE_ID_FOR_HALL_OF_FAME_CAPTAIN],
+			PERSON_ID_PLAYER);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'approve_badge', 'badge' => BADGE_ID_FOR_HALL_OF_FAME_CAPTAIN],
+			PERSON_ID_VISITOR);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'People', 'action' => 'approve_badge', 'badge' => BADGE_ID_FOR_HALL_OF_FAME_CAPTAIN]);
 	}
 
 	/**
@@ -2452,6 +2124,11 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDeleteBadgeAsAdmin() {
+		$this->enableCsrfToken();
+
+		// Admins are allowed to delete badges
+		$this->assertPostAjaxAsAccessOk(['controller' => 'People', 'action' => 'delete_badge', 'badge' => BADGE_ID_FOR_HALL_OF_FAME_CAPTAIN],
+			PERSON_ID_ADMIN, ['comment' => 'No badge for you.']);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -2461,52 +2138,33 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDeleteBadgeAsManager() {
+		$this->enableCsrfToken();
+
+		// Managers are allowed to delete badges
+		$this->assertPostAjaxAsAccessOk(['controller' => 'People', 'action' => 'delete_badge', 'badge' => BADGE_ID_FOR_HALL_OF_FAME_CAPTAIN],
+			PERSON_ID_MANAGER, ['comment' => 'No badge for you.']);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test delete_badge method as a coordinator
+	 * Test delete_badge method as others
 	 *
 	 * @return void
 	 */
-	public function testDeleteBadgeAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testDeleteBadgeAsOthers() {
+		$this->enableCsrfToken();
 
-	/**
-	 * Test delete_badge method as a captain
-	 *
-	 * @return void
-	 */
-	public function testDeleteBadgeAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete_badge method as a player
-	 *
-	 * @return void
-	 */
-	public function testDeleteBadgeAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete_badge method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeleteBadgeAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete_badge method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeleteBadgeAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to delete badges
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'People', 'action' => 'delete_badge', 'badge' => BADGE_ID_FOR_HALL_OF_FAME_CAPTAIN],
+			PERSON_ID_COORDINATOR, ['comment' => 'No badge for you.']);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'People', 'action' => 'delete_badge', 'badge' => BADGE_ID_FOR_HALL_OF_FAME_CAPTAIN],
+			PERSON_ID_CAPTAIN, ['comment' => 'No badge for you.']);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'People', 'action' => 'delete_badge', 'badge' => BADGE_ID_FOR_HALL_OF_FAME_CAPTAIN],
+			PERSON_ID_PLAYER, ['comment' => 'No badge for you.']);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'People', 'action' => 'delete_badge', 'badge' => BADGE_ID_FOR_HALL_OF_FAME_CAPTAIN],
+			PERSON_ID_VISITOR, ['comment' => 'No badge for you.']);
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'People', 'action' => 'delete_badge', 'badge' => BADGE_ID_FOR_HALL_OF_FAME_CAPTAIN],
+			['comment' => 'No badge for you.']);
 	}
 
 	/**
@@ -2515,6 +2173,13 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDeleteAsAdmin() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		// Admins are allowed to delete people
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'delete', 'person' => PERSON_ID_VISITOR],
+			PERSON_ID_ADMIN, [], '/',
+			'The person has been deleted.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -2524,440 +2189,341 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDeleteAsManager() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		// Managers are allowed to delete people
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'delete', 'person' => PERSON_ID_VISITOR],
+			PERSON_ID_MANAGER, [], '/',
+			'The person has been deleted.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test delete method as a coordinator
+	 * Test delete method as others
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testDeleteAsOthers() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		// Others are not allowed to delete people
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete', 'person' => PERSON_ID_VISITOR],
+			PERSON_ID_COORDINATOR);
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete', 'person' => PERSON_ID_VISITOR],
+			PERSON_ID_CAPTAIN);
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete', 'person' => PERSON_ID_VISITOR],
+			PERSON_ID_PLAYER);
+		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete', 'person' => PERSON_ID_VISITOR],
+			PERSON_ID_VISITOR);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'People', 'action' => 'delete', 'person' => PERSON_ID_VISITOR]);
 	}
 
 	/**
-	 * Test delete method as a captain
+	 * Test splash method
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testSplash() {
+		// Include all menu building in these tests
+		Configure::write('feature.minimal_menus', false);
+
+		// Anyone is allowed to get the splash page, different roles have different sets of messages
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'splash'], PERSON_ID_ADMIN);
+		$this->assertResponseRegExp('#The following affiliates do not yet have managers assigned to them:.*/affiliates/edit\?affiliate=2.*/affiliates/delete\?affiliate=2#ms');
+		$this->assertResponseContains('There are 1 new <a href="/people/list_new">accounts to approve</a>');
+		$this->assertResponseNotContains('Recent and Upcoming Schedule');
+
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'splash'], PERSON_ID_MANAGER);
+		$this->assertResponseNotRegExp('#The following affiliates do not yet have managers assigned to them:.*/affiliates/edit\?affiliate=2.*/affiliates/delete\?affiliate=2#ms');
+		$this->assertResponseContains('There are 1 new <a href="/people/list_new">accounts to approve</a>');
+		$this->assertResponseNotContains('Recent and Upcoming Schedule');
+
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'splash'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'splash'], PERSON_ID_CAPTAIN);
+
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'splash'], PERSON_ID_PLAYER);
+		$this->assertResponseNotRegExp('#The following affiliates do not yet have managers assigned to them:.*/affiliates/edit\?affiliate=2.*/affiliates/delete\?affiliate=2#ms');
+		$this->assertResponseNotContains('There are 1 new <a href="/people/list_new">accounts to approve</a>');
+		$this->assertResponseContains('Recent and Upcoming Schedule');
+
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'splash'], PERSON_ID_CAPTAIN);
+		$this->assertResponseContains('Recent and Upcoming Schedule');
+		$this->assertResponseRegExp('#<div id="ui-tabs-1">.*My Teams.*<div id="ui-tabs-2">.*Chuck\'s Teams.*<div id="ui-tabs-3">.*One moment\.\.\.#ms');
+
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'splash'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'splash']);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test delete method as a player
+	 * Test schedule method
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testSchedule() {
+		// Anyone logged in is allowed to see their own schedule, and that of confirmed relatives
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'schedule'],
+			PERSON_ID_ADMIN);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'schedule'],
+			PERSON_ID_MANAGER);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'schedule'],
+			PERSON_ID_COORDINATOR);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'schedule'],
+			PERSON_ID_CAPTAIN);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'schedule', 'person' => PERSON_ID_CAPTAIN2],
+			PERSON_ID_CAPTAIN);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'schedule', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_CAPTAIN);
+
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'schedule'],
+			PERSON_ID_PLAYER);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'schedule'],
+			[PERSON_ID_PLAYER, PERSON_ID_CHILD]);
+
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'schedule'],
+			PERSON_ID_VISITOR);
+
+		// Others are not allowed to get schedules
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'schedule', 'person' => PERSON_ID_CAPTAIN],
+			PERSON_ID_ADMIN);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'schedule', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_ADMIN);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'People', 'action' => 'schedule', 'person' => PERSON_ID_ANDY_SUB],
+			PERSON_ID_COORDINATOR);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'People', 'action' => 'schedule']);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test delete method as someone else
+	 * Test consolidated_schedule method
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testConsolidatedSchedule() {
+		// Anyone logged in is allowed to see their consolidated schedule
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'consolidated_schedule'],
+			PERSON_ID_ADMIN);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'consolidated_schedule'],
+			PERSON_ID_MANAGER);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'consolidated_schedule'],
+			PERSON_ID_COORDINATOR);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'consolidated_schedule'],
+			PERSON_ID_CAPTAIN);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'consolidated_schedule'],
+			PERSON_ID_PLAYER);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'consolidated_schedule'],
+			PERSON_ID_VISITOR);
+
+		// Others are not allowed to see consolidated schedules
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'People', 'action' => 'consolidated_schedule']);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test delete method without being logged in
+	 * Test act_as method
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testActAs() {
+		// Admins are allowed to act as anyone
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as'],
+			PERSON_ID_ADMIN, '/',
+			'There is nobody else you can act as.');
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', 'person' => PERSON_ID_MANAGER],
+			PERSON_ID_ADMIN, '/',
+			'You are now acting as Mary Manager.');
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', 'person' => PERSON_ID_COORDINATOR],
+			PERSON_ID_ADMIN, '/',
+			'You are now acting as Cindy Coordinator.');
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', 'person' => PERSON_ID_CAPTAIN],
+			PERSON_ID_ADMIN, '/',
+			'You are now acting as Crystal Captain.');
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_ADMIN, '/',
+			'You are now acting as Pam Player.');
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', 'person' => PERSON_ID_CHILD],
+			PERSON_ID_ADMIN, '/',
+			'You are now acting as Carla Child.');
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', 'person' => PERSON_ID_VISITOR],
+			PERSON_ID_ADMIN, '/',
+			'You are now acting as Veronica Visitor.');
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', 'person' => PERSON_ID_DUPLICATE],
+			PERSON_ID_ADMIN, '/',
+			'You are now acting as Mary Duplicate.');
+
+		// Managers are allowed to act as anyone in their affiliate
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_MANAGER, '/',
+			'You are now acting as Pam Player.');
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', 'person' => PERSON_ID_ADMIN],
+			PERSON_ID_MANAGER, '/',
+			'Managers cannot act as other managers.');
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', 'person' => PERSON_ID_COORDINATOR],
+			PERSON_ID_MANAGER, '/',
+			'You are now acting as Cindy Coordinator.');
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', 'person' => PERSON_ID_CAPTAIN],
+			PERSON_ID_MANAGER, '/',
+			'You are now acting as Crystal Captain.');
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', 'person' => PERSON_ID_PLAYER],
+			PERSON_ID_MANAGER, '/',
+			'You are now acting as Pam Player.');
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', 'person' => PERSON_ID_CHILD],
+			PERSON_ID_MANAGER, '/',
+			'You are now acting as Carla Child.');
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', 'person' => PERSON_ID_VISITOR],
+			PERSON_ID_MANAGER, '/',
+			'You are now acting as Veronica Visitor.');
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', 'person' => PERSON_ID_DUPLICATE],
+			PERSON_ID_MANAGER, '/',
+			'You are now acting as Mary Duplicate.');
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'act_as', 'person' => PERSON_ID_ANDY_SUB], PERSON_ID_MANAGER);
+
+		// Others are allowed to act as themselves or their relatives only
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'act_as', 'person' => PERSON_ID_PLAYER], PERSON_ID_COORDINATOR);
+
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'act_as'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', 'person' => PERSON_ID_CAPTAIN2],
+			PERSON_ID_CAPTAIN, '/',
+			'You are now acting as Chuck Captain.');
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'act_as', 'person' => PERSON_ID_CAPTAIN], PERSON_ID_CAPTAIN2);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'act_as', 'person' => PERSON_ID_PLAYER], PERSON_ID_CAPTAIN);
+
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'act_as'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'act_as', 'person' => PERSON_ID_CHILD],
+			PERSON_ID_PLAYER, '/',
+			'You are now acting as Carla Child.');
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'act_as', 'person' => PERSON_ID_CAPTAIN], PERSON_ID_PLAYER);
+
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'act_as', 'person' => PERSON_ID_PLAYER], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'act_as', 'person' => PERSON_ID_PLAYER]);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test act_as method as an admin
+	 * Test search method
 	 *
 	 * @return void
 	 */
-	public function testActAsAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testSearch() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
-	/**
-	 * Test act_as method as a manager
-	 *
-	 * @return void
-	 */
-	public function testActAsAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Anyone logged in is allowed to search
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'search'], PERSON_ID_ADMIN);
 
-	/**
-	 * Test act_as method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testActAsAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'search'], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'search'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'search'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'search'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'search'], PERSON_ID_VISITOR);
 
-	/**
-	 * Test act_as method as a captain
-	 *
-	 * @return void
-	 */
-	public function testActAsAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Others are not allowed to search
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'search']);
 
-	/**
-	 * Test act_as method as a player
-	 *
-	 * @return void
-	 */
-	public function testActAsAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$this->markTestIncomplete('More scenarios to test below.');
 
-	/**
-	 * Test act_as method as someone else
-	 *
-	 * @return void
-	 */
-	public function testActAsAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test act_as method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testActAsAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test search method as an admin
-	 *
-	 * @return void
-	 */
-	public function testSearchAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-		/*
 		$data = [
 		];
-		$this->post(['controller' => 'People', 'action' => 'search', $data);
+		$this->post(['controller' => 'People', 'action' => 'search'], $data);
 
 		$this->assertResponseSuccess();
 		$people = TableRegistry::get('People');
 		$query = $people->find()->where(['title' => $data['title']]);
 		$this->assertEquals(1, $query->count());
-		*/
 	}
 
 	/**
-	 * Test search method as a manager
+	 * Test rule_search method
 	 *
 	 * @return void
 	 */
-	public function testSearchAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testRuleSearch() {
+		// Admins are allowed to rule search
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'rule_search'], PERSON_ID_ADMIN);
+
+		// Managers are allowed to rule search
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'rule_search'], PERSON_ID_MANAGER);
+
+		// Others are not allowed to rule search
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'rule_search'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'rule_search'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'rule_search'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'rule_search'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'rule_search']);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test search method as a coordinator
+	 * Test league_search method
 	 *
 	 * @return void
 	 */
-	public function testSearchAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testLeagueSearch() {
+		// Admins are allowed to league search
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'league_search'], PERSON_ID_ADMIN);
+
+		// Managers are allowed to league search
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'league_search'], PERSON_ID_MANAGER);
+
+		// Others are not allowed to league search
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'league_search'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'league_search'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'league_search'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'league_search'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'league_search']);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test search method as a captain
+	 * Test inactive_search method
 	 *
 	 * @return void
 	 */
-	public function testSearchAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testInactiveSearch() {
+		// Admins are allowed to inactive search
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'inactive_search'], PERSON_ID_ADMIN);
+
+		// Managers are allowed to inactive search
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'inactive_search'], PERSON_ID_MANAGER);
+
+		// Others are not allowed to inactive search
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'inactive_search'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'inactive_search'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'inactive_search'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'inactive_search'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'inactive_search']);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test search method as a player
+	 * Test list_new method
 	 *
 	 * @return void
 	 */
-	public function testSearchAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testListNew() {
+		// Admins are allowed to list new users
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'list_new'], PERSON_ID_ADMIN);
 
-	/**
-	 * Test search method as someone else
-	 *
-	 * @return void
-	 */
-	public function testSearchAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Managers are allowed to list new users
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'list_new'], PERSON_ID_MANAGER);
 
-	/**
-	 * Test search method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testSearchAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Others are not allowed to list new users
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'list_new'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'list_new'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'list_new'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'list_new'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'list_new']);
 
-	/**
-	 * Test rule_search method as an admin
-	 *
-	 * @return void
-	 */
-	public function testRuleSearchAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test rule_search method as a manager
-	 *
-	 * @return void
-	 */
-	public function testRuleSearchAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test rule_search method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testRuleSearchAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test rule_search method as a captain
-	 *
-	 * @return void
-	 */
-	public function testRuleSearchAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test rule_search method as a player
-	 *
-	 * @return void
-	 */
-	public function testRuleSearchAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test rule_search method as someone else
-	 *
-	 * @return void
-	 */
-	public function testRuleSearchAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test rule_search method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testRuleSearchAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test league_search method as an admin
-	 *
-	 * @return void
-	 */
-	public function testLeagueSearchAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test league_search method as a manager
-	 *
-	 * @return void
-	 */
-	public function testLeagueSearchAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test league_search method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testLeagueSearchAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test league_search method as a captain
-	 *
-	 * @return void
-	 */
-	public function testLeagueSearchAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test league_search method as a player
-	 *
-	 * @return void
-	 */
-	public function testLeagueSearchAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test league_search method as someone else
-	 *
-	 * @return void
-	 */
-	public function testLeagueSearchAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test league_search method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testLeagueSearchAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test inactive_search method as an admin
-	 *
-	 * @return void
-	 */
-	public function testInactiveSearchAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test inactive_search method as a manager
-	 *
-	 * @return void
-	 */
-	public function testInactiveSearchAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test inactive_search method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testInactiveSearchAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test inactive_search method as a captain
-	 *
-	 * @return void
-	 */
-	public function testInactiveSearchAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test inactive_search method as a player
-	 *
-	 * @return void
-	 */
-	public function testInactiveSearchAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test inactive_search method as someone else
-	 *
-	 * @return void
-	 */
-	public function testInactiveSearchAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test inactive_search method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testInactiveSearchAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test list_new method as an admin
-	 *
-	 * @return void
-	 */
-	public function testListNewAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test list_new method as a manager
-	 *
-	 * @return void
-	 */
-	public function testListNewAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test list_new method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testListNewAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test list_new method as a captain
-	 *
-	 * @return void
-	 */
-	public function testListNewAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test list_new method as a player
-	 *
-	 * @return void
-	 */
-	public function testListNewAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test list_new method as someone else
-	 *
-	 * @return void
-	 */
-	public function testListNewAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test list_new method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testListNewAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -2966,8 +2532,176 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testApproveAsAdmin() {
+		// Admins are allowed to approve
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'approve', 'person' => PERSON_ID_DUPLICATE], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
+
+	/**
+	 * Test approve method as an admin, approving the duplicate
+	 *
+	 * @return void
+	 */
+	public function testApproveAsAdminApprove() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'approve', 'person' => PERSON_ID_DUPLICATE],
+			PERSON_ID_ADMIN, ['disposition' => 'approved'], ['controller' => 'People', 'action' => 'list_new']);
+
+		// Confirm the notification email
+		$messages = Configure::read('test_emails');
+		$this->assertEquals(1, count($messages));
+
+		$this->assertContains('From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;', $messages[0]);
+		$this->assertNotContains('Reply-To: ', $messages[0]);
+		$this->assertContains('To: &quot;Mary Duplicate&quot; &lt;mary@zuluru.org&gt;', $messages[0]);
+		$this->assertNotContains('CC: ', $messages[0]);
+		$this->assertContains('Subject: Test Zuluru Affiliate Account Activation for mary2', $messages[0]);
+		$this->assertContains('Your TZA account has been approved.', $messages[0]);
+
+		// Make sure that everything is still there
+		$person = TableRegistry::get('People')->get(PERSON_ID_DUPLICATE, [
+			'contain' => [Configure::read('Security.authModel'), 'Affiliates', 'Groups', 'Settings', 'Skills', 'Preregistrations', 'Franchises']
+		]);
+		$this->assertEquals('active', $person->status);
+		$this->assertEquals(USER_ID_DUPLICATE, $person->user_id);
+		$this->assertNotNull($person->user);
+		$this->assertEquals(USER_ID_DUPLICATE, $person->user->id);
+		$this->assertEquals(2, count($person->affiliates));
+		$this->assertEquals(1, count($person->groups));
+		$this->assertEquals(2, count($person->settings));
+		$this->assertEquals(2, count($person->skills));
+		$this->assertEquals(1, count($person->preregistrations));
+		$this->assertEquals(1, count($person->franchises));
+	}
+
+	/**
+	 * Test approve method as an admin, silently deleting the duplicate
+	 *
+	 * @return void
+	 */
+	public function testApproveAsAdminDeleteSilently() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'approve', 'person' => PERSON_ID_DUPLICATE],
+			PERSON_ID_ADMIN, ['disposition' => 'delete'], ['controller' => 'People', 'action' => 'list_new']);
+
+		// Confirm there was no notification email
+		$this->assertEmpty(Configure::read('test_emails'));
+
+		// Make sure that everything is gone
+		$table = TableRegistry::get('People');
+		$authModel = Configure::read('Security.authModel');
+		$this->assertEquals(0, $table->find()->where(['id' => PERSON_ID_DUPLICATE])->count());
+		$this->assertEquals(0, $table->$authModel->find()->where(['id' => USER_ID_DUPLICATE])->count());
+		$this->assertEquals(0, $table->AffiliatesPeople->find()->where(['person_id' => PERSON_ID_DUPLICATE])->count());
+		$this->assertEquals(0, $table->GroupsPeople->find()->where(['person_id' => PERSON_ID_DUPLICATE])->count());
+		$this->assertEquals(0, $table->Settings->find()->where(['person_id' => PERSON_ID_DUPLICATE])->count());
+		$this->assertEquals(0, $table->Skills->find()->where(['person_id' => PERSON_ID_DUPLICATE])->count());
+		$this->assertEquals(0, $table->Preregistrations->find()->where(['person_id' => PERSON_ID_DUPLICATE])->count());
+		$this->assertEquals(0, $table->FranchisesPeople->find()->where(['person_id' => PERSON_ID_DUPLICATE])->count());
+	}
+
+	/**
+	 * Test approve method as an admin, deleting the duplicate with notice
+	 *
+	 * @return void
+	 */
+	public function testApproveAsAdminDeleteNotice() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'approve', 'person' => PERSON_ID_DUPLICATE],
+			PERSON_ID_ADMIN, ['disposition' => 'delete_duplicate:' . PERSON_ID_MANAGER], ['controller' => 'People', 'action' => 'list_new']);
+
+		// Confirm the notification email
+		$messages = Configure::read('test_emails');
+		$this->assertEquals(1, count($messages));
+
+		$this->assertContains('From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;', $messages[0]);
+		$this->assertNotContains('Reply-To: ', $messages[0]);
+		$this->assertContains('To: &quot;Mary Manager&quot; &lt;mary@zuluru.org&gt;', $messages[0]);
+		$this->assertNotContains('CC: ', $messages[0]);
+		$this->assertContains('Subject: Test Zuluru Affiliate Account Update', $messages[0]);
+		$this->assertContains('You seem to have created a duplicate TZA account. You already have an account.', $messages[0]);
+		$this->assertContains('Your second account has been deleted.', $messages[0]);
+
+		// Make sure that everything is gone
+		$table = TableRegistry::get('People');
+		$authModel = Configure::read('Security.authModel');
+		$this->assertEquals(0, $table->find()->where(['id' => PERSON_ID_DUPLICATE])->count());
+		$this->assertEquals(0, $table->$authModel->find()->where(['id' => USER_ID_DUPLICATE])->count());
+		$this->assertEquals(0, $table->AffiliatesPeople->find()->where(['person_id' => PERSON_ID_DUPLICATE])->count());
+		$this->assertEquals(0, $table->GroupsPeople->find()->where(['person_id' => PERSON_ID_DUPLICATE])->count());
+		$this->assertEquals(0, $table->Settings->find()->where(['person_id' => PERSON_ID_DUPLICATE])->count());
+		$this->assertEquals(0, $table->Skills->find()->where(['person_id' => PERSON_ID_DUPLICATE])->count());
+		$this->assertEquals(0, $table->Preregistrations->find()->where(['person_id' => PERSON_ID_DUPLICATE])->count());
+		$this->assertEquals(0, $table->FranchisesPeople->find()->where(['person_id' => PERSON_ID_DUPLICATE])->count());
+	}
+
+	/**
+	 * Test approve method as an admin, merging the duplicate with another
+	 *
+	 * @return void
+	 */
+	public function testApproveAsAdminMerge() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'approve', 'person' => PERSON_ID_DUPLICATE],
+			PERSON_ID_ADMIN, ['disposition' => 'merge_duplicate:' . PERSON_ID_MANAGER], ['controller' => 'People', 'action' => 'list_new']);
+
+		// Confirm the notification email
+		$messages = Configure::read('test_emails');
+		$this->assertEquals(1, count($messages));
+
+		$this->assertContains('From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;', $messages[0]);
+		$this->assertNotContains('Reply-To: ', $messages[0]);
+		$this->assertContains('To: &quot;Mary Duplicate&quot; &lt;mary@zuluru.org&gt;', $messages[0]);
+		$this->assertNotContains('CC: ', $messages[0]);
+		$this->assertContains('Subject: Test Zuluru Affiliate Account Update', $messages[0]);
+		$this->assertContains('You seem to have created a duplicate TZA account. You already have an account.', $messages[0]);
+		$this->assertContains('this old account has been merged with your new information', $messages[0]);
+
+		// Make sure that everything was correctly merged
+		$table = TableRegistry::get('People');
+		$authModel = Configure::read('Security.authModel');
+		$person = $table->get(PERSON_ID_MANAGER, [
+			'contain' => [$authModel, 'Affiliates', 'Groups', 'Settings', 'Skills', 'Preregistrations', 'Franchises']
+		]);
+		$this->assertEquals('Duplicate', $person->last_name);
+		$this->assertEquals('active', $person->status);
+		$this->assertFalse($person->publish_email);
+		$this->assertEmpty($person->work_phone);
+		$this->assertEquals('(416) 345-6790', $person->mobile_phone);
+		$this->assertEquals('236 Main St.', $person->addr_street);
+		$this->assertEquals('Womens Large', $person->shirt_size);
+		$this->assertEquals(USER_ID_MANAGER, $person->user_id);
+		$this->assertNotNull($person->user);
+		$this->assertEquals(USER_ID_MANAGER, $person->user->id);
+		$this->assertEquals(2, count($person->affiliates));
+		$this->assertEquals(2, count($person->groups));
+		$this->assertEquals(3, count($person->settings));
+		$this->assertEquals('enable_ical', $person->settings[0]->name);
+		$this->assertEquals(1, $person->settings[0]->value);
+		$this->assertEquals(2, count($person->skills));
+		$this->assertEquals(1, count($person->preregistrations));
+		$this->assertEquals(1, count($person->franchises));
+
+		// And all the old stuff is gone
+		$this->assertEquals(0, $table->find()->where(['id' => PERSON_ID_DUPLICATE])->count());
+		$this->assertEquals(0, $table->$authModel->find()->where(['id' => USER_ID_DUPLICATE])->count());
+		$this->assertEquals(0, $table->AffiliatesPeople->find()->where(['person_id' => PERSON_ID_DUPLICATE])->count());
+		$this->assertEquals(0, $table->GroupsPeople->find()->where(['person_id' => PERSON_ID_DUPLICATE])->count());
+		$this->assertEquals(0, $table->Settings->find()->where(['person_id' => PERSON_ID_DUPLICATE])->count());
+		$this->assertEquals(0, $table->Skills->find()->where(['person_id' => PERSON_ID_DUPLICATE])->count());
+		$this->assertEquals(0, $table->Preregistrations->find()->where(['person_id' => PERSON_ID_DUPLICATE])->count());
+		$this->assertEquals(0, $table->FranchisesPeople->find()->where(['person_id' => PERSON_ID_DUPLICATE])->count());
+	}
+
+	// TODO: Test some more merging options above: child with adult, adult with child, parent with player, etc.
 
 	/**
 	 * Test approve method as a manager
@@ -2975,448 +2709,175 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testApproveAsManager() {
+		// Managers are allowed to approve
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'approve', 'person' => PERSON_ID_DUPLICATE], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test approve method as a coordinator
+	 * Test approve method as others
 	 *
 	 * @return void
 	 */
-	public function testApproveAsCoordinator() {
+	public function testApproveAsOthers() {
+		// Others are not allowed to approve
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve', 'person' => PERSON_ID_DUPLICATE], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve', 'person' => PERSON_ID_DUPLICATE], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve', 'person' => PERSON_ID_DUPLICATE], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve', 'person' => PERSON_ID_DUPLICATE], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'approve', 'person' => PERSON_ID_DUPLICATE]);
+	}
+
+	/**
+	 * Test vcf method
+	 *
+	 * @return void
+	 */
+	public function testVcf() {
+		// Anyone is allowed to download the VCF. Different people have different info available.
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', 'person' => PERSON_ID_PLAYER], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', 'person' => PERSON_ID_INACTIVE], PERSON_ID_ADMIN);
+
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', 'person' => PERSON_ID_PLAYER], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', 'person' => PERSON_ID_INACTIVE], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', 'person' => PERSON_ID_INACTIVE], PERSON_ID_MANAGER);
+
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', 'person' => PERSON_ID_CAPTAIN], PERSON_ID_COORDINATOR);
+		$this->assertResponseContains('EMAIL;PREF;INTERNET:crystal@zuluru.org');
+		$this->assertResponseContains('TEL;HOME;VOICE:(416) 567-8910');
+		$this->assertResponseNotContains('TEL;WORK');
+		$this->assertResponseNotContains('TEL;CELL');
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', 'person' => PERSON_ID_PLAYER], PERSON_ID_COORDINATOR);
+		$this->assertResponseNotContains('EMAIL');
+		$this->assertResponseNotContains('TEL;HOME');
+		$this->assertResponseNotContains('TEL;WORK');
+		$this->assertResponseNotContains('TEL;CELL');
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', 'person' => PERSON_ID_INACTIVE], PERSON_ID_COORDINATOR);
+		$this->assertResponseNotContains('EMAIL');
+		$this->assertResponseNotContains('TEL;HOME');
+		$this->assertResponseNotContains('TEL;WORK');
+		$this->assertResponseNotContains('TEL;CELL');
+
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', 'person' => PERSON_ID_PLAYER], PERSON_ID_CAPTAIN);
+		$this->assertResponseContains('EMAIL;PREF;INTERNET:pam@zuluru.org');
+		$this->assertResponseContains('TEL;HOME;VOICE:(416) 678-9012');
+		$this->assertResponseContains('TEL;WORK;VOICE:(416) 789-0123;ext=456');
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', 'person' => PERSON_ID_INACTIVE], PERSON_ID_CAPTAIN);
+		$this->assertResponseNotContains('EMAIL');
+		$this->assertResponseNotContains('TEL;HOME');
+		$this->assertResponseNotContains('TEL;WORK');
+		$this->assertResponseNotContains('TEL;CELL');
+
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', 'person' => PERSON_ID_PLAYER], PERSON_ID_PLAYER);
+		$this->assertResponseContains('EMAIL;PREF;INTERNET:pam@zuluru.org');
+		$this->assertResponseContains('TEL;HOME;VOICE:(416) 678-9012');
+		$this->assertResponseContains('TEL;WORK;VOICE:(416) 789-0123;ext=456');
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', 'person' => PERSON_ID_INACTIVE], PERSON_ID_PLAYER);
+		$this->assertResponseNotContains('EMAIL');
+		$this->assertResponseNotContains('TEL;HOME');
+		$this->assertResponseNotContains('TEL;WORK');
+		$this->assertResponseNotContains('TEL;CELL');
+
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', 'person' => PERSON_ID_PLAYER], PERSON_ID_VISITOR);
+		$this->assertResponseNotContains('EMAIL');
+		$this->assertResponseNotContains('TEL;HOME');
+		$this->assertResponseNotContains('TEL;WORK');
+		$this->assertResponseNotContains('TEL;CELL');
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'vcf', 'person' => PERSON_ID_INACTIVE], PERSON_ID_VISITOR);
+		$this->assertResponseNotContains('EMAIL');
+		$this->assertResponseNotContains('TEL;HOME');
+		$this->assertResponseNotContains('TEL;WORK');
+		$this->assertResponseNotContains('TEL;CELL');
+
+		$this->assertGetAnonymousAccessOk(['controller' => 'People', 'action' => 'vcf', 'person' => PERSON_ID_PLAYER]);
+		$this->assertResponseNotContains('EMAIL');
+		$this->assertResponseNotContains('TEL;HOME');
+		$this->assertResponseNotContains('TEL;WORK');
+		$this->assertResponseNotContains('TEL;CELL');
+	}
+
+	/**
+	 * Test ical method
+	 *
+	 * @return void
+	 */
+	public function testIcal() {
+		// Can get the ical feed for anyone with the option enabled
+		$this->get(['controller' => 'People', 'action' => 'ical', PERSON_ID_ADMIN]);
+		$this->assertResponseCode(410);
+		$this->assertGetAnonymousAccessOk(['controller' => 'People', 'action' => 'ical', PERSON_ID_CAPTAIN]);
+		$this->assertGetAnonymousAccessOk(['controller' => 'People', 'action' => 'ical', PERSON_ID_PLAYER]);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test approve method as a captain
+	 * Test registrations method
 	 *
 	 * @return void
 	 */
-	public function testApproveAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testRegistrations() {
+		// Anyone logged in is allowed to see the list of their personal registrations
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'registrations'], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'registrations'], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'registrations'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'registrations'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'registrations'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'registrations'], PERSON_ID_VISITOR);
+
+		// Others are not allowed to see the list of their personal registrations
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'registrations']);
 	}
 
 	/**
-	 * Test approve method as a player
+	 * Test credits method
 	 *
 	 * @return void
 	 */
-	public function testApproveAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testCredits() {
+		// Anyone logged in is allowed to see their list of credits
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'credits'], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'credits'], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'credits'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'credits'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'credits'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'credits'], PERSON_ID_VISITOR);
+
+		// Others are not allowed to see their list of credits
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'credits']);
 	}
 
 	/**
-	 * Test approve method as someone else
+	 * Test teams method
 	 *
 	 * @return void
 	 */
-	public function testApproveAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testTeams() {
+		// Anyone logged in is allowed to see their team history
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'teams'], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'teams'], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'teams'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'teams'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'teams'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'teams'], PERSON_ID_VISITOR);
+
+		// Others are not allowed to see team history
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'teams']);
 	}
 
 	/**
-	 * Test approve method without being logged in
+	 * Test waivers method
 	 *
 	 * @return void
 	 */
-	public function testApproveAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test vcf method as an admin
-	 *
-	 * @return void
-	 */
-	public function testVcfAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test vcf method as a manager
-	 *
-	 * @return void
-	 */
-	public function testVcfAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test vcf method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testVcfAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test vcf method as a captain
-	 *
-	 * @return void
-	 */
-	public function testVcfAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test vcf method as a player
-	 *
-	 * @return void
-	 */
-	public function testVcfAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test vcf method as someone else
-	 *
-	 * @return void
-	 */
-	public function testVcfAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test vcf method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testVcfAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test ical method as an admin
-	 *
-	 * @return void
-	 */
-	public function testIcalAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test ical method as a manager
-	 *
-	 * @return void
-	 */
-	public function testIcalAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test ical method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testIcalAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test ical method as a captain
-	 *
-	 * @return void
-	 */
-	public function testIcalAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test ical method as a player
-	 *
-	 * @return void
-	 */
-	public function testIcalAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test ical method as someone else
-	 *
-	 * @return void
-	 */
-	public function testIcalAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test ical method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testIcalAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test registrations method as an admin
-	 *
-	 * @return void
-	 */
-	public function testRegistrationsAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test registrations method as a manager
-	 *
-	 * @return void
-	 */
-	public function testRegistrationsAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test registrations method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testRegistrationsAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test registrations method as a captain
-	 *
-	 * @return void
-	 */
-	public function testRegistrationsAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test registrations method as a player
-	 *
-	 * @return void
-	 */
-	public function testRegistrationsAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test registrations method as someone else
-	 *
-	 * @return void
-	 */
-	public function testRegistrationsAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test registrations method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testRegistrationsAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test credits method as an admin
-	 *
-	 * @return void
-	 */
-	public function testCreditsAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test credits method as a manager
-	 *
-	 * @return void
-	 */
-	public function testCreditsAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test credits method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testCreditsAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test credits method as a captain
-	 *
-	 * @return void
-	 */
-	public function testCreditsAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test credits method as a player
-	 *
-	 * @return void
-	 */
-	public function testCreditsAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test credits method as someone else
-	 *
-	 * @return void
-	 */
-	public function testCreditsAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test credits method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testCreditsAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test teams method as an admin
-	 *
-	 * @return void
-	 */
-	public function testTeamsAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test teams method as a manager
-	 *
-	 * @return void
-	 */
-	public function testTeamsAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test teams method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testTeamsAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test teams method as a captain
-	 *
-	 * @return void
-	 */
-	public function testTeamsAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test teams method as a player
-	 *
-	 * @return void
-	 */
-	public function testTeamsAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test teams method as someone else
-	 *
-	 * @return void
-	 */
-	public function testTeamsAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test teams method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testTeamsAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test waivers method as an admin
-	 *
-	 * @return void
-	 */
-	public function testWaiversAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test waivers method as a manager
-	 *
-	 * @return void
-	 */
-	public function testWaiversAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test waivers method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testWaiversAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test waivers method as a captain
-	 *
-	 * @return void
-	 */
-	public function testWaiversAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test waivers method as a player
-	 *
-	 * @return void
-	 */
-	public function testWaiversAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test waivers method as someone else
-	 *
-	 * @return void
-	 */
-	public function testWaiversAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test waivers method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testWaiversAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test _makeHash method
-	 *
-	 * @return void
-	 */
-	public function testMakeHash() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test _checkHash method
-	 *
-	 * @return void
-	 */
-	public function testCheckHash() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testWaivers() {
+		// Anyone logged in is allowed to see their waiver history
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'waivers'], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'waivers'], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'waivers'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'waivers'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'waivers'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'waivers'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'waivers']);
 	}
 
 }

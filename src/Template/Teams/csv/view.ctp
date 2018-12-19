@@ -3,6 +3,7 @@
  * @type \App\Model\Entity\Team $team
  */
 
+use App\Authorization\ContextResource;
 use Cake\Core\Configure;
 use App\Controller\AppController;
 
@@ -20,7 +21,7 @@ $fields = [
 	'last_name' => __('Last Name'),
 	__('Role') => true,
 	__('Position') => !empty($positions),
-	Configure::read('gender.label') => $team->display_gender,
+	Configure::read('gender.label') => $this->Authorize->can('display_gender', new ContextResource($team, ['division' => $team->division])),
 	__('Date Joined') => true,
 	'email' => __('Email Address'),
 	'alternate_email' => __('Alternate Email Address'),
@@ -39,7 +40,8 @@ $fields = [
 	'alternate_mobile_phone' => __('Alternate Mobile Phone'),
 ];
 
-list($header1, $header2, $player_fields, $contact_fields) = \App\Lib\csvFields($people, $fields, Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager'));
+$identity = $this->Authorize->getIdentity();
+list($header1, $header2, $player_fields, $contact_fields) = \App\Lib\csvFields($people, $fields, $identity->isManagerOf($team->division->league));
 if (!empty($header1)) {
 	fputcsv($fp, $header1);
 }

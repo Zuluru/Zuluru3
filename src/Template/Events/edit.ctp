@@ -105,7 +105,7 @@ echo $this->Html->tag('li', $this->Jquery->ajaxLink($this->Html->iconImg('add_32
 if (!$event->isNew()):
 ?>
 <div class="actions columns">
-	<?= $this->element('Events/actions', ['event' => $event, 'is_event_manager' => Configure::read('Perm.is_manager'), 'format' => 'list']) ?>
+	<?= $this->element('Events/actions', ['event' => $event, 'format' => 'list']) ?>
 </div>
 <?php
 endif;

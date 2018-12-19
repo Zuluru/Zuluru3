@@ -7,7 +7,6 @@ namespace App\Lib;
 use Cake\Chronos\ChronosInterface;
 use Cake\Core\Configure;
 use Cake\I18n\FrozenTime;
-use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
 use CommerceGuys\Intl\Country\CountryRepository;
 use App\Controller\AppController;
@@ -181,7 +180,6 @@ function csvFields($people, $fields, $this_is_admin) {
 	$header1 = $header2 = [];
 
 	// Skip fields that are all blank or disabled
-	// TODO: Centralize checking of profile fields
 	$player_fields = $fields;
 	foreach ($player_fields as $field => $name) {
 		// We may be passed simple true/false values to include or exclude headers in preset places
@@ -278,4 +276,30 @@ function csvFields($people, $fields, $this_is_admin) {
 	}
 
 	return [$header1, $header2, $player_fields, $contact_fields];
+}
+
+// Helper functions for formatting data
+function format_date(ChronosInterface $data = null, $ths) {
+	if (empty($data) || $data->year == 0) {
+		return __('unknown');
+	} else if (Configure::read('feature.birth_year_only')) {
+		return $data->year;
+	} else {
+		return $ths->Time->date($data);
+	}
+}
+
+function format_height($data) {
+	if (!empty($data)) {
+		return $data . ' ' . (Configure::read('feature.units') == 'Metric' ? __('cm') : __('inches'));
+	}
+}
+
+function format_groups($data) {
+	$groups = collection($data)->extract('name')->toArray();
+	if (empty($groups)) {
+		return __('None');
+	} else {
+		return implode(', ', $groups);
+	}
 }

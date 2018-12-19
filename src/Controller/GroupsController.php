@@ -17,6 +17,7 @@ class GroupsController extends AppController {
 	 * @return void
 	 */
 	public function index() {
+		$this->Authorization->authorize($this);
 		$this->set('groups', $this->Groups->find('all'));
 	}
 
@@ -26,7 +27,6 @@ class GroupsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
 	 */
 	public function activate() {
-		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
 		$id = $this->request->getQuery('group');
@@ -39,6 +39,8 @@ class GroupsController extends AppController {
 			$this->Flash->info(__('Invalid group.'));
 			return $this->redirect(['action' => 'index']);
 		}
+
+		$this->Authorization->authorize($group);
 
 		$group->active = true;
 		if (!$this->Groups->save($group)) {
@@ -55,7 +57,6 @@ class GroupsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
 	 */
 	public function deactivate() {
-		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
 		$id = $this->request->getQuery('group');
@@ -68,6 +69,8 @@ class GroupsController extends AppController {
 			$this->Flash->info(__('Invalid group.'));
 			return $this->redirect(['action' => 'index']);
 		}
+
+		$this->Authorization->authorize($group);
 
 		$group->active = false;
 		if (!$this->Groups->save($group)) {

@@ -70,6 +70,11 @@ class AffiliatesPeopleFixture extends TestFixture {
 			],
 			[
 				'affiliate_id' => AFFILIATE_ID_CLUB,
+				'person_id' => PERSON_ID_CHILD,
+				'position' => 'player',
+			],
+			[
+				'affiliate_id' => AFFILIATE_ID_CLUB,
 				'person_id' => PERSON_ID_DUPLICATE,
 				'position' => 'player',
 			],
@@ -86,6 +91,11 @@ class AffiliatesPeopleFixture extends TestFixture {
 			[
 				'affiliate_id' => AFFILIATE_ID_CLUB,
 				'person_id' => PERSON_ID_VISITOR,
+				'position' => 'player',
+			],
+			[
+				'affiliate_id' => AFFILIATE_ID_CLUB,
+				'person_id' => PERSON_ID_INACTIVE,
 				'position' => 'player',
 			],
 		];

@@ -52,6 +52,7 @@ class Registration extends Entity {
 			return [0,0,0];
 		}
 
+		// NOTE: These are not the tax *rates*, but the percentage of the *with tax total* that each tax represents
 		$tax1_percent = $this->price->tax1 / $current_total;
 		$tax2_percent = $this->price->tax2 / $current_total;
 

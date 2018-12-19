@@ -61,13 +61,7 @@ else:
 <?php
 		endif;
 
-		// Are we a manager of this game?
-		$is_game_manager = (Configure::read('Perm.is_manager') && in_array($game->division->league->affiliate_id, $this->UserCache->read('ManagedAffiliateIDs')));
-
-		if (! ($game->published || Configure::read('Perm.is_admin') || $is_game_manager)) {
-			continue;
-		}
-		if ($date != $game->game_slot->game_date) {
+		if ($date != $game->game_slot->game_date || !$this->Authorize->can('view', $game)) {
 			continue;
 		}
 		$game->readDependencies();

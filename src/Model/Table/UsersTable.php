@@ -2,8 +2,7 @@
 /**
  * Base class for Zuluru authentication. Other variations should extend this
  * and set userField, pwdField, emailField, nameField, loginField, ipField,
- * hashMethod, hasher, manageAccounts, manageName and loginComponent as
- * appropriate.
+ * hashMethod and hasher as appropriate.
  */
 namespace App\Model\Table;
 
@@ -64,13 +63,6 @@ class UsersTable extends AppTable {
 	 * Fallback function to use for hashing old passwords.
 	 */
 	public $hashMethod = 'sha256';
-
-	/**
-	 * Accounts (add, delete, passwords) are managed by Zuluru.
-	 */
-	public $manageAccounts = true;
-	public $manageName = 'Zuluru';
-	public $loginComponent = 'Login';
 
 	/**
 	 * Initialize method

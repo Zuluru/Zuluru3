@@ -1,6 +1,7 @@
 <?php
 namespace App\Model\Table;
 
+use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
 
@@ -84,6 +85,38 @@ class NotesTable extends AppTable {
 			;
 
 		return $validator;
+	}
+
+	// TODO: Add rules to check the visibility against valid options per the game/team/person and identity
+
+	public function affiliate($id) {
+		try {
+			$note = $this->get($id);
+			if ($note->game_id) {
+				return $this->Games->affiliate($note->game_id);
+			} else if ($note->team_id) {
+				return $this->Teams->affiliate($note->team_id);
+			} else if ($note->field_id) {
+				return $this->Fields->affiliate($note->field_id);
+			}
+			throw new \InvalidArgumentException('Note does not have a valid record associated.');
+		} catch (RecordNotFoundException $ex) {
+			return null;
+		}
+	}
+
+	public function division($id) {
+		try {
+			$note = $this->get($id);
+			if ($note->game_id) {
+				return $this->Games->division($note->game_id);
+			} else if ($note->team_id) {
+				return $this->Teams->division($note->team_id);
+			}
+			throw new \InvalidArgumentException('Note does not have a valid record associated.');
+		} catch (RecordNotFoundException $ex) {
+			return null;
+		}
 	}
 
 }

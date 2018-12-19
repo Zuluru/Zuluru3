@@ -1,15 +1,19 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use App\Core\UserCache;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Event\EventManager;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
+use Cake\ORM\TableRegistry;
 use Cake\Routing\Router;
 use Cake\TestSuite\IntegrationTestCase;
 
 class ControllerTestCase extends IntegrationTestCase {
+
+	protected $_jsonOptions = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_PARTIAL_OUTPUT_ON_ERROR;
 
 	/**
 	 * setUp method
@@ -33,128 +37,638 @@ class ControllerTestCase extends IntegrationTestCase {
 		parent::tearDown();
 	}
 
+	protected function login($personId) {
+		// Clear the request stack: they pile up when running multiple requests from a single test
+		while (Router::popRequest()) {};
+
+		if (is_array($personId)) {
+			list ($personId, $actAs) = $personId;
+			$actAs = TableRegistry::get('People')->get($actAs);
+		} else {
+			$actAs = null;
+		}
+
+		$person = TableRegistry::get('People')->get($personId);
+		if (!$person->user_id) {
+			$this->fail('Cannot log in as a profile without a user record.');
+		}
+
+		$user_table = TableRegistry::get(Configure::read('Security.authModel', 'Users'));
+		$user = $user_table->get($person->user_id);
+		if ($actAs) {
+			$user->person = $actAs;
+			$user->real_person = $person;
+		} else {
+			$user->person = $person;
+		}
+
+		Configure::write('options.gender_binary', []);
+		Configure::write('test_emails', []);
+		$this->session(['Auth' => $user]);
+		UserCache::setIdentity(null);
+	}
+
+	protected function logout() {
+		// Clear the request stack: they pile up when running multiple requests from a single test
+		while (Router::popRequest()) {};
+
+		// Clear session info, so that unauthenticated requests aren't mistakenly processed as the last logged-in user
+		$this->_session = [];
+		$this->_cookie = [];
+		$this->_requestSession = null;
+		Configure::write('test_emails', []);
+		UserCache::setIdentity(null);
+	}
+
 	/**
-	 * Common helper to confirm that there is access allowed for the given user (default anonymous) to the given URL
+	 * Common helper to confirm that there is GET access allowed for the given user to the given URL
 	 *
 	 * @param $url array
-	 * @param null $user string|null
-	 * @param $method string
-	 * @param $data mixed[]
+	 * @param null $user User ID
 	 */
-	protected function assertAccessOk($url, $user = null, $method = 'get', $data = []) {
-		if ($user) {
-			$this->session(['Auth.User.id' => $user, 'Zuluru.zuluru_person_id' => $user]);
-		}
-		if ($method == 'get') {
-			$this->get($url);
-		} else if ($method == 'getajax') {
-			// Set header for Ajax request
-			$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
-			$this->get($url);
-		} else if ($method == 'post') {
-			$this->post($url, $data);
-		} else if ($method == 'postajax') {
-			// Set header for Ajax request
-			$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
-			$this->post($url, $data);
-		} else {
-			$this->fail('Invalid method: get, getajax, post and postajax are supported');
-		}
+	protected function assertGetAsAccessOk($url, $user) {
+		$this->login($user);
+		$this->get($url);
+
 		$this->assertResponseOk();
 	}
 
 	/**
-	 * Common helper to confirm that there is no access allowed for the given user (default anonymous) to the given URL
+	 * Common helper to confirm that there is AJAX GET access allowed for the given user to the given URL
 	 *
 	 * @param $url array
-	 * @param $user string|null
-	 * @param $method string
-	 * @param $data mixed[]
-	 * @param $redirect string|null
-	 * @param $message string
+	 * @param null $user User ID
+	 */
+	protected function assertGetAjaxAsAccessOk($url, $user) {
+		$this->login($user);
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->get($url);
+		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
+
+		$this->assertResponseOk();
+		$this->assertResponseNotContains('"_redirect":{', 'Response contains a redirect');
+
+		$this->logout();
+	}
+
+	/**
+	 * Common helper to confirm that there is GET access allowed for anonymous users to the given URL
+	 *
+	 * @param $url array
+	 */
+	protected function assertGetAnonymousAccessOk($url) {
+		$this->logout();
+		$this->get($url);
+		$this->assertResponseOk();
+	}
+
+	/**
+	 * Common helper to confirm that there is AJAX GET access allowed for anonymous users to the given URL
+	 *
+	 * @param $url array
+	 */
+	protected function assertGetAjaxAnonymousAccessOk($url) {
+		$this->logout();
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->get($url);
+		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
+		$this->assertResponseOk();
+		$this->assertResponseNotContains('"_redirect":{', 'Response contains a redirect');
+	}
+
+	/**
+	 * Common helper to confirm that there is POST access allowed for the given user to the given URL
+	 *
+	 * @param $url array
+	 * @param null $user User ID
+	 * @param $data string|mixed[]
+	 */
+	protected function assertPostAsAccessOk($url, $user, $data) {
+		$this->login($user);
+		$this->post($url, $data);
+
+		$this->assertResponseOk();
+	}
+
+	/**
+	 * Common helper to confirm that there is AJAX POST access allowed for the given user to the given URL
+	 *
+	 * @param $url array
+	 * @param null $user User ID
+	 * @param $data string|mixed[]
+	 */
+	protected function assertPostAjaxAsAccessOk($url, $user, $data = []) {
+		$this->login($user);
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->post($url, $data);
+		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
+
+		$this->assertResponseOk();
+		$this->assertResponseNotContains('"_redirect":{', 'Response contains a redirect');
+	}
+
+	/**
+	 * Common helper to confirm that there is POST access allowed for anonymous users to the given URL
+	 *
+	 * @param $url array
+	 * @param $data string|mixed[]
+	 */
+	protected function assertPostAnonymousAccessOk($url, $data) {
+		$this->logout();
+		$this->post($url, $data);
+		$this->assertResponseOk();
+	}
+
+	/**
+	 * Common helper to confirm that there is AJAX POST access allowed for anonymous users to the given URL
+	 *
+	 * @param $url array
+	 * @param $data string|mixed[]
+	 */
+	protected function assertPostAjaxAnonymousAccessOk($url, $data) {
+		$this->logout();
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->post($url, $data);
+		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
+		$this->assertResponseOk();
+		$this->assertResponseNotContains('"_redirect":{', 'Response contains a redirect');
+	}
+
+	/**
+	 * Common helper to confirm that there is no GET access allowed for the given user to the given URL
+	 *
+	 * @param $url array
+	 * @param null $user User ID
+	 * @param $redirect string|array
+	 * @param $message string|boolean
 	 * @param $key string
 	 */
-	protected function assertAccessRedirect($url, $user = null, $method = 'get', $data = [], $redirect = null, $message = null, $key = null) {
-		if ($user) {
-			$this->session(['Auth.User.id' => $user, 'Zuluru.zuluru_person_id' => $user]);
-		}
-		if ($method == 'get') {
-			$this->get($url);
-		} else if ($method == 'getajax') {
-			// Set header for Ajax request
-			$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
-			$this->get($url);
-		} else if ($method == 'post') {
-			$this->post($url, $data);
-		} else if ($method == 'postajax') {
-			// Set header for Ajax request
-			$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
-			$this->post($url, $data);
+	protected function assertGetAsAccessRedirect($url, $user, $redirect, $message = false, $key = 'Flash.flash.0.message') {
+		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
+
+		$this->login($user);
+		$this->get($url);
+
+		$this->assertResponseCode(302);
+		$this->assertRedirect($redirect);
+
+		if ($message) {
+			if ($message[0] == '#') {
+				$this->assertRegExp($message, $this->_requestSession->read($key));
+			} else {
+				$this->assertEquals($message, $this->_requestSession->read($key));
+			}
 		} else {
-			$this->fail('Invalid method: get, getajax, post and postajax are supported');
+			$this->assertNull($this->_requestSession->read($key));
 		}
+	}
 
-		if (!$redirect) {
-			if ($user) {
-				$redirect = '/';
-			} else {
-				$redirect = ['controller' => 'Users', 'action' => 'login', 'redirect' => Router::url($url)];
-			}
-		}
+	/**
+	 * Common helper to confirm that there is no AJAX GET access allowed for the given user to the given URL
+	 *
+	 * @param $url array
+	 * @param null $user User ID
+	 * @param $redirect string|array
+	 * @param $message string
+	 * @param $class string
+	 */
+	protected function assertGetAjaxAsAccessRedirect($url, $user, $redirect, $message = false, $class = 'info') {
+		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
 
-		if ($message === null) {
-			if ($user) {
-				$message = 'You do not have permission to access that page.';
-			} else {
-				$message = 'You must login to access full site functionality.';
-			}
-			$message_array = [
+		$this->login($user);
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->get($url);
+		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
+
+		if ($message) {
+			$message = [
 				0 => [
 					'message' => $message,
 					'key' => 'flash',
-					'element' => 'Flash/error',
-					'params' => ['class' => 'error'],
-				],
-			];
-		} else if ($message) {
-			$message_array = [
-				0 => [
-					'message' => $message,
-					'key' => 'flash',
-					'element' => 'Flash/info',
+					'element' => "Flash/$class",
 					'params' => [],
 				],
 			];
+		} else {
+			$message = null;
 		}
 
-		if ($method == 'getajax' || $method == 'postajax') {
-			$error = [
-				'error' => null,
-				'content' => null,
-				'_message' => $message_array,
-				'_redirect' => [
-					'url' => Router::url($redirect, true),
-					'status' => 302,
+		$error = [
+			'error' => null,
+			'content' => null,
+			'_message' => $message,
+			'_redirect' => [
+				'url' => Router::url($redirect, true),
+				'status' => 302,
+			],
+		];
+		$this->assertResponseOk();
+		$this->assertEquals(json_encode($error, $this->_jsonOptions), (string)$this->_response->getBody());
+	}
+
+	/**
+	 * Common helper to confirm that there is no GET access allowed for anonymous users to the given URL
+	 *
+	 * @param $url array
+	 * @param $redirect string|array
+	 * @param $message string|boolean
+	 * @param $key string
+	 */
+	protected function assertGetAnonymousAccessRedirect($url, $redirect, $message = false, $key = 'Flash.flash.0.message') {
+		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
+
+		$this->logout();
+		$this->get($url);
+
+		$this->assertResponseCode(302);
+		$this->assertRedirect($redirect);
+
+		if ($message) {
+			if ($message[0] == '#') {
+				$this->assertRegExp($message, $this->_requestSession->read($key));
+			} else {
+				$this->assertEquals($message, $this->_requestSession->read($key));
+			}
+		} else {
+			$this->assertNull($this->_requestSession->read($key));
+		}
+	}
+
+	/**
+	 * Common helper to confirm that there is no AJAX GET access allowed for anonymous users to the given URL
+	 *
+	 * @param $url array
+	 * @param $redirect string|array
+	 * @param $message string
+	 */
+	protected function assertGetAjaxAnonymousAccessRedirect($url, $redirect, $message = false, $class = 'info') {
+		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
+
+		$this->logout();
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->get($url);
+		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
+
+		if ($message) {
+			$message = [
+				0 => [
+					'message' => $message,
+					'key' => 'flash',
+					'element' => "Flash/$class",
+					'params' => [],
 				],
 			];
-			$this->assertResponseOk();
-			$this->assertEquals(json_encode($error), $this->_response->body());
 		} else {
-			$this->assertResponseCode(302);
-			$this->assertRedirect($redirect);
-
-			if ($message !== false) {
-				if ($key === null) {
-					$key = 'Flash.flash.0.message';
-				}
-
-				if ($message[0] == '#') {
-					$this->assertRegExp($message, $this->_requestSession->read($key));
-				} else {
-					$this->assertEquals($message, $this->_requestSession->read($key));
-				}
-			}
+			$message = null;
 		}
+
+		$error = [
+			'error' => null,
+			'content' => null,
+			'_message' => $message,
+			'_redirect' => [
+				'url' => Router::url($redirect, true),
+				'status' => 302,
+			],
+		];
+		$this->assertResponseOk();
+		$this->assertEquals(json_encode($error, $this->_jsonOptions), (string)$this->_response->getBody());
+	}
+
+	/**
+	 * Common helper to confirm that there is no POST access allowed for the given user to the given URL
+	 *
+	 * @param $url array
+	 * @param null $user User ID
+	 * @param $data string|mixed[]
+	 * @param $redirect string|array
+	 * @param $message string|boolean
+	 * @param $key string
+	 */
+	protected function assertPostAsAccessRedirect($url, $user, $data = [], $redirect, $message = false, $key = 'Flash.flash.0.message') {
+		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
+
+		$this->login($user);
+		$this->post($url, $data);
+
+		$this->assertResponseCode(302);
+		$this->assertRedirect($redirect);
+
+		if ($message) {
+			if ($message[0] == '#') {
+				$this->assertRegExp($message, $this->_requestSession->read($key));
+			} else {
+				$this->assertEquals($message, $this->_requestSession->read($key));
+			}
+		} else {
+			$this->assertNull($this->_requestSession->read($key));
+		}
+	}
+
+	/**
+	 * Common helper to confirm that there is no AJAX POST access allowed for the given user to the given URL
+	 *
+	 * @param $url array
+	 * @param null $user User ID
+	 * @param $data string|mixed[]
+	 * @param $redirect string|array
+	 * @param $message string
+	 */
+	protected function assertPostAjaxAsAccessRedirect($url, $user, $data = [], $redirect, $message = false, $class = 'info') {
+		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
+
+		$this->login($user);
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->post($url, $data);
+		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
+
+		if ($message) {
+			$message = [
+				0 => [
+					'message' => $message,
+					'key' => 'flash',
+					'element' => "Flash/$class",
+					'params' => [],
+				],
+			];
+		} else {
+			$message = null;
+		}
+
+		$error = [
+			'error' => null,
+			'content' => null,
+			'_message' => $message,
+			'_redirect' => [
+				'url' => Router::url($redirect, true),
+				'status' => 302,
+			],
+		];
+		$this->assertResponseOk();
+		$this->assertEquals(json_encode($error, $this->_jsonOptions), (string)$this->_response->getBody());
+	}
+
+	/**
+	 * Common helper to confirm that there is no POST access allowed for anonymous users to the given URL
+	 *
+	 * @param $url array
+	 * @param $data string|mixed[]
+	 * @param $redirect string|array
+	 * @param $message string|boolean
+	 * @param $key string
+	 */
+	protected function assertPostAnonymousAccessRedirect($url, $data = [], $redirect, $message = false, $key = 'Flash.flash.0.message') {
+		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
+
+		$this->logout();
+		$this->post($url, $data);
+
+		$this->assertResponseCode(302);
+		$this->assertRedirect($redirect);
+
+		if ($message) {
+			if ($message[0] == '#') {
+				$this->assertRegExp($message, $this->_requestSession->read($key));
+			} else {
+				$this->assertEquals($message, $this->_requestSession->read($key));
+			}
+		} else {
+			$this->assertNull($this->_requestSession->read($key));
+		}
+	}
+
+	/**
+	 * Common helper to confirm that there is no AJAX POST access allowed for anonymous users to the given URL
+	 *
+	 * @param $url array
+	 * @param $data string|mixed[]
+	 * @param $redirect string|array
+	 * @param $message string
+	 */
+	protected function assertPostAjaxAnonymousAccessRedirect($url, $data = [], $redirect, $message = false, $class = 'info') {
+		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
+
+		$this->logout();
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->post($url, $data);
+		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
+
+		if ($message) {
+			$message = [
+				0 => [
+					'message' => $message,
+					'key' => 'flash',
+					'element' => "Flash/$class",
+					'params' => [],
+				],
+			];
+		} else {
+			$message = null;
+		}
+
+		$error = [
+			'error' => null,
+			'content' => null,
+			'_message' => $message,
+			'_redirect' => [
+				'url' => Router::url($redirect, true),
+				'status' => 302,
+			],
+		];
+		$this->assertResponseOk();
+		$this->assertEquals(json_encode($error, $this->_jsonOptions), (string)$this->_response->getBody());
+	}
+
+	/**
+	 * Common helper to confirm that there is no GET access allowed for the given user to the given URL
+	 *
+	 * @param $url array
+	 * @param null $user User ID
+	 */
+	protected function assertGetAsAccessDenied($url, $user) {
+		$this->login($user);
+		$this->get($url);
+
+		$this->assertResponseCode(302);
+		$this->assertRedirect('/');
+		$this->assertEquals('You do not have permission to access that page.', $this->_requestSession->read('Flash.flash.0.message'));
+		$this->assertEquals('Flash/error', $this->_requestSession->read('Flash.flash.0.element'));
+	}
+
+	/**
+	 * Common helper to confirm that there is no AJAX GET access allowed for the given user to the given URL
+	 *
+	 * @param $url array
+	 * @param null $user User ID
+	 */
+	protected function assertGetAjaxAsAccessDenied($url, $user) {
+		$this->login($user);
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->get($url);
+		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
+
+		$error = [
+			'error' => null,
+			'content' => null,
+			'_message' => [
+				0 => [
+					'message' => 'You do not have permission to access that page.',
+					'key' => 'flash',
+					'element' => 'Flash/error',
+					'params' => [],
+				],
+			],
+			'_redirect' => [
+				'url' => Router::url('/', true),
+				'status' => 302,
+			],
+		];
+		$this->assertResponseOk();
+		$this->assertEquals(json_encode($error, $this->_jsonOptions), (string)$this->_response->getBody());
+	}
+
+	/**
+	 * Common helper to confirm that there is no GET access allowed for anonymous users to the given URL
+	 *
+	 * @param $url array
+	 */
+	protected function assertGetAnonymousAccessDenied($url) {
+		$this->logout();
+		$this->get($url);
+
+		$this->assertResponseCode(302);
+		$this->assertRedirect(['controller' => 'Users', 'action' => 'login', 'redirect' => Router::url($url, true)]);
+		$this->assertEquals('You must login to access full site functionality.', $this->_requestSession->read('Flash.flash.0.message'));
+		$this->assertEquals('Flash/error', $this->_requestSession->read('Flash.flash.0.element'));
+	}
+
+	/**
+	 * Common helper to confirm that there is no AJAX GET access allowed for anonymous users to the given URL
+	 *
+	 * @param $url array
+	 */
+	protected function assertGetAjaxAnonymousAccessDenied($url) {
+		$this->logout();
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->get($url);
+		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
+
+		$error = [
+			'error' => null,
+			'content' => null,
+			'_message' => [
+				0 => [
+					'message' => 'You must login to access full site functionality.',
+					'key' => 'flash',
+					'element' => 'Flash/error',
+					'params' => [],
+				],
+			],
+			'_redirect' => [
+				'url' => Router::url(['controller' => 'Users', 'action' => 'login', 'redirect' => Router::url($url, true)], true),
+				'status' => 302,
+			],
+		];
+		$this->assertResponseOk();
+		$this->assertEquals(json_encode($error, $this->_jsonOptions), (string)$this->_response->getBody());
+	}
+
+	/**
+	 * Common helper to confirm that there is no POST access allowed for the given user to the given URL
+	 *
+	 * @param $url array
+	 * @param null $user User ID
+	 * @param $data string|mixed[]
+	 */
+	protected function assertPostAsAccessDenied($url, $user, $data = []) {
+		$this->login($user);
+		$this->post($url, $data);
+
+		$this->assertResponseCode(302);
+		$this->assertRedirect('/');
+		$this->assertEquals('You do not have permission to access that page.', $this->_requestSession->read('Flash.flash.0.message'));
+		$this->assertEquals('Flash/error', $this->_requestSession->read('Flash.flash.0.element'));
+	}
+
+	/**
+	 * Common helper to confirm that there is no AJAX POST access allowed for the given user to the given URL
+	 *
+	 * @param $url array
+	 * @param null $user User ID
+	 * @param $data string|mixed[]
+	 */
+	protected function assertPostAjaxAsAccessDenied($url, $user, $data = []) {
+		$this->login($user);
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->post($url, $data);
+		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
+
+		$error = [
+			'error' => null,
+			'content' => null,
+			'_message' => [
+				0 => [
+					'message' => 'You do not have permission to access that page.',
+					'key' => 'flash',
+					'element' => 'Flash/error',
+					'params' => [],
+				],
+			],
+			'_redirect' => [
+				'url' => Router::url('/', true),
+				'status' => 302,
+			],
+		];
+		$this->assertResponseOk();
+		$this->assertEquals(json_encode($error, $this->_jsonOptions), (string)$this->_response->getBody());
+	}
+
+	/**
+	 * Common helper to confirm that there is no POST access allowed for anonymous users to the given URL
+	 *
+	 * @param $url array
+	 * @param $data string|mixed[]
+	 */
+	protected function assertPostAnonymousAccessDenied($url, $data = []) {
+		$this->logout();
+		$this->post($url, $data);
+
+		$this->assertResponseCode(302);
+		$this->assertRedirect(['controller' => 'Users', 'action' => 'login', 'redirect' => Router::url($url, true)]);
+		$this->assertEquals('You must login to access full site functionality.', $this->_requestSession->read('Flash.flash.0.message'));
+		$this->assertEquals('Flash/error', $this->_requestSession->read('Flash.flash.0.element'));
+	}
+
+	/**
+	 * Common helper to confirm that there is no AJAX POST access allowed for anonymous users to the given URL
+	 *
+	 * @param $url array
+	 * @param $data string|mixed[]
+	 */
+	protected function assertPostAjaxAnonymousAccessDenied($url, $data = []) {
+		$this->logout();
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->post($url, $data);
+		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
+
+		$error = [
+			'error' => null,
+			'content' => null,
+			'_message' => [
+				0 => [
+					'message' => 'You must login to access full site functionality.',
+					'key' => 'flash',
+					'element' => 'Flash/error',
+					'params' => [],
+				],
+			],
+			'_redirect' => [
+				'url' => Router::url(['controller' => 'Users', 'action' => 'login', 'redirect' => Router::url($url, true)], true),
+				'status' => 302,
+			],
+		];
+		$this->assertResponseOk();
+		$this->assertEquals(json_encode($error, $this->_jsonOptions), (string)$this->_response->getBody());
 	}
 
 }

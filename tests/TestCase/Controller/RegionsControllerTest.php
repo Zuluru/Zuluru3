@@ -24,154 +24,64 @@ class RegionsControllerTest extends ControllerTestCase {
 					'app.fields',
 			'app.leagues',
 				'app.divisions',
+					'app.teams',
+					'app.divisions_people',
 			'app.settings',
 	];
 
 	/**
-	 * Test index method as an admin
+	 * Test index method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsAdmin() {
-		// Admins are allowed to get the index
-		$this->assertAccessOk(['controller' => 'Regions', 'action' => 'index'], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/regions/edit\?region=' . REGION_ID_EAST . '#ms');
-		$this->assertResponseRegExp('#/regions/delete\?region=' . REGION_ID_EAST . '#ms');
-		$this->assertResponseRegExp('#/regions/edit\?region=' . REGION_ID_SOUTH . '#ms');
-		$this->assertResponseRegExp('#/regions/delete\?region=' . REGION_ID_SOUTH . '#ms');
+	public function testIndex() {
+		// Admins are allowed to see the index
+		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'index'], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/regions/edit?region=' . REGION_ID_EAST);
+		$this->assertResponseContains('/regions/delete?region=' . REGION_ID_EAST);
+		$this->assertResponseContains('/regions/edit?region=' . REGION_ID_SOUTH);
+		$this->assertResponseContains('/regions/delete?region=' . REGION_ID_SOUTH);
+
+		// Managers are allowed to see the index, but don't see regions in other affiliates
+		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'index'], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/regions/edit?region=' . REGION_ID_EAST);
+		$this->assertResponseContains('/regions/delete?region=' . REGION_ID_EAST);
+		$this->assertResponseNotContains('/regions/edit?region=' . REGION_ID_SOUTH);
+		$this->assertResponseNotContains('/regions/delete?region=' . REGION_ID_SOUTH);
+
+		// Others are not allowed to see the index
+		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'index'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'index'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'index'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'index'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Regions', 'action' => 'index']);
 	}
 
 	/**
-	 * Test index method as a manager
+	 * Test view method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsManager() {
-		// Managers are allowed to get the index, but don't see regions in other affiliates
-		$this->assertAccessOk(['controller' => 'Regions', 'action' => 'index'], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/regions/edit\?region=' . REGION_ID_EAST . '#ms');
-		$this->assertResponseRegExp('#/regions/delete\?region=' . REGION_ID_EAST . '#ms');
-		$this->assertResponseNotRegExp('#/regions/edit\?region=' . REGION_ID_SOUTH . '#ms');
-		$this->assertResponseNotRegExp('#/regions/delete\?region=' . REGION_ID_SOUTH . '#ms');
-	}
-
-	/**
-	 * Test index method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testIndexAsCoordinator() {
-		// Others are not allowed to get the index
-		$this->assertAccessRedirect(['controller' => 'Regions', 'action' => 'index'], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test index method as a captain
-	 *
-	 * @return void
-	 */
-	public function testIndexAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method as a player
-	 *
-	 * @return void
-	 */
-	public function testIndexAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method as someone else
-	 *
-	 * @return void
-	 */
-	public function testIndexAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testIndexAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as an admin
-	 *
-	 * @return void
-	 */
-	public function testViewAsAdmin() {
+	public function testView() {
 		// Admins are allowed to view regions
-		$this->assertAccessOk(['controller' => 'Regions', 'action' => 'view', 'region' => REGION_ID_EAST], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/regions/edit\?region=' . REGION_ID_EAST . '#ms');
-		$this->assertResponseRegExp('#/regions/delete\?region=' . REGION_ID_EAST . '#ms');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'view', 'region' => REGION_ID_EAST], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/regions/edit?region=' . REGION_ID_EAST);
+		$this->assertResponseContains('/regions/delete?region=' . REGION_ID_EAST);
 
-	/**
-	 * Test view method as a manager
-	 *
-	 * @return void
-	 */
-	public function testViewAsManager() {
 		// Managers are allowed to view regions
-		$this->assertAccessOk(['controller' => 'Regions', 'action' => 'view', 'region' => REGION_ID_EAST], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/regions/edit\?region=' . REGION_ID_EAST . '#ms');
-		$this->assertResponseRegExp('#/regions/delete\?region=' . REGION_ID_EAST . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'view', 'region' => REGION_ID_EAST], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/regions/edit?region=' . REGION_ID_EAST);
+		$this->assertResponseContains('/regions/delete?region=' . REGION_ID_EAST);
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Regions', 'action' => 'view', 'region' => REGION_ID_SOUTH], PERSON_ID_MANAGER);
-	}
+		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'view', 'region' => REGION_ID_SOUTH], PERSON_ID_MANAGER);
 
-	/**
-	 * Test view method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testViewAsCoordinator() {
 		// Others are not allowed to view regions
-		$this->assertAccessRedirect(['controller' => 'Regions', 'action' => 'view', 'region' => REGION_ID_EAST], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test view method as a captain
-	 *
-	 * @return void
-	 */
-	public function testViewAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as a player
-	 *
-	 * @return void
-	 */
-	public function testViewAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as someone else
-	 *
-	 * @return void
-	 */
-	public function testViewAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testViewAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'view', 'region' => REGION_ID_EAST], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'view', 'region' => REGION_ID_EAST], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'view', 'region' => REGION_ID_EAST], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'view', 'region' => REGION_ID_EAST], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Regions', 'action' => 'view', 'region' => REGION_ID_EAST]);
 	}
 
 	/**
@@ -181,7 +91,7 @@ class RegionsControllerTest extends ControllerTestCase {
 	 */
 	public function testAddAsAdmin() {
 		// Admins are allowed to add regions
-		$this->assertAccessOk(['controller' => 'Regions', 'action' => 'add'], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'add'], PERSON_ID_ADMIN);
 	}
 
 	/**
@@ -191,53 +101,21 @@ class RegionsControllerTest extends ControllerTestCase {
 	 */
 	public function testAddAsManager() {
 		// Managers are allowed to add regions
-		$this->assertAccessOk(['controller' => 'Regions', 'action' => 'add'], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'add'], PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test add method as a coordinator
+	 * Test add method as others
 	 *
 	 * @return void
 	 */
-	public function testAddAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as a captain
-	 *
-	 * @return void
-	 */
-	public function testAddAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as a player
-	 *
-	 * @return void
-	 */
-	public function testAddAsPlayer() {
+	public function testAddAsOthers() {
 		// Others are not allowed to add regions
-		$this->assertAccessRedirect(['controller' => 'Regions', 'action' => 'add'], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test add method as someone else
-	 *
-	 * @return void
-	 */
-	public function testAddAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testAddAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'add'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'add'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'add'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'add'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Regions', 'action' => 'add']);
 	}
 
 	/**
@@ -247,8 +125,8 @@ class RegionsControllerTest extends ControllerTestCase {
 	 */
 	public function testEditAsAdmin() {
 		// Admins are allowed to edit regions
-		$this->assertAccessOk(['controller' => 'Regions', 'action' => 'edit', 'region' => REGION_ID_EAST], PERSON_ID_ADMIN);
-		$this->assertAccessOk(['controller' => 'Regions', 'action' => 'edit', 'region' => REGION_ID_SOUTH], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'edit', 'region' => REGION_ID_EAST], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'edit', 'region' => REGION_ID_SOUTH], PERSON_ID_ADMIN);
 	}
 
 	/**
@@ -258,56 +136,24 @@ class RegionsControllerTest extends ControllerTestCase {
 	 */
 	public function testEditAsManager() {
 		// Managers are allowed to edit regions
-		$this->assertAccessOk(['controller' => 'Regions', 'action' => 'edit', 'region' => REGION_ID_EAST], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'edit', 'region' => REGION_ID_EAST], PERSON_ID_MANAGER);
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Regions', 'action' => 'edit', 'region' => REGION_ID_SOUTH], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'edit', 'region' => REGION_ID_SOUTH], PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test edit method as a coordinator
+	 * Test edit method as others
 	 *
 	 * @return void
 	 */
-	public function testEditAsCoordinator() {
+	public function testEditAsOthers() {
 		// Others are not allowed to edit regions
-		$this->assertAccessRedirect(['controller' => 'Regions', 'action' => 'edit', 'region' => REGION_ID_EAST], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test edit method as a captain
-	 *
-	 * @return void
-	 */
-	public function testEditAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as a player
-	 *
-	 * @return void
-	 */
-	public function testEditAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as someone else
-	 *
-	 * @return void
-	 */
-	public function testEditAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testEditAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'edit', 'region' => REGION_ID_EAST], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'edit', 'region' => REGION_ID_EAST], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'edit', 'region' => REGION_ID_EAST], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'edit', 'region' => REGION_ID_EAST], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Regions', 'action' => 'edit', 'region' => REGION_ID_EAST]);
 	}
 
 	/**
@@ -320,14 +166,14 @@ class RegionsControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		// Admins are allowed to delete regions
-		$this->assertAccessRedirect(['controller' => 'Regions', 'action' => 'delete', 'region' => REGION_ID_NORTH],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Regions', 'action' => 'index'],
-			'The region has been deleted.', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Regions', 'action' => 'delete', 'region' => REGION_ID_NORTH],
+			PERSON_ID_ADMIN, [], ['controller' => 'Regions', 'action' => 'index'],
+			'The region has been deleted.');
 
 		// But not ones with dependencies
-		$this->assertAccessRedirect(['controller' => 'Regions', 'action' => 'delete', 'region' => REGION_ID_EAST],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Regions', 'action' => 'index'],
-			'#The following records reference this region, so it cannot be deleted#', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Regions', 'action' => 'delete', 'region' => REGION_ID_EAST],
+			PERSON_ID_ADMIN, [], ['controller' => 'Regions', 'action' => 'index'],
+			'#The following records reference this region, so it cannot be deleted#');
 	}
 
 	/**
@@ -339,59 +185,35 @@ class RegionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		// Managers can delete regions in their own affiliate
-		$this->assertAccessRedirect(['controller' => 'Regions', 'action' => 'delete', 'region' => REGION_ID_NORTH],
-			PERSON_ID_MANAGER, 'post', [], ['controller' => 'Regions', 'action' => 'index'],
-			'The region has been deleted.', 'Flash.flash.0.message');
+		// Managers are allowed to delete regions in their own affiliate
+		$this->assertPostAsAccessRedirect(['controller' => 'Regions', 'action' => 'delete', 'region' => REGION_ID_NORTH],
+			PERSON_ID_MANAGER, [], ['controller' => 'Regions', 'action' => 'index'],
+			'The region has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Regions', 'action' => 'delete', 'region' => REGION_ID_SOUTH],
-			PERSON_ID_MANAGER, 'post');
+		$this->assertPostAsAccessDenied(['controller' => 'Regions', 'action' => 'delete', 'region' => REGION_ID_SOUTH],
+			PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test delete method as a coordinator
+	 * Test delete method as others
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testDeleteAsOthers() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
-	/**
-	 * Test delete method as a captain
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as a player
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to delete regions
+		$this->assertPostAsAccessDenied(['controller' => 'Regions', 'action' => 'delete', 'region' => REGION_ID_SOUTH],
+			PERSON_ID_COORDINATOR);
+		$this->assertPostAsAccessDenied(['controller' => 'Regions', 'action' => 'delete', 'region' => REGION_ID_SOUTH],
+			PERSON_ID_CAPTAIN);
+		$this->assertPostAsAccessDenied(['controller' => 'Regions', 'action' => 'delete', 'region' => REGION_ID_SOUTH],
+			PERSON_ID_PLAYER);
+		$this->assertPostAsAccessDenied(['controller' => 'Regions', 'action' => 'delete', 'region' => REGION_ID_SOUTH],
+			PERSON_ID_VISITOR);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Regions', 'action' => 'delete', 'region' => REGION_ID_SOUTH]);
 	}
 
 }

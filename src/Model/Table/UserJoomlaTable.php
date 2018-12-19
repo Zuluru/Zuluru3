@@ -12,7 +12,7 @@ use Cake\Event\Event as CakeEvent;
  *
  * If you are using this class, you will need to manually add the following
  * entry to the 'Security' section in your config/app_local.php file:
- *	'jpathBase' => '/path/to/your/joomla/installation',
+ *	'joomlaRoot' => '/path/to/your/joomla/installation',
  */
 class UserJoomlaTable extends UsersTable {
 	/**
@@ -41,11 +41,9 @@ class UserJoomlaTable extends UsersTable {
 	public $loginField = 'lastvisitDate';
 
 	/**
-	 * Accounts (add, delete, passwords) are managed by Joomla, not Zuluru.
+	 * Class to use for hashing passwords.
 	 */
-	public $manageAccounts = false;
-	public $manageName = 'Joomla';
-	public $loginComponent = 'LoginJoomla';
+	public $hasher = 'App\Auth\JoomlaPasswordHasher';
 
 	/**
 	 * Initialize method
@@ -67,7 +65,8 @@ class UserJoomlaTable extends UsersTable {
 
 	public static function initializeJoomlaConfig() {
 		if (!defined('JPATH_BASE')) {
-			define('JPATH_BASE', Configure::read('Security.jpathBase'));
+			$root = Configure::read('Security.authenticators.Joomla.joomlaRoot') ?: $_SERVER['DOCUMENT_ROOT'];
+			define('JPATH_BASE', $root);
 		}
 
 		if (!Configure::check('Security.joomlaPrefix')) {

@@ -1,13 +1,10 @@
-<?php
-use Cake\Core\Configure;
-?>
 <h2><?= $league->full_name ?></h2>
 <dl class="dl-horizontal">
 	<dt><?= __('Season') ?></dt>
 	<dd><?= __($league->season) ?></dd>
 <?php
 if (count($league->divisions) == 1):
-	if (Configure::read('Perm.is_logged_in') && !empty($league->divisions[0]->people)):
+	if (!empty($league->divisions[0]->people) && $this->Authorize->getIdentity()->isLoggedIn()):
 		$links = [];
 		foreach ($league->divisions[0]->people as $coordinator) {
 			$links[] = $this->Html->link($coordinator->full_name, ['controller' => 'People', 'action' => 'view', 'person' => $coordinator->id]);

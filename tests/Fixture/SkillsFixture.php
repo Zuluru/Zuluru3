@@ -85,6 +85,13 @@ class SkillsFixture extends TestFixture {
 				'skill_level' => 4,
 				'year_started' => FrozenTime::now()->year,
 			],
+			[
+				'person_id' => PERSON_ID_INACTIVE,
+				'sport' => 'ultimate',
+				'enabled' => 1,
+				'skill_level' => 7,
+				'year_started' => FrozenTime::now()->year - 10,
+			],
 		];
 
 		parent::init();

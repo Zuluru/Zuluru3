@@ -1,10 +1,6 @@
 <?php
 use App\Controller\AppController;
-use Cake\Core\Configure;
 
-if (!isset($is_coordinator)) {
-	$is_coordinator = false;
-}
 if (!isset($format)) {
 	$format = 'links';
 }
@@ -38,6 +34,7 @@ if ($this->request->getParam('controller') != 'Leagues' || $this->request->getPa
 		['controller' => $controller, 'action' => 'view', $model => $league->id],
 		['alt' => __('Details'), 'title' => $tournaments ? __('View Tournament Details') : __('View League Details')]);
 }
+
 $schedule_types = array_unique(collection($league->divisions)->extract('schedule_type')->toList());
 if (!empty($schedule_types) && ($schedule_types[0] != 'none' || count($schedule_types) > 1)) {
 	if ($this->request->getParam('controller') != 'Leagues' || $this->request->getParam('action') != 'schedule') {
@@ -51,23 +48,30 @@ if (!empty($schedule_types) && ($schedule_types[0] != 'none' || count($schedule_
 			['alt' => __('Standings'), 'title' => __('Standings')]);
 	}
 }
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || ($collapse && $is_coordinator)) {
+
+if ($this->Authorize->can('edit', $league)) {
 	if ($this->request->getParam('controller') != 'Leagues' || $this->request->getParam('action') != 'edit') {
 		$more[$tournaments ? __('Edit Tournament') : __('Edit League')] = [
 			'url' => ['controller' => $controller, 'action' => 'edit', $model => $league->id, 'return' => AppController::_return()],
 		];
 	}
-	if ($this->request->getParam('controller') != 'Leagues' || $this->request->getParam('action') != 'add') {
+
+	if (($this->request->getParam('controller') != 'Leagues' || $this->request->getParam('action') != 'add') &&
+		$this->Authorize->can('add', \App\Controller\LeaguesController::class)
+	) {
 		$more[$tournaments ? __('Clone Tournament') : __('Clone League')] = [
 			'url' => ['controller' => $controller, 'action' => 'add', $model => $league->id, 'return' => $return],
 		];
 	}
+
 	if ($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'add') {
 		$more[__('Add Division')] = [
 			'url' => ['controller' => 'Divisions', 'action' => 'add', 'league' => $league->id, 'return' => $return],
 		];
 	}
+}
 
+if ($this->Authorize->can('delete', $league)) {
 	$url = ['controller' => $controller, 'action' => 'delete', $model => $league->id];
 	if ($this->request->getParam('controller') != 'Leagues') {
 		$url['return'] = AppController::_return();
@@ -77,12 +81,14 @@ if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || ($
 		'confirm' => __('Are you sure you want to delete this league?'),
 		'method' => 'post',
 	];
+}
 
-	if ($this->request->getParam('controller') != 'Leagues' || $this->request->getParam('action') != 'participation') {
-		$more[__('Participation Report')] = [
-			'url' => ['controller' => $controller, 'action' => 'participation', $model => $league->id]
-		];
-	}
+if (($this->request->getParam('controller') != 'Leagues' || $this->request->getParam('action') != 'participation') &&
+	$this->Authorize->can('participation', $league)
+) {
+	$more[__('Participation Report')] = [
+		'url' => ['controller' => $controller, 'action' => 'participation', $model => $league->id]
+	];
 }
 
 if (!empty($extra)) {

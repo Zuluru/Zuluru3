@@ -21,6 +21,8 @@ class TasksControllerTest extends ControllerTestCase {
 				'app.groups_people',
 			'app.leagues',
 				'app.divisions',
+					'app.teams',
+					'app.divisions_people',
 			'app.categories',
 				'app.tasks',
 					'app.task_slots',
@@ -28,143 +30,70 @@ class TasksControllerTest extends ControllerTestCase {
 	];
 
 	/**
-	 * Test index method as an admin
+	 * Test index method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsAdmin() {
+	public function testIndex() {
 		// Admins are allowed to view tasks, with full edit permissions
-		$this->assertAccessOk(['controller' => 'Tasks', 'action' => 'view', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/tasks/edit\?task=' . TASK_ID_CAPTAINS_MEETING . '#ms');
-		$this->assertResponseRegExp('#/tasks/delete\?task=' . TASK_ID_CAPTAINS_MEETING . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'view', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/tasks/edit?task=' . TASK_ID_CAPTAINS_MEETING);
+		$this->assertResponseContains('/tasks/delete?task=' . TASK_ID_CAPTAINS_MEETING);
 
-		$this->assertAccessOk(['controller' => 'Tasks', 'action' => 'view', 'task' => TASK_ID_POSTERS_SUB], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/tasks/edit\?task=' . TASK_ID_POSTERS_SUB . '#ms');
-		$this->assertResponseRegExp('#/tasks/delete\?task=' . TASK_ID_POSTERS_SUB . '#ms');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'view', 'task' => TASK_ID_POSTERS_SUB], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/tasks/edit?task=' . TASK_ID_POSTERS_SUB);
+		$this->assertResponseContains('/tasks/delete?task=' . TASK_ID_POSTERS_SUB);
 
-	/**
-	 * Test index method as a manager
-	 *
-	 * @return void
-	 */
-	public function testIndexAsManager() {
 		// Managers are allowed to view tasks
-		$this->assertAccessOk(['controller' => 'Tasks', 'action' => 'view', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/tasks/edit\?task=' . TASK_ID_CAPTAINS_MEETING . '#ms');
-		$this->assertResponseRegExp('#/tasks/delete\?task=' . TASK_ID_CAPTAINS_MEETING . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'view', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/tasks/edit?task=' . TASK_ID_CAPTAINS_MEETING);
+		$this->assertResponseContains('/tasks/delete?task=' . TASK_ID_CAPTAINS_MEETING);
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Tasks', 'action' => 'view', 'task' => TASK_ID_POSTERS_SUB], PERSON_ID_MANAGER);
-	}
+		$this->assertGetAsAccessRedirect(['controller' => 'Tasks', 'action' => 'view', 'task' => TASK_ID_POSTERS_SUB],
+			PERSON_ID_MANAGER, ['controller' => 'Tasks', 'action' => 'index'],
+			'Invalid task.');
 
-	/**
-	 * Test index method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testIndexAsCoordinator() {
+		// Coordinators are allowed to see the index
+		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'index'], PERSON_ID_COORDINATOR);
 		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'index'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'index'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'index'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Tasks', 'action' => 'index']);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test index method as a captain
+	 * Test view method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testView() {
+		// Admins are allowed to view tasks
+		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'view', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_ADMIN);
 
-	/**
-	 * Test index method as a player
-	 *
-	 * @return void
-	 */
-	public function testIndexAsPlayer() {
+		// Managers are allowed to view tasks
+		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'view', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_MANAGER);
+
+		// Volunteers are allowed to view tasks
+		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'view', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_COORDINATOR);
+
 		// Others are not allowed to view tasks
-		$this->assertAccessRedirect(['controller' => 'Tasks', 'action' => 'view', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_PLAYER);
-	}
+		$this->assertGetAsAccessRedirect(['controller' => 'Tasks', 'action' => 'view', 'task' => TASK_ID_CAPTAINS_MEETING],
+			PERSON_ID_CAPTAIN, ['controller' => 'Tasks', 'action' => 'index'],
+			'Invalid task.');
+		$this->assertGetAsAccessRedirect(['controller' => 'Tasks', 'action' => 'view', 'task' => TASK_ID_CAPTAINS_MEETING],
+			PERSON_ID_PLAYER, ['controller' => 'Tasks', 'action' => 'index'],
+			'Invalid task.');
+		$this->assertGetAsAccessRedirect(['controller' => 'Tasks', 'action' => 'view', 'task' => TASK_ID_CAPTAINS_MEETING],
+			PERSON_ID_VISITOR, ['controller' => 'Tasks', 'action' => 'index'],
+			'Invalid task.');
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Tasks', 'action' => 'view', 'task' => TASK_ID_CAPTAINS_MEETING]);
 
-	/**
-	 * Test index method as someone else
-	 *
-	 * @return void
-	 */
-	public function testIndexAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testIndexAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as an admin
-	 *
-	 * @return void
-	 */
-	public function testViewAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as a manager
-	 *
-	 * @return void
-	 */
-	public function testViewAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testViewAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as a captain
-	 *
-	 * @return void
-	 */
-	public function testViewAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as a player
-	 *
-	 * @return void
-	 */
-	public function testViewAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as someone else
-	 *
-	 * @return void
-	 */
-	public function testViewAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testViewAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -173,6 +102,8 @@ class TasksControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsAdmin() {
+		// Admins are allowed to add tasks
+		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'add'], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -182,52 +113,23 @@ class TasksControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsManager() {
+		// Managers are allowed to add tasks
+		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'add'], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test add method as a coordinator
+	 * Test add method as others
 	 *
 	 * @return void
 	 */
-	public function testAddAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as a captain
-	 *
-	 * @return void
-	 */
-	public function testAddAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as a player
-	 *
-	 * @return void
-	 */
-	public function testAddAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as someone else
-	 *
-	 * @return void
-	 */
-	public function testAddAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testAddAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testAddAsOthers() {
+		// Others are not allowed to add tasks
+		$this->assertGetAsAccessDenied(['controller' => 'Tasks', 'action' => 'add'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Tasks', 'action' => 'add'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Tasks', 'action' => 'add'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Tasks', 'action' => 'add'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Tasks', 'action' => 'add']);
 	}
 
 	/**
@@ -236,6 +138,8 @@ class TasksControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsAdmin() {
+		// Admins are allowed to edit tasks
+		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'edit', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -245,52 +149,23 @@ class TasksControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsManager() {
+		// Managers are allowed to edit tasks
+		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'edit', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test edit method as a coordinator
+	 * Test edit method as others
 	 *
 	 * @return void
 	 */
-	public function testEditAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as a captain
-	 *
-	 * @return void
-	 */
-	public function testEditAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as a player
-	 *
-	 * @return void
-	 */
-	public function testEditAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as someone else
-	 *
-	 * @return void
-	 */
-	public function testEditAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testEditAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testEditAsOthers() {
+		// Others are not allowed to edit tasks
+		$this->assertGetAsAccessDenied(['controller' => 'Tasks', 'action' => 'edit', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Tasks', 'action' => 'edit', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Tasks', 'action' => 'edit', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Tasks', 'action' => 'edit', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Tasks', 'action' => 'edit', 'task' => TASK_ID_CAPTAINS_MEETING]);
 	}
 
 	/**
@@ -303,14 +178,14 @@ class TasksControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		// Admins are allowed to delete tasks
-		$this->assertAccessRedirect(['controller' => 'Tasks', 'action' => 'delete', 'task' => TASK_ID_PLAYOFFS_SETUP],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Tasks', 'action' => 'index'],
-			'The task has been deleted.', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Tasks', 'action' => 'delete', 'task' => TASK_ID_PLAYOFFS_SETUP],
+			PERSON_ID_ADMIN, [], ['controller' => 'Tasks', 'action' => 'index'],
+			'The task has been deleted.');
 
 		// But not ones with dependencies
-		$this->assertAccessRedirect(['controller' => 'Tasks', 'action' => 'delete', 'task' => TASK_ID_CAPTAINS_MEETING],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Tasks', 'action' => 'index'],
-			'#The following records reference this task, so it cannot be deleted#', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Tasks', 'action' => 'delete', 'task' => TASK_ID_CAPTAINS_MEETING],
+			PERSON_ID_ADMIN, [], ['controller' => 'Tasks', 'action' => 'index'],
+			'#The following records reference this task, so it cannot be deleted#');
 	}
 
 	/**
@@ -322,59 +197,35 @@ class TasksControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		// Managers can delete tasks in their affiliate
-		$this->assertAccessRedirect(['controller' => 'Tasks', 'action' => 'delete', 'task' => TASK_ID_PLAYOFFS_SETUP],
-			PERSON_ID_MANAGER, 'post', [], ['controller' => 'Tasks', 'action' => 'index'],
-			'The task has been deleted.', 'Flash.flash.0.message');
+		// Managers are allowed to delete tasks in their affiliate
+		$this->assertPostAsAccessRedirect(['controller' => 'Tasks', 'action' => 'delete', 'task' => TASK_ID_PLAYOFFS_SETUP],
+			PERSON_ID_MANAGER, [], ['controller' => 'Tasks', 'action' => 'index'],
+			'The task has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Tasks', 'action' => 'delete', 'task' => TASK_ID_POSTERS_SUB],
-			PERSON_ID_MANAGER, 'post');
+		$this->assertPostAsAccessDenied(['controller' => 'Tasks', 'action' => 'delete', 'task' => TASK_ID_POSTERS_SUB],
+			PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test delete method as a coordinator
+	 * Test delete method as others
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testDeleteAsOthers() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
-	/**
-	 * Test delete method as a captain
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as a player
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to delete tasks
+		$this->assertPostAsAccessDenied(['controller' => 'Tasks', 'action' => 'delete', 'task' => TASK_ID_PLAYOFFS_SETUP],
+			PERSON_ID_COORDINATOR);
+		$this->assertPostAsAccessDenied(['controller' => 'Tasks', 'action' => 'delete', 'task' => TASK_ID_PLAYOFFS_SETUP],
+			PERSON_ID_CAPTAIN);
+		$this->assertPostAsAccessDenied(['controller' => 'Tasks', 'action' => 'delete', 'task' => TASK_ID_PLAYOFFS_SETUP],
+			PERSON_ID_PLAYER);
+		$this->assertPostAsAccessDenied(['controller' => 'Tasks', 'action' => 'delete', 'task' => TASK_ID_PLAYOFFS_SETUP],
+			PERSON_ID_VISITOR);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Tasks', 'action' => 'delete', 'task' => TASK_ID_PLAYOFFS_SETUP]);
 	}
 
 }

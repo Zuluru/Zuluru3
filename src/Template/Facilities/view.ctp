@@ -6,10 +6,8 @@ use Cake\Utility\Inflector;
 $this->Html->addCrumb(__('Facilities'));
 $this->Html->addCrumb(h($facility->name));
 $this->Html->addCrumb(__('View'));
-?>
 
-<?php
-if (!Configure::read('Perm.is_admin') && !Configure::read('Perm.is_manager')) {
+if (!$this->Authorize->can('closed', \App\Controller\FacilitiesController::class)) {
 	$facility->fields = collection($facility->fields)->match(['is_open' => true])->toArray();
 }
 
@@ -20,6 +18,7 @@ if (!empty($surfaces)) {
 }
 
 $show_indoor = count(array_unique(collection($facility->fields)->extract('indoor')->toArray()) > 1);
+$can_edit = $this->Authorize->can('edit', $facility);
 ?>
 
 <div class="facilities view">
@@ -53,7 +52,7 @@ endif;
 ?>
 		<dt><?= __('Region') ?></dt>
 		<dd><?php
-			if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+			if ($this->Authorize->can('view', $facility->region)) {
 				echo $this->Html->link($facility->region->name, ['controller' => 'Regions', 'action' => 'view', $facility->region->id]);
 			} else {
 				echo __($facility->region->name);
@@ -86,7 +85,7 @@ foreach ($facility->permits as $season => $permit) {
 	}
 	if (array_key_exists('file', $permit)) {
 		$permit_lines[] = $this->Html->link($name, $permit['url'], ['target' => 'permit']);
-	} else if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+	} else if ($can_edit) {
 		$permit_lines[] = __('Upload {0} permit for {1} to {2} (e.g. {1}.pdf or {1}.png)', $season, $facility->code, $permit['dir']);
 	}
 }
@@ -144,7 +143,7 @@ if (!empty($facility->site_instructions)):
 ?>
 		<dt><?= __('Private Instructions') ?></dt>
 		<dd><?php
-			if (Configure::read('Perm.is_logged_in')) {
+			if ($this->Identity->isLoggedIn()) {
 				echo $facility->site_instructions;
 			} else {
 				echo __('You must be logged in to see the private instructions for this site.');
@@ -173,7 +172,7 @@ if (!empty($facility->fields)):
 <?php
 	endif;
 
-	if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
+	if ($can_edit):
 ?>
 				<th><?= __('Rating') ?></th>
 <?php
@@ -210,7 +209,7 @@ if (!empty($facility->fields)):
 				} else {
 					echo __('N/A');
 				}
-				if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+				if ($can_edit) {
 					echo $this->Html->iconLink('edit_24.png',
 						['controller' => 'Maps', 'action' => 'edit', 'field' => $field->id, 'return' => AppController::_return()],
 						['alt' => __('Edit'), 'title' => __('Edit Layout')]);
@@ -220,7 +219,7 @@ if (!empty($facility->fields)):
 				}
 				?></td>
 <?php
-		if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
+		if ($can_edit):
 ?>
 				<td><?= $field->rating ?></td>
 <?php
@@ -228,7 +227,7 @@ if (!empty($facility->fields)):
 ?>
 				<td class="actions"><?php
 				echo $this->Html->link(__('View Bookings'), ['controller' => 'Fields', 'action' => 'bookings', 'field' => $field->id]);
-				if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+				if ($this->Authorize->can('add_game_slots', $field)) {
 					echo $this->Html->link(__('Add Game Slots'), ['controller' => 'GameSlots', 'action' => 'add', 'field' => $field->id]);
 					echo $this->Form->iconPostLink('delete_24.png',
 						['controller' => 'Fields', 'action' => 'delete', 'field' => $field->id, 'return' => AppController::_return()],
@@ -269,7 +268,7 @@ endif;
 echo $this->Html->tag('li', $this->Html->iconLink('view_32.png',
 	['action' => 'index'],
 	['alt' => __('List'), 'title' => __('List Facilities')]));
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+if ($can_edit) {
 	echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
 		['action' => 'edit', 'facility' => $facility->id, 'return' => AppController::_return()],
 		['alt' => __('Edit'), 'title' => __('Edit Facility')]));

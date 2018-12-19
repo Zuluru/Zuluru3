@@ -23,7 +23,7 @@ class SubscriptionsFixture extends TestFixture {
 	public function init() {
 		$this->records = [
 			[
-				'mailing_list_id' => MAILING_LIST_ID_JUNIORS,
+				'mailing_list_id' => MAILING_LIST_ID_MASTERS,
 				'person_id' => PERSON_ID_ADMIN,
 				'subscribed' => false,
 				'created' => FrozenDate::now(),

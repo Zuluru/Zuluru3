@@ -1,7 +1,7 @@
 <?php
 $this->Html->addCrumb(__('Teams'));
 $this->Html->addCrumb(h($team->name));
-if ($person_id) {
+if (isset($person)) {
 	$this->Html->addCrumb($person->full_name);
 	$this->Html->addCrumb(__('Shirt Number'));
 } else {
@@ -12,7 +12,7 @@ if ($person_id) {
 <div class="numbers form">
 	<?= $this->Form->create($team, ['align' => 'horizontal']) ?>
 <?php
-if ($person_id):
+if (isset($person)):
 	echo $this->Html->tag('h2', h($team->name) . ': ' . h($person->full_name) . ': ' . __('Shirt Number'));
 	echo $this->Form->input('people.0._joinData.number', [
 		'type' => 'number',

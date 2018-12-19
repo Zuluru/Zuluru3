@@ -1,4 +1,7 @@
 <?php
+
+use App\Authorization\ContextResource;
+
 $this->Html->addCrumb(__('Divisions'));
 $this->Html->addCrumb($division->full_league_name);
 $this->Html->addCrumb(__('Standings'));
@@ -18,6 +21,12 @@ $has_season = collection($division->teams)->some(function ($team) {
 	return !empty($team->_results->season->games);
 });
 $has_tournament = (!empty($division->_results->pools) || !empty($division->_results->brackets));
+$can_edit = $this->Authorize->can('edit_schedule', $division);
+
+$context = new ContextResource($division, ['league' => $division->league]);
+$show_spirit = $this->Authorize->can('view_spirit', $context);
+$show_spirit_scores = $show_spirit && $this->Authorize->can('view_spirit_scores', $context);
+
 if (!empty($division->teams) && ($has_season || !$has_tournament)):
 ?>
 	<div class="table-responsive">
@@ -25,9 +34,9 @@ if (!empty($division->teams) && ($has_season || !$has_tournament)):
 			<thead>
 <?php
 	echo $this->element("Leagues/standings/{$league_obj->render_element}/heading", [
-		'is_coordinator' => $is_coordinator,
 		'league' => $division->league,
 		'division' => $division,
+		'can_edit' => $can_edit,
 	]);
 ?>
 			</thead>
@@ -38,6 +47,7 @@ if (!empty($division->teams) && ($has_season || !$has_tournament)):
 		echo $this->element("Leagues/standings/{$league_obj->render_element}/more", [
 			'league' => $division->league,
 			'division' => $division,
+			'can_edit' => $can_edit,
 			'team_id' => $team_id,
 		]);
 	} else {
@@ -52,9 +62,10 @@ if (!empty($division->teams) && ($has_season || !$has_tournament)):
 			$classes[] = 'team-highlight';
 		}
 		echo $this->element("Leagues/standings/{$league_obj->render_element}/team", [
-			'is_coordinator' => $is_coordinator,
 			'league' => $division->league,
 			'division' => $division,
+			'can_edit' => $can_edit,
+			'show_spirit_scores' => $show_spirit_scores,
 			'team' => $team,
 			'seed' => $seed,
 			'classes' => $classes,
@@ -64,6 +75,7 @@ if (!empty($division->teams) && ($has_season || !$has_tournament)):
 		echo $this->element("Leagues/standings/{$league_obj->render_element}/more", [
 			'league' => $division->league,
 			'division' => $division,
+			'can_edit' => $can_edit,
 			'team_id' => $team_id,
 		]);
 	}
@@ -82,14 +94,26 @@ if (!empty($division->_results->pools)):
 ?>
 	<h3><?= __('Preliminary rounds') ?></h3>
 <?php
-	echo $this->element('Leagues/standings/tournament/pools', ['division' => $division, 'league' => $division->league, 'games' => $division->_results->pools, 'teams' => $division->teams]);
+	echo $this->element('Leagues/standings/tournament/pools', [
+		'division' => $division,
+		'can_edit' => $can_edit,
+		'league' => $division->league,
+		'games' => $division->_results->pools,
+		'teams' => $division->teams,
+	]);
 endif;
 
 if (!empty($division->_results->brackets)):
 ?>
 	<h3><?= __('Playoff brackets') ?></h3>
 <?php
-	echo $this->element('Leagues/standings/tournament/bracket', ['division' => $division, 'league' => $division->league, 'games' => $division->_results->brackets, 'teams' => $division->teams]);
+	echo $this->element('Leagues/standings/tournament/bracket', [
+		'division' => $division,
+		'can_edit' => $can_edit,
+		'league' => $division->league,
+		'games' => $division->_results->brackets,
+		'teams' => $division->teams,
+	]);
 endif;
 ?>
 </div>

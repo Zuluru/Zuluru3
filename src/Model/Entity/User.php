@@ -54,7 +54,7 @@ class User extends Entity {
 		foreach ($new->visibleProperties() as $prop) {
 			// We never want to copy empty properties in the user record;
 			// it would only be things like last login date
-			if ($this->accessible($prop) && !empty($new->$prop)) {
+			if ($this->isAccessible($prop) && !empty($new->$prop)) {
 				$this->$prop = $new->$prop;
 			}
 		}

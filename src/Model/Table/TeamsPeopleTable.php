@@ -5,6 +5,7 @@ use App\Core\UserCache;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
+use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Event\Event as CakeEvent;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\TableRegistry;
@@ -194,6 +195,31 @@ class TeamsPeopleTable extends AppTable {
 	 */
 	public function afterDelete(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		UserCache::getInstance()->_deleteTeamData($entity->person_id);
+	}
+
+	public function affiliate($id) {
+		// Teams may be unassigned
+		try {
+			return $this->Teams->affiliate($this->team($id));
+		} catch (RecordNotFoundException $ex) {
+			return null;
+		}
+	}
+
+	public function division($id) {
+		try {
+			return $this->Teams->division($this->team($id));
+		} catch (RecordNotFoundException $ex) {
+			return null;
+		}
+	}
+
+	public function team($id) {
+		try {
+			return $this->field('team_id', ['id' => $id]);
+		} catch (RecordNotFoundException $ex) {
+			return null;
+		}
 	}
 
 }

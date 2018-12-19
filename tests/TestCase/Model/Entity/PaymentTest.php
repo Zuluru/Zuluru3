@@ -58,7 +58,7 @@ class PaymentTest extends TestCase {
 	 * @return void
 	 */
 	public function testGetPaid() {
-		$this->assertEquals(49, $this->Payment->paid);
+		$this->assertEquals(11.50, $this->Payment->paid);
 	}
 
 }

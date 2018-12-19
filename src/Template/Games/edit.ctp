@@ -279,13 +279,13 @@ if (!empty($game->score_entries)):
 					<td><?= $this->element('Spirit/symbol', [
 							'spirit_obj' => $spirit_obj,
 							'league' => $game->division->league,
-							'is_coordinator' => true,
+							'show_spirit_scores' => true,
 							'entry' => $game->getSpiritEntry($game->away_team_id, $spirit_obj),
 						]) ?></td>
 					<td><?= $this->element('Spirit/symbol', [
 							'spirit_obj' => $spirit_obj,
 							'league' => $game->division->league,
-							'is_coordinator' => true,
+							'show_spirit_scores' => true,
 							'entry' => $game->getSpiritEntry($game->home_team_id, $spirit_obj),
 						]) ?></td>
 				</tr>

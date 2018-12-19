@@ -1,16 +1,16 @@
 <?php
-use Cake\Core\Configure;
-
 if (isset($division)) {
 	$games = $division->games;
 	$competition = ($division->schedule_type == 'competition');
 	$id = $division->id;
 	$id_field = 'division';
+	$can_edit = $this->Authorize->can('edit_schedule', $division);
 } else {
 	$games = $league->games;
 	$competition = collection($league->divisions)->every(function ($division) { return $division->schedule_type == 'competition'; });
 	$id = $league->id;
 	$id_field = 'league';
+	$can_edit = $this->Authorize->can('edit_schedule', $league);
 }
 
 // Spin through the games before building headers, to eliminate edit-type actions on completed weeks.
@@ -25,7 +25,7 @@ foreach ($games as $game) {
 		$has_dependent_games |= (!empty($game->home_pool_team->dependency_type) || !empty($game->away_pool_team->dependency_type));
 	}
 }
-if (!($published || Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator)) {
+if (!$published && !$can_edit) {
 	return;
 }
 
@@ -35,7 +35,7 @@ echo $this->element('Leagues/schedule/view_header', compact('division', 'league'
 <?php
 $last_date = $last_slot = null;
 foreach ($games as $game):
-	if (! ($game->published || Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator)) {
+	if (!$game->published && !$can_edit) {
 		continue;
 	}
 	if (!$game->game_slot->game_date->between($week[0], $week[1])) {

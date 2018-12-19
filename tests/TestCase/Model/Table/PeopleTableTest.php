@@ -157,7 +157,7 @@ class PeopleTableTest extends TableTestCase {
 	public function testComparePerson() {
 		// TODO: Add more person records, to more completely test the sort options
 		$people = $this->PeopleTable->find()->toArray();
-		$this->assertEquals(12, count($people));
+		$this->assertEquals(13, count($people));
 		usort($people, ['App\Model\Table\PeopleTable', 'comparePerson']);
 
 		// Amy Administrator will be first
@@ -196,17 +196,21 @@ class PeopleTableTest extends TableTestCase {
 		$this->assertArrayHasKey(8, $people);
 		$this->assertEquals(PERSON_ID_DUPLICATE, $people[8]->id);
 
-		// Then Mary Manager
+		// Then Irene Inactive
 		$this->assertArrayHasKey(9, $people);
-		$this->assertEquals(PERSON_ID_MANAGER, $people[9]->id);
+		$this->assertEquals(PERSON_ID_INACTIVE, $people[9]->id);
+
+		// Then Mary Manager
+		$this->assertArrayHasKey(10, $people);
+		$this->assertEquals(PERSON_ID_MANAGER, $people[10]->id);
 
 		// Then Pam Player
-		$this->assertArrayHasKey(10, $people);
-		$this->assertEquals(PERSON_ID_PLAYER, $people[10]->id);
+		$this->assertArrayHasKey(11, $people);
+		$this->assertEquals(PERSON_ID_PLAYER, $people[11]->id);
 
 		// Finally Veronica Visitor
-		$this->assertArrayHasKey(11, $people);
-		$this->assertEquals(PERSON_ID_VISITOR, $people[11]->id);
+		$this->assertArrayHasKey(12, $people);
+		$this->assertEquals(PERSON_ID_VISITOR, $people[12]->id);
 	}
 
 }

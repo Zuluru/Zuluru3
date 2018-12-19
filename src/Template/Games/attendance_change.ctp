@@ -16,7 +16,7 @@ $this->Html->addCrumb(h($team->name));
 		if (!$game->isNew()) {
 			echo $this->Time->date($game->game_slot->game_date);
 		} else {
-			echo $this->Time->date($date);
+			echo $this->Time->date($game_date);
 		}
 		?></dd>
 		<dt><?= __('Game Time') ?></dt>

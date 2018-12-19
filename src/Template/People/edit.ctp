@@ -1,5 +1,4 @@
 <?php
-use App\Controller\AppController;
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 
@@ -9,12 +8,14 @@ $this->Html->addCrumb(__('Edit'));
 
 $short = Configure::read('organization.short_name');
 $admin = Configure::read('email.admin_email');
+$identity = $this->Authorize->getIdentity();
+$is_manager = $identity->isManagerOf($person);
 
 $access = [PROFILE_USER_UPDATE, PROFILE_REGISTRATION];
 // People with incomplete profiles can update any of the fields that
 // normally only admins can edit, so that they can successfully fill
 // out all of the profile.
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || !$person->complete) {
+if ($is_manager || !$person->complete) {
 	$access[] = PROFILE_ADMIN_UPDATE;
 }
 ?>
@@ -24,7 +25,7 @@ if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || !$
 if (!empty($person->uploads) && $person->uploads[0]->approved == true) {
 	echo $this->element('People/player_photo', ['person' => $person, 'photo' => $person->uploads[0]]);
 }
-echo $is_me ? __('Edit Your Profile') : $person->full_name ?></h2>
+echo $identity->isMe($person) ? __('Edit Your Profile') : $person->full_name ?></h2>
 <?php
 if ($person->user_id):
 ?>
@@ -41,7 +42,7 @@ if ($person->user_id):
 <?php
 	endif;
 
-	if ($upload):
+	if (Configure::read('feature.photos') && empty($person->uploads) && $identity->isMe($person)):
 ?>
 
 	<fieldset>
@@ -58,7 +59,7 @@ endif;
 echo $this->Form->create($person, ['align' => 'horizontal']);
 echo $this->Form->hidden('complete', ['value' => true]);
 
-if (($person->user_id && count($groups) > 1) || Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
+if (($person->user_id && count($groups) > 1) || $is_manager):
 ?>
 
 	<fieldset>
@@ -79,7 +80,7 @@ if (($person->user_id && count($groups) > 1) || Configure::read('Perm.is_admin')
 			],
 		]);
 	}
-	if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+	if ($is_manager) {
 		$options = Configure::read('options.record_status');
 		if (Configure::read('feature.auto_approve')) {
 			unset($options['new']);
@@ -282,8 +283,8 @@ endif;
 // and for managers when only one affiliate is allowed. The latter
 // is to prevent managers from switching themselves to another
 // affiliate where they're not a manager.
-if (Configure::read('feature.affiliates') && !Configure::read('Perm.is_admin') &&
-	(Configure::read('feature.multiple_affiliates') || !Configure::read('Perm.is_manager'))):
+if (Configure::read('feature.affiliates') && !$identity->isAdmin() &&
+	(Configure::read('feature.multiple_affiliates') || !$identity->isManager())):
 ?>
 
 	<fieldset>
@@ -291,14 +292,14 @@ if (Configure::read('feature.affiliates') && !Configure::read('Perm.is_admin') &
 <?php
 	if (Configure::read('feature.multiple_affiliates')) {
 		$help = __('Select all affiliates you are interested in.');
-		if (Configure::read('Perm.is_manager')) {
+		if ($identity->isManager()) {
 			$help .= ' ' . __('Note that affiliates you are already a manager of ({0}) are not included here; this will remain unchanged.',
 				implode(', ', collection($this->UserCache->read('ManagedAffiliates'))->extract('name')->toArray()));
 		}
 		echo $this->Form->input('affiliates._ids', [
 			'help' => $help,
 			'multiple' => 'checkbox',
-			'hide_single' => !Configure::read('Perm.is_manager'),
+			'hide_single' => !$identity->isManager(),
 		]);
 		$this->Form->unlockField('affiliates._ids');
 	} else {

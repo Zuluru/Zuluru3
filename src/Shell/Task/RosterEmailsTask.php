@@ -1,7 +1,8 @@
 <?php
 namespace App\Shell\Task;
 
-use App\Auth\HasherTrait;
+use App\Middleware\ConfigurationLoader;
+use App\PasswordHasher\HasherTrait;
 use App\Controller\AppController;
 use App\Model\Entity\Division;
 use App\Model\Entity\Person;
@@ -9,8 +10,6 @@ use App\Model\Entity\Team;
 use App\Model\Entity\TeamsPerson;
 use Cake\Console\Shell;
 use Cake\Core\Configure;
-use Cake\Event\Event as CakeEvent;
-use Cake\Event\EventManager;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
@@ -25,9 +24,7 @@ class RosterEmailsTask extends Shell {
 	use HasherTrait;
 
 	public function main() {
-		$event = new CakeEvent('Configuration.initialize', $this);
-		EventManager::instance()->dispatch($event);
-
+		ConfigurationLoader::loadConfiguration();
 		if (!Configure::read('feature.generate_roster_email')) {
 			return;
 		}

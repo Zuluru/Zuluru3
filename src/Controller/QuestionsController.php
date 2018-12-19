@@ -4,7 +4,6 @@ namespace App\Controller;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Network\Exception\MethodNotAllowedException;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 
@@ -15,96 +14,22 @@ use Cake\ORM\TableRegistry;
  */
 class QuestionsController extends AppController {
 
-	/**
-	 * isAuthorized method
-	 *
-	 * @return bool true if access allowed
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
-	 */
-	public function isAuthorized() {
-		try {
-			if ($this->UserCache->read('Person.status') == 'locked') {
-				return false;
-			}
-
-			if (!Configure::read('feature.registration')) {
-				throw new MethodNotAllowedException('Registration is not enabled on this system.');
-			}
-
-			if (Configure::read('Perm.is_manager')) {
-				// Managers can perform these operations
-				if (in_array($this->request->getParam('action'), [
-					'index',
-					'deactivated',
-					'add',
-					'autocomplete',
-				]))
-				{
-					return true;
-				}
-
-				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->getParam('action'), [
-					'view',
-					'edit',
-					'add_answer',
-					'activate',
-					'deactivate',
-					'delete',
-				]))
-				{
-					// If a question id is specified, check if we're a manager of that question's affiliate
-					$question = $this->request->getQuery('question');
-					if ($question) {
-						if (in_array($this->Questions->affiliate($question), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-				}
-
-				if (in_array($this->request->getParam('action'), [
-					'delete_answer',
-				]))
-				{
-					// If an answer id is specified, check if we're a manager of that answer's affiliate
-					$answer = $this->request->getQuery('answer');
-					if ($answer) {
-						$question = $this->Questions->Answers->field('question_id', ['id' => $answer]);
-						if (in_array($this->Questions->affiliate($question), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-				}
-			}
-		} catch (RecordNotFoundException $ex) {
-		} catch (InvalidPrimaryKeyException $ex) {
-		}
-
-		return false;
-	}
-
 	// TODO: Eliminate this if we can find a way around black-holing caused by Ajax field adds
 	public function beforeFilter(\Cake\Event\Event $event) {
 		parent::beforeFilter($event);
-		$this->Security->config('unlockedActions', ['edit']);
+		if (isset($this->Security)) {
+			$this->Security->config('unlockedActions', ['edit']);
+		}
 	}
 
 	/**
 	 * Index method
 	 *
 	 * @return void|\Cake\Network\Response
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
 	 */
 	public function index() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->Authorization->authorize($this);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		$this->paginate = [
 			'conditions' => [
 				'Questions.active' => true,
@@ -121,11 +46,8 @@ class QuestionsController extends AppController {
 	}
 
 	public function deactivated() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->Authorization->authorize($this);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		$this->paginate = [
 			'conditions' => [
 				'Questions.active' => false,
@@ -146,13 +68,8 @@ class QuestionsController extends AppController {
 	 * View method
 	 *
 	 * @return void|\Cake\Network\Response
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
 	 */
 	public function view() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
 		$id = $this->request->getQuery('question');
 		try {
 			$question = $this->Questions->get($id, [
@@ -165,9 +82,11 @@ class QuestionsController extends AppController {
 			$this->Flash->info(__('Invalid question.'));
 			return $this->redirect(['action' => 'index']);
 		}
+
+		$this->Authorization->authorize($question);
 		$this->Configuration->loadAffiliate($question->affiliate_id);
 
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		$this->set(compact('question', 'affiliates'));
 	}
 
@@ -175,14 +94,10 @@ class QuestionsController extends AppController {
 	 * Add method
 	 *
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
 	 */
 	public function add() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
 		$question = $this->Questions->newEntity();
+		$this->Authorization->authorize($this);
 		if ($this->request->is('post')) {
 			$question = $this->Questions->patchEntity($question, $this->request->data);
 			if ($this->Questions->save($question)) {
@@ -194,7 +109,7 @@ class QuestionsController extends AppController {
 			}
 		}
 
-		$affiliates = $this->_applicableAffiliates(true);
+		$affiliates = $this->Authentication->applicableAffiliates(true);
 		$this->set(compact('question', 'affiliates'));
 	}
 
@@ -202,13 +117,8 @@ class QuestionsController extends AppController {
 	 * Edit method
 	 *
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
 	 */
 	public function edit() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
 		$id = $this->request->getQuery('question');
 		try {
 			$question = $this->Questions->get($id, [
@@ -227,6 +137,8 @@ class QuestionsController extends AppController {
 			$this->Flash->info(__('Invalid question.'));
 			return $this->redirect(['action' => 'index']);
 		}
+
+		$this->Authorization->authorize($question);
 		$this->Configuration->loadAffiliate($question->affiliate_id);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
@@ -239,7 +151,7 @@ class QuestionsController extends AppController {
 			}
 		}
 
-		$affiliates = $this->_applicableAffiliates(true);
+		$affiliates = $this->Authentication->applicableAffiliates(true);
 		$this->set(compact('question', 'affiliates'));
 	}
 
@@ -247,14 +159,8 @@ class QuestionsController extends AppController {
 	 * Activate method
 	 *
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
 	 */
 	public function activate() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
-		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
 		$id = $this->request->getQuery('question');
@@ -267,6 +173,8 @@ class QuestionsController extends AppController {
 			$this->Flash->info(__('Invalid question.'));
 			return $this->redirect(['action' => 'index']);
 		}
+
+		$this->Authorization->authorize($question);
 
 		$question->active = true;
 		if (!$this->Questions->save($question)) {
@@ -281,14 +189,8 @@ class QuestionsController extends AppController {
 	 * Deactivate method
 	 *
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
 	 */
 	public function deactivate() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
-		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
 		$id = $this->request->getQuery('question');
@@ -301,6 +203,8 @@ class QuestionsController extends AppController {
 			$this->Flash->info(__('Invalid question.'));
 			return $this->redirect(['action' => 'index']);
 		}
+
+		$this->Authorization->authorize($question);
 
 		$question->active = false;
 		if (!$this->Questions->save($question)) {
@@ -315,22 +219,11 @@ class QuestionsController extends AppController {
 	 * Delete method
 	 *
 	 * @return void|\Cake\Network\Response Redirects to index.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
 	 */
 	public function delete() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
 		$this->request->allowMethod(['post', 'delete']);
 
 		$id = $this->request->getQuery('question');
-		$dependencies = $this->Questions->dependencies($id);
-		if ($dependencies !== false) {
-			$this->Flash->warning(__('The following records reference this question, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
-			return $this->redirect(['action' => 'index']);
-		}
-
 		try {
 			$question = $this->Questions->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -338,6 +231,14 @@ class QuestionsController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		} catch (InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid question.'));
+			return $this->redirect(['action' => 'index']);
+		}
+
+		$this->Authorization->authorize($question);
+
+		$dependencies = $this->Questions->dependencies($id);
+		if ($dependencies !== false) {
+			$this->Flash->warning(__('The following records reference this question, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
 			return $this->redirect(['action' => 'index']);
 		}
 
@@ -353,11 +254,6 @@ class QuestionsController extends AppController {
 	}
 
 	public function add_answer() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
-		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
 		$id = $this->request->getQuery('question');
@@ -378,6 +274,9 @@ class QuestionsController extends AppController {
 			$this->Flash->info(__('Invalid question.'));
 			return $this->redirect(['action' => 'index']);
 		}
+
+		$this->Authorization->authorize($question);
+
 		if (empty($question->answers)) {
 			$sort = 1;
 		} else {
@@ -398,11 +297,6 @@ class QuestionsController extends AppController {
 	}
 
 	public function delete_answer() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
-		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
 		$id = $this->request->getQuery('answer');
@@ -415,6 +309,8 @@ class QuestionsController extends AppController {
 			$this->Flash->info(__('Invalid answer.'));
 			return $this->redirect(['action' => 'index']);
 		}
+
+		$this->Authorization->authorize($answer, 'delete');
 
 		// Find if there are responses that use this answer
 		$count = TableRegistry::get('Responses')->find()
@@ -436,36 +332,32 @@ class QuestionsController extends AppController {
 	}
 
 	public function autocomplete() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
-		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
-		$conditions = [
-			'Questions.question LIKE' => '%' . $this->request->getQuery('term') . '%',
-			'Questions.active' => true,
-		];
-		$affiliate = $this->request->getQuery('affiliate');
-		if ($affiliate && (Configure::read('Perm.is_admin') || in_array($affiliate, $this->UserCache->read('ManagedAffiliateIDs')))) {
-			$conditions['Questions.affiliate_id'] = $affiliate;
-
-			$this->set('questions', $this->Questions->find()
-				->where($conditions)
-				->order('Questions.question')
-				->combine('id', 'question')
-				->toArray());
-		} else {
-			$this->set('questions', []);
+		try {
+		$affiliate = TableRegistry::get('Affiliates')->get($this->request->getQuery('affiliate'));
+		} catch (RecordNotFoundException $ex) {
+			$this->Flash->info(__('Invalid affiliate.'));
+			return $this->redirect(['action' => 'index']);
+		} catch (InvalidPrimaryKeyException $ex) {
+			$this->Flash->info(__('Invalid affiliate.'));
+			return $this->redirect(['action' => 'index']);
 		}
+
+		$this->Authorization->authorize($affiliate);
+
+		$this->set('questions', $this->Questions->find()
+			->where([
+				'Questions.question LIKE' => '%' . $this->request->getQuery('term') . '%',
+				'Questions.active' => true,
+				'Questions.affiliate_id' => $affiliate->id,
+			])
+			->order('Questions.question')
+			->combine('id', 'question')
+			->toArray());
 	}
 
 	public function TODOLATER_consolidate() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
 		$questions = $this->Questions->find()
 			->contain([
 				'Answers' => [

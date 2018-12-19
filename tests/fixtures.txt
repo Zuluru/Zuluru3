@@ -69,3 +69,4 @@ Following is the full list of available fixtures, in the order they need to be i
 			'app.settings',
 			'app.waivers',
 				'app.waivers_people',
+			'app.locks',

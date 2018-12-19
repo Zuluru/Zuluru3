@@ -1,7 +1,6 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
-use Cake\Core\Configure;
 use Cake\ORM\TableRegistry;
 
 /**
@@ -30,6 +29,7 @@ class FacilitiesControllerTest extends ControllerTestCase {
 					'app.teams',
 						'app.teams_facilities',
 					'app.game_slots',
+					'app.divisions_people',
 					'app.pools',
 						'app.pools_teams',
 					'app.games',
@@ -38,313 +38,219 @@ class FacilitiesControllerTest extends ControllerTestCase {
 	];
 
 	/**
-	 * Test index method as an admin
+	 * Test index method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsAdmin() {
-		// Admins are allowed to get the index
-		$this->assertAccessOk(['controller' => 'Facilities', 'action' => 'index'], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '#ms');
-		$this->assertResponseRegExp('#/maps/view\?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1 . '#ms');
-		$this->assertResponseRegExp('#/facilities/edit\?facility=' . FACILITY_ID_SUNNYBROOK . '#ms');
-		$this->assertResponseRegExp('#/facilities/delete\?facility=' . FACILITY_ID_SUNNYBROOK . '#ms');
-		$this->assertResponseRegExp('#/facilities/close\?facility=' . FACILITY_ID_SUNNYBROOK . '#ms');
-		$this->assertResponseRegExp('#/facilities/view\?facility=' . FACILITY_ID_CENTRAL_TECH . '#ms');
-		$this->assertResponseRegExp('#/maps/view\?field=' . FIELD_ID_CENTRAL_TECH . '#ms');
-		$this->assertResponseRegExp('#/facilities/edit\?facility=' . FACILITY_ID_CENTRAL_TECH . '#ms');
-		$this->assertResponseRegExp('#/facilities/delete\?facility=' . FACILITY_ID_CENTRAL_TECH . '#ms');
-		$this->assertResponseRegExp('#/facilities/close\?facility=' . FACILITY_ID_CENTRAL_TECH . '#ms');
+	public function testIndex() {
+		// Admins are allowed to see the index
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'index'], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/facilities/view?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseContains('/facilities/edit?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertResponseContains('/facilities/delete?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertResponseContains('/facilities/close?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertResponseContains('/facilities/view?facility=' . FACILITY_ID_CENTRAL_TECH);
+		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_CENTRAL_TECH);
+		$this->assertResponseContains('/facilities/edit?facility=' . FACILITY_ID_CENTRAL_TECH);
+		$this->assertResponseContains('/facilities/delete?facility=' . FACILITY_ID_CENTRAL_TECH);
+		$this->assertResponseContains('/facilities/close?facility=' . FACILITY_ID_CENTRAL_TECH);
+
+		// Managers are allowed to see the index, but don't see facilities in other affiliates
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'index'], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/facilities/view?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseContains('/facilities/edit?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertResponseContains('/facilities/delete?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertResponseContains('/facilities/close?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertResponseNotContains('/facilities/view?facility=' . FACILITY_ID_CENTRAL_TECH);
+		$this->assertResponseNotContains('/maps/view?field=' . FIELD_ID_CENTRAL_TECH);
+		$this->assertResponseNotContains('/facilities/edit?facility=' . FACILITY_ID_CENTRAL_TECH);
+		$this->assertResponseNotContains('/facilities/delete?facility=' . FACILITY_ID_CENTRAL_TECH);
+		$this->assertResponseNotContains('/facilities/close?facility=' . FACILITY_ID_CENTRAL_TECH);
+
+		// Coordinators are allowed to see the index, but no edit options
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'index'], PERSON_ID_COORDINATOR);
+		$this->assertResponseContains('/facilities/view?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseNotContains('/facilities/edit?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertResponseNotContains('/facilities/delete?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertResponseNotContains('/facilities/close?facility=' . FACILITY_ID_SUNNYBROOK);
+
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'index'], PERSON_ID_CAPTAIN);
+
+		// Players are allowed to see the index, but no edit options
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'index'], PERSON_ID_DUPLICATE);
+		$this->assertResponseContains('/facilities/view?facility=' . FACILITY_ID_CENTRAL_TECH);
+		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_CENTRAL_TECH);
+		$this->assertResponseNotContains('/facilities/edit?facility=' . FACILITY_ID_CENTRAL_TECH);
+		$this->assertResponseNotContains('/facilities/delete?facility=' . FACILITY_ID_CENTRAL_TECH);
+		$this->assertResponseNotContains('/facilities/close?facility=' . FACILITY_ID_CENTRAL_TECH);
+
+		// Visitors are allowed to see the index
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'index'], PERSON_ID_VISITOR);
+
+		// Others are allowed to see the index
+		$this->assertGetAnonymousAccessOk(['controller' => 'Facilities', 'action' => 'index']);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test index method as a manager
+	 * Test closed method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsManager() {
-		// Managers are allowed to get the index, but don't see facilities in other affiliates
-		$this->assertAccessOk(['controller' => 'Facilities', 'action' => 'index'], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '#ms');
-		$this->assertResponseRegExp('#/maps/view\?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1 . '#ms');
-		$this->assertResponseRegExp('#/facilities/edit\?facility=' . FACILITY_ID_SUNNYBROOK . '#ms');
-		$this->assertResponseRegExp('#/facilities/delete\?facility=' . FACILITY_ID_SUNNYBROOK . '#ms');
-		$this->assertResponseRegExp('#/facilities/close\?facility=' . FACILITY_ID_SUNNYBROOK . '#ms');
-		$this->assertResponseNotRegExp('#/facilities/view\?facility=' . FACILITY_ID_CENTRAL_TECH . '#ms');
-		$this->assertResponseNotRegExp('#/maps/view\?field=' . FIELD_ID_CENTRAL_TECH . '#ms');
-		$this->assertResponseNotRegExp('#/facilities/edit\?facility=' . FACILITY_ID_CENTRAL_TECH . '#ms');
-		$this->assertResponseNotRegExp('#/facilities/delete\?facility=' . FACILITY_ID_CENTRAL_TECH . '#ms');
-		$this->assertResponseNotRegExp('#/facilities/close\?facility=' . FACILITY_ID_CENTRAL_TECH . '#ms');
-	}
-
-	/**
-	 * Test index method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testIndexAsCoordinator() {
-		// Coordinators are allowed to get the index, but no edit options
-		$this->assertAccessOk(['controller' => 'Facilities', 'action' => 'index'], PERSON_ID_COORDINATOR);
-		$this->assertResponseRegExp('#/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '#ms');
-		$this->assertResponseRegExp('#/maps/view\?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1 . '#ms');
-		$this->assertResponseNotRegExp('#/facilities/edit\?facility=' . FACILITY_ID_SUNNYBROOK . '#ms');
-		$this->assertResponseNotRegExp('#/facilities/delete\?facility=' . FACILITY_ID_SUNNYBROOK . '#ms');
-		$this->assertResponseNotRegExp('#/facilities/close\?facility=' . FACILITY_ID_SUNNYBROOK . '#ms');
-	}
-
-	/**
-	 * Test index method as a captain
-	 *
-	 * @return void
-	 */
-	public function testIndexAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method as a player
-	 *
-	 * @return void
-	 */
-	public function testIndexAsPlayer() {
-		// Players are allowed to get the index, but no edit options
-		$this->assertAccessOk(['controller' => 'Facilities', 'action' => 'index'], PERSON_ID_DUPLICATE);
-		$this->assertResponseRegExp('#/facilities/view\?facility=' . FACILITY_ID_CENTRAL_TECH . '#ms');
-		$this->assertResponseRegExp('#/maps/view\?field=' . FIELD_ID_CENTRAL_TECH . '#ms');
-		$this->assertResponseNotRegExp('#/facilities/edit\?facility=' . FACILITY_ID_CENTRAL_TECH . '#ms');
-		$this->assertResponseNotRegExp('#/facilities/delete\?facility=' . FACILITY_ID_CENTRAL_TECH . '#ms');
-		$this->assertResponseNotRegExp('#/facilities/close\?facility=' . FACILITY_ID_CENTRAL_TECH . '#ms');
-	}
-
-	/**
-	 * Test index method as someone else
-	 *
-	 * @return void
-	 */
-	public function testIndexAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testIndexAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test closed method as an admin
-	 *
-	 * @return void
-	 */
-	public function testClosedAsAdmin() {
-		// Admins are allowed to get the closed index
-		$this->assertAccessOk(['controller' => 'Facilities', 'action' => 'closed'], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/facilities/view\?facility=' . FACILITY_ID_MARILYN_BELL . '#ms');
+	public function testClosed() {
+		// Admins are allowed to see the closed index
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'closed'], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/facilities/view?facility=' . FACILITY_ID_MARILYN_BELL);
 		// This field doesn't have a layout defined yet, so no map link
-		$this->assertResponseNotRegExp('#/maps/view\?field=' . FIELD_ID_MARILYN_BELL . '#ms');
-		$this->assertResponseRegExp('#/facilities/edit\?facility=' . FACILITY_ID_MARILYN_BELL . '#ms');
-		$this->assertResponseRegExp('#/facilities/delete\?facility=' . FACILITY_ID_MARILYN_BELL . '#ms');
-		$this->assertResponseRegExp('#/facilities/open\?facility=' . FACILITY_ID_MARILYN_BELL . '#ms');
-	}
+		$this->assertResponseNotContains('/maps/view?field=' . FIELD_ID_MARILYN_BELL);
+		$this->assertResponseContains('/facilities/edit?facility=' . FACILITY_ID_MARILYN_BELL);
+		$this->assertResponseContains('/facilities/delete?facility=' . FACILITY_ID_MARILYN_BELL);
+		$this->assertResponseContains('/facilities/open?facility=' . FACILITY_ID_MARILYN_BELL);
 
-	/**
-	 * Test closed method as a manager
-	 *
-	 * @return void
-	 */
-	public function testClosedAsManager() {
-		// Managers are allowed to get the closed index
-		$this->assertAccessOk(['controller' => 'Facilities', 'action' => 'closed'], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/facilities/view\?facility=' . FACILITY_ID_MARILYN_BELL . '#ms');
+		// Managers are allowed to see the closed index
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'closed'], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/facilities/view?facility=' . FACILITY_ID_MARILYN_BELL);
 		// This field doesn't have a layout defined yet, so no map link
-		$this->assertResponseNotRegExp('#/maps/view\?field=' . FIELD_ID_MARILYN_BELL . '#ms');
-		$this->assertResponseRegExp('#/facilities/edit\?facility=' . FACILITY_ID_MARILYN_BELL . '#ms');
-		$this->assertResponseRegExp('#/facilities/delete\?facility=' . FACILITY_ID_MARILYN_BELL . '#ms');
-		$this->assertResponseRegExp('#/facilities/open\?facility=' . FACILITY_ID_MARILYN_BELL . '#ms');
+		$this->assertResponseNotContains('/maps/view?field=' . FIELD_ID_MARILYN_BELL);
+		$this->assertResponseContains('/facilities/edit?facility=' . FACILITY_ID_MARILYN_BELL);
+		$this->assertResponseContains('/facilities/delete?facility=' . FACILITY_ID_MARILYN_BELL);
+		$this->assertResponseContains('/facilities/open?facility=' . FACILITY_ID_MARILYN_BELL);
+
+		// Others are not allowed to see the closed index
+		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'closed'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'closed'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'closed'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'closed'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Facilities', 'action' => 'closed']);
 	}
 
 	/**
-	 * Test closed method as a coordinator
+	 * Test view method
 	 *
 	 * @return void
 	 */
-	public function testClosedAsCoordinator() {
-		// Others are not allowed to get the closed index
-		$this->assertAccessRedirect(['controller' => 'Facilities', 'action' => 'closed'], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test closed method as a captain
-	 *
-	 * @return void
-	 */
-	public function testClosedAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test closed method as a player
-	 *
-	 * @return void
-	 */
-	public function testClosedAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test closed method as someone else
-	 *
-	 * @return void
-	 */
-	public function testClosedAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test closed method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testClosedAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as an admin
-	 *
-	 * @return void
-	 */
-	public function testViewAsAdmin() {
+	public function testView() {
 		// Admins are allowed to view facilities
-		$this->assertAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/facilities/edit\?facility=' . FACILITY_ID_SUNNYBROOK . '#ms');
-		$this->assertResponseRegExp('#/facilities/delete\?facility=' . FACILITY_ID_SUNNYBROOK . '#ms');
-		$this->assertResponseRegExp('#/maps/view\?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1 . '#ms');
-		$this->assertResponseRegExp('#/maps/edit\?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1 . '#ms');
-		$this->assertResponseRegExp('#/fields/delete\?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1 . '#ms');
-		$this->assertResponseRegExp('#/fields/close\?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1 . '#ms');
-		$this->assertResponseRegExp('#/fields/bookings\?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1 . '#ms');
-		$this->assertResponseRegExp('#/game_slots/add\?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1 . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/facilities/edit?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertResponseContains('/facilities/delete?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseContains('/maps/edit?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseContains('/fields/delete?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseContains('/fields/close?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseContains('/fields/bookings?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseContains('/game_slots/add?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
 
-		$this->assertAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_CENTRAL_TECH], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/facilities/edit\?facility=' . FACILITY_ID_CENTRAL_TECH . '#ms');
-		$this->assertResponseRegExp('#/facilities/delete\?facility=' . FACILITY_ID_CENTRAL_TECH . '#ms');
-		$this->assertResponseRegExp('#/maps/view\?field=' . FIELD_ID_CENTRAL_TECH . '#ms');
-		$this->assertResponseRegExp('#/maps/edit\?field=' . FIELD_ID_CENTRAL_TECH . '#ms');
-		$this->assertResponseRegExp('#/fields/delete\?field=' . FIELD_ID_CENTRAL_TECH . '#ms');
-		$this->assertResponseRegExp('#/fields/close\?field=' . FIELD_ID_CENTRAL_TECH . '#ms');
-		$this->assertResponseRegExp('#/fields/bookings\?field=' . FIELD_ID_CENTRAL_TECH . '#ms');
-		$this->assertResponseRegExp('#/game_slots/add\?field=' . FIELD_ID_CENTRAL_TECH . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_CENTRAL_TECH], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/facilities/edit?facility=' . FACILITY_ID_CENTRAL_TECH);
+		$this->assertResponseContains('/facilities/delete?facility=' . FACILITY_ID_CENTRAL_TECH);
+		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_CENTRAL_TECH);
+		$this->assertResponseContains('/maps/edit?field=' . FIELD_ID_CENTRAL_TECH);
+		$this->assertResponseContains('/fields/delete?field=' . FIELD_ID_CENTRAL_TECH);
+		$this->assertResponseContains('/fields/close?field=' . FIELD_ID_CENTRAL_TECH);
+		$this->assertResponseContains('/fields/bookings?field=' . FIELD_ID_CENTRAL_TECH);
+		$this->assertResponseContains('/game_slots/add?field=' . FIELD_ID_CENTRAL_TECH);
 
 		// Admins are allowed to view closed facilities
-		$this->assertAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_MARILYN_BELL], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/facilities/edit\?facility=' . FACILITY_ID_MARILYN_BELL . '#ms');
-		$this->assertResponseRegExp('#/facilities/delete\?facility=' . FACILITY_ID_MARILYN_BELL . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_MARILYN_BELL], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/facilities/edit?facility=' . FACILITY_ID_MARILYN_BELL);
+		$this->assertResponseContains('/facilities/delete?facility=' . FACILITY_ID_MARILYN_BELL);
 		// This field doesn't have a layout defined yet, so no map link
-		$this->assertResponseNotRegExp('#/maps/view\?field=' . FIELD_ID_MARILYN_BELL . '#ms');
-		$this->assertResponseRegExp('#/maps/edit\?field=' . FIELD_ID_MARILYN_BELL . '#ms');
-		$this->assertResponseRegExp('#/fields/delete\?field=' . FIELD_ID_MARILYN_BELL . '#ms');
-		$this->assertResponseRegExp('#/fields/open\?field=' . FIELD_ID_MARILYN_BELL . '#ms');
-		$this->assertResponseRegExp('#/fields/bookings\?field=' . FIELD_ID_MARILYN_BELL . '#ms');
-		$this->assertResponseRegExp('#/game_slots/add\?field=' . FIELD_ID_MARILYN_BELL . '#ms');
-	}
+		$this->assertResponseNotContains('/maps/view?field=' . FIELD_ID_MARILYN_BELL);
+		$this->assertResponseContains('/maps/edit?field=' . FIELD_ID_MARILYN_BELL);
+		$this->assertResponseContains('/fields/delete?field=' . FIELD_ID_MARILYN_BELL);
+		$this->assertResponseContains('/fields/open?field=' . FIELD_ID_MARILYN_BELL);
+		$this->assertResponseContains('/fields/bookings?field=' . FIELD_ID_MARILYN_BELL);
+		$this->assertResponseContains('/game_slots/add?field=' . FIELD_ID_MARILYN_BELL);
 
-	/**
-	 * Test view method as a manager
-	 *
-	 * @return void
-	 */
-	public function testViewAsManager() {
 		// Managers are allowed to view facilities
-		$this->assertAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/facilities/edit\?facility=' . FACILITY_ID_SUNNYBROOK . '#ms');
-		$this->assertResponseRegExp('#/facilities/delete\?facility=' . FACILITY_ID_SUNNYBROOK . '#ms');
-		$this->assertResponseRegExp('#/maps/view\?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1 . '#ms');
-		$this->assertResponseRegExp('#/maps/edit\?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1 . '#ms');
-		$this->assertResponseRegExp('#/fields/delete\?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1 . '#ms');
-		$this->assertResponseRegExp('#/fields/close\?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1 . '#ms');
-		$this->assertResponseRegExp('#/fields/bookings\?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1 . '#ms');
-		$this->assertResponseRegExp('#/game_slots/add\?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1 . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/facilities/edit?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertResponseContains('/facilities/delete?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseContains('/maps/edit?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseContains('/fields/delete?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseContains('/fields/close?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseContains('/fields/bookings?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseContains('/game_slots/add?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
 
 		// Managers are allowed to view facilities from other affiliates, but have no edit options
-		$this->assertAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_CENTRAL_TECH], PERSON_ID_MANAGER);
-		$this->assertResponseNotRegExp('#/facilities/edit\?facility=' . FACILITY_ID_CENTRAL_TECH . '#ms');
-		$this->assertResponseNotRegExp('#/facilities/delete\?facility=' . FACILITY_ID_CENTRAL_TECH . '#ms');
-		$this->assertResponseRegExp('#/maps/view\?field=' . FIELD_ID_CENTRAL_TECH . '#ms');
-		$this->assertResponseNotRegExp('#/maps/edit\?field=' . FIELD_ID_CENTRAL_TECH . '#ms');
-		$this->assertResponseNotRegExp('#/fields/delete\?field=' . FIELD_ID_CENTRAL_TECH . '#ms');
-		$this->assertResponseNotRegExp('#/fields/close\?field=' . FIELD_ID_CENTRAL_TECH . '#ms');
-		$this->assertResponseRegExp('#/fields/bookings\?field=' . FIELD_ID_CENTRAL_TECH . '#ms');
-		$this->assertResponseNotRegExp('#/game_slots/add\?field=' . FIELD_ID_CENTRAL_TECH . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_CENTRAL_TECH], PERSON_ID_MANAGER);
+		$this->assertResponseNotContains('/facilities/edit?facility=' . FACILITY_ID_CENTRAL_TECH);
+		$this->assertResponseNotContains('/facilities/delete?facility=' . FACILITY_ID_CENTRAL_TECH);
+		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_CENTRAL_TECH);
+		$this->assertResponseNotContains('/maps/edit?field=' . FIELD_ID_CENTRAL_TECH);
+		$this->assertResponseNotContains('/fields/delete?field=' . FIELD_ID_CENTRAL_TECH);
+		$this->assertResponseNotContains('/fields/close?field=' . FIELD_ID_CENTRAL_TECH);
+		$this->assertResponseContains('/fields/bookings?field=' . FIELD_ID_CENTRAL_TECH);
+		$this->assertResponseNotContains('/game_slots/add?field=' . FIELD_ID_CENTRAL_TECH);
 
 		// Managers are allowed to view closed facilities
-		$this->assertAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_MARILYN_BELL], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/facilities/edit\?facility=' . FACILITY_ID_MARILYN_BELL . '#ms');
-		$this->assertResponseRegExp('#/facilities/delete\?facility=' . FACILITY_ID_MARILYN_BELL . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_MARILYN_BELL], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/facilities/edit?facility=' . FACILITY_ID_MARILYN_BELL);
+		$this->assertResponseContains('/facilities/delete?facility=' . FACILITY_ID_MARILYN_BELL);
 		// This field doesn't have a layout defined yet, so no map link
-		$this->assertResponseNotRegExp('#/maps/view\?field=' . FIELD_ID_MARILYN_BELL . '#ms');
-		$this->assertResponseRegExp('#/maps/edit\?field=' . FIELD_ID_MARILYN_BELL . '#ms');
-		$this->assertResponseRegExp('#/fields/delete\?field=' . FIELD_ID_MARILYN_BELL . '#ms');
-		$this->assertResponseRegExp('#/fields/open\?field=' . FIELD_ID_MARILYN_BELL . '#ms');
-		$this->assertResponseRegExp('#/fields/bookings\?field=' . FIELD_ID_MARILYN_BELL . '#ms');
-		$this->assertResponseRegExp('#/game_slots/add\?field=' . FIELD_ID_MARILYN_BELL . '#ms');
-	}
+		$this->assertResponseNotContains('/maps/view?field=' . FIELD_ID_MARILYN_BELL);
+		$this->assertResponseContains('/maps/edit?field=' . FIELD_ID_MARILYN_BELL);
+		$this->assertResponseContains('/fields/delete?field=' . FIELD_ID_MARILYN_BELL);
+		$this->assertResponseContains('/fields/open?field=' . FIELD_ID_MARILYN_BELL);
+		$this->assertResponseContains('/fields/bookings?field=' . FIELD_ID_MARILYN_BELL);
+		$this->assertResponseContains('/game_slots/add?field=' . FIELD_ID_MARILYN_BELL);
 
-	/**
-	 * Test view method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testViewAsCoordinator() {
 		// Others are allowed to view facilities, but no edit options
-		$this->assertAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_COORDINATOR);
-		$this->assertResponseNotRegExp('#/facilities/edit\?facility=' . FACILITY_ID_SUNNYBROOK . '#ms');
-		$this->assertResponseNotRegExp('#/facilities/delete\?facility=' . FACILITY_ID_SUNNYBROOK . '#ms');
-		$this->assertResponseRegExp('#/maps/view\?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1 . '#ms');
-		$this->assertResponseNotRegExp('#/maps/edit\?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1 . '#ms');
-		$this->assertResponseNotRegExp('#/fields/delete\?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1 . '#ms');
-		$this->assertResponseNotRegExp('#/fields/close\?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1 . '#ms');
-		$this->assertResponseRegExp('#/fields/bookings\?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1 . '#ms');
-		$this->assertResponseNotRegExp('#/game_slots/add\?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1 . '#ms');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_COORDINATOR);
+		$this->assertResponseNotContains('/facilities/edit?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertResponseNotContains('/facilities/delete?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseNotContains('/maps/edit?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseNotContains('/fields/delete?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseNotContains('/fields/close?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseContains('/fields/bookings?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseNotContains('/game_slots/add?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
 
-	/**
-	 * Test view method as a captain
-	 *
-	 * @return void
-	 */
-	public function testViewAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_CAPTAIN);
+		$this->assertResponseNotContains('/facilities/edit?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertResponseNotContains('/facilities/delete?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseNotContains('/maps/edit?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseNotContains('/fields/delete?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseNotContains('/fields/close?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseContains('/fields/bookings?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseNotContains('/game_slots/add?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
 
-	/**
-	 * Test view method as a player
-	 *
-	 * @return void
-	 */
-	public function testViewAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_PLAYER);
+		$this->assertResponseNotContains('/facilities/edit?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertResponseNotContains('/facilities/delete?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseNotContains('/maps/edit?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseNotContains('/fields/delete?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseNotContains('/fields/close?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseContains('/fields/bookings?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseNotContains('/game_slots/add?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
 
-	/**
-	 * Test view method as someone else
-	 *
-	 * @return void
-	 */
-	public function testViewAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_VISITOR);
+		$this->assertResponseNotContains('/facilities/edit?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertResponseNotContains('/facilities/delete?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseNotContains('/maps/edit?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseNotContains('/fields/delete?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseNotContains('/fields/close?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseContains('/fields/bookings?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseNotContains('/game_slots/add?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
 
-	/**
-	 * Test view method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testViewAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAnonymousAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK]);
+		$this->assertResponseNotContains('/facilities/edit?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertResponseNotContains('/facilities/delete?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseNotContains('/maps/edit?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseNotContains('/fields/delete?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseNotContains('/fields/close?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseContains('/fields/bookings?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertResponseNotContains('/game_slots/add?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
 	}
 
 	/**
@@ -354,7 +260,8 @@ class FacilitiesControllerTest extends ControllerTestCase {
 	 */
 	public function testAddAsAdmin() {
 		// Admins are allowed to add facilities
-		$this->assertAccessOk(['controller' => 'Facilities', 'action' => 'add'], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'add'], PERSON_ID_ADMIN);
+		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
@@ -364,53 +271,22 @@ class FacilitiesControllerTest extends ControllerTestCase {
 	 */
 	public function testAddAsManager() {
 		// Managers are allowed to add facilities
-		$this->assertAccessOk(['controller' => 'Facilities', 'action' => 'add'], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'add'], PERSON_ID_MANAGER);
+		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test add method as a coordinator
+	 * Test add method as others
 	 *
 	 * @return void
 	 */
-	public function testAddAsCoordinator() {
+	public function testAddAsOthers() {
 		// Others are not allowed to add facilities
-		$this->assertAccessRedirect(['controller' => 'Facilities', 'action' => 'add'], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test add method as a captain
-	 *
-	 * @return void
-	 */
-	public function testAddAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as a player
-	 *
-	 * @return void
-	 */
-	public function testAddAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as someone else
-	 *
-	 * @return void
-	 */
-	public function testAddAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testAddAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'add'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'add'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'add'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'add'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Facilities', 'action' => 'add']);
 	}
 
 	/**
@@ -420,8 +296,9 @@ class FacilitiesControllerTest extends ControllerTestCase {
 	 */
 	public function testEditAsAdmin() {
 		// Admins are allowed to edit facilities
-		$this->assertAccessOk(['controller' => 'Facilities', 'action' => 'edit', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_ADMIN);
-		$this->assertAccessOk(['controller' => 'Facilities', 'action' => 'edit', 'facility' => FACILITY_ID_CENTRAL_TECH], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'edit', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'edit', 'facility' => FACILITY_ID_CENTRAL_TECH], PERSON_ID_ADMIN);
+		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
@@ -431,56 +308,26 @@ class FacilitiesControllerTest extends ControllerTestCase {
 	 */
 	public function testEditAsManager() {
 		// Managers are allowed to edit facilities
-		$this->assertAccessOk(['controller' => 'Facilities', 'action' => 'edit', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'edit', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_MANAGER);
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Facilities', 'action' => 'edit', 'facility' => FACILITY_ID_CENTRAL_TECH], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'edit', 'facility' => FACILITY_ID_CENTRAL_TECH], PERSON_ID_MANAGER);
+
+		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test edit method as a coordinator
+	 * Test edit method as others
 	 *
 	 * @return void
 	 */
-	public function testEditAsCoordinator() {
+	public function testEditAsOthers() {
 		// Others are not allowed to edit facilities
-		$this->assertAccessRedirect(['controller' => 'Facilities', 'action' => 'edit', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test edit method as a captain
-	 *
-	 * @return void
-	 */
-	public function testEditAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as a player
-	 *
-	 * @return void
-	 */
-	public function testEditAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as someone else
-	 *
-	 * @return void
-	 */
-	public function testEditAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testEditAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'edit', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'edit', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'edit', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'edit', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Facilities', 'action' => 'edit', 'facility' => FACILITY_ID_SUNNYBROOK]);
 	}
 
 	/**
@@ -489,6 +336,9 @@ class FacilitiesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddFieldAsAdmin() {
+		// Admins are allowed to add field
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Facilities', 'action' => 'add_field'],
+			PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -498,52 +348,28 @@ class FacilitiesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddFieldAsManager() {
+		// Managers are allowed to add field
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Facilities', 'action' => 'add_field'],
+			PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test add_field method as a coordinator
+	 * Test add_field method as others
 	 *
 	 * @return void
 	 */
-	public function testAddFieldAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_field method as a captain
-	 *
-	 * @return void
-	 */
-	public function testAddFieldAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_field method as a player
-	 *
-	 * @return void
-	 */
-	public function testAddFieldAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_field method as someone else
-	 *
-	 * @return void
-	 */
-	public function testAddFieldAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_field method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testAddFieldAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testAddFieldAsOthers() {
+		// Others are not allowed to add fields
+		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'add_field'],
+			PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'add_field'],
+			PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'add_field'],
+			PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'add_field'],
+			PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Facilities', 'action' => 'add_field']);
 	}
 
 	/**
@@ -553,8 +379,9 @@ class FacilitiesControllerTest extends ControllerTestCase {
 	 */
 	public function testOpenAsAdmin() {
 		// Admins are allowed to open facilities
-		$this->assertAccessOk(['controller' => 'Facilities', 'action' => 'open', 'facility' => FACILITY_ID_MARILYN_BELL], PERSON_ID_ADMIN, 'getajax');
-		$this->assertResponseRegExp('#/facilities\\\\/close\?facility=' . FACILITY_ID_MARILYN_BELL . '#ms');
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Facilities', 'action' => 'open', 'facility' => FACILITY_ID_MARILYN_BELL],
+			PERSON_ID_ADMIN);
+		$this->assertResponseContains('/facilities\\/close?facility=' . FACILITY_ID_MARILYN_BELL);
 		// Confirm that all related fields remain closed
 		$fields = TableRegistry::get('Fields');
 		$query = $fields->find()->where(['facility_id' => FACILITY_ID_MARILYN_BELL, 'is_open' => true]);
@@ -568,57 +395,31 @@ class FacilitiesControllerTest extends ControllerTestCase {
 	 */
 	public function testOpenAsManager() {
 		// Managers are allowed to open facilities
-		$this->assertAccessOk(['controller' => 'Facilities', 'action' => 'open', 'facility' => FACILITY_ID_MARILYN_BELL], PERSON_ID_MANAGER, 'getajax');
-		$this->assertResponseRegExp('#/facilities\\\\/close\?facility=' . FACILITY_ID_MARILYN_BELL . '#ms');
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Facilities', 'action' => 'open', 'facility' => FACILITY_ID_MARILYN_BELL],
+			PERSON_ID_MANAGER);
+		$this->assertResponseContains('/facilities\\/close?facility=' . FACILITY_ID_MARILYN_BELL);
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Facilities', 'action' => 'open', 'facility' => FACILITY_ID_CENTRAL_TECH], PERSON_ID_MANAGER, 'getajax');
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Facilities', 'action' => 'open', 'facility' => FACILITY_ID_CENTRAL_TECH],
+			PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test open method as a coordinator
+	 * Test open method as others
 	 *
 	 * @return void
 	 */
-	public function testOpenAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test open method as a captain
-	 *
-	 * @return void
-	 */
-	public function testOpenAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test open method as a player
-	 *
-	 * @return void
-	 */
-	public function testOpenAsPlayer() {
+	public function testOpenAsOthers() {
 		// Others are not allowed to open facilities
-		$this->assertAccessRedirect(['controller' => 'Facilities', 'action' => 'open', 'facility' => FACILITY_ID_MARILYN_BELL], PERSON_ID_PLAYER, 'getajax');
-	}
-
-	/**
-	 * Test open method as someone else
-	 *
-	 * @return void
-	 */
-	public function testOpenAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test open method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testOpenAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Facilities', 'action' => 'open', 'facility' => FACILITY_ID_MARILYN_BELL],
+			PERSON_ID_COORDINATOR);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Facilities', 'action' => 'open', 'facility' => FACILITY_ID_MARILYN_BELL],
+			PERSON_ID_CAPTAIN);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Facilities', 'action' => 'open', 'facility' => FACILITY_ID_MARILYN_BELL],
+			PERSON_ID_PLAYER);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Facilities', 'action' => 'open', 'facility' => FACILITY_ID_MARILYN_BELL],
+			PERSON_ID_VISITOR);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Facilities', 'action' => 'open', 'facility' => FACILITY_ID_MARILYN_BELL]);
 	}
 
 	/**
@@ -628,8 +429,9 @@ class FacilitiesControllerTest extends ControllerTestCase {
 	 */
 	public function testCloseAsAdmin() {
 		// Admins are allowed to close facilities
-		$this->assertAccessOk(['controller' => 'Facilities', 'action' => 'close', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_ADMIN, 'getajax');
-		$this->assertResponseRegExp('#/facilities\\\\/open\?facility=' . FACILITY_ID_SUNNYBROOK . '#ms');
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Facilities', 'action' => 'close', 'facility' => FACILITY_ID_SUNNYBROOK],
+			PERSON_ID_ADMIN);
+		$this->assertResponseContains('/facilities\\/open?facility=' . FACILITY_ID_SUNNYBROOK);
 		// Confirm that all related fields were also closed
 		$fields = TableRegistry::get('Fields');
 		$query = $fields->find()->where(['facility_id' => FACILITY_ID_SUNNYBROOK, 'is_open' => true]);
@@ -643,57 +445,31 @@ class FacilitiesControllerTest extends ControllerTestCase {
 	 */
 	public function testCloseAsManager() {
 		// Managers are allowed to close facilities
-		$this->assertAccessOk(['controller' => 'Facilities', 'action' => 'close', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_MANAGER, 'getajax');
-		$this->assertResponseRegExp('#/facilities\\\\/open\?facility=' . FACILITY_ID_SUNNYBROOK . '#ms');
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Facilities', 'action' => 'close', 'facility' => FACILITY_ID_SUNNYBROOK],
+			PERSON_ID_MANAGER);
+		$this->assertResponseContains('/facilities\\/open?facility=' . FACILITY_ID_SUNNYBROOK);
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Facilities', 'action' => 'close', 'facility' => FACILITY_ID_CENTRAL_TECH], PERSON_ID_MANAGER, 'getajax');
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Facilities', 'action' => 'close', 'facility' => FACILITY_ID_CENTRAL_TECH],
+			PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test close method as a coordinator
+	 * Test close method as others
 	 *
 	 * @return void
 	 */
-	public function testCloseAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test close method as a captain
-	 *
-	 * @return void
-	 */
-	public function testCloseAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test close method as a player
-	 *
-	 * @return void
-	 */
-	public function testCloseAsPlayer() {
+	public function testCloseAsOthers() {
 		// Others are not allowed to close facilities
-		$this->assertAccessRedirect(['controller' => 'Facilities', 'action' => 'close', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_PLAYER, 'getajax');
-	}
-
-	/**
-	 * Test close method as someone else
-	 *
-	 * @return void
-	 */
-	public function testCloseAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test close method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testCloseAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Facilities', 'action' => 'close', 'facility' => FACILITY_ID_SUNNYBROOK],
+			PERSON_ID_COORDINATOR);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Facilities', 'action' => 'close', 'facility' => FACILITY_ID_SUNNYBROOK],
+			PERSON_ID_CAPTAIN);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Facilities', 'action' => 'close', 'facility' => FACILITY_ID_SUNNYBROOK],
+			PERSON_ID_PLAYER);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Facilities', 'action' => 'close', 'facility' => FACILITY_ID_SUNNYBROOK],
+			PERSON_ID_VISITOR);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Facilities', 'action' => 'close', 'facility' => FACILITY_ID_SUNNYBROOK]);
 	}
 
 	/**
@@ -706,14 +482,14 @@ class FacilitiesControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		// Admins are allowed to delete facilities
-		$this->assertAccessRedirect(['controller' => 'Facilities', 'action' => 'delete', 'facility' => FACILITY_ID_BLOOR],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Facilities', 'action' => 'index'],
-			'The facility has been deleted.', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Facilities', 'action' => 'delete', 'facility' => FACILITY_ID_BLOOR],
+			PERSON_ID_ADMIN, [], ['controller' => 'Facilities', 'action' => 'index'],
+			'The facility has been deleted.');
 
 		// But not ones with dependencies
-		$this->assertAccessRedirect(['controller' => 'Facilities', 'action' => 'delete', 'facility' => FACILITY_ID_SUNNYBROOK],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Facilities', 'action' => 'index'],
-			'#The following records reference this facility, so it cannot be deleted#', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Facilities', 'action' => 'delete', 'facility' => FACILITY_ID_SUNNYBROOK],
+			PERSON_ID_ADMIN, [], ['controller' => 'Facilities', 'action' => 'index'],
+			'#The following records reference this facility, so it cannot be deleted#');
 	}
 
 	/**
@@ -725,59 +501,35 @@ class FacilitiesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		// Managers can delete facilities in their affiliate
-		$this->assertAccessRedirect(['controller' => 'Facilities', 'action' => 'delete', 'facility' => FACILITY_ID_BLOOR],
-			PERSON_ID_MANAGER, 'post', [], ['controller' => 'Facilities', 'action' => 'index'],
-			'The facility has been deleted.', 'Flash.flash.0.message');
+		// Managers are allowed to delete facilities in their affiliate
+		$this->assertPostAsAccessRedirect(['controller' => 'Facilities', 'action' => 'delete', 'facility' => FACILITY_ID_BLOOR],
+			PERSON_ID_MANAGER, [], ['controller' => 'Facilities', 'action' => 'index'],
+			'The facility has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Facilities', 'action' => 'delete', 'facility' => FACILITY_ID_CENTRAL_TECH],
-			PERSON_ID_MANAGER, 'post');
+		$this->assertPostAsAccessDenied(['controller' => 'Facilities', 'action' => 'delete', 'facility' => FACILITY_ID_CENTRAL_TECH],
+			PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test delete method as a coordinator
+	 * Test delete method as others
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testDeleteAsOthers() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
-	/**
-	 * Test delete method as a captain
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as a player
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to delete facilities
+		$this->assertPostAsAccessDenied(['controller' => 'Facilities', 'action' => 'delete', 'facility' => FACILITY_ID_BLOOR],
+			PERSON_ID_COORDINATOR);
+		$this->assertPostAsAccessDenied(['controller' => 'Facilities', 'action' => 'delete', 'facility' => FACILITY_ID_BLOOR],
+			PERSON_ID_CAPTAIN);
+		$this->assertPostAsAccessDenied(['controller' => 'Facilities', 'action' => 'delete', 'facility' => FACILITY_ID_BLOOR],
+			PERSON_ID_PLAYER);
+		$this->assertPostAsAccessDenied(['controller' => 'Facilities', 'action' => 'delete', 'facility' => FACILITY_ID_BLOOR],
+			PERSON_ID_VISITOR);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Facilities', 'action' => 'delete', 'facility' => FACILITY_ID_BLOOR]);
 	}
 
 }

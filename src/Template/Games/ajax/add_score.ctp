@@ -9,9 +9,9 @@ $team_names = [
 	$game->away_team->id => $game->away_team->name
 ];
 
+$roster = [];
 if (!empty($game->division->league->stat_types)) {
 	// Build the roster options
-	$roster = [];
 	foreach (['home_team', 'away_team'] as $key) {
 		$roster[$game->$key->id] = collection($game->$key->people)->combine('id', function ($person) {
 			$option = $person->full_name;

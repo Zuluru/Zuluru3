@@ -1,16 +1,8 @@
 <?php
-use App\Controller\AppController;
-use Cake\Core\Configure;
 
-if (!isset($is_captain)) {
-	$is_captain = false;
-}
-if (!isset($is_team_manager)) {
-	$is_team_manager = Configure::read('Perm.is_manager');
-}
-if (!isset($is_coordinator)) {
-	$is_coordinator = false;
-}
+use App\Authorization\ContextResource;
+use App\Controller\AppController;
+
 if (!isset($format)) {
 	$format = 'links';
 }
@@ -37,65 +29,72 @@ if ($team->division_id) {
 			['controller' => 'Divisions', 'action' => 'standings', 'division' => $division->id, 'team' => $team->id],
 			['alt' => __('Standings'), 'title' => __('Standings')]);
 	}
-	if ($this->request->getParam('controller') != 'Teams' || $this->request->getParam('action') != 'stats') {
-		if ((Configure::read('Perm.is_logged_in') || Configure::read('feature.public')) && Configure::read('scoring.stat_tracking') && isset($league) && $league->hasStats()) {
-			$links[] = $this->Html->iconLink("summary_$size.png",
-				['controller' => 'Teams', 'action' => 'stats', 'team' => $team->id],
-				['alt' => __('Stats'), 'title' => __('View Team Stats')]);
-		}
+	if (($this->request->getParam('controller') != 'Teams' || $this->request->getParam('action') != 'stats') &&
+		isset($league) && $this->Authorize->can('stats', $league)
+	) {
+		$links[] = $this->Html->iconLink("summary_$size.png",
+			['controller' => 'Teams', 'action' => 'stats', 'team' => $team->id],
+			['alt' => __('Stats'), 'title' => __('View Team Stats')]);
 	}
 }
-if (Configure::read('feature.attendance') && $team['track_attendance']) {
-	if (Configure::read('Perm.is_admin') || $is_team_manager || $is_captain) {
-		$more[__('Add a Team Event')] = [
-			'url' => ['controller' => 'TeamEvents', 'action' => 'add', 'team' => $team->id],
-		];
-	}
 
-	if ($this->request->getParam('controller') != 'Teams' || $this->request->getParam('action') != 'attendance') {
-		if (in_array($team->id, $this->UserCache->read('AllTeamIDs')) || in_array($team->id, $this->UserCache->read('AllRelativeTeamIDs'))) {
-			$links[] = $this->Html->iconLink("attendance_$size.png",
-				['controller' => 'Teams', 'action' => 'attendance', 'team' => $team->id],
-				['alt' => __('Attendance'), 'title' => __('View Season Attendance Report')]);
-		}
-	}
+if ($this->Authorize->can('add_event', $team)) {
+	$more[__('Add a Team Event')] = [
+		'url' => ['controller' => 'TeamEvents', 'action' => 'add', 'team' => $team->id],
+	];
 }
-if (Configure::read('Perm.is_logged_in') && $team->open_roster && $team->division_id && !$division->roster_deadline_passed &&
-	in_array(GROUP_PLAYER, $this->UserCache->read('GroupIDs')) && !in_array($team->id, $this->UserCache->read('TeamIDs'))
+
+if (($this->request->getParam('controller') != 'Teams' || $this->request->getParam('action') != 'attendance') &&
+	$this->Authorize->can('attendance', $team)
 ) {
+	$links[] = $this->Html->iconLink("attendance_$size.png",
+		['controller' => 'Teams', 'action' => 'attendance', 'team' => $team->id],
+		['alt' => __('Attendance'), 'title' => __('View Season Attendance Report')]);
+}
+
+if ($this->Authorize->can('roster_request', new ContextResource($team, ['division' => $division]))) {
 	$more[__('Join Team')] = [
 		'url' => ['controller' => 'Teams', 'action' => 'roster_request', 'team' => $team->id],
 	];
 }
-if (Configure::read('Perm.is_admin') || $is_team_manager || $is_captain) {
-	if ($this->request->getParam('controller') != 'Teams' || $this->request->getParam('action') != 'edit') {
-		$more[__('Edit Team')] = [
-			'url' => ['controller' => 'Teams', 'action' => 'edit', 'team' => $team->id, 'return' => AppController::_return()],
-		];
-	}
-	if ($this->request->getParam('controller') != 'Teams' || $this->request->getParam('action') != 'emails') {
-		$more[__('Player Emails')] = [
-			'url' => ['controller' => 'Teams', 'action' => 'emails', 'team' => $team->id],
-		];
-	}
+
+if (($this->request->getParam('controller') != 'Teams' || $this->request->getParam('action') != 'edit') &&
+	$this->Authorize->can('edit', $team)
+) {
+	$more[__('Edit Team')] = [
+		'url' => ['controller' => 'Teams', 'action' => 'edit', 'team' => $team->id, 'return' => AppController::_return()],
+	];
 }
-if (Configure::read('Perm.is_admin') || $is_team_manager || (($is_captain || $is_coordinator) && !$division->roster_deadline_passed)) {
-	if ($this->request->getParam('controller') != 'Teams' || $this->request->getParam('action') != 'add_player') {
-		$more[__('Add Player')] = [
-			'url' => ['controller' => 'Teams', 'action' => 'add_player', 'team' => $team->id],
-		];
-	}
+
+if (($this->request->getParam('controller') != 'Teams' || $this->request->getParam('action') != 'emails') &&
+	$this->Authorize->can('emails', $team)
+) {
+	$more[__('Player Emails')] = [
+		'url' => ['controller' => 'Teams', 'action' => 'emails', 'team' => $team->id],
+	];
 }
-if ((Configure::read('Perm.is_admin') || $is_team_manager || $is_coordinator) && isset($league) && $league->hasSpirit()) {
+
+if (($this->request->getParam('controller') != 'Teams' || $this->request->getParam('action') != 'add_player') &&
+	$this->Authorize->can('add_player', new ContextResource($team, ['division' => $division]))
+) {
+	$more[__('Add Player')] = [
+		'url' => ['controller' => 'Teams', 'action' => 'add_player', 'team' => $team->id],
+	];
+}
+
+if ($this->Authorize->can('spirit', $team)) {
 	$more[__('Spirit')] = [
 		'url' => ['controller' => 'Teams', 'action' => 'spirit', 'team' => $team->id],
 	];
 }
-if (Configure::read('Perm.is_admin') || $is_team_manager) {
+
+if ($this->Authorize->can('move', $team)) {
 	$more[__('Move Team')] = [
 		'url' => ['controller' => 'Teams', 'action' => 'move', 'team' => $team->id],
 	];
+}
 
+if  ($this->Authorize->can('delete', $team)) {
 	$url = ['controller' => 'Teams', 'action' => 'delete', 'team' => $team->id];
 	if ($this->request->getParam('controller') != 'Teams') {
 		$url['return'] = AppController::_return();
@@ -106,7 +105,8 @@ if (Configure::read('Perm.is_admin') || $is_team_manager) {
 		'method' => 'post',
 	];
 }
-if (Configure::read('Perm.is_logged_in') && Configure::read('feature.annotations')) {
+
+if ($this->Authorize->can('note', $team)) {
 	$more[__('Add Note')] = [
 		'url' => ['controller' => 'Teams', 'action' => 'note', 'team' => $team->id],
 	];

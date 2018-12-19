@@ -1,9 +1,9 @@
 <?php
 namespace App\Test\TestCase\Model\Entity;
 
+use App\Middleware\ConfigurationLoader;
 use App\Model\Entity\Team;
 use Cake\Core\Configure;
-use Cake\Event\Event as CakeEvent;
 use Cake\Event\EventList;
 use Cake\Event\EventManager;
 use Cake\ORM\TableRegistry;
@@ -77,8 +77,7 @@ class TeamTest extends TestCase {
 		foreach (Configure::read('App.globalListeners') as $listener) {
 			EventManager::instance()->on($listener);
 		}
-		$event = new CakeEvent('Configuration.initialize', $this);
-		EventManager::instance()->dispatch($event);
+		ConfigurationLoader::loadConfiguration();
 
 		$teams = TableRegistry::get('Teams');
 		$this->Team1 = $teams->get(TEAM_ID_RED, ['contain' => ['People' => ['Skills'], 'Divisions']]);
@@ -109,9 +108,9 @@ class TeamTest extends TestCase {
 		$this->assertEquals(0, $this->Team1->skill_count);
 		$this->assertEquals(0, $this->Team1->skill_total);
 		$this->Team1->consolidateRoster('ultimate');
-		$this->assertEquals(1, $this->Team1->roster_count);
-		$this->assertEquals(1, $this->Team1->skill_count);
-		$this->assertEquals(8, $this->Team1->skill_total);
+		$this->assertEquals(2, $this->Team1->roster_count);
+		$this->assertEquals(2, $this->Team1->skill_count);
+		$this->assertEquals(14, $this->Team1->skill_total);
 
 		$this->assertEquals(0, $this->Team2->roster_count);
 		$this->assertEquals(0, $this->Team2->skill_count);
@@ -149,8 +148,9 @@ class TeamTest extends TestCase {
 		foreach ($people as $person) {
 			array_push($ids, $person->id);
 		}
-		$this->assertNotFalse(array_search(4, $ids), 'Missing Crystal on roster');
-		$this->assertEquals(1, count($ids), 'Too many people on roster');
+		$this->assertNotFalse(array_search(PERSON_ID_CAPTAIN, $ids), 'Missing Crystal on roster');
+		$this->assertNotFalse(array_search(PERSON_ID_CAPTAIN3, $ids), 'Missing Carolyn on roster');
+		$this->assertEquals(2, count($ids), 'Too many people on roster');
 	}
 
 	/**
@@ -163,8 +163,9 @@ class TeamTest extends TestCase {
 			array_push($ids, $person->id);
 		}
 		$this->assertNotFalse(array_search(PERSON_ID_CAPTAIN, $ids), 'Missing Crystal on roster');
+		$this->assertNotFalse(array_search(PERSON_ID_CAPTAIN3, $ids), 'Missing Carolyn on roster');
 		$this->assertNotFalse(array_search(PERSON_ID_PLAYER, $ids), 'Missing Pam on roster');
-		$this->assertEquals(2, count($ids), 'Too many people on roster');
+		$this->assertEquals(3, count($ids), 'Too many people on roster');
 	}
 
 	/**

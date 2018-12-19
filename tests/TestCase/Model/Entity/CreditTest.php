@@ -24,7 +24,7 @@ class CreditTest extends TestCase {
 	public function setUp() {
 		parent::setUp();
 		$this->Credit = new Credit([
-			'affiliate_idphp' => 1,
+			'affiliate_id' => 1,
 			'person_id' => 1,
 			'amount' => 15.092,
 			'amount_used' => 7,

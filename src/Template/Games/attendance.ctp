@@ -1,4 +1,5 @@
 <?php
+use App\Authorization\ContextResource;
 use Cake\Core\Configure;
 use Cake\Utility\Text;
 
@@ -7,7 +8,7 @@ $this->Html->addCrumb(__('Attendance'));
 $this->Html->addCrumb($team->name);
 $this->Html->addCrumb($this->Time->date($game->game_slot->game_date));
 
-$display_gender = $team->display_gender;
+$display_gender = $this->Authorize->can('display_gender', new ContextResource($team, ['division' => $game->division]));
 ?>
 
 <div class="games attendance">
@@ -65,16 +66,13 @@ endif;
 ?>
 	</dl>
 
-<?php
-$can_annotate = Configure::read('feature.annotations') && in_array($team->id, $this->UserCache->read('TeamIDs'));
-?>
 <div class="actions columns">
 	<ul class="nav nav-pills">
 <?php
-if ($can_annotate) {
+if ($this->Authorize->can('note', new ContextResource($game, ['home_team' => $game->home_team, 'away_team' => $game->away_team]))) {
 	echo $this->Html->tag('li', $this->Html->link(__('Add Note'), ['action' => 'note', 'game' => $game->id]));
 }
-if ($is_captain && Configure::read('scoring.stat_tracking') && $game->division->league->hasStats()) {
+if ($this->Authorize->can('stat_sheet', new ContextResource($team, ['league' => $game->division->league, 'stat_types' => $game->division->league->stat_types]))) {
 	echo $this->Html->tag('li', $this->Html->iconLink('pdf_32.png',
 		['controller' => 'Games', 'action' => 'stat_sheet', 'team' => $team->id, 'game' => $game->id],
 		['alt' => __('Stat Sheet'), 'title' => __('Stat Sheet')],
@@ -108,7 +106,6 @@ foreach ($attendance->people as $person):
 	if (!array_key_exists(0, $person->attendances))
 		continue;
 	$record = $person->attendances[0];
-	$status = $record->status;
 ?>
 				<tr>
 					<td><?= $this->element('People/block', compact('person')) ?></td>
@@ -123,12 +120,10 @@ endif;
 					<td><?php
 					echo $this->element('Games/attendance_change', [
 						'team' => $team,
-						'game_id' => $game->id,
-						'game_time' => $game->game_slot->start_time,
+						'game' => $game,
 						'person_id' => $person->id,
 						'role' => $person->_joinData->role,
-						'status' => $status,
-						'comment' => $record->comment,
+						'attendance' => $record,
 						'dedicated' => true,
 					]);
 					?></td>

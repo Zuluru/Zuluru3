@@ -12,7 +12,6 @@
  * @since         0.1.0
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
-use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 
 $fields = collection($fields)
@@ -99,10 +98,12 @@ foreach ($<%= $pluralVar %> as $<%= $singularVar %>):
 				echo $this->Html->iconLink('view_24.png',
 					['action' => 'view', '<%= $singularVar %>' => <%= $pk %>],
 					['alt' => __('View'), 'title' => __('View')]);
-				if (Configure::read('Perm.is_admin')) {
+				if ($this->Authorize->can('edit', $<%= $singularVar %>)) {
 					echo $this->Html->iconLink('edit_24.png',
 						['action' => 'edit', '<%= $singularVar %>' => <%= $pk %>],
 						['alt' => __('Edit'), 'title' => __('Edit')]);
+				}
+				if ($this->Authorize->can('delete', $<%= $singularVar %>)) {
 					echo $this->Form->iconPostLink('delete_24.png',
 						['action' => 'delete', '<%= $singularVar %>' => <%= $pk %>],
 						['alt' => __('Delete'), 'title' => __('Delete')],
@@ -122,7 +123,7 @@ endforeach;
 	</ul></nav>
 </div>
 <?php
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
+if ($this->Authorize->can('add', \App\Controller\<%= $pluralHumanName %>Controller::class)):
 ?>
 <div class="actions columns">
 	<ul class="nav nav-pills">

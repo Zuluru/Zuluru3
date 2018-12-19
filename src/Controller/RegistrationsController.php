@@ -1,6 +1,7 @@
 <?php
 namespace App\Controller;
 
+use App\Authorization\ContextResource;
 use App\Model\Entity\Registration;
 use Cake\Core\Configure;
 use Cake\Database\Expression\QueryExpression;
@@ -8,11 +9,9 @@ use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\I18n\Number;
 use Cake\I18n\FrozenTime;
-use Cake\Network\Exception\MethodNotAllowedException;
 use Cake\ORM\Query;
 use Cake\Validation\Validator;
 use App\Model\Entity\Response;
-use App\Model\Traits\CanRegister;
 use App\Module\EventType as EventTypeBase;
 
 /**
@@ -22,203 +21,25 @@ use App\Module\EventType as EventTypeBase;
  */
 class RegistrationsController extends AppController {
 
-	use CanRegister;
-
 	/**
-	 * _publicActions method
+	 * _noAuthenticationActions method
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
 	 */
-	protected function _publicActions() {
+	protected function _noAuthenticationActions() {
 		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
+			return [];
 		}
 
 		// 'Payment' comes from the payment processor.
 		return ['payment'];
 	}
 
-	/**
-	 * _freeActions method
-	 *
-	 * @return array list of actions that people can perform even if the system wants them to do something else
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
-	 */
-	protected function _freeActions() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
-		return ['show'];
-	}
-
-	/**
-	 * isAuthorized method
-	 *
-	 * @return bool true if access allowed
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
-	 */
-	public function isAuthorized() {
-		try {
-			if ($this->UserCache->read('Person.status') == 'locked') {
-				return false;
-			}
-
-			if (!Configure::read('feature.registration')) {
-				throw new MethodNotAllowedException('Registration is not enabled on this system.');
-			}
-
-			if (Configure::read('Perm.is_manager')) {
-				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->getParam('action'), [
-					'report',
-					'unpaid',
-					'credits',
-					'statistics',
-					'accounting',
-				]))
-				{
-					// If an affiliate id is specified, check if we're a manager of that affiliate
-					$affiliate = $this->request->getQuery('affiliate');
-					if (!$affiliate) {
-						// If there's no affiliate, this is a top-level operation that all managers can perform
-						return true;
-					} else if (in_array($affiliate, $this->UserCache->read('ManagedAffiliateIDs'))) {
-						return true;
-					} else {
-						Configure::write('Perm.is_manager', false);
-					}
-				}
-
-				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->getParam('action'), [
-					'summary',
-					'full_list',
-					'waiting',
-				]))
-				{
-					// If an event id is specified, check if we're a manager of that event's affiliate
-					$event = $this->request->getQuery('event');
-					if ($event) {
-						if (in_array($this->Registrations->Events->affiliate($event), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-				}
-
-				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->getParam('action'), [
-					'view',
-					'edit',
-					'unregister',
-				]))
-				{
-					// If a registration id is specified, check if we're a manager of that registration's event's affiliate
-					$registration = $this->request->getQuery('registration');
-					if ($registration) {
-						if (in_array($this->Registrations->affiliate($registration), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-				}
-
-				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->getParam('action'), [
-					'add_payment',
-					'refund_payment',
-					'credit_payment',
-					'transfer_payment',
-				]))
-				{
-					// If a payment id is specified, check if we're a manager of that payment's registration's event's affiliate
-					$payment = $this->request->getQuery('payment');
-					if ($payment) {
-						if (in_array($this->Payments->affiliate($payment), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-				}
-			}
-
-			$divisions = $this->UserCache->read('DivisionIDs');
-			if (!empty($divisions)) {
-				// Coordinators can perform these operations for their divisions
-				if (in_array($this->request->getParam('action'), [
-					'summary',
-					'full_list',
-					'waiting',
-				]))
-				{
-					// If an event id is specified, check if we're a coordinator of that event's division
-					$event = $this->request->getQuery('event');
-					if ($event) {
-						try {
-							$division = $this->Registrations->Events->field('division_id', ['id' => $event]);
-							if (in_array($division, $divisions)) {
-								return true;
-							}
-						} catch (RecordNotFoundException $ex) {
-						}
-					}
-				}
-
-			}
-
-			// Anyone that's logged in can perform these operations
-			if (in_array($this->request->getParam('action'), [
-				'register',
-				'register_payment_fields',
-				'checkout',
-				'show',
-			]))
-			{
-				return true;
-			}
-
-			// Anyone can perform these operations on their own registrations
-			if (in_array($this->request->getParam('action'), [
-				'redeem',
-				'unregister',
-			]))
-			{
-				// If a registration id is specified, check if we're the owner of that registration
-				$registration = $this->request->getQuery('registration');
-				if ($registration) {
-					return $this->Registrations->field('person_id', ['id' => $registration]) == $this->UserCache->currentId();
-				}
-			}
-
-			// Anyone can perform these operations on their own unpaid registrations
-			if (in_array($this->request->getParam('action'), [
-				'edit',
-			]))
-			{
-				// If a registration id is specified, check if we're the owner of that registration
-				$registration = $this->request->getQuery('registration');
-				if ($registration) {
-					return in_array($registration, collection($this->UserCache->read('RegistrationsUnpaid'))->extract('id')->toArray());
-				}
-			}
-		} catch (RecordNotFoundException $ex) {
-		} catch (InvalidPrimaryKeyException $ex) {
-		}
-
-		return false;
-	}
-
 	// TODO: Proper fix for black-holing of payment details posted to us from processors
 	public function beforeFilter(\Cake\Event\Event $event) {
 		parent::beforeFilter($event);
-		$this->Security->config('unlockedActions', ['payment']);
-		if (in_array($this->request->getParam('action'), ['payment'])) {
-			$this->eventManager()->off($this->Csrf);
+		if (isset($this->Security)) {
+			$this->Security->config('unlockedActions', ['payment']);
 		}
 	}
 
@@ -226,13 +47,8 @@ class RegistrationsController extends AppController {
 	 * Full list method
 	 *
 	 * @return void|\Cake\Network\Response
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
 	 */
 	public function full_list() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
 		$this->paginate['order'] = ['Registrations.payment' => 'DESC', 'Registrations.created' => 'DESC'];
 		$id = $this->request->getQuery('event');
 		try {
@@ -259,6 +75,8 @@ class RegistrationsController extends AppController {
 			return $this->redirect(['controller' => 'Events', 'action' => 'index']);
 		}
 		$event->prices = collection($event->prices)->indexBy('id')->toArray();
+
+		$this->Authorization->authorize($event);
 		$this->Configuration->loadAffiliate($event->affiliate_id);
 
 		$event_obj = $this->moduleRegistry->load("EventType:{$event->event_type->type}");
@@ -306,10 +124,6 @@ class RegistrationsController extends AppController {
 	}
 
 	public function summary() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
 		$id = $this->request->getQuery('event');
 		try {
 			$event = $this->Registrations->Events->get($id, [
@@ -333,6 +147,8 @@ class RegistrationsController extends AppController {
 			$this->Flash->info(__('Invalid event.'));
 			return $this->redirect(['controller' => 'Events', 'action' => 'index']);
 		}
+
+		$this->Authorization->authorize($event);
 		$this->Configuration->loadAffiliate($event->affiliate_id);
 
 		$event_obj = $this->moduleRegistry->load("EventType:{$event->event_type->type}");
@@ -387,16 +203,13 @@ class RegistrationsController extends AppController {
 	}
 
 	public function statistics() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
+		$this->Authorization->authorize($this);
 		$year = $this->request->getQuery('year');
 		if ($year === null) {
 			$year = FrozenTime::now()->year;
 		}
 
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		$this->set(compact('affiliates'));
 
 		$query = $this->Registrations->find();
@@ -440,10 +253,7 @@ class RegistrationsController extends AppController {
 	}
 
 	public function report() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
+		$this->Authorization->authorize($this);
 		if ($this->request->is('post')) {
 			// Deconstruct dates
 			$start_date = sprintf('%04d-%02d-%02d', $this->request->data['start_date']['year'], $this->request->data['start_date']['month'], $this->request->data['start_date']['day']);
@@ -463,7 +273,7 @@ class RegistrationsController extends AppController {
 		}
 
 		$affiliate = $this->request->getQuery('affiliate');
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 
 		$query = $this->Registrations->find()
 			->contain([
@@ -502,23 +312,15 @@ class RegistrationsController extends AppController {
 	}
 
 	public function TODOLATER_accounting() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
+		$this->Authorization->authorize($this);
 	}
 
 	/**
 	 * View method
 	 *
 	 * @return void|\Cake\Network\Response
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
 	 */
 	public function view() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
 		$id = $this->request->getQuery('registration');
 		try {
 			$registration = $this->Registrations->get($id, [
@@ -552,6 +354,8 @@ class RegistrationsController extends AppController {
 			$this->Flash->info(__('Invalid registration.'));
 			return $this->redirect(['controller' => 'Events', 'action' => 'index']);
 		}
+
+		$this->Authorization->authorize($registration);
 		$this->Configuration->loadAffiliate($registration->event->affiliate_id);
 
 		$event_obj = $this->moduleRegistry->load("EventType:{$registration->event->event_type->type}");
@@ -564,13 +368,8 @@ class RegistrationsController extends AppController {
 	 * Register method
 	 *
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
 	 */
 	public function register() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
 		$this->Registrations->expireReservations();
 
 		$id = $this->request->getQuery('event');
@@ -605,9 +404,7 @@ class RegistrationsController extends AppController {
 			$this->Flash->info(__('Invalid event.'));
 			return $this->redirect(['controller' => 'Events', 'action' => 'wizard']);
 		}
-		$this->Configuration->loadAffiliate($event->affiliate_id);
 
-		$registration = $this->Registrations->newEntity();
 		// TODO: Eliminate the 'option' option once all old links are gone
 		$price_id = $this->request->getQuery('variant') ?: $this->request->getQuery('option');
 		if (empty($price_id) && $this->request->is(['patch', 'post', 'put'])) {
@@ -625,20 +422,14 @@ class RegistrationsController extends AppController {
 			$price = null;
 		}
 
-		// Re-do "can register" checks to make sure someone hasn't hand-fed us a URL
-		$waiting = $this->request->getQuery('waiting') && Configure::read('feature.waiting_list');
-		list($notices, $allowed, $redirect) = $this->canRegister($this->UserCache->currentId(), $event, $price, ['waiting' => $waiting, 'all_rules' => true]);
-		if (!$allowed) {
-			$this->Flash->html('{0}', ['params' => ['replacements' => $notices, 'class' => 'warning']]);
-			if ($redirect) {
-				return $this->redirect($redirect);
-			}
-			return $this->redirect(['controller' => 'Events', 'action' => 'wizard']);
-		}
+		$context = new ContextResource($event, ['price' => $price, 'waiting' => $this->request->getQuery('waiting'), 'all_rules' => true]);
+		$this->Authorization->authorize($context);
+		$this->Configuration->loadAffiliate($event->affiliate_id);
 
 		$event_obj = $this->moduleRegistry->load("EventType:{$event->event_type->type}");
 		$event->mergeAutoQuestions($event_obj, $this->UserCache->currentId());
 
+		$registration = $this->Registrations->newEntity();
 		$force_save = false;
 		if (isset($price)) {
 			if (empty($event->questionnaire->questions) && !in_array($price->online_payment_option, [ONLINE_MINIMUM_DEPOSIT, ONLINE_SPECIFIC_DEPOSIT, ONLINE_NO_MINIMUM])) {
@@ -701,15 +492,12 @@ class RegistrationsController extends AppController {
 			}
 		}
 
-		$this->set(compact('id', 'event', 'price_id', 'event_obj', 'waiting', 'registration'));
+		$this->set(compact('id', 'event', 'price_id', 'event_obj', 'registration'));
+		$this->set('waiting', $context->waiting);
 	}
 
 	public function register_payment_fields() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
-		$this->viewBuilder()->className('Ajax.Ajax');
+		$this->Authorization->authorize($this);
 		$this->request->allowMethod('ajax');
 
 		$price_id = $this->request->data['price_id'];
@@ -727,12 +515,15 @@ class RegistrationsController extends AppController {
 			try {
 				$price = $this->Registrations->Prices->get($price_id, compact('contain'));
 				$for_edit = $this->request->getQuery('for_edit');
-				$this->canRegister(
-					$for_edit ? $price->event->registrations[0]->person_id : $this->UserCache->currentId(),
-					$price->event,
-					$price,
-					['for_edit' => $for_edit ? $price->event->registrations[0] : false]
-				);
+
+				// This authorization call is just to set the message, if any, in the price
+				$this->Authorization->can(new ContextResource($price->event, [
+					'person_id' => $for_edit ? $price->event->registrations[0]->person_id : $this->UserCache->currentId(),
+					'price' => $price,
+					'for_edit' => $for_edit ? $price->event->registrations[0] : false,
+					'ignore_date' => true,
+				]), 'register');
+
 				$this->set(compact('price', 'for_edit'));
 			} catch (RecordNotFoundException $ex) {
 			} catch (InvalidPrimaryKeyException $ex) {
@@ -741,10 +532,6 @@ class RegistrationsController extends AppController {
 	}
 
 	public function redeem() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
 		$id = $this->request->getQuery('registration');
 		try {
 			$registration = $this->Registrations->get($id, [
@@ -758,6 +545,7 @@ class RegistrationsController extends AppController {
 					],
 					'Events' => [
 						'EventTypes',
+						'Prices',
 						'Divisions' => ['Leagues'],
 					],
 					'Prices',
@@ -773,56 +561,21 @@ class RegistrationsController extends AppController {
 			return $this->redirect(['controller' => 'Events', 'action' => 'wizard']);
 		}
 
-		$this->Configuration->loadAffiliate($registration->event->affiliate_id);
-
 		$registration->person->credits = collection($registration->person->credits)->match(['affiliate_id' => $registration->event->affiliate_id])->toArray();
-		if (empty($registration->person->credits)) {
-			$this->Flash->info(__('You have no available credits.'));
-			return $this->redirect(['action' => 'checkout']);
-		}
+
+		$this->Authorization->authorize(new ContextResource($registration, [
+			'person' => $registration->person,
+			'price' => $registration->price,
+			'event' => $registration->event,
+			'prices' => $registration->event->prices,
+		]));
+		$this->Configuration->loadAffiliate($registration->event->affiliate_id);
 
 		$credit = $this->request->getQuery('credit');
 		if ($credit) {
 			$credit = collection($registration->person->credits)->firstMatch(['id' => $credit]);
 			if (!$credit) {
 				$this->Flash->info(__('Invalid credit.'));
-				return $this->redirect(['action' => 'checkout']);
-			}
-		}
-
-		// Check whether we can even add a payment to this
-		$unpaid = in_array($registration->payment, Configure::read('registration_unpaid')) && $registration->total_amount - $registration->total_payment > 0;
-		$unaccounted = $registration->payment == 'Paid' && $registration->total_payment != $registration->total_amount;
-		if (!$unpaid && !$unaccounted) {
-			$this->Flash->info(__('This registration is marked as {0}.', __($registration->payment)));
-			return $this->redirect(['action' => 'checkout']);
-		}
-		$balance = $registration->balance;
-		if ($balance <= 0) {
-			$this->Flash->info(__('This registration is already paid in full.'));
-			return $this->redirect(['action' => 'checkout']);
-		}
-
-		// Check that we're still allowed to pay for this
-		if (!$registration->price->allow_late_payment && $registration->price->close->isPast()) {
-			$other_prices = collection($registration->event->prices)->filter(function ($price) {
-				return $price->close->isFuture();
-			});
-			if ($other_prices->isEmpty()) {
-				$this->Flash->info(__('The payment deadline has passed.'));
-				return $this->redirect(['action' => 'checkout']);
-			} else {
-				$this->Flash->info(__('The payment deadline has passed. Please choose another payment option.'));
-				return $this->redirect(['action' => 'edit', 'registration' => $registration->id]);
-			}
-		}
-
-		// Find the registration cap and how many are already registered.
-		$cap = $registration->event->cap($registration->person->roster_designation);
-		if ($cap != CAP_UNLIMITED) {
-			$paid = $registration->event->count($registration->person->roster_designation);
-			if ($cap <= $paid) {
-				$this->Flash->info(__('You are on the waiting list for this event.'));
 				return $this->redirect(['action' => 'checkout']);
 			}
 		}
@@ -867,11 +620,8 @@ class RegistrationsController extends AppController {
 	}
 
 	public function checkout() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
 		$this->Registrations->expireReservations();
+		$this->Authorization->authorize($this);
 
 		$registrations = $this->Registrations->find()
 			->contain([
@@ -974,10 +724,6 @@ class RegistrationsController extends AppController {
 	}
 
 	public function unregister() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
 		$this->request->allowMethod(['get', 'post', 'delete']);
 
 		try {
@@ -996,15 +742,7 @@ class RegistrationsController extends AppController {
 			return $this->redirect(['action' => 'checkout']);
 		}
 
-		if (in_array($registration->payment, Configure::read('registration_some_paid')) && $registration->price->total > 0) {
-			$this->Flash->info(__('You have already paid for this! Contact the office to arrange a refund.'));
-			return $this->redirect(['action' => 'checkout']);
-		}
-		if (in_array($registration->payment, Configure::read('registration_cancelled'))) {
-			$this->Flash->info(__('This registration has already been cancelled. Cancelled records are kept on file for accounting purposes.'));
-			return $this->redirect(['action' => 'checkout']);
-		}
-
+		$this->Authorization->authorize($registration);
 		$this->Configuration->loadAffiliate($registration->event->affiliate_id);
 
 		if ($this->Registrations->delete($registration)) {
@@ -1013,7 +751,11 @@ class RegistrationsController extends AppController {
 			$this->Flash->warning(__('Failed to unregister from this event!'));
 		}
 
-		return $this->redirect(['action' => 'checkout']);
+		if ($this->Authentication->getIdentity()->isMe($registration)) {
+			return $this->redirect(['action' => 'checkout']);
+		} else {
+			return $this->redirect('/');
+		}
 	}
 
 	public function payment() {
@@ -1021,10 +763,6 @@ class RegistrationsController extends AppController {
 	}
 
 	private function _payment($checkHash = true) {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
 		if (Configure::read('payment.popup')) {
 			$this->viewBuilder()->layout('bare');
 		}
@@ -1092,6 +830,7 @@ class RegistrationsController extends AppController {
 	}
 
 	public function payment_from_email() {
+		$this->Authorization->authorize($this);
 		if (!empty($this->request->data)) {
 			$payment_obj = $this->moduleRegistry->load('Payment:' . Configure::read('payment.payment_implementation'));
 			$values = $payment_obj->parseEmail($this->request->data['email_text']);
@@ -1127,15 +866,12 @@ class RegistrationsController extends AppController {
 	}
 
 	public function payment_from_email_confirmation() {
+		$this->Authorization->authorize($this);
 		$this->viewBuilder()->template('payment');
 		return $this->_payment(false);
 	}
 
 	public function add_payment() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
 		$id = $this->request->getQuery('registration');
 		try {
 			$registration = $this->Registrations->get($id, [
@@ -1163,19 +899,7 @@ class RegistrationsController extends AppController {
 			return $this->redirect('/');
 		}
 
-		// Check whether we can even add a payment to this
-		$unpaid = in_array($registration->payment, Configure::read('registration_unpaid')) && $registration->total_amount - $registration->total_payment > 0;
-		$unaccounted = $registration->payment == 'Paid' && $registration->total_payment != $registration->total_amount;
-		if (!$unpaid && !$unaccounted) {
-			$this->Flash->info(__('This registration is marked as {0}.', __($registration->payment)));
-			return $this->redirect(['action' => 'view', 'registration' => $registration->id]);
-		}
-		$balance = $registration->balance;
-		if ($balance <= 0) {
-			$this->Flash->info(__('This registration is already paid in full; you may need to edit it manually to mark it as paid.'));
-			return $this->redirect(['action' => 'view', 'registration' => $registration->id]);
-		}
-
+		$this->Authorization->authorize($registration);
 		$this->Configuration->loadAffiliate($registration->event->affiliate_id);
 		$payment = $this->Registrations->Payments->newEntity();
 
@@ -1190,7 +914,7 @@ class RegistrationsController extends AppController {
 					return;
 				}
 
-				$this->request->data['payment_amount'] = min($this->request->data['payment_amount'], $balance, $credit->balance);
+				$this->request->data['payment_amount'] = min($this->request->data['payment_amount'], $registration->balance, $credit->balance);
 				$this->request->data['notes'] = __('Applied {0} from credit #{1}', Number::currency($this->request->data['payment_amount']), $credit->id);
 
 				$credit->amount_used += $this->request->data['payment_amount'];
@@ -1225,10 +949,6 @@ class RegistrationsController extends AppController {
 	}
 
 	public function refund_payment() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
 		$id = $this->request->getQuery('payment');
 		try {
 			$registration_id = $this->Registrations->Payments->field('registration_id', compact('id'));
@@ -1253,16 +973,7 @@ class RegistrationsController extends AppController {
 			return $this->redirect('/');
 		}
 
-		// Check whether we can even refund this
-		if ($payment->payment_amount == $payment->refunded_amount) {
-			$this->Flash->info(__('This payment has already been fully refunded.'));
-			return $this->redirect(['action' => 'view', 'registration' => $registration->id]);
-		}
-		if (!in_array($payment->payment_type, Configure::read('payment_payment'))) {
-			$this->Flash->info(__('Only payments can be refunded.'));
-			return $this->redirect(['action' => 'view', 'registration' => $registration->id]);
-		}
-
+		$this->Authorization->authorize($payment);
 		$this->Configuration->loadAffiliate($registration->event->affiliate_id);
 		$refund = $this->Registrations->Payments->newEntity();
 
@@ -1311,10 +1022,6 @@ class RegistrationsController extends AppController {
 	}
 
 	public function credit_payment() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
 		$id = $this->request->getQuery('payment');
 		try {
 			$registration_id = $this->Registrations->Payments->field('registration_id', compact('id'));
@@ -1339,16 +1046,7 @@ class RegistrationsController extends AppController {
 			return $this->redirect('/');
 		}
 
-		// Check whether we can even credit this
-		if ($payment->payment_amount == $payment->refunded_amount) {
-			$this->Flash->info(__('This payment has already been fully refunded.'));
-			return $this->redirect(['action' => 'view', 'registration' => $registration->id]);
-		}
-		if (!in_array($payment->payment_type, Configure::read('payment_payment'))) {
-			$this->Flash->info(__('Only payments can be credited.'));
-			return $this->redirect(['action' => 'view', 'registration' => $registration->id]);
-		}
-
+		$this->Authorization->authorize($payment);
 		$this->Configuration->loadAffiliate($registration->event->affiliate_id);
 		$refund = $this->Registrations->Payments->newEntity();
 
@@ -1393,10 +1091,6 @@ class RegistrationsController extends AppController {
 	}
 
 	public function transfer_payment() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
 		$id = $this->request->getQuery('payment');
 		try {
 			$registration_id = $this->Registrations->Payments->field('registration_id', compact('id'));
@@ -1421,16 +1115,7 @@ class RegistrationsController extends AppController {
 			return $this->redirect('/');
 		}
 
-		// Check whether we can even transfer this
-		if ($payment->payment_amount == $payment->refunded_amount) {
-			$this->Flash->info(__('This payment has already been fully refunded.'));
-			return $this->redirect(['action' => 'view', 'registration' => $registration->id]);
-		}
-		if (!in_array($payment->payment_type, Configure::read('payment_payment'))) {
-			$this->Flash->info(__('Only payments can be transferred.'));
-			return $this->redirect(['action' => 'view', 'registration' => $registration->id]);
-		}
-
+		$this->Authorization->authorize($payment);
 		$this->Configuration->loadAffiliate($registration->event->affiliate_id);
 		$refund = $this->Registrations->Payments->newEntity();
 
@@ -1541,13 +1226,8 @@ class RegistrationsController extends AppController {
 	 * Edit method
 	 *
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
 	 */
 	public function edit() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
 		$id = $this->request->getQuery('registration');
 		try {
 			$registration = $this->Registrations->get($id, [
@@ -1581,19 +1261,15 @@ class RegistrationsController extends AppController {
 			$this->Flash->info(__('Invalid registration.'));
 			return $this->redirect('/');
 		}
-		// TODO: Allow people to edit their responses.
-		if (!Configure::read('Perm.is_admin') && !Configure::read('Perm.is_manager') && !in_array($registration['payment'], Configure::read('registration_none_paid'))) {
-			$this->Flash->info(__('You cannot edit a registration once a payment has been made.'));
-			return $this->redirect('/');
-		}
+
+		$this->Authorization->authorize($registration);
 		$this->Configuration->loadAffiliate($registration->event['affiliate_id']);
 
 		$event_obj = $this->moduleRegistry->load("EventType:{$registration->event->event_type->type}");
 		$registration->event->mergeAutoQuestions($event_obj, $registration->person->id);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$this->canRegister($this->UserCache->currentId(), $registration->event, null, ['for_edit' => $registration, 'all_rules' => true]);
-
+			$this->Authorization->can(new ContextResource($registration->event, ['for_edit' => $registration, 'all_rules' => true]), 'register');
 			$responseValidator = $this->Registrations->Responses->validationDefault(new Validator());
 			if (!empty($registration->event->questionnaire->questions)) {
 				$responseValidator = $registration->event->questionnaire->addResponseValidation($responseValidator, $event_obj, $this->request->data['responses'], $registration->event, $registration);
@@ -1632,15 +1308,15 @@ class RegistrationsController extends AppController {
 
 			if (!$this->Registrations->save($registration, ['event' => $registration->event, 'event_obj' => $event_obj])) {
 				$this->Flash->warning(__('The registration could not be saved. Please correct the errors below and try again.'));
-			} else if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
-				$this->Flash->success(__('The registration has been saved.'));
-				return $this->redirect(['controller' => 'People', 'action' => 'registrations', 'person' => $registration->person->id]);
-			} else {
+			} else if ($this->Authentication->getIdentity()->isMe($registration)) {
 				$this->Flash->success(__('Your preferences for this registration have been saved.'));
 				return $this->redirect(['action' => 'checkout']);
+			} else {
+				$this->Flash->success(__('The registration has been saved.'));
+				return $this->redirect(['controller' => 'People', 'action' => 'registrations', 'person' => $registration->person->id]);
 			}
 		} else {
-			$this->canRegister($this->UserCache->currentId(), $registration->event, $registration->price, ['for_edit' => $registration, 'all_rules' => true]);
+			$this->Authorization->can(new ContextResource($registration->event, ['price' => $registration->price, 'for_edit' => $registration, 'all_rules' => true]), 'register');
 		}
 
 		// The entity will contain a sequentially-numbered array of responses, but we need specific numbers
@@ -1659,11 +1335,8 @@ class RegistrationsController extends AppController {
 	}
 
 	public function unpaid() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->Authorization->authorize($this);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		$registrations = $this->Registrations->find()
 			->contain([
 				'Events' => ['EventTypes', 'Affiliates'],
@@ -1685,11 +1358,8 @@ class RegistrationsController extends AppController {
 	}
 
 	public function credits() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->Authorization->authorize($this);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		$credits = $this->Registrations->People->Credits->find()
 			->contain([
 				'Affiliates',
@@ -1709,15 +1379,6 @@ class RegistrationsController extends AppController {
 	}
 
 	public function waiting() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
-		if (!Configure::read('feature.waiting_list')) {
-			$this->Flash->info(__('Waiting lists are not enabled on this site.'));
-			return $this->redirect('/');
-		}
-
 		$id = $this->request->getQuery('event');
 		try {
 			$event = $this->Registrations->Events->get($id, [
@@ -1741,6 +1402,8 @@ class RegistrationsController extends AppController {
 			$this->Flash->info(__('Invalid event.'));
 			return $this->redirect(['controller' => 'Events', 'action' => 'index']);
 		}
+
+		$this->Authorization->authorize($event);
 		$this->Configuration->loadAffiliate($event->affiliate_id);
 
 		if (empty($event->registrations)) {

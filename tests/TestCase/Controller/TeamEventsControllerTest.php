@@ -1,6 +1,8 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use Cake\I18n\FrozenTime;
+
 /**
  * App\Controller\TeamEventsController Test Case
  */
@@ -29,6 +31,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 						'app.teams_people',
 						'app.team_events',
 					'app.divisions_days',
+					'app.divisions_people',
 					'app.pools',
 						'app.pools_teams',
 					'app.games',
@@ -46,75 +49,34 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	];
 
 	/**
-	 * Test view method as an admin
+	 * Test view method
 	 *
 	 * @return void
 	 */
-	public function testViewAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testView() {
+		// Admins are allowed to view
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'view', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_ADMIN);
 
-	/**
-	 * Test view method as a manager
-	 *
-	 * @return void
-	 */
-	public function testViewAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Managers are allowed to view
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'view', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_MANAGER);
 
-	/**
-	 * Test view method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testViewAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as a captain
-	 *
-	 * @return void
-	 */
-	public function testViewAsCaptain() {
 		// Captains from the team in question are allowed to view their team's events, with full edit permissions
-		$this->assertAccessOk(['controller' => 'TeamEvents', 'action' => 'view', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_CAPTAIN);
-		$this->assertResponseRegExp('#/team_events/edit\?event=' . TEAM_EVENT_ID_RED_PRACTICE . '#ms');
-		$this->assertResponseRegExp('#/team_events/delete\?event=' . TEAM_EVENT_ID_RED_PRACTICE . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'view', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_CAPTAIN);
+		$this->assertResponseContains('/team_events/edit?event=' . TEAM_EVENT_ID_RED_PRACTICE);
+		$this->assertResponseContains('/team_events/delete?event=' . TEAM_EVENT_ID_RED_PRACTICE);
 
 		// But not other team's events
-		$this->assertAccessRedirect(['controller' => 'TeamEvents', 'action' => 'view', 'event' => TEAM_EVENT_ID_BEARS_PRACTICE], PERSON_ID_CAPTAIN);
-	}
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'view', 'event' => TEAM_EVENT_ID_BEARS_PRACTICE], PERSON_ID_CAPTAIN);
 
-	/**
-	 * Test view method as a player
-	 *
-	 * @return void
-	 */
-	public function testViewAsPlayer() {
 		// Players are allowed to view their team's events, but have no edit permissions
-		$this->assertAccessOk(['controller' => 'TeamEvents', 'action' => 'view', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_PLAYER);
-		$this->assertResponseNotRegExp('#/team_events/edit\?event=' . TEAM_EVENT_ID_RED_PRACTICE . '#ms');
-		$this->assertResponseNotRegExp('#/team_events/delete\?event=' . TEAM_EVENT_ID_RED_PRACTICE . '#ms');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'view', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_PLAYER);
+		$this->assertResponseNotContains('/team_events/edit?event=' . TEAM_EVENT_ID_RED_PRACTICE);
+		$this->assertResponseNotContains('/team_events/delete?event=' . TEAM_EVENT_ID_RED_PRACTICE);
 
-	/**
-	 * Test view method as someone else
-	 *
-	 * @return void
-	 */
-	public function testViewAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testViewAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to view
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'view', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'view', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'TeamEvents', 'action' => 'view', 'event' => TEAM_EVENT_ID_RED_PRACTICE]);
 	}
 
 	/**
@@ -123,6 +85,8 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsAdmin() {
+		// Admins are allowed to add events
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'add', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -132,15 +96,8 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testAddAsCoordinator() {
+		// Managers are allowed to add events
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'add', 'team' => TEAM_ID_RED], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -150,34 +107,23 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsCaptain() {
+		// Captains are allowed to add events to their own teams
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'add', 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'add', 'team' => TEAM_ID_BLUE], PERSON_ID_CAPTAIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test add method as a player
+	 * Test add method as others
 	 *
 	 * @return void
 	 */
-	public function testAddAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as someone else
-	 *
-	 * @return void
-	 */
-	public function testAddAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testAddAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testAddAsOthers() {
+		// Others are not allowed to add events
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'add', 'team' => TEAM_ID_RED], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'add', 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'add', 'team' => TEAM_ID_RED], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'TeamEvents', 'action' => 'add', 'team' => TEAM_ID_RED]);
 	}
 
 	/**
@@ -186,6 +132,8 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsAdmin() {
+		// Admins are allowed to edit team events
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -195,15 +143,12 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Managers are allowed to edit team events in their affiliate
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_MANAGER);
 
-	/**
-	 * Test edit method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testEditAsCoordinator() {
+		// But not ones in other affiliates
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => TEAM_EVENT_ID_BEARS_PRACTICE], PERSON_ID_MANAGER);
+
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -213,34 +158,22 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsCaptain() {
+		// Captains are allowed to edit their own team's events
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_CAPTAIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test edit method as a player
+	 * Test edit method as others
 	 *
 	 * @return void
 	 */
-	public function testEditAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as someone else
-	 *
-	 * @return void
-	 */
-	public function testEditAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testEditAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testEditAsOthers() {
+		// Others are not allowed to edit
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => TEAM_EVENT_ID_RED_PRACTICE]);
 	}
 
 	/**
@@ -253,9 +186,9 @@ class TeamEventsControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		// Admins are allowed to delete team events
-		$this->assertAccessRedirect(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => TEAM_EVENT_ID_RED_PRACTICE],
-			PERSON_ID_ADMIN, 'post', [], null,
-			'The team event has been deleted.', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => TEAM_EVENT_ID_RED_PRACTICE],
+			PERSON_ID_ADMIN, [], '/',
+			'The team event has been deleted.');
 	}
 
 	/**
@@ -267,23 +200,14 @@ class TeamEventsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		// Managers can delete team events in their affiliate
-		$this->assertAccessRedirect(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => TEAM_EVENT_ID_RED_PRACTICE],
-			PERSON_ID_MANAGER, 'post', [], null,
-			'The team event has been deleted.', 'Flash.flash.0.message');
+		// Managers are allowed to delete team events in their affiliate
+		$this->assertPostAsAccessRedirect(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => TEAM_EVENT_ID_RED_PRACTICE],
+			PERSON_ID_MANAGER, [], '/',
+			'The team event has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => TEAM_EVENT_ID_BEARS_PRACTICE],
-			PERSON_ID_MANAGER, 'post');
-	}
-
-	/**
-	 * Test delete method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertPostAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => TEAM_EVENT_ID_BEARS_PRACTICE],
+			PERSON_ID_MANAGER);
 	}
 
 	/**
@@ -292,34 +216,33 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDeleteAsCaptain() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		// Captains are allowed to delete their team's events
+		$this->assertPostAsAccessRedirect(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => TEAM_EVENT_ID_RED_PRACTICE],
+			PERSON_ID_CAPTAIN, [], '/',
+			'The team event has been deleted.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test delete method as a player
+	 * Test delete method as others
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testDeleteAsOthers() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
-	/**
-	 * Test delete method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to delete team events
+		$this->assertPostAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => TEAM_EVENT_ID_RED_PRACTICE],
+			PERSON_ID_COORDINATOR);
+		$this->assertPostAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => TEAM_EVENT_ID_RED_PRACTICE],
+			PERSON_ID_PLAYER);
+		$this->assertPostAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => TEAM_EVENT_ID_RED_PRACTICE],
+			PERSON_ID_VISITOR);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => TEAM_EVENT_ID_RED_PRACTICE]);
 	}
 
 	/**
@@ -328,6 +251,10 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAttendanceChangeAsAdmin() {
+		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
+
+		// Admins are allowed to change attendance
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => TEAM_EVENT_ID_RED_PRACTICE, 'person' => PERSON_ID_CAPTAIN], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -337,6 +264,10 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAttendanceChangeAsManager() {
+		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
+
+		// Managers are allowed to change attendance
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => TEAM_EVENT_ID_RED_PRACTICE, 'person' => PERSON_ID_CAPTAIN], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -346,6 +277,10 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAttendanceChangeAsCoordinator() {
+		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
+
+		// Coordinators are allowed to change attendance
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => TEAM_EVENT_ID_RED_PRACTICE, 'person' => PERSON_ID_CAPTAIN], PERSON_ID_COORDINATOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -355,6 +290,10 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAttendanceChangeAsCaptain() {
+		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
+
+		// Captains are allowed to change attendance
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_CAPTAIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -364,43 +303,33 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAttendanceChangeAsPlayer() {
+		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
+
+		// Players are allowed to change attendance
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_CAPTAIN3);
+
+		// But not for teams they're only just invited to, or not on at all
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_PLAYER);
+
+		// And not for long after the event
+		FrozenTime::setTestNow((new FrozenTime('last Friday of July'))->addDays(15));
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_CAPTAIN3);
+
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test attendance_change method as someone else
+	 * Test attendance_change method as others
 	 *
 	 * @return void
 	 */
-	public function testAttendanceChangeAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testAttendanceChangeAsOthers() {
+		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
 
-	/**
-	 * Test attendance_change method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testAttendanceChangeAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test _makeHash method
-	 *
-	 * @return void
-	 */
-	public function testMakeHash() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test _checkHash method
-	 *
-	 * @return void
-	 */
-	public function testCheckHash() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to change attendance
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => TEAM_EVENT_ID_RED_PRACTICE]);
 	}
 
 }

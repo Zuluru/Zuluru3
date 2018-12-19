@@ -16,8 +16,13 @@ class NoticesControllerTest extends ControllerTestCase {
 			'app.users',
 				'app.people',
 					'app.affiliates_people',
+					'app.people_people',
 			'app.groups',
 				'app.groups_people',
+			'app.leagues',
+				'app.divisions',
+					'app.teams',
+					'app.divisions_people',
 			//'app.notices',
 				'app.notices_people',
 			'app.settings',
@@ -29,6 +34,8 @@ class NoticesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testViewedAsAdmin() {
+		// Admins are allowed to mark a notice as viewed
+		$this->assertGetAsAccessOk(['controller' => 'Notices', 'action' => 'viewed', 1], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -38,6 +45,8 @@ class NoticesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testViewedAsManager() {
+		// Managers are allowed to mark a notice as viewed
+		$this->assertGetAsAccessOk(['controller' => 'Notices', 'action' => 'viewed', 1], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -47,6 +56,8 @@ class NoticesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testViewedAsCoordinator() {
+		// Coordinators are allowed to mark a notice as viewed
+		$this->assertGetAsAccessOk(['controller' => 'Notices', 'action' => 'viewed', 1], PERSON_ID_COORDINATOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -56,6 +67,8 @@ class NoticesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testViewedAsCaptain() {
+		// Captains are allowed to mark a notice as viewed
+		$this->assertGetAsAccessOk(['controller' => 'Notices', 'action' => 'viewed', 1], PERSON_ID_CAPTAIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -65,6 +78,8 @@ class NoticesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testViewedAsPlayer() {
+		// Players are allowed to mark a notice as viewed
+		$this->assertGetAsAccessOk(['controller' => 'Notices', 'action' => 'viewed', 1], PERSON_ID_PLAYER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -74,6 +89,8 @@ class NoticesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testViewedAsVisitor() {
+		// Visitors are allowed to mark a notice as viewed
+		$this->assertGetAsAccessOk(['controller' => 'Notices', 'action' => 'viewed', 1], PERSON_ID_VISITOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -83,6 +100,8 @@ class NoticesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testViewedAsAnonymous() {
+		// Others are allowed to mark a notice as viewed
+		$this->assertGetAnonymousAccessOk(['controller' => 'Notices', 'action' => 'viewed', 1]);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

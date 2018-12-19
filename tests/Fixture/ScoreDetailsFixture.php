@@ -27,11 +27,16 @@ class ScoreDetailsFixture extends TestFixture {
 				'team_id' => TEAM_ID_RED,
 				'created_team_id' => TEAM_ID_BLUE,
 				'score_from' => 1,
-				'play' => 'Lorem ipsum dolor sit amet',
+				'play' => 'Start',
 				'points' => 1,
 				'created' => FrozenDate::now(),
 			],
 		];
+
+		if (!defined('DETAIL_ID_LADDER_MATCHED_SCORES_START')) {
+			$i = 0;
+			define('DETAIL_ID_LADDER_MATCHED_SCORES_START', ++$i);
+		}
 
 		parent::init();
 	}

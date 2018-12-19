@@ -1,4 +1,6 @@
 <?php
+
+use App\Authorization\ContextResource;
 use Cake\Core\Configure;
 
 if (!empty($items)):
@@ -61,18 +63,14 @@ if (!empty($items)):
 					if ($team->track_attendance) {
 						$roster = collection($teams)->firstMatch(['id' => $team->id])->_matchingData['TeamsPeople'];
 						if ($roster->status == ROSTER_APPROVED) {
-							$is_captain = in_array($team->id, $this->UserCache->read('OwnedTeamIDs'));
 							if (!empty($item->attendances)) {
 								$record = collection($item->attendances)->firstMatch(['person_id' => $id]);
 								echo $this->element('Games/attendance_change', [
 									'team' => $team,
-									'game_id' => $item->id,
-									'game_time' => $item->game_slot->start_time,
+									'game' => $item,
 									'person_id' => $id,
 									'role' => $roster->role,
-									'status' => $record ? $record->status : ATTENDANCE_UNKNOWN,
-									'comment' => $record ? $record->comment : null,
-									'is_captain' => $is_captain,
+									'attendance' => $record,
 									'future_only' => true,
 								]);
 							}
@@ -81,7 +79,7 @@ if (!empty($items)):
 									['controller' => 'Games', 'action' => 'attendance', 'team' => $team->id, 'game' => $item->id],
 									['alt' => __('Attendance'), 'title' => __('View Game Attendance Report')]);
 
-								if ($is_captain && Configure::read('scoring.stat_tracking') && $item->division->league->hasStats()) {
+								if ($this->Authorize->can('stat_sheet', new ContextResource($team, ['league' => $item->division->league, 'stat_types' => $item->division->league->stat_types]))) {
 									echo $this->Html->iconLink('pdf_24.png',
 										['controller' => 'Games', 'action' => 'stat_sheet', 'team' => $team->id, 'game' => $item->id],
 										['alt' => __('Stat Sheet'), 'title' => __('Stat Sheet')],
@@ -128,12 +126,10 @@ if (!empty($items)):
 								echo $this->element('TeamEvents/attendance_change', [
 									'team' => $item->team,
 									'event_id' => $item->id,
-									'event_time' => $item->start_time,
+									'event' => $item,
 									'person_id' => $id,
 									'role' => $roster->role,
-									'status' => $record ? $record->status : ATTENDANCE_UNKNOWN,
-									'comment' => $record ? $record->comment : null,
-									'is_captain' => in_array($item->team->id, $this->UserCache->read('OwnedTeamIDs')),
+									'attendance' => $record,
 								]);
 							}
 						}

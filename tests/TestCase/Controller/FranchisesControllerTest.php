@@ -24,6 +24,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 				'app.groups_people',
 			'app.leagues',
 				'app.divisions',
+					'app.divisions_people',
 					'app.teams',
 						'app.teams_people',
 					'app.divisions_days',
@@ -34,213 +35,86 @@ class FranchisesControllerTest extends ControllerTestCase {
 	];
 
 	/**
-	 * Test index method as an admin
+	 * Test index method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testIndex() {
+		// Anyone is allowed to get the index
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'index'], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'index'], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'index'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'index'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'index'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'index'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Franchises', 'action' => 'index']);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test index method as a manager
+	 * Test letter method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testLetter() {
+		// Anyone is allowed to get the list by letter
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'letter', 'letter' => 'B'], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'letter', 'letter' => 'B'], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'letter', 'letter' => 'B'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'letter', 'letter' => 'B'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'letter', 'letter' => 'B'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'letter', 'letter' => 'B'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Franchises', 'action' => 'letter', 'letter' => 'B']);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test index method as a coordinator
+	 * Test view method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method as a captain
-	 *
-	 * @return void
-	 */
-	public function testIndexAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method as a player
-	 *
-	 * @return void
-	 */
-	public function testIndexAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method as someone else
-	 *
-	 * @return void
-	 */
-	public function testIndexAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testIndexAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test letter method as an admin
-	 *
-	 * @return void
-	 */
-	public function testLetterAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test letter method as a manager
-	 *
-	 * @return void
-	 */
-	public function testLetterAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test letter method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testLetterAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test letter method as a captain
-	 *
-	 * @return void
-	 */
-	public function testLetterAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test letter method as a player
-	 *
-	 * @return void
-	 */
-	public function testLetterAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test letter method as someone else
-	 *
-	 * @return void
-	 */
-	public function testLetterAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test letter method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testLetterAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as an admin
-	 *
-	 * @return void
-	 */
-	public function testViewAsAdmin() {
+	public function testView() {
 		// Admins are allowed to view franchises, with full edit permissions
-		$this->assertAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/franchises/edit\?franchise=' . FRANCHISE_ID_RED . '#ms');
-		$this->assertResponseRegExp('#/franchises/delete\?franchise=' . FRANCHISE_ID_RED . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/franchises/edit?franchise=' . FRANCHISE_ID_RED);
+		$this->assertResponseContains('/franchises/delete?franchise=' . FRANCHISE_ID_RED);
 
-		$this->assertAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_LIONS], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/franchises/edit\?franchise=' . FRANCHISE_ID_LIONS . '#ms');
-		$this->assertResponseRegExp('#/franchises/delete\?franchise=' . FRANCHISE_ID_LIONS . '#ms');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_LIONS], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/franchises/edit?franchise=' . FRANCHISE_ID_LIONS);
+		$this->assertResponseContains('/franchises/delete?franchise=' . FRANCHISE_ID_LIONS);
 
-	/**
-	 * Test view method as a manager
-	 *
-	 * @return void
-	 */
-	public function testViewAsManager() {
 		// Managers are allowed to view franchises
-		$this->assertAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/franchises/edit\?franchise=' . FRANCHISE_ID_RED . '#ms');
-		$this->assertResponseRegExp('#/franchises/delete\?franchise=' . FRANCHISE_ID_RED . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/franchises/edit?franchise=' . FRANCHISE_ID_RED);
+		$this->assertResponseContains('/franchises/delete?franchise=' . FRANCHISE_ID_RED);
 
-		// But cannot edit ones in other affiliates
-		$this->assertAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_LIONS], PERSON_ID_MANAGER);
-		$this->assertResponseNotRegExp('#/franchises/edit\?franchise=' . FRANCHISE_ID_LIONS . '#ms');
-		$this->assertResponseNotRegExp('#/franchises/delete\?franchise=' . FRANCHISE_ID_LIONS . '#ms');
-	}
+		// But are not allowed to edit ones in other affiliates
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_LIONS], PERSON_ID_MANAGER);
+		$this->assertResponseNotContains('/franchises/edit?franchise=' . FRANCHISE_ID_LIONS);
+		$this->assertResponseNotContains('/franchises/delete?franchise=' . FRANCHISE_ID_LIONS);
 
-	/**
-	 * Test view method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testViewAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Coordinators are allowed to view
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_COORDINATOR);
 
-	/**
-	 * Test view method as franchise owner
-	 *
-	 * @return void
-	 */
-	public function testViewAsOwner() {
 		// Owners are allowed to view and edit their franchises, but not delete; that happens automatically if the last team is removed
-		$this->assertAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_CAPTAIN);
-		$this->assertResponseRegExp('#/franchises/edit\?franchise=' . FRANCHISE_ID_RED . '#ms');
-		$this->assertResponseNotRegExp('#/franchises/delete\?franchise=' . FRANCHISE_ID_RED . '#ms');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_CAPTAIN);
+		$this->assertResponseContains('/franchises/edit?franchise=' . FRANCHISE_ID_RED);
+		$this->assertResponseNotContains('/franchises/delete?franchise=' . FRANCHISE_ID_RED);
 
-	/**
-	 * Test view method as a player
-	 *
-	 * @return void
-	 */
-	public function testViewAsPlayer() {
 		// Others are allowed to view franchises, but have no edit permissions
-		$this->assertAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_PLAYER);
-		$this->assertResponseNotRegExp('#/franchises/edit\?franchise=' . FRANCHISE_ID_RED . '#ms');
-		$this->assertResponseNotRegExp('#/franchises/delete\?franchise=' . FRANCHISE_ID_RED . '#ms');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_PLAYER);
+		$this->assertResponseNotContains('/franchises/edit?franchise=' . FRANCHISE_ID_RED);
+		$this->assertResponseNotContains('/franchises/delete?franchise=' . FRANCHISE_ID_RED);
 
-	/**
-	 * Test view method as someone else
-	 *
-	 * @return void
-	 */
-	public function testViewAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Visitors are allowed to view
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_VISITOR);
 
-	/**
-	 * Test view method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testViewAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are allowed to view
+		$this->assertGetAnonymousAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_RED]);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -249,6 +123,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsAdmin() {
+		// Admins are allowed to add franchises
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add'], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -258,6 +134,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsManager() {
+		// Managers are allowed to add franchises
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add'], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -267,6 +145,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsCoordinator() {
+		// Coordinators are allowed to add franchises
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add'], PERSON_ID_COORDINATOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -276,6 +156,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsCaptain() {
+		// Captains are allowed to add franchises
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add'], PERSON_ID_CAPTAIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -285,6 +167,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsPlayer() {
+		// Players are allowed to add franchises
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add'], PERSON_ID_PLAYER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -294,6 +178,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsVisitor() {
+		// Visitors are allowed to add franchises
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add'], PERSON_ID_VISITOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -303,6 +189,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsAnonymous() {
+		// Others are not allowed to add franchises
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Franchises', 'action' => 'add']);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -312,6 +200,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsAdmin() {
+		// Admins are allowed to edit franchises
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -321,15 +211,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testEditAsCoordinator() {
+		// Managers are allowed to edit franchises
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -339,34 +222,23 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsCaptain() {
+		// Captains are allowed to edit franchises
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => FRANCHISE_ID_BLUE], PERSON_ID_CAPTAIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test edit method as a player
+	 * Test edit method as others
 	 *
 	 * @return void
 	 */
-	public function testEditAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as someone else
-	 *
-	 * @return void
-	 */
-	public function testEditAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testEditAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testEditAsOthers() {
+		// Others are not allowed to edit franchises
+		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => FRANCHISE_ID_RED]);
 	}
 
 	/**
@@ -379,14 +251,14 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		// Admins are allowed to delete franchises
-		$this->assertAccessRedirect(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => FRANCHISE_ID_MAPLES],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Franchises', 'action' => 'index'],
-			'The franchise has been deleted.', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => FRANCHISE_ID_MAPLES],
+			PERSON_ID_ADMIN, [], ['controller' => 'Franchises', 'action' => 'index'],
+			'The franchise has been deleted.');
 
 		// But not ones with dependencies
-		$this->assertAccessRedirect(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => FRANCHISE_ID_RED],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Franchises', 'action' => 'index'],
-			'#The following records reference this franchise, so it cannot be deleted#', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => FRANCHISE_ID_RED],
+			PERSON_ID_ADMIN, [], ['controller' => 'Franchises', 'action' => 'index'],
+			'#The following records reference this franchise, so it cannot be deleted#');
 	}
 
 	/**
@@ -398,96 +270,37 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		// Managers can delete franchises in their affiliate
-		$this->assertAccessRedirect(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => FRANCHISE_ID_MAPLES],
-			PERSON_ID_MANAGER, 'post', [], ['controller' => 'Franchises', 'action' => 'index'],
-			'The franchise has been deleted.', 'Flash.flash.0.message');
+		// Managers are allowed to delete franchises in their affiliate
+		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => FRANCHISE_ID_MAPLES],
+			PERSON_ID_MANAGER, [], ['controller' => 'Franchises', 'action' => 'index'],
+			'The franchise has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => FRANCHISE_ID_LIONS],
-			PERSON_ID_MANAGER, 'post');
+		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => FRANCHISE_ID_LIONS],
+			PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test delete method as a coordinator
+	 * Test delete method as others
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as franchise owner
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsOwner() {
+	public function testDeleteAsOthers() {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		// Franchise owners can delete their own franchises
-		$this->assertAccessRedirect(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => FRANCHISE_ID_LIONS],
-			PERSON_ID_ANDY_SUB, 'post', [], ['controller' => 'Franchises', 'action' => 'index'],
-			'The franchise has been deleted.', 'Flash.flash.0.message');
-
-		// But not others
-		$this->assertAccessRedirect(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => FRANCHISE_ID_RED],
-			PERSON_ID_ANDY_SUB, 'post');
-	}
-
-	/**
-	 * Test delete method as a player
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_team method as an admin
-	 *
-	 * @return void
-	 */
-	public function testAddTeamAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_team method as a manager
-	 *
-	 * @return void
-	 */
-	public function testAddTeamAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_team method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testAddTeamAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to delete franchises. Captains are allowed to do so, but only indirectly by removing the last team in it.
+		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => FRANCHISE_ID_MAPLES],
+			PERSON_ID_COORDINATOR);
+		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => FRANCHISE_ID_RED],
+			PERSON_ID_CAPTAIN);
+		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => FRANCHISE_ID_LIONS],
+			PERSON_ID_ANDY_SUB);
+		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => FRANCHISE_ID_MAPLES],
+			PERSON_ID_PLAYER);
+		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => FRANCHISE_ID_MAPLES],
+			PERSON_ID_VISITOR);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => FRANCHISE_ID_MAPLES]);
 	}
 
 	/**
@@ -500,47 +313,34 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		// Franchise owners are allowed to add teams
-		$this->assertAccessOk(['controller' => 'Franchises', 'action' => 'add_team', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_CAPTAIN);
-		$this->assertResponseRegExp('#<option value="' . TEAM_ID_RED_PAST . '">Red \(' . (FrozenDate::now()->year - 1) . ' Summer Monday Night Ultimate Competitive\)</option>#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add_team', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_CAPTAIN);
+		$this->assertResponseContains('<option value="' . TEAM_ID_RED_PAST . '">Red (' . (FrozenDate::now()->year - 1) . ' Summer Monday Night Ultimate Competitive)</option>');
 
 		// Post the form
-		$this->assertAccessRedirect(['controller' => 'Franchises', 'action' => 'add_team', 'franchise' => FRANCHISE_ID_RED],
-			PERSON_ID_CAPTAIN, 'post', [
+		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'add_team', 'franchise' => FRANCHISE_ID_RED],
+			PERSON_ID_CAPTAIN, [
 				'team_id' => TEAM_ID_RED_PAST,
 			], ['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_RED],
-			'The selected team has been added to this franchise.', 'Flash.flash.0.message');
+			'The selected team has been added to this franchise.');
 
 		// Make sure they were added successfully
-		$this->assertAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_CAPTAIN);
-		$this->assertResponseRegExp('#/franchises/remove_team\?franchise=' . FRANCHISE_ID_RED . '&amp;team=' . TEAM_ID_RED_PAST . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_CAPTAIN);
+		$this->assertResponseContains('/franchises/remove_team?franchise=' . FRANCHISE_ID_RED . '&amp;team=' . TEAM_ID_RED_PAST);
 	}
 
 	/**
-	 * Test add_team method as a player
+	 * Test add_team method as others
 	 *
 	 * @return void
 	 */
-	public function testAddTeamAsPlayer() {
+	public function testAddTeamAsOthers() {
 		// Others are not allowed to add teams
-		$this->assertAccessRedirect(['controller' => 'Franchises', 'action' => 'add_team', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_PLAYER);
-	}
-
-	/**
-	 * Test add_team method as someone else
-	 *
-	 * @return void
-	 */
-	public function testAddTeamAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_team method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testAddTeamAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'add_team', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'add_team', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'add_team', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'add_team', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'add_team', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Franchises', 'action' => 'add_team', 'franchise' => FRANCHISE_ID_RED]);
 	}
 
 	/**
@@ -549,6 +349,13 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRemoveTeamAsAdmin() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		// Admins are allowed to remove teams
+		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_team', 'franchise' => FRANCHISE_ID_RED, 'team' => TEAM_ID_RED],
+			PERSON_ID_ADMIN, [], ['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_RED],
+			'The selected team has been removed from this franchise.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -558,15 +365,13 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRemoveTeamAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
-	/**
-	 * Test remove_team method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testRemoveTeamAsCoordinator() {
+		// Managers are allowed to remove teams
+		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_team', 'franchise' => FRANCHISE_ID_RED, 'team' => TEAM_ID_RED],
+			PERSON_ID_MANAGER, [], ['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_RED],
+			'The selected team has been removed from this franchise.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -580,13 +385,13 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		// Franchise owners are allowed to remove teams
-		$this->assertAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_team', 'franchise' => FRANCHISE_ID_RED2, 'team' => TEAM_ID_RED],
-			PERSON_ID_CAPTAIN, 'post', [], null,
-			'The selected team has been removed from this franchise. As there were no other teams in the franchise, it has been deleted as well.', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_team', 'franchise' => FRANCHISE_ID_RED2, 'team' => TEAM_ID_RED],
+			PERSON_ID_CAPTAIN, [], '/',
+			'The selected team has been removed from this franchise. As there were no other teams in the franchise, it has been deleted as well.');
 	}
 
 	/**
-	 * Test remove_team method as a captain
+	 * Test remove_team method as others
 	 *
 	 * @return void
 	 */
@@ -595,35 +400,15 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		// Others are not allowed to remove teams
-		$this->assertAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_team', 'franchise' => FRANCHISE_ID_RED, 'team' => TEAM_ID_RED],
-			PERSON_ID_CAPTAIN2, 'post');
-	}
-
-	/**
-	 * Test remove_team method as a player
-	 *
-	 * @return void
-	 */
-	public function testRemoveTeamAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test remove_team method as someone else
-	 *
-	 * @return void
-	 */
-	public function testRemoveTeamAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test remove_team method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testRemoveTeamAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'remove_team', 'franchise' => FRANCHISE_ID_RED, 'team' => TEAM_ID_RED],
+			PERSON_ID_COORDINATOR);
+		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'remove_team', 'franchise' => FRANCHISE_ID_RED, 'team' => TEAM_ID_RED],
+			PERSON_ID_CAPTAIN2);
+		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'remove_team', 'franchise' => FRANCHISE_ID_RED, 'team' => TEAM_ID_RED],
+			PERSON_ID_PLAYER);
+		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'remove_team', 'franchise' => FRANCHISE_ID_RED, 'team' => TEAM_ID_RED],
+			PERSON_ID_VISITOR);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Franchises', 'action' => 'remove_team', 'franchise' => FRANCHISE_ID_RED, 'team' => TEAM_ID_RED]);
 	}
 
 	/**
@@ -632,6 +417,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddOwnerAsAdmin() {
+		// Admins are allowed to add owner
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add_owner', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -641,15 +428,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddOwnerAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_owner method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testAddOwnerAsCoordinator() {
+		// Managers are allowed to add owner
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add_owner', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -663,64 +443,42 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		// Franchise owners are allowed to add owners
-		$this->assertAccessOk(['controller' => 'Franchises', 'action' => 'add_owner', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add_owner', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_CAPTAIN);
 
 		// Try the search page
-		$this->assertAccessOk(['controller' => 'Franchises', 'action' => 'add_owner', 'franchise' => FRANCHISE_ID_RED],
-			PERSON_ID_CAPTAIN, 'post', [
-			'affiliate_id' => '1',
-			'first_name' => '',
-			'last_name' => 'player',
-			'sort' => 'last_name',
-			'direction' => 'asc',
-		]);
+		$this->assertPostAsAccessOk(['controller' => 'Franchises', 'action' => 'add_owner', 'franchise' => FRANCHISE_ID_RED],
+			PERSON_ID_CAPTAIN, [
+				'affiliate_id' => '1',
+				'first_name' => '',
+				'last_name' => 'player',
+				'sort' => 'last_name',
+				'direction' => 'asc',
+			]
+		);
 		$return = urlencode(\App\Lib\base64_url_encode('/franchises/add_owner?franchise=' . FRANCHISE_ID_RED));
-		$this->assertResponseRegExp('#/franchises/add_owner\?person=' . PERSON_ID_PLAYER . '&amp;return=' . $return . '&amp;franchise=' . FRANCHISE_ID_RED . '#ms');
+		$this->assertResponseContains('/franchises/add_owner?person=' . PERSON_ID_PLAYER . '&amp;return=' . $return . '&amp;franchise=' . FRANCHISE_ID_RED);
 
-		$this->assertAccessRedirect(['controller' => 'Franchises', 'action' => 'add_owner', 'person' => PERSON_ID_PLAYER, 'franchise' => FRANCHISE_ID_RED],
-			PERSON_ID_CAPTAIN, 'get', [], ['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_RED],
-			'Added Pam Player as owner.', 'Flash.flash.0.message');
+		$this->assertGetAsAccessRedirect(['controller' => 'Franchises', 'action' => 'add_owner', 'person' => PERSON_ID_PLAYER, 'franchise' => FRANCHISE_ID_RED],
+			PERSON_ID_CAPTAIN, ['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_RED],
+			'Added Pam Player as owner.');
 
 		// Make sure they were added successfully
-		$this->assertAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_CAPTAIN);
-		$this->assertResponseRegExp('#/franchises/remove_owner\?franchise=' . FRANCHISE_ID_RED . '&amp;person=' . PERSON_ID_PLAYER . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_CAPTAIN);
+		$this->assertResponseContains('/franchises/remove_owner?franchise=' . FRANCHISE_ID_RED . '&amp;person=' . PERSON_ID_PLAYER);
 	}
 
 	/**
-	 * Test add_owner method as a captain
+	 * Test add_owner method as others
 	 *
 	 * @return void
 	 */
-	public function testAddOwnerAsCaptain() {
+	public function testAddOwnerAsOthers() {
 		// Others are not allowed to add owners
-		$this->assertAccessRedirect(['controller' => 'Franchises', 'action' => 'add_owner', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_CAPTAIN2);
-	}
-
-	/**
-	 * Test add_owner method as a player
-	 *
-	 * @return void
-	 */
-	public function testAddOwnerAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_owner method as someone else
-	 *
-	 * @return void
-	 */
-	public function testAddOwnerAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_owner method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testAddOwnerAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'add_owner', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'add_owner', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_CAPTAIN2);
+		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'add_owner', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'add_owner', 'franchise' => FRANCHISE_ID_RED], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Franchises', 'action' => 'add_owner', 'franchise' => FRANCHISE_ID_RED]);
 	}
 
 	/**
@@ -729,6 +487,13 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRemoveOwnerAsAdmin() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		// Admins are allowed to remove owners
+		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_owner', 'franchise' => FRANCHISE_ID_BLUE, 'person' => PERSON_ID_DUPLICATE],
+			PERSON_ID_ADMIN, [], ['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_BLUE],
+			'Successfully removed owner.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -738,15 +503,13 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRemoveOwnerAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
-	/**
-	 * Test remove_owner method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testRemoveOwnerAsCoordinator() {
+		// Managers are allowed to remove owners
+		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_owner', 'franchise' => FRANCHISE_ID_BLUE, 'person' => PERSON_ID_DUPLICATE],
+			PERSON_ID_MANAGER, [], ['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_BLUE],
+			'Successfully removed owner.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -760,50 +523,30 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		// Franchise owners are allowed to remove other owners
-		$this->assertAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_owner', 'franchise' => FRANCHISE_ID_BLUE, 'person' => PERSON_ID_DUPLICATE],
-			PERSON_ID_CAPTAIN2, 'post', [], ['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_BLUE],
-			'Successfully removed owner.', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_owner', 'franchise' => FRANCHISE_ID_BLUE, 'person' => PERSON_ID_DUPLICATE],
+			PERSON_ID_CAPTAIN2, [], ['controller' => 'Franchises', 'action' => 'view', 'franchise' => FRANCHISE_ID_BLUE],
+			'Successfully removed owner.');
 	}
 
 	/**
-	 * Test remove_owner method as a captain
+	 * Test remove_owner method as others
 	 *
 	 * @return void
 	 */
-	public function testRemoveOwnerAsCaptain() {
+	public function testRemoveOwnerAsOthers() {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		// Others are not allowed to remove owners
-		$this->assertAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_owner', 'franchise' => FRANCHISE_ID_BLUE, 'person' => PERSON_ID_DUPLICATE],
-			PERSON_ID_CAPTAIN, 'post');
-	}
-
-	/**
-	 * Test remove_owner method as a player
-	 *
-	 * @return void
-	 */
-	public function testRemoveOwnerAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test remove_owner method as someone else
-	 *
-	 * @return void
-	 */
-	public function testRemoveOwnerAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test remove_owner method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testRemoveOwnerAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'remove_owner', 'franchise' => FRANCHISE_ID_BLUE, 'person' => PERSON_ID_DUPLICATE],
+			PERSON_ID_COORDINATOR);
+		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'remove_owner', 'franchise' => FRANCHISE_ID_BLUE, 'person' => PERSON_ID_DUPLICATE],
+			PERSON_ID_CAPTAIN);
+		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'remove_owner', 'franchise' => FRANCHISE_ID_BLUE, 'person' => PERSON_ID_DUPLICATE],
+			PERSON_ID_PLAYER);
+		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'remove_owner', 'franchise' => FRANCHISE_ID_BLUE, 'person' => PERSON_ID_DUPLICATE],
+			PERSON_ID_VISITOR);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Franchises', 'action' => 'remove_owner', 'franchise' => FRANCHISE_ID_BLUE, 'person' => PERSON_ID_DUPLICATE]);
 	}
 
 }

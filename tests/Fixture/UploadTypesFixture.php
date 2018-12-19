@@ -30,6 +30,10 @@ class UploadTypesFixture extends TestFixture {
 				'affiliate_id' => AFFILIATE_ID_CLUB,
 			],
 			[
+				'name' => 'Unused waiver',
+				'affiliate_id' => AFFILIATE_ID_CLUB,
+			],
+			[
 				'name' => 'Junior waiver',
 				'affiliate_id' => AFFILIATE_ID_SUB,
 			],
@@ -39,6 +43,7 @@ class UploadTypesFixture extends TestFixture {
 			$i = 0;
 			define('UPLOAD_TYPE_ID_JUNIOR_WAIVER', ++$i);
 			define('UPLOAD_TYPE_ID_DOG_WAIVER', ++$i);
+			define('UPLOAD_TYPE_ID_UNUSED_WAIVER', ++$i);
 			define('UPLOAD_TYPE_ID_JUNIOR_WAIVER_SUB', ++$i);
 		}
 

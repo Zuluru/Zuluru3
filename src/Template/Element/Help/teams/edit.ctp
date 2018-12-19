@@ -32,11 +32,9 @@ if (Configure::read('feature.region_preference')) {
 	$topics[] = 'region_preference';
 }
 $topics[] = 'open_roster';
-if (Configure::read('feature.attendance')) {
-	$topics['track_attendance'] = [
-		'image' => 'attendance_32.png',
-	];
-}
+$topics['track_attendance'] = [
+	'image' => 'attendance_32.png',
+];
 
 echo $this->element('Help/topics', [
 	'section' => 'teams/edit',

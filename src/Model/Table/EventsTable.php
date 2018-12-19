@@ -342,4 +342,13 @@ class EventsTable extends AppTable {
 			return null;
 		}
 	}
+
+	public function division($id) {
+		try {
+			return $this->field('division_id', ['id' => $id]);
+		} catch (RecordNotFoundException $ex) {
+			return null;
+		}
+	}
+
 }

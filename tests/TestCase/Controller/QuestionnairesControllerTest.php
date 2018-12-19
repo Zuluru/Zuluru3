@@ -1,8 +1,6 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
-use Cake\Core\Configure;
-
 /**
  * App\Controller\QuestionnairesController Test Case
  */
@@ -24,239 +22,106 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 				'app.groups_people',
 			'app.leagues',
 				'app.divisions',
+					'app.teams',
+					'app.divisions_people',
 			'app.questions',
 				'app.answers',
 			'app.questionnaires',
 				'app.questionnaires_questions',
 			'app.events',
+				'app.prices',
+					'app.registrations',
+						'app.responses',
 			'app.settings',
 	];
 
 	/**
-	 * Test index method as an admin
+	 * Test index method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsAdmin() {
-		// Admins are allowed to get the index
-		$this->assertAccessOk(['controller' => 'Questionnaires', 'action' => 'index'], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/questionnaires/edit\?questionnaire=' . QUESTIONNAIRE_ID_TEAM . '#ms');
-		$this->assertResponseRegExp('#/questionnaires/delete\?questionnaire=' . QUESTIONNAIRE_ID_TEAM . '#ms');
-		$this->assertResponseRegExp('#/questionnaires/deactivate\?questionnaire=' . QUESTIONNAIRE_ID_TEAM . '#ms');
-		$this->assertResponseRegExp('#/questionnaires/edit\?questionnaire=' . QUESTIONNAIRE_ID_TEAM_SUB . '#ms');
-		$this->assertResponseRegExp('#/questionnaires/delete\?questionnaire=' . QUESTIONNAIRE_ID_TEAM_SUB . '#ms');
-		$this->assertResponseRegExp('#/questionnaires/deactivate\?questionnaire=' . QUESTIONNAIRE_ID_TEAM_SUB . '#ms');
+	public function testIndex() {
+		// Admins are allowed to see the index
+		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'index'], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/questionnaires/edit?questionnaire=' . QUESTIONNAIRE_ID_TEAM);
+		$this->assertResponseContains('/questionnaires/delete?questionnaire=' . QUESTIONNAIRE_ID_TEAM);
+		$this->assertResponseContains('/questionnaires/deactivate?questionnaire=' . QUESTIONNAIRE_ID_TEAM);
+		$this->assertResponseContains('/questionnaires/edit?questionnaire=' . QUESTIONNAIRE_ID_TEAM_SUB);
+		$this->assertResponseContains('/questionnaires/delete?questionnaire=' . QUESTIONNAIRE_ID_TEAM_SUB);
+		$this->assertResponseContains('/questionnaires/deactivate?questionnaire=' . QUESTIONNAIRE_ID_TEAM_SUB);
+
+		// Managers are allowed to see the index, but don't see questionnaires in other affiliates
+		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'index'], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/questionnaires/edit?questionnaire=' . QUESTIONNAIRE_ID_TEAM);
+		$this->assertResponseContains('/questionnaires/delete?questionnaire=' . QUESTIONNAIRE_ID_TEAM);
+		$this->assertResponseContains('/questionnaires/deactivate?questionnaire=' . QUESTIONNAIRE_ID_TEAM);
+		$this->assertResponseNotContains('/questionnaires/edit?questionnaire=' . QUESTIONNAIRE_ID_TEAM_SUB);
+		$this->assertResponseNotContains('/questionnaires/delete?questionnaire=' . QUESTIONNAIRE_ID_TEAM_SUB);
+		$this->assertResponseNotContains('/questionnaires/deactivate?questionnaire=' . QUESTIONNAIRE_ID_TEAM_SUB);
+
+		// Others are not allowed to see the index
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'index'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'index'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'index'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'index'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Questionnaires', 'action' => 'index']);
 	}
 
 	/**
-	 * Test index method as a manager
+	 * Test deactivated method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsManager() {
-		// Managers are allowed to get the index, but don't see questionnaires in other affiliates
-		$this->assertAccessOk(['controller' => 'Questionnaires', 'action' => 'index'], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/questionnaires/edit\?questionnaire=' . QUESTIONNAIRE_ID_TEAM . '#ms');
-		$this->assertResponseRegExp('#/questionnaires/delete\?questionnaire=' . QUESTIONNAIRE_ID_TEAM . '#ms');
-		$this->assertResponseRegExp('#/questionnaires/deactivate\?questionnaire=' . QUESTIONNAIRE_ID_TEAM . '#ms');
-		$this->assertResponseNotRegExp('#/questionnaires/edit\?questionnaire=' . QUESTIONNAIRE_ID_TEAM_SUB . '#ms');
-		$this->assertResponseNotRegExp('#/questionnaires/delete\?questionnaire=' . QUESTIONNAIRE_ID_TEAM_SUB . '#ms');
-		$this->assertResponseNotRegExp('#/questionnaires/deactivate\?questionnaire=' . QUESTIONNAIRE_ID_TEAM_SUB . '#ms');
+	public function testDeactivated() {
+		// Admins are allowed to see the deactivated list
+		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'deactivated'], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/questionnaires/edit?questionnaire=' . QUESTIONNAIRE_ID_OLD);
+		$this->assertResponseContains('/questionnaires/delete?questionnaire=' . QUESTIONNAIRE_ID_OLD);
+		$this->assertResponseContains('/questionnaires/activate?questionnaire=' . QUESTIONNAIRE_ID_OLD);
+
+		// Managers are allowed to see the deactivated list
+		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'deactivated'], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/questionnaires/edit?questionnaire=' . QUESTIONNAIRE_ID_OLD);
+		$this->assertResponseContains('/questionnaires/delete?questionnaire=' . QUESTIONNAIRE_ID_OLD);
+		$this->assertResponseContains('/questionnaires/activate?questionnaire=' . QUESTIONNAIRE_ID_OLD);
+
+		// Others are not allowed to see the deactivated list
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'deactivated'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'deactivated'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'deactivated'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'deactivated'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Questionnaires', 'action' => 'deactivated']);
 	}
 
 	/**
-	 * Test index method as a coordinator
+	 * Test view method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsCoordinator() {
-		// Others are not allowed to get the index
-		$this->assertAccessRedirect(['controller' => 'Questionnaires', 'action' => 'index'], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test index method as a captain
-	 *
-	 * @return void
-	 */
-	public function testIndexAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method as a player
-	 *
-	 * @return void
-	 */
-	public function testIndexAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method as someone else
-	 *
-	 * @return void
-	 */
-	public function testIndexAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testIndexAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test deactivated method as an admin
-	 *
-	 * @return void
-	 */
-	public function testDeactivatedAsAdmin() {
-		// Admins are allowed to get the deactivated list
-		$this->assertAccessOk(['controller' => 'Questionnaires', 'action' => 'deactivated'], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/questionnaires/edit\?questionnaire=' . QUESTIONNAIRE_ID_OLD . '#ms');
-		$this->assertResponseRegExp('#/questionnaires/delete\?questionnaire=' . QUESTIONNAIRE_ID_OLD . '#ms');
-		$this->assertResponseRegExp('#/questionnaires/activate\?questionnaire=' . QUESTIONNAIRE_ID_OLD . '#ms');
-	}
-
-	/**
-	 * Test deactivated method as a manager
-	 *
-	 * @return void
-	 */
-	public function testDeactivatedAsManager() {
-		// Managers are allowed to get the deactivated list
-		$this->assertAccessOk(['controller' => 'Questionnaires', 'action' => 'deactivated'], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/questionnaires/edit\?questionnaire=' . QUESTIONNAIRE_ID_OLD . '#ms');
-		$this->assertResponseRegExp('#/questionnaires/delete\?questionnaire=' . QUESTIONNAIRE_ID_OLD . '#ms');
-		$this->assertResponseRegExp('#/questionnaires/activate\?questionnaire=' . QUESTIONNAIRE_ID_OLD . '#ms');
-	}
-
-	/**
-	 * Test deactivated method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testDeactivatedAsCoordinator() {
-		// Others are not allowed to get the deactivated list
-		$this->assertAccessRedirect(['controller' => 'Questionnaires', 'action' => 'deactivated'], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test deactivated method as a captain
-	 *
-	 * @return void
-	 */
-	public function testDeactivatedAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test deactivated method as a player
-	 *
-	 * @return void
-	 */
-	public function testDeactivatedAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test deactivated method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeactivatedAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test deactivated method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeactivatedAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as an admin
-	 *
-	 * @return void
-	 */
-	public function testViewAsAdmin() {
+	public function testView() {
 		// Admins are allowed to view questionnaires
-		$this->assertAccessOk(['controller' => 'Questionnaires', 'action' => 'view', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/questionnaires/edit\?questionnaire=' . QUESTIONNAIRE_ID_TEAM . '#ms');
-		$this->assertResponseRegExp('#/questionnaires/delete\?questionnaire=' . QUESTIONNAIRE_ID_TEAM . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'view', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/questionnaires/edit?questionnaire=' . QUESTIONNAIRE_ID_TEAM);
+		$this->assertResponseContains('/questionnaires/delete?questionnaire=' . QUESTIONNAIRE_ID_TEAM);
 
-		$this->assertAccessOk(['controller' => 'Questionnaires', 'action' => 'view', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM_SUB], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/questionnaires/edit\?questionnaire=' . QUESTIONNAIRE_ID_TEAM_SUB . '#ms');
-		$this->assertResponseRegExp('#/questionnaires/delete\?questionnaire=' . QUESTIONNAIRE_ID_TEAM_SUB . '#ms');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'view', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM_SUB], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/questionnaires/edit?questionnaire=' . QUESTIONNAIRE_ID_TEAM_SUB);
+		$this->assertResponseContains('/questionnaires/delete?questionnaire=' . QUESTIONNAIRE_ID_TEAM_SUB);
 
-	/**
-	 * Test view method as a manager
-	 *
-	 * @return void
-	 */
-	public function testViewAsManager() {
 		// Managers are allowed to view questionnaires
-		$this->assertAccessOk(['controller' => 'Questionnaires', 'action' => 'view', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/questionnaires/edit\?questionnaire=' . QUESTIONNAIRE_ID_TEAM . '#ms');
-		$this->assertResponseRegExp('#/questionnaires/delete\?questionnaire=' . QUESTIONNAIRE_ID_TEAM . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'view', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/questionnaires/edit?questionnaire=' . QUESTIONNAIRE_ID_TEAM);
+		$this->assertResponseContains('/questionnaires/delete?questionnaire=' . QUESTIONNAIRE_ID_TEAM);
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Questionnaires', 'action' => 'view', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM_SUB], PERSON_ID_MANAGER);
-	}
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'view', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM_SUB], PERSON_ID_MANAGER);
 
-	/**
-	 * Test view method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testViewAsCoordinator() {
 		// Others are not allowed to view questionnaires
-		$this->assertAccessRedirect(['controller' => 'Questionnaires', 'action' => 'view', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test view method as a captain
-	 *
-	 * @return void
-	 */
-	public function testViewAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as a player
-	 *
-	 * @return void
-	 */
-	public function testViewAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as someone else
-	 *
-	 * @return void
-	 */
-	public function testViewAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testViewAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'view', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'view', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'view', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'view', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Questionnaires', 'action' => 'view', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM]);
 	}
 
 	/**
@@ -266,9 +131,9 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 	 */
 	public function testAddAsAdmin() {
 		// Admins are allowed to add questionnaires
-		$this->assertAccessOk(['controller' => 'Questionnaires', 'action' => 'add'], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#<option value="1" selected="selected">Club</option>#ms');
-		$this->assertResponseRegExp('#<option value="2">Sub</option>#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'add'], PERSON_ID_ADMIN);
+		$this->assertResponseContains('<option value="1" selected="selected">Club</option>');
+		$this->assertResponseContains('<option value="2">Sub</option>');
 	}
 
 	/**
@@ -278,55 +143,23 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 	 */
 	public function testAddAsManager() {
 		// Managers are allowed to add questionnaires
-		$this->assertAccessOk(['controller' => 'Questionnaires', 'action' => 'add'], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#<input type="hidden" name="affiliate_id" value="1"/>#ms');
-		$this->assertResponseNotRegExp('#<option value="2">Sub</option>#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'add'], PERSON_ID_MANAGER);
+		$this->assertResponseContains('<input type="hidden" name="affiliate_id" value="1"/>');
+		$this->assertResponseNotContains('<option value="2">Sub</option>');
 	}
 
 	/**
-	 * Test add method as a coordinator
+	 * Test add method as others
 	 *
 	 * @return void
 	 */
-	public function testAddAsCoordinator() {
+	public function testAddAsOthers() {
 		// Others are not allowed to add questionnaires
-		$this->assertAccessRedirect(['controller' => 'Questionnaires', 'action' => 'add'], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test add method as a captain
-	 *
-	 * @return void
-	 */
-	public function testAddAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as a player
-	 *
-	 * @return void
-	 */
-	public function testAddAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as someone else
-	 *
-	 * @return void
-	 */
-	public function testAddAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testAddAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'add'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'add'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'add'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'add'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Questionnaires', 'action' => 'add']);
 	}
 
 	/**
@@ -336,8 +169,8 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 	 */
 	public function testEditAsAdmin() {
 		// Admins are allowed to edit questionnaires
-		$this->assertAccessOk(['controller' => 'Questionnaires', 'action' => 'edit', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM], PERSON_ID_ADMIN);
-		$this->assertAccessOk(['controller' => 'Questionnaires', 'action' => 'edit', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM_SUB], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'edit', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'edit', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM_SUB], PERSON_ID_ADMIN);
 	}
 
 	/**
@@ -347,56 +180,24 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 	 */
 	public function testEditAsManager() {
 		// Managers are allowed to edit questionnaires
-		$this->assertAccessOk(['controller' => 'Questionnaires', 'action' => 'edit', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'edit', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM], PERSON_ID_MANAGER);
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Questionnaires', 'action' => 'edit', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM_SUB], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'edit', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM_SUB], PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test edit method as a coordinator
+	 * Test edit method as others
 	 *
 	 * @return void
 	 */
-	public function testEditAsCoordinator() {
+	public function testEditAsOthers() {
 		// Others are not allowed to edit questionnaires
-		$this->assertAccessRedirect(['controller' => 'Questionnaires', 'action' => 'edit', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test edit method as a captain
-	 *
-	 * @return void
-	 */
-	public function testEditAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as a player
-	 *
-	 * @return void
-	 */
-	public function testEditAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as someone else
-	 *
-	 * @return void
-	 */
-	public function testEditAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testEditAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'edit', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'edit', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'edit', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'edit', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Questionnaires', 'action' => 'edit', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM]);
 	}
 
 	/**
@@ -406,8 +207,8 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 	 */
 	public function testActivateAsAdmin() {
 		// Admins are allowed to activate questionnaires
-		$this->assertAccessOk(['controller' => 'Questionnaires', 'action' => 'activate', 'questionnaire' => QUESTIONNAIRE_ID_TEAM], PERSON_ID_ADMIN, 'getajax');
-		$this->assertResponseRegExp('#/questionnaires\\\\/deactivate\?questionnaire=' . QUESTIONNAIRE_ID_TEAM . '#ms');
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Questionnaires', 'action' => 'activate', 'questionnaire' => QUESTIONNAIRE_ID_TEAM], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/questionnaires\\/deactivate?questionnaire=' . QUESTIONNAIRE_ID_TEAM);
 	}
 
 	/**
@@ -417,57 +218,31 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 	 */
 	public function testActivateAsManager() {
 		// Managers are allowed to activate questionnaires
-		$this->assertAccessOk(['controller' => 'Questionnaires', 'action' => 'activate', 'questionnaire' => QUESTIONNAIRE_ID_TEAM], PERSON_ID_MANAGER, 'getajax');
-		$this->assertResponseRegExp('#/questionnaires\\\\/deactivate\?questionnaire=' . QUESTIONNAIRE_ID_TEAM . '#ms');
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Questionnaires', 'action' => 'activate', 'questionnaire' => QUESTIONNAIRE_ID_TEAM],
+			PERSON_ID_MANAGER);
+		$this->assertResponseContains('/questionnaires\\/deactivate?questionnaire=' . QUESTIONNAIRE_ID_TEAM);
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Questionnaires', 'action' => 'activate', 'questionnaire' => QUESTIONNAIRE_ID_TEAM_SUB], PERSON_ID_MANAGER, 'getajax');
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'activate', 'questionnaire' => QUESTIONNAIRE_ID_TEAM_SUB],
+			PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test activate method as a coordinator
+	 * Test activate method as others
 	 *
 	 * @return void
 	 */
-	public function testActivateAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test activate method as a captain
-	 *
-	 * @return void
-	 */
-	public function testActivateAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test activate method as a player
-	 *
-	 * @return void
-	 */
-	public function testActivateAsPlayer() {
+	public function testActivateAsOthers() {
 		// Others are not allowed to activate questionnaires
-		$this->assertAccessRedirect(['controller' => 'Questionnaires', 'action' => 'activate', 'questionnaire' => QUESTIONNAIRE_ID_TEAM], PERSON_ID_PLAYER, 'getajax');
-	}
-
-	/**
-	 * Test activate method as someone else
-	 *
-	 * @return void
-	 */
-	public function testActivateAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test activate method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testActivateAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'activate', 'questionnaire' => QUESTIONNAIRE_ID_TEAM],
+			PERSON_ID_COORDINATOR);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'activate', 'questionnaire' => QUESTIONNAIRE_ID_TEAM],
+			PERSON_ID_CAPTAIN);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'activate', 'questionnaire' => QUESTIONNAIRE_ID_TEAM],
+			PERSON_ID_PLAYER);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'activate', 'questionnaire' => QUESTIONNAIRE_ID_TEAM],
+			PERSON_ID_VISITOR);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Questionnaires', 'action' => 'activate', 'questionnaire' => QUESTIONNAIRE_ID_TEAM]);
 	}
 
 	/**
@@ -477,17 +252,8 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 	 */
 	public function testDeactivateAsAdmin() {
 		// Admins are allowed to deactivate questionnaires
-		$this->assertAccessOk(['controller' => 'Questionnaires', 'action' => 'deactivate', 'questionnaire' => QUESTIONNAIRE_ID_TEAM], PERSON_ID_ADMIN, 'getajax');
-		$this->assertResponseRegExp('#/questionnaires\\\\/activate\?questionnaire=' . QUESTIONNAIRE_ID_TEAM . '#ms');
-	}
-
-	/**
-	 * Test deactivate method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testDeactivateAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Questionnaires', 'action' => 'deactivate', 'questionnaire' => QUESTIONNAIRE_ID_TEAM], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/questionnaires\\/activate?questionnaire=' . QUESTIONNAIRE_ID_TEAM);
 	}
 
 	/**
@@ -497,48 +263,29 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 	 */
 	public function testDeactivateAsManager() {
 		// Managers are allowed to deactivate questionnaires
-		$this->assertAccessOk(['controller' => 'Questionnaires', 'action' => 'deactivate', 'questionnaire' => QUESTIONNAIRE_ID_TEAM], PERSON_ID_MANAGER, 'getajax');
-		$this->assertResponseRegExp('#/questionnaires\\\\/activate\?questionnaire=' . QUESTIONNAIRE_ID_TEAM . '#ms');
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Questionnaires', 'action' => 'deactivate', 'questionnaire' => QUESTIONNAIRE_ID_TEAM], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/questionnaires\\/activate?questionnaire=' . QUESTIONNAIRE_ID_TEAM);
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Questionnaires', 'action' => 'deactivate', 'questionnaire' => QUESTIONNAIRE_ID_TEAM_SUB], PERSON_ID_MANAGER, 'getajax');
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'deactivate', 'questionnaire' => QUESTIONNAIRE_ID_TEAM_SUB], PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test deactivate method as a captain
+	 * Test deactivate method as others
 	 *
 	 * @return void
 	 */
-	public function testDeactivateAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test deactivate method as a player
-	 *
-	 * @return void
-	 */
-	public function testDeactivateAsPlayer() {
+	public function testDeactivateAsOthers() {
 		// Others are not allowed to deactivate questionnaires
-		$this->assertAccessRedirect(['controller' => 'Questionnaires', 'action' => 'deactivate', 'questionnaire' => QUESTIONNAIRE_ID_TEAM], PERSON_ID_PLAYER, 'getajax');
-	}
-
-	/**
-	 * Test deactivate method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeactivateAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test deactivate method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeactivateAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'deactivate', 'questionnaire' => QUESTIONNAIRE_ID_TEAM],
+			PERSON_ID_COORDINATOR);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'deactivate', 'questionnaire' => QUESTIONNAIRE_ID_TEAM],
+			PERSON_ID_CAPTAIN);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'deactivate', 'questionnaire' => QUESTIONNAIRE_ID_TEAM],
+			PERSON_ID_PLAYER);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'deactivate', 'questionnaire' => QUESTIONNAIRE_ID_TEAM],
+			PERSON_ID_VISITOR);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Questionnaires', 'action' => 'deactivate', 'questionnaire' => QUESTIONNAIRE_ID_TEAM]);
 	}
 
 	/**
@@ -551,14 +298,14 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		// Admins are allowed to delete questionnaires
-		$this->assertAccessRedirect(['controller' => 'Questionnaires', 'action' => 'delete', 'questionnaire' => QUESTIONNAIRE_ID_NEW],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Questionnaires', 'action' => 'index'],
-			'The questionnaire has been deleted.', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Questionnaires', 'action' => 'delete', 'questionnaire' => QUESTIONNAIRE_ID_NEW],
+			PERSON_ID_ADMIN, [], ['controller' => 'Questionnaires', 'action' => 'index'],
+			'The questionnaire has been deleted.');
 
 		// But not ones with dependencies
-		$this->assertAccessRedirect(['controller' => 'Questionnaires', 'action' => 'delete', 'questionnaire' => QUESTIONNAIRE_ID_TEAM],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Questionnaires', 'action' => 'index'],
-			'#The following records reference this questionnaire, so it cannot be deleted#', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Questionnaires', 'action' => 'delete', 'questionnaire' => QUESTIONNAIRE_ID_TEAM],
+			PERSON_ID_ADMIN, [], ['controller' => 'Questionnaires', 'action' => 'index'],
+			'#The following records reference this questionnaire, so it cannot be deleted#');
 	}
 
 	/**
@@ -570,59 +317,35 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		// Managers can delete questionnaires in their affiliate
-		$this->assertAccessRedirect(['controller' => 'Questionnaires', 'action' => 'delete', 'questionnaire' => QUESTIONNAIRE_ID_NEW],
-			PERSON_ID_MANAGER, 'post', [], ['controller' => 'Questionnaires', 'action' => 'index'],
-			'The questionnaire has been deleted.', 'Flash.flash.0.message');
+		// Managers are allowed to delete questionnaires in their affiliate
+		$this->assertPostAsAccessRedirect(['controller' => 'Questionnaires', 'action' => 'delete', 'questionnaire' => QUESTIONNAIRE_ID_NEW],
+			PERSON_ID_MANAGER, [], ['controller' => 'Questionnaires', 'action' => 'index'],
+			'The questionnaire has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Questionnaires', 'action' => 'delete', 'questionnaire' => QUESTIONNAIRE_ID_TEAM_SUB],
-			PERSON_ID_MANAGER, 'post');
+		$this->assertPostAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'delete', 'questionnaire' => QUESTIONNAIRE_ID_TEAM_SUB],
+			PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test delete method as a coordinator
+	 * Test delete method as others
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testDeleteAsOthers() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
-	/**
-	 * Test delete method as a captain
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as a player
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to delete questionnaires
+		$this->assertPostAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'delete', 'questionnaire' => QUESTIONNAIRE_ID_NEW],
+			PERSON_ID_COORDINATOR);
+		$this->assertPostAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'delete', 'questionnaire' => QUESTIONNAIRE_ID_NEW],
+			PERSON_ID_CAPTAIN);
+		$this->assertPostAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'delete', 'questionnaire' => QUESTIONNAIRE_ID_NEW],
+			PERSON_ID_PLAYER);
+		$this->assertPostAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'delete', 'questionnaire' => QUESTIONNAIRE_ID_NEW],
+			PERSON_ID_VISITOR);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Questionnaires', 'action' => 'delete', 'questionnaire' => QUESTIONNAIRE_ID_NEW]);
 	}
 
 	/**
@@ -631,6 +354,9 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddQuestionAsAdmin() {
+		// Admins are allowed to add question
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Questionnaires', 'action' => 'add_question', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM, 'question' => QUESTION_ID_TEAM_NIGHT],
+			PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -640,52 +366,28 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddQuestionAsManager() {
+		// Managers are allowed to add question
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Questionnaires', 'action' => 'add_question', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM, 'question' => QUESTION_ID_TEAM_NIGHT],
+			PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test add_question method as a coordinator
+	 * Test add_question method as others
 	 *
 	 * @return void
 	 */
-	public function testAddQuestionAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_question method as a captain
-	 *
-	 * @return void
-	 */
-	public function testAddQuestionAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_question method as a player
-	 *
-	 * @return void
-	 */
-	public function testAddQuestionAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_question method as someone else
-	 *
-	 * @return void
-	 */
-	public function testAddQuestionAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_question method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testAddQuestionAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testAddQuestionAsOthers() {
+		// Others are not allowed to add questions
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'add_question', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM, 'question' => QUESTION_ID_TEAM_NIGHT],
+			PERSON_ID_COORDINATOR);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'add_question', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM, 'question' => QUESTION_ID_TEAM_NIGHT],
+			PERSON_ID_CAPTAIN);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'add_question', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM, 'question' => QUESTION_ID_TEAM_NIGHT],
+			PERSON_ID_PLAYER);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'add_question', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM, 'question' => QUESTION_ID_TEAM_NIGHT],
+			PERSON_ID_VISITOR);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Questionnaires', 'action' => 'add_question', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM, 'question' => QUESTION_ID_TEAM_NIGHT]);
 	}
 
 	/**
@@ -694,6 +396,9 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRemoveQuestionAsAdmin() {
+		// Admins are allowed to remove question
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Questionnaires', 'action' => 'remove_question', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM, 'question' => QUESTION_ID_TEAM_RETURNING],
+			PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -703,52 +408,28 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRemoveQuestionAsManager() {
+		// Managers are allowed to remove question
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Questionnaires', 'action' => 'remove_question', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM, 'question' => QUESTION_ID_TEAM_RETURNING],
+			PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test remove_question method as a coordinator
+	 * Test remove_question method as others
 	 *
 	 * @return void
 	 */
-	public function testRemoveQuestionAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test remove_question method as a captain
-	 *
-	 * @return void
-	 */
-	public function testRemoveQuestionAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test remove_question method as a player
-	 *
-	 * @return void
-	 */
-	public function testRemoveQuestionAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test remove_question method as someone else
-	 *
-	 * @return void
-	 */
-	public function testRemoveQuestionAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test remove_question method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testRemoveQuestionAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testRemoveQuestionAsOthers() {
+		// Others are not allowed to remove questions
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'remove_question', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM, 'question' => QUESTION_ID_TEAM_RETURNING],
+			PERSON_ID_COORDINATOR);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'remove_question', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM, 'question' => QUESTION_ID_TEAM_RETURNING],
+			PERSON_ID_CAPTAIN);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'remove_question', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM, 'question' => QUESTION_ID_TEAM_RETURNING],
+			PERSON_ID_PLAYER);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'remove_question', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM, 'question' => QUESTION_ID_TEAM_RETURNING],
+			PERSON_ID_VISITOR);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Questionnaires', 'action' => 'remove_question', 'questionnaire' =>  QUESTIONNAIRE_ID_TEAM, 'question' => QUESTION_ID_TEAM_RETURNING]);
 	}
 
 	/**
@@ -757,7 +438,10 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testConsolidateAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('Operation not implemented yet.');
+
+		// Admins are allowed to consolidate
+		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'consolidate'], PERSON_ID_ADMIN);
 	}
 
 	/**
@@ -766,52 +450,26 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testConsolidateAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('Operation not implemented yet.');
+
+		// Managers are allowed to consolidate
+		$this->assertGetAsAccessOk(['controller' => 'Questionnaires', 'action' => 'consolidate'], PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test consolidate method as a coordinator
+	 * Test consolidate method as others
 	 *
 	 * @return void
 	 */
-	public function testConsolidateAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testConsolidateAsOthers() {
+		$this->markTestIncomplete('Operation not implemented yet.');
 
-	/**
-	 * Test consolidate method as a captain
-	 *
-	 * @return void
-	 */
-	public function testConsolidateAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test consolidate method as a player
-	 *
-	 * @return void
-	 */
-	public function testConsolidateAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test consolidate method as someone else
-	 *
-	 * @return void
-	 */
-	public function testConsolidateAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test consolidate method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testConsolidateAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to consolidate
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'consolidate'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'consolidate'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'consolidate'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Questionnaires', 'action' => 'consolidate'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Questionnaires', 'action' => 'consolidate']);
 	}
 
 }

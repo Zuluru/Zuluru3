@@ -11,7 +11,9 @@ $this->Html->addCrumb(__('Change Password'));
 	<fieldset>
 		<legend><?= __('Change Password for') . ' ' . $user->person->full_name ?></legend>
 <?php
-if (!Configure::read('Perm.is_admin') || $is_me) {
+$identity = $this->Authorize->getIdentity();
+// Admins must still enter their own passwords, just not for others.
+if ($identity->isMe($user) || !$identity->isManagerOf($user)) {
 	echo $this->Form->input('old_password', ['type' => 'password', 'label' => __('Existing Password'), 'value' => '']);
 }
 echo $this->Form->input('new_password', ['type' => 'password', 'label' => __('New Password')]);

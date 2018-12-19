@@ -4,11 +4,7 @@ namespace App\Controller;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Network\Exception\MethodNotAllowedException;
 use Cake\ORM\Query;
-use Cake\ORM\TableRegistry;
-use App\Exception\MissingModuleException;
-use App\Model\Entity\BadgesPerson;
 
 /**
  * Badges Controller
@@ -19,82 +15,18 @@ class BadgesController extends AppController {
 
 	public $paginate = [
 		'order' => [
-			'Badges.name',
+			'Badges.affiliate_id', 'Badges.name',
 		]
 	];
-
-	/**
-	 * isAuthorized method
-	 *
-	 * @return bool true if access allowed
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if badges are not enabled
-	 */
-	public function isAuthorized() {
-		try {
-			if ($this->UserCache->read('Person.status') == 'locked') {
-				return false;
-			}
-
-			if (!Configure::read('feature.badges')) {
-				throw new MethodNotAllowedException('Badges are not enabled on this system.');
-			}
-
-			if (Configure::read('Perm.is_manager')) {
-				// Managers can perform these operations
-				if (in_array($this->request->getParam('action'), [
-					'add',
-					'deactivated',
-				])) {
-					return true;
-				}
-
-				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->getParam('action'), [
-					'view',
-					'tooltip',
-					'edit',
-					'activate',
-					'deactivate',
-				])) {
-					// If a badge id is specified, check if we're a manager of that badge's affiliate
-					$badge = $this->request->getQuery('badge');
-					if ($badge) {
-						if (in_array($this->Badges->affiliate($badge), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-				}
-			}
-
-			// Anyone that's logged in can perform these operations
-			if (in_array($this->request->getParam('action'), [
-				'index',
-				'view',
-				'tooltip',
-			])) {
-				return true;
-			}
-		} catch (RecordNotFoundException $ex) {
-		} catch (InvalidPrimaryKeyException $ex) {
-		}
-
-		return false;
-	}
 
 	/**
 	 * Index method
 	 *
 	 * @return void|\Cake\Network\Response
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if badges are not enabled
 	 */
 	public function index() {
-		if (!Configure::read('feature.badges')) {
-			throw new MethodNotAllowedException('Badges are not enabled on this system.');
-		}
-
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->Authorization->authorize($this);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 
 		$query = $this->Badges->find()
 			->select(['count' => 'COUNT(People.id)'])
@@ -109,7 +41,7 @@ class BadgesController extends AppController {
 			])
 			->group(['Badges.id']);
 
-		if (!Configure::read('Perm.is_admin') && !Configure::read('Perm.is_manager')) {
+		if (!$this->Authentication->getIdentity()->isManager()) {
 			// TODO: if manager, check we're not looking at another affiliate
 			$query->andWhere(['Badges.visibility !=' => BADGE_VISIBILITY_ADMIN]);
 		}
@@ -121,11 +53,9 @@ class BadgesController extends AppController {
 	}
 
 	public function deactivated() {
-		if (!Configure::read('feature.badges')) {
-			throw new MethodNotAllowedException('Badges are not enabled on this system.');
-		}
+		$this->Authorization->authorize($this);
 
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 
 		$query = $this->Badges->find()
 			->matching('Affiliates', function (Query $q) use ($affiliates) {
@@ -136,10 +66,6 @@ class BadgesController extends AppController {
 			])
 			->group(['Badges.id']);
 
-		if (!Configure::read('Perm.is_admin') && !Configure::read('Perm.is_manager')) {
-			// TODO: if manager, check we're not looking at another affiliate
-			$query->andWhere(['Badges.visibility !=' => BADGE_VISIBILITY_ADMIN]);
-		}
 
 		$badges = $this->paginate($query);
 
@@ -152,13 +78,8 @@ class BadgesController extends AppController {
 	 * View method
 	 *
 	 * @return void|\Cake\Network\Response
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if badges are not enabled
 	 */
 	public function view() {
-		if (!Configure::read('feature.badges')) {
-			throw new MethodNotAllowedException('Badges are not enabled on this system.');
-		}
-
 		$id = $this->request->getQuery('badge');
 		try {
 			$badge = $this->Badges->get($id);
@@ -170,10 +91,7 @@ class BadgesController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		}
 
-		if ((!$badge->active || $badge->visibility == BADGE_VISIBILITY_ADMIN) && (!Configure::read('Perm.is_admin') && !Configure::read('Perm.is_manager'))) {
-			$this->Flash->info(__('Invalid badge.'));
-			return $this->redirect(['action' => 'index']);
-		}
+		$this->Authorization->authorize($badge);
 		$this->Configuration->loadAffiliate($badge->affiliate_id);
 
 		// TODO: Multiple default sort fields break pagination links.
@@ -203,10 +121,6 @@ class BadgesController extends AppController {
 	}
 
 	public function initialize_awards() {
-		if (!Configure::read('feature.badges')) {
-			throw new MethodNotAllowedException('Badges are not enabled on this system.');
-		}
-
 		$id = $this->request->getQuery('badge');
 		try {
 			$badge = $this->Badges->get($id);
@@ -217,6 +131,8 @@ class BadgesController extends AppController {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['action' => 'index']);
 		}
+
+		$this->Authorization->authorize($badge, 'edit');
 
 		if (in_array($badge->category, ['nominated', 'assigned', 'runtime', 'aggregate'])) {
 			$this->Flash->info(__('This badge is {0}, not calculated, so it cannot be initialized.', __($badge->category)));
@@ -238,11 +154,6 @@ class BadgesController extends AppController {
 	}
 
 	public function tooltip() {
-		if (!Configure::read('feature.badges')) {
-			throw new MethodNotAllowedException('Badges are not enabled on this system.');
-		}
-
-		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
 		$id = $this->request->getQuery('badge');
@@ -262,11 +173,7 @@ class BadgesController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		}
 
-		if ((!$badge->active || $badge->visibility == BADGE_VISIBILITY_ADMIN) && (!Configure::read('Perm.is_admin') && !Configure::read('Perm.is_manager'))) {
-			$this->Flash->info(__('Invalid badge.'));
-			return $this->redirect(['action' => 'index']);
-		}
-
+		$this->Authorization->authorize($badge, 'view');
 		$this->Configuration->loadAffiliate($badge->affiliate_id);
 		$this->set(compact('badge'));
 	}
@@ -275,14 +182,11 @@ class BadgesController extends AppController {
 	 * Add method
 	 *
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if badges are not enabled
 	 */
 	public function add() {
-		if (!Configure::read('feature.badges')) {
-			throw new MethodNotAllowedException('Badges are not enabled on this system.');
-		}
-
 		$badge = $this->Badges->newEntity();
+		$this->Authorization->authorize($this);
+
 		if ($this->request->is('post')) {
 			$badge = $this->Badges->patchEntity($badge, $this->request->data);
 			if ($this->Badges->save($badge)) {
@@ -293,7 +197,7 @@ class BadgesController extends AppController {
 				$this->Flash->warning(__('The badge could not be saved. Please correct the errors below and try again.'));
 			}
 		}
-		$affiliates = $this->_applicableAffiliates(true);
+		$affiliates = $this->Authentication->applicableAffiliates(true);
 		$this->set(compact('badge', 'affiliates'));
 		$this->render('edit');
 	}
@@ -302,13 +206,8 @@ class BadgesController extends AppController {
 	 * Edit method
 	 *
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if badges are not enabled
 	 */
 	public function edit() {
-		if (!Configure::read('feature.badges')) {
-			throw new MethodNotAllowedException('Badges are not enabled on this system.');
-		}
-
 		$id = $this->request->getQuery('badge');
 		try {
 			$badge = $this->Badges->get($id);
@@ -319,6 +218,8 @@ class BadgesController extends AppController {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['action' => 'index']);
 		}
+
+		$this->Authorization->authorize($badge);
 		$this->Configuration->loadAffiliate($badge->affiliate_id);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
@@ -330,7 +231,7 @@ class BadgesController extends AppController {
 				$this->Flash->warning(__('The badge could not be saved. Please correct the errors below and try again.'));
 			}
 		}
-		$affiliates = $this->_applicableAffiliates(true);
+		$affiliates = $this->Authentication->applicableAffiliates(true);
 		$this->set(compact('badge', 'affiliates'));
 	}
 
@@ -338,14 +239,8 @@ class BadgesController extends AppController {
 	 * Activate method
 	 *
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if badges are not enabled
 	 */
 	public function activate() {
-		if (!Configure::read('feature.badges')) {
-			throw new MethodNotAllowedException('Badges are not enabled on this system.');
-		}
-
-		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
 		$id = $this->request->getQuery('badge');
@@ -358,6 +253,7 @@ class BadgesController extends AppController {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['action' => 'index']);
 		}
+		$this->Authorization->authorize($badge, 'edit');
 
 		$badge->active = true;
 		if (!$this->Badges->save($badge)) {
@@ -372,14 +268,8 @@ class BadgesController extends AppController {
 	 * Deactivate method
 	 *
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if badges are not enabled
 	 */
 	public function deactivate() {
-		if (!Configure::read('feature.badges')) {
-			throw new MethodNotAllowedException('Badges are not enabled on this system.');
-		}
-
-		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
 		$id = $this->request->getQuery('badge');
@@ -392,6 +282,7 @@ class BadgesController extends AppController {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['action' => 'index']);
 		}
+		$this->Authorization->authorize($badge, 'edit');
 
 		$badge->active = false;
 		if (!$this->Badges->save($badge)) {
@@ -406,21 +297,11 @@ class BadgesController extends AppController {
 	 * Delete method
 	 *
 	 * @return void|\Cake\Network\Response Redirects to index.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if badges are not enabled
 	 */
 	public function delete() {
-		if (!Configure::read('feature.badges')) {
-			throw new MethodNotAllowedException('Badges are not enabled on this system.');
-		}
-
 		$this->request->allowMethod(['post', 'delete']);
 
 		$id = $this->request->getQuery('badge');
-		$dependencies = $this->Badges->dependencies($id);
-		if ($dependencies !== false) {
-			$this->Flash->warning(__('The following records reference this badge, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
-			return $this->redirect(['action' => 'index']);
-		}
 
 		try {
 			$badge = $this->Badges->get($id);
@@ -429,6 +310,14 @@ class BadgesController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		} catch (InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid badge.'));
+			return $this->redirect(['action' => 'index']);
+		}
+
+		$this->Authorization->authorize($badge);
+
+		$dependencies = $this->Badges->dependencies($id);
+		if ($dependencies !== false) {
+			$this->Flash->warning(__('The following records reference this badge, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
 			return $this->redirect(['action' => 'index']);
 		}
 

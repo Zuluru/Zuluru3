@@ -1,5 +1,8 @@
 <?php
 use Cake\Core\Configure;
+
+$identity = $this->Authorize->getIdentity();
+
 // TODOBOOTSTRAP: Bootstrap grid stuff to float these sections next to each other?
 ?>
 
@@ -10,10 +13,10 @@ use Cake\Core\Configure;
 echo $this->Html->tag('li', $this->Html->link(__('New Users'), ['controller' => 'Help', 'action' => 'guide', 'new_user']));
 echo $this->Html->tag('li', $this->Html->link(__('Advanced Users'), ['controller' => 'Help', 'action' => 'guide', 'advanced']));
 echo $this->Html->tag('li', $this->Html->link(__('Coaches/Captains'), ['controller' => 'Help', 'action' => 'guide', 'captain']));
-if (Configure::read('Perm.is_admin') || $is_coordinator) {
+if ($identity && ($identity->isManager() || $identity->isCoordinator())) {
 	echo $this->Html->tag('li', $this->Html->link(__('Coordinators'), ['controller' => 'Help', 'action' => 'guide', 'coordinator']));
 }
-if (Configure::read('Perm.is_admin')):
+if ($identity && $identity->isManager()):
 	echo $this->Html->tag('li', __('Administrators'));
 ?>
 	<ul>
@@ -34,23 +37,23 @@ endif;
 <?php
 echo $this->Html->tag('li', $this->Html->link(__('People'), ['controller' => 'Help', 'action' => 'people']));
 if (Configure::read('feature.registration')) {
-	if (Configure::read('Perm.is_admin')) {
+	if ($identity && $identity->isManager()) {
 		echo $this->Html->tag('li', $this->Html->link(__('Events'), ['controller' => 'Help', 'action' => 'events']));
 	}
 	echo $this->Html->tag('li', $this->Html->link(__('Registration'), ['controller' => 'Help', 'action' => 'registration']));
 }
-if (Configure::read('Perm.is_admin')) {
+if ($identity && $identity->isManager()) {
 	echo $this->Html->tag('li', $this->Html->link(__('Waivers'), ['controller' => 'Help', 'action' => 'waivers']));
 }
 echo $this->Html->tag('li', $this->Html->link(__('Teams'), ['controller' => 'Help', 'action' => 'teams']));
 echo $this->Html->tag('li', $this->Html->link(__('Games'), ['controller' => 'Help', 'action' => 'games']));
-if (Configure::read('Perm.is_admin') || $is_coordinator) {
+if ($identity && ($identity->isManager() || $identity->isCoordinator())) {
 	echo $this->Html->tag('li', $this->Html->link(__('Schedules'), ['controller' => 'Help', 'action' => 'schedules']));
 	echo $this->Html->tag('li', $this->Html->link(__('Leagues'), ['controller' => 'Help', 'action' => 'leagues']) .
 		' ' . __('and') . ' ' .
 		$this->Html->link(__('Divisions'), ['controller' => 'Help', 'action' => 'divisions']));
 }
-if (Configure::read('Perm.is_admin')) {
+if ($identity && $identity->isManager()) {
 	echo $this->Html->tag('li', $this->Html->link(__('Facilities'), ['controller' => 'Help', 'action' => 'facilities']) .
 		' ' . __('and') . ' ' .
 		$this->Html->link(__(Configure::read('UI.fields_cap')), ['controller' => 'Help', 'action' => 'fields']));

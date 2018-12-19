@@ -1,15 +1,14 @@
 <?php
 namespace App\Shell\Task;
 
-use App\Auth\HasherTrait;
+use App\Middleware\ConfigurationLoader;
+use App\PasswordHasher\HasherTrait;
 use App\Controller\AppController;
 use App\Model\Entity\Game;
 use App\Model\Entity\Team;
 use Cake\Console\Shell;
 use Cake\Core\Configure;
 use Cake\Database\Expression\QueryExpression;
-use Cake\Event\Event as CakeEvent;
-use Cake\Event\EventManager;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
@@ -25,9 +24,7 @@ class GameAttendanceTask extends Shell {
 	use HasherTrait;
 
 	public function main() {
-		$event = new CakeEvent('Configuration.initialize', $this);
-		EventManager::instance()->dispatch($event);
-
+		ConfigurationLoader::loadConfiguration();
 		$this->games_table = TableRegistry::get('Games');
 		$this->logs_table = TableRegistry::get('ActivityLogs');
 

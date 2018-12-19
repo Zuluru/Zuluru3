@@ -1,6 +1,7 @@
 <?php
 namespace App\Model\Table;
 
+use App\Authorization\ContextResource;
 use ArrayObject;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
@@ -11,6 +12,7 @@ use Cake\Event\Event as CakeEvent;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
+use Cake\Routing\Router;
 use Cake\Validation\Validator;
 use App\Core\UserCache;
 use App\Core\ModuleRegistry;
@@ -20,7 +22,6 @@ use App\Model\Rule\InConfigRule;
 use App\Model\Rule\InDateConfigRule;
 use App\Model\Rule\LesserDateRule;
 use App\Model\Rule\RuleSyntaxRule;
-use App\Model\Traits\CanRegister;
 
 /**
  * Divisions Model
@@ -35,8 +36,6 @@ use App\Model\Traits\CanRegister;
  * @property \Cake\ORM\Association\BelongsToMany $People
  */
 class DivisionsTable extends AppTable {
-
-	use CanRegister;
 
 	/**
 	 * Initialize method
@@ -564,10 +563,14 @@ class DivisionsTable extends AppTable {
 		}
 
 		// Eliminate any events that cannot be registered for
-		if (Configure::read('Perm.is_logged_in')) {
+		$identity = Router::getRequest()->getAttribute('identity');
+		if ($identity && $identity->isLoggedIn()) {
 			foreach ($division->events as $key => $event) {
-				list($notices, $allowed, $redirect) = $this->canRegister(Configure::read('Perm.my_id'), $event, null, ['strict' => false]);
-				if (!$allowed) {
+				try {
+					if (!$identity->can('register', new ContextResource($event, ['strict' => false]), 'register')) {
+						unset($division->events[$key]);
+					}
+				} catch (\Authorization\Exception\Exception $ex) {
 					unset($division->events[$key]);
 				}
 			}

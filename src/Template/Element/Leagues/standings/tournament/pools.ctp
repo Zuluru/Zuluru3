@@ -14,7 +14,7 @@ foreach ($games as $stage_id => $stage):
 <div class="pool-results">
 	<h4><?php
 		echo __('Pool {0}', $pool->games[0]->home_pool_team->pool->name);
-		if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator) {
+		if ($can_edit) {
 			echo '&nbsp;';
 			echo $this->Form->iconPostLink('delete_24.png',
 				['controller' => 'Schedules', 'action' => 'delete', 'division' => $division->id, 'pool' => $pool->games[0]->home_pool_team->pool->id, 'return' => AppController::_return()],
@@ -106,7 +106,7 @@ foreach ($games as $stage_id => $stage):
 					});
 				}
 
-				if (!Configure::read('Perm.is_admin') && !$is_coordinator) {
+				if (!$can_edit) {
 					$matched_games = $matched_games->match(['published' => true]);
 				}
 
@@ -187,7 +187,7 @@ foreach ($games as $stage_id => $stage):
 					foreach ($time_games[$date_key][$time_key] as $game):
 						if ($game->published) {
 							$class = '';
-						} else if (Configure::read('Perm.is_admin') || $is_coordinator) {
+						} else if ($can_edit) {
 							$class = ' class="unpublished"';
 						}
 ?>

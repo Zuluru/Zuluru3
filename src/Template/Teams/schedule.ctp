@@ -1,4 +1,6 @@
 <?php
+
+use App\Authorization\ContextResource;
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
 use Cake\Routing\Router;
@@ -8,15 +10,20 @@ $this->Html->addCrumb(__('Teams'));
 $this->Html->addCrumb($team->name);
 $this->Html->addCrumb(__('Schedule'));
 
+$annotate = $this->Authorize->can('view_notes', $team);
+$display_attendance = $this->Authorize->can('attendance', $team);
+
 if (!empty($team->division->header)):
 ?>
 <div class="division_header"><?= $team->division->header ?></div>
 <?php
 endif;
 
-$display_spirit = (Configure::read('Perm.is_admin') || $is_coordinator || $team->division->league->display_sotg != 'coordinator_only') &&
-	$team->division->league->hasSpirit();
-$display_gender = $team->display_gender;
+$context = new ContextResource($team->division, ['league' => $team->division->league]);
+$show_spirit = $this->Authorize->can('view_spirit', $context);
+$show_spirit_scores = $show_spirit && $this->Authorize->can('view_spirit_scores', $context);
+
+$display_gender = $this->Authorize->can('display_gender', new ContextResource($team, ['division' => $team->division]));
 ?>
 <div class="teams schedule">
 <h2><?= __('Team Schedule') . ': ' . $team->name ?></h2>
@@ -32,7 +39,7 @@ if (!empty($team['games'])):
 			<th><?= $team->division->schedule_type == 'competition' ? '' : __('Opponent') ?></th>
 			<th><?= __('Score') ?></th>
 <?php
-	if ($display_spirit):
+	if ($show_spirit):
 ?>
 			<th><?= __('Spirit') ?></th>
 <?php
@@ -53,19 +60,19 @@ if (!empty($team['games'])):
 		</tr>
 <?php
 	foreach ($team->games as $game):
-		$is_event = is_a($game, 'App\Model\Entity\TeamEvent');
-
-		if (!$is_event && !($game->published || Configure::read('Perm.is_admin') || $is_coordinator)) {
+		if (!$this->Authorize->can('view', $game)) {
 			continue;
 		}
+
 		$class = null;
+		$is_event = is_a($game, 'App\Model\Entity\TeamEvent');
 		if (!$is_event) {
 			if (!$game->published) {
 				$class = ' class="unpublished"';
 			}
 			GamesTable::adjustEntryIndices($game);
 			$game->readDependencies();
-			if ($display_spirit && !in_array($game->status, Configure::read('unplayed_status')) &&
+			if ($show_spirit && !in_array($game->status, Configure::read('unplayed_status')) &&
 				$game->isFinalized() && array_key_exists($team->id, $game->spirit_entries))
 			{
 				$entry = $game->spirit_entries[$team->id];
@@ -123,14 +130,14 @@ if (!empty($team['games'])):
 			}
 			?></td>
 <?php
-		if ($display_spirit):
+		if ($show_spirit):
 ?>
 			<td><?php
 			if (!$is_event) {
 				echo $this->element('Spirit/symbol', [
 					'spirit_obj' => $spirit_obj,
 					'league' => $team->division->league,
-					'is_coordinator' => $is_coordinator,
+					'show_spirit_scores' => $show_spirit_scores,
 					'entry' => $entry,
 				]);
 			}

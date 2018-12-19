@@ -29,7 +29,7 @@ endif;
 				<dt><?= __('Season') ?></dt>
 				<dd><?= __($division->league->season) ?></dd>
 <?php
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator):
+if ($this->Authorize->can('edit', $division)):
 	if ($division->league->hasSpirit()):
 ?>
 				<dt><?= __('Spirit Questionnaire') ?></dt>

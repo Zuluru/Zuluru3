@@ -1,5 +1,6 @@
 <?php
-use Cake\Core\Configure;
+
+use App\Authorization\ContextResource;
 
 $class = null;
 if (empty($task_slot->person_id)) {
@@ -11,7 +12,7 @@ if (empty($task_slot->person_id)) {
 	<td><?= $this->Time->time($task_slot->task_start) ?></td>
 	<td><?= $this->Time->time($task_slot->task_end) ?></td>
 	<td><?php
-	if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+	if ($this->Authorize->can('assign', new ContextResource($task_slot, ['task' => $task]))) {
 		echo $this->Jquery->ajaxInput("{$task_slot->id}.person_id", [
 			'selector' => 'tr',
 			'url' => ['controller' => 'TaskSlots', 'action' => 'assign', 'slot' => $task_slot->id],
@@ -28,7 +29,7 @@ if (empty($task_slot->person_id)) {
 	} else {
 		echo $this->Html->tag('span',
 			$this->Jquery->ajaxLink(__('Sign up'), [
-				'url' => ['controller' => 'TaskSlots', 'action' => 'assign', 'slot' => $task_slot->id, 'person' => Configure::read('Perm.my_id')],
+				'url' => ['controller' => 'TaskSlots', 'action' => 'assign', 'slot' => $task_slot->id, 'person' => $this->Identity->getId()],
 				// Need to replace the whole row
 				'disposition' => 'replace_closest',
 				'selector' => 'tr',
@@ -40,7 +41,7 @@ if (empty($task_slot->person_id)) {
 	<td><?php
 	if (!empty($task_slot->approved_by_id)) {
 		echo $this->element('People/block', ['person' => $task_slot->approved_by]);
-	} else if ((Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) && $task_slot->person_id) {
+	} else if ($this->Authorize->can('approve', $task_slot)) {
 		echo $this->Html->tag('span',
 			$this->Jquery->ajaxLink(__('Approve'), [
 				'url' => ['controller' => 'TaskSlots', 'action' => 'approve', 'slot' => $task_slot->id],
@@ -58,7 +59,7 @@ if (empty($task_slot->person_id)) {
 	echo $this->Html->iconLink('view_24.png',
 		['controller' => 'TaskSlots', 'action' => 'view', 'slot' => $task_slot->id],
 		['alt' => __('View'), 'title' => __('View')]);
-	if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+	if ($this->Authorize->can('edit', $task_slot)) {
 		echo $this->Html->iconLink('edit_24.png',
 			['controller' => 'TaskSlots', 'action' => 'edit', 'slot' => $task_slot->id],
 			['alt' => __('Edit'), 'title' => __('Edit')]);

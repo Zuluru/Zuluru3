@@ -3,6 +3,7 @@ use Cake\Core\Configure;
 use App\Controller\AppController;
 
 $fp = fopen('php://output','w+');
+$is_manager = $this->Authorize->getIdentity()->isManagerOf($event);
 
 $fields = [
 	__('User ID') => true,
@@ -16,7 +17,7 @@ $fields = [
 	'addr_postalcode' => __('Postal Code'),
 ];
 
-if (Configure::read('Perm.is_manager')) {
+if ($is_manager) {
 	$fields += [
 		'home_phone' => __('Home Phone'),
 		'work_phone' => __('Work Phone'),
@@ -35,7 +36,7 @@ $fields += [
 	'alternate_last_name' => __('Alternate Last Name'),
 ];
 
-if (Configure::read('Perm.is_manager')) {
+if ($is_manager) {
 	$fields += [
 		'alternate_work_phone' => __('Alternate Work Phone'),
 		'alternate_work_ext' => __('Alternate Work Ext'),
@@ -50,7 +51,7 @@ $fields += [
 	__('Payment Status') => true,
 ];
 
-if (Configure::read('Perm.is_manager')) {
+if ($is_manager) {
 	$fields += [
 		__('Total Amount') => true,
 		__('Amount Paid') => true,
@@ -78,7 +79,7 @@ foreach ($event->questionnaire->questions as $question) {
 	}
 }
 
-list($header1, $header2, $player_fields, $contact_fields) = \App\Lib\csvFields($registrations->extract('person'), $fields, Configure::read('Perm.is_manager'));
+list($header1, $header2, $player_fields, $contact_fields) = \App\Lib\csvFields($registrations->extract('person'), $fields, $is_manager);
 if (!empty($header1)) {
 	fputcsv($fp, $header1);
 }

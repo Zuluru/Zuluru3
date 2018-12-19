@@ -1,16 +1,13 @@
 <?php
 namespace App\Controller;
 
+use App\Authorization\ContextResource;
+use App\Model\Entity\EventsConnection;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\I18n\FrozenDate;
-use Cake\Network\Exception\MethodNotAllowedException;
-use Cake\ORM\Entity;
 use Cake\ORM\Query;
-use Cake\ORM\TableRegistry;
-use App\Model\Entity\EventsConnection;
-use App\Model\Traits\CanRegister;
 
 /**
  * Events Controller
@@ -19,100 +16,35 @@ use App\Model\Traits\CanRegister;
  */
 class EventsController extends AppController {
 
-	use CanRegister;
-
 	/**
-	 * _publicActions method
+	 * _noAuthenticationActions method
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
+	 * @throws \Cake\Http\Exception\MethodNotAllowedException if registration is not enabled
 	 */
-	protected function _publicActions() {
+	protected function _noAuthenticationActions() {
 		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
-		if (Configure::read('Perm.is_manager')) {
-			// If an event id is specified, check if we're a manager of that event's affiliate
-			$event = $this->request->getQuery('event');
-			if ($event) {
-				if (!in_array($this->Events->affiliate($event), $this->UserCache->read('ManagedAffiliateIDs'))) {
-					Configure::write('Perm.is_manager', false);
-				}
-			}
+			return [];
 		}
 
 		return ['index', 'view', 'wizard'];
 	}
 
-	/**
-	 * isAuthorized method
-	 *
-	 * @return bool true if access allowed
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
-	 */
-	public function isAuthorized() {
-		try {
-			if ($this->UserCache->read('Person.status') == 'locked') {
-				return false;
-			}
-
-			if (!Configure::read('feature.registration')) {
-				throw new MethodNotAllowedException('Registration is not enabled on this system.');
-			}
-
-			if (Configure::read('Perm.is_manager')) {
-				// Managers can perform these operations
-				if (in_array($this->request->getParam('action'), [
-					'add',
-					'add_price',
-					'event_type_fields',
-				])) {
-					return true;
-				}
-
-				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->getParam('action'), [
-					'edit',
-					'connections',
-					'delete',
-				])) {
-					// If an event id is specified, check if we're a manager of that event's affiliate
-					$event = $this->request->getQuery('event');
-					if ($event) {
-						if (in_array($this->Events->affiliate($event), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-				}
-			}
-		} catch (RecordNotFoundException $ex) {
-		} catch (InvalidPrimaryKeyException $ex) {
-		}
-
-		return false;
-	}
-
 	// TODO: Eliminate this if we can find a way around black-holing caused by Ajax field adds
 	public function beforeFilter(\Cake\Event\Event $event) {
 		parent::beforeFilter($event);
-		$this->Security->config('unlockedActions', ['add', 'edit']);
+		if (isset($this->Security)) {
+			$this->Security->config('unlockedActions', ['add', 'edit']);
+		}
 	}
 
 	/**
 	 * Index method
 	 *
 	 * @return void|\Cake\Network\Response
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
 	 */
 	public function index() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
-		if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+		if ($this->Authorization->can(\App\Controller\EventsController::class, 'add')) {
 			$year = $this->request->getQuery('year');
 			if ($year) {
 				$conditions = ['OR' => [
@@ -140,7 +72,7 @@ class EventsController extends AppController {
 			];
 		}
 
-		$affiliates = $this->_applicableAffiliateIDs();
+		$affiliates = $this->Authentication->applicableAffiliateIDs();
 
 		// Find any preregistrations
 		$prereg = $this->UserCache->read('Preregistrations');
@@ -181,15 +113,8 @@ class EventsController extends AppController {
 	}
 
 	public function wizard($step = null) {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
+		$this->Authorization->authorize($this);
 		$this->Events->Registrations->expireReservations();
-
-		if (!Configure::read('Perm.is_logged_in')) {
-			return $this->redirect(['action' => 'index']);
-		}
 		$id = $this->UserCache->currentId();
 
 		// Check whether this user is considered new or inactive for the purposes of registration
@@ -218,7 +143,7 @@ class EventsController extends AppController {
 
 		// Find all the events that are potentially available
 		// TODO: Eliminate the events that don't match the step, if any
-		$affiliates = $this->_applicableAffiliateIDs();
+		$affiliates = $this->Authentication->applicableAffiliateIDs();
 
 		$conditions = [
 			'Events.open <' => FrozenDate::now()->addDays(30),
@@ -256,8 +181,7 @@ class EventsController extends AppController {
 
 		// Prune out the events that are not possible
 		foreach ($events as $key => $event) {
-			list($notices, $allowed, $redirect) = $this->canRegister($id, $event, null, ['strict' => false, 'waiting' => true]);
-			if (!$allowed) {
+			if (!$this->Authorization->can(new ContextResource($event, ['person_id' => $id, 'strict' => false, 'waiting' => true]), 'register')) {
 				unset($events[$key]);
 			}
 		}
@@ -269,17 +193,12 @@ class EventsController extends AppController {
 	 * View method
 	 *
 	 * @return void|\Cake\Network\Response
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
 	 */
 	public function view() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
 		$this->Events->Registrations->expireReservations();
 
 		$id = $this->request->getQuery('event');
-		if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+		if ($this->Authorization->can($this, 'add')) {
 			// Admins and managers see things that have recently closed, or open far in the future
 			$close = FrozenDate::now()->subDays(30);
 			$open = FrozenDate::now()->addDays(180);
@@ -346,12 +265,13 @@ class EventsController extends AppController {
 			ksort ($times);
 		}
 
-		if (Configure::read('Perm.is_logged_in')) {
-			list($notices, $allowed, $redirect) = $this->canRegister($this->UserCache->currentId(), $event, null, ['all_rules' => true]);
-			$this->set(compact('notices', 'allowed'));
+		if ($this->Authentication->getIdentity()->isLoggedIn()) {
+			$context = new ContextResource($event, ['all_rules' => true]);
+			$allowed = $this->Authorization->can($context, 'register');
+			$this->set(['notices' => $context->notices ?: [], 'allowed' => $allowed]);
 		}
 
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		$this->set(compact('id', 'event', 'facilities', 'times', 'affiliates'));
 	}
 
@@ -359,14 +279,11 @@ class EventsController extends AppController {
 	 * Add method
 	 *
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
 	 */
 	public function add() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
+		$this->Authorization->authorize($this);
 		$event = $this->Events->newEntity();
+
 		if ($this->request->is('post')) {
 			// Validation requires this information
 			if (!empty($this->request->data['event_type_id'])) {
@@ -386,7 +303,7 @@ class EventsController extends AppController {
 		} else if ($this->request->getQuery('event')) {
 			// To clone an event, read the old one and remove the id
 			try {
-				$event = $this->Events->cloneWithoutIds($this->request->getQuery('event'), [
+				$event = $this->Events->get($this->request->getQuery('event'), [
 					'contain' => [
 						'EventTypes',
 						'Prices' => [
@@ -396,6 +313,9 @@ class EventsController extends AppController {
 						],
 					],
 				]);
+
+				$this->Authorization->authorize($event, 'edit');
+				$event = $this->Events->cloneWithoutIds($event);
 			} catch (RecordNotFoundException $ex) {
 				$this->Flash->info(__('Invalid event.'));
 				return $this->redirect(['controller' => 'Events', 'action' => 'index']);
@@ -405,7 +325,7 @@ class EventsController extends AppController {
 			}
 		}
 
-		$affiliates = $this->_applicableAffiliates(true);
+		$affiliates = $this->Authentication->applicableAffiliates(true);
 		$this->set('eventTypes', $this->Events->EventTypes->find('list'));
 		$this->set('questionnaires', $this->Events->Questionnaires->find('list', [
 			'conditions' => [
@@ -427,13 +347,8 @@ class EventsController extends AppController {
 	 * Edit method
 	 *
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
 	 */
 	public function edit() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
 		$id = $this->request->getQuery('event');
 		try {
 			$event = $this->Events->get($id, [
@@ -454,6 +369,8 @@ class EventsController extends AppController {
 			$this->Flash->info(__('Invalid event.'));
 			return $this->redirect(['action' => 'index']);
 		}
+
+		$this->Authorization->authorize($event);
 		$this->Configuration->loadAffiliate($event->affiliate_id);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
@@ -473,7 +390,7 @@ class EventsController extends AppController {
 			}
 		}
 
-		$affiliates = $this->_applicableAffiliates(true);
+		$affiliates = $this->Authentication->applicableAffiliates(true);
 		$this->set('eventTypes', $this->Events->EventTypes->find('list'));
 		$this->set('questionnaires', $this->Events->Questionnaires->find('list', ['conditions' => [
 			'Questionnaires.active' => true,
@@ -485,30 +402,24 @@ class EventsController extends AppController {
 	}
 
 	public function event_type_fields() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
+		// TODO: Change this to authorize on the event_type, in case we make them affiliate-specific
+		$this->Authorization->authorize($this);
 
-		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
 		$type = $this->Events->EventTypes->field('type', ['id' => $this->request->data['event_type_id']]);
 		$this->set('event_obj', $this->moduleRegistry->load("EventType:{$type}"));
-		$this->set('affiliates', $this->_applicableAffiliates(true));
+		$this->set('affiliates', $this->Authentication->applicableAffiliates(true));
 	}
 
 	/**
 	 * Add price function
 	 *
 	 * @return void Renders view, just an empty price point block with a random index.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
 	 */
 	public function add_price() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
+		$this->Authorization->authorize($this);
 
-		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 		$event = $this->Events->newEntity();
 		$this->set(compact('event'));
@@ -518,22 +429,11 @@ class EventsController extends AppController {
 	 * Delete method
 	 *
 	 * @return void|\Cake\Network\Response Redirects to index.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
 	 */
 	public function delete() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
 		$this->request->allowMethod(['post', 'delete']);
 
 		$id = $this->request->getQuery('event');
-		$dependencies = $this->Events->dependencies($id, ['Prices', 'Predecessor', 'Successor', 'Alternate', 'PredecessorTo', 'SuccessorTo', 'AlternateTo']);
-		if ($dependencies !== false) {
-			$this->Flash->warning(__('The following records reference this event, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
-			return $this->redirect(['action'=>'index']);
-		}
-
 		try {
 			$event = $this->Events->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -542,6 +442,14 @@ class EventsController extends AppController {
 		} catch (InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid event.'));
 			return $this->redirect(['action' => 'index']);
+		}
+
+		$this->Authorization->authorize($event, 'edit');
+
+		$dependencies = $this->Events->dependencies($id, ['Prices', 'Predecessor', 'Successor', 'Alternate', 'PredecessorTo', 'SuccessorTo', 'AlternateTo']);
+		if ($dependencies !== false) {
+			$this->Flash->warning(__('The following records reference this event, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
+			return $this->redirect(['action'=>'index']);
 		}
 
 		if ($this->Events->delete($event)) {
@@ -555,10 +463,6 @@ class EventsController extends AppController {
 	}
 
 	public function connections() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
 		$id = $this->request->getQuery('event');
 		try {
 			$event = $this->Events->get($id, [
@@ -569,6 +473,7 @@ class EventsController extends AppController {
 					'PredecessorTo',
 					'SuccessorTo',
 					'AlternateTo',
+					'Divisions',
 				],
 			]);
 		} catch (RecordNotFoundException $ex) {
@@ -579,6 +484,7 @@ class EventsController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		}
 
+		$this->Authorization->authorize($event, 'edit');
 		$this->Configuration->loadAffiliate($event->affiliate_id);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {

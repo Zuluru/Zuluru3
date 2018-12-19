@@ -1,6 +1,7 @@
 <?php
 namespace App\Model\Table;
 
+use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
 use App\Model\Rule\InConfigRule;
@@ -75,6 +76,22 @@ class IncidentsTable extends AppTable {
 		]);
 
 		return $rules;
+	}
+
+	public function division($id) {
+		try {
+			return $this->Games->division($this->field('game_id', ['id' => $id]));
+		} catch (RecordNotFoundException $ex) {
+			return null;
+		}
+	}
+
+	public function team($id) {
+		try {
+			return $this->field('team_id', ['id' => $id]);
+		} catch (RecordNotFoundException $ex) {
+			return null;
+		}
 	}
 
 }

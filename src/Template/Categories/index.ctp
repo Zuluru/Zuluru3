@@ -1,6 +1,4 @@
 <?php
-use Cake\Core\Configure;
-
 $this->Html->addCrumb(__('Categories'));
 $this->Html->addCrumb(__('List'));
 ?>
@@ -54,7 +52,7 @@ endforeach;
 	</div>
 </div>
 <?php
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
+if ($this->Authorize->can('add', \App\Controller\CategoriesController::class)):
 ?>
 <div class="actions columns">
 	<ul class="nav nav-pills">

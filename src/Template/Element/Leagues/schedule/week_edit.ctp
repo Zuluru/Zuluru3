@@ -11,7 +11,6 @@ if (isset($division)) {
 	$double_booking = $division->double_booking;
 	$id = $division->id;
 	$id_field = 'division';
-	$my_divisions = [];
 	$teams = collection($division->teams)->combine('id', function (Team $team) { return Text::truncate($team->name, 16); })->toArray();
 	natcasesort($teams);
 	$only_some_divisions = false;
@@ -22,10 +21,9 @@ if (isset($division)) {
 	$id = $league->id;
 	$id_field = 'league';
 
-	$my_divisions = $this->UserCache->read('DivisionIDs');
 	$teams = [];
 	foreach ($league->divisions as $league_division) {
-		if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || in_array($league_division->id, $my_divisions)) {
+		if ($this->Authorize->can('edit', $league_division)) {
 			$teams[$league_division->name] = collection($league_division->teams)->combine('id', function (Team $team) { return Text::truncate($team->name, 16); })->toArray();
 			if (empty($teams[$league_division->name])) {
 				unset($teams[$league_division->name]);
@@ -68,16 +66,17 @@ $is_season = $is_tournament = $editing_tournament = $has_dependent_games = false
 $season_divisions = [];
 foreach ($games as $game) {
 	if ($game->game_slot->game_date->between($week[0], $week[1])) {
+		$can_edit = $this->Authorize->can('edit', $game);
 		if ($game->type != SEASON_GAME) {
 			$is_tournament = true;
-			if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || in_array($game->division_id, $my_divisions)) {
+			if ($can_edit) {
 				$editing_tournament = true;
 			}
 		} else {
 			$is_season = true;
 			$season_divisions[$game->division_id] = true;
 		}
-		if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || in_array($game->division_id, $my_divisions)) {
+		if ($can_edit) {
 			$finalized &= $game->isFinalized();
 			$has_dependent_games |= (!empty($game->home_pool_team->dependency_type) || !empty($game->away_pool_team->dependency_type));
 		}
@@ -114,7 +113,7 @@ foreach ($games as $game):
 
 	$same_date = ($game->game_slot->game_date === $last_date);
 	$same_slot = ($game->game_slot->id === $last_slot);
-	if (!Configure::read('Perm.is_admin') && !Configure::read('Perm.is_manager') && !in_array($game->division_id, $this->UserCache->read('DivisionIDs'))) {
+	if (!$this->Authorize->can('edit', $game)) {
 		if ($game->published) {
 			echo $this->element('Leagues/schedule/game_view', compact('game', 'competition', 'is_tournament', 'multi_day', 'same_date', 'same_slot'));
 			$last_date = $game->game_slot->game_date;

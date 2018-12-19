@@ -14,7 +14,7 @@ if (isset($id)) {
 	} else {
 		$teams = $this->UserCache->read('Teams', $id);
 
-		if ($id == Configure::read('Perm.my_id')) {
+		if ($id == $this->Identity->getId()) {
 			$divisions = $this->UserCache->read('Divisions', $id);
 		} else {
 			// The current user has this notice above the tab structure

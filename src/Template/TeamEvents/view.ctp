@@ -1,4 +1,6 @@
 <?php
+
+use App\Authorization\ContextResource;
 use App\Controller\AppController;
 use Cake\Core\Configure;
 
@@ -7,7 +9,7 @@ $this->Html->addCrumb(h($team_event->team->name));
 $this->Html->addCrumb(h($team_event->name));
 $this->Html->addCrumb(__('View'));
 
-$display_gender = $team_event->team->display_gender;
+$display_gender = $this->Authorize->can('display_gender', new ContextResource($team_event->team, ['division' => $team_event->team->division]));
 ?>
 
 <div class="team_events view">
@@ -89,7 +91,7 @@ endif;
 </div>
 
 <?php
-if ($is_captain):
+if ($this->Authorize->can('edit', $team_event)):
 ?>
 <div class="actions columns">
 	<ul class="nav nav-pills">
@@ -135,7 +137,6 @@ endif;
 foreach ($team_event->team->people as $person):
 	$record = collection($attendance)->firstMatch(['person_id' => $person->id]);
 	if (!empty($record)):
-		$status = $record->status;
 ?>
 					<tr>
 						<td><?= $this->element('People/block', compact('person')) ?></td>
@@ -151,11 +152,10 @@ endif;
 							$this->element('TeamEvents/attendance_change', [
 								'team' => $team_event->team,
 								'event_id' => $team_event->id,
-								'event_time' => $team_event->start_time,
+								'event' => $team_event,
 								'person_id' => $person->id,
 								'role' => $person->_joinData->role,
-								'status' => $status,
-								'comment' => $record->comment,
+								'attendance' => $record,
 								'dedicated' => true,
 							])
 						?></td>

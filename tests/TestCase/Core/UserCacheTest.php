@@ -23,7 +23,7 @@ class UserCacheTest extends IntegrationTestCase {
 	 */
 	public function setUp() {
 		parent::setUp();
-		$this->session(['Auth.User.id' => 1]);
+		$this->session(['Auth.id' => 1]);
 		$this->UserCache = UserCache::getInstance();
 	}
 

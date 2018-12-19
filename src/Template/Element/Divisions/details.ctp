@@ -12,7 +12,7 @@ if (!empty($people)):
 $coordinators = [];
 foreach ($people as $person) {
 	$coordinator = $this->element('People/block', compact('person'));
-	if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+	if ($this->Authorize->can('remove_coordinator', $division)) {
 		$coordinator .= '&nbsp;' .
 			$this->Html->tag('span',
 				$this->Form->iconPostLink('coordinator_delete_24.png',
@@ -81,7 +81,7 @@ if (!empty($division->ratio_rule)):
 <?php
 endif;
 
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
+if ($this->Authorize->can('edit', $division)):
 ?>
 <dt><?= __('Roster Rule') ?></dt>
 <dd><?= $this->Html->tag('pre', $division->roster_rule . '&nbsp;') ?></dd>
@@ -96,7 +96,7 @@ endif;
 	echo '&nbsp;' . $this->Html->help(['action' => 'divisions', 'edit', 'schedule_type', $division->schedule_type]);
 ?></dd>
 <?php
-$fields = $league_obj->schedulingFields(Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager'), $is_coordinator);
+$fields = $league_obj->schedulingFields($this->Authorize->can('scheduling_fields', \App\Controller\DivisionsController::class));
 foreach ($fields as $field => $options):
 ?>
 <dt><?= __($options['label']) ?></dt>
@@ -113,7 +113,7 @@ endforeach;
 	echo '&nbsp;' . $this->Html->help(['action' => 'divisions', 'edit', 'rating_calculator', $division->rating_calculator]);
 ?></dd>
 <?php
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator):
+if ($this->Authorize->can('edit', $division)):
 ?>
 <dt><?= __('Exclude Teams') ?></dt>
 <dd><?php

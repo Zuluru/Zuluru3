@@ -1,4 +1,6 @@
 <?php
+
+use App\Authorization\ContextResource;
 use Cake\Core\Configure;
 use Cake\I18n\FrozenTime;
 use Cake\Utility\Text;
@@ -101,12 +103,10 @@ foreach ($attendance->people as $person):
 				++$count[$status][$key][$person->$column];
 				$out = $this->element('Games/attendance_change', [
 					'team' => $team,
-					'game_id' => $record->game_id,
-					'game_time' => $item->game_slot->start_time,
+					'game' => $item,
 					'person_id' => $person->id,
 					'role' => $person->_joinData->role,
-					'status' => $status,
-					'comment' => $record->comment,
+					'attendance' => $record,
 					'dedicated' => true,
 				]);
 			}
@@ -121,11 +121,10 @@ foreach ($attendance->people as $person):
 				$out = $this->element('TeamEvents/attendance_change', [
 					'team' => $team,
 					'event_id' => $item->id,
-					'event_time' => $item->start_time,
+					'event' => $item,
 					'person_id' => $person->id,
 					'role' => $person->_joinData->role,
-					'status' => $status,
-					'comment' => $record->comment,
+					'attendance' => $record,
 					'dedicated' => true,
 				]);
 			}
@@ -145,7 +144,7 @@ endforeach;
 
 				<?= $this->Html->tableHeaders($header_cells) ?>
 <?php
-if ($team->display_gender):
+if ($this->Authorize->can('display_gender', new ContextResource($team, ['division' => $team->division]))):
 	foreach ($statuses as $status => $description):
 		$counts = [];
 		foreach (array_keys($all_items) as $key) {

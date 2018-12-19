@@ -2,10 +2,9 @@
 /**
  * @type \App\Model\Entity\Person $person
  * @type \App\Model\Entity\Upload $photo
- * @type boolean $is_me
- * @type boolean $is_relative
  */
 
+use App\Authorization\ContextResource;
 use App\Controller\AppController;
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
@@ -27,6 +26,7 @@ $this->Html->addCrumb(__('View'));
 $has_visible_contact = false;
 $visible_properties = $person->visibleProperties();
 $is_player = collection($person->groups)->some(function ($group) { return $group->id == GROUP_PLAYER; });
+$identity = $this->Authorize->getIdentity();
 ?>
 	<dl class="dl-horizontal">
 <?php
@@ -40,7 +40,7 @@ if ($person->user_id):
 
 	if (in_array('user_id', $visible_properties)):
 ?>
-		<dt><?= __('{0} User Id', Configure::read('feature.manage_name')) ?></dt>
+		<dt><?= __('{0} User Id', Configure::read('feature.authenticate_through')) ?></dt>
 		<dd><?= $person->user_id ?></dd>
 <?php
 	endif;
@@ -312,21 +312,25 @@ endif;
 <div class="actions columns">
 	<ul class="nav nav-pills">
 <?php
-if (Configure::read('Perm.is_logged_in') && $has_visible_contact) {
+if ($this->Authorize->can('vcf', $person) && $has_visible_contact) {
 	echo $this->Html->tag('li', $this->Html->link(__('VCF'), ['action' => 'vcf', 'person' => $person->id]));
 }
-if (Configure::read('Perm.is_logged_in') && Configure::read('feature.annotations')) {
+if ($this->Authorize->can('note', $person)) {
 	echo $this->Html->tag('li', $this->Html->link(__('Add Note'), ['action' => 'note', 'person' => $person->id]));
 }
-if ($is_me || $is_relative || Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+if ($this->Authorize->can('edit', $person)) {
 	echo $this->Html->tag('li', $this->Html->iconLink('edit_24.png', ['action' => 'edit', 'person' => $person->id, 'return' => AppController::_return()], ['alt' => __('Edit Profile'), 'title' => __('Edit Profile')]));
-	echo $this->Html->tag('li', $this->Html->link(__('Edit Preferences'), ['action' => 'preferences', 'person' => $person->id]));
-	if (!empty($person->user_id)) {
-		echo $this->Html->tag('li', $this->Html->link(__('Change Password'), ['controller' => 'Users', 'action' => 'change_password', 'user' => $person->user_id]));
-	}
 }
-if ($is_relative || Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+if ($this->Authorize->can('preferences', $person)) {
+	echo $this->Html->tag('li', $this->Html->link(__('Edit Preferences'), ['action' => 'preferences', 'person' => $person->id]));
+}
+if ($person->user && $this->Authorize->can('change_password', $person->user)) {
+	echo $this->Html->tag('li', $this->Html->link(__('Change Password'), ['controller' => 'Users', 'action' => 'change_password', 'user' => $person->user_id]));
+}
+if ($this->Authorize->can('act_as', $person)) {
 	echo $this->Html->tag('li', $this->Html->link(__('Act As'), ['controller' => 'People', 'action' => 'act_as', 'person' => $person->id]));
+}
+if ($this->Authorize->can('delete', $person)) {
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_24.png', ['action' => 'delete', 'person' => $person->id], ['alt' => __('Delete Player'), 'title' => __('Delete Player')], ['confirm' => __('Are you sure you want to delete this person?')]));
 }
 ?>
@@ -361,15 +365,13 @@ if (!empty($person->notes)):
 					<td><?= $note->note ?></td>
 					<td><?= __(Configure::read("visibility.{$note->visibility}")) ?></td>
 					<td class="actions"><?php
-						if ($note->created_person_id == Configure::read('Perm.my_id')) {
+						if ($this->Authorize->can('edit_person', $note)) {
 							echo $this->Html->iconLink('edit_24.png',
 								['action' => 'note', 'note' => $note->id],
 								['alt' => __('Edit Note'), 'title' => __('Edit Note')]
 							);
 						}
-						// Admins are the only ones that can see those notes (loaded or not based on
-						// conditions in the controller), and they can delete them too.
-						if ($note->created_person_id == Configure::read('Perm.my_id') || $note->visibility == VISIBILITY_ADMIN) {
+						if ($this->Authorize->can('delete_person', $note)) {
 							echo $this->Form->iconPostLink('delete_24.png',
 								['action' => 'delete_note', 'note' => $note->id],
 								['alt' => __('Delete Note'), 'title' => __('Delete Note')],
@@ -532,7 +534,7 @@ if ((in_array('relatives', $visible_properties)) && (!empty($person->relatives) 
 				<tr>
 					<td><?php
 						$block = $this->element('People/block', ['person' => $relative]);
-						echo $is_me ? __('You can control {0}', $block) : __('{0} can control {1}', $person->first_name, $block);
+						echo ($identity && $identity->isMe($person)) ? __('You can control {0}', $block) : __('{0} can control {1}', $person->first_name, $block);
 					?></td>
 					<td><?= $relative->_joinData->approved ? __('Yes') : __('No') ?></td>
 					<td class="actions"><?php
@@ -553,13 +555,12 @@ if ((in_array('relatives', $visible_properties)) && (!empty($person->relatives) 
 			<tr>
 				<td><?php
 					$block = $this->element('People/block', ['person' => $relative]);
-					echo $is_me ? __('{0} can control you', $block) : __('{0} can control {1}', $block, $person->first_name);
+					echo ($identity && $identity->isMe($person)) ? __('{0} can control you', $block) : __('{0} can control {1}', $block, $person->first_name);
 				?></td>
 				<td><?= $relative->_joinData->approved ? __('Yes') : __('No') ?></td>
 				<td class="actions"><?php
 				echo $this->Html->iconLink('view_24.png', ['controller' => 'People', 'action' => 'view', 'person' => $relative->id]);
-				// Only full users can remove relations
-				if (!empty($person->user_id)) {
+				if ($this->Authorize->can('remove_relative', new ContextResource($person, ['relation' => $relative]))) {
 					echo $this->Form->iconPostLink('delete_24.png',
 						['controller' => 'People', 'action' => 'remove_relative', 'person' => $relative->id, 'relative' => $person->id],
 						['alt' => __('Remove'), 'title' => __('Remove Relation')],
@@ -580,7 +581,7 @@ if ((in_array('relatives', $visible_properties)) && (!empty($person->relatives) 
 	</div>
 
 <?php
-	if ($is_me):
+	if ($this->Authorize->can('link_relative', $person)):
 ?>
 	<div class="actions columns">
 		<ul class="nav nav-pills">
@@ -684,7 +685,7 @@ if (in_array('allstars', $visible_properties) && !empty($person->allstars)):
 <?php
 endif;
 
-if (in_array('preregistrations', $visible_properties) || (($is_me || $is_relative) && !empty($person->preregistrations))):
+if (in_array('preregistrations', $visible_properties) || (!empty($person->preregistrations) && $this->Authorize->can('delete', current($person->preregistrations)))):
 ?>
 <div class="related">
 	<h3><?= __('Preregistrations') ?></h3>
@@ -722,7 +723,7 @@ if (in_array('preregistrations', $visible_properties) || (($is_me || $is_relativ
 <?php
 	endif;
 
-	if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
+	if ($this->Authorize->can('add', \App\Controller\PreregistrationsController::class)):
 ?>
 	<div class="actions columns">
 		<ul class="nav nav-pills">
@@ -915,12 +916,10 @@ if (in_array('uploads', $visible_properties)):
 ?>
 					<td class="actions"><?php
 						echo $this->Html->link(__('View'), ['action' => 'document', 'document' => $upload->id], ['target' => 'preview']);
-						if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
-							if ($upload->approved) {
-								echo $this->Html->link(__('Edit'), ['action' => 'edit_document', 'document' => $upload->id, 'return' => AppController::_return()]);
-							} else {
-								echo $this->Html->link(__('Approve'), ['action' => 'approve_document', 'document' => $upload->id, 'return' => AppController::_return()]);
-							}
+						if ($upload->approved && $this->Authorize->can('edit_document', $upload)) {
+							echo $this->Html->link(__('Edit'), ['action' => 'edit_document', 'document' => $upload->id, 'return' => AppController::_return()]);
+						} else if (!$upload->approved && $this->Authorize->can('approve_document', $upload)) {
+							echo $this->Html->link(__('Approve'), ['action' => 'approve_document', 'document' => $upload->id, 'return' => AppController::_return()]);
 						}
 
 						echo $this->Jquery->ajaxLink($this->Html->iconImg('delete_24.png', ['alt' => __('Delete'), 'title' => __('Delete')]), [

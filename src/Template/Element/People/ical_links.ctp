@@ -2,7 +2,8 @@
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 
-if (Configure::read('Perm.is_official') || Configure::read('Perm.is_volunteer') || Configure::read('Perm.is_player') || Configure::read('Perm.is_coach')):
+$identity = $this->Authorize->getIdentity();
+if ($identity->isOfficial() || $identity->isVolunteer() || $identity->isPlayer() || $identity->isCoach()):
 ?>
 <p><?php
 	if (Configure::read('personal.enable_ical')) {

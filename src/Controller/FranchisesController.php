@@ -1,10 +1,11 @@
 <?php
 namespace App\Controller;
 
+use App\Authorization\ContextResource;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Network\Exception\MethodNotAllowedException;
+use Cake\Http\Exception\MethodNotAllowedException;
 use Cake\ORM\Query;
 
 /**
@@ -15,110 +16,27 @@ use Cake\ORM\Query;
 class FranchisesController extends AppController {
 
 	/**
-	 * _publicActions method
+	 * _noAuthenticationActions method
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if franchises are not enabled
+	 * @throws \Cake\Http\Exception\MethodNotAllowedException if franchises are not enabled
 	 */
-	protected function _publicActions() {
+	protected function _noAuthenticationActions() {
 		if (!Configure::read('feature.franchises')) {
-			throw new MethodNotAllowedException('Franchises are not enabled on this system.');
-		}
-
-		if (Configure::read('Perm.is_manager')) {
-			// If a franchise id is specified, check if we're a manager of that franchise's affiliate
-			$franchise = $this->request->getQuery('franchise');
-			if ($franchise) {
-				if (!in_array($this->Franchises->affiliate($franchise), $this->UserCache->read('ManagedAffiliateIDs'))) {
-					Configure::write('Perm.is_manager', false);
-				}
-			}
+			return [];
 		}
 
 		return ['index', 'letter', 'view'];
 	}
 
 	/**
-	 * isAuthorized method
-	 *
-	 * @return bool true if access allowed
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if franchises are not enabled
-	 */
-	public function isAuthorized() {
-		try {
-			if ($this->UserCache->read('Person.status') == 'locked') {
-				return false;
-			}
-
-			if (!Configure::read('feature.franchises')) {
-				throw new MethodNotAllowedException('Franchises are not enabled on this system.');
-			}
-
-			// People can perform these operations on franchises they run
-			if (in_array($this->request->getParam('action'), [
-				'edit',
-				'delete',
-				'add_owner',
-				'remove_team',
-				'remove_owner',
-			])) {
-				// If a franchise id is specified, check if we're the owner of that franchise
-				$franchise = $this->request->getQuery('franchise');
-				if ($franchise && in_array($franchise, $this->UserCache->read('FranchiseIDs'))) {
-					return true;
-				}
-
-				// Managers can perform these operations in affiliates they manage
-				if ($franchise && Configure::read('Perm.is_manager')) {
-					if (in_array($this->Franchises->affiliate($franchise), $this->UserCache->read('ManagedAffiliateIDs'))) {
-						return true;
-					} else {
-						Configure::write('Perm.is_manager', false);
-					}
-				}
-			}
-
-			// Anyone that's logged in can perform these operations
-			if (in_array($this->request->getParam('action'), [
-				'add',
-			])) {
-				return true;
-			}
-
-			// People can perform these operations on teams they run
-			if (in_array($this->request->getParam('action'), [
-				'add_team',
-			])) {
-				// If a franchise id is specified, check if we're an owner of that franchise
-				$franchise = $this->request->getQuery('franchise');
-				if ($franchise && in_array($franchise, $this->UserCache->read('FranchiseIDs'))) {
-					// If no team id is specified, or if we're the owner of the specified team, we can proceed
-					$team = $this->request->getQuery('team');
-					if (!$team || in_array($team, $this->UserCache->read('AllOwnedTeamIDs'))) {
-						return true;
-					}
-				}
-			}
-		} catch (RecordNotFoundException $ex) {
-		} catch (InvalidPrimaryKeyException $ex) {
-		}
-
-		return false;
-	}
-
-	/**
 	 * Index method
 	 *
 	 * @return void|\Cake\Network\Response
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if franchises are not enabled
 	 */
 	public function index() {
-		if (!Configure::read('feature.franchises')) {
-			throw new MethodNotAllowedException('Franchises are not enabled on this system.');
-		}
-
 		$affiliate = $this->request->getQuery('affiliate');
-		$affiliates = $this->_applicableAffiliateIDs();
+		$affiliates = $this->Authentication->applicableAffiliateIDs();
 		$this->set(compact('affiliates', 'affiliate'));
 
 		$this->paginate = [
@@ -144,10 +62,6 @@ class FranchisesController extends AppController {
 	}
 
 	public function letter() {
-		if (!Configure::read('feature.franchises')) {
-			throw new MethodNotAllowedException('Franchises are not enabled on this system.');
-		}
-
 		$letter = strtoupper($this->request->getQuery('letter'));
 		if (!$letter) {
 			$this->Flash->info(__('Invalid letter.'));
@@ -155,7 +69,7 @@ class FranchisesController extends AppController {
 		}
 
 		$affiliate = $this->request->getQuery('affiliate');
-		$affiliates = $this->_applicableAffiliateIDs();
+		$affiliates = $this->Authentication->applicableAffiliateIDs();
 		$this->set(compact('letter', 'affiliates', 'affiliate'));
 
 		$franchises = $this->Franchises->find()
@@ -183,13 +97,8 @@ class FranchisesController extends AppController {
 	 * View method
 	 *
 	 * @return void|\Cake\Network\Response
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if franchises are not enabled
 	 */
 	public function view() {
-		if (!Configure::read('feature.franchises')) {
-			throw new MethodNotAllowedException('Franchises are not enabled on this system.');
-		}
-
 		$id = $this->request->getQuery('franchise');
 		try {
 			$franchise = $this->Franchises->get($id, [
@@ -208,7 +117,7 @@ class FranchisesController extends AppController {
 		}
 		$this->Configuration->loadAffiliate($franchise->affiliate_id);
 
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		$this->set(compact('franchise', 'affiliates'));
 	}
 
@@ -216,12 +125,9 @@ class FranchisesController extends AppController {
 	 * Add method
 	 *
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if franchises are not enabled
 	 */
 	public function add() {
-		if (!Configure::read('feature.franchises')) {
-			throw new MethodNotAllowedException('Franchises are not enabled on this system.');
-		}
+		$this->Authorization->authorize($this);
 
 		$franchise = $this->Franchises->newEntity();
 		if ($this->request->is('post')) {
@@ -236,7 +142,7 @@ class FranchisesController extends AppController {
 			}
 		}
 		$this->set(compact('franchise'));
-		$this->set('affiliates', $this->_applicableAffiliates(true));
+		$this->set('affiliates', $this->Authentication->applicableAffiliates(true));
 		$this->render('edit');
 	}
 
@@ -244,13 +150,8 @@ class FranchisesController extends AppController {
 	 * Edit method
 	 *
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if franchises are not enabled
 	 */
 	public function edit() {
-		if (!Configure::read('feature.franchises')) {
-			throw new MethodNotAllowedException('Franchises are not enabled on this system.');
-		}
-
 		$id = $this->request->getQuery('franchise');
 		try {
 			$franchise = $this->Franchises->get($id, [
@@ -263,6 +164,8 @@ class FranchisesController extends AppController {
 			$this->Flash->info(__('Invalid franchise.'));
 			return $this->redirect(['action' => 'index']);
 		}
+
+		$this->Authorization->authorize($franchise);
 		$this->Configuration->loadAffiliate($franchise->affiliate_id);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
@@ -275,7 +178,7 @@ class FranchisesController extends AppController {
 			}
 		}
 
-		$affiliates = $this->_applicableAffiliates(true);
+		$affiliates = $this->Authentication->applicableAffiliates(true);
 		$this->set(compact('franchise', 'affiliates', 'people', 'teams'));
 	}
 
@@ -283,22 +186,11 @@ class FranchisesController extends AppController {
 	 * Delete method
 	 *
 	 * @return void|\Cake\Network\Response Redirects to index.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if franchises are not enabled
 	 */
 	public function delete() {
-		if (!Configure::read('feature.franchises')) {
-			throw new MethodNotAllowedException('Franchises are not enabled on this system.');
-		}
-
 		$this->request->allowMethod(['post', 'delete']);
 
 		$id = $this->request->getQuery('franchise');
-		$dependencies = $this->Franchises->dependencies($id, ['People']);
-		if ($dependencies !== false) {
-			$this->Flash->warning(__('The following records reference this franchise, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
-			return $this->redirect(['action' => 'index']);
-		}
-
 		try {
 			$franchise = $this->Franchises->get($id, [
 				'contain' => ['People'],
@@ -308,6 +200,14 @@ class FranchisesController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		} catch (InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid franchise.'));
+			return $this->redirect(['action' => 'index']);
+		}
+
+		$this->Authorization->authorize($franchise);
+
+		$dependencies = $this->Franchises->dependencies($id, ['People']);
+		if ($dependencies !== false) {
+			$this->Flash->warning(__('The following records reference this franchise, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
 			return $this->redirect(['action' => 'index']);
 		}
 
@@ -326,13 +226,8 @@ class FranchisesController extends AppController {
 	 * Add team to franchise method
 	 *
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if franchises are not enabled
 	 */
 	public function add_team() {
-		if (!Configure::read('feature.franchises')) {
-			throw new MethodNotAllowedException('Franchises are not enabled on this system.');
-		}
-
 		$id = $this->request->getQuery('franchise');
 		try {
 			$franchise = $this->Franchises->get($id, [
@@ -348,6 +243,7 @@ class FranchisesController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		}
 
+		$this->Authorization->authorize($franchise);
 		$this->Configuration->loadAffiliate($franchise->affiliate_id);
 
 		$teams = $this->UserCache->read('AllOwnedTeams');
@@ -378,13 +274,8 @@ class FranchisesController extends AppController {
 	 * Remove team from franchise method
 	 *
 	 * @return void|\Cake\Network\Response Redirects to view.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if franchises are not enabled
 	 */
 	public function remove_team() {
-		if (!Configure::read('feature.franchises')) {
-			throw new MethodNotAllowedException('Franchises are not enabled on this system.');
-		}
-
 		$this->request->allowMethod(['post']);
 
 		$id = $this->request->getQuery('franchise');
@@ -403,6 +294,7 @@ class FranchisesController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		}
 
+		$this->Authorization->authorize($franchise);
 		$this->Configuration->loadAffiliate($franchise->affiliate_id);
 
 		$team_id = $this->request->getQuery('team');
@@ -458,13 +350,8 @@ class FranchisesController extends AppController {
 	 * Add owner to franchise method
 	 *
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if franchises are not enabled
 	 */
 	public function add_owner() {
-		if (!Configure::read('feature.franchises')) {
-			throw new MethodNotAllowedException('Franchises are not enabled on this system.');
-		}
-
 		$id = $this->request->getQuery('franchise');
 		try {
 			$franchise = $this->Franchises->get($id, [
@@ -480,6 +367,7 @@ class FranchisesController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		}
 
+		$this->Authorization->authorize($franchise);
 		$this->Configuration->loadAffiliate($franchise->affiliate_id);
 
 		$this->set(compact('franchise'));
@@ -525,13 +413,8 @@ class FranchisesController extends AppController {
 	 * Remove owner from franchise method
 	 *
 	 * @return void|\Cake\Network\Response Redirects to view.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if franchises are not enabled
 	 */
 	public function remove_owner() {
-		if (!Configure::read('feature.franchises')) {
-			throw new MethodNotAllowedException('Franchises are not enabled on this system.');
-		}
-
 		$this->request->allowMethod(['post']);
 
 		$id = $this->request->getQuery('franchise');
@@ -550,10 +433,7 @@ class FranchisesController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		}
 
-		if (count($franchise->people) == 1) {
-			$this->Flash->warning(__('You cannot remove the only owner of a franchise!'));
-			return $this->redirect(['action' => 'view', 'franchise' => $id]);
-		}
+		$this->Authorization->authorize(new ContextResource($franchise, ['people' => $franchise->people]));
 
 		// Eliminate all but the requested person
 		$franchise->people = collection($franchise->people)->match(['id' => $person_id])->toList();

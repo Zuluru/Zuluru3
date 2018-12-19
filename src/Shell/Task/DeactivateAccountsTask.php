@@ -1,10 +1,9 @@
 <?php
 namespace App\Shell\Task;
 
+use App\Middleware\ConfigurationLoader;
 use Cake\Console\Shell;
 use Cake\Core\Configure;
-use Cake\Event\Event as CakeEvent;
-use Cake\Event\EventManager;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\TableRegistry;
 
@@ -14,9 +13,7 @@ use Cake\ORM\TableRegistry;
 class DeactivateAccountsTask extends Shell {
 
 	public function main() {
-		$event = new CakeEvent('Configuration.initialize', $this);
-		EventManager::instance()->dispatch($event);
-
+		ConfigurationLoader::loadConfiguration();
 		$people_table = TableRegistry::get('People');
 
 		// Find all the divisions that have run in the past 2 years

@@ -27,7 +27,7 @@ class UsersFixture extends TestFixture {
 			[
 				// id = 1
 				'user_name' => 'amy',
-				'password' => Security::hash('amypassword'),
+				'password' => password_hash('amypassword', PASSWORD_DEFAULT),
 				'email' => 'amy@zuluru.org',
 				// TODO: Set the time for all tests instead of just some, then this can use FrozenTime instead of FrozenDate
 				'last_login' => FrozenDate::now()->subDay(),
@@ -36,7 +36,7 @@ class UsersFixture extends TestFixture {
 			[
 				// id = 2
 				'user_name' => 'mary',
-				'password' => Security::hash('marypassword'),
+				'password' => password_hash('marypassword', PASSWORD_DEFAULT),
 				'email' => 'mary@zuluru.org',
 				'last_login' => FrozenTime::now(),
 				'client_ip' => '127.0.0.1',
@@ -44,7 +44,7 @@ class UsersFixture extends TestFixture {
 			[
 				// id = 3
 				'user_name' => 'cindy',
-				'password' => Security::hash('cindypassword'),
+				'password' => password_hash('cindypassword', PASSWORD_DEFAULT),
 				'email' => 'cindy@zuluru.org',
 				'last_login' => FrozenTime::now(),
 				'client_ip' => '127.0.0.1',
@@ -52,7 +52,7 @@ class UsersFixture extends TestFixture {
 			[
 				// id = 4
 				'user_name' => 'crystal',
-				'password' => Security::hash('crystalpassword'),
+				'password' => password_hash('crystalpassword', PASSWORD_DEFAULT),
 				'email' => 'crystal@zuluru.org',
 				'last_login' => FrozenTime::now(),
 				'client_ip' => '127.0.0.1',
@@ -60,7 +60,7 @@ class UsersFixture extends TestFixture {
 			[
 				// id = 5
 				'user_name' => 'chuck',
-				'password' => Security::hash('chuckpassword'),
+				'password' => password_hash('chuckpassword', PASSWORD_DEFAULT),
 				'email' => 'chuck@zuluru.org',
 				'last_login' => FrozenTime::now(),
 				'client_ip' => '127.0.0.1',
@@ -68,7 +68,7 @@ class UsersFixture extends TestFixture {
 			[
 				// id = 6
 				'user_name' => 'carolyn',
-				'password' => Security::hash('carolynpassword'),
+				'password' => password_hash('carolynpassword', PASSWORD_DEFAULT),
 				'email' => 'carolyn@zuluru.org',
 				'last_login' => FrozenTime::now(),
 				'client_ip' => '127.0.0.1',
@@ -76,7 +76,7 @@ class UsersFixture extends TestFixture {
 			[
 				// id = 7
 				'user_name' => 'carl',
-				'password' => Security::hash('carlpassword'),
+				'password' => password_hash('carlpassword', PASSWORD_DEFAULT),
 				'email' => 'carl@zuluru.org',
 				'last_login' => FrozenTime::now(),
 				'client_ip' => '127.0.0.1',
@@ -84,7 +84,7 @@ class UsersFixture extends TestFixture {
 			[
 				// id = 8
 				'user_name' => 'pam',
-				'password' => Security::hash('pampassword'),
+				'password' => password_hash('pampassword', PASSWORD_DEFAULT),
 				'email' => 'pam@zuluru.org',
 				'last_login' => FrozenTime::now(),
 				'client_ip' => '127.0.0.1',
@@ -92,7 +92,7 @@ class UsersFixture extends TestFixture {
 			[
 				// id = 9
 				'user_name' => 'mary2',
-				'password' => Security::hash('mary2password'),
+				'password' => password_hash('mary2password', PASSWORD_DEFAULT),
 				'email' => 'mary@zuluru.org',
 				'last_login' => FrozenTime::now(),
 				'client_ip' => '127.0.0.1',
@@ -100,7 +100,7 @@ class UsersFixture extends TestFixture {
 			[
 				// id = 10
 				'user_name' => 'andy',
-				'password' => Security::hash('andypassword'),
+				'password' => password_hash('andypassword', PASSWORD_DEFAULT),
 				'email' => 'andy@zuluru.org',
 				'last_login' => FrozenTime::now(),
 				'client_ip' => '127.0.0.1',
@@ -108,8 +108,16 @@ class UsersFixture extends TestFixture {
 			[
 				// id = 11
 				'user_name' => 'veronica',
-				'password' => Security::hash('veronicapassword'),
+				'password' => password_hash('veronicapassword', PASSWORD_DEFAULT),
 				'email' => 'veronica@zuluru.org',
+				'last_login' => FrozenTime::now(),
+				'client_ip' => '127.0.0.1',
+			],
+			[
+				// id = 12
+				'user_name' => 'irene',
+				'password' => password_hash('irenepassword', PASSWORD_DEFAULT),
+				'email' => 'irene@zuluru.org',
 				'last_login' => FrozenTime::now(),
 				'client_ip' => '127.0.0.1',
 			],
@@ -128,6 +136,7 @@ class UsersFixture extends TestFixture {
 			define('USER_ID_DUPLICATE', ++$i);
 			define('USER_ID_ANDY_SUB', ++$i);
 			define('USER_ID_VISITOR', ++$i);
+			define('USER_ID_INACTIVE', ++$i);
 			// This must always be the last one in the list: it is for new
 			// records created in UsersControllerTest
 			define('USER_ID_NEW', ++$i);

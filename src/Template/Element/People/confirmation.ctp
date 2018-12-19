@@ -4,7 +4,8 @@ use Cake\Routing\Router;
 use Cake\Utility\Inflector;
 use App\Controller\AppController;
 
-if (!Configure::read('Perm.is_player')) {
+$identity = $this->Authorize->getIdentity();
+if (!$identity || !$identity->isPlayer()) {
 	return;
 }
 
@@ -19,8 +20,8 @@ if (empty($fields)) {
 	return;
 }
 
-$person = $this->UserCache->read('Person');
-if (AppController::_isChild($person)) {
+$person = $identity->getOriginalData()->person;
+if ($identity->isChild()) {
 	$check = $person->modified->addMonths(6);
 } else {
 	$check = $person->modified->addYear();

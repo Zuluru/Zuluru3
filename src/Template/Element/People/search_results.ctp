@@ -1,10 +1,12 @@
 <?php
 use App\Controller\AppController;
-use Cake\Core\Configure;
-
-if (isset($people)):
 ?>
 <div class="index">
+<?php
+if (isset($search_error)):
+	echo $this->Html->para(null, $search_error);
+elseif (isset($people)):
+?>
 	<p><?php
 	$this->Paginator->options([
 		'url' => $url,
@@ -34,13 +36,13 @@ if (isset($people)):
 					<td><?= $this->element('People/block', ['person' => $person, 'display_field' => 'last_name']) ?></td>
 					<td class="actions"><?php
 					echo $this->Html->iconLink('view_24.png', ['controller' => 'People', 'action' => 'view', 'person' => $person->id, 'return' => AppController::_return()], ['alt' => __('View Profile'), 'title' => __('View Profile')]);
-					if (Configure::read('Perm.is_logged_in')) {
+					if ($this->Authorize->can('vcf', $person)) {
 						echo $this->Html->link(__('VCF'), ['controller' => 'People', 'action' => 'vcf', 'person' => $person->id]);
 					}
-					if (Configure::read('Perm.is_logged_in') && Configure::read('feature.annotations')) {
+					if ($this->Authorize->can('note', $person)) {
 						echo $this->Html->link(__('Add Note'), ['controller' => 'People', 'action' => 'note', 'person' => $person->id, 'return' => AppController::_return()]);
 					}
-					if (Configure::read('Perm.is_admin') || $is_person_manager) {
+					if ($this->Authorize->can('edit', $person)) {
 						echo $this->Html->iconLink('edit_24.png', ['controller' => 'People', 'action' => 'edit', 'person' => $person->id, 'return' => AppController::_return()], ['alt' => __('Edit Profile'), 'title' => __('Edit Profile')]);
 						echo $this->Form->iconPostLink('delete_24.png', ['controller' => 'People', 'action' => 'delete', 'person' => $person->id], ['alt' => __('Delete Player'), 'title' => __('Delete Player')], ['confirm' => __('Are you sure you want to delete this person?')]);
 					}
@@ -88,7 +90,8 @@ if (isset($people)):
 echo $this->Html->tag('li', $this->Html->link(__('Download'), array_merge($url, ['_ext' => 'csv'])));
 ?>
 	</ul>
-</div>
 <?php
 	endif;
 endif;
+?>
+</div>

@@ -8,16 +8,21 @@ if (!$person) {
 
 $id = "people_person_{$person->id}";
 
+$new_options = ['id' => $id];
+if ($this->Identity->isLoggedIn()) {
+	$new_options['class'] = 'trigger';
+}
+
 if (isset($options)) {
-	$options = array_merge(['id' => $id, 'class' => 'trigger'], $options);
+	$options = array_merge($new_options, $options);
 } else {
-	$options = ['id' => $id, 'class' => 'trigger'];
+	$options = $new_options;
 }
 if (!isset($display_field)) {
 	$display_field = 'full_name';
 }
 
-if (!Configure::read('Perm.is_logged_in') && in_array($person->status, ['locked', 'inactive'])) {
+if (!$this->Identity->isLoggedIn() && in_array($person->status, ['locked', 'inactive'])) {
 	echo $person->$display_field;
 	return;
 } else if (!isset($link) || $link) {

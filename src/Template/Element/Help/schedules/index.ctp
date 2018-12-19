@@ -1,7 +1,6 @@
 <?php
-use Cake\Core\Configure;
-
-if ($is_coordinator || Configure::read('Perm.is_admin')) {
+$identity = $this->Authorize->getIdentity();
+if ($identity && ($identity->isManager() || $identity->isCoordinator())) {
 	echo $this->element('Help/topics', [
 			'section' => 'schedules',
 			'topics' => [

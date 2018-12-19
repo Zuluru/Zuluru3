@@ -1,6 +1,7 @@
 <?php
 namespace App\Model\Table;
 
+use App\Authorization\ContextResource;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
@@ -330,8 +331,8 @@ class TeamsTable extends AppTable {
 		}
 
 		// If there is no request, we're running in CLI mode (i.e. a shell task), and nothing we do there cares about gender sorting
-		if (array_key_exists('team', $options) && Router::getRequest()) {
-			$include_gender = $options['team']->display_gender;
+		if (array_key_exists('include_gender', $options)) {
+			$include_gender = $options['include_gender'];
 		} else {
 			$include_gender = false;
 		}
@@ -368,71 +369,23 @@ class TeamsTable extends AppTable {
 		}
 	}
 
-	public function canEditRoster($team_id, $this_is_admin, $is_team_manager, $allow_captain = true) {
-		if (is_a($team_id, 'App\Model\Entity\Team')) {
-			$team = $team_id;
-			$team_id = $team->id;
-		}
-
-		// Find some information that will help inform the final decision on permissions
-		if (isset($team)) {
-			$division_id = $team->division_id;
-		} else {
-			try {
-				$division_id = $this->field('division_id', ['id' => $team_id]);
-			} catch (RecordNotFoundException $ex) {
-				return false;
-			}
-		}
-		if ($division_id) {
-			$affiliate_id = $this->Divisions->affiliate($division_id);
-			$roster_deadline = $this->Divisions->field('roster_deadline', ['id' => $division_id]);
-			if ($roster_deadline === null) {
-				$roster_deadline = $this->Divisions->field('close', ['id' => $division_id]);
-			}
-		} else {
-			if (isset($team)) {
-				$affiliate_id = $team->affiliate_id;
-			} else {
-				$affiliate_id = $this->field('affiliate_id', ['id' => $team_id]);
-			}
-		}
-
-		$user_cache = UserCache::getInstance();
-		$on_team = in_array($team_id, $user_cache->read('TeamIDs'));
-		$this_is_captain = $allow_captain && in_array($team_id, $user_cache->read('OwnedTeamIDs'));
-		$this_is_coordinator = in_array($team_id, collection($user_cache->read('Divisions'))->extract('teams.{*}.id')->toList());
-		$is_team_manager &= in_array($affiliate_id, $user_cache->read('ManagedAffiliateIDs'));
-
-		// Any admin, manager or coordinator can edit, if they are not on the team
-		if (!$on_team) {
-			return $this_is_admin || $is_team_manager || $this_is_coordinator;
-		}
-
-		// Any admin, manager, coordinator or captain on the team can edit, if the roster deadline hasn't passed (or isn't set)
-		if ($this_is_admin || $is_team_manager || $this_is_coordinator || $this_is_captain) {
-			if (!isset($roster_deadline) || !$roster_deadline->isPast()) {
-				return true;
-			}
-			$msg = __('The roster deadline for this division has already passed.');
-			if (!$this_is_captain) {
-				$msg .= ' ' . __('As a member of this team, your permissions have been restricted to prevent accidental misuse.');
-			}
-			return $msg;
-		}
-
-		return false;
-	}
-
 	public function affiliate($id) {
 		// Teams may be unassigned
 		try {
-			$division = $this->field('division_id', ['id' => $id]);
+			$division = $this->division($id);
 			if ($division) {
 				return $this->Divisions->affiliate($division);
 			} else {
 				return $this->field('affiliate_id', ['id' => $id]);
 			}
+		} catch (RecordNotFoundException $ex) {
+			return null;
+		}
+	}
+
+	public function division($id) {
+		try {
+			return $this->field('division_id', ['id' => $id]);
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

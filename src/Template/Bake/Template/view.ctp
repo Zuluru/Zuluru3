@@ -13,7 +13,6 @@
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
 use App\Controller\AppController;
-use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 
 $associations += ['BelongsTo' => [], 'HasOne' => [], 'HasMany' => [], 'BelongsToMany' => []];
@@ -81,10 +80,12 @@ foreach ($fields as $field):
 echo $this->Html->tag('li', $this->Html->iconLink('view_32.png',
 	['action' => 'index'],
 	['alt' => __('List'), 'title' => __('List <%= $pluralHumanName %>')]));
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+if ($this->Authorize->can('edit', $<%= $singularVar %>)) {
 	echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
 		['action' => 'edit', '<%= $singularVar %>' => <%= $pk %>],
 		['alt' => __('Edit'), 'title' => __('Edit <%= $singularHumanName %>')]));
+}
+if ($this->Authorize->can('delete', $<%= $singularVar %>)) {
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
 		['action' => 'delete', '<%= $singularVar %>' => <%= $pk %>],
 		['alt' => __('Delete'), 'title' => __('Delete <%= $singularHumanName %>')],
@@ -133,10 +134,12 @@ if (!empty($<%= $singularVar %>-><%= $details['property'] %>)):
 					echo $this->Html->iconLink('view_24.png',
 						['controller' => '<%= $details['controller'] %>', 'action' => 'view', '<%= $otherSingularVar %>' => <%= $otherPk %>],
 						['alt' => __('View'), 'title' => __('View')]);
-					if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+					if ($this->Authorize->can('edit', $<%= $otherSingularVar %>)) {
 						echo $this->Html->iconLink('edit_24.png',
 							['controller' => '<%= $details['controller'] %>', 'action' => 'edit', '<%= $otherSingularVar %>' => <%= $otherPk %>, 'return' => AppController::_return()],
 							['alt' => __('Edit'), 'title' => __('Edit')]);
+					}
+					if ($this->Authorize->can('delete', $<%= $otherSingularVar %>)) {
 						echo $this->Form->iconPostLink('delete_24.png',
 							['controller' => '<%= $details['controller'] %>', 'action' => 'delete', '<%= $otherSingularVar %>' => <%= $otherPk %>, 'return' => AppController::_return()],
 							['alt' => __('Delete'), 'title' => __('Delete')],

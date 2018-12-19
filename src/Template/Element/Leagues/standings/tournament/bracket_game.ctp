@@ -1,7 +1,3 @@
-<?php
-use Cake\Core\Configure;
-?>
-
 <div class="game">
 <?php
 if ($game->has('id')):
@@ -33,7 +29,7 @@ if ($game->has('id')):
 	<div class="details">
 		<div class="name">
 <?php
-	if ($game->published || Configure::read('Perm.is_admin') || $is_coordinator) {
+	if ($game->published || $can_edit) {
 		echo $this->Html->link($game->display_name, ['controller' => 'Games', 'action' => 'view', 'game' => $game->id]);
 	} else {
 		echo $game->display_name;
@@ -45,7 +41,7 @@ if ($game->has('id')):
 		$date = $this->Time->date($game->game_slot->game_date) . '<br/>' . $this->Time->time($game->game_slot->game_start);
 		if ($game->published) {
 			echo $this->Html->tag('div', $date, ['class' => 'date']);
-		} else if (Configure::read('Perm.is_admin') || $is_coordinator) {
+		} else if ($can_edit) {
 			echo $this->Html->tag('div', $date, ['class' => 'date unpublished']);
 		}
 	}

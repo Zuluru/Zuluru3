@@ -1,6 +1,4 @@
 <?php
-use Cake\Core\Configure;
-
 $this->Html->addCrumb(__('Games'));
 $this->Html->addCrumb(__('Game') . ' ' . $game->id);
 $this->Html->addCrumb(__('Note'));
@@ -51,13 +49,26 @@ if ($note->isNew()) {
 <?php
 echo $this->Form->create($note, ['align' => 'horizontal']);
 echo $this->Form->hidden('game_id', ['value' => $game->id]);
+
+$identity = $this->Authorize->getIdentity();
+$options = [
+	VISIBILITY_PRIVATE => __('Only I will be able to see this'),
+];
+if ($this->Authorize->getIdentity()->isCaptainOf($game)) {
+	$options[VISIBILITY_CAPTAINS] = __('Only the coaches/captains of the team');
+	$options[VISIBILITY_TEAM] = __('Everyone on the team');
+}
+if ($this->Authorize->getIdentity()->isCoordinatorOf($game)) {
+	$options[VISIBILITY_COORDINATOR] = __('Admins and coordinators of this division');
+}
+if ($this->Authorize->getIdentity()->isManagerOf($game)) {
+	$options[VISIBILITY_ADMIN] = __('Administrators only');
+}
 echo $this->Form->input('visibility', [
-	'options' => [
-		VISIBILITY_PRIVATE => __('Only I will be able to see this'),
-		VISIBILITY_CAPTAINS => __('Only I and the coaches/captains of our team'),
-		VISIBILITY_TEAM => __('Everyone on my team'),
-	],
+	'options' => $options,
+	'hide_single' => true,
 ]);
+
 echo $this->Form->input('note', ['cols' => 70, 'class' => 'wysiwyg_simple']);
 if ($note->isNew()) {
 	echo $this->Html->para(null, __('Everyone else that is allowed to see this note will be sent an email informing them. This is a good way to communicate with your teams.'));

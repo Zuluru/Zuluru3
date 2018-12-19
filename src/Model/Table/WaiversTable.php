@@ -135,7 +135,7 @@ class WaiversTable extends AppTable {
 		return $query;
 	}
 
-	public function signed($waivers, $date) {
+	public static function signed($waivers, $date) {
 		return collection($waivers)->some(function ($waiver) use ($date) {
 			return $waiver->_joinData->valid_from <= $date && $waiver->_joinData->valid_until >= $date;
 		});

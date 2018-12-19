@@ -35,7 +35,7 @@ endif;
 		<dt><?= __('Season') ?></dt>
 		<dd><?= __($league->season) ?></dd>
 <?php
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator):
+if ($this->Authorize->can('edit_schedule', $league)):
 ?>
 		<dt><?= __('Schedule Attempts') ?></dt>
 		<dd><?= $league->schedule_attempts ?></dd>

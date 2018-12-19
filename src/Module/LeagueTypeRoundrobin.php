@@ -23,8 +23,8 @@ class LeagueTypeRoundrobin extends LeagueType {
 		return $ret;
 	}
 
-	public function schedulingFields($this_is_admin, $this_is_coordinator) {
-		if ($this_is_admin || $this_is_coordinator) {
+	public function schedulingFields($administrative) {
+		if ($administrative) {
 			return [
 				'current_round' => [
 					'label' => __('Current Round'),

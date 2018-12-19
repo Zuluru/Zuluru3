@@ -8,7 +8,7 @@ use Cake\I18n\FrozenDate;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 use Cake\Routing\Router;
-use App\Auth\HasherTrait;
+use App\PasswordHasher\HasherTrait;
 use App\Exception\RuleException;
 
 /**
@@ -21,68 +21,13 @@ class NewslettersController extends AppController {
 	use HasherTrait;
 
 	/**
-	 * isAuthorized method
-	 *
-	 * @return bool true if access allowed
-	 */
-	public function isAuthorized() {
-		try {
-			if ($this->UserCache->read('Person.status') == 'locked') {
-				return false;
-			}
-
-			if (Configure::read('Perm.is_manager')) {
-				// Managers can perform these operations
-				if (in_array($this->request->getParam('action'), [
-					'index',
-					'past',
-					'add',
-				])) {
-					// If an affiliate id is specified, check if we're a manager of that affiliate
-					$affiliate = $this->request->getQuery('affiliate');
-					if (!$affiliate) {
-						// If there's no affiliate id, this is a top-level operation that all managers can perform
-						return true;
-					} else if (in_array($affiliate, $this->UserCache->read('ManagedAffiliateIDs'))) {
-						return true;
-					} else {
-						Configure::write('Perm.is_manager', false);
-					}
-				}
-
-				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->getParam('action'), [
-					'view',
-					'edit',
-					'send',
-					'delivery',
-					'delete',
-				])) {
-					// If a newsletter id is specified, check if we're a manager of that newsletter's affiliate
-					$newsletter = $this->request->getQuery('newsletter');
-					if ($newsletter) {
-						if (in_array($this->Newsletters->affiliate($newsletter), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-				}
-			}
-		} catch (RecordNotFoundException $ex) {
-		} catch (InvalidPrimaryKeyException $ex) {
-		}
-
-		return false;
-	}
-
-	/**
 	 * Index method
 	 *
 	 * @return void|\Cake\Network\Response
 	 */
 	public function index() {
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->Authorization->authorize($this);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 
 		$this->paginate = [
 			'order' => ['target' => 'DESC'],
@@ -99,7 +44,8 @@ class NewslettersController extends AppController {
 	}
 
 	public function past() {
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->Authorization->authorize($this, 'index');
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 
 		$this->paginate = [
 			'order' => ['target' => 'DESC'],
@@ -133,6 +79,8 @@ class NewslettersController extends AppController {
 			$this->Flash->info(__('Invalid newsletter.'));
 			return $this->redirect(['action' => 'index']);
 		}
+
+		$this->Authorization->authorize($newsletter);
 		$this->Configuration->loadAffiliate($newsletter->mailing_list->affiliate_id);
 
 		$this->set(compact('newsletter'));
@@ -145,6 +93,8 @@ class NewslettersController extends AppController {
 	 */
 	public function add() {
 		$newsletter = $this->Newsletters->newEntity();
+		$this->Authorization->authorize($newsletter);
+
 		if ($this->request->is('post')) {
 			$newsletter = $this->Newsletters->patchEntity($newsletter, $this->request->data);
 			if ($this->Newsletters->save($newsletter)) {
@@ -156,7 +106,7 @@ class NewslettersController extends AppController {
 			}
 		}
 
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		$mailingLists = $this->Newsletters->MailingLists->find()
 			->contain(['Affiliates'])
 			->where(['MailingLists.affiliate_id IN' => $affiliates])
@@ -189,6 +139,8 @@ class NewslettersController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		}
 
+		$this->Authorization->authorize($newsletter);
+
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			$newsletter = $this->Newsletters->patchEntity($newsletter, $this->request->data);
 			if ($this->Newsletters->save($newsletter)) {
@@ -218,12 +170,6 @@ class NewslettersController extends AppController {
 		$this->request->allowMethod(['post', 'delete']);
 
 		$id = $this->request->getQuery('newsletter');
-		$dependencies = $this->Newsletters->dependencies($id);
-		if ($dependencies !== false) {
-			$this->Flash->warning(__('The following records reference this newsletter, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
-			return $this->redirect(['action' => 'index']);
-		}
-
 		try {
 			$newsletter = $this->Newsletters->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -231,6 +177,14 @@ class NewslettersController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		} catch (InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid newsletter.'));
+			return $this->redirect(['action' => 'index']);
+		}
+
+		$this->Authorization->authorize($newsletter);
+
+		$dependencies = $this->Newsletters->dependencies($id);
+		if ($dependencies !== false) {
+			$this->Flash->warning(__('The following records reference this newsletter, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
 			return $this->redirect(['action' => 'index']);
 		}
 
@@ -258,6 +212,8 @@ class NewslettersController extends AppController {
 			$this->Flash->info(__('Invalid newsletter.'));
 			return $this->redirect(['action' => 'index']);
 		}
+
+		$this->Authorization->authorize($newsletter);
 		$this->Configuration->loadAffiliate($newsletter->mailing_list->affiliate_id);
 
 		$ids = collection($newsletter->deliveries)->extract('person_id')->toArray();
@@ -305,6 +261,8 @@ class NewslettersController extends AppController {
 				$this->Flash->info(__('Invalid newsletter.'));
 				return $this->redirect(['action' => 'index']);
 			}
+
+			$this->Authorization->authorize($newsletter);
 			$this->Configuration->loadAffiliate($newsletter->mailing_list->affiliate_id);
 
 			// Handle the rule controlling mailing list membership
@@ -388,6 +346,8 @@ class NewslettersController extends AppController {
 				$this->Flash->info(__('Invalid newsletter.'));
 				return $this->redirect(['action' => 'index']);
 			}
+
+			$this->Authorization->authorize($newsletter);
 			$this->Configuration->loadAffiliate($newsletter->mailing_list->affiliate_id);
 
 			if ($test) {

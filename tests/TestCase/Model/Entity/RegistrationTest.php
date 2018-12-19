@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Entity;
 
+use App\Middleware\ConfigurationLoader;
 use App\Model\Entity\Registration;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
@@ -47,6 +48,7 @@ class RegistrationTest extends TestCase {
 				'app.prices',
 					'app.registrations',
 						'app.payments',
+		'app.settings',
 	];
 
 	/**
@@ -56,6 +58,9 @@ class RegistrationTest extends TestCase {
 	 */
 	public function setUp() {
 		parent::setUp();
+
+		ConfigurationLoader::loadConfiguration();
+
 		$registrations = TableRegistry::get('Registrations');
 		$this->Registration2 = $registrations->get(REGISTRATION_ID_CAPTAIN_MEMBERSHIP, ['contain' => ['Prices', 'Payments', 'Events']]);
 		$this->Registration3 = $registrations->get(REGISTRATION_ID_COORDINATOR_MEMBERSHIP, ['contain' => ['Prices', 'Payments', 'Events']]);
@@ -81,9 +86,9 @@ class RegistrationTest extends TestCase {
 	 * @return void
 	 */
 	public function testPaymentAmounts() {
-		$this->assertEquals([4.66, 0.78, 1.56], $this->Registration2->paymentAmounts());
-		$this->assertEquals([0, 0, 0], $this->Registration3->paymentAmounts());
-		$this->assertEquals([1.34, 0.22, 0.44], $this->Registration4->paymentAmounts());
+		$this->assertEquals([1.31, 0.09, 0.10], $this->Registration2->paymentAmounts()); // $1.50 outstanding
+		$this->assertEquals([0, 0, 0], $this->Registration3->paymentAmounts()); // online payments not allowed
+		$this->assertEquals([1.74, 0.12, 0.14], $this->Registration4->paymentAmounts()); // $2 deposit
 	}
 
 	/**
@@ -100,7 +105,7 @@ class RegistrationTest extends TestCase {
 	 * Test _getTotalPayment()
 	 */
 	public function testGetTotalPayment() {
-		$this->assertEquals(3.0, $this->Registration2->total_payment);
+		$this->assertEquals(10.0, $this->Registration2->total_payment);
 		$this->assertEquals(0.0, $this->Registration3->total_payment);
 	}
 
@@ -108,8 +113,8 @@ class RegistrationTest extends TestCase {
 	 * Test _getBalance();
 	 */
 	public function testGetBalance() {
-		$this->assertEquals(7.0, $this->Registration2->balance);
-		$this->assertEquals(0.0, $this->Registration3->balance);
+		$this->assertEquals(1.50, $this->Registration2->balance);
+		$this->assertEquals(57.50, $this->Registration3->balance);
 	}
 
 }

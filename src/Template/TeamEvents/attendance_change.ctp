@@ -12,15 +12,15 @@ $this->Html->addCrumb($team->name);
 		<dt><?= __('Team') ?></dt>
 		<dd><?= $this->element('Teams/block', ['team' => $team]) ?></dd>
 		<dt><?= __('Event') ?></dt>
-		<dd><?= $team_event->name ?></dd>
+		<dd><?= $event->name ?></dd>
 		<dt><?= __('Description') ?></dt>
-		<dd><?= $team_event->description ?></dd>
+		<dd><?= $event->description ?></dd>
 		<dt><?= __('Date') ?></dt>
-		<dd><?= $this->Time->date($team_event->date) ?></dd>
+		<dd><?= $this->Time->date($event->date) ?></dd>
 		<dt><?= __('Start Time') ?></dt>
-		<dd><?= $this->Time->time($team_event->start) ?></dd>
+		<dd><?= $this->Time->time($event->start) ?></dd>
 		<dt><?= __('End Time') ?></dt>
-		<dd><?= $this->Time->time($team_event->end) ?></dd>
+		<dd><?= $this->Time->time($event->end) ?></dd>
 	</dl>
 
 <?php

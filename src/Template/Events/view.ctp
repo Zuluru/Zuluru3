@@ -7,9 +7,7 @@
  * @type string[] $notices
  */
 
-use App\Controller\AppController;
 use App\Model\Table\PricesTable;
-use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 
 $this->Html->addCrumb(__('Event'));
@@ -20,6 +18,7 @@ $this->Html->addCrumb(__('View'));
 <?php
 $deposit = collection($event->prices)->some(function ($price) { return $price->allow_deposit; });
 $admin_register = false;
+$identity = $this->Authorize->getIdentity();
 ?>
 
 <div class="events view">
@@ -126,7 +125,7 @@ endif;
 
 <?php
 if (count($event->prices) == 1):
-	if ($event->prices[0]->canRegister['allowed'] && $event->prices[0]->open->isFuture() && (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager'))) {
+	if ($event->prices[0]->canRegister['allowed'] && $event->prices[0]->open->isFuture() && $identity->isManagerOf($event)) {
 		$admin_register = true;
 	}
 ?>
@@ -225,11 +224,11 @@ if (count($event->prices) > 1):
 								['controller' => 'Registrations', 'action' => 'register', 'event' => $id, 'variant' => $price->id],
 								['title' => __('Register for {0}', $event->name . ' ' . $price->name)]
 							);
-							if ($price->open->isFuture() && (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager'))) {
+							if ($price->open->isFuture() && $identity->isManagerOf($event)) {
 								$admin_register = true;
 							}
 						}
-						if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+						if ($this->Authorize->can('delete', $price)) {
 							echo $this->Form->iconPostLink('delete_24.png',
 								['controller' => 'Prices', 'action' => 'delete', 'price' => $price->id],
 								['alt' => __('Delete'), 'title' => __('Delete')],
@@ -263,7 +262,7 @@ if (count($event->prices) > 1):
 <?php
 endif;
 
-if (!Configure::read('Perm.is_logged_in')) {
+if (!$this->Identity->isLoggedIn()) {
 	echo $this->element('Events/not_logged_in');
 } else {
 	echo $this->element('messages', ['messages' => $notices]);
@@ -328,11 +327,11 @@ endif;
 ?>
 
 <div class="actions columns">
-	<?= $this->element('Events/actions', ['event' => $event, 'is_event_manager' => Configure::read('Perm.is_manager'), 'format' => 'list']) ?>
+	<?= $this->element('Events/actions', ['event' => $event, 'format' => 'list']) ?>
 </div>
 
 <?php
-if (!empty($event->preregistrations) && (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager'))):
+if (!empty($event->preregistrations) && $this->Authorize->can('add_preregistration', $event)):
 ?>
 <div class="related row">
 	<div class="column">

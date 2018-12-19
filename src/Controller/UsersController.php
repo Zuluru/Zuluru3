@@ -5,8 +5,9 @@ use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Datasource\RulesChecker;
+use Cake\I18n\FrozenTime;
 use Cake\I18n\Time;
-use Cake\Network\Exception\UnauthorizedException;
+use Cake\Http\Exception\UnauthorizedException;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Security;
 use Firebase\JWT\JWT;
@@ -19,20 +20,20 @@ use Firebase\JWT\JWT;
 class UsersController extends AppController {
 
 	/**
-	 * _publicActions method
+	 * _noAuthenticationActions method
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _publicActions() {
-		return ['logout', 'create_account', 'reset_password'];
+	protected function _noAuthenticationActions() {
+		return ['login', 'logout', 'create_account', 'reset_password'];
 	}
 
 	/**
-	 * _publicJsonActions method
+	 * _noAuthenticationJsonActions method
 	 *
 	 * @return array of JSON actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _publicJsonActions() {
+	protected function _noAuthenticationJsonActions() {
 		return ['token'];
 	}
 
@@ -45,81 +46,31 @@ class UsersController extends AppController {
 		return ['logout'];
 	}
 
-	/**
-	 * isAuthorized method
-	 *
-	 * @return bool true if access allowed
-	 */
-	public function isAuthorized() {
-		try {
-			if ($this->UserCache->read('Person.status') == 'locked') {
-				return false;
-			}
+	public function login() {
+		$result = $this->Authentication->getResult();
 
-			// People can perform these operations on their own account
-			if (in_array($this->request->getParam('action'), [
-				'change_password',
-			]))
-			{
-				// If a player id is specified, check if it's the logged-in user
-				// If no player id is specified, it's always the logged-in user
-				$person = $this->request->getQuery('user');
-				if (!$person || $person == $this->UserCache->read('Person.user_id')) {
-					return true;
-				}
-			}
-		} catch (RecordNotFoundException $ex) {
-		} catch (InvalidPrimaryKeyException $ex) {
+		// Regardless of POST or GET, redirect if user is logged in
+		if ($result->isValid()) {
+			return $this->redirect($this->Authentication->getConfig('loginRedirect'));
 		}
 
-		return false;
-	}
-
-	public function login() {
-		$this->set('failed', false);
-		$users_table = TableRegistry::get(Configure::read('Security.authModel'));
+		if ($this->request->is(['post'])) {
+			$this->Flash->error(__('Username or password is incorrect'));
+			$this->set('failed', true);
+		} else {
+			$this->set('failed', false);
+		}
 
 		// Set some variables the login page needs to properly render the form
+		$users_table = TableRegistry::get(Configure::read('Security.authModel'));
 		$this->set('model', $users_table->alias());
 		$this->set('user_field', $users_table->userField);
 		$this->set('pwd_field', $users_table->pwdField);
-
-		if ($this->request->is('post')) {
-			$user = $this->Auth->identify();
-			if (!$user) {
-				$this->Flash->error(__('Username or password is incorrect'));
-				$this->set('failed', true);
-				return;
-			}
-			$this->Auth->setUser($user);
-
-			if (!empty($this->request->data['remember_me'])) {
-				$expires = new Time('+1 year');
-				$this->response = $this->response->withCookie('ZuluruAuth', [
-					'value' => [
-						'user_name' => $this->request->data('user_name'),
-						'password' => $this->request->data('password'),
-					],
-					'expire' => (int)$expires->format('U'),
-					'path' => '/' . trim($this->request->getAttribute('webroot'), '/'),
-				]);
-			}
-
-			return $this->redirect($this->Auth->redirectUrl());
-		}
 	}
 
 	public function logout() {
-		if ($this->request->getCookie('ZuluruAuth')) {
-			$expires = new Time('-1 year');
-			$this->response = $this->response->withCookie('ZuluruAuth', [
-				'value' => '',
-				'expire' => (int)$expires->format('U'),
-				'path' => '/' . trim($this->request->getAttribute('webroot'), '/'),
-			]);
-		}
 		$this->request->session()->delete('Zuluru');
-		return $this->redirect($this->Auth->logout());
+		return $this->redirect($this->Authentication->logout());
 	}
 
 	/**
@@ -128,12 +79,13 @@ class UsersController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function create_account() {
-		if (!Configure::read('feature.manage_accounts')) {
-			$this->Flash->info(__('This system uses {0} to manage user accounts. Account creation through Zuluru is disabled.', Configure::read('feature.manage_name')));
+		if (!Configure::read('feature.control_account_creation')) {
+			$this->Flash->info(__('This system uses {0} to manage user accounts. Account creation through Zuluru is disabled.', Configure::read('feature.authenticate_through')));
 			return $this->redirect('/');
 		}
 
-		if (!Configure::read('Perm.is_admin') && !Configure::read('Perm.is_manager') && $this->UserCache->currentId()) {
+		$identity = $this->Authentication->getIdentity();
+		if ($identity && !$identity->isManager()) {
 			$this->Flash->info(__('You are already logged in!'));
 			return $this->redirect('/');
 		}
@@ -193,11 +145,10 @@ class UsersController extends AppController {
 			})) {
 				$this->Flash->account_created(null, ['params' => ['continue' => $this->request->data['action'] == 'continue']]);
 
-				if (!Configure::read('Perm.is_logged_in')) {
-					if (!$this->request->session()->read('Zuluru.external_login')) {
+				if (!$identity) {
+					if (Configure::read('feature.authenticate_through') == 'Zuluru') {
 						// Automatically log the user in
-						$user = $this->Auth->identify($this->request->data);
-						$this->Auth->setUser($user);
+						$this->Authentication->setIdentity($user);
 
 						if ($this->request->data['action'] == 'continue') {
 							return $this->redirect(['controller' => 'People', 'action' => 'add_relative']);
@@ -481,7 +432,7 @@ class UsersController extends AppController {
 			], ['validate' => false]);
 		}
 
-		$affiliates = $this->_applicableAffiliates(true);
+		$affiliates = $this->Authentication->applicableAffiliates(true);
 		$this->set(compact('user', 'affiliates', 'succeeded', 'resolved', 'failed'));
 	}
 
@@ -489,7 +440,8 @@ class UsersController extends AppController {
 		if (!$this->request->is('json')) {
 			throw new UnauthorizedException(__('Tokens are only valid for JSON requests'));
 		}
-		$user = $this->Auth->identify();
+
+		$user = $this->Authentication->getIdentity();
 		if (!$user) {
 			throw new UnauthorizedException(__('Invalid username or password'));
 		}
@@ -499,7 +451,7 @@ class UsersController extends AppController {
 			'data' => [
 				'token' => JWT::encode([
 					'sub' => $user[TableRegistry::get(Configure::read('Security.authModel'))->primaryKey()],
-					'exp' =>  time() + 604800
+					'exp' =>  FrozenTime::now()->addWeek()->toUnixString()
 				], Security::salt())
 			],
 			'_serialize' => ['success', 'data']
@@ -526,6 +478,8 @@ class UsersController extends AppController {
 			return $this->redirect('/');
 		}
 
+		$this->Authorization->authorize($user);
+
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			$this->request->data[$users_table->pwdField] = $this->request->data['new_password'];
 			$user = $users_table->patchEntity($user, $this->request->data, ['validate' => 'password']);
@@ -538,7 +492,7 @@ class UsersController extends AppController {
 							'user_name' => $user->{$users_table->userField},
 							'password' => $this->request->data($users_table->pwdField),
 						],
-						'expire' => (int)$expires->format('U'),
+						'expire' => $expires,
 						'path' => '/' . trim($this->request->getAttribute('webroot'), '/'),
 					]);
 				}
@@ -549,10 +503,7 @@ class UsersController extends AppController {
 				$this->Flash->warning(__('The password could not be updated. Please, try again.'));
 			}
 		}
-		$this->set([
-			'user' => $user,
-			'is_me' => ($this->UserCache->read('Person.user_id') == $id),
-		]);
+		$this->set(compact('user'));
 	}
 
 	public function reset_password($id = null, $code = null) {
@@ -666,7 +617,7 @@ class UsersController extends AppController {
 		return false;
 	}
 
-	static public function _password($length) {
+	public static function _password($length) {
 		$characters = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz';
 		$string_length = strlen($characters) - 1;
 		$string = '';

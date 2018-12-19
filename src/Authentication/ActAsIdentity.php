@@ -1,0 +1,722 @@
+<?php
+namespace App\Authentication;
+
+use App\Controller\AppController;
+use App\Core\UserCache;
+use App\Model\Entity\User;
+use Authentication\IdentityInterface as AuthenticationInterface;
+use Authorization\AuthorizationService;
+use Authorization\Exception\Exception;
+use Authorization\IdentityInterface as AuthorizationInterface;
+use BadMethodCallException;
+use Cake\Core\Configure;
+use Cake\ORM\Entity;
+use Cake\ORM\TableRegistry;
+use Cake\Routing\Router;
+use InvalidArgumentException;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+
+class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
+
+	/**
+	 * Identity data
+	 *
+	 * @var \App\Model\Entity\User
+	 */
+	protected $identity;
+
+	/**
+	 * Various permissions. Properties are private and accessed through functions
+	 * to prevent any potential security issues with eventual third-party plugins.
+	 */
+	private $_isAdmin = false;
+	private $_isManager = false;
+	private $_isCoordinator = false;
+	private $_isOfficial = false;
+	private $_isVolunteer = false;
+	private $_isCoach = false;
+	private $_isPlayer = false;
+	private $_isParent = false;
+	private $_isLoggedIn = false;
+	private $_isVisitor = true;
+	private $_isChild = false;
+
+	private $_managedAffiliateIds = [];
+	private $_coordinatedDivisionIds = [];
+	private $_captainedTeamIds = null;
+	private $_allCaptainedTeamIds = null;
+	private $_teamIds = null;
+	private $_allTeamIds = null;
+	private $_relativeTeamIds = null;
+	private $_allRelativeTeamIds = null;
+	private $_relativeIds = null;
+
+	/**
+	 * Authorization Service
+	 *
+	 * @var \Authorization\AuthorizationServiceInterface
+	 */
+	protected $authorization;
+
+	public function __construct(AuthorizationService $auth, AuthenticationInterface $identity) {
+		$this->authorization = $auth;
+		$this->identity = $identity->getOriginalData();
+
+		if (is_a($this->identity, 'App\Model\Entity\Person')) {
+			// Handle creating an identity from a person instead of a user.
+			// At this time, this is used only in the relative_notice element,
+			// which doesn't need user information at all, so we fake it.
+			$user = new User();
+			$user->person = $this->identity;
+			$this->identity = $user;
+		} else if (!$this->identity->has('person')) {
+			// Immediately post-authentication, the user record might not have person data in it
+			$users_table = TableRegistry::get(Configure::read('Security.authModel'));
+			$users_table->loadInto($this->identity, ['People']);
+		}
+
+		$this->_initializeGroups();
+
+		if (!UserCache::identitySet()) {
+			UserCache::setIdentity($this->identity);
+		}
+	}
+
+	protected function _initializeGroups() {
+		$user_cache = UserCache::getInstance();
+
+		// We explicitly don't save group details in the session, so that any external changes to them will take effect immediately
+		$groups = $user_cache->read('Groups', $this->identity->person->id);
+		if ($this->identity->real_person) {
+			$real_groups = $user_cache->read('Groups', $this->identity->real_person->id);
+			if (!empty($real_groups)) {
+				$real_group_levels = collection($real_groups)->extract('level')->toArray();
+			} else {
+				$real_group_levels = [];
+			}
+			if ($this->identity->real_person->status == 'active') {
+				// Approved accounts are granted permissions up to level 1,
+				// since they can just add that group to themselves anyway.
+				$real_group_levels[] = 1;
+			}
+			if (empty($real_group_levels)) {
+				$max_level = 0;
+			} else {
+				$max_level = max($real_group_levels);
+			}
+		}
+
+		foreach ($groups as $group) {
+			// Don't give people enhanced access just because the person they are acting as has it
+			if ($this->identity->real_person && $group->level > $max_level) {
+				continue;
+			}
+
+			switch ($group->name) {
+				case 'Administrator':
+					if ($this->identity->person->status != 'locked') {
+						$this->_isAdmin = $this->_isManager = true;
+						$this->_managedAffiliateIds = TableRegistry::get('Affiliates')->find()
+							->extract('id')
+							->toArray();
+					}
+					break;
+
+				case 'Manager':
+					if ($this->identity->person->status != 'locked') {
+						$this->_isManager = true;
+						$this->_managedAffiliateIds = $user_cache->read('ManagedAffiliateIDs', $this->identity->person->id);
+					}
+					break;
+
+				case 'Official':
+					if ($this->identity->person->status != 'locked') {
+						$this->_isOfficial = true;
+					}
+					break;
+
+				case 'Volunteer':
+					if ($this->identity->person->status != 'locked') {
+						$this->_isVolunteer = true;
+						$this->_coordinatedDivisionIds = $user_cache->read('DivisionIDs', $this->identity->person->id);
+						$this->_isCoordinator = !empty($this->_coordinatedDivisionIds);
+					}
+					break;
+
+				case 'Coach':
+					$this->_isCoach = true;
+					break;
+
+				case 'Player':
+					$this->_isPlayer = true;
+					break;
+
+				case 'Parent':
+					$this->_isParent = true;
+					break;
+			}
+		}
+
+		if ($this->identity->person->status != 'locked') {
+			$this->_isLoggedIn = true;
+			$this->_isVisitor = false;
+			$this->_isChild = AppController::_isChild($this->identity->person);
+		}
+	}
+
+	public function actAs(ServerRequestInterface $request, ResponseInterface $response, $target) {
+		if ($this->identity->real_person && $target->id == $this->identity->real_person->id) {
+			// We are already acting as someone, and setting it back to ourselves
+			$this->identity->person = $this->identity->real_person;
+			unset($this->identity->real_person);
+		} else if ($target->id != $this->identity->person->id) {
+			// We are acting as someone else
+			if (!$this->identity->real_person) {
+				// We were not previously acting as someone else, so save the real data
+				$this->identity->real_person = $this->identity->person;
+			}
+			$this->identity->person = $target;
+		}
+		$this->_initializeGroups();
+
+		$request->getAttribute('authentication')->persistIdentity($request, $response, $this->identity);
+
+		return $this->identity;
+	}
+
+	/**
+	 * Whether a offset exists
+	 * @param mixed $offset
+	 * @return boolean true on success or false on failure.
+	 */
+	public function offsetExists($offset) {
+		return $this->identity->has($offset);
+	}
+
+	/**
+	 * Offset to retrieve
+	 * @param mixed $offset
+	 * @return mixed Can return all value types.
+	 */
+	public function offsetGet($offset) {
+		return $this->identity->get($offset);
+	}
+
+	/**
+	 * Offset to set
+	 * @param mixed $offset
+	 * @param mixed $value
+	 * @return void
+	 */
+	public function offsetSet($offset, $value) {
+		$this->identity->set($offset, $value);
+	}
+
+	/**
+	 * Offset to unset
+	 * @param mixed $offset
+	 * @return void
+	 */
+	public function offsetUnset($offset) {
+		$this->identity->unsetProperty($offset);
+	}
+
+	/**
+	 * Authentication\IdentityInterface method
+	 */
+	public function getIdentifier() {
+		return $this->identity->person->id;
+	}
+
+	/**
+	 * Authentication\IdentityInterface method
+	 */
+	public function getOriginalData() {
+		return $this->identity;
+	}
+
+	/**
+	 * Authorization\IdentityInterface method
+	 */
+	public function can($action, $resource) {
+		return $this->authorization->can($this, $action, $resource);
+	}
+
+	/**
+	 * Authorization\IdentityInterface method
+	 */
+	public function applyScope($action, $resource) {
+		return $this->authorization->applyScope($this, $action, $resource);
+	}
+
+	public function isAdmin() {
+		return $this->_isAdmin;
+	}
+
+	public function isManager() {
+		if (func_num_args() != 0) {
+			throw new InvalidArgumentException('isManager function takes no parameters. Did you mean isManagerOf?');
+		}
+		return $this->_isManager;
+	}
+
+	public function isManagerOf($entity) {
+		if (empty($this->_managedAffiliateIds)) {
+			return false;
+		}
+
+		if (is_numeric($entity)) {
+			$affiliate_id = $entity;
+		} else if ($entity->has('affiliate_id')) {
+			$affiliate_id = $entity->affiliate_id;
+		} else if (is_a($entity, 'App\Model\Entity\Affiliate')) {
+			$affiliate_id = $entity->id;
+		} else if (is_a($entity, 'App\Model\Entity\Person')) {
+			$affiliates = UserCache::getInstance()->read('AffiliateIDs', $entity->id);
+			$intersection = array_intersect($this->_managedAffiliateIds, $affiliates);
+			return !empty($intersection);
+		} else if (is_a($entity, 'App\Model\Entity\Note') && $entity->person_id) {
+			$affiliates = UserCache::getInstance()->read('AffiliateIDs', $entity->id);
+			$intersection = array_intersect($this->_managedAffiliateIds, $affiliates);
+			return !empty($intersection);
+		} else if (is_a($entity, 'App\Model\Entity\User')) {
+			if ($entity->has('person')) {
+				$person_id = $entity->person->id;
+			} else {
+				$person_id = TableRegistry::get('People')->field('id', ['user_id' => $entity->id]);
+			}
+			$affiliates = UserCache::getInstance()->read('AffiliateIDs', $person_id);
+			$intersection = array_intersect($this->_managedAffiliateIds, $affiliates);
+			return !empty($intersection);
+		} else {
+			$affiliate_id = TableRegistry::get($entity->getSource())->affiliate($entity->id);
+		}
+
+		return in_array($affiliate_id, $this->_managedAffiliateIds);
+	}
+
+	public function managedAffiliateIds() {
+		return $this->_managedAffiliateIds;
+	}
+
+	public function isCoordinator() {
+		return $this->_isCoordinator;
+	}
+
+	public function isCoordinatorOf($entity) {
+		if (empty($this->_coordinatedDivisionIds)) {
+			return false;
+		}
+
+		if (is_numeric($entity)) {
+			$division_id = $entity;
+		} else if (is_a($entity, 'App\Model\Entity\League')) {
+			// Special case to check if a coordinator coordinates all divisions in a league
+			if (isset($entity->divisions)) {
+				$league_divisions = collection($entity->divisions)->extract('id')->toArray();
+			} else {
+				$league_divisions = TableRegistry::get('Leagues')->divisions($entity);
+			}
+			$intersection = array_intersect($this->_coordinatedDivisionIds, $league_divisions);
+			return (count($league_divisions) == count($intersection));
+		} else if (is_a($entity, 'App\Model\Entity\Division')) {
+			$division_id = $entity->id;
+		} else if ($entity->has('division_id')) {
+			$division_id = $entity->division_id;
+		} else {
+			try {
+				$division_id = TableRegistry::get($entity->getSource())->division($entity->id);
+			} catch (BadMethodCallException $ex) {
+				throw new Exception('Attempt to check coordinator of on a non-coordinated entity type "' . get_class($entity) . '"');
+			}
+		}
+
+		return in_array($division_id, $this->_coordinatedDivisionIds);
+	}
+
+	public function coordinatedDivisionIds() {
+		return $this->_coordinatedDivisionIds;
+	}
+
+	public function isOfficial() {
+		return $this->_isOfficial;
+	}
+
+	public function isVolunteer() {
+		return $this->_isVolunteer;
+	}
+
+	public function isCoach() {
+		return $this->_isCoach;
+	}
+
+	public function isPlayer() {
+		return $this->_isPlayer;
+	}
+
+	public function isParent() {
+		return $this->_isParent;
+	}
+
+	public function isLoggedIn() {
+		return $this->_isLoggedIn;
+	}
+
+	public function isVisitor() {
+		return $this->_isVisitor;
+	}
+
+	public function isChild() {
+		return $this->_isChild;
+	}
+
+	public function isCaptainOf($entity) {
+		if ($this->_captainedTeamIds === null) {
+			$this->_captainedTeamIds = UserCache::getInstance()->read('OwnedTeamIDs');
+		}
+
+		if (empty($this->_captainedTeamIds)) {
+			return false;
+		}
+
+		if (is_numeric($entity)) {
+			$team_id = $entity;
+		} else if (is_a($entity, 'App\Model\Entity\Team')) {
+			$team_id = $entity->id;
+		} else if (is_a($entity, 'App\Model\Entity\Game')) {
+			return in_array($entity->home_team_id, $this->_captainedTeamIds) || in_array($entity->away_team_id, $this->_captainedTeamIds);
+		} else if ($entity->has('team_id')) {
+			$team_id = $entity->team_id;
+		} else {
+			try {
+				$team_id = TableRegistry::get($entity->getSource())->team($entity->id);
+			} catch (BadMethodCallException $ex) {
+				throw new Exception('Attempt to check team of on a non-team entity type "' . get_class($entity) . '"');
+			}
+		}
+
+		return in_array($team_id, $this->_captainedTeamIds);
+	}
+
+	public function wasCaptainOf($entity) {
+		if ($this->_allCaptainedTeamIds === null) {
+			$this->_allCaptainedTeamIds = UserCache::getInstance()->read('AllOwnedTeamIDs');
+		}
+
+		if (empty($this->_allCaptainedTeamIds)) {
+			return false;
+		}
+
+		if (is_numeric($entity)) {
+			$team_id = $entity;
+		} else if (is_a($entity, 'App\Model\Entity\Team')) {
+			$team_id = $entity->id;
+		} else if (is_a($entity, 'App\Model\Entity\Game')) {
+			return in_array($entity->home_team_id, $this->_allCaptainedTeamIds) || in_array($entity->away_team_id, $this->_allCaptainedTeamIds);
+		} else if ($entity->has('team_id')) {
+			$team_id = $entity->team_id;
+		} else {
+			try {
+				$team_id = TableRegistry::get($entity->getSource())->team($entity->id);
+			} catch (BadMethodCallException $ex) {
+				throw new Exception('Attempt to check team of on a non-team entity type "' . get_class($entity) . '"');
+			}
+		}
+
+		return in_array($team_id, $this->_allCaptainedTeamIds);
+	}
+
+	public function isPlayerOn($entity) {
+		if ($this->_teamIds === null) {
+			$this->_teamIds = UserCache::getInstance()->read('TeamIDs');
+		}
+
+		if (empty($this->_teamIds)) {
+			return false;
+		}
+
+		if (is_numeric($entity)) {
+			$team_id = $entity;
+		} else if (is_a($entity, 'App\Model\Entity\Team')) {
+			$team_id = $entity->id;
+		} else if ($entity->has('team_id')) {
+			$team_id = $entity->team_id;
+		} else {
+			try {
+				$team_id = TableRegistry::get($entity->getSource())->team($entity->id);
+			} catch (BadMethodCallException $ex) {
+				throw new Exception('Attempt to check team of on a non-team entity type "' . get_class($entity) . '"');
+			}
+		}
+
+		return in_array($team_id, $this->_teamIds);
+	}
+
+	public function wasPlayerOn($entity) {
+		if ($this->_allTeamIds === null) {
+			$this->_allTeamIds = UserCache::getInstance()->read('AllTeamIDs');
+		}
+
+		if (empty($this->_allTeamIds)) {
+			return false;
+		}
+
+		if (is_numeric($entity)) {
+			$team_id = $entity;
+		} else if (is_a($entity, 'App\Model\Entity\Team')) {
+			$team_id = $entity->id;
+		} else if ($entity->has('team_id')) {
+			$team_id = $entity->team_id;
+		} else {
+			try {
+				$team_id = TableRegistry::get($entity->getSource())->team($entity->id);
+			} catch (BadMethodCallException $ex) {
+				throw new Exception('Attempt to check team of on a non-team entity type "' . get_class($entity) . '"');
+			}
+		}
+
+		return in_array($team_id, $this->_allTeamIds);
+	}
+
+	public function isRelativePlayerOn($entity) {
+		if ($this->_relativeTeamIds === null) {
+			$this->_relativeTeamIds = UserCache::getInstance()->read('RelativeTeamIDs');
+		}
+
+		if (empty($this->_relativeTeamIds)) {
+			return false;
+		}
+
+		if (is_numeric($entity)) {
+			$team_id = $entity;
+		} else if (is_a($entity, 'App\Model\Entity\Team')) {
+			$team_id = $entity->id;
+		} else if ($entity->has('team_id')) {
+			$team_id = $entity->team_id;
+		} else {
+			try {
+				$team_id = TableRegistry::get($entity->getSource())->team($entity->id);
+			} catch (BadMethodCallException $ex) {
+				throw new Exception('Attempt to check team of on a non-team entity type "' . get_class($entity) . '"');
+			}
+		}
+
+		return in_array($team_id, $this->_relativeTeamIds);
+	}
+
+	public function wasRelativePlayerOn($entity) {
+		if ($this->_allRelativeTeamIds === null) {
+			$this->_allRelativeTeamIds = UserCache::getInstance()->read('AllRelativeTeamIDs');
+		}
+
+		if (empty($this->_allRelativeTeamIds)) {
+			return false;
+		}
+
+		if (is_numeric($entity)) {
+			$team_id = $entity;
+		} else if (is_a($entity, 'App\Model\Entity\Team')) {
+			$team_id = $entity->id;
+		} else if ($entity->has('team_id')) {
+			$team_id = $entity->team_id;
+		} else {
+			try {
+				$team_id = TableRegistry::get($entity->getSource())->team($entity->id);
+			} catch (BadMethodCallException $ex) {
+				throw new Exception('Attempt to check team of on a non-team entity type "' . get_class($entity) . '"');
+			}
+		}
+
+		return in_array($team_id, $this->_allRelativeTeamIds);
+	}
+
+	public function isMe($entity) {
+		if (is_numeric($entity)) {
+			$person_id = $entity;
+		} else if (is_a($entity, 'App\Model\Entity\Person')) {
+			$person_id = $entity->id;
+		} else if (is_a($entity, 'App\Model\Entity\User')) {
+			if ($entity->has('person')) {
+				$person_id = $entity->person->id;
+			} else {
+				$person_id = TableRegistry::get('People')->field('id', ['user_id' => $entity->id]);
+			}
+		} else if ($entity->has('person_id')) {
+			$person_id = $entity->person_id;
+		} else {
+			throw new Exception('Attempt to check isMe on on a non-person entity type "' . get_class($entity) . '"');
+		}
+
+		return $this->getIdentifier() == $person_id;
+	}
+
+	public function isMine(Entity $entity) {
+		if ($entity->has('created_person_id')) {
+			$person_id = $entity->created_person_id;
+		} else {
+			throw new Exception('Attempt to check isMine on on a non-owned entity type "' . get_class($entity) . '"');
+		}
+
+		return $this->getIdentifier() == $person_id;
+	}
+
+	public function isRelative($entity) {
+		if ($this->_relativeIds === null) {
+			$this->_relativeIds = UserCache::getInstance()->read('RelativeIDs');
+		}
+
+		if (empty($this->_relativeIds)) {
+			return false;
+		}
+
+		if (is_numeric($entity)) {
+			$person_id = $entity;
+		} else if (is_a($entity, 'App\Model\Entity\Person')) {
+			$person_id = $entity->id;
+		} else if (is_a($entity, 'App\Model\Entity\User')) {
+			if ($entity->has('person')) {
+				$person_id = $entity->person->id;
+			} else {
+				$person_id = TableRegistry::get('People')->field('id', ['user_id' => $entity->id]);
+			}
+		} else if ($entity->has('person_id')) {
+			$person_id = $entity->person_id;
+		} else {
+			throw new Exception('Attempt to check relation on a non-person entity type "' . get_class($entity) . '"');
+		}
+
+		return in_array($person_id, $this->_relativeIds);
+	}
+
+	public function isRelatives(Entity $entity) {
+		if ($this->_relativeIds === null) {
+			$this->_relativeIds = UserCache::getInstance()->read('RelativeIDs');
+		}
+
+		if (empty($this->_relativeIds)) {
+			return false;
+		}
+
+		if ($entity->has('created_person_id')) {
+			$person_id = $entity->created_person_id;
+		} else {
+			throw new Exception('Attempt to check relation on a non-owned entity type "' . get_class($entity) . '"');
+		}
+
+		return in_array($person_id, $this->_relativeIds);
+	}
+
+	// Various ways to get the list of affiliates to show
+	public function applicableAffiliates($admin_only = false) {
+		if (!Configure::read('feature.affiliates')) {
+			return [1 => Configure::read('organization.name')];
+		}
+
+		$affiliates_table = TableRegistry::get('Affiliates');
+
+		// If there's something in the URL, perhaps only use that
+		$request = Router::getRequest();
+		if ($request) {
+			$affiliate = $request->getQuery('affiliate');
+			if ($affiliate === null) {
+				// If the user has selected a specific affiliate to view, perhaps only use that
+				$affiliate = $request->session()->read('Zuluru.CurrentAffiliate');
+			}
+		} else {
+			$affiliate = null;
+		}
+
+		if ($affiliate !== null) {
+			// We only allow overrides through the URL or session if:
+			// - this is not an admin-only page OR
+			// - the current user is an admin OR
+			// - the current user is a manager of that affiliate
+			if (!$admin_only || $this->_isAdmin || in_array($affiliate, $this->_managedAffiliateIds)) {
+				return $affiliates_table->find()
+					->hydrate(false)
+					->where(['id' => $affiliate])
+					->combine('id', 'name')
+					->toArray();
+			}
+		}
+
+		// Managers may get only their list of managed affiliates
+		if (!$this->_isAdmin && $this->_isManager && $admin_only) {
+			$affiliates = UserCache::getInstance()->read('ManagedAffiliates');
+			$affiliates = collection($affiliates)->combine('id', 'name')->toArray();
+			ksort($affiliates);
+			return $affiliates;
+		}
+
+		// Non-admins get their current list of "subscribed" affiliates
+		if ($this->_isLoggedIn && !$this->_isAdmin) {
+			$affiliates = UserCache::getInstance()->read('Affiliates');
+			if (!empty($affiliates)) {
+				$affiliates = collection($affiliates)->combine('id', 'name')->toArray();
+				ksort($affiliates);
+				return $affiliates;
+			}
+		}
+
+		// Anyone not logged in, and admins, get the full list
+		return $affiliates_table->find()
+			->hydrate(false)
+			->where(['active' => true])
+			->order('name')
+			->combine('id', 'name')
+			->toArray();
+	}
+
+	// Various ways to get the list of affiliates to query
+	public function applicableAffiliateIDs($admin_only = false) {
+		if (!Configure::read('feature.affiliates')) {
+			return [1];
+		}
+
+		// If there's something in the URL, perhaps only use that
+		$request = Router::getRequest();
+		if ($request) {
+			$affiliate = $request->getQuery('affiliate');
+			if ($affiliate === null) {
+				// If the user has selected a specific affiliate to view, perhaps only use that
+				$affiliate = $request->session()->read('Zuluru.CurrentAffiliate');
+			}
+		} else {
+			$affiliate = null;
+		}
+
+		if ($affiliate !== null) {
+			// We only allow overrides through the URL or session if:
+			// - this is not an admin-only page OR
+			// - the current user is an admin OR
+			// - the current user is a manager of that affiliate
+			if (!$admin_only || $this->_isAdmin || in_array($affiliate, $this->_managedAffiliateIds)) {
+				return [$affiliate];
+			}
+		}
+
+		// Managers may get only their list of managed affiliates
+		if (!$this->_isAdmin && $this->_isManager && $admin_only) {
+			return $this->_managedAffiliateIds;
+		}
+
+		// Non-admins get their current list of "subscribed" affiliates
+		if ($this->_isLoggedIn && !$this->_isAdmin) {
+			$affiliates = UserCache::getInstance()->read('AffiliateIDs');
+			if (!empty($affiliates)) {
+				return $affiliates;
+			}
+		}
+
+		// Anyone not logged in, and admins, get the full list
+		return array_keys(TableRegistry::get('Affiliates')->find()
+			->hydrate(false)
+			->where(['active' => true])
+			->order('name')
+			->combine('id', 'name')
+			->toArray()
+		);
+	}
+
+}

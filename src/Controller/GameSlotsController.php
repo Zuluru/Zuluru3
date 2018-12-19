@@ -15,70 +15,12 @@ use Cake\ORM\TableRegistry;
  */
 class GameSlotsController extends AppController {
 
-	/**
-	 * isAuthorized method
-	 *
-	 * @return bool true if access allowed
-	 */
-	public function isAuthorized() {
-		try {
-			if ($this->UserCache->read('Person.status') == 'locked') {
-				return false;
-			}
-
-			if (Configure::read('Perm.is_manager')) {
-				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->getParam('action'), [
-					'add',
-				])) {
-					// If an affiliate id is specified, check if we're a manager of that affiliate
-					$affiliate = $this->request->getQuery('affiliate');
-					if ($affiliate && in_array($affiliate, $this->UserCache->read('ManagedAffiliateIDs'))) {
-						return true;
-					} else {
-						Configure::write('Perm.is_manager', false);
-					}
-
-					// If a field id is specified, check if we're a manager of that field
-					$field = $this->request->getQuery('field');
-					if ($field) {
-						if (in_array($this->GameSlots->Fields->affiliate($field), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-				}
-
-				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->getParam('action'), [
-					'edit',
-					'view',
-					'delete',
-					'submit_score',
-				])) {
-					// If a game slot id is specified, check if we're a manager of that game slot's affiliate
-					$slot = $this->request->getQuery('slot');
-					if ($slot) {
-						if (in_array($this->GameSlots->affiliate($slot), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-				}
-			}
-		} catch (RecordNotFoundException $ex) {
-		} catch (InvalidPrimaryKeyException $ex) {
-		}
-
-		return false;
-	}
-
 	// TODO: Eliminate this if we can find a way around black-holing caused by Ajax field adds
 	public function beforeFilter(\Cake\Event\Event $event) {
 		parent::beforeFilter($event);
-		$this->Security->config('unlockedActions', ['add']);
+		if (isset($this->Security)) {
+			$this->Security->config('unlockedActions', ['add']);
+		}
 	}
 
 	/**
@@ -109,6 +51,8 @@ class GameSlotsController extends AppController {
 			$this->Flash->info(__('Invalid game slot.'));
 			return $this->redirect('/');
 		}
+
+		$this->Authorization->authorize($game_slot);
 		$this->Configuration->loadAffiliate($game_slot->field->facility->region->affiliate_id);
 
 		$this->set(compact('game_slot'));
@@ -133,7 +77,7 @@ class GameSlotsController extends AppController {
 
 		// The entity should allow the extra fields that are used for bulk creation
 		$game_slot = $this->GameSlots->newEntity();
-		$game_slot->accessible(['sport', 'length', 'buffer', 'weeks', 'fields', 'facilities', 'game_slots'], true);
+		$game_slot->setAccess(['sport', 'length', 'buffer', 'weeks', 'fields', 'facilities', 'game_slots'], true);
 
 		if ($field) {
 			try {
@@ -147,6 +91,8 @@ class GameSlotsController extends AppController {
 				$this->Flash->info(__('Invalid {0}.', __(Configure::read('UI.field'))));
 				return $this->redirect('/');
 			}
+
+			$this->Authorization->authorize($field, 'add_game_slots');
 			$affiliate = $field->facility->region->affiliate_id;
 			$this->set(compact('field'));
 		} else {
@@ -166,6 +112,8 @@ class GameSlotsController extends AppController {
 				->where(['Regions.affiliate_id' => $affiliate])
 				->order('Regions.id')
 				->toArray();
+
+			$this->Authorization->authorize(current($regions), 'add_game_slots');
 			$this->set(compact('regions'));
 		}
 		$this->Configuration->loadAffiliate($affiliate);
@@ -338,6 +286,8 @@ class GameSlotsController extends AppController {
 			$this->Flash->info(__('Invalid game slot.'));
 			return $this->redirect('/');
 		}
+
+		$this->Authorization->authorize($game_slot);
 		$affiliate = $this->GameSlots->affiliate($id);
 		$this->Configuration->loadAffiliate($affiliate);
 
@@ -385,6 +335,8 @@ class GameSlotsController extends AppController {
 			return $this->redirect('/');
 		}
 
+		$this->Authorization->authorize($game_slot);
+
 		if ($this->GameSlots->delete($game_slot)) {
 			$this->Flash->success(__('The game slot has been deleted.'));
 		} else if ($game_slot->errors('delete')) {
@@ -411,6 +363,9 @@ class GameSlotsController extends AppController {
 			$this->Flash->info(__('Invalid game slot.'));
 			return $this->redirect('/');
 		}
+
+		$this->Authorization->authorize($game_slot);
+
 		if (empty($game_slot['Game'])) {
 			$this->Flash->info(__('This game slot has no games associated with it.'));
 			return $this->redirect('/');

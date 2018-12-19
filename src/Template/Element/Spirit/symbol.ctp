@@ -1,5 +1,12 @@
 <?php
-use Cake\Core\Configure;
+/**
+ * @type \App\Model\Entity\League $league
+ * @type \App\Module\Spirit $spirit_obj
+ * @type \App\Model\Entity\SpiritEntry $entry
+ * @type int $value
+ * @type string $question
+ * @type bool $show_spirit_scores
+ */
 
 if ((!isset($entry) || $entry === false) && (!isset($value) || $value === null)) {
 	return;
@@ -28,21 +35,6 @@ if ($max < 0) {
 $file = $spirit_obj->symbol($ratio);
 echo $this->Html->iconImg("spirit_$file.png");
 
-switch ($league->display_sotg) {
-	case 'symbols_only':
-		if (Configure::read('Perm.is_admin')) {
-			printf(' (%.2f)', $value);
-		}
-		break;
-
-	case 'coordinator_only':
-		if (Configure::read('Perm.is_admin') || $is_coordinator) {
-			printf(' (%.2f)', $value);
-		}
-		break;
-
-	case 'numeric':
-	case 'all':
-		printf(' (%.2f)', $value);
-		break;
+if ($show_spirit_scores) {
+	printf(' (%.2f)', $value);
 }

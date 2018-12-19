@@ -1,0 +1,73 @@
+<?php
+namespace App\Policy;
+
+use App\Exception\ForbiddenRedirectException;
+use App\Model\Entity\Payment;
+use Authorization\IdentityInterface;
+use Cake\Core\Configure;
+
+class PaymentPolicy extends AppPolicy {
+
+	public function before($identity, $resource, $action) {
+		if (!Configure::read('feature.registration')) {
+			return false;
+		}
+
+		parent::before($identity, $resource, $action);
+	}
+
+	public function canRefund_payment(IdentityInterface $identity, Payment $payment) {
+		if (!$identity->isManagerOf($payment)) {
+			return false;
+		}
+
+		// Check whether we can even refund this
+		if ($payment->payment_amount == $payment->refunded_amount) {
+			throw new ForbiddenRedirectException(__('This payment has already been fully refunded.'),
+				['action' => 'view', 'registration' => $payment->registration_id]);
+		}
+		if (!in_array($payment->payment_type, Configure::read('payment_payment'))) {
+			throw new ForbiddenRedirectException(__('Only payments can be refunded.'),
+				['action' => 'view', 'registration' => $payment->registration_id]);
+		}
+
+		return true;
+	}
+
+	public function canCredit_payment(IdentityInterface $identity, Payment $payment) {
+		if (!$identity->isManagerOf($payment)) {
+			return false;
+		}
+
+		// Check whether we can even credit this
+		if ($payment->payment_amount == $payment->refunded_amount) {
+			throw new ForbiddenRedirectException(__('This payment has already been fully refunded.'),
+				['action' => 'view', 'registration' => $payment->registration_id]);
+		}
+		if (!in_array($payment->payment_type, Configure::read('payment_payment'))) {
+			throw new ForbiddenRedirectException(__('Only payments can be credited.'),
+				['action' => 'view', 'registration' => $payment->registration_id]);
+		}
+
+		return true;
+	}
+
+	public function canTransfer_payment(IdentityInterface $identity, Payment $payment) {
+		if (!$identity->isManagerOf($payment)) {
+			return false;
+		}
+
+		// Check whether we can even transfer this
+		if ($payment->payment_amount == $payment->refunded_amount) {
+			throw new ForbiddenRedirectException(__('This payment has already been fully refunded.'),
+				['action' => 'view', 'registration' => $payment->registration_id]);
+		}
+		if (!in_array($payment->payment_type, Configure::read('payment_payment'))) {
+			throw new ForbiddenRedirectException(__('Only payments can be transferred.'),
+				['action' => 'view', 'registration' => $payment->registration_id]);
+		}
+
+		return true;
+	}
+
+}

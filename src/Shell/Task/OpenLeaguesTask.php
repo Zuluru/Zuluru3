@@ -1,9 +1,8 @@
 <?php
 namespace App\Shell\Task;
 
+use App\Middleware\ConfigurationLoader;
 use Cake\Console\Shell;
-use Cake\Event\Event as CakeEvent;
-use Cake\Event\EventManager;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\TableRegistry;
 
@@ -13,9 +12,7 @@ use Cake\ORM\TableRegistry;
 class OpenLeaguesTask extends Shell {
 
 	public function main() {
-		$event = new CakeEvent('Configuration.initialize', $this);
-		EventManager::instance()->dispatch($event);
-
+		ConfigurationLoader::loadConfiguration();
 		$divisions_table = TableRegistry::get('Divisions');
 
 		$to_close = $divisions_table->find()

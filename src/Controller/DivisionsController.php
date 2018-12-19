@@ -1,6 +1,7 @@
 <?php
 namespace App\Controller;
 
+use App\Authorization\ContextResource;
 use App\Model\Entity\Game;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
@@ -23,21 +24,11 @@ use App\Model\Table\GamesTable;
 class DivisionsController extends AppController {
 
 	/**
-	 * _publicActions method
+	 * _noAuthenticationActions method
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _publicActions() {
-		if (Configure::read('Perm.is_manager')) {
-			// If a division id is specified, check if we're a manager of that division's affiliate
-			$division = $this->request->getQuery('division');
-			if ($division) {
-				if (!in_array($this->Divisions->affiliate($division), $this->UserCache->read('ManagedAffiliateIDs'))) {
-					Configure::write('Perm.is_manager', false);
-				}
-			}
-		}
-
+	protected function _noAuthenticationActions() {
 		$actions = ['view', 'schedule', 'standings', 'tooltip'];
 		if (Configure::read('feature.public')) {
 			$actions[] = 'scores';
@@ -47,133 +38,12 @@ class DivisionsController extends AppController {
 	}
 
 	/**
-	 * _publicJsonActions method
+	 * _noAuthenticationJsonActions method
 	 *
 	 * @return array of JSON actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _publicJsonActions() {
+	protected function _noAuthenticationJsonActions() {
 		return ['view', 'schedule', 'standings'];
-	}
-
-	/**
-	 * isAuthorized method
-	 *
-	 * @return bool true if access allowed
-	 */
-	public function isAuthorized() {
-		try {
-			if ($this->UserCache->read('Person.status') == 'locked') {
-				return false;
-			}
-
-			if (Configure::read('Perm.is_manager')) {
-				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->getParam('action'), [
-					'select',
-				])) {
-					// If an affiliate id is specified, check if we're a manager of that affiliate
-					$affiliate = $this->request->getQuery('affiliate');
-					if ($affiliate && in_array($affiliate, $this->UserCache->read('ManagedAffiliateIDs'))) {
-						return true;
-					} else {
-						Configure::write('Perm.is_manager', false);
-					}
-				}
-
-				if (in_array($this->request->getParam('action'), [
-					'add',
-				])) {
-					// If a league id is specified, check if we're a manager of that league's affiliate
-					$league = $this->request->getQuery('league');
-					if ($league) {
-						if (in_array($this->Divisions->Leagues->affiliate($league), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-				}
-
-				if (in_array($this->request->getParam('action'), [
-					'edit',
-					'add_coordinator',
-					'remove_coordinator',
-					'delete',
-					'add_teams',
-					'approve_scores',
-					'fields',
-					'slots',
-					'status',
-					'allstars',
-					'emails',
-					'scores',
-					'stats',
-					'spirit',
-					'ratings',
-					'seeds',
-					'initialize_ratings',
-					'initialize_dependencies',
-					'delete_stage',
-				])) {
-					// If a division id is specified, check if we're a manager of that division's affiliate
-					$division = $this->request->getQuery('division');
-					if ($division) {
-						if (in_array($this->Divisions->affiliate($division), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-				}
-			}
-
-			// Managers and coordinators can perform these operations
-			if (in_array($this->request->getParam('action'), [
-				'scheduling_fields',
-			])) {
-				if ($this->UserCache->read('DivisionIDs') || Configure::read('Perm.is_manager')) {
-					return true;
-				}
-			}
-
-			// People can perform these operations on divisions they coordinate
-			if (in_array($this->request->getParam('action'), [
-				'edit',
-				'add_teams',
-				'approve_scores',
-				'fields',
-				'slots',
-				'status',
-				'allstars',
-				'emails',
-				'scores',
-				'stats',
-				'spirit',
-				'ratings',
-				'seeds',
-				'initialize_ratings',
-				'initialize_dependencies',
-				'delete_stage',
-			])) {
-				// If a division id is specified, check if we're a coordinator of that division
-				$division = $this->request->getQuery('division');
-				if ($division && in_array($division, $this->UserCache->read('DivisionIDs'))) {
-					return true;
-				}
-			}
-
-			// Anyone that's logged in can perform these operations
-			if (in_array($this->request->getParam('action'), [
-				'scores',
-				'stats',
-			])) {
-				return true;
-			}
-		} catch (RecordNotFoundException $ex) {
-		} catch (InvalidPrimaryKeyException $ex) {
-		}
-
-		return false;
 	}
 
 	/**
@@ -202,7 +72,6 @@ class DivisionsController extends AppController {
 		$league_obj = $this->moduleRegistry->load("LeagueType:{$division->schedule_type}");
 
 		$this->set(compact('division', 'league_obj'));
-		$this->set('is_coordinator', in_array($id, $this->UserCache->read('DivisionIDs')));
 		$this->set('_serialize', ['division']);
 	}
 
@@ -212,7 +81,6 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function tooltip() {
-		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
 		$id = $this->request->getQuery('division');
@@ -270,10 +138,7 @@ class DivisionsController extends AppController {
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
 
-		if (!$division->league->hasStats()) {
-			$this->Flash->info(__('This league does not have stat tracking enabled.'));
-			return $this->redirect(['action' => 'view', 'division' => $id]);
-		}
+		$this->Authorization->authorize($division->league);
 
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 		$sport_obj = $this->moduleRegistry->load("Sport:{$division->league->sport}");
@@ -310,7 +175,6 @@ class DivisionsController extends AppController {
 		$division->calculated_stats = $stats['calculated_stats'];
 
 		$this->set(compact('division', 'sport_obj'));
-		$this->set('is_coordinator', in_array($id, $this->UserCache->read('DivisionIDs')));
 
 		if ($this->request->is('csv')) {
 			$this->response->download("Stats - {$division->name}.csv");
@@ -333,6 +197,8 @@ class DivisionsController extends AppController {
 			$this->Flash->info(__('Invalid league.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
+
+		$this->Authorization->authorize($league, 'add_division');
 		$this->Configuration->loadAffiliate($league->affiliate_id);
 
 		$division = $this->Divisions->newEntity();
@@ -366,7 +232,6 @@ class DivisionsController extends AppController {
 		if (isset($division->schedule_type)) {
 			$this->set('league_obj', $this->moduleRegistry->load("LeagueType:{$division->schedule_type}"));
 		}
-		$this->set('is_coordinator', false);
 
 		$this->render('edit');
 	}
@@ -390,6 +255,7 @@ class DivisionsController extends AppController {
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
 
+		$this->Authorization->authorize($division);
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
@@ -408,7 +274,6 @@ class DivisionsController extends AppController {
 		$this->set(compact('division'));
 		$this->set('days', $this->Divisions->Days->find('list')->toArray());
 		$this->set('league_obj', $this->moduleRegistry->load("LeagueType:{$division->schedule_type}"));
-		$this->set('is_coordinator', in_array($id, $this->UserCache->read('DivisionIDs')));
 	}
 
 	/**
@@ -417,8 +282,8 @@ class DivisionsController extends AppController {
 	 * @return void Renders view, though that view may be empty.
 	 */
 	public function scheduling_fields() {
-		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
+		$this->Authorization->authorize($this);
 
 		if (array_key_exists('divisions', $this->request->data)) {
 			$index = current(array_keys($this->request->data['divisions']));
@@ -456,6 +321,7 @@ class DivisionsController extends AppController {
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
 
+		$this->Authorization->authorize($division);
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
 		$this->set(compact('division'));
@@ -533,6 +399,8 @@ class DivisionsController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		}
 
+		$this->Authorization->authorize($division);
+
 		if (empty($division->people)) {
 			$this->Flash->warning(__('That person is not a coordinator of this division!'));
 			return $this->redirect(['action' => 'view', 'division' => $id]);
@@ -568,6 +436,7 @@ class DivisionsController extends AppController {
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
 
+		$this->Authorization->authorize($division);
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
@@ -624,6 +493,8 @@ class DivisionsController extends AppController {
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
 
+		$this->Authorization->authorize($division, 'edit_schedule');
+
 		if (empty($division->teams)) {
 			$this->Flash->info(__('Cannot adjust ratings for a division with no teams.'));
 			return $this->redirect(['action' => 'view', 'division' => $id]);
@@ -679,6 +550,8 @@ class DivisionsController extends AppController {
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
 
+		$this->Authorization->authorize($division, 'edit_schedule');
+
 		if (empty($division->teams)) {
 			$this->Flash->info(__('Cannot adjust seeds for a division with no teams.'));
 			return $this->redirect(['action' => 'view', 'division' => $id]);
@@ -719,12 +592,6 @@ class DivisionsController extends AppController {
 		$this->request->allowMethod(['post', 'delete']);
 
 		$id = $this->request->getQuery('division');
-		$dependencies = $this->Divisions->dependencies($id, ['Days', 'People']);
-		if ($dependencies !== false) {
-			$this->Flash->warning(__('The following records reference this division, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-		}
-
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => ['Leagues' => ['Divisions']],
@@ -734,6 +601,14 @@ class DivisionsController extends AppController {
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		} catch (InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid division.'));
+			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
+		}
+
+		$this->Authorization->authorize($division);
+
+		$dependencies = $this->Divisions->dependencies($id, ['Days', 'People']);
+		if ($dependencies !== false) {
+			$this->Flash->warning(__('The following records reference this division, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
 
@@ -766,7 +641,13 @@ class DivisionsController extends AppController {
 							},
 						],
 						'Teams',
-						'Leagues',
+						'Leagues' => [
+							'StatTypes' => [
+								'queryBuilder' => function (Query $q) {
+									return $q->where(['StatTypes.type' => 'entered']);
+								},
+							],
+						],
 						'Games' => [
 							'queryBuilder' => function (Query $q) {
 								return $q->where([
@@ -811,8 +692,7 @@ class DivisionsController extends AppController {
 
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
-		$is_coordinator = in_array($id, $this->UserCache->read('DivisionIDs'));
-		if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator) {
+		if ($this->Authorization->can($division, 'edit_schedule')) {
 			$edit_date = $this->request->getQuery('edit_date');
 		} else {
 			$edit_date = null;
@@ -838,7 +718,7 @@ class DivisionsController extends AppController {
 		}
 
 		// Save posted data
-		if ($this->request->is(['patch', 'post', 'put']) && (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator)) {
+		if ($this->request->is(['patch', 'post', 'put']) && $this->Authorization->can($division, 'edit_schedule')) {
 			$this->loadComponent('Lock');
 
 			if ($this->Lock->lock('scheduling', $this->Divisions->affiliate($id), 'schedule creation or edit')) {
@@ -882,7 +762,7 @@ class DivisionsController extends AppController {
 		}
 
 		$division->games = collection($division->games)->indexBy('id')->toArray();
-		$this->set(compact('id', 'division', 'edit_date', 'game_slots', 'is_coordinator', 'is_tournament', 'multi_day'));
+		$this->set(compact('id', 'division', 'edit_date', 'game_slots', 'is_tournament', 'multi_day'));
 		$this->set('_serialize', ['division']);
 	}
 
@@ -951,7 +831,6 @@ class DivisionsController extends AppController {
 			$show_teams = $division->teams;
 		}
 		$this->set(compact('division', 'league_obj', 'spirit_obj', 'team_id', 'show_teams', 'more_before', 'more_after'));
-		$this->set('is_coordinator', in_array($id, $this->UserCache->read('DivisionIDs')));
 		$this->set('_serialize', ['division']);
 	}
 
@@ -982,11 +861,8 @@ class DivisionsController extends AppController {
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
 
+		$this->Authorization->authorize($division);
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
-		if ($division->schedule_type == 'competition') {
-			$this->Flash->info(__('This division does not support this report.'));
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-		}
 
 		// Find all games played by teams that are currently in this division,
 		// or tournament games for this division
@@ -1019,7 +895,6 @@ class DivisionsController extends AppController {
 		$division->teams = collection($division->teams)->indexBy('id')->toArray();
 
 		$this->set(compact('division'));
-		$this->set('is_coordinator', in_array($id, $this->UserCache->read('DivisionIDs')));
 	}
 
 	/**
@@ -1069,6 +944,9 @@ class DivisionsController extends AppController {
 			$this->Flash->info(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
+
+		$this->Authorization->authorize($division, 'edit_schedule');
+
 		if (empty($division->games)) {
 			$this->Flash->info(__('This division has no games scheduled yet.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
@@ -1092,7 +970,6 @@ class DivisionsController extends AppController {
 			->toArray();
 
 		$this->set(compact('division', 'league_obj', 'game_slots'));
-		$this->set('is_coordinator', in_array($id, $this->UserCache->read('DivisionIDs')));
 	}
 
 	/**
@@ -1114,6 +991,7 @@ class DivisionsController extends AppController {
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
 
+		$this->Authorization->authorize($division, 'edit_schedule');
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
 		// Find all the dates that this division has game slots on
@@ -1208,6 +1086,8 @@ class DivisionsController extends AppController {
 			$this->Flash->info(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
+
+		$this->Authorization->authorize($division, 'edit_schedule');
 
 		if (empty($division->teams)) {
 			$this->Flash->info(__('Cannot generate status report for a division with no teams.'));
@@ -1347,6 +1227,7 @@ class DivisionsController extends AppController {
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
 
+		$this->Authorization->authorize($division);
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
 		$min = $this->request->getQuery('min');
@@ -1402,6 +1283,7 @@ class DivisionsController extends AppController {
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
 
+		$this->Authorization->authorize($division);
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 		$this->set(compact('division'));
 	}
@@ -1428,6 +1310,7 @@ class DivisionsController extends AppController {
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
 
+		$this->Authorization->authorize(new ContextResource($division, ['league' => $division->league]));
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
 		// We need to find all games involving teams that have ever been in this division
@@ -1531,6 +1414,7 @@ class DivisionsController extends AppController {
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
 
+		$this->Authorization->authorize($division);
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
 		if ($division->schedule_type == 'competition') {
@@ -1545,7 +1429,6 @@ class DivisionsController extends AppController {
 		GamesTable::adjustEntryIndices($division->games);
 
 		$this->set(compact('division'));
-		$this->set('is_coordinator', in_array($id, $this->UserCache->read('DivisionIDs')));
 	}
 
 	/**
@@ -1570,6 +1453,7 @@ class DivisionsController extends AppController {
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
 
+		$this->Authorization->authorize($division);
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
 		if (!$division->is_playoff) {
@@ -1636,6 +1520,7 @@ class DivisionsController extends AppController {
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
 
+		$this->Authorization->authorize($division);
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
 		$conditions = [
@@ -1721,7 +1606,7 @@ class DivisionsController extends AppController {
 				} else {
 					$this->Flash->warning($msg);
 				}
-				return $this->forceRedirect(['action' => 'seeds', 'division' => $id]);
+				return $this->redirect(['action' => 'seeds', 'division' => $id]);
 			}
 		}
 
@@ -1895,6 +1780,7 @@ class DivisionsController extends AppController {
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
 
+		$this->Authorization->authorize($division);
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
 		if (empty($division->pools)) {
@@ -1932,7 +1818,7 @@ class DivisionsController extends AppController {
 	}
 
 	public function select() {
-		$this->viewBuilder()->className('Ajax.Ajax');
+		$this->Authorization->authorize($this);
 		$this->request->allowMethod('ajax');
 
 		$date = new DateType();

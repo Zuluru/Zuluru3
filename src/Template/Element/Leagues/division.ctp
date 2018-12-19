@@ -163,16 +163,17 @@ echo $this->Jquery->ajaxInput("divisions.$index.schedule_type", [
 ?>
 				<div id="SchedulingFields">
 <?php
+$administrative = $this->Authorize->can('scheduling_fields', \App\Controller\DivisionsController::class);
 if (!empty($league->divisions[$index]->schedule_type)) {
 	$league_obj = ModuleRegistry::getInstance()->load("LeagueType:{$league->divisions[$index]->schedule_type}");
-	$fields = $league_obj->schedulingFields(Configure::read('Perm.is_admin'), $is_coordinator);
+	$fields = $league_obj->schedulingFields($administrative);
 } else {
 	$fields = [];
 }
 $unlock_fields = [];
 foreach (ModuleRegistry::getModuleList('LeagueType') as $type) {
 	$other = ModuleRegistry::getInstance()->load("LeagueType:{$type}");
-	$other_fields = $other->schedulingFields(Configure::read('Perm.is_admin'), $is_coordinator);
+	$other_fields = $other->schedulingFields($administrative);
 	foreach (array_keys($other_fields) as $field) {
 		if (!array_key_exists($field, $fields)) {
 			$unlock_fields[] = $field;

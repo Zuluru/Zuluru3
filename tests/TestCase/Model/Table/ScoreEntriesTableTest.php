@@ -1,8 +1,8 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Middleware\ConfigurationLoader;
 use Cake\Event\Event as CakeEvent;
-use Cake\Event\EventManager;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\ScoreEntriesTable;
 
@@ -71,8 +71,7 @@ class ScoreEntriesTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testBeforeMarshal() {
-		$event = new CakeEvent('Configuration.initialize', $this);
-		EventManager::instance()->dispatch($event);
+		ConfigurationLoader::loadConfiguration();
 
 		$data = new \ArrayObject([
 			'status' => 'normal',

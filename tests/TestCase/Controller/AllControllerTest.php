@@ -1,7 +1,7 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
-use Cake\Core\Configure;
+use Cake\I18n\FrozenDate;
 
 /**
  * App\Controller\AllController Test Case
@@ -31,8 +31,16 @@ class AllControllerTest extends ControllerTestCase {
 				'app.divisions',
 					'app.teams',
 						'app.teams_people',
+						'app.teams_facilities',
 					'app.divisions_days',
+					'app.game_slots',
+						'app.divisions_gameslots',
 					'app.divisions_people',
+					'app.pools',
+						'app.pools_teams',
+					'app.games',
+						'app.stats',
+				'app.leagues_stat_types',
 			'app.franchises',
 				'app.franchises_people',
 				'app.franchises_teams',
@@ -45,234 +53,11 @@ class AllControllerTest extends ControllerTestCase {
 					'app.task_slots',
 			'app.badges',
 				'app.badges_people',
+			'app.notes',
 			'app.settings',
 			'app.waivers',
 				'app.waivers_people',
 	];
-
-	/**
-	 * Test splash method as an admin
-	 *
-	 * @return void
-	 */
-	public function testSplashAsAdmin() {
-		// Include all menu building in these tests
-		Configure::write('feature.minimal_menus', false);
-
-		// Everyone is allowed to get the splash page, different roles have different sets of messages
-		$this->assertAccessOk(['controller' => 'All', 'action' => 'splash'], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#The following affiliates do not yet have managers assigned to them:.*/affiliates/edit\?affiliate=2.*/affiliates/delete\?affiliate=2#ms');
-		$this->assertResponseRegExp('#There are 1 new <a href="/people/list_new">accounts to approve</a>#ms');
-		$this->assertResponseNotRegExp('#Recent and Upcoming Schedule#ms');
-	}
-
-	/**
-	 * Test splash method as a manager
-	 *
-	 * @return void
-	 */
-	public function testSplashAsManager() {
-		// Include all menu building in these tests
-		Configure::write('feature.minimal_menus', false);
-
-		$this->assertAccessOk(['controller' => 'All', 'action' => 'splash'], PERSON_ID_MANAGER);
-		$this->assertResponseNotRegExp('#The following affiliates do not yet have managers assigned to them:.*/affiliates/edit\?affiliate=2.*/affiliates/delete\?affiliate=2#ms');
-		$this->assertResponseRegExp('#There are 1 new <a href="/people/list_new">accounts to approve</a>#ms');
-		$this->assertResponseNotRegExp('#Recent and Upcoming Schedule#ms');
-	}
-
-	/**
-	 * Test splash method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testSplashAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test splash method as a captain
-	 *
-	 * @return void
-	 */
-	public function testSplashAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-
-	}
-
-	/**
-	 * Test splash method as a player
-	 *
-	 * @return void
-	 */
-	public function testSplashAsPlayer() {
-		// Include all menu building in these tests
-		Configure::write('feature.minimal_menus', false);
-
-		$this->assertAccessOk(['controller' => 'All', 'action' => 'splash'], PERSON_ID_PLAYER);
-		$this->assertResponseNotRegExp('#The following affiliates do not yet have managers assigned to them:.*/affiliates/edit\?affiliate=2.*/affiliates/delete\?affiliate=2#ms');
-		$this->assertResponseNotRegExp('#There are 1 new <a href="/people/list_new">accounts to approve</a>#ms');
-		$this->assertResponseRegExp('#Recent and Upcoming Schedule#ms');
-	}
-
-	/**
-	 * Test splash method as a relative
-	 *
-	 * @return void
-	 */
-	public function testSplashAsRelative() {
-		// Include all menu building in these tests
-		Configure::write('feature.minimal_menus', false);
-
-		// Related players have multiple tabs
-		$this->assertAccessOk(['controller' => 'All', 'action' => 'splash'], PERSON_ID_CAPTAIN);
-		$this->assertResponseRegExp('#Recent and Upcoming Schedule#ms');
-		$this->assertResponseRegExp('#<div id="ui-tabs-1">.*My Teams.*<div id="ui-tabs-2">.*Chuck\'s Teams.*<div id="ui-tabs-3">.*One moment\.\.\.#ms');
-	}
-
-	/**
-	 * Test splash method as someone else
-	 *
-	 * @return void
-	 */
-	public function testSplashAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test splash method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testSplashAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test schedule method as an admin
-	 *
-	 * @return void
-	 */
-	public function testScheduleAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test schedule method as a manager
-	 *
-	 * @return void
-	 */
-	public function testScheduleAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test schedule method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testScheduleAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test schedule method as a captain
-	 *
-	 * @return void
-	 */
-	public function testScheduleAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test schedule method as a player
-	 *
-	 * @return void
-	 */
-	public function testScheduleAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test schedule method as someone else
-	 *
-	 * @return void
-	 */
-	public function testScheduleAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test schedule method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testScheduleAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test consolidated_schedule method as an admin
-	 *
-	 * @return void
-	 */
-	public function testConsolidatedScheduleAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test consolidated_schedule method as a manager
-	 *
-	 * @return void
-	 */
-	public function testConsolidatedScheduleAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test consolidated_schedule method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testConsolidatedScheduleAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test consolidated_schedule method as a captain
-	 *
-	 * @return void
-	 */
-	public function testConsolidatedScheduleAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test consolidated_schedule method as a player
-	 *
-	 * @return void
-	 */
-	public function testConsolidatedScheduleAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test consolidated_schedule method as someone else
-	 *
-	 * @return void
-	 */
-	public function testConsolidatedScheduleAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test consolidated_schedule method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testConsolidatedScheduleAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
 
 	/**
 	 * Test clear_cache method as an admin
@@ -280,124 +65,215 @@ class AllControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testClearCacheAsAdmin() {
+		// Admins are allowed to clear the cache
+		$this->assertGetAsAccessRedirect(['controller' => 'All', 'action' => 'clear_cache'],
+			PERSON_ID_ADMIN, '/',
+			'The cache has been cleared.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test clear_cache method as a manager
+	 * Test clear_cache method as others
 	 *
 	 * @return void
 	 */
-	public function testClearCacheAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testClearCacheAsOthers() {
+		// Others are not allowed to clear the cache
+		$this->assertGetAsAccessDenied(['controller' => 'All', 'action' => 'clear_cache'], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessDenied(['controller' => 'All', 'action' => 'clear_cache'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'All', 'action' => 'clear_cache'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'All', 'action' => 'clear_cache'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'All', 'action' => 'clear_cache'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'All', 'action' => 'clear_cache']);
 	}
 
 	/**
-	 * Test clear_cache method as a coordinator
+	 * Test language method
 	 *
 	 * @return void
 	 */
-	public function testClearCacheAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testLanguage() {
+		// Anyone is allowed to set their language for the session
+		$this->assertGetAsAccessRedirect(['controller' => 'All', 'action' => 'language', 'lang' => 'en_US'],
+			PERSON_ID_ADMIN, '/',
+			'Your language has been changed for this session. To change it permanently, {0}.');
+		$this->assertEquals('en_US', $this->_requestSession->read('Config.language'));
+
+		$this->assertGetAsAccessRedirect(['controller' => 'All', 'action' => 'language', 'lang' => 'en_US'],
+			PERSON_ID_MANAGER, '/',
+			'Your language has been changed for this session. To change it permanently, {0}.');
+		$this->assertEquals('en_US', $this->_requestSession->read('Config.language'));
+
+		$this->assertGetAsAccessRedirect(['controller' => 'All', 'action' => 'language', 'lang' => 'en_US'],
+			PERSON_ID_COORDINATOR, '/',
+			'Your language has been changed for this session. To change it permanently, {0}.');
+		$this->assertEquals('en_US', $this->_requestSession->read('Config.language'));
+
+		$this->assertGetAsAccessRedirect(['controller' => 'All', 'action' => 'language', 'lang' => 'en_US'],
+			PERSON_ID_CAPTAIN, '/',
+			'Your language has been changed for this session. To change it permanently, {0}.');
+		$this->assertEquals('en_US', $this->_requestSession->read('Config.language'));
+
+		$this->assertGetAsAccessRedirect(['controller' => 'All', 'action' => 'language', 'lang' => 'en_US'],
+			PERSON_ID_PLAYER, '/',
+			'Your language has been changed for this session. To change it permanently, {0}.');
+		$this->assertEquals('en_US', $this->_requestSession->read('Config.language'));
+
+		$this->assertGetAsAccessRedirect(['controller' => 'All', 'action' => 'language', 'lang' => 'en_US'],
+			PERSON_ID_VISITOR, '/',
+			'Your language has been changed for this session. To change it permanently, {0}.');
+		$this->assertEquals('en_US', $this->_requestSession->read('Config.language'));
+
+		// Others are allowed to set their language for the session
+		$this->assertGetAnonymousAccessRedirect(['controller' => 'All', 'action' => 'language', 'lang' => 'en_US'],
+			'/', false);
+		$this->assertEquals('en_US', $this->_requestSession->read('Config.language'));
 	}
 
 	/**
-	 * Test clear_cache method as a captain
+	 * Set of methods to test all the various authentication and authorization failure scenarios with a single PHPUnit filter
+	 */
+
+	/**
+	 * 1. Unauthenticated access to an obsolete public resource (e.g. a deactivated user profile).
+	 * Should respond with HTTP code 410 GONE.
 	 *
 	 * @return void
 	 */
-	public function testClearCacheAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testAuth1UnauthenticatedAccessToObsoleteResource() {
+		FrozenDate::setTestNow(new FrozenDate('July 1'));
+		$this->get(['controller' => 'Teams', 'action' => 'ical', TEAM_ID_RED_PAST]);
+		$this->assertResponseCode(410);
 	}
 
 	/**
-	 * Test clear_cache method as a player
+	 * 2a. Unauthenticated access to a protected resource (e.g. an edit page or admin-only view), via HTTP.
+	 * Should redirect to login, include URL back to the thing, and set "you must log in" message.
 	 *
 	 * @return void
 	 */
-	public function testClearCacheAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testAuth2aUnauthenticatedAccessToProtectedResourceHTTPForbiddenException() {
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'edit', 'team' => TEAM_ID_RED]);
 	}
 
 	/**
-	 * Test clear_cache method as someone else
+	 * 2b. Unauthenticated access to a protected resource, via Ajax.
+	 * Should redirect to login, include URL back to the thing, and set "you must log in" message, but in JSON.
 	 *
 	 * @return void
 	 */
-	public function testClearCacheAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testAuth2bUnauthenticatedAccessToProtectedResourceAjax() {
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Groups', 'action' => 'activate', 'group' => GROUP_ID_OFFICIAL]);
 	}
 
 	/**
-	 * Test clear_cache method without being logged in
+	 * 3a. Unauthenticated access to a protected view of a public resource (e.g. registration wizard).
+	 * Should redirect to somewhere (e.g. a public view).
 	 *
 	 * @return void
 	 */
-	public function testClearCacheAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testAuth3aUnauthenticatedAccessToProtectedViewOfPublicResource() {
+		$this->assertGetAnonymousAccessRedirect(['controller' => 'Events', 'action' => 'wizard'],
+			['controller' => 'Events', 'action' => 'index']);
 	}
 
 	/**
-	 * Test language method as an admin
+	 * 3b. Unauthenticated access to a protected resource, via HTTP.
+	 * Should redirect to somewhere, and set a custom message.
 	 *
 	 * @return void
 	 */
-	public function testLanguageAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testAuth3bUnauthenticatedAccessToProtectedResourceHTTPForbiddenRedirectException() {
+		$this->assertGetAnonymousAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED, 'code' => 'wrong'],
+			['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+			'The authorization code is invalid.');
+
+		FrozenDate::setTestNow(new FrozenDate('July 1'));
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
+			PERSON_ID_PLAYER);
 	}
 
 	/**
-	 * Test language method as a manager
+	 * 4a. Unauthorized 'get' access (e.g. an edit page or admin-only view)
+	 * Should redirect to home page. Will set a message (typically "you do not have permission").
+	 * Handled via custom authorization handler on the ForbiddenException.
 	 *
 	 * @return void
 	 */
-	public function testLanguageAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testAuth4aUnauthorizedAccessToProtectedResourceHTTPForbiddenException() {
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'edit', 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
 	}
 
 	/**
-	 * Test language method as a coordinator
+	 * 4b. Unauthorized 'get' access (e.g. an edit page or admin-only view) via Ajax
+	 * Should redirect to home page. Will set a message (typically "you do not have permission").
+	 * Handled via custom authorization handler on the ForbiddenException.
 	 *
 	 * @return void
 	 */
-	public function testLanguageAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testAuth4bUnauthorizedAccessToProtectedResourceAjaxForbiddenException() {
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Groups', 'action' => 'activate', 'group' => GROUP_ID_OFFICIAL],
+			PERSON_ID_PLAYER);
 	}
 
 	/**
-	 * Test language method as a captain
+	 * 4c. Unauthorized 'get' access (e.g. an edit page or admin-only view)
+	 * Should redirect to home page. Will set a message (typically "you do not have permission").
+	 * Handled via custom authorization handler on the MissingIdentityException.
 	 *
 	 * @return void
 	 */
-	public function testLanguageAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testAuth4cUnauthorizedAccessToProtectedResourceHTTPMissingIdentityException() {
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED]);
 	}
 
 	/**
-	 * Test language method as a player
+	 * 4d. Unauthorized 'get' access (e.g. an edit page or admin-only view) via Ajax
+	 * Should redirect to home page. Will set a message (typically "you do not have permission").
+	 * Handled via custom authorization handler on the MissingIdentityException.
 	 *
 	 * @return void
 	 */
-	public function testLanguageAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testAuth4cUnauthorizedAccessToProtectedResourceAjaxMissingIdentityException() {
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED]);
 	}
 
 	/**
-	 * Test language method as someone else
+	 * 5a. Unauthorized access to a missing resource (e.g. a disabled feature)
+	 * Should redirect to somewhere (e.g. a public view). May set a message.
 	 *
 	 * @return void
 	 */
-	public function testLanguageAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testAuth5aUnauthorizedAccessToMissingResource() {
+		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'stats', 'team' => TEAM_ID_RED],
+			PERSON_ID_MANAGER, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+			'This league does not have stat tracking enabled.');
 	}
 
 	/**
-	 * Test language method without being logged in
+	 * 5a. Unauthorized 'get' access (e.g. an edit page or admin-only view)
+	 * Should redirect to somewhere (e.g. a public view). Will set a custom message.
+	 * Handled via custom authorization handler on the custom ForbiddenRedirectException.
 	 *
 	 * @return void
 	 */
-	public function testLanguageAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testAuth5aUnauthorizedAccessToProtectedResourceHTTPForbiddenRedirectException() {
+		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
+			PERSON_ID_CAPTAIN, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+			'You are not allowed to accept this roster invitation.');
+	}
+
+	/**
+	 * 5b. Unauthorized 'get' access (e.g. an edit page or admin-only view) via Ajax
+	 * Should redirect to somewhere (e.g. a public view). Will set a custom message.
+	 * Handled via custom authorization handler on the custom ForbiddenRedirectException.
+	 *
+	 * @return void
+	 */
+	public function testAuth5bUnauthorizedAccessToProtectedResourceAjaxForbiddenRedirectException() {
+		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
+			PERSON_ID_CAPTAIN, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+			'You are not allowed to accept this roster invitation.', 'warning');
 	}
 
 }

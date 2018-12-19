@@ -10,51 +10,22 @@ use Cake\ORM\TableRegistry;
 class MapsController extends AppController {
 
 	/**
-	 * _publicActions method
+	 * _noAuthenticationActions method
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _publicActions() {
+	protected function _noAuthenticationActions() {
 		return ['index', 'view'];
 	}
 
-	public function isAuthorized() {
-		try {
-			if ($this->UserCache->read('Person.status') == 'locked') {
-				return false;
-			}
-
-			if (Configure::read('Perm.is_manager')) {
-				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->getParam('action'), [
-					'edit',
-				])) {
-					// If a field id is specified, check if we're a manager of that field's affiliate
-					$field = $this->request->getQuery('field');
-					if ($field) {
-						if (in_array($this->Fields->affiliate($field), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-				}
-			}
-		} catch (RecordNotFoundException $ex) {
-		} catch (InvalidPrimaryKeyException $ex) {
-		}
-
-		return false;
-	}
-
 	public function index() {
-		if (Configure::read('Perm.is_admin')) {
+		if ($this->Authentication->getIdentity() && $this->Authentication->getIdentity()->isManager()) {
 			$closed = $this->request->getQuery('closed');
 		} else {
 			$closed = false;
 		}
 
-		$affiliates = $this->_applicableAffiliateIDs();
+		$affiliates = $this->Authentication->applicableAffiliateIDs();
 
 		$regions_table = TableRegistry::get('Regions');
 		$regions = $regions_table->find()
@@ -126,7 +97,7 @@ class MapsController extends AppController {
 		$this->Configuration->loadAffiliate($facility->region->affiliate_id);
 
 		$home_addr = '';
-		if ($this->Auth->user()) {
+		if ($this->Authentication->getIdentity()) {
 			$home_addr = $this->UserCache->read('Person.addr_street') . ', ' .
 				$this->UserCache->read('Person.addr_city') . ', ' .
 				$this->UserCache->read('Person.addr_prov');
@@ -162,6 +133,8 @@ class MapsController extends AppController {
 				'Regions',
 			]
 		]);
+
+		$this->Authorization->authorize($facility);
 		$this->Configuration->loadAffiliate($facility->region->affiliate_id);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {

@@ -5,7 +5,7 @@ use Cake\Http\Response;
 use Cake\Http\ServerRequest;
 
 /**
- * Trims trailing spaces off of cookie paths. Systems like Joomla and Drupal
+ * Trims trailing slashes off of cookie paths. Systems like Joomla and Drupal
  * may make dashboard URLs that look like "/zuluru", but CakePHP uses the
  * webroot, which always ends in a slash, for the cookie path. This means
  * that standards-compliant browsers (Firefox has a bug in this area) will

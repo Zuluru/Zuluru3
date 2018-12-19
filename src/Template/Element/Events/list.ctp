@@ -26,9 +26,6 @@ $play_types = ['team', 'individual'];
 $affiliate_id = null;
 $my_affiliates = $this->UserCache->read('ManagedAffiliateIDs');
 foreach ($events as $event):
-	// Perhaps remove manager status, if we're looking at a different affiliate
-	$is_event_manager = in_array($event->affiliate_id, $my_affiliates);
-
 	if (count($affiliates) > 1 && $event->affiliate_id != $affiliate_id):
 		$affiliate_id = $event->affiliate_id;
 ?>
@@ -69,14 +66,14 @@ foreach ($events as $event):
 				?></td>
 				<td><?= $this->Time->datetime($event->prices[0]->open) ?></td>
 				<td><?= $this->Time->datetime($event->prices[0]->close) ?></td>
-				<td class="actions"><?= $this->element('Events/actions', ['event' => $event, 'is_event_manager' => $is_event_manager]) ?></td>
+				<td class="actions"><?= $this->element('Events/actions', ['event' => $event]) ?></td>
 			</tr>
 <?php
 	else:
 ?>
 			<tr>
 				<td colspan="4"><h4><?= $this->Html->link($event->name, ['action' => 'view', 'event' => $event->id]) ?></h4></td>
-				<td class="actions"><?= $this->element('Events/actions', ['event' => $event, 'is_event_manager' => $is_event_manager]) ?></td>
+				<td class="actions"><?= $this->element('Events/actions', ['event' => $event]) ?></td>
 			</tr>
 <?php
 		foreach ($event->prices as $price):

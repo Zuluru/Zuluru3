@@ -20,7 +20,7 @@ if ($league->hasSpirit()):
 		echo $this->element('Spirit/symbol', [
 			'spirit_obj' => $spirit_obj,
 			'league' => $league,
-			'is_coordinator' => $is_coordinator,
+			'show_spirit_scores' => $show_spirit_scores,
 			'value' => $spirit,
 		]);
 	?></td>

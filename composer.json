@@ -31,8 +31,10 @@
         "trentrichardson/cakephp-scheduler": "^3.0",
         "josegonzalez/dotenv": "^3.2",
         "cakephp-app-installer/installer": "^2.0",
-        "admad/cakephp-jwt-auth": "2.2.0",
-        "ozee31/cakephp-cors": "^1.1"
+        "ozee31/cakephp-cors": "^1.1",
+        "cakephp/authentication": "^1.0",
+        "cakephp/authorization": "^1.0",
+        "firebase/php-jwt": "^5.0"
     },
     "require-dev": {
         "cakephp/debug_kit": "3.2.*",

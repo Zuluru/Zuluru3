@@ -57,7 +57,7 @@ foreach ($team->games as $game) {
 						'spirit_obj' => $spirit_obj,
 						'league' => $team->division->league,
 						'question' => $question,
-						'is_coordinator' => true,	// only ones allowed to even run this report
+						'show_spirit_scores' => true,	// only ones allowed to even run this report
 						'entry' => $entry,
 					]);
 				}
@@ -67,7 +67,7 @@ foreach ($team->games as $game) {
 					'spirit_obj' => $spirit_obj,
 					'league' => $team->division->league,
 					'question' => 'score_entry_penalty',
-					'is_coordinator' => true,	// only ones allowed to even run this report
+					'show_spirit_scores' => true,	// only ones allowed to even run this report
 					'value' => $entry->score_entry_penalty,
 				]);
 			}

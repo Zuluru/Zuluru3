@@ -1,6 +1,8 @@
 <?php
 namespace App\Controller;
 
+use App\Authorization\ContextResource;
+use App\Exception\ForbiddenRedirectException;
 use App\Model\Entity\Registration;
 use App\View\Helper\ZuluruHtmlHelper;
 use Cake\Cache\Cache;
@@ -9,12 +11,12 @@ use Cake\Core\Exception\Exception;
 use Cake\Database\Expression\IdentifierExpression;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
+use Cake\Http\Exception\GoneException;
+use Cake\Http\Exception\NotFoundException;
 use Cake\I18n\FrozenDate;
-use Cake\Network\Exception\GoneException;
-use Cake\Network\Exception\NotFoundException;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
-use App\Auth\HasherTrait;
+use App\PasswordHasher\HasherTrait;
 use App\Model\Entity\TeamsPerson;
 use Cake\Utility\Text;
 
@@ -34,191 +36,37 @@ class TeamsController extends AppController {
 	];
 
 	/**
-	 * _publicActions method
+	 * _noAuthenticationActions method
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _publicActions() {
-		if (Configure::read('Perm.is_manager')) {
-			// If a team id is specified, check if we're a manager of that team's affiliate
-			$team = $this->request->getQuery('team');
-			if ($team) {
-				if (!in_array($this->Teams->affiliate($team), $this->UserCache->read('ManagedAffiliateIDs'))) {
-					Configure::write('Perm.is_manager', false);
-				}
-			}
-		}
-
-		$actions = ['index', 'add', 'letter', 'view', 'tooltip', 'schedule', 'ical',
+	protected function _noAuthenticationActions() {
+		$actions = ['index', 'letter', 'view', 'tooltip', 'schedule', 'ical',
 			// Roster updates may come from emailed links; people might not be logged in
 			'roster_accept', 'roster_decline',
 		];
 		if (Configure::read('feature.public')) {
 			$actions[] = 'stats';
 		}
+
 		return $actions;
 	}
 
 	/**
-	 * _publicJsonActions method
+	 * _noAuthenticationJsonActions method
 	 *
 	 * @return array of JSON actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _publicJsonActions() {
+	protected function _noAuthenticationJsonActions() {
 		return ['view', 'schedule'];
-	}
-
-	/**
-	 * isAuthorized method
-	 *
-	 * @return bool true if access allowed
-	 */
-	public function isAuthorized() {
-		try {
-			if ($this->UserCache->read('Person.status') == 'locked') {
-				return false;
-			}
-
-			if (Configure::read('Perm.is_manager')) {
-				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->getParam('action'), [
-					'statistics',
-					'unassigned',
-				]))
-				{
-					// If an affiliate id is specified, check if we're a manager of that affiliate
-					$affiliate_id = $this->request->getQuery('affiliate');
-					if (!$affiliate_id) {
-						// If there's no affiliate id, this is a top-level operation that all managers can perform
-						return true;
-					} else if (in_array($affiliate_id, $this->UserCache->read('ManagedAffiliateIDs'))) {
-						return true;
-					} else {
-						Configure::write('Perm.is_manager', false);
-					}
-				}
-
-				if (in_array($this->request->getParam('action'), [
-					'edit',
-					'delete',
-					'roster_request',
-					'emails',
-					'stat_sheet',
-					'attendance',
-					'spirit',
-					'move',
-				]))
-				{
-					// If a team id is specified, check if we're a manager of that team's affiliate
-					$team_id = $this->request->getQuery('team');
-					if ($team_id) {
-						if (in_array($this->Teams->affiliate($team_id), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-				}
-			}
-
-			// People can perform these operations on divisions they coordinate
-			if (in_array($this->request->getParam('action'), [
-				'spirit',
-				'stat_sheet',
-			]))
-			{
-				// If a team id is specified, check if we're a coordinator of that team's division
-				$team_id = $this->request->getQuery('team');
-				if ($team_id) {
-					$divisions = $this->UserCache->read('Divisions');
-					return collection($divisions)->extract('teams.{*}')->some(function ($team) use ($team_id) { return $team->id == $team_id; });
-				}
-			}
-
-			// Anyone that's logged in can perform these operations
-			if (in_array($this->request->getParam('action'), [
-				'join',
-				'note',
-				'delete_note',
-				'stats',
-			]))
-			{
-				return true;
-			}
-
-			// We have a special function just for checking these operations
-			if (in_array($this->request->getParam('action'), [
-				'add_player',
-				'add_from_team',
-				'add_from_event',
-				'roster_add',
-				'roster_role',
-				'roster_position',
-				'numbers',
-			]))
-			{
-				// If a team id is specified, check the permissions
-				$team_id = $this->request->getQuery('team');
-				if ($team_id && $this->_canEditRoster($team_id, $this->request->getParam('action') != 'add_from_event') === true) {
-					return true;
-				}
-			}
-
-			// People can perform these operations on teams they run
-			if (in_array($this->request->getParam('action'), [
-				'edit',
-				'delete',
-				'emails',
-				'stat_sheet',
-			]))
-			{
-				// If a team id is specified, check if we're a captain of that team
-				$team_id = $this->request->getQuery('team');
-				if ($team_id && in_array($team_id, $this->UserCache->read('OwnedTeamIDs'))) {
-					return true;
-				}
-			}
-
-			// People can perform these operations on their own account
-			if (in_array($this->request->getParam('action'), [
-				'roster_role',
-				'roster_position',
-				'roster_request',
-				'numbers',
-			]))
-			{
-				// If a player id is specified, check if it's the logged-in user, or a relative
-				// If no player id is specified, it's always the logged-in user
-				$person_id = $this->request->getQuery('person');
-				$relatives = $this->UserCache->read('RelativeIDs');
-				if (!$person_id || $person_id == $this->UserCache->currentId() || in_array($person_id, $relatives)) {
-					return true;
-				}
-			}
-
-			// People can perform these operations on teams they or their relatives are on
-			if (in_array($this->request->getParam('action'), [
-				'attendance',
-			]))
-			{
-				$team_id = $this->request->getQuery('team');
-				if ($team_id) {
-					if (in_array($team_id, $this->UserCache->read('AllTeamIDs')) || in_array($team_id, $this->UserCache->read('AllRelativeTeamIDs'))) {
-						return true;
-					}
-				}
-			}
-		} catch (RecordNotFoundException $ex) {
-		} catch (InvalidPrimaryKeyException $ex) {
-		}
-
-		return false;
 	}
 
 	// TODO: Proper fix for black-holing of team management
 	public function beforeFilter(\Cake\Event\Event $event) {
 		parent::beforeFilter($event);
-		$this->Security->config('unlockedActions', ['edit', 'add_from_team']);
+		if (isset($this->Security)) {
+			$this->Security->config('unlockedActions', ['edit', 'add_from_team']);
+		}
 	}
 
 	/**
@@ -228,7 +76,7 @@ class TeamsController extends AppController {
 	 */
 	public function index() {
 		$affiliate = $this->request->getQuery('affiliate');
-		$affiliates = $this->_applicableAffiliateIDs();
+		$affiliates = $this->Authentication->applicableAffiliateIDs();
 
 		$query = $this->Teams->find()
 			->matching('Divisions.Leagues.Affiliates', function (Query $q) use ($affiliates) {
@@ -275,7 +123,7 @@ class TeamsController extends AppController {
 		}
 
 		$affiliate = $this->request->getQuery('affiliate');
-		$affiliates = $this->_applicableAffiliateIDs();
+		$affiliates = $this->Authentication->applicableAffiliateIDs();
 
 		$teams = $this->Teams->find()
 			->matching('Divisions.Leagues.Affiliates', function (Query $q) use ($affiliates) {
@@ -305,8 +153,10 @@ class TeamsController extends AppController {
 	}
 
 	public function join() {
+		$this->Authorization->authorize($this);
+
 		$affiliate = $this->request->getQuery('affiliate');
-		$affiliates = $this->_applicableAffiliateIDs();
+		$affiliates = $this->Authentication->applicableAffiliateIDs();
 
 		$query = $this->Teams->find('openRoster', compact('affiliates'));
 		$teams = $this->paginate($query);
@@ -319,7 +169,8 @@ class TeamsController extends AppController {
 	}
 
 	public function unassigned() {
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->Authorization->authorize($this);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 
 		$query = $this->Teams->find()
 			->where([
@@ -336,8 +187,9 @@ class TeamsController extends AppController {
 	}
 
 	public function statistics() {
+		$this->Authorization->authorize($this);
 		// We need the names here, so that "top 10" lists are sorted by affiliate name
-		$affiliates = $this->_applicableAffiliates(true);
+		$affiliates = $this->Authentication->applicableAffiliates(true);
 		$this->set(compact('affiliates'));
 
 		// Division conditions take precedence over year conditions
@@ -620,51 +472,6 @@ class TeamsController extends AppController {
 				'Facilities',
 				'Fields' => ['Facilities'],
 			];
-			if (Configure::read('Perm.is_logged_in') || Configure::read('feature.public')) {
-				$contain['People'] = ['Skills'];
-				if (Configure::read('feature.annotations')) {
-					$visibility = [VISIBILITY_PUBLIC];
-					if (Configure::read('Perm.is_admin')) {
-						$visibility[] = VISIBILITY_ADMIN;
-						$visibility[] = VISIBILITY_COORDINATOR;
-					} else {
-						$divisions = $this->UserCache->read('Divisions');
-						$teams = collection($divisions)->extract('teams.{*}.id')->toArray();
-						if (in_array($id, $teams)) {
-							$visibility[] = VISIBILITY_COORDINATOR;
-						}
-					}
-					if (in_array($id, $this->UserCache->read('OwnedTeamIDs'))) {
-						$visibility[] = VISIBILITY_CAPTAINS;
-					}
-					if (in_array($id, $this->UserCache->read('TeamIDs'))) {
-						$visibility[] = VISIBILITY_TEAM;
-					}
-					$contain['Notes'] = [
-						'queryBuilder' => function (Query $q) use ($visibility) {
-							return $q->where([
-								'OR' => [
-									'Notes.created_person_id' => $this->UserCache->currentId(),
-									'Notes.visibility IN' => $visibility,
-								],
-							]);
-						},
-						'CreatedPerson',
-					];
-				}
-
-				if (Configure::read('feature.badges')) {
-					$badge_obj = $this->moduleRegistry->load('Badge');
-					$contain['People']['Badges'] = [
-						'queryBuilder' => function (Query $q) use ($badge_obj) {
-							return $q->where([
-								'BadgesPeople.approved' => true,
-								'Badges.visibility IN' => $badge_obj->visibility(Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager'), BADGE_VISIBILITY_HIGH),
-							]);
-						},
-					];
-				}
-			}
 		}
 
 		try {
@@ -679,22 +486,77 @@ class TeamsController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		}
 
-		$is_captain = in_array($id, $this->UserCache->read('OwnedTeamIDs'));
-		$is_coordinator = in_array($team->division_id, $this->UserCache->read('DivisionIDs'));
-		$can_edit_roster = $this->_canEditRoster($team);
-
-		$this->set(compact('is_captain', 'is_coordinator', 'can_edit_roster'));
+		// Check if we can edit the roster. Whether it succeeds or fails is of no importance.
+		// We just need to display the message that might come with a failure.
+		try {
+			$this->Authorization->authorize(new ContextResource($team, ['division' => $team->division]), 'roster_add');
+		} catch (ForbiddenRedirectException $ex) {
+			$this->set(['warning_message' => $ex->getMessage()]);
+		} catch (\Exception $ex) {
+		}
 
 		if ($this->request->is('csv')) {
-			if (!(Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_captain || $is_coordinator)) {
-				$this->Flash->info(__('You do not have access to download this team roster.'));
-				return $this->redirect(['action' => 'view', 'team' => $id]);
-			}
+			$this->Authorization->authorize($team, 'download');
 			$this->response->download("{$team->name}.csv");
-			\App\lib\context_usort($team->people, ['App\Model\Table\TeamsTable', 'compareRoster'], ['team' => $team]);
+			$include_gender = $this->Authorization->can(new ContextResource($team, ['division' => $team->division]), 'display_gender');
+			\App\lib\context_usort($team->people, ['App\Model\Table\TeamsTable', 'compareRoster'], ['include_gender' => $include_gender]);
 			$this->set(compact('team'));
 			return;
 		}
+
+		$identity = $this->Authentication->getIdentity();
+
+		if ($identity && $identity->isLoggedIn() && Configure::read('feature.annotations')) {
+			$visibility = [VISIBILITY_PUBLIC];
+
+			if ($identity->isManagerOf($team)) {
+				$visibility[] = VISIBILITY_ADMIN;
+				$visibility[] = VISIBILITY_COORDINATOR;
+			} else if ($identity->isCoordinatorOf($team)) {
+				$visibility[] = VISIBILITY_COORDINATOR;
+			}
+			if ($identity->isCaptainOf($team)) {
+				$visibility[] = VISIBILITY_CAPTAINS;
+			}
+			if ($identity->isPlayerOn($team)) {
+				$visibility[] = VISIBILITY_TEAM;
+			}
+
+			$this->Teams->loadInto($team, ['Notes' => [
+				'queryBuilder' => function (Query $q) use ($visibility) {
+					return $q->where([
+						'OR' => [
+							'Notes.created_person_id' => $this->UserCache->currentId(),
+							'Notes.visibility IN' => $visibility,
+						],
+					]);
+				},
+				'CreatedPerson',
+			]]);
+		}
+
+		if ($this->Authorization->can($team, 'view_roster')) {
+			$people_contain = ['Skills'];
+		} else {
+			$people_contain = [];
+		}
+
+		if (Configure::read('feature.badges')) {
+			$badge_obj = $this->moduleRegistry->load('Badge');
+			$badge_obj->visibility($identity, BADGE_VISIBILITY_HIGH);
+			if (!empty($badge_obj->visibility)) {
+				$people_contain['Badges'] = [
+					'queryBuilder' => function (Query $q) use ($badge_obj) {
+						return $q->where([
+							'BadgesPeople.approved' => true,
+							'Badges.visibility IN' => $badge_obj->visibility,
+						]);
+					},
+				];
+			}
+		}
+
+		$this->Teams->loadInto($team, ['People' => $people_contain]);
 
 		if (empty($team->division_id)) {
 			$this->Configuration->loadAffiliate($team->affiliate_id);
@@ -717,7 +579,7 @@ class TeamsController extends AppController {
 			$team_days = [];
 		}
 
-		if (Configure::read('Perm.is_logged_in') || Configure::read('feature.public')) {
+		if ($this->Authorization->can($team, 'view_roster')) {
 			if (isset($member_rule)) {
 				$rule_obj = $this->moduleRegistry->load('RuleEngine');
 				if (!$rule_obj->init($member_rule)) {
@@ -827,7 +689,8 @@ class TeamsController extends AppController {
 				}
 			}
 
-			\App\lib\context_usort($team->people, ['App\Model\Table\TeamsTable', 'compareRoster'], ['team' => $team]);
+			$include_gender = $this->Authorization->can(new ContextResource($team, ['division' => $team->division]), 'display_gender');
+			\App\lib\context_usort($team->people, ['App\Model\Table\TeamsTable', 'compareRoster'], ['include_gender' => $include_gender]);
 		}
 
 		if ($team->division_id && $team->division->is_playoff) {
@@ -843,11 +706,6 @@ class TeamsController extends AppController {
 	}
 
 	public function numbers() {
-		if (!Configure::read('feature.shirt_numbers')) {
-			$this->Flash->info(__('Shirt numbers are not enabled on this system.'));
-			return $this->redirect(['action' => 'index']);
-		}
-
 		$person_id = $this->request->getQuery('person');
 		if ($person_id) {
 			$people_query = ['queryBuilder' => function (Query $q) use ($person_id) {
@@ -872,7 +730,6 @@ class TeamsController extends AppController {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect(['action' => 'index']);
 		}
-		$is_captain = in_array($id, $this->UserCache->read('OwnedTeamIDs'));
 
 		if ($person_id) {
 			if (empty($team->people)) {
@@ -880,10 +737,12 @@ class TeamsController extends AppController {
 				return $this->redirect(['action' => 'view', 'team' => $id]);
 			}
 			$person = current($team->people);
-		} else if ($this->_canEditRoster($team) !== true) {
-			$this->Flash->info(__('You do not have permission to set shirt numbers for this team.'));
-			return $this->redirect(['action' => 'view', 'team' => $id]);
+			$roster = $person->_joinData;
+		} else {
+			$roster = null;
 		}
+
+		$this->Authorization->authorize(new ContextResource($team, ['division' => $team->division, 'roster' => $roster]));
 
 		usort($team->people, ['App\Model\Table\TeamsTable', 'compareRoster']);
 
@@ -926,7 +785,7 @@ class TeamsController extends AppController {
 			}
 		}
 
-		$this->set(compact('team', 'is_captain', 'person_id', 'person'));
+		$this->set(compact('team', 'person'));
 	}
 
 	public function stats() {
@@ -969,16 +828,7 @@ class TeamsController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		}
 
-		if (empty($team->division_id)) {
-			// TODO: Any situation where it makes sense to have stat tracking for a team not in a division?
-			$this->Flash->info(__('This team does not have stat tracking enabled.'));
-			return $this->redirect(['action' => 'view', 'team' => $id]);
-		}
-		if (!$team->division->league->hasStats()) {
-			$this->Flash->info(__('This league does not have stat tracking enabled.'));
-			return $this->redirect(['action' => 'view', 'team' => $id]);
-		}
-
+		$this->Authorization->authorize(new ContextResource($team, ['league' => $team->division_id ? $team->division->league : null]));
 		$this->Configuration->loadAffiliate($team->division->league->affiliate_id);
 
 		$sport_obj = $this->moduleRegistry->load("Sport:{$team->division->league->sport}");
@@ -1014,8 +864,6 @@ class TeamsController extends AppController {
 		usort($team->people, ['App\Model\Table\TeamsTable', 'compareRoster']);
 
 		$this->set(compact('team', 'sport_obj'));
-		$this->set('is_captain', in_array($id, $this->UserCache->read('OwnedTeamIDs')));
-		$this->set('is_coordinator', in_array($team->division_id, $this->UserCache->read('DivisionIDs')));
 
 		if ($this->request->is('csv')) {
 			$this->response->download("Stats - {$team->name}.csv");
@@ -1024,65 +872,20 @@ class TeamsController extends AppController {
 
 	public function stat_sheet() {
 		$id = $this->request->getQuery('team');
-		$team = $this->Teams->find()
-			->contain([
-				'Divisions' => [
-					'Leagues' => [
-						'StatTypes' => [
-							'queryBuilder' => function (Query $q) {
-								return $q->where(['StatTypes.type' => 'entered']);
-							},
-						],
-					],
-				],
-				'People',
-			])
-			->where(['Teams.id' => $id])
-			->first();
-
-		if (!$team) {
-			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect(['action' => 'index']);
-		}
-
-		if (!$team->division->league->hasStats()) {
-			$this->Flash->info(__('This league does not have stat tracking enabled.'));
-			return $this->redirect(['action' => 'view', 'team' => $id]);
-		}
-
-		$this->set(compact('team'));
-	}
-
-	public function tooltip() {
-		$this->viewBuilder()->className('Ajax.Ajax');
-		$this->request->allowMethod('ajax');
-
-		$id = $this->request->getQuery('team');
-		$contain = [
-			// Get the list of captains
-			'People' => [
-				'queryBuilder' => function (Query $q) {
-					return $q
-						->select(['id', 'first_name', 'last_name'])
-						->where([
-							'TeamsPeople.role IN' => Configure::read('privileged_roster_roles'),
-							'TeamsPeople.status' => ROSTER_APPROVED,
-						]);
-				},
-			],
-			'Divisions' => ['Leagues'],
-		];
-		if (Configure::read('feature.annotations') && Configure::read('Perm.is_logged_in')) {
-			$contain['Notes'] = [
-				'queryBuilder' => function (Query $q) {
-					return $q->where(['created_person_id' => $this->UserCache->currentId()]);
-				},
-			];
-		}
-
 		try {
 			$team = $this->Teams->get($id, [
-				'contain' => $contain,
+				'contain' => [
+					'Divisions' => [
+						'Leagues' => [
+							'StatTypes' => [
+								'queryBuilder' => function (Query $q) {
+									return $q->where(['StatTypes.type' => 'entered']);
+								},
+							],
+						],
+					],
+					'People',
+				]
 			]);
 		} catch (RecordNotFoundException $ex) {
 			$this->Flash->info(__('Invalid team.'));
@@ -1090,6 +893,49 @@ class TeamsController extends AppController {
 		} catch (InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect(['action' => 'index']);
+		}
+
+		$this->Authorization->authorize(new ContextResource($team, ['league' => $team->division->league, 'stat_types' => $team->division->league->stat_types]));
+
+		$this->set(compact('team'));
+	}
+
+	public function tooltip() {
+		$this->request->allowMethod('ajax');
+
+		$id = $this->request->getQuery('team');
+
+		try {
+			$team = $this->Teams->get($id, [
+				'contain' => [
+					// Get the list of captains
+					'People' => [
+						'queryBuilder' => function (Query $q) {
+							return $q
+								->select(['id', 'first_name', 'last_name'])
+								->where([
+									'TeamsPeople.role IN' => Configure::read('privileged_roster_roles'),
+									'TeamsPeople.status' => ROSTER_APPROVED,
+								]);
+						},
+					],
+					'Divisions' => ['Leagues'],
+				],
+			]);
+		} catch (RecordNotFoundException $ex) {
+			$this->Flash->info(__('Invalid team.'));
+			return $this->redirect(['action' => 'index']);
+		} catch (InvalidPrimaryKeyException $ex) {
+			$this->Flash->info(__('Invalid team.'));
+			return $this->redirect(['action' => 'index']);
+		}
+
+		if ($this->Authorization->can($team, 'note')) {
+			$this->Teams->loadInto($team, ['Notes' => [
+				'queryBuilder' => function (Query $q) {
+					return $q->where(['created_person_id' => $this->UserCache->currentId()]);
+				},
+			]]);
 		}
 
 		if (empty($team->division_id)) {
@@ -1106,15 +952,11 @@ class TeamsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
+		$this->Authorization->authorize($this);
 		$team = $this->Teams->newEntity();
 
-		if (!Configure::read('Perm.is_admin') && Configure::read('feature.registration')) {
-			$this->Flash->info(__('This system creates teams through the registration process. Team creation through {0} is disabled. If you need a team created for some other reason (e.g. a touring team), please email {1} with the details, or call the office.', ZULURU, Configure::read('email.admin_email')));
-			return $this->redirect('/');
-		}
-
 		if ($this->request->is('post')) {
-			if (!Configure::read('Perm.is_admin') && (empty($this->request->data['affiliate_id']) || !in_array($this->request->data['affiliate_id'], $this->UserCache->read('ManagedAffiliateIDs')))) {
+			if (!$this->Authentication->getIdentity()->isManager()) {
 				$this->request->data['people'] = [[
 					'id' => $this->UserCache->currentId(),
 					'_joinData' => [
@@ -1142,7 +984,7 @@ class TeamsController extends AppController {
 			]);
 
 			if ($this->Teams->save($team)) {
-				if (Configure::read('Perm.is_admin')) {
+				if ($this->Authentication->getIdentity()->isManagerOf($team)) {
 					$this->Flash->success(__('The team has been saved.'));
 				} else {
 					$this->Flash->success(__('The team has been saved, but will not be visible until approved.'));
@@ -1156,7 +998,7 @@ class TeamsController extends AppController {
 		}
 
 		// TODO: A way to indicate which sport the team is for, and load only applicable facilities
-		$affiliates = $this->_applicableAffiliates();
+		$affiliates = $this->Authentication->applicableAffiliates();
 		$regions = TableRegistry::get('Regions')->find('list', [
 			'conditions' => ['affiliate_id IN' => array_keys($affiliates)],
 		])->toArray();
@@ -1211,6 +1053,8 @@ class TeamsController extends AppController {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect(['action' => 'index']);
 		}
+
+		$this->Authorization->authorize($team);
 		$this->Configuration->loadAffiliate($this->Teams->affiliate($id));
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
@@ -1241,7 +1085,7 @@ class TeamsController extends AppController {
 		$this->Configuration->loadAffiliate($this->Teams->affiliate($id));
 
 		$field_conditions = ['Fields.is_open' => true];
-		$affiliates = $this->_applicableAffiliates();
+		$affiliates = $this->Authentication->applicableAffiliates();
 		$region_conditions = ['affiliate_id IN' => array_keys($affiliates)];
 
 		if ($team->division_id) {
@@ -1296,11 +1140,7 @@ class TeamsController extends AppController {
 					'contain' => ['Teams' => ['Divisions' => ['Leagues']]],
 				]);
 
-				// Check that this user is allowed to edit this note
-				if ($note->created_person_id != Configure::read('Perm.my_id')) {
-					$this->Flash->warning(__('You are not allowed to edit that note.'));
-					return $this->redirect(['action' => 'view', 'team' => $note->team->id]);
-				}
+				$this->Authorization->authorize($note, 'edit_team');
 			} catch (RecordNotFoundException $ex) {
 				$this->Flash->info(__('Invalid note.'));
 				return $this->redirect('/');
@@ -1325,6 +1165,7 @@ class TeamsController extends AppController {
 			$note->team_id = $team->id;
 		}
 
+		$this->Authorization->authorize($team);
 		if (empty($team->division_id)) {
 			$this->Configuration->loadAffiliate($team->affiliate_id);
 		} else {
@@ -1365,7 +1206,9 @@ class TeamsController extends AppController {
 		$note_id = $this->request->getQuery('note');
 
 		try {
-			$note = $this->Teams->Notes->get($note_id);
+			$note = $this->Teams->Notes->get($note_id,
+				['contain' => ['Teams' => ['Divisions']]
+			]);
 		} catch (RecordNotFoundException $ex) {
 			$this->Flash->info(__('Invalid note.'));
 			return $this->redirect('/');
@@ -1374,20 +1217,16 @@ class TeamsController extends AppController {
 			return $this->redirect('/');
 		}
 
-		if ($note->created_person_id == Configure::read('Perm.my_id') ||
-			(Configure::read('Perm.is_admin') && in_array($note->visibility, [VISIBILITY_ADMIN, VISIBILITY_COORDINATOR])) ||
-			(in_array($note->team->division_id, $this->UserCache->read('DivisionIDs')) && $note->visibility == VISIBILITY_COORDINATOR)
-		) {
-			if ($this->Teams->Notes->delete($note)) {
-				$this->Flash->success(__('The note has been deleted.'));
-			} else if ($note->errors('delete')) {
-				$this->Flash->warning(current($note->errors('delete')));
-			} else {
-				$this->Flash->warning(__('The note could not be deleted. Please, try again.'));
-			}
+		$this->Authorization->authorize($note, 'delete_team');
+
+		if ($this->Teams->Notes->delete($note)) {
+			$this->Flash->success(__('The note has been deleted.'));
+		} else if ($note->errors('delete')) {
+			$this->Flash->warning(current($note->errors('delete')));
 		} else {
-			$this->Flash->warning(__('You are not allowed to delete that note.'));
+			$this->Flash->warning(__('The note could not be deleted. Please, try again.'));
 		}
+
 		return $this->redirect(['action' => 'view', 'team' => $note->team_id]);
 	}
 
@@ -1400,12 +1239,6 @@ class TeamsController extends AppController {
 		$this->request->allowMethod(['post', 'delete']);
 
 		$id = $this->request->getQuery('team');
-		$dependencies = $this->Teams->dependencies($id);
-		if ($dependencies !== false) {
-			$this->Flash->warning(__('The following records reference this team, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
-			return $this->redirect(['action' => 'index']);
-		}
-
 		try {
 			$team = $this->Teams->get($id, [
 				'contain' => ['Divisions']
@@ -1415,6 +1248,14 @@ class TeamsController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		} catch (InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team.'));
+			return $this->redirect(['action' => 'index']);
+		}
+
+		$this->Authorization->authorize($team);
+
+		$dependencies = $this->Teams->dependencies($id);
+		if ($dependencies !== false) {
+			$this->Flash->warning(__('The following records reference this team, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
 			return $this->redirect(['action' => 'index']);
 		}
 
@@ -1446,6 +1287,8 @@ class TeamsController extends AppController {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect(['action' => 'index']);
 		}
+
+		$this->Authorization->authorize($team);
 		if (empty($team->division_id)) {
 			$this->Configuration->loadAffiliate($team->affiliate_id);
 		} else {
@@ -1490,7 +1333,7 @@ class TeamsController extends AppController {
 				'Divisions.is_open' => true,
 				'Divisions.open >' => FrozenDate::now(),
 			],
-			'Leagues.affiliate_id IN' => $this->_applicableAffiliateIDs(true),
+			'Leagues.affiliate_id IN' => $this->Authentication->applicableAffiliateIDs(true),
 		];
 		if ($team->division_id) {
 			$conditions += [
@@ -1568,11 +1411,7 @@ class TeamsController extends AppController {
 		}
 
 		$this->set(compact('team'));
-		$this->set('is_coordinator', in_array($team->division_id, $this->UserCache->read('DivisionIDs')));
-		$this->set('is_captain', in_array($id, $this->UserCache->read('AllOwnedTeamIDs')));
 		$this->set('spirit_obj', $this->moduleRegistry->load("Spirit:{$team->division->league->sotg_questions}"));
-		$this->set('display_attendance', $team->track_attendance && (in_array($team->id, $this->UserCache->read('AllTeamIDs')) || in_array($team->id, $this->UserCache->read('AllRelativeTeamIDs'))));
-		$this->set('annotate', Configure::read('feature.annotations') && in_array($team->id, $this->UserCache->read('TeamIDs')));
 		$this->set('_serialize', ['team']);
 	}
 
@@ -1583,7 +1422,7 @@ class TeamsController extends AppController {
      *
      * @param string|null $id Team id.
      * @return void
-     * @throws \Cake\Network\Exception\NotFoundException When record not found.
+     * @throws \Cake\Http\Exception\GoneException When record not found.
      */
 	public function ical($id) {
 		$this->viewBuilder()->layout('ical');
@@ -1598,9 +1437,7 @@ class TeamsController extends AppController {
 			throw new GoneException();
 		}
 
-		if (empty($team->division_id) || $team->division->close < FrozenDate::now()->subWeeks(2)) {
-			throw new GoneException();
-		}
+		$this->Authorization->authorize(new ContextResource($team, ['division' => $team->division]));
 
 		if (empty($team->division_id)) {
 			$this->Configuration->loadAffiliate($team->affiliate_id);
@@ -1655,6 +1492,7 @@ class TeamsController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		}
 
+		$this->Authorization->authorize($team);
 		if (empty($team->division_id)) {
 			$this->Configuration->loadAffiliate($team->affiliate_id);
 		} else {
@@ -1711,10 +1549,7 @@ class TeamsController extends AppController {
 			return $this->redirect('/');
 		}
 
-		if (!$team->track_attendance) {
-			$this->Flash->info(__('That team does not have attendance tracking enabled.'));
-			return $this->redirect('/');
-		}
+		$this->Authorization->authorize($team);
 
 		// Find the list of holidays to avoid
 		$holidays_table = TableRegistry::get('Holidays');
@@ -1773,7 +1608,6 @@ class TeamsController extends AppController {
 			->toArray();
 
 		$this->set(compact('team', 'attendance', 'event_attendance', 'dates', 'days', 'games'));
-		$this->set('is_captain', in_array($id, $this->UserCache->read('OwnedTeamIDs')));
 	}
 
 	public function emails() {
@@ -1805,6 +1639,7 @@ class TeamsController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		}
 
+		$this->Authorization->authorize($team);
 		if (empty($team->division_id)) {
 			$this->Configuration->loadAffiliate($team->affiliate_id);
 		} else {
@@ -1830,6 +1665,7 @@ class TeamsController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		}
 
+		$this->Authorization->authorize(new ContextResource($team, ['division' => $team->division]));
 		if (empty($team->division_id)) {
 			$this->Configuration->loadAffiliate($team->affiliate_id);
 		} else {
@@ -1850,7 +1686,7 @@ class TeamsController extends AppController {
 		$this->set(compact('teams'));
 
 		// Admins and coordinators get to add people based on registration events
-		if ($this->_canEditRoster($team, false) === true) {
+		if ($this->Authorization->can(new ContextResource($team, ['division' => $team->division]), 'add_from_event')) {
 			$conditions = [
 				'Events.open < NOW()',
 				'Events.close >' => FrozenDate::now()->subDays(30),
@@ -1896,6 +1732,8 @@ class TeamsController extends AppController {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect(['action' => 'index']);
 		}
+
+		$this->Authorization->authorize(new ContextResource($team, ['division' => $team->division]));
 		if (empty($team->division_id)) {
 			$this->Configuration->loadAffiliate($team->affiliate_id);
 		} else {
@@ -2003,6 +1841,8 @@ class TeamsController extends AppController {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect(['action' => 'index']);
 		}
+
+		$this->Authorization->authorize(new ContextResource($team, ['division' => $team->division]));
 		if (empty($team->division_id)) {
 			$this->Configuration->loadAffiliate($team->affiliate_id);
 		} else {
@@ -2114,10 +1954,7 @@ class TeamsController extends AppController {
 	}
 
 	public function roster_role() {
-		$person_id = $this->request->getQuery('person');
-		if (!$person_id) {
-			$person_id = $this->UserCache->currentId();
-		}
+		$person_id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
 
 		try {
 			list($team, $person) = $this->_initTeamForRosterChange($person_id);
@@ -2131,6 +1968,8 @@ class TeamsController extends AppController {
 			return $this->redirect(['action' => 'view', 'team' => $team->id]);
 		}
 
+		$this->Authorization->authorize(new ContextResource($team, ['division' => $team->division, 'roster' => $person->_joinData]));
+
 		$role = $person->_joinData->role;
 		$roster_role_options = $this->_rosterRoleOptions($role, $team, $person_id);
 		$this->set(compact('person', 'team', 'role', 'roster_role_options'));
@@ -2143,9 +1982,8 @@ class TeamsController extends AppController {
 		// Check if this user is the only approved captain on the team
 		$required_roles = Configure::read('required_roster_roles');
 		if (in_array($role, $required_roles) &&
-			!in_array($this->request->data['role'], $required_roles) /*&&
-			!Configure::read('Perm.is_admin') && !Configure::read('Perm.is_manager')*/)
-		{
+			!in_array($this->request->data['role'], $required_roles)
+		) {
 			$captains = collection($team->people)->filter(function ($person) use ($required_roles) {
 				return in_array($person->_joinData->role, $required_roles) && $person->_joinData->status == ROSTER_APPROVED;
 			})->toArray();
@@ -2171,10 +2009,7 @@ class TeamsController extends AppController {
 	}
 
 	public function roster_position() {
-		$person_id = $this->request->getQuery('person');
-		if (!$person_id) {
-			$person_id = $this->UserCache->currentId();
-		}
+		$person_id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
 
 		try {
 			list($team, $person) = $this->_initTeamForRosterChange($person_id);
@@ -2187,6 +2022,8 @@ class TeamsController extends AppController {
 			$this->Flash->info(__('This person is not on this team.'));
 			return $this->redirect(['action' => 'view', 'team' => $team->id]);
 		}
+
+		$this->Authorization->authorize(new ContextResource($team, ['division' => $team->division, 'roster' => $person->_joinData]));
 
 		$position = $person->_joinData->position;
 		if ($team->division_id) {
@@ -2228,6 +2065,8 @@ class TeamsController extends AppController {
 			$this->Flash->info($ex->getMessage());
 			return $this->redirect('/');
 		}
+
+		$this->Authorization->authorize(new ContextResource($team, ['division' => $team->division]));
 
 		if (!empty($person)) {
 			$this->Flash->info(__('This person is already on this team.'));
@@ -2279,11 +2118,13 @@ class TeamsController extends AppController {
 
 	public function roster_request() {
 		try {
-			list($team, $person) = $this->_initTeamForRosterChange(Configure::read('Perm.my_id'));
+			list($team, $person) = $this->_initTeamForRosterChange($this->UserCache->currentId());
 		} catch (Exception $ex) {
 			$this->Flash->info($ex->getMessage());
 			return $this->redirect('/');
 		}
+
+		$this->Authorization->authorize(new ContextResource($team, ['division' => $team->division]));
 
 		if (!empty($person)) {
 			$this->Flash->info(__('You are already on this team.'));
@@ -2292,7 +2133,7 @@ class TeamsController extends AppController {
 
 		// Read the bare player record
 		try {
-			$person = $this->Teams->People->get(Configure::read('Perm.my_id'), [
+			$person = $this->Teams->People->get($this->UserCache->currentId(), [
 				'contain' => [Configure::read('Security.authModel')]
 			]);
 		} catch (RecordNotFoundException $ex) {
@@ -2310,7 +2151,7 @@ class TeamsController extends AppController {
 			return $this->redirect(['action' => 'view', 'team' => $team->id]);
 		}
 
-		$roster_role_options = $this->_rosterRoleOptions('none', $team, Configure::read('Perm.my_id'), false);
+		$roster_role_options = $this->_rosterRoleOptions('none', $team, $this->UserCache->currentId(), false);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			if (!array_key_exists($this->request->data['role'], $roster_role_options)) {
@@ -2327,58 +2168,21 @@ class TeamsController extends AppController {
 	}
 
 	public function roster_accept() {
-		$person_id = $this->request->getQuery('person');
-		if (!$person_id) {
-			$person_id = Configure::read('Perm.my_id');
-		}
-		$is_me = ($person_id == Configure::read('Perm.my_id') || in_array($person_id, $this->UserCache->read('RelativeIDs')));
+		$person_id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
 
 		try {
-			list($team, $person) = $this->_initTeamForRosterChange($person_id, false);
+			list($team, $person) = $this->_initTeamForRosterChange($person_id);
 		} catch (Exception $ex) {
 			$this->Flash->info($ex->getMessage());
 			return $this->redirect('/');
 		}
 
-		if (empty($person)) {
-			$this->Flash->info(__('This person has neither been invited nor requested to join this team.'));
-			return $this->redirect(['action' => 'view', 'team' => $team->id]);
-		}
-
-		if ($person->_joinData->status == ROSTER_APPROVED) {
-			$this->Flash->info(__('This person has already been added to the roster.'));
-			return $this->redirect(['action' => 'view', 'team' => $team->id]);
-		}
-
-		// We must do other permission checks here, because we allow non-logged-in users to accept
-		// through email links
-		$code = $this->request->getQuery('code');
-		if ($code) {
-			// Authenticate the hash code
-			if (!$this->_checkHash([$person->_joinData->id, $person->_joinData->team_id, $person->_joinData->person_id, $person->_joinData->role, $person->_joinData->created], $code)) {
-				$this->Flash->warning(__('The authorization code is invalid.'));
-				return $this->redirect(['action' => 'view', 'team' => $team->id]);
-			}
-		} else {
-			// Check for coordinator or admin override
-			if ($this->_canEditRoster($team, false) !== true &&
-				// Players can accept when they are invited
-				!($person->_joinData->status == ROSTER_INVITED && $is_me) &&
-				// Captains can accept requests to join their teams
-				!($person->_joinData->status == ROSTER_REQUESTED && in_array($team->id, $this->UserCache->read('OwnedTeamIDs')))
-			)
-			{
-				$this->Flash->warning(__('You are not allowed to accept this roster {0}.',
-					($person->_joinData->status == ROSTER_INVITED) ? __('invitation') : __('request')));
-				return $this->redirect(['action' => 'view', 'team' => $team->id]);
-			}
-		}
+		$this->Authorization->authorize(new ContextResource($team, ['person' => $person, 'roster' => $person ? $person->_joinData : null, 'division' => $team->division, 'code' => $this->request->getQuery('code')]));
 
 		// Check if this person can even be added
 		$can_add = $this->_canAdd($person, $team, $person->_joinData->role, $person->_joinData->status, true, $this->request->is('ajax'));
 		if ($can_add !== true) {
-			if (Configure::read('Perm.is_logged_in') && !empty($this->can_add_rule_obj->redirect)) {
-//				$this->queueRedirect($this->request->here());
+			if ($this->Authentication->getIdentity()->isLoggedIn() && !empty($this->can_add_rule_obj) && !empty($this->can_add_rule_obj->redirect)) {
 				if ($this->request->is('ajax')) {
 					return $this->redirect(array_merge($this->can_add_rule_obj->redirect, ['return' => $this->_return()]), 100);
 				} else {
@@ -2418,51 +2222,16 @@ class TeamsController extends AppController {
 	}
 
 	public function roster_decline() {
-		$person_id = $this->request->getQuery('person');
-		if (!$person_id) {
-			$person_id = Configure::read('Perm.my_id');
-		}
-		$is_me = ($person_id == Configure::read('Perm.my_id') || in_array($person_id, $this->UserCache->read('RelativeIDs')));
+		$person_id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
 
 		try {
-			list($team, $person) = $this->_initTeamForRosterChange($person_id, false);
+			list($team, $person) = $this->_initTeamForRosterChange($person_id);
 		} catch (Exception $ex) {
 			$this->Flash->info($ex->getMessage());
 			return $this->redirect('/');
 		}
 
-		if (empty($person)) {
-			$this->Flash->info(__('This person has neither been invited nor requested to join this team.'));
-			return $this->redirect(['action' => 'view', 'team' => $team->id]);
-		}
-
-		if ($person->_joinData->status == ROSTER_APPROVED) {
-			$this->Flash->info(__('This person has already been added to the roster.'));
-			return $this->redirect(['action' => 'view', 'team' => $team->id]);
-		}
-
-		// We must do other permission checks here, because we allow non-logged-in users to accept
-		// through email links
-		$code = $this->request->getQuery('code');
-		if ($code) {
-			// Authenticate the hash code
-			if (!$this->_checkHash([$person->_joinData->id, $person->_joinData->team_id, $person->_joinData->person_id, $person->_joinData->role, $person->_joinData->created], $code)) {
-				$this->Flash->warning(__('The authorization code is invalid.'));
-				return $this->redirect(['action' => 'view', 'team' => $team->id]);
-			}
-		} else {
-			// Check for coordinator or admin override
-			if ($this->_canEditRoster($team, false) !== true &&
-				// Players or captains can either decline an invite or request from the other,
-				// or remove one that they made themselves.
-				!$is_me && !(in_array($team->id, $this->UserCache->read('OwnedTeamIDs')))
-			)
-			{
-				$this->Flash->warning(__('You are not allowed to decline this roster {0}.',
-					($person->_joinData->status == ROSTER_INVITED) ? __('invitation') : __('request')));
-				return $this->redirect(['action' => 'view', 'team' => $team->id]);
-			}
-		}
+		$this->Authorization->authorize(new ContextResource($team, ['person' => $person, 'roster' => $person ? $person->_joinData : null, 'division' => $team->division, 'code' => $this->request->getQuery('code')]));
 
 		$this->Teams->People->unlink($team, [$person], compact('person', 'team'));
 
@@ -2479,22 +2248,14 @@ class TeamsController extends AppController {
 
 		$this->Flash->success(__('You have declined this roster {0}.',
 			($person->_joinData->status == ROSTER_INVITED) ? __('invitation') : __('request')));
-		if ($person_id == Configure::read('Perm.my_id')) {
+		$identity = $this->Authentication->getIdentity();
+		if ($identity && $identity->isMe($person)) {
 			return $this->redirect('/');
 		}
 		return $this->redirect(['action' => 'view', 'team' => $team->id]);
 	}
 
-	protected function _canEditRoster($team_id, $allow_captain = true) {
-		$teams_table = TableRegistry::get('Teams');
-		return $teams_table->canEditRoster($team_id, Configure::read('Perm.is_admin'), Configure::read('Perm.is_manager'), $allow_captain);
-	}
-
-	protected function _initTeamForRosterChange($person_id, $check_permission = true) {
-		if (!$person_id) {
-			throw new Exception(__('Invalid player.'));
-		}
-
+	protected function _initTeamForRosterChange($person_id) {
 		$team_id = $this->request->getQuery('team');
 		try {
 			$team = $this->Teams->get($team_id, [
@@ -2521,17 +2282,6 @@ class TeamsController extends AppController {
 		// Pull out the player record from the team
 		$person = collection($team->people)->firstMatch(['id' => $person_id]);
 
-		$can_edit_roster = $this->_canEditRoster($team);
-		$is_me = ($person_id == Configure::read('Perm.my_id') || in_array($person_id, $this->UserCache->read('RelativeIDs')));
-		$permission = (!$check_permission || $can_edit_roster === true || ($team->division_id && !$team->division->roster_deadline_passed && $is_me));
-		if (!$permission) {
-			if ($can_edit_roster === false) {
-				throw new Exception(__('The roster deadline for this division has already passed.'));
-			} else {
-				throw new Exception($can_edit_roster);
-			}
-		}
-
 		return [$team, $person];
 	}
 
@@ -2556,8 +2306,9 @@ class TeamsController extends AppController {
 			}
 		}
 
-		// Admins, coordinators and captains can make anyone anything that's left
-		if ($this->Teams->canEditRoster($team, Configure::read('Perm.is_admin') && $allow_override, Configure::read('Perm.is_manager') && $allow_override) === true) {
+		// Admins, coordinators and captains can make anyone anything that's left, but they don't get any
+		// special treatment when joining a roster ($allow_override == false)
+		if ($allow_override && $this->Authorization->can(new ContextResource($team, ['division' => $team->division]), 'roster_add')) {
 			return $roster_role_options;
 		}
 
@@ -3095,11 +2846,15 @@ class TeamsController extends AppController {
 			'contain' => [
 				'People' => [
 					'queryBuilder' => function (Query $q) {
-						return $q->where([
+						$q = $q->where([
 							'TeamsPeople.role IN' => Configure::read('privileged_roster_roles'),
 							'TeamsPeople.status' => ROSTER_APPROVED,
-							'TeamsPeople.person_id !=' => $this->UserCache->currentId(),
 						]);
+						$my_id = $this->UserCache->currentId();
+						if ($my_id) {
+							$q = $q->where(['TeamsPeople.person_id !=' => $my_id]);
+						}
+						return $q;
 					},
 					Configure::read('Security.authModel'),
 				],

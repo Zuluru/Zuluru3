@@ -7,7 +7,7 @@ if (isset($games)) {
 
 if (isset($tasks)) {
 	foreach ($tasks as $task) {
-		echo $this->element('Tasks/ical', ['task_slot' => $task->task_slot, 'task' => $task, 'uid_prefix' => 'T']);
+		echo $this->element('Tasks/ical', ['task_slot' => $task, 'task' => $task->task, 'uid_prefix' => 'T']);
 	}
 }
 

@@ -2,10 +2,8 @@
 
 namespace App\Module;
 
+use Authorization\IdentityInterface;
 use Cake\Core\Configure;
-use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\ORM\Entity;
-use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 use App\Core\ModuleRegistry;
 use App\Exception\MissingModuleException;
@@ -14,9 +12,9 @@ use App\Model\Entity\BadgesPerson;
 class Badge {
 	public $visibility = [];
 
-	public function visibility($allow_admin, $min_visibility = BADGE_VISIBILITY_LOW) {
+	public function visibility(IdentityInterface $identity = null, $min_visibility = BADGE_VISIBILITY_LOW) {
 		$this->visibility = range(BADGE_VISIBILITY_HIGH, $min_visibility);
-		if ($allow_admin) {
+		if ($identity && $identity->isManager()) {
 			$this->visibility[] = BADGE_VISIBILITY_ADMIN;
 		}
 		return $this->visibility;

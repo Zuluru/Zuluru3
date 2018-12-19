@@ -1,11 +1,10 @@
 <?php
 use Cake\ORM\TableRegistry;
-use Cake\Core\Configure;
 ?>
 <h2><?= h($division->full_league_name) ?></h2>
 <dl class="dl-horizontal">
 <?php
-if (Configure::read('Perm.is_logged_in') && !empty($division->people)):
+if ($this->Identity->isLoggedIn() && !empty($division->people)):
 	$links = [];
 	foreach ($division->people as $coordinator) {
 		$links[] = $this->Html->link($coordinator->full_name, ['controller' => 'People', 'action' => 'view', 'person' => $coordinator->id]);

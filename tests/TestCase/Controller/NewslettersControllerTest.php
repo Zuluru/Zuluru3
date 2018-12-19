@@ -25,246 +25,117 @@ class NewslettersControllerTest extends ControllerTestCase {
 			'app.leagues',
 				'app.divisions',
 					'app.teams',
+					'app.divisions_people',
 					'app.pools',
 						'app.pools_teams',
 					'app.games',
 			'app.mailing_lists',
 				'app.newsletters',
+				'app.subscriptions',
 			'app.activity_logs',
 			'app.settings',
+			'app.locks',
 	];
 
 	/**
-	 * Test index method as an admin
+	 * Test index method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsAdmin() {
-		// Admins are allowed to get the index, and all future newsletters will be on it
-		$this->assertAccessOk(['controller' => 'Newsletters', 'action' => 'index'], PERSON_ID_ADMIN);
-		$this->assertResponseNotRegExp('#/newsletters/edit\?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS . '#ms');
-		$this->assertResponseNotRegExp('#/newsletters/delete\?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS . '#ms');
-		$this->assertResponseRegExp('#/newsletters/edit\?newsletter=' . NEWSLETTER_ID_MASTER_MEETUPS . '#ms');
-		$this->assertResponseRegExp('#/newsletters/delete\?newsletter=' . NEWSLETTER_ID_MASTER_MEETUPS . '#ms');
-		$this->assertResponseRegExp('#/newsletters/edit\?newsletter=' . NEWSLETTER_ID_WOMENS_CLINICS_SUB . '#ms');
-		$this->assertResponseRegExp('#/newsletters/delete\?newsletter=' . NEWSLETTER_ID_WOMENS_CLINICS_SUB . '#ms');
+	public function testIndex() {
+		// Admins are allowed to see the index, and all future newsletters will be on it
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'index'], PERSON_ID_ADMIN);
+		$this->assertResponseNotContains('/newsletters/edit?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS);
+		$this->assertResponseNotContains('/newsletters/delete?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS);
+		$this->assertResponseContains('/newsletters/edit?newsletter=' . NEWSLETTER_ID_MASTER_MEETUPS);
+		$this->assertResponseContains('/newsletters/delete?newsletter=' . NEWSLETTER_ID_MASTER_MEETUPS);
+		$this->assertResponseContains('/newsletters/edit?newsletter=' . NEWSLETTER_ID_WOMENS_CLINICS_SUB);
+		$this->assertResponseContains('/newsletters/delete?newsletter=' . NEWSLETTER_ID_WOMENS_CLINICS_SUB);
+
+		// Managers are allowed to see the index, but don't see newsletters in other affiliates
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'index'], PERSON_ID_MANAGER);
+		$this->assertResponseNotContains('/newsletters/edit?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS);
+		$this->assertResponseNotContains('/newsletters/delete?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS);
+		$this->assertResponseContains('/newsletters/edit?newsletter=' . NEWSLETTER_ID_MASTER_MEETUPS);
+		$this->assertResponseContains('/newsletters/delete?newsletter=' . NEWSLETTER_ID_MASTER_MEETUPS);
+		$this->assertResponseNotContains('/newsletters/edit?newsletter=' . NEWSLETTER_ID_WOMENS_CLINICS_SUB);
+		$this->assertResponseNotContains('/newsletters/delete?newsletter=' . NEWSLETTER_ID_WOMENS_CLINICS_SUB);
+
+		// Others are not allowed to see the index
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'index'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'index'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'index'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'index'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Newsletters', 'action' => 'index']);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test index method as a manager
+	 * Test past method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsManager() {
-		// Managers are allowed to get the index, but don't see newsletters in other affiliates
-		$this->assertAccessOk(['controller' => 'Newsletters', 'action' => 'index'], PERSON_ID_MANAGER);
-		$this->assertResponseNotRegExp('#/newsletters/edit\?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS . '#ms');
-		$this->assertResponseNotRegExp('#/newsletters/delete\?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS . '#ms');
-		$this->assertResponseRegExp('#/newsletters/edit\?newsletter=' . NEWSLETTER_ID_MASTER_MEETUPS . '#ms');
-		$this->assertResponseRegExp('#/newsletters/delete\?newsletter=' . NEWSLETTER_ID_MASTER_MEETUPS . '#ms');
-		$this->assertResponseNotRegExp('#/newsletters/edit\?newsletter=' . NEWSLETTER_ID_WOMENS_CLINICS_SUB . '#ms');
-		$this->assertResponseNotRegExp('#/newsletters/delete\?newsletter=' . NEWSLETTER_ID_WOMENS_CLINICS_SUB . '#ms');
+	public function testPast() {
+		// Admins are allowed to see the past index
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'past'], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/newsletters/edit?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS);
+		$this->assertResponseContains('/newsletters/delete?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS);
+		$this->assertResponseContains('/newsletters/edit?newsletter=' . NEWSLETTER_ID_MASTER_MEETUPS);
+		$this->assertResponseContains('/newsletters/delete?newsletter=' . NEWSLETTER_ID_MASTER_MEETUPS);
+		$this->assertResponseContains('/newsletters/edit?newsletter=' . NEWSLETTER_ID_WOMENS_CLINICS_SUB);
+		$this->assertResponseContains('/newsletters/delete?newsletter=' . NEWSLETTER_ID_WOMENS_CLINICS_SUB);
+
+		// Managers are allowed to see the past index
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'past'], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/newsletters/edit?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS);
+		$this->assertResponseContains('/newsletters/delete?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS);
+		$this->assertResponseContains('/newsletters/edit?newsletter=' . NEWSLETTER_ID_MASTER_MEETUPS);
+		$this->assertResponseContains('/newsletters/delete?newsletter=' . NEWSLETTER_ID_MASTER_MEETUPS);
+		$this->assertResponseNotContains('/newsletters/edit?newsletter=' . NEWSLETTER_ID_WOMENS_CLINICS_SUB);
+		$this->assertResponseNotContains('/newsletters/delete?newsletter=' . NEWSLETTER_ID_WOMENS_CLINICS_SUB);
+
+		// Others are not allowed to see the past index
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'past'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'past'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'past'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'past'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Newsletters', 'action' => 'past']);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test index method as a coordinator
+	 * Test view method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsCoordinator() {
-		// Others are not allowed to get the index
-		$this->assertAccessRedirect(['controller' => 'Newsletters', 'action' => 'index'], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test index method as a captain
-	 *
-	 * @return void
-	 */
-	public function testIndexAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method as a player
-	 *
-	 * @return void
-	 */
-	public function testIndexAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method as someone else
-	 *
-	 * @return void
-	 */
-	public function testIndexAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testIndexAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test past method as an admin
-	 *
-	 * @return void
-	 */
-	public function testPastAsAdmin() {
-		// Admins are allowed to get the past index
-		$this->assertAccessOk(['controller' => 'Newsletters', 'action' => 'past'], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/newsletters/edit\?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS . '#ms');
-		$this->assertResponseRegExp('#/newsletters/delete\?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS . '#ms');
-		$this->assertResponseRegExp('#/newsletters/edit\?newsletter=' . NEWSLETTER_ID_MASTER_MEETUPS . '#ms');
-		$this->assertResponseRegExp('#/newsletters/delete\?newsletter=' . NEWSLETTER_ID_MASTER_MEETUPS . '#ms');
-		$this->assertResponseRegExp('#/newsletters/edit\?newsletter=' . NEWSLETTER_ID_WOMENS_CLINICS_SUB . '#ms');
-		$this->assertResponseRegExp('#/newsletters/delete\?newsletter=' . NEWSLETTER_ID_WOMENS_CLINICS_SUB . '#ms');
-	}
-
-	/**
-	 * Test past method as a manager
-	 *
-	 * @return void
-	 */
-	public function testPastAsManager() {
-		// Managers are allowed to get the past index
-		$this->assertAccessOk(['controller' => 'Newsletters', 'action' => 'past'], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/newsletters/edit\?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS . '#ms');
-		$this->assertResponseRegExp('#/newsletters/delete\?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS . '#ms');
-		$this->assertResponseRegExp('#/newsletters/edit\?newsletter=' . NEWSLETTER_ID_MASTER_MEETUPS . '#ms');
-		$this->assertResponseRegExp('#/newsletters/delete\?newsletter=' . NEWSLETTER_ID_MASTER_MEETUPS . '#ms');
-		$this->assertResponseNotRegExp('#/newsletters/edit\?newsletter=' . NEWSLETTER_ID_WOMENS_CLINICS_SUB . '#ms');
-		$this->assertResponseNotRegExp('#/newsletters/delete\?newsletter=' . NEWSLETTER_ID_WOMENS_CLINICS_SUB . '#ms');
-	}
-
-	/**
-	 * Test past method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testPastAsCoordinator() {
-		// Others are not allowed to get the past index
-		$this->assertAccessRedirect(['controller' => 'Newsletters', 'action' => 'past'], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test past method as a captain
-	 *
-	 * @return void
-	 */
-	public function testPastAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test past method as a player
-	 *
-	 * @return void
-	 */
-	public function testPastAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test past method as someone else
-	 *
-	 * @return void
-	 */
-	public function testPastAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test past method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testPastAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as an admin
-	 *
-	 * @return void
-	 */
-	public function testViewAsAdmin() {
+	public function testView() {
 		// Admins are allowed to view newsletters
-		$this->assertAccessOk(['controller' => 'Newsletters', 'action' => 'view', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/newsletters/edit\?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS . '#ms');
-		$this->assertResponseRegExp('#/newsletters/delete\?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'view', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/newsletters/edit?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS);
+		$this->assertResponseContains('/newsletters/delete?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS);
 
-		$this->assertAccessOk(['controller' => 'Newsletters', 'action' => 'view', 'newsletter' => NEWSLETTER_ID_WOMENS_CLINICS_SUB], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/newsletters/edit\?newsletter=' . NEWSLETTER_ID_WOMENS_CLINICS_SUB . '#ms');
-		$this->assertResponseRegExp('#/newsletters/delete\?newsletter=' . NEWSLETTER_ID_WOMENS_CLINICS_SUB . '#ms');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'view', 'newsletter' => NEWSLETTER_ID_WOMENS_CLINICS_SUB], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/newsletters/edit?newsletter=' . NEWSLETTER_ID_WOMENS_CLINICS_SUB);
+		$this->assertResponseContains('/newsletters/delete?newsletter=' . NEWSLETTER_ID_WOMENS_CLINICS_SUB);
 
-	/**
-	 * Test view method as a manager
-	 *
-	 * @return void
-	 */
-	public function testViewAsManager() {
 		// Managers are allowed to view newsletters
-		$this->assertAccessOk(['controller' => 'Newsletters', 'action' => 'view', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/newsletters/edit\?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS . '#ms');
-		$this->assertResponseRegExp('#/newsletters/delete\?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'view', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/newsletters/edit?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS);
+		$this->assertResponseContains('/newsletters/delete?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS);
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Newsletters', 'action' => 'view', 'newsletter' => NEWSLETTER_ID_WOMENS_CLINICS_SUB], PERSON_ID_MANAGER);
-	}
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'view', 'newsletter' => NEWSLETTER_ID_WOMENS_CLINICS_SUB], PERSON_ID_MANAGER);
 
-	/**
-	 * Test view method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testViewAsCoordinator() {
 		// Others are not allowed to view newsletters
-		$this->assertAccessRedirect(['controller' => 'Newsletters', 'action' => 'view', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS], PERSON_ID_COORDINATOR);
-	}
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'view', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'view', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'view', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'view', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Newsletters', 'action' => 'view', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS]);
 
-	/**
-	 * Test view method as a captain
-	 *
-	 * @return void
-	 */
-	public function testViewAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as a player
-	 *
-	 * @return void
-	 */
-	public function testViewAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as someone else
-	 *
-	 * @return void
-	 */
-	public function testViewAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testViewAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -274,9 +145,9 @@ class NewslettersControllerTest extends ControllerTestCase {
 	 */
 	public function testAddAsAdmin() {
 		// Admins are allowed to add newsletters
-		$this->assertAccessOk(['controller' => 'Newsletters', 'action' => 'add'], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#<option value="' . MAILING_LIST_ID_JUNIORS . '">Juniors</option>#ms');
-		$this->assertResponseRegExp('#<option value="' . MAILING_LIST_ID_WOMEN_SUB . '">Women</option>#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'add'], PERSON_ID_ADMIN);
+		$this->assertResponseContains('<option value="' . MAILING_LIST_ID_JUNIORS . '">Juniors</option>');
+		$this->assertResponseContains('<option value="' . MAILING_LIST_ID_WOMEN_SUB . '">Women</option>');
 	}
 
 	/**
@@ -286,55 +157,23 @@ class NewslettersControllerTest extends ControllerTestCase {
 	 */
 	public function testAddAsManager() {
 		// Managers are allowed to add newsletters
-		$this->assertAccessOk(['controller' => 'Newsletters', 'action' => 'add'], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#<option value="' . MAILING_LIST_ID_JUNIORS . '">Juniors</option>#ms');
-		$this->assertResponseNotRegExp('#<option value="' . MAILING_LIST_ID_WOMEN_SUB . '">Women</option>#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'add'], PERSON_ID_MANAGER);
+		$this->assertResponseContains('<option value="' . MAILING_LIST_ID_JUNIORS . '">Juniors</option>');
+		$this->assertResponseNotContains('<option value="' . MAILING_LIST_ID_WOMEN_SUB . '">Women</option>');
 	}
 
 	/**
-	 * Test add method as a coordinator
+	 * Test add method as others
 	 *
 	 * @return void
 	 */
-	public function testAddAsCoordinator() {
+	public function testAddAsOthers() {
 		// Others are not allowed to add newsletters
-		$this->assertAccessRedirect(['controller' => 'Newsletters', 'action' => 'add'], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test add method as a captain
-	 *
-	 * @return void
-	 */
-	public function testAddAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as a player
-	 *
-	 * @return void
-	 */
-	public function testAddAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as someone else
-	 *
-	 * @return void
-	 */
-	public function testAddAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testAddAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'add'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'add'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'add'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'add'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Newsletters', 'action' => 'add']);
 	}
 
 	/**
@@ -344,8 +183,8 @@ class NewslettersControllerTest extends ControllerTestCase {
 	 */
 	public function testEditAsAdmin() {
 		// Admins are allowed to edit newsletters
-		$this->assertAccessOk(['controller' => 'Newsletters', 'action' => 'edit', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS], PERSON_ID_ADMIN);
-		$this->assertAccessOk(['controller' => 'Newsletters', 'action' => 'edit', 'newsletter' => NEWSLETTER_ID_WOMENS_CLINICS_SUB], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'edit', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'edit', 'newsletter' => NEWSLETTER_ID_WOMENS_CLINICS_SUB], PERSON_ID_ADMIN);
 	}
 
 	/**
@@ -355,56 +194,24 @@ class NewslettersControllerTest extends ControllerTestCase {
 	 */
 	public function testEditAsManager() {
 		// Managers are allowed to edit newsletters
-		$this->assertAccessOk(['controller' => 'Newsletters', 'action' => 'edit', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'edit', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS], PERSON_ID_MANAGER);
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Newsletters', 'action' => 'edit', 'newsletter' => NEWSLETTER_ID_WOMENS_CLINICS_SUB], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'edit', 'newsletter' => NEWSLETTER_ID_WOMENS_CLINICS_SUB], PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test edit method as a coordinator
+	 * Test edit method as others
 	 *
 	 * @return void
 	 */
-	public function testEditAsCoordinator() {
+	public function testEditAsOthers() {
 		// Others are not allowed to edit newsletters
-		$this->assertAccessRedirect(['controller' => 'Newsletters', 'action' => 'edit', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test edit method as a captain
-	 *
-	 * @return void
-	 */
-	public function testEditAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as a player
-	 *
-	 * @return void
-	 */
-	public function testEditAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as someone else
-	 *
-	 * @return void
-	 */
-	public function testEditAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testEditAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'edit', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'edit', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'edit', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'edit', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Newsletters', 'action' => 'edit', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS]);
 	}
 
 	/**
@@ -417,14 +224,14 @@ class NewslettersControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		// Admins are allowed to delete newsletters
-		$this->assertAccessRedirect(['controller' => 'Newsletters', 'action' => 'delete', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Newsletters', 'action' => 'index'],
-			'The newsletter has been deleted.', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Newsletters', 'action' => 'delete', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS],
+			PERSON_ID_ADMIN, [], ['controller' => 'Newsletters', 'action' => 'index'],
+			'The newsletter has been deleted.');
 
 		// But not ones with dependencies
-		$this->assertAccessRedirect(['controller' => 'Newsletters', 'action' => 'delete', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Newsletters', 'action' => 'index'],
-			'#The following records reference this newsletter, so it cannot be deleted#', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Newsletters', 'action' => 'delete', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS],
+			PERSON_ID_ADMIN, [], ['controller' => 'Newsletters', 'action' => 'index'],
+			'#The following records reference this newsletter, so it cannot be deleted#');
 	}
 
 	/**
@@ -436,122 +243,55 @@ class NewslettersControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		// Managers can delete newsletters in their affiliate
-		$this->assertAccessRedirect(['controller' => 'Newsletters', 'action' => 'delete', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS],
-			PERSON_ID_MANAGER, 'post', [], ['controller' => 'Newsletters', 'action' => 'index'],
-			'The newsletter has been deleted.', 'Flash.flash.0.message');
+		// Managers are allowed to delete newsletters in their affiliate
+		$this->assertPostAsAccessRedirect(['controller' => 'Newsletters', 'action' => 'delete', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS],
+			PERSON_ID_MANAGER, [], ['controller' => 'Newsletters', 'action' => 'index'],
+			'The newsletter has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Newsletters', 'action' => 'delete', 'newsletter' => NEWSLETTER_ID_WOMENS_CLINICS_SUB],
-			PERSON_ID_MANAGER, 'post');
+		$this->assertPostAsAccessDenied(['controller' => 'Newsletters', 'action' => 'delete', 'newsletter' => NEWSLETTER_ID_WOMENS_CLINICS_SUB],
+			PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test delete method as a coordinator
+	 * Test delete method as others
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testDeleteAsOthers() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		// Others are not allowed to delete newsletters
+		$this->assertPostAsAccessDenied(['controller' => 'Newsletters', 'action' => 'delete', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS],
+			PERSON_ID_COORDINATOR);
+		$this->assertPostAsAccessDenied(['controller' => 'Newsletters', 'action' => 'delete', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS],
+			PERSON_ID_CAPTAIN);
+		$this->assertPostAsAccessDenied(['controller' => 'Newsletters', 'action' => 'delete', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS],
+			PERSON_ID_PLAYER);
+		$this->assertPostAsAccessDenied(['controller' => 'Newsletters', 'action' => 'delete', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS],
+			PERSON_ID_VISITOR);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Newsletters', 'action' => 'delete', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS]);
 	}
 
 	/**
-	 * Test delete method as a captain
+	 * Test delivery method
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testDelivery() {
+		// Admins are allowed to see the delivery report
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'delivery', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS], PERSON_ID_ADMIN);
 
-	/**
-	 * Test delete method as a player
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Managers are allowed to see the delivery report
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'delivery', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS], PERSON_ID_MANAGER);
 
-	/**
-	 * Test delete method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delivery method as an admin
-	 *
-	 * @return void
-	 */
-	public function testDeliveryAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delivery method as a manager
-	 *
-	 * @return void
-	 */
-	public function testDeliveryAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delivery method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testDeliveryAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delivery method as a captain
-	 *
-	 * @return void
-	 */
-	public function testDeliveryAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delivery method as a player
-	 *
-	 * @return void
-	 */
-	public function testDeliveryAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delivery method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeliveryAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delivery method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeliveryAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to see the delivery report
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'delivery', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'delivery', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'delivery', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'delivery', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Newsletters', 'action' => 'delivery', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS]);
 	}
 
 	/**
@@ -560,6 +300,9 @@ class NewslettersControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSendAsAdmin() {
+		// Admins are allowed to send
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'send', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'send', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS, 'execute' => true, 'test' => true], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -569,70 +312,23 @@ class NewslettersControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSendAsManager() {
+		// Managers are allowed to send
+		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'send', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test send method as a coordinator
+	 * Test send method as others
 	 *
 	 * @return void
 	 */
-	public function testSendAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test send method as a captain
-	 *
-	 * @return void
-	 */
-	public function testSendAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test send method as a player
-	 *
-	 * @return void
-	 */
-	public function testSendAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test send method as someone else
-	 *
-	 * @return void
-	 */
-	public function testSendAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test send method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testSendAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test _makeHash method
-	 *
-	 * @return void
-	 */
-	public function testMakeHash() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test _checkHash method
-	 *
-	 * @return void
-	 */
-	public function testCheckHash() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testSendAsOthers() {
+		// Others are not allowed to send
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'send', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'send', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'send', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'send', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Newsletters', 'action' => 'send', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS]);
 	}
 
 }

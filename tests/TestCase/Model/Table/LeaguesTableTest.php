@@ -1,9 +1,8 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
-use Cake\Core\Configure;
+use App\Middleware\ConfigurationLoader;
 use Cake\Event\Event as CakeEvent;
-use Cake\Event\EventManager;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\LeaguesTable;
 
@@ -77,8 +76,7 @@ class LeaguesTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testCompareLeagueAndDivision() {
-		$event = new CakeEvent('Configuration.initialize', $this);
-		EventManager::instance()->dispatch($event);
+		ConfigurationLoader::loadConfiguration();
 
 		// TODO: Add more league records, to more completely test the sort options
 		$leagues = $this->LeaguesTable->find()
@@ -133,15 +131,6 @@ class LeaguesTableTest extends TableTestCase {
 			DIVISION_ID_MONDAY_PLAYOFF => DIVISION_ID_MONDAY_PLAYOFF,
 		];
 		$this->assertEquals($expected, $this->LeaguesTable->divisions(LEAGUE_ID_MONDAY));
-	}
-
-	/**
-	 * Test is_coordinator method
-	 *
-	 * @return void
-	 */
-	public function testIsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 }

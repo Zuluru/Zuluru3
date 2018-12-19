@@ -21,6 +21,8 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 				'app.groups_people',
 			'app.leagues',
 				'app.divisions',
+					'app.teams',
+					'app.divisions_people',
 			'app.categories',
 				'app.tasks',
 					'app.task_slots',
@@ -28,143 +30,43 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	];
 
 	/**
-	 * Test view method as an admin
+	 * Test view method
 	 *
 	 * @return void
 	 */
-	public function testViewAsAdmin() {
+	public function testView() {
 		// Admins are allowed to view task slots, with full edit permissions
-		$this->assertAccessOk(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/task_slots/edit\?slot=' . TASK_SLOT_ID_CAPTAINS_MEETING . '#ms');
-		$this->assertResponseRegExp('#/task_slots/delete\?slot=' . TASK_SLOT_ID_CAPTAINS_MEETING . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/task_slots/edit?slot=' . TASK_SLOT_ID_CAPTAINS_MEETING);
+		$this->assertResponseContains('/task_slots/delete?slot=' . TASK_SLOT_ID_CAPTAINS_MEETING);
 
-		$this->assertAccessOk(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => TASK_SLOT_ID_POSTERS_SUB], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/task_slots/edit\?slot=' . TASK_SLOT_ID_POSTERS_SUB . '#ms');
-		$this->assertResponseRegExp('#/task_slots/delete\?slot=' . TASK_SLOT_ID_POSTERS_SUB . '#ms');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => TASK_SLOT_ID_POSTERS_SUB], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/task_slots/edit?slot=' . TASK_SLOT_ID_POSTERS_SUB);
+		$this->assertResponseContains('/task_slots/delete?slot=' . TASK_SLOT_ID_POSTERS_SUB);
 
-	/**
-	 * Test view method as a manager
-	 *
-	 * @return void
-	 */
-	public function testViewAsManager() {
 		// Managers are allowed to view task slots
-		$this->assertAccessOk(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/task_slots/edit\?slot=' . TASK_SLOT_ID_CAPTAINS_MEETING . '#ms');
-		$this->assertResponseRegExp('#/task_slots/delete\?slot=' . TASK_SLOT_ID_CAPTAINS_MEETING . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/task_slots/edit?slot=' . TASK_SLOT_ID_CAPTAINS_MEETING);
+		$this->assertResponseContains('/task_slots/delete?slot=' . TASK_SLOT_ID_CAPTAINS_MEETING);
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => TASK_SLOT_ID_POSTERS_SUB], PERSON_ID_MANAGER);
-	}
+		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => TASK_SLOT_ID_POSTERS_SUB], PERSON_ID_MANAGER);
 
-	/**
-	 * Test view method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testViewAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as a captain
-	 *
-	 * @return void
-	 */
-	public function testViewAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as a player
-	 *
-	 * @return void
-	 */
-	public function testViewAsPlayer() {
 		// Others are not allowed to view task slots
-		$this->assertAccessRedirect(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING]);
 	}
 
 	/**
-	 * Test view method as someone else
+	 * Test ical method
 	 *
 	 * @return void
 	 */
-	public function testViewAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testViewAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test ical method as an admin
-	 *
-	 * @return void
-	 */
-	public function testIcalAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test ical method as a manager
-	 *
-	 * @return void
-	 */
-	public function testIcalAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test ical method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testIcalAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test ical method as a captain
-	 *
-	 * @return void
-	 */
-	public function testIcalAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test ical method as a player
-	 *
-	 * @return void
-	 */
-	public function testIcalAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test ical method as someone else
-	 *
-	 * @return void
-	 */
-	public function testIcalAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test ical method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testIcalAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testIcal() {
+		$this->assertGetAnonymousAccessOk(['controller' => 'TaskSlots', 'action' => 'ical', TASK_SLOT_ID_CAPTAINS_MEETING]);
 	}
 
 	/**
@@ -173,6 +75,8 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsAdmin() {
+		// Admins are allowed to add task slots
+		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'add', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -182,52 +86,23 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsManager() {
+		// Managers are allowed to add task slots
+		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'add', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test add method as a coordinator
+	 * Test add method as others
 	 *
 	 * @return void
 	 */
-	public function testAddAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as a captain
-	 *
-	 * @return void
-	 */
-	public function testAddAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as a player
-	 *
-	 * @return void
-	 */
-	public function testAddAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as someone else
-	 *
-	 * @return void
-	 */
-	public function testAddAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testAddAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testAddAsOthers() {
+		// Others are not allowed to add task slots
+		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'add', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'add', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'add', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'add', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'TaskSlots', 'action' => 'add', 'task' => TASK_ID_CAPTAINS_MEETING]);
 	}
 
 	/**
@@ -236,6 +111,8 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsAdmin() {
+		// Admins are allowed to edit task slots
+		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'edit', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -245,52 +122,23 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsManager() {
+		// Managers are allowed to edit task slots
+		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'edit', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test edit method as a coordinator
+	 * Test edit method as others
 	 *
 	 * @return void
 	 */
-	public function testEditAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as a captain
-	 *
-	 * @return void
-	 */
-	public function testEditAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as a player
-	 *
-	 * @return void
-	 */
-	public function testEditAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as someone else
-	 *
-	 * @return void
-	 */
-	public function testEditAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testEditAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testEditAsOthers() {
+		// Others are not allowed to edit task slots
+		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'edit', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'edit', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'edit', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'edit', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'TaskSlots', 'action' => 'edit', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING]);
 	}
 
 	/**
@@ -303,9 +151,9 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		// Admins are allowed to delete task slots
-		$this->assertAccessRedirect(['controller' => 'TaskSlots', 'action' => 'delete', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Tasks', 'action' => 'index'],
-			'The task slot has been deleted.', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'TaskSlots', 'action' => 'delete', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING],
+			PERSON_ID_ADMIN, [], ['controller' => 'Tasks', 'action' => 'index'],
+			'The task slot has been deleted.');
 	}
 
 	/**
@@ -317,59 +165,35 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		// Managers can delete task slots in their affiliate
-		$this->assertAccessRedirect(['controller' => 'TaskSlots', 'action' => 'delete', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING],
-			PERSON_ID_MANAGER, 'post', [], ['controller' => 'Tasks', 'action' => 'index'],
-			'The task slot has been deleted.', 'Flash.flash.0.message');
+		// Managers are allowed to delete task slots in their affiliate
+		$this->assertPostAsAccessRedirect(['controller' => 'TaskSlots', 'action' => 'delete', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING],
+			PERSON_ID_MANAGER, [], ['controller' => 'Tasks', 'action' => 'index'],
+			'The task slot has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'TaskSlots', 'action' => 'delete', 'slot' => TASK_SLOT_ID_POSTERS_SUB],
-			PERSON_ID_MANAGER, 'post');
+		$this->assertPostAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'delete', 'slot' => TASK_SLOT_ID_POSTERS_SUB],
+			PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test delete method as a coordinator
+	 * Test delete method as others
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testDeleteAsOthers() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
-	/**
-	 * Test delete method as a captain
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as a player
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to delete task slots
+		$this->assertPostAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'delete', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING],
+			PERSON_ID_COORDINATOR);
+		$this->assertPostAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'delete', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING],
+			PERSON_ID_CAPTAIN);
+		$this->assertPostAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'delete', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING],
+			PERSON_ID_PLAYER);
+		$this->assertPostAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'delete', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING],
+			PERSON_ID_VISITOR);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'TaskSlots', 'action' => 'delete', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING]);
 	}
 
 	/**
@@ -378,6 +202,12 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAssignAsAdmin() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		// Admins are allowed to assign task slots
+		$this->assertPostAjaxAsAccessOk(['controller' => 'TaskSlots', 'action' => 'assign', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING],
+			PERSON_ID_ADMIN, ['person' => PERSON_ID_PLAYER]);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -387,52 +217,35 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAssignAsManager() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		// Managers are allowed to assign task slots
+		$this->assertPostAjaxAsAccessOk(['controller' => 'TaskSlots', 'action' => 'assign', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING],
+			PERSON_ID_MANAGER, ['person' => PERSON_ID_PLAYER]);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test assign method as a coordinator
+	 * Test assign method as a others
 	 *
 	 * @return void
 	 */
-	public function testAssignAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testAssignAsOthers() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
-	/**
-	 * Test assign method as a captain
-	 *
-	 * @return void
-	 */
-	public function testAssignAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test assign method as a player
-	 *
-	 * @return void
-	 */
-	public function testAssignAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test assign method as someone else
-	 *
-	 * @return void
-	 */
-	public function testAssignAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test assign method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testAssignAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to assign task slots
+		$this->assertPostAjaxAsAccessRedirect(['controller' => 'TaskSlots', 'action' => 'assign', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING],
+			PERSON_ID_COORDINATOR, ['person' => PERSON_ID_PLAYER], ['controller' => 'Tasks', 'action' => 'index'], 'Invalid task slot.');
+		$this->assertPostAjaxAsAccessRedirect(['controller' => 'TaskSlots', 'action' => 'assign', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING],
+			PERSON_ID_CAPTAIN, ['person' => PERSON_ID_PLAYER], ['controller' => 'Tasks', 'action' => 'index'], 'Invalid task slot.');
+		$this->assertPostAjaxAsAccessRedirect(['controller' => 'TaskSlots', 'action' => 'assign', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING],
+			PERSON_ID_PLAYER, ['person' => PERSON_ID_PLAYER], ['controller' => 'Tasks', 'action' => 'index'], 'Invalid task slot.');
+		$this->assertPostAjaxAsAccessRedirect(['controller' => 'TaskSlots', 'action' => 'assign', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING],
+			PERSON_ID_VISITOR, ['person' => PERSON_ID_PLAYER], ['controller' => 'Tasks', 'action' => 'index'], 'Invalid task slot.');
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'TaskSlots', 'action' => 'assign', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING],
+			['person' => PERSON_ID_PLAYER]);
 	}
 
 	/**
@@ -441,6 +254,9 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testApproveAsAdmin() {
+		// Admins are allowed to approve task slots
+		$this->assertGetAjaxAsAccessOk(['controller' => 'TaskSlots', 'action' => 'approve', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING_UNAPPROVED],
+			PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -450,52 +266,28 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testApproveAsManager() {
+		// Managers are allowed to approve task slots
+		$this->assertGetAjaxAsAccessOk(['controller' => 'TaskSlots', 'action' => 'approve', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING_UNAPPROVED],
+			PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test approve method as a coordinator
+	 * Test approve method as others
 	 *
 	 * @return void
 	 */
-	public function testApproveAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve method as a captain
-	 *
-	 * @return void
-	 */
-	public function testApproveAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve method as a player
-	 *
-	 * @return void
-	 */
-	public function testApproveAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve method as someone else
-	 *
-	 * @return void
-	 */
-	public function testApproveAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testApproveAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testApproveAsOthers() {
+		// Others are not allowed to approve task slots
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'approve', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING_UNAPPROVED],
+			PERSON_ID_COORDINATOR);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'approve', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING_UNAPPROVED],
+			PERSON_ID_CAPTAIN);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'approve', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING_UNAPPROVED],
+			PERSON_ID_PLAYER);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'approve', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING_UNAPPROVED],
+			PERSON_ID_VISITOR);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'TaskSlots', 'action' => 'approve', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING_UNAPPROVED]);
 	}
 
 }

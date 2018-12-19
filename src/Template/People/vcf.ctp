@@ -1,52 +1,54 @@
 <?php
-use Cake\Core\Configure;
+/**
+ * @type \App\Model\Entity\Person $person
+ */
 
-$view_contact = Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator || $is_captain || $is_my_captain || $is_my_coordinator || $is_division_captain;
+$visible_properties = $person->visibleProperties();
 ?>
-N:<?= "{$person['last_name']};{$person['first_name']}" ?>
+N:<?= "{$person->last_name};{$person->first_name}" ?>
 
-FN:<?= $person['full_name'] ?>
+FN:<?= $person->full_name ?>
 
 <?php
-if (Configure::read('profile.home_phone') && !empty($person['home_phone']) &&
-	($view_contact || (Configure::read('Perm.is_logged_in') && $person['publish_home_phone']))):
+if (in_array('home_phone', $visible_properties) && !empty($person->home_phone)):
 ?>
-TEL;HOME;VOICE:<?= $person['home_phone'] ?>
+TEL;HOME;VOICE:<?= $person->home_phone ?>
 <?php
 endif;
 ?>
 
 <?php
-if (Configure::read('profile.work_phone') && !empty($person['work_phone']) &&
-	($view_contact || (Configure::read('Perm.is_logged_in') && $person['publish_work_phone']))):
+if (in_array('work_phone', $visible_properties) && !empty($person->work_phone)):
 ?>
-TEL;WORK;VOICE:<?= $person['work_phone'] ?>
+TEL;WORK;VOICE:<?= $person->work_phone ?>
+<?php
+	if (!empty($person->work_ext)) {
+		echo ";ext={$person->work_ext}";
+	}
+endif;
+?>
+
+<?php
+if (in_array('mobile_phone', $visible_properties) && !empty($person->mobile_phone)):
+?>
+TEL;CELL;VOICE:<?= $person->mobile_phone ?>
 <?php
 endif;
 ?>
 
 <?php
-if (Configure::read('profile.mobile_phone') && !empty($person['mobile_phone']) &&
-	($view_contact || (Configure::read('Perm.is_logged_in') && $person['publish_mobile_phone']))):
+if (in_array('email', $visible_properties) && !empty($person->email)):
 ?>
-TEL;CELL;VOICE:<?= $person['mobile_phone'] ?>
-<?php
-endif;
-?>
-
-<?php
-if (!empty($person['email']) && ($view_contact || (Configure::read('Perm.is_logged_in') && $person['publish_email']))):
-?>
-EMAIL;PREF;INTERNET:<?= $person['email'] ?>
+EMAIL;PREF;INTERNET:<?= $person->email ?>
 
 <?php
 endif;
 ?>
 
 <?php
-if (!empty($person['alternate_email']) && ($view_contact || (Configure::read('Perm.is_logged_in') && $person['publish_alternate_email']))):
+if (in_array('alternate_email', $visible_properties) && !empty($person->alternate_email)):
 ?>
-EMAIL;INTERNET:<?= $person['alternate_email'] ?>
+EMAIL;INTERNET:<?= $person->alternate_email ?>
 
 <?php
 endif;

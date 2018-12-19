@@ -32,8 +32,6 @@ endif;
 <?php
 $affiliate_id = null;
 foreach ($badges as $badge):
-	$is_badge_manager = Configure::read('Perm.is_manager') && in_array($badge->affiliate_id, $this->UserCache->read('ManagedAffiliateIDs'));
-
 	if (count($affiliates) > 1 && $badge->affiliate_id != $affiliate_id):
 		$affiliate_id = $badge->affiliate_id;
 ?>
@@ -68,34 +66,42 @@ endif;
 				echo $this->Html->iconLink('view_24.png',
 					['action' => 'view', 'badge' => $badge->id],
 					['alt' => __('View'), 'title' => __('View')]);
-				if (Configure::read('Perm.is_admin') || $is_badge_manager) {
+				if ($this->Authorize->can('edit', $badge)) {
 					echo $this->Html->iconLink('edit_24.png',
 						['action' => 'edit', 'badge' => $badge->id],
 						['alt' => __('Edit'), 'title' => __('Edit')]);
+				}
+				if ($this->Authorize->can('delete', $badge)) {
 					echo $this->Form->iconPostLink('delete_24.png',
 						['action' => 'delete', 'badge' => $badge->id],
 						['alt' => __('Delete'), 'title' => __('Delete')],
 						['confirm' => __('Are you sure you want to delete this badge?')]);
+				}
 
+				if ($this->Authorize->can('edit', $badge)) {
 					if ($badge->active) {
 						echo $this->Jquery->ajaxLink(__('Deactivate'), ['url' => ['action' => 'deactivate', 'badge' => $badge->id]]);
 					} else {
 						echo $this->Jquery->ajaxLink(__('Activate'), ['url' => ['action' => 'activate', 'badge' => $badge->id]]);
 					}
+				}
 
-					if ($active) {
-						if ($badge->category == 'assigned') {
-							echo $this->Html->link(__('Assign'),  ['controller' => 'People', 'action' => 'nominate_badge', 'badge' => $badge->id]);
-						} else if (!in_array($badge->category, ['nominated', 'runtime', 'aggregate'])) {
-							echo $this->Html->iconLink('initialize_24.png',
-								['action' => 'initialize_awards', 'badge' => $badge->id],
-								['alt' => __('Initialize'), 'title' => __('Initialize')],
-								['confirm' => __('Are you sure you want to initialize? This should only ever need to be done once when the badge system is introduced.')]);
-						}
+				if ($this->Authorize->can('nominate_badge', $badge)) {
+					if ($badge->category == 'assigned') {
+						$action = __('Assign');
+					} else if ($badge->category == 'nominated') {
+						$action = __('Nominate');
+					}
+					if (isset($action)) {
+						echo $this->Html->link($action, ['controller' => 'People', 'action' => 'nominate_badge', 'badge' => $badge->id]);
 					}
 				}
-				if ($badge->category == 'nominated' && $active) {
-					echo $this->Html->link(__('Nominate'), ['controller' => 'People', 'action' => 'nominate_badge', 'badge' => $badge->id]);
+
+				if (!in_array($badge->category, ['assigned', 'nominated', 'runtime', 'aggregate']) && $this->Authorize->can('edit', $badge)) {
+					echo $this->Html->iconLink('initialize_24.png',
+						['action' => 'initialize_awards', 'badge' => $badge->id],
+						['alt' => __('Initialize'), 'title' => __('Initialize')],
+						['confirm' => __('Are you sure you want to initialize? This should only ever need to be done once when the badge system is introduced.')]);
 				}
 				?></td>
 			</tr>
@@ -111,7 +117,7 @@ endforeach;
 	</ul></nav>
 </div>
 <?php
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
+if ($this->Authorize->can('add', \App\Controller\BadgesController::class)):
 ?>
 <div class="actions columns">
 	<ul class="nav nav-pills">

@@ -100,12 +100,12 @@ class EventTest extends TestCase {
 	 * @return void
 	 */
 	public function testCount() {
-		$this->assertEquals(2, $this->Event1->count('Woman'));
+		$this->assertEquals(3, $this->Event1->count('Woman'));
 		$this->assertEquals(0, $this->Event1->count('Open'));
-		$this->assertEquals(2, $this->Event1->count('Woman', ['People.addr_city'=>'Toronto']));
-		$this->assertEquals(0, $this->Event1->count('Woman', ['People.addr_city'=>'Ottawa']));
-		$this->assertEquals(1, $this->Event1->count('Woman', [], ['Paid', 'Not Paid']));
-		$this->assertEquals(0, $this->Event1->count('Woman', [], ['Not Paid']));
+		$this->assertEquals(3, $this->Event1->count('Woman', ['People.addr_city' => 'Toronto']));
+		$this->assertEquals(0, $this->Event1->count('Woman', ['People.addr_city' => 'Ottawa']));
+		$this->assertEquals(3, $this->Event1->count('Woman', [], ['Paid', 'Unpaid']));
+		$this->assertEquals(2, $this->Event1->count('Woman', [], ['Unpaid']));
 	}
 
 	/**
@@ -169,10 +169,11 @@ class EventTest extends TestCase {
 	 */
 	public function testGetPeople() {
 		$people1 = $this->Event1->people->toArray();
-		// Only one person has paid
-		$this->assertEquals(2, count($people1));
+		// Only three people have made some payment paid
+		$this->assertEquals(3, count($people1));
 		$this->assertEquals(PERSON_ID_PLAYER, $people1[0]->id);
-		$this->assertEquals(PERSON_ID_CHILD, $people1[1]->id);
+		$this->assertEquals(PERSON_ID_CAPTAIN, $people1[1]->id);
+		$this->assertEquals(PERSON_ID_CHILD, $people1[2]->id);
 
 		$this->assertEmpty($this->Event2->people->toArray());
 	}

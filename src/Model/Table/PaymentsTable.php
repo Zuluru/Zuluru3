@@ -7,6 +7,7 @@ use Cake\Datasource\EntityInterface;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Event\Event as CakeEvent;
 use Cake\ORM\RulesChecker;
+use Cake\Routing\Router;
 use Cake\Validation\Validator;
 use App\Model\Rule\InConfigRule;
 
@@ -35,7 +36,8 @@ class PaymentsTable extends AppTable {
 
 		// Only set the person_id field if the user is logged in: when we get
 		// payments from a payment processor, we want to leave those fields null.
-		if (Configure::read('Perm.is_logged_in')) {
+		$identity = Router::getRequest() ? Router::getRequest()->getAttribute('identity') : null;
+		if ($identity && $identity->isLoggedIn()) {
 			$this->addBehavior('Muffin/Footprint.Footprint', [
 				'events' => [
 					'Model.beforeSave' => [

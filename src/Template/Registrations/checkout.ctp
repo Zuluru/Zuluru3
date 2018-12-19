@@ -41,7 +41,11 @@ if (!empty($registrations)):
 
 <?php
 	$test_payments = Configure::read('payment.test_payments');
-	if (Configure::read('registration.online_payments') && ($test_payments <= 1 || (Configure::read('Perm.is_admin') && Configure::read('payment.test_payments') == 2))):
+	$take_payments = Configure::read('registration.online_payments') && (
+		$test_payments != TEST_PAYMENTS_ADMINS ||
+		($this->Authorize->getIdentity()->isManagerOf(current($registrations)) && Configure::read('payment.test_payments') == TEST_PAYMENTS_ADMINS)
+	);
+	if ($take_payments):
 ?>
 		<div class="caption">
 <?php
@@ -178,7 +182,7 @@ if (!empty($registrations)):
 					<th><?= __('Total') ?>:</th>
 					<th><?= $this->Number->currency($total) ?></th>
 					<th class="actions"><?php
-						if (Configure::read('registration.online_payments') && ($test_payments <= 1 || (Configure::read('Perm.is_admin') && Configure::read('payment.test_payments') == 2))) {
+						if ($take_payments) {
 							echo $this->element("Payments/forms/$provider");
 						}
 					?></th>

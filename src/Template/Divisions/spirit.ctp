@@ -88,7 +88,7 @@ if (!empty($team_ids)) {
 		}
 	}
 
-	usort($team_records, 'compareSpirit');
+	usort($team_records, ['App\Model\Table\SpiritEntriesTable', 'compareSpirit']);
 ?>
 
 <h3><?= __('Team Spirit Summary') ?></h3>
@@ -117,7 +117,7 @@ if (!empty($team_ids)) {
 			$row[] = $this->element('Spirit/symbol', [
 				'spirit_obj' => $spirit_obj,
 				'league' => $division->league,
-				'is_coordinator' => true,	// only ones allowed to even run this report
+				'show_spirit_scores' => true,	// only ones allowed to even run this report
 				'value' => $team['summary']['entered_sotg'],
 			]);
 			$overall['entered_sotg'][] = $team['summary']['entered_sotg'];
@@ -126,7 +126,7 @@ if (!empty($team_ids)) {
 			$row[] = $this->element('Spirit/symbol', [
 				'spirit_obj' => $spirit_obj,
 				'league' => $division->league,
-				'is_coordinator' => true,
+				'show_spirit_scores' => true,
 				'value' => $team['summary']['assigned_sotg'],
 			]);
 			$overall['assigned_sotg'][] = $team['summary']['assigned_sotg'];
@@ -144,7 +144,7 @@ if (!empty($team_ids)) {
 					'spirit_obj' => $spirit_obj,
 					'league' => $division->league,
 					'question' => $question,
-					'is_coordinator' => true,	// only ones allowed to even run this report
+					'show_spirit_scores' => true,	// only ones allowed to even run this report
 					'value' => $team['summary'][$question] / $team['games'],
 				]);
 				$overall[$question][] = $team['summary'][$question] / $team['games'];
@@ -156,7 +156,7 @@ if (!empty($team_ids)) {
 				'spirit_obj' => $spirit_obj,
 				'league' => $division->league,
 				'question' => 'score_entry_penalty',
-				'is_coordinator' => true,
+				'show_spirit_scores' => true,
 				'value' => $team['summary']['score_entry_penalty'],
 			]);
 			$overall['score_entry_penalty'][] = $team['summary']['score_entry_penalty'];
@@ -172,7 +172,7 @@ if (!empty($team_ids)) {
 			'spirit_obj' => $spirit_obj,
 			'league' => $division->league,
 			'question' => $question,
-			'is_coordinator' => true,	// only ones allowed to even run this report
+			'show_spirit_scores' => true,	// only ones allowed to even run this report
 			'value' => array_sum($col) / $team_count,
 		]), ['class' => 'summary']];
 		if (count($col) > 1) {
@@ -279,7 +279,7 @@ foreach ($division->games as $game) {
 					$row[] = $this->element('Spirit/symbol', [
 						'spirit_obj' => $spirit_obj,
 						'league' => $division->league,
-						'is_coordinator' => true,	// only ones allowed to even run this report
+						'show_spirit_scores' => true,	// only ones allowed to even run this report
 						'value' => $entry->entered_sotg,
 					]);
 				}
@@ -287,7 +287,7 @@ foreach ($division->games as $game) {
 					$row[] = $this->element('Spirit/symbol', [
 						'spirit_obj' => $spirit_obj,
 						'league' => $division->league,
-						'is_coordinator' => true,	// only ones allowed to even run this report
+						'show_spirit_scores' => true,	// only ones allowed to even run this report
 						'value' => $spirit_obj->calculate($entry),
 					]);
 				}
@@ -297,7 +297,7 @@ foreach ($division->games as $game) {
 							'spirit_obj' => $spirit_obj,
 							'league' => $division->league,
 							'question' => $question,
-							'is_coordinator' => true,	// only ones allowed to even run this report
+							'show_spirit_scores' => true,	// only ones allowed to even run this report
 							'entry' => $entry,
 						]);
 					}
@@ -307,7 +307,7 @@ foreach ($division->games as $game) {
 						'spirit_obj' => $spirit_obj,
 						'league' => $division->league,
 						'question' => 'score_entry_penalty',
-						'is_coordinator' => true,	// only ones allowed to even run this report
+						'show_spirit_scores' => true,	// only ones allowed to even run this report
 						'value' => $entry->score_entry_penalty,
 					]);
 				}
@@ -399,27 +399,3 @@ echo $this->Html->tag('li', $this->Html->link(__('Download'), array_merge($this-
 ?>
 	</ul>
 </div>
-
-<?php
-function compareSpirit($a,$b) {
-	if (array_key_exists('entered_sotg', $a['summary'])) {
-		if ($a['summary']['entered_sotg'] > $b['summary']['entered_sotg']) {
-			return -1;
-		} else if ($a['summary']['entered_sotg'] < $b['summary']['entered_sotg']) {
-			return 1;
-		}
-	}
-	if (array_key_exists('assigned_sotg', $a['summary'])) {
-		if ($a['summary']['assigned_sotg'] > $b['summary']['assigned_sotg']) {
-			return -1;
-		} else if ($a['summary']['assigned_sotg'] < $b['summary']['assigned_sotg']) {
-			return 1;
-		}
-	}
-	if ($a['details']['name'] < $b['details']['name']) {
-		return -1;
-	} else if ($a['details']['name'] > $b['details']['name']) {
-		return 1;
-	}
-	return 0;
-}

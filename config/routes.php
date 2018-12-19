@@ -51,7 +51,7 @@ Router::scope('/', function (RouteBuilder $routes) {
 	/**
 	 * Connect the root to the splash page instead
 	 */
-    $routes->connect('/', ['controller' => 'All', 'action' => 'splash']);
+    $routes->connect('/', ['controller' => 'People', 'action' => 'splash']);
 
     /**
      * ...and connect the rest of 'Pages' controller's URLs.

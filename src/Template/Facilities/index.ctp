@@ -12,9 +12,8 @@ $this->Html->addCrumb(__('List'));
 	<h2><?= $closed ? __('Closed Facilities List') : __('Facilities List') ?></h2>
 <?php
 foreach ($regions as $key => $region) {
-	// If we're looking at the closed facilities list, or for non-admins, or eliminate any facilities that have no fields loaded
-	$affiliate_manager = Configure::read('Perm.is_admin') || (Configure::read('Perm.is_manager') && in_array($region->affiliate_id, $this->UserCache->read('ManagedAffiliateIDs')));
-	if ($closed || !$affiliate_manager) {
+	// If we're looking at the closed facilities list, or for non-admins, eliminate any facilities that have no fields loaded
+	if ($closed || !$this->Authorize->can('closed', \App\Controller\FacilitiesController::class)) {
 		$region->facilities = collection($region->facilities)->filter(function ($facility) use ($closed) {
 			return !empty($facility->fields) || ($closed && !$facility->is_open);
 		})->toList();
@@ -32,7 +31,7 @@ else:
 		$this->Html->link(__('map of all {0}', __(Configure::read('UI.fields'))), ['controller' => 'Maps'], ['target' => 'map'])
 	));
 
-	if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+	if ($this->Authorize->can('closed', \App\Controller\FacilitiesController::class)) {
 		if ($closed) {
 			echo $this->Html->para('highlight-message', __('This list shows facilities which are closed, or which have at least one closed {0}. Opening a facility leaves all {1} at that facility closed; they must be individually opened through the "facility view" page.',
 				__(Configure::read('UI.field')), __(Configure::read('UI.fields'))
@@ -80,8 +79,6 @@ else:
 <?php
 	$affiliate_id = null;
 	foreach ($regions as $region):
-		$is_region_manager = in_array($region->affiliate_id, $this->UserCache->read('ManagedAffiliateIDs'));
-
 		if (count($affiliates) > 1 && $region->affiliate_id != $affiliate_id):
 			$affiliate_id = $region->affiliate_id;
 
@@ -136,7 +133,7 @@ else:
 				})) {
 					echo $this->Html->link(__('Layout'), ['controller' => 'Maps', 'action' => 'view', 'field' => $facility->fields[0]->id], ['target' => 'map']);
 				}
-				if (Configure::read('Perm.is_admin') || $is_region_manager) {
+				if ($this->Authorize->can('edit', $facility)) {
 					echo $this->Html->iconLink('edit_24.png',
 						['action' => 'edit', 'facility' => $facility->id],
 						['alt' => __('Edit'), 'title' => __('Edit')]);
@@ -165,7 +162,7 @@ endif;
 ?>
 </div>
 <?php
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
+if ($this->Authorize->can('add', \App\Controller\FacilitiesController::class)):
 ?>
 <div class="actions columns">
 	<ul class="nav nav-pills">

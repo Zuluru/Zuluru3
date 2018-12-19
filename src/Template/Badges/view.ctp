@@ -10,7 +10,7 @@ $this->Html->addCrumb(__('View'));
 	<h2><?= $this->Html->iconImg($badge->icon . '_64.png') . ' ' . h($badge->name) ?></h2>
 	<p><?= $this->Text->autoParagraph(h($badge->description)) ?></p>
 <?php
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
+if ($this->Authorize->can('edit', $badge)):
 ?>
 	<dl class="dl-horizontal">
 		<dt><?= __('Category') ?></dt>
@@ -26,7 +26,7 @@ endif;
 </div>
 
 <?php
-if (Configure::read('Perm.is_logged_in') && !empty($badge->people)):
+if ($this->Identity->isLoggedIn() && !empty($badge->people)):
 ?>
 <div class="related row">
 	<div class="column">
@@ -54,7 +54,7 @@ if (Configure::read('Perm.is_logged_in') && !empty($badge->people)):
 								$record = $record->_joinData;
 								if (in_array($badge->category, ['nominated', 'assigned'])) {
 									$reason = $record->reason;
-									if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+									if ($this->Authorize->can('edit', $badge)) {
 										$reason = $this->Html->tag('span',
 											$reason . ' (' . $this->Jquery->ajaxLink(__('Delete'), [
 												'url' => ['controller' => 'People', 'action' => 'delete_badge', 'badge' => $record->id],
@@ -100,7 +100,7 @@ endif;
 if ($badge->category == 'nominated') {
 	echo $this->Html->tag('li', $this->Html->link(__('Nominate'), ['controller' => 'People', 'action' => 'nominate_badge', 'badge' => $badge->id]));
 }
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+if ($this->Authorize->can('edit', $badge)) {
 	if ($badge->category == 'assigned') {
 		echo $this->Html->tag('li', $this->Html->link(__('Assign'), ['controller' => 'People', 'action' => 'nominate_badge', 'badge' => $badge->id]));
 	} else if (!in_array($badge->category, ['nominated', 'runtime', 'aggregate'])) {

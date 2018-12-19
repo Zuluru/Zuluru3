@@ -53,7 +53,6 @@ use App\Model\Results\TeamResults;
  * @property \App\Model\Entity\Person[] $roster
  * @property \App\Model\Entity\Person[] $full_roster
  * @property \App\Model\Entity\Team $affiliated_team
- * @property bool $display_gender
  */
 class Team extends Entity {
 
@@ -134,31 +133,6 @@ class Team extends Entity {
 			return null;
 		}
 		return $affiliated_teams->first();
-	}
-
-	/**
-	 * @return boolean indication of whether or not to show the gender field
-	 */
-	public function _getDisplayGender($person_id = null) {
-		// If the team isn't in a division that's currently open, or opening soon, don't show it.
-		if (!$this->division_id) {
-			return false;
-		}
-		if ($this->has('division')) {
-			$division = $this->division;
-		} else {
-			$division = TableRegistry::get('Divisions')->get($this->division_id);
-		}
-		if (!$division->is_open && !$division->open->isFuture()) {
-			return false;
-		}
-
-		$on_team = in_array($this->id, UserCache::getInstance()->read('TeamIDs', $person_id));
-		$admin = Configure::read('Perm.is_admin');
-		$coordinator = in_array($this->division_id, UserCache::getInstance()->read('DivisionIDs', $person_id));
-		$manager = Configure::read('Perm.is_manager') && in_array(TableRegistry::get('Divisions')->affiliate($this->division_id), UserCache::getInstance()->read('ManagedAffiliateIDs', $person_id));
-
-		return $on_team || $admin || $coordinator || $manager;
 	}
 
 	public function consolidateRoster($sport) {

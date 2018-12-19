@@ -4,7 +4,6 @@ namespace App\Test\TestCase\Controller;
 use App\Shell\Task\InitializeBadgeTask;
 use Cake\Core\Configure;
 use Cake\ORM\TableRegistry;
-use Cake\Routing\Router;
 
 /**
  * App\Controller\BadgesController Test Case
@@ -32,6 +31,7 @@ class BadgesControllerTest extends ControllerTestCase {
 				'app.divisions',
 					'app.teams',
 						'app.teams_people',
+					'app.divisions_people',
 					'app.pools',
 						'app.pools_teams',
 					'app.games',
@@ -44,273 +44,155 @@ class BadgesControllerTest extends ControllerTestCase {
 	];
 
 	/**
-	 * Test index method as an admin
+	 * Test index method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsAdmin() {
-		// Admins are allowed to get the index
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'index'], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/badges/view\?badge=' . BADGE_ID_ACTIVE_PLAYER . '#ms');
-		$this->assertResponseRegExp('#/badges/edit\?badge=' . BADGE_ID_ACTIVE_PLAYER . '#ms');
-		$this->assertResponseRegExp('#/badges/delete\?badge=' . BADGE_ID_ACTIVE_PLAYER . '#ms');
-		$this->assertResponseRegExp('#/badges/deactivate\?badge=' . BADGE_ID_ACTIVE_PLAYER . '#ms');
-		$this->assertResponseRegExp('#/badges/view\?badge=' . BADGE_ID_ACTIVE_PLAYER_SUB . '#ms');
-		$this->assertResponseRegExp('#/badges/edit\?badge=' . BADGE_ID_ACTIVE_PLAYER_SUB . '#ms');
-		$this->assertResponseRegExp('#/badges/delete\?badge=' . BADGE_ID_ACTIVE_PLAYER_SUB . '#ms');
-		$this->assertResponseRegExp('#/badges/deactivate\?badge=' . BADGE_ID_ACTIVE_PLAYER_SUB . '#ms');
+	public function testIndex() {
+		// Admins are allowed to see the index, with full edit controls
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'index'], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/badges/view?badge=' . BADGE_ID_ACTIVE_PLAYER);
+		$this->assertResponseContains('/badges/edit?badge=' . BADGE_ID_ACTIVE_PLAYER);
+		$this->assertResponseContains('/badges/delete?badge=' . BADGE_ID_ACTIVE_PLAYER);
+		$this->assertResponseContains('/badges/deactivate?badge=' . BADGE_ID_ACTIVE_PLAYER);
+		$this->assertResponseContains('/badges/view?badge=' . BADGE_ID_ACTIVE_PLAYER_SUB);
+		$this->assertResponseContains('/badges/edit?badge=' . BADGE_ID_ACTIVE_PLAYER_SUB);
+		$this->assertResponseContains('/badges/delete?badge=' . BADGE_ID_ACTIVE_PLAYER_SUB);
+		$this->assertResponseContains('/badges/deactivate?badge=' . BADGE_ID_ACTIVE_PLAYER_SUB);
+
+		// Managers are allowed to see the index, but don't have edit options on badges in other affiliates
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'index'], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/badges/view?badge=' . BADGE_ID_ACTIVE_PLAYER);
+		$this->assertResponseContains('/badges/edit?badge=' . BADGE_ID_ACTIVE_PLAYER);
+		$this->assertResponseContains('/badges/delete?badge=' . BADGE_ID_ACTIVE_PLAYER);
+		$this->assertResponseContains('/badges/deactivate?badge=' . BADGE_ID_ACTIVE_PLAYER);
+		$this->assertResponseNotContains('/badges/view?badge=' . BADGE_ID_ACTIVE_PLAYER_SUB);
+		$this->assertResponseNotContains('/badges/edit?badge=' . BADGE_ID_ACTIVE_PLAYER_SUB);
+		$this->assertResponseNotContains('/badges/delete?badge=' . BADGE_ID_ACTIVE_PLAYER_SUB);
+		$this->assertResponseNotContains('/badges/deactivate?badge=' . BADGE_ID_ACTIVE_PLAYER_SUB);
+
+		// Coordinators are allowed to see the index
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'index'], PERSON_ID_COORDINATOR);
+
+		// Captains are allowed to see the index
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'index'], PERSON_ID_CAPTAIN);
+
+		// Others are allowed to see the index, but don't have edit options
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'index'], PERSON_ID_PLAYER);
+		$this->assertResponseContains('/badges/view?badge=' . BADGE_ID_ACTIVE_PLAYER);
+		$this->assertResponseNotContains('/badges/edit?badge=' . BADGE_ID_ACTIVE_PLAYER);
+		$this->assertResponseNotContains('/badges/delete?badge=' . BADGE_ID_ACTIVE_PLAYER);
+		$this->assertResponseNotContains('/badges/deactivate?badge=' . BADGE_ID_ACTIVE_PLAYER);
+
+		// Visitors are allowed to see the index
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'index'], PERSON_ID_VISITOR);
+
+		// Others are not allowed to see the index
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'index']);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test index method as a manager
+	 * Test deactivated method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsManager() {
-		// Managers are allowed to get the index, but don't have edit options on badges in other affiliates
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'index'], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/badges/view\?badge=' . BADGE_ID_ACTIVE_PLAYER . '#ms');
-		$this->assertResponseRegExp('#/badges/edit\?badge=' . BADGE_ID_ACTIVE_PLAYER . '#ms');
-		$this->assertResponseRegExp('#/badges/delete\?badge=' . BADGE_ID_ACTIVE_PLAYER . '#ms');
-		$this->assertResponseRegExp('#/badges/deactivate\?badge=' . BADGE_ID_ACTIVE_PLAYER . '#ms');
-		$this->assertResponseNotRegExp('#/badges/view\?badge=' . BADGE_ID_ACTIVE_PLAYER_SUB . '#ms');
-		$this->assertResponseNotRegExp('#/badges/edit\?badge=' . BADGE_ID_ACTIVE_PLAYER_SUB . '#ms');
-		$this->assertResponseNotRegExp('#/badges/delete\?badge=' . BADGE_ID_ACTIVE_PLAYER_SUB . '#ms');
-		$this->assertResponseNotRegExp('#/badges/deactivate\?badge=' . BADGE_ID_ACTIVE_PLAYER_SUB . '#ms');
-	}
-
-	/**
-	 * Test index method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testIndexAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method as a captain
-	 *
-	 * @return void
-	 */
-	public function testIndexAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method as a player
-	 *
-	 * @return void
-	 */
-	public function testIndexAsPlayer() {
-		// Others are allowed to get the index, but don't have edit options
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'index'], PERSON_ID_PLAYER);
-		$this->assertResponseRegExp('#/badges/view\?badge=' . BADGE_ID_ACTIVE_PLAYER . '#ms');
-		$this->assertResponseNotRegExp('#/badges/edit\?badge=' . BADGE_ID_ACTIVE_PLAYER . '#ms');
-		$this->assertResponseNotRegExp('#/badges/delete\?badge=' . BADGE_ID_ACTIVE_PLAYER . '#ms');
-		$this->assertResponseNotRegExp('#/badges/deactivate\?badge=' . BADGE_ID_ACTIVE_PLAYER . '#ms');
-	}
-
-	/**
-	 * Test index method as someone else
-	 *
-	 * @return void
-	 */
-	public function testIndexAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testIndexAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test deactivated method as an admin
-	 *
-	 * @return void
-	 */
-	public function testDeactivatedAsAdmin() {
+	public function testDeactivated() {
 		// Admins are allowed to view the list of deactivated badges
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'deactivated'], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/badges/edit\?badge=' . BADGE_ID_BOARD_OF_DIRECTORS . '#ms');
-		$this->assertResponseRegExp('#/badges/delete\?badge=' . BADGE_ID_BOARD_OF_DIRECTORS . '#ms');
-		$this->assertResponseRegExp('#/badges/activate\?badge=' . BADGE_ID_BOARD_OF_DIRECTORS . '#ms');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'deactivated'], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/badges/edit?badge=' . BADGE_ID_BOARD_OF_DIRECTORS);
+		$this->assertResponseContains('/badges/delete?badge=' . BADGE_ID_BOARD_OF_DIRECTORS);
+		$this->assertResponseContains('/badges/activate?badge=' . BADGE_ID_BOARD_OF_DIRECTORS);
 
-	/**
-	 * Test deactivated method as a manager
-	 *
-	 * @return void
-	 */
-	public function testDeactivatedAsManager() {
 		// Managers are allowed to view the list of deactivated badges
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'deactivated'], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/badges/edit\?badge=' . BADGE_ID_BOARD_OF_DIRECTORS . '#ms');
-		$this->assertResponseRegExp('#/badges/delete\?badge=' . BADGE_ID_BOARD_OF_DIRECTORS . '#ms');
-		$this->assertResponseRegExp('#/badges/activate\?badge=' . BADGE_ID_BOARD_OF_DIRECTORS . '#ms');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'deactivated'], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/badges/edit?badge=' . BADGE_ID_BOARD_OF_DIRECTORS);
+		$this->assertResponseContains('/badges/delete?badge=' . BADGE_ID_BOARD_OF_DIRECTORS);
+		$this->assertResponseContains('/badges/activate?badge=' . BADGE_ID_BOARD_OF_DIRECTORS);
 
-	/**
-	 * Test deactivated method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testDeactivatedAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test deactivated method as a captain
-	 *
-	 * @return void
-	 */
-	public function testDeactivatedAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test deactivated method as a player
-	 *
-	 * @return void
-	 */
-	public function testDeactivatedAsPlayer() {
 		// Others are not allowed to view the list of deactivated badges
-		$this->assertAccessRedirect(['controller' => 'Badges', 'action' => 'deactivated'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'deactivated'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'deactivated'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'deactivated'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'deactivated'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'deactivated']);
 	}
 
 	/**
-	 * Test deactivated method as someone else
+	 * Test view method
 	 *
 	 * @return void
 	 */
-	public function testDeactivatedAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test deactivated method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeactivatedAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as an admin
-	 *
-	 * @return void
-	 */
-	public function testViewAsAdmin() {
+	public function testView() {
 		// Admins are allowed to view and edit badges
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_ACTIVE_PLAYER], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/badges/edit\?badge=' . BADGE_ID_ACTIVE_PLAYER . '#ms');
-		$this->assertResponseRegExp('#/badges/delete\?badge=' . BADGE_ID_ACTIVE_PLAYER . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_ACTIVE_PLAYER], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/badges/edit?badge=' . BADGE_ID_ACTIVE_PLAYER);
+		$this->assertResponseContains('/badges/delete?badge=' . BADGE_ID_ACTIVE_PLAYER);
 
-		// Admins can also view deactivated badges
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_MEMBER], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/badges/edit\?badge=' . BADGE_ID_MEMBER . '#ms');
-		$this->assertResponseRegExp('#/badges/delete\?badge=' . BADGE_ID_MEMBER . '#ms');
+		// Admins are also allowed to view deactivated badges
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_MEMBER], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/badges/edit?badge=' . BADGE_ID_MEMBER);
+		$this->assertResponseContains('/badges/delete?badge=' . BADGE_ID_MEMBER);
 
 		// Or anything with admin-only access
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_RED_FLAG], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/badges/edit\?badge=' . BADGE_ID_RED_FLAG . '#ms');
-		$this->assertResponseRegExp('#/badges/delete\?badge=' . BADGE_ID_RED_FLAG . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_RED_FLAG], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/badges/edit?badge=' . BADGE_ID_RED_FLAG);
+		$this->assertResponseContains('/badges/delete?badge=' . BADGE_ID_RED_FLAG);
 
 		// And badges from all affiliates
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_ACTIVE_PLAYER_SUB], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/badges/edit\?badge=' . BADGE_ID_ACTIVE_PLAYER_SUB . '#ms');
-		$this->assertResponseRegExp('#/badges/delete\?badge=' . BADGE_ID_ACTIVE_PLAYER_SUB . '#ms');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_ACTIVE_PLAYER_SUB], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/badges/edit?badge=' . BADGE_ID_ACTIVE_PLAYER_SUB);
+		$this->assertResponseContains('/badges/delete?badge=' . BADGE_ID_ACTIVE_PLAYER_SUB);
 
-	/**
-	 * Test view method as a manager
-	 *
-	 * @return void
-	 */
-	public function testViewAsManager() {
 		// Managers are allowed to view and edit badges
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_ACTIVE_PLAYER], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/badges/edit\?badge=' . BADGE_ID_ACTIVE_PLAYER . '#ms');
-		$this->assertResponseRegExp('#/badges/delete\?badge=' . BADGE_ID_ACTIVE_PLAYER . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_ACTIVE_PLAYER], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/badges/edit?badge=' . BADGE_ID_ACTIVE_PLAYER);
+		$this->assertResponseContains('/badges/delete?badge=' . BADGE_ID_ACTIVE_PLAYER);
 
-		// Managers can also view deactivated badges
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_MEMBER], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/badges/edit\?badge=' . BADGE_ID_MEMBER . '#ms');
-		$this->assertResponseRegExp('#/badges/delete\?badge=' . BADGE_ID_MEMBER . '#ms');
+		// Managers are also allowed to view deactivated badges
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_MEMBER], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/badges/edit?badge=' . BADGE_ID_MEMBER);
+		$this->assertResponseContains('/badges/delete?badge=' . BADGE_ID_MEMBER);
 
 		// Or anything with admin-only access
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_RED_FLAG], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/badges/edit\?badge=' . BADGE_ID_RED_FLAG . '#ms');
-		$this->assertResponseRegExp('#/badges/delete\?badge=' . BADGE_ID_RED_FLAG . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_RED_FLAG], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/badges/edit?badge=' . BADGE_ID_RED_FLAG);
+		$this->assertResponseContains('/badges/delete?badge=' . BADGE_ID_RED_FLAG);
 
 		// Managers have no edit options on ones in other affiliates
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_ACTIVE_PLAYER_SUB], PERSON_ID_MANAGER);
-		$this->assertResponseNotRegExp('#/badges/edit\?badge=' . BADGE_ID_ACTIVE_PLAYER_SUB . '#ms');
-		$this->assertResponseNotRegExp('#/badges/delete\?badge=' . BADGE_ID_ACTIVE_PLAYER_SUB . '#ms');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_ACTIVE_PLAYER_SUB], PERSON_ID_MANAGER);
+		$this->assertResponseNotContains('/badges/edit?badge=' . BADGE_ID_ACTIVE_PLAYER_SUB);
+		$this->assertResponseNotContains('/badges/delete?badge=' . BADGE_ID_ACTIVE_PLAYER_SUB);
 
-	/**
-	 * Test view method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testViewAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Coordinators are allowed to view badges
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_ACTIVE_PLAYER], PERSON_ID_COORDINATOR);
 
-	/**
-	 * Test view method as a captain
-	 *
-	 * @return void
-	 */
-	public function testViewAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Captains are allowed to view badges
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_ACTIVE_PLAYER], PERSON_ID_CAPTAIN);
 
-	/**
-	 * Test view method as a player
-	 *
-	 * @return void
-	 */
-	public function testViewAsPlayer() {
-		// Others can only view badges
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_ACTIVE_PLAYER], PERSON_ID_PLAYER);
-		$this->assertResponseNotRegExp('#/badges/edit\?badge=' . BADGE_ID_ACTIVE_PLAYER . '#ms');
-		$this->assertResponseNotRegExp('#/badges/delete\?badge=' . BADGE_ID_ACTIVE_PLAYER . '#ms');
+		// Others are allowed to view badges
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_ACTIVE_PLAYER], PERSON_ID_PLAYER);
+		$this->assertResponseNotContains('/badges/edit?badge=' . BADGE_ID_ACTIVE_PLAYER);
+		$this->assertResponseNotContains('/badges/delete?badge=' . BADGE_ID_ACTIVE_PLAYER);
 
-		// But they can't view deactivated badges
-		$this->assertAccessRedirect(['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_MEMBER],
-			PERSON_ID_PLAYER, 'get', [], ['controller' => 'Badges', 'action' => 'index'],
-			'Invalid badge.', 'Flash.flash.0.message');
+		// But they are not allowed to view deactivated badges
+		$this->assertGetAsAccessRedirect(['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_MEMBER],
+			PERSON_ID_PLAYER, ['controller' => 'Badges', 'action' => 'index'],
+			'Invalid badge.');
 
 		// Or anything with admin-only access
-		$this->assertAccessRedirect(['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_RED_FLAG],
-			PERSON_ID_PLAYER, 'get', [], ['controller' => 'Badges', 'action' => 'index'],
-			'Invalid badge.', 'Flash.flash.0.message');
-	}
+		$this->assertGetAsAccessRedirect(['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_RED_FLAG],
+			PERSON_ID_PLAYER, ['controller' => 'Badges', 'action' => 'index'],
+			'Invalid badge.');
 
-	/**
-	 * Test view method as someone else
-	 *
-	 * @return void
-	 */
-	public function testViewAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Visitors are allowed to view badges
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_ACTIVE_PLAYER], PERSON_ID_VISITOR);
 
-	/**
-	 * Test view method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testViewAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to view badges
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_ACTIVE_PLAYER]);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -323,10 +205,10 @@ class BadgesControllerTest extends ControllerTestCase {
 		$badge = $badges_table->get(BADGE_ID_ACTIVE_PLAYER);
 		$this->assertEquals(0, $badge->refresh_from);
 
-		// Admins can initialize the awarding of badges
-		$this->assertAccessRedirect(['controller' => 'Badges', 'action' => 'initialize_awards', 'badge' => BADGE_ID_ACTIVE_PLAYER],
-			PERSON_ID_ADMIN, 'get', [], ['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_ACTIVE_PLAYER],
-			'This badge has been scheduled for re-initialization.', 'Flash.flash.0.message');
+		// Admins are allowed to initialize the awarding of badges
+		$this->assertGetAsAccessRedirect(['controller' => 'Badges', 'action' => 'initialize_awards', 'badge' => BADGE_ID_ACTIVE_PLAYER],
+			PERSON_ID_ADMIN, ['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_ACTIVE_PLAYER],
+			'This badge has been scheduled for re-initialization.');
 
 		$badge = $badges_table->get(BADGE_ID_ACTIVE_PLAYER);
 		$this->assertEquals(1, $badge->refresh_from);
@@ -348,7 +230,7 @@ class BadgesControllerTest extends ControllerTestCase {
 		$badge = $badges_table->get(BADGE_ID_ACTIVE_PLAYER);
 		$this->assertEquals(0, $badge->refresh_from);
 
-		$this->assertEquals(6, TableRegistry::get('BadgesPeople')->find()
+		$this->assertEquals(9, TableRegistry::get('BadgesPeople')->find()
 			->where(['badge_id' => BADGE_ID_ACTIVE_PLAYER])
 			->count()
 		);
@@ -360,121 +242,62 @@ class BadgesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testInitializeAwardsAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Managers are allowed to initialize awards
+		$this->assertGetAsAccessRedirect(['controller' => 'Badges', 'action' => 'initialize_awards', 'badge' => BADGE_ID_ACTIVE_PLAYER],
+			PERSON_ID_MANAGER, ['controller' => 'Badges', 'action' => 'view', 'badge' => BADGE_ID_ACTIVE_PLAYER],
+			'This badge has been scheduled for re-initialization.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test initialize_awards method as a coordinator
+	 * Test initialize_awards method as others
 	 *
 	 * @return void
 	 */
-	public function testInitializeAwardsAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testInitializeAwardsAsOthers() {
+		// Others are not allowed to initialize awards
+		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'initialize_awards', 'badge' => BADGE_ID_ACTIVE_PLAYER], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'initialize_awards', 'badge' => BADGE_ID_ACTIVE_PLAYER], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'initialize_awards', 'badge' => BADGE_ID_ACTIVE_PLAYER], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'initialize_awards', 'badge' => BADGE_ID_ACTIVE_PLAYER], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'initialize_awards', 'badge' => BADGE_ID_ACTIVE_PLAYER]);
 	}
 
 	/**
-	 * Test initialize_awards method as a captain
+	 * Test tooltip method
 	 *
 	 * @return void
 	 */
-	public function testInitializeAwardsAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testTooltip() {
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => BADGE_ID_ACTIVE_PLAYER],
+			PERSON_ID_ADMIN);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => BADGE_ID_RED_FLAG],
+			PERSON_ID_ADMIN);
 
-	/**
-	 * Test initialize_awards method as a player
-	 *
-	 * @return void
-	 */
-	public function testInitializeAwardsAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => BADGE_ID_ACTIVE_PLAYER],
+			PERSON_ID_MANAGER);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => BADGE_ID_RED_FLAG],
+			PERSON_ID_MANAGER);
 
-	/**
-	 * Test initialize_awards method as someone else
-	 *
-	 * @return void
-	 */
-	public function testInitializeAwardsAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => BADGE_ID_ACTIVE_PLAYER],
+			PERSON_ID_COORDINATOR);
 
-	/**
-	 * Test initialize_awards method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testInitializeAwardsAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => BADGE_ID_ACTIVE_PLAYER],
+			PERSON_ID_CAPTAIN);
 
-	/**
-	 * Test tooltip method as an admin
-	 *
-	 * @return void
-	 */
-	public function testTooltipAsAdmin() {
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => BADGE_ID_ACTIVE_PLAYER], PERSON_ID_ADMIN, 'getajax');
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => BADGE_ID_RED_FLAG], PERSON_ID_ADMIN, 'getajax');
-	}
-
-	/**
-	 * Test tooltip method as a manager
-	 *
-	 * @return void
-	 */
-	public function testTooltipAsManager() {
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => BADGE_ID_ACTIVE_PLAYER], PERSON_ID_MANAGER, 'getajax');
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => BADGE_ID_RED_FLAG], PERSON_ID_MANAGER, 'getajax');
-	}
-
-	/**
-	 * Test tooltip method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testTooltipAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test tooltip method as a captain
-	 *
-	 * @return void
-	 */
-	public function testTooltipAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test tooltip method as a player
-	 *
-	 * @return void
-	 */
-	public function testTooltipAsPlayer() {
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => BADGE_ID_ACTIVE_PLAYER], PERSON_ID_PLAYER, 'getajax');
-
-		$this->assertAccessRedirect(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => BADGE_ID_RED_FLAG],
-			PERSON_ID_PLAYER, 'getajax', [], ['controller' => 'Badges', 'action' => 'index'],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => BADGE_ID_ACTIVE_PLAYER],
+			PERSON_ID_PLAYER);
+		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => BADGE_ID_RED_FLAG],
+			PERSON_ID_PLAYER, ['controller' => 'Badges', 'action' => 'index'],
 			'Invalid badge.');
-	}
 
-	/**
-	 * Test tooltip method as someone else
-	 *
-	 * @return void
-	 */
-	public function testTooltipAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => BADGE_ID_ACTIVE_PLAYER],
+			PERSON_ID_VISITOR);
 
-	/**
-	 * Test tooltip method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testTooltipAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => BADGE_ID_ACTIVE_PLAYER]);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -484,7 +307,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 */
 	public function testAddAsAdmin() {
 		// Admins are allowed to add badges
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'add'], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'add'], PERSON_ID_ADMIN);
 	}
 
 	/**
@@ -494,53 +317,21 @@ class BadgesControllerTest extends ControllerTestCase {
 	 */
 	public function testAddAsManager() {
 		// Managers are allowed to add badges
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'add'], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'add'], PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test add method as a coordinator
+	 * Test add method as others
 	 *
 	 * @return void
 	 */
-	public function testAddAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as a captain
-	 *
-	 * @return void
-	 */
-	public function testAddAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as a player
-	 *
-	 * @return void
-	 */
-	public function testAddAsPlayer() {
+	public function testAddAsOthers() {
 		// Others are not allowed to add badges
-		$this->assertAccessRedirect(['controller' => 'Badges', 'action' => 'add'], PERSON_ID_PLAYER);
-	}
-
-	/**
-	 * Test add method as someone else
-	 *
-	 * @return void
-	 */
-	public function testAddAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testAddAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'add'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'add'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'add'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'add'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'add']);
 	}
 
 	/**
@@ -550,8 +341,8 @@ class BadgesControllerTest extends ControllerTestCase {
 	 */
 	public function testEditAsAdmin() {
 		// Admins are allowed to edit badges
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'edit', 'badge' => BADGE_ID_ACTIVE_PLAYER], PERSON_ID_ADMIN);
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'edit', 'badge' => BADGE_ID_ACTIVE_PLAYER_SUB], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'edit', 'badge' => BADGE_ID_ACTIVE_PLAYER], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'edit', 'badge' => BADGE_ID_ACTIVE_PLAYER_SUB], PERSON_ID_ADMIN);
 	}
 
 	/**
@@ -561,56 +352,24 @@ class BadgesControllerTest extends ControllerTestCase {
 	 */
 	public function testEditAsManager() {
 		// Managers are allowed to edit badges
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'edit', 'badge' => BADGE_ID_ACTIVE_PLAYER], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'edit', 'badge' => BADGE_ID_ACTIVE_PLAYER], PERSON_ID_MANAGER);
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Badges', 'action' => 'edit', 'badge' => BADGE_ID_ACTIVE_PLAYER_SUB], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'edit', 'badge' => BADGE_ID_ACTIVE_PLAYER_SUB], PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test edit method as a coordinator
+	 * Test edit method as others
 	 *
 	 * @return void
 	 */
-	public function testEditAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as a captain
-	 *
-	 * @return void
-	 */
-	public function testEditAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as a player
-	 *
-	 * @return void
-	 */
-	public function testEditAsPlayer() {
+	public function testEditAsOthers() {
 		// Others are not allowed to edit badges
-		$this->assertAccessRedirect(['controller' => 'Badges', 'action' => 'edit', 'badge' => BADGE_ID_ACTIVE_PLAYER], PERSON_ID_PLAYER);
-	}
-
-	/**
-	 * Test edit method as someone else
-	 *
-	 * @return void
-	 */
-	public function testEditAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testEditAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'edit', 'badge' => BADGE_ID_ACTIVE_PLAYER], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'edit', 'badge' => BADGE_ID_ACTIVE_PLAYER], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'edit', 'badge' => BADGE_ID_ACTIVE_PLAYER], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'edit', 'badge' => BADGE_ID_ACTIVE_PLAYER], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'edit', 'badge' => BADGE_ID_ACTIVE_PLAYER]);
 	}
 
 	/**
@@ -620,8 +379,9 @@ class BadgesControllerTest extends ControllerTestCase {
 	 */
 	public function testDeactivateAsAdmin() {
 		// Admins are allowed to deactivate badges
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'deactivate', 'badge' => BADGE_ID_CHAMPION], PERSON_ID_ADMIN, 'getajax');
-		$this->assertResponseRegExp('#/badges\\\\/activate\?badge=' . BADGE_ID_CHAMPION . '#ms');
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'deactivate', 'badge' => BADGE_ID_CHAMPION],
+			PERSON_ID_ADMIN);
+		$this->assertResponseContains('/badges\\/activate?badge=' . BADGE_ID_CHAMPION);
 	}
 
 	/**
@@ -631,53 +391,27 @@ class BadgesControllerTest extends ControllerTestCase {
 	 */
 	public function testDeactivateAsManager() {
 		// Managers are allowed to deactivate badges
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'deactivate', 'badge' => BADGE_ID_CHAMPION], PERSON_ID_MANAGER, 'getajax');
-		$this->assertResponseRegExp('#/badges\\\\/activate\?badge=' . BADGE_ID_CHAMPION . '#ms');
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'deactivate', 'badge' => BADGE_ID_CHAMPION],
+			PERSON_ID_MANAGER);
+		$this->assertResponseContains('/badges\\/activate?badge=' . BADGE_ID_CHAMPION);
 	}
 
 	/**
-	 * Test deactivate method as a coordinator
+	 * Test deactivate method as others
 	 *
 	 * @return void
 	 */
-	public function testDeactivateAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test deactivate method as a captain
-	 *
-	 * @return void
-	 */
-	public function testDeactivateAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test deactivate method as a player
-	 *
-	 * @return void
-	 */
-	public function testDeactivateAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test deactivate method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeactivateAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test deactivate method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeactivateAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testDeactivateAsOthers() {
+		// Others are not allowed to deactivate badges
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Badges', 'action' => 'deactivate', 'badge' => BADGE_ID_CHAMPION],
+			PERSON_ID_COORDINATOR);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Badges', 'action' => 'deactivate', 'badge' => BADGE_ID_CHAMPION],
+			PERSON_ID_CAPTAIN);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Badges', 'action' => 'deactivate', 'badge' => BADGE_ID_CHAMPION],
+			PERSON_ID_PLAYER);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Badges', 'action' => 'deactivate', 'badge' => BADGE_ID_CHAMPION],
+			PERSON_ID_VISITOR);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'deactivate', 'badge' => BADGE_ID_CHAMPION]);
 	}
 
 	/**
@@ -687,8 +421,9 @@ class BadgesControllerTest extends ControllerTestCase {
 	 */
 	public function testActivateAsAdmin() {
 		// Admins are allowed to activate badges
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'activate', 'badge' => BADGE_ID_CHAMPION], PERSON_ID_ADMIN, 'getajax');
-		$this->assertResponseRegExp('#/badges\\\\/deactivate\?badge=' . BADGE_ID_CHAMPION . '#ms');
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'activate', 'badge' => BADGE_ID_CHAMPION],
+			PERSON_ID_ADMIN);
+		$this->assertResponseContains('/badges\\/deactivate?badge=' . BADGE_ID_CHAMPION);
 	}
 
 	/**
@@ -698,53 +433,27 @@ class BadgesControllerTest extends ControllerTestCase {
 	 */
 	public function testActivateAsManager() {
 		// Managers are allowed to activate badges
-		$this->assertAccessOk(['controller' => 'Badges', 'action' => 'activate', 'badge' => BADGE_ID_CHAMPION], PERSON_ID_MANAGER, 'getajax');
-		$this->assertResponseRegExp('#/badges\\\\/deactivate\?badge=' . BADGE_ID_CHAMPION . '#ms');
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'activate', 'badge' => BADGE_ID_CHAMPION],
+			PERSON_ID_MANAGER);
+		$this->assertResponseContains('/badges\\/deactivate?badge=' . BADGE_ID_CHAMPION);
 	}
 
 	/**
-	 * Test activate method as a coordinator
+	 * Test activate method as others
 	 *
 	 * @return void
 	 */
-	public function testActivateAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test activate method as a captain
-	 *
-	 * @return void
-	 */
-	public function testActivateAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test activate method as a player
-	 *
-	 * @return void
-	 */
-	public function testActivateAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test activate method as someone else
-	 *
-	 * @return void
-	 */
-	public function testActivateAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test activate method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testActivateAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testActivateAsOthers() {
+		// Others are not allowed to activate badges
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Badges', 'action' => 'activate', 'badge' => BADGE_ID_CHAMPION],
+			PERSON_ID_COORDINATOR);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Badges', 'action' => 'activate', 'badge' => BADGE_ID_CHAMPION],
+			PERSON_ID_CAPTAIN);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Badges', 'action' => 'activate', 'badge' => BADGE_ID_CHAMPION],
+			PERSON_ID_PLAYER);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Badges', 'action' => 'activate', 'badge' => BADGE_ID_CHAMPION],
+			PERSON_ID_VISITOR);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'activate', 'badge' => BADGE_ID_CHAMPION]);
 	}
 
 	/**
@@ -757,14 +466,14 @@ class BadgesControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		// Admins are allowed to delete badges
-		$this->assertAccessRedirect(['controller' => 'Badges', 'action' => 'delete', 'badge' => BADGE_ID_MEMBER],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Badges', 'action' => 'index'],
-			'The badge has been deleted.', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Badges', 'action' => 'delete', 'badge' => BADGE_ID_MEMBER],
+			PERSON_ID_ADMIN, [], ['controller' => 'Badges', 'action' => 'index'],
+			'The badge has been deleted.');
 
 		// But not ones with dependencies
-		$this->assertAccessRedirect(['controller' => 'Badges', 'action' => 'delete', 'badge' => BADGE_ID_ACTIVE_PLAYER],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Badges', 'action' => 'index'],
-			'#The following records reference this badge, so it cannot be deleted#', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Badges', 'action' => 'delete', 'badge' => BADGE_ID_ACTIVE_PLAYER],
+			PERSON_ID_ADMIN, [], ['controller' => 'Badges', 'action' => 'index'],
+			'#The following records reference this badge, so it cannot be deleted#');
 	}
 
 	/**
@@ -776,54 +485,35 @@ class BadgesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		// Managers cannot delete badges
-		$this->assertAccessRedirect(['controller' => 'Badges', 'action' => 'delete', 'badge' => BADGE_ID_ACTIVE_PLAYER],
-			PERSON_ID_MANAGER, 'post');
+		// Managers are allowed to delete badges
+		$this->assertPostAsAccessRedirect(['controller' => 'Badges', 'action' => 'delete', 'badge' => BADGE_ID_MEMBER],
+			PERSON_ID_MANAGER, [], ['controller' => 'Badges', 'action' => 'index'],
+			'The badge has been deleted.');
+
+		// But not ones in other affiliates
+		$this->assertPostAsAccessDenied(['controller' => 'Badges', 'action' => 'delete', 'badge' => BADGE_ID_ACTIVE_PLAYER_SUB],
+			PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test delete method as a coordinator
+	 * Test delete method as others
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testDeleteAsOthers() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
-	/**
-	 * Test delete method as a captain
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as a player
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to delete badges
+		$this->assertPostAsAccessDenied(['controller' => 'Badges', 'action' => 'delete', 'badge' => BADGE_ID_ACTIVE_PLAYER],
+			PERSON_ID_COORDINATOR);
+		$this->assertPostAsAccessDenied(['controller' => 'Badges', 'action' => 'delete', 'badge' => BADGE_ID_ACTIVE_PLAYER],
+			PERSON_ID_CAPTAIN);
+		$this->assertPostAsAccessDenied(['controller' => 'Badges', 'action' => 'delete', 'badge' => BADGE_ID_ACTIVE_PLAYER],
+			PERSON_ID_PLAYER);
+		$this->assertPostAsAccessDenied(['controller' => 'Badges', 'action' => 'delete', 'badge' => BADGE_ID_ACTIVE_PLAYER],
+			PERSON_ID_VISITOR);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'delete', 'badge' => BADGE_ID_ACTIVE_PLAYER]);
 	}
 
 }

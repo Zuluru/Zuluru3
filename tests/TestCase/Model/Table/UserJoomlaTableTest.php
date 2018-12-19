@@ -34,8 +34,9 @@ class UserJoomlaTableTest extends TableTestCase {
 	 */
 	public function setUp() {
 		// This needs to be defined or else the table's constructor tries to include library code
-		// TODOLATER: Will need to do something better than this when we implement these tests
-		Configure::write('Security.joomlaPrefix', 'x');
+		if (!defined('JPATH_BASE')) {
+			define('JPATH_BASE', TESTS . 'test_app' . DS . 'joomla');
+		}
 
 		parent::setUp();
 		$config = TableRegistry::exists('UserJoomla') ? [] : ['className' => 'App\Model\Table\UserJoomlaTable'];

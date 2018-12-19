@@ -35,82 +35,29 @@ class SchedulesController extends AppController {
 	}
 
 	/**
-	 * _publicActions method
+	 * _noAuthenticationActions method
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _publicActions() {
+	protected function _noAuthenticationActions() {
 		return ['today', 'day'];
 	}
 
 	/**
-	 * _publicJsonActions method
+	 * _noAuthenticationJsonActions method
 	 *
 	 * @return array of JSON actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _publicJsonActions() {
+	protected function _noAuthenticationJsonActions() {
 		return ['today'];
-	}
-
-	public function isAuthorized() {
-		try {
-			if ($this->UserCache->read('Person.status') == 'locked') {
-				return false;
-			}
-
-			// People can perform these operations on divisions they coordinate
-			if (in_array($this->request->getParam('action'), [
-				'add',
-				'delete',
-				'reschedule',
-				'publish',
-				'unpublish',
-			])) {
-				// If a division id is specified, check if we're a coordinator of that division
-				$division = $this->request->getQuery('division');
-				if ($division) {
-					// If a division id is specified, check if we're a manager of that division's affiliate
-					if (Configure::read('Perm.is_manager')) {
-						if (in_array($this->Divisions->affiliate($division), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-
-					if (in_array($division, $this->UserCache->read('DivisionIDs'))) {
-						return true;
-					}
-				}
-
-				// If a league id is specified, check if we're a coordinator of all divisions in that league
-				$league = $this->request->getQuery('league');
-				if ($league) {
-					// If a league id is specified, check if we're a manager of that league's affiliate
-					if (Configure::read('Perm.is_manager')) {
-						if (in_array($this->Divisions->Leagues->affiliate($league), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-
-					if ($this->Divisions->Leagues->is_coordinator($league)) {
-						return true;
-					}
-				}
-			}
-		} catch (RecordNotFoundException $ex) {
-		} catch (InvalidPrimaryKeyException $ex) {
-		}
-
-		return false;
 	}
 
 	// TODO: Proper fix for black-holing of schedule deletion
 	public function beforeFilter(\Cake\Event\Event $event) {
 		parent::beforeFilter($event);
-		$this->Security->config('unlockedActions', ['delete']);
+		if (isset($this->Security)) {
+			$this->Security->config('unlockedActions', ['delete']);
+		}
 	}
 
 	public function add() {
@@ -143,6 +90,9 @@ class SchedulesController extends AppController {
 			$this->Flash->warning(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
+
+		$this->Authorization->authorize($division, 'edit_schedule');
+
 		if ($division->schedule_type == 'none') {
 			$this->Flash->warning(__('This division\'s "schedule type" is set to "none", so no games can be added.'));
 			return $this->redirect(['controller' => 'Divisions', 'action' => 'view', 'division' => $id]);
@@ -824,6 +774,8 @@ class SchedulesController extends AppController {
 				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 			}
 
+			$this->Authorization->authorize($league, 'edit_schedule');
+
 			if (empty($league->divisions)) {
 				$this->Flash->warning(__('This league has no divisions yet.'));
 				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
@@ -871,6 +823,8 @@ class SchedulesController extends AppController {
 			}
 			$divisions = [$division->id];
 			$league_id = $division->league_id;
+
+			$this->Authorization->authorize($division, 'edit_schedule');
 
 			$multi_day = ($division->schedule_type != 'tournament' && count($division->days) > 1);
 
@@ -1021,22 +975,24 @@ class SchedulesController extends AppController {
 		$date = $this->request->getQuery('date');
 
 		try {
-			$division = $this->Divisions->get($id, ['contain' => [
-				'Leagues',
-				'Games' => [
-					'queryBuilder' => function (Query $q) use ($date) {
-						return $q
-							->where([
-								'NOT' => ['status IN' => ['cancelled', 'rescheduled']],
-							])
-							->matching('GameSlots', function (Query $q) use ($date) {
-								return $q->where(['game_date' => $date]);
-							});
-					},
-					'HomeTeam',
-					'AwayTeam',
-				],
-			]]);
+			$division = $this->Divisions->get($id,
+				['contain' => [
+					'Leagues',
+					'Games' => [
+						'queryBuilder' => function (Query $q) use ($date) {
+							return $q
+								->where([
+									'NOT' => ['status IN' => ['cancelled', 'rescheduled']],
+								])
+								->matching('GameSlots', function (Query $q) use ($date) {
+									return $q->where(['game_date' => $date]);
+								});
+						},
+						'HomeTeam',
+						'AwayTeam',
+					],
+				]
+			]);
 		} catch (RecordNotFoundException $ex) {
 			$this->Flash->warning(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
@@ -1044,6 +1000,8 @@ class SchedulesController extends AppController {
 			$this->Flash->warning(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
+
+		$this->Authorization->authorize($division, 'edit_schedule');
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
 		$league_obj = $this->moduleRegistry->load("LeagueType:{$division->schedule_type}");
@@ -1127,6 +1085,8 @@ class SchedulesController extends AppController {
 				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 			}
 
+			$this->Authorization->authorize($league, 'edit_schedule');
+
 			if (empty($league->divisions)) {
 				$this->Flash->warning(__('This league has no divisions yet.'));
 				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
@@ -1154,6 +1114,8 @@ class SchedulesController extends AppController {
 				$this->Flash->warning(__('Invalid division.'));
 				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 			}
+
+			$this->Authorization->authorize($division, 'edit_schedule');
 
 			$divisions = [$division_id];
 			$league_id = $division['league_id'];
@@ -1259,7 +1221,7 @@ class SchedulesController extends AppController {
 		}
 		if (empty($games)) {
 		*/
-			$affiliates = $this->_applicableAffiliateIDs(true);
+			$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 
 			// Find divisions that match the affiliates, and specified date
 			$divisions = $this->Divisions->find()
@@ -1294,7 +1256,7 @@ class SchedulesController extends AppController {
 						],
 					]);
 
-				if (!Configure::read('Perm.is_admin') && !Configure::read('Perm.is_manager')) {
+				if (!$this->Authentication->getIdentity()->isManager()) {
 					$query->andWhere(['Games.published' => true]);
 				}
 

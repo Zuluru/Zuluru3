@@ -1,23 +1,27 @@
 <?php
-use Cake\Core\Configure;
-use Cake\Utility\Inflector;
-use App\Controller\AppController;
-
 /**
  * @type $game \App\Model\Entity\Game
- * @type $my_team \App\Model\Entity\Team
  * @type $ratings_obj \App\Module\Ratings
  * @type $spirit_obj \App\Module\Spirit
  * @type $league_obj \App\Module\LeagueType
- * @type $is_coordinator boolean
- * @type $is_captain boolean
  */
+
+use App\Authorization\ContextResource;
+use Cake\Core\Configure;
+use Cake\Utility\Inflector;
+use App\Controller\AppController;
 
 $this->Html->addCrumb(__('Games'));
 $this->Html->addCrumb(__('Game') . ' ' . $game->id);
 $this->Html->addCrumb(__('View'));
 
 $preliminary = ($game->home_team_id === null || ($game->division->schedule_type != 'competition' && $game->away_team_id === null));
+
+$division_context = new ContextResource($game->division, ['league' => $game->division->league]);
+$game_context = new ContextResource($game, ['league' => $game->division->league, 'division' => $game->division, 'ratings_obj' => $ratings_obj, 'home_team' => $game->home_team, 'away_team' => $game->away_team]);
+$show_spirit = $this->Authorize->can('view_spirit', $division_context);
+$show_spirit_scores = $show_spirit && $this->Authorize->can('view_spirit_scores', $division_context);
+
 $carbon_flip_options = [
 	2 => __('{0} won', $game->home_team_id !== null ? $game->home_team->name : $game->home_dependency),
 	0 => __('{0} won', $game->away_team_id !== null ? $game->away_team->name : $game->away_dependency),
@@ -97,7 +101,7 @@ if ($game->division->schedule_type == 'roundrobin' && $game->round):
 <?php
 endif;
 
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator || $is_captain):
+if ($this->Authorize->can('email_captains', $game)):
 	if ($game->home_team) {
 		$captains = $game->home_team->people;
 	} else {
@@ -114,7 +118,7 @@ if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $i
 	endif;
 endif;
 
-if (!$preliminary && $game->division->schedule_type != 'roundrobin' && $ratings_obj->perGameRatings() && !$game->isFinalized() && Configure::read('Perm.is_logged_in')):
+if ($this->Authorize->can('ratings_table', $game_context)):
 ?>
 		<dt><?= __('Ratings Table') ?></dt>
 		<dd><?= $this->Html->link(__('Click to view'), ['action' => 'ratings_table', 'game' => $game->id]) ?></dd>
@@ -124,48 +128,42 @@ endif;
 	</dl>
 
 <?php
-$my_teams = $this->UserCache->read('AllTeamIDs');
-if (in_array($game->home_team_id, $my_teams)) {
-	$my_team = $game->home_team;
-} else if (in_array($game->away_team_id, $my_teams)) {
-	$my_team = $game->away_team;
-}
-$display_attendance = isset($my_team) && $my_team->track_attendance;
-$can_annotate = Configure::read('feature.annotations') && isset($my_team);
-$stats_link = $game->isFinalized() && $game->division->league->hasStats() && (Configure::read('Perm.is_logged_in') || Configure::read('feature.public'));
+$actions = [];
 
-if ($display_attendance || $can_annotate || Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator || $stats_link):
-?>
-	<div class="actions columns">
-		<ul class="nav nav-pills">
-<?php
-	if ($display_attendance) {
-		echo $this->Html->tag('li', $this->Html->iconLink('attendance_24.png',
-			['controller' => 'Games', 'action' => 'attendance', 'team' => $my_team->id, 'game' => $game->id],
-			['alt' => __('Attendance'), 'title' => __('View Game Attendance Report')]));
-	}
-	if ($can_annotate) {
-		echo $this->Html->tag('li', $this->Html->link(__('Add Note'), ['action' => 'note', 'game' => $game->id]));
-	}
-	if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator) {
-		echo $this->Html->tag('li', $this->Html->iconLink('edit_24.png',
-			['action' => 'edit', 'game' => $game->id],
-			['alt' => __('Edit Game'), 'title' => __('Edit Game')]));
-		echo $this->Html->tag('li', $this->Form->iconPostLink('delete_24.png',
-			['action' => 'delete', 'game' => $game->id],
-			['alt' => __('Delete Game'), 'title' => __('Delete Game')],
-			['confirm' => __('Are you sure you want to delete this game?')]));
-	}
-	if ($stats_link) {
-		echo $this->Html->tag('li', $this->Html->iconLink('stats_24.png',
-			['action' => 'stats', 'game' => $game->id],
-			['alt' => __('Game Stats'), 'title' => __('Game Stats')]));
-	}
-?>
-		</ul>
-	</div>
-<?php
-endif;
+if ($this->Authorize->can('attendance', $game_context) && $game_context->team_id) {
+	$actions[] = $this->Html->iconLink('attendance_24.png',
+		['action' => 'attendance', 'team' => $game_context->team_id, 'game' => $game->id],
+		['alt' => __('Attendance'), 'title' => __('View Game Attendance Report')]);
+}
+
+if ($this->Authorize->can('note', $game_context)) {
+	$actions[] = $this->Html->link(__('Add Note'), ['action' => 'note', 'game' => $game->id]);
+}
+
+if ($this->Authorize->can('edit', $game)) {
+	$actions[] = $this->Html->iconLink('edit_24.png',
+		['action' => 'edit', 'game' => $game->id],
+		['alt' => __('Edit Game'), 'title' => __('Edit Game')]);
+}
+
+if ($this->Authorize->can('delete', $game)) {
+	$actions[] = $this->Form->iconPostLink('delete_24.png',
+		['action' => 'delete', 'game' => $game->id],
+		['alt' => __('Delete Game'), 'title' => __('Delete Game')],
+		['confirm' => __('Are you sure you want to delete this game?')]);
+}
+
+if ($this->Authorize->can('stats', $game_context)) {
+	$actions[] = $this->Html->iconLink('stats_24.png',
+		['action' => 'stats', 'game' => $game->id],
+		['alt' => __('Game Stats'), 'title' => __('Game Stats')]);
+}
+
+if (!empty($actions)) {
+	echo $this->Html->tag('div',
+		$this->Html->nestedList($actions, ['class' => 'nav nav-pills']),
+		['class' => 'actions columns']);
+}
 
 if (array_key_exists($game->home_team_id, $game->score_entries)) {
 	$homeScoreEntry = $game->score_entries[$game->home_team_id];
@@ -231,20 +229,20 @@ if ($game->isFinalized()):
 <?php
 		endif;
 
-		if ((Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator || $game->division->league->display_sotg != 'coordinator_only') && $game->division->league->hasSpirit()):
+		if ($show_spirit):
 ?>
 			<dt><?= __('Spirit for {0}', $this->Text->truncate($game->home_team->name, 18)) ?></dt>
 			<dd><?= $this->element('Spirit/symbol', [
 				'spirit_obj' => $spirit_obj,
 				'league' => $game->division->league,
-				'is_coordinator' => $is_coordinator,
+				'show_spirit_scores' => $show_spirit_scores,
 				'entry' => $awaySpiritEntry,
 			]) ?></dd>
 			<dt><?= __('Spirit for {0}', $this->Text->truncate($game->away_team->name, 18)) ?></dt>
 			<dd><?= $this->element('Spirit/symbol', [
 				'spirit_obj' => $spirit_obj,
 				'league' => $game->division->league,
-				'is_coordinator' => $is_coordinator,
+				'show_spirit_scores' => $show_spirit_scores,
 				'entry' => $homeSpiritEntry,
 			]) ?></dd>
 <?php
@@ -271,7 +269,7 @@ else:
 ?>
 		<p><?= __('The score of this game has not yet been finalized.') ?></p>
 <?php
-	if (!empty($game->score_entries) && (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator)):
+	if (!empty($game->score_entries) && $this->Authorize->can('view_score_entries', $game->division)):
 ?>
 		<h3><?= __('Score as entered') ?></h3>
 		<div class="table-responsive">
@@ -347,20 +345,20 @@ else:
 					<td><?= isset($awayScoreEntry) ? $this->Time->datetime($awayScoreEntry->modified) : '' ?></td>
 				</tr>
 <?php
-		if ($game->division->league->hasSpirit()):
+		if ($show_spirit):
 ?>
 				<tr>
 					<td><?= __('Spirit Assigned') ?></td>
 					<td><?= $this->element('Spirit/symbol', [
 						'spirit_obj' => $spirit_obj,
 						'league' => $game->division->league,
-						'is_coordinator' => $is_coordinator,
+						'show_spirit_scores' => $show_spirit_scores,
 						'entry' => $awaySpiritEntry,
 					]) ?></td>
 					<td><?= $this->element('Spirit/symbol', [
 						'spirit_obj' => $spirit_obj,
 						'league' => $game->division->league,
-						'is_coordinator' => $is_coordinator,
+						'show_spirit_scores' => $show_spirit_scores,
 						'entry' => $homeSpiritEntry,
 					]) ?></td>
 				</tr>
@@ -445,7 +443,7 @@ if (!empty($game->score_details)):
 					}
 				?></ul>
 <?php
-	if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator) {
+	if ($this->Authorize->can('edit_boxscore', $game)) {
 		echo $this->Html->iconLink('edit_24.png',
 			['action' => 'edit_boxscore', 'game' => $game->id],
 			['alt' => __('Edit Box Score'), 'title' => __('Edit Box Score')]);
@@ -460,17 +458,14 @@ endif;
 
 <?php
 if (!in_array($game->status, Configure::read('unplayed_status'))):
-
-	if ($game->division->league->hasSpirit() &&
-		(Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator || ($homeSpiritEntry !== null && $awaySpiritEntry !== null))
-	) {
+	if ($show_spirit_scores) {
 		echo $this->element('Spirit/view',
-				['team' => $game->home_team, 'league' => $game->division->league, 'division' => $game->division, 'spirit' => $awaySpiritEntry, 'spirit_obj' => $spirit_obj]);
+			['team' => $game->home_team, 'league' => $game->division->league, 'division' => $game->division, 'spirit' => $awaySpiritEntry, 'spirit_obj' => $spirit_obj]);
 		echo $this->element('Spirit/view',
-				['team' => $game->away_team, 'league' => $game->division->league, 'division' => $game->division, 'spirit' => $homeSpiritEntry, 'spirit_obj' => $spirit_obj]);
+			['team' => $game->away_team, 'league' => $game->division->league, 'division' => $game->division, 'spirit' => $homeSpiritEntry, 'spirit_obj' => $spirit_obj]);
 	}
 
-	if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator):
+	if ($this->Authorize->can('allstars', $game->division)):
 		$allstars = collection($game->score_entries)->extract('allstars.{*}')->toArray();
 		if (Configure::read('scoring.allstars') && $game->division->allstars && !empty($allstars)):
 ?>
@@ -572,9 +567,12 @@ if (!empty($game->notes)):
 					<td><?= $note->note ?></td>
 					<td><?= __(Configure::read("visibility.{$note->visibility}")) ?></td>
 					<td class="actions"><?php
-					if ($note->created_person_id == Configure::read('Perm.my_id')) {
+					if ($this->Authorize->getIdentity()->isMine($note)) {
 						echo $this->Html->link(__('Edit'), ['action' => 'note', 'game' => $note->game_id, 'note' => $note->id]);
-						echo $this->Html->link(__('Delete'), ['action' => 'delete_note', 'note' => $note->id], ['confirm' => __('Are you sure you want to delete this note?')]);
+						echo $this->Form->iconPostLink('delete_24.png',
+							['action' => 'delete_note', 'note' => $note->id],
+							['alt' => __('Delete'), 'title' => __('Delete Note')],
+							['confirm' => __('Are you sure you want to delete this note?')]);
 					}
 					?></td>
 				</tr>

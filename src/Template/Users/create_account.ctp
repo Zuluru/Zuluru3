@@ -72,7 +72,7 @@ echo $this->Jquery->toggleInput('person.groups._ids', [
 	],
 ]);
 
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+if ($this->Authorize->can('list_new', \App\Controller\PeopleController::class)) {
 	$options = Configure::read('options.record_status');
 	if (Configure::read('feature.auto_approve')) {
 		unset($options['new']);
@@ -469,7 +469,7 @@ endif;
 <?= $this->Form->button(__('Submit and save your information'), ['class' => 'btn-success', 'name' => 'action', 'value' => 'create']) ?>
 <?php
 // Don't show this link under Drupal, Joomla, etc., but instead give directions on how to add more after manual login?
-if (!Configure::read('Perm.is_logged_in') && !Router::getRequest()->session()->read('Zuluru.external_login')) {
+if (!$this->Authorize->getIdentity() && Configure::read('feature.authenticate_through') == 'Zuluru') {
 	echo $this->Form->button(__('Save your information and add another child'), ['class' => 'parent', 'style' => 'display:none;', 'name' => 'action', 'value' => 'continue']);
 }
 ?>

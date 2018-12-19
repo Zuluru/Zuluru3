@@ -1,8 +1,6 @@
 <?php
 namespace App\Controller;
 
-use Cake\Core\Configure;
-
 /**
  * Notices Controller
  *
@@ -11,11 +9,11 @@ use Cake\Core\Configure;
 class NoticesController extends AppController {
 
 	/**
-	 * _publicActions method
+	 * _noAuthenticationActions method
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _publicActions() {
+	protected function _noAuthenticationActions() {
 		return ['viewed'];
 	}
 

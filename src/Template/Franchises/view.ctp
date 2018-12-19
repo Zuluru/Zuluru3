@@ -1,14 +1,11 @@
 <?php
+
+use App\Authorization\ContextResource;
 use Cake\Core\Configure;
 
 $this->Html->addCrumb(__('Franchises'));
 $this->Html->addCrumb(h($franchise->name));
 $this->Html->addCrumb(__('View'));
-?>
-
-<?php
-$franchises = $this->UserCache->read('FranchiseIDs');
-$is_owner = is_array($franchises) && in_array($franchise->id, $franchises);
 ?>
 
 <div class="franchises view">
@@ -27,7 +24,7 @@ endif;
 		$owners = [];
 		foreach ($franchise->people as $person) {
 			$owner = $this->element('People/block', compact('person'));
-			if ((Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_owner) && count($franchise->people) > 1) {
+			if ($this->Authorize->can('remove_owner', new ContextResource($franchise, ['people' => $franchise->people]))) {
 				$owner .= '&nbsp;' .
 					$this->Html->tag('span',
 						$this->Form->iconPostLink('delete_24.png',
@@ -53,20 +50,22 @@ endif;
 <div class="actions columns">
 	<ul class="nav nav-pills">
 <?php
-if ($is_owner) {
+if ($this->Authorize->can('add_team', $franchise)) {
 	echo $this->Html->tag('li', $this->Html->iconLink('team_add_32.png',
 		['action' => 'add_team', 'franchise' => $franchise->id],
 		['alt' => __('Add Team'), 'title' => __('Add Team')]));
 }
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_owner) {
+if ($this->Authorize->can('edit', $franchise)) {
 	echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
 		['action' => 'edit', 'franchise' => $franchise->id],
 		['alt' => __('Edit'), 'title' => __('Edit Franchise')]));
+}
+if ($this->Authorize->can('add_owner', $franchise)) {
 	echo $this->Html->tag('li', $this->Html->iconLink('move_32.png',
 		['action' => 'add_owner', 'franchise' => $franchise->id],
 		['alt' => __('Add Owner'), 'title' => __('Add Owner')]));
 }
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+if ($this->Authorize->can('delete', $franchise)) {
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
 		['action' => 'delete', 'franchise' => $franchise->id],
 		['alt' => __('Delete'), 'title' => __('Delete Franchise')],
@@ -77,7 +76,7 @@ if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
 </div>
 
 <?php
-if (Configure::read('Perm.is_logged_in')):
+if ($this->Identity->isLoggedIn()):
 ?>
 <div class="related row">
 	<div class="column">
@@ -104,8 +103,8 @@ if (Configure::read('Perm.is_logged_in')):
 					}
 					?></td>
 					<td class="actions"><?php
-					if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_owner) {
-						echo $this->Form->iconPostLink('delete_24.png',
+					if ($this->Authorize->can('remove_team', $franchise)) {
+							echo $this->Form->iconPostLink('delete_24.png',
 							['action' => 'remove_team', 'franchise' => $franchise->id, 'team' => $team->id],
 							['alt' => __('Remove'), 'title' => __('Remove Team from this Franchise')],
 							['confirm' => __('Are you sure you want to remove this team?')]);

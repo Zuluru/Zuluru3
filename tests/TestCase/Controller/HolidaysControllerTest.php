@@ -21,82 +21,38 @@ class HolidaysControllerTest extends ControllerTestCase {
 				'app.groups_people',
 			'app.leagues',
 				'app.divisions',
+					'app.teams',
+					'app.divisions_people',
 			'app.holidays',
 			'app.settings',
 	];
 
 	/**
-	 * Test index method as an admin
+	 * Test index method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsAdmin() {
-		// Admins are allowed to get the index
-		$this->assertAccessOk(['controller' => 'Holidays', 'action' => 'index'], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/holidays/edit\?holiday=' . HOLIDAY_ID_CHRISTMAS . '#ms');
-		$this->assertResponseRegExp('#/holidays/delete\?holiday=' . HOLIDAY_ID_CHRISTMAS . '#ms');
-		$this->assertResponseRegExp('#/holidays/edit\?holiday=' . HOLIDAY_ID_CHRISTMAS_SUB . '#ms');
-		$this->assertResponseRegExp('#/holidays/delete\?holiday=' . HOLIDAY_ID_CHRISTMAS_SUB . '#ms');
-	}
+	public function testIndex() {
+		// Admins are allowed to see the index
+		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'index'], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/holidays/edit?holiday=' . HOLIDAY_ID_CHRISTMAS);
+		$this->assertResponseContains('/holidays/delete?holiday=' . HOLIDAY_ID_CHRISTMAS);
+		$this->assertResponseContains('/holidays/edit?holiday=' . HOLIDAY_ID_CHRISTMAS_SUB);
+		$this->assertResponseContains('/holidays/delete?holiday=' . HOLIDAY_ID_CHRISTMAS_SUB);
 
-	/**
-	 * Test index method as a manager
-	 *
-	 * @return void
-	 */
-	public function testIndexAsManager() {
-		// Managers are allowed to get the index, but don't see holidays in other affiliates
-		$this->assertAccessOk(['controller' => 'Holidays', 'action' => 'index'], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/holidays/edit\?holiday=' . HOLIDAY_ID_CHRISTMAS . '#ms');
-		$this->assertResponseRegExp('#/holidays/delete\?holiday=' . HOLIDAY_ID_CHRISTMAS . '#ms');
-		$this->assertResponseNotRegExp('#/holidays/edit\?holiday=' . HOLIDAY_ID_CHRISTMAS_SUB . '#ms');
-		$this->assertResponseNotRegExp('#/holidays/delete\?holiday=' . HOLIDAY_ID_CHRISTMAS_SUB . '#ms');
-	}
+		// Managers are allowed to see the index, but don't see holidays in other affiliates
+		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'index'], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/holidays/edit?holiday=' . HOLIDAY_ID_CHRISTMAS);
+		$this->assertResponseContains('/holidays/delete?holiday=' . HOLIDAY_ID_CHRISTMAS);
+		$this->assertResponseNotContains('/holidays/edit?holiday=' . HOLIDAY_ID_CHRISTMAS_SUB);
+		$this->assertResponseNotContains('/holidays/delete?holiday=' . HOLIDAY_ID_CHRISTMAS_SUB);
 
-	/**
-	 * Test index method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testIndexAsCoordinator() {
-		// Others are not allowed to get the index
-		$this->assertAccessRedirect(['controller' => 'Holidays', 'action' => 'index'], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test index method as a captain
-	 *
-	 * @return void
-	 */
-	public function testIndexAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method as a player
-	 *
-	 * @return void
-	 */
-	public function testIndexAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method as someone else
-	 *
-	 * @return void
-	 */
-	public function testIndexAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testIndexAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to see the index
+		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'index'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'index'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'index'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'index'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Holidays', 'action' => 'index']);
 	}
 
 	/**
@@ -106,7 +62,7 @@ class HolidaysControllerTest extends ControllerTestCase {
 	 */
 	public function testAddAsAdmin() {
 		// Admins are allowed to add holidays
-		$this->assertAccessOk(['controller' => 'Holidays', 'action' => 'add'], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'add'], PERSON_ID_ADMIN);
 	}
 
 	/**
@@ -116,53 +72,21 @@ class HolidaysControllerTest extends ControllerTestCase {
 	 */
 	public function testAddAsManager() {
 		// Managers are allowed to add holidays
-		$this->assertAccessOk(['controller' => 'Holidays', 'action' => 'add'], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'add'], PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test add method as a coordinator
+	 * Test add method as others
 	 *
 	 * @return void
 	 */
-	public function testAddAsCoordinator() {
+	public function testAddAsOthers() {
 		// Others are not allowed to add holidays
-		$this->assertAccessRedirect(['controller' => 'Holidays', 'action' => 'add'], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test add method as a captain
-	 *
-	 * @return void
-	 */
-	public function testAddAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as a player
-	 *
-	 * @return void
-	 */
-	public function testAddAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as someone else
-	 *
-	 * @return void
-	 */
-	public function testAddAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testAddAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'add'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'add'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'add'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'add'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Holidays', 'action' => 'add']);
 	}
 
 	/**
@@ -172,8 +96,8 @@ class HolidaysControllerTest extends ControllerTestCase {
 	 */
 	public function testEditAsAdmin() {
 		// Admins are allowed to edit holidays
-		$this->assertAccessOk(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS], PERSON_ID_ADMIN);
-		$this->assertAccessOk(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS_SUB], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS_SUB], PERSON_ID_ADMIN);
 	}
 
 	/**
@@ -183,56 +107,24 @@ class HolidaysControllerTest extends ControllerTestCase {
 	 */
 	public function testEditAsManager() {
 		// Managers are allowed to edit holidays
-		$this->assertAccessOk(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS], PERSON_ID_MANAGER);
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS_SUB], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS_SUB], PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test edit method as a coordinator
+	 * Test edit method as others
 	 *
 	 * @return void
 	 */
-	public function testEditAsCoordinator() {
+	public function testEditAsOthers() {
 		// Others are not allowed to edit holidays
-		$this->assertAccessRedirect(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test edit method as a captain
-	 *
-	 * @return void
-	 */
-	public function testEditAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as a player
-	 *
-	 * @return void
-	 */
-	public function testEditAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as someone else
-	 *
-	 * @return void
-	 */
-	public function testEditAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testEditAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS]);
 	}
 
 	/**
@@ -245,9 +137,9 @@ class HolidaysControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		// Admins are allowed to delete holidays
-		$this->assertAccessRedirect(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => HOLIDAY_ID_CHRISTMAS],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Holidays', 'action' => 'index'],
-			'The holiday has been deleted.', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => HOLIDAY_ID_CHRISTMAS],
+			PERSON_ID_ADMIN, [], ['controller' => 'Holidays', 'action' => 'index'],
+			'The holiday has been deleted.');
 	}
 
 	/**
@@ -259,59 +151,35 @@ class HolidaysControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		// Managers can delete holidays in their own affiliate
-		$this->assertAccessRedirect(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => HOLIDAY_ID_BOXING_DAY],
-			PERSON_ID_MANAGER, 'post', [], ['controller' => 'Holidays', 'action' => 'index'],
-			'The holiday has been deleted.', 'Flash.flash.0.message');
+		// Managers are allowed to delete holidays in their own affiliate
+		$this->assertPostAsAccessRedirect(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => HOLIDAY_ID_BOXING_DAY],
+			PERSON_ID_MANAGER, [], ['controller' => 'Holidays', 'action' => 'index'],
+			'The holiday has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => HOLIDAY_ID_CHRISTMAS_SUB],
-			PERSON_ID_MANAGER, 'post');
+		$this->assertPostAsAccessDenied(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => HOLIDAY_ID_CHRISTMAS_SUB],
+			PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test delete method as a coordinator
+	 * Test delete method as others
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testDeleteAsOthers() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
-	/**
-	 * Test delete method as a captain
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as a player
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to delete holidays
+		$this->assertPostAsAccessDenied(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => HOLIDAY_ID_CHRISTMAS],
+			PERSON_ID_COORDINATOR);
+		$this->assertPostAsAccessDenied(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => HOLIDAY_ID_CHRISTMAS],
+			PERSON_ID_CAPTAIN);
+		$this->assertPostAsAccessDenied(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => HOLIDAY_ID_CHRISTMAS],
+			PERSON_ID_PLAYER);
+		$this->assertPostAsAccessDenied(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => HOLIDAY_ID_CHRISTMAS],
+			PERSON_ID_VISITOR);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => HOLIDAY_ID_CHRISTMAS]);
 	}
 
 }

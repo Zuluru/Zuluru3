@@ -1,4 +1,6 @@
 <?php
+
+use App\Authorization\ContextResource;
 use Cake\Core\Configure;
 
 $class = null;
@@ -8,7 +10,7 @@ if (count($classes)) {
 ?>
 <tr>
 <?php
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator):
+if ($can_edit):
 ?>
 	<td><?= $team->initial_seed ?: __('TBD') ?></td>
 <?php
@@ -22,15 +24,14 @@ if ($division->is_playoff):
 <?php
 endif;
 
-if (Configure::read('Perm.is_logged_in')):
+if ($this->Authorize->can('view_roster', \App\Controller\TeamsController::class)):
 ?>
 	<td><?php
 		$roster_required = Configure::read("sports.{$league->sport}.roster_requirements.{$division->ratio_rule}");
-		$count = $team->roster_count;
-		if ((Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator) && $team->roster_count < $roster_required && $division->roster_deadline !== null) {
-			echo $this->Html->tag('span', $count, ['class' => 'warning-message']);
+		if ($this->Authorize->can('add_player', new ContextResource($team, ['division' => $division])) && $team->roster_count < $roster_required && !$division->roster_deadline_passed) {
+			echo $this->Html->tag('span', $team->roster_count, ['class' => 'warning-message']);
 		} else {
-			echo $count;
+			echo $team->roster_count;
 		}
 	?></td>
 <?php
@@ -41,5 +42,5 @@ if (Configure::read('Perm.is_logged_in')):
 	endif;
 endif;
 ?>
-	<td class="actions"><?= $this->element('Teams/actions', compact('team', 'division', 'league', 'is_captain')) ?></td>
+	<td class="actions"><?= $this->element('Teams/actions', compact('team', 'division', 'league')) ?></td>
 </tr>

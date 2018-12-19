@@ -1,11 +1,13 @@
 <?php
 namespace App\Controller;
 
+use App\Authorization\ContextResource;
+use Authorization\Exception\MissingIdentityException;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\Query;
-use App\Auth\HasherTrait;
+use App\PasswordHasher\HasherTrait;
 use App\Model\Table\GamesTable;
 
 /**
@@ -18,101 +20,13 @@ class TeamEventsController extends AppController {
 	use HasherTrait;
 
 	/**
-	 * _publicActions method
+	 * _noAuthenticationActions method
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _publicActions() {
+	protected function _noAuthenticationActions() {
 		// Attendance updates may come from emailed links; people might not be logged in
 		return ['attendance_change'];
-	}
-
-	/**
-	 * isAuthorized method
-	 *
-	 * @return bool true if access allowed
-	 */
-	public function isAuthorized() {
-		try {
-			if ($this->UserCache->read('Person.status') == 'locked') {
-				return false;
-			}
-
-			if (Configure::read('Perm.is_manager')) {
-				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->getParam('action'), [
-					'add',
-				])) {
-					// If a team id is specified, check if we're a manager of that team's affiliate
-					$team = $this->request->getQuery('team');
-					if ($team) {
-						if (in_array($this->Teams->affiliate($team), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-				}
-				if (in_array($this->request->getParam('action'), [
-					'edit',
-					'delete',
-					'view',
-				]))
-				{
-					// If an event id is specified, check if we're a manager of that event's affiliate
-					$event = $this->request->getQuery('event');
-					if ($event) {
-						if (in_array($this->TeamEvents->affiliate($event), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-				}
-			}
-
-			// People can perform these operations on teams they run
-			if (in_array($this->request->getParam('action'), [
-				'add',
-			])) {
-				// If a team id is specified, check if we're a captain of that team
-				$team = $this->request->getQuery('team');
-				if ($team && in_array($team, $this->UserCache->read('OwnedTeamIDs'))) {
-					return true;
-				}
-			}
-			if (in_array($this->request->getParam('action'), [
-				'edit',
-				'delete',
-			])) {
-				$event = $this->request->getQuery('event');
-				if ($event) {
-					$team = $this->TeamEvents->field('team_id', ['id' => $event]);
-					if ($team && in_array($team, $this->UserCache->read('OwnedTeamIDs'))) {
-						return true;
-					}
-				}
-			}
-
-			// People can perform these operations on teams they or their relatives are on
-			if (in_array($this->request->getParam('action'), [
-				'view',
-			])) {
-				$event = $this->request->getQuery('event');
-				if ($event) {
-					$team = $this->TeamEvents->field('team_id', ['id' => $event]);
-					if ($team) {
-						if (in_array($team, $this->UserCache->read('AllTeamIDs')) || in_array($team, $this->UserCache->read('AllRelativeTeamIDs'))) {
-							return true;
-						}
-					}
-				}
-			}
-		} catch (RecordNotFoundException $ex) {
-		} catch (InvalidPrimaryKeyException $ex) {
-		}
-
-		return false;
 	}
 
 	/**
@@ -138,13 +52,15 @@ class TeamEventsController extends AppController {
 			$this->Flash->info(__('Invalid team event.'));
 			return $this->redirect('/');
 		}
+
+		$this->Authorization->authorize($team_event);
 		$this->Configuration->loadAffiliate($team_event->team->division->league->affiliate_id);
 
-		\App\lib\context_usort($team_event->team->people, ['App\Model\Table\TeamsTable', 'compareRoster'], ['team' => $team_event->team]);
+		$include_gender = $this->Authorization->can(new ContextResource($team_event->team, ['division' => $team_event->team->division]), 'display_gender');
+		\App\lib\context_usort($team_event->team->people, ['App\Model\Table\TeamsTable', 'compareRoster'], ['include_gender' => $include_gender]);
 
 		$attendance = $this->TeamEvents->readAttendance($team_event->team, $id)->attendances;
 		$this->set(compact('team_event', 'attendance'));
-		$this->set('is_captain', in_array($team_event->team->id, $this->UserCache->read('OwnedTeamIDs')));
 	}
 
 	/**
@@ -166,6 +82,7 @@ class TeamEventsController extends AppController {
 			return $this->redirect('/');
 		}
 
+		$this->Authorization->authorize($team, 'add_event');
 		if (!empty($team->division)) {
 			$this->Configuration->loadAffiliate($team->division->league->affiliate_id);
 		} else {
@@ -288,6 +205,8 @@ class TeamEventsController extends AppController {
 			return $this->redirect('/');
 		}
 
+		$this->Authorization->authorize($team_event);
+
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			$team_event = $this->TeamEvents->patchEntity($team_event, $this->request->data);
 			if ($this->TeamEvents->save($team_event)) {
@@ -322,6 +241,8 @@ class TeamEventsController extends AppController {
 			return $this->redirect('/');
 		}
 
+		$this->Authorization->authorize($team_event);
+
 		if ($this->TeamEvents->delete($team_event)) {
 			$this->Flash->success(__('The team event has been deleted.'));
 		} else if ($team_event->errors('delete')) {
@@ -335,15 +256,22 @@ class TeamEventsController extends AppController {
 
 	public function attendance_change() {
 		$id = $this->request->getQuery('event');
-		$person_id = $this->request->getQuery('person') ?: Configure::read('Perm.my_id');
+		$person_id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
+		if (!$person_id) {
+			throw new MissingIdentityException();
+		}
 
 		$captains_contain = [
 			'queryBuilder' => function (Query $q) {
-				return $q->where([
+				$q = $q->where([
 					'TeamsPeople.role IN' => Configure::read('privileged_roster_roles'),
 					'TeamsPeople.status' => ROSTER_APPROVED,
-					'TeamsPeople.person_id !=' => Configure::read('Perm.my_id'),
 				]);
+				$my_id = $this->UserCache->currentId();
+				if ($my_id) {
+					$q = $q->where(['TeamsPeople.person_id !=' => $my_id]);
+				}
+				return $q;
 			},
 			Configure::read('Security.authModel'),
 		];
@@ -380,57 +308,30 @@ class TeamEventsController extends AppController {
 				],
 			]
 		]);
+
+		if (!empty($team_event->attendances)) {
+			$attendance = $team_event->attendances[0];
+		} else {
+			$attendance = null;
+		}
+		$team = $team_event->team;
+
+		$code = $this->request->getQuery('code');
+		// After authorization, the context will also include an indication of whether it's a player or captain
+		$context = new ContextResource($team, ['attendance' => $attendance, 'code' => $code, 'event' => $team_event]);
+		$this->Authorization->authorize($context);
+
 		$this->Configuration->loadAffiliate($team_event->team->division->league->affiliate_id);
 		$date = $team_event->date;
 		$past = $team_event->start_time->isPast();
 
-		if (!empty($team_event->attendances)) {
-			$attendance = $team_event->attendances[0];
-		}
-		$team = $team_event->team;
+		$identity = $this->Authentication->getIdentity();
+		$is_me = $context->is_player || $identity->isMe($attendance) || $identity->isRelative($attendance);
+		$is_captain = $context->is_captain || $identity->isCaptainOf($attendance);
 
-		if (!$team->track_attendance) {
-			$this->Flash->info(__('That team does not have attendance tracking enabled.'));
-			return $this->redirect('/');
-		}
-
-		if (empty($attendance)) {
-			$this->Flash->info(__('That person does not have an attendance record for this event.'));
-			return $this->redirect('/');
-		}
-
-		if (empty($attendance->person->teams[0])) {
-			$this->Flash->info(__('That person is not on this team.'));
-			return $this->redirect('/');
-		}
-
-		$is_me = ($person_id == $this->UserCache->currentId() || in_array($person_id, $this->UserCache->read('RelativeIDs')));
-		$is_captain = in_array($team_id, $this->UserCache->read('OwnedTeamIDs'));
-		$is_coordinator = in_array($team->division_id, $this->UserCache->read('DivisionIDs'));
-
-		// We must do other permission checks here, because we allow non-logged-in users to accept
-		// through email links
-		$code = $this->request->getQuery('code');
 		if ($code) {
-			// Authenticate the hash code
-			if ($this->_checkHash([$attendance->id, $attendance->team_event_id, $attendance->person_id, $attendance->created], $code)) {
-				// Only the player will have this confirmation code
-				$is_me = true;
-			} else if ($this->_checkHash([$attendance->id, $attendance->team_event_id, $attendance->person_id, $attendance->created, 'captain'], $code)) {
-				$is_captain = true;
-			} else {
-				$this->Flash->warning(__('The authorization code is invalid.'));
-				return $this->redirect('/');
-			}
-
 			// Fake the posted data array with the status from the URL
 			$this->request->data = ['status' => $this->request->getQuery('status')];
-		} else {
-			// Players can change their own attendance, captains and coordinators can change any attendance on their teams
-			if (!$is_me && !$is_captain && !$is_coordinator) {
-				$this->Flash->info(__('You are not allowed to change this attendance record.'));
-				return $this->redirect('/');
-			}
 		}
 
 		$role = $attendance->person->teams[0]->_joinData->role;
@@ -456,7 +357,7 @@ class TeamEventsController extends AppController {
 			} else {
 				if ($this->request->is('ajax')) {
 					$this->set('dedicated', $this->request->getQuery('dedicated'));
-				} else if (!Configure::read('Perm.is_logged_in')) {
+				} else if (!$this->Authorization->can($team, 'attendance')) {
 					return $this->redirect(['controller' => 'Teams', 'action' => 'view', 'team' => $team_id]);
 				} else {
 					return $this->redirect(['action' => 'view', 'event' => $id]);
@@ -467,8 +368,7 @@ class TeamEventsController extends AppController {
 		$this->set(array_merge(compact('attendance', 'date', 'team', 'attendance_options', 'is_captain', 'is_me'), [
 			'event' => $team_event,
 			'person' => $attendance->person,
-			'status' => $attendance->status,
-			'comment' => $attendance->comment,
+			'attendance' => $attendance,
 		]));
 	}
 

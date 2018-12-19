@@ -60,16 +60,16 @@ class PriceTest extends TestCase {
 
 		Configure::write('payment.tax1_enable', false);
 		Configure::write('payment.tax2_enable', false);
-		$this->assertEquals(9, $this->Price->total);
-
-		Configure::write('payment.tax1_enable', true);
 		$this->assertEquals(10, $this->Price->total);
 
+		Configure::write('payment.tax1_enable', true);
+		$this->assertEquals(10.70, $this->Price->total);
+
 		Configure::write('payment.tax2_enable', true);
-		$this->assertEquals(12, $this->Price->total);
+		$this->assertEquals(11.50, $this->Price->total);
 
 		Configure::write('payment.tax1_enable', false);
-		$this->assertEquals(11, $this->Price->total);
+		$this->assertEquals(10.80, $this->Price->total);
 
 		Configure::write('payment.tax1_enable', $defaultTax1);
 		Configure::write('payment.tax2_enable', $defaultTax2);

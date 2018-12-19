@@ -10,14 +10,6 @@ use Cake\ORM\TableRegistry;
 
 /**
  * Class for handling authentication using the Drupal user database.
- *
- * If you are using this class, you will need to manually add the following
- * entries to the 'Security' section in your config/app_local.php file:
- *	'drupalRoot' => '/path/to/your/drupal/installation',
- *	'authSession' => 'your.domain.name', See cookie_domain setting in Drupal settings.php
- * If you are using the Zuluru Drupal module to replace Drupal's user
- * registration functionality, you must also add:
- *	'zuluruDrupalModule' => true,
  */
 class UserDrupalTable extends UsersTable {
 	/**
@@ -46,13 +38,6 @@ class UserDrupalTable extends UsersTable {
 	public $hasher = 'App\Auth\DrupalPasswordHasher';
 
 	/**
-	 * Accounts (add, delete, passwords) are managed by Drupal, not Zuluru.
-	 */
-	public $manageAccounts = false;
-	public $manageName = 'Drupal';
-	public $loginComponent = 'LoginDrupal';
-
-	/**
 	 * Initialize method
 	 *
 	 * @param array $config The configuration for the Table.
@@ -61,25 +46,10 @@ class UserDrupalTable extends UsersTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		global $databases;
-
-		if (!defined('DRUPAL_ROOT')) {
-			define('DRUPAL_ROOT', Configure::read('Security.drupalRoot'));
-			require_once DRUPAL_ROOT . '/includes/bootstrap.inc';
-			drupal_settings_initialize();
-			Configure::write('Security.drupalPrefix', $databases['default']['default']['prefix']);
-
-			// drupal_settings_initialize overwrites the session name that we want to use
-			session_name(Configure::read('Session.cookie'));
-
-			// Reset this; we don't want it to be available to third-party code
-			unset($databases);
-		}
-
+		$this->_initializeDrupal();
 		$this->table(Configure::read('Security.drupalPrefix') . 'users');
 		$this->displayField($this->userField);
 		$this->primaryKey('uid');
-		$this->manageAccounts = Configure::read('Security.zuluruDrupalModule');
 
 		$this->hasOne('DrupalSessions', [
 			'foreignKey' => 'uid',
@@ -125,6 +95,25 @@ class UserDrupalTable extends UsersTable {
 			$entity->status = 1; // don't require further activation in Drupal
 			$entity->created = time();
 		}
+	}
+
+	protected function _initializeDrupal() {
+		if (!defined('DRUPAL_ROOT')) {
+			$root = Configure::read('Security.authenticators.Drupal.drupalRoot') ?: $_SERVER['DOCUMENT_ROOT'];
+			define('DRUPAL_ROOT', $root);
+		}
+
+		require_once DRUPAL_ROOT . '/includes/bootstrap.inc';
+		drupal_settings_initialize();
+		Configure::write('Security.drupalPrefix', $GLOBALS['databases']['default']['default']['prefix']);
+		Configure::write('Security.drupalCookieDomain', $GLOBALS['cookie_domain']);
+
+		// drupal_settings_initialize overwrites the session name that we want to use
+		session_name(Configure::read('Session.cookie'));
+
+		// Reset these; we don't want them to be readily available to third-party code
+		unset($GLOBALS['databases']);
+		unset($GLOBALS['drupal_hash_salt']);
 	}
 
 }

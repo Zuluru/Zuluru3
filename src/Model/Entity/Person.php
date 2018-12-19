@@ -1,6 +1,8 @@
 <?php
 namespace App\Model\Entity;
 
+use App\Core\UserCache;
+use Authorization\IdentityInterface;
 use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
 use Cake\Core\Configure;
@@ -297,9 +299,8 @@ class Person extends Entity {
 		// These are player fields, which might not be present if the one being merged is a parent
 		$preserve_if_new_is_empty = ['gender', 'gender_description', 'roster_designation', 'birthdate', 'height', 'shirt_size'];
 
-		$new->updateHidden(['is_coordinator' => false, 'is_captain' => false, 'is_me' => false, 'is_relative' => false]);
-		foreach ($new->visibleProperties() as $prop) {
-			if ($this->accessible($prop) && !in_array($prop, $preserve)) {
+		foreach (array_keys($new->_properties) as $prop) {
+			if ($this->isAccessible($prop) && !in_array($prop, $preserve)) {
 				if (is_array($new->$prop)) {
 					if (!empty($new->$prop)) {
 						$model_table = TableRegistry::get($new->{$prop}[0]->source());
@@ -334,259 +335,297 @@ class Person extends Entity {
 	/*
 	 * Update the list of hidden fields, based on permissions and connections of the person viewing the record.
 	 */
-	public function updateHidden($connections) {
-		extract($connections);
-		$is_admin = Configure::read('Perm.is_admin');
-		$is_manager = Configure::read('Perm.is_manager');
-		$is_logged_in = Configure::read('Perm.is_logged_in');
-		$is_player = collection($this->groups)->some(function ($group) { return $group->id == GROUP_PLAYER; });
-		$is_parent = collection($this->groups)->some(function ($group) { return $group->id == GROUP_PARENT; });
+	public function updateHidden(IdentityInterface $identity = null) {
+		if ($this->status == 'inactive') {
+			$visible = ['first_name', 'last_name'];
+		} else {
+			if ($identity) {
+				$is_me = $identity->isMe($this);
+				$is_relative = $identity->isRelative($this);
+				$is_manager = $identity->isManagerOf($this);
+				$is_logged_in = $identity->isLoggedIn();
+				$my_owned_division_ids = $identity->coordinatedDivisionIds();
+			} else {
+				$is_me = $is_relative = $is_manager = $is_logged_in = false;
+				$my_owned_division_ids = [];
+			}
 
-		$visible = [];
+			$is_player = collection($this->groups)->some(function ($group) {
+				return $group->id == GROUP_PLAYER;
+			});
+			$is_parent = collection($this->groups)->some(function ($group) {
+				return $group->id == GROUP_PARENT;
+			});
 
-		if ($is_me || $is_relative || $is_admin || $is_manager ||
-			$is_coordinator || $is_my_coordinator || $is_captain || $is_my_captain || $is_division_captain
-		) {
-			$visible += [
-				'email' => true,
-				'publish_email' => true,
-				'alternate_email' => true,
-				'publish_alternate_email' => true,
-				'home_phone' => true,
-				'publish_home_phone' => true,
-				'work_phone' => true,
-				'work_ext' => true,
-				'publish_work_phone' => true,
-				'mobile_phone' => true,
-				'publish_mobile_phone' => true,
-				'alternate_work_phone' => true,
-				'alternate_work_ext' => true,
-				'publish_alternate_work_phone' => true,
-				'alternate_mobile_phone' => true,
-				'publish_alternate_mobile_phone' => true,
-			];
-		}
+			// Pull some lists of team and division IDs for later comparisons
+			$user_cache = UserCache::getInstance();
+			$my_team_ids = $user_cache->read('TeamIDs');
+			$my_owned_team_ids = $user_cache->read('OwnedTeamIDs');
+			$my_captain_division_ids = collection($user_cache->read('OwnedTeams'))->extract('division_id')->toArray();
+			$their_team_ids = $user_cache->read('TeamIDs', $this->id);
+			$their_owned_team_ids = $user_cache->read('OwnedTeamIDs', $this->id);
+			$their_owned_division_ids = $user_cache->read('DivisionIDs', $this->id);
+			$their_captain_division_ids = collection($user_cache->read('OwnedTeams', $this->id))->extract('division_id')->toArray();
 
-		if ($is_admin || $is_manager) {
-			$visible += [
-				'last_login' => true,
-				'client_ip' => true,
-			];
-		}
+			// Check if the current user is a captain of a team the viewed player is on
+			$is_captain = !empty(array_intersect($my_owned_team_ids, $their_team_ids));
 
-		if ($is_admin || $is_manager || $is_me || $is_relative) {
-			$visible += [
-				'user_name' => true,
-				'user_id' => true,
-				'last_login' => true,
-				'client_ip' => true,
-				'addr_street' => true,
-				'addr_city' => true,
-				'addr_prov' => true,
-				'addr_country' => true,
-				'addr_postalcode' => true,
-				'birthdate' => true,
-				'height' => true,
-				'shirt_size' => true,
-				'groups' => true,
-				'status' => true,
-				'has_dog' => true,
-				'contact_for_feedback' => true,
-				'relatives' => true,
-				'related_to' => true,
-				'credits' => true,
-				'preregistrations' => true,
-				'registrations' => true,
-				'tasks' => true,
-				'uploads' => true,
-				'waivers' => true,
-			];
-		}
+			// Check if the current user is on a team the viewed player is a captain of
+			$is_my_captain = !empty(array_intersect($my_team_ids, $their_owned_team_ids));
 
-		if ($is_admin || $is_manager || $is_me) {
-			$visible += [
-				'gender_display' => true,
-			];
-		}
+			// Check if the current user is a coordinator of a division the viewed player is a captain in
+			$is_coordinator = !empty(array_intersect($my_owned_division_ids, $their_captain_division_ids));
 
-		if ($is_coordinator || $is_captain) {
-			$visible += [
-				'height' => true,
-				'shirt_size' => true,
-			];
-		}
+			// Check if the current user is a captain in a division the viewed player is a coordinator of
+			$is_my_coordinator = !empty(array_intersect($my_captain_division_ids, $their_owned_division_ids));
 
-		if ($is_admin || $is_manager || $is_coordinator) {
-			$visible += [
-				'allstars' => true,
-			];
-		}
+			// Check if the current user is a captain in a division the viewed player is a captain in
+			$is_division_captain = !empty(array_intersect($my_captain_division_ids, $their_captain_division_ids));
 
-		// Check the things that can be published for people who are logged in
-		if ($is_logged_in) {
-			$visible += [
-				'badges' => true,
-				'skills' => true,
-				'teams' => true,
-			];
+			$visible = [];
 
-			if ($this->publish_email) {
+			if ($is_me || $is_relative || $is_manager ||
+				$is_coordinator || $is_my_coordinator || $is_captain || $is_my_captain || $is_division_captain
+			) {
 				$visible += [
 					'email' => true,
 					'publish_email' => true,
-				];
-			}
-			if ($this->publish_home_phone) {
-				$visible += [
+					'alternate_email' => true,
+					'publish_alternate_email' => true,
 					'home_phone' => true,
 					'publish_home_phone' => true,
-				];
-			}
-			if ($this->publish_work_phone) {
-				$visible += [
 					'work_phone' => true,
 					'work_ext' => true,
 					'publish_work_phone' => true,
-				];
-			}
-			if ($this->publish_mobile_phone) {
-				$visible += [
 					'mobile_phone' => true,
 					'publish_mobile_phone' => true,
-				];
-			}
-			if ($this->publish_alternate_email) {
-				$visible += [
-					'alternate_email' => true,
-					'publish_alternate_email' => true,
-				];
-			}
-			if ($this->publish_alternate_work_phone) {
-				$visible += [
 					'alternate_work_phone' => true,
 					'alternate_work_ext' => true,
 					'publish_alternate_work_phone' => true,
-				];
-			}
-			if ($this->publish_alternate_mobile_phone) {
-				$visible += [
 					'alternate_mobile_phone' => true,
 					'publish_alternate_mobile_phone' => true,
 				];
 			}
+
+			if ($is_manager) {
+				$visible += [
+					'last_login' => true,
+					'client_ip' => true,
+				];
+			}
+
+			if ($is_manager || $is_me || $is_relative) {
+				$visible += [
+					'user_name' => true,
+					'user_id' => true,
+					'last_login' => true,
+					'client_ip' => true,
+					'addr_street' => true,
+					'addr_city' => true,
+					'addr_prov' => true,
+					'addr_country' => true,
+					'addr_postalcode' => true,
+					'birthdate' => true,
+					'height' => true,
+					'shirt_size' => true,
+					'groups' => true,
+					'status' => true,
+					'has_dog' => true,
+					'contact_for_feedback' => true,
+					'relatives' => true,
+					'related_to' => true,
+					'credits' => true,
+					'preregistrations' => true,
+					'registrations' => true,
+					'tasks' => true,
+					'uploads' => true,
+					'waivers' => true,
+				];
+			}
+
+			if ($is_manager || $is_me) {
+				$visible += [
+					'gender_display' => true,
+				];
+			}
+
+			if ($is_coordinator || $is_captain) {
+				$visible += [
+					'height' => true,
+					'shirt_size' => true,
+				];
+			}
+
+			if ($is_manager || $is_coordinator) {
+				$visible += [
+					'allstars' => true,
+				];
+			}
+
+			// Check the things that can be published for people who are logged in
+			if ($is_logged_in) {
+				$visible += [
+					'badges' => true,
+					'skills' => true,
+					'teams' => true,
+				];
+
+				if ($this->publish_email) {
+					$visible += [
+						'email' => true,
+						'publish_email' => true,
+					];
+				}
+				if ($this->publish_home_phone) {
+					$visible += [
+						'home_phone' => true,
+						'publish_home_phone' => true,
+					];
+				}
+				if ($this->publish_work_phone) {
+					$visible += [
+						'work_phone' => true,
+						'work_ext' => true,
+						'publish_work_phone' => true,
+					];
+				}
+				if ($this->publish_mobile_phone) {
+					$visible += [
+						'mobile_phone' => true,
+						'publish_mobile_phone' => true,
+					];
+				}
+				if ($this->publish_alternate_email) {
+					$visible += [
+						'alternate_email' => true,
+						'publish_alternate_email' => true,
+					];
+				}
+				if ($this->publish_alternate_work_phone) {
+					$visible += [
+						'alternate_work_phone' => true,
+						'alternate_work_ext' => true,
+						'publish_alternate_work_phone' => true,
+					];
+				}
+				if ($this->publish_alternate_mobile_phone) {
+					$visible += [
+						'alternate_mobile_phone' => true,
+						'publish_alternate_mobile_phone' => true,
+					];
+				}
+			}
+
+			// Remove things based on disabled features
+			if (!Configure::read('feature.registration')) {
+				unset($visible['preregistrations']);
+				unset($visible['registrations']);
+				unset($visible['credits']);
+			}
+			if (!Configure::read('feature.badges')) {
+				unset($visible['badges']);
+			}
+			if (Configure::read('feature.authenticate_through') == 'Zuluru') {
+				unset($visible['user_id']);
+			}
+			if (!Configure::read('feature.documents')) {
+				unset($visible['uploads']);
+			}
+			if (!Configure::read('feature.dog_questions')) {
+				unset($visible['has_dog']);
+			}
+			if (!Configure::read('scoring.allstars') || !$is_player) {
+				unset($visible['allstars']);
+			}
+			if (!Configure::read('profile.home_phone')) {
+				unset($visible['home_phone']);
+				unset($visible['publish_home_phone']);
+			}
+			if (!Configure::read('profile.work_phone')) {
+				unset($visible['work_phone']);
+				unset($visible['work_ext']);
+				unset($visible['publish_work_phone']);
+				unset($visible['alternate_work_phone']);
+				unset($visible['alternate_work_ext']);
+				unset($visible['publish_alternate_work_phone']);
+			}
+			if (!Configure::read('profile.mobile_phone')) {
+				unset($visible['mobile_phone']);
+				unset($visible['publish_mobile_phone']);
+				unset($visible['alternate_mobile_phone']);
+				unset($visible['publish_alternate_mobile_phone']);
+			}
+			if (!Configure::read('profile.addr_street')) {
+				unset($visible['addr_street']);
+			}
+			if (!Configure::read('profile.addr_city')) {
+				unset($visible['addr_city']);
+			}
+			if (!Configure::read('profile.addr_prov')) {
+				unset($visible['addr_prov']);
+			}
+			if (!Configure::read('profile.addr_country')) {
+				unset($visible['addr_country']);
+			}
+			if (!Configure::read('profile.addr_postalcode')) {
+				unset($visible['addr_postalcode']);
+			}
+			if (!Configure::read('profile.birthdate')) {
+				unset($visible['birthdate']);
+			}
+			if (!Configure::read('profile.height')) {
+				unset($visible['height']);
+			}
+			if (!Configure::read('profile.shirt_size')) {
+				unset($visible['shirt_size']);
+			}
+			if (!Configure::read('profile.contact_for_feedback')) {
+				unset($visible['contact_for_feedback']);
+			}
+			if (!Configure::read('profile.year_started') && !Configure::read('profile.skill_level')) {
+				unset($visible['skills']);
+			}
+
+			// Remove fields that aren't applicable to certain types of accounts
+			if (!$is_parent) {
+				unset($visible['alternate_first_name']);
+				unset($visible['alternate_last_name']);
+				unset($visible['alternate_full_name']);
+				unset($visible['alternate_work_phone']);
+				unset($visible['alternate_work_ext']);
+				unset($visible['publish_alternate_work_phone']);
+				unset($visible['alternate_mobile_phone']);
+				unset($visible['publish_alternate_mobile_phone']);
+			}
+
+			if (!$is_player) {
+				unset($visible['birthdate']);
+				unset($visible['gender_display']);
+				unset($visible['height']);
+				unset($visible['shirt_size']);
+				unset($visible['skills']);
+			}
 		}
 
-		// Remove things based on disabled features
-		if (!Configure::read('feature.registration')) {
-			unset($visible['preregistrations']);
-			unset($visible['registrations']);
-			unset($visible['credits']);
-		}
-		if (!Configure::read('feature.badges')) {
-			unset($visible['badges']);
-		}
-		if (!Configure::read('feature.external_accounts')) {
-			unset($visible['user_id']);
-		}
-		if (!Configure::read('feature.documents')) {
-			unset($visible['uploads']);
-		}
-		if (!Configure::read('feature.dog_questions')) {
-			unset($visible['has_dog']);
-		}
-		if (!Configure::read('scoring.allstars') || !$is_player) {
-			unset($visible['allstars']);
-		}
-		if (!Configure::read('profile.home_phone')) {
-			unset($visible['home_phone']);
-			unset($visible['publish_home_phone']);
-		}
-		if (!Configure::read('profile.work_phone')) {
-			unset($visible['work_phone']);
-			unset($visible['work_ext']);
-			unset($visible['publish_work_phone']);
-			unset($visible['alternate_work_phone']);
-			unset($visible['alternate_work_ext']);
-			unset($visible['publish_alternate_work_phone']);
-		}
-		if (!Configure::read('profile.mobile_phone')) {
-			unset($visible['mobile_phone']);
-			unset($visible['publish_mobile_phone']);
-			unset($visible['alternate_mobile_phone']);
-			unset($visible['publish_alternate_mobile_phone']);
-		}
-		if (!Configure::read('profile.addr_street')) {
-			unset($visible['addr_street']);
-		}
-		if (!Configure::read('profile.addr_city')) {
-			unset($visible['addr_city']);
-		}
-		if (!Configure::read('profile.addr_prov')) {
-			unset($visible['addr_prov']);
-		}
-		if (!Configure::read('profile.addr_country')) {
-			unset($visible['addr_country']);
-		}
-		if (!Configure::read('profile.addr_postalcode')) {
-			unset($visible['addr_postalcode']);
-		}
-		if (!Configure::read('profile.birthdate')) {
-			unset($visible['birthdate']);
-		}
-		if (!Configure::read('profile.height')) {
-			unset($visible['height']);
-		}
-		if (!Configure::read('profile.shirt_size')) {
-			unset($visible['shirt_size']);
-		}
-		if (!Configure::read('profile.contact_for_feedback')) {
-			unset($visible['contact_for_feedback']);
-		}
-		if (!Configure::read('profile.year_started') && !Configure::read('profile.skill_level')) {
-			unset($visible['skills']);
-		}
-
-		// Remove fields that aren't applicable to certain types of accounts
-		if (!$is_parent) {
-			unset($visible['alternate_first_name']);
-			unset($visible['alternate_last_name']);
-			unset($visible['alternate_full_name']);
-			unset($visible['alternate_work_phone']);
-			unset($visible['alternate_work_ext']);
-			unset($visible['publish_alternate_work_phone']);
-			unset($visible['alternate_mobile_phone']);
-			unset($visible['publish_alternate_mobile_phone']);
-		}
-
-		if (!$is_player) {
-			unset($visible['birthdate']);
-			unset($visible['gender_display']);
-			unset($visible['height']);
-			unset($visible['shirt_size']);
-			unset($visible['skills']);
-		}
-
-		$this->hiddenProperties(array_diff($this->_hidden, array_keys($visible)));
+		$this->setHidden(array_diff($this->_hidden, array_keys($visible)));
 	}
 
 	public function photoUrl($photo) {
-		if (Configure::read('Perm.is_logged_in')) {
-			if (!empty($photo)) {
-				$upload_dir = Configure::read('App.paths.uploads');
-				if (file_exists($upload_dir . DS . $photo->filename)) {
-					return Router::url(['controller' => 'People', 'action' => 'photo', 'person' => $photo->person_id], true);
-				}
-			} else if (Configure::read('feature.gravatar')) {
-				$url = 'https://www.gravatar.com/avatar/';
-				if ($this->show_gravatar) {
-					$url .= md5(strtolower($this->email));
-				} else {
-					$url .= '00000000000000000000000000000000';
-				}
-				$url .= "?s=150&d=mm&r=pg";
-
-				return $url;
+		if (!empty($photo)) {
+			$upload_dir = Configure::read('App.paths.uploads');
+			if (file_exists($upload_dir . DS . $photo->filename)) {
+				return Router::url(['controller' => 'People', 'action' => 'photo', 'person' => $photo->person_id], true);
 			}
+		} else if (Configure::read('feature.gravatar')) {
+			$url = 'https://www.gravatar.com/avatar/';
+			if ($this->show_gravatar) {
+				$url .= md5(strtolower($this->email));
+			} else {
+				$url .= '00000000000000000000000000000000';
+			}
+			$url .= "?s=150&d=mm&r=pg";
+
+			return $url;
 		}
 	}
 }

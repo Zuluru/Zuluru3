@@ -16,8 +16,13 @@ class SettingsControllerTest extends ControllerTestCase {
 			'app.users',
 				'app.people',
 					'app.affiliates_people',
+					'app.people_people',
 			'app.groups',
 				'app.groups_people',
+			'app.leagues',
+				'app.divisions',
+					'app.teams',
+					'app.divisions_people',
 			'app.settings',
 	];
 
@@ -27,6 +32,8 @@ class SettingsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsAdmin() {
+		// Admins are allowed to edit settings
+		$this->assertGetAsAccessOk(['controller' => 'Settings', 'action' => 'edit', 'organization'], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -36,115 +43,52 @@ class SettingsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsManager() {
+		// Managers are allowed to edit settings
+		$this->assertGetAsAccessOk(['controller' => 'Settings', 'action' => 'edit', 'organization'], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test edit method as a coordinator
+	 * Test edit method as others
 	 *
 	 * @return void
 	 */
-	public function testEditAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testEditAsOthers() {
+		// Others are not allowed to edit
+		$this->assertGetAsAccessDenied(['controller' => 'Settings', 'action' => 'edit', 'organization'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Settings', 'action' => 'edit', 'organization'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Settings', 'action' => 'edit', 'organization'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Settings', 'action' => 'edit', 'organization'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Settings', 'action' => 'edit', 'organization']);
 	}
 
 	/**
-	 * Test edit method as a captain
+	 * Test payment_provider_fields method
 	 *
 	 * @return void
 	 */
-	public function testEditAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testPaymentProviderFields() {
+		$this->enableCsrfToken();
 
-	/**
-	 * Test edit method as a player
-	 *
-	 * @return void
-	 */
-	public function testEditAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Admins are allowed to get payment provider fields
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Settings', 'action' => 'payment_provider_fields'],
+			PERSON_ID_ADMIN, ['payment_implementation' => 'paypal']);
 
-	/**
-	 * Test edit method as someone else
-	 *
-	 * @return void
-	 */
-	public function testEditAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Managers are allowed to get payment provider fields
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Settings', 'action' => 'payment_provider_fields'],
+			PERSON_ID_MANAGER, ['payment_implementation' => 'paypal']);
 
-	/**
-	 * Test edit method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testEditAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test payment_provider_fields method as an admin
-	 *
-	 * @return void
-	 */
-	public function testPaymentProviderFieldsAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test payment_provider_fields method as a manager
-	 *
-	 * @return void
-	 */
-	public function testPaymentProviderFieldsAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test payment_provider_fields method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testPaymentProviderFieldsAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test payment_provider_fields method as a captain
-	 *
-	 * @return void
-	 */
-	public function testPaymentProviderFieldsAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test payment_provider_fields method as a player
-	 *
-	 * @return void
-	 */
-	public function testPaymentProviderFieldsAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test payment_provider_fields method as someone else
-	 *
-	 * @return void
-	 */
-	public function testPaymentProviderFieldsAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test payment_provider_fields method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testPaymentProviderFieldsAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to get payment provider fields
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Settings', 'action' => 'payment_provider_fields'],
+			PERSON_ID_COORDINATOR, ['payment_implementation' => 'paypal']);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Settings', 'action' => 'payment_provider_fields'],
+			PERSON_ID_CAPTAIN, ['payment_implementation' => 'paypal']);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Settings', 'action' => 'payment_provider_fields'],
+			PERSON_ID_PLAYER, ['payment_implementation' => 'paypal']);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Settings', 'action' => 'payment_provider_fields'],
+			PERSON_ID_VISITOR, ['payment_implementation' => 'paypal']);
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Settings', 'action' => 'payment_provider_fields'],
+			['payment_implementation' => 'paypal']);
 	}
 
 }

@@ -1,4 +1,6 @@
 <?php
+
+use App\Authorization\ContextResource;
 use Cake\Core\Configure;
 ?>
 
@@ -17,7 +19,7 @@ if (Configure::read('feature.shirt_colour') && !empty($team->shirt_colour)):
 <?php
 endif;
 
-if (Configure::read('Perm.is_logged_in') && !empty($team->people)):
+if ($this->Authorize->can('view_roster', \App\Controller\TeamsController::class) && !empty($team->people)):
 	$all_captains = array_fill_keys(Configure::read('privileged_roster_roles'), []);
 	foreach ($team->people as $person) {
 		$all_captains[$person->_joinData->role][] = $person;
@@ -47,7 +49,7 @@ endif;
 				$this->Html->link(__('Schedule'), ['controller' => 'Teams', 'action' => 'schedule', 'team' => $team->id]) .
 				' / ' .
 				$this->Html->link(__('Standings'), ['controller' => 'Divisions', 'action' => 'standings', 'division' => $team->division_id, 'team' => $team->id]);
-			if (Configure::read('Perm.is_logged_in') && Configure::read('scoring.stat_tracking') && $team->division->league->hasStats()) {
+			if ($this->Authorize->can('stats', new ContextResource($team, ['league' => $team->division_id ? $team->division->league : null]))) {
 				echo ' / ' . $this->Html->link(__('Stats'), ['controller' => 'Teams', 'action' => 'stats', 'team' => $team->id]);
 			}
 		}

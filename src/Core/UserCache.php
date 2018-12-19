@@ -6,12 +6,12 @@
 namespace App\Core;
 
 use App\Event\FlashTrait;
+use App\Model\Entity\User;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\I18n\FrozenDate;
-use Cake\Network\Exception\BadRequestException;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 use App\Controller\AppController;
@@ -22,15 +22,25 @@ class UserCache {
 	use FlashTrait;
 
 	private static $instance = null;
+	private static $identity = null;
 	private $my_id = null;
 	private $other_id = null;
 	private $data = [];
 
 	public static function &getInstance($reset = false) {
 		if ($reset || !self::$instance) {
-			self::$instance =& new UserCache();
+			self::$instance = new UserCache();
 		}
 		return self::$instance;
+	}
+
+	public static function setIdentity(User $identity = null) {
+		self::$identity = $identity;
+		self::getInstance()->initializeData();
+	}
+
+	public static function identitySet() {
+		return self::$identity !== null;
 	}
 
 	public function initializeData() {
@@ -52,72 +62,33 @@ class UserCache {
 			return;
 		}
 
-		$request = Router::getRequest();
-		if (!$request) {
-			trigger_error('No request object found!', E_USER_ERROR);
-			exit;
-		}
-		$session = $request->session();
-
-		// If this is the home page, and "act as" is temporary, we reset it.
-		if ($request->here == '/' && $session->check('Zuluru.act_as_temporary')) {
-			$session->write('Zuluru.default_tab_id', $session->read('Zuluru.act_as_id'));
-			$session->delete('Zuluru.act_as_id');
-			$session->delete('Zuluru.act_as_temporary');
-		}
-
-		// We must have the my_id variable set, or else later $this->read calls go recursive
-		$acting_as = $session->read('Zuluru.act_as_id');
-		if ($acting_as) {
-			$this->my_id = $acting_as;
+		if (self::$identity) {
+			$this->my_id = self::$identity->person->id;
 		} else {
-			$this->my_id = $session->read('Zuluru.zuluru_person_id');
+			$this->my_id = null;
 		}
 
 		if ($this->my_id) {
-			// Check for a temporary "act as" request.
-			$act_as = $request->getQuery('act_as');
-			if ($act_as) {
-				if ($act_as == $session->read('Zuluru.zuluru_person_id')) {
-					$session->delete('Zuluru.act_as_id');
-					$session->delete('Zuluru.act_as_temporary');
-					$this->my_id = $session->read('Zuluru.zuluru_person_id');
-				} else {
-					$this->data[$this->my_id] = [];
-					$relatives = $this->allActAs();
-					$groups = $this->read('GroupIDs');
-					if ($act_as == $acting_as || array_key_exists($act_as, $relatives) || in_array(GROUP_ADMIN, $groups)) {
-						$session->write('Zuluru.act_as_id', $act_as);
-						$session->write('Zuluru.act_as_temporary', true);
-						unset($this->data[$this->my_id]);
-						$this->my_id = $act_as;
-					} else {
-						// TODO: More graceful way to handle this situation; somehow redirect to '/' instead of throwing.
-						//$this->Flash('warning', __('You do not have permission to act as that person.'));
-						throw new BadRequestException(__('You do not have permission to act as that person.'));
-					}
-				}
-			}
-
 			$this->data[$this->my_id] = [];
 		}
 	}
 
 	public function currentId() {
-		// TODO: The first part of this test is solely to support non-controller tests
-		if (Router::getRequest() && Router::getRequest()->params['controller'] == 'CakeError') {
-			return null;
-		}
 		$self =& UserCache::getInstance();
 		$self->initializeId();
 		return $self->my_id;
 	}
 
 	public function realId() {
-		if (Router::getRequest()->params['controller'] == 'CakeError') {
+		if (self::$identity) {
+			if (self::$identity->real_person) {
+				return self::$identity->real_person->id;
+			} else {
+				return self::$identity->person->id;
+			}
+		} else {
 			return null;
 		}
-		return Router::getRequest()->session()->read('Zuluru.zuluru_person_id');
 	}
 
 	public function read($key, $id = null, $internal = false) {

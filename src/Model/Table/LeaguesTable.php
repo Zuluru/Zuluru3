@@ -379,22 +379,4 @@ class LeaguesTable extends AppTable {
 			->toArray();
 	}
 
-	public function is_coordinator($league, $person_id = null, $all = false) {
-		$coordinated_divisions = UserCache::getInstance()->read('DivisionIDs', $person_id);
-		if (empty($coordinated_divisions)) {
-			return false;
-		}
-
-		if (isset($league->divisions)) {
-			$league_divisions = collection($league->divisions)->extract('id')->toArray();
-		} else {
-			$league_divisions = $this->divisions($league);
-		}
-		$intersection = array_intersect($coordinated_divisions, $league_divisions);
-		if ($all) {
-			return (count($league_divisions) == count($intersection));
-		} else {
-			return (!empty($intersection));
-		}
-	}
 }

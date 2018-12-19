@@ -4,11 +4,11 @@ namespace App\Controller;
 class HelpController extends AppController {
 
 	/**
-	 * _publicActions method
+	 * _noAuthenticationActions method
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _publicActions() {
+	protected function _noAuthenticationActions() {
 		return ['view'];
 	}
 
@@ -23,7 +23,6 @@ class HelpController extends AppController {
 
 	public function view($controller = null, $topic = null, $item = null, $subitem = null) {
 		$this->set(compact('controller', 'topic', 'item', 'subitem'));
-		$this->set('is_coordinator', $this->UserCache->read('DivisionIDs') != null);
 	}
 
 }

@@ -61,8 +61,7 @@ class PersonTest extends TestCase {
 	 * Test _getPassword()
 	 */
 	public function testGetPassword() {
-		$this->assertEquals(Security::hash('amypassword'), $this->Person1->password);
-
+		$this->assertTrue(password_verify('amypassword', $this->Person1->password));
 	}
 
 	/**

@@ -1,6 +1,7 @@
 <?php
 namespace App\Model\Table;
 
+use App\Authorization\ContextResource;
 use App\Model\Traits\DateTimeCombinator;
 use ArrayObject;
 use Cake\Core\Configure;
@@ -12,6 +13,7 @@ use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
 use Cake\ORM\Rule\ExistsIn;
 use Cake\ORM\RulesChecker;
+use Cake\Routing\Router;
 use Cake\Validation\Validator;
 use App\Core\ModuleRegistry;
 use App\Model\Entity\TeamsPerson;
@@ -1331,7 +1333,9 @@ class GamesTable extends AppTable {
 		}
 		$attendance->people = array_merge($attendance->people, $new);
 
-		\App\lib\context_usort($attendance->people, ['App\Model\Table\TeamsTable', 'compareRoster'], ['team' => $team]);
+		$identity = Router::getRequest()->getAttribute('identity');
+		$include_gender = $identity && $identity->can('display_gender', new ContextResource($team, ['division' => $team->division]));
+		\App\lib\context_usort($attendance->people, ['App\Model\Table\TeamsTable', 'compareRoster'], ['include_gender' => $include_gender]);
 		return $attendance;
 	}
 
@@ -1544,7 +1548,9 @@ class GamesTable extends AppTable {
 			}
 		}
 
-		\App\lib\context_usort($team->people, ['App\Model\Table\TeamsTable', 'compareRoster'], ['team' => $team]);
+		$identity = Router::getRequest()->getAttribute('identity');
+		$include_gender = $identity && $identity->can('display_gender', new ContextResource($team, ['division' => $team->division]));
+		\App\lib\context_usort($team->people, ['App\Model\Table\TeamsTable', 'compareRoster'], ['include_gender' => $include_gender]);
 		return $team;
 	}
 
@@ -1611,7 +1617,15 @@ class GamesTable extends AppTable {
 
 	public function affiliate($id) {
 		try {
-			return $this->Divisions->affiliate($this->field('division_id', ['id' => $id]));
+			return $this->Divisions->affiliate($this->division($id));
+		} catch (RecordNotFoundException $ex) {
+			return null;
+		}
+	}
+
+	public function division($id) {
+		try {
+			return $this->field('division_id', ['id' => $id]);
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

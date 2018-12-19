@@ -64,9 +64,6 @@ if ($team_id == $game->home_team->id || $team_id === null) {
 		__('Show All Stat Options'),
 		'applicable'
 	) ?>
-<?php
-if (Configure::read('feature.attendance')):
-?>
 
 /
 
@@ -76,9 +73,6 @@ if (Configure::read('feature.attendance')):
 		__('Show Only Attending Players'),
 		'attendance_details'
 	) ?>
-<?php
-endif;
-?>
 	</p>
 
 <?php
@@ -101,9 +95,6 @@ if (isset($attendance)) {
 		__('Show All Stat Options'),
 		'applicable'
 	) ?>
-<?php
-if (Configure::read('feature.attendance')):
-?>
 
 /
 
@@ -113,9 +104,6 @@ if (Configure::read('feature.attendance')):
 		__('Show Only Attending Players'),
 		'attendance_details'
 	) ?>
-<?php
-endif;
-?>
 	</p>
 
 	<div class="submit">
@@ -170,6 +158,4 @@ jQuery('tr#sub_row').find('input[class^=stat_]').each(function() { statsInputCha
 jQuery('.unapplicable, .attendance_details').hide();
 ", ['buffer' => true]);
 
-if (Configure::read('feature.attendance')) {
-	echo $this->element('Games/attendance_div');
-}
+echo $this->element('Games/attendance_div');

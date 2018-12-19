@@ -46,8 +46,6 @@ else:
 	}
 
 	foreach ($teams as $team):
-		$is_team_manager = Configure::read('Perm.is_manager') && in_array($team->_matchingData['Leagues']->affiliate_id, $this->UserCache->read('ManagedAffiliateIDs'));
-
 		if (count($affiliates) > 1 && $team->_matchingData['Leagues']->affiliate_id != $affiliate_id):
 			$affiliate_id = $team->_matchingData['Leagues']->affiliate_id;
 ?>
@@ -62,7 +60,7 @@ else:
 				<tr>
 					<td><?= $this->element('Teams/block', ['team' => $team]) ?></td>
 					<td><?= $this->element('Divisions/block', ['division' => $team->_matchingData['Divisions'], 'field' => $field]) ?></td>
-					<td class="actions"><?= $this->element('Teams/actions', ['team' => $team, 'division' => $team->_matchingData['Divisions'], 'league' => $team->_matchingData['Leagues'], 'format' => 'links', 'is_team_manager' => $is_team_manager]) ?></td>
+					<td class="actions"><?= $this->element('Teams/actions', ['team' => $team, 'division' => $team->_matchingData['Divisions'], 'league' => $team->_matchingData['Leagues'], 'format' => 'links']) ?></td>
 				</tr>
 
 <?php

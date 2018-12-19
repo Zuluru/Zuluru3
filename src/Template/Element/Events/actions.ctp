@@ -1,6 +1,5 @@
 <?php
 use App\Controller\AppController;
-use App\Core\UserCache;
 use Cake\Core\Configure;
 
 if (!isset($format)) {
@@ -9,9 +8,6 @@ if (!isset($format)) {
 if (!isset($size)) {
 	$size = ($format == 'links' ? 24 : 32);
 }
-
-$divisions = UserCache::getInstance()->read('DivisionIDs');
-$is_event_coordinator = !empty($event->division_id) && !empty($divisions) && in_array($event->division_id, $divisions);
 
 $links = $more = [];
 
@@ -38,7 +34,7 @@ if ($this->request->getParam('controller') != 'Events' || $this->request->getPar
 	];
 }
 
-if (Configure::read('Perm.is_admin') || $is_event_manager) {
+if ($this->Authorize->can('edit', $event)) {
 	if ($this->request->getParam('controller') != 'Events' || $this->request->getParam('action') != 'edit') {
 		$links[] = $this->Html->iconLink("edit_$size.png",
 			['controller' => 'Events', 'action' => 'edit', 'event' => $event->id, 'return' => AppController::_return()],
@@ -78,7 +74,7 @@ if (Configure::read('Perm.is_admin') || $is_event_manager) {
 	];
 }
 
-if (Configure::read('Perm.is_admin') || $is_event_manager || $is_event_coordinator) {
+if ($this->Authorize->can('summary', $event)) {
 	if ($this->request->getParam('controller') != 'Registrations' || $this->request->getParam('action') != 'summary') {
 		$more[__('Registration Summary')] = [
 			'url' => ['controller' => 'Registrations', 'action' => 'summary', 'event' => $event->id],
@@ -94,8 +90,10 @@ if (Configure::read('Perm.is_admin') || $is_event_manager || $is_event_coordinat
 	$more[__('Download Registration List')] = [
 		'url' => ['controller' => 'Registrations', 'action' => 'full_list', 'event' => $event->id, '_ext' => 'csv'],
 	];
+}
 
-	if (Configure::read('feature.waiting_list') && ($this->request->getParam('controller') != 'Registrations' || $this->request->getParam('action') != 'summary')) {
+if ($this->Authorize->can('waiting', $event)) {
+	if ($this->request->getParam('controller') != 'Registrations' || $this->request->getParam('action') != 'summary') {
 		$more[__('Waiting List')] = [
 			'url' => ['controller' => 'Registrations', 'action' => 'waiting', 'event' => $event->id],
 		];

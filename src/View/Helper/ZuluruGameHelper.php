@@ -1,15 +1,16 @@
 <?php
 namespace App\View\Helper;
 
+use App\Authorization\ContextResource;
 use App\Controller\AppController;
 use Cake\Core\Configure;
 use Cake\View\Helper;
 
 class ZuluruGameHelper extends Helper {
-	public $helpers = ['Html', 'ZuluruHtml', 'Session', 'UserCache'];
+	public $helpers = ['Html', 'ZuluruHtml', 'Session', 'UserCache', 'Authorize'];
 
 	public function displayScore($game, $division, $league, $show_score_for_team = false) {
-		$is_coordinator = in_array($game->division_id, $this->UserCache->read('DivisionIDs'));
+		$identity = $this->Authorize->getIdentity();
 
 		// Check if one of the teams involved in the game is a team the current user is a captain of
 		$teams = array_intersect([$game->home_team_id, $game->away_team_id], $this->UserCache->read('OwnedTeamIDs'));
@@ -38,16 +39,25 @@ class ZuluruGameHelper extends Helper {
 					echo ' (' . __('default') . ')' . "\n";
 				}
 
-				if ($league->hasStats()) {
-					if ($team_id || Configure::read('Perm.is_admin') || $is_coordinator) {
-						$links[] = $this->Html->link(
-							__('Submit Stats'),
-							['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $team_id]);
+				if ($identity) {
+					try {
+						if ($identity->can('submit_stats', new ContextResource($game, ['team_id' => $team_id, 'league' => $league, 'stat_types' => $league->stat_types]))) {
+							$links[] = $this->Html->link(
+								__('Submit Stats'),
+								['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $team_id]);
+						}
+					} catch (\Authorization\Exception\Exception $ex) {
+						// No problem, just don't show the link.
 					}
-					if (($this->request->getParam('controller') != 'Games' || $this->request->getParam('action') != 'stats') && (Configure::read('Perm.is_logged_in') || Configure::read('feature.public'))) {
-						$links[] = $this->ZuluruHtml->iconLink('stats_24.png',
-							['controller' => 'Games', 'action' => 'stats', 'game' => $game->id, 'team' => $show_score_for_team],
-							['alt' => __('Game Stats'), 'title' => __('Game Stats')]);
+
+					try {
+						if (($this->request->getParam('controller') != 'Games' || $this->request->getParam('action') != 'stats') && $identity->can('stats', $league)) {
+							$links[] = $this->ZuluruHtml->iconLink('stats_24.png',
+								['controller' => 'Games', 'action' => 'stats', 'game' => $game->id, 'team' => $show_score_for_team],
+								['alt' => __('Game Stats'), 'title' => __('Game Stats')]);
+						}
+					} catch (\Authorization\Exception\Exception $ex) {
+						// No problem, just don't show the link.
 					}
 				}
 			}
@@ -97,19 +107,16 @@ class ZuluruGameHelper extends Helper {
 							__('Submit'),
 							['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $second_team_id]);
 					}
-				} else if (Configure::read('Perm.is_volunteer') || Configure::read('Perm.is_official')) {
-					/* TODOLATER: Revisit these permissions: there is currently no restriction on who can be a volunteer
-					// Allow specified individuals (referees, umpires, volunteers) to live score without a team id
-					if ($score_entry->status == 'in_progress') {
-						$links[] = $this->Html->link(
-							__('Live Score'),
-							['controller' => 'Games', 'action' => 'live_score', 'game' => $game->id]);
-					} else {
-						$links[] = $this->Html->link(
-							__('Edit score'),
-							['controller' => 'Games', 'action' => 'edit', 'game' => $game->id]);
-					}
-					*/
+				/* TODOLATER: Re-enable these options when live scoring is working again
+				} else if ($score_entry->status == 'in_progress' && $identity && $identity->can('live_score', $game)) {
+					$links[] = $this->Html->link(
+						__('Live Score'),
+						['controller' => 'Games', 'action' => 'live_score', 'game' => $game->id]);
+				} else if ($identity && $identity->can('edit', $game)) {
+					$links[] = $this->Html->link(
+						__('Edit score'),
+						['controller' => 'Games', 'action' => 'edit', 'game' => $game->id]);
+				*/
 				}
 
 				if ($score_entry->status == 'in_progress') {
@@ -135,17 +142,23 @@ class ZuluruGameHelper extends Helper {
 				if ($division->schedule_type != 'competition') {
 					// Allow score submissions any time after an hour before the scheduled end time.
 					// Some people like to submit via mobile phone immediately, and games can end early.
-					if ($team_id) {
+					if ($team_id && $identity->can('submit_score', $game)) {
 						$links[] = $this->Html->link(
 							__('Submit'),
 							['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $team_id]);
 					} else {
 						echo __('not entered') . "\n";
 					}
-				} else if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator) {
-					$links[] = $this->Html->link(
-						__('Submit'),
-						['controller' => 'GameSlots', 'action' => 'submit_score', 'slot' => $game->game_slot_id]);
+				} else if ($identity) {
+					try {
+						if ($identity->can('submit_score', $game)) {
+							$links[] = $this->Html->link(
+								__('Submit'),
+								['controller' => 'GameSlots', 'action' => 'submit_score', 'slot' => $game->game_slot_id]);
+						}
+					} catch (\Authorization\Exception\Exception $ex) {
+						// No problem, just don't show the link.
+					}
 				}
 /* TODOLATER: Add live scoring link back in, once the feature is re-implemented
 			} else if ($game->game_slot->start_time->subMinutes(30)->isPast()) {
@@ -156,13 +169,10 @@ class ZuluruGameHelper extends Helper {
 						$links[] = $this->Html->link(
 							__('Live Score'),
 							['controller' => 'Games', 'action' => 'live_score', 'game' => $game->id, 'team' => $team_id]);
-					} else if (Configure::read('Perm.is_volunteer') || Configure::read('Perm.is_official')) {
-						/* TODOLATER: Revisit these permissions: there is currently no restriction on who can be a volunteer
-						// Allow specified individuals (referees, umpires, volunteers) to live score without a team id
+					} else if ($identity && $identity->can('live_score', $game)) {
 						$links[] = $this->Html->link(
 							__('Live Score'),
 							['controller' => 'Games', 'action' => 'live_score', 'game' => $game->id]);
-						*
 					}
 				}
 */
@@ -181,10 +191,14 @@ class ZuluruGameHelper extends Helper {
 		}
 
 		// Give admins, managers and coordinators the option to edit games
-		if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator) {
-			$links[] = $this->ZuluruHtml->iconLink('edit_24.png',
-				['controller' => 'Games', 'action' => 'edit', 'game' => $game->id, 'return' => AppController::_return()],
-				['alt' => __('Edit'), 'title' => __('Edit')]);
+		try {
+			if ($identity && $identity->can('edit', $game)) {
+				$links[] = $this->ZuluruHtml->iconLink('edit_24.png',
+					['controller' => 'Games', 'action' => 'edit', 'game' => $game->id, 'return' => AppController::_return()],
+					['alt' => __('Edit'), 'title' => __('Edit')]);
+			}
+		} catch (\Authorization\Exception\Exception $ex) {
+			// No problem, just don't show the link.
 		}
 
 		echo $this->Html->tag('span', implode("\n", $links), ['class' => 'actions']);

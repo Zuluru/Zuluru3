@@ -1,6 +1,5 @@
 <?php
 
-use Cake\Chronos\ChronosInterface;
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 
@@ -35,8 +34,8 @@ if (!empty($person->user_name)) {
 	$rows['user_name'] = ['name' => 'Username'];
 }
 
-if (!empty($person->user_id) && Configure::read('feature.external_accounts')) {
-	$rows['user_id'] = ['name' => __('{0} User Id', Configure::read('feature.manage_name'))];
+if (!empty($person->user_id) && Configure::read('feature.authenticate_through') != 'Zuluru') {
+	$rows['user_id'] = ['name' => __('{0} User Id', Configure::read('feature.authenticate_through'))];
 }
 
 $rows['id'] = ['name' => 'Zuluru User ID'];
@@ -145,7 +144,7 @@ foreach ($rows as $key => $data) {
 			$val = $record->$field;
 		}
 		if (array_key_exists('func', $data)) {
-			$func = "format_{$data['func']}";
+			$func = "\\App\\Lib\\format_{$data['func']}";
 			$val = $func($val, $this);
 		}
 	}
@@ -220,7 +219,7 @@ if ($duplicates->count() > 0) {
 					}
 				}
 				if (array_key_exists('func', $data)) {
-					$func = "format_{$data['func']}";
+					$func = "\\App\\Lib\\format_{$data['func']}";
 					$user_val = $func($user_val, $this);
 					$val = $func($val, $this);
 				}
@@ -270,28 +269,3 @@ echo $this->Form->end();
 $this->Html->scriptBlock('jQuery(".duplicate").hide();', ['buffer' => true]);
 ?>
 </div>
-
-<?php
-// Helper functions for formatting data
-function format_date(ChronosInterface $data = null, $ths) {
-	if (empty($data) || $data->year == 0) {
-		return __('unknown');
-	} else if (Configure::read('feature.birth_year_only')) {
-		$data->year;
-	} else {
-		return $ths->Time->date($data);
-	}
-}
-function format_height($data) {
-	if (!empty($data)) {
-		return $data . ' ' . (Configure::read('feature.units') == 'Metric' ? __('cm') : __('inches'));
-	}
-}
-function format_groups($data) {
-	$groups = collection($data)->extract('name')->toArray();
-	if (empty($groups)) {
-		return __('None');
-	} else {
-		return implode(', ', $groups);
-	}
-}

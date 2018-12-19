@@ -1,7 +1,7 @@
 <?php
 namespace App\Model\Entity;
 
-use App\Auth\JoomlaPasswordHasher;
+use App\PasswordHasher\JoomlaPasswordHasher;
 use Cake\I18n\FrozenTime;
 
 /**

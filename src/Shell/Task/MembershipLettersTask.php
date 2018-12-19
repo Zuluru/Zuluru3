@@ -2,10 +2,9 @@
 namespace App\Shell\Task;
 
 use App\Controller\AppController;
+use App\Middleware\ConfigurationLoader;
 use Cake\Console\Shell;
 use Cake\Core\Configure;
-use Cake\Event\Event as CakeEvent;
-use Cake\Event\EventManager;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 
@@ -15,9 +14,7 @@ use Cake\ORM\TableRegistry;
 class MembershipLettersTask extends Shell {
 
 	public function main() {
-		$event = new CakeEvent('Configuration.initialize', $this);
-		EventManager::instance()->dispatch($event);
-
+		ConfigurationLoader::loadConfiguration();
 		if (!Configure::read('feature.registration')) {
 			return;
 		}

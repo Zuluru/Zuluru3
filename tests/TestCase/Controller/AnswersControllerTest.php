@@ -1,8 +1,6 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
-use Cake\Core\Configure;
-
 /**
  * App\Controller\AnswersController Test Case
  */
@@ -23,6 +21,8 @@ class AnswersControllerTest extends ControllerTestCase {
 				'app.groups_people',
 			'app.leagues',
 				'app.divisions',
+					'app.teams',
+					'app.divisions_people',
 			'app.questions',
 				'app.answers',
 			'app.settings',
@@ -35,8 +35,9 @@ class AnswersControllerTest extends ControllerTestCase {
 	 */
 	public function testActivateAsAdmin() {
 		// Admins are allowed to activate answers
-		$this->assertAccessOk(['controller' => 'Answers', 'action' => 'activate', 'answer' => ANSWER_ID_TEAM_NIGHT_MONDAY], PERSON_ID_ADMIN, 'getajax');
-		$this->assertResponseRegExp('#/answers\\\\/deactivate\?answer=' . ANSWER_ID_TEAM_NIGHT_MONDAY . '#ms');
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Answers', 'action' => 'activate', 'answer' => ANSWER_ID_TEAM_NIGHT_MONDAY],
+			PERSON_ID_ADMIN);
+		$this->assertResponseContains('/answers\\/deactivate?answer=' . ANSWER_ID_TEAM_NIGHT_MONDAY);
 	}
 
 	/**
@@ -46,57 +47,31 @@ class AnswersControllerTest extends ControllerTestCase {
 	 */
 	public function testActivateAsManager() {
 		// Managers are allowed to activate answers
-		$this->assertAccessOk(['controller' => 'Answers', 'action' => 'activate', 'answer' => ANSWER_ID_TEAM_NIGHT_TUESDAY], PERSON_ID_MANAGER, 'getajax');
-		$this->assertResponseRegExp('#/answers\\\\/deactivate\?answer=' . ANSWER_ID_TEAM_NIGHT_TUESDAY . '#ms');
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Answers', 'action' => 'activate', 'answer' => ANSWER_ID_TEAM_NIGHT_TUESDAY],
+			PERSON_ID_MANAGER);
+		$this->assertResponseContains('/answers\\/deactivate?answer=' . ANSWER_ID_TEAM_NIGHT_TUESDAY);
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Answers', 'action' => 'activate', 'answer' => ANSWER_ID_TEAM_NIGHT_MONDAY_SUB], PERSON_ID_MANAGER, 'getajax');
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Answers', 'action' => 'activate', 'answer' => ANSWER_ID_TEAM_NIGHT_MONDAY_SUB],
+			PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test activate method as a coordinator
+	 * Test activate method as others
 	 *
 	 * @return void
 	 */
-	public function testActivateAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test activate method as a captain
-	 *
-	 * @return void
-	 */
-	public function testActivateAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test activate method as a player
-	 *
-	 * @return void
-	 */
-	public function testActivateAsPlayer() {
+	public function testActivateAsOthers() {
 		// Others are not allowed to activate answers
-		$this->assertAccessRedirect(['controller' => 'Answers', 'action' => 'activate', 'answer' => ANSWER_ID_TEAM_NIGHT_MONDAY], PERSON_ID_PLAYER, 'getajax');
-	}
-
-	/**
-	 * Test activate method as someone else
-	 *
-	 * @return void
-	 */
-	public function testActivateAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test activate method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testActivateAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Answers', 'action' => 'activate', 'answer' => ANSWER_ID_TEAM_NIGHT_MONDAY],
+			PERSON_ID_COORDINATOR);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Answers', 'action' => 'activate', 'answer' => ANSWER_ID_TEAM_NIGHT_MONDAY],
+			PERSON_ID_CAPTAIN);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Answers', 'action' => 'activate', 'answer' => ANSWER_ID_TEAM_NIGHT_MONDAY],
+			PERSON_ID_PLAYER);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Answers', 'action' => 'activate', 'answer' => ANSWER_ID_TEAM_NIGHT_MONDAY],
+			PERSON_ID_VISITOR);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Answers', 'action' => 'activate', 'answer' => ANSWER_ID_TEAM_NIGHT_MONDAY]);
 	}
 
 	/**
@@ -106,8 +81,9 @@ class AnswersControllerTest extends ControllerTestCase {
 	 */
 	public function testDeactivateAsAdmin() {
 		// Admins are allowed to deactivate answers
-		$this->assertAccessOk(['controller' => 'Answers', 'action' => 'deactivate', 'answer' => ANSWER_ID_TEAM_NIGHT_MONDAY], PERSON_ID_ADMIN, 'getajax');
-		$this->assertResponseRegExp('#/answers\\\\/activate\?answer=' . ANSWER_ID_TEAM_NIGHT_MONDAY . '#ms');
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Answers', 'action' => 'deactivate', 'answer' => ANSWER_ID_TEAM_NIGHT_MONDAY],
+			PERSON_ID_ADMIN);
+		$this->assertResponseContains('/answers\\/activate?answer=' . ANSWER_ID_TEAM_NIGHT_MONDAY);
 	}
 
 	/**
@@ -117,56 +93,31 @@ class AnswersControllerTest extends ControllerTestCase {
 	 */
 	public function testDeactivateAsManager() {
 		// Managers are allowed to deactivate answers
-		$this->assertAccessOk(['controller' => 'Answers', 'action' => 'deactivate', 'answer' => ANSWER_ID_TEAM_NIGHT_TUESDAY], PERSON_ID_MANAGER, 'getajax');
-		$this->assertResponseRegExp('#/answers\\\\/activate\?answer=' . ANSWER_ID_TEAM_NIGHT_TUESDAY . '#ms');
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Answers', 'action' => 'deactivate', 'answer' => ANSWER_ID_TEAM_NIGHT_TUESDAY],
+			PERSON_ID_MANAGER);
+		$this->assertResponseContains('/answers\\/activate?answer=' . ANSWER_ID_TEAM_NIGHT_TUESDAY);
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Answers', 'action' => 'deactivate', 'answer' => ANSWER_ID_TEAM_NIGHT_MONDAY_SUB], PERSON_ID_MANAGER, 'getajax');
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Answers', 'action' => 'deactivate', 'answer' => ANSWER_ID_TEAM_NIGHT_MONDAY_SUB],
+			PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test deactivate method as a coordinator
+	 * Test deactivate method as others
 	 *
 	 * @return void
 	 */
-	public function testDeactivateAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test deactivate method as a captain
-	 *
-	 * @return void
-	 */
-	public function testDeactivateAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test deactivate method as a player
-	 *
-	 * @return void
-	 */
-	public function testDeactivateAsPlayer() {
-		$this->assertAccessRedirect(['controller' => 'Answers', 'action' => 'deactivate', 'answer' => ANSWER_ID_TEAM_NIGHT_MONDAY], PERSON_ID_PLAYER, 'getajax');
-	}
-
-	/**
-	 * Test deactivate method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeactivateAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test deactivate method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeactivateAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testDeactivateAsOthers() {
+		// Others are not allowed to deactivate answers
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Answers', 'action' => 'deactivate', 'answer' => ANSWER_ID_TEAM_NIGHT_MONDAY],
+			PERSON_ID_COORDINATOR);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Answers', 'action' => 'deactivate', 'answer' => ANSWER_ID_TEAM_NIGHT_MONDAY],
+			PERSON_ID_CAPTAIN);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Answers', 'action' => 'deactivate', 'answer' => ANSWER_ID_TEAM_NIGHT_MONDAY],
+			PERSON_ID_PLAYER);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Answers', 'action' => 'deactivate', 'answer' => ANSWER_ID_TEAM_NIGHT_MONDAY],
+			PERSON_ID_VISITOR);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Answers', 'action' => 'deactivate', 'answer' => ANSWER_ID_TEAM_NIGHT_MONDAY]);
 	}
 
 }

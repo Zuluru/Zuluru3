@@ -109,33 +109,42 @@ class DivisionsTableTest extends TableTestCase {
 		FrozenDate::setTestNow(new FrozenDate('May 31'));
 
 		$divisions = $this->DivisionsTable->readByPlayerId(PERSON_ID_COORDINATOR);
-		$this->assertEquals(2, count($divisions));
+		$this->assertEquals(3, count($divisions));
 		$this->assertArrayHasKey(0, $divisions);
 		$this->assertEquals(DIVISION_ID_MONDAY_LADDER, $divisions[0]->id);
 		$this->assertEmpty($divisions[0]->teams);
 		$this->assertArrayHasKey(1, $divisions);
-		$this->assertEquals(DIVISION_ID_THURSDAY_ROUND_ROBIN, $divisions[1]->id);
+		$this->assertEquals(DIVISION_ID_MONDAY_PLAYOFF, $divisions[1]->id);
 		$this->assertEmpty($divisions[1]->teams);
+		$this->assertArrayHasKey(2, $divisions);
+		$this->assertEquals(DIVISION_ID_THURSDAY_ROUND_ROBIN, $divisions[2]->id);
+		$this->assertEmpty($divisions[2]->teams);
 
 		$divisions = $this->DivisionsTable->readByPlayerId(PERSON_ID_COORDINATOR, false);
-		$this->assertEquals(3, count($divisions));
+		$this->assertEquals(4, count($divisions));
 		$this->assertArrayHasKey(0, $divisions);
 		$this->assertEquals(DIVISION_ID_MONDAY_LADDER_PAST, $divisions[0]->id);
 		$this->assertArrayHasKey(1, $divisions);
 		$this->assertEquals(DIVISION_ID_MONDAY_LADDER, $divisions[1]->id);
 		$this->assertEmpty($divisions[1]->teams);
 		$this->assertArrayHasKey(2, $divisions);
-		$this->assertEquals(DIVISION_ID_THURSDAY_ROUND_ROBIN, $divisions[2]->id);
+		$this->assertEquals(DIVISION_ID_MONDAY_PLAYOFF, $divisions[2]->id);
 		$this->assertEmpty($divisions[2]->teams);
+		$this->assertArrayHasKey(3, $divisions);
+		$this->assertEquals(DIVISION_ID_THURSDAY_ROUND_ROBIN, $divisions[3]->id);
+		$this->assertEmpty($divisions[3]->teams);
 
 		$divisions = $this->DivisionsTable->readByPlayerId(PERSON_ID_COORDINATOR, true, true);
-		$this->assertEquals(2, count($divisions));
+		$this->assertEquals(3, count($divisions));
 		$this->assertArrayHasKey(0, $divisions);
 		$this->assertEquals(DIVISION_ID_MONDAY_LADDER, $divisions[0]->id);
 		$this->assertEquals(8, count($divisions[0]->teams));
 		$this->assertArrayHasKey(1, $divisions);
-		$this->assertEquals(DIVISION_ID_THURSDAY_ROUND_ROBIN, $divisions[1]->id);
-		$this->assertEquals(2, count($divisions[1]->teams));
+		$this->assertEquals(DIVISION_ID_MONDAY_PLAYOFF, $divisions[1]->id);
+		$this->assertEquals(1, count($divisions[1]->teams));
+		$this->assertArrayHasKey(2, $divisions);
+		$this->assertEquals(DIVISION_ID_THURSDAY_ROUND_ROBIN, $divisions[2]->id);
+		$this->assertEquals(2, count($divisions[2]->teams));
 	}
 
 	/**

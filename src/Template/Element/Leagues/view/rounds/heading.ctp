@@ -5,7 +5,7 @@ use Cake\Core\Configure;
 <tr>
 	<th><?= __('Team Name') ?></th>
 <?php
-if (Configure::read('Perm.is_logged_in')):
+if ($this->Authorize->can('view_roster', \App\Controller\TeamsController::class)):
 ?>
 	<th><?= __('Players') ?></th>
 <?php

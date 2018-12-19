@@ -1,1 +1,1 @@
-<?= $this->element('Tasks/row', compact('task_slot'));
+<?= $this->element('Tasks/row', ['task_slot' => $task_slot, 'task' => $task_slot->task]);

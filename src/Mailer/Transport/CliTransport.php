@@ -34,7 +34,7 @@ class CliTransport extends DebugTransport {
 			'result' => $result,
 		]);
 
-		$messages = Configure::read('test_emails') ?: [];
+		$messages = Configure::read('test_emails', []);
 		$messages[] = $message;
 		Configure::write('test_emails', $messages);
 	}

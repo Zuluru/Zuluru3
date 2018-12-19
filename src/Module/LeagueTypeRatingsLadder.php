@@ -5,15 +5,16 @@
  */
 namespace App\Module;
 
+use App\Exception\ScheduleException;
 use App\Model\Entity\Division;
+use App\Model\Entity\Team;
+use App\Model\Results\Comparison;
+use App\Model\Rule\InConfigRule;
+use Authorization\IdentityInterface;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\Event as CakeEvent;
 use Cake\Event\EventManager;
-use App\Exception\ScheduleException;
-use App\Model\Entity\Team;
-use App\Model\Results\Comparison;
-use App\Model\Rule\InConfigRule;
 
 class LeagueTypeRatingsLadder extends LeagueType {
 	/**
@@ -21,9 +22,9 @@ class LeagueTypeRatingsLadder extends LeagueType {
 	 */
 	public $render_element = 'ladder';
 
-	public function links(Division $division, $this_is_coordinator, $controller, $action) {
-		$links = parent::links($division, $this_is_coordinator, $controller, $action);
-		if ($this_is_coordinator && ($controller != 'Divisions' || $action != 'ratings')) {
+	public function links(Division $division, IdentityInterface $identity = null, $controller, $action) {
+		$links = parent::links($division, $identity, $controller, $action);
+		if (($controller != 'Divisions' || $action != 'ratings') && $identity && $identity->can('edit_schedule', $division)) {
 			$links[__('Adjust ratings')] = [
 				'url' => ['controller' => 'Divisions', 'action' => 'ratings', 'division' => $division->id],
 			];
@@ -48,8 +49,8 @@ class LeagueTypeRatingsLadder extends LeagueType {
 		return $ret;
 	}
 
-	public function schedulingFields($this_is_admin, $this_is_coordinator) {
-		if ($this_is_admin || $this_is_coordinator) {
+	public function schedulingFields($administrative) {
+		if ($administrative) {
 			return [
 				'games_before_repeat' => [
 					'label' => __('Games Before Repeat'),

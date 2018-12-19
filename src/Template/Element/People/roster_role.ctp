@@ -1,14 +1,18 @@
 <?php
+/**
+ * @type \App\Model\Entity\Person $person
+ * @type \App\Model\Entity\TeamsPerson $roster
+ * @type \App\Model\Entity\Team $team
+ * @type \App\Model\Entity\Division $division
+ */
+
+use App\Authorization\ContextResource;
 use App\Controller\AppController;
 use Cake\Core\Configure;
-use Cake\ORM\TableRegistry;
 ?>
 <span><?php
-$teams_table = TableRegistry::get('Teams');
-$can_edit_roster = $teams_table->canEditRoster($team, Configure::read('Perm.is_admin'), Configure::read('Perm.is_manager'));
-$is_me = ($roster->person_id == Configure::read('Perm.my_id')) || in_array($roster->person_id, $this->UserCache->read('RelativeIDs'));
-$permission = ($can_edit_roster === true || (!$division->roster_deadline_passed && $is_me));
-
+$permission = $this->Authorize->can('roster_role', new ContextResource($team, ['division' => $division, 'roster' => $roster]));
+$identity = $this->Authorize->getIdentity();
 $approved = ($roster->status == ROSTER_APPROVED);
 
 if ($permission && $approved) {
@@ -31,7 +35,7 @@ if (!$approved) {
 	switch ($roster->status) {
 		case ROSTER_INVITED:
 			echo __('invited');
-			if ($permission && isset($is_captain) && $is_captain) {
+			if ($permission && $identity->isCaptainOf($team)) {
 				// Captains can only remove invitations that they sent
 				$remove = true;
 			}
@@ -40,7 +44,7 @@ if (!$approved) {
 
 		case ROSTER_REQUESTED:
 			echo __('requested');
-			if ($permission && $roster->person_id == Configure::read('Perm.my_id')) {
+			if ($permission && $identity->isMe($roster)) {
 				// Players can only remove requests that they sent
 				$remove = true;
 			}

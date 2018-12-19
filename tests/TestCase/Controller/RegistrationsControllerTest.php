@@ -1,6 +1,12 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use Cake\Cache\Cache;
+use Cake\Core\Configure;
+use Cake\I18n\FrozenDate;
+use Cake\I18n\FrozenTime;
+use Cake\ORM\TableRegistry;
+
 /**
  * App\Controller\RegistrationsController Test Case
  */
@@ -19,6 +25,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 					'app.affiliates_people',
 					'app.people_people',
 					'app.skills',
+					'app.credits',
 			'app.groups',
 				'app.groups_people',
 			'app.upload_types',
@@ -43,439 +50,188 @@ class RegistrationsControllerTest extends ControllerTestCase {
 							'app.registration_audits',
 						'app.responses',
 				'app.preregistrations',
+			'app.badges',
 			'app.settings',
 			'app.waivers',
 				'app.waivers_people',
 	];
 
 	/**
-	 * Test full_list method as an admin
+	 * Test full_list method
 	 *
 	 * @return void
 	 */
-	public function testFullListAsAdmin() {
-		// Admins are allowed to get the full list of registrations
-		$this->assertAccessOk(['controller' => 'Registrations', 'action' => 'full_list', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/registrations/view\?registration=' . REGISTRATION_ID_PLAYER_MEMBERSHIP . '#ms');
-		$this->assertResponseRegExp('#/registrations/edit\?registration=' . REGISTRATION_ID_PLAYER_MEMBERSHIP . '#ms');
+	public function testFullList() {
+		// Admins are allowed to see the full list of registrations
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'full_list', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/registrations/view?registration=' . REGISTRATION_ID_PLAYER_MEMBERSHIP);
+		$this->assertResponseContains('/registrations/edit?registration=' . REGISTRATION_ID_PLAYER_MEMBERSHIP);
 
-		$this->assertAccessOk(['controller' => 'Registrations', 'action' => 'full_list', 'event' => EVENT_ID_MEMBERSHIP, '_ext' => 'csv'], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#Home Phone#ms');
-		$this->assertResponseRegExp('#Total Amount#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'full_list', 'event' => EVENT_ID_MEMBERSHIP, '_ext' => 'csv'], PERSON_ID_ADMIN);
+		$this->assertResponseContains('Home Phone');
+		$this->assertResponseContains('Total Amount');
+
+		// Managers are allowed to see the full list of registrations
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'full_list', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/registrations/view?registration=' . REGISTRATION_ID_PLAYER_MEMBERSHIP);
+		$this->assertResponseContains('/registrations/edit?registration=' . REGISTRATION_ID_PLAYER_MEMBERSHIP);
+
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'full_list', 'event' => EVENT_ID_MEMBERSHIP, '_ext' => 'csv'], PERSON_ID_MANAGER);
+		$this->assertResponseContains('Home Phone');
+		$this->assertResponseContains('Total Amount');
+
+		// Coordinators are not allowed to see the full list of registrations
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'full_list', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_COORDINATOR);
+
+		// Except that they are allowed to see the list of registrations for divisions they coordinate, but without registration view and edit links
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'full_list', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_THURSDAY], PERSON_ID_COORDINATOR);
+		$this->assertResponseContains('/people/view?person=' . PERSON_ID_PLAYER);
+		$this->assertResponseNotContains('/registrations/view?registration=' . REGISTRATION_ID_PLAYER_INDIVIDUAL_THURSDAY);
+		$this->assertResponseNotContains('/registrations/edit?registration=' . REGISTRATION_ID_PLAYER_INDIVIDUAL_THURSDAY);
+
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'full_list', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_THURSDAY, '_ext' => 'csv'], PERSON_ID_COORDINATOR);
+		$this->assertResponseNotContains('Home Phone');
+		$this->assertResponseNotContains('Work Phone');
+		$this->assertResponseNotContains('Work Ext');
+		$this->assertResponseNotContains('Mobile Phone');
+		$this->assertResponseNotContains('Total Amount');
+
+		// Others are not allowed to see the list of registrations
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'full_list', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'full_list', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'full_list', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'full_list', 'event' => EVENT_ID_MEMBERSHIP]);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test full_list method as a manager
+	 * Test summary method
 	 *
 	 * @return void
 	 */
-	public function testFullListAsManager() {
-		// Managers are allowed to get the full list of registrations
-		$this->assertAccessOk(['controller' => 'Registrations', 'action' => 'full_list', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/registrations/view\?registration=' . REGISTRATION_ID_PLAYER_MEMBERSHIP . '#ms');
-		$this->assertResponseRegExp('#/registrations/edit\?registration=' . REGISTRATION_ID_PLAYER_MEMBERSHIP . '#ms');
+	public function testSummary() {
+		// Admins are allowed to see the summary of registrations
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'summary', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_ADMIN);
 
-		$this->assertAccessOk(['controller' => 'Registrations', 'action' => 'full_list', 'event' => EVENT_ID_MEMBERSHIP, '_ext' => 'csv'], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#Home Phone#ms');
-		$this->assertResponseRegExp('#Total Amount#ms');
+		// Managers are allowed to see the summary of registrations
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'summary', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_MANAGER);
+
+		// Coordinators are not allowed to see the summary of registrations
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'summary', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_COORDINATOR);
+
+		// Except that they are allowed to see the summary of registrations for divisions they coordinate
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'summary', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_THURSDAY], PERSON_ID_COORDINATOR);
+
+		// Others are not allowed to see the summary of registrations
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'summary', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'summary', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'summary', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'summary', 'event' => EVENT_ID_MEMBERSHIP]);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test full_list method as a coordinator
+	 * Test statistics method
 	 *
 	 * @return void
 	 */
-	public function testFullListAsCoordinator() {
-		// Coordinators are not allowed to get the full list of registrations
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'full_list', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_COORDINATOR);
+	public function testStatistics() {
+		// Admins are allowed to see statistics
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'statistics'], PERSON_ID_ADMIN);
 
-		// Except that they can get the list of registrations for divisions they coordinate, but without registration view and edit links
-		$this->assertAccessOk(['controller' => 'Registrations', 'action' => 'full_list', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_THURSDAY], PERSON_ID_COORDINATOR);
-		$this->assertResponseRegExp('#/people/view\?person=' . PERSON_ID_PLAYER . '#ms');
-		$this->assertResponseNotRegExp('#/registrations/view\?registration=' . REGISTRATION_ID_PLAYER_INDIVIDUAL_THURSDAY . '#ms');
-		$this->assertResponseNotRegExp('#/registrations/edit\?registration=' . REGISTRATION_ID_PLAYER_INDIVIDUAL_THURSDAY . '#ms');
+		// Managers are allowed to see statistics
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'statistics'], PERSON_ID_MANAGER);
 
-		$this->assertAccessOk(['controller' => 'Registrations', 'action' => 'full_list', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_THURSDAY, '_ext' => 'csv'], PERSON_ID_COORDINATOR);
-		$this->assertResponseNotRegExp('#Home Phone#ms');
-		$this->assertResponseNotRegExp('#Work Phone#ms');
-		$this->assertResponseNotRegExp('#Work Ext#ms');
-		$this->assertResponseNotRegExp('#Mobile Phone#ms');
-		$this->assertResponseNotRegExp('#Total Amount#ms');
+		// Others are not allowed to see statistics
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'statistics'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'statistics'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'statistics'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'statistics'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'statistics']);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test full_list method as a captain
+	 * Test report method
 	 *
 	 * @return void
 	 */
-	public function testFullListAsCaptain() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'full_list', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_CAPTAIN);
+	public function testReport() {
+		// Admins are allowed to report
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'report'], PERSON_ID_ADMIN);
+
+		// Managers are allowed to report
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'report'], PERSON_ID_MANAGER);
+
+		// Others are not allowed to report
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'report'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'report'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'report'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'report'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'report']);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test full_list method as a player
+	 * Test accounting method
 	 *
 	 * @return void
 	 */
-	public function testFullListAsPlayer() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'full_list', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_PLAYER);
+	public function testAccounting() {
+		$this->markTestIncomplete('Operation not implemented yet.');
+
+		// Admins are allowed to see accounting
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'accounting'], PERSON_ID_ADMIN);
+
+		// Managers are allowed to see accounting
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'accounting'], PERSON_ID_MANAGER);
+
+		// Others are not allowed to see accounting
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'accounting'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'accounting'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'accounting'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'accounting'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'accounting']);
 	}
 
 	/**
-	 * Test full_list method as someone else
+	 * Test view method
 	 *
 	 * @return void
 	 */
-	public function testFullListAsVisitor() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'full_list', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_VISITOR);
-	}
-
-	/**
-	 * Test full_list method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testFullListAsAnonymous() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'full_list', 'event' => EVENT_ID_MEMBERSHIP]);
-	}
-
-	/**
-	 * Test summary method as an admin
-	 *
-	 * @return void
-	 */
-	public function testSummaryAsAdmin() {
-		// Admins are allowed to get the full list of registrations
-		$this->assertAccessOk(['controller' => 'Registrations', 'action' => 'summary', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_ADMIN);
-	}
-
-	/**
-	 * Test summary method as a manager
-	 *
-	 * @return void
-	 */
-	public function testSummaryAsManager() {
-		// Managers are allowed to get the full list of registrations
-		$this->assertAccessOk(['controller' => 'Registrations', 'action' => 'summary', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_MANAGER);
-	}
-
-	/**
-	 * Test summary method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testSummaryAsCoordinator() {
-		// Coordinators are not allowed to get the summary of registrations
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'summary', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_COORDINATOR);
-
-		// Except that they can get the summary of registrations for divisions they coordinate
-		$this->assertAccessOk(['controller' => 'Registrations', 'action' => 'summary', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_THURSDAY], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test summary method as a captain
-	 *
-	 * @return void
-	 */
-	public function testSummaryAsCaptain() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'summary', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_CAPTAIN);
-	}
-
-	/**
-	 * Test summary method as a player
-	 *
-	 * @return void
-	 */
-	public function testSummaryAsPlayer() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'summary', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_PLAYER);
-	}
-
-	/**
-	 * Test summary method as someone else
-	 *
-	 * @return void
-	 */
-	public function testSummaryAsVisitor() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'summary', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_VISITOR);
-	}
-
-	/**
-	 * Test summary method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testSummaryAsAnonymous() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'summary', 'event' => EVENT_ID_MEMBERSHIP]);
-	}
-
-	/**
-	 * Test statistics method as an admin
-	 *
-	 * @return void
-	 */
-	public function testStatisticsAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test statistics method as a manager
-	 *
-	 * @return void
-	 */
-	public function testStatisticsAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test statistics method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testStatisticsAsCoordinator() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'statistics'], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test statistics method as a captain
-	 *
-	 * @return void
-	 */
-	public function testStatisticsAsCaptain() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'statistics'], PERSON_ID_CAPTAIN);
-	}
-
-	/**
-	 * Test statistics method as a player
-	 *
-	 * @return void
-	 */
-	public function testStatisticsAsPlayer() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'statistics'], PERSON_ID_PLAYER);
-	}
-
-	/**
-	 * Test statistics method as someone else
-	 *
-	 * @return void
-	 */
-	public function testStatisticsAsVisitor() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'statistics'], PERSON_ID_VISITOR);
-	}
-
-	/**
-	 * Test statistics method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testStatisticsAsAnonymous() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'statistics']);
-	}
-
-	/**
-	 * Test report method as an admin
-	 *
-	 * @return void
-	 */
-	public function testReportAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test report method as a manager
-	 *
-	 * @return void
-	 */
-	public function testReportAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test report method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testReportAsCoordinator() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'report'], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test report method as a captain
-	 *
-	 * @return void
-	 */
-	public function testReportAsCaptain() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'report'], PERSON_ID_CAPTAIN);
-	}
-
-	/**
-	 * Test report method as a player
-	 *
-	 * @return void
-	 */
-	public function testReportAsPlayer() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'report'], PERSON_ID_PLAYER);
-	}
-
-	/**
-	 * Test report method as someone else
-	 *
-	 * @return void
-	 */
-	public function testReportAsVisitor() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'report'], PERSON_ID_VISITOR);
-	}
-
-	/**
-	 * Test report method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testReportAsAnonymous() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'report']);
-	}
-
-	/**
-	 * Test accounting method as an admin
-	 *
-	 * @return void
-	 */
-	public function testAccountingAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test accounting method as a manager
-	 *
-	 * @return void
-	 */
-	public function testAccountingAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test accounting method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testAccountingAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test accounting method as a captain
-	 *
-	 * @return void
-	 */
-	public function testAccountingAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test accounting method as a player
-	 *
-	 * @return void
-	 */
-	public function testAccountingAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test accounting method as someone else
-	 *
-	 * @return void
-	 */
-	public function testAccountingAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test accounting method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testAccountingAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as an admin
-	 *
-	 * @return void
-	 */
-	public function testViewAsAdmin() {
+	public function testView() {
 		// Admins are allowed to view registrations, with full edit permissions
-		$this->assertAccessOk(['controller' => 'Registrations', 'action' => 'view', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/registrations/edit\?registration=' . REGISTRATION_ID_PLAYER_MEMBERSHIP . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'view', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/registrations/edit?registration=' . REGISTRATION_ID_PLAYER_MEMBERSHIP);
 		// Paid registrations cannot be removed
-		$this->assertResponseNotRegExp('#/registrations/unregister\?registration=' . REGISTRATION_ID_PLAYER_MEMBERSHIP . '#ms');
+		$this->assertResponseNotContains('/registrations/unregister?registration=' . REGISTRATION_ID_PLAYER_MEMBERSHIP);
 
-		$this->assertAccessOk(['controller' => 'Registrations', 'action' => 'view', 'registration' => REGISTRATION_ID_MANAGER_MEMBERSHIP], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/registrations/edit\?registration=' . REGISTRATION_ID_MANAGER_MEMBERSHIP . '#ms');
-		$this->assertResponseRegExp('#/registrations/unregister\?registration=' . REGISTRATION_ID_MANAGER_MEMBERSHIP . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'view', 'registration' => REGISTRATION_ID_MANAGER_MEMBERSHIP], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/registrations/edit?registration=' . REGISTRATION_ID_MANAGER_MEMBERSHIP);
+		$this->assertResponseContains('/registrations/unregister?registration=' . REGISTRATION_ID_MANAGER_MEMBERSHIP);
 
-		$this->assertAccessOk(['controller' => 'Registrations', 'action' => 'view', 'registration' => REGISTRATION_ID_ANDY_SUB_INDIVIDUAL], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/registrations/edit\?registration=' . REGISTRATION_ID_ANDY_SUB_INDIVIDUAL . '#ms');
-		$this->assertResponseRegExp('#/registrations/unregister\?registration=' . REGISTRATION_ID_ANDY_SUB_INDIVIDUAL . '#ms');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'view', 'registration' => REGISTRATION_ID_ANDY_SUB_INDIVIDUAL], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/registrations/edit?registration=' . REGISTRATION_ID_ANDY_SUB_INDIVIDUAL);
+		$this->assertResponseContains('/registrations/unregister?registration=' . REGISTRATION_ID_ANDY_SUB_INDIVIDUAL);
 
-	/**
-	 * Test view method as a manager
-	 *
-	 * @return void
-	 */
-	public function testViewAsManager() {
 		// Managers are allowed to view registrations
-		$this->assertAccessOk(['controller' => 'Registrations', 'action' => 'view', 'registration' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/registrations/edit\?registration=' . REGISTRATION_ID_CAPTAIN_MEMBERSHIP . '#ms');
-		$this->assertResponseRegExp('#/registrations/unregister\?registration=' . REGISTRATION_ID_CAPTAIN_MEMBERSHIP . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'view', 'registration' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/registrations/edit?registration=' . REGISTRATION_ID_CAPTAIN_MEMBERSHIP);
+		$this->assertResponseNotContains('/registrations/unregister?registration=' . REGISTRATION_ID_CAPTAIN_MEMBERSHIP);
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'view', 'registration' => REGISTRATION_ID_ANDY_SUB_INDIVIDUAL], PERSON_ID_MANAGER);
-	}
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'view', 'registration' => REGISTRATION_ID_ANDY_SUB_INDIVIDUAL], PERSON_ID_MANAGER);
 
-	/**
-	 * Test view method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testViewAsCoordinator() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'view', 'registration' => REGISTRATION_ID_PLAYER_INDIVIDUAL_THURSDAY], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test view method as a captain
-	 *
-	 * @return void
-	 */
-	public function testViewAsCaptain() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'view', 'registration' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP], PERSON_ID_CAPTAIN);
-	}
-
-	/**
-	 * Test view method as a player
-	 *
-	 * @return void
-	 */
-	public function testViewAsPlayer() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'view', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP], PERSON_ID_PLAYER);
-	}
-
-	/**
-	 * Test view method as someone else
-	 *
-	 * @return void
-	 */
-	public function testViewAsVisitor() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'view', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP], PERSON_ID_VISITOR);
-	}
-
-	/**
-	 * Test view method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testViewAsAnonymous() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'view', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP]);
+		// Others are not allowed to view registrations
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'view', 'registration' => REGISTRATION_ID_PLAYER_INDIVIDUAL_THURSDAY], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'view', 'registration' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'view', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'view', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'view', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP]);
 	}
 
 	/**
@@ -484,6 +240,13 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRegisterAsAdmin() {
+		// Admins are allowed to register, within or somewhat before the date range
+		FrozenDate::setTestNow(new FrozenDate('first Monday of April'));
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_ADMIN);
+
+		FrozenDate::setTestNow(new FrozenDate('first Monday of March'));
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_ADMIN);
+
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -493,6 +256,13 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRegisterAsManager() {
+		// Managers are allowed to register, within or somewhat before the date range
+		FrozenDate::setTestNow(new FrozenDate('first Monday of April'));
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_MANAGER);
+
+		FrozenDate::setTestNow(new FrozenDate('first Monday of March'));
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_MANAGER);
+
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -502,6 +272,9 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRegisterAsCoordinator() {
+		// Coordinators are allowed to register, within the date range
+		FrozenDate::setTestNow(new FrozenDate('first Monday of April'));
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_COORDINATOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -511,6 +284,9 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRegisterAsCaptain() {
+		// Captains are allowed to register, within the date range
+		FrozenDate::setTestNow(new FrozenDate('first Monday of April'));
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_CAPTAIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -520,6 +296,9 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRegisterAsPlayer() {
+		// Players are allowed to register, within the date range
+		FrozenDate::setTestNow(new FrozenDate('first Monday of April'));
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_PLAYER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -529,6 +308,9 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRegisterAsVisitor() {
+		// Visitors are allowed to register, within the date range
+		FrozenDate::setTestNow(new FrozenDate('first Monday of April'));
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_VISITOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -538,196 +320,104 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRegisterAsAnonymous() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'register', 'event' => EVENT_ID_MEMBERSHIP]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'register', 'event' => EVENT_ID_LEAGUE_TEAM]);
 	}
 
 	/**
-	 * Test register_payment_fields method as an admin
+	 * Test register_payment_fields method
 	 *
 	 * @return void
 	 */
-	public function testRegisterPaymentFieldsAsAdmin() {
+	public function testRegisterPaymentFields() {
+		$this->enableCsrfToken();
+
+		// Anyone logged in is allowed to get register payment fields, within the date range
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Registrations', 'action' => 'register_payment_fields'],
+			PERSON_ID_ADMIN, ['price_id' => PRICE_ID_MEMBERSHIP]);
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Registrations', 'action' => 'register_payment_fields'],
+			PERSON_ID_MANAGER, ['price_id' => PRICE_ID_MEMBERSHIP]);
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Registrations', 'action' => 'register_payment_fields'],
+			PERSON_ID_COORDINATOR, ['price_id' => PRICE_ID_MEMBERSHIP]);
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Registrations', 'action' => 'register_payment_fields'],
+			PERSON_ID_CAPTAIN, ['price_id' => PRICE_ID_MEMBERSHIP]);
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Registrations', 'action' => 'register_payment_fields'],
+			PERSON_ID_PLAYER, ['price_id' => PRICE_ID_MEMBERSHIP]);
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Registrations', 'action' => 'register_payment_fields'],
+			PERSON_ID_VISITOR, ['price_id' => PRICE_ID_MEMBERSHIP]);
+
+		// Others are not allowed to register payment fields
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'register_payment_fields'],
+			['price_id' => PRICE_ID_MEMBERSHIP]);
+
+		$this->markTestIncomplete('More scenarios to test above.');
+	}
+
+	/**
+	 * Test redeem method for success
+	 *
+	 * @return void
+	 */
+	public function testRedeemSuccess() {
+		// People are allowed to redeem their own credits
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'redeem', 'registration' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP], PERSON_ID_CAPTAIN);
+
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test register_payment_fields method as a manager
+	 * Test redeem method for various failure scenarios
 	 *
 	 * @return void
 	 */
-	public function testRegisterPaymentFieldsAsManager() {
+	public function testRedeemFailure() {
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'redeem', 'registration' => REGISTRATION_ID_COORDINATOR_MEMBERSHIP],
+			PERSON_ID_COORDINATOR, ['controller' => 'Registrations', 'action' => 'checkout'],
+			'You have no available credits.');
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'redeem', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP],
+			PERSON_ID_PLAYER, ['controller' => 'Registrations', 'action' => 'checkout'],
+			'This registration is already paid in full.');
+	}
+
+	/**
+	 * Test redeem method as others
+	 *
+	 * @return void
+	 */
+	public function testRedeemAsOthers() {
+		// Even admins are not allowed to redeem credits on behalf of players
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'redeem', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'redeem', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP], PERSON_ID_MANAGER);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'redeem', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP]);
+	}
+
+	/**
+	 * Test checkout method for success
+	 *
+	 * @return void
+	 */
+	public function testCheckoutSuccess() {
+		// Anyone with outstanding registrations is allowed to checkout
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'checkout'], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'checkout'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'checkout'], PERSON_ID_CAPTAIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test register_payment_fields method as a coordinator
+	 * Test checkout method for various failure scenarios
 	 *
 	 * @return void
 	 */
-	public function testRegisterPaymentFieldsAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testCheckoutFailure() {
+		// Anyone without an outstanding registration has no reason to checkout
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'checkout'],
+			PERSON_ID_ADMIN, ['controller' => 'Events', 'action' => 'wizard']);
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'checkout'],
+			PERSON_ID_PLAYER, ['controller' => 'Events', 'action' => 'wizard']);
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'checkout'],
+			PERSON_ID_VISITOR, ['controller' => 'Events', 'action' => 'wizard']);
 
-	/**
-	 * Test register_payment_fields method as a captain
-	 *
-	 * @return void
-	 */
-	public function testRegisterPaymentFieldsAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test register_payment_fields method as a player
-	 *
-	 * @return void
-	 */
-	public function testRegisterPaymentFieldsAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test register_payment_fields method as someone else
-	 *
-	 * @return void
-	 */
-	public function testRegisterPaymentFieldsAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test register_payment_fields method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testRegisterPaymentFieldsAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test redeem method as an admin
-	 *
-	 * @return void
-	 */
-	public function testRedeemAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test redeem method as a manager
-	 *
-	 * @return void
-	 */
-	public function testRedeemAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test redeem method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testRedeemAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test redeem method as a captain
-	 *
-	 * @return void
-	 */
-	public function testRedeemAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test redeem method as a player
-	 *
-	 * @return void
-	 */
-	public function testRedeemAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test redeem method as someone else
-	 *
-	 * @return void
-	 */
-	public function testRedeemAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test redeem method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testRedeemAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test checkout method as an admin
-	 *
-	 * @return void
-	 */
-	public function testCheckoutAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test checkout method as a manager
-	 *
-	 * @return void
-	 */
-	public function testCheckoutAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test checkout method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testCheckoutAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test checkout method as a captain
-	 *
-	 * @return void
-	 */
-	public function testCheckoutAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test checkout method as a player
-	 *
-	 * @return void
-	 */
-	public function testCheckoutAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test checkout method as someone else
-	 *
-	 * @return void
-	 */
-	public function testCheckoutAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test checkout method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testCheckoutAsAnonymous() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'checkout']);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'checkout']);
 	}
 
 	/**
@@ -736,6 +426,10 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testUnregisterAsAdmin() {
+		// Admins are allowed to unregister
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => REGISTRATION_ID_CAPTAIN2_MEMBERSHIP],
+			PERSON_ID_ADMIN, '/',
+			'Successfully unregistered from this event.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -745,6 +439,10 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testUnregisterAsManager() {
+		// Managers are allowed to unregister
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => REGISTRATION_ID_CAPTAIN2_MEMBERSHIP],
+			PERSON_ID_MANAGER, '/',
+			'Successfully unregistered from this event.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -754,6 +452,10 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testUnregisterAsCoordinator() {
+		// Coordinators are allowed to unregister
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => REGISTRATION_ID_COORDINATOR_MEMBERSHIP],
+			PERSON_ID_COORDINATOR, ['controller' => 'Registrations', 'action' => 'checkout'],
+			'Successfully unregistered from this event.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -763,6 +465,9 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testUnregisterAsCaptain() {
+		// Captains are allowed to unregister
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => REGISTRATION_ID_CAPTAIN2_MEMBERSHIP],
+			PERSON_ID_CAPTAIN2, ['controller' => 'Registrations', 'action' => 'checkout'], 'Successfully unregistered from this event.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -772,6 +477,10 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testUnregisterAsPlayer() {
+		// Players are allowed to unregister
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP],
+			PERSON_ID_PLAYER, ['controller' => 'Registrations', 'action' => 'checkout'],
+			'You have already paid for this! Contact the office to arrange a refund.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -781,6 +490,8 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testUnregisterAsVisitor() {
+		// Visitors are allowed to unregister
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP], PERSON_ID_VISITOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -790,69 +501,51 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testUnregisterAsAnonymous() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister']);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP]);
 	}
 
 	/**
-	 * Test payment method as an admin
+	 * Test payment method
 	 *
 	 * @return void
 	 */
-	public function testPaymentAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testPaymentReceipt() {
+		// Payments come from third-party payment processors, and don't use CSRF or form security
 
-	/**
-	 * Test payment method as a manager
-	 *
-	 * @return void
-	 */
-	public function testPaymentAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Default setting is PayPal, which sends parameters in the URL
+		$this->assertGetAnonymousAccessOk(['controller' => 'Registrations', 'action' => 'payment', 'token' => 'TESTING']);
 
-	/**
-	 * Test payment method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testPaymentAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Also test Chase, which posts parameters
+		TableRegistry::get('Settings')->updateAll(['value' => 'chase'], ['name' => 'payment_implementation']);
+		Cache::clear(false, 'long_term');
 
-	/**
-	 * Test payment method as a captain
-	 *
-	 * @return void
-	 */
-	public function testPaymentAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$login = Configure::read('payment.chase_test_store');
+		$key = Configure::read('payment.chase_test_response');
+		$calculated_hash = md5("{$key}{$login}12345678907.00");
 
-	/**
-	 * Test payment method as a player
-	 *
-	 * @return void
-	 */
-	public function testPaymentAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$this->assertPostAnonymousAccessOk(['controller' => 'Registrations', 'action' => 'payment'], [
+			'exact_ctr' => 'DATE/TIME: ' . FrozenTime::now()->format('d M y H:i:s'),
+			'Reference_No' => 'R00000000' . REGISTRATION_ID_CAPTAIN_MEMBERSHIP,
+			'Bank_Resp_Code' => '000',
+			'Bank_Message' => 'APPROVED',
+			'CardHoldersName' => 'Crystal Captain',
+			'Expiry_Date' => FrozenTime::now()->addYear()->format('MMyy'),
+			'Card_Number' => '############1234',
+			'TransactionCardType' => 'VISA',
+			'x_response_code' => 1,
+			'x_trans_id' => '1234567890',
+			'x_auth_code' => '12345A',
+			'x_amount' => '7.00',
+			'x_MD5_Hash' => $calculated_hash,
+			'x_description' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP,
+		]);
 
-	/**
-	 * Test payment method as someone else
-	 *
-	 * @return void
-	 */
-	public function testPaymentAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$registration = TableRegistry::get('Registrations')->get(REGISTRATION_ID_CAPTAIN_MEMBERSHIP, [
+			'contain' => ['Payments']
+		]);
+		$this->assertEquals('Paid', $registration->payment);
+		$this->assertEquals(3, count($registration->payments));
 
-	/**
-	 * Test payment method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testPaymentAsAnonymous() {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -862,6 +555,8 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddPaymentAsAdmin() {
+		// Admins are allowed to add payments
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -871,52 +566,23 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddPaymentAsManager() {
+		// Managers are allowed to add payments
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test add_payment method as a coordinator
+	 * Test add_payment method as others
 	 *
 	 * @return void
 	 */
-	public function testAddPaymentAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_payment method as a captain
-	 *
-	 * @return void
-	 */
-	public function testAddPaymentAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_payment method as a player
-	 *
-	 * @return void
-	 */
-	public function testAddPaymentAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_payment method as someone else
-	 *
-	 * @return void
-	 */
-	public function testAddPaymentAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_payment method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testAddPaymentAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testAddPaymentAsOthers() {
+		// Others are not allowed to add payments
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP]);
 	}
 
 	/**
@@ -925,6 +591,8 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRefundPaymentAsAdmin() {
+		// Admins are allowed to refund payments
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'refund_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -934,52 +602,23 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRefundPaymentAsManager() {
+		// Managers are allowed to refund payments
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'refund_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test refund_payment method as a coordinator
+	 * Test refund_payment method as others
 	 *
 	 * @return void
 	 */
-	public function testRefundPaymentAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test refund_payment method as a captain
-	 *
-	 * @return void
-	 */
-	public function testRefundPaymentAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test refund_payment method as a player
-	 *
-	 * @return void
-	 */
-	public function testRefundPaymentAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test refund_payment method as someone else
-	 *
-	 * @return void
-	 */
-	public function testRefundPaymentAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test refund_payment method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testRefundPaymentAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testRefundPaymentAsOthers() {
+		// Others are not allowed to refund payments
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'refund_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'refund_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'refund_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'refund_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'refund_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP]);
 	}
 
 	/**
@@ -988,6 +627,8 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testCreditPaymentAsAdmin() {
+		// Admins are allowed to credit payments
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'credit_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -997,52 +638,23 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testCreditPaymentAsManager() {
+		// Managers are allowed to credit payments
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'credit_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test credit_payment method as a coordinator
+	 * Test credit_payment method as others
 	 *
 	 * @return void
 	 */
-	public function testCreditPaymentAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test credit_payment method as a captain
-	 *
-	 * @return void
-	 */
-	public function testCreditPaymentAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test credit_payment method as a player
-	 *
-	 * @return void
-	 */
-	public function testCreditPaymentAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test credit_payment method as someone else
-	 *
-	 * @return void
-	 */
-	public function testCreditPaymentAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test credit_payment method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testCreditPaymentAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testCreditPaymentAsOthers() {
+		// Others are not allowed to credit payments
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'credit_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'credit_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'credit_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'credit_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'credit_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP]);
 	}
 
 	/**
@@ -1051,6 +663,8 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testTransferPaymentAsAdmin() {
+		// Admins are allowed to transfer payments
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'transfer_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1060,52 +674,23 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testTransferPaymentAsManager() {
+		// Managers are allowed to transfer payments
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'transfer_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test transfer_payment method as a coordinator
+	 * Test transfer_payment method as others
 	 *
 	 * @return void
 	 */
-	public function testTransferPaymentAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test transfer_payment method as a captain
-	 *
-	 * @return void
-	 */
-	public function testTransferPaymentAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test transfer_payment method as a player
-	 *
-	 * @return void
-	 */
-	public function testTransferPaymentAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test transfer_payment method as someone else
-	 *
-	 * @return void
-	 */
-	public function testTransferPaymentAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test transfer_payment method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testTransferPaymentAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testTransferPaymentAsOthers() {
+		// Others are not allowed to transfer payments
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'transfer_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'transfer_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'transfer_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'transfer_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'transfer_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP]);
 	}
 
 	/**
@@ -1115,9 +700,9 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 */
 	public function testEditAsAdmin() {
 		// Admins are allowed to edit registrations, with full edit permissions
-		$this->assertAccessOk(['controller' => 'Registrations', 'action' => 'edit', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP], PERSON_ID_ADMIN);
-		$this->assertAccessOk(['controller' => 'Registrations', 'action' => 'edit', 'registration' => REGISTRATION_ID_MANAGER_MEMBERSHIP], PERSON_ID_ADMIN);
-		$this->assertAccessOk(['controller' => 'Registrations', 'action' => 'edit', 'registration' => REGISTRATION_ID_ANDY_SUB_INDIVIDUAL], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'edit', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'edit', 'registration' => REGISTRATION_ID_MANAGER_MEMBERSHIP], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'edit', 'registration' => REGISTRATION_ID_ANDY_SUB_INDIVIDUAL], PERSON_ID_ADMIN);
 	}
 
 	/**
@@ -1127,253 +712,104 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 */
 	public function testEditAsManager() {
 		// Managers are allowed to edit registrations
-		$this->assertAccessOk(['controller' => 'Registrations', 'action' => 'edit', 'registration' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'edit', 'registration' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP], PERSON_ID_MANAGER);
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'edit', 'registration' => REGISTRATION_ID_ANDY_SUB_INDIVIDUAL], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'edit', 'registration' => REGISTRATION_ID_ANDY_SUB_INDIVIDUAL], PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test edit method as a coordinator
+	 * Test edit method as others
 	 *
 	 * @return void
 	 */
-	public function testEditAsCoordinator() {
+	public function testEditAsOthers() {
+		// Others are allowed to edit, if payments have not been made
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'edit', 'registration' => REGISTRATION_ID_COORDINATOR_MEMBERSHIP], PERSON_ID_COORDINATOR);
+
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'edit', 'registration' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP],
+			PERSON_ID_CAPTAIN, '/',
+			'You cannot edit a registration once a payment has been made.');
+
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'edit', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP],
+			PERSON_ID_PLAYER, '/',
+			'You cannot edit a registration once a payment has been made.');
+
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'edit', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'edit', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP]);
+	}
+
+	/**
+	 * Test unpaid method
+	 *
+	 * @return void
+	 */
+	public function testUnpaid() {
+		// Admins are allowed to list unpaid registrations
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'unpaid'], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
-	}
 
-	/**
-	 * Test edit method as a captain
-	 *
-	 * @return void
-	 */
-	public function testEditAsCaptain() {
+		// Managers are allowed to list unpaid registrations
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'unpaid'], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
+
+		// Others are not allowed to list unpaid registrations
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'unpaid'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'unpaid'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'unpaid'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'unpaid'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'unpaid']);
 	}
 
 	/**
-	 * Test edit method as a player
+	 * Test credits method
 	 *
 	 * @return void
 	 */
-	public function testEditAsPlayer() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'edit', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP], PERSON_ID_PLAYER);
+	public function testCredits() {
+		// Admins are allowed to list credits
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'credits'], PERSON_ID_ADMIN);
+
+		// Managers are allowed to list credits
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'credits'], PERSON_ID_MANAGER);
+
+		// Others are not allowed to list credits
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'credits'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'credits'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'credits'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'credits'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'credits']);
 	}
 
 	/**
-	 * Test edit method as someone else
+	 * Test waiting list method
 	 *
 	 * @return void
 	 */
-	public function testEditAsVisitor() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'edit'], PERSON_ID_VISITOR);
-	}
+	public function testWaiting() {
+		// Admins are allowed to see the waiting list
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'waiting', 'event' => EVENT_ID_MEMBERSHIP],
+			PERSON_ID_ADMIN, '/',
+			'There is nobody on the waiting list for this event.');
 
-	/**
-	 * Test edit method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testEditAsAnonymous() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'edit']);
-	}
+		// Managers are allowed to see the waiting list
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'waiting', 'event' => EVENT_ID_MEMBERSHIP],
+			PERSON_ID_MANAGER, '/',
+			'There is nobody on the waiting list for this event.');
 
-	/**
-	 * Test unpaid method as an admin
-	 *
-	 * @return void
-	 */
-	public function testUnpaidAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Coordinators are not allowed to see the waiting list
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'waiting', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_COORDINATOR);
 
-	/**
-	 * Test unpaid method as a manager
-	 *
-	 * @return void
-	 */
-	public function testUnpaidAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Except that they are allowed to see the waiting list for divisions they coordinate, but without registration view and edit links
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'waiting', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_THURSDAY],
+			PERSON_ID_COORDINATOR, '/',
+			'There is nobody on the waiting list for this event.');
 
-	/**
-	 * Test unpaid method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testUnpaidAsCoordinator() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'unpaid'], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test unpaid method as a captain
-	 *
-	 * @return void
-	 */
-	public function testUnpaidAsCaptain() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'unpaid'], PERSON_ID_CAPTAIN);
-	}
-
-	/**
-	 * Test unpaid method as a player
-	 *
-	 * @return void
-	 */
-	public function testUnpaidAsPlayer() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'unpaid'], PERSON_ID_PLAYER);
-	}
-
-	/**
-	 * Test unpaid method as someone else
-	 *
-	 * @return void
-	 */
-	public function testUnpaidAsVisitor() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'unpaid'], PERSON_ID_VISITOR);
-	}
-
-	/**
-	 * Test unpaid method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testUnpaidAsAnonymous() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'unpaid']);
-	}
-
-	/**
-	 * Test credits method as an admin
-	 *
-	 * @return void
-	 */
-	public function testCreditsAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test credits method as a manager
-	 *
-	 * @return void
-	 */
-	public function testCreditsAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test credits method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testCreditsAsCoordinator() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'credits'], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test credits method as a captain
-	 *
-	 * @return void
-	 */
-	public function testCreditsAsCaptain() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'credits'], PERSON_ID_CAPTAIN);
-	}
-
-	/**
-	 * Test credits method as a player
-	 *
-	 * @return void
-	 */
-	public function testCreditsAsPlayer() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'credits'], PERSON_ID_PLAYER);
-	}
-
-	/**
-	 * Test credits method as someone else
-	 *
-	 * @return void
-	 */
-	public function testCreditsAsVisitor() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'credits'], PERSON_ID_VISITOR);
-	}
-
-	/**
-	 * Test credits method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testCreditsAsAnonymous() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'credits']);
-	}
-
-	/**
-	 * Test waiting method as an admin
-	 *
-	 * @return void
-	 */
-	public function testWaitingAsAdmin() {
-		// Admins are allowed to get the waiting list
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'waiting', 'event' => EVENT_ID_MEMBERSHIP],
-			PERSON_ID_ADMIN, 'get', [], [], 'There is nobody on the waiting list for this event.', 'Flash.flash.0.message');
-	}
-
-	/**
-	 * Test waiting method as a manager
-	 *
-	 * @return void
-	 */
-	public function testWaitingAsManager() {
-		// Managers are allowed to get the waiting list
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'waiting', 'event' => EVENT_ID_MEMBERSHIP],
-			PERSON_ID_MANAGER, 'get', [], [], 'There is nobody on the waiting list for this event.', 'Flash.flash.0.message');
-	}
-
-	/**
-	 * Test waiting method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testWaitingAsCoordinator() {
-		// Coordinators are not allowed to get the waiting list
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'waiting', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_COORDINATOR);
-
-		// Except that they can get the waiting list for divisions they coordinate, but without registration view and edit links
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'waiting', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_THURSDAY],
-			PERSON_ID_COORDINATOR, 'get', [], [], 'There is nobody on the waiting list for this event.', 'Flash.flash.0.message');
-	}
-
-	/**
-	 * Test waiting method as a captain
-	 *
-	 * @return void
-	 */
-	public function testWaitingAsCaptain() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'waiting'], PERSON_ID_CAPTAIN);
-	}
-
-	/**
-	 * Test waiting method as a player
-	 *
-	 * @return void
-	 */
-	public function testWaitingAsPlayer() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'waiting'], PERSON_ID_PLAYER);
-	}
-
-	/**
-	 * Test waiting method as someone else
-	 *
-	 * @return void
-	 */
-	public function testWaitingAsVisitor() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'waiting'], PERSON_ID_VISITOR);
-	}
-
-	/**
-	 * Test waiting method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testWaitingAsAnonymous() {
-		$this->assertAccessRedirect(['controller' => 'Registrations', 'action' => 'waiting']);
+		// Others are not allowed to see the waiting list
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'waiting', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'waiting', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'waiting', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'waiting', 'event' => EVENT_ID_MEMBERSHIP]);
 	}
 
 }

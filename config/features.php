@@ -100,6 +100,10 @@ if (!defined('GROUP_PLAYER')) {
 	define('ONLINE_NO_MINIMUM', 5);
 	define('ONLINE_NO_PAYMENT', 6);
 
+	define('TEST_PAYMENTS_NOBODY', 0);
+	define('TEST_PAYMENTS_EVERYBODY', 1);
+	define('TEST_PAYMENTS_ADMINS', 2);
+
 	// Minimum "fake id" to use for setting edit pages
 	define('MIN_FAKE_ID', 1000000000);
 }

@@ -107,7 +107,7 @@ if ($show_badges):
 ?>
 				<td><?php
 	foreach ($person->badges as $badge) {
-		if (($badge->visibility == BADGE_VISIBILITY_ADMIN && (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager'))) || $badge->visibility == BADGE_VISIBILITY_HIGH) {
+		if ($this->Authorize->can('view', $badge)) {
 			echo $this->Html->iconLink("{$badge->icon}_32.png", ['controller' => 'Badges', 'action' => 'view', 'badge' => $badge->id],
 				['alt' => $badge->name, 'title' => $badge->description]);
 		}

@@ -70,7 +70,7 @@ if (isset($registrations)):
 					<td><?= $this->Html->link($registration->event->name, ['controller' => 'Events', 'action' => 'view', 'event' => $registration->event->id]) ?></td>
 					<td><?php
 					$order = sprintf(Configure::read('registration.order_id_format'), $registration->id);
-					if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+					if ($this->Authorize->can('view', $registration)) {
 						echo $this->Html->link($order, ['controller' => 'Registrations', 'action' => 'view', 'registration' => $registration->id]);
 					} else {
 						echo $order;

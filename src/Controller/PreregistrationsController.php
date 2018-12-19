@@ -1,13 +1,11 @@
 <?php
 namespace App\Controller;
 
+use App\Authorization\ContextResource;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\I18n\FrozenDate;
-use Cake\Network\Exception\MethodNotAllowedException;
-use Cake\ORM\Query;
-use App\Model\Traits\CanRegister;
 
 /**
  * Preregistrations Controller
@@ -16,76 +14,14 @@ use App\Model\Traits\CanRegister;
  */
 class PreregistrationsController extends AppController {
 
-	use CanRegister;
-
-	/**
-	 * isAuthorized method
-	 *
-	 * @return bool true if access allowed
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
-	 */
-	public function isAuthorized() {
-		try {
-			if ($this->UserCache->read('Person.status') == 'locked') {
-				return false;
-			}
-
-			if (!Configure::read('feature.registration')) {
-				throw new MethodNotAllowedException('Registration is not enabled on this system.');
-			}
-
-			if (Configure::read('Perm.is_manager')) {
-				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->getParam('action'), [
-					'index',
-					'add',
-				])) {
-					// If an event id is specified, check if we're a manager of that event's affiliate
-					$event = $this->request->getQuery('event');
-					if ($event) {
-						if (in_array($this->Preregistrations->Events->affiliate($event), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					} else {
-						// If there's no event id, this is a top-level operation that all managers can perform
-						return true;
-					}
-				}
-
-				if (in_array($this->request->getParam('action'), [
-					'delete',
-				])) {
-					$preregistration = $this->request->getQuery('preregistration');
-					if ($preregistration) {
-						if (in_array($this->Preregistrations->affiliate($preregistration), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-				}
-			}
-		} catch (RecordNotFoundException $ex) {
-		} catch (InvalidPrimaryKeyException $ex) {
-		}
-
-		return false;
-	}
-
 	/**
 	 * Index method
 	 *
 	 * @return void|\Cake\Network\Response
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
 	 */
 	public function index() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->Authorization->authorize($this);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 
 		$this->paginate = [
 			'contain' => [
@@ -127,13 +63,8 @@ class PreregistrationsController extends AppController {
 	 * Add method
 	 *
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
 	 */
 	public function add() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
 		$event_id = $this->request->getQuery('event');
 		$person_id = $this->request->getQuery('person');
 
@@ -151,9 +82,11 @@ class PreregistrationsController extends AppController {
 				return $this->redirect(['controller' => 'Events', 'action' => 'index']);
 			}
 			$this->Configuration->loadAffiliate($event->affiliate_id);
+
+			$this->Authorization->authorize($event, 'add_preregistration');
 		}
 
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 
 		if (!empty($event_id) && !empty($person_id)) {
 			// If we have an event ID and a person ID, save the preregistration
@@ -168,9 +101,9 @@ class PreregistrationsController extends AppController {
 				$this->Flash->info(__('This person already has a preregistration for this event.'));
 				return $this->redirect(['action' => 'add', 'event' => $event_id]);
 			}
-			list($notices, $allowed, $redirect) = $this->canRegister($person_id, $event, null, ['ignore_date' => true, 'strict' => false]);
-			if (!$allowed) {
-				$this->Flash->html('{0}', ['params' => ['replacements' => $notices, 'class' => 'warning']]);
+			$context = new ContextResource($event, ['person_id' => $person_id, 'ignore_date' => true, 'strict' => false]);
+			if (!$this->Authorization->can($context, 'register')) {
+				$this->Flash->html('{0}', ['params' => ['replacements' => $context->notices, 'class' => 'warning']]);
 				return $this->redirect(['action' => 'add', 'event' => $event_id]);
 			}
 
@@ -193,6 +126,8 @@ class PreregistrationsController extends AppController {
 				// Handle a post to the search form
 				$this->_handlePersonSearch(['event']);
 			} else if (!$event_id) {
+				$this->Authorization->authorize($this);
+
 				$events = $this->Preregistrations->Events->find()
 					->contain(['Affiliates'])
 					->where([
@@ -224,13 +159,8 @@ class PreregistrationsController extends AppController {
 	 * Delete method
 	 *
 	 * @return void|\Cake\Network\Response Redirects to index.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if registration is not enabled
 	 */
 	public function delete() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
 		$this->request->allowMethod(['post', 'delete']);
 
 		$id = $this->request->getQuery('preregistration');
@@ -243,6 +173,8 @@ class PreregistrationsController extends AppController {
 			$this->Flash->info(__('Invalid preregistration.'));
 			return $this->redirect(['action' => 'index']);
 		}
+
+		$this->Authorization->authorize($preregistration);
 
 		if ($this->Preregistrations->delete($preregistration)) {
 			$this->UserCache->clear('Preregistrations', $preregistration->person_id);

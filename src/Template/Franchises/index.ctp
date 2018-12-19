@@ -40,8 +40,6 @@ else:
 <?php
 	$affiliate_id = null;
 	foreach ($franchises as $franchise):
-		$is_franchise_manager = Configure::read('Perm.is_logged_in') && in_array($franchise->affiliate_id, $this->UserCache->read('ManagedAffiliateIDs'));
-
 		if (count($affiliates) > 1 && $franchise->affiliate_id != $affiliate_id):
 			$affiliate_id = $franchise->affiliate_id;
 ?>
@@ -69,21 +67,22 @@ else:
 						echo $this->Html->iconLink('view_24.png',
 							['action' => 'view', 'franchise' => $franchise->id],
 							['alt' => __('View'), 'title' => __('View')]);
-						$is_owner = in_array($franchise->id, $this->UserCache->read('FranchiseIDs'));
-						if ($is_owner) {
+						if ($this->Authorize->can('add_team', $franchise)) {
 							echo $this->Html->iconLink('team_add_24.png',
 								['action' => 'add_team', 'franchise' => $franchise->id],
 								['alt' => __('Add Team'), 'title' => __('Add Team')]);
 						}
-						if (Configure::read('Perm.is_admin') || $is_franchise_manager || $is_owner) {
+						if ($this->Authorize->can('edit', $franchise)) {
 							echo $this->Html->iconLink('edit_24.png',
 								['action' => 'edit', 'franchise' => $franchise->id, 'return' => AppController::_return()],
 								['alt' => __('Edit'), 'title' => __('Edit')]);
+						}
+						if ($this->Authorize->can('add_owner', $franchise)) {
 							echo $this->Html->iconLink('move_24.png',
 								['action' => 'add_owner', 'franchise' => $franchise->id, 'return' => AppController::_return()],
 								['alt' => __('Add Owner'), 'title' => __('Add Owner')]);
 						}
-						if (Configure::read('Perm.is_admin') || $is_franchise_manager) {
+						if ($this->Authorize->can('delete', $franchise)) {
 							echo $this->Form->iconPostLink('delete_24.png',
 								['action' => 'delete', 'franchise' => $franchise->id],
 								['alt' => __('Delete'), 'title' => __('Delete')],
@@ -106,7 +105,7 @@ endif;
 ?>
 </div>
 <?php
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
+if ($this->Authorize->can('add', \App\Controller\FranchisesController::class)):
 ?>
 <div class="actions columns">
 	<ul class="nav nav-pills">

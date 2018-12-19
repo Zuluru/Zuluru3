@@ -140,7 +140,7 @@ class EventTypeTeam extends EventType {
 				]);
 			}
 
-			if (Configure::read('feature.attendance') && !empty($event->ask_attendance)) {
+			if (!empty($event->ask_attendance)) {
 				$fields[] = new Question([
 					'id' => TRACK_ATTENDANCE,
 					'type' => 'checkbox',
@@ -260,7 +260,7 @@ class EventTypeTeam extends EventType {
 			]),
 			ModuleRegistry::getInstance()->load("LeagueType:{$event->division->schedule_type}")->newTeam()
 		);
-		if (Configure::read('feature.attendance') && !empty($team['track_attendance'])) {
+		if (!empty($team['track_attendance'])) {
 			// Add some default values, chosen based on averages found in the TUC database so far
 			$team += [
 				'attendance_reminder' => 3,

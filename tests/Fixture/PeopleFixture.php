@@ -497,6 +497,47 @@ class PeopleFixture extends TestFixture {
 				'publish_alternate_mobile_phone' => false,
 				'modified' => FrozenDate::now(),
 			],
+			[
+				'first_name' => 'Irene',
+				'last_name' => 'Inactive',
+				'publish_email' => true,
+				'home_phone' => '(647) 555-7777',
+				'publish_home_phone' => true,
+				'work_phone' => '',
+				'work_ext' => '',
+				'publish_work_phone' => false,
+				'mobile_phone' => '(647) 555-7778',
+				'publish_mobile_phone' => true,
+				'addr_street' => '248 Main St.',
+				'addr_city' => 'Toronto',
+				'addr_prov' => 'Ontario',
+				'addr_country' => 'Canada',
+				'addr_postalcode' => 'M1A 1A1',
+				'gender' => 'Woman',
+				'gender_description' => null,
+				'roster_designation' => 'Woman',
+				'birthdate' => FrozenDate::now()->subYears(45),
+				'height' => 68,
+				'shirt_size' => 'Womens Medium',
+				'status' => 'inactive',
+				'has_dog' => false,
+				'contact_for_feedback' => false,
+				'complete' => true,
+				'twitter_token' => '',
+				'twitter_secret' => '',
+				'user_id' => USER_ID_INACTIVE,
+				'show_gravatar' => false,
+				'alternate_first_name' => '',
+				'alternate_last_name' => '',
+				'alternate_email' => '',
+				'publish_alternate_email' => false,
+				'alternate_work_phone' => '',
+				'alternate_work_ext' => '',
+				'publish_alternate_work_phone' => false,
+				'alternate_mobile_phone' => '',
+				'publish_alternate_mobile_phone' => false,
+				'modified' => FrozenDate::now(),
+			],
 		];
 
 		if (!defined('PERSON_ID_ADMIN')) {
@@ -513,6 +554,7 @@ class PeopleFixture extends TestFixture {
 			define('PERSON_ID_DUPLICATE', ++$i);
 			define('PERSON_ID_ANDY_SUB', ++$i);
 			define('PERSON_ID_VISITOR', ++$i);
+			define('PERSON_ID_INACTIVE', ++$i);
 			// *** Remember that when new People are added, the Users, AffiliatesPeople
 			// GroupsPeople and Skills fixtures may also need to be updated ***
 			// This must always be the last one in the list: it is for new

@@ -24,6 +24,14 @@ return [
 	],
 
 	'Security' => [
+		// Which third-party system(s) to use for user authentication. Implementations are found
+		// in src/Authentication/Authenticator. Don't include the "Authenticator" part of the
+		// filename; for example, if you're using Drupal to manage logins, just put 'DrupalSession'
+		// here, not 'DrupalSessionAuthenticator'. If you're using Zuluru for authentication, leave
+		// this blank; don't set it to 'Zuluru'.
+		// You'll typically also need to add some configuration details. See the implementation
+		// file in question for details of what it expects here.
+		'authenticators' => [],
 		'authModel' => 'Users',
 	],
 ];

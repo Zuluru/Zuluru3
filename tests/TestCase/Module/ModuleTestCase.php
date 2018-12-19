@@ -1,13 +1,12 @@
 <?php
 namespace App\Test\TestCase\Module;
 
+use App\Middleware\ConfigurationLoader;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
-use Cake\Event\Event as CakeEvent;
 use Cake\Event\EventManager;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
-use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 
 class ModuleTestCase extends TestCase {
@@ -24,8 +23,7 @@ class ModuleTestCase extends TestCase {
 			EventManager::instance()->on($listener);
 		}
 
-		$event = new CakeEvent('Configuration.initialize', $this);
-		EventManager::instance()->dispatch($event);
+		ConfigurationLoader::loadConfiguration();
 	}
 
 	public function tearDown() {

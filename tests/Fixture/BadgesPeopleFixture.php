@@ -57,7 +57,28 @@ class BadgesPeopleFixture extends TestFixture {
 				'created' => FrozenDate::now(),
 				'modified' => FrozenDate::now(),
 			],
+			[
+				'badge_id' => BADGE_ID_HALL_OF_FAME,
+				'person_id' => PERSON_ID_CAPTAIN,
+				'nominated_by_id' => PERSON_ID_PLAYER,
+				'game_id' => null,
+				'team_id' => null,
+				'registration_id' => null,
+				'reason' => 'Pretty cool guy.',
+				'approved' => false,
+				'approved_by_id' => null,
+				'visible' => true,
+				'created' => FrozenDate::now(),
+				'modified' => FrozenDate::now(),
+			],
 		];
+
+		if (!defined('BADGE_ID_FOR_ACTIVE_PLAYER_CAPTAIN')) {
+			$i = 0;
+			define('BADGE_ID_FOR_ACTIVE_PLAYER_CAPTAIN', ++$i);
+			define('BADGE_ID_FOR_HALL_OF_FAME_PLAYER', ++$i);
+			define('BADGE_ID_FOR_HALL_OF_FAME_CAPTAIN', ++$i);
+		}
 
 		parent::init();
 	}

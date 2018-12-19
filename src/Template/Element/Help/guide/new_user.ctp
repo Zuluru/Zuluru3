@@ -1,5 +1,7 @@
 <?php
 use Cake\Core\Configure;
+
+$identity = $this->Identity->get();
 ?>
 
 <h2><?= __('New User Guide') ?></h2>
@@ -14,17 +16,17 @@ use Cake\Core\Configure;
 	ZULURU, Configure::read('organization.name')
 );
 echo ' ';
-if (Configure::read('Perm.is_logged_in')) {
+if ($identity) {
 	echo __('You are already logged in to the system, so it seems that you\'ve successfully taken care of this step. For the record, your username is \'\'{0}\'\' and your ID number is {1}.',
-		$this->UserCache->read('Person.user_name'), $this->UserCache->read('Person.id')
+		$identity->user_name, $identity->person->id
 	);
-} else if (Configure::read('feature.manage_accounts')) {
+} else if (Configure::read('feature.control_account_creation')) {
 	echo __('If you don\'t already have an account, {0} to get yourself set up.',
 		$this->Html->link(__('follow these directions'), Configure::read('App.urls.register'))
 	);
 } else {
 	echo __('This site manages user accounts through {0}. If you don\'t already have an account, {1} to get yourself set up.',
-		Configure::read('feature.manage_name'), $this->Html->link(__('follow these directions'), Configure::read('App.urls.register'))
+		Configure::read('feature.authenticate_through'), $this->Html->link(__('follow these directions'), Configure::read('App.urls.register'))
 	);
 }
 ?></p>
@@ -34,8 +36,8 @@ if (!Configure::read('feature.auto_approve')) {
 	echo __('Next, each person must have their completed profile approved by an administrator.');
 }
 echo ' ';
-if (Configure::read('Perm.is_logged_in')) {
-	if (!$this->UserCache->read('Person.complete')) {
+if ($identity) {
+	if (!$identity->person->complete) {
 		echo __('To complete your profile, {0}',
 			$this->Html->link(__('follow these directions'), ['controller' => 'People', 'action' => 'edit'])
 		);
@@ -44,7 +46,7 @@ if (Configure::read('Perm.is_logged_in')) {
 		$complete = __('but this should happen soon');
 	}
 
-	switch($this->UserCache->read('Person.status')) {
+	switch($identity->person->status) {
 		case 'new':
 			echo __('Your profile has not yet been approved, {0}. Until then, you can continue to use the site, but may be limited in some areas.', $complete);
 			break;
@@ -53,7 +55,7 @@ if (Configure::read('Perm.is_logged_in')) {
 			break;
 		case 'inactive':
 			echo __('Your profile is currently {0}, so you can continue to use the site, but may be limited in some areas. To reactivate, {1}.',
-				__($this->UserCache->read('Person.status')),
+				__($identity->person->status),
 				$this->Html->link(__('click here'), ['controller' => 'People', 'action' => 'reactivate'])
 			);
 			break;

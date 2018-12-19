@@ -1,6 +1,5 @@
 <?php
 use App\Controller\AppController;
-use Cake\Core\Configure;
 
 $teams = collection($teams)->indexBy('id')->toArray();
 
@@ -10,7 +9,7 @@ foreach ($games as $bracket_details):
 	$bracket = $bracket_details['bracket'];
 	$pool_id = $bracket_details['pool_id'];
 
-	if (!in_array($pool_id, $init_pools) && (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator)) {
+	if (!in_array($pool_id, $init_pools) && $can_edit) {
 		$init_pools[] = $pool_id;
 		echo $this->Form->iconPostLink('delete_24.png',
 			['controller' => 'Schedules', 'action' => 'delete', 'division' => $division->id, 'pool' => $pool_id, 'return' => AppController::_return()],
@@ -30,7 +29,7 @@ foreach ($games as $bracket_details):
 	<div class="round round<?= count($bracket) - $round ?>">
 <?php
 		foreach ($round_games as $game) {
-			echo $this->element('Leagues/standings/tournament/bracket_game', compact('game', 'teams'));
+			echo $this->element('Leagues/standings/tournament/bracket_game', compact('game', 'teams', 'can_edit'));
 		}
 ?>
 

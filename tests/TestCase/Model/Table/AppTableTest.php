@@ -92,7 +92,7 @@ class AppTableTest extends TableTestCase {
 		$dependencies = $this->DivisionsTable->dependencies(DIVISION_ID_MONDAY_LADDER, ['Days', 'People', 'Teams']);
 		$this->assertEquals('48 game slots, 2 events, 14 games', $dependencies);
 		$dependencies = $this->DivisionsTable->dependencies(DIVISION_ID_MONDAY_PLAYOFF);
-		$this->assertEquals('2 days, 15 game slots, 1 games, 2 pools, 1 teams', $dependencies);
+		$this->assertEquals('2 days, 15 game slots, 1 people, 1 games, 2 pools, 1 teams', $dependencies);
 	}
 
 	/**

@@ -273,8 +273,15 @@ class TeamEventsTable extends AppTable {
 
 	public function affiliate($id) {
 		try {
-			$team = $this->field('team_id', ['id' => $id]);
-			return $this->Teams->affiliate($team);
+			return $this->Teams->affiliate($this->team($id));
+		} catch (RecordNotFoundException $ex) {
+			return null;
+		}
+	}
+
+	public function team($id) {
+		try {
+			return $this->field('team_id', ['id' => $id]);
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

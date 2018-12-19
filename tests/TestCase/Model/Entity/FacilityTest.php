@@ -86,8 +86,8 @@ class FacilityTest extends TestCase {
 
 		// Copy the test permit from the known folder to this year's
 		$permit_path = Configure::read('App.paths.files') . DS . 'permits';
-		$folder1 = new Folder($permit_path . DS . '0000');
-		$folder1->copy($permit_path . DS . FrozenTime::now()->year);
+		$folder = new Folder($permit_path . DS . '0000');
+		$folder->copy($permit_path . DS . FrozenTime::now()->year);
 	}
 
 	/**
@@ -101,8 +101,8 @@ class FacilityTest extends TestCase {
 
 		// Delete the temporary permit copy
 		$permit_path = Configure::read('App.paths.files') . DS . 'permits';
-		$folder1 = new Folder($permit_path . DS . FrozenTime::now()->year);
-		$folder1->delete();
+		$folder = new Folder($permit_path . DS . FrozenTime::now()->year);
+		$folder->delete();
 
 		parent::tearDown();
 	}

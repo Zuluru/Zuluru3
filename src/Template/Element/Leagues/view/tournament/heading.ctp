@@ -4,7 +4,7 @@ use Cake\Core\Configure;
 
 <tr>
 <?php
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $is_coordinator):
+if ($can_edit):
 ?>
 	<th><?= __('Initial Seed') ?></th>
 <?php
@@ -18,7 +18,7 @@ if ($division->is_playoff):
 <?php
 endif;
 
-if (Configure::read('Perm.is_logged_in')):
+if ($this->Authorize->can('view_roster', \App\Controller\TeamsController::class)):
 ?>
 	<th><?= __('Players') ?></th>
 <?php

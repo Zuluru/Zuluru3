@@ -1,6 +1,7 @@
 <?php
 namespace App\Model\Table;
 
+use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
 
@@ -68,6 +69,22 @@ class ScoreDetailStatsTable extends AppTable {
 		$rules->add($rules->existsIn(['person_id'], 'People'));
 		$rules->add($rules->existsIn(['stat_type_id'], 'StatTypes'));
 		return $rules;
+	}
+
+	public function division($id) {
+		try {
+			return $this->ScoreDetails->division($this->field('score_detail_id', ['id' => $id]));
+		} catch (RecordNotFoundException $ex) {
+			return null;
+		}
+	}
+
+	public function team($id) {
+		try {
+			return $this->ScoreDetails->team($this->field('score_detail_id', ['id' => $id]));
+		} catch (RecordNotFoundException $ex) {
+			return null;
+		}
 	}
 
 }

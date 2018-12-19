@@ -1,10 +1,11 @@
 <?php
 namespace App\Controller;
 
+use App\Authorization\ContextResource;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Network\Exception\MethodNotAllowedException;
+use Cake\Http\Exception\MethodNotAllowedException;
 use Cake\ORM\Query;
 use App\View\Helper\ZuluruTimeHelper;
 
@@ -16,94 +17,24 @@ use App\View\Helper\ZuluruTimeHelper;
 class TaskSlotsController extends AppController {
 
 	/**
-	 * _publicActions method
+	 * _noAuthenticationActions method
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if taskSlots are not enabled
 	 */
-	protected function _publicActions() {
+	protected function _noAuthenticationActions() {
 		if (!Configure::read('feature.tasks')) {
-			throw new MethodNotAllowedException('Tasks are not enabled on this system.');
+			return [];
 		}
 
 		return ['ical'];
 	}
 
 	/**
-	 * isAuthorized method
-	 *
-	 * @return bool true if access allowed
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if tasks are not enabled
-	 */
-	public function isAuthorized() {
-		try {
-			if ($this->UserCache->read('Person.status') == 'locked') {
-				return false;
-			}
-
-			if (!Configure::read('feature.tasks')) {
-				throw new MethodNotAllowedException('Tasks are not enabled on this system.');
-			}
-
-			if (Configure::read('Perm.is_manager')) {
-				// Managers can perform these operations
-				if (in_array($this->request->getParam('action'), [
-					'add',
-				])) {
-					return true;
-				}
-
-				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->getParam('action'), [
-					'view',
-					'edit',
-					'assign',
-					'approve',
-					'delete',
-				])) {
-					// If a task slot id is specified, check if we're a manager of that task slot's affiliate
-					$task_slot = $this->request->getQuery('slot');
-					if ($task_slot) {
-						if (in_array($this->TaskSlots->affiliate($task_slot), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-				}
-			}
-
-			if (Configure::read('Perm.is_volunteer')) {
-				// Volunteers can can perform these operations for themselves or relatives
-				if (in_array($this->request->getParam('action'), [
-					'assign',
-				])) {
-					// If a person id is specified, check the id
-					$person = $this->request->getQuery('person');
-					$relatives = $this->UserCache->read('RelativeIDs');
-					if ($person && ($person == $this->UserCache->currentId() || in_array($person, $relatives))) {
-						return true;
-					}
-				}
-			}
-		} catch (RecordNotFoundException $ex) {
-		} catch (InvalidPrimaryKeyException $ex) {
-		}
-
-		return false;
-	}
-
-	/**
 	 * View method
 	 *
 	 * @return void|\Cake\Network\Response
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if tasks are not enabled
 	 */
 	public function view() {
-		if (!Configure::read('feature.tasks')) {
-			throw new MethodNotAllowedException('Tasks are not enabled on this system.');
-		}
-
 		$id = $this->request->getQuery('slot');
 		try {
 			$task_slot = $this->TaskSlots->get($id, [
@@ -120,6 +51,8 @@ class TaskSlotsController extends AppController {
 			$this->Flash->info(__('Invalid task slot.'));
 			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
 		}
+
+		$this->Authorization->authorize($task_slot);
 		$this->Configuration->loadAffiliate($task_slot->task->category->affiliate_id);
 
 		$this->set(compact('task_slot'));
@@ -127,10 +60,6 @@ class TaskSlotsController extends AppController {
 
 	// This function takes the parameters the old-fashioned way, to try to be more third-party friendly
 	public function ical($id) {
-		if (!Configure::read('feature.tasks')) {
-			throw new MethodNotAllowedException('Tasks are not enabled on this system.');
-		}
-
 		$this->viewBuilder()->layout('ical');
 		try {
 			$task_slot = $this->TaskSlots->get($id, [
@@ -160,13 +89,8 @@ class TaskSlotsController extends AppController {
 	 * Add method
 	 *
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if tasks are not enabled
 	 */
 	public function add() {
-		if (!Configure::read('feature.tasks')) {
-			throw new MethodNotAllowedException('Tasks are not enabled on this system.');
-		}
-
 		$id = $this->request->getQuery('task');
 		try {
 			$task = $this->TaskSlots->Tasks->get($id);
@@ -177,6 +101,8 @@ class TaskSlotsController extends AppController {
 			$this->Flash->info(__('Invalid task.'));
 			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
 		}
+
+		$this->Authorization->authorize($task, 'add_slots');
 		$this->Configuration->loadAffiliate($task->affiliate_id);
 
 		$task_slot = $this->TaskSlots->newEntity();
@@ -197,7 +123,7 @@ class TaskSlotsController extends AppController {
 			}
 		}
 
-		$affiliates = $this->_applicableAffiliates(true);
+		$affiliates = $this->Authentication->applicableAffiliates(true);
 		$this->set(compact('affiliates', 'task', 'task_slot'));
 	}
 
@@ -205,13 +131,8 @@ class TaskSlotsController extends AppController {
 	 * Edit method
 	 *
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if tasks are not enabled
 	 */
 	public function edit() {
-		if (!Configure::read('feature.tasks')) {
-			throw new MethodNotAllowedException('Tasks are not enabled on this system.');
-		}
-
 		$id = $this->request->getQuery('slot');
 		try {
 			$task_slot = $this->TaskSlots->get($id);
@@ -222,6 +143,8 @@ class TaskSlotsController extends AppController {
 			$this->Flash->info(__('Invalid task slot.'));
 			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
 		}
+
+		$this->Authorization->authorize($task_slot);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			$task_slot = $this->TaskSlots->patchEntity($task_slot, $this->request->data);
@@ -240,22 +163,11 @@ class TaskSlotsController extends AppController {
 	 * Delete method
 	 *
 	 * @return void|\Cake\Network\Response Redirects to index.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if tasks are not enabled
 	 */
 	public function delete() {
-		if (!Configure::read('feature.tasks')) {
-			throw new MethodNotAllowedException('Tasks are not enabled on this system.');
-		}
-
 		$this->request->allowMethod(['post', 'delete']);
 
 		$id = $this->request->getQuery('slot');
-		$dependencies = $this->TaskSlots->dependencies($id);
-		if ($dependencies !== false) {
-			$this->Flash->warning(__('The following records reference this task slot, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
-		}
-
 		try {
 			$task_slot = $this->TaskSlots->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -263,6 +175,14 @@ class TaskSlotsController extends AppController {
 			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
 		} catch (InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid task slot.'));
+			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
+		}
+
+		$this->Authorization->authorize($task_slot, 'edit');
+
+		$dependencies = $this->TaskSlots->dependencies($id);
+		if ($dependencies !== false) {
+			$this->Flash->warning(__('The following records reference this task slot, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
 			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
 		}
 
@@ -278,11 +198,6 @@ class TaskSlotsController extends AppController {
 	}
 
 	public function assign() {
-		if (!Configure::read('feature.tasks')) {
-			throw new MethodNotAllowedException('Tasks are not enabled on this system.');
-		}
-
-		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
 		$id = $this->request->getQuery('slot');
@@ -298,20 +213,13 @@ class TaskSlotsController extends AppController {
 			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
 		}
 
-		if (!$task_slot->task->allow_signup && !(Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager'))) {
-			$this->Flash->info(__('Invalid task slot.'));
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $task_slot->task->id]);
-		}
-
-		if ($task_slot->person_id && !(Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager'))) {
-			$this->Flash->info(__('This task slot has already been assigned.'));
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $task_slot->task->id]);
-		}
+		$context = new ContextResource($task_slot, ['task' => $task_slot->task]);
+		$this->Authorization->authorize($context);
 
 		$person_id = $this->request->data['person'];
 		if (!empty($person_id)) {
 			try {
-				$person = $this->TaskSlots->People->get($person_id);
+				$this->TaskSlots->People->get($person_id);
 			} catch (RecordNotFoundException $ex) {
 				$this->Flash->info(__('Invalid person.'));
 				return $this->redirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $task_slot->task->id]);
@@ -356,7 +264,7 @@ class TaskSlotsController extends AppController {
 			$this->UserCache->clear('Tasks', $task_slot->person_id);
 		}
 
-		if (!empty($person_id) && ($task_slot->task->auto_approve || Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager'))) {
+		if (!empty($person_id) && $this->Authorization->can($context, 'auto_approve')) {
 			$task_slot = $this->TaskSlots->patchEntity($task_slot, [
 				'person_id' => $person_id,
 				'approved' => true,
@@ -384,7 +292,7 @@ class TaskSlotsController extends AppController {
 		}
 
 		// Read some data required to correctly build the output
-		$affiliates = $this->_applicableAffiliates(true);
+		$affiliates = $this->Authentication->applicableAffiliates(true);
 		$people = $this->TaskSlots->Tasks->People->find()
 			->matching('Groups', function (Query $q) {
 				return $q->where(['Groups.id IN' => [GROUP_VOLUNTEER, GROUP_OFFICIAL, GROUP_MANAGER, GROUP_ADMIN]]);
@@ -407,11 +315,6 @@ class TaskSlotsController extends AppController {
 	}
 
 	public function approve() {
-		if (!Configure::read('feature.tasks')) {
-			throw new MethodNotAllowedException('Tasks are not enabled on this system.');
-		}
-
-		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
 		$id = $this->request->getQuery('slot');
@@ -426,6 +329,8 @@ class TaskSlotsController extends AppController {
 			$this->Flash->info(__('Invalid task slot.'));
 			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
 		}
+
+		$this->Authorization->authorize($task_slot);
 
 		if (!$task_slot->person_id) {
 			$this->Flash->info(__('This task slot has not been assigned.'));

@@ -4,7 +4,6 @@ namespace App\Controller;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Network\Exception\MethodNotAllowedException;
 use Cake\ORM\Query;
 use App\Form\MessageForm;
 
@@ -12,7 +11,6 @@ use App\Form\MessageForm;
  * Contacts Controller
  *
  * @property \App\Model\Table\ContactsTable $Contacts
- * @property \App\Model\Table\MessagesTable $Messages
  */
 class ContactsController extends AppController {
 
@@ -24,69 +22,15 @@ class ContactsController extends AppController {
 	];
 
 	/**
-	 * isAuthorized method
-	 *
-	 * @return bool true if access allowed
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if contacts are not enabled
-	 */
-	public function isAuthorized() {
-		try {
-			if (!Configure::read('feature.contacts')) {
-				throw new MethodNotAllowedException('Contacts are not enabled on this system.');
-			}
-
-			if (Configure::read('Perm.is_manager')) {
-				// Managers can perform these operations
-				if (in_array($this->request->getParam('action'), [
-					'index',
-					'add',
-				])) {
-					return true;
-				}
-
-				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->getParam('action'), [
-					'edit',
-					'delete',
-				])) {
-					// If a contact id is specified, check if we're a manager of that contact's affiliate
-					$contact = $this->request->getQuery('contact');
-					if ($contact) {
-						if (in_array($this->Contacts->affiliate($contact), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-				}
-			}
-
-			// Anyone that's logged in can perform these operations
-			if (in_array($this->request->getParam('action'), [
-				'message',
-			])) {
-				return true;
-			}
-		} catch (RecordNotFoundException $ex) {
-		} catch (InvalidPrimaryKeyException $ex) {
-		}
-
-		return false;
-	}
-
-	/**
 	 * Index method
 	 *
 	 * @return void|\Cake\Network\Response
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if contacts are not enabled
 	 */
 	public function index() {
-		if (!Configure::read('feature.contacts')) {
-			throw new MethodNotAllowedException('Contacts are not enabled on this system.');
-		}
+		$this->Authorization->authorize($this);
 
 		$affiliate = $this->request->getQuery('affiliate');
-		$affiliates = $this->_applicableAffiliateIDs();
+		$affiliates = $this->Authentication->applicableAffiliateIDs();
 
 		$query = $this->Contacts->find()
 			->matching('Affiliates', function (Query $q) use ($affiliates) {
@@ -102,14 +46,11 @@ class ContactsController extends AppController {
 	 * Add method
 	 *
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if contacts are not enabled
 	 */
 	public function add() {
-		if (!Configure::read('feature.contacts')) {
-			throw new MethodNotAllowedException('Contacts are not enabled on this system.');
-		}
-
 		$contact = $this->Contacts->newEntity();
+		$this->Authorization->authorize($contact);
+
 		if ($this->request->is('post')) {
 			$contact = $this->Contacts->patchEntity($contact, $this->request->data);
 			if ($this->Contacts->save($contact)) {
@@ -121,7 +62,7 @@ class ContactsController extends AppController {
 			}
 		}
 
-		$affiliates = $this->_applicableAffiliates(true);
+		$affiliates = $this->Authentication->applicableAffiliates(true);
 		$this->set(compact('contact', 'affiliates'));
 		$this->render('edit');
 	}
@@ -130,13 +71,8 @@ class ContactsController extends AppController {
 	 * Edit method
 	 *
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if contacts are not enabled
 	 */
 	public function edit() {
-		if (!Configure::read('feature.contacts')) {
-			throw new MethodNotAllowedException('Contacts are not enabled on this system.');
-		}
-
 		$id = $this->request->getQuery('contact');
 		try {
 			$contact = $this->Contacts->get($id);
@@ -147,6 +83,7 @@ class ContactsController extends AppController {
 			$this->Flash->info(__('Invalid contact.'));
 			return $this->redirect(['action' => 'index']);
 		}
+		$this->Authorization->authorize($contact);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			$contact = $this->Contacts->patchEntity($contact, $this->request->data);
@@ -159,7 +96,7 @@ class ContactsController extends AppController {
 			}
 		}
 
-		$affiliates = $this->_applicableAffiliates(true);
+		$affiliates = $this->Authentication->applicableAffiliates(true);
 		$this->set(compact('contact', 'affiliates'));
 	}
 
@@ -167,22 +104,11 @@ class ContactsController extends AppController {
 	 * Delete method
 	 *
 	 * @return void|\Cake\Network\Response Redirects to index.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if contacts are not enabled
 	 */
 	public function delete() {
-		if (!Configure::read('feature.contacts')) {
-			throw new MethodNotAllowedException('Contacts are not enabled on this system.');
-		}
-
 		$this->request->allowMethod(['post', 'delete']);
 
 		$id = $this->request->getQuery('contact');
-		$dependencies = $this->Contacts->dependencies($id);
-		if ($dependencies !== false) {
-			$this->Flash->warning(__('The following records reference this contact, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
-			return $this->redirect(['action' => 'index']);
-		}
-
 		try {
 			$contact = $this->Contacts->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -190,6 +116,14 @@ class ContactsController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		} catch (InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid contact.'));
+			return $this->redirect(['action' => 'index']);
+		}
+
+		$this->Authorization->authorize($contact);
+
+		$dependencies = $this->Contacts->dependencies($id);
+		if ($dependencies !== false) {
+			$this->Flash->warning(__('The following records reference this contact, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
 			return $this->redirect(['action' => 'index']);
 		}
 
@@ -205,9 +139,7 @@ class ContactsController extends AppController {
 	}
 
 	public function message() {
-		if (!Configure::read('feature.contacts')) {
-			throw new MethodNotAllowedException('Contacts are not enabled on this system.');
-		}
+		$this->Authorization->authorize($this);
 
 		$message = new MessageForm();
 		if ($this->request->is(['patch', 'post', 'put'])) {
@@ -228,7 +160,7 @@ class ContactsController extends AppController {
 
 		$id = $this->request->getQuery('contact');
 		if (!$id) {
-			$affiliates = $this->_applicableAffiliateIDs();
+			$affiliates = $this->Authentication->applicableAffiliateIDs();
 			$contacts = $this->Contacts->find()
 				->contain(['Affiliates'])
 				->where(['Contacts.affiliate_id IN' => $affiliates])

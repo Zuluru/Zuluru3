@@ -58,7 +58,7 @@ foreach ($regions as $region) {
 	}
 }
 
-if (Configure::read('Perm.is_admin')) {
+if ($this->Authorize->can('closed', \App\Controller\FacilitiesController::class)) {
 	echo $this->Html->tag('br');
 	if ($closed) {
 		echo $this->Html->link(__('Show only open {0}', __(Configure::read('UI.fields'))), ['action' => 'index']);

@@ -72,5 +72,5 @@ endif;
 
 </div>
 <div class="actions columns">
-	<?= $this->element('Events/actions', ['event' => $event, 'is_event_manager' => Configure::read('Perm.is_manager'), 'format' => 'list']) ?>
+	<?= $this->element('Events/actions', ['event' => $event, 'format' => 'list']) ?>
 </div>

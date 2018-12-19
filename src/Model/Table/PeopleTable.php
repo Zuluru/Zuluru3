@@ -9,6 +9,7 @@ use Cake\Event\Event as CakeEvent;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\TableRegistry;
+use Cake\Routing\Router;
 use Cake\Utility\Inflector;
 use Cake\Validation\Validation;
 use Cake\Validation\Validator;
@@ -101,7 +102,7 @@ class PeopleTable extends AppTable {
 		]);
 		$this->hasMany('Preregistrations', [
 			'foreignKey' => 'person_id',
-			'dependent' => false,
+			'dependent' => true,
 		]);
 		$this->hasMany('Registrations', [
 			'foreignKey' => 'person_id',
@@ -670,10 +671,13 @@ class PeopleTable extends AppTable {
 				}
 
 				$relative_status = 'active';
-			} else if ((Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) && $data->offsetExists('status')) {
-				$relative_status = $data['status'];
 			} else {
-				$relative_status = $data['status'] = 'new';
+				$identity = Router::getRequest()->getAttribute('identity');
+				if ($data->offsetExists('status') && $identity && $identity->isManager()) {
+					$relative_status = $data['status'];
+				} else {
+					$relative_status = $data['status'] = 'new';
+				}
 			}
 
 			// Add dummy affiliate record, if the feature isn't enabled

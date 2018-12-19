@@ -26,7 +26,7 @@ namespace <%= $namespace %>\Controller<%= $prefix %>;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Network\Exception\MethodNotAllowedException;
+use Cake\Http\Exception\MethodNotAllowedException;
 use Cake\ORM\Entity;
 use Cake\ORM\Query;
 
@@ -44,16 +44,12 @@ foreach ($components as $component):
 class <%= $name %>Controller extends AppController {
 
 	/**
-	 * _publicActions method
+	 * _noAuthenticationActions method
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if <%= $pluralHumanName %> are not enabled
+	 * @throws \Cake\Http\Exception\MethodNotAllowedException if <%= $pluralHumanName %> are not enabled
 	 */
-	protected function _publicActions() {
-			if (!Configure::read('feature.<%= $pluralHumanName %>')) {
-				throw new MethodNotAllowedException('<%= $defaultModel %> are not enabled on this system.');
-			}
-
+	protected function _noAuthenticationActions() {
 			return ['index', 'view'];
 	}
 
@@ -61,66 +57,10 @@ class <%= $name %>Controller extends AppController {
 	 * _freeActions method
 	 *
 	 * @return array list of actions that people can perform even if the system wants them to do something else
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if <%= $pluralHumanName %> are not enabled
+	 * @throws \Cake\Http\Exception\MethodNotAllowedException if <%= $pluralHumanName %> are not enabled
 	 */
 	protected function _freeActions() {
-			if (!Configure::read('feature.<%= $singularName %>')) {
-				throw new MethodNotAllowedException('<%= $defaultModel %> are not enabled on this system.');
-			}
-
 			return ['index'];
-	}
-
-	/**
-	 * isAuthorized method
-	 *
-	 * @return bool true if access allowed
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if <%= $pluralHumanName %> are not enabled
-	 */
-	public function isAuthorized() {
-		if ($this->UserCache->read('Person.status') == 'locked') {
-			return false;
-		}
-
-		if (!Configure::read('feature.<%= $singularName %>')) {
-			throw new MethodNotAllowedException('<%= $defaultModel %> are not enabled on this system.');
-		}
-
-		// Anyone that's logged in can perform these operations
-		if (in_array($this->request->getParam('action'), [
-			'index',
-			'view',
-		]))
-		{
-			return true;
-		}
-
-		if (Configure::read('Perm.is_manager')) {
-			// Managers can perform these operations
-			if (in_array($this->request->getParam('action'), [
-				'add',
-			]))
-			{
-				return true;
-			}
-
-			// Managers can perform these operations in affiliates they manage
-			if (in_array($this->request->getParam('action'), [
-				'edit',
-				'delete',
-			]))
-			{
-				// If a <%= $singularName %> id is specified, check if we're a manager of that <%= $singularName %>'s affiliate
-				$<%= $singularName %> = $this->request->getQuery('<%= $singularName %>');
-				if ($<%= $singularName %>) {
-					if (in_array($this-><%= $currentModelName %>->affiliate($<%= $singularName %>), $this->UserCache->read('ManagedAffiliateIDs'))) {
-						return true;
-					}
-				}
-			}
-		}
-
-		return false;
 	}
 
 <%

@@ -1,9 +1,11 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
+use Cake\ORM\TableRegistry;
 
 /**
  * App\Controller\DivisionsController Test Case
@@ -41,8 +43,10 @@ class DivisionsControllerTest extends ControllerTestCase {
 					'app.pools',
 						'app.pools_teams',
 					'app.games',
+						'app.games_allstars',
 						'app.score_entries',
 						'app.spirit_entries',
+						'app.incidents',
 						'app.stats',
 				'app.leagues_stat_types',
 			'app.franchises',
@@ -52,250 +56,139 @@ class DivisionsControllerTest extends ControllerTestCase {
 					'app.registrations',
 						'app.payments',
 				'app.preregistrations',
+			'app.badges',
 			'app.settings',
 			'app.waivers',
 				'app.waivers_people',
 	];
 
 	/**
-	 * Test view method as an admin
+	 * Test view method
 	 *
 	 * @return void
 	 */
-	public function testViewAsAdmin() {
+	public function testView() {
 		// readByPlayerId compares the open date to today, so we need to set "today" for this test to be reliable
 		FrozenDate::setTestNow(new FrozenDate('May 31'));
 
-		// Everyone is allowed to view the index; admins, managers and coordinators have extra options
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/divisions/edit\?division=' . DIVISION_ID_MONDAY_LADDER . '#ms');
-		$this->assertResponseRegExp('#/divisions/delete\?division=' . DIVISION_ID_MONDAY_LADDER . '#ms');
-	}
+		// Anyone is allowed to view the index; admins, managers and coordinators have extra options
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/divisions/edit?division=' . DIVISION_ID_MONDAY_LADDER);
+		$this->assertResponseContains('/divisions/delete?division=' . DIVISION_ID_MONDAY_LADDER);
 
-	/**
-	 * Test view method as a manager
-	 *
-	 * @return void
-	 */
-	public function testViewAsManager() {
 		// readByPlayerId compares the open date to today, so we need to set "today" for this test to be reliable
 		FrozenDate::setTestNow(new FrozenDate('May 31'));
 
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/divisions/edit\?division=' . DIVISION_ID_MONDAY_LADDER . '#ms');
-		$this->assertResponseRegExp('#/divisions/delete\?division=' . DIVISION_ID_MONDAY_LADDER . '#ms');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/divisions/edit?division=' . DIVISION_ID_MONDAY_LADDER);
+		$this->assertResponseContains('/divisions/delete?division=' . DIVISION_ID_MONDAY_LADDER);
 
-	/**
-	 * Test view method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testViewAsCoordinator() {
 		// readByPlayerId compares the open date to today, so we need to set "today" for this test to be reliable
 		FrozenDate::setTestNow(new FrozenDate('May 31'));
 
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
-		$this->assertResponseRegExp('#/divisions/edit\?division=' . DIVISION_ID_MONDAY_LADDER . '#ms');
-		$this->assertResponseNotRegExp('#/divisions/delete\?division=' . DIVISION_ID_MONDAY_LADDER . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
+		$this->assertResponseContains('/divisions/edit?division=' . DIVISION_ID_MONDAY_LADDER);
+		$this->assertResponseNotContains('/divisions/delete?division=' . DIVISION_ID_MONDAY_LADDER);
+
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
+		$this->assertResponseNotContains('/divisions/edit?division=' . DIVISION_ID_MONDAY_LADDER);
+		$this->assertResponseNotContains('/divisions/delete?division=' . DIVISION_ID_MONDAY_LADDER);
+
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
+		$this->assertResponseNotContains('/divisions/edit?division=' . DIVISION_ID_MONDAY_LADDER);
+		$this->assertResponseNotContains('/divisions/delete?division=' . DIVISION_ID_MONDAY_LADDER);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER]);
+		$this->assertResponseNotContains('/divisions/edit?division=' . DIVISION_ID_MONDAY_LADDER);
+		$this->assertResponseNotContains('/divisions/delete?division=' . DIVISION_ID_MONDAY_LADDER);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test view method as a player
+	 * Test tooltip method
 	 *
 	 * @return void
 	 */
-	public function testViewAsPlayer() {
-		// readByPlayerId compares the open date to today, so we need to set "today" for this test to be reliable
-		FrozenDate::setTestNow(new FrozenDate('May 31'));
+	public function testTooltip() {
+		// Anyone is allowed to view division tooltips
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/divisions\\/view?division=' . DIVISION_ID_MONDAY_LADDER);
+		$this->assertResponseContains('/divisions\\/standings?division=' . DIVISION_ID_MONDAY_LADDER);
 
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
-		$this->assertResponseNotRegExp('#/divisions/edit\?division=' . DIVISION_ID_MONDAY_LADDER . '#ms');
-		$this->assertResponseNotRegExp('#/divisions/delete\?division=' . DIVISION_ID_MONDAY_LADDER . '#ms');
-	}
-
-	/**
-	 * Test view method as someone else
-	 *
-	 * @return void
-	 */
-	public function testViewAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testViewAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test tooltip method as an admin
-	 *
-	 * @return void
-	 */
-	public function testTooltipAsAdmin() {
-		// Everyone is allowed to view division tooltips
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN, 'getajax');
-		$this->assertResponseRegExp('#/divisions\\\\/view\?division=' . DIVISION_ID_MONDAY_LADDER . '#ms');
-		$this->assertResponseRegExp('#/divisions\\\\/standings\?division=' . DIVISION_ID_MONDAY_LADDER . '#ms');
-
-		$this->assertAccessRedirect(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => 0],
-			PERSON_ID_ADMIN, 'getajax', [], ['controller' => 'Leagues', 'action' => 'index'],
+		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => 0],
+			PERSON_ID_ADMIN, ['controller' => 'Leagues', 'action' => 'index'],
 			'Invalid division.');
+
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/divisions\\/view?division=' . DIVISION_ID_MONDAY_LADDER);
+		$this->assertResponseContains('/divisions\\/standings?division=' . DIVISION_ID_MONDAY_LADDER);
+
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
+		$this->assertResponseContains('/divisions\\/view?division=' . DIVISION_ID_MONDAY_LADDER);
+		$this->assertResponseContains('/divisions\\/standings?division=' . DIVISION_ID_MONDAY_LADDER);
+
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
+		$this->assertResponseContains('/divisions\\/view?division=' . DIVISION_ID_MONDAY_LADDER);
+		$this->assertResponseContains('/divisions\\/standings?division=' . DIVISION_ID_MONDAY_LADDER);
+
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
+		$this->assertResponseContains('/divisions\\/view?division=' . DIVISION_ID_MONDAY_LADDER);
+		$this->assertResponseContains('/divisions\\/standings?division=' . DIVISION_ID_MONDAY_LADDER);
+
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
+		$this->assertResponseContains('/divisions\\/view?division=' . DIVISION_ID_MONDAY_LADDER);
+		$this->assertResponseContains('/divisions\\/standings?division=' . DIVISION_ID_MONDAY_LADDER);
+
+		$this->assertGetAjaxAnonymousAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => DIVISION_ID_MONDAY_LADDER]);
+		$this->assertResponseContains('/divisions\\/view?division=' . DIVISION_ID_MONDAY_LADDER);
+		$this->assertResponseContains('/divisions\\/standings?division=' . DIVISION_ID_MONDAY_LADDER);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test tooltip method as a manager
+	 * Test stats method
 	 *
 	 * @return void
 	 */
-	public function testTooltipAsManager() {
-		// Everyone is allowed to view division tooltips
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER, 'getajax');
-		$this->assertResponseRegExp('#/divisions\\\\/view\?division=' . DIVISION_ID_MONDAY_LADDER . '#ms');
-		$this->assertResponseRegExp('#/divisions\\\\/standings\?division=' . DIVISION_ID_MONDAY_LADDER . '#ms');
-	}
-
-	/**
-	 * Test tooltip method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testTooltipAsCoordinator() {
-		// Everyone is allowed to view division tooltips
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR, 'getajax');
-		$this->assertResponseRegExp('#/divisions\\\\/view\?division=' . DIVISION_ID_MONDAY_LADDER . '#ms');
-		$this->assertResponseRegExp('#/divisions\\\\/standings\?division=' . DIVISION_ID_MONDAY_LADDER . '#ms');
-	}
-
-	/**
-	 * Test tooltip method as a captain
-	 *
-	 * @return void
-	 */
-	public function testTooltipAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test tooltip method as a player
-	 *
-	 * @return void
-	 */
-	public function testTooltipAsPlayer() {
-		// Everyone is allowed to view division tooltips
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER, 'getajax');
-		$this->assertResponseRegExp('#/divisions\\\\/view\?division=' . DIVISION_ID_MONDAY_LADDER . '#ms');
-		$this->assertResponseRegExp('#/divisions\\\\/standings\?division=' . DIVISION_ID_MONDAY_LADDER . '#ms');
-	}
-
-	/**
-	 * Test tooltip method as someone else
-	 *
-	 * @return void
-	 */
-	public function testTooltipAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test tooltip method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testTooltipAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test stats method as an admin
-	 *
-	 * @return void
-	 */
-	public function testStatsAsAdmin() {
+	public function testStats() {
 		// readByPlayerId compares the open date to today, so we need to set "today" for this test to be reliable
 		FrozenDate::setTestNow(new FrozenDate('May 31'));
 
-		// Everyone is allowed to view the stats; admins, managers and coordinators have extra options
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/divisions/edit\?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN . '#ms');
-		$this->assertResponseRegExp('#/divisions/delete\?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN . '#ms');
-	}
+		// Anyone is allowed to view the stats; admins, managers and coordinators have extra options
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/divisions/edit?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
+		$this->assertResponseContains('/divisions/delete?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
 
-	/**
-	 * Test stats method as a manager
-	 *
-	 * @return void
-	 */
-	public function testStatsAsManager() {
-		// readByPlayerId compares the open date to today, so we need to set "today" for this test to be reliable
-		FrozenDate::setTestNow(new FrozenDate('May 31'));
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/divisions/edit?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
+		$this->assertResponseContains('/divisions/delete?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
 
-		// Everyone is allowed to view the stats; admins, managers and coordinators have extra options
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/divisions/edit\?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN . '#ms');
-		$this->assertResponseRegExp('#/divisions/delete\?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN . '#ms');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN], PERSON_ID_COORDINATOR);
+		$this->assertResponseContains('/divisions/edit?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
+		$this->assertResponseNotContains('/divisions/delete?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
 
-	/**
-	 * Test stats method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testStatsAsCoordinator() {
-		// readByPlayerId compares the open date to today, so we need to set "today" for this test to be reliable
-		FrozenDate::setTestNow(new FrozenDate('May 31'));
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN], PERSON_ID_CAPTAIN);
+		$this->assertResponseNotContains('/divisions/edit?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
+		$this->assertResponseNotContains('/divisions/delete?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
 
-		// Everyone is allowed to view the stats; admins, managers and coordinators have extra options
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN], PERSON_ID_COORDINATOR);
-		$this->assertResponseRegExp('#/divisions/edit\?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN . '#ms');
-		$this->assertResponseNotRegExp('#/divisions/delete\?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN . '#ms');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN], PERSON_ID_PLAYER);
+		$this->assertResponseNotContains('/divisions/edit?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
+		$this->assertResponseNotContains('/divisions/delete?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
 
-	/**
-	 * Test stats method as a captain
-	 *
-	 * @return void
-	 */
-	public function testStatsAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN], PERSON_ID_VISITOR);
+		$this->assertResponseNotContains('/divisions/edit?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
+		$this->assertResponseNotContains('/divisions/delete?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
 
-	/**
-	 * Test stats method as a player
-	 *
-	 * @return void
-	 */
-	public function testStatsAsPlayer() {
-		// readByPlayerId compares the open date to today, so we need to set "today" for this test to be reliable
-		FrozenDate::setTestNow(new FrozenDate('May 31'));
+		// Non-public sites, stats are not available unless logged in
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'stats', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN]);
 
-		// Everyone is allowed to view the stats; admins, managers and coordinators have extra options
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN], PERSON_ID_PLAYER);
-		$this->assertResponseNotRegExp('#/divisions/edit\?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN . '#ms');
-		$this->assertResponseNotRegExp('#/divisions/delete\?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN . '#ms');
-	}
-
-	/**
-	 * Test stats method as someone else
-	 *
-	 * @return void
-	 */
-	public function testStatsAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test stats method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testStatsAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// With public sites, anyone is allowed to view the stats
+		Cache::clear(false, 'long_term');
+		TableRegistry::get('Settings')->updateAll(['value' => true], ['category' => 'feature', 'name' => 'public']);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN]);
+		$this->assertResponseNotContains('/divisions/edit?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
+		$this->assertResponseNotContains('/divisions/delete?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
 	}
 
 	/**
@@ -304,17 +197,17 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsAdmin() {
-		// Admins can add new divisions anywhere
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'add', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_ADMIN);
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'add', 'league' => LEAGUE_ID_SUNDAY_SUB], PERSON_ID_ADMIN);
+		// Admins are allowed to add new divisions anywhere
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add', 'league' => LEAGUE_ID_SUNDAY_SUB], PERSON_ID_ADMIN);
 
 		// If a division ID is given, we will clone that division
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'add', 'league' => LEAGUE_ID_MONDAY, 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add', 'league' => LEAGUE_ID_MONDAY, 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
 		$this->assertResponseRegExp('#<input type="text" name="name"[^>]*value="Competitive"#ms');
-		$this->assertResponseRegExp('#<input type="checkbox" name="days\[_ids\]\[\]" value="1" checked="checked" id="days-ids-1">Monday#ms');
-		$this->assertResponseNotRegExp('#<input type="checkbox" name="days\[_ids\]\[\]" value="2" checked="checked" id="days-ids-2">Tuesday#ms');
-		$this->assertResponseNotRegExp('#<input type="checkbox" name="days\[_ids\]\[\]" value="3" checked="checked" id="days-ids-3">Wednesday#ms');
-		$this->assertResponseNotRegExp('#<input type="checkbox" name="days\[_ids\]\[\]" value="4" checked="checked" id="days-ids-4">Thursday#ms');
+		$this->assertResponseContains('<input type="checkbox" name="days[_ids][]" value="1" checked="checked" id="days-ids-1">Monday');
+		$this->assertResponseNotContains('<input type="checkbox" name="days[_ids][]" value="2" checked="checked" id="days-ids-2">Tuesday');
+		$this->assertResponseNotContains('<input type="checkbox" name="days[_ids][]" value="3" checked="checked" id="days-ids-3">Wednesday');
+		$this->assertResponseNotContains('<input type="checkbox" name="days[_ids][]" value="4" checked="checked" id="days-ids-4">Thursday');
 	}
 
 	/**
@@ -323,19 +216,23 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsManager() {
-		// Managers can add new divisions in their own affiliate, but not others
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'add', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_MANAGER);
-		$this->assertAccessRedirect(['controller' => 'Divisions', 'action' => 'add', 'league' => LEAGUE_ID_SUNDAY_SUB], PERSON_ID_MANAGER);
+		// Managers are allowed to add new divisions in their own affiliate, but not others
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add', 'league' => LEAGUE_ID_SUNDAY_SUB], PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test add method as a player
+	 * Test add method as others
 	 *
 	 * @return void
 	 */
-	public function testAddAsPlayer() {
-		// Others cannot add new divisions
-		$this->assertAccessRedirect(['controller' => 'Divisions', 'action' => 'add', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_PLAYER);
+	public function testAddAsOthers() {
+		// Others are not allowed to add new divisions
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'add', 'league' => LEAGUE_ID_MONDAY]);
 	}
 
 	/**
@@ -344,9 +241,9 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsAdmin() {
-		// Admins can edit divisions anywhere
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_SUNDAY_SUB], PERSON_ID_ADMIN);
+		// Admins are allowed to edit divisions anywhere
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_SUNDAY_SUB], PERSON_ID_ADMIN);
 	}
 
 	/**
@@ -355,9 +252,9 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsManager() {
-		// Managers can edit divisions in their own affiliate, but not others
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
-		$this->assertAccessRedirect(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_SUNDAY_SUB], PERSON_ID_MANAGER);
+		// Managers are allowed to edit divisions in their own affiliate, but not others
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_SUNDAY_SUB], PERSON_ID_MANAGER);
 	}
 
 	/**
@@ -366,46 +263,22 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsCoordinator() {
-		// Coordinators can edit their own divisions, but not others
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
-		$this->assertAccessRedirect(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN], PERSON_ID_COORDINATOR);
+		// Coordinators are allowed to edit their own divisions, but not others
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN], PERSON_ID_COORDINATOR);
 	}
 
 	/**
-	 * Test edit method as a captain
+	 * Test edit method as others
 	 *
 	 * @return void
 	 */
-	public function testEditAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as a player
-	 *
-	 * @return void
-	 */
-	public function testEditAsPlayer() {
-		// Others cannot edit divisions
-		$this->assertAccessRedirect(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
-	}
-
-	/**
-	 * Test edit method as someone else
-	 *
-	 * @return void
-	 */
-	public function testEditAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testEditAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testEditAsOthers() {
+		// Others are not allowed to edit divisions
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_MONDAY_LADDER]);
 	}
 
 	/**
@@ -414,6 +287,11 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSchedulingFieldsAsAdmin() {
+		$this->enableCsrfToken();
+
+		// Admins are allowed to get the scheduling fields
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'scheduling_fields'],
+			PERSON_ID_ADMIN, ['schedule_type' => 'ratings_ladder']);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -423,6 +301,11 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSchedulingFieldsAsManager() {
+		$this->enableCsrfToken();
+
+		// Managers are allowed to get the scheduling fields
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'scheduling_fields'],
+			PERSON_ID_MANAGER, ['schedule_type' => 'ratings_ladder']);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -432,43 +315,31 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSchedulingFieldsAsCoordinator() {
+		$this->enableCsrfToken();
+
+		// Coordinators are allowed to get the scheduling fields
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'scheduling_fields'],
+			PERSON_ID_COORDINATOR, ['schedule_type' => 'ratings_ladder']);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test scheduling_fields method as a captain
+	 * Test scheduling_fields method as others
 	 *
 	 * @return void
 	 */
-	public function testSchedulingFieldsAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testSchedulingFieldsAsOthers() {
+		$this->enableCsrfToken();
 
-	/**
-	 * Test scheduling_fields method as a player
-	 *
-	 * @return void
-	 */
-	public function testSchedulingFieldsAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test scheduling_fields method as someone else
-	 *
-	 * @return void
-	 */
-	public function testSchedulingFieldsAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test scheduling_fields method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testSchedulingFieldsAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to get the scheduling fields
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'scheduling_fields'],
+			PERSON_ID_CAPTAIN, ['schedule_type' => 'ratings_ladder']);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'scheduling_fields'],
+			PERSON_ID_PLAYER, ['schedule_type' => 'ratings_ladder']);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'scheduling_fields'],
+			PERSON_ID_VISITOR, ['schedule_type' => 'ratings_ladder']);
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'scheduling_fields'],
+			['schedule_type' => 'ratings_ladder']);
 	}
 
 	/**
@@ -481,27 +352,28 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		// Admins are allowed to add coordinators
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER2], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER2], PERSON_ID_ADMIN);
 
 		// Try the search page
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER2],
-			PERSON_ID_ADMIN, 'post', [
+		$this->assertPostAsAccessOk(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER2],
+			PERSON_ID_ADMIN, [
 				'affiliate_id' => '1',
 				'first_name' => '',
 				'last_name' => 'coordinator',
 				'sort' => 'last_name',
 				'direction' => 'asc',
-			]);
-		$this->assertResponseRegExp('#/divisions/add_coordinator\?person=' . PERSON_ID_COORDINATOR . '&amp;division=' . DIVISION_ID_MONDAY_LADDER2 . '#ms');
+			]
+		);
+		$this->assertResponseContains('/divisions/add_coordinator?person=' . PERSON_ID_COORDINATOR . '&amp;division=' . DIVISION_ID_MONDAY_LADDER2);
 
 		// Try to add the coordinator
-		$this->assertAccessRedirect(['controller' => 'Divisions', 'action' => 'add_coordinator', 'person' => PERSON_ID_COORDINATOR, 'division' => DIVISION_ID_MONDAY_LADDER2],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER2],
-			'Added Cindy Coordinator as coordinator.', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'add_coordinator', 'person' => PERSON_ID_COORDINATOR, 'division' => DIVISION_ID_MONDAY_LADDER2],
+			PERSON_ID_ADMIN, [], ['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER2],
+			'Added Cindy Coordinator as coordinator.');
 
 		// Make sure they were added successfully
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER2], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/divisions/remove_coordinator\?division=' . DIVISION_ID_MONDAY_LADDER2 . '&amp;person=' . PERSON_ID_COORDINATOR . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER2], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/divisions/remove_coordinator?division=' . DIVISION_ID_MONDAY_LADDER2 . '&amp;person=' . PERSON_ID_COORDINATOR);
 	}
 
 	/**
@@ -511,53 +383,21 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 */
 	public function testAddCoordinatorAsManager() {
 		// Managers are allowed to add coordinators
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER2], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER2], PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test add_coordinator method as a coordinator
+	 * Test add_coordinator method as others
 	 *
 	 * @return void
 	 */
-	public function testAddCoordinatorAsCoordinator() {
+	public function testAddCoordinatorAsOthers() {
 		// Others are not allowed to add coordinators
-		$this->assertAccessRedirect(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test add_coordinator method as a captain
-	 *
-	 * @return void
-	 */
-	public function testAddCoordinatorAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_coordinator method as a player
-	 *
-	 * @return void
-	 */
-	public function testAddCoordinatorAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_coordinator method as someone else
-	 *
-	 * @return void
-	 */
-	public function testAddCoordinatorAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_coordinator method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testAddCoordinatorAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER]);
 	}
 
 	/**
@@ -570,9 +410,9 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		// Admins are allowed to remove coordinators
-		$this->assertAccessRedirect(['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER, 'person' => PERSON_ID_COORDINATOR],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER],
-			'Successfully removed coordinator.', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER, 'person' => PERSON_ID_COORDINATOR],
+			PERSON_ID_ADMIN, [], ['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER],
+			'Successfully removed coordinator.');
 	}
 
 	/**
@@ -581,57 +421,34 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRemoveCoordinatorAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		// Managers are allowed to remove coordinators
+		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER, 'person' => PERSON_ID_COORDINATOR],
+			PERSON_ID_MANAGER, [], ['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER],
+			'Successfully removed coordinator.');
 	}
 
 	/**
-	 * Test remove_coordinator method as a coordinator
+	 * Test remove_coordinator method as others
 	 *
 	 * @return void
 	 */
-	public function testRemoveCoordinatorAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test remove_coordinator method as a captain
-	 *
-	 * @return void
-	 */
-	public function testRemoveCoordinatorAsCaptain() {
+	public function testRemoveCoordinatorAsOthers() {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		// Others are not allowed to remove coordinators
-		$this->assertAccessRedirect(['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN, 'person' => PERSON_ID_COORDINATOR],
-			PERSON_ID_CAPTAIN, 'post');
-	}
-
-	/**
-	 * Test remove_coordinator method as a player
-	 *
-	 * @return void
-	 */
-	public function testRemoveCoordinatorAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test remove_coordinator method as someone else
-	 *
-	 * @return void
-	 */
-	public function testRemoveCoordinatorAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test remove_coordinator method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testRemoveCoordinatorAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertPostAsAccessDenied(['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER, 'person' => PERSON_ID_COORDINATOR],
+			PERSON_ID_COORDINATOR);
+		$this->assertPostAsAccessDenied(['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER, 'person' => PERSON_ID_COORDINATOR],
+			PERSON_ID_CAPTAIN);
+		$this->assertPostAsAccessDenied(['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER, 'person' => PERSON_ID_COORDINATOR],
+			PERSON_ID_PLAYER);
+		$this->assertPostAsAccessDenied(['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER, 'person' => PERSON_ID_COORDINATOR],
+			PERSON_ID_VISITOR);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER, 'person' => PERSON_ID_COORDINATOR]);
 	}
 
 	/**
@@ -640,6 +457,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddTeamsAsAdmin() {
+		// Admins are allowed to add teams
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add_teams', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -649,6 +468,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddTeamsAsManager() {
+		// Managers are allowed to add teams
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add_teams', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -658,43 +479,22 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddTeamsAsCoordinator() {
+		// Coordinators are allowed to add teams
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add_teams', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test add_teams method as a captain
+	 * Test add_teams method as others
 	 *
 	 * @return void
 	 */
-	public function testAddTeamsAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_teams method as a player
-	 *
-	 * @return void
-	 */
-	public function testAddTeamsAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_teams method as someone else
-	 *
-	 * @return void
-	 */
-	public function testAddTeamsAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add_teams method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testAddTeamsAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testAddTeamsAsOthers() {
+		// Captains are not allowed to add teams
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add_teams', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add_teams', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add_teams', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'add_teams', 'division' => DIVISION_ID_MONDAY_LADDER]);
 	}
 
 	/**
@@ -703,6 +503,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRatingsAsAdmin() {
+		// Admins are allowed to ratings
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'ratings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -712,6 +514,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRatingsAsManager() {
+		// Managers are allowed to ratings
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'ratings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -721,43 +525,22 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRatingsAsCoordinator() {
+		// Coordinators are allowed to ratings
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'ratings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test ratings method as a captain
+	 * Test ratings method as others
 	 *
 	 * @return void
 	 */
-	public function testRatingsAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test ratings method as a player
-	 *
-	 * @return void
-	 */
-	public function testRatingsAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test ratings method as someone else
-	 *
-	 * @return void
-	 */
-	public function testRatingsAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test ratings method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testRatingsAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testRatingsAsOthers() {
+		// Others are not allowed to ratings
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'ratings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'ratings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'ratings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'ratings', 'division' => DIVISION_ID_MONDAY_LADDER]);
 	}
 
 	/**
@@ -766,6 +549,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSeedsAsAdmin() {
+		// Admins are allowed to update seeds
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'seeds', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -775,6 +560,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSeedsAsManager() {
+		// Managers are allowed to update seeds
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'seeds', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -784,43 +571,22 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSeedsAsCoordinator() {
+		// Coordinators are allowed to update seeds
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'seeds', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test seeds method as a captain
+	 * Test seeds method as others
 	 *
 	 * @return void
 	 */
-	public function testSeedsAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test seeds method as a player
-	 *
-	 * @return void
-	 */
-	public function testSeedsAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test seeds method as someone else
-	 *
-	 * @return void
-	 */
-	public function testSeedsAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test seeds method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testSeedsAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testSeedsAsOthers() {
+		// Others are not allowed to update seeds
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'seeds', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'seeds', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'seeds', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'seeds', 'division' => DIVISION_ID_MONDAY_LADDER]);
 	}
 
 	/**
@@ -833,19 +599,19 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		// Admins are allowed to delete divisions
-		$this->assertAccessRedirect(['controller' => 'Divisions', 'action' => 'delete', 'division' => DIVISION_ID_MONDAY_LADDER2],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Leagues', 'action' => 'index'],
-			'The division has been deleted.', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete', 'division' => DIVISION_ID_MONDAY_LADDER2],
+			PERSON_ID_ADMIN, [], ['controller' => 'Leagues', 'action' => 'index'],
+			'The division has been deleted.');
 
 		// But not the last division in a league
-		$this->assertAccessRedirect(['controller' => 'Divisions', 'action' => 'delete', 'division' => DIVISION_ID_FRIDAY],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Leagues', 'action' => 'index'],
-			'You cannot delete the only division in a league.', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete', 'division' => DIVISION_ID_FRIDAY],
+			PERSON_ID_ADMIN, [], ['controller' => 'Leagues', 'action' => 'index'],
+			'You cannot delete the only division in a league.');
 
 		// And not ones with dependencies
-		$this->assertAccessRedirect(['controller' => 'Divisions', 'action' => 'delete', 'division' => DIVISION_ID_MONDAY_LADDER],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'Leagues', 'action' => 'index'],
-			'#The following records reference this division, so it cannot be deleted#', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete', 'division' => DIVISION_ID_MONDAY_LADDER],
+			PERSON_ID_ADMIN, [], ['controller' => 'Leagues', 'action' => 'index'],
+			'#The following records reference this division, so it cannot be deleted#');
 	}
 
 	/**
@@ -857,59 +623,31 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		// Managers can delete divisions in their affiliate
-		$this->assertAccessRedirect(['controller' => 'Divisions', 'action' => 'delete', 'division' => DIVISION_ID_MONDAY_LADDER2],
-			PERSON_ID_MANAGER, 'post', [], ['controller' => 'Leagues', 'action' => 'index'],
-			'The division has been deleted.', 'Flash.flash.0.message');
+		// Managers are allowed to delete divisions in their affiliate
+		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete', 'division' => DIVISION_ID_MONDAY_LADDER2],
+			PERSON_ID_MANAGER, [], ['controller' => 'Leagues', 'action' => 'index'],
+			'The division has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'Divisions', 'action' => 'delete', 'division' => DIVISION_ID_SUNDAY_SUB],
-			PERSON_ID_MANAGER, 'post');
+		$this->assertPostAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete', 'division' => DIVISION_ID_SUNDAY_SUB],
+			PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test delete method as a coordinator
+	 * Test delete method as others
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testDeleteAsOthers() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
-	/**
-	 * Test delete method as a captain
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as a player
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to delete divisions
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'delete', 'division' => DIVISION_ID_MONDAY_LADDER]);
 	}
 
 	/**
@@ -923,7 +661,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		FrozenTime::setTestNow((new FrozenTime('first Monday of June'))->addDays(22));
 
 		// Admins get the schedule with edit links
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
 
 		$game = '<td><a[^>]*href="/games/view\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
@@ -969,24 +707,24 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		// Confirm that there are appropriate links for unfinalized weeks
 		$date = (new FrozenDate('third Monday of June'))->toDateString();
-		$this->assertResponseRegExp('#/divisions/schedule\?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;edit_date=' . $date . '#ms');
-		$this->assertResponseRegExp('#/divisions/slots\?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date . '#ms');
-		$this->assertResponseRegExp('#/schedules/delete\?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date . '#ms');
-		$this->assertResponseRegExp('#/schedules/reschedule\?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date . '#ms');
-		$this->assertResponseRegExp('#/schedules/unpublish\?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date . '#ms');
+		$this->assertResponseContains('/divisions/schedule?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;edit_date=' . $date);
+		$this->assertResponseContains('/divisions/slots?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date);
+		$this->assertResponseContains('/schedules/delete?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date);
+		$this->assertResponseContains('/schedules/reschedule?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date);
+		$this->assertResponseContains('/schedules/unpublish?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date);
 
 		// Admins don't get to submit scores or do attendance
-		$this->assertResponseNotRegExp('#/games/submit_score#ms');
-		$this->assertResponseNotRegExp('#/games/attendance#ms');
+		$this->assertResponseNotContains('/games/submit_score');
+		$this->assertResponseNotContains('/games/attendance');
 
 		// Check for initialize dependencies link where appropriate
 		$date = (new FrozenDate('first Monday of September'))->toDateString();
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_PLAYOFF], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_PLAYOFF], PERSON_ID_ADMIN);
 		$this->assertResponseRegExp('#/divisions/initialize_dependencies\?division=' . DIVISION_ID_MONDAY_PLAYOFF . '&amp;date=' . $date . '[^>]*\"#ms');
 		$this->assertResponseRegExp('#/divisions/initialize_dependencies\?division=' . DIVISION_ID_MONDAY_PLAYOFF . '&amp;date=' . $date . '&amp;reset=1[^>]*\"#ms');
 
-		// Admins can get schedules from any affiliate
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_SUNDAY_SUB], PERSON_ID_ADMIN);
+		// Admins are allowed to see schedules from any affiliate
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_SUNDAY_SUB], PERSON_ID_ADMIN);
 
 		$game = '<td><a[^>]*href="/games/view\?game=' . GAME_ID_SUB . '"[^>]*>7:00PM-8:30PM</a></td>';
 		$field = '<td><a[^>]*href="/facilities/view\?facility=' . FACILITY_ID_CENTRAL_TECH . '"[^>]*>CTS 1</a></td>';
@@ -996,7 +734,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 
 		// Tuesday week 2 game isn't published, but admins can see it
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN], PERSON_ID_ADMIN);
 		$game = '<td><a[^>]*href="/games/view\?game=' . GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_1 . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
 		$home = '<td><a[^>]*href="/teams/view\?team=' . TEAM_ID_MAPLES . '"[^>]*>Maples</a> <span[^>]*title="Shirt colour: Green"[^>]*><img src="/img/shirts/green.png\?\d+"[^>]*></span></td>';
@@ -1023,7 +761,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		FrozenTime::setTestNow((new FrozenTime('first Monday of June'))->addDays(22));
 
 		// Managers get the schedule with edit links
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
 
 		$game = '<td><a[^>]*href="/games/view\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
@@ -1034,18 +772,18 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		// Confirm that there are appropriate links for unfinalized weeks
 		$date = (new FrozenDate('third Monday of June'))->toDateString();
-		$this->assertResponseRegExp('#/divisions/schedule\?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;edit_date=' . $date . '#ms');
-		$this->assertResponseRegExp('#/divisions/slots\?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date . '#ms');
-		$this->assertResponseRegExp('#/schedules/delete\?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date . '#ms');
-		$this->assertResponseRegExp('#/schedules/reschedule\?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date . '#ms');
-		$this->assertResponseRegExp('#/schedules/unpublish\?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date . '#ms');
+		$this->assertResponseContains('/divisions/schedule?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;edit_date=' . $date);
+		$this->assertResponseContains('/divisions/slots?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date);
+		$this->assertResponseContains('/schedules/delete?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date);
+		$this->assertResponseContains('/schedules/reschedule?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date);
+		$this->assertResponseContains('/schedules/unpublish?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date);
 
 		// Managers don't get to submit scores or do attendance
-		$this->assertResponseNotRegExp('#/games/submit_score#ms');
-		$this->assertResponseNotRegExp('#/games/attendance#ms');
+		$this->assertResponseNotContains('/games/submit_score');
+		$this->assertResponseNotContains('/games/attendance');
 
-		// Managers can get schedules from any affiliate, but no edit links
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_SUNDAY_SUB], PERSON_ID_MANAGER);
+		// Managers are allowed to see schedules from any affiliate, but no edit links
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_SUNDAY_SUB], PERSON_ID_MANAGER);
 
 		$game = '<td><a[^>]*href="/games/view\?game=' . GAME_ID_SUB . '"[^>]*>7:00PM-8:30PM</a></td>';
 		$field = '<td><a[^>]*href="/facilities/view\?facility=' . FACILITY_ID_CENTRAL_TECH . '"[^>]*>CTS 1</a></td>';
@@ -1053,10 +791,10 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$away = '<td><a[^>]*href="/teams/view\?team=' . TEAM_ID_LIONS . '"[^>]*>Lions</a> <span[^>]*title="Shirt colour: Gold"[^>]*><img src="/img/shirts/default.png\?\d+"[^>]*></span></td>';
 		$actions = '<td class="actions">not entered\s*<span class="actions"></span></td>';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
-		$this->assertResponseNotRegExp('#/games/edit#ms');
+		$this->assertResponseNotContains('/games/edit');
 
-		// Tuesday week 2 game isn't published, but managers can see it
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN], PERSON_ID_MANAGER);
+		// Tuesday week 2 game isn't published, but Managers are allowed to see it
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN], PERSON_ID_MANAGER);
 		$game = '<td><a[^>]*href="/games/view\?game=' . GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_1 . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
 		$home = '<td><a[^>]*href="/teams/view\?team=' . TEAM_ID_MAPLES . '"[^>]*>Maples</a> <span[^>]*title="Shirt colour: Green"[^>]*><img src="/img/shirts/green.png\?\d+"[^>]*></span></td>';
@@ -1083,7 +821,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		FrozenTime::setTestNow((new FrozenTime('first Monday of June'))->addDays(22));
 
 		// Coordinators get the schedule with edit links
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
 
 		$game = '<td><a[^>]*href="/games/view\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
@@ -1094,26 +832,26 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		// Confirm that there are appropriate links for unfinalized weeks
 		$date = (new FrozenDate('third Monday of June'))->toDateString();
-		$this->assertResponseRegExp('#/divisions/schedule\?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;edit_date=' . $date . '#ms');
-		$this->assertResponseRegExp('#/divisions/slots\?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date . '#ms');
-		$this->assertResponseRegExp('#/schedules/delete\?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date . '#ms');
-		$this->assertResponseRegExp('#/schedules/reschedule\?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date . '#ms');
-		$this->assertResponseRegExp('#/schedules/unpublish\?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date . '#ms');
+		$this->assertResponseContains('/divisions/schedule?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;edit_date=' . $date);
+		$this->assertResponseContains('/divisions/slots?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date);
+		$this->assertResponseContains('/schedules/delete?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date);
+		$this->assertResponseContains('/schedules/reschedule?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date);
+		$this->assertResponseContains('/schedules/unpublish?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date);
 
 		// Coordinators don't get to submit scores or do attendance
-		$this->assertResponseNotRegExp('#/games/submit_score#ms');
-		$this->assertResponseNotRegExp('#/games/attendance#ms');
+		$this->assertResponseNotContains('/games/submit_score');
+		$this->assertResponseNotContains('/games/attendance');
 
-		// Coordinators can get schedules from any division, but no edit links, and can't see unpublished games there
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN], PERSON_ID_COORDINATOR);
+		// Coordinators are allowed to see schedules from any division, but no edit links, and can't see unpublished games there
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN], PERSON_ID_COORDINATOR);
 		$game = '<td><a[^>]*href="/games/view\?game=' . GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_1 . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
 		$home = '<td><a[^>]*href="/teams/view\?team=' . TEAM_ID_MAPLES . '"[^>]*>Maples</a> <span[^>]*title="Shirt colour: Green"[^>]*><img src="/img/shirts/green.png\?\d+"[^>]*></span></td>';
 		$away = '<td><a[^>]*href="/teams/view\?team=' . TEAM_ID_OAKS . '"[^>]*>Oaks</a> <span[^>]*title="Shirt colour: Green"[^>]*><img src="/img/shirts/green.png\?\d+"[^>]*></span></td>';
 		$actions = '<td class="actions">not entered\s*<span class="actions"></span></td>';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
-		$this->assertResponseNotRegExp('#/games/edit#ms');
-		$this->assertResponseNotRegExp('#/games/view\?game=' . GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_2 . '#ms');
+		$this->assertResponseNotContains('/games/edit');
+		$this->assertResponseNotContains('/games/view?game=' . GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_2);
 	}
 
 	/**
@@ -1124,10 +862,9 @@ class DivisionsControllerTest extends ControllerTestCase {
 	public function testScheduleAsCaptain() {
 		// Submit and attendance links will depend on the date, so we need to set "today" for this test to be reliable
 		FrozenDate::setTestNow((new FrozenDate('first Monday of June'))->addDays(22));
-		FrozenTime::setTestNow((new FrozenTime('first Monday of June'))->addDays(22));
 
 		// Captains get the schedule with score submission, attendance and game note links where appropriate
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
 
 		$game = '<td><a[^>]*href="/games/view\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
@@ -1136,6 +873,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$actions = '<td class="actions">17 - 5\s*<span class="actions">';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 		$this->assertResponseNotRegExp('#<a href="/games/submit_score\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '[^>0-9]*"#ms');
+		$this->assertResponseNotContains('stats');
 
 		$game = '<td><a[^>]*href="/games/view\?game=' . GAME_ID_LADDER_MATCHED_SCORES . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
@@ -1145,24 +883,24 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 
 		// Captains don't get to edit games or do anything with schedules
-		$this->assertResponseNotRegExp('#/games/edit#ms');
+		$this->assertResponseNotContains('/games/edit');
 		$this->assertResponseNotRegExp('#/divisions/schedule\?division=\d+&amp;edit_date=#ms');
-		$this->assertResponseNotRegExp('#/divisions/slots#ms');
-		$this->assertResponseNotRegExp('#/schedules/delete#ms');
-		$this->assertResponseNotRegExp('#/schedules/reschedule#ms');
-		$this->assertResponseNotRegExp('#/schedules/unpublish#ms');
+		$this->assertResponseNotContains('/divisions/slots');
+		$this->assertResponseNotContains('/schedules/delete');
+		$this->assertResponseNotContains('/schedules/reschedule');
+		$this->assertResponseNotContains('/schedules/unpublish');
 
-		// Captains can get schedules from any division, but no edit or submit links
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN], PERSON_ID_CAPTAIN);
+		// Captains are allowed to see schedules from any division, but no edit or submit links
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN], PERSON_ID_CAPTAIN);
 
 		$game = '<td><a[^>]*href="/games/view\?game=' . GAME_ID_THURSDAY_ROUND_ROBIN . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
 		$home = '<td><a[^>]*href="/teams/view\?team=' . TEAM_ID_CHICKADEES . '"[^>]*>Chickadees</a> <span[^>]*title="Shirt colour: White"[^>]*><img src="/img/shirts/white.png\?\d+"[^>]*></span></td>';
 		$away = '<td><a[^>]*href="/teams/view\?team=' . TEAM_ID_SPARROWS . '"[^>]*>Sparrows</a> <span[^>]*title="Shirt colour: Brown"[^>]*><img src="/img/shirts/brown.png\?\d+"[^>]*></span></td>';
-		$actions = '<td class="actions">15 - 14\s*<span class="actions">';
+		$actions = '<td class="actions">15 - 14\s*<span class="actions"><a href="/games/submit_stats\?game=' . GAME_ID_THURSDAY_ROUND_ROBIN . '&amp;team=' . TEAM_ID_CHICKADEES . '">';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
-		$this->assertResponseNotRegExp('#/games/edit#ms');
-		$this->assertResponseNotRegExp('#/games/submit_score#ms');
+		$this->assertResponseNotContains('/games/edit');
+		$this->assertResponseNotContains('/games/submit_score');
 	}
 
 	/**
@@ -1176,7 +914,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		FrozenTime::setTestNow((new FrozenTime('first Monday of June'))->addDays(22));
 
 		// Players get the schedule with attendance and game note links where appropriate
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
 
 		$game = '<td><a[^>]*href="/games/view\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
@@ -1195,13 +933,14 @@ class DivisionsControllerTest extends ControllerTestCase {
 		// TODO: Check a future game
 
 		// Players don't get to edit games, submit scores or do anything with schedules
-		$this->assertResponseNotRegExp('#/games/edit#ms');
-		$this->assertResponseNotRegExp('#/games/submit_score#ms');
+		$this->assertResponseNotContains('/games/edit');
+		$this->assertResponseNotContains('/games/submit_score');
+		$this->assertResponseNotContains('/games/submit_stats');
 		$this->assertResponseNotRegExp('#/divisions/schedule\?division=\d+&amp;edit_date=#ms');
-		$this->assertResponseNotRegExp('#/divisions/slots#ms');
-		$this->assertResponseNotRegExp('#/schedules/delete#ms');
-		$this->assertResponseNotRegExp('#/schedules/reschedule#ms');
-		$this->assertResponseNotRegExp('#/schedules/unpublish#ms');
+		$this->assertResponseNotContains('/divisions/slots');
+		$this->assertResponseNotContains('/schedules/delete');
+		$this->assertResponseNotContains('/schedules/reschedule');
+		$this->assertResponseNotContains('/schedules/unpublish');
 	}
 
 	/**
@@ -1215,7 +954,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		FrozenTime::setTestNow((new FrozenTime('first Monday of June'))->addDays(22));
 
 		// Visitors get the schedule with minimal links
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
 
 		$game = '<td><a[^>]*href="/games/view\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
@@ -1232,14 +971,14 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 
 		// Visitors don't get to edit games, submit scores, do attendance, or anything with schedules
-		$this->assertResponseNotRegExp('#/games/edit#ms');
-		$this->assertResponseNotRegExp('#/games/submit_score#ms');
-		$this->assertResponseNotRegExp('#/games/attendance#ms');
+		$this->assertResponseNotContains('/games/edit');
+		$this->assertResponseNotContains('/games/submit_score');
+		$this->assertResponseNotContains('/games/attendance');
 		$this->assertResponseNotRegExp('#/divisions/schedule\?division=\d+&amp;edit_date=#ms');
-		$this->assertResponseNotRegExp('#/divisions/slots#ms');
-		$this->assertResponseNotRegExp('#/schedules/delete#ms');
-		$this->assertResponseNotRegExp('#/schedules/reschedule#ms');
-		$this->assertResponseNotRegExp('#/schedules/unpublish#ms');
+		$this->assertResponseNotContains('/divisions/slots');
+		$this->assertResponseNotContains('/schedules/delete');
+		$this->assertResponseNotContains('/schedules/reschedule');
+		$this->assertResponseNotContains('/schedules/unpublish');
 	}
 
 	/**
@@ -1253,7 +992,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		FrozenTime::setTestNow((new FrozenTime('first Monday of June'))->addDays(22));
 
 		// Anonymous browsers get the schedule with minimal links
-		$this->assertAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER]);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER]);
 
 		$game = '<td><a[^>]*href="/games/view\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
@@ -1270,581 +1009,218 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 
 		// Anonymous browsers don't get any actions
-		$this->assertResponseNotRegExp('#/games/edit#ms');
-		$this->assertResponseNotRegExp('#/games/submit_score#ms');
-		$this->assertResponseNotRegExp('#/games/attendance#ms');
+		$this->assertResponseNotContains('/games/edit');
+		$this->assertResponseNotContains('/games/submit_score');
+		$this->assertResponseNotContains('/games/attendance');
 		$this->assertResponseNotRegExp('#/divisions/schedule\?division=\d+&amp;edit_date=#ms');
-		$this->assertResponseNotRegExp('#/divisions/slots#ms');
-		$this->assertResponseNotRegExp('#/schedules/delete#ms');
-		$this->assertResponseNotRegExp('#/schedules/reschedule#ms');
-		$this->assertResponseNotRegExp('#/schedules/unpublish#ms');
+		$this->assertResponseNotContains('/divisions/slots');
+		$this->assertResponseNotContains('/schedules/delete');
+		$this->assertResponseNotContains('/schedules/reschedule');
+		$this->assertResponseNotContains('/schedules/unpublish');
 	}
 
 	/**
-	 * Test standings method as an admin
+	 * Test standings method
 	 *
 	 * @return void
 	 */
-	public function testStandingsAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testStandings() {
+		// Anyone logged in is allowed to view standings
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'standings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'standings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'standings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'standings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'standings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'standings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Divisions', 'action' => 'standings', 'division' => DIVISION_ID_MONDAY_LADDER]);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test standings method as a manager
+	 * Test scores method
 	 *
 	 * @return void
 	 */
-	public function testStandingsAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testScores() {
+		// Anyone logged in is allowed to view scores
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'scores', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'scores', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'scores', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'scores', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'scores', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'scores', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'scores', 'division' => DIVISION_ID_MONDAY_LADDER]);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test standings method as a coordinator
+	 * Test fields method
 	 *
 	 * @return void
 	 */
-	public function testStandingsAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testFields() {
+		// Admins are allowed to view the fields report
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'fields', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
+
+		// Managers are allowed to view the fields report
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'fields', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
+
+		// Coordinators are allowed to view the fields report
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'fields', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
+
+		// Others are not allowed to view the fields report
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'fields', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'fields', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'fields', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'fields', 'division' => DIVISION_ID_MONDAY_LADDER]);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test standings method as a captain
+	 * Test slots method
 	 *
 	 * @return void
 	 */
-	public function testStandingsAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testSlots() {
+		// Admins are allowed to view the slots report
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'slots', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
+
+		// Managers are allowed to view the slots report
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'slots', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
+
+		// Coordinators are allowed to view the slots report
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'slots', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
+
+		// Others are not allowed to view the slots report
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'slots', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'slots', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'slots', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'slots', 'division' => DIVISION_ID_MONDAY_LADDER]);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test standings method as a player
+	 * Test status method
 	 *
 	 * @return void
 	 */
-	public function testStandingsAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testStatus() {
+		// Admins are allowed to view the status report
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'status', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
+
+		// Managers are allowed to view the status report
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'status', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
+
+		// Coordinators are allowed to view the status report
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'status', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
+
+		// Others are not allowed to view the status report
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'status', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'status', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'status', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'status', 'division' => DIVISION_ID_MONDAY_LADDER]);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test standings method as someone else
+	 * Test allstars method
 	 *
 	 * @return void
 	 */
-	public function testStandingsAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testAllstars() {
+		// Admins are allowed to view the allstars report
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'allstars', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
+
+		// Managers are allowed to view the allstars report
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'allstars', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
+
+		// Coordinators are allowed to view the allstars report
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'allstars', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
+
+		// Others are not allowed to view the allstars report
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'allstars', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'allstars', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'allstars', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'allstars', 'division' => DIVISION_ID_MONDAY_LADDER]);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test standings method without being logged in
+	 * Test emails method
 	 *
 	 * @return void
 	 */
-	public function testStandingsAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testEmails() {
+		// Admins are allowed to view emails
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'emails', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
+
+		// Managers are allowed to view emails
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'emails', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
+
+		// Coordinators are allowed to view emails
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'emails', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
+
+		// Others are not allowed to view emails
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'emails', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'emails', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'emails', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'emails', 'division' => DIVISION_ID_MONDAY_LADDER]);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test scores method as an admin
+	 * Test spirit method
 	 *
 	 * @return void
 	 */
-	public function testScoresAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testSpirit() {
+		// Admins are allowed to view the spirit report
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'spirit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
+
+		// Managers are allowed to view the spirit report
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'spirit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
+
+		// Coordinators are allowed to view the spirit report
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'spirit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
+
+		// Others are not allowed to view the spirit report
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'spirit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'spirit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'spirit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'spirit', 'division' => DIVISION_ID_MONDAY_LADDER]);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test scores method as a manager
+	 * Test approve_scores method
 	 *
 	 * @return void
 	 */
-	public function testScoresAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testApproveScores() {
+		// Admins are allowed to approve scores
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
 
-	/**
-	 * Test scores method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testScoresAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Managers are allowed to approve scores
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
 
-	/**
-	 * Test scores method as a captain
-	 *
-	 * @return void
-	 */
-	public function testScoresAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Coordinators are allowed to approve scores
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
 
-	/**
-	 * Test scores method as a player
-	 *
-	 * @return void
-	 */
-	public function testScoresAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Others are not allowed to approve scores
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => DIVISION_ID_MONDAY_LADDER]);
 
-	/**
-	 * Test scores method as someone else
-	 *
-	 * @return void
-	 */
-	public function testScoresAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test scores method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testScoresAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test fields method as an admin
-	 *
-	 * @return void
-	 */
-	public function testFieldsAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test fields method as a manager
-	 *
-	 * @return void
-	 */
-	public function testFieldsAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test fields method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testFieldsAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test fields method as a captain
-	 *
-	 * @return void
-	 */
-	public function testFieldsAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test fields method as a player
-	 *
-	 * @return void
-	 */
-	public function testFieldsAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test fields method as someone else
-	 *
-	 * @return void
-	 */
-	public function testFieldsAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test fields method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testFieldsAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test slots method as an admin
-	 *
-	 * @return void
-	 */
-	public function testSlotsAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test slots method as a manager
-	 *
-	 * @return void
-	 */
-	public function testSlotsAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test slots method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testSlotsAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test slots method as a captain
-	 *
-	 * @return void
-	 */
-	public function testSlotsAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test slots method as a player
-	 *
-	 * @return void
-	 */
-	public function testSlotsAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test slots method as someone else
-	 *
-	 * @return void
-	 */
-	public function testSlotsAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test slots method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testSlotsAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test status method as an admin
-	 *
-	 * @return void
-	 */
-	public function testStatusAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test status method as a manager
-	 *
-	 * @return void
-	 */
-	public function testStatusAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test status method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testStatusAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test status method as a captain
-	 *
-	 * @return void
-	 */
-	public function testStatusAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test status method as a player
-	 *
-	 * @return void
-	 */
-	public function testStatusAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test status method as someone else
-	 *
-	 * @return void
-	 */
-	public function testStatusAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test status method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testStatusAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test allstars method as an admin
-	 *
-	 * @return void
-	 */
-	public function testAllstarsAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test allstars method as a manager
-	 *
-	 * @return void
-	 */
-	public function testAllstarsAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test allstars method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testAllstarsAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test allstars method as a captain
-	 *
-	 * @return void
-	 */
-	public function testAllstarsAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test allstars method as a player
-	 *
-	 * @return void
-	 */
-	public function testAllstarsAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test allstars method as someone else
-	 *
-	 * @return void
-	 */
-	public function testAllstarsAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test allstars method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testAllstarsAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test emails method as an admin
-	 *
-	 * @return void
-	 */
-	public function testEmailsAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test emails method as a manager
-	 *
-	 * @return void
-	 */
-	public function testEmailsAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test emails method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testEmailsAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test emails method as a captain
-	 *
-	 * @return void
-	 */
-	public function testEmailsAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test emails method as a player
-	 *
-	 * @return void
-	 */
-	public function testEmailsAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test emails method as someone else
-	 *
-	 * @return void
-	 */
-	public function testEmailsAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test emails method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testEmailsAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test spirit method as an admin
-	 *
-	 * @return void
-	 */
-	public function testSpiritAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test spirit method as a manager
-	 *
-	 * @return void
-	 */
-	public function testSpiritAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test spirit method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testSpiritAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test spirit method as a captain
-	 *
-	 * @return void
-	 */
-	public function testSpiritAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test spirit method as a player
-	 *
-	 * @return void
-	 */
-	public function testSpiritAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test spirit method as someone else
-	 *
-	 * @return void
-	 */
-	public function testSpiritAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test spirit method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testSpiritAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_scores method as an admin
-	 *
-	 * @return void
-	 */
-	public function testApproveScoresAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_scores method as a manager
-	 *
-	 * @return void
-	 */
-	public function testApproveScoresAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_scores method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testApproveScoresAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_scores method as a captain
-	 *
-	 * @return void
-	 */
-	public function testApproveScoresAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_scores method as a player
-	 *
-	 * @return void
-	 */
-	public function testApproveScoresAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_scores method as someone else
-	 *
-	 * @return void
-	 */
-	public function testApproveScoresAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test approve_scores method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testApproveScoresAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1853,6 +1229,10 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testInitializeRatingsAsAdmin() {
+		// Admins are allowed to initialize ratings
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
+			PERSON_ID_ADMIN, ['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
+			'Team ratings have been initialized.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1862,6 +1242,10 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testInitializeRatingsAsManager() {
+		// Managers are allowed to initialize ratings
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
+			PERSON_ID_MANAGER, ['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
+			'Team ratings have been initialized.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1871,43 +1255,24 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testInitializeRatingsAsCoordinator() {
+		// Coordinators are allowed to initialize ratings
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
+			PERSON_ID_COORDINATOR, ['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
+			'Team ratings have been initialized.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test initialize_ratings method as a captain
+	 * Test initialize_ratings method as others
 	 *
 	 * @return void
 	 */
-	public function testInitializeRatingsAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test initialize_ratings method as a player
-	 *
-	 * @return void
-	 */
-	public function testInitializeRatingsAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test initialize_ratings method as someone else
-	 *
-	 * @return void
-	 */
-	public function testInitializeRatingsAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test initialize_ratings method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testInitializeRatingsAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testInitializeRatingsAsOthers() {
+		// Others are not allowed to initialize ratings
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => DIVISION_ID_MONDAY_LADDER]);
 	}
 
 	/**
@@ -1916,6 +1281,10 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testInitializeDependenciesAsAdmin() {
+		// Admins are allowed to initialize dependencies
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
+			PERSON_ID_ADMIN, ['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
+			'Dependencies have been resolved.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1925,6 +1294,10 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testInitializeDependenciesAsManager() {
+		// Managers are allowed to initialize dependencies
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
+			PERSON_ID_MANAGER, ['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
+			'Dependencies have been resolved.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1934,43 +1307,24 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testInitializeDependenciesAsCoordinator() {
+		// Coordinators are allowed to initialize dependencies
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
+			PERSON_ID_COORDINATOR, ['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
+			'Dependencies have been resolved.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test initialize_dependencies method as a captain
+	 * Test initialize_dependencies method as others
 	 *
 	 * @return void
 	 */
-	public function testInitializeDependenciesAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test initialize_dependencies method as a player
-	 *
-	 * @return void
-	 */
-	public function testInitializeDependenciesAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test initialize_dependencies method as someone else
-	 *
-	 * @return void
-	 */
-	public function testInitializeDependenciesAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test initialize_dependencies method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testInitializeDependenciesAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testInitializeDependenciesAsOthers() {
+		// Others are not allowed to initialize dependencies
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => DIVISION_ID_MONDAY_LADDER]);
 	}
 
 	/**
@@ -1979,6 +1333,13 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDeleteStageAsAdmin() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		// Admins are allowed to delete stages
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => DIVISION_ID_MONDAY_PLAYOFF, 'stage' => 2],
+			PERSON_ID_ADMIN, ['controller' => 'Schedules', 'action' => 'add', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
+			'The pools in this stage have been deleted.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1988,6 +1349,13 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDeleteStageAsManager() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		// Managers are allowed to delete stages
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => DIVISION_ID_MONDAY_PLAYOFF, 'stage' => 2],
+			PERSON_ID_MANAGER, ['controller' => 'Schedules', 'action' => 'add', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
+			'The pools in this stage have been deleted.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1997,169 +1365,71 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDeleteStageAsCoordinator() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		// Coordinators are allowed to delete stages
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => DIVISION_ID_MONDAY_PLAYOFF, 'stage' => 2],
+			PERSON_ID_COORDINATOR, ['controller' => 'Schedules', 'action' => 'add', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
+			'The pools in this stage have been deleted.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test delete_stage method as a captain
+	 * Test delete_stage method as others
 	 *
 	 * @return void
 	 */
-	public function testDeleteStageAsCaptain() {
+	public function testDeleteStageAsOthers() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		// Captains are not allowed to delete stages
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => DIVISION_ID_MONDAY_PLAYOFF, 'stage' => 2], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => DIVISION_ID_MONDAY_PLAYOFF, 'stage' => 2], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => DIVISION_ID_MONDAY_PLAYOFF, 'stage' => 2], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => DIVISION_ID_MONDAY_PLAYOFF, 'stage' => 2]);
+	}
+
+	/**
+	 * Test redirect method
+	 *
+	 * @return void
+	 */
+	public function testRedirect() {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test delete_stage method as a player
+	 * Test select method
 	 *
 	 * @return void
 	 */
-	public function testDeleteStageAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testSelect() {
+		$this->enableCsrfToken();
 
-	/**
-	 * Test delete_stage method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeleteStageAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Admins are allowed to select
+		$now = FrozenDate::now();
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'select', 'affiliate' => AFFILIATE_ID_CLUB],
+			PERSON_ID_ADMIN, ['game_date' => ['year' => $now->year, 'month' => $now->month, 'day' => $now->day], 'sport' => 'ultimate']);
 
-	/**
-	 * Test delete_stage method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeleteStageAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Managers are allowed to select
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'select', 'affiliate' => AFFILIATE_ID_CLUB],
+			PERSON_ID_MANAGER, ['game_date' => ['year' => $now->year, 'month' => $now->month, 'day' => $now->day], 'sport' => 'ultimate']);
 
-	/**
-	 * Test redirect method as an admin
-	 *
-	 * @return void
-	 */
-	public function testRedirectAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Coordinators are allowed to select
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'select', 'affiliate' => AFFILIATE_ID_CLUB],
+			PERSON_ID_COORDINATOR, ['game_date' => ['year' => $now->year, 'month' => $now->month, 'day' => $now->day], 'sport' => 'ultimate']);
 
-	/**
-	 * Test redirect method as a manager
-	 *
-	 * @return void
-	 */
-	public function testRedirectAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test redirect method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testRedirectAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test redirect method as a captain
-	 *
-	 * @return void
-	 */
-	public function testRedirectAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test redirect method as a player
-	 *
-	 * @return void
-	 */
-	public function testRedirectAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test redirect method as someone else
-	 *
-	 * @return void
-	 */
-	public function testRedirectAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test redirect method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testRedirectAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test select method as an admin
-	 *
-	 * @return void
-	 */
-	public function testSelectAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test select method as a manager
-	 *
-	 * @return void
-	 */
-	public function testSelectAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test select method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testSelectAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test select method as a captain
-	 *
-	 * @return void
-	 */
-	public function testSelectAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test select method as a player
-	 *
-	 * @return void
-	 */
-	public function testSelectAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test select method as someone else
-	 *
-	 * @return void
-	 */
-	public function testSelectAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test select method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testSelectAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to select
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'select', 'affiliate' => AFFILIATE_ID_CLUB],
+			PERSON_ID_CAPTAIN, ['game_date' => ['year' => $now->year, 'month' => $now->month, 'day' => $now->day], 'sport' => 'ultimate']);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'select', 'affiliate' => AFFILIATE_ID_CLUB],
+			PERSON_ID_PLAYER, ['game_date' => ['year' => $now->year, 'month' => $now->month, 'day' => $now->day], 'sport' => 'ultimate']);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'select', 'affiliate' => AFFILIATE_ID_CLUB],
+			PERSON_ID_VISITOR, ['game_date' => ['year' => $now->year, 'month' => $now->month, 'day' => $now->day], 'sport' => 'ultimate']);
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'select', 'affiliate' => AFFILIATE_ID_CLUB],
+			['game_date' => ['year' => $now->year, 'month' => $now->month, 'day' => $now->day], 'sport' => 'ultimate']);
 	}
 
 }

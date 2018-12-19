@@ -1,6 +1,5 @@
 <?php
 use App\Controller\AppController;
-use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 
 $this->Html->addCrumb($tournaments ? __('Tournaments') : __('Leagues'));
@@ -43,8 +42,6 @@ else:
 	$affiliate_id = null;
 
 	foreach ($leagues as $league):
-		$is_league_manager = Configure::read('Perm.is_manager') && in_array($league->affiliate_id, $this->UserCache->read('ManagedAffiliateIDs'));
-
 		if ($league->affiliate_id != $affiliate_id):
 			$affiliate_id = $league->affiliate_id;
 			$affiliate_leagues = collection($leagues)->filter(function ($league) use ($affiliate_id) {
@@ -58,11 +55,11 @@ else:
 				$affiliate_days = array_unique($affiliate_leagues->extract('divisions.{*}.days.{*}.name')->toArray());
 ?>
 			<tr class="<?= $this->element('selector_classes', ['title' => 'Sport', 'options' => $affiliate_sports]) ?> <?= $this->element('selector_classes', ['title' => 'Season', 'options' => $affiliate_seasons]) ?> <?= $this->element('selector_classes', ['title' => 'Day', 'options' => $affiliate_days]) ?>">
-				<th<?= Configure::read('Perm.is_admin') ? '' : ' colspan="2"' ?>>
+				<th<?= $this->Authorize->can('edit', $league->affiliate) ? '' : ' colspan="2"' ?>>
 					<h3 class="affiliate"><?= h($league->affiliate->name) ?></h3>
 				</th>
 <?php
-				if (Configure::read('Perm.is_admin')):
+				if ($this->Authorize->can('edit', $league->affiliate)):
 ?>
 				<th class="actions"><?php
 					echo $this->Html->iconLink('edit_24.png',
@@ -115,17 +112,16 @@ else:
 		$collapse = (count($league->divisions) == 1);
 		if ($collapse):
 			$class = 'inner-border';
-			$is_coordinator = in_array($league->divisions[0]->id, $this->UserCache->read('DivisionIDs'));
 		else:
 			$class = '';
 			$division_days = collection($league->divisions)->extract('days.{*}.name')->toList();
 ?>
 			<tr class="<?= $this->element('selector_classes', ['title' => 'Sport', 'options' => $current_sport]) ?> <?= $this->element('selector_classes', ['title' => 'Season', 'options' => $season]) ?> <?= $this->element('selector_classes', ['title' => 'Day', 'options' => $division_days]) ?>">
-				<td<?= (Configure::read('Perm.is_admin') || $is_league_manager) ? '' : ' colspan="2"' ?> class="inner-border">
+				<td<?= $this->Authorize->can('edit', $league) ? '' : ' colspan="2"' ?> class="inner-border">
 					<strong><?= $this->element('Leagues/block', ['league' => $league, 'field' => 'name',  'tournaments' => $tournaments]) ?></strong>
 				</td>
 <?php
-			if (Configure::read('Perm.is_admin') || $is_league_manager):
+			if ($this->Authorize->can('edit', $league)):
 ?>
 				<td class="actions inner-border"><?= $this->element('Leagues/actions', compact('league', 'tournaments')) ?></td>
 <?php
@@ -169,7 +165,8 @@ endif;
 ?>
 </div>
 <?php
-if (Configure::read('Perm.is_logged_in') && !empty($years)):
+$identity = $this->Authorize->getIdentity();
+if (!empty($years) && $identity && $identity->isLoggedIn()):
 ?>
 <div class="actions columns">
 	<ul class="nav nav-pills">

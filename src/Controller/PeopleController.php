@@ -1,23 +1,22 @@
 <?php
 namespace App\Controller;
 
+use App\Authorization\ContextResource;
 use Cake\Cache\Cache;
 use Cake\Core\App;
 use Cake\Core\Configure;
-use Cake\Database\Expression\QueryExpression;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Filesystem\File;
+use Cake\Http\Exception\GoneException;
 use Cake\I18n\FrozenDate;
-use Cake\Network\Exception\GoneException;
-use Cake\Network\Exception\MethodNotAllowedException;
 use Cake\ORM\Entity;
 use Cake\ORM\Query;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Routing\Router;
 use Cake\Utility\Inflector;
-use App\Auth\HasherTrait;
+use App\PasswordHasher\HasherTrait;
 use App\Exception\RuleException;
 use App\Model\Entity\BadgesPerson;
 use App\Model\Entity\Person;
@@ -33,23 +32,21 @@ class PeopleController extends AppController {
 	use HasherTrait;
 
 	/**
-	 * _publicActions method
+	 * _noAuthenticationActions method
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _publicActions() {
-		return ['view', 'tooltip', 'ical',
-			// Relative approvals and removals may come from emailed links; people might not be logged in
-			'approve_relative', 'remove_relative',
-		];
+	protected function _noAuthenticationActions() {
+		// Relative approvals and removals may come from emailed links; people might not be logged in
+		return ['view', 'tooltip', 'approve_relative', 'remove_relative', 'vcf', 'ical'];
 	}
 
 	/**
-	 * _publicJsonActions method
+	 * _noAuthenticationJsonActions method
 	 *
 	 * @return array of JSON actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _publicJsonActions() {
+	protected function _noAuthenticationJsonActions() {
 		return ['view'];
 	}
 
@@ -63,209 +60,13 @@ class PeopleController extends AppController {
 	}
 
 	/**
-	 * isAuthorized method
-	 *
-	 * @return bool true if access allowed
-	 * @throws \Cake\Network\Exception\MethodNotAllowedException if badges are not enabled
-	 */
-	public function isAuthorized() {
-		try {
-			if ($this->request->getParam('action') == 'act_as') {
-				// People can always act as their real id, or as any relative of the current or real user
-				$person = $this->request->getQuery('person');
-				if ($person) {
-					$relatives = $this->UserCache->allActAs();
-					if (array_key_exists($person, $relatives)) {
-						return true;
-					}
-				} else {
-					return true;
-				}
-			}
-
-			if ($this->UserCache->read('Person.status') == 'locked') {
-				return false;
-			}
-
-			if (!Configure::read('feature.badges')) {
-				if (in_array($this->request->getParam('action'), [
-					'nominate',
-					'nominate_badge',
-					'nominate_badge_reason',
-					'approve_badges',
-					'approve_badge',
-					'delete_badge',
-				]))
-				{
-					throw new MethodNotAllowedException('Badges are not enabled on this system.');
-				}
-			}
-
-			if (Configure::read('Perm.is_manager')) {
-				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->getParam('action'), [
-					'index',
-					'list_new',
-					'statistics',
-					'participation',
-					'retention',
-					'rule_search',
-					'league_search',
-					'inactive_search',
-					'approve_badges',
-				]))
-				{
-					// If an affiliate id is specified, check if we're a manager of that affiliate
-					$affiliate = $this->request->getQuery('affiliate');
-					if (!$affiliate) {
-						// If there's no affiliate id, this is a top-level operation that all managers can perform
-						return true;
-					} else if (in_array($affiliate, $this->UserCache->read('ManagedAffiliateIDs'))) {
-						return true;
-					} else {
-						Configure::write('Perm.is_manager', false);
-					}
-				}
-
-				if (in_array($this->request->getParam('action'), [
-					'approve_badge',
-					'delete_badge',
-				]))
-				{
-					// If a badge id is specified, check if we're a manager of that badge's affiliate
-					// This isn't the real badge id, but the id of the badge/person join table
-					$badge = $this->request->getQuery('badge');
-					if ($badge) {
-						if (in_array($this->People->BadgesPeople->affiliate($badge), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-				}
-
-				if (in_array($this->request->getParam('action'), [
-					'approve_document',
-					'edit_document',
-				])) {
-					$document = $this->request->getQuery('document');
-					if ($document) {
-						if (in_array($this->People->Uploads->affiliate($document), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-				}
-
-				if (in_array($this->request->getParam('action'), [
-					'edit',
-					'deactivate',
-					'reactivate',
-					'waivers',
-					'registrations',
-					'credits',
-					'act_as',
-				]))
-				{
-					// If a person id is specified, check if we're a manager of that person's affiliate
-					$person = $this->request->getQuery('person');
-					if ($person) {
-						if (!empty(array_intersect($this->UserCache->read('AffiliateIDs', $person), $this->UserCache->read('ManagedAffiliateIDs')))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-				}
-			}
-
-			// Anyone that's logged in can perform these operations
-			if (in_array($this->request->getParam('action'), [
-				'search',
-				'teams',
-				'photo',
-				'vcf',
-				'note',
-				'delete_note',
-				'nominate',
-				'nominate_badge',
-				'nominate_badge_reason',
-				'confirm',
-			]))
-			{
-				return true;
-			}
-
-			// People can perform these operations on their own account
-			if (in_array($this->request->getParam('action'), [
-				'edit',
-				'deactivate',
-				'reactivate',
-				'preferences',
-				'link_relative',
-				'waivers',
-				'photo_upload',
-				'photo_resize',
-				'document_upload',
-				'registrations',
-				'credits',
-			]))
-			{
-				// If a player id is specified, check if it's the logged-in user, or a relative
-				// If no player id is specified, it's always the logged-in user
-				$person = $this->request->getQuery('person');
-				$relatives = $this->UserCache->read('RelativeIDs');
-				if (!$person || $person == $this->UserCache->currentId() || in_array($person, $relatives)) {
-					return true;
-				}
-			}
-
-			// Parents can perform these operations on their own account
-			if (in_array($this->request->getParam('action'), [
-				'add_relative',
-			]))
-			{
-				if (in_array(GROUP_PARENT, $this->UserCache->read('GroupIDs'))) {
-					return true;
-				}
-			}
-
-			// Anyone can perform these actions on their own documents. Managers can perform them on documents belonging
-			// to their affiliates.
-			if (in_array($this->request->getParam('action'), [
-				'document',
-				'delete_document',
-			]))
-			{
-				$document = $this->request->getQuery('document');
-				if ($document) {
-					$person = $this->People->Uploads->field('person_id', ['id' => $document]);
-					if ($person == $this->UserCache->currentId()) {
-						return true;
-					}
-
-					if (Configure::read('Perm.is_manager')) {
-						if (in_array($this->People->Uploads->affiliate($document), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						}
-					}
-				}
-			}
-		} catch (RecordNotFoundException $ex) {
-		} catch (InvalidPrimaryKeyException $ex) {
-		}
-
-		return false;
-	}
-
-	/**
 	 * Index method
 	 *
 	 * @return void|\Cake\Network\Response
 	 */
 	public function index() {
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->Authorization->authorize($this);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		$this->set(compact('affiliates'));
 		$group_id = $this->request->getQuery('group');
 
@@ -310,7 +111,7 @@ class PeopleController extends AppController {
 					'queryBuilder' => function (Query $q) use ($badge_obj) {
 						return $q->where([
 							'BadgesPeople.approved' => true,
-							'Badges.visibility IN' => $badge_obj->visibility(Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager'), BADGE_VISIBILITY_HIGH),
+							'Badges.visibility IN' => $badge_obj->visibility($this->Authentication->getIdentity(), BADGE_VISIBILITY_HIGH),
 						]);
 					},
 				]]);
@@ -321,7 +122,8 @@ class PeopleController extends AppController {
 	}
 
 	public function statistics() {
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->Authorization->authorize($this);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		$this->set(compact('affiliates'));
 
 		// Get the list of accounts by status
@@ -473,6 +275,7 @@ class PeopleController extends AppController {
 	}
 
 	public function participation() {
+		$this->Authorization->authorize($this);
 		$min = min(
 			TableRegistry::get('Events')->field('open', [], 'open')->year,
 			TableRegistry::get('Leagues')->field('open', [], 'open')->year
@@ -502,6 +305,7 @@ class PeopleController extends AppController {
 	}
 
 	public function retention() {
+		$this->Authorization->authorize($this);
 		$min = min(
 			TableRegistry::get('Events')->field('open', [], 'open'),
 			TableRegistry::get('Leagues')->field('open', [], 'open')
@@ -536,9 +340,7 @@ class PeopleController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->getQuery('person');
 		$user_id = $this->request->getQuery('user');
-
 		if ($user_id) {
 			try {
 				$id = $this->People->field('id', compact('user_id'));
@@ -546,29 +348,25 @@ class PeopleController extends AppController {
 				$this->Flash->info(__('Invalid person.'));
 				return $this->redirect('/');
 			}
-		} else if (!$id) {
-			$id = Configure::read('Perm.my_id');
+		} else {
+			$id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
 		}
 		$person = $this->UserCache->read('Person', $id);
 		if (empty($person)) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect('/');
 		}
-		if (!Configure::read('Perm.is_logged_in') && $person->status == 'inactive') {
-			throw new GoneException();
-		}
+
+		$this->Authorization->authorize($person);
 
 		$person->groups = $this->UserCache->read('Groups', $person->id);
 		$person->skills = collection($this->UserCache->read('Skills', $person->id))->filter(function ($skill) { return $skill->enabled; })->toArray();
 		$person->teams = $this->UserCache->read('Teams', $person->id);
 		$photo = null;
 
-		if (Configure::read('Perm.is_logged_in')) {
-			// Public functions need an extra check for managers
-			if (Configure::read('Perm.is_manager') && empty(array_intersect($this->UserCache->read('AffiliateIDs', $id), $this->UserCache->read('ManagedAffiliateIDs')))) {
-				Configure::write('Perm.is_manager', false);
-			}
+		$identity = $this->Authentication->getIdentity();
 
+		if ($identity && $identity->isLoggedIn()) {
 			$person->relatives = $this->UserCache->read('Relatives', $person->id);
 			$person->related_to = $this->UserCache->read('RelatedTo', $person->id);
 			$person->divisions = $this->UserCache->read('Divisions', $person->id);
@@ -612,7 +410,7 @@ class PeopleController extends AppController {
 			}
 			if (Configure::read('feature.annotations')) {
 				$visibility = [VISIBILITY_PUBLIC];
-				if (Configure::read('Perm.is_admin')) {
+				if ($identity->isManagerOf($person)) {
 					$visibility[] = VISIBILITY_ADMIN;
 				}
 				$person->notes = $this->People->Notes->find()
@@ -620,18 +418,18 @@ class PeopleController extends AppController {
 					->where([
 						'person_id' => $person->id,
 						'OR' => [
-							'Notes.created_person_id' => Configure::read('Perm.my_id'),
+							'Notes.created_person_id' => $this->UserCache->currentId(),
 							'Notes.visibility IN' => $visibility,
 						],
 					])
 					->toArray();
 			}
-			if (Configure::read('feature.tasks') && ($id == Configure::read('Perm.my_id') || Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager'))) {
+			if ($this->Authorization->can($person, 'view_tasks')) {
 				$person->tasks = $this->UserCache->read('Tasks', $person->id);
 			}
 			if (Configure::read('feature.badges')) {
 				$badge_obj = $this->moduleRegistry->load('Badge');
-				$badge_obj->visibility(Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager'));
+				$badge_obj->visibility($identity);
 
 				$person->badges = $this->People->Badges->find()
 					->where([
@@ -648,16 +446,13 @@ class PeopleController extends AppController {
 			}
 		}
 
-		$is_me = ($id == Configure::read('Perm.my_id'));
-		$is_relative = in_array($id, $this->UserCache->read('RelativeIDs'));
-		$person->updateHidden(array_merge($this->_connections($id), compact('is_me', 'is_relative')));
-		$photo_url = $person->photoUrl($photo);
-		$this->set(compact('person', 'photo', 'photo_url', 'is_me', 'is_relative'));
+		$person->updateHidden($identity);
+		$photo_url = $this->Authorization->can($person, 'photo') ? $person->photoUrl($photo) : null;
+		$this->set(compact('person', 'photo', 'photo_url'));
 		$this->set('_serialize', ['person', 'photo_url']);
 	}
 
 	public function tooltip() {
-		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
 		$id = $this->request->getQuery('person');
@@ -666,14 +461,14 @@ class PeopleController extends AppController {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect('/');
 		}
+
+		$this->Authorization->authorize($person);
+
+		$identity = $this->Authentication->getIdentity();
+		$person->updateHidden($identity);
 		$photo = null;
 
-		if (Configure::read('Perm.is_logged_in')) {
-			// Public functions need an extra check for managers
-			if (Configure::read('Perm.is_manager') && empty(array_intersect($this->UserCache->read('AffiliateIDs', $id), $this->UserCache->read('ManagedAffiliateIDs')))) {
-				Configure::write('Perm.is_manager', false);
-			}
-
+		if ($identity && $identity->isLoggedIn()) {
 			if (Configure::read('feature.photos')) {
 				$photo = $this->People->Uploads->find()
 					->where([
@@ -685,7 +480,7 @@ class PeopleController extends AppController {
 			}
 			if (Configure::read('feature.badges')) {
 				$badge_obj = $this->moduleRegistry->load('Badge');
-				$badge_obj->visibility(Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager'), BADGE_VISIBILITY_HIGH);
+				$badge_obj->visibility($identity, BADGE_VISIBILITY_HIGH);
 
 				$person->badges = $this->People->Badges->find()
 					->where([
@@ -702,40 +497,15 @@ class PeopleController extends AppController {
 			}
 		}
 
+		if ($this->Authorization->can($person, 'note')) {
+			$this->People->loadInto($person, ['Notes' => [
+				'queryBuilder' => function (Query $q) {
+					return $q->where(['created_person_id' => $this->UserCache->currentId()]);
+				},
+			]]);
+		}
+
 		$this->set(compact('person', 'photo'));
-		$this->set('is_me', ($id == $this->UserCache->currentId()));
-		$this->set($this->_connections($id));
-	}
-
-	protected function _connections($id) {
-		$connections = [];
-
-		// Pull some lists of team and division IDs for later comparisons
-		$my_team_ids = $this->UserCache->read('TeamIDs');
-		$my_owned_team_ids = $this->UserCache->read('OwnedTeamIDs');
-		$my_owned_division_ids = $this->UserCache->read('DivisionIDs');
-		$my_captain_division_ids = collection($this->UserCache->read('OwnedTeams'))->extract('division_id')->toArray();
-		$their_team_ids = $this->UserCache->read('TeamIDs', $id);
-		$their_owned_team_ids = $this->UserCache->read('OwnedTeamIDs', $id);
-		$their_owned_division_ids = $this->UserCache->read('DivisionIDs', $id);
-		$their_captain_division_ids = collection($this->UserCache->read('OwnedTeams', $id))->extract('division_id')->toArray();
-
-		// Check if the current user is a captain of a team the viewed player is on
-		$connections['is_captain'] = !empty(array_intersect($my_owned_team_ids, $their_team_ids));
-
-		// Check if the current user is on a team the viewed player is a captain of
-		$connections['is_my_captain'] = !empty(array_intersect($my_team_ids, $their_owned_team_ids));
-
-		// Check if the current user is a coordinator of a division the viewed player is a captain in
-		$connections['is_coordinator'] = !empty(array_intersect($my_owned_division_ids, $their_captain_division_ids));
-
-		// Check if the current user is a captain in a division the viewed player is a coordinator of
-		$connections['is_my_coordinator'] = !empty(array_intersect($my_captain_division_ids, $their_owned_division_ids));
-
-		// Check if the current user is a captain in a division the viewed player is a captain in
-		$connections['is_division_captain'] = !empty(array_intersect($my_captain_division_ids, $their_captain_division_ids));
-
-		return $connections;
 	}
 
 	/**
@@ -745,8 +515,6 @@ class PeopleController extends AppController {
 	 */
 	public function edit() {
 		$id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
-		$is_me = ($id === $this->UserCache->currentId());
-		$this->set(compact('id', 'is_me'));
 
 		$this->_loadAddressOptions();
 		// We always want to include players, even if they aren't a valid "create account" group.
@@ -788,14 +556,15 @@ class PeopleController extends AppController {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect('/');
 		}
-		$this->set('upload', Configure::read('feature.photos') && $is_me && empty($person->uploads));
+
+		$this->Authorization->authorize($person);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			$access = [PROFILE_USER_UPDATE, PROFILE_REGISTRATION];
 			// People with incomplete profiles can update any of the fields that
 			// normally only admins can edit, so that they can successfully fill
 			// out all of the profile.
-			if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || !$person->complete) {
+			if ($this->Authentication->getIdentity()->isManagerOf($person) || !$person->complete) {
 				$access[] = PROFILE_ADMIN_UPDATE;
 			}
 
@@ -806,7 +575,7 @@ class PeopleController extends AppController {
 				'user_id' => false,
 				'complete' => false,
 				'modified' => false,
-				'status' => Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager'),
+				'status' => $this->Authentication->getIdentity()->isManagerOf($person),
 				'has_dog' => Configure::read('feature.dog_questions') ? true : false,
 				'twitter_token' => Configure::read('feature.twitter') ? true : false,
 				'twitter_secret' => Configure::read('feature.twitter') ? true : false,
@@ -835,7 +604,8 @@ class PeopleController extends AppController {
 			]);
 
 			if ($this->People->save($person, ['manage_affiliates' => true, 'manage_groups' => true])) {
-				if ($is_me) {
+				$identity = $this->Authentication->getIdentity();
+				if ($identity->isMe($person) || $identity->isRelative($person)) {
 					$this->Flash->success(__('Your profile has been saved.'));
 				} else {
 					$this->Flash->success(__('The person has been saved.'));
@@ -873,6 +643,8 @@ class PeopleController extends AppController {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect('/');
 		}
+
+		$this->Authorization->authorize($person);
 
 		if ($person->status != 'active') {
 			$this->Flash->info(__('Only active profiles can be deactivated.'));
@@ -917,6 +689,8 @@ class PeopleController extends AppController {
 			return $this->redirect('/');
 		}
 
+		$this->Authorization->authorize($person);
+
 		if ($person->status != 'inactive') {
 			$this->Flash->info(__('Only inactive profiles can be reactivated.'));
 			return $this->redirect('/');
@@ -936,10 +710,10 @@ class PeopleController extends AppController {
 	}
 
 	public function confirm() {
-		$this->viewBuilder()->className('Ajax.Ajax');
+		$this->Authorization->authorize($this);
 		$this->request->allowMethod('ajax');
 
-		$person = $this->People->get($this->UserCache->currentId());
+		$person = $this->Authentication->getIdentity()->getOriginalData()->person;
 		$this->People->touch($person);
 		if ($this->People->save($person)) {
 			$this->Flash->success(__("Profile details have been confirmed, thank you.\nYou will be reminded about this again periodically."));
@@ -959,11 +733,7 @@ class PeopleController extends AppController {
 					'contain' => ['People'],
 				]);
 
-				// Check that this user is allowed to edit this note
-				if ($note->created_person_id != Configure::read('Perm.my_id')) {
-					$this->Flash->warning(__('You are not allowed to edit that note.'));
-					return $this->redirect(['action' => 'view', 'person' => $note->person->id]);
-				}
+				$this->Authorization->authorize($note, 'edit_person');
 			} catch (RecordNotFoundException $ex) {
 				$this->Flash->info(__('Invalid note.'));
 				return $this->redirect('/');
@@ -985,6 +755,8 @@ class PeopleController extends AppController {
 			$note = $this->People->Notes->newEntity();
 			$note->person_id = $person->id;
 		}
+
+		$this->Authorization->authorize($person);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			$note = $this->People->Notes->patchEntity($note, $this->request->data);
@@ -1029,17 +801,16 @@ class PeopleController extends AppController {
 			return $this->redirect('/');
 		}
 
-		if ($note->created_person_id == Configure::read('Perm.my_id') || (Configure::read('Perm.is_admin') && $note->visibility == VISIBILITY_ADMIN)) {
-			if ($this->People->Notes->delete($note)) {
-				$this->Flash->success(__('The note has been deleted.'));
-			} else if ($note->errors('delete')) {
-				$this->Flash->warning(current($note->errors('delete')));
-			} else {
-				$this->Flash->warning(__('The note could not be deleted. Please, try again.'));
-			}
+		$this->Authorization->authorize($note, 'delete_person');
+
+		if ($this->People->Notes->delete($note)) {
+			$this->Flash->success(__('The note has been deleted.'));
+		} else if ($note->errors('delete')) {
+			$this->Flash->warning(current($note->errors('delete')));
 		} else {
-			$this->Flash->warning(__('You are not allowed to delete that note.'));
+			$this->Flash->warning(__('The note could not be deleted. Please, try again.'));
 		}
+
 		return $this->redirect(['action' => 'view', 'person' => $note->person_id]);
 	}
 
@@ -1050,6 +821,8 @@ class PeopleController extends AppController {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect('/');
 		}
+
+		$this->Authorization->authorize($person);
 
 		$settings = $this->People->Settings->find()
 			->where(['person_id' => $id])
@@ -1084,6 +857,7 @@ class PeopleController extends AppController {
 	}
 
 	public function add_relative() {
+		$this->Authorization->authorize($this);
 		$this->_loadAffiliateOptions();
 		$person = $this->People->newEntity();
 
@@ -1133,10 +907,7 @@ class PeopleController extends AppController {
 	}
 
 	public function link_relative() {
-		$person_id = $this->request->getQuery('person');
-		if (!$person_id) {
-			$person_id = $this->UserCache->currentId();
-		}
+		$person_id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
 		try {
 			$person = $this->People->get($person_id);
 		} catch (RecordNotFoundException $ex) {
@@ -1146,6 +917,8 @@ class PeopleController extends AppController {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect('/');
 		}
+
+		$this->Authorization->authorize($person);
 		$this->set(compact('person'));
 
 		$relative_id = $this->request->getQuery('relative');
@@ -1210,31 +983,8 @@ class PeopleController extends AppController {
 		}
 
 		$relation = collection($this->UserCache->read('RelatedTo', $person_id))->firstMatch(['_joinData.approved' => false, '_joinData.person_id' => $relative_id]);
-		if (!$relation) {
-			$this->Flash->info(__('This person does not have an outstanding relative request for you.'));
-			return $this->redirect(['action' => 'view', 'person' => $person_id]);
-		}
 
-		// We must do other permission checks here, because we allow non-logged-in users to approve
-		// through email links
-		$code = $this->request->getQuery('code');
-		if ($code) {
-			// Authenticate the hash code
-			if (!$this->_checkHash([$relation->_joinData->id, $relation->_joinData->person_id, $relation->_joinData->relative_id, $relation->_joinData->created], $code)) {
-				$this->Flash->warning(__('The authorization code is invalid.'));
-				return $this->redirect(['action' => 'view', 'person' => $person_id]);
-			}
-		} else {
-			// Public functions need an extra check for managers
-			if (Configure::read('Perm.is_manager') && empty(array_intersect($this->UserCache->read('AffiliateIDs', $person_id), $this->UserCache->read('ManagedAffiliateIDs')))) {
-				Configure::write('Perm.is_manager', false);
-			}
-
-			if (!Configure::read('Perm.is_admin') && !Configure::read('Perm.is_manager') && $person_id != $this->UserCache->currentId()) {
-				$this->Flash->warning(__('You are not allowed to approve this relative request.'));
-				return $this->redirect(['action' => 'view', 'person' => $person_id]);
-			}
-		}
+		$this->Authorization->authorize(new ContextResource($this->UserCache->read('Person', $person_id), ['relation' => $relation, 'code' => $this->request->getQuery('code')]));
 
 		$relation->_joinData->approved = true;
 		$people_people_table = TableRegistry::get('PeoplePeople');
@@ -1270,44 +1020,17 @@ class PeopleController extends AppController {
 			return $this->redirect(['action' => 'view', 'person' => $person_id]);
 		}
 
-		// TODOLATER: Put this check after the permissions check, so as not to leak any information
-		// about who is related to whom, but in such a way that the $relative references don't break
-		// things. When we do that, testRemoveRelativeAsOther will need to be updated to look for a
-		// redirect to / instead of person view page.
-		$relative = collection($this->UserCache->read('RelatedTo', $person_id))->firstMatch(['_joinData.person_id' => $relative_id]);
+		$relation = collection($this->UserCache->read('RelatedTo', $person_id))->firstMatch(['_joinData.person_id' => $relative_id]);
 		if (empty($relation)) {
-			$relative = collection($this->UserCache->read('Relatives', $person_id))->firstMatch(['_joinData.relative_id' => $relative_id]);
-			if (empty($relative)) {
-				$this->Flash->info(__('This person is already not related to you.'));
-				return $this->redirect(['action' => 'view', 'person' => $person_id]);
-			}
-		}
-
-		// We must do other permission checks here, because we allow non-logged-in users to remove
-		// through email links
-		$code = $this->request->getQuery('code');
-		if ($code) {
-			// Authenticate the hash code
-			if (!$this->_checkHash([$relative->_joinData->id, $relative->_joinData->person_id, $relative->_joinData->relative_id, $relative->_joinData->created], $code)) {
-				$this->Flash->warning(__('The authorization code is invalid.'));
-				return $this->redirect(['action' => 'view', 'person' => $person_id]);
-			}
-		} else {
-			// Public functions need an extra check for managers
-			if (Configure::read('Perm.is_manager') && empty(array_intersect($this->UserCache->read('AffiliateIDs', $person_id), $this->UserCache->read('ManagedAffiliateIDs')))) {
-				Configure::write('Perm.is_manager', false);
-			}
-
-			if (!Configure::read('Perm.is_admin') && !Configure::read('Perm.is_manager') && $person_id != $this->UserCache->currentId() && $relative_id != $this->UserCache->currentId()) {
-				$this->Flash->warning(__('You do not have permission to access that page.'));
-				return $this->redirect(['action' => 'view', 'person' => $person_id]);
-			}
+			$relation = collection($this->UserCache->read('Relatives', $person_id))->firstMatch(['_joinData.relative_id' => $relative_id]);
 		}
 
 		$person = $this->UserCache->read('Person', $person_id);
-		$relative = $this->UserCache->read('Person', $relative_id);
+		$this->Authorization->authorize(new ContextResource($person, ['relation' => $relation, 'code' => $this->request->getQuery('code')]));
+
 		// TODOLATER: Check for unlink return value, if they change it so it returns success
 		// https://github.com/cakephp/cakephp/issues/8196
+		$relative = $this->UserCache->read('Person', $relative_id);
 		$this->People->Relatives->unlink($person, [$relative]);
 		$this->Flash->success(__('Removed the relation.'));
 
@@ -1442,10 +1165,6 @@ class PeopleController extends AppController {
 	}
 
 	public function photo() {
-		if (!Configure::read('feature.photos')) {
-			return;
-		}
-
 		$photo = $this->People->Uploads->find()
 			->where([
 				'person_id' => $this->request->getQuery('person'),
@@ -1459,10 +1178,6 @@ class PeopleController extends AppController {
 	}
 
 	public function photo_upload() {
-		if (!Configure::read('feature.photos')) {
-			throw new MethodNotAllowedException('Uploading of photos is not enabled on this system.');
-		}
-
 		// We don't want the Upload behavior here: we're getting an image from the
 		// cropping plugin in the browser, not from the standard form upload method.
 		if ($this->People->Uploads->hasBehavior('Upload')) {
@@ -1471,7 +1186,7 @@ class PeopleController extends AppController {
 
 		$temp_dir = Configure::read('App.paths.files') . DS . 'temp';
 		if (!is_dir($temp_dir) || !is_writable($temp_dir)) {
-			if (Configure::read('Perm.is_admin')) {
+			if ($this->Authentication->getIdentity()->isManager()) {
 				$this->Flash->warning(__('Your temp folder {0} does not exist or is not writable.', $temp_dir));
 			} else {
 				$this->Flash->warning(__('This system does not appear to be properly configured for photo uploads. Please contact your administrator to have them correct this.'));
@@ -1480,7 +1195,7 @@ class PeopleController extends AppController {
 		}
 		$file_dir = Configure::read('App.paths.uploads');
 		if (!is_dir($file_dir) || !is_writable($file_dir)) {
-			if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+			if ($this->Authentication->getIdentity()->isManager()) {
 				$this->Flash->warning(__('Your uploads folder {0} does not exist or is not writable.', $file_dir));
 			} else {
 				$this->Flash->warning(__('This system does not appear to be properly configured for photo uploads. Please contact your administrator to have them correct this.'));
@@ -1537,9 +1252,7 @@ class PeopleController extends AppController {
 	}
 
 	public function approve_photos() {
-		if (!Configure::read('feature.photos')) {
-			throw new MethodNotAllowedException('Uploading of photos is not enabled on this system.');
-		}
+		$this->Authorization->authorize($this);
 
 		if (!Configure::read('feature.approve_photos')) {
 			$this->Flash->info(__('Approval of photos is not required on this site.'));
@@ -1560,11 +1273,6 @@ class PeopleController extends AppController {
 	}
 
 	public function approve_photo() {
-		if (!Configure::read('feature.photos')) {
-			throw new MethodNotAllowedException('Uploading of photos is not enabled on this system.');
-		}
-
-		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
 		$id = $this->request->getQuery('person');
@@ -1583,6 +1291,8 @@ class PeopleController extends AppController {
 			$this->Flash->info(__('Invalid photo.'));
 			return $this->redirect(['action' => 'approve_photos']);
 		}
+
+		$this->Authorization->authorize($photo->person);
 
 		$photo->approved = true;
 
@@ -1604,11 +1314,6 @@ class PeopleController extends AppController {
 	}
 
 	public function delete_photo() {
-		if (!Configure::read('feature.photos')) {
-			throw new MethodNotAllowedException('Uploading of photos is not enabled on this system.');
-		}
-
-		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
 		$id = $this->request->getQuery('person');
@@ -1628,6 +1333,8 @@ class PeopleController extends AppController {
 			return $this->redirect(['action' => 'approve_photos']);
 		}
 
+		$this->Authorization->authorize($photo->person);
+
 		if ($this->People->Uploads->delete($photo)) {
 			if (!$this->_sendMail([
 				'to' => $photo->person,
@@ -1642,10 +1349,6 @@ class PeopleController extends AppController {
 	}
 
 	public function document() {
-		if (!Configure::read('feature.documents')) {
-			throw new MethodNotAllowedException('Document management is not enabled on this system.');
-		}
-
 		try {
 			$document = $this->People->Uploads->get($this->request->getQuery('document'), [
 				'contain' => ['People', 'UploadTypes']
@@ -1658,6 +1361,8 @@ class PeopleController extends AppController {
 			return $this->redirect('/');
 		}
 
+		$this->Authorization->authorize($document);
+
 		$this->response->type(Configure::read('new_mime_types'));
 		$f = new File($document->filename);
 		$this->response->file(Configure::read('App.paths.uploads') . DS . $document->filename, [
@@ -1668,13 +1373,9 @@ class PeopleController extends AppController {
 	}
 
 	public function document_upload() {
-		if (!Configure::read('feature.documents')) {
-			throw new MethodNotAllowedException('Document management is not enabled on this system.');
-		}
-
 		$file_dir = Configure::read('App.paths.uploads');
 		if (!is_dir($file_dir) || !is_writable($file_dir)) {
-			if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+			if ($this->Authentication->getIdentity()->isManager()) {
 				$this->Flash->warning(__('Your uploads folder {0} does not exist or is not writable.', $file_dir));
 			} else {
 				$this->Flash->warning(__('This system does not appear to be properly configured for document uploads. Please contact your administrator to have them correct this.'));
@@ -1697,7 +1398,8 @@ class PeopleController extends AppController {
 			$person = $this->UserCache->read('Person');
 		}
 
-		$affiliates = $this->_applicableAffiliateIDs();
+		$this->Authorization->authorize($person);
+		$affiliates = $this->Authentication->applicableAffiliateIDs();
 		$types = $this->People->Uploads->UploadTypes->find()
 			->contain(['Affiliates'])
 			->where(['UploadTypes.affiliate_id IN' => $affiliates])
@@ -1743,10 +1445,7 @@ class PeopleController extends AppController {
 	}
 
 	public function approve_documents() {
-		if (!Configure::read('feature.documents')) {
-			throw new MethodNotAllowedException('Document management is not enabled on this system.');
-		}
-
+		$this->Authorization->authorize($this);
 		$documents = $this->People->Uploads->find()
 				->contain(['People', 'UploadTypes'])
 				->where([
@@ -1762,10 +1461,6 @@ class PeopleController extends AppController {
 	}
 
 	public function approve_document() {
-		if (!Configure::read('feature.documents')) {
-			throw new MethodNotAllowedException('Document management is not enabled on this system.');
-		}
-
 		try {
 			$document = $this->People->Uploads->get($this->request->getQuery('document'), [
 				'contain' => ['People' => [Configure::read('Security.authModel')], 'UploadTypes']
@@ -1777,6 +1472,8 @@ class PeopleController extends AppController {
 			$this->Flash->info(__('Invalid document.'));
 			return $this->redirect('/');
 		}
+
+		$this->Authorization->authorize($document);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			$document = $this->People->Uploads->patchEntity($document, $this->request->data);
@@ -1805,10 +1502,6 @@ class PeopleController extends AppController {
 	}
 
 	public function edit_document() {
-		if (!Configure::read('feature.documents')) {
-			throw new MethodNotAllowedException('Document management is not enabled on this system.');
-		}
-
 		try {
 			$document = $this->People->Uploads->get($this->request->getQuery('document'), [
 				'contain' => ['People' => [Configure::read('Security.authModel')], 'UploadTypes']
@@ -1820,6 +1513,8 @@ class PeopleController extends AppController {
 			$this->Flash->info(__('Invalid document.'));
 			return $this->redirect('/');
 		}
+
+		$this->Authorization->authorize($document);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			$document = $this->People->Uploads->patchEntity($document, $this->request->data);
@@ -1850,11 +1545,6 @@ class PeopleController extends AppController {
 	}
 
 	public function delete_document() {
-		if (!Configure::read('feature.documents')) {
-			throw new MethodNotAllowedException('Document management is not enabled on this system.');
-		}
-
-		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
 		try {
@@ -1868,6 +1558,8 @@ class PeopleController extends AppController {
 			$this->Flash->info(__('Invalid document.'));
 			return $this->redirect('/');
 		}
+
+		$this->Authorization->authorize($document);
 
 		if (!$this->People->Uploads->delete($document)) {
 			$this->Flash->warning(__('The document could not be deleted. Please, try again.'));
@@ -1891,9 +1583,7 @@ class PeopleController extends AppController {
 	}
 
 	public function nominate() {
-		if (!Configure::read('feature.badges')) {
-			throw new MethodNotAllowedException('Badges are not enabled on this system.');
-		}
+		$this->Authorization->authorize($this);
 
 		if ($this->request->is('post')) {
 			if (empty($this->request->data['badge'])) {
@@ -1903,14 +1593,14 @@ class PeopleController extends AppController {
 			}
 		}
 
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		$this->set(compact('affiliates'));
 
 		$conditions = [
 			'Badges.active' => true,
 			'Badges.affiliate_id IN' => $affiliates,
 		];
-		if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+		if ($this->Authentication->getIdentity()->isManager()) {
 			$conditions['Badges.category IN'] = ['nominated', 'assigned'];
 		} else {
 			$conditions['Badges.category'] = 'nominated';
@@ -1942,10 +1632,6 @@ class PeopleController extends AppController {
 	}
 
 	public function nominate_badge() {
-		if (!Configure::read('feature.badges')) {
-			throw new MethodNotAllowedException('Badges are not enabled on this system.');
-		}
-
 		$badge_id = $this->request->getQuery('badge');
 		if (!$badge_id) {
 			$this->Flash->info(__('Invalid badge.'));
@@ -1964,32 +1650,18 @@ class PeopleController extends AppController {
 			return $this->redirect(['controller' => 'Badges', 'action' => 'index']);
 		}
 
-		if (!$badge->active) {
-			$this->Flash->info(__('Inactive badge.'));
-			return $this->redirect(['controller' => 'Badges', 'action' => 'index']);
-		}
-		if ($badge->visibility == BADGE_VISIBILITY_ADMIN && !(Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager'))) {
-			$this->Flash->info(__('Invalid badge.'));
-			return $this->redirect(['controller' => 'Badges', 'action' => 'index']);
-		}
-		if ($badge->category != 'nominated' && ($badge->category != 'assigned' || !(Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')))) {
-			$this->Flash->info(__('This badge must be earned, not granted.'));
-			return $this->redirect(['controller' => 'Badges', 'action' => 'index']);
-		}
-		$this->set(compact('badge'));
+		$this->Authorization->authorize($badge);
 		$this->Configuration->loadAffiliate($badge->affiliate_id);
 
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->set(compact('badge'));
+
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		$this->set(compact('affiliates'));
 
 		$this->_handlePersonSearch(['badge']);
 	}
 
 	public function nominate_badge_reason() {
-		if (!Configure::read('feature.badges')) {
-			throw new MethodNotAllowedException('Badges are not enabled on this system.');
-		}
-
 		$badge_id = $this->request->getQuery('badge');
 		if (!$badge_id) {
 			$this->Flash->info(__('Invalid badge.'));
@@ -2020,18 +1692,8 @@ class PeopleController extends AppController {
 			return $this->redirect(['controller' => 'Badges', 'action' => 'index']);
 		}
 
-		if (!$badge->active) {
-			$this->Flash->info(__('Inactive badge.'));
-			return $this->redirect(['controller' => 'Badges', 'action' => 'index']);
-		}
-		if ($badge->visibility == BADGE_VISIBILITY_ADMIN && !(Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager'))) {
-			$this->Flash->info(__('Invalid badge.'));
-			return $this->redirect(['controller' => 'Badges', 'action' => 'index']);
-		}
-		if ($badge->category != 'nominated' && ($badge->category != 'assigned' || !(Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')))) {
-			$this->Flash->info(__('This badge must be earned, not granted.'));
-			return $this->redirect(['controller' => 'Badges', 'action' => 'index']);
-		}
+		$this->Authorization->authorize($badge, 'nominate_badge');
+
 		if (!empty($badge->people)) {
 			if ($badge->active) {
 				// TODO: Allow multiple copies of the badge?
@@ -2059,7 +1721,7 @@ class PeopleController extends AppController {
 		}
 
 		$this->Configuration->loadAffiliate($badge->affiliate_id);
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		$this->set(compact('badge', 'person', 'affiliates'));
 
 		if ($this->request->is('post')) {
@@ -2107,11 +1769,8 @@ class PeopleController extends AppController {
 	}
 
 	public function approve_badges() {
-		if (!Configure::read('feature.badges')) {
-			throw new MethodNotAllowedException('Badges are not enabled on this system.');
-		}
-
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->Authorization->authorize($this);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		$this->set(compact('affiliates'));
 
 		$badges = $this->People->Badges->find()
@@ -2129,11 +1788,6 @@ class PeopleController extends AppController {
 	}
 
 	public function approve_badge() {
-		if (!Configure::read('feature.badges')) {
-			throw new MethodNotAllowedException('Badges are not enabled on this system.');
-		}
-
-		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
 		$id = $this->request->getQuery('badge');
@@ -2153,6 +1807,8 @@ class PeopleController extends AppController {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['action' => 'approve_badges']);
 		}
+
+		$this->Authorization->authorize($link->badge);
 
 		$link = $badges_table->patchEntity($link, [
 			'approved' => true,
@@ -2192,11 +1848,6 @@ class PeopleController extends AppController {
 	}
 
 	public function delete_badge() {
-		if (!Configure::read('feature.badges')) {
-			throw new MethodNotAllowedException('Badges are not enabled on this system.');
-		}
-
-		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
 		$id = $this->request->getQuery('badge');
@@ -2216,6 +1867,8 @@ class PeopleController extends AppController {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['action' => 'approve_badges']);
 		}
+
+		$this->Authorization->authorize($link->badge, 'approve_badge');
 
 		if (!$badges_table->delete($link)) {
 			$this->Flash->warning(__('The badge could not be deleted. Please, try again.'));
@@ -2260,12 +1913,6 @@ class PeopleController extends AppController {
 		$this->request->allowMethod(['post', 'delete']);
 
 		$id = $this->request->getQuery('person');
-		$dependencies = $this->People->dependencies($id, ['Affiliates', 'Groups', 'Relatives', 'Related', 'Skills', 'Settings', 'Subscriptions']);
-		if ($dependencies !== false) {
-			$this->Flash->warning(__('The following records reference this person, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
-			return $this->redirect('/');
-		}
-
 		try {
 			$person = $this->People->get($id, [
 				'contain' => [Configure::read('Security.authModel')]
@@ -2275,6 +1922,14 @@ class PeopleController extends AppController {
 			return $this->redirect('/');
 		} catch (InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid person.'));
+			return $this->redirect('/');
+		}
+
+		$this->Authorization->authorize($person);
+
+		$dependencies = $this->People->dependencies($id, ['Affiliates', 'Groups', 'Relatives', 'Related', 'Skills', 'Settings', 'Subscriptions']);
+		if ($dependencies !== false) {
+			$this->Flash->warning(__('The following records reference this person, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
 			return $this->redirect('/');
 		}
 
@@ -2289,25 +1944,258 @@ class PeopleController extends AppController {
 		return $this->redirect('/');
 	}
 
+	public function splash() {
+		$this->Authorization->authorize($this);
+
+		// TODO: These references to locked should use authorization instead
+		if ($this->UserCache->read('Person.status') != 'locked') {
+			$relatives = collection($this->UserCache->read('Relatives'))->match(['_joinData.approved' => 1])->toList();
+		} else {
+			$relatives = [];
+		}
+
+		if (Configure::read('feature.affiliates') && $this->UserCache->read('Person.status') != 'locked') {
+			$affiliates_table = TableRegistry::get('Affiliates');
+			$affiliates = $affiliates_table->find('active')->indexBy('id')->toArray();
+			if ($this->Authorization->can(current($affiliates), 'add_manager')) {
+				$unmanaged = $affiliates_table->find('active')
+					->contain([
+						'People' => [
+							'queryBuilder' => function (Query $q) {
+								return $q->where(['AffiliatesPeople.position' => 'manager']);
+							},
+						],
+					])
+					->toArray();
+				foreach ($unmanaged as $key => $affiliate) {
+					if (!empty($affiliate->people)) {
+						unset($unmanaged[$key]);
+					} else {
+						unset($unmanaged[$key]->people);
+					}
+				}
+			}
+		} else {
+			$affiliates = [];
+		}
+
+		$applicable_affiliates = $this->Authentication->applicableAffiliateIDs();
+
+		$this->set(compact('relatives', 'affiliates', 'unmanaged', 'applicable_affiliates'));
+	}
+
+	public function schedule() {
+		$this->request->allowMethod('ajax');
+
+		$id = $this->request->getQuery('person');
+		if (!$id) {
+			$id = $this->UserCache->currentId();
+		}
+		$person = $this->UserCache->read('Person', $id);
+		$this->Authorization->authorize($person);
+
+		$teams = $this->UserCache->read('Teams', $id);
+		$team_ids = $this->UserCache->read('TeamIDs', $id);
+		$items = $this->_schedule([$id], $team_ids);
+
+		$this->set(compact('id', 'items', 'teams', 'team_ids'));
+	}
+
+	private function _schedule($people, $team_ids) {
+		if (!empty($team_ids)) {
+			$limit = max(4, ceil(count(array_unique($team_ids)) * 1.5));
+			$games_table = TableRegistry::get('Games');
+			$past = $games_table->find('schedule', ['teams' => $team_ids])
+				->find('withAttendance', compact('people'))
+				->contain([
+					'Divisions' => ['Days', 'Leagues'],
+					'ScoreEntries' => [
+						'queryBuilder' => function (Query $q) use ($team_ids) {
+							return $q->where(['ScoreEntries.team_id IN' => $team_ids]);
+						}
+					],
+				])
+				->where([
+					'Games.published' => true,
+					'GameSlots.game_date <' => FrozenDate::now(),
+					'GameSlots.game_date >=' => FrozenDate::now()->subWeeks(2),
+				])
+				->order(['GameSlots.game_date DESC', 'GameSlots.game_start DESC'])
+				->limit($limit)
+				->toArray();
+			$past = array_reverse($past);
+
+			$future = $games_table->find('schedule', ['teams' => $team_ids])
+				->find('withAttendance', compact('people'))
+				->contain([
+					'Divisions' => ['Days', 'Leagues'],
+				])
+				->where([
+					'Games.published' => true,
+					'GameSlots.game_date >=' => FrozenDate::now(),
+					'GameSlots.game_date <' => FrozenDate::now()->addWeeks(2),
+				])
+				->order(['GameSlots.game_date', 'GameSlots.game_start'])
+				->limit($limit)
+				->toArray();
+
+			// Check if we need to update attendance records for any upcoming games
+			$reread = false;
+			foreach (array_merge($past, $future) as $game) {
+				// TODO: This test won't actually be sufficient in the case where a relative has their attendance record,
+				// but this person was just added to the team. Ideal solution will eliminate all this crud and the reread
+				// block below too. And all the same for the team events further down.
+				if (empty($game->attendances)) {
+					if (!empty($game->home_team->id) && $game->home_team->track_attendance && in_array($game->home_team->id, $team_ids)) {
+						$games_table->readAttendance($game->home_team->id, collection($game->division->days)->extract('id')->toArray(), $game->id);
+						$reread = true;
+					}
+					if (!empty($game->away_team->id) && $game->away_team->track_attendance && in_array($game->away_team->id, $team_ids)) {
+						$games_table->readAttendance($game->away_team->id, collection($game->division->days)->extract('id')->toArray(), $game->id);
+						$reread = true;
+					}
+				}
+			}
+
+			if ($reread) {
+				$past = $games_table->find('schedule', ['teams' => $team_ids])
+					->find('withAttendance', compact('people'))
+					->contain([
+						'Divisions' => ['Days', 'Leagues'],
+					])
+					->where([
+						'Games.published' => true,
+						'GameSlots.game_date <' => FrozenDate::now(),
+						'GameSlots.game_date >=' => FrozenDate::now()->subWeeks(2),
+					])
+					->order(['GameSlots.game_date DESC', 'GameSlots.game_start DESC'])
+					->limit($limit)
+					->toArray();
+				$past = array_reverse($past);
+
+				$future = $games_table->find('schedule', ['teams' => $team_ids])
+					->find('withAttendance', compact('people'))
+					->contain([
+						'Divisions' => ['Days', 'Leagues'],
+					])
+					->where([
+						'Games.published' => true,
+						'GameSlots.game_date >=' => FrozenDate::now(),
+						'GameSlots.game_date <' => FrozenDate::now()->addWeeks(2),
+					])
+					->order(['GameSlots.game_date', 'GameSlots.game_start'])
+					->limit($limit)
+					->toArray();
+			}
+
+			$items = array_merge($past, $future);
+
+			$events_table = TableRegistry::get('TeamEvents');
+			$past = $events_table->find('schedule', ['teams' => $team_ids])
+				->where([
+					'TeamEvents.date <' => FrozenDate::now(),
+					'TeamEvents.date >=' => FrozenDate::now()->subWeeks(2),
+				])
+				->order(['TeamEvents.date DESC', 'TeamEvents.start DESC'])
+				->limit($limit)
+				->toArray();
+			$past = array_reverse($past);
+
+			$future = $events_table->find('schedule', ['teams' => $team_ids])
+				->find('withAttendance', compact('people'))
+				->where([
+					'TeamEvents.date >=' => FrozenDate::now(),
+					'TeamEvents.date <' => FrozenDate::now()->addWeeks(2),
+				])
+				->order(['TeamEvents.date', 'TeamEvents.start'])
+				->limit($limit)
+				->toArray();
+
+			// Check if we need to update attendance records for any upcoming events
+			$reread = false;
+			foreach ($future as $team_event) {
+				if ($team_event->team->track_attendance && empty($team_event->attendances)) {
+					$events_table->readAttendance($team_event->team_id, $team_event->id);
+					$reread = true;
+				}
+			}
+
+			if ($reread) {
+				$future = $events_table->find('schedule', ['teams' => $team_ids])
+					->find('withAttendance', compact('people'))
+					->where([
+						'TeamEvents.date >=' => FrozenDate::now(),
+						'TeamEvents.date <' => FrozenDate::now()->addWeeks(2),
+					])
+					->order(['TeamEvents.date', 'TeamEvents.start'])
+					->limit($limit)
+					->toArray();
+			}
+
+			$items = array_merge($items, $past, $future);
+		} else {
+			$items = [];
+		}
+
+		if (Configure::read('feature.tasks')) {
+			foreach ($people as $id) {
+				$tasks = $this->UserCache->read('Tasks', $id);
+				if (!empty($tasks)) {
+					$items = array_merge($items, $tasks);
+				}
+			}
+		}
+
+		usort($items, ['App\Model\Table\GamesTable', 'compareDateAndField']);
+		return $items;
+	}
+
+	public function consolidated_schedule() {
+		$this->Authorization->authorize($this);
+		$this->request->allowMethod('ajax');
+
+		// We need to read attendance for all relatives, as shared games might not
+		// be on everyone's list, but we still want to accurately show attendance
+		if ($this->UserCache->read('Person.status') != 'locked') {
+			$people = $this->UserCache->read('RelativeIDs');
+			$relatives = collection($this->UserCache->read('Relatives'))->match(['_joinData.approved' => 1])->toList();
+		} else {
+			$people = $relatives = [];
+		}
+
+		$id = $this->UserCache->currentId();
+		array_unshift($people, $id);
+
+		$teams = [];
+		foreach ($people as $person_id) {
+			$teams = array_merge($teams, $this->UserCache->read('Teams', $person_id));
+		}
+		$teams = collection($teams)->indexBy('id')->toArray();
+
+		$items = $this->_schedule($people, array_keys($teams));
+		$this->set(compact('id', 'items', 'relatives', 'teams'));
+	}
+
 	public function act_as() {
 		$act_as = $this->request->getQuery('person');
 		if ($act_as) {
-			if (!$this->UserCache->read('Person', $act_as)) {
+			$target = $this->UserCache->read('Person', $act_as);
+			if (!$target) {
 				$this->Flash->info(__('Invalid person.'));
-			} else if ($act_as == $this->UserCache->realId()) {
-				$this->request->session()->delete('Zuluru.act_as_id');
-				$this->request->session()->delete('Zuluru.act_as_temporary');
-				$this->Flash->success(__('You are now acting as yourself.'));
-			} else if (Configure::read('Perm.is_admin') && in_array(GROUP_ADMIN, $this->UserCache->read('GroupIDs', $act_as))) {
-				$this->Flash->warning(__('Administrators cannot act as other administrators.'));
-			} else if (!Configure::read('Perm.is_admin') && Configure::read('Perm.is_manager') && in_array(GROUP_MANAGER, $this->UserCache->read('GroupIDs', $act_as))) {
-				$this->Flash->warning(__('Managers cannot act as other managers.'));
 			} else {
-				$this->request->session()->write('Zuluru.act_as_id', $act_as);
-				$this->Flash->success(__('You are now acting as {0}.', $this->UserCache->read('Person.full_name', $act_as)));
+				$this->Authorization->authorize($target);
+
+				$user = $this->Authentication->getIdentity()->actAs($this->request, $this->response, $target);
+				if ($user->real_person) {
+					$this->Flash->success(__('You are now acting as {0}.', $target->full_name));
+				} else {
+					$this->Flash->success(__('You are now acting as yourself.'));
+				}
 			}
 			return $this->redirect('/');
 		}
+
+		$this->Authorization->authorize($this, 'act_as_select');
 
 		// Relatives come first...
 		$relatives = $this->UserCache->read('Relatives');
@@ -2326,12 +2214,14 @@ class PeopleController extends AppController {
 	}
 
 	public function search() {
-		$affiliates = $this->_applicableAffiliates();
+		$this->Authorization->authorize($this);
+		$affiliates = $this->Authentication->applicableAffiliates();
 		$this->set(compact('affiliates'));
 		$this->_handlePersonSearch();
 	}
 
 	public function rule_search() {
+		$this->Authorization->authorize($this);
 		list($params, $url) = $this->_extractSearchParams();
 		if (!$this->_handleRuleSearch($params, $url)) {
 			return $this->redirect(['action' => 'rule_search']);
@@ -2339,6 +2229,7 @@ class PeopleController extends AppController {
 	}
 
 	public function league_search() {
+		$this->Authorization->authorize($this);
 		list($params, $url) = $this->_extractSearchParams();
 		unset($url['league_id']);
 		unset($url['include_subs']);
@@ -2352,7 +2243,7 @@ class PeopleController extends AppController {
 		}
 
 		// Get the list of possible leagues to look at
-		$affiliates = $this->_applicableAffiliates();
+		$affiliates = $this->Authentication->applicableAffiliates();
 		$affiliate_leagues = $this->People->Affiliates->find()
 			->contain(['Leagues' => [
 				'queryBuilder' => function (Query $q) {
@@ -2378,8 +2269,9 @@ class PeopleController extends AppController {
 	}
 
 	public function inactive_search() {
+		$this->Authorization->authorize($this);
 		list($params, $url) = $this->_extractSearchParams();
-		$params['affiliate_id'] = array_keys($this->_applicableAffiliates());
+		$params['affiliate_id'] = array_keys($this->Authentication->applicableAffiliates());
 		if (!empty($params) || !Configure::read('feature.affiliates')) {
 			$params['rule'] = "NOT(COMPARE(TEAM_COUNT('today') > '0'))";
 		}
@@ -2391,11 +2283,7 @@ class PeopleController extends AppController {
 	}
 
 	protected function _handleRuleSearch($params, $url) {
-		if ($this->request->is('ajax')) {
-			$this->viewBuilder()->className('Ajax.Ajax');
-		}
-
-		$affiliates = $this->_applicableAffiliates();
+		$affiliates = $this->Authentication->applicableAffiliates();
 		$this->set(compact('url', 'affiliates'));
 		unset($url['rule']);
 
@@ -2453,7 +2341,7 @@ class PeopleController extends AppController {
 							'queryBuilder' => function (Query $q) use ($badge_obj) {
 								return $q->where([
 									'BadgesPeople.approved' => true,
-									'Badges.visibility IN' => $badge_obj->visibility(Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager'), BADGE_VISIBILITY_HIGH),
+									'Badges.visibility IN' => $badge_obj->visibility($this->Authentication->getIdentity(), BADGE_VISIBILITY_HIGH),
 								]);
 							},
 						]]);
@@ -2472,7 +2360,8 @@ class PeopleController extends AppController {
 	}
 
 	public function list_new() {
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->Authorization->authorize($this);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		$user_model = Configure::read('Security.authModel');
 
 		$new = $this->People->find()
@@ -2517,10 +2406,8 @@ class PeopleController extends AppController {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect(['action' => 'list_new']);
 		}
-		if ($person->status != 'new') {
-			$this->Flash->info(__('That account has already been approved.'));
-			return $this->redirect(['action' => 'list_new']);
-		}
+
+		$this->Authorization->authorize($person);
 
 		$duplicates = $this->People->find('duplicates', compact('person'))
 			->contain(['Affiliates', 'Skills', 'Groups', 'Related', 'Settings']);
@@ -2558,7 +2445,7 @@ class PeopleController extends AppController {
 	}
 
 	protected function _approve(Person $person, $disposition, Person $duplicate = null) {
-		$delete = $save = null;
+		$delete = $save = $fail_message = null;
 
 		// First, take whatever steps are required to prepare the data for saving and/or deleting.
 		// Also prepare the options for sending the notification email, if any.
@@ -2612,9 +2499,9 @@ class PeopleController extends AppController {
 			if ($save && $delete) {
 				// For anything that we have in memory, we must skip doing a direct query
 				$ignore = [];
-				$save->updateHidden(['is_coordinator' => false, 'is_captain' => false, 'is_me' => false, 'is_relative' => false]);
+				$save->setHidden([]);
 				foreach ($save->visibleProperties() as $prop) {
-					if ($save->accessible($prop) && (is_array($delete->$prop))) {
+					if ($save->isAccessible($prop) && (is_array($delete->$prop))) {
 						$ignore[] = Inflector::camelize($prop);
 					}
 				}
@@ -2706,13 +2593,21 @@ class PeopleController extends AppController {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect('/');
 		}
+		$person->updateHidden($this->Authentication->getIdentity());
 
 		$this->set(compact('person'));
 		$this->response->download("{$person->full_name}.vcf");
-		$this->set($this->_connections($id));
 	}
 
-	// This function takes the parameter the old-fashioned way, to try to be more third-party friendly
+	/**
+	 * iCal method
+	 *
+	 * This function takes the parameter the old-fashioned way, to try to be more third-party friendly
+	 *
+	 * @param string|null $id Person id.
+	 * @return void
+	 * @throws \Cake\Http\Exception\GoneException When record not found.
+	 */
 	public function ical($id) {
 		$this->viewBuilder()->layout('ical');
 		$id = intval($id);
@@ -2733,9 +2628,8 @@ class PeopleController extends AppController {
 		} catch (InvalidPrimaryKeyException $ex) {
 			throw new GoneException();
 		}
-		if (empty($person->settings) || !$person->settings[0]->value) {
-			throw new GoneException();
-		}
+
+		$this->Authorization->authorize($person);
 
 		$team_ids = $this->UserCache->read('TeamIDs', $id);
 
@@ -2778,17 +2672,15 @@ class PeopleController extends AppController {
 	}
 
 	public function registrations() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
 		$id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
 		$person = $this->UserCache->read('Person', $id);
 		if (empty($person)) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect('/');
 		}
-		$affiliates = $this->_applicableAffiliateIDs(true);
+
+		$this->Authorization->authorize($person);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 
 		$query = $this->People->Registrations->find()
 			->contain([
@@ -2807,12 +2699,8 @@ class PeopleController extends AppController {
 	}
 
 	public function credits() {
-		if (!Configure::read('feature.registration')) {
-			throw new MethodNotAllowedException('Registration is not enabled on this system.');
-		}
-
 		$id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 
 		try {
 			$person = $this->People->get($id, [
@@ -2835,6 +2723,8 @@ class PeopleController extends AppController {
 			return $this->redirect('/');
 		}
 
+		$this->Authorization->authorize($person);
+
 		$this->set(compact('person', 'affiliates'));
 	}
 
@@ -2846,13 +2736,15 @@ class PeopleController extends AppController {
 			return $this->redirect('/');
 		}
 
+		$this->Authorization->authorize($person);
+
 		$this->set(compact('person'));
 		$this->set('teams', array_reverse($this->UserCache->read('AllTeams', $id)));
 	}
 
 	public function waivers() {
 		$id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		try {
 			$person = $this->People->get($id, [
 				'contain' => [
@@ -2873,6 +2765,8 @@ class PeopleController extends AppController {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect('/');
 		}
+
+		$this->Authorization->authorize($person);
 
 		if ($id == $this->UserCache->currentId()) {
 			$waivers = [];

@@ -160,7 +160,7 @@ if (!$this->fetch('javascript_variables') && method_exists($this->Html, 'iconImg
 		'zuluru_spinner' => $this->Html->iconImg('spinner.gif'),
 		'zuluru_popup' => $this->Html->iconImg('popup_16.png', ['class' => 'tooltip_toggle']),
 		'zuluru_base' => Router::url('/'),
-		'zuluru_mobile' => $is_mobile ? true : false,
+		'zuluru_mobile' => $this->request->is('mobile') ? true : false,
 		'zuluru_save' => __('Save'),
 		'zuluru_cancel' => __('Cancel'),
 		'zuluru_close' => __('Close'),
@@ -236,7 +236,7 @@ $this->end();
 /**
  * Default `body` blocks.
  */
-$this->prepend('body_attrs', ' class="' . implode(' ', [strtolower($this->request->controller), $this->request->action]) . '" ');
+$this->prepend('body_attrs', ' class="' . implode(' ', [strtolower($this->request->getParam('controller')), $this->request->action]) . '" ');
 if (!$this->fetch('body_start')) {
 	$this->start('body_start');
 	echo '<body' . $this->fetch('body_attrs') . '>';
@@ -254,9 +254,10 @@ if (isset($menu_items)) {
 	$this->end();
 }
 
-$this->start('session_options');
-// Error pages don't have the Jquery helper
-if (isset($this->Jquery)) {
+// Error pages can't do some of these things
+if (!isset($error)) {
+	$this->start('session_options');
+
 	$profiles = $this->UserCache->allActAs();
 	if (!empty($profiles)) {
 		echo $this->Jquery->inPlaceWidget($this->UserCache->read('Person.full_name'), [
@@ -278,17 +279,17 @@ if (isset($this->Jquery)) {
 			'url-param' => 'person',
 		], __('Switch to:'));
 	}
-}
 
-if (Configure::read('feature.uls') && empty($language)) {
-	echo $this->Html->tag('span', Configure::read('Config.language_name'), ['class' => 'uls-trigger']);
-}
-$this->end();
+	if (Configure::read('feature.uls') && empty($language)) {
+		echo $this->Html->tag('span', Configure::read('Config.language_name'), ['class' => 'uls-trigger']);
+	}
+	$this->end();
 
-$this->start('zuluru_session');
-echo $this->Html->tag('span', $this->fetch('session_options'), ['class' => 'session-options', 'style' => 'float: right;']);
-echo $this->Html->tag('div', '', ['style' => 'clear:both;']);
-$this->end();
+	$this->start('zuluru_session');
+	echo $this->Html->tag('span', $this->fetch('session_options'), ['class' => 'session-options', 'style' => 'float: right;']);
+	echo $this->Html->tag('div', '', ['style' => 'clear:both;']);
+	$this->end();
+}
 
 /**
  * Default `flash` block.
@@ -345,8 +346,10 @@ endif;
 $this->start('zuluru_content');
 echo $this->fetch('zuluru_menu');
 echo $this->Html->getCrumbList();
-echo $this->fetch('zuluru_session');
-echo $this->cell('Notices::next')->render();
+if (!isset($error)) {
+	echo $this->fetch('zuluru_session');
+	echo $this->cell('Notices::next')->render();
+}
 echo $this->fetch('common_flash');
 echo $this->fetch('content');
 echo $this->fetch('common_footer');

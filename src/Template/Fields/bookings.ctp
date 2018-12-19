@@ -22,6 +22,7 @@ echo $this->element('selector', [
 	'title' => 'Day',
 	'options' => $days,
 ]);
+$can_edit = $this->Authorize->can('add_game_slots', $field);
 ?>
 
 	<div class="table-responsive clear-float">
@@ -34,7 +35,7 @@ echo $this->element('selector', [
 					<th><?= __('Booking') ?></th>
 					<th><?= __('Available To') ?></th>
 <?php
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
+if ($can_edit):
 ?>
 					<th><?= __('Actions') ?></th>
 <?php
@@ -60,7 +61,7 @@ foreach ($field->game_slots as $slot):
 				<tr class="<?= $this->element('selector_classes', ['title' => 'Season', 'options' => $seasons]) ?> <?= $this->element('selector_classes', ['title' => 'Day', 'options' => $day]) ?>">
 					<td rowspan="<?= $rows ?>"><?= $this->Time->date($slot->game_date) ?></td>
 <?php
-	if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
+	if ($this->Authorize->can('view', $slot)):
 ?>
 					<td rowspan="<?= $rows ?>"><?= $this->Html->link($this->Time->time($slot->game_start),
 						['controller' => 'GameSlots', 'action' => 'view', 'slot' => $slot->id]) ?></td>
@@ -86,7 +87,7 @@ foreach ($field->game_slots as $slot):
 						echo implode(', ', $leagues);
 					?></td>
 <?php
-	if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
+	if ($can_edit):
 ?>
 					<td rowspan="<?= $rows ?>" class="actions"><?php
 						echo $this->Html->iconLink('edit_24.png',

@@ -1,25 +1,4 @@
 <?php
-/**
- * Short description for file.
- *
- * This file is application-wide controller file. You can put all
- * application-wide controller-related methods here.
- *
- * PHP versions 4 and 5
- *
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
- *
- * Licensed under The MIT License
- * Redistributions of files must retain the above copyright notice.
- *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
- * @package       cake
- * @subpackage    cake.cake.libs.controller
- * @since         CakePHP(tm) v 0.2.9
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
- */
 namespace App\Controller;
 
 use App\Core\UserCache;
@@ -30,7 +9,6 @@ use Cake\Controller\Controller;
 use Cake\Core\Configure;
 use Cake\Event\Event as CakeEvent;
 use Cake\Event\EventManager;
-use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
 use Cake\I18n\I18n;
 use Cake\I18n\Number;
@@ -41,7 +19,6 @@ use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 use Cake\Routing\Router;
 use Cake\Utility\Inflector;
-use Cake\Utility\Text;
 use Exception;
 use Muffin\Footprint\Auth\FootprintAwareTrait;
 use Psr\Log\LogLevel;
@@ -52,27 +29,17 @@ use Psr\Log\LogLevel;
  *
  * @package       cake
  * @subpackage    cake.cake.libs.controller
- * @property \Cake\Controller\Component\AuthComponent $Auth
+ * @property \App\Controller\Component\AuthenticationComponent $Authentication
+ * @property \Authorization\Controller\Component\AuthorizationComponent $Authorization
  * @property \Cake\Controller\Component\FlashComponent $Flash
  * @property \Cake\Controller\Component\RequestHandlerComponent $RequestHandler
  * @property \App\Core\UserCache $UserCache
  * @property \App\Model\Table\ConfigurationTable $Configuration
  */
 class AppController extends Controller {
-	use FootprintAwareTrait;
-
-	public $helpers = [
-		'UserCache', 'Number', 'Text',
-		'Html' => ['className' => 'ZuluruHtml'],
-		'Form' => ['className' => 'ZuluruForm'],
-		'Time' => ['className' => 'ZuluruTime'],
-		'Game' => ['className' => 'ZuluruGame'],
-		'BootstrapUI.Flash',
-		'BootstrapUI.Paginator',
-		'ZuluruBootstrap.Accordion',
-		'ZuluruJquery.Jquery',
-		//'Less.Less', // required for parsing less files
-	];
+	use FootprintAwareTrait {
+		_setCurrentUser as _footprintSetCurrentUser;
+	}
 
 	protected $menu_items = [];
 
@@ -87,215 +54,73 @@ class AppController extends Controller {
 	public function initialize() {
 		parent::initialize();
 
-		$this->loadComponent('Security');
+		// TODO: Find a better solution for black-holing of Ajax requests?
+		if (!$this->request->is('ajax') && !$this->request->is('json')) {
+			$this->loadComponent('Security');
+			$this->Security->config('blackHoleCallback', '_blackhole');
+		}
+
 		$this->loadComponent('Flash');
 		$this->loadComponent('RequestHandler', ['enableBeforeRedirect' => false]);
-		$this->loadComponent('Ajax.Ajax');
 
 		// Don't attempt to do anything database- or user-related during installation
 		if ($this->plugin == 'Installer') {
 			return;
 		}
 
-		// Temporary code to remove cookies with a trailing slash in the path. These are
-		// not sent by most browsers for equivalent paths that don't end in a slash. For
-		// example, if the URL is /zuluru, a cookie for /zuluru/ won't be sent. But such
-		// cookies *will* be sent for a URL like /zuluru/leagues; having cookies for both
-		// /zuluru and /zuluru/ causes issues. The latter were incorrectly issued by early
-		// versions of Zuluru 3, so here we remove them. See also CookiePathMiddleware.
-		// This can go away in 2020, when all such cookies will be expired even if the
-		// user never came back and hit this code in the meantime.
-		$webroot = $this->request->getAttribute('webroot');
-		if ($webroot != '/' && substr($webroot, -1) == '/') {
-			foreach (['Auth', Configure::read('Session.cookie')] as $name) {
-				if ($this->request->getCookieCollection()->get($name)) {
-					$this->response = $this->response->withCookie($name, ['path' => $webroot, 'domain' => Configure::read('App.domain')]);
-				}
-			}
-		}
-
 		$this->UserCache = UserCache::getInstance(true);
 		$this->moduleRegistry = new ModuleRegistry();
 
+		$this->loadComponent('Authentication', [
+			'logoutRedirect' => '/',
+			'loginRedirect' => '/',
+		]);
+
+		// Check what actions anyone (logged on or not) is allowed in this controller.
+		$allowed = $this->request->is('json') ? $this->_noAuthenticationJsonActions() : $this->_noAuthenticationActions();
+		$this->Authentication->allowUnauthenticated($allowed);
+
+		$this->loadComponent('Authorization.Authorization');
+
+		// Footprint trait needs the _userModel set to whatever is being used for authentication
+		$this->_userModel = Configure::read('Security.authModel');
+
 		// Use the configured model for handling hashing of passwords, and configure
 		// the Auth field names using it
-		$this->_userModel = Configure::read('Security.authModel');
 		$users_table = TableRegistry::get($this->_userModel);
-		if (!is_a($users_table, 'App\Model\Table\UsersTable')) {
-			throw new Exception(__('Security.authModel is incorrectly configured!'));
-		}
-
-		if ($users_table->manageName == 'Zuluru') {
-			// If Zuluru handles account management, handle old passwords and migrate them
-			$hashMethod = Configure::read('Security.hashMethod') ?: $users_table->hashMethod;
-
-			$hasher = [
-				'className' => 'Fallback',
-				'hashers' => [
-					'Default',
-					'Weak' => ['hashType' => $hashMethod],
-					'WeakNoSalt' => ['hashType' => $hashMethod],
-				],
-			];
-		} else {
-			$hasher = [
-				'className' => $users_table->manageName,
-			];
-		}
-
-		if ($this->request->is('json')) {
-			$this->loadComponent('Auth', [
-				'storage' => 'Memory',
-				'authenticate' => [
-					'Form' => [
-						'userModel' => $this->_userModel,
-						'fields' => [
-							'username' => $users_table->userField,
-							'password' => $users_table->pwdField,
-							'email' => $users_table->emailField,
-						],
-						'passwordHasher' => $hasher,
-						'contain' => ['People'],
-						'finder' => 'auth',
-					],
-					'ADmad/JwtAuth.Jwt' => [
-						'userModel' => $this->_userModel,
-						'fields' => [
-							'username' => $users_table->primaryKey(),
-							'password' => $users_table->pwdField,
-						],
-
-						'parameter' => 'token',
-
-						// Boolean indicating whether the "sub" claim of JWT payload
-						// should be used to query the Users model and get user info.
-						// If set to `false` JWT's payload is directly returned.
-						'queryDatasource' => true,
-					]
-				],
-
-				'unauthorizedRedirect' => false,
-
-				// If you don't have a login action in your application set
-				// 'loginAction' to false to prevent getting a MissingRouteException.
-				'loginAction' => false,
-			]);
-		} else {
-			$this->loadComponent('Auth', [
-				'authenticate' => [
-					'Form' => [
-						'userModel' => $this->_userModel,
-						'fields' => [
-							'username' => $users_table->userField,
-							'password' => $users_table->pwdField,
-							'email' => $users_table->emailField,
-						],
-						'passwordHasher' => $hasher,
-						'contain' => ['People'],
-						'finder' => 'auth',
-					],
-				],
-
-				// By default, we tell people they need to log in. May be overridden later.
-				'authError' => __('You must login to access full site functionality.'),
-
-				// Set up various URLs to use
-				'logoutAction' => Configure::read('App.urls.logout'),
-				'loginRedirect' => '/',
-				'logoutRedirect' => '/',
-			]);
-		}
-
-		EventManager::instance()->on('Auth.afterIdentify', [$this, 'afterIdentify']);
-
-		// Save a couple of bits of information from the selected auth model in the
-		// configuration, so that it's accessible from anywhere instead of just places
-		// that can access the model
-		Configure::write('feature.external_accounts', $this->_userModel != 'Users');
-		Configure::write('feature.manage_accounts', $users_table->manageAccounts);
-		Configure::write('feature.manage_name', $users_table->manageName);
 
 		// Set the default format for converting Time and Date objects to strings,
 		// so that it matches the SQL format that we use for comparing.
 		\Cake\I18n\FrozenTime::setToStringFormat('yyyy-MM-dd HH:mm:ss');
 		\Cake\I18n\FrozenDate::setToStringFormat('yyyy-MM-dd');
 
-		// If a third-party authentication session has expired, reset our own session
-		// Also, if there's an ID in the session, but no matching profile; this will
-		// happen when a logged-in user is merged or deleted, for example.
-		// TODO: Delete all matching sessions when a user is merged or deleted
-		$this->loadComponent('Login', ['className' => $users_table->loginComponent]);
-		if ($this->Login->expired() || ($this->UserCache->currentId() && empty($this->UserCache->read('Person')))) {
-			// If there is a redirect requested, logout will erase it, so remember it!
-			if ($this->request->session()->check('Auth.redirect')) {
-				$redirect = $this->request->session()->read('Auth.redirect');
+		$identity = $this->Authentication->getIdentity();
+		if ($identity) {
+			$user = $identity->getOriginalData();
+
+			// If there is still no person record for this user, create it.
+			if (!$user->has('person')) {
+				$user->person = $users_table->People->createPersonRecord($user);
+			} else {
+				$this->UserCache->clear('User', $user->person->id);
 			}
 
-			$this->request->session()->delete('Zuluru');
-			$this->Auth->logout();
+			$user->last_login = FrozenTime::now();
+			$this->request->trustProxy = true;
+			$user->client_ip = $this->request->clientIp();
 
-			if (isset($redirect)) {
-				$this->request->session()->write('Auth.redirect', $redirect);
+			$identifiers = $this->Authentication->getAuthenticationService()->identifiers();
+			foreach ($identifiers as $identifier) {
+				if (method_exists($identifier, 'needsPasswordRehash') && $identifier->needsPasswordRehash()) {
+					$user->password = $this->request->data('password');
+					break;
+				}
 			}
+
+			// Nothing useful to do if this save fails; they still log in, we just don't get an update of the IP and time.
+			// We do NOT want to update the act-as profile's user_id with the real user's!
+			$users_table->save($user, ['checkRules' => false, 'associated' => false]);
 		}
-
-		// Attempt a login through any third-party authentication
-		// TODO: If we start to accept logins through Facebook and others, do we need to change this strategy?
-		$this->Login->login($users_table);
-
-		// Get the user information, if any, from the session
-		$user = $this->Auth->user();
-
-		// If the user has no session but does have "remember me" login information
-		// saved in a cookie, try to log them in with that.
-		if (!$user) {
-			if ($this->request->is('json')) {
-				$user = $this->Auth->identify();
-			} else if ($this->request->getCookie('ZuluruAuth')) {
-				$saved_data = $this->request->data;
-				$this->request->data = $this->request->getCookie('ZuluruAuth');
-				$user = $this->Auth->identify();
-				$this->request->data = $saved_data;
-			}
-			if ($user) {
-				$this->Auth->setUser($user);
-			}
-		}
-
-		// TODO: Read these from site configuration
-		if (!$this->request->session()->read('Zuluru.external_login')) {
-			$this->Auth->config('loginAction', ['controller' => 'Users', 'action' => 'login']);
-		} else {
-			$this->Auth->config('loginAction', ['controller' => 'Leagues', 'action' => 'index']);
-		}
-		$this->Auth->config('unauthorizedRedirect', '/');
-	}
-
-	public function afterIdentify(CakeEvent $cakeEvent, $data, $auth) {
-		$users_table = TableRegistry::get($this->_userModel);
-
-		$this->UserCache->clear('Person', $data[$users_table->primaryKey()]);
-		$this->UserCache->clear('User', $data[$users_table->primaryKey()]);
-
-		$user = $users_table->get($data[$users_table->primaryKey()], [
-			'contain' => ['People']
-		]);
-		$user->last_login = FrozenTime::now();
-		$this->request->trustProxy = true;
-		$user->client_ip = $this->request->clientIp();
-
-		if ($this->Auth->authenticationProvider()->needsPasswordRehash()) {
-			$user->password = $this->request->data('password');
-		}
-
-		// If there is no person record for this user, create it.
-		if (!$user->has('person')) {
-			$user->person = $users_table->People->createPersonRecord($user);
-		}
-
-		// Nothing useful to do if this save fails; they still log in, we just don't get an update of the IP and time
-		$users_table->save($user, ['checkRules' => false]);
-		$this->request->session()->write('Zuluru.zuluru_person_id', $user->person->id);
 	}
 
 	public function beforeFilter(CakeEvent $cakeEvent) {
@@ -320,6 +145,7 @@ class AppController extends Controller {
 		// The flash mailer transport works by triggering an event. It needs to be handled somewhere that has access to the Flash component.
 		EventManager::instance()->on('Mailer.Transport.flash', [$this, 'flashEmail']);
 
+		EventManager::instance()->off('Flash');
 		EventManager::instance()->on('Flash', [$this, 'flash']);
 
 		if (Configure::read('feature.items_per_page')) {
@@ -328,28 +154,22 @@ class AppController extends Controller {
 			);
 		}
 
-		$this->_setPermissions();
-
 		$this->request->addDetector('csv', ['param' => '_ext', 'value' => 'csv']);
 		$this->response->type(['csv' => 'text/x-csv']);
-
-		if ($this->request->is('ajax')) {
-			// TODO: Find a better solution for black-holing of Ajax requests?
-			$this->Security->config('unlockedActions', [$this->request->action]);
-		}
 
 		// Check if we need to redirect logged-in users for some required step first
 		// We will allow them to see help or logout. Or get the leagues list, as that's where some things redirect to.
 		$free = $this->_freeActions();
-		if (Configure::read('Perm.is_logged_in') && !in_array($this->request->action, $free)) {
-			if (($this->request->controller != 'People' || $this->request->action != 'edit') && $this->UserCache->read('Person.user_id') && !$this->request->is('json')) {
+		$identity = $this->Authentication->getIdentity();
+		if ($identity && $identity->isLoggedIn() && !in_array($this->request->action, $free)) {
+			if (($this->request->getParam('controller') != 'People' || $this->request->action != 'edit') && $this->UserCache->read('Person.user_id') && !$this->request->is('json')) {
 				if (empty($this->UserCache->read('Person.email'))) {
 					$this->Flash->warning(__('Last time we tried to contact you, your email bounced. We require a valid email address as part of your profile. You must update it before proceeding.'));
 					return $this->redirect(['controller' => 'People', 'action' => 'edit']);
 				}
 			}
 
-			if (($this->request->controller != 'People' || $this->request->action != 'edit') && $this->UserCache->read('Person.complete') == 0 && !$this->request->is('json')) {
+			if (($this->request->getParam('controller') != 'People' || $this->request->action != 'edit') && $this->UserCache->read('Person.complete') == 0 && !$this->request->is('json')) {
 				$this->Flash->warning(__('Your profile is incomplete. You must update it before proceeding.'));
 				return $this->redirect(['controller' => 'People', 'action' => 'edit']);
 			}
@@ -363,11 +183,11 @@ class AppController extends Controller {
 				})->extract('id')->toArray();
 				if (!empty($response_required) &&
 					// Let's not block admins from turning off this setting if they have a team request
-					$this->request->controller != 'Settings' &&
+					$this->request->getParam('controller') != 'Settings' &&
 					// Allow people to change who they are acting as
-					($this->request->controller != 'People' || $this->request->action != 'act_as') &&
+					($this->request->getParam('controller') != 'People' || $this->request->action != 'act_as') &&
 					// We will let people look at information about teams that they've been invited to
-					($this->request->controller != 'Teams' || !in_array($this->request->getQuery('team'), $response_required)) &&
+					($this->request->getParam('controller') != 'Teams' || !in_array($this->request->getQuery('team'), $response_required)) &&
 					// Don't cause redirects for JSON requests
 					!$this->request->is('json')
 				) {
@@ -502,16 +322,18 @@ class AppController extends Controller {
 	public function beforeRender(CakeEvent $cakeEvent) {
 		parent::beforeRender($cakeEvent);
 
-		if (isset($this->RequestHandler)) {
-			$this->set('is_mobile', $this->RequestHandler->isMobile());
+		if ($this->request->is('json')) {
+			// We don't have our own JSON view class to set these overrides
+			$this->viewBuilder()->helpers([
+				'Html' => ['className' => 'ZuluruHtml'],
+				'Time' => ['className' => 'ZuluruTime'],
+			]);
 		} else {
-			$this->set('is_mobile', false);
+			// Set view variables for the menu
+			// TODO: Get the menu element name from some configuration. Probably a lot more to do to make it all non-Bootstrap-specific
+			$this->set('menu_element', 'bootstrap');
+			$this->set('menu_items', $this->menu_items);
 		}
-
-		// Set view variables for the menu
-		// TODO: Get the menu element name from some configuration. Probably a lot more to do to make it all non-Bootstrap-specific
-		$this->set('menu_element', 'bootstrap');
-		$this->set('menu_items', $this->menu_items);
 	}
 
 	/**
@@ -528,10 +350,8 @@ class AppController extends Controller {
 		if ($this->request->getQuery('return')) {
 			// If there's a return requested, and nothing already saved to return to, remember the referrer
 			$url = $this->decodeRedirect($this->request->getQuery('return'));
-		} else if ($this->request->session()->check('Navigation.redirect')) {
-			// If there's another page queued up, we go there
-			$url = $this->request->session()->read('Navigation.redirect');
-			$this->request->session()->delete('Navigation.redirect');
+		} else if ($this->request->getQuery('redirect')) {
+			$url = $this->request->getQuery('redirect');
 		}
 
 		// String URLs might have come from $this->here, or might be '/'.
@@ -541,28 +361,6 @@ class AppController extends Controller {
 		}
 
 		return parent::redirect($url, $status);
-	}
-
-	/**
-	 * Deletes any saved "return" referer and just redirects.
-	 *
-	 * @param string|array $url A string or array-based URL pointing to another location within the app,
-	 *     or an absolute URL
-	 * @return void|\Cake\Network\Response
-	 */
-	public function forceRedirect($url) {
-		$this->request->session()->delete('Navigation.redirect');
-		return parent::redirect($url);
-	}
-
-	/**
-	 * Queue up a URL to redirect to after we're done the current thing.
-	 *
-	 * @param string|array $next URL to go to next after this redirect is done
-	 */
-	public function queueRedirect($next) {
-		// TODO: We may at some point need to make this an actual queue instead of just one entry
-		$this->request->session()->write('Navigation.redirect', $next);
 	}
 
 	private function decodeRedirect($url) {
@@ -616,148 +414,26 @@ class AppController extends Controller {
 	}
 
 	/**
-	 * Basic check for authorization, based solely on the person's login group.
-	 * Write some "is_" configuration for use elsewhere (is_admin, is_player, etc.).
+	 * _noAuthenticationActions method
 	 *
-	 * @access public
-	 */
-	protected function _setPermissions() {
-		Configure::write(['Perm' => [
-			'is_admin' => false,
-			'is_manager' => false,
-			'is_official' => false,
-			'is_volunteer' => false,
-			'is_coach' => false,
-			'is_player' => false,
-			'is_child' => false,
-			'is_parent' => false,
-			'is_logged_in' => false,
-			'is_visitor' => true,
-			'my_id' => $this->UserCache->currentId(),
-		]]);
-
-		$groups = $this->UserCache->read('Groups');
-		$real_groups = $this->UserCache->read('Groups', $this->UserCache->realId());
-		if (!empty($real_groups)) {
-			$real_group_levels = collection($real_groups)->extract('level')->toArray();
-		} else {
-			$real_group_levels = [];
-		}
-		if ($this->UserCache->read('Person.status', $this->UserCache->realId()) == 'active') {
-			// Approved accounts are granted permissions up to level 1,
-			// since they can just add that group to themselves anyway.
-			$real_group_levels[] = 1;
-		}
-		if (empty($real_group_levels)) {
-			$max_level = 0;
-		} else {
-			$max_level = max($real_group_levels);
-		}
-		foreach ($groups as $group) {
-			if ($this->UserCache->currentId() != $this->UserCache->realId()) {
-				// Don't give people enhanced access just because the person they are acting as has it
-				if ($group->level > $max_level) {
-					continue;
-				}
-			}
-
-			// TODO: Eliminate all these is_ variables and use database-driven permissions
-			switch ($group->name) {
-				case 'Administrator':
-					Configure::write('Perm.is_admin', true);
-					Configure::write('Perm.is_manager', true);
-					break;
-
-				case 'Manager':
-					if (!empty($this->UserCache->read('ManagedAffiliateIDs'))) {
-						Configure::write('Perm.is_manager', true);
-					}
-					break;
-
-				case 'Official':
-					Configure::write('Perm.is_official', true);
-					break;
-
-				case 'Volunteer':
-					Configure::write('Perm.is_volunteer', true);
-					break;
-
-				case 'Coach':
-					Configure::write('Perm.is_coach', true);
-					break;
-
-				case 'Player':
-					Configure::write('Perm.is_player', true);
-					break;
-
-				case 'Parent':
-					Configure::write('Perm.is_parent', true);
-					break;
-			}
-		}
-		if ($this->UserCache->currentId()) {
-			// When acting as, be sure that the Footprint behaviour has the current user, not the real one
-			$user = $this->UserCache->read('User');
-			$this->_setCurrentUser($user);
-			if ($this->_listener) {
-				$this->_listener->setUser($user);
-			}
-
-			if ($this->UserCache->read('Person.status') != 'locked') {
-				Configure::write('Perm.is_logged_in', true);
-				Configure::write('Perm.is_visitor', false);
-				Configure::write('Perm.is_child', $this->_isChild($this->UserCache->read('Person')));
-
-				// Override default auth error message
-				$this->Auth->config('authError', __('You do not have permission to access that page.'));
-			} else {
-				$this->Auth->config('authError', __('Your profile is currently {0}, so you can continue to use the site, but may be limited in some areas. To reactivate, {1}.',
-					__($this->UserCache->read('Person.status')),
-					__('contact {0}', Configure::read('email.admin_name'))
-				));
-			}
-		}
-
-		if (Configure::read('Perm.is_admin')) {
-			// Admins have permission to do anything.
-			$this->Auth->allow();
-		} else {
-			// Check what actions anyone (logged on or not) is allowed in this controller.
-			$allowed = $this->request->is('json') ? $this->_publicJsonActions() : $this->_publicActions();
-
-			// An empty array here means the controller has *no* public actions, but an empty
-			// array passed to Auth->allow means *everything* is public.
-			if (!empty($allowed)) {
-				$this->Auth->allow($allowed);
-			}
-		}
-
-		// Other authentication is handled through the isAuthorized function of
-		// the individual controllers.
-		$this->Auth->config('authorize', ['Controller']);
-	}
-
-	/**
-	 * _publicActions method
-	 *
-	 * By default, nothing is public. Any controller with special permissions
-	 * must override this function.
+	 * By default, nothing is available to unauthenticated users.
+	 * Any controller with special permissions must override this function.
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _publicActions() {
+	protected function _noAuthenticationActions() {
 		return [];
 	}
 
 	/**
-	 * _publicJsonActions method
+	 * _noAuthenticationJsonActions method
 	 *
-	 * By default, nothing is public. Any controller with special permissions
-	 * must override this function.
+	 * By default, nothing is available to unauthenticated users.
+	 * Any controller with special permissions must override this function.
 	 *
 	 * @return array of JSON actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _publicJsonActions() {
+	protected function _noAuthenticationJsonActions() {
 		return [];
 	}
 
@@ -773,129 +449,6 @@ class AppController extends Controller {
 	}
 
 	/**
-	 * isAuthorized method
-	 *
-	 * By default, we allow the actions listed above (in the Auth->allow calls) and
-	 * nothing else. Any controller with special permissions must override this function.
-	 *
-	 * @return bool true if access allowed
-	 */
-	public function isAuthorized() {
-		return false;
-	}
-
-	// Various ways to get the list of affiliates to show
-	protected function _applicableAffiliates($admin_only = false) {
-		if (!Configure::read('feature.affiliates')) {
-			return [1 => Configure::read('organization.name')];
-		}
-
-		$this->loadModel('Affiliates');
-
-		// If there's something in the URL, perhaps only use that
-		$affiliate = $this->request->getQuery('affiliate');
-		if ($affiliate === null) {
-			// If the user has selected a specific affiliate to view, perhaps only use that
-			$affiliate = $this->request->session()->read('Zuluru.CurrentAffiliate');
-		}
-
-		if ($affiliate !== null) {
-			// We only allow overrides through the URL or session if:
-			// - this is not an admin-only page OR
-			// - the current user is an admin OR
-			// - the current user is a manager of that affiliate
-			if (!$admin_only || Configure::read('Perm.is_admin') ||
-				(Configure::read('Perm.is_manager') && in_array($affiliate, $this->UserCache->read('ManagedAffiliateIDs')))
-			)
-			{
-				return $this->Affiliates->find()
-					->hydrate(false)
-					->where(['id' => $affiliate])
-					->combine('id', 'name')
-					->toArray();
-			}
-		}
-
-		// Managers may get only their list of managed affiliates
-		if (!Configure::read('Perm.is_admin') && Configure::read('Perm.is_manager') && $admin_only) {
-			$affiliates = $this->UserCache->read('ManagedAffiliates');
-			$affiliates = collection($affiliates)->combine('id', 'name')->toArray();
-			ksort($affiliates);
-			return $affiliates;
-		}
-
-		// Non-admins get their current list of "subscribed" affiliates
-		if (Configure::read('Perm.is_logged_in') && !Configure::read('Perm.is_admin')) {
-			$affiliates = $this->UserCache->read('Affiliates');
-			if (!empty($affiliates)) {
-				$affiliates = collection($affiliates)->combine('id', 'name')->toArray();
-				ksort($affiliates);
-				return $affiliates;
-			}
-		}
-
-		// Anyone not logged in, and admins, get the full list
-		return $this->Affiliates->find()
-			->hydrate(false)
-			->where(['active' => true])
-			->order('name')
-			->combine('id', 'name')
-			->toArray();
-	}
-
-	// Various ways to get the list of affiliates to query
-	public static function _applicableAffiliateIDs($admin_only = false) {
-		if (!Configure::read('feature.affiliates')) {
-			return [1];
-		}
-
-		// If there's something in the URL, perhaps only use that
-		$request = Router::getRequest();
-		if ($request) {
-			$affiliate = $request->getQuery('affiliate');
-			if ($affiliate === null) {
-				// If the user has selected a specific affiliate to view, perhaps only use that
-				$affiliate = $request->session()->read('Zuluru.CurrentAffiliate');
-			}
-		} else {
-			$affiliate = null;
-		}
-
-		if ($affiliate !== null) {
-			// We only allow overrides through the URL or session if:
-			// - this is not an admin-only page OR
-			// - the current user is an admin OR
-			// - the current user is a manager of that affiliate
-			if (!$admin_only || Configure::read('Perm.is_admin') ||
-				(Configure::read('Perm.is_manager') && in_array($affiliate, UserCache::getInstance()->read('ManagedAffiliateIDs')))
-			)
-			{
-				return [$affiliate];
-			}
-		}
-
-		// Managers may get only their list of managed affiliates
-		if (!Configure::read('Perm.is_admin') && Configure::read('Perm.is_manager') && $admin_only) {
-			return UserCache::getInstance()->read('ManagedAffiliateIDs');
-		}
-
-		// Non-admins get their current list of selected affiliates
-		if (Configure::read('Perm.is_logged_in') && !Configure::read('Perm.is_admin')) {
-			$affiliates = UserCache::getInstance()->read('AffiliateIDs');
-			if (!empty($affiliates)) {
-				return $affiliates;
-			}
-		}
-
-		// Anyone not logged in, and admins, get the full list
-		return array_keys(TableRegistry::get('Affiliates')->find()
-			->where(['active' => true])
-			->combine('id', 'name')
-			->toArray()
-		);
-	}
-
-	/**
 	 * Put basic items on the menu, some based on configuration settings.
 	 * Other items like specific teams and divisions are added elsewhere.
 	 */
@@ -903,16 +456,17 @@ class AppController extends Controller {
 		// Initialize the menu
 		$this->menu_items = [];
 
+		$identity = $this->Authentication->getIdentity();
 		$groups = $this->UserCache->read('GroupIDs');
-		if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
-			$affiliates = $this->_applicableAffiliates(true);
+		if ($identity && $identity->isManager()) {
+			$affiliates = $this->Authentication->applicableAffiliates(true);
 		}
 
 		if ($this->UserCache->currentId()) {
-			$this->_addMenuItem(__('Dashboard'), ['controller' => 'All', 'action' => 'splash']);
+			$this->_addMenuItem(__('Dashboard'), ['controller' => 'People', 'action' => 'splash']);
 		}
 
-		if (Configure::read('Perm.is_logged_in')) {
+		if ($identity && $identity->isLoggedIn()) {
 			$this->_addMenuItem(__('My Profile'), ['controller' => 'People', 'action' => 'view']);
 			$this->_addMenuItem(__('View'), ['controller' => 'People', 'action' => 'view'], __('My Profile'));
 			$this->_addMenuItem(__('Edit'), ['controller' => 'People', 'action' => 'edit'], __('My Profile'));
@@ -948,11 +502,11 @@ class AppController extends Controller {
 		// Admins and managers, anyone not logged in, and anyone with any registration history always get it
 		if (Configure::read('feature.registration')) {
 			// Parents always get the registration menu items
-			if (!Configure::read('feature.minimal_menus') && (in_array(GROUP_PARENT, $groups) || $this->_showRegistration(null, $groups))) {
+			if (!Configure::read('feature.minimal_menus') && ($this->Authorization->can(\App\Controller\PeopleController::class, 'show_registration'))) {
 				$this->_addMenuItem(__('Registration'), ['controller' => 'Events', 'action' => 'wizard']);
 				$this->_addMenuItem(__('Wizard'), ['controller' => 'Events', 'action' => 'wizard'], __('Registration'));
 				$this->_addMenuItem(__('All events'), ['controller' => 'Events', 'action' => 'index'], __('Registration'));
-				if (Configure::read('Perm.is_logged_in') && !empty($this->UserCache->read('Registrations'))) {
+				if ($identity && $identity->isLoggedIn() && !empty($this->UserCache->read('Registrations'))) {
 					$this->_addMenuItem(__('My history'), ['controller' => 'People', 'action' => 'registrations'], __('Registration'));
 				}
 
@@ -962,7 +516,7 @@ class AppController extends Controller {
 				}
 			}
 
-			if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+			if ($identity && $identity->isManager()) {
 				$this->_addMenuItem(__('Create event'), ['controller' => 'Events', 'action' => 'add'], __('Registration'));
 				$this->_addMenuItem(__('Unpaid'), ['controller' => 'Registrations', 'action' => 'unpaid'], __('Registration'));
 				$this->_addMenuItem(__('Credits'), ['controller' => 'Registrations', 'action' => 'credits'], __('Registration'));
@@ -979,14 +533,14 @@ class AppController extends Controller {
 			}
 		}
 
-		if (Configure::read('Perm.is_logged_in')) {
+		if ($identity && $identity->isLoggedIn()) {
 			$this->_addMenuItem(__('Teams'), ['controller' => 'Teams', 'action' => 'index']);
 			$this->_addMenuItem(__('List'), ['controller' => 'Teams', 'action' => 'index'], __('Teams'));
 			// If registrations are enabled, it takes care of team creation
-			if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || !Configure::read('feature.registration')) {
+			if (($identity && $identity->isManager()) || !Configure::read('feature.registration')) {
 				$this->_addMenuItem(__('Create team'), ['controller' => 'Teams', 'action' => 'add'], __('Teams'));
 			}
-			if (!Configure::read('feature.minimal_menus') && (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager'))) {
+			if (!Configure::read('feature.minimal_menus') && $identity && $identity->isManager()) {
 				$this->loadModel('Teams');
 				$new = $this->Teams->find()
 					->where([
@@ -1002,7 +556,7 @@ class AppController extends Controller {
 			}
 		}
 
-		if (Configure::read('Perm.is_logged_in') && Configure::read('feature.franchises')) {
+		if ($identity && $identity->isLoggedIn() && Configure::read('feature.franchises')) {
 			$this->_addMenuItem(__('Franchises'), ['controller' => 'Franchises', 'action' => 'index'], __('Teams'));
 			$this->_addMenuItem(__('List'), ['controller' => 'Franchises', 'action' => 'index'], [__('Teams'), __('Franchises')]);
 			$this->_addMenuItem(__('Create franchise'), ['controller' => 'Franchises', 'action' => 'add'], [__('Teams'), __('Franchises')]);
@@ -1010,7 +564,7 @@ class AppController extends Controller {
 
 		$this->_addMenuItem(__('Leagues'), ['controller' => 'Leagues', 'action' => 'index']);
 		$this->_addMenuItem(__('List'), ['controller' => 'Leagues', 'action' => 'index'], __('Leagues'));
-		if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+		if ($identity && $identity->isManager()) {
 			$this->_addMenuItem(__('League summary'), ['controller' => 'Leagues', 'action' => 'summary'], __('Leagues'));
 			$this->_addMenuItem(__('Create league'), ['controller' => 'Leagues', 'action' => 'add'], __('Leagues'));
 		}
@@ -1035,7 +589,7 @@ class AppController extends Controller {
 		$this->_addMenuItem(__(Configure::read('UI.fields_cap')), ['controller' => 'Facilities', 'action' => 'index']);
 		$this->_addMenuItem(__('List'), ['controller' => 'Facilities', 'action' => 'index'], __(Configure::read('UI.fields_cap')));
 		$this->_addMenuItem(__('Map of all {0}', __(Configure::read('UI.fields'))), ['controller' => 'Maps', 'action' => 'index'], __(Configure::read('UI.fields_cap')), null, ['target' => 'map']);
-		if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+		if ($identity && $identity->isManager()) {
 			$this->_addMenuItem(__('Closed facilities'), ['controller' => 'Facilities', 'action' => 'closed'], __(Configure::read('UI.fields_cap')));
 			$this->_addMenuItem(__('Create facility'), ['controller' => 'Facilities', 'action' => 'add'], __(Configure::read('UI.fields_cap')));
 
@@ -1097,7 +651,7 @@ class AppController extends Controller {
 			}
 
 			$this->_addMenuItem(__('Bulk import'), ['controller' => 'Users', 'action' => 'import'], __('People'));
-			if (Configure::read('feature.manage_accounts')) {
+			if (Configure::read('feature.control_account_creation')) {
 				$this->_addMenuItem(__('Create account'), ['controller' => 'Users', 'action' => 'create_account'], __('People'));
 			}
 
@@ -1119,12 +673,12 @@ class AppController extends Controller {
 			}
 		}
 
-		if (Configure::read('Perm.is_logged_in')) {
+		if ($identity && $identity->isLoggedIn()) {
 			$this->_addMenuItem(__('Search'), ['controller' => 'People', 'action' => 'search'], __('People'));
 			if (Configure::read('feature.badges')) {
 				$this->_addMenuItem(__('Badges'), ['controller' => 'Badges', 'action' => 'index'], __('People'));
 				$this->_addMenuItem(__('Nominate'), ['controller' => 'People', 'action' => 'nominate'], [__('People'), __('Badges')]);
-				if (!Configure::read('feature.minimal_menus') && (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager'))) {
+				if (!Configure::read('feature.minimal_menus') && $identity && $identity->isManager()) {
 					$this->loadModel('People');
 					$new = $this->People->Badges->find()
 						->matching('People')
@@ -1142,7 +696,7 @@ class AppController extends Controller {
 			}
 		}
 
-		if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+		if ($identity && $identity->isManager()) {
 			$this->_addMenuItem(__('By name'), ['controller' => 'People', 'action' => 'search'], [__('People'), __('Search')]);
 			$this->_addMenuItem(__('By rule'), ['controller' => 'People', 'action' => 'rule_search'], [__('People'), __('Search')]);
 			$this->_addMenuItem(__('By league'), ['controller' => 'People', 'action' => 'league_search'], [__('People'), __('Search')]);
@@ -1161,7 +715,7 @@ class AppController extends Controller {
 			$this->_addMenuItem(__('Create mailing list'), ['controller' => 'MailingLists', 'action' => 'add'], [__('Newsletters'), __('Mailing Lists')]);
 		}
 
-		if (Configure::read('Perm.is_admin')) {
+		if ($identity && $identity->isAdmin()) {
 			if (Configure::read('feature.affiliates')) {
 				$this->_addMenuItem(__('Affiliates'), ['controller' => 'Affiliates', 'action' => 'index'], __('Configuration'));
 			}
@@ -1169,7 +723,7 @@ class AppController extends Controller {
 			$this->_addMenuItem(__('Permissions'), ['controller' => 'Groups', 'action' => 'index'], __('Configuration'));
 		}
 
-		if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+		if ($identity && $identity->isManager()) {
 			$this->_addMenuItem(__('Holidays'), ['controller' => 'Holidays', 'action' => 'index'], __('Configuration'));
 			if (Configure::read('feature.documents')) {
 				$this->_addMenuItem(__('Upload Types'), ['controller' => 'Upload_types', 'action' => 'index'], __('Configuration'));
@@ -1180,11 +734,13 @@ class AppController extends Controller {
 			if (Configure::read('feature.contacts')) {
 				$this->_addMenuItem(__('Contacts'), ['controller' => 'Contacts', 'action' => 'index'], __('Configuration'));
 			}
+		}
 
+		if ($this->Authorization->can(AllController::class, 'clear_cache')) {
 			$this->_addMenuItem(__('Clear cache'), ['controller' => 'All', 'action' => 'clear_cache', 'return' => AppController::_return()], __('Configuration'));
 		}
 
-		if (Configure::read('Perm.is_admin')) {
+		if ($identity && $identity->isAdmin()) {
 			$this->_addMenuItem(__('Organization'), ['controller' => 'Settings', 'action' => 'organization'], [__('Configuration'), __('Settings')]);
 			$this->_addMenuItem(__('Features'), ['controller' => 'Settings', 'action' => 'feature'], [__('Configuration'), __('Settings')]);
 			$this->_addMenuItem(__('Email'), ['controller' => 'Settings', 'action' => 'email'], [__('Configuration'), __('Settings')]);
@@ -1208,8 +764,8 @@ class AppController extends Controller {
 			}
 		}
 
-		if (Configure::read('feature.affiliates') && Configure::read('Perm.is_manager')) {
-			if (count($affiliates) == 1 && !Configure::read('Perm.is_admin')) {
+		if (Configure::read('feature.affiliates') && $identity && $identity->isManager()) {
+			if (count($affiliates) == 1 && !$identity->isAdmin()) {
 				$affiliate = current(array_keys($affiliates));
 				$this->_addMenuItem(__('Organization'), ['controller' => 'Settings', 'action' => 'organization', 'affiliate' => $affiliate], [__('Configuration'), __('Settings')]);
 				$this->_addMenuItem(__('Features'), ['controller' => 'Settings', 'action' => 'feature', 'affiliate' => $affiliate], [__('Configuration'), __('Settings')]);
@@ -1256,18 +812,18 @@ class AppController extends Controller {
 		}
 
 		if (Configure::read('feature.tasks')) {
-			if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || Configure::read('Perm.is_official') || Configure::read('Perm.is_volunteer')) {
+			if ($identity && ($identity->isManager() || $identity->isOfficial() || $identity->isVolunteer())) {
 				$this->_addMenuItem(__('Tasks'), ['controller' => 'Tasks', 'action' => 'index']);
 				$this->_addMenuItem(__('List'), ['controller' => 'Tasks', 'action' => 'index'], __('Tasks'));
 			}
 
-			if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+			if ($identity && $identity->isManager()) {
 				$this->_addMenuItem(__('Categories'), ['controller' => 'Categories', 'action' => 'index'], __('Tasks'));
 				$this->_addMenuItem(__('Download All'), ['controller' => 'Tasks', 'action' => 'index', '_ext' => 'csv'], __('Tasks'));
 			}
 		}
 
-		if (!Configure::read('feature.minimal_menus') && Configure::read('Perm.is_logged_in')) {
+		if (!Configure::read('feature.minimal_menus') && $identity && $identity->isLoggedIn()) {
 			$this->_initPersonalMenu();
 			$relatives = $this->UserCache->allActAs(true, 'first_name');
 			foreach ($relatives as $id => $name) {
@@ -1283,17 +839,17 @@ class AppController extends Controller {
 		$this->_addMenuItem(__('New users'), ['controller' => 'Help', 'action' => 'guide', 'new_user'], __('Help'));
 		$this->_addMenuItem(__('Advanced users'), ['controller' => 'Help', 'action' => 'guide', 'advanced'], __('Help'));
 		$this->_addMenuItem(__('Coaches/Captains'), ['controller' => 'Help', 'action' => 'guide', 'captain'], __('Help'));
-		if (!Configure::read('feature.minimal_menus') && (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || $this->UserCache->read('DivisionIDs'))) {
+		if (!Configure::read('feature.minimal_menus') && $identity && ($identity->isManager() || $identity->isCoordinator())) {
 			$this->_addMenuItem(__('Coordinators'), ['controller' => 'Help', 'action' => 'guide', 'coordinator'], __('Help'));
 		}
 		if (ZULURU == 'Zuluru') {
 			$this->_addMenuItem(__('Credits'), ['controller' => 'All', 'action' => 'credits'], __('Help'));
 		}
 
-		if (Configure::read('Perm.is_admin')) {
+		if ($identity && $identity->isAdmin()) {
 			$this->_addMenuItem(__('Site setup and configuration'), ['controller' => 'Help', 'action' => 'guide', 'administrator', 'setup'], [__('Help'), __('Administrators')]);
 		}
-		if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+		if ($identity && $identity->isManager()) {
 			$this->_addMenuItem(__('Player management'), ['controller' => 'Help', 'action' => 'guide', 'administrator', 'players'], [__('Help'), __('Administrators')]);
 			$this->_addMenuItem(__('League management'), ['controller' => 'Help', 'action' => 'guide', 'administrator', 'leagues'], [__('Help'), __('Administrators')]);
 			$this->_addMenuItem(__('{0} management', __(Configure::read('UI.field_cap'))), ['controller' => 'Help', 'action' => 'guide', 'administrator', 'fields'], [__('Help'), __('Administrators')]);
@@ -1416,54 +972,6 @@ class AppController extends Controller {
 		}
 
 		$this->_addMenuItem($division->league_name, ['controller' => 'Leagues', 'action' => 'view', 'league' => $league->id], $path);
-	}
-
-	public static function _showRegistration($id, $groups = null) {
-		if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager') || !Configure::read('Perm.is_logged_in') || !empty(UserCache::getInstance()->read('Registrations', $id))) {
-			return true;
-		}
-
-		// Players always get it
-		if ($groups === null) {
-			$groups = UserCache::getInstance()->read('GroupIDs', $id);
-		}
-		if (in_array(GROUP_PLAYER, $groups)) {
-			return true;
-		}
-
-		// If there are any generic events available, everyone gets it
-		$affiliates = self::_applicableAffiliateIDs();
-		$events_table = TableRegistry::get('Events');
-		if ($events_table->find()
-			->contain('EventTypes')
-			->where([
-				'EventTypes.type' => 'generic',
-				'Events.open <' => FrozenDate::now()->addDays(30),
-				'Events.close >' => FrozenDate::now(),
-				'Events.affiliate_id IN' => $affiliates,
-			])
-			->count() > 0)
-		{
-			return true;
-		}
-
-		// If there are any team events available, coaches get it
-		if (in_array(GROUP_COACH, $groups)) {
-			if ($events_table->find()
-				->contain('EventTypes')
-				->where([
-					'EventTypes.type' => 'team',
-					'Events.open <' => FrozenDate::now()->addDays(30),
-					'Events.close >' => FrozenDate::now(),
-					'Events.affiliate_id IN' => $affiliates,
-				])
-				->count() > 0)
-			{
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	/**
@@ -1667,10 +1175,6 @@ class AppController extends Controller {
 	}
 
 	protected function _handlePersonSearch(array $url_params = [], array $conditions = []) {
-		if ($this->request->is('ajax')) {
-			$this->viewBuilder()->className('Ajax.Ajax');
-		}
-
 		list($params, $url) = $this->_extractSearchParams($url_params);
 
 		if (!empty($params)) {
@@ -1681,9 +1185,9 @@ class AppController extends Controller {
 				}
 			}
 			$test = implode('', $names);
-			$min = (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) ? 1 : 2;
+			$min = $this->Authentication->getIdentity()->isManager() ? 1 : 2;
 			if (strlen($test) < $min) {
-				$this->set('error', __('The search terms used are too general. Please be more specific.'));
+				$this->set('search_error', __('The search terms used are too general. Please be more specific.'));
 			} else {
 				// Set the default pagination order; query params may override it.
 				// TODO: Multiple default sort fields break pagination links.
@@ -1819,6 +1323,18 @@ class AppController extends Controller {
 			$url = '/';
 		}
 		return \App\Lib\base64_url_encode($url);
+	}
+
+	// Wrapper around the Footprint function, to work with Authentication plugin
+	protected function _setCurrentUser($user = null) {
+		if (!$user) {
+			$user = $this->request->getAttribute('identity');
+			if ($user) {
+				$user = $user->getOriginalData();
+			}
+		}
+
+		return $this->_footprintSetCurrentUser($user);
 	}
 
 }

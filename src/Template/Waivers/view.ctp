@@ -49,7 +49,7 @@ endif;
 echo $this->Html->tag('li', $this->Html->iconLink('view_32.png',
 	['action' => 'index'],
 	['alt' => __('List'), 'title' => __('List Waivers')]));
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+if ($this->Authorize->can('edit', $waiver)) {
 	echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
 		['action' => 'edit', 'waiver' => $waiver->id],
 		['alt' => __('Edit'), 'title' => __('Edit Waiver')]));

@@ -38,7 +38,7 @@ $this->Html->addCrumb(__('View'));
 	</fieldset>
 
 <?php
-if ((Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager'))):
+if ($this->Authorize->getIdentity()->isManagerOf($registration->event)):
 	foreach ($registration->payments as $payment):
 ?>
 	<fieldset><legend><?= __('Payment') ?></legend>

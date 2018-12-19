@@ -5,6 +5,7 @@ use Cake\Auth\DefaultPasswordHasher;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
+use Firebase\JWT\JWT;
 
 /**
  * App\Controller\UsersController Test Case
@@ -27,6 +28,8 @@ class UsersControllerTest extends ControllerTestCase {
 				'app.groups_people',
 			'app.leagues',
 				'app.divisions',
+					'app.teams',
+					'app.divisions_people',
 			'app.settings',
 	];
 
@@ -54,6 +57,8 @@ class UsersControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testCreateAccountAsAdmin() {
+		// Admins are allowed to create account
+		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'create_account'], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -63,6 +68,8 @@ class UsersControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testCreateAccountAsManager() {
+		// Managers are allowed to create account
+		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'create_account'], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -72,8 +79,9 @@ class UsersControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testCreateAccountAsCoordinator() {
-		$this->assertAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
-			PERSON_ID_COORDINATOR, 'get', [], null, 'You are already logged in!', 'Flash.flash.0.message');
+		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
+			PERSON_ID_COORDINATOR, '/',
+			'You are already logged in!');
 	}
 
 	/**
@@ -82,8 +90,9 @@ class UsersControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testCreateAccountAsCaptain() {
-		$this->assertAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
-			PERSON_ID_CAPTAIN, 'get', [], null, 'You are already logged in!', 'Flash.flash.0.message');
+		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
+			PERSON_ID_CAPTAIN, '/',
+			'You are already logged in!');
 	}
 
 	/**
@@ -92,8 +101,9 @@ class UsersControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testCreateAccountAsPlayer() {
-		$this->assertAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
-			PERSON_ID_PLAYER, 'get', [], null, 'You are already logged in!', 'Flash.flash.0.message');
+		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
+			PERSON_ID_PLAYER, '/',
+			'You are already logged in!');
 	}
 
 	/**
@@ -102,8 +112,9 @@ class UsersControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testCreateAccountAsVisitor() {
-		$this->assertAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
-			PERSON_ID_VISITOR, 'get', [], null, 'You are already logged in!', 'Flash.flash.0.message');
+		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
+			PERSON_ID_VISITOR, '/',
+			'You are already logged in!');
 	}
 
 	/**
@@ -112,14 +123,14 @@ class UsersControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testCreateAccountAsAnonymous() {
-		$this->assertAccessOk(['controller' => 'Users', 'action' => 'create_account']);
-		$this->assertResponseRegExp('#You will be participating as a player#');
-		$this->assertResponseRegExp('#You have one or more children who will be participating as players#');
-		$this->assertResponseRegExp('#You will be coaching a team that you are not a player on#');
-		$this->assertResponseRegExp('#You plan to volunteer to help organize or run things#');
-		$this->assertResponseNotRegExp('#You will be acting as an in-game official#');
-		$this->assertResponseNotRegExp('#You are an organizational manager with some admin privileges#');
-		$this->assertResponseNotRegExp('#You are an organizational administrator with absolute privileges#');
+		$this->assertGetAnonymousAccessOk(['controller' => 'Users', 'action' => 'create_account']);
+		$this->assertResponseContains('You will be participating as a player');
+		$this->assertResponseContains('You have one or more children who will be participating as players');
+		$this->assertResponseContains('You will be coaching a team that you are not a player on');
+		$this->assertResponseContains('You plan to volunteer to help organize or run things');
+		$this->assertResponseNotContains('You will be acting as an in-game official');
+		$this->assertResponseNotContains('You are an organizational manager with some admin privileges');
+		$this->assertResponseNotContains('You are an organizational administrator with absolute privileges');
 	}
 
 	/**
@@ -140,8 +151,8 @@ class UsersControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		$this->assertAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
-			null, 'post', [
+		$this->assertPostAnonymousAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
+			[
 				'user_name' => 'test',
 				'email' => 'test@example.com',
 				'new_password' => 'password',
@@ -190,7 +201,7 @@ class UsersControllerTest extends ControllerTestCase {
 			],
 			'/', 'Flash/account_created', 'Flash.flash.0.element'
 		);
-		$this->assertEquals(USER_ID_NEW, $this->_requestSession->read('Auth.User.id'));
+		$this->assertEquals(USER_ID_NEW, $this->_requestSession->read('Auth.id'));
 
 		$user = TableRegistry::get('Users')->get(USER_ID_NEW, ['contain' => [
 			'People' => [
@@ -230,8 +241,8 @@ class UsersControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		$this->assertAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
-			null, 'post', [
+		$this->assertPostAnonymousAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
+			[
 				'user_name' => 'test',
 				'email' => 'test@example.com',
 				'new_password' => 'password',
@@ -286,7 +297,7 @@ class UsersControllerTest extends ControllerTestCase {
 			],
 			'/', 'Flash/account_created', 'Flash.flash.0.element'
 		);
-		$this->assertEquals(USER_ID_NEW, $this->_requestSession->read('Auth.User.id'));
+		$this->assertEquals(USER_ID_NEW, $this->_requestSession->read('Auth.id'));
 
 		$user = TableRegistry::get('Users')->get(USER_ID_NEW, ['contain' => [
 			'People' => [
@@ -344,8 +355,8 @@ class UsersControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		$this->assertAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
-			null, 'post', [
+		$this->assertPostAnonymousAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
+			[
 				'user_name' => 'test',
 				'email' => 'test@example.com',
 				'new_password' => 'password',
@@ -400,7 +411,7 @@ class UsersControllerTest extends ControllerTestCase {
 			],
 			['controller' => 'People', 'action' => 'add_relative'], 'Flash/account_created', 'Flash.flash.0.element'
 		);
-		$this->assertEquals(USER_ID_NEW, $this->_requestSession->read('Auth.User.id'));
+		$this->assertEquals(USER_ID_NEW, $this->_requestSession->read('Auth.id'));
 	}
 
 	/**
@@ -409,7 +420,10 @@ class UsersControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testImportAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('Operation not implemented yet.');
+
+		// Admins are allowed to import
+		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'import'], PERSON_ID_ADMIN);
 	}
 
 	/**
@@ -418,52 +432,54 @@ class UsersControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testImportAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('Operation not implemented yet.');
+
+		// Managers are allowed to import
+		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'import'], PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test import method as a coordinator
+	 * Test import method as others
 	 *
 	 * @return void
 	 */
-	public function testImportAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testImportAsOthers() {
+		$this->markTestIncomplete('Operation not implemented yet.');
+
+		// Others are not allowed to import
+		$this->assertGetAsAccessDenied(['controller' => 'Users', 'action' => 'import'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Users', 'action' => 'import'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Users', 'action' => 'import'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Users', 'action' => 'import'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Users', 'action' => 'import']);
 	}
 
 	/**
-	 * Test import method as a captain
+	 * Test JSON API token generation
 	 *
 	 * @return void
 	 */
-	public function testImportAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testToken() {
+		// Lock the time so that the token has a reliable value.
+		// We have to use a time around now, because the underlying JWT library
+		// uses time(), not Cake's special classes.
+		FrozenTime::setTestNow(new FrozenTime(time()));
 
-	/**
-	 * Test import method as a player
-	 *
-	 * @return void
-	 */
-	public function testImportAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test import method as someone else
-	 *
-	 * @return void
-	 */
-	public function testImportAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test import method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testImportAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->configRequest(['headers' => ['CONTENT_TYPE' => 'application/json', 'ACCEPT' => 'application/json']]);
+		$this->assertPostAnonymousAccessOk(['controller' => 'Users', 'action' => 'token', '_ext' => 'json'],
+			json_encode(['user_name' => 'amy', 'password' => 'amypassword'])
+		);
+		$this->assertJson((string)$this->_response->getBody());
+		$response = json_decode((string)$this->_response->getBody(), true);
+		$this->assertArrayHasKey('success', $response);
+		$this->assertTrue($response['success']);
+		$this->assertArrayHasKey('data', $response);
+		$this->assertArrayHasKey('token', $response['data']);
+		$token_data = JWT::decode($response['data']['token'], \Cake\Utility\Security::getSalt(), ['HS256']);
+		$this->assertObjectHasAttribute('sub', $token_data);
+		$this->assertEquals(USER_ID_ADMIN, $token_data->sub);
+		$this->assertObjectHasAttribute('exp', $token_data);
+		$this->assertEquals(FrozenTime::now()->addWeek()->toUnixString(), $token_data->exp);
 	}
 
 	/**
@@ -472,6 +488,8 @@ class UsersControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testChangePasswordAsAdmin() {
+		// Admins are allowed to change password
+		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'change_password'], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -481,6 +499,8 @@ class UsersControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testChangePasswordAsManager() {
+		// Managers are allowed to change password
+		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'change_password'], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -490,6 +510,8 @@ class UsersControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testChangePasswordAsCoordinator() {
+		// Coordinators are allowed to change password
+		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'change_password'], PERSON_ID_COORDINATOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -499,6 +521,8 @@ class UsersControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testChangePasswordAsCaptain() {
+		// Captains are allowed to change password
+		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'change_password'], PERSON_ID_CAPTAIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -508,6 +532,8 @@ class UsersControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testChangePasswordAsPlayer() {
+		// Players are allowed to change password
+		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'change_password'], PERSON_ID_PLAYER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -517,6 +543,8 @@ class UsersControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testChangePasswordAsVisitor() {
+		// Visitors are allowed to change password
+		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'change_password'], PERSON_ID_VISITOR);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -526,7 +554,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testChangePasswordAsAnonymous() {
-		$this->assertAccessRedirect(['controller' => 'Users', 'action' => 'change_password']);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Users', 'action' => 'change_password']);
 	}
 
 	/**
@@ -535,9 +563,9 @@ class UsersControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testResetPasswordAsAdmin() {
-		$this->assertAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
-			PERSON_ID_ADMIN, 'get', [], ['controller' => 'Users', 'action' => 'change_password'],
-			'You are already logged in. Use the change password form instead.', 'Flash.flash.0.message');
+		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
+			PERSON_ID_ADMIN, ['controller' => 'Users', 'action' => 'change_password'],
+			'You are already logged in. Use the change password form instead.');
 	}
 
 	/**
@@ -546,9 +574,9 @@ class UsersControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testResetPasswordAsManager() {
-		$this->assertAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
-			PERSON_ID_MANAGER, 'get', [], ['controller' => 'Users', 'action' => 'change_password'],
-			'You are already logged in. Use the change password form instead.', 'Flash.flash.0.message');
+		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
+			PERSON_ID_MANAGER, ['controller' => 'Users', 'action' => 'change_password'],
+			'You are already logged in. Use the change password form instead.');
 	}
 
 	/**
@@ -557,9 +585,9 @@ class UsersControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testResetPasswordAsCoordinator() {
-		$this->assertAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
-			PERSON_ID_COORDINATOR, 'get', [], ['controller' => 'Users', 'action' => 'change_password'],
-			'You are already logged in. Use the change password form instead.', 'Flash.flash.0.message');
+		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
+			PERSON_ID_COORDINATOR, ['controller' => 'Users', 'action' => 'change_password'],
+			'You are already logged in. Use the change password form instead.');
 	}
 
 	/**
@@ -568,9 +596,9 @@ class UsersControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testResetPasswordAsCaptain() {
-		$this->assertAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
-			PERSON_ID_CAPTAIN, 'get', [], ['controller' => 'Users', 'action' => 'change_password'],
-			'You are already logged in. Use the change password form instead.', 'Flash.flash.0.message');
+		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
+			PERSON_ID_CAPTAIN, ['controller' => 'Users', 'action' => 'change_password'],
+			'You are already logged in. Use the change password form instead.');
 	}
 
 	/**
@@ -579,9 +607,9 @@ class UsersControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testResetPasswordAsPlayer() {
-		$this->assertAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
-			PERSON_ID_PLAYER, 'get', [], ['controller' => 'Users', 'action' => 'change_password'],
-			'You are already logged in. Use the change password form instead.', 'Flash.flash.0.message');
+		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
+			PERSON_ID_PLAYER, ['controller' => 'Users', 'action' => 'change_password'],
+			'You are already logged in. Use the change password form instead.');
 	}
 
 	/**
@@ -590,9 +618,9 @@ class UsersControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testResetPasswordAsVisitor() {
-		$this->assertAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
-			PERSON_ID_VISITOR, 'get', [], ['controller' => 'Users', 'action' => 'change_password'],
-			'You are already logged in. Use the change password form instead.', 'Flash.flash.0.message');
+		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
+			PERSON_ID_VISITOR, ['controller' => 'Users', 'action' => 'change_password'],
+			'You are already logged in. Use the change password form instead.');
 	}
 
 	/**
@@ -601,7 +629,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testResetPasswordAsAnonymous() {
-		$this->assertAccessOk(['controller' => 'Users', 'action' => 'reset_password']);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Users', 'action' => 'reset_password']);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

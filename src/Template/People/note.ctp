@@ -1,6 +1,4 @@
 <?php
-use Cake\Core\Configure;
-
 $this->Html->addCrumb(__('People'));
 $this->Html->addCrumb($person->full_name);
 $this->Html->addCrumb(__('Note'));
@@ -18,7 +16,7 @@ echo $this->Form->create($note, ['align' => 'horizontal']);
 $options = [
 	VISIBILITY_PRIVATE => __('Only I will be able to see this'),
 ];
-if (Configure::read('Perm.is_admin')) {
+if ($this->Authorize->getIdentity()->isManagerOf($person)) {
 	$options[VISIBILITY_ADMIN] = __('Administrators only');
 }
 echo $this->Form->input('visibility', [

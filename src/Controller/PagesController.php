@@ -2,7 +2,7 @@
 namespace App\Controller;
 
 use Cake\Core\Configure;
-use Cake\Network\Exception\NotFoundException;
+use Cake\Http\Exception\NotFoundException;
 use Cake\View\Exception\MissingTemplateException;
 
 /**
@@ -15,23 +15,19 @@ use Cake\View\Exception\MissingTemplateException;
 class PagesController extends AppController {
 
     /**
-     * _publicActions method
+     * _noAuthenticationActions method
      *
-     * @return Array of actions that can be taken even by visitors that are not logged in.
+     * @return array of actions that can be taken even by visitors that are not logged in.
      */
-    protected function _publicActions() {
-        if ($this->request->controller == 'Pages') {
-            return ['display'];
-        }
-        trigger_error('TODOTESTING', E_USER_ERROR);
-        return null;
+    protected function _noAuthenticationActions() {
+		return ['display'];
     }
 
     /**
      * Displays a view
      *
      * @return void|\Cake\Network\Response
-     * @throws \Cake\Network\Exception\NotFoundException When the view file could not
+     * @throws \Cake\Http\Exception\NotFoundException When the view file could not
      *   be found or \Cake\View\Exception\MissingTemplateException in debug mode.
      */
     public function display()

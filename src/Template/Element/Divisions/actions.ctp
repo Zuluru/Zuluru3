@@ -1,14 +1,10 @@
 <?php
+
+use App\Authorization\ContextResource;
 use App\Controller\AppController;
 use App\Core\ModuleRegistry;
 use Cake\Core\Configure;
 
-if (!isset($is_league_manager)) {
-	$is_league_manager = Configure::read('Perm.is_manager');
-}
-if (!isset($is_coordinator)) {
-	$is_coordinator = false;
-}
 if (!isset($format)) {
 	$format = 'links';
 }
@@ -52,26 +48,23 @@ if (!$collapse) {
 	}
 }
 
-if ($division->schedule_type != 'none') {
-	if ($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'stats') {
-		if ((Configure::read('Perm.is_logged_in') || Configure::read('feature.public')) && Configure::read('scoring.stat_tracking') && $league->hasStats()) {
-			$links[] = $this->Html->iconLink("stats_$size.png",
-				['controller' => 'Divisions', 'action' => 'stats', 'division' => $division->id],
-				['alt' => __('Stats'), 'title' => __('Stats')]);
-		}
-	}
-	if ($division->schedule_type != 'competition') {
-		if ($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'scores') {
-			if (Configure::read('Perm.is_logged_in') || Configure::read('feature.public')) {
-				$more[__('Scores')] = [
-					'url' => ['controller' => 'Divisions', 'action' => 'scores', 'division' => $division->id]
-				];
-			}
-		}
-	}
+if (($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'stats') &&
+	$this->Authorize->can('stats', $league)
+) {
+	$links[] = $this->Html->iconLink("stats_$size.png",
+		['controller' => 'Divisions', 'action' => 'stats', 'division' => $division->id],
+		['alt' => __('Stats'), 'title' => __('Stats')]);
 }
 
-if (Configure::read('Perm.is_admin') || $is_league_manager || $is_coordinator) {
+if (($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'scores') &&
+	$this->Authorize->can('scores', $division)
+) {
+	$more[__('Scores')] = [
+		'url' => ['controller' => 'Divisions', 'action' => 'scores', 'division' => $division->id]
+	];
+}
+
+if ($this->Authorize->can('edit', $division)) {
 	if (!$collapse && ($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'edit')) {
 		$more[__('Edit Division')] = [
 			'url' => ['controller' => 'Divisions', 'action' => 'edit', 'division' => $division->id, 'return' => AppController::_return()],
@@ -92,81 +85,95 @@ if (Configure::read('Perm.is_admin') || $is_league_manager || $is_coordinator) {
 			'url' => ['controller' => 'Divisions', 'action' => 'emails', 'division' => $division->id],
 		];
 	}
-	if ($division->schedule_type != 'none') {
-		if ($division->schedule_type != 'competition') {
-			if ($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'approve_scores') {
-				$more[__('Approve scores')] = [
-					'url' => ['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => $division->id, 'return' => $return],
-				];
-			}
-		}
-		if ($this->request->getParam('controller') != 'Schedules' || $this->request->getParam('action') != 'add') {
-			$more[__('Add Games')] = [
-				'url' => ['controller' => 'Schedules', 'action' => 'add', 'division' => $division->id, 'return' => $return],
-			];
-		}
-		if ($league->hasSpirit() && ($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'spirit')) {
-			$more[__('Division Spirit Report')] = [
-				'url' => ['controller' => 'Divisions', 'action' => 'spirit', 'division' => $division->id],
-			];
-		}
-		if ($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'fields') {
-			$more[__('{0} Distribution Report', __(Configure::read("sports.{$league->sport}.field_cap")))] = [
-				'url' => ['controller' => 'Divisions', 'action' => 'fields', 'division' => $division->id],
-			];
-		}
-		if ($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'slots') {
-			$more[__('{0} Availability', __(Configure::read("sports.{$league->sport}.field_cap")))] = [
-				'url' => ['controller' => 'Divisions', 'action' => 'slots', 'division' => $division->id],
-			];
-		}
-		if ($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'status') {
-			$more[__('Status Report')] = [
-				'url' => ['controller' => 'Divisions', 'action' => 'status', 'division' => $division->id],
-			];
-		}
+}
+
+if (($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'approve_scores') &&
+	$this->Authorize->can('approve_scores', $division)
+) {
+	$more[__('Approve scores')] = [
+		'url' => ['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => $division->id, 'return' => $return],
+	];
+}
+
+if ($this->Authorize->can('edit_schedule', $division)) {
+	if (($this->request->getParam('controller') != 'Schedules' || $this->request->getParam('action') != 'add')) {
+		$more[__('Add Games')] = [
+			'url' => ['controller' => 'Schedules', 'action' => 'add', 'division' => $division->id, 'return' => $return],
+		];
 	}
-	if ($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'add_teams') {
-		$more[__('Add Teams')] = [
-			'url' => ['controller' => 'Divisions', 'action' => 'add_teams', 'division' => $division->id, 'return' => $return],
+	if ($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'fields') {
+		$more[__('{0} Distribution Report', __(Configure::read("sports.{$league->sport}.field_cap")))] = [
+			'url' => ['controller' => 'Divisions', 'action' => 'fields', 'division' => $division->id],
+		];
+	}
+	if ($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'slots') {
+		$more[__('{0} Availability', __(Configure::read("sports.{$league->sport}.field_cap")))] = [
+			'url' => ['controller' => 'Divisions', 'action' => 'slots', 'division' => $division->id],
+		];
+	}
+	if ($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'status') {
+		$more[__('Status Report')] = [
+			'url' => ['controller' => 'Divisions', 'action' => 'status', 'division' => $division->id],
 		];
 	}
 }
-if (Configure::read('Perm.is_admin') || $is_league_manager) {
-	if ($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'add_coordinator') {
-		$more[__('Add Coordinator')] = [
-			'url' => ['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => $division->id, 'return' => $return],
-		];
+
+if (($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'spirit') &&
+	$this->Authorize->can('spirit', new ContextResource($division, ['league' => $league]))
+) {
+	$more[__('Division Spirit Report')] = [
+		'url' => ['controller' => 'Divisions', 'action' => 'spirit', 'division' => $division->id],
+	];
+}
+
+if (($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'add_teams') &&
+	$this->Authorize->can('add_teams', $division)
+) {
+	$more[__('Add Teams')] = [
+		'url' => ['controller' => 'Divisions', 'action' => 'add_teams', 'division' => $division->id, 'return' => $return],
+	];
+}
+
+if (($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'add_coordinator') &&
+	$this->Authorize->can('add_coordinator', $division)
+) {
+	$more[__('Add Coordinator')] = [
+		'url' => ['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => $division->id, 'return' => $return],
+	];
+}
+
+if (($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'add') &&
+	$this->Authorize->can('add_division', $league)
+) {
+	$more[__('Clone Division')] = [
+		'url' => ['controller' => 'Divisions', 'action' => 'add', 'league' => $division->league_id, 'division' => $division->id, 'return' => $return],
+	];
+}
+
+if (($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'allstars') &&
+	$this->Authorize->can('allstars', $division)
+) {
+	$more[__('Allstars')] = [
+		'url' => ['controller' => 'Divisions', 'action' => 'allstars', 'division' => $division->id],
+	];
+}
+
+if (!$collapse && $this->Authorize->can('delete', $division)) {
+	$url = ['controller' => 'Divisions', 'action' => 'delete', 'division' => $division->id];
+	if ($this->request->getParam('controller') != 'Divisions') {
+		$url['return'] = AppController::_return();
 	}
-	if ($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'add') {
-		$more[__('Clone Division')] = [
-			'url' => ['controller' => 'Divisions', 'action' => 'add', 'league' => $division->league_id, 'division' => $division->id, 'return' => $return],
-		];
-	}
-	if ($division['schedule_type'] != 'none') {
-		if ($division->allstars != 'never' && ($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'allstars')) {
-			$more[__('Allstars')] = [
-				'url' => ['controller' => 'Divisions', 'action' => 'allstars', 'division' => $division->id],
-			];
-		}
-	}
-	if (!$collapse) {
-		$url = ['controller' => 'Divisions', 'action' => 'delete', 'division' => $division->id];
-		if ($this->request->getParam('controller') != 'Divisions') {
-			$url['return'] = AppController::_return();
-		}
-		$more[__('Delete Division')] = [
-			'url' => $url,
-			'confirm' => __('Are you sure you want to delete this division?'),
-			'method' => 'post',
-		];
-	}
+	$more[__('Delete Division')] = [
+		'url' => $url,
+		'confirm' => __('Are you sure you want to delete this division?'),
+		'method' => 'post',
+	];
 }
 
 // Some items are only applicable depending on league configuration
 if (!empty($division->schedule_type)) {
 	$league_obj = ModuleRegistry::getInstance()->load("LeagueType:{$division->schedule_type}");
-	$more = array_merge($more, $league_obj->links($division, Configure::read('Perm.is_admin') || $is_league_manager || $is_coordinator, $this->request->getParam('controller'), $this->request->getParam('action')));
+	$more = array_merge($more, $league_obj->links($division, $this->Authorize->getIdentity(), $this->request->getParam('controller'), $this->request->getParam('action')));
 }
 
 if (!empty($extra)) {

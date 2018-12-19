@@ -1,6 +1,7 @@
 <?php
 namespace App\Model\Table;
 
+use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
 use App\Model\Entity\League;
@@ -101,6 +102,45 @@ class SpiritEntriesTable extends AppTable {
 		$rules->add($rules->existsIn(['game_id'], 'Games'));
 		$rules->add($rules->existsIn(['person_id'], 'People'));
 		return $rules;
+	}
+
+	public function division($id) {
+		try {
+			return $this->Games->division($this->field('game_id', ['id' => $id]));
+		} catch (RecordNotFoundException $ex) {
+			return null;
+		}
+	}
+
+	public function team($id) {
+		try {
+			return $this->field('created_team_id', ['id' => $id]);
+		} catch (RecordNotFoundException $ex) {
+			return null;
+		}
+	}
+
+	public static function compareSpirit($a,$b) {
+		if (array_key_exists('entered_sotg', $a['summary'])) {
+			if ($a['summary']['entered_sotg'] > $b['summary']['entered_sotg']) {
+				return -1;
+			} else if ($a['summary']['entered_sotg'] < $b['summary']['entered_sotg']) {
+				return 1;
+			}
+		}
+		if (array_key_exists('assigned_sotg', $a['summary'])) {
+			if ($a['summary']['assigned_sotg'] > $b['summary']['assigned_sotg']) {
+				return -1;
+			} else if ($a['summary']['assigned_sotg'] < $b['summary']['assigned_sotg']) {
+				return 1;
+			}
+		}
+		if ($a['details']['name'] < $b['details']['name']) {
+			return -1;
+		} else if ($a['details']['name'] > $b['details']['name']) {
+			return 1;
+		}
+		return 0;
 	}
 
 }

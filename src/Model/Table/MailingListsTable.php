@@ -95,4 +95,5 @@ class MailingListsTable extends AppTable {
 			return null;
 		}
 	}
+
 }

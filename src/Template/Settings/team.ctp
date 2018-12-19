@@ -56,16 +56,6 @@ echo $this->element('Settings/input', [
 ]);
 echo $this->element('Settings/input', [
 	'category' => 'feature',
-	'name' => 'attendance',
-	'options' => [
-		'label' => __('Attendance tracking'),
-		'type' => 'radio',
-		'options' => Configure::read('options.enable'),
-		'help' => __('Enable or disable everything to do with attendance tracking. If enabled here, teams can still opt not to use this feature.'),
-	],
-]);
-echo $this->element('Settings/input', [
-	'category' => 'feature',
 	'name' => 'urls',
 	'options' => [
 		'label' => __('Allow URLs'),

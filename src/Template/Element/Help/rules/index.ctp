@@ -1,7 +1,6 @@
 <?php
-use Cake\Core\Configure;
-
-if (Configure::read('Perm.is_admin')) {
+$identity = $this->Authorize->getIdentity();
+if ($identity && $identity->isManager()) {
 	echo $this->element('Help/topics', [
 			'section' => 'rules',
 			'topics' => [

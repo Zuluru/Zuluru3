@@ -1,7 +1,7 @@
 <?php
 namespace App\Model\Entity;
 
-use App\Auth\DrupalPasswordHasher;
+use App\PasswordHasher\DrupalPasswordHasher;
 use Cake\I18n\FrozenTime;
 
 /**

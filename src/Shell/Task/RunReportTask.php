@@ -4,10 +4,9 @@ namespace App\Shell\Task;
 use App\Controller\AppController;
 use App\Core\ModuleRegistry;
 use App\Exception\MissingModuleException;
+use App\Middleware\ConfigurationLoader;
 use Cake\Console\Shell;
 use Cake\Core\Configure;
-use Cake\Event\Event as CakeEvent;
-use Cake\Event\EventManager;
 use Cake\ORM\TableRegistry;
 
 /**
@@ -18,9 +17,7 @@ use Cake\ORM\TableRegistry;
 class RunReportTask extends Shell {
 
 	public function main() {
-		$event = new CakeEvent('Configuration.initialize', $this);
-		EventManager::instance()->dispatch($event);
-
+		ConfigurationLoader::loadConfiguration();
 		$this->reports_table = TableRegistry::get('Reports');
 		$report = $this->reports_table->find()
 			->contain(['People' => [Configure::read('Security.authModel')]])

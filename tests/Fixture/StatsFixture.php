@@ -22,9 +22,9 @@ class StatsFixture extends TestFixture {
 	public function init() {
 		$this->records = [
 			[
-				'game_id' => GAME_ID_LADDER_MATCHED_SCORES,
-				'team_id' => TEAM_ID_RED,
-				'person_id' => PERSON_ID_ADMIN,
+				'game_id' => GAME_ID_THURSDAY_ROUND_ROBIN,
+				'team_id' => TEAM_ID_CHICKADEES,
+				'person_id' => PERSON_ID_CAPTAIN,
 				'stat_type_id' => 1,
 				'value' => 1,
 			],

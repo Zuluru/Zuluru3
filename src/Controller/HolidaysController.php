@@ -1,7 +1,6 @@
 <?php
 namespace App\Controller;
 
-use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 
@@ -13,55 +12,14 @@ use Cake\Datasource\Exception\RecordNotFoundException;
 class HolidaysController extends AppController {
 
 	/**
-	 * isAuthorized method
-	 *
-	 * @return bool true if access allowed
-	 */
-	public function isAuthorized() {
-		try {
-			if ($this->UserCache->read('Person.status') == 'locked') {
-				return false;
-			}
-
-			if (Configure::read('Perm.is_manager')) {
-				// Managers can perform these operations
-				if (in_array($this->request->getParam('action'), [
-					'index',
-					'add',
-				])) {
-					return true;
-				}
-
-				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->getParam('action'), [
-					'edit',
-					'delete',
-				])) {
-					// If a holiday id is specified, check if we're a manager of that holiday's affiliate
-					$holiday = $this->request->getQuery('holiday');
-					if ($holiday) {
-						if (in_array($this->Holidays->affiliate($holiday), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-				}
-			}
-		} catch (RecordNotFoundException $ex) {
-		} catch (InvalidPrimaryKeyException $ex) {
-		}
-
-		return false;
-	}
-
-	/**
 	 * Index method
 	 *
 	 * @return void|\Cake\Network\Response
 	 */
 	public function index() {
-		$affiliates = $this->_applicableAffiliateIDs(true);
+		$this->Authorization->authorize($this);
+
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		$this->paginate['contain'] = ['Affiliates'];
 		$this->paginate['conditions'] = ['Holidays.affiliate_id IN' => $affiliates];
 		$this->paginate['order'] = ['date'];
@@ -77,6 +35,8 @@ class HolidaysController extends AppController {
 	 */
 	public function add() {
 		$holiday = $this->Holidays->newEntity();
+		$this->Authorization->authorize($holiday);
+
 		if ($this->request->is('post')) {
 			$holiday = $this->Holidays->patchEntity($holiday, $this->request->data);
 			if ($this->Holidays->save($holiday)) {
@@ -88,7 +48,7 @@ class HolidaysController extends AppController {
 			}
 		}
 
-		$affiliates = $this->_applicableAffiliates(true);
+		$affiliates = $this->Authentication->applicableAffiliates(true);
 		$this->set(compact('holiday', 'affiliates'));
 		$this->render('edit');
 	}
@@ -109,6 +69,8 @@ class HolidaysController extends AppController {
 			$this->Flash->info(__('Invalid holiday.'));
 			return $this->redirect(['action' => 'index']);
 		}
+
+		$this->Authorization->authorize($holiday);
 		$this->Configuration->loadAffiliate($holiday->affiliate_id);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
@@ -121,7 +83,7 @@ class HolidaysController extends AppController {
 			}
 		}
 
-		$affiliates = $this->_applicableAffiliates(true);
+		$affiliates = $this->Authentication->applicableAffiliates(true);
 		$this->set(compact('holiday', 'affiliates'));
 	}
 
@@ -143,6 +105,8 @@ class HolidaysController extends AppController {
 			$this->Flash->info(__('Invalid holiday.'));
 			return $this->redirect(['action' => 'index']);
 		}
+
+		$this->Authorization->authorize($holiday);
 
 		if ($this->Holidays->delete($holiday)) {
 			$this->Flash->success(__('The holiday has been deleted.'));

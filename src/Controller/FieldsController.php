@@ -17,56 +17,12 @@ use Cake\ORM\TableRegistry;
 class FieldsController extends AppController {
 
 	/**
-	 * _publicActions method
+	 * _noAuthenticationActions method
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _publicActions() {
+	protected function _noAuthenticationActions() {
 		return ['index', 'view', 'tooltip'];
-	}
-
-	/**
-	 * isAuthorized method
-	 *
-	 * @return bool true if access allowed
-	 */
-	public function isAuthorized() {
-		try {
-			if ($this->UserCache->read('Person.status') == 'locked') {
-				return false;
-			}
-
-			if (Configure::read('Perm.is_manager')) {
-				// Managers can perform these operations in affiliates they manage
-				if (in_array($this->request->getParam('action'), [
-					'open',
-					'close',
-					'delete',
-					'bookings',
-				])) {
-					// If a field id is specified, check if we're a manager of that field's affiliate
-					$field = $this->request->getQuery('field');
-					if ($field) {
-						if (in_array($this->Fields->affiliate($field), $this->UserCache->read('ManagedAffiliateIDs'))) {
-							return true;
-						} else {
-							Configure::write('Perm.is_manager', false);
-						}
-					}
-				}
-			}
-
-			// Anyone that's logged in can perform these operations
-			if (in_array($this->request->getParam('action'), [
-				'bookings',
-			])) {
-				return true;
-			}
-		} catch (RecordNotFoundException $ex) {
-		} catch (InvalidPrimaryKeyException $ex) {
-		}
-
-		return false;
 	}
 
 	/**
@@ -101,7 +57,6 @@ class FieldsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
 	 */
 	public function tooltip() {
-		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
 		$id = $this->request->getQuery('field');
@@ -129,7 +84,6 @@ class FieldsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
 	 */
 	public function open() {
-		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
 		$id = $this->request->getQuery('field');
@@ -142,6 +96,7 @@ class FieldsController extends AppController {
 			$this->Flash->info(__('Invalid {0}.', __(Configure::read('UI.field'))));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
+		$this->Authorization->authorize($field);
 
 		$field->is_open = true;
 		if (!$this->Fields->save($field)) {
@@ -158,7 +113,6 @@ class FieldsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
 	 */
 	public function close() {
-		$this->viewBuilder()->className('Ajax.Ajax');
 		$this->request->allowMethod('ajax');
 
 		$id = $this->request->getQuery('field');
@@ -171,6 +125,7 @@ class FieldsController extends AppController {
 			$this->Flash->info(__('Invalid {0}.', __(Configure::read('UI.field'))));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
+		$this->Authorization->authorize($field);
 
 		$field->is_open = false;
 		if (!$this->Fields->save($field)) {
@@ -190,12 +145,6 @@ class FieldsController extends AppController {
 		$this->request->allowMethod(['post', 'delete']);
 
 		$id = $this->request->getQuery('field');
-		$dependencies = $this->Fields->dependencies($id);
-		if ($dependencies !== false) {
-			$this->Flash->warning(__('The following records reference this {0}, so it cannot be deleted.', __(Configure::read('UI.field'))) . '<br>' . $dependencies, ['params' => ['escape' => false]]);
-			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
-		}
-
 		try {
 			$field = $this->Fields->get($id, [
 				'contain' => ['Facilities' => ['Fields']],
@@ -205,6 +154,13 @@ class FieldsController extends AppController {
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		} catch (InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid {0}.', __(Configure::read('UI.field'))));
+			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
+		}
+		$this->Authorization->authorize($field);
+
+		$dependencies = $this->Fields->dependencies($id);
+		if ($dependencies !== false) {
+			$this->Flash->warning(__('The following records reference this {0}, so it cannot be deleted.', __(Configure::read('UI.field'))) . '<br>' . $dependencies, ['params' => ['escape' => false]]);
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
 
@@ -229,7 +185,7 @@ class FieldsController extends AppController {
 	 */
 	public function bookings() {
 		$id = $this->request->getQuery('field');
-		if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+		if ($this->Authentication->getIdentity()->isManager()) {
 			$conditions = ['OR' => [
 				'is_open' => true,
 				'open >=' => FrozenDate::now(),
@@ -241,7 +197,7 @@ class FieldsController extends AppController {
 		$query = TableRegistry::get('Divisions')->find();
 		$min_date = $query->select(['min' => $query->func()->min('open')])->where($conditions)->first()->min;
 		$slot_conditions = ['GameSlots.game_date >=' => $min_date];
-		if (!Configure::read('Perm.is_admin') && !Configure::read('Perm.is_manager')) {
+		if (!$this->Authentication->getIdentity()->isManager()) {
 			$max_date = $query->select(['max' => $query->func()->max('close')])->where($conditions)->first()->max;
 			$slot_conditions['GameSlots.game_date <='] = $max_date;
 		}
@@ -277,6 +233,8 @@ class FieldsController extends AppController {
 			$this->Flash->info(__('Invalid {0}.', __(Configure::read('UI.field'))));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
+
+		$this->Authorization->authorize($field);
 		$this->Configuration->loadAffiliate($field->facility->region->affiliate_id);
 
 		$this->set(compact('field'));

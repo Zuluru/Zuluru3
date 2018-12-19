@@ -33,9 +33,8 @@ class UserDrupalTableTest extends TableTestCase {
 	 */
 	public function setUp() {
 		// This needs to be defined or else the table's constructor tries to include library code
-		// TODOLATER: Will need to do something better than this when we implement these tests
 		if (!defined('DRUPAL_ROOT')) {
-			define('DRUPAL_ROOT', null);
+			define('DRUPAL_ROOT', TESTS . 'test_app' . DS . 'drupal');
 		}
 
 		parent::setUp();
@@ -52,33 +51,6 @@ class UserDrupalTableTest extends TableTestCase {
 		unset($this->UserDrupalTable);
 
 		parent::tearDown();
-	}
-
-	/**
-	 * Test defaultConnectionName method
-	 *
-	 * @return void
-	 */
-	public function testDefaultConnectionName() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test comparepassword method
-	 *
-	 * @return void
-	 */
-	public function testComparepassword() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test hashPassword method
-	 *
-	 * @return void
-	 */
-	public function testHashPassword() {
-		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**

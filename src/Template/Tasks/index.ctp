@@ -7,6 +7,11 @@ $this->Html->addCrumb(__('List'));
 
 <div class="tasks index">
 	<h2><?= __('Tasks') ?></h2>
+<?php
+if (empty($tasks)):
+	echo $this->Html->para(null, __('No tasks available.'));
+else:
+?>
 	<div class="table-responsive">
 		<table class="table table-striped table-hover table-condensed">
 			<thead>
@@ -15,37 +20,37 @@ $this->Html->addCrumb(__('List'));
 					<th><?= __('Category') ?></th>
 					<th><?= __('Reporting To') ?></th>
 <?php
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
+	if ($this->Authorize->can('edit', current($tasks))):
 ?>
 					<th><?= __('Auto-Approve') ?></th>
 					<th><?= __('Allow Signup') ?></th>
 <?php
-endif;
+	endif;
 ?>
 					<th class="actions"><?= __('Actions') ?></th>
 				</tr>
 			</thead>
 			<tbody>
 <?php
-foreach ($tasks as $task):
+	foreach ($tasks as $task):
 ?>
 				<tr>
 					<td><?= $task->name ?></td>
 					<td><?= $this->Html->link($task->category->name, ['controller' => 'Categories', 'action' => 'view', 'category' => $task->category->id]) ?></td>
 					<td><?= $this->element('People/block', ['person' => $task->person]) ?></td>
 <?php
-	if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
+		if ($this->Authorize->can('edit', $task)):
 ?>
 					<td><?= $task->auto_approve ? __('Yes') : __('No') ?></td>
 					<td><?= $task->allow_signup ? __('Yes') : __('No') ?></td>
 <?php
-	endif;
+		endif;
 ?>
 					<td class="actions"><?php
 						echo $this->Html->iconLink('view_24.png',
 							['action' => 'view', 'task' => $task->id],
 							['alt' => __('View'), 'title' => __('View')]);
-						if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+						if ($this->Authorize->can('edit', $task)) {
 							echo $this->Html->iconLink('edit_24.png',
 								['action' => 'edit', 'task' => $task->id],
 								['alt' => __('Edit'), 'title' => __('Edit')]);
@@ -61,14 +66,17 @@ foreach ($tasks as $task):
 				</tr>
 
 <?php
-endforeach;
+	endforeach;
 ?>
 			</tbody>
 		</table>
 	</div>
+<?php
+endif;
+?>
 </div>
 <?php
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')):
+if ($this->Authorize->can('add', \App\Controller\TasksController::class)):
 ?>
 <div class="actions columns">
 	<ul class="nav nav-pills">

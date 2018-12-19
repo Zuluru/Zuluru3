@@ -25,8 +25,10 @@ class GameSlotsControllerTest extends ControllerTestCase {
 			'app.leagues',
 				'app.divisions',
 					'app.teams',
+					'app.divisions_days',
 					'app.game_slots',
 						'app.divisions_gameslots',
+					'app.divisions_people',
 					'app.pools',
 						'app.pools_teams',
 					'app.games',
@@ -34,80 +36,36 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	];
 
 	/**
-	 * Test view method as an admin
+	 * Test view method
 	 *
 	 * @return void
 	 */
-	public function testViewAsAdmin() {
+	public function testView() {
 		// Admins are allowed to view game slots, with full edit permissions
-		$this->assertAccessOk(['controller' => 'GameSlots', 'action' => 'view', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/game_slots/edit\?slot=' . GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1 . '#ms');
-		$this->assertResponseRegExp('#/game_slots/delete\?slot=' . GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1 . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'view', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/game_slots/edit?slot=' . GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1);
+		$this->assertResponseContains('/game_slots/delete?slot=' . GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1);
 
-		$this->assertAccessOk(['controller' => 'GameSlots', 'action' => 'view', 'slot' => GAME_SLOT_ID_SUNDAY_CENTRAL_TECH_WEEK_1], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/game_slots/edit\?slot=' . GAME_SLOT_ID_SUNDAY_CENTRAL_TECH_WEEK_1 . '#ms');
-		$this->assertResponseRegExp('#/game_slots/delete\?slot=' . GAME_SLOT_ID_SUNDAY_CENTRAL_TECH_WEEK_1 . '#ms');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'view', 'slot' => GAME_SLOT_ID_SUNDAY_CENTRAL_TECH_WEEK_1], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/game_slots/edit?slot=' . GAME_SLOT_ID_SUNDAY_CENTRAL_TECH_WEEK_1);
+		$this->assertResponseContains('/game_slots/delete?slot=' . GAME_SLOT_ID_SUNDAY_CENTRAL_TECH_WEEK_1);
 
-	/**
-	 * Test view method as a manager
-	 *
-	 * @return void
-	 */
-	public function testViewAsManager() {
 		// Managers are allowed to view game slots
-		$this->assertAccessOk(['controller' => 'GameSlots', 'action' => 'view', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/game_slots/edit\?slot=' . GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1 . '#ms');
-		$this->assertResponseRegExp('#/game_slots/delete\?slot=' . GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1 . '#ms');
+		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'view', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/game_slots/edit?slot=' . GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1);
+		$this->assertResponseContains('/game_slots/delete?slot=' . GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1);
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'GameSlots', 'action' => 'view', 'slot' => GAME_SLOT_ID_SUNDAY_CENTRAL_TECH_WEEK_1], PERSON_ID_MANAGER);
-	}
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'view', 'slot' => GAME_SLOT_ID_SUNDAY_CENTRAL_TECH_WEEK_1], PERSON_ID_MANAGER);
 
-	/**
-	 * Test view method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testViewAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as a captain
-	 *
-	 * @return void
-	 */
-	public function testViewAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as a player
-	 *
-	 * @return void
-	 */
-	public function testViewAsPlayer() {
 		// Others are not allowed to view game slots
-		$this->assertAccessRedirect(['controller' => 'GameSlots', 'action' => 'view', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_PLAYER);
-	}
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'view', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'view', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'view', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'view', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'GameSlots', 'action' => 'view', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1]);
 
-	/**
-	 * Test view method as someone else
-	 *
-	 * @return void
-	 */
-	public function testViewAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testViewAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -116,6 +74,10 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsAdmin() {
+		// Admins are allowed to add
+		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'add', 'field' => FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => AFFILIATE_ID_CLUB], PERSON_ID_ADMIN);
+		// TODO: Test with affiliates turned off and no affiliate ID in the URL
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -125,52 +87,33 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsManager() {
+		// Managers are allowed to add
+		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'add', 'field' => FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => AFFILIATE_ID_CLUB], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test add method as a coordinator
+	 * Test add method as others
 	 *
 	 * @return void
 	 */
-	public function testAddAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testAddAsOthers() {
+		// Others are not allowed to add
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'field' => FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => AFFILIATE_ID_CLUB], PERSON_ID_COORDINATOR);
 
-	/**
-	 * Test add method as a captain
-	 *
-	 * @return void
-	 */
-	public function testAddAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'field' => FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => AFFILIATE_ID_CLUB], PERSON_ID_CAPTAIN);
 
-	/**
-	 * Test add method as a player
-	 *
-	 * @return void
-	 */
-	public function testAddAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'field' => FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => AFFILIATE_ID_CLUB], PERSON_ID_PLAYER);
 
-	/**
-	 * Test add method as someone else
-	 *
-	 * @return void
-	 */
-	public function testAddAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'field' => FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => AFFILIATE_ID_CLUB], PERSON_ID_VISITOR);
 
-	/**
-	 * Test add method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testAddAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAnonymousAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'field' => FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => AFFILIATE_ID_CLUB]);
 	}
 
 	/**
@@ -179,6 +122,8 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsAdmin() {
+		// Admins are allowed to edit
+		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -188,52 +133,23 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsManager() {
+		// Managers are allowed to edit
+		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test edit method as a coordinator
+	 * Test edit method as others
 	 *
 	 * @return void
 	 */
-	public function testEditAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as a captain
-	 *
-	 * @return void
-	 */
-	public function testEditAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as a player
-	 *
-	 * @return void
-	 */
-	public function testEditAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as someone else
-	 *
-	 * @return void
-	 */
-	public function testEditAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testEditAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testEditAsOthers() {
+		// Others are not allowed to edit
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1]);
 	}
 
 	/**
@@ -246,14 +162,14 @@ class GameSlotsControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		// Admins are allowed to delete game slots
-		$this->assertAccessRedirect(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_10],
-			PERSON_ID_ADMIN, 'post', [], null,
-			'The game slot has been deleted.', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_10],
+			PERSON_ID_ADMIN, [], '/',
+			'The game slot has been deleted.');
 
 		// But not ones with dependencies
-		$this->assertAccessRedirect(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1],
-			PERSON_ID_ADMIN, 'post', [], null,
-			'This game slot has a game assigned to it and cannot be deleted.', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1],
+			PERSON_ID_ADMIN, [], '/',
+			'This game slot has a game assigned to it and cannot be deleted.');
 	}
 
 	/**
@@ -265,59 +181,35 @@ class GameSlotsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		// Managers can delete game slots in their affiliate
-		$this->assertAccessRedirect(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_10],
-			PERSON_ID_MANAGER, 'post', [], null,
-			'The game slot has been deleted.', 'Flash.flash.0.message');
+		// Managers are allowed to delete game slots in their affiliate
+		$this->assertPostAsAccessRedirect(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_10],
+			PERSON_ID_MANAGER, [], '/',
+			'The game slot has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => GAME_SLOT_ID_SUNDAY_CENTRAL_TECH_WEEK_1],
-			PERSON_ID_MANAGER, 'post');
+		$this->assertPostAsAccessDenied(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => GAME_SLOT_ID_SUNDAY_CENTRAL_TECH_WEEK_1],
+			PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test delete method as a coordinator
+	 * Test delete method as others
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testDeleteAsOthers() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
-	/**
-	 * Test delete method as a captain
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as a player
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to delete game slots
+		$this->assertPostAsAccessDenied(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1],
+			PERSON_ID_COORDINATOR);
+		$this->assertPostAsAccessDenied(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1],
+			PERSON_ID_CAPTAIN);
+		$this->assertPostAsAccessDenied(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1],
+			PERSON_ID_PLAYER);
+		$this->assertPostAsAccessDenied(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1],
+			PERSON_ID_VISITOR);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1]);
 	}
 
 	/**
@@ -326,7 +218,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSubmitScoreAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
@@ -335,7 +227,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSubmitScoreAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
@@ -344,7 +236,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSubmitScoreAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
@@ -353,34 +245,16 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSubmitScoreAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 	/**
-	 * Test submit_score method as a player
+	 * Test submit_score method as others
 	 *
 	 * @return void
 	 */
-	public function testSubmitScoreAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test submit_score method as someone else
-	 *
-	 * @return void
-	 */
-	public function testSubmitScoreAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test submit_score method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testSubmitScoreAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testSubmitScoreAsOthers() {
+		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
 }

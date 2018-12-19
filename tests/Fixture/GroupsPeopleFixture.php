@@ -80,6 +80,10 @@ class GroupsPeopleFixture extends TestFixture {
 				'person_id' => PERSON_ID_VISITOR,
 				'group_id' => GROUP_ID_PLAYER,
 			],
+			[
+				'person_id' => PERSON_ID_INACTIVE,
+				'group_id' => GROUP_ID_PLAYER,
+			],
 		];
 
 		parent::init();

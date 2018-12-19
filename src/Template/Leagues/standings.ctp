@@ -1,4 +1,6 @@
 <?php
+
+use App\Authorization\ContextResource;
 use App\Model\Entity\Division;
 
 $tournaments = collection($league->divisions)->every(function (Division $division) {
@@ -23,6 +25,12 @@ foreach ($league->divisions as $division):
 		return !empty($team->_results->season->games);
 	});
 	$has_tournament = (!empty($division->_results->pools) || !empty($division->_results->brackets));
+	$can_edit = $this->Authorize->can('edit_schedule', $division);
+
+	$context = new ContextResource($division, ['league' => $league]);
+	$show_spirit = $this->Authorize->can('view_spirit', $context);
+	$show_spirit_scores = $show_spirit && $this->Authorize->can('view_spirit_scores', $context);
+
 	if (!empty($division->teams) && ($has_season || !$has_tournament)):
 		if (count($league->divisions) > 1 && !empty($division->name)):
 ?>
@@ -35,9 +43,9 @@ foreach ($league->divisions as $division):
 			<thead>
 <?php
 		echo $this->element("Leagues/standings/{$division->render_element}/heading", [
-			'is_coordinator' => $is_coordinator,
 			'league' => $league,
 			'division' => $division,
+			'can_edit' => $can_edit,
 		]);
 ?>
 			</thead>
@@ -50,9 +58,10 @@ foreach ($league->divisions as $division):
 				$classes[] = 'tier-highlight';
 			}
 			echo $this->element("Leagues/standings/{$division->render_element}/team", [
-				'is_coordinator' => $is_coordinator,
 				'league' => $league,
 				'division' => $division,
+				'can_edit' => $can_edit,
+				'show_spirit_scores' => $show_spirit_scores,
 				'team' => $team,
 				'seed' => $seed,
 				'classes' => $classes,
@@ -73,14 +82,26 @@ foreach ($league->divisions as $division):
 ?>
 	<h4><?= __('Preliminary rounds') ?></h4>
 <?php
-		echo $this->element('Leagues/standings/tournament/pools', ['division' => $division, 'league' => $league, 'games' => $division->_results->pools, 'teams' => $division->teams]);
+		echo $this->element('Leagues/standings/tournament/pools', [
+			'division' => $division,
+			'can_edit' => $can_edit,
+			'league' => $league,
+			'games' => $division->_results->pools,
+			'teams' => $division->teams,
+		]);
 	endif;
 
 	if (!empty($division->_results->brackets)):
 ?>
 	<h4><?= __('Playoff brackets') ?></h4>
 <?php
-		echo $this->element('Leagues/standings/tournament/bracket', ['division' => $division, 'league' => $league, 'games' => $division->_results->brackets, 'teams' => $division->teams]);
+		echo $this->element('Leagues/standings/tournament/bracket', [
+			'division' => $division,
+			'can_edit' => $can_edit,
+			'league' => $league,
+			'games' => $division->_results->brackets,
+			'teams' => $division->teams,
+		]);
 	endif;
 
 	if (!empty($division->footer) && !empty($division->games)):

@@ -2,8 +2,7 @@
 namespace App\Test\TestCase\Model\Table;
 
 use App\Core\UserCache;
-use Cake\Event\Event as CakeEvent;
-use Cake\Event\EventManager;
+use App\Middleware\ConfigurationLoader;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\RegistrationsTable;
 
@@ -60,8 +59,7 @@ class RegistrationsTableTest extends TableTestCase {
 		$config = TableRegistry::exists('Registrations') ? [] : ['className' => 'App\Model\Table\RegistrationsTable'];
 		$this->RegistrationsTable = TableRegistry::get('Registrations', $config);
 
-		$event = new CakeEvent('Configuration.initialize', $this);
-		EventManager::instance()->dispatch($event);
+		ConfigurationLoader::loadConfiguration();
 	}
 
 	/**
@@ -148,7 +146,7 @@ class RegistrationsTableTest extends TableTestCase {
 		]);
 		$this->assertNotFalse($this->RegistrationsTable->save($registration, compact('registration', 'event')));
 		$this->assertEquals('Waiting', $registration->payment);
-		$this->assertEquals(9, $registration->total_amount);
+		$this->assertEquals(11.50, $registration->total_amount);
 
 		// Now, mark the original registration as unpaid, it should bump the new one to reserved
 		UserCache::getInstance()->initializeIdForTests(PERSON_ID_ADMIN);
@@ -192,7 +190,7 @@ class RegistrationsTableTest extends TableTestCase {
 		]);
 		$this->assertNotFalse($this->RegistrationsTable->save($registration, compact('registration', 'event')));
 		$this->assertEquals('Waiting', $registration->payment);
-		$this->assertEquals(9, $registration->total_amount);
+		$this->assertEquals(11.50, $registration->total_amount);
 
 		// Now, update the cap on the event, it should bump the new one to reserved
 		UserCache::getInstance()->initializeIdForTests(PERSON_ID_ADMIN);

@@ -158,11 +158,6 @@ class SettingsSeed extends AbstractSeed {
 			],
 			[
 				'category' => 'feature',
-				'name' => 'attendance',
-				'value' => '1',
-			],
-			[
-				'category' => 'feature',
 				'name' => 'photos',
 				'value' => '1',
 			],

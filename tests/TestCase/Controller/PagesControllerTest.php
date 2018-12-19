@@ -16,72 +16,30 @@ class PagesControllerTest extends ControllerTestCase {
 			'app.users',
 				'app.people',
 					'app.affiliates_people',
+					'app.people_people',
 			'app.groups',
 				'app.groups_people',
+			'app.leagues',
+				'app.divisions',
+					'app.teams',
+					'app.divisions_people',
 			'app.settings',
 	];
 
 	/**
-	 * Test display method as an admin
+	 * Test display method
 	 *
 	 * @return void
 	 */
-	public function testDisplayAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test display method as a manager
-	 *
-	 * @return void
-	 */
-	public function testDisplayAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test display method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testDisplayAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test display method as a captain
-	 *
-	 * @return void
-	 */
-	public function testDisplayAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test display method as a player
-	 *
-	 * @return void
-	 */
-	public function testDisplayAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test display method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDisplayAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test display method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDisplayAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testDisplay() {
+		// Anyone is allowed to display pages
+		$this->assertGetAsAccessOk(['controller' => 'Pages', 'action' => 'display', 'privacy'], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Pages', 'action' => 'display', 'privacy'], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Pages', 'action' => 'display', 'privacy'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Pages', 'action' => 'display', 'privacy'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Pages', 'action' => 'display', 'privacy'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'Pages', 'action' => 'display', 'privacy'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Pages', 'action' => 'display', 'privacy']);
 	}
 
 }

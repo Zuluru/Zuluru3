@@ -1,16 +1,4 @@
 <?php
-/**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- *
- * Licensed under The MIT License
- * Redistributions of files must retain the above copyright notice.
- *
- * @copyright Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link      http://cakephp.org CakePHP(tm) Project
- * @since     3.0.0
- * @license   http://www.opensource.org/licenses/mit-license.php MIT License
- */
 namespace App\View;
 
 use Cake\View\View;
@@ -29,6 +17,20 @@ class AppView extends View {
      * @return void
      */
     public function initialize() {
+		$this->loadHelper('Authentication.Identity');
+		$this->loadHelper('Authorize');
+		$this->loadHelper('UserCache');
+		$this->loadHelper('Number');
+		$this->loadHelper('Text');
+		$this->loadHelper('Html', ['className' => 'ZuluruHtml']);
+		$this->loadHelper('Form', ['className' => 'ZuluruForm']);
+		$this->loadHelper('Time', ['className' => 'ZuluruTime']);
+		$this->loadHelper('Game', ['className' => 'ZuluruGame']);
+		$this->loadHelper('BootstrapUI.Flash');
+		$this->loadHelper('BootstrapUI.Paginator', ['templates' => 'paginator-templates']);
+		$this->loadHelper('ZuluruBootstrap.Accordion');
+		$this->loadHelper('ZuluruJquery.Jquery');
+		//$this->loadHelper('Less.Less'); // required for parsing less files
     }
 
 }

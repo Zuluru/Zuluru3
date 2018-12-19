@@ -28,7 +28,7 @@ class TasksFixture extends TestFixture {
 				'notes' => 'Includes set-up and tear-down; some heavy lifting may be involved.',
 				'auto_approve' => true,
 				'person_id' => PERSON_ID_ADMIN,
-				'allow_signup' => true,
+				'allow_signup' => false,
 			],
 			[
 				'name' => 'Playoffs setup',
@@ -55,7 +55,7 @@ class TasksFixture extends TestFixture {
 				'notes' => 'Valid driver\'s license required.',
 				'auto_approve' => false,
 				'person_id' => PERSON_ID_ADMIN,
-				'allow_signup' => true,
+				'allow_signup' => false,
 			],
 		];
 

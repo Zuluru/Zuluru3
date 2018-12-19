@@ -9,14 +9,13 @@ if (!empty($teams)):
 	echo $this->element("Leagues/view/{$league_obj->render_element}/heading", compact('division', 'league'));
 	$seed = 0;
 	foreach ($teams as $team) {
-		$is_captain = in_array($team->id, $this->UserCache->read('AllOwnedTeamIDs'));
 		$classes = [];
 		if (floor($seed++ / 8) % 2 == 1) {
 			$classes[] = 'tier-highlight';
 		}
 		$team->consolidateRoster($league->sport);
 		echo $this->element("Leagues/view/{$league_obj->render_element}/team",
-			compact('is_captain', 'team', 'division', 'league', 'seed', 'classes'));
+			compact('team', 'division', 'league', 'seed', 'classes'));
 	}
 ?>
 			</tbody>

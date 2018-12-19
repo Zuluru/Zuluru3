@@ -1,15 +1,14 @@
 <?php
 namespace App\Shell\Task;
 
-use App\Auth\HasherTrait;
+use App\Middleware\ConfigurationLoader;
+use App\PasswordHasher\HasherTrait;
 use App\Controller\AppController;
 use App\Model\Entity\Team;
 use App\Model\Entity\TeamEvent;
 use Cake\Console\Shell;
 use Cake\Core\Configure;
 use Cake\Database\Expression\QueryExpression;
-use Cake\Event\Event as CakeEvent;
-use Cake\Event\EventManager;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
@@ -25,9 +24,7 @@ class TeamEventAttendanceTask extends Shell {
 	use HasherTrait;
 
 	public function main() {
-		$event = new CakeEvent('Configuration.initialize', $this);
-		EventManager::instance()->dispatch($event);
-
+		ConfigurationLoader::loadConfiguration();
 		$this->events_table = TableRegistry::get('TeamEvents');
 		$this->logs_table = TableRegistry::get('ActivityLogs');
 
@@ -130,8 +127,6 @@ class TeamEventAttendanceTask extends Shell {
 		$attendance = $this->events_table->readAttendance($team, $team_event->id);
 		$regular_roles = Configure::read('playing_roster_roles');
 		$sub_roles = Configure::read('extended_playing_roster_roles');
-
-		\App\lib\context_usort($team->people, ['App\Model\Table\TeamsTable', 'compareRoster'], ['team' => $team]);
 
 		foreach ($attendance->attendances as $record) {
 			$person = collection($team->people)->firstMatch(['id' => $record->person_id]);

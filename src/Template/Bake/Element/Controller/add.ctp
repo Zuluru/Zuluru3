@@ -23,7 +23,7 @@ $compact = ["'" . $singularName . "'"];
 	public function add() {
 		$<%= $singularName %> = $this-><%= $currentModelName %>->newEntity();
 		if ($this->request->is('post')) {
-			$<%= $singularName %> = $this-><%= $currentModelName %>->patchEntity($<%= $singularName %>, $this->request->data);
+			$<%= $singularName %> = $this-><%= $currentModelName %>->patchEntity($<%= $singularName %>, $this->request->getData());
 			if ($this-><%= $currentModelName; %>->save($<%= $singularName %>)) {
 				$this->Flash->success(__('The <%= strtolower($singularHumanName) %> has been saved.'));
 				return $this->redirect(['action' => 'index']);

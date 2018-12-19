@@ -22,7 +22,7 @@ if ($division->schedule_type == 'tournament') {
 if (!empty($division->games)):
 	$future_week = 99;
 	$dates = collection($division->games);
-	if (!Configure::read('Perm.is_admin') && !Configure::read('Perm.is_manager') && !$is_coordinator) {
+	if (!$this->Authorize->can('edit_schedule', $division)) {
 		$dates = $dates->filter(function ($game) { return $game->published; });
 	}
 	$dates = array_unique($dates->extract('game_slot.game_date')->toArray());

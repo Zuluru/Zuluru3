@@ -11,9 +11,9 @@ $team_names = [
 	$game->away_team->id => $game->away_team->name
 ];
 
+$roster = [];
 if (!empty($game->division->league->stat_types)) {
 	// Build the roster options
-	$roster = [];
 	foreach (['home_team', 'away_team'] as $key) {
 		$roster[$game->$key->id] = collection($game->$key->people)->combine('id', function ($person) {
 			$option = $person->full_name;
@@ -60,7 +60,16 @@ foreach ($game->score_details as $detail) {
 	if ($detail->points) {
 		$scores[$detail->team_id] += $detail->points;
 	}
-	echo $this->element('Games/edit_boxscore_line', compact('detail', 'scores', 'year', 'month', 'day', 'team_names', 'roster'));
+	echo $this->element('Games/edit_boxscore_line', [
+		'detail' => $detail,
+		'scores' => $scores,
+		'year' => $game->game_slot->game_date->year,
+		'month' => $game->game_slot->game_date->month,
+		'day' => $game->game_slot->game_date->day,
+		'team_names' => $team_names,
+		'roster' => $roster,
+	]);
+
 	$created = $detail->created;
 }
 ?>

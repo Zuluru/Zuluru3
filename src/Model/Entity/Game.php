@@ -429,7 +429,7 @@ class Game extends Entity {
 	 * Retrieve finalized score entry for given team.
 	 *
 	 * @param int $team_id ID of the team to find the score entry from
-	 * @return mixed Entity with the requested score entry, or false if the team hasn't entered a final score yet.
+	 * @return ScoreEntry Entity with the requested score entry, or false if the team hasn't entered a final score yet.
 	 */
 	public function getScoreEntry($team_id) {
 		if (!empty($this->score_entries)) {

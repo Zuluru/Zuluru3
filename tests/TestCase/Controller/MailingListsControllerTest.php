@@ -1,10 +1,14 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use App\PasswordHasher\HasherTrait;
+
 /**
  * App\Controller\MailingListsController Test Case
  */
 class MailingListsControllerTest extends ControllerTestCase {
+
+	use HasherTrait;
 
 	/**
 	 * Fixtures
@@ -13,229 +17,102 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 */
 	public $fixtures = [
 		'app.affiliates',
-			'app.users',
-				'app.people',
-					'app.affiliates_people',
-					'app.people_people',
-			'app.groups',
-				'app.groups_people',
-			'app.leagues',
-				'app.divisions',
-			'app.mailing_lists',
-				'app.newsletters',
-				'app.subscriptions',
-			'app.settings',
+		'app.users',
+		'app.people',
+		'app.affiliates_people',
+		'app.people_people',
+		'app.groups',
+		'app.groups_people',
+		'app.leagues',
+		'app.divisions',
+		'app.teams',
+		'app.divisions_people',
+		'app.mailing_lists',
+		'app.newsletters',
+		'app.subscriptions',
+		'app.settings',
 	];
 
+	private $unsubscribeMessage = 'You have successfully unsubscribed from this mailing list. Note that you may still be on other mailing lists for this site, and some emails (e.g. roster, attendance and score reminders) cannot be opted out of.';
+
 	/**
-	 * Test index method as an admin
+	 * Test index method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsAdmin() {
-		// Admins are allowed to get the index
-		$this->assertAccessOk(['controller' => 'MailingLists', 'action' => 'index'], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/mailing_lists/edit\?mailing_list=' . MAILING_LIST_ID_JUNIORS . '#ms');
-		$this->assertResponseRegExp('#/mailing_lists/delete\?mailing_list=' . MAILING_LIST_ID_JUNIORS . '#ms');
-		$this->assertResponseRegExp('#/mailing_lists/edit\?mailing_list=' . MAILING_LIST_ID_WOMEN_SUB . '#ms');
-		$this->assertResponseRegExp('#/mailing_lists/delete\?mailing_list=' . MAILING_LIST_ID_WOMEN_SUB . '#ms');
+	public function testIndex() {
+		// Admins are allowed to see the index
+		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'index'], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/mailing_lists/edit?mailing_list=' . MAILING_LIST_ID_JUNIORS);
+		$this->assertResponseContains('/mailing_lists/delete?mailing_list=' . MAILING_LIST_ID_JUNIORS);
+		$this->assertResponseContains('/mailing_lists/edit?mailing_list=' . MAILING_LIST_ID_WOMEN_SUB);
+		$this->assertResponseContains('/mailing_lists/delete?mailing_list=' . MAILING_LIST_ID_WOMEN_SUB);
+
+		// Managers are allowed to see the index, but don't see mailing lists in other affiliates
+		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'index'], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/mailing_lists/edit?mailing_list=' . MAILING_LIST_ID_JUNIORS);
+		$this->assertResponseContains('/mailing_lists/delete?mailing_list=' . MAILING_LIST_ID_JUNIORS);
+		$this->assertResponseNotContains('/mailing_lists/edit?mailing_list=' . MAILING_LIST_ID_WOMEN_SUB);
+		$this->assertResponseNotContains('/mailing_lists/delete?mailing_list=' . MAILING_LIST_ID_WOMEN_SUB);
+
+		// Others are not allowed to see the index
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'index'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'index'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'index'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'index'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'MailingLists', 'action' => 'index']);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test index method as a manager
+	 * Test view method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsManager() {
-		// Managers are allowed to get the index, but don't see mailing lists in other affiliates
-		$this->assertAccessOk(['controller' => 'MailingLists', 'action' => 'index'], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/mailing_lists/edit\?mailing_list=' . MAILING_LIST_ID_JUNIORS . '#ms');
-		$this->assertResponseRegExp('#/mailing_lists/delete\?mailing_list=' . MAILING_LIST_ID_JUNIORS . '#ms');
-		$this->assertResponseNotRegExp('#/mailing_lists/edit\?mailing_list=' . MAILING_LIST_ID_WOMEN_SUB . '#ms');
-		$this->assertResponseNotRegExp('#/mailing_lists/delete\?mailing_list=' . MAILING_LIST_ID_WOMEN_SUB . '#ms');
+	public function testView() {
+		// Admins are allowed to view mailing lists
+		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'view', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/mailing_lists/edit?mailing_list=' . MAILING_LIST_ID_JUNIORS);
+		$this->assertResponseContains('/mailing_lists/delete?mailing_list=' . MAILING_LIST_ID_JUNIORS);
+
+		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'view', 'mailing_list' => MAILING_LIST_ID_WOMEN_SUB], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/mailing_lists/edit?mailing_list=' . MAILING_LIST_ID_WOMEN_SUB);
+		$this->assertResponseContains('/mailing_lists/delete?mailing_list=' . MAILING_LIST_ID_WOMEN_SUB);
+
+		// Managers are allowed to view mailing lists
+		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'view', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/mailing_lists/edit?mailing_list=' . MAILING_LIST_ID_JUNIORS);
+		$this->assertResponseContains('/mailing_lists/delete?mailing_list=' . MAILING_LIST_ID_JUNIORS);
+
+		// Others are not allowed to view mailing lists
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'view', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'view', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'view', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'view', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'MailingLists', 'action' => 'view', 'mailing_list' => MAILING_LIST_ID_JUNIORS]);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test index method as a coordinator
+	 * Test preview method
 	 *
 	 * @return void
 	 */
-	public function testIndexAsCoordinator() {
-		// Others are not allowed to get the index
-		$this->assertAccessRedirect(['controller' => 'MailingLists', 'action' => 'index'], PERSON_ID_COORDINATOR);
-	}
+	public function testPreview() {
+		// Admins are allowed to preview
+		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'preview', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_ADMIN);
 
-	/**
-	 * Test index method as a captain
-	 *
-	 * @return void
-	 */
-	public function testIndexAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// Managers are allowed to preview
+		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'preview', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_MANAGER);
 
-	/**
-	 * Test index method as a player
-	 *
-	 * @return void
-	 */
-	public function testIndexAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method as someone else
-	 *
-	 * @return void
-	 */
-	public function testIndexAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test index method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testIndexAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as an admin
-	 *
-	 * @return void
-	 */
-	public function testViewAsAdmin() {
-		// Admins are allowed to view mailing_lists
-		$this->assertAccessOk(['controller' => 'MailingLists', 'action' => 'view', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/mailing_lists/edit\?mailing_list=' . MAILING_LIST_ID_JUNIORS . '#ms');
-		$this->assertResponseRegExp('#/mailing_lists/delete\?mailing_list=' . MAILING_LIST_ID_JUNIORS . '#ms');
-
-		$this->assertAccessOk(['controller' => 'MailingLists', 'action' => 'view', 'mailing_list' => MAILING_LIST_ID_WOMEN_SUB], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/mailing_lists/edit\?mailing_list=' . MAILING_LIST_ID_WOMEN_SUB . '#ms');
-		$this->assertResponseRegExp('#/mailing_lists/delete\?mailing_list=' . MAILING_LIST_ID_WOMEN_SUB . '#ms');
-	}
-
-	/**
-	 * Test view method as a manager
-	 *
-	 * @return void
-	 */
-	public function testViewAsManager() {
-		// Managers are allowed to view mailing_lists
-		$this->assertAccessOk(['controller' => 'MailingLists', 'action' => 'view', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#/mailing_lists/edit\?mailing_list=' . MAILING_LIST_ID_JUNIORS . '#ms');
-		$this->assertResponseRegExp('#/mailing_lists/delete\?mailing_list=' . MAILING_LIST_ID_JUNIORS . '#ms');
-	}
-
-	/**
-	 * Test view method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testViewAsCoordinator() {
-		// Others are not allowed to view mailing_lists
-		$this->assertAccessRedirect(['controller' => 'MailingLists', 'action' => 'view', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test view method as a captain
-	 *
-	 * @return void
-	 */
-	public function testViewAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as a player
-	 *
-	 * @return void
-	 */
-	public function testViewAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as someone else
-	 *
-	 * @return void
-	 */
-	public function testViewAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testViewAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test preview method as an admin
-	 *
-	 * @return void
-	 */
-	public function testPreviewAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test preview method as a manager
-	 *
-	 * @return void
-	 */
-	public function testPreviewAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test preview method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testPreviewAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test preview method as a captain
-	 *
-	 * @return void
-	 */
-	public function testPreviewAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test preview method as a player
-	 *
-	 * @return void
-	 */
-	public function testPreviewAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test preview method as someone else
-	 *
-	 * @return void
-	 */
-	public function testPreviewAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test preview method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testPreviewAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to preview
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'preview', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'preview', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'preview', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'preview', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'MailingLists', 'action' => 'preview', 'mailing_list' => MAILING_LIST_ID_JUNIORS]);
 	}
 
 	/**
@@ -244,10 +121,10 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsAdmin() {
-		// Admins are allowed to add mailing_lists
-		$this->assertAccessOk(['controller' => 'MailingLists', 'action' => 'add'], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#<option value="1" selected="selected">Club</option>#ms');
-		$this->assertResponseRegExp('#<option value="2">Sub</option>#ms');
+		// Admins are allowed to add mailing lists
+		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'add'], PERSON_ID_ADMIN);
+		$this->assertResponseContains('<option value="1" selected="selected">Club</option>');
+		$this->assertResponseContains('<option value="2">Sub</option>');
 	}
 
 	/**
@@ -256,56 +133,24 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsManager() {
-		// Managers are allowed to add mailing_lists
-		$this->assertAccessOk(['controller' => 'MailingLists', 'action' => 'add'], PERSON_ID_MANAGER);
-		$this->assertResponseRegExp('#<input type="hidden" name="affiliate_id" value="1"/>#ms');
-		$this->assertResponseNotRegExp('#<option value="2">Sub</option>#ms');
+		// Managers are allowed to add mailing lists
+		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'add'], PERSON_ID_MANAGER);
+		$this->assertResponseContains('<input type="hidden" name="affiliate_id" value="1"/>');
+		$this->assertResponseNotContains('<option value="2">Sub</option>');
 	}
 
 	/**
-	 * Test add method as a coordinator
+	 * Test add method as others
 	 *
 	 * @return void
 	 */
-	public function testAddAsCoordinator() {
-		// Others are not allowed to add mailing_lists
-		$this->assertAccessRedirect(['controller' => 'MailingLists', 'action' => 'add'], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test add method as a captain
-	 *
-	 * @return void
-	 */
-	public function testAddAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as a player
-	 *
-	 * @return void
-	 */
-	public function testAddAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as someone else
-	 *
-	 * @return void
-	 */
-	public function testAddAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testAddAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testAddAsOthers() {
+		// Others are not allowed to add mailing lists
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'add'], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'add'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'add'], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'add'], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'MailingLists', 'action' => 'add']);
 	}
 
 	/**
@@ -314,9 +159,9 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsAdmin() {
-		// Admins are allowed to edit mailing_lists
-		$this->assertAccessOk(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_ADMIN);
-		$this->assertAccessOk(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => MAILING_LIST_ID_WOMEN_SUB], PERSON_ID_ADMIN);
+		// Admins are allowed to edit mailing lists
+		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => MAILING_LIST_ID_WOMEN_SUB], PERSON_ID_ADMIN);
 	}
 
 	/**
@@ -325,57 +170,25 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsManager() {
-		// Managers are allowed to edit mailing_lists
-		$this->assertAccessOk(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_MANAGER);
+		// Managers are allowed to edit mailing lists
+		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_MANAGER);
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => MAILING_LIST_ID_WOMEN_SUB], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => MAILING_LIST_ID_WOMEN_SUB], PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test edit method as a coordinator
+	 * Test edit method as others
 	 *
 	 * @return void
 	 */
-	public function testEditAsCoordinator() {
-		// Others are not allowed to edit mailing_lists
-		$this->assertAccessRedirect(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test edit method as a captain
-	 *
-	 * @return void
-	 */
-	public function testEditAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as a player
-	 *
-	 * @return void
-	 */
-	public function testEditAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as someone else
-	 *
-	 * @return void
-	 */
-	public function testEditAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testEditAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testEditAsOthers() {
+		// Others are not allowed to edit mailing lists
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_VISITOR);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => MAILING_LIST_ID_JUNIORS]);
 	}
 
 	/**
@@ -388,14 +201,14 @@ class MailingListsControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		// Admins are allowed to delete mailing lists
-		$this->assertAccessRedirect(['controller' => 'MailingLists', 'action' => 'delete', 'mailing_list' => MAILING_LIST_ID_ACTIVE],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'MailingLists', 'action' => 'index'],
-			'The mailing list has been deleted.', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'delete', 'mailing_list' => MAILING_LIST_ID_ACTIVE],
+			PERSON_ID_ADMIN, [], ['controller' => 'MailingLists', 'action' => 'index'],
+			'The mailing list has been deleted.');
 
 		// But not ones with dependencies
-		$this->assertAccessRedirect(['controller' => 'MailingLists', 'action' => 'delete', 'mailing_list' => MAILING_LIST_ID_JUNIORS],
-			PERSON_ID_ADMIN, 'post', [], ['controller' => 'MailingLists', 'action' => 'index'],
-			'#The following records reference this mailing list, so it cannot be deleted#', 'Flash.flash.0.message');
+		$this->assertPostAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'delete', 'mailing_list' => MAILING_LIST_ID_JUNIORS],
+			PERSON_ID_ADMIN, [], ['controller' => 'MailingLists', 'action' => 'index'],
+			'#The following records reference this mailing list, so it cannot be deleted#');
 	}
 
 	/**
@@ -407,59 +220,35 @@ class MailingListsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		// Managers can delete mailing lists in their affiliate
-		$this->assertAccessRedirect(['controller' => 'MailingLists', 'action' => 'delete', 'mailing_list' => MAILING_LIST_ID_ACTIVE],
-			PERSON_ID_MANAGER, 'post', [], ['controller' => 'MailingLists', 'action' => 'index'],
-			'The mailing list has been deleted.', 'Flash.flash.0.message');
+		// Managers are allowed to delete mailing lists in their affiliate
+		$this->assertPostAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'delete', 'mailing_list' => MAILING_LIST_ID_ACTIVE],
+			PERSON_ID_MANAGER, [], ['controller' => 'MailingLists', 'action' => 'index'],
+			'The mailing list has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertAccessRedirect(['controller' => 'MailingLists', 'action' => 'delete', 'mailing_list' => MAILING_LIST_ID_WOMEN_SUB],
-			PERSON_ID_MANAGER, 'post');
+		$this->assertPostAsAccessDenied(['controller' => 'MailingLists', 'action' => 'delete', 'mailing_list' => MAILING_LIST_ID_WOMEN_SUB],
+			PERSON_ID_MANAGER);
 	}
 
 	/**
-	 * Test delete method as a coordinator
+	 * Test delete method as others
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testDeleteAsOthers() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
-	/**
-	 * Test delete method as a captain
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as a player
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
+		// Others are not allowed to delete mailing lists
+		$this->assertPostAsAccessDenied(['controller' => 'MailingLists', 'action' => 'delete', 'mailing_list' => MAILING_LIST_ID_JUNIORS],
+			PERSON_ID_COORDINATOR);
+		$this->assertPostAsAccessDenied(['controller' => 'MailingLists', 'action' => 'delete', 'mailing_list' => MAILING_LIST_ID_JUNIORS],
+			PERSON_ID_CAPTAIN);
+		$this->assertPostAsAccessDenied(['controller' => 'MailingLists', 'action' => 'delete', 'mailing_list' => MAILING_LIST_ID_JUNIORS],
+			PERSON_ID_PLAYER);
+		$this->assertPostAsAccessDenied(['controller' => 'MailingLists', 'action' => 'delete', 'mailing_list' => MAILING_LIST_ID_JUNIORS],
+			PERSON_ID_VISITOR);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'MailingLists', 'action' => 'delete', 'mailing_list' => MAILING_LIST_ID_JUNIORS]);
 	}
 
 	/**
@@ -468,6 +257,13 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testUnsubscribeAsAdmin() {
+		// Admins are allowed to unsubscribe
+		$this->assertGetAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => MAILING_LIST_ID_JUNIORS],
+			PERSON_ID_ADMIN, '/',
+			$this->unsubscribeMessage);
+		$this->assertGetAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => MAILING_LIST_ID_MASTERS],
+			PERSON_ID_ADMIN, '/',
+			'You are not subscribed to this mailing list.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -477,6 +273,10 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testUnsubscribeAsManager() {
+		// Managers are allowed to unsubscribe
+		$this->assertGetAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => MAILING_LIST_ID_JUNIORS],
+			PERSON_ID_MANAGER, '/',
+			$this->unsubscribeMessage);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -486,6 +286,10 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testUnsubscribeAsCoordinator() {
+		// Coordinators are allowed to unsubscribe
+		$this->assertGetAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => MAILING_LIST_ID_JUNIORS],
+			PERSON_ID_COORDINATOR, '/',
+			$this->unsubscribeMessage);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -495,6 +299,10 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testUnsubscribeAsCaptain() {
+		// Captains are allowed to unsubscribe
+		$this->assertGetAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => MAILING_LIST_ID_JUNIORS],
+			PERSON_ID_CAPTAIN, '/',
+			$this->unsubscribeMessage);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -504,6 +312,10 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testUnsubscribeAsPlayer() {
+		// Players are allowed to unsubscribe
+		$this->assertGetAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => MAILING_LIST_ID_JUNIORS],
+			PERSON_ID_PLAYER, '/',
+			$this->unsubscribeMessage);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -513,6 +325,10 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testUnsubscribeAsVisitor() {
+		// Visitors are allowed to unsubscribe
+		$this->assertGetAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => MAILING_LIST_ID_JUNIORS],
+			PERSON_ID_VISITOR, '/',
+			$this->unsubscribeMessage);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -522,24 +338,9 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testUnsubscribeAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test _makeHash method
-	 *
-	 * @return void
-	 */
-	public function testMakeHash() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test _checkHash method
-	 *
-	 * @return void
-	 */
-	public function testCheckHash() {
+		// Others are allowed to unsubscribe
+		$this->assertGetAnonymousAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => MAILING_LIST_ID_JUNIORS, 'person' => PERSON_ID_PLAYER, 'code' => $this->_makeHash([PERSON_ID_PLAYER, MAILING_LIST_ID_JUNIORS])],
+			'/', $this->unsubscribeMessage);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

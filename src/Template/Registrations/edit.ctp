@@ -18,7 +18,7 @@ echo $this->Form->input('order', [
 	'value' => sprintf(Configure::read('registration.order_id_format'), $registration->id),
 	'disabled' => true,
 ]);
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+if ($this->Authorize->getIdentity()->isManagerOf($registration->event)) {
 	echo $this->Form->input('name', [
 		'value' => $registration->person->full_name,
 		'disabled' => true,
@@ -30,7 +30,7 @@ echo $this->Form->input('event', [
 	'disabled' => true,
 	'size' => 75,
 ]);
-if (Configure::read('Perm.is_admin') || Configure::read('Perm.is_manager')) {
+if ($this->Authorize->getIdentity()->isManagerOf($registration->event)) {
 	echo $this->Jquery->toggleInput('payment', [
 		'options' => Configure::read('options.payment'),
 		'help' => $this->Html->para('warning-message', __('Change this only in extreme circumstances; for proper accounting, refunds and payments should be entered through links on the registration view page.')),

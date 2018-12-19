@@ -4,11 +4,10 @@ namespace App\Shell\Task;
 use App\Controller\AppController;
 use App\Core\ModuleRegistry;
 use App\Exception\MissingModuleException;
+use App\Middleware\ConfigurationLoader;
 use App\Model\Entity\BadgesPerson;
 use Cake\Console\Shell;
 use Cake\Core\Configure;
-use Cake\Event\Event as CakeEvent;
-use Cake\Event\EventManager;
 use Cake\ORM\TableRegistry;
 
 /**
@@ -20,9 +19,7 @@ class InitializeBadgeTask extends Shell {
 
 	public function main() {
 		try {
-			$event = new CakeEvent('Configuration.initialize', $this);
-			EventManager::instance()->dispatch($event);
-
+			ConfigurationLoader::loadConfiguration();
 			$badges_table = TableRegistry::get('Badges');
 			$badge = $badges_table->find()
 				->where(['refresh_from >' => 0])

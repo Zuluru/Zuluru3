@@ -25,13 +25,13 @@ foreach ($event->registrations as $registration):
 	$order_id = sprintf($order_id_format, $registration->id);
 ?>
 				<tr>
-					<td><?= Configure::read('Perm.is_manager') ? $this->Html->link($order_id, ['action' => 'view', 'registration' => $registration->id]) : $order_id ?></td>
+					<td><?= $this->Authorize->can('view', $registration) ? $this->Html->link($order_id, ['action' => 'view', 'registration' => $registration->id]) : $order_id ?></td>
 					<td><?= $this->element('People/block', ['person' => $registration->person]) ?></td>
 					<td><?= $this->Time->datetime($registration->created) ?></td>
 					<td class="actions"><?= $this->element('Registrations/actions', ['registration' => $registration]) ?></td>
 				</tr>
 <?php
-	if (Configure::read('Perm.is_manager') && !empty($registration->notes)):
+	if (!empty($registration->notes) && $this->Authorize->can('view', $registration)):
 ?>
 
 				<tr>
@@ -48,5 +48,5 @@ endforeach;
 	</div>
 </div>
 <div class="actions columns">
-	<?= $this->element('Events/actions', ['event' => $event, 'is_event_manager' => Configure::read('Perm.is_manager'), 'format' => 'list']) ?>
+	<?= $this->element('Events/actions', ['event' => $event, 'format' => 'list']) ?>
 </div>
