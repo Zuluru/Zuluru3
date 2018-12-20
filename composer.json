@@ -9,6 +9,12 @@
         "forum": "https://zuluru.org/forums/",
         "source": "https://github.com/Zuluru/Zuluru3"
     },
+    "repositories": [
+		{
+            "type": "vcs",
+            "url": "https://github.com/Zuluru/authorization"
+        }
+    ],
     "require": {
         "php": ">=5.5.9",
         "cakephp/cakephp": "3.*",
@@ -33,7 +39,7 @@
         "cakephp-app-installer/installer": "^2.0",
         "ozee31/cakephp-cors": "^1.1",
         "cakephp/authentication": "^1.0",
-        "cakephp/authorization": "^1.0",
+        "cakephp/authorization": "dev-master",
         "firebase/php-jwt": "^5.0"
     },
     "require-dev": {
