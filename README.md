@@ -1,19 +1,19 @@
 Table of Contents
 =================
 
-      * [Getting Started](#getting-started)
-         * [Install Composer](#install-composer)
-         * [Install Zuluru Code](#install-zuluru-code)
-         * [Zuluru Folder Permissions](#zuluru-folder-permissions)
-         * [Launch Zuluru](#launch-zuluru)
-         * [Configuration](#configuration)
-         * [Periodic Tasks](#periodic-tasks)
-         * [Troubleshooting](#troubleshooting)
-         * [Updates](#updates)
-         * [Updating from Zuluru 1](#updating-from-zuluru-1)
-         * [Version](#version)
-      * [Development](#development)
-         * [Themes](#themes)
+* [Getting Started](#getting-started)
+   * [Install Composer](#install-composer)
+   * [Install Zuluru Code](#install-zuluru-code)
+   * [Zuluru Folder Permissions](#zuluru-folder-permissions)
+   * [Launch Zuluru](#launch-zuluru)
+   * [Configuration](#configuration)
+   * [Periodic Tasks](#periodic-tasks)
+   * [Troubleshooting](#troubleshooting)
+   * [Updates](#updates)
+   * [Updating from Zuluru 1](#updating-from-zuluru-1)
+   * [Version](#version)
+* [Development](#development)
+   * [Themes](#themes)
 
 ## Getting Started
 
