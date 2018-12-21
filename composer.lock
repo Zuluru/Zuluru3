@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "46739a5d94514d014569ed2a1f2ec07d",
+    "content-hash": "453e80e2ff57e24d4ab0822b7aa42529",
     "packages": [
         {
             "name": "aura/intl",
@@ -761,12 +761,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/dereuromark/cakephp-ajax.git",
-                "reference": "f30ae028f09d9dbce2e95e83110b17ceafe32ce3"
+                "reference": "1a87079f009d56e0b9d46aabb6cc18c81a71168d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dereuromark/cakephp-ajax/zipball/f30ae028f09d9dbce2e95e83110b17ceafe32ce3",
-                "reference": "f30ae028f09d9dbce2e95e83110b17ceafe32ce3",
+                "url": "https://api.github.com/repos/dereuromark/cakephp-ajax/zipball/1a87079f009d56e0b9d46aabb6cc18c81a71168d",
+                "reference": "1a87079f009d56e0b9d46aabb6cc18c81a71168d",
                 "shasum": ""
             },
             "require": {
@@ -803,7 +803,7 @@
                 "plugin",
                 "view"
             ],
-            "time": "2018-12-12T14:54:43+00:00"
+            "time": "2018-12-12T16:31:34+00:00"
         },
         {
             "name": "doctrine/collections",

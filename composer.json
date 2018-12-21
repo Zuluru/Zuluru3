@@ -21,7 +21,7 @@
         "mobiledetect/mobiledetectlib": "2.*",
         "cakephp/migrations": "~1.0",
         "cakephp/plugin-installer": "*",
-        "dereuromark/cakephp-ajax": "dev-master",
+        "dereuromark/cakephp-ajax": "dev-master#1a87079f009d56e0b9d46aabb6cc18c81a71168d",
         "elboletaire/twbs-cake-plugin": "master",
         "cakephp/bake": "1.1.*",
         "giggsey/libphonenumber-for-php": "~7.0",
