@@ -29,10 +29,6 @@ class AffiliateConfigurationLoader {
 					TableRegistry::get('Configuration')->loadAffiliate(current($affiliates));
 				}
 			}
-
-			if ($identity->getOriginalData()->user_name == 'GregS') {
-				Configure::write('debug', true);
-			}
 		}
 
 		Configure::load('sports');
