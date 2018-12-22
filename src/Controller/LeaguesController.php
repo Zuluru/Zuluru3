@@ -110,7 +110,7 @@ class LeaguesController extends AppController {
 				'YEAR(Leagues.open) !=' => 0,
 				'Leagues.affiliate_id IN' => $affiliates,
 			])
-			->order(['Leagues.open'])
+			->order(['year'])
 			->toArray()
 		]);
 		$this->set('_serialize', ['league', 'years']);

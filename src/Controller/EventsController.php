@@ -106,7 +106,7 @@ class EventsController extends AppController {
 				'YEAR(Events.open) !=' => 0,
 				'Events.affiliate_id IN' => $affiliates,
 			])
-			->order(['Events.open'])
+			->order(['year'])
 			->toArray();
 
 		$this->set(compact('affiliates', 'events', 'years', 'year'));
