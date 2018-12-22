@@ -224,5 +224,6 @@ abstract class Spirit {
 				return $file;
 			}
 		}
+		return $file;
 	}
 }
