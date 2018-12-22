@@ -296,7 +296,7 @@ class LeaguesController extends AppController {
 		$this->set(compact('league'));
 		$this->set('affiliates', $this->Authentication->applicableAffiliates(true));
 		$this->set('days', $this->Leagues->Divisions->Days->find('list'));
-		$this->set('stat_types', $this->Leagues->StatTypes->find());
+		$this->set('stat_types', $this->Leagues->StatTypes->findBySport($league->sport));
 		$this->render('edit');
 	}
 
@@ -353,7 +353,7 @@ class LeaguesController extends AppController {
 		$this->set(compact('league'));
 		$this->set('affiliates', $this->Authentication->applicableAffiliates(true));
 		$this->set('days', $this->Leagues->Divisions->Days->find('list'));
-		$this->set('stat_types', $this->Leagues->StatTypes->find());
+		$this->set('stat_types', $this->Leagues->StatTypes->findBySport($league->sport));
 
 		if (count($league->divisions) == 1) {
 			$this->set('league_obj', $this->moduleRegistry->load("LeagueType:{$league->divisions[0]->schedule_type}"));
