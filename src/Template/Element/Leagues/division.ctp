@@ -99,12 +99,15 @@ echo $this->Form->input("divisions.$index.days._ids", [
 ]);
 
 $ratios = [];
+$sports = Configure::read('options.sport');
 foreach (Configure::read('sports') as $sport => $details) {
-	foreach (array_keys($details['roster_requirements']) as $name) {
-		if (!array_key_exists($name, $ratios)) {
-			$ratios[$name] = ['text' => $name, 'value' => $name, 'class' => "sport_$sport"];
-		} else {
-			$ratios[$name]['class'] .= " sport_$sport";
+	if (array_key_exists($sport, $sports)) {
+		foreach (array_keys($details['roster_requirements']) as $name) {
+			if (!array_key_exists($name, $ratios)) {
+				$ratios[$name] = ['text' => $name, 'value' => $name, 'class' => "sport_$sport"];
+			} else {
+				$ratios[$name]['class'] .= " sport_$sport";
+			}
 		}
 	}
 }
