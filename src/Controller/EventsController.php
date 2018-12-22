@@ -265,7 +265,8 @@ class EventsController extends AppController {
 			ksort ($times);
 		}
 
-		if ($this->Authentication->getIdentity()->isLoggedIn()) {
+		$identity = $this->Authentication->getIdentity();
+		if ($identity && $identity->isLoggedIn()) {
 			$context = new ContextResource($event, ['all_rules' => true]);
 			$allowed = $this->Authorization->can($context, 'register');
 			$this->set(['notices' => $context->notices ?: [], 'allowed' => $allowed]);
