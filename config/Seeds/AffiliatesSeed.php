@@ -15,7 +15,7 @@ class AffiliatesSeed extends AbstractSeed {
 			[
 				'id' => 1,
 				'name' => 'Club',
-				'active' => 1,
+				'active' => '1',
 			],
 		];
 

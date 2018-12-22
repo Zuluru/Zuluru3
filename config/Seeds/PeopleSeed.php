@@ -11,6 +11,8 @@ class PeopleSeed extends AbstractSeed {
 	 * @return void
 	 */
 	public function run() {
+		\Cake\I18n\FrozenDate::setToStringFormat('yyyy-MM-dd');
+
 		$data = [
 			[
 				'id' => 1,
@@ -18,8 +20,11 @@ class PeopleSeed extends AbstractSeed {
 				'first_name' => 'Administrator',
 				'last_name' => '',
 				'publish_email' => 1,
+				'gender' => '',
+				'roster_designation' => '',
 				'status' => 'active',
 				'created' => \Cake\I18n\FrozenDate::now(),
+				'modified' => \Cake\I18n\FrozenDate::now(),
 			],
 		];
 

@@ -15,7 +15,7 @@ class MembershipTypesSeed extends AbstractSeed {
 			[
 				'name' => 'full',
 				'description' => __('Full'),
-				'active' => true,
+				'active' => '1',
 				'priority' => 1,
 				'report_as' => 'full',
 				'badge' => 'member_registered',
@@ -23,7 +23,7 @@ class MembershipTypesSeed extends AbstractSeed {
 			[
 				'name' => 'intro',
 				'description' => __('Introductory'),
-				'active' => true,
+				'active' => '1',
 				'priority' => 2,
 				'report_as' => 'intro',
 				'badge' => 'member_intro',
@@ -31,7 +31,7 @@ class MembershipTypesSeed extends AbstractSeed {
 			[
 				'name' => 'junior_intro',
 				'description' => __('Junior Introductory'),
-				'active' => false,
+				'active' => '0',
 				'priority' => 2,
 				'report_as' => 'intro',
 				'badge' => 'member_intro',
@@ -39,7 +39,7 @@ class MembershipTypesSeed extends AbstractSeed {
 			[
 				'name' => 'trial',
 				'description' => __('Trial'),
-				'active' => false,
+				'active' => '0',
 				'priority' => 2,
 				'report_as' => 'intro',
 				'badge' => 'member_trial',
@@ -47,7 +47,7 @@ class MembershipTypesSeed extends AbstractSeed {
 			[
 				'name' => 'touring',
 				'description' => __('Touring'),
-				'active' => false,
+				'active' => '0',
 				'priority' => 3,
 				'report_as' => 'touring',
 				'badge' => 'member_touring',
