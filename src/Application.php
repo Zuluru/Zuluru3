@@ -318,19 +318,24 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 				Response $response,
 				callable $next
 			) {
-				// TODO: Read these from site configuration
-				if (Configure::read('feature.authenticate_through') == 'Zuluru') {
-					$loginAction = Router::url(Configure::read('App.urls.login'), true);
+				// Do not attempt authentication for the installer
+				if ($request && $request->getParam('plugin') != 'Installer') {
+					// TODO: Read these from site configuration
+					if (Configure::read('feature.authenticate_through') == 'Zuluru') {
+						$loginAction = Router::url(Configure::read('App.urls.login'), true);
+					} else {
+						$loginAction = Router::url(['controller' => 'Leagues', 'action' => 'index'], true);
+					}
+
+					$authentication = new AuthenticationMiddleware($this, [
+						'unauthenticatedRedirect' => $loginAction,
+						'queryParam' => 'redirect',
+					]);
+
+					return $authentication($request, $response, $next);
 				} else {
-					$loginAction = Router::url(['controller' => 'Leagues', 'action' => 'index'], true);
+					return $next($request, $response);
 				}
-
-				$authentication = new AuthenticationMiddleware($this, [
-					'unauthenticatedRedirect' => $loginAction,
-					'queryParam' => 'redirect',
-				]);
-
-				return $authentication($request, $response, $next);
 			})
 
 			// Add unauthorized flash message

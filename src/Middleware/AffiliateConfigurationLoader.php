@@ -20,7 +20,6 @@ class AffiliateConfigurationLoader {
 	}
 
 	public static function loadConfiguration(ServerRequest $request = null) {
-		// Test cases don't have a request object, but need this done anyway.
 		if ($request && $request->getParam('plugin') != 'Installer' && $request->getAttribute('identity')) {
 			$identity = $request->getAttribute('identity');
 			if (Configure::read('feature.affiliates')) {
