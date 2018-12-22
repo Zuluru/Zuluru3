@@ -14,7 +14,9 @@ foreach ($fields as $field => $values) {
 	if (is_array($values)) {
 		echo $this->element('hidden', ['model' => $model . $field, 'fields' => $values]);
 	} else {
-		echo $this->Form->hidden($model . $field, ['value' => $values]);
+		if (!in_array($field, ['_method', '_csrfToken'])) {
+			echo $this->Form->hidden($model . $field, ['value' => $values]);
+		}
 		// TODO: Deal with CakePHP bug where numeric-indexed hidden fields get black-holed
 		// Reference discussion in Template/Schedules/date.ctp
 		// Only occurrences are in administrative-type things (game slot creation, schedule
