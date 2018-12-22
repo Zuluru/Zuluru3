@@ -4,7 +4,7 @@
 	<dd><?= __($league->season) ?></dd>
 <?php
 if (count($league->divisions) == 1):
-	if (!empty($league->divisions[0]->people) && $this->Authorize->getIdentity()->isLoggedIn()):
+	if (!empty($league->divisions[0]->people) && $this->Identity->isLoggedIn()):
 		$links = [];
 		foreach ($league->divisions[0]->people as $coordinator) {
 			$links[] = $this->Html->link($coordinator->full_name, ['controller' => 'People', 'action' => 'view', 'person' => $coordinator->id]);

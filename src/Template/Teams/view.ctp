@@ -10,7 +10,6 @@ $this->Html->addCrumb(__('Team'));
 $this->Html->addCrumb(h($team->name));
 $this->Html->addCrumb(__('View'));
 
-$identity = $this->Authorize->getIdentity();
 $context = new ContextResource($team, ['league' => $team->division->league, 'division' => $team->division, 'stat_types' => $team->division->league->stat_types]);
 ?>
 
@@ -353,7 +352,7 @@ if (!empty($team->people) && $this->Authorize->can('view_roster', \App\Controlle
 	}
 	foreach ($team->people as $person):
 		// Maybe add a warning
-		if ($identity && $identity->isLoggedIn() && $person->can_add !== true && !$warning):
+		if ($this->Identity->isLoggedIn() && $person->can_add !== true && !$warning):
 			$warning = true;
 			$class = ' class="warning-message"';
 ?>
@@ -395,7 +394,7 @@ if (!empty($team->people) && $this->Authorize->can('view_roster', \App\Controlle
 			++$captains[$person->roster_designation];
 		}
 
-		if ($identity && $identity->isLoggedIn()) {
+		if ($this->Identity->isLoggedIn()) {
 			$conflicts = [];
 			if ($team->division_id) {
 				if (Configure::read('feature.registration') && $team->division->flag_membership && !$person->is_a_member) {
@@ -420,7 +419,7 @@ if (!empty($team->people) && $this->Authorize->can('view_roster', \App\Controlle
 ?>
 						<td><?php
 							echo $this->element('People/block', compact('person'));
-							if ($identity && $identity->isLoggedIn() && !empty($conflicts)) {
+							if ($this->Identity->isLoggedIn() && !empty($conflicts)) {
 								echo $this->Html->tag('div',
 									'(' . implode(', ', $conflicts) . ')',
 									['class' => 'warning-message']);
@@ -428,7 +427,7 @@ if (!empty($team->people) && $this->Authorize->can('view_roster', \App\Controlle
 						?></td>
 						<td<?= $warning ? ' class="warning-message"' : '' ?>><?php
 							echo $this->element('People/roster_role', ['roster' => $person->_joinData, 'division' => $team->division]);
-							if ($identity && $identity->isLoggedIn() && $person->can_add !== true) {
+							if ($this->Identity->isLoggedIn() && $person->can_add !== true) {
 								echo ' ' . $this->Html->iconImg('help_16.png', ['title' => $this->Html->formatMessage($person->can_add, null, true), 'alt' => '?']);
 							}
 						?></td>
