@@ -326,8 +326,8 @@ class TeamEventsController extends AppController {
 		$past = $team_event->start_time->isPast();
 
 		$identity = $this->Authentication->getIdentity();
-		$is_me = $context->is_player || $identity->isMe($attendance) || $identity->isRelative($attendance);
-		$is_captain = $context->is_captain || $identity->isCaptainOf($attendance);
+		$is_me = $context->is_player || ($identity && ($identity->isMe($attendance) || $identity->isRelative($attendance)));
+		$is_captain = $context->is_captain || ($identity && $identity->isCaptainOf($attendance));
 
 		if ($code) {
 			// Fake the posted data array with the status from the URL
