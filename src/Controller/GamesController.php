@@ -2098,8 +2098,20 @@ class GamesController extends AppController {
 				return ($datum['value'] !== '' && in_array($datum['stat_type_id'], $entry_stats));
 			})->toArray();
 
+			// TODOLATER: Eliminate places like this, where more than two tables are chained, and use TableRegistry instead, if it saves a constructor call
+			$calc_stats = $this->Games->Divisions->Leagues->StatTypes->find()
+				->where([
+					'StatTypes.type' => 'game_calc',
+					'StatTypes.sport' => $game->division->league->sport,
+				]);
+			$calc_stat_ids = $calc_stats->extract('id')->toArray();
+
 			// Locate existing records that we want to delete
-			$to_delete = collection($game->stats)->extract('id')->toArray(false);
+			$to_delete = collection($game->stats)
+				->filter(function ($stat) use ($team_id, $calc_stat_ids) {
+					return (!$team_id || $stat->team_id == $team_id) || in_array($stat->stat_type_id, $calc_stat_ids);
+				})
+				->extract('id')->toArray(false);
 			$game = $this->Games->patchEntity($game, $this->request->data, ['associated' => ['Stats']]);
 			if (!empty($to_delete)) {
 				$to_delete = array_diff($to_delete, collection($game->stats)->reject(function ($stat) {
@@ -2108,12 +2120,6 @@ class GamesController extends AppController {
 			}
 
 			// Add calculated stats. We have already arranged to delete any prior calculated stats.
-			// TODOLATER: Eliminate places like this, where more than two tables are chained, and use TableRegistry instead, if it saves a constructor call
-			$calc_stats = $this->Games->Divisions->Leagues->StatTypes->find()
-				->where([
-					'StatTypes.type' => 'game_calc',
-					'StatTypes.sport' => $game->division->league->sport,
-				]);
 			foreach ($calc_stats as $stat_type) {
 				$func = "{$stat_type->handler}_game";
 				if (method_exists($sport_obj, $func)) {
