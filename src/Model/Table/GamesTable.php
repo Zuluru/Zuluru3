@@ -1333,7 +1333,7 @@ class GamesTable extends AppTable {
 		}
 		$attendance->people = array_merge($attendance->people, $new);
 
-		$identity = Router::getRequest()->getAttribute('identity');
+		$identity = Router::getRequest() ? Router::getRequest()->getAttribute('identity') : null;
 		$include_gender = $identity && $identity->can('display_gender', new ContextResource($team, ['division' => $team->division]));
 		\App\lib\context_usort($attendance->people, ['App\Model\Table\TeamsTable', 'compareRoster'], ['include_gender' => $include_gender]);
 		return $attendance;
@@ -1548,7 +1548,7 @@ class GamesTable extends AppTable {
 			}
 		}
 
-		$identity = Router::getRequest()->getAttribute('identity');
+		$identity = Router::getRequest() ? Router::getRequest()->getAttribute('identity') : null;
 		$include_gender = $identity && $identity->can('display_gender', new ContextResource($team, ['division' => $team->division]));
 		\App\lib\context_usort($team->people, ['App\Model\Table\TeamsTable', 'compareRoster'], ['include_gender' => $include_gender]);
 		return $team;

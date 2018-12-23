@@ -563,7 +563,7 @@ class DivisionsTable extends AppTable {
 		}
 
 		// Eliminate any events that cannot be registered for
-		$identity = Router::getRequest()->getAttribute('identity');
+		$identity = Router::getRequest() ? Router::getRequest()->getAttribute('identity') : null;
 		if ($identity && $identity->isLoggedIn()) {
 			foreach ($division->events as $key => $event) {
 				try {

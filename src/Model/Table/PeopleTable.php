@@ -672,7 +672,7 @@ class PeopleTable extends AppTable {
 
 				$relative_status = 'active';
 			} else {
-				$identity = Router::getRequest()->getAttribute('identity');
+				$identity = Router::getRequest() ? Router::getRequest()->getAttribute('identity') : null;
 				if ($data->offsetExists('status') && $identity && $identity->isManager()) {
 					$relative_status = $data['status'];
 				} else {

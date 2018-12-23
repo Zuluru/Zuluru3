@@ -39,7 +39,7 @@ class GamePolicy extends AppPolicy {
 		$division = $resource->division;
 		$preliminary = ($game->home_team_id === null || ($division->schedule_type != 'competition' && $game->away_team_id === null));
 
-		return !$preliminary && $division->schedule_type != 'roundrobin' && $ratings_obj->perGameRatings() && !$game->isFinalized() && $identity->isLoggedIn();
+		return !$preliminary && $division->schedule_type != 'roundrobin' && $ratings_obj->perGameRatings() && !$game->isFinalized() && $identity && $identity->isLoggedIn();
 	}
 
 	public function canIcal(IdentityInterface $identity = null, ContextResource $resource) {

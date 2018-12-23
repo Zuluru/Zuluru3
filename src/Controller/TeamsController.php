@@ -2182,7 +2182,8 @@ class TeamsController extends AppController {
 		// Check if this person can even be added
 		$can_add = $this->_canAdd($person, $team, $person->_joinData->role, $person->_joinData->status, true, $this->request->is('ajax'));
 		if ($can_add !== true) {
-			if ($this->Authentication->getIdentity()->isLoggedIn() && !empty($this->can_add_rule_obj) && !empty($this->can_add_rule_obj->redirect)) {
+			$identity = $this->Authentication->getIdentity();
+			if ($identity && $identity->isLoggedIn() && !empty($this->can_add_rule_obj) && !empty($this->can_add_rule_obj->redirect)) {
 				if ($this->request->is('ajax')) {
 					return $this->redirect(array_merge($this->can_add_rule_obj->redirect, ['return' => $this->_return()]), 100);
 				} else {

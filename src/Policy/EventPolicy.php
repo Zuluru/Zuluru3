@@ -96,7 +96,7 @@ class EventPolicy extends AppPolicy {
 			$resource->waiting = false;
 		}
 
-		$resource->notices = $this->_testCanRegister($resource);
+		$resource->notices = $this->_testCanRegister($identity, $resource);
 
 		// May need to copy canRegister info from the provided price into the main list
 		$event = $resource->resource();
@@ -119,10 +119,11 @@ class EventPolicy extends AppPolicy {
 
 		throw new ForbiddenRedirectException('{0}',
 			$redirect ?: ['controller' => 'Events', 'action' => 'wizard'],
+			// TODOAUTHCAKE: Is the second warning required?
 			'warning', ['params' => ['replacements' => $resource->notices, 'class' => 'warning']]);
 	}
 
-	private function _testCanRegister(ContextResource $resource) {
+	private function _testCanRegister(IdentityInterface $identity, ContextResource $resource) {
 		$userCache = UserCache::getInstance();
 
 		// Get everything from the user record that the decisions below might need
@@ -306,7 +307,6 @@ class EventPolicy extends AppPolicy {
 
 			if (!$prereg && !$resource->ignore_date) {
 				// Admins can test registration before it opens...
-				$identity = Router::getRequest()->getAttribute('identity');
 				if ($price->open->isFuture() && (!$identity || !$identity->isManagerOf($event))) {
 					$price->canRegister = [
 						'allowed' => false,
