@@ -35,7 +35,7 @@ class UserDrupalTable extends UsersTable {
 	/**
 	 * Class to use for hashing passwords.
 	 */
-	public $hasher = 'App\Auth\DrupalPasswordHasher';
+	public $hasher = 'App\PasswordHasher\DrupalPasswordHasher';
 
 	/**
 	 * Initialize method

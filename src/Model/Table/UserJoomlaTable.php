@@ -43,7 +43,7 @@ class UserJoomlaTable extends UsersTable {
 	/**
 	 * Class to use for hashing passwords.
 	 */
-	public $hasher = 'App\Auth\JoomlaPasswordHasher';
+	public $hasher = 'App\PasswordHasher\JoomlaPasswordHasher';
 
 	/**
 	 * Initialize method
