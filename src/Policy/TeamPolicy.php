@@ -176,11 +176,11 @@ class TeamPolicy extends AppPolicy {
 		} else if ($resource->event) {
 			$time = $resource->event->start_time;
 		}
-		$future = $time->isFuture();
+		$resource->future = $time->isFuture();
 		$recent = $time->wasWithinLast('2 week');
 		$allow_recent = !((bool)$resource->future_only);
 
-		if (!$future && !($recent && $allow_recent)) {
+		if (!$resource->future && !($recent && $allow_recent)) {
 			return false;
 		}
 
