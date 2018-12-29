@@ -465,7 +465,7 @@ class Game extends Entity {
 	 * @param bool $raw Indication of whether we should make adjustments to the spirit entry based on game status
 	 * @return mixed Entity with the requested spirit entry, or false if the team hasn't entered a spirit yet.
 	 */
-	public function getSpiritEntry($team_id, Spirit $spirit_obj, $force = false, $raw = false) {
+	public function getSpiritEntry($team_id, Spirit $spirit_obj = null, $force = false, $raw = false) {
 		if (!$spirit_obj) {
 			return false;
 		}
