@@ -545,7 +545,7 @@ class DivisionsTable extends AppTable {
 		]);
 
 		$league_obj = ModuleRegistry::getInstance()->load("LeagueType:{$division->schedule_type}");
-		$spirit_obj = ModuleRegistry::getInstance()->load("Spirit:{$division->league->sotg_questions}");
+		$spirit_obj = $division->league->hasSpirit() ? ModuleRegistry::getInstance()->load("Spirit:{$division->league->sotg_questions}") : null;
 
 		$league_obj->addResults($division, $spirit_obj);
 

@@ -147,10 +147,9 @@ abstract class LeagueType {
 	/**
 	 * Sort the provided teams according to division-specific criteria.
 	 */
-	public function sort(Division $division, League $league, $games, $spirit_obj = null, $include_tournament = true) {
+	public function sort(Division $division, League $league, $games, Spirit $spirit_obj = null, $include_tournament = true) {
 		if (!empty($games)) {
-			// TODO: How to handle this when there is no spirit scoring for the league?
-			if (!$spirit_obj) {
+			if (!$spirit_obj && $league->hasSpirit()) {
 				$spirit_obj = ModuleRegistry::getInstance()->load("Spirit:{$league->sotg_questions}");
 			}
 			$this->presort($division, $league, $games, $spirit_obj);
@@ -175,7 +174,7 @@ abstract class LeagueType {
 	 * Do any calculations that will make the comparisons more efficient, such
 	 * as determining wins, losses, spirit, etc.
 	 */
-	protected function presort(Division $division, League $league, $games, Spirit $spirit_obj) {
+	protected function presort(Division $division, League $league, $games, Spirit $spirit_obj = null) {
 		$sport_obj = ModuleRegistry::getInstance()->load("Sport:{$league->sport}");
 		$division->teams = collection($division->teams)->indexBy('id')->toArray();
 

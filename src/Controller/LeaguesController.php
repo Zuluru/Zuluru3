@@ -602,7 +602,7 @@ class LeaguesController extends AppController {
 			}
 
 			$this->Configuration->loadAffiliate($league->affiliate_id);
-			$spirit_obj = $this->moduleRegistry->load("Spirit:{$league->sotg_questions}");
+			$spirit_obj = $league->hasSpirit() ? $this->moduleRegistry->load("Spirit:{$league->sotg_questions}") : null;
 
 			foreach ($league->divisions as $key => $division) {
 				// Find all games played by teams that are currently in this division,
@@ -664,7 +664,7 @@ class LeaguesController extends AppController {
 		}
 
 		$this->Configuration->loadAffiliate($league->affiliate_id);
-		$spirit_obj = $this->moduleRegistry->load("Spirit:{$league->sotg_questions}");
+		$spirit_obj = $league->hasSpirit() ? $this->moduleRegistry->load("Spirit:{$league->sotg_questions}") : null;
 
 		$this->set(compact('league', 'league_obj', 'spirit_obj'));
 		$this->set('_serialize', ['league']);

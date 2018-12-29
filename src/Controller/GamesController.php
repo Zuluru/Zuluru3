@@ -174,7 +174,7 @@ class GamesController extends AppController {
 		$game->readDependencies();
 
 		$this->set('game', $game);
-		$this->set('spirit_obj', $this->moduleRegistry->load("Spirit:{$game->division->league->sotg_questions}"));
+		$this->set('spirit_obj', $game->division->league->hasSpirit() ? $this->moduleRegistry->load("Spirit:{$game->division->league->sotg_questions}") : null);
 		$this->set('league_obj', $this->moduleRegistry->load("LeagueType:{$game->division->schedule_type}"));
 		$this->set('ratings_obj', $this->moduleRegistry->load("Ratings:{$game->division->rating_calculator}"));
 		$this->set('_serialize', ['game']);
@@ -346,7 +346,7 @@ class GamesController extends AppController {
 
 		// Spirit score entry validation comes from the spirit module
 		if ($game->division->league->hasSpirit()) {
-			$spirit_obj = $this->moduleRegistry->load("Spirit:{$game->division->league->sotg_questions}");
+			$spirit_obj = $game->division->league->hasSpirit() ? $this->moduleRegistry->load("Spirit:{$game->division->league->sotg_questions}") : null;
 			$this->Games->SpiritEntries->addValidation($spirit_obj, $game->division->league);
 		}
 
@@ -1995,7 +1995,7 @@ class GamesController extends AppController {
 
 		// Spirit score entry validation comes from the spirit module
 		if ($game->division->league->hasSpirit()) {
-			$spirit_obj = $this->moduleRegistry->load("Spirit:{$game->division->league->sotg_questions}");
+			$spirit_obj = $game->division->league->hasSpirit() ? $this->moduleRegistry->load("Spirit:{$game->division->league->sotg_questions}") : null;
 			$this->Games->SpiritEntries->addValidation($spirit_obj, $game->division->league);
 		}
 

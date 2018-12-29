@@ -1411,7 +1411,7 @@ class TeamsController extends AppController {
 		}
 
 		$this->set(compact('team'));
-		$this->set('spirit_obj', $this->moduleRegistry->load("Spirit:{$team->division->league->sotg_questions}"));
+		$this->set('spirit_obj', $team->division->league->hasSpirit() ? $this->moduleRegistry->load("Spirit:{$team->division->league->sotg_questions}") : null);
 		$this->set('_serialize', ['team']);
 	}
 

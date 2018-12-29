@@ -144,11 +144,7 @@ class Game extends Entity {
 	 */
 	public function finalize() {
 		// Initialize data to be saved
-		if ($this->division->league->hasSpirit()) {
-			$spirit_obj = ModuleRegistry::getInstance()->load("Spirit:{$this->division->league->sotg_questions}");
-		} else {
-			$spirit_obj = null;
-		}
+		$spirit_obj = $this->division->league->hasSpirit() ? ModuleRegistry::getInstance()->load("Spirit:{$this->division->league->sotg_questions}") : null;
 
 		$home_score_entry = $this->getScoreEntry($this->home_team_id);
 		$away_score_entry = $this->getScoreEntry($this->away_team_id);
@@ -470,6 +466,10 @@ class Game extends Entity {
 	 * @return mixed Entity with the requested spirit entry, or false if the team hasn't entered a spirit yet.
 	 */
 	public function getSpiritEntry($team_id, Spirit $spirit_obj, $force = false, $raw = false) {
+		if (!$spirit_obj) {
+			return false;
+		}
+
 		$spirit_entries_table = TableRegistry::get('SpiritEntries');
 
 		if (!empty($this->spirit_entries)) {

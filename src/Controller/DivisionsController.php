@@ -797,7 +797,7 @@ class DivisionsController extends AppController {
 
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 		$league_obj = $this->moduleRegistry->load("LeagueType:{$division->schedule_type}");
-		$spirit_obj = $this->moduleRegistry->load("Spirit:{$division->league->sotg_questions}");
+		$spirit_obj = $division->league->hasSpirit() ? $this->moduleRegistry->load("Spirit:{$division->league->sotg_questions}") : null;
 		if (!$league_obj->addResults($division, $spirit_obj)) {
 			$this->Flash->info(__('Cannot generate standings for a division with no schedule.'));
 			return $this->redirect(['action' => 'view', 'division' => $id]);
@@ -888,7 +888,7 @@ class DivisionsController extends AppController {
 		usort($division->games, ['App\Model\Table\GamesTable', 'compareDateAndField']);
 		GamesTable::adjustEntryIndices($division->games);
 		$league_obj = $this->moduleRegistry->load("LeagueType:{$division->schedule_type}");
-		$spirit_obj = $this->moduleRegistry->load("Spirit:{$division->league->sotg_questions}");
+		$spirit_obj = $division->league->hasSpirit() ? $this->moduleRegistry->load("Spirit:{$division->league->sotg_questions}") : null;
 		$league_obj->sort($division, $division->league, $division->games, $spirit_obj, false);
 
 		// Move the teams into an array indexed by team id, for easier use in the view
@@ -954,7 +954,7 @@ class DivisionsController extends AppController {
 
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 		$league_obj = $this->moduleRegistry->load("LeagueType:{$division->schedule_type}");
-		$spirit_obj = $this->moduleRegistry->load("Spirit:{$division->league->sotg_questions}");
+		$spirit_obj = $division->league->hasSpirit() ? $this->moduleRegistry->load("Spirit:{$division->league->sotg_questions}") : null;
 		$league_obj->sort($division, $division->league, $division->games, $spirit_obj, false);
 
 		// Gather all possible facility/time slot combinations this division can use
@@ -1611,7 +1611,7 @@ class DivisionsController extends AppController {
 		}
 
 		$league_obj = $this->moduleRegistry->load("LeagueType:{$division->schedule_type}");
-		$spirit_obj = $this->moduleRegistry->load("Spirit:{$division->league->sotg_questions}");
+		$spirit_obj = $division->league->hasSpirit() ? $this->moduleRegistry->load("Spirit:{$division->league->sotg_questions}") : null;
 		$league_obj->sort($division, $division->league, $division->games, $spirit_obj, false);
 		$reset = $this->request->getQuery('reset');
 		$operation = ($reset ? __('reset') : __('update'));
