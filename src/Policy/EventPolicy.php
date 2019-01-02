@@ -89,7 +89,7 @@ class EventPolicy extends AppPolicy {
 		if (!$resource->person_id) {
 			$resource->person_id = $identity->getIdentifier();
 		}
-		if (!$resource->strict) {
+		if (!$resource->has('strict')) {
 			$resource->strict = true;
 		}
 		if (!$resource->waiting || !Configure::read('feature.waiting_list')) {
