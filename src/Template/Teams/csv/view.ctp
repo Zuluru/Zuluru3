@@ -13,7 +13,7 @@ $people = collection($team->people);
 $has_numbers = Configure::read('feature.shirt_numbers') && $team->has('people') && $people->some(function ($person) {
 	return $person->_joinData->number != null;
 });
-$positions = Configure::read("sports.{$team->division->league->sport}.positions");
+$positions = $team->division_id ? Configure::read("sports.{$team->division->league->sport}.positions") : [];
 
 $fields = [
 	__('Number') => $has_numbers,

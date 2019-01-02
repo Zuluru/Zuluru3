@@ -49,14 +49,17 @@ echo $this->Form->input('role', [
 	'default' => 'player',
 ]);
 
-if ($team->division_id) {
+$positions = $team->division_id ? Configure::read("sports.{$team->division->league->sport}.positions") : [];
+if (!empty($positions)) {
 	echo $this->Html->para(null, __('Possible positions are:'));
 	echo $this->Form->input('position', [
 		'label' => false,
 		'type' => 'radio',
-		'options' => Configure::read("sports.{$team->division->league->sport}.positions"),
+		'options' => $positions,
 		'default' => 'unspecified',
 	]);
+} else {
+	echo $this->Form->hidden('position', ['value' => 'unspecified']);
 }
 
 // TODO: If the team has numbers, add a field for entering that here

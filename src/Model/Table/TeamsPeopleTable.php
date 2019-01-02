@@ -98,7 +98,8 @@ class TeamsPeopleTable extends AppTable {
 				return true;
 			}
 			$sport = $this->Teams->sport($entity->team_id);
-			return array_key_exists($entity->position, Configure::read("sports.$sport.positions"));
+			$positions = Configure::read("sports.$sport.positions");
+			return empty($positions) || array_key_exists($entity->position, $positions);
 		}, 'validPosition', [
 			'errorField' => 'position',
 			'message' => __('That is not a valid position.'),

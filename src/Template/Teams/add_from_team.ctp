@@ -29,9 +29,7 @@ if (empty($old_team->people)) {
 	echo $this->Form->hidden('team', ['value' => $old_team->id]);
 
 	$cannot = [];
-	if ($team->division_id) {
-		$positions = Configure::read("sports.{$team->division->league->sport}.positions");
-	}
+	$positions = $team->division_id ? Configure::read("sports.{$team->division->league->sport}.positions") : [];
 
 	foreach ($old_team->people as $person) {
 		// TODOBOOTSTRAP: Better formatting of this list
@@ -51,13 +49,15 @@ if (empty($old_team->people)) {
 			'hiddenField' => false,
 		]);
 
-		if ($team->division_id) {
+		if (!empty($positions)) {
 			$inputs .= $this->Form->input("player.{$person->id}.position", [
 				'label' => __('Position'),
 				'type' => 'radio',
 				'options' => $positions,
 				'default' => 'unspecified',
 			]);
+		} else {
+			$inputs .= $this->Form->hidden("player.{$person->id}.position", ['value' => 'unspecified']);
 		}
 
 		// TODO: If the team has numbers, add a field for entering that here
