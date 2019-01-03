@@ -14,7 +14,7 @@ foreach ($fields as $field => $values) {
 	if (is_array($values)) {
 		echo $this->element('hidden', ['model' => $model . $field, 'fields' => $values]);
 	} else {
-		if (!in_array($field, ['_method', '_csrfToken'])) {
+		if (!in_array($field, ['_method', '_csrfToken'], true)) {
 			echo $this->Form->hidden($model . $field, ['value' => $values]);
 		}
 		// TODO: Deal with CakePHP bug where numeric-indexed hidden fields get black-holed
