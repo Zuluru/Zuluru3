@@ -46,8 +46,10 @@ if ($team->track_attendance || (isset($force) && $force)) {
 		$url = ['controller' => 'Games', 'action' => 'attendance_change', 'team' => $team->id];
 		if (isset($game_date)) {
 			$url['date'] = $game_date->format('Y-m-d');
-		} else {
+		} else if ($game->id) {
 			$url['game'] = $game->id;
+		} else {
+			$url['date'] = $game->game_slot->game_date->format('Y-m-d');
 		}
 
 		if (!$identity->isMe($person_id)) {
