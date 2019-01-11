@@ -29,7 +29,7 @@ if (collection($league->divisions)->some(function ($division) { return $division
 if (!empty($league->games)):
 	$future_week = 99;
 	$dates = collection($league->games);
-	if ($this->Authorize->can('edit_schedule', $league)) {
+	if (!$this->Authorize->can('edit_schedule', $league)) {
 		$dates = $dates->filter(function ($game) { return $game->published; });
 	}
 	$dates = array_unique($dates->extract('game_slot.game_date')->toArray());
