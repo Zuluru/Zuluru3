@@ -1,6 +1,8 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use Cake\Core\Configure;
+
 /**
  * App\Controller\AffiliatesController Test Case
  */
@@ -210,7 +212,7 @@ class AffiliatesControllerTest extends ControllerTestCase {
 				'direction' => 'asc',
 			]
 		);
-		$return = urlencode(\App\Lib\base64_url_encode('/affiliates/add_manager?affiliate=' . AFFILIATE_ID_CLUB));
+		$return = urlencode(\App\Lib\base64_url_encode(Configure::read('App.base') . '/affiliates/add_manager?affiliate=' . AFFILIATE_ID_CLUB));
 		$this->assertResponseContains('/affiliates/add_manager?person=' . PERSON_ID_PLAYER . '&amp;return=' . $return . '&amp;affiliate=' . AFFILIATE_ID_CLUB);
 
 		// Try to add the manager

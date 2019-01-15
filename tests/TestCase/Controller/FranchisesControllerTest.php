@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
 
 /**
@@ -455,7 +456,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 				'direction' => 'asc',
 			]
 		);
-		$return = urlencode(\App\Lib\base64_url_encode('/franchises/add_owner?franchise=' . FRANCHISE_ID_RED));
+		$return = urlencode(\App\Lib\base64_url_encode(Configure::read('App.base') . '/franchises/add_owner?franchise=' . FRANCHISE_ID_RED));
 		$this->assertResponseContains('/franchises/add_owner?person=' . PERSON_ID_PLAYER . '&amp;return=' . $return . '&amp;franchise=' . FRANCHISE_ID_RED);
 
 		$this->assertGetAsAccessRedirect(['controller' => 'Franchises', 'action' => 'add_owner', 'person' => PERSON_ID_PLAYER, 'franchise' => FRANCHISE_ID_RED],

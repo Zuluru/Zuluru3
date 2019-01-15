@@ -179,45 +179,45 @@ class TeamsControllerTest extends ControllerTestCase {
 		// Admins are allowed to view teams, with full edit permissions
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
 		// The strings for edit are all longer here than other places, because there can be simple edit links in help text.
-		$this->assertResponseContains('<div><a href="/teams/edit?team=' . TEAM_ID_RED);
+		$this->assertResponseContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . TEAM_ID_RED);
 		$this->assertResponseContains('/teams/delete?team=' . TEAM_ID_RED);
 
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_BEARS], PERSON_ID_ADMIN);
-		$this->assertResponseContains('<div><a href="/teams/edit?team=' . TEAM_ID_BEARS);
+		$this->assertResponseContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . TEAM_ID_BEARS);
 		$this->assertResponseContains('/teams/delete?team=' . TEAM_ID_BEARS);
 
 		// Managers are allowed to view teams
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED], PERSON_ID_MANAGER);
-		$this->assertResponseContains('<div><a href="/teams/edit?team=' . TEAM_ID_RED);
+		$this->assertResponseContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . TEAM_ID_RED);
 		$this->assertResponseContains('/teams/delete?team=' . TEAM_ID_RED);
 
 		// But are not allowed to edit ones in other affiliates
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_BEARS], PERSON_ID_MANAGER);
-		$this->assertResponseNotContains('<div><a href="/teams/edit?team=' . TEAM_ID_BEARS);
+		$this->assertResponseNotContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . TEAM_ID_BEARS);
 		$this->assertResponseNotContains('/teams/delete?team=' . TEAM_ID_BEARS);
 
 		// Coordinators are allowed to view teams but cannot edit
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED], PERSON_ID_COORDINATOR);
-		$this->assertResponseNotContains('<div><a href="/teams/edit?team=' . TEAM_ID_RED);
+		$this->assertResponseNotContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . TEAM_ID_RED);
 		$this->assertResponseNotContains('/teams/delete?team=' . TEAM_ID_RED);
 
 		// Captains are allowed to view and edit their teams
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
-		$this->assertResponseContains('<div><a href="/teams/edit?team=' . TEAM_ID_RED);
+		$this->assertResponseContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . TEAM_ID_RED);
 		// TODO: Test that captains can delete their own teams when the registration module is turned off
 		$this->assertResponseNotContains('/teams/delete?team=' . TEAM_ID_RED);
 
 		// Others are allowed to view teams, but have no edit permissions
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
-		$this->assertResponseNotContains('<div><a href="/teams/edit?team=' . TEAM_ID_RED);
+		$this->assertResponseNotContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . TEAM_ID_RED);
 		$this->assertResponseNotContains('/teams/delete?team=' . TEAM_ID_RED);
 
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED], PERSON_ID_VISITOR);
-		$this->assertResponseNotContains('<div><a href="/teams/edit?team=' . TEAM_ID_RED);
+		$this->assertResponseNotContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . TEAM_ID_RED);
 		$this->assertResponseNotContains('/teams/delete?team=' . TEAM_ID_RED);
 
 		$this->assertGetAnonymousAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED]);
-		$this->assertResponseNotContains('<div><a href="/teams/edit?team=' . TEAM_ID_RED);
+		$this->assertResponseNotContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . TEAM_ID_RED);
 		$this->assertResponseNotContains('/teams/delete?team=' . TEAM_ID_RED);
 	}
 
@@ -1244,7 +1244,7 @@ class TeamsControllerTest extends ControllerTestCase {
 				'direction' => 'asc',
 			]
 		);
-		$return = urlencode(\App\Lib\base64_url_encode('/teams/add_player?team=' . TEAM_ID_OAKS));
+		$return = urlencode(\App\Lib\base64_url_encode(Configure::read('App.base') . '/teams/add_player?team=' . TEAM_ID_OAKS));
 		$this->assertResponseContains('/teams/roster_add?person=' . PERSON_ID_PLAYER . '&amp;return=' . $return . '&amp;team=' . TEAM_ID_OAKS);
 	}
 
@@ -1402,7 +1402,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->assertContains('Subject: Invitation to join Red', $messages[0]);
 		$this->assertContains('Crystal Captain has invited you to join the roster of the Test Zuluru Affiliate team Red as a Regular player.', $messages[0]);
 		$this->assertContains('Red plays in the Competitive division of the Monday Night league, which operates on Monday.', $messages[0]);
-		$this->assertRegExp('#More details about Red may be found at\s*' . Configure::read('App.fullBaseUrl') . '/teams/view\?team=' . TEAM_ID_RED . '#ms', $messages[0]);
+		$this->assertRegExp('#More details about Red may be found at\s*' . Configure::read('App.fullBaseUrl') . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '#ms', $messages[0]);
 
 		// Make sure they were added successfully
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
@@ -1485,7 +1485,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->assertContains('Subject: You have been added to Oaks', $messages[0]);
 		$this->assertContains('You have been added to the roster of the Test Zuluru Affiliate team Oaks as a Regular player.', $messages[0]);
 		$this->assertContains('Oaks plays in the Intermediate division of the Tuesday Night league, which operates on Tuesday.', $messages[0]);
-		$this->assertRegExp('#More details about Oaks may be found at\s*' . Configure::read('App.fullBaseUrl') . '/teams/view\?team=' . TEAM_ID_OAKS . '#ms', $messages[0]);
+		$this->assertRegExp('#More details about Oaks may be found at\s*' . Configure::read('App.fullBaseUrl') . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_OAKS . '#ms', $messages[0]);
 
 		$this->assertContains('From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;', $messages[1]);
 		$this->assertContains('Reply-To: &quot;Amy Administrator&quot; &lt;amy@zuluru.org&gt;', $messages[1]);
@@ -1495,7 +1495,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->assertContains('Subject: You have been added to Oaks', $messages[1]);
 		$this->assertContains('You have been added to the roster of the Test Zuluru Affiliate team Oaks as a Regular player.', $messages[1]);
 		$this->assertContains('Oaks plays in the Intermediate division of the Tuesday Night league, which operates on Tuesday.', $messages[1]);
-		$this->assertRegExp('#More details about Oaks may be found at\s*' . Configure::read('App.fullBaseUrl') . '/teams/view\?team=' . TEAM_ID_OAKS . '#ms', $messages[1]);
+		$this->assertRegExp('#More details about Oaks may be found at\s*' . Configure::read('App.fullBaseUrl') . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_OAKS . '#ms', $messages[1]);
 
 		// Make sure they were added successfully
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_OAKS], PERSON_ID_ADMIN);
@@ -1653,7 +1653,7 @@ class TeamsControllerTest extends ControllerTestCase {
 
 		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_role', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_BLUE],
 			PERSON_ID_CAPTAIN2, ['role' => 'substitute']);
-		$this->assertResponseRegExp('#"\\\\/teams\\\\/roster_role\?team=' . TEAM_ID_BLUE . '&amp;person=' . PERSON_ID_CHILD . '.*Substitute player#ms');
+		$this->assertResponseRegExp('#\\\\/teams\\\\/roster_role\?team=' . TEAM_ID_BLUE . '&amp;person=' . PERSON_ID_CHILD . '.*Substitute player#ms');
 	}
 
 	/**
@@ -1678,7 +1678,7 @@ class TeamsControllerTest extends ControllerTestCase {
 
 		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_role', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_BLUE],
 			[PERSON_ID_PLAYER, PERSON_ID_CHILD], ['role' => 'substitute']);
-		$this->assertResponseRegExp('#"\\\\/teams\\\\/roster_role\?team=' . TEAM_ID_BLUE . '&amp;person=' . PERSON_ID_CHILD . '.*Substitute player#ms');
+		$this->assertResponseRegExp('#\\\\/teams\\\\/roster_role\?team=' . TEAM_ID_BLUE . '&amp;person=' . PERSON_ID_CHILD . '.*Substitute player#ms');
 	}
 
 	/**
@@ -1703,7 +1703,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		// Admins are allowed to change roster positions
 		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_position', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_BLUE],
 			PERSON_ID_ADMIN, ['position' => 'handler']);
-		$this->assertResponseRegExp('#"\\\\/teams\\\\/roster_position\?team=' . TEAM_ID_BLUE . '&amp;person=' . PERSON_ID_CHILD . '.*Handler#ms');
+		$this->assertResponseRegExp('#\\\\/teams\\\\/roster_position\?team=' . TEAM_ID_BLUE . '&amp;person=' . PERSON_ID_CHILD . '.*Handler#ms');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1718,7 +1718,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		// Managers are allowed to change roster positions
 		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_position', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_BLUE],
 			PERSON_ID_MANAGER, ['position' => 'handler']);
-		$this->assertResponseRegExp('#"\\\\/teams\\\\/roster_position\?team=' . TEAM_ID_BLUE . '&amp;person=' . PERSON_ID_CHILD . '.*Handler#ms');
+		$this->assertResponseRegExp('#\\\\/teams\\\\/roster_position\?team=' . TEAM_ID_BLUE . '&amp;person=' . PERSON_ID_CHILD . '.*Handler#ms');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1733,7 +1733,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		// Coordinators are allowed to change roster positions
 		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_position', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_BLUE],
 			PERSON_ID_COORDINATOR, ['position' => 'handler']);
-		$this->assertResponseRegExp('#"\\\\/teams\\\\/roster_position\?team=' . TEAM_ID_BLUE . '&amp;person=' . PERSON_ID_CHILD . '.*Handler#ms');
+		$this->assertResponseRegExp('#\\\\/teams\\\\/roster_position\?team=' . TEAM_ID_BLUE . '&amp;person=' . PERSON_ID_CHILD . '.*Handler#ms');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1757,7 +1757,7 @@ class TeamsControllerTest extends ControllerTestCase {
 
 		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_position', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_BLUE],
 			PERSON_ID_CAPTAIN2, ['position' => 'handler']);
-		$this->assertResponseRegExp('#"\\\\/teams\\\\/roster_position\?team=' . TEAM_ID_BLUE . '&amp;person=' . PERSON_ID_CHILD . '.*Handler#ms');
+		$this->assertResponseRegExp('#\\\\/teams\\\\/roster_position\?team=' . TEAM_ID_BLUE . '&amp;person=' . PERSON_ID_CHILD . '.*Handler#ms');
 	}
 
 	/**
@@ -1781,7 +1781,7 @@ class TeamsControllerTest extends ControllerTestCase {
 
 		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_position', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_BLUE],
 			[PERSON_ID_PLAYER, PERSON_ID_CHILD], ['position' => 'handler']);
-		$this->assertResponseRegExp('#"\\\\/teams\\\\/roster_position\?team=' . TEAM_ID_BLUE . '&amp;person=' . PERSON_ID_CHILD . '.*Handler#ms');
+		$this->assertResponseRegExp('#\\\\/teams\\\\/roster_position\?team=' . TEAM_ID_BLUE . '&amp;person=' . PERSON_ID_CHILD . '.*Handler#ms');
 	}
 
 	/**
@@ -1810,7 +1810,7 @@ class TeamsControllerTest extends ControllerTestCase {
 
 		// Admins are allowed to add players to teams
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'roster_add', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_OAKS], PERSON_ID_ADMIN);
-		$this->assertResponseContains('action="/teams/roster_add?person=' . PERSON_ID_PLAYER . '&amp;team=' . TEAM_ID_OAKS);
+		$this->assertResponseContains('/teams/roster_add?person=' . PERSON_ID_PLAYER . '&amp;team=' . TEAM_ID_OAKS);
 
 		// Submit an empty add form
 		$this->assertPostAsAccessOk(['controller' => 'Teams', 'action' => 'roster_add', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_OAKS], PERSON_ID_ADMIN, []);
@@ -1834,7 +1834,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->assertContains('Subject: Invitation to join Oaks', $messages[0]);
 		$this->assertContains('Amy Administrator has invited you to join the roster of the Test Zuluru Affiliate team Oaks as a Regular player.', $messages[0]);
 		$this->assertContains('Oaks plays in the Intermediate division of the Tuesday Night league, which operates on Tuesday.', $messages[0]);
-		$this->assertRegExp('#More details about Oaks may be found at\s*' . Configure::read('App.fullBaseUrl') . '/teams/view\?team=' . TEAM_ID_OAKS . '#ms', $messages[0]);
+		$this->assertRegExp('#More details about Oaks may be found at\s*' . Configure::read('App.fullBaseUrl') . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_OAKS . '#ms', $messages[0]);
 
 		// Make sure they were added successfully
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_OAKS], PERSON_ID_ADMIN);
@@ -1856,7 +1856,7 @@ class TeamsControllerTest extends ControllerTestCase {
 
 		// Managers are allowed to add players to teams
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'roster_add', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_OAKS], PERSON_ID_MANAGER);
-		$this->assertResponseContains('action="/teams/roster_add?person=' . PERSON_ID_CHILD . '&amp;team=' . TEAM_ID_OAKS);
+		$this->assertResponseContains('/teams/roster_add?person=' . PERSON_ID_CHILD . '&amp;team=' . TEAM_ID_OAKS);
 
 		// Submit the add form
 		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_add', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_OAKS],
@@ -1880,7 +1880,7 @@ class TeamsControllerTest extends ControllerTestCase {
 
 		// Coordinators are allowed to add players to teams in their divisions
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'roster_add', 'person' => PERSON_ID_MANAGER, 'team' => TEAM_ID_RED], PERSON_ID_COORDINATOR);
-		$this->assertResponseContains('action="/teams/roster_add?person=' . PERSON_ID_MANAGER . '&amp;team=' . TEAM_ID_RED);
+		$this->assertResponseContains('/teams/roster_add?person=' . PERSON_ID_MANAGER . '&amp;team=' . TEAM_ID_RED);
 
 		// Submit the add form
 		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_add', 'person' => PERSON_ID_MANAGER, 'team' => TEAM_ID_RED],
@@ -1907,7 +1907,7 @@ class TeamsControllerTest extends ControllerTestCase {
 
 		// Captains are allowed to add players to their own teams
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'roster_add', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
-		$this->assertResponseContains('action="/teams/roster_add?person=' . PERSON_ID_CHILD . '&amp;team=' . TEAM_ID_RED);
+		$this->assertResponseContains('/teams/roster_add?person=' . PERSON_ID_CHILD . '&amp;team=' . TEAM_ID_RED);
 
 		// Submit the add form
 		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_add', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN, [
@@ -2060,7 +2060,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
 			PERSON_ID_PLAYER);
-		$this->assertResponseRegExp('#"\\\\/teams\\\\/roster_role\?team=' . TEAM_ID_RED . '&amp;person=' . PERSON_ID_PLAYER . '.*Regular player#ms');
+		$this->assertResponseRegExp('#\\\\/teams\\\\/roster_role\?team=' . TEAM_ID_RED . '&amp;person=' . PERSON_ID_PLAYER . '.*Regular player#ms');
 
 		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED_PAST],
 			PERSON_ID_PLAYER, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED_PAST],

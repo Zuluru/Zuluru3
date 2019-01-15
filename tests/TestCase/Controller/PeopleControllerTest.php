@@ -1289,8 +1289,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertContains('Subject: You have been linked as a relative', $messages[0]);
 		$this->assertContains('Pam Player has indicated on the Test Zuluru Affiliate web site that you are related to them.', $messages[0]);
 		$this->assertContains('If you accept, Pam will be granted access', $messages[0]);
-		$this->assertRegExp('#Accept the request here:\s*' . Configure::read('App.fullBaseUrl') . '/people/approve_relative\?person=' . PERSON_ID_CAPTAIN . '&relative=' . PERSON_ID_PLAYER . '#ms', $messages[0]);
-		$this->assertRegExp('#Decline the request here:\s*' . Configure::read('App.fullBaseUrl') . '/people/remove_relative\?person=' . PERSON_ID_CAPTAIN . '&relative=' . PERSON_ID_PLAYER . '#ms', $messages[0]);
+		$this->assertRegExp('#Accept the request here:\s*' . Configure::read('App.fullBaseUrl') . Configure::read('App.base') . '/people/approve_relative\?person=' . PERSON_ID_CAPTAIN . '&relative=' . PERSON_ID_PLAYER . '#ms', $messages[0]);
+		$this->assertRegExp('#Decline the request here:\s*' . Configure::read('App.fullBaseUrl') . Configure::read('App.base') . '/people/remove_relative\?person=' . PERSON_ID_CAPTAIN . '&relative=' . PERSON_ID_PLAYER . '#ms', $messages[0]);
 
 		// Make sure they were added successfully
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'view'], PERSON_ID_PLAYER);
@@ -2232,12 +2232,12 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Anyone is allowed to get the splash page, different roles have different sets of messages
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'splash'], PERSON_ID_ADMIN);
 		$this->assertResponseRegExp('#The following affiliates do not yet have managers assigned to them:.*/affiliates/edit\?affiliate=2.*/affiliates/delete\?affiliate=2#ms');
-		$this->assertResponseContains('There are 1 new <a href="/people/list_new">accounts to approve</a>');
+		$this->assertResponseContains('There are 1 new <a href="' . Configure::read('App.base') . '/people/list_new">accounts to approve</a>');
 		$this->assertResponseNotContains('Recent and Upcoming Schedule');
 
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'splash'], PERSON_ID_MANAGER);
 		$this->assertResponseNotRegExp('#The following affiliates do not yet have managers assigned to them:.*/affiliates/edit\?affiliate=2.*/affiliates/delete\?affiliate=2#ms');
-		$this->assertResponseContains('There are 1 new <a href="/people/list_new">accounts to approve</a>');
+		$this->assertResponseContains('There are 1 new <a href="' . Configure::read('App.base') . '/people/list_new">accounts to approve</a>');
 		$this->assertResponseNotContains('Recent and Upcoming Schedule');
 
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'splash'], PERSON_ID_COORDINATOR);
@@ -2245,7 +2245,7 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'splash'], PERSON_ID_PLAYER);
 		$this->assertResponseNotRegExp('#The following affiliates do not yet have managers assigned to them:.*/affiliates/edit\?affiliate=2.*/affiliates/delete\?affiliate=2#ms');
-		$this->assertResponseNotContains('There are 1 new <a href="/people/list_new">accounts to approve</a>');
+		$this->assertResponseNotContains('There are 1 new <a href="' . Configure::read('App.base') . '/people/list_new">accounts to approve</a>');
 		$this->assertResponseContains('Recent and Upcoming Schedule');
 
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'splash'], PERSON_ID_CAPTAIN);
