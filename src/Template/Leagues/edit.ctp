@@ -193,21 +193,25 @@ if (Configure::read('scoring.stat_tracking')):
 		 'season_calc' => __('Stats to display season calculated values for'),
 	] as $type => $type_desc) {
 		$options = [];
-		foreach ($stat_types[$type] as $stat_type) {
-			$options[] = [
-				'text' => $stat_type->name,
-				'value' => $stat_type->id,
-				'class' => "sport_{$stat_type->sport}",
-			];
+		if (array_key_exists($type, $stat_types)) {
+			foreach ($stat_types[$type] as $stat_type) {
+				$options[] = [
+					'text' => $stat_type->name,
+					'value' => $stat_type->id,
+					'class' => "sport_{$stat_type->sport}",
+				];
+			}
 		}
-		echo $this->Html->tag('fieldset', $this->Html->tag('legend', $type_desc) .
-			$this->Form->input('stat_types._ids', [
-				'label' => false,
-				'options' => $options,
-				'multiple' => 'checkbox',
-				'hiddenField' => false,
-			])
-		);
+		if (!empty($options)) {
+			echo $this->Html->tag('fieldset', $this->Html->tag('legend', $type_desc) .
+				$this->Form->input('stat_types._ids', [
+					'label' => false,
+					'options' => $options,
+					'multiple' => 'checkbox',
+					'hiddenField' => false,
+				])
+			);
+		}
 	}
 ?>
 								</div>
