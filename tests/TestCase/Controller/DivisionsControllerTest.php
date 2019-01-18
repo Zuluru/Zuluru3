@@ -1205,6 +1205,10 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testApproveScores() {
+		// Make sure that we're after the game date
+		FrozenDate::setTestNow(new FrozenDate('July 1'));
+		FrozenTime::setTestNow(new FrozenTime('July 1'));
+
 		// Admins are allowed to approve scores
 		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
 

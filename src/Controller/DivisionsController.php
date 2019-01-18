@@ -9,6 +9,7 @@ use Cake\Database\Type\DateType;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\I18n\FrozenDate;
+use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 use App\Exception\ScheduleException;
@@ -1370,7 +1371,7 @@ class DivisionsController extends AppController {
 									'GameSlots.game_date <' => FrozenDate::now(),
 									[
 										'GameSlots.game_date' => FrozenDate::now(),
-										'GameSlots.game_end < CURTIME()',
+										'GameSlots.game_end <' => FrozenTime::now(),
 									],
 								],
 							])

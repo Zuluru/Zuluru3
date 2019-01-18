@@ -66,6 +66,9 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testView() {
+		// Make sure that we're after the game date
+		FrozenDate::setTestNow(new FrozenDate('July 1'));
+
 		// Admins are allowed to view games, with full edit permissions
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_ADMIN);
 		$this->assertResponseContains('currently rated');
@@ -1752,7 +1755,8 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertContains('To: &quot;Carl Captain&quot; &lt;carl@zuluru.org&gt;', $messages[0]);
 		$this->assertNotContains('CC: ', $messages[0]);
 		$this->assertContains('Subject: Opponent score submission', $messages[0]);
-		$this->assertContains('Your opponent has indicated that the game between your team Yellow and Blue, starting at 7:00PM on Jun 25, 2018 in 2018 Summer Monday Night Ultimate Competitive was a 17-10 loss for your team.', $messages[0]);
+		$date = (new FrozenDate('last Monday of May'))->addWeeks(4);
+		$this->assertContains("Your opponent has indicated that the game between your team Yellow and Blue, starting at 7:00PM on {$date->format('M d, Y')} in {$date->year} Summer Monday Night Ultimate Competitive was a 17-10 loss for your team.", $messages[0]);
 
 		$game = TableRegistry::get('Games')->get(GAME_ID_LADDER_NO_SCORES, ['contain' => ['ScoreEntries', 'SpiritEntries']]);
 		$this->assertFalse($game->isFinalized());
@@ -1833,7 +1837,8 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertContains('To: &quot;Carl Captain&quot; &lt;carl@zuluru.org&gt;', $messages[0]);
 		$this->assertNotContains('CC: ', $messages[0]);
 		$this->assertContains('Subject: Opponent score submission', $messages[0]);
-		$this->assertContains('Your opponent has indicated that the game between your team Yellow and Blue, starting at 7:00PM on Jun 25, 2018 in 2018 Summer Monday Night Ultimate Competitive was a 17-10 loss for your team.', $messages[0]);
+		$date = (new FrozenDate('last Monday of May'))->addWeeks(4);
+		$this->assertContains("Your opponent has indicated that the game between your team Yellow and Blue, starting at 7:00PM on {$date->format('M d, Y')} in {$date->year} Summer Monday Night Ultimate Competitive was a 17-10 loss for your team.", $messages[0]);
 
 		$game = TableRegistry::get('Games')->get(GAME_ID_LADDER_NO_SCORES, ['contain' => ['ScoreEntries', 'SpiritEntries']]);
 		$this->assertFalse($game->isFinalized());
@@ -1977,14 +1982,16 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertNotContains('CC: ', $messages[0]);
 		$this->assertNotContains('Reply-To: ', $messages[0]);
 		$this->assertContains('Subject: Score entry mismatch', $messages[0]);
-		$this->assertContains('The Jun 25, 2018 game between Red and Green in Monday Night has score entries which do not match. You can edit the game here:', $messages[0]);
+		$date = (new FrozenDate('last Monday of May'))->addWeeks(4);
+		$this->assertContains("The {$date->format('M d, Y')} game between Red and Green in Monday Night has score entries which do not match. You can edit the game here:", $messages[0]);
 
 		$this->assertContains('From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;', $messages[1]);
 		$this->assertContains('Reply-To: &quot;Carolyn Captain&quot; &lt;carolyn@zuluru.org&gt;', $messages[1]);
 		$this->assertContains('To: &quot;Crystal Captain&quot; &lt;crystal@zuluru.org&gt;', $messages[1]);
 		$this->assertNotContains('CC: ', $messages[1]);
 		$this->assertContains('Subject: Opponent score submission', $messages[1]);
-		$this->assertContains('Your opponent has indicated that the game between your team Red and Green, starting at 7:00PM on Jun 25, 2018 in 2018 Summer Monday Night Ultimate Competitive was a 5-5 tie.', $messages[1]);
+		$date = (new FrozenDate('last Monday of May'))->addWeeks(4);
+		$this->assertContains("Your opponent has indicated that the game between your team Red and Green, starting at 7:00PM on {$date->format('M d, Y')} in {$date->year} Summer Monday Night Ultimate Competitive was a 5-5 tie.", $messages[1]);
 
 		$game = TableRegistry::get('Games')->get(GAME_ID_LADDER_HOME_SCORE_ONLY, ['contain' => ['SpiritEntries']]);
 		$this->assertFalse($game->isFinalized());
@@ -2100,6 +2107,9 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSubmitStatsAsAdmin() {
+		// Make sure that we're after the game date
+		FrozenDate::setTestNow(new FrozenDate('July 1'));
+
 		// Admins are allowed to submit stats
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN, 'team' => TEAM_ID_CHICKADEES], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -2111,6 +2121,9 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSubmitStatsAsManager() {
+		// Make sure that we're after the game date
+		FrozenDate::setTestNow(new FrozenDate('July 1'));
+
 		// Managers are allowed to submit stats
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN, 'team' => TEAM_ID_CHICKADEES], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -2122,6 +2135,9 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSubmitStatsAsCoordinator() {
+		// Make sure that we're after the game date
+		FrozenDate::setTestNow(new FrozenDate('July 1'));
+
 		// Coordinators are allowed to submit stats
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN, 'team' => TEAM_ID_CHICKADEES], PERSON_ID_COORDINATOR);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -2133,6 +2149,9 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSubmitStatsAsCaptain() {
+		// Make sure that we're after the game date
+		FrozenDate::setTestNow(new FrozenDate('July 1'));
+
 		// Captains are allowed to submit stats
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN, 'team' => TEAM_ID_CHICKADEES], PERSON_ID_CAPTAIN);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -2144,6 +2163,9 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSubmitStatsAsOthers() {
+		// Make sure that we're after the game date
+		FrozenDate::setTestNow(new FrozenDate('July 1'));
+
 		// Others are not allowed to submit stats
 		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_stats', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN, 'team' => TEAM_ID_CHICKADEES], PERSON_ID_PLAYER);
 		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_stats', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN, 'team' => TEAM_ID_CHICKADEES], PERSON_ID_VISITOR);
