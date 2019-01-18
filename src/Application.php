@@ -184,7 +184,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 
 			$service->loadAuthenticator('Authentication.Form', [
 				'fields' => $fields,
-				'loginUrl' => '/users/token.json',
+				'loginUrl' => Router::url(['controller' => 'Users', 'action' => 'token', '_ext' => 'json']),
 			]);
 
 			$service->loadAuthenticator('Authentication.Jwt', [
