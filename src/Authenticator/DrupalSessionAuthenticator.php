@@ -50,9 +50,7 @@ class DrupalSessionAuthenticator extends CMSSessionAuthenticator {
 		Configure::write('feature.authenticate_through', 'Drupal');
 
 		// Check if we're running under Drupal
-		$prefix = ini_get('session.cookie_secure') ? 'SSESS' : 'SESS';
-		$drupal_session_name = $prefix . substr(hash('sha256', Configure::read('Security.drupalCookieDomain')), 0, 32);
-		$drupal_session_id = $request->cookie($drupal_session_name);
+		$drupal_session_id = $request->cookie(Configure::read('Security.drupalSessionName'));
 
 		// Check if there's already a Zuluru session
 		$result = $this->_sessionAuth->authenticate($request, $response);

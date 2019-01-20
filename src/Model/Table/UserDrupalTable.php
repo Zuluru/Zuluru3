@@ -104,16 +104,36 @@ class UserDrupalTable extends UsersTable {
 		}
 
 		require_once DRUPAL_ROOT . '/includes/bootstrap.inc';
-		drupal_settings_initialize();
-		Configure::write('Security.drupalPrefix', $GLOBALS['databases']['default']['default']['prefix']);
-		Configure::write('Security.drupalCookieDomain', $GLOBALS['cookie_domain']);
+		if (file_exists(DRUPAL_ROOT . '/' . conf_path() . '/settings.php')) {
+			require DRUPAL_ROOT . '/' . conf_path() . '/settings.php';
+		} else {
+			trigger_error(__('Could not find Drupal settings.php.'), E_USER_ERROR);
+		}
 
-		// drupal_settings_initialize overwrites the session name that we want to use
-		session_name(Configure::read('Session.cookie'));
+		Configure::write('Security.drupalPrefix', $databases['default']['default']['prefix']);
 
-		// Reset these; we don't want them to be readily available to third-party code
-		unset($GLOBALS['databases']);
-		unset($GLOBALS['drupal_hash_salt']);
+		// Replicate Drupal's method of finding the session name and cookie domain.
+		// We can't just call drupal_settings_initialize, because that will use the
+		// entire URL including Zuluru subfolder when calculating the session name
+		// in the case where the cookie_domain isn't set in the settings.php.
+		if (!isset($cookie_domain) && !empty($_SERVER['HTTP_HOST'])) {
+			$cookie_domain = $_SERVER['HTTP_HOST'];
+			// Strip leading periods, www., and port numbers from cookie domain.
+			$cookie_domain = ltrim($cookie_domain, '.');
+			if (strpos($cookie_domain, 'www.') === 0) {
+				$cookie_domain = substr($cookie_domain, 4);
+			}
+		}
+
+		$prefix = ini_get('session.cookie_secure') ? 'SSESS' : 'SESS';
+		$drupal_session_name = $prefix . substr(hash('sha256', $cookie_domain), 0, 32);
+		Configure::write('Security.drupalSessionName', $drupal_session_name);
+
+		$cookie_domain = explode(':', $cookie_domain);
+		$cookie_domain = '.' . $cookie_domain[0];
+		if (count(explode('.', $cookie_domain)) > 2 && !is_numeric(str_replace('.', '', $cookie_domain))) {
+			ini_set('session.cookie_domain', $cookie_domain);
+		}
 	}
 
 }
