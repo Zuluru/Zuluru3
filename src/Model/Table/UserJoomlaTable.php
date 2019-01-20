@@ -65,7 +65,7 @@ class UserJoomlaTable extends UsersTable {
 
 	public static function initializeJoomlaConfig() {
 		if (!defined('JPATH_BASE')) {
-			$root = Configure::read('Security.authenticators.Joomla.joomlaRoot') ?: $_SERVER['DOCUMENT_ROOT'];
+			$root = Configure::read('Security.authenticators.JoomlaSession.joomlaRoot') ?: $_SERVER['DOCUMENT_ROOT'];
 			define('JPATH_BASE', $root);
 		}
 

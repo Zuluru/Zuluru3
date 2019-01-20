@@ -99,7 +99,7 @@ class UserDrupalTable extends UsersTable {
 
 	protected function _initializeDrupal() {
 		if (!defined('DRUPAL_ROOT')) {
-			$root = Configure::read('Security.authenticators.Drupal.drupalRoot') ?: $_SERVER['DOCUMENT_ROOT'];
+			$root = Configure::read('Security.authenticators.DrupalSession.drupalRoot') ?: $_SERVER['DOCUMENT_ROOT'];
 			define('DRUPAL_ROOT', $root);
 		}
 
