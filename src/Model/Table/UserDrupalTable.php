@@ -130,7 +130,7 @@ class UserDrupalTable extends UsersTable {
 		Configure::write('Security.drupalSessionName', $drupal_session_name);
 
 		$cookie_domain = explode(':', $cookie_domain);
-		$cookie_domain = '.' . $cookie_domain[0];
+		$cookie_domain = '.' . ltrim($cookie_domain[0], '.');
 		if (count(explode('.', $cookie_domain)) > 2 && !is_numeric(str_replace('.', '', $cookie_domain))) {
 			ini_set('session.cookie_domain', $cookie_domain);
 		}
