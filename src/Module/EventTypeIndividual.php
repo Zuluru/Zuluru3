@@ -72,18 +72,7 @@ class EventTypeIndividual extends EventType {
 				return __('You must select a valid shirt size.');
 		}
 
-		// Others are validated based on their type
-		switch ($question->type) {
-			case 'text':
-			case 'textarea':
-				return true;
-
-			default:
-				pr($value);
-				pr($question);
-				trigger_error('TODOTESTING', E_USER_WARNING);
-				exit;
-		}
+		return parent::validateResponse($value, $context, $question, $responses, $event, $registration);
 	}
 
 	public function beforeRegister(Event $event, Registration $registration, $options) {

@@ -205,14 +205,10 @@ class EventTypeTeam extends EventType {
 			case REGION_PREFERENCE:
 			case OPEN_ROSTER:
 			case TRACK_ATTENDANCE:
-				//return true;
-
-			default:
-				\Cake\Log\Log::write('error', $value);
-				\Cake\Log\Log::write('error', $question);
-				trigger_error('TODOTESTING', E_USER_WARNING);
 				return true;
 		}
+
+		return parent::validateResponse($value, $context, $question, $responses, $event, $registration);
 	}
 
 	// TODO: A site or per-league configuration controlling whether team records

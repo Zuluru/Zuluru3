@@ -68,6 +68,16 @@ class EventType {
 	 * @return mixed true if validation succeeds, false or a specific message string if it fails
 	 */
 	public function validateResponse($value, $context, Question $question, Array $responses, Event $event, Registration $registration = null) {
+		// Others are validated based on their type
+		switch ($question->type) {
+			case 'text':
+			case 'textarea':
+				return !$question->_joinData->required || !empty($value);
+		}
+
+		\Cake\Log\Log::write('error', $value);
+		\Cake\Log\Log::write('error', $question);
+		trigger_error('TODOTESTING', E_USER_WARNING);
 		return true;
 	}
 
