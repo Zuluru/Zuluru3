@@ -15,7 +15,7 @@ if (!isset($access)) {
 if (!isset($prefix)) {
 	$prefix = $id_prefix = '';
 } else {
-	$id_prefix = str_replace('.', '', $prefix);
+	$id_prefix = str_replace('.', '', $prefix) . '-';
 	$prefix .= '.';
 }
 
