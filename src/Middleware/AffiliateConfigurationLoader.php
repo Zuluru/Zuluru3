@@ -29,7 +29,5 @@ class AffiliateConfigurationLoader {
 				}
 			}
 		}
-
-		Configure::load('sports');
 	}
 }
