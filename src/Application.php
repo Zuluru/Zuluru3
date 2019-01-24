@@ -363,7 +363,15 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 					$user = $identity->getOriginalData();
 
 					if (!$user->has('person')) {
-						$user->person = TableRegistry::get('People')->createPersonRecord($user);
+						// Immediately post-authentication, the user record might not have person data in it
+						$users_table = TableRegistry::get(Configure::read('Security.authModel'));
+						$users_table->loadInto($user, ['People']);
+
+						if (!$user->has('person')) {
+							// Still might not have person data, if it's a brand new user from a third-party system
+							$user->person = $users_table->People->createPersonRecord($user);
+						}
+
 						// We need to update the identity, so that the new person ID is in the in-memory record
 						$result = $request->getAttribute('authentication')->persistIdentity($request, $response, $user);
 						$request = $result['request'];

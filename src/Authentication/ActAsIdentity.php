@@ -70,10 +70,6 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 			$user = new User();
 			$user->person = $this->identity;
 			$this->identity = $user;
-		} else if (!$this->identity->has('person')) {
-			// Immediately post-authentication, the user record might not have person data in it
-			$users_table = TableRegistry::get(Configure::read('Security.authModel'));
-			$users_table->loadInto($this->identity, ['People']);
 		}
 
 		$this->_initializeGroups();
