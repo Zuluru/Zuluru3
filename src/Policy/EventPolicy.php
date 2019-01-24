@@ -119,8 +119,7 @@ class EventPolicy extends AppPolicy {
 
 		throw new ForbiddenRedirectException('{0}',
 			$redirect ?: ['controller' => 'Events', 'action' => 'wizard'],
-			// TODOAUTHCAKE: Is the second warning required?
-			'warning', ['params' => ['replacements' => $resource->notices, 'class' => 'warning']]);
+			'html', ['params' => ['replacements' => $resource->notices, 'class' => 'warning']]);
 	}
 
 	private function _testCanRegister(IdentityInterface $identity, ContextResource $resource) {
