@@ -339,13 +339,39 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 			})
 
 			// Add unauthorized flash message
-			->add(function($request, $response, $next) {
+			->add(function (
+				ServerRequest $request,
+				Response $response,
+				callable $next
+			) {
 				try {
 					return $next($request, $response);
 				} catch (UnauthenticatedException $ex) {
 					$this->Flash('error', __('You must login to access full site functionality.'));
 					throw $ex;
 				}
+			})
+
+			// Ensure that the logged in user, if there is one, has a person record
+			->add(function (
+				ServerRequest $request,
+				Response $response,
+				callable $next
+			) {
+				$identity = $request->getAttribute('identity');
+				if ($identity) {
+					$user = $identity->getOriginalData();
+
+					if (!$user->has('person')) {
+						$user->person = TableRegistry::get('People')->createPersonRecord($user);
+						// We need to update the identity, so that the new person ID is in the in-memory record
+						$result = $request->getAttribute('authentication')->persistIdentity($request, $response, $user);
+						$request = $result['request'];
+						$response = $result['response'];
+					}
+				}
+
+				return $next($request, $response);
 			})
 
 			->add(function (

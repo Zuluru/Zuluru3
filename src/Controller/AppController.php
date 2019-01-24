@@ -97,13 +97,7 @@ class AppController extends Controller {
 		$identity = $this->Authentication->getIdentity();
 		if ($identity) {
 			$user = $identity->getOriginalData();
-
-			// If there is still no person record for this user, create it.
-			if (!$user->has('person')) {
-				$user->person = $users_table->People->createPersonRecord($user);
-			} else {
-				$this->UserCache->clear('User', $user->person->id);
-			}
+			$this->UserCache->clear('User', $user->person->id);
 
 			$user->last_login = FrozenTime::now();
 			$this->request->trustProxy = true;
@@ -165,13 +159,14 @@ class AppController extends Controller {
 			if (($this->request->getParam('controller') != 'People' || $this->request->action != 'edit') && $this->UserCache->read('Person.user_id') && !$this->request->is('json')) {
 				if (empty($this->UserCache->read('Person.email'))) {
 					$this->Flash->warning(__('Last time we tried to contact you, your email bounced. We require a valid email address as part of your profile. You must update it before proceeding.'));
-					return $this->redirect(['controller' => 'People', 'action' => 'edit']);
+					return $this->forceRedirect(['controller' => 'People', 'action' => 'edit']);
 				}
 			}
 
 			if (($this->request->getParam('controller') != 'People' || $this->request->action != 'edit') && $this->UserCache->read('Person.complete') == 0 && !$this->request->is('json')) {
 				$this->Flash->warning(__('Your profile is incomplete. You must update it before proceeding.'));
-				return $this->redirect(['controller' => 'People', 'action' => 'edit']);
+				$this->Authorization->skipAuthorization();
+				return $this->forceRedirect(['controller' => 'People', 'action' => 'edit']);
 			}
 
 			// Force response to roster requests, if enabled
@@ -344,7 +339,6 @@ class AppController extends Controller {
 	 *     or an absolute URL
 	 * @param int $status HTTP status code (eg: 301)
 	 * @return void|\Cake\Network\Response
-	 * @link http://book.cakephp.org/3.0/en/controllers.html#Controller::redirect
 	 */
 	public function redirect($url, $status = 302) {
 		if ($this->request->getQuery('return')) {
@@ -354,6 +348,20 @@ class AppController extends Controller {
 			$url = $this->request->getQuery('redirect');
 		}
 
+		return $this->forceRedirect($url, $status);
+	}
+
+	/**
+	 * Redirects to given $url, regardless of any query parameter.
+	 * Script execution is halted after the redirect.
+	 *
+	 * @param string|array $url A string or array-based URL pointing to another location within the app,
+	 *     or an absolute URL
+	 * @param int $status HTTP status code (eg: 301)
+	 * @return void|\Cake\Network\Response
+	 * @link http://book.cakephp.org/3.0/en/controllers.html#Controller::redirect
+	 */
+	public function forceRedirect($url, $status = 302) {
 		// String URLs might have come from $this->here, or might be '/'.
 		// Either way, they need to be normalized.
 		if (is_string($url)) {

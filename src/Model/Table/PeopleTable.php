@@ -826,6 +826,7 @@ class PeopleTable extends AppTable {
 		$save = [
 			'user_id' => $user->{$user_table->primaryKey()},
 			'status' => Configure::read('feature.auto_approve') ? 'active' : 'new',
+			'complete' => false,
 			'gender' => '',
 			'groups' => ['_ids' => [GROUP_PLAYER]],
 			'affiliates' => ['_ids' => [AFFILIATE_DUMMY]],

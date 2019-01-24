@@ -62,7 +62,7 @@ class UserCache {
 			return;
 		}
 
-		if (self::$identity) {
+		if (self::$identity && self::$identity->person) {
 			$this->my_id = self::$identity->person->id;
 		} else {
 			$this->my_id = null;
