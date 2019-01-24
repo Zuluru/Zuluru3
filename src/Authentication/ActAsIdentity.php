@@ -436,6 +436,8 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 			$team_id = $entity;
 		} else if (is_a($entity, 'App\Model\Entity\Team')) {
 			$team_id = $entity->id;
+		} else if (is_a($entity, 'App\Model\Entity\Game')) {
+			return in_array($entity->home_team_id, $this->_teamIds) || in_array($entity->away_team_id, $this->_teamIds);
 		} else if ($entity->has('team_id')) {
 			$team_id = $entity->team_id;
 		} else {

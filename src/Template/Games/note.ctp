@@ -54,7 +54,7 @@ $identity = $this->Authorize->getIdentity();
 $options = [
 	VISIBILITY_PRIVATE => __('Only I will be able to see this'),
 ];
-if ($this->Authorize->getIdentity()->isCaptainOf($game)) {
+if ($this->Authorize->getIdentity()->isPlayerOn($game)) {
 	$options[VISIBILITY_CAPTAINS] = __('Only the coaches/captains of the team');
 	$options[VISIBILITY_TEAM] = __('Everyone on the team');
 }
