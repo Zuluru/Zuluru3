@@ -10,7 +10,11 @@ $this->Html->addCrumb(__('Team'));
 $this->Html->addCrumb(h($team->name));
 $this->Html->addCrumb(__('View'));
 
-$context = new ContextResource($team, ['league' => $team->division->league, 'division' => $team->division, 'stat_types' => $team->division->league->stat_types]);
+if ($team->division_id) {
+	$context = new ContextResource($team, ['league' => $team->division->league, 'division' => $team->division, 'stat_types' => $team->division->league->stat_types]);
+} else {
+	$context = new ContextResource($team, []);
+}
 ?>
 
 <div class="teams view">
