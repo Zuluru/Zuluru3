@@ -52,7 +52,7 @@ if (($this->request->getParam('controller') != 'Teams' || $this->request->getPar
 		['alt' => __('Attendance'), 'title' => __('View Season Attendance Report')]);
 }
 
-if ($this->Authorize->can('roster_request', new ContextResource($team, ['division' => $division]))) {
+if ($this->Authorize->can('roster_request', new ContextResource($team, ['division' => isset($division) ? $division : null]))) {
 	$more[__('Join Team')] = [
 		'url' => ['controller' => 'Teams', 'action' => 'roster_request', 'team' => $team->id],
 	];
@@ -75,7 +75,7 @@ if (($this->request->getParam('controller') != 'Teams' || $this->request->getPar
 }
 
 if (($this->request->getParam('controller') != 'Teams' || $this->request->getParam('action') != 'add_player') &&
-	$this->Authorize->can('add_player', new ContextResource($team, ['division' => $division]))
+	$this->Authorize->can('add_player', new ContextResource($team, ['division' => isset($division) ? $division : null]))
 ) {
 	$more[__('Add Player')] = [
 		'url' => ['controller' => 'Teams', 'action' => 'add_player', 'team' => $team->id],
