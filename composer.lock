@@ -1880,16 +1880,16 @@
         },
         {
             "name": "ozee31/cakephp-cors",
-            "version": "v1.1.4",
+            "version": "v1.1.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ozee31/cakephp-cors.git",
-                "reference": "e59a78ef75dcc21b884e460ca9cd4956923a42e3"
+                "reference": "da42a1aaf3a9093eda82cc40f11b84c90af79b79"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ozee31/cakephp-cors/zipball/e59a78ef75dcc21b884e460ca9cd4956923a42e3",
-                "reference": "e59a78ef75dcc21b884e460ca9cd4956923a42e3",
+                "url": "https://api.github.com/repos/ozee31/cakephp-cors/zipball/da42a1aaf3a9093eda82cc40f11b84c90af79b79",
+                "reference": "da42a1aaf3a9093eda82cc40f11b84c90af79b79",
                 "shasum": ""
             },
             "require": {
@@ -1907,7 +1907,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "description": "A CakePHP (3.3.x) plugin for activate cors domain in your application",
-            "time": "2018-07-05T13:39:24+00:00"
+            "time": "2019-01-25T16:39:57+00:00"
         },
         {
             "name": "psr/http-message",
