@@ -2260,7 +2260,7 @@ class PeopleController extends AppController {
 				$leagues[$affiliate->name] = collection($affiliate->leagues)->combine('id', 'full_name')->toArray();
 			}
 		}
-		if (count($leagues == 1)) {
+		if (count($leagues) == 1) {
 			$leagues = reset($leagues);
 		}
 		$this->set(compact('leagues'));

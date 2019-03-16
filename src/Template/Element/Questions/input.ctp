@@ -56,7 +56,13 @@ switch ($question->type) {
 
 	case 'checkbox':
 		// Deal with both checkbox groups and single checkboxes
-		if (count($question->answers) > 1) {
+		if (empty($question->answers)) {
+			if (!empty($question->default)) {
+				$options['checked'] = true;
+			}
+			$item = $this->Form->hidden("responses.$key.question_id", ['value' => $question->id]) .
+				$this->Form->input("responses.$key.answer_id", $options);
+		} else if (count($question->answers) > 1) {
 			$item = $this->Html->tag('label', $question->question);
 			foreach ($question->answers as $answer) {
 				$options['label'] = $answer->answer;
@@ -64,18 +70,12 @@ switch ($question->type) {
 				$item .= $this->Form->hidden("responses.$key.question_id", ['value' => $question->id]) .
 					$this->Form->input("responses.$key.answer_id.{$answer->id}", $options);
 			}
-		} else if (count($question->answers) == 1) {
+		} else {
 			$answer = current($question->answers);
 			$options['label'] = $answer->answer;
 			$options['value'] = $answer->id;
 			$item = $this->Html->tag('label', $question->question) .
 				$this->Form->hidden("responses.$key.question_id", ['value' => $question->id]) .
-				$this->Form->input("responses.$key.answer_id", $options);
-		} else {
-			if (!empty($question->default)) {
-				$options['checked'] = true;
-			}
-			$item = $this->Form->hidden("responses.$key.question_id", ['value' => $question->id]) .
 				$this->Form->input("responses.$key.answer_id", $options);
 		}
 		break;

@@ -148,7 +148,7 @@ class LeagueTest extends TestCase {
 		$this->assertEquals('Summer Monday Night Ultimate', $this->League1->long_name);
 		$this->assertEquals('Tuesday Night Baseball', $this->League2->long_name);
 
-		Configure::write('options.sport', 'ultimate');
+		Configure::write('options.sport', ['ultimate']);
 		$this->assertEquals('Summer Monday Night', $this->League1->long_name);
 		$this->assertEquals('Tuesday Night', $this->League2->long_name);
 	}
@@ -162,7 +162,7 @@ class LeagueTest extends TestCase {
 		$this->assertEquals("$year Summer Monday Night Ultimate", $this->League1->full_name);
 		$this->assertEquals("$year Tuesday Night Baseball", $this->League2->full_name);
 
-		Configure::write('options.sport', 'ultimate');
+		Configure::write('options.sport', ['ultimate']);
 		$this->assertEquals("$year Summer Monday Night", $this->League1->full_name);
 		$this->assertEquals("$year Tuesday Night", $this->League2->full_name);
 	}

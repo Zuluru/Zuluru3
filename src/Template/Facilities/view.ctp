@@ -17,7 +17,7 @@ if (!empty($surfaces)) {
 	$surfaces = array_map(['Cake\Utility\Inflector', 'humanize'], $surfaces);
 }
 
-$show_indoor = count(array_unique(collection($facility->fields)->extract('indoor')->toArray()) > 1);
+$show_indoor = (count(array_unique(collection($facility->fields)->extract('indoor')->toArray())) > 1);
 $can_edit = $this->Authorize->can('edit', $facility);
 ?>
 
