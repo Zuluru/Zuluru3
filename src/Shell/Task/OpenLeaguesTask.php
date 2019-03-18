@@ -36,12 +36,12 @@ class OpenLeaguesTask extends Shell {
 		foreach ($to_close as $division) {
 			// Just tag it as dirty and re-save. The beforeSave will update is_open as required.
 			$division->dirty('is_open', true);
-			$divisions_table->save($division);
+			$divisions_table->save($division, ['checkRules' => false]);
 		}
 		foreach ($to_open as $division) {
 			// Just tag it as dirty and re-save. The beforeSave will update is_open as required.
 			$division->dirty('is_open', true);
-			$divisions_table->save($division);
+			$divisions_table->save($division, ['checkRules' => false]);
 		}
 	}
 
