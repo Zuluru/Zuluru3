@@ -199,7 +199,7 @@ class RegistrationsTable extends AppTable {
 					$entity->payment = 'Waiting';
 				} else if ($entity->total_amount == 0) {
 					$entity->payment = 'Paid';
-				} else if ($entity->price->allow_reservations && !$options['from_expire_reservations']) {
+				} else if ($entity->price->allow_reservations && empty($options['from_expire_reservations'])) {
 					$entity->payment = 'Reserved';
 					$entity->reservation_expires = FrozenTime::now()->addMinutes($entity->price->reservation_duration);
 				} else {
