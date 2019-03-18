@@ -23,7 +23,6 @@ if (empty($event->registrations)) {
 	echo $this->Form->hidden('event', ['value' => $event->id]);
 
 	$cannot = [];
-	$positions = $team->division_id ? Configure::read("sports.{$team->division->league->sport}.positions") : [];
 
 	foreach ($event->registrations as $registration) {
 		// TODOBOOTSTRAP: Better formatting of this list
@@ -39,17 +38,7 @@ if (empty($event->registrations)) {
 				'hiddenField' => false,
 			]);
 
-			if (!empty($positions)) {
-				echo $this->Form->input("player.{$registration->person_id}.position", [
-					'label' => __('Position'),
-					'type' => 'radio',
-					'options' => $positions,
-					'default' => 'unspecified',
-					'hiddenField' => false,
-				]);
-			} else {
-				echo $this->Form->hidden("player.{$registration->person_id}.position", ['value' => 'unspecified']);
-			}
+			echo $this->Form->hidden("player.{$registration->person_id}.position", ['value' => 'unspecified']);
 
 			// TODO: If the team has numbers, add a field for entering that here
 		} else {
