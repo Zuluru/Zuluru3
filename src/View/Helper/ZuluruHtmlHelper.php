@@ -259,7 +259,7 @@ class ZuluruHtmlHelper extends HtmlHelper {
 				trigger_error('TODOTESTING', E_USER_WARNING);
 				exit;
 			}
-		} else if (!is_string($message)) {
+		} else if (!is_string($message) && !empty($message)) {
 			pr($message);
 			trigger_error('TODOTESTING', E_USER_WARNING);
 			exit;
