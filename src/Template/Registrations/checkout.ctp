@@ -43,7 +43,7 @@ if (!empty($registrations)):
 	$test_payments = Configure::read('payment.test_payments');
 	$take_payments = Configure::read('registration.online_payments') && (
 		$test_payments != TEST_PAYMENTS_ADMINS ||
-		($this->Authorize->getIdentity()->isManagerOf(current($registrations)) && Configure::read('payment.test_payments') == TEST_PAYMENTS_ADMINS)
+		($this->Authorize->getIdentity()->isManagerOf(current($registrations)) && $test_payments == TEST_PAYMENTS_ADMINS)
 	);
 	if ($take_payments):
 ?>
