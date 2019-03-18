@@ -29,7 +29,7 @@ switch ($question->type) {
 			$options['default'] = $question->default;
 		}
 		$item = $this->Html->tag('fieldset',
-			$this->Html->tag('legend', $question->name) . $question->question .
+			$this->Html->tag('legend', $question->question) .
 			$this->Form->hidden("responses.$key.question_id", ['value' => $question->id]) .
 				$this->Form->input("responses.$key.answer_id", $options));
 		break;
