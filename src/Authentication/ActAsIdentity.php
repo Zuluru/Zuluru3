@@ -148,7 +148,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 					$this->_isPlayer = true;
 					break;
 
-				case 'Parent':
+				case 'Parent/Guardian':
 					$this->_isParent = true;
 					break;
 			}
