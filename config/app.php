@@ -21,7 +21,7 @@ if (!defined('CACHE_PREFIX')) {
 }
 
 // If we don't have a database set up yet, we can't store sessions in it.
-if (!empty($_SERVER['REQUEST_URI']) && substr($_SERVER['REQUEST_URI'], 0, 10) == '/installer') {
+if (!empty($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], '/installer/') !== false) {
 	$session_defaults = 'php';
 } else {
 	$session_defaults = 'database';
