@@ -168,10 +168,11 @@ if (!empty($facility->fields)):
 	if ($show_indoor):
 ?>
 				<th><?= __('Indoor/Outdoor') ?></th>
-				<th class="sorter-false"><?= __('Map/Layout') ?></th>
 <?php
 	endif;
-
+?>
+				<th class="sorter-false"><?= __('Map/Layout') ?></th>
+<?php
 	if ($can_edit):
 ?>
 				<th><?= __('Rating') ?></th>
