@@ -135,12 +135,6 @@ class UsersController extends AppController {
 
 				$this->Flash->warning(__('The account could not be saved. Please correct the errors below and try again.'));
 
-				// Force the various rules checks to run, for better feedback to the user
-				$users_table->checkRules($user, RulesChecker::CREATE, ['manage_affiliates' => true, 'manage_groups' => true]);
-				$users_table->People->checkRules($user->person, RulesChecker::CREATE, ['manage_affiliates' => true, 'manage_groups' => true]);
-				if (!empty($user->person->relatives)) {
-					$users_table->People->checkRules($user->person->relatives[0], RulesChecker::CREATE, ['manage_affiliates' => true, 'manage_groups' => true]);
-				}
 				return false;
 			})) {
 				$this->Flash->account_created(null, ['params' => ['continue' => $this->request->data['action'] == 'continue']]);
@@ -158,6 +152,13 @@ class UsersController extends AppController {
 					}
 				}
 				return $this->redirect('/');
+			} else {
+				// Force the various rules checks to run, for better feedback to the user
+				$users_table->checkRules($user, RulesChecker::CREATE, ['manage_affiliates' => true, 'manage_groups' => true]);
+				$users_table->People->checkRules($user->person, RulesChecker::CREATE, ['manage_affiliates' => true, 'manage_groups' => true]);
+				if (!empty($user->person->relatives)) {
+					$users_table->People->checkRules($user->person->relatives[0], RulesChecker::CREATE, ['manage_affiliates' => true, 'manage_groups' => true]);
+				}
 			}
 		} else {
 			// By default, select the first group
