@@ -1,4 +1,4 @@
-FROM php:7.3-apache
+FROM php:7-apache
 
 #install all the system dependencies and enable PHP modules 
 RUN apt-get update && apt-get install -y \
@@ -41,10 +41,18 @@ RUN sed -i -e "s/html/html\/webroot/g" /etc/apache2/sites-enabled/000-default.co
 RUN a2enmod rewrite
 
 #copy source files and run composer
-COPY . $APP_HOME
+COPY ./Zuluru3 $APP_HOME
 
 # install all PHP dependencies
 RUN composer install --no-interaction
+
+# Modify app.php file
+RUN sed -i -e "s/SECURITY_SALT/6kBSelZLpw1RnGcWtAnAMoZwnYjOjIF6/" config/app.php && \
+	# Make sessionhandler configurable via environment
+	sed -i -e "s/'php',/env('SESSION_DEFAULTS', 'php'),/" config/app.php  && \
+	# Set write permissions for webserver
+	chgrp -R www-data logs tmp config upload && \
+	chmod -R g+rw logs tmp config upload
 
 #change ownership of our applications
 RUN chown -R www-data:www-data $APP_HOME
