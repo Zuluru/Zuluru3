@@ -56,6 +56,24 @@ bin/cake server
 
 Note that this should never be used for a production site!
 
+### Alternatively, you can try this app with Docker
+
+Clone the repo into a directory:
+
+```sh
+git clone https://github.com/Zuluru/Zuluru3.git
+```
+
+Open the docker-compose.yml file and modify a few parameters.  If you're using https://github.com/evertramos/docker-compose-letsencrypt-nginx-proxy-companion, change the LETSENCRYPT and VIRTUAL_HOST parameters to match your domain name. If you aren't using a proxy server, comment or delete the entire "environment" section (i.e. all three variables).  
+
+Change the volume paths at the bottom (i.e. /path/to/db, /path/to/upload) to match the permanent locations you wish to keep your persistent data.  This will keep your database and/or uploads from getting wiped out everytime you restart the container. 
+
+If you're super paranoid about security, modify the Dockerfile security salt value (currently set to 5C2Yi3REBrXA5cN06dcH6VdAeJySm6RR) to another 256 bit value.  You can generate another one here: https://randomkeygen.com/, under CodeIgniter Encryption Keys.
+
+In the same directory as your docker-compose file, type `docker-compose up -d` to spin up the container.  It will take a while. 
+
+Once it's done, open your browser and type in the address it's located at.  If you have nothing else running and are trying it out on your local machine, you'll likely find it at `http://localhost/`, otherwise it'll be at `your.domain`.  Follow the configuration instructions below. 
+
 ### Configuration
 
 To run the install process, go to
