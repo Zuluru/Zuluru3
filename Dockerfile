@@ -47,7 +47,7 @@ COPY ./Zuluru3 $APP_HOME
 RUN composer install --no-interaction
 
 # Modify app.php file
-RUN sed -i -e "s/SECURITY_SALT/6kBSelZLpw1RnGcWtAnAMoZwnYjOjIF6/" config/app.php && \
+RUN sed -i -e "s/'SECURITY_SALT'/'SECURITY_SALT', '6kBSelZLpw1RnGcWtAnAMoZwnYjOjIF6'/" config/app.php && \
 	# Make sessionhandler configurable via environment
 	sed -i -e "s/'php',/env('SESSION_DEFAULTS', 'php'),/" config/app.php  && \
 	# Set write permissions for webserver
