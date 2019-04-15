@@ -41,7 +41,7 @@ RUN sed -i -e "s/html/html\/webroot/g" /etc/apache2/sites-enabled/000-default.co
 RUN a2enmod rewrite
 
 #copy source files and run composer
-COPY ./Zuluru3 $APP_HOME
+COPY . $APP_HOME
 
 # install all PHP dependencies
 RUN composer install --no-interaction
