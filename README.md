@@ -6,6 +6,7 @@ Table of Contents
    * [Install Zuluru Code](#install-zuluru-code)
    * [Zuluru Folder Permissions](#zuluru-folder-permissions)
    * [Launch Zuluru](#launch-zuluru)
+   * [Experimental Docker Alternative](#experimental-docker-alternative)
    * [Configuration](#configuration)
    * [Periodic Tasks](#periodic-tasks)
    * [Troubleshooting](#troubleshooting)
@@ -56,7 +57,9 @@ bin/cake server
 
 Note that this should never be used for a production site!
 
-### Alternatively, you can try this app with Docker
+### Experimental Docker Alternative
+
+The included Dockerfile and docker-compose.yaml files are new and will hopefully make it quicker and easier to rapidly test out the application on your own hardware.  **The Docker implementation should be considered experimental until further testing can be completed.**  If you have any issues or suggestions for simplifying deployment with Docker, or encounter any issues with deploying Zuluru under Docker, please create an issue here or at the https://github.com/pl77/Zuluru3 docker fork so it can be investigated.  
 
 Clone the repo into a directory:
 
