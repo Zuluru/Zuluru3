@@ -27,7 +27,7 @@ services:
       LETSENCRYPT_EMAIL: admin@domain.name
       VIRTUAL_HOST: zuluru.domain.name
     volumes:
-      - zulu_upload:/var/www/html/upload
+      - zulu_root:/var/www/html
     networks:
       - webproxy
 
@@ -39,12 +39,12 @@ volumes:
       type: none
       device: /path/to/db
       o: bind
-  zulu_upload:
-    name: zulu_upload
+  zulu_root:
+    name: zulu_root
     driver: local
     driver_opts:
       type: none
-      device: /path/to/upload
+      device: /externaldirectory/for/deployment
       o: bind
 networks:
   # A network for connecting local services. 
