@@ -6,6 +6,7 @@
 
 use App\Controller\AppController;
 use Cake\Core\Configure;
+use Cake\I18n\I18n;
 use Cake\Routing\Router;
 
 /**
@@ -68,9 +69,9 @@ $this->start('prepend_css');
 $language = Configure::read('personal.language');
 if (Configure::read('feature.uls') && empty($language)) {
 	echo $this->Html->css([
-		'uls/jquery.uls.css',
-		'uls/jquery.uls.grid.css',
-		'uls/jquery.uls.lcd.css',
+		'https://zuluru.net/css/uls/jquery.uls.css',
+		'https://zuluru.net/css/uls/jquery.uls.grid.css',
+		'https://zuluru.net/css/uls/jquery.uls.lcd.css',
 	]);
 }
 echo $this->fetch('third_party_css');
@@ -201,17 +202,16 @@ if (!$this->fetch('language_scripts')) {
 	$this->start('language_scripts');
 	if (Configure::read('feature.uls') && empty($language)) {
 		echo $this->Html->script([
-			'jquery.uls/src/jquery.uls.data.js',
-			'jquery.uls/src/jquery.uls.data.utils.js',
-			'jquery.uls/src/jquery.uls.lcd.js',
-			'jquery.uls/src/jquery.uls.languagefilter.js',
-			'jquery.uls/src/jquery.uls.regionfilter.js',
-			'jquery.uls/src/jquery.uls.core.js',
+			'https://zuluru.net/js/uls/jquery.uls.data.js',
+			'https://zuluru.net/js/uls/jquery.uls.data.utils.js',
+			'https://zuluru.net/js/uls/jquery.uls.lcd.js',
+			'https://zuluru.net/js/uls/jquery.uls.languagefilter.js',
+			'https://zuluru.net/js/uls/jquery.uls.core.js',
 		]);
 		echo $this->Html->scriptBlock('
 jQuery(".uls-trigger").uls({
 	onSelect : function (language) {
-		window.location = "' . $this->Url->build(['controller' => 'All', 'action' => 'language'], true) . '/lang:" + language + "/return:1";
+		window.location = "' . $this->Url->build(['controller' => 'All', 'action' => 'language', 'return' => AppController::_return()], true) . '&lang=" + language;
 	},
 	languages: {' . Configure::read('available_translation_strings') . '}
 });
@@ -281,7 +281,7 @@ if (!isset($error)) {
 	}
 
 	if (Configure::read('feature.uls') && empty($language)) {
-		echo $this->Html->tag('span', Configure::read('Config.language_name'), ['class' => 'uls-trigger']);
+		echo $this->Html->tag('span', Configure::read('available_translations.' . I18n::getLocale()), ['class' => 'uls-trigger']);
 	}
 	$this->end();
 

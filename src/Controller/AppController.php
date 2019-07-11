@@ -218,100 +218,11 @@ class AppController extends Controller {
 	}
 
 	protected function _setLanguage() {
-		// TODOSECOND
-		/*
-		$this->_findLanguage();
-		$i18n = I18n::getInstance();
-		$this->request->session()->write('Config.language', $i18n->l10n->lang);
-		Configure::write('Config.language', $i18n->l10n->lang);
-		Configure::write('Config.language_name', $i18n->l10n->language);
-		*/
-		$lang = $this->request->session()->read('Config.language');
-		if (!empty($lang)) {
-			I18n::locale($lang);
-		}
 		Number::defaultCurrency(Configure::read('payment.currency'));
-		// TODO: This causes duplication of values, e.g. options.skill
-		//Configure::load('options');
-		//Configure::load('sports');
-	}
-
-	protected function TODOSECOND__findLanguage() {
-		$i18n = I18n::getInstance();
-
-		$translations = Cache::read('available_translations');
-		$translation_strings = Cache::read('available_translation_strings');
-		if (!$translations || !$translation_strings) {
-			$translations = ['en' => 'English'];
-			$translation_strings = ["en: 'English'"];
-			$dir = opendir(APP . 'Locale');
-			if ($dir) {
-				$map = $i18n->l10n->map();
-				while (false !== ($entry = readdir($dir))) {
-					if (array_key_exists($entry, $map) && file_exists(APP . 'locale' . DS . $entry . DS . DS . 'default.po')) {
-						$code = $map[$entry];
-						$catalog = $i18n->l10n->catalog();
-						$translations[$code] = $catalog[$code]['language'];
-						$translation_strings[] = "$code: '{$catalog[$code]['language']}'";
-					}
-				}
-			}
-			Cache::write('available_translations', $translations);
-			Cache::write('available_translation_strings', $translation_strings);
-		}
-		Configure::write('available_translations', $translations);
-		Configure::write('available_translation_strings', implode(', ', $translation_strings));
-
-		$language = Configure::read('personal.language');
-		if (!empty($language)) {
-			$i18n->l10n->get($language);
-			return;
-		}
-
-		if ($this->request->session()->check('Config.language')) {
-			$i18n->l10n->get($this->request->session()->read('Config.language'));
-			return;
-		}
-
-		$langs = [];
-
-		// From http://www.thefutureoftheweb.com/blog/use-accept-language-header
-		if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-			// break up string into pieces (languages and q factors)
-			preg_match_all('/([a-z]{1,8}(-[a-z]{1,8})?)\s*(;\s*q\s*=\s*(1|0\.[0-9]+))?/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $lang_parse);
-
-			if (count($lang_parse[1])) {
-				// create a list like "en" => 0.8
-				$langs = array_combine($lang_parse[1], $lang_parse[4]);
-
-				// set default to 1 for any without q factor
-				foreach ($langs as $lang => $val) {
-					if ($val === '') $langs[$lang] = 1;
-				}
-
-				// sort list based on value
-				arsort($langs, SORT_NUMERIC);
-			}
-		}
-
-		// See if we have a file that matches something the user wants
-		foreach (array_keys($langs) as $lang) {
-			$i18n->l10n->get($lang);
-			foreach ($i18n->l10n->languagePath as $path) {
-				if ($path == 'eng' || file_exists(APP . 'locale' . DS . strtolower(Text::slug($path)) . DS . 'default.po')) {
-					return;
-				}
-			}
-		}
-
-		// Use the site's default language, if there is one
-		if (Configure::read('site.default_language')) {
-			$i18n->l10n->get(Configure::read('site.default_language'));
-			return;
-		}
-
-		// Last ditch default to English
-		$i18n->l10n->get('eng');
+		Configure::load('options', 'default', false);
+		Configure::load('sports', 'default', false);
+		$configuration_table = TableRegistry::get('Configuration');
+		$configuration_table->loadSystem();
 	}
 
 	public function beforeRender(CakeEvent $cakeEvent) {

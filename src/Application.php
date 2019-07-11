@@ -25,6 +25,7 @@ use Authorization\Exception\MissingIdentityException;
 use Authorization\Middleware\AuthorizationMiddleware;
 use Authorization\Policy\OrmResolver;
 use Authorization\Policy\ResolverCollection;
+use App\Middleware\LocalizationMiddleware;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Core\Exception\MissingPluginException;
@@ -34,7 +35,7 @@ use Cake\Http\Middleware\BodyParserMiddleware;
 use Cake\Http\Middleware\EncryptedCookieMiddleware;
 use Cake\Http\Response;
 use Cake\Http\ServerRequest;
-use Cake\I18n\Middleware\LocaleSelectorMiddleware;
+use Cake\I18n\I18n;
 use Cake\I18n\Time;
 use Cake\ORM\TableRegistry;
 use Cake\Routing\Middleware\AssetMiddleware;
@@ -261,6 +262,62 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 	 * @return \Cake\Http\MiddlewareQueue The updated middleware queue.
 	 */
 	public function middleware($middlewareQueue) {
+		// We use three copies of the localization middleware.
+		// The first will set it based on the header, but won't update the cookie. It defaults to
+		// English. This is what will be used for anyone who is not logged in.
+		// TODO: Set the default with a callback, so it can be set based on site configuration?
+		// The second will set it based on the cookie, if found, which can only be set based on a
+		// personal preference in the third copy, or through the ULS selector (if enabled).
+		// With these two, the locale will be set as best as we can for any other processes that run
+		// up to and including authentication: anyone logged in will have their preference honoured
+		// through the previously set cookie, others will use the header, with English fallback.
+		// The third will check for personal preference for the logged-in user, and set the cookie
+		// only if that preference is found, but the presence of the cookie will short-circuit that
+		// to eliminate the database query.
+		$header_localization = new LocalizationMiddleware($this->getLocales(), 'en');
+		$header_localization->setSearchOrder([
+			LocalizationMiddleware::FROM_HEADER,
+		]);
+		$header_localization->setLocaleCallback(function ($locale) {
+			if ($locale) {
+				I18n::setLocale($locale);
+			}
+		});
+
+		$cookie_localization = new LocalizationMiddleware($this->getLocales(), null);
+		$cookie_localization->setSearchOrder([
+			LocalizationMiddleware::FROM_COOKIE,
+		]);
+		$cookie_localization->setCookieName('ZuluruLocale');
+		$cookie_localization->setLocaleCallback(function ($locale) {
+			if ($locale) {
+				I18n::setLocale($locale);
+			}
+		});
+
+		$user_localization = new LocalizationMiddleware($this->getLocales(), null);
+		$user_localization->setSearchOrder([
+			LocalizationMiddleware::FROM_COOKIE,
+			LocalizationMiddleware::FROM_CALLBACK,
+		]);
+		$user_localization->setCookieName('ZuluruLocale');
+		$user_localization->setSearchCallback(function (ServerRequestInterface $request) {
+			$identity = $request->getAttribute('identity');
+			if ($identity) {
+				$preference = TableRegistry::get('Settings')->find()
+					->where(['person_id' => $identity->person->id, 'name' => 'language'])
+					->first();
+				if ($preference) {
+					return $preference->value;
+				}
+			}
+		});
+		$user_localization->setLocaleCallback(function ($locale) {
+			if ($locale) {
+				I18n::setLocale($locale);
+			}
+		});
+
 		$middlewareQueue
 			// Catch any exceptions in the lower layers,
 			// and make an error page/response
@@ -273,8 +330,8 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 
 			->add(ConfigurationLoader::class)
 
-			// Set the valid locales
-			->add(new LocaleSelectorMiddleware($this->getLocales()))
+			->add($header_localization)
+			->add($cookie_localization)
 
 			// Add routing middleware.
 			// Routes collection cache enabled by default, to disable route caching
@@ -381,6 +438,8 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 
 				return $next($request, $response);
 			})
+
+			->add($user_localization)
 
 			->add(function (
 				ServerRequest $request,

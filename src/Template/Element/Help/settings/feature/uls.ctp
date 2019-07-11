@@ -3,11 +3,4 @@
 				$this->Html->link('Project Milkshake', 'https://www.mediawiki.org/wiki/Project_Milkshake'),
 				$this->Html->link('Wikimedia', 'https://www.mediawiki.org/')
 ) ?></p>
-<p><?= __('To use ULS, you must first perform steps along these lines:') ?></p>
-
-<pre><code>$ cd /path/to/zuluru/webroot/js
-$ git clone https://github.com/wikimedia/jquery.uls.git
-$ cd ..
-$ cp js/jquery.uls/images/* css/images
-$ ln -s /path/to/zuluru/webroot/js/jquery.uls/css css/uls
-</code></pre>
+<p><?= __('If you enable this, ULS files will be loaded from the Zuluru.net CDN.') ?></p>

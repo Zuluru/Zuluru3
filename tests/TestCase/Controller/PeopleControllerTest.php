@@ -4,6 +4,7 @@ namespace App\Test\TestCase\Controller;
 use Cake\Core\Configure;
 use Cake\Filesystem\Folder;
 use Cake\I18n\FrozenDate;
+use Cake\I18n\I18n;
 use Cake\ORM\TableRegistry;
 
 /**
@@ -1161,6 +1162,45 @@ class PeopleControllerTest extends ControllerTestCase {
 	public function testPreferencesAsPlayer() {
 		// Players are allowed to edit their preferences
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'preferences'], PERSON_ID_PLAYER);
+		$this->assertCookieNotSet('ZuluruLocale');
+
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		$this->assertPostAsAccessOk(['controller' => 'People', 'action' => 'preferences'],
+			PERSON_ID_PLAYER, [
+				MIN_FAKE_ID => [
+					'category' => 'personal',
+					'name' => 'language',
+					'person_id' => PERSON_ID_PLAYER,
+					'value' => 'fr',
+				],
+			]);
+		$this->assertCookie('fr', 'ZuluruLocale');
+		$this->assertEquals('fr', I18n::getLocale());
+		// Check the flash message. Since this wasn't a redirect, it's been rendered into the page.
+		$this->assertResponseContains(__('The preferences have been saved.'));
+
+		// A request for some other person doesn't set the cookie
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'preferences'], PERSON_ID_ADMIN);
+		$this->assertCookieNotSet('ZuluruLocale');
+
+		// Another request for the person with the preference does set it
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'preferences'], PERSON_ID_PLAYER);
+		$this->assertCookie('fr', 'ZuluruLocale');
+
+		$this->assertPostAsAccessOk(['controller' => 'People', 'action' => 'preferences'],
+			PERSON_ID_PLAYER, [
+				MIN_FAKE_ID => [
+					'category' => 'personal',
+					'name' => 'language',
+					'person_id' => PERSON_ID_PLAYER,
+					'value' => '',
+				],
+			]);
+		$this->assertCookie('', 'ZuluruLocale');
+		$this->assertResponseContains('The preferences have been saved.');
+
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

@@ -10,6 +10,7 @@ use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Filesystem\File;
 use Cake\Http\Exception\GoneException;
 use Cake\I18n\FrozenDate;
+use Cake\I18n\I18n;
 use Cake\ORM\Entity;
 use Cake\ORM\Query;
 use Cake\ORM\Table;
@@ -839,15 +840,33 @@ class PeopleController extends AppController {
 				}
 				return true;
 			})) {
-				$this->Flash->success(__('The preferences have been saved.'));
-
 				if ($id == $this->UserCache->currentId()) {
 					// Reload the configuration right away, so it affects any rendering we do now,
 					// and rebuild the menu based on any changes.
 					$this->Configuration->loadUser($id);
-					$this->_setLanguage();
-					$this->_initMenu();
+					$lang = collection($settings)->firstMatch(['name' => 'language']);
+					if (!empty($lang)) {
+						$lang = $lang->value;
+
+						if (empty($lang)) {
+							// Clear any existing cookie, and set to the default language
+							$this->response = $this->response->withCookie('ZuluruLocale', [
+								'value' => '',
+							]);
+							$lang = 'en';
+						} else {
+							$this->response = $this->response->withCookie('ZuluruLocale', [
+								'value' => $lang,
+								'path' => '/',
+							]);
+						}
+						I18n::setLocale($lang);
+						$this->_setLanguage();
+						$this->_initMenu();
+					}
 				}
+
+				$this->Flash->success(__('The preferences have been saved.'));
 			} else {
 				$this->Flash->warning(__('The preferences could not be saved. Please correct the errors below and try again.'));
 			}

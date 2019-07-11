@@ -97,37 +97,37 @@ class AllControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessRedirect(['controller' => 'All', 'action' => 'language', 'lang' => 'en_US'],
 			PERSON_ID_ADMIN, '/',
 			'Your language has been changed for this session. To change it permanently, {0}.');
-		$this->assertEquals('en_US', $this->_requestSession->read('Config.language'));
+		$this->assertCookie('en_US', 'ZuluruLocale');
 
 		$this->assertGetAsAccessRedirect(['controller' => 'All', 'action' => 'language', 'lang' => 'en_US'],
 			PERSON_ID_MANAGER, '/',
 			'Your language has been changed for this session. To change it permanently, {0}.');
-		$this->assertEquals('en_US', $this->_requestSession->read('Config.language'));
+		$this->assertCookie('en_US', 'ZuluruLocale');
 
 		$this->assertGetAsAccessRedirect(['controller' => 'All', 'action' => 'language', 'lang' => 'en_US'],
 			PERSON_ID_COORDINATOR, '/',
 			'Your language has been changed for this session. To change it permanently, {0}.');
-		$this->assertEquals('en_US', $this->_requestSession->read('Config.language'));
+		$this->assertCookie('en_US', 'ZuluruLocale');
 
 		$this->assertGetAsAccessRedirect(['controller' => 'All', 'action' => 'language', 'lang' => 'en_US'],
 			PERSON_ID_CAPTAIN, '/',
 			'Your language has been changed for this session. To change it permanently, {0}.');
-		$this->assertEquals('en_US', $this->_requestSession->read('Config.language'));
+		$this->assertCookie('en_US', 'ZuluruLocale');
 
 		$this->assertGetAsAccessRedirect(['controller' => 'All', 'action' => 'language', 'lang' => 'en_US'],
 			PERSON_ID_PLAYER, '/',
 			'Your language has been changed for this session. To change it permanently, {0}.');
-		$this->assertEquals('en_US', $this->_requestSession->read('Config.language'));
+		$this->assertCookie('en_US', 'ZuluruLocale');
 
 		$this->assertGetAsAccessRedirect(['controller' => 'All', 'action' => 'language', 'lang' => 'en_US'],
 			PERSON_ID_VISITOR, '/',
 			'Your language has been changed for this session. To change it permanently, {0}.');
-		$this->assertEquals('en_US', $this->_requestSession->read('Config.language'));
+		$this->assertCookie('en_US', 'ZuluruLocale');
 
 		// Others are allowed to set their language for the session
 		$this->assertGetAnonymousAccessRedirect(['controller' => 'All', 'action' => 'language', 'lang' => 'en_US'],
 			'/', false);
-		$this->assertEquals('en_US', $this->_requestSession->read('Config.language'));
+		$this->assertCookie('en_US', 'ZuluruLocale');
 	}
 
 	/**
