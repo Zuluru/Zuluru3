@@ -7,8 +7,10 @@ use Cake\Core\Configure;
 <?php
 if (Configure::read('feature.registration')):
 ?>
-<p><?= __('In addition to the {0} of managing rosters, coordinators have an extra option. The "add player" page will include a drop-down with a list of recent registration events. If you select one of these, you will be given a list of all people who registered for this event, less those who are already on a roster of another team in this league. This is intended for use with "individuals for teams" registrations, where people who signed up for hat teams can be quickly added to rosters.',
-	$this->Html->link(__('standard methods'), ['controller' => 'Help', 'action' => 'teams', 'roster_add'])
+<p><?= __('In addition to the {0} of managing rosters, coordinators have an extra option. The "{1}" page will include a drop-down with a list of recent registration events. If you select one of these, you will be given a list of all people who registered for this event, less those who are already on a roster of another team in this league. This is intended for use with "{2}" registrations, where people who signed up for hat teams can be quickly added to rosters.',
+	$this->Html->link(__('standard methods'), ['controller' => 'Help', 'action' => 'teams', 'roster_add']),
+	__('Add Player'),
+	__('Individuals for Teams')
 ) ?></p>
 <?php
 endif;

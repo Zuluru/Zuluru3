@@ -3,6 +3,7 @@ namespace App\Model\Table;
 
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
+use Cake\I18n\I18n;
 use Cake\ORM\TableRegistry;
 
 class ConfigurationTable extends AppTable {

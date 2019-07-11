@@ -3,4 +3,6 @@
 	$this->Html->link(__('edit your preferences'), ['controller' => 'People', 'action' => 'preferences'])
 ) ?></p>
 <p><?= __('To add your personal feed to iCal, copy the link from the iCal logo at the bottom of the main {0} page. Then, go to the Calendar menu in iCal, pick Subscribe, and paste in the link.', ZULURU) ?></p>
-<p><?= __('To add your personal feed to Google Calendar, just click the "Add to Google Calendar" link at the bottom of the main page.') ?></p>
+<p><?= __('To add your personal feed to Google Calendar, just click the "{0}" link at the bottom of the main page.',
+	__('Add to Google Calendar')
+) ?></p>

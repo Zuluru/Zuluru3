@@ -18,13 +18,13 @@ foreach ($games as $stage_id => $stage):
 			echo '&nbsp;';
 			echo $this->Form->iconPostLink('delete_24.png',
 				['controller' => 'Schedules', 'action' => 'delete', 'division' => $division->id, 'pool' => $pool->games[0]->home_pool_team->pool->id, 'return' => AppController::_return()],
-				['alt' => __('Delete'), 'title' => __('Delete pool games')]);
+				['alt' => __('Delete'), 'title' => __('Delete Pool Games')]);
 			echo $this->Html->iconLink('initialize_24.png',
 				['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => $division->id, 'pool' => $pool->games[0]->home_pool_team->pool->id, 'return' => AppController::_return()],
-				['alt' => __('Initialize'), 'title' => __('Initialize schedule dependencies')]);
+				['alt' => __('Initialize'), 'title' => __('Initialize Schedule Dependencies')]);
 			echo $this->Html->iconLink('reset_24.png',
 				['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => $division->id, 'pool' => $pool->games[0]->home_pool_team->pool->id, 'reset' => true, 'return' => AppController::_return()],
-				['alt' => __('Reset'), 'title' => __('Reset schedule dependencies')]);
+				['alt' => __('Reset'), 'title' => __('Reset Schedule Dependencies')]);
 			// TODO: Add publish/unpublish links here
 		}
 	?></h4>
@@ -138,7 +138,7 @@ foreach ($games as $stage_id => $stage):
 							}
 							echo ') ' . $alias . ' ' . $this->element('Teams/block', ['team' => $team, 'show_shirt' => false]);
 							if ($stage_id == 1) {
-								echo ' (' . $team->initial_seed . ')';
+								echo __(' ({0})', $team->initial_seed);
 							}
 						} else {
 							$dependency = $pool_details->dependency();

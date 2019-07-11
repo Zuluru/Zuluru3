@@ -13,18 +13,18 @@ if (in_array('alternate_email', $visible_properties) && !empty($person->alternat
 	$lines[] = $this->Html->link($person->alternate_email, "mailto:{$person->alternate_email}");
 }
 if (in_array('home_phone', $visible_properties) && !empty($person->home_phone)) {
-	$lines[] = $person->home_phone . ' (' . __('home') . ')';
+	$lines[] = $person->home_phone . __(' ({0})', __('home'));
 }
 if (in_array('work_phone', $visible_properties) && !empty($person->work_phone)) {
 	$line = $person->work_phone;
 	if (!empty($person->work_ext)) {
 		$line .= ' x' . $person->work_ext;
 	}
-	$line .= ' (' . __('work') . ')';
+	$line .= __(' ({0})', __('work'));
 	$lines[] = $line;
 }
 if (in_array('mobile_phone', $visible_properties) && !empty($person->mobile_phone)) {
-	$lines[] = $person->mobile_phone . ' (' . __('mobile') . ')';
+	$lines[] = $person->mobile_phone . __(' ({0})', __('mobile'));
 }
 
 echo implode($this->Html->tag('br'), $lines);

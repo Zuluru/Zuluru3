@@ -48,7 +48,7 @@ foreach ($people_table->schema()->columns() as $key) {
 			$options = Configure::read("options.$key");
 		}
 		if (!empty($options)) {
-			$fields[] = $key . ' (' . implode(', ', $options) . ')';
+			$fields[] = $key . __(' ({0})', implode(', ', $options));
 		} else {
 			$fields[] = $key;
 		}

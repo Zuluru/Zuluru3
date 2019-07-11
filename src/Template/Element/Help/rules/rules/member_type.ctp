@@ -11,7 +11,9 @@ $year = FrozenTime::now()->year;
 <li>&gt;<?= __('YYYY-MM-DD: Looks for the highest membership in effect at any time starting from the date specified (equivalent to YYYY-MM-DD,9999-12-31)') ?></li>
 </ul>
 <p><?= __('The date specification must be enclosed in quotes.') ?></p>
-<p><?= __('Currently, the possible member types are "none" (they do not have a membership in effect on the given date), "intro" or "full". The membership type and valid dates are determined from the configuration of the membership events that the player has registered <strong>and paid</strong> for.') ?></p>
+<p><?= __('Currently, the possible member types are "{0}" (they do not have a membership in effect on the given date), "{1}" or "{2}". The membership type and valid dates are determined from the configuration of the membership events that the player has registered <strong>and paid</strong> for.',
+	'none', 'intro', 'full'
+) ?></p>
 <p><?= __('Example:') ?></p>
 <pre>MEMBER_TYPE('<?= $year ?>-06-01')</pre>
 <p><?= __('would return one of <strong>none</strong>, <strong>intro</strong> or <strong>full</strong>, depending on the membership registration spanning June 1 of this year (if any) found in the player\'s history.') ?></p>

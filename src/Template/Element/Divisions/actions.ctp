@@ -90,7 +90,7 @@ if ($this->Authorize->can('edit', $division)) {
 if (($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'approve_scores') &&
 	$this->Authorize->can('approve_scores', $division)
 ) {
-	$more[__('Approve scores')] = [
+	$more[__('Approve Scores')] = [
 		'url' => ['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => $division->id, 'return' => $return],
 	];
 }

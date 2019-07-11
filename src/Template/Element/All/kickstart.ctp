@@ -62,9 +62,9 @@ if ($identity->isManager()):
 	if (!empty($my_affiliates)):
 		$facilities = TableRegistry::get('Facilities')->find('open', ['affiliates' => $my_affiliates]);
 		if ($facilities->count() == 0):
-			echo $this->Html->para('warning-message', __('You have no open facilities. {0}',
+			echo $this->Html->para('warning-message', __('You have no open facilities.') . ' ' .
 				$this->Html->link(__('Create one now!'), ['controller' => 'Facilities', 'action' => 'add', 'return' => AppController::_return()])
-			));
+			);
 		else:
 			// Eliminate any open facilities that have fields, and check if there's anything left that we need to warn about
 			$facilities = $facilities

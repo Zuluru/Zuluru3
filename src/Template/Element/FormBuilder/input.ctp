@@ -10,7 +10,7 @@ foreach ($questions as $question => $details) {
 	if (array_key_exists('desc', $details)) {
 		$desc = $details['desc'];
 	}
-	$label = __($details['text']);
+	$label = $details['text'];
 	echo $this->Html->tag('div',
 		$this->element("FormBuilder/input/{$details['type']}", compact('field', 'label', 'options', 'desc', 'preview', 'secure')),
 		['class' => 'input required']);

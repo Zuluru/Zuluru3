@@ -391,14 +391,14 @@ class AppController extends Controller {
 			$this->_addMenuItem(__('Edit'), ['controller' => 'People', 'action' => 'edit'], __('My Profile'));
 			$this->_addMenuItem(__('Preferences'), ['controller' => 'People', 'action' => 'preferences'], __('My Profile'));
 			if (in_array(GROUP_PARENT, $groups)) {
-				$this->_addMenuItem(__('Add new child'), ['controller' => 'People', 'action' => 'add_relative'], __('My Profile'));
+				$this->_addMenuItem(__('Add New Child'), ['controller' => 'People', 'action' => 'add_relative'], __('My Profile'));
 			}
-			$this->_addMenuItem(__('Link to relative'), ['controller' => 'People', 'action' => 'link_relative'], __('My Profile'));
+			$this->_addMenuItem(__('Link to Relative'), ['controller' => 'People', 'action' => 'link_relative'], __('My Profile'));
 			if (in_array(GROUP_PLAYER, $groups)) {
-				$this->_addMenuItem(__('Waiver history'), ['controller' => 'People', 'action' => 'waivers'], __('My Profile'));
+				$this->_addMenuItem(__('Waiver History'), ['controller' => 'People', 'action' => 'waivers'], __('My Profile'));
 			}
 			if ($this->UserCache->read('Person.user_id')) {
-				$this->_addMenuItem(__('Change password'), ['controller' => 'Users', 'action' => 'change_password'], __('My Profile'));
+				$this->_addMenuItem(__('Change Password'), ['controller' => 'Users', 'action' => 'change_password'], __('My Profile'));
 			}
 			$status = $this->UserCache->read('Person.status');
 			if ($status == 'active') {
@@ -407,13 +407,13 @@ class AppController extends Controller {
 				$this->_addMenuItem(__('Reactivate'), ['controller' => 'People', 'action' => 'reactivate'], __('My Profile'));
 			}
 			if (Configure::read('feature.photos')) {
-				$this->_addMenuItem(__('Upload photo'), ['controller' => 'People', 'action' => 'photo_upload'], __('My Profile'));
+				$this->_addMenuItem(__('Upload Photo'), ['controller' => 'People', 'action' => 'photo_upload'], __('My Profile'));
 			}
 			if (Configure::read('feature.documents')) {
-				$this->_addMenuItem(__('Upload document'), ['controller' => 'People', 'action' => 'document_upload'], __('My Profile'));
+				$this->_addMenuItem(__('Upload Document'), ['controller' => 'People', 'action' => 'document_upload'], __('My Profile'));
 			}
 			if (Configure::read('App.urls.privacyPolicy')) {
-				$this->_addMenuItem(__('Privacy policy'), Configure::read('App.urls.privacyPolicy'), __('My Profile'));
+				$this->_addMenuItem(__('Privacy Policy'), Configure::read('App.urls.privacyPolicy'), __('My Profile'));
 			}
 		}
 
@@ -424,9 +424,9 @@ class AppController extends Controller {
 			if (!Configure::read('feature.minimal_menus') && ($this->Authorization->can(\App\Controller\PeopleController::class, 'show_registration'))) {
 				$this->_addMenuItem(__('Registration'), ['controller' => 'Events', 'action' => 'wizard']);
 				$this->_addMenuItem(__('Wizard'), ['controller' => 'Events', 'action' => 'wizard'], __('Registration'));
-				$this->_addMenuItem(__('All events'), ['controller' => 'Events', 'action' => 'index'], __('Registration'));
+				$this->_addMenuItem(__('All Events'), ['controller' => 'Events', 'action' => 'index'], __('Registration'));
 				if ($identity && $identity->isLoggedIn() && !empty($this->UserCache->read('Registrations'))) {
-					$this->_addMenuItem(__('My history'), ['controller' => 'People', 'action' => 'registrations'], __('Registration'));
+					$this->_addMenuItem(__('My History'), ['controller' => 'People', 'action' => 'registrations'], __('Registration'));
 				}
 
 				$can_pay = count($this->UserCache->read('RegistrationsCanPay'));
@@ -436,7 +436,7 @@ class AppController extends Controller {
 			}
 
 			if ($identity && $identity->isManager()) {
-				$this->_addMenuItem(__('Create event'), ['controller' => 'Events', 'action' => 'add'], __('Registration'));
+				$this->_addMenuItem(__('Create Event'), ['controller' => 'Events', 'action' => 'add'], __('Registration'));
 				$this->_addMenuItem(__('Unpaid'), ['controller' => 'Registrations', 'action' => 'unpaid'], __('Registration'));
 				$this->_addMenuItem(__('Credits'), ['controller' => 'Registrations', 'action' => 'credits'], __('Registration'));
 				$this->_addMenuItem(__('Report'), ['controller' => 'Registrations', 'action' => 'report'], __('Registration'));
@@ -457,7 +457,7 @@ class AppController extends Controller {
 			$this->_addMenuItem(__('List'), ['controller' => 'Teams', 'action' => 'index'], __('Teams'));
 			// If registrations are enabled, it takes care of team creation
 			if (($identity && $identity->isManager()) || !Configure::read('feature.registration')) {
-				$this->_addMenuItem(__('Create team'), ['controller' => 'Teams', 'action' => 'add'], __('Teams'));
+				$this->_addMenuItem(__('Create Team'), ['controller' => 'Teams', 'action' => 'add'], __('Teams'));
 			}
 			if (!Configure::read('feature.minimal_menus') && $identity && $identity->isManager()) {
 				$this->loadModel('Teams');
@@ -469,7 +469,7 @@ class AppController extends Controller {
 					->count();
 				if ($new > 0) {
 					$this->set('unassigned_teams', $new);
-					$this->_addMenuItem(__('Unassigned teams {0}', "<span class=\"badge\">$new</span>"), ['controller' => 'Teams', 'action' => 'unassigned'], __('Teams'));
+					$this->_addMenuItem(__('Unassigned Teams') . ' ' . "<span class=\"badge\">$new</span>", ['controller' => 'Teams', 'action' => 'unassigned'], __('Teams'));
 				}
 				$this->_addMenuItem(__('Statistics'), ['controller' => 'Teams', 'action' => 'statistics'], __('Teams'));
 			}
@@ -478,14 +478,14 @@ class AppController extends Controller {
 		if ($identity && $identity->isLoggedIn() && Configure::read('feature.franchises')) {
 			$this->_addMenuItem(__('Franchises'), ['controller' => 'Franchises', 'action' => 'index'], __('Teams'));
 			$this->_addMenuItem(__('List'), ['controller' => 'Franchises', 'action' => 'index'], [__('Teams'), __('Franchises')]);
-			$this->_addMenuItem(__('Create franchise'), ['controller' => 'Franchises', 'action' => 'add'], [__('Teams'), __('Franchises')]);
+			$this->_addMenuItem(__('Create Franchise'), ['controller' => 'Franchises', 'action' => 'add'], [__('Teams'), __('Franchises')]);
 		}
 
 		$this->_addMenuItem(__('Leagues'), ['controller' => 'Leagues', 'action' => 'index']);
 		$this->_addMenuItem(__('List'), ['controller' => 'Leagues', 'action' => 'index'], __('Leagues'));
 		if ($identity && $identity->isManager()) {
-			$this->_addMenuItem(__('League summary'), ['controller' => 'Leagues', 'action' => 'summary'], __('Leagues'));
-			$this->_addMenuItem(__('Create league'), ['controller' => 'Leagues', 'action' => 'add'], __('Leagues'));
+			$this->_addMenuItem(__('League Summary'), ['controller' => 'Leagues', 'action' => 'summary'], __('Leagues'));
+			$this->_addMenuItem(__('Create League'), ['controller' => 'Leagues', 'action' => 'add'], __('Leagues'));
 		}
 
 		$tournaments = Cache::remember('tournaments', function () {
@@ -507,24 +507,24 @@ class AppController extends Controller {
 
 		$this->_addMenuItem(__(Configure::read('UI.fields_cap')), ['controller' => 'Facilities', 'action' => 'index']);
 		$this->_addMenuItem(__('List'), ['controller' => 'Facilities', 'action' => 'index'], __(Configure::read('UI.fields_cap')));
-		$this->_addMenuItem(__('Map of all {0}', __(Configure::read('UI.fields'))), ['controller' => 'Maps', 'action' => 'index'], __(Configure::read('UI.fields_cap')), null, ['target' => 'map']);
+		$this->_addMenuItem(__('Map of All {0}', __(Configure::read('UI.fields_cap'))), ['controller' => 'Maps', 'action' => 'index'], __(Configure::read('UI.fields_cap')), null, ['target' => 'map']);
 		if ($identity && $identity->isManager()) {
-			$this->_addMenuItem(__('Closed facilities'), ['controller' => 'Facilities', 'action' => 'closed'], __(Configure::read('UI.fields_cap')));
-			$this->_addMenuItem(__('Create facility'), ['controller' => 'Facilities', 'action' => 'add'], __(Configure::read('UI.fields_cap')));
+			$this->_addMenuItem(__('Closed Facilities'), ['controller' => 'Facilities', 'action' => 'closed'], __(Configure::read('UI.fields_cap')));
+			$this->_addMenuItem(__('Create Facility'), ['controller' => 'Facilities', 'action' => 'add'], __(Configure::read('UI.fields_cap')));
 
 			if (!Configure::read('feature.affiliates')) {
-				$this->_addMenuItem(__('Add bulk gameslots'), ['controller' => 'GameSlots', 'action' => 'add'], __(Configure::read('UI.fields_cap')));
+				$this->_addMenuItem(__('Add Bulk Game Slots'), ['controller' => 'GameSlots', 'action' => 'add'], __(Configure::read('UI.fields_cap')));
 			} else if (count($affiliates) == 1) {
-				$this->_addMenuItem(__('Add bulk gameslots'), ['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => current(array_keys($affiliates))], __(Configure::read('UI.fields_cap')));
+				$this->_addMenuItem(__('Add Bulk Game Slots'), ['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => current(array_keys($affiliates))], __(Configure::read('UI.fields_cap')));
 			} else {
 				foreach ($affiliates as $affiliate => $name) {
-					$this->_addMenuItem(__($name), ['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => $affiliate], [__(Configure::read('UI.fields_cap')), __('Add bulk gameslots')]);
+					$this->_addMenuItem(__($name), ['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => $affiliate], [__(Configure::read('UI.fields_cap')), __('Add Bulk Game Slots')]);
 				}
 			}
 
 			$this->_addMenuItem(__('Regions'), ['controller' => 'Regions', 'action' => 'index'], __(Configure::read('UI.fields_cap')));
 			$this->_addMenuItem(__('List'), ['controller' => 'Regions', 'action' => 'index'], [__(Configure::read('UI.fields_cap')), __('Regions')]);
-			$this->_addMenuItem(__('Create region'), ['controller' => 'Regions', 'action' => 'add'], [__(Configure::read('UI.fields_cap')), __('Regions')]);
+			$this->_addMenuItem(__('Create Region'), ['controller' => 'Regions', 'action' => 'add'], [__(Configure::read('UI.fields_cap')), __('Regions')]);
 
 			$this->loadModel('People');
 			if (!Configure::read('feature.minimal_menus')) {
@@ -539,7 +539,7 @@ class AppController extends Controller {
 					->count();
 				if ($new > 0) {
 					$this->set('new_accounts', $new);
-					$this->_addMenuItem(__('Approve new accounts {0}', "<span class=\"badge\">$new</span>"), ['controller' => 'People', 'action' => 'list_new'], __('People'));
+					$this->_addMenuItem(__('Approve New Accounts') . ' ' . "<span class=\"badge\">$new</span>", ['controller' => 'People', 'action' => 'list_new'], __('People'));
 				}
 
 				if (Configure::read('feature.photos') && Configure::read('feature.approve_photos')) {
@@ -551,7 +551,7 @@ class AppController extends Controller {
 						->count();
 					if ($new > 0) {
 						$this->set('new_photos', $new);
-						$this->_addMenuItem(__('Approve new photos {0}', "<span class=\"badge\">$new</span>"), ['controller' => 'People', 'action' => 'approve_photos'], __('People'));
+						$this->_addMenuItem(__('Approve New Photos') . ' ' . "<span class=\"badge\">$new</span>", ['controller' => 'People', 'action' => 'approve_photos'], __('People'));
 					}
 				}
 
@@ -564,17 +564,17 @@ class AppController extends Controller {
 						->count();
 					if ($new > 0) {
 						$this->set('new_documents', $new);
-						$this->_addMenuItem(__('Approve new documents {0}', "<span class=\"badge\">$new</span>"), ['controller' => 'People', 'action' => 'approve_documents'], __('People'));
+						$this->_addMenuItem(__('Approve New Documents') . ' ' . "<span class=\"badge\">$new</span>", ['controller' => 'People', 'action' => 'approve_documents'], __('People'));
 					}
 				}
 			}
 
-			// TODOLATER: $this->_addMenuItem(__('Bulk import'), ['controller' => 'Users', 'action' => 'import'], __('People'));
+			// TODOLATER: $this->_addMenuItem(__('Bulk Import'), ['controller' => 'Users', 'action' => 'import'], __('People'));
 			if (Configure::read('feature.control_account_creation')) {
-				$this->_addMenuItem(__('Create account'), ['controller' => 'Users', 'action' => 'create_account'], __('People'));
+				$this->_addMenuItem(__('Create Account'), ['controller' => 'Users', 'action' => 'create_account'], __('People'));
 			}
 
-			$this->_addMenuItem(__('List all'), ['controller' => 'People', 'action' => 'index'], __('People'));
+			$this->_addMenuItem(__('List All'), ['controller' => 'People', 'action' => 'index'], __('People'));
 			$groups = $this->People->Groups->find()
 				->hydrate(false)
 				->where([
@@ -588,7 +588,7 @@ class AppController extends Controller {
 				->combine('id', 'name')
 				->toArray();
 			foreach ($groups as $group => $name) {
-				$this->_addMenuItem(__(Inflector::pluralize($name)), ['controller' => 'People', 'action' => 'index', 'group' => $group], [__('People'), __('List all')]);
+				$this->_addMenuItem(__(Inflector::pluralize($name)), ['controller' => 'People', 'action' => 'index', 'group' => $group], [__('People'), __('List All')]);
 			}
 		}
 
@@ -608,7 +608,7 @@ class AppController extends Controller {
 						->count();
 					if ($new > 0) {
 						$this->set('new_nominations', $new);
-						$this->_addMenuItem(__('Approve nominations {0}', "<span class=\"badge\">$new</span>"), ['controller' => 'People', 'action' => 'approve_badges'], [__('People'), __('Badges')]);
+						$this->_addMenuItem(__('Approve Nominations') . ' ' . "<span class=\"badge\">$new</span>", ['controller' => 'People', 'action' => 'approve_badges'], [__('People'), __('Badges')]);
 					}
 					$this->_addMenuItem(__('Deactivated'), ['controller' => 'Badges', 'action' => 'deactivated'], [__('People'), __('Badges')]);
 				}
@@ -616,9 +616,9 @@ class AppController extends Controller {
 		}
 
 		if ($identity && $identity->isManager()) {
-			$this->_addMenuItem(__('By name'), ['controller' => 'People', 'action' => 'search'], [__('People'), __('Search')]);
-			$this->_addMenuItem(__('By rule'), ['controller' => 'People', 'action' => 'rule_search'], [__('People'), __('Search')]);
-			$this->_addMenuItem(__('By league'), ['controller' => 'People', 'action' => 'league_search'], [__('People'), __('Search')]);
+			$this->_addMenuItem(__('By Name'), ['controller' => 'People', 'action' => 'search'], [__('People'), __('Search')]);
+			$this->_addMenuItem(__('By Rule'), ['controller' => 'People', 'action' => 'rule_search'], [__('People'), __('Search')]);
+			$this->_addMenuItem(__('By League'), ['controller' => 'People', 'action' => 'league_search'], [__('People'), __('Search')]);
 			$this->_addMenuItem(__('Inactive'), ['controller' => 'People', 'action' => 'inactive_search'], [__('People'), __('Search')]);
 
 			$this->_addMenuItem(__('Statistics'), ['controller' => 'People', 'action' => 'statistics'], __('People'));
@@ -627,11 +627,11 @@ class AppController extends Controller {
 
 			$this->_addMenuItem(__('Newsletters'), ['controller' => 'Newsletters', 'action' => 'index']);
 			$this->_addMenuItem(__('Upcoming'), ['controller' => 'Newsletters', 'action' => 'index'], __('Newsletters'));
-			$this->_addMenuItem(__('Create newsletter'), ['controller' => 'Newsletters', 'action' => 'add'], __('Newsletters'));
-			$this->_addMenuItem(__('All newsletters'), ['controller' => 'Newsletters', 'action' => 'past'], __('Newsletters'));
+			$this->_addMenuItem(__('Create Newsletter'), ['controller' => 'Newsletters', 'action' => 'add'], __('Newsletters'));
+			$this->_addMenuItem(__('All Newsletters'), ['controller' => 'Newsletters', 'action' => 'past'], __('Newsletters'));
 			$this->_addMenuItem(__('Mailing Lists'), ['controller' => 'MailingLists', 'action' => 'index'], __('Newsletters'));
 			$this->_addMenuItem(__('List'), ['controller' => 'MailingLists', 'action' => 'index'], [__('Newsletters'), __('Mailing Lists')]);
-			$this->_addMenuItem(__('Create mailing list'), ['controller' => 'MailingLists', 'action' => 'add'], [__('Newsletters'), __('Mailing Lists')]);
+			$this->_addMenuItem(__('Create Mailing List'), ['controller' => 'MailingLists', 'action' => 'add'], [__('Newsletters'), __('Mailing Lists')]);
 		}
 
 		if ($identity && $identity->isAdmin()) {
@@ -656,7 +656,7 @@ class AppController extends Controller {
 		}
 
 		if ($this->Authorization->can(AllController::class, 'clear_cache')) {
-			$this->_addMenuItem(__('Clear cache'), ['controller' => 'All', 'action' => 'clear_cache', 'return' => AppController::_return()], __('Configuration'));
+			$this->_addMenuItem(__('Clear Cache'), ['controller' => 'All', 'action' => 'clear_cache', 'return' => AppController::_return()], __('Configuration'));
 		}
 
 		if ($identity && $identity->isAdmin()) {
@@ -752,11 +752,11 @@ class AppController extends Controller {
 
 		$this->_addMenuItem(__('Help'), ['controller' => 'Help']);
 		if (Configure::read('feature.contacts') && $this->UserCache->currentId()) {
-			$this->_addMenuItem(__('Contact us'), ['controller' => 'Contacts', 'action' => 'message'], __('Help'));
+			$this->_addMenuItem(__('Contact Us'), ['controller' => 'Contacts', 'action' => 'message'], __('Help'));
 		}
-		$this->_addMenuItem(__('Help index'), ['controller' => 'Help'], __('Help'));
-		$this->_addMenuItem(__('New users'), ['controller' => 'Help', 'action' => 'guide', 'new_user'], __('Help'));
-		$this->_addMenuItem(__('Advanced users'), ['controller' => 'Help', 'action' => 'guide', 'advanced'], __('Help'));
+		$this->_addMenuItem(__('Help Index'), ['controller' => 'Help'], __('Help'));
+		$this->_addMenuItem(__('New Users'), ['controller' => 'Help', 'action' => 'guide', 'new_user'], __('Help'));
+		$this->_addMenuItem(__('Advanced Users'), ['controller' => 'Help', 'action' => 'guide', 'advanced'], __('Help'));
 		$this->_addMenuItem(__('Coaches/Captains'), ['controller' => 'Help', 'action' => 'guide', 'captain'], __('Help'));
 		if (!Configure::read('feature.minimal_menus') && $identity && ($identity->isManager() || $identity->isCoordinator())) {
 			$this->_addMenuItem(__('Coordinators'), ['controller' => 'Help', 'action' => 'guide', 'coordinator'], __('Help'));
@@ -766,17 +766,17 @@ class AppController extends Controller {
 		}
 
 		if ($identity && $identity->isAdmin()) {
-			$this->_addMenuItem(__('Site setup and configuration'), ['controller' => 'Help', 'action' => 'guide', 'administrator', 'setup'], [__('Help'), __('Administrators')]);
+			$this->_addMenuItem(__('Site Setup and Configuration'), ['controller' => 'Help', 'action' => 'guide', 'administrator', 'setup'], [__('Help'), __('Administrators')]);
 		}
 		if ($identity && $identity->isManager()) {
-			$this->_addMenuItem(__('Player management'), ['controller' => 'Help', 'action' => 'guide', 'administrator', 'players'], [__('Help'), __('Administrators')]);
-			$this->_addMenuItem(__('League management'), ['controller' => 'Help', 'action' => 'guide', 'administrator', 'leagues'], [__('Help'), __('Administrators')]);
-			$this->_addMenuItem(__('{0} management', __(Configure::read('UI.field_cap'))), ['controller' => 'Help', 'action' => 'guide', 'administrator', 'fields'], [__('Help'), __('Administrators')]);
+			$this->_addMenuItem(__('Player Management'), ['controller' => 'Help', 'action' => 'guide', 'administrator', 'players'], [__('Help'), __('Administrators')]);
+			$this->_addMenuItem(__('League Management'), ['controller' => 'Help', 'action' => 'guide', 'administrator', 'leagues'], [__('Help'), __('Administrators')]);
+			$this->_addMenuItem(__('{0} Management', __(Configure::read('UI.field_cap'))), ['controller' => 'Help', 'action' => 'guide', 'administrator', 'fields'], [__('Help'), __('Administrators')]);
 			$this->_addMenuItem(__('Registration'), ['controller' => 'Help', 'action' => 'guide', 'administrator', 'registration'], [__('Help'), __('Administrators')]);
 		}
 
 		if (!$this->UserCache->currentId()) {
-			$this->_addMenuItem(__('Create account'), Configure::read('App.urls.register'));
+			$this->_addMenuItem(__('Create Account'), Configure::read('App.urls.register'));
 		}
 
 		if ($this->UserCache->currentId()) {
@@ -796,8 +796,8 @@ class AppController extends Controller {
 			$this->_addMenuItem(__('View'), ['controller' => 'People', 'action' => 'view', 'act_as' => $id], [__('My Profile'), $name]);
 			$this->_addMenuItem(__('Edit'), ['controller' => 'People', 'action' => 'edit', 'act_as' => $id], [__('My Profile'), $name]);
 			$this->_addMenuItem(__('Preferences'), ['controller' => 'People', 'action' => 'preferences', 'act_as' => $id], [__('My Profile'), $name]);
-			$this->_addMenuItem(__('Waiver history'), ['controller' => 'People', 'action' => 'waivers', 'act_as' => $id], [__('My Profile'), $name]);
-			$this->_addMenuItem(__('Upload photo'), ['controller' => 'People', 'action' => 'photo_upload', 'act_as' => $id], [__('My Profile'), $name]);
+			$this->_addMenuItem(__('Waiver History'), ['controller' => 'People', 'action' => 'waivers', 'act_as' => $id], [__('My Profile'), $name]);
+			$this->_addMenuItem(__('Upload Photo'), ['controller' => 'People', 'action' => 'photo_upload', 'act_as' => $id], [__('My Profile'), $name]);
 
 			if (Configure::read('feature.registration')) {
 				if (!empty($this->UserCache->read('RegistrationsCanPay', $id))) {
@@ -816,7 +816,7 @@ class AppController extends Controller {
 			$this->_addTeamMenuItems($team, $id, $name);
 		}
 		if (!empty($this->UserCache->read('AllTeamIDs'))) {
-			$this->_addMenuItem(__('My history'), ['controller' => 'People', 'action' => 'teams'], __('Teams'));
+			$this->_addMenuItem(__('My History'), ['controller' => 'People', 'action' => 'teams'], __('Teams'));
 		}
 
 		if ($id) {
@@ -855,7 +855,7 @@ class AppController extends Controller {
 		$key = "{$team->name}::{$team->id}";
 
 		if (!empty($team->division_id)) {
-			$this->_addMenuItem($team->name . ' (' . $team->division->long_league_name . ')', ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $path, $key);
+			$this->_addMenuItem($team->name . __(' ({0})', $team->division->long_league_name), ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $path, $key);
 			$this->_addDivisionMenuItems($team->division, $team->division->league, $id, $name);
 		} else {
 			$this->_addMenuItem($team->name, ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $path, $key);
@@ -1031,7 +1031,7 @@ class AppController extends Controller {
 			}
 			if (!empty($input->alternate_email)) {
 				if (isset($name)) {
-					$emails[$input->alternate_email] = $name . ' (' . __('alternate') . ')';
+					$emails[$input->alternate_email] = $name . __(' ({0})', __('alternate'));
 				} else {
 					$emails[$input->alternate_email] = $input->alternate_email;
 				}

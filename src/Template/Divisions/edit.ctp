@@ -186,6 +186,7 @@ echo $this->Form->input('exclude_teams', [
 ]);
 echo $this->Form->input('double_booking', [
 	'templates' => $advanced,
+	'label' => __('Allow double-booking?'),
 	'options' => Configure::read('options.enable'),
 	'default' => false,
 	'help' => __('Allows coordinators to schedule multiple games in a single game slot.'),
@@ -202,6 +203,7 @@ echo $this->Form->input('rating_calculator', [
 	'help' => __('What type of ratings calculation to use.'),
 ]);
 echo $this->Form->input('email_after', [
+	'label' => __('Scoring reminder delay'),
 	'size' => 5,
 	'default' => 0,
 	'help' => __('Email coaches and captains who haven\'t scored games after this many hours, no reminder if 0.'),
@@ -220,6 +222,7 @@ if (Configure::read('scoring.allstars')) {
 	]);
 	echo $this->Form->input('allstars_from', [
 		'templates' => $advanced,
+		'label' => __('All-star nominations from'),
 		'options' => Configure::read('options.allstar_from'),
 		'default' => 'opponent',
 		'help' => __('Which team will allstar nominations come from? Ignored if the above field is set to "never".'),
@@ -257,7 +260,7 @@ echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
 	['confirm' => __('Are you sure you want to delete this division?')]));
 echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
 	['action' => 'add'],
-	['alt' => __('New'), 'title' => __('New Division')]));
+	['alt' => __('Add'), 'title' => __('Add Division')]));
 ?>
 	</ul>
 </div>

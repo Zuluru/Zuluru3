@@ -104,15 +104,15 @@ if (Configure::read('feature.language') && count($languages) > 1) {
 if (Configure::read('feature.twitter')):
 ?>
 		<fieldset>
-			<legend><?= __('Twitter') ?></legend>
+			<legend>Twitter</legend>
 <?php
 	if (!empty($person['twitter_token'])) {
-		echo $this->Html->para(null, __('You have authorized your account to post updates to Twitter. You can {0} if you no longer want to tweet updates.',
-			$this->Html->link(__('revoke this authorization'), ['action' => 'revoke_twitter'])
+		echo $this->Html->para(null, __('You have authorized your account to post updates to {0}. You can {1} if you no longer want to tweet updates.',
+			'Twitter', $this->Html->link(__('revoke this authorization'), ['action' => 'revoke_twitter'])
 		));
 	} else {
-		echo $this->Html->para(null, __('This system can post certain updates to Twitter on your behalf. To enable this, you must {0}. Note that nothing will ever be tweeted automatically; this authorization enables you to tweet directly from this site.',
-			$this->Html->link(__('authorize Twitter to accept these tweets'), ['action' => 'authorize_twitter'])
+		echo $this->Html->para(null, __('This system can post certain updates to {0} on your behalf. To enable this, you must {1}. Note that nothing will ever be tweeted automatically; this authorization enables you to tweet directly from this site.',
+			'Twitter', $this->Html->link(__('authorize {0} to accept these tweets', 'Twitter'), ['action' => 'authorize_twitter'])
 		));
 	}
 ?>

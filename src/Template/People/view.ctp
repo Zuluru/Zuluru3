@@ -73,7 +73,7 @@ if (in_array('email', $visible_properties) && !empty($person->email)):
 		<dd><?php
 			$has_visible_contact = true;
 			echo $this->Html->link($person->email, "mailto:{$person->email}");
-			echo ' (' . ($person->publish_email ? __('published') : __('private')) . ')';
+			echo __(' ({0})', $person->publish_email ? __('published') : __('private'));
 		?></dd>
 <?php
 endif;
@@ -84,7 +84,7 @@ if (in_array('alternate_email', $visible_properties) && !empty($person->alternat
 		<dd><?php
 			$has_visible_contact = true;
 			echo $this->Html->link($person->alternate_email, "mailto:{$person->alternate_email}");
-			echo ' (' . ($person->publish_alternate_email ? __('published') : __('private')) . ')';
+			echo __(' ({0})', $person->publish_alternate_email ? __('published') : __('private'));
 		?></dd>
 <?php
 endif;
@@ -95,7 +95,7 @@ if (in_array('home_phone', $visible_properties) && !empty($person->home_phone)):
 		<dd><?php
 			$has_visible_contact = true;
 			echo $person->home_phone;
-			echo ' (' . ($person->publish_home_phone ? __('published') : __('private')) . ')';
+			echo __(' ({0})', $person->publish_home_phone ? __('published') : __('private'));
 		?></dd>
 <?php
 endif;
@@ -109,7 +109,7 @@ if (in_array('work_phone', $visible_properties) && !empty($person->work_phone)):
 			if (!empty($person->work_ext)) {
 				echo ' x' . $person->work_ext;
 			}
-			echo ' (' . ($person->publish_work_phone ? __('published') : __('private')) . ')';
+			echo __(' ({0})', $person->publish_work_phone ? __('published') : __('private'));
 		?></dd>
 <?php
 endif;
@@ -120,7 +120,7 @@ if (in_array('mobile_phone', $visible_properties) && !empty($person->mobile_phon
 		<dd><?php
 			$has_visible_contact = true;
 			echo $person->mobile_phone;
-			echo ' (' . ($person->publish_mobile_phone ? __('published') : __('private')) . ')';
+			echo __(' ({0})', $person->publish_mobile_phone ? __('published') : __('private'));
 		?></dd>
 <?php
 endif;
@@ -141,7 +141,7 @@ if (in_array('alternate_work_phone', $visible_properties) && !empty($person->alt
 			if (!empty($person->alternate_work_ext)) {
 				echo ' x' . $person->alternate_work_ext;
 			}
-			echo ' (' . ($person->publish_alternate_work_phone ? __('published') : __('private')) . ')';
+			echo __(' ({0})', $person->publish_alternate_work_phone ? __('published') : __('private'));
 		?></dd>
 <?php
 endif;
@@ -152,7 +152,7 @@ if (in_array('alternate_mobile_phone', $visible_properties) && !empty($person->a
 		<dd><?php
 			$has_visible_contact = true;
 			echo $person->alternate_mobile_phone;
-			echo ' (' . ($person->publish_alternate_mobile_phone ? __('published') : __('private')) . ')';
+			echo __(' ({0})', $person->publish_alternate_mobile_phone ? __('published') : __('private'));
 		?></dd>
 <?php
 endif;
@@ -302,7 +302,7 @@ endif;
 
 if (in_array('contact_for_feedback', $visible_properties)):
 ?>
-		<dt><?= __('Contact For Feedback') ?></dt>
+		<dt><?= __('Contact for Feedback') ?></dt>
 		<dd><?= $person->contact_for_feedback ? __('Yes') : __('No') ?></dd>
 <?php
 endif;
@@ -408,7 +408,7 @@ if (in_array('related_to', $visible_properties) && AppController::_isChild($pers
 		<dt><?= __('Email Address') ?></dt>
 		<dd><?php
 			echo $this->Html->link($relative->email, "mailto:{$relative->email}");
-			echo ' (' . ($relative->publish_email ? __('published') : __('private')) . ')';
+			echo __(' ({0})', $relative->publish_email ? __('published') : __('private'));
 		?></dd>
 <?php
 			endif;
@@ -418,7 +418,7 @@ if (in_array('related_to', $visible_properties) && AppController::_isChild($pers
 		<dt><?= __('Alternate Email Address') ?></dt>
 		<dd><?php
 			echo $this->Html->link($relative->alternate_email, "mailto:{$relative->alternate_email}");
-			echo ' (' . ($relative->publish_alternate_email ? __('published') : __('private')) . ')';
+			echo __(' ({0})', $relative->publish_alternate_email ? __('published') : __('private'));
 		?></dd>
 <?php
 			endif;
@@ -428,7 +428,7 @@ if (in_array('related_to', $visible_properties) && AppController::_isChild($pers
 		<dt><?= __('Phone (home)') ?></dt>
 		<dd><?php
 			echo $relative->home_phone;
-			echo ' (' . ($relative->publish_home_phone ? __('published') : __('private')) . ')';
+			echo __(' ({0})', $relative->publish_home_phone ? __('published') : __('private'));
 		?></dd>
 <?php
 			endif;
@@ -441,7 +441,7 @@ if (in_array('related_to', $visible_properties) && AppController::_isChild($pers
 			if (!empty($relative->work_ext)) {
 				echo ' x' . $relative->work_ext;
 			}
-			echo ' (' . ($relative->publish_work_phone ? __('published') : __('private')) . ')';
+			echo __(' ({0})', $relative->publish_work_phone ? __('published') : __('private'));
 		?></dd>
 <?php
 			endif;
@@ -451,7 +451,7 @@ if (in_array('related_to', $visible_properties) && AppController::_isChild($pers
 		<dt><?= __('Phone (mobile)') ?></dt>
 		<dd><?php
 			echo $relative->mobile_phone;
-			echo ' (' . ($relative->publish_mobile_phone ? __('published') : __('private')) . ')';
+			echo __(' ({0})', $relative->publish_mobile_phone ? __('published') : __('private'));
 		?></dd>
 <?php
 			endif;
@@ -479,14 +479,15 @@ if (in_array('teams', $visible_properties) && ($is_player || !empty($all_teams))
 ?>
 				<tr>
 					<td><?php
-					echo $this->element('People/roster_role', ['roster' => $team->_matchingData['TeamsPeople'], 'team' => $team, 'division' => $team->division]) .
-						' ' . __('on') . ' ' .
-						$this->element('Teams/block', ['team' => $team]) .
-						' (' . $this->element('Divisions/block', ['division' => $team->division, 'field' => 'long_league_name']) . ')';
+					echo __('{0} on {1} ({2})',
+						$this->element('People/roster_role', ['roster' => $team->_matchingData['TeamsPeople'], 'team' => $team, 'division' => $team->division]),
+						$this->element('Teams/block', ['team' => $team]),
+						$this->element('Divisions/block', ['division' => $team->division, 'field' => 'long_league_name'])
+					);
 					if (!empty($team->division_id)) {
 						$positions = Configure::read("sports.{$team->division->league->sport}.positions");
 						if (!empty($positions)) {
-							echo ' (' . $this->element('People/roster_position', ['roster' => $team->_matchingData['TeamsPeople'], 'team' => $team, 'division' => $team->division]) . ')';
+							echo __(' ({0})', $this->element('People/roster_position', ['roster' => $team->_matchingData['TeamsPeople'], 'team' => $team, 'division' => $team->division]));
 						}
 					}
 					?></td>

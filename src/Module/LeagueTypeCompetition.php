@@ -39,9 +39,9 @@ class LeagueTypeCompetition extends LeagueType {
 
 	public function scheduleOptions($num_teams, $stage, $sport) {
 		$types = [
-			'single' => __('single blank, unscheduled game'),
-			'blankset' => __('set of blank unscheduled games for all teams in a division ({0} teams, {1} games, one day)', $num_teams, $num_teams),
-			'oneset' => __('set of randomly scheduled games for all teams in a division ({0} teams, {1} games, one day)', $num_teams, $num_teams),
+			'single' => __('Single blank, unscheduled game'),
+			'blankset' => __('Set of blank unscheduled games for all teams in a division ({0} teams, {1} games, one day)', $num_teams, $num_teams),
+			'oneset' => __('Set of randomly scheduled games for all teams in a division ({0} teams, {1} games, one day)', $num_teams, $num_teams),
 		];
 
 		return $types;
@@ -89,7 +89,7 @@ class LeagueTypeCompetition extends LeagueType {
 		$num_teams = count($division->teams);
 
 		// Now, create our games.  Don't add any teams, or set a round,
-		// or anything, just randomly allocate a gameslot.
+		// or anything, just randomly allocate a game slot.
 		$games = [];
 		for ($i = 0; $i < $num_teams; ++$i) {
 			$games[] = $this->createEmptyGame($division, $date);

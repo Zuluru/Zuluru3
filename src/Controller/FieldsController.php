@@ -100,7 +100,7 @@ class FieldsController extends AppController {
 
 		$field->is_open = true;
 		if (!$this->Fields->save($field)) {
-			$this->Flash->warning(__('Failed to open {0} \'\'{1}\'\'.', __(Configure::read('UI.field')), addslashes($field->long_name)));
+			$this->Flash->warning(__('Failed to open {0} "{1}".', __(Configure::read('UI.field')), addslashes($field->long_name)));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
 
@@ -129,7 +129,7 @@ class FieldsController extends AppController {
 
 		$field->is_open = false;
 		if (!$this->Fields->save($field)) {
-			$this->Flash->warning(__('Failed to close {0} \'\'{1}\'\'.', __(Configure::read('UI.field')), addslashes($field->long_name)));
+			$this->Flash->warning(__('Failed to close {0} "{1}".', __(Configure::read('UI.field')), addslashes($field->long_name)));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
 

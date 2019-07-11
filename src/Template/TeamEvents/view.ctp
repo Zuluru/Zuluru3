@@ -105,7 +105,7 @@ echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
 	['confirm' => __('Are you sure you want to delete this team_event?')]));
 echo $this->Html->tag('li', $this->Html->iconLink('team_event_add_32.png',
 	['action' => 'add', 'team' => $team_event->team_id],
-	['alt' => __('New'), 'title' => __('New Event')]));
+	['alt' => __('Add'), 'title' => __('Add Event')]));
 ?>
 	</ul>
 </div>
@@ -140,7 +140,7 @@ foreach ($team_event->team->people as $person):
 ?>
 					<tr>
 						<td><?= $this->element('People/block', compact('person')) ?></td>
-						<td><?= __(Configure::read("options.roster_role.{$person->_joinData->role}")) ?></td>
+						<td><?= Configure::read("options.roster_role.{$person->_joinData->role}") ?></td>
 <?php
 if ($display_gender):
 ?>

@@ -1,4 +1,5 @@
-<h2><?= __('Administrator Guide: Site Setup and Configuration') ?></h2>
+<h2><?= __('{0}: {1}', __('Administrator Guide'), __('Site Setup and Configuration')) ?></h2>
+
 <p><?= __('If you are reading this page, you have successfully installed {0}. Congratulations!', ZULURU) ?></p>
 <p><?= __('{0} is built to be highly flexible, which means that it can handle almost any situation you throw at it, but there\'s a number of things that need to be correctly configured to make it happen. {0} configuration is split into three main areas.', ZULURU) ?></p>
 

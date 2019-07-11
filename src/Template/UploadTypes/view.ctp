@@ -33,7 +33,7 @@ echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
 	['confirm' => __('Are you sure you want to delete this uploadType?')]));
 echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
 	['action' => 'add'],
-	['alt' => __('New'), 'title' => __('New Upload Type')]));
+	['alt' => __('Add'), 'title' => __('Add Upload Type')]));
 ?>
 	</ul>
 </div>

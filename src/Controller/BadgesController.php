@@ -257,7 +257,7 @@ class BadgesController extends AppController {
 
 		$badge->active = true;
 		if (!$this->Badges->save($badge)) {
-			$this->Flash->warning(__('Failed to activate badge \'\'{0}\'\'.', addslashes($badge->name)));
+			$this->Flash->warning(__('Failed to activate badge "{0}".', addslashes($badge->name)));
 			return $this->redirect(['action' => 'index']);
 		}
 
@@ -286,7 +286,7 @@ class BadgesController extends AppController {
 
 		$badge->active = false;
 		if (!$this->Badges->save($badge)) {
-			$this->Flash->warning(__('Failed to deactivate badge \'\'{0}\'\'.', addslashes($badge->name)));
+			$this->Flash->warning(__('Failed to deactivate badge "{0}".', addslashes($badge->name)));
 			return $this->redirect(['action' => 'index']);
 		}
 

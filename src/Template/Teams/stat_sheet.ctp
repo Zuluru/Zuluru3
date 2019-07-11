@@ -15,7 +15,7 @@ $style = 'width:' . floor(80 / count($team['division']['league']['stat_types']))
 			</tr>
 			<tr>
 				<td><?= __('Team') ?>:</td>
-				<td><?= $team['name'] . ' (' . __('home/away') . ')' ?></td>
+				<td><?= $team['name'] . __(' ({0})', __('home/away')) ?></td>
 			</tr>
 			<tr>
 				<td><?= __('Opponent') ?>:</td>

@@ -86,7 +86,7 @@ if (empty($event->prices)) {
 		<div class="actions columns">
 			<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Jquery->ajaxLink($this->Html->iconImg('add_32.png', ['alt' => __('Add Price Point'), 'title' => __('New Price Point')]), [
+echo $this->Html->tag('li', $this->Jquery->ajaxLink($this->Html->iconImg('add_32.png', ['alt' => __('Add Price Point'), 'title' => __('Add Price Point')]), [
 	'url' => ['action' => 'add_price'],
 	'disposition' => 'append',
 	'selector' => '#accordion',

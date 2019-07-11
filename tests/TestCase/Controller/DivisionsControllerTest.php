@@ -665,43 +665,43 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
+		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt Colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
+		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt Colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
 		$actions = '<td class="actions">17 - 5\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/edit\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '[^>]*"';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 
 		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_CANCELLED . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 2</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_GREEN . '"[^>]*>Green</a> <span[^>]*title="Shirt colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BLUE . '"[^>]*>Blue</a> <span[^>]*title="Shirt colour: Blue"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/blue.png\?\d+"[^>]*></span></td>';
+		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_GREEN . '"[^>]*>Green</a> <span[^>]*title="Shirt Colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
+		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BLUE . '"[^>]*>Blue</a> <span[^>]*title="Shirt Colour: Blue"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/blue.png\?\d+"[^>]*></span></td>';
 		$actions = '<td class="actions">cancelled\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/edit\?game=' . GAME_ID_LADDER_CANCELLED . '[^>]*"';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 
 		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_HOME_DEFAULT . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_GREEN . '"[^>]*>Green</a> <span[^>]*title="Shirt colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
+		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt Colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
+		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_GREEN . '"[^>]*>Green</a> <span[^>]*title="Shirt Colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
 		$actions = '<td class="actions">0 - 6\s*\(default\)\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/edit\?game=' . GAME_ID_LADDER_HOME_DEFAULT . '[^>]*"';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 
 		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_AWAY_DEFAULT . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 2</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BLUE . '"[^>]*>Blue</a> <span[^>]*title="Shirt colour: Blue"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/blue.png\?\d+"[^>]*></span></td>';
+		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt Colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
+		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BLUE . '"[^>]*>Blue</a> <span[^>]*title="Shirt Colour: Blue"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/blue.png\?\d+"[^>]*></span></td>';
 		$actions = '<td class="actions">6 - 0\s*\(default\)\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/edit\?game=' . GAME_ID_LADDER_AWAY_DEFAULT . '[^>]*"';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 
 		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_MATCHED_SCORES . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BLUE . '"[^>]*>Blue</a> <span[^>]*title="Shirt colour: Blue"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/blue.png\?\d+"[^>]*></span></td>';
+		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt Colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
+		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BLUE . '"[^>]*>Blue</a> <span[^>]*title="Shirt Colour: Blue"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/blue.png\?\d+"[^>]*></span></td>';
 		$actions = '<td class="actions">17 - 12\s*\(unofficial\)\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/edit\?game=' . GAME_ID_LADDER_MATCHED_SCORES . '[^>]*"';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 
 		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_MISMATCHED_SCORES . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 2</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_GREEN . '"[^>]*>Green</a> <span[^>]*title="Shirt colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
+		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_GREEN . '"[^>]*>Green</a> <span[^>]*title="Shirt Colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
+		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt Colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
 		$actions = '<td class="actions">score mismatch\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/edit\?game=' . GAME_ID_LADDER_MISMATCHED_SCORES . '[^>]*"';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 
@@ -728,8 +728,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_SUB . '"[^>]*>7:00PM-8:30PM</a></td>';
 		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_CENTRAL_TECH . '"[^>]*>CTS 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BEARS . '"[^>]*>Bears</a> <span[^>]*title="Shirt colour: Brown"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/brown.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_LIONS . '"[^>]*>Lions</a> <span[^>]*title="Shirt colour: Gold"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/default.png\?\d+"[^>]*></span></td>';
+		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BEARS . '"[^>]*>Bears</a> <span[^>]*title="Shirt Colour: Brown"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/brown.png\?\d+"[^>]*></span></td>';
+		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_LIONS . '"[^>]*>Lions</a> <span[^>]*title="Shirt Colour: Gold"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/default.png\?\d+"[^>]*></span></td>';
 		$actions = '<td class="actions">not entered\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/edit\?game=' . GAME_ID_SUB . '[^>]*"';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 
@@ -737,15 +737,15 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN], PERSON_ID_ADMIN);
 		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_1 . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_MAPLES . '"[^>]*>Maples</a> <span[^>]*title="Shirt colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_OAKS . '"[^>]*>Oaks</a> <span[^>]*title="Shirt colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
+		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_MAPLES . '"[^>]*>Maples</a> <span[^>]*title="Shirt Colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
+		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_OAKS . '"[^>]*>Oaks</a> <span[^>]*title="Shirt Colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
 		$actions = '<td class="actions">not entered\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/edit\?game=' . GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_1 . '[^>]*"';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 
 		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_2 . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_OAKS . '"[^>]*>Oaks</a> <span[^>]*title="Shirt colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_MAPLES . '"[^>]*>Maples</a> <span[^>]*title="Shirt colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
+		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_OAKS . '"[^>]*>Oaks</a> <span[^>]*title="Shirt Colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
+		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_MAPLES . '"[^>]*>Maples</a> <span[^>]*title="Shirt Colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
 		$actions = '<td class="actions">not entered\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/edit\?game=' . GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_2 . '[^>]*"';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 	}
@@ -765,8 +765,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
+		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt Colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
+		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt Colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
 		$actions = '<td class="actions">17 - 5\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/edit\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '[^>]*"';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 
@@ -787,8 +787,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_SUB . '"[^>]*>7:00PM-8:30PM</a></td>';
 		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_CENTRAL_TECH . '"[^>]*>CTS 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BEARS . '"[^>]*>Bears</a> <span[^>]*title="Shirt colour: Brown"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/brown.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_LIONS . '"[^>]*>Lions</a> <span[^>]*title="Shirt colour: Gold"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/default.png\?\d+"[^>]*></span></td>';
+		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BEARS . '"[^>]*>Bears</a> <span[^>]*title="Shirt Colour: Brown"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/brown.png\?\d+"[^>]*></span></td>';
+		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_LIONS . '"[^>]*>Lions</a> <span[^>]*title="Shirt Colour: Gold"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/default.png\?\d+"[^>]*></span></td>';
 		$actions = '<td class="actions">not entered\s*<span class="actions"></span></td>';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 		$this->assertResponseNotContains('/games/edit');
@@ -797,15 +797,15 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN], PERSON_ID_MANAGER);
 		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_1 . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_MAPLES . '"[^>]*>Maples</a> <span[^>]*title="Shirt colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_OAKS . '"[^>]*>Oaks</a> <span[^>]*title="Shirt colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
+		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_MAPLES . '"[^>]*>Maples</a> <span[^>]*title="Shirt Colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
+		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_OAKS . '"[^>]*>Oaks</a> <span[^>]*title="Shirt Colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
 		$actions = '<td class="actions">not entered\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/edit\?game=' . GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_1 . '[^>]*"';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 
 		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_2 . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_OAKS . '"[^>]*>Oaks</a> <span[^>]*title="Shirt colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_MAPLES . '"[^>]*>Maples</a> <span[^>]*title="Shirt colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
+		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_OAKS . '"[^>]*>Oaks</a> <span[^>]*title="Shirt Colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
+		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_MAPLES . '"[^>]*>Maples</a> <span[^>]*title="Shirt Colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
 		$actions = '<td class="actions">not entered\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/edit\?game=' . GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_2 . '[^>]*"';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 	}
@@ -825,8 +825,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
+		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt Colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
+		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt Colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
 		$actions = '<td class="actions">17 - 5\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/edit\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '[^>]*"';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 
@@ -846,8 +846,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN], PERSON_ID_COORDINATOR);
 		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_1 . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_MAPLES . '"[^>]*>Maples</a> <span[^>]*title="Shirt colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_OAKS . '"[^>]*>Oaks</a> <span[^>]*title="Shirt colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
+		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_MAPLES . '"[^>]*>Maples</a> <span[^>]*title="Shirt Colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
+		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_OAKS . '"[^>]*>Oaks</a> <span[^>]*title="Shirt Colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
 		$actions = '<td class="actions">not entered\s*<span class="actions"></span></td>';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 		$this->assertResponseNotContains('/games/edit');
@@ -868,8 +868,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
+		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt Colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
+		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt Colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
 		$actions = '<td class="actions">17 - 5\s*<span class="actions">';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 		$this->assertResponseNotRegExp('#<a href="' . Configure::read('App.base') . '/games/submit_score\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '[^>0-9]*"#ms');
@@ -877,8 +877,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_MATCHED_SCORES . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BLUE . '"[^>]*>Blue</a> <span[^>]*title="Shirt colour: Blue"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/blue.png\?\d+"[^>]*></span></td>';
+		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt Colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
+		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BLUE . '"[^>]*>Blue</a> <span[^>]*title="Shirt Colour: Blue"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/blue.png\?\d+"[^>]*></span></td>';
 		$actions = '<td class="actions">17 - 12\s*\(unofficial\)\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/submit_score\?game=' . GAME_ID_LADDER_MATCHED_SCORES . '[^>]*"';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 
@@ -895,8 +895,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_THURSDAY_ROUND_ROBIN . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_CHICKADEES . '"[^>]*>Chickadees</a> <span[^>]*title="Shirt colour: White"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/white.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_SPARROWS . '"[^>]*>Sparrows</a> <span[^>]*title="Shirt colour: Brown"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/brown.png\?\d+"[^>]*></span></td>';
+		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_CHICKADEES . '"[^>]*>Chickadees</a> <span[^>]*title="Shirt Colour: White"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/white.png\?\d+"[^>]*></span></td>';
+		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_SPARROWS . '"[^>]*>Sparrows</a> <span[^>]*title="Shirt Colour: Brown"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/brown.png\?\d+"[^>]*></span></td>';
 		$actions = '<td class="actions">15 - 14\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/submit_stats\?game=' . GAME_ID_THURSDAY_ROUND_ROBIN . '&amp;team=' . TEAM_ID_CHICKADEES . '">';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 		$this->assertResponseNotContains('/games/edit');
@@ -918,15 +918,15 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
+		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt Colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
+		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt Colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
 		$actions = '<td class="actions">17 - 5\s*<span class="actions">';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 
 		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_MATCHED_SCORES . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BLUE . '"[^>]*>Blue</a> <span[^>]*title="Shirt colour: Blue"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/blue.png\?\d+"[^>]*></span></td>';
+		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt Colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
+		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BLUE . '"[^>]*>Blue</a> <span[^>]*title="Shirt Colour: Blue"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/blue.png\?\d+"[^>]*></span></td>';
 		$actions = '<td class="actions">17 - 12\s*\(unofficial\)\s*<span class="actions">';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 
@@ -958,15 +958,15 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
+		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt Colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
+		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt Colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
 		$actions = '<td class="actions">17 - 5\s*<span class="actions">';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 
 		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_MATCHED_SCORES . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BLUE . '"[^>]*>Blue</a> <span[^>]*title="Shirt colour: Blue"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/blue.png\?\d+"[^>]*></span></td>';
+		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt Colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
+		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BLUE . '"[^>]*>Blue</a> <span[^>]*title="Shirt Colour: Blue"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/blue.png\?\d+"[^>]*></span></td>';
 		$actions = '<td class="actions">17 - 12\s*\(unofficial\)\s*<span class="actions">';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 
@@ -996,15 +996,15 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
+		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt Colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
+		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt Colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
 		$actions = '<td class="actions">17 - 5\s*<span class="actions">';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 
 		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_MATCHED_SCORES . '"[^>]*>7:00PM-9:00PM</a></td>';
 		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BLUE . '"[^>]*>Blue</a> <span[^>]*title="Shirt colour: Blue"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/blue.png\?\d+"[^>]*></span></td>';
+		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt Colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
+		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BLUE . '"[^>]*>Blue</a> <span[^>]*title="Shirt Colour: Blue"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/blue.png\?\d+"[^>]*></span></td>';
 		$actions = '<td class="actions">17 - 12\s*\(unofficial\)\s*<span class="actions">';
 		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 

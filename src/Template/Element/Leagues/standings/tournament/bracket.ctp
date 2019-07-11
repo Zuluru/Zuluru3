@@ -13,13 +13,13 @@ foreach ($games as $bracket_details):
 		$init_pools[] = $pool_id;
 		echo $this->Form->iconPostLink('delete_24.png',
 			['controller' => 'Schedules', 'action' => 'delete', 'division' => $division->id, 'pool' => $pool_id, 'return' => AppController::_return()],
-			['alt' => __('Delete'), 'title' => __('Delete pool games')]);
+			['alt' => __('Delete'), 'title' => __('Delete Pool Games')]);
 		echo $this->Html->iconLink('initialize_24.png',
 			['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => $division->id, 'pool' => $pool_id, 'return' => AppController::_return()],
-			['alt' => __('Initialize'), 'title' => __('Initialize schedule dependencies')]);
+			['alt' => __('Initialize'), 'title' => __('Initialize Schedule Dependencies')]);
 		echo $this->Html->iconLink('reset_24.png',
 			['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => $division->id, 'pool' => $pool_id, 'reset' => true, 'return' => AppController::_return()],
-			['alt' => __('Reset'), 'title' => __('Reset schedule dependencies')]);
+			['alt' => __('Reset'), 'title' => __('Reset Schedule Dependencies')]);
 	}
 ?>
 <div class="bracket rounds<?= count($bracket) ?>">

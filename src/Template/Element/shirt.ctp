@@ -102,4 +102,4 @@ foreach ($options as $option) {
 	$output[] = implode('+', $option_output);
 }
 
-echo $this->Html->tag('span', implode('/', $output), ['title' => __('Shirt colour') . ': ' . $colour, 'style' => 'white-space: nowrap;']);
+echo $this->Html->tag('span', implode('/', $output), ['title' => __('Shirt Colour') . ': ' . $colour, 'style' => 'white-space: nowrap;']);

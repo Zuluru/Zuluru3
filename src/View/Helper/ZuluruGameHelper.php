@@ -36,7 +36,7 @@ class ZuluruGameHelper extends Helper {
 					echo "{$first_score} - {$second_score}\n";
 				}
 				if (strpos($game->status, 'default') !== false) {
-					echo ' (' . __('default') . ')' . "\n";
+					echo __(' ({0})', __('default')) . "\n";
 				}
 
 				if ($identity) {
@@ -92,7 +92,7 @@ class ZuluruGameHelper extends Helper {
 							['controller' => 'Games', 'action' => 'live_score', 'game' => $game->id, 'team' => $team_id]);
 					} else if ($score_entry->team_id == $team_id) {
 						$links[] = $this->Html->link(
-							__('Edit score'),
+							__('Edit Score'),
 							['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $team_id]);
 					} else {
 						$links[] = $this->Html->link(
@@ -114,15 +114,15 @@ class ZuluruGameHelper extends Helper {
 						['controller' => 'Games', 'action' => 'live_score', 'game' => $game->id]);
 				} else if ($identity && $identity->can('edit', $game)) {
 					$links[] = $this->Html->link(
-						__('Edit score'),
+						__('Edit Score'),
 						['controller' => 'Games', 'action' => 'edit', 'game' => $game->id]);
 				*/
 				}
 
 				if ($score_entry->status == 'in_progress') {
-					echo ' (' . __('in progress') . ')' . "\n";
+					echo __(' ({0})', __('in progress')) . "\n";
 				} else {
-					echo ' (' . __('unofficial') . ')' . "\n";
+					echo __(' ({0})', __('unofficial')) . "\n";
 				}
 			} else if ($score_entry === null) {
 				echo __('score mismatch') . "\n";
@@ -134,7 +134,7 @@ class ZuluruGameHelper extends Helper {
 							['controller' => 'Games', 'action' => 'live_score', 'game' => $game->id, 'team' => $team_id]);
 					} else {
 						$links[] = $this->Html->link(
-							__('Edit score'),
+							__('Edit Score'),
 							['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $team_id]);
 					}
 				}

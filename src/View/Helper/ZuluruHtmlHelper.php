@@ -136,7 +136,7 @@ class ZuluruHtmlHelper extends HtmlHelper {
 			echo $this->tag('hr');
 
 			// Build the link for suggestions
-			$body = htmlspecialchars('I have a suggestion for the Zuluru online help page at ' . implode(' : ', $url));
+			$body = htmlspecialchars(__('I have a suggestion for the {0} online help page at {1}', ZULURU, implode(' : ', $url)));
 			echo $this->para(null, __('If you have suggestions for additions, changes or other improvements to this online help, please send them to {0}.',
 				$this->link(Configure::read('email.support_email'), 'mailto:' . Configure::read('email.support_email') . '?subject=' . ZULURU . "%20Online%20Help%20Suggestion&body=$body")
 			));

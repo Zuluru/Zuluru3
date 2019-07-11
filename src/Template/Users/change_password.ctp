@@ -9,7 +9,7 @@ $this->Html->addCrumb(__('Change Password'));
 <div class="users form">
 <?= $this->Form->create($user, ['align' => 'horizontal']) ?>
 	<fieldset>
-		<legend><?= __('Change Password for') . ' ' . $user->person->full_name ?></legend>
+		<legend><?= __('Change Password for {0}', $user->person->full_name) ?></legend>
 <?php
 $identity = $this->Authorize->getIdentity();
 // Admins must still enter their own passwords, just not for others.

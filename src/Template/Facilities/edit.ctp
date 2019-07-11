@@ -69,7 +69,7 @@ if (empty($facility->fields)) {
 		<div class="actions columns">
 			<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Jquery->ajaxLink($this->Html->iconImg('add_32.png', ['alt' => __('Add {0}', __(Configure::read('UI.field'))), 'title' => __('New {0}', __(Configure::read('UI.field')))]), [
+echo $this->Html->tag('li', $this->Jquery->ajaxLink($this->Html->iconImg('add_32.png', ['alt' => __('Add {0}', __(Configure::read('UI.field'))), 'title' => __('Add {0}', __(Configure::read('UI.field')))]), [
 	'url' => ['action' => 'add_field'],
 	'disposition' => 'append',
 	'selector' => '#accordion',
@@ -95,7 +95,7 @@ if (!$facility->isNew()) {
 		['confirm' => __('Are you sure you want to delete this facility?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
 		['action' => 'add'],
-		['alt' => __('New'), 'title' => __('New Facility')]));
+		['alt' => __('Add'), 'title' => __('Add Facility')]));
 }
 ?>
 	</ul>

@@ -37,7 +37,7 @@ if (!$region->isNew()) {
 		['confirm' => __('Are you sure you want to delete this region?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
 		['action' => 'add'],
-		['alt' => __('New'), 'title' => __('New Region')]));
+		['alt' => __('Add'), 'title' => __('Add Region')]));
 }
 ?>
 	</ul>

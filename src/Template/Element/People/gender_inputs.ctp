@@ -55,7 +55,7 @@ if (!$edit || in_array(Configure::read('profile.gender'), $access) || !in_array(
 		$this->Form->input("{$prefix}roster_designation", [
 			'options' => Configure::read('options.roster_designation'),
 			'secure' => false,
-			'help' => __('Our league recognizes the gender inequities in sport and is working towards making ultimate more equitable for woman players. As such, we are implementing a minimum requirement of women on your team’s roster. Do you wish to fill one of the designated women\'s spots on your team?'),
+			'help' => __('Our league recognizes the gender inequities in sport and is working towards making ultimate more equitable for woman players. As such, we are implementing a minimum requirement of women on your team\'s roster. Do you wish to fill one of the designated women\'s spots on your team?'),
 		]),
 		['class' => "{$class_prefix}trans {$class_prefix}self-defined {$class_prefix}prefer-not"]
 	);

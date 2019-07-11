@@ -80,7 +80,7 @@ else:
 						if ($this->Authorize->can('add_owner', $franchise)) {
 							echo $this->Html->iconLink('move_24.png',
 								['action' => 'add_owner', 'franchise' => $franchise->id, 'return' => AppController::_return()],
-								['alt' => __('Add Owner'), 'title' => __('Add Owner')]);
+								['alt' => __('Add an Owner'), 'title' => __('Add an Owner')]);
 						}
 						if ($this->Authorize->can('delete', $franchise)) {
 							echo $this->Form->iconPostLink('delete_24.png',

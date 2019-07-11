@@ -35,7 +35,7 @@ endif;
 
 if (Configure::read('feature.twitter') && !empty($team->twitter_user)):
 ?>
-		<dt><?= __('Twitter') ?></dt>
+		<dt>Twitter</dt>
 		<dd><?= $this->Html->link("@{$team->twitter_user}", "https://twitter.com/{$team->twitter_user}") ?></dd>
 <?php
 endif;
@@ -186,9 +186,7 @@ if ($team->has('affiliate')):
 		<dt><?= __('Affiliated Team') ?></dt>
 		<dd><?php
 			echo $this->Html->link($team->affiliate->name, ['action' => 'view', 'team' => $team->affiliate->id]) .
-				' (' .
-				$this->element('Divisions/block', ['division' => $team->affiliate->division, 'field' => 'full_league_name']) .
-				')';
+				__(' ({0})', $this->element('Divisions/block', ['division' => $team->affiliate->division, 'field' => 'full_league_name']));
 		?></dd>
 <?php
 endif;

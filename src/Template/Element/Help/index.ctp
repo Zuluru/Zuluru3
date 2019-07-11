@@ -6,8 +6,11 @@ $identity = $this->Authorize->getIdentity();
 // TODOBOOTSTRAP: Bootstrap grid stuff to float these sections next to each other?
 ?>
 
-<p><?= ZULURU ?> has online help throughout the system, accessed by clicking the <?= $this->Html->iconImg('help_16.png') ?> icons on any page. These bits of documentation are also collected here in two forms: as guides for various user types and grouped by functional area.</p>
-<h2>User Guides</h2>
+<p><?= __('{0} has online help throughout the system, accessed by clicking the {1} icons on any page. These bits of documentation are also collected here in two forms: as guides for various user types and grouped by functional area.',
+	ZULURU,
+	$this->Html->iconImg('help_16.png')
+) ?></p>
+<h2><?= __('User Guides') ?></h2>
 <ul>
 <?php
 echo $this->Html->tag('li', $this->Html->link(__('New Users'), ['controller' => 'Help', 'action' => 'guide', 'new_user']));
@@ -32,7 +35,7 @@ if ($identity && $identity->isManager()):
 endif;
 ?>
 </ul>
-<h2>Functional Areas</h2>
+<h2><?= __('Functional Areas') ?></h2>
 <ul>
 <?php
 echo $this->Html->tag('li', $this->Html->link(__('People'), ['controller' => 'Help', 'action' => 'people']));
@@ -54,9 +57,7 @@ if ($identity && ($identity->isManager() || $identity->isCoordinator())) {
 		$this->Html->link(__('Divisions'), ['controller' => 'Help', 'action' => 'divisions']));
 }
 if ($identity && $identity->isManager()) {
-	echo $this->Html->tag('li', $this->Html->link(__('Facilities'), ['controller' => 'Help', 'action' => 'facilities']) .
-		' ' . __('and') . ' ' .
-		$this->Html->link(__(Configure::read('UI.fields_cap')), ['controller' => 'Help', 'action' => 'fields']));
+	echo $this->Html->tag('li', $this->Html->link(__('{0} and {1}', __('Facilities'), __(Configure::read('UI.fields_cap'))), ['controller' => 'Help', 'action' => 'facilities']));
 	echo $this->Html->tag('li', $this->Html->link(__('Rules Engine'), ['controller' => 'Help', 'action' => 'rules']));
 	echo $this->Html->tag('li', $this->Html->link(__('Configuration'), ['controller' => 'Help', 'action' => 'settings']));
 }

@@ -206,10 +206,6 @@ msgstr ""
 msgid "Absent"
 msgstr ""
 
-#: /config/features.php:185
-msgid "Unknown"
-msgstr ""
-
 #: /config/features.php:186
 msgid "Invited"
 msgstr ""
@@ -314,6 +310,18 @@ msgstr ""
 msgid "Mens XXLarge"
 msgstr ""
 
+#: /config/options.php:62
+msgid "Youth Small"
+msgstr ""
+
+#: /config/options.php:63
+msgid "Youth Medium"
+msgstr ""
+
+#: /config/options.php:64
+msgid "Youth Large"
+msgstr ""
+
 #: /config/options.php:68
 msgid "Locked"
 msgstr ""
@@ -396,10 +404,6 @@ msgstr ""
 
 #: /config/options.php:119
 msgid "Submitter"
-msgstr ""
-
-#: /config/options.php:136
-msgid "Reserved"
 msgstr ""
 
 #: /config/options.php:137
@@ -534,10 +538,6 @@ msgstr ""
 msgid "forfeit"
 msgstr ""
 
-#: /config/options.php:244
-msgid "Trial"
-msgstr ""
-
 #: /config/options.php:286
 msgid "runtime"
 msgstr ""
@@ -552,34 +552,6 @@ msgstr ""
 
 #: /config/options.php:339
 msgid "Manual"
-msgstr ""
-
-#: /controllers/divisions_controller.php:1658;1698;1703
-msgid "reset"
-msgstr ""
-
-#: /controllers/divisions_controller.php:1703
-msgid "resolved"
-msgstr ""
-
-#: /controllers/divisions_controller.php:1658;1698
-msgid "update"
-msgstr ""
-
-#: /controllers/games_controller.php:781
-msgid "The score for this game has already been finalized."
-msgstr ""
-
-#: /controllers/games_controller.php:781
-msgid "A score has already been submitted for this game."
-msgstr ""
-
-#: /controllers/schedules_controller.php:1071,1073
-msgid "Published"
-msgstr ""
-
-#: /controllers/schedules_controller.php:1071,1073
-msgid "Unpublished"
 msgstr ""
 
 #: /controllers/teams_controller.php:2671
@@ -612,349 +584,6 @@ msgstr ""
 
 #: /controllers/components/rule_member_type.php:124
 msgid "have an upcoming membership type"
-msgstr ""
-
-#: /controllers/components/spirit_none.php:11
-msgid "This selection will result in no spirit questions being asked."
-msgstr ""
-
-#: /controllers/components/spirit_team.php:9
-msgid "The original Leaguerunner spirit survey, developed by the Ottawa Carleton Ultimate Association."
-msgstr ""
-
-#: /controllers/components/spirit_team.php:13
-#: /controllers/components/spirit_ocua_team.php:13
-msgid "Timeliness"
-msgstr ""
-
-#: /controllers/components/spirit_team.php:14
-msgid "Our opponents had a full line and were ready to play:"
-msgstr ""
-
-#: /controllers/components/spirit_team.php:18
-msgid "early, or at the official start time"
-msgstr ""
-
-#: /controllers/components/spirit_team.php:23
-msgid "less than five minutes late"
-msgstr ""
-
-#: /controllers/components/spirit_team.php:27
-msgid "less than ten minutes late"
-msgstr ""
-
-#: /controllers/components/spirit_team.php:31
-msgid "more than ten minutes late"
-msgstr ""
-
-#: /controllers/components/spirit_team.php:37
-#: /controllers/components/spirit_ocua_team.php:29
-#: /controllers/components/spirit_wfdf.php:13
-#: /controllers/components/spirit_modified_wfdf.php:139
-msgid "Rules Knowledge"
-msgstr ""
-
-#: /controllers/components/spirit_team.php:38
-#: /controllers/components/spirit_ocua_team.php:30
-msgid "Our opponents' rules knowledge was:"
-msgstr ""
-
-#: /controllers/components/spirit_team.php:42;66
-#: /controllers/components/spirit_wfdf.php:36;65;94;123
-msgid "excellent"
-msgstr ""
-
-#: /controllers/components/spirit_team.php:47;71
-msgid "acceptable"
-msgstr ""
-
-#: /controllers/components/spirit_team.php:51;75
-#: /controllers/components/spirit_wfdf.php:19;48;77;106
-msgid "poor"
-msgstr ""
-
-#: /controllers/components/spirit_team.php:55;79
-msgid "nonexistant"
-msgstr ""
-
-#: /controllers/components/spirit_team.php:61
-#: /controllers/components/spirit_ocua_team.php:53
-msgid "Sportsmanship"
-msgstr ""
-
-#: /controllers/components/spirit_team.php:62
-#: /controllers/components/spirit_ocua_team.php:54
-msgid "Our opponents' sportsmanship was:"
-msgstr ""
-
-#: /controllers/components/spirit_team.php:85
-#: /controllers/components/spirit_modified_wfdf.php:160
-msgid "Enjoyment"
-msgstr ""
-
-#: /controllers/components/spirit_team.php:86
-msgid "Ignoring the score and based on the opponents' spirit of the game, did your team enjoy this game?"
-msgstr ""
-
-#: /controllers/components/spirit_team.php:90
-msgid "all or most of my players did"
-msgstr ""
-
-#: /controllers/components/spirit_team.php:95
-msgid "some or none of my players did"
-msgstr ""
-
-#: /controllers/components/spirit_team.php:101
-#: /controllers/components/spirit_ocua_team.php:101
-#: /controllers/components/spirit_wfdf.php:158
-#: /controllers/components/spirit_modified_wfdf.php:181
-msgid "Comments"
-msgstr ""
-
-#: /controllers/components/spirit_team.php:102
-#: /controllers/components/spirit_ocua_team.php:102
-#: /controllers/components/spirit_wfdf.php:159
-#: /controllers/components/spirit_modified_wfdf.php:182
-msgid "Do you have any concerns from this game that you would like to bring to the coordinator's attention? These will be kept confidential."
-msgstr ""
-
-#: /controllers/components/spirit_team.php:107
-#: /controllers/components/spirit_ocua_team.php:107
-#: /controllers/components/spirit_wfdf.php:164
-#: /controllers/components/spirit_modified_wfdf.php:187
-msgid "Highlights"
-msgstr ""
-
-#: /controllers/components/spirit_team.php:108
-#: /controllers/components/spirit_ocua_team.php:108
-#: /controllers/components/spirit_wfdf.php:165
-#: /controllers/components/spirit_modified_wfdf.php:188
-msgid "Do you have any spirit highlights from this game that you would like to bring to the coordinator's attention? These may be published."
-msgstr ""
-
-#: /controllers/components/spirit_team.php:118;124;130;136
-#: /controllers/components/spirit_ocua_team.php:118;124;130;136
-msgid "Select one of the given options"
-msgstr ""
-
-#: /controllers/components/spirit_ocua_team.php:9
-msgid "The modified Leaguerunner spirit survey, developed by the Ottawa Carleton Ultimate Association. Compared to the original Leaguerunner spirit survey, this one emphasizes enjoyment by adding more options there, while decreasing the number of timeliness options."
-msgstr ""
-
-#: /controllers/components/spirit_ocua_team.php:14
-msgid "Our opponents' timeliness:"
-msgstr ""
-
-#: /controllers/components/spirit_ocua_team.php:18
-msgid "met expectations"
-msgstr ""
-
-#: /controllers/components/spirit_ocua_team.php:23
-msgid "did not meet expectations"
-msgstr ""
-
-#: /controllers/components/spirit_ocua_team.php:34;58
-msgid "exceptional"
-msgstr ""
-
-#: /controllers/components/spirit_ocua_team.php:38;62
-#: /controllers/components/spirit_wfdf.php:27;56;85;114
-msgid "good"
-msgstr ""
-
-#: /controllers/components/spirit_ocua_team.php:43;67
-msgid "below average"
-msgstr ""
-
-#: /controllers/components/spirit_ocua_team.php:47;71
-msgid "bad"
-msgstr ""
-
-#: /controllers/components/spirit_ocua_team.php:77
-msgid "Overall"
-msgstr ""
-
-#: /controllers/components/spirit_ocua_team.php:78
-msgid "Ignoring the score and based on the opponents' spirit of the game, what was your overall assessment of the game?"
-msgstr ""
-
-#: /controllers/components/spirit_ocua_team.php:82
-msgid "This was an exceptionally great game"
-msgstr ""
-
-#: /controllers/components/spirit_ocua_team.php:86
-msgid "This was an enjoyable game"
-msgstr ""
-
-#: /controllers/components/spirit_ocua_team.php:91
-msgid "This was a mediocre game"
-msgstr ""
-
-#: /controllers/components/spirit_ocua_team.php:95
-msgid "This was a very bad game"
-msgstr ""
-
-#: /controllers/components/spirit_wfdf.php:9
-msgid "The WFDF standard spirit survey."
-msgstr ""
-
-#: /controllers/components/spirit_wfdf.php:14
-msgid "Rules Knowledge and Use"
-msgstr ""
-
-#: /controllers/components/spirit_wfdf.php:15
-msgid "For example: They did not make unjustified calls. They did not purposefully misinterpret the rules. They kept to time limits. They were willing to teach and/or learn the rules."
-msgstr ""
-
-#: /controllers/components/spirit_wfdf.php:23;52;81;110
-msgid "not so good"
-msgstr ""
-
-#: /controllers/components/spirit_wfdf.php:32;61;90;119
-msgid "very good"
-msgstr ""
-
-#: /controllers/components/spirit_wfdf.php:42
-#: /controllers/components/spirit_modified_wfdf.php:118
-msgid "Fouls"
-msgstr ""
-
-#: /controllers/components/spirit_wfdf.php:43
-msgid "Fouls and Body Contact"
-msgstr ""
-
-#: /controllers/components/spirit_wfdf.php:44
-msgid "For example: They avoided fouling, contact, and dangerous plays."
-msgstr ""
-
-#: /controllers/components/spirit_wfdf.php:71;72
-#: /controllers/components/spirit_modified_wfdf.php:34;35
-msgid "Fair-Mindedness"
-msgstr ""
-
-#: /controllers/components/spirit_wfdf.php:73
-msgid "For example: They apologized for their own fouls. They informed teammates when they made wrong or unnecessary calls. They were willing to admit that we were right and retracted their call."
-msgstr ""
-
-#: /controllers/components/spirit_wfdf.php:100
-#: /controllers/components/spirit_modified_wfdf.php:55
-msgid "Attitude"
-msgstr ""
-
-#: /controllers/components/spirit_wfdf.php:101
-msgid "Positive Attitude and Self-Control"
-msgstr ""
-
-#: /controllers/components/spirit_wfdf.php:102
-msgid "For example: They introduced themselves. They communicated without derogatory or aggressive language. They complimented us on our good plays. They left an overall positive impression during and after the game, e.g. during the Spirit circle."
-msgstr ""
-
-#: /controllers/components/spirit_wfdf.php:129
-msgid "Comparison"
-msgstr ""
-
-#: /controllers/components/spirit_wfdf.php:130
-msgid "Our Spirit compared to theirs"
-msgstr ""
-
-#: /controllers/components/spirit_wfdf.php:131
-msgid "How did our team compare to theirs with regards to rules knowledge, body contact, fair-mindedness, positive attitude and self-control?"
-msgstr ""
-
-#: /controllers/components/spirit_wfdf.php:135
-msgid "Our spirit was much better"
-msgstr ""
-
-#: /controllers/components/spirit_wfdf.php:139
-msgid "Our spirit was slightly better"
-msgstr ""
-
-#: /controllers/components/spirit_wfdf.php:143
-msgid "Our spirit was the same"
-msgstr ""
-
-#: /controllers/components/spirit_wfdf.php:148
-msgid "Our spirit was slightly worse"
-msgstr ""
-
-#: /controllers/components/spirit_wfdf.php:152
-msgid "Our spirit was much worse"
-msgstr ""
-
-#: /controllers/components/spirit_modified_wfdf.php:9
-msgid "The Modified WFDF spirit survey was developed by the Waterloo Organization of Disc Sports to reflect league play rather than tournaments; some WFDF questions have been split, for example, and answers have been simplified from five to three. The survey answers are intended to reward good spirit rather than penalizing bad."
-msgstr ""
-
-#: /controllers/components/spirit_modified_wfdf.php:13;14
-msgid "Respect"
-msgstr ""
-
-#: /controllers/components/spirit_modified_wfdf.php:15
-msgid "They communicated objectively and without aggressive language. They were willing to believe calls were made in good faith. Were on time. Kept to time limits for discussions, time-outs, between points, etc."
-msgstr ""
-
-#: /controllers/components/spirit_modified_wfdf.php:19;40;61;82;103;124;145;166
-msgid "Below Average"
-msgstr ""
-
-#: /controllers/components/spirit_modified_wfdf.php:28;49;70;91;112;133;154;175
-msgid "Above Average"
-msgstr ""
-
-#: /controllers/components/spirit_modified_wfdf.php:36
-msgid "Players pointed out their own fouls. They corrected their own team player calls. In an important situation they admitted that the opponent was probably right. Avoided frequently calling non-obvious travels and picks."
-msgstr ""
-
-#: /controllers/components/spirit_modified_wfdf.php:56
-msgid "Positive Attitude"
-msgstr ""
-
-#: /controllers/components/spirit_modified_wfdf.php:57
-msgid "They introduced themselves to the opponent. They complimented the opponent for good plays.  Left a positive impression in an after-the-game Spirit Circle, etc."
-msgstr ""
-
-#: /controllers/components/spirit_modified_wfdf.php:76;77
-msgid "Emotional Management"
-msgstr ""
-
-#: /controllers/components/spirit_modified_wfdf.php:78
-msgid "Their reaction towards disagreements, successes, and mistakes was appropriately mature."
-msgstr ""
-
-#: /controllers/components/spirit_modified_wfdf.php:97
-msgid "Body Contact"
-msgstr ""
-
-#: /controllers/components/spirit_modified_wfdf.php:98
-msgid "Avoiding Body Contact"
-msgstr ""
-
-#: /controllers/components/spirit_modified_wfdf.php:99
-msgid "They were aware of other players' body location and movement and avoided dangerous plays."
-msgstr ""
-
-#: /controllers/components/spirit_modified_wfdf.php:119
-msgid "Avoiding Violations and Fouls"
-msgstr ""
-
-#: /controllers/components/spirit_modified_wfdf.php:120
-msgid "They tried to avoid fouls and violations. Their marks were legal. They did not commit off side violations, etc."
-msgstr ""
-
-#: /controllers/components/spirit_modified_wfdf.php:140
-msgid "Knowledge of the Rules"
-msgstr ""
-
-#: /controllers/components/spirit_modified_wfdf.php:141
-msgid "They knew the rules and/or had the willingness to learn and teach them. They did not make unjustified calls."
-msgstr ""
-
-#: /controllers/components/spirit_modified_wfdf.php:161
-msgid "Encouraging Enjoyment of the Game"
-msgstr ""
-
-#: /controllers/components/spirit_modified_wfdf.php:162
-msgid "They played the game in a way that made the game enjoyable for all those involved."
 msgstr ""
 
 #: /views/elements/divisions/details.ctp:75

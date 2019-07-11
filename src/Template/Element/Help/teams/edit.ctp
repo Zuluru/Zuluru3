@@ -2,7 +2,9 @@
 use Cake\Core\Configure;
 ?>
 
-<p><?= __('The "edit team" page is used to update details of your team. Only coaches and captains have permission to edit team details.') ?></p>
+<p><?= __('The "{0}" page is used to update details of your team. Only coaches and captains have permission to edit team details.',
+	__('Edit Team')
+) ?></p>
 <?php
 if (Configure::read('feature.registration')):
 ?>
@@ -15,7 +17,9 @@ if (Configure::read('feature.registration')):
 <?php
 else:
 ?>
-<p><?= __('The "create team" page is essentially identical to this page.') ?></p>
+<p><?= __('The "{0}" page is essentially identical to this page.',
+	__('Create Team')
+) ?></p>
 <?php
 endif;
 

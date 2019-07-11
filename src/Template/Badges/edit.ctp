@@ -72,7 +72,7 @@ if (!$badge->isNew()) {
 		['confirm' => __('Are you sure you want to delete this badge?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
 		['action' => 'add'],
-		['alt' => __('New'), 'title' => __('New Badge')]));
+		['alt' => __('Add'), 'title' => __('Add Badge')]));
 }
 ?>
 	</ul>

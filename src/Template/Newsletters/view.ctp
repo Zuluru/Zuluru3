@@ -7,7 +7,7 @@ $this->Html->addCrumb(__('Preview'));
 ?>
 
 <div class="newsletters view">
-	<h2><?= h($newsletter->name) . ' (' . __('Preview') . ')' ?></h2>
+	<h2><?= h($newsletter->name) . __(' ({0})', __('Preview')) ?></h2>
 	<dl class="dl-horizontal">
 		<dt><?= __('Subject') ?></dt>
 		<dd><?= h($newsletter->subject) ?></dd>
@@ -67,7 +67,7 @@ echo $this->Html->tag('li', $this->Html->iconLink('view_32.png',
 	['alt' => __('List'), 'title' => __('List Newsletters')]));
 echo $this->Html->tag('li', $this->Html->iconLink('newsletter_add_32.png',
 	['action' => 'add'],
-	['alt' => __('New'), 'title' => __('New Newsletter')]));
+	['alt' => __('Add'), 'title' => __('Add Newsletter')]));
 ?>
 	</ul>
 </div>

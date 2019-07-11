@@ -57,7 +57,7 @@ if (Configure::read('feature.spirit')):
 		'category' => 'scoring',
 		'name' => 'spirit_questions',
 		'options' => [
-			'label' => __('Spirit questions'),
+			'label' => __('Spirit Questions'),
 			'type' => 'select',
 			'options' => Configure::read ('options.spirit_questions'),
 			'empty' => $empty,
@@ -68,7 +68,7 @@ if (Configure::read('feature.spirit')):
 		'category' => 'scoring',
 		'name' => 'spirit_numeric',
 		'options' => [
-			'label' => __('Spirit numeric'),
+			'label' => __('Spirit Numeric'),
 			'type' => 'radio',
 			'options' => Configure::read ('options.enable'),
 			'help' => __('Default enable or disable entry of numeric spirit scores when creating a new league.'),
@@ -100,7 +100,7 @@ if (Configure::read('feature.spirit')):
 		'category' => 'scoring',
 		'name' => 'spirit_default',
 		'options' => [
-			'label' => __('Spirit default'),
+			'label' => __('Spirit Default'),
 			'type' => 'radio',
 			'options' => Configure::read ('options.enable'),
 			'help' => __('Include a default spirit score when not entered.'),
@@ -129,7 +129,7 @@ endif;
 		'category' => 'scoring',
 		'name' => 'incident_reports',
 		'options' => [
-			'label' => __('Incident reports'),
+			'label' => __('Incident Reports'),
 			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
 			'help' => __('If enabled, coaches and captains will be allowed to file incident reports when submitting scores.'),
@@ -139,7 +139,7 @@ endif;
 		'category' => 'scoring',
 		'name' => 'most_spirited',
 		'options' => [
-			'label' => __('Most spirited'),
+			'label' => __('Most Spirited'),
 			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
 			'help' => __('If enabled, "most spirited player" submissions will be a per-league option; otherwise, they will be disabled entirely.'),

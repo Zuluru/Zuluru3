@@ -37,7 +37,7 @@ $this->Form->unlockField('ask_status');
 
 if (Configure::read('feature.region_preference')) {
 	echo $this->Form->input('ask_region', [
-		'label' => __('Region preference'),
+		'label' => __('Region Preference'),
 		'type' => 'checkbox',
 		'help' => __('Ask teams for their regional preference during registration?'),
 		'secure' => false,
@@ -46,7 +46,7 @@ if (Configure::read('feature.region_preference')) {
 }
 
 echo $this->Form->input('ask_attendance', [
-	'label' => __('Attendance tracking'),
+	'label' => __('Attendance Tracking'),
 	'type' => 'checkbox',
 	'help' => __('Ask teams whether they want to use attendance tracking during registration?'),
 	'secure' => false,

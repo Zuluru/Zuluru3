@@ -27,7 +27,7 @@ foreach ($elements as $element) {
 }
 
 if ($heading !== null) {
-	echo $this->Html->tag('h2', __(Inflector::humanize($heading)) . ' ' . __('Help'));
+	echo $this->Html->tag('h2', __('{0} Help', __(Inflector::humanize($heading))));
 	$elements[] = 'index';
 }
 echo $this->element(implode('/', $elements));
@@ -36,7 +36,7 @@ if (isset($controller) && !isset($topic)) {
 	echo $this->Html->para(null, $this->Html->link(__('Return to main help page'), ['controller' => 'Help']));
 }
 
-$body = htmlspecialchars(__('I have a suggestion for the {0} online help page at {0}', ZULURU, implode(' : ', $elements)));
+$body = htmlspecialchars(__('I have a suggestion for the {0} online help page at {1}', ZULURU, implode(' : ', $elements)));
 ?>
 
 <hr>

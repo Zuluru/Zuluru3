@@ -87,7 +87,7 @@ endif;
 <?php
 echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
 	['controller' => 'Questionnaires', 'action' => 'add'],
-	['alt' => __('New'), 'title' => __('New Questionnaire')]));
+	['alt' => __('Add'), 'title' => __('Add Questionnaire')]));
 ?>
 		</ul>
 	</div>

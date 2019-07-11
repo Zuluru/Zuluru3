@@ -63,7 +63,7 @@ if ($this->Authorize->can('edit', $franchise)) {
 if ($this->Authorize->can('add_owner', $franchise)) {
 	echo $this->Html->tag('li', $this->Html->iconLink('move_32.png',
 		['action' => 'add_owner', 'franchise' => $franchise->id],
-		['alt' => __('Add Owner'), 'title' => __('Add Owner')]));
+		['alt' => __('Add an Owner'), 'title' => __('Add an Owner')]));
 }
 if ($this->Authorize->can('delete', $franchise)) {
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',

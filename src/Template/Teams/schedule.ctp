@@ -111,15 +111,15 @@ if (!empty($team['games'])):
 			} else if ($team->division->schedule_type != 'competition') {
 				if ($team->id == $game->home_team_id) {
 					if ($game->away_team_id === null) {
-						echo $game->away_dependency . ' (' . __('away') . ')';
+						echo $game->away_dependency . __(' ({0})', __('away'));
 					} else {
-						echo $this->element('Teams/block', ['team' => $game->away_team]) . ' (' . __('away') . ')';
+						echo $this->element('Teams/block', ['team' => $game->away_team]) . __(' ({0})', __('away'));
 					}
 				} else {
 					if ($game->home_team_id === null) {
-						echo $game->home_dependency . ' (' . __('home') . ')';
+						echo $game->home_dependency . __(' ({0})', __('home'));
 					} else {
-						echo $this->element('Teams/block', ['team' => $game->home_team]) . ' (' . __('home') . ')';
+						echo $this->element('Teams/block', ['team' => $game->home_team]) . __(' ({0})', __('home'));
 					}
 				}
 			}
@@ -209,7 +209,7 @@ if (!empty($team->division_id) && $team->division->close > FrozenDate::now()->su
 	),
 	$this->Html->imageLink('https://www.google.com/calendar/images/ext/gc_button6.gif',
 		'https://www.google.com/calendar/render?cid=' . Router::url(['_scheme' => 'http', 'action' => 'ical', $team->id], true),
-		['alt' => __('add to Google Calendar')],
+		['alt' => __('Add to Google Calendar')],
 		['target' => 'google']
 	)
 ) ?></p>

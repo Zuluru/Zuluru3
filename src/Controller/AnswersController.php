@@ -36,7 +36,7 @@ class AnswersController extends AppController {
 
 		$answer->active = true;
 		if (!$this->Answers->save($answer)) {
-			$this->Flash->warning(__('Failed to activate answer \'\'{0}\'\'.', addslashes($answer->answer)));
+			$this->Flash->warning(__('Failed to activate answer "{0}".', addslashes($answer->answer)));
 			return $this->redirect(['controller' => 'Questionnaires']);
 		}
 
@@ -66,7 +66,7 @@ class AnswersController extends AppController {
 
 		$answer->active = false;
 		if (!$this->Answers->save($answer)) {
-			$this->Flash->warning(__('Failed to deactivate answer \'\'{0}\'\'.', addslashes($answer->answer)));
+			$this->Flash->warning(__('Failed to deactivate answer "{0}".', addslashes($answer->answer)));
 			return $this->redirect(['controller' => 'Questionnaires']);
 		}
 

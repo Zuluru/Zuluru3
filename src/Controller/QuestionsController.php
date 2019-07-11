@@ -178,7 +178,7 @@ class QuestionsController extends AppController {
 
 		$question->active = true;
 		if (!$this->Questions->save($question)) {
-			$this->Flash->warning(__('Failed to activate question \'\'{0}\'\'.', addslashes($question->name)));
+			$this->Flash->warning(__('Failed to activate question "{0}".', addslashes($question->name)));
 			return $this->redirect(['action' => 'index']);
 		}
 
@@ -208,7 +208,7 @@ class QuestionsController extends AppController {
 
 		$question->active = false;
 		if (!$this->Questions->save($question)) {
-			$this->Flash->warning(__('Failed to deactivate question \'\'{0}\'\'.', addslashes($question->name)));
+			$this->Flash->warning(__('Failed to deactivate question "{0}".', addslashes($question->name)));
 			return $this->redirect(['action' => 'index']);
 		}
 

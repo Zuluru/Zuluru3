@@ -25,14 +25,14 @@ echo $this->Form->input('game_start', [
 	'label' => __('Game start time'),
 ]);
 echo $this->Form->input('game_end', [
-	'label' => __('Game timecap'),
+	'label' => __('Game time cap'),
 	'empty' => '---',
-	'help' => $game_slot->field->indoor ? null : __('Choose "---" to assign the default timecap (dark).'),
+	'help' => $game_slot->field->indoor ? null : __('Choose "---" to assign the default time cap (dark).'),
 ]);
 ?>
 	</fieldset>
 	<fieldset>
-		<legend><?= __('Make Gameslot Available To') ?></legend>
+		<legend><?= __('Make Game Slot Available To') ?></legend>
 		<div id="DivisionList">
 <?php
 if (empty($divisions)) {

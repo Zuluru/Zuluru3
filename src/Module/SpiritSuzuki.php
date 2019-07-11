@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Derived class for implementing functionality for spirit scoring by Sushi Suzuki's Alternate questionnaire.
  */
@@ -10,166 +9,6 @@ use App\Model\Entity\League;
 use App\Model\Entity\SpiritEntry;
 
 class SpiritSuzuki extends Spirit {
-	public $questions = [
-		'q1' => [
-			'name' => 'Fair Play',
-			'text' => 'Fair Play',
-			'desc' => 'The team tried to win fair and square, no cheap calls or taking advantage of the rules.',
-			'type' => 'radio',
-			'options' => [
-				'PoorFairPlay' => [
-					'text' => '0: Full of cheaters',
-					'value' => 0,
-				],
-				'NotGoodFairPlay' => [
-					'text' => '1',
-					'value' => 1,
-				],
-				'GoodFairPlay' => [
-					'text' => '2',
-					'value' => 2,
-					'default' => true,
-				],
-				'VeryGoodFairPlay' => [
-					'text' => '3',
-					'value' => 3,
-				],
-				'ExcellentFairPlay' => [
-					'text' => '4: Full of angels',
-					'value' => 4,
-				],
-			],
-		],
-		'q2' => [
-			'name' => 'Intensity',
-			'text' => 'Intensity',
-			'desc' => 'Full sprints, hard cuts, layouts, etc. How intense was the team?',
-			'type' => 'radio',
-			'options' => [
-				'PoorIntensity' => [
-					'text' => '0: Sloth-like',
-					'value' => 0,
-				],
-				'NotGoodIntensity' => [
-					'text' => '1',
-					'value' => 1,
-				],
-				'GoodIntensity' => [
-					'text' => '2',
-					'value' => 2,
-					'default' => true,
-				],
-				'VeryGoodIntensity' => [
-					'text' => '3',
-					'value' => 3,
-				],
-				'ExcellentIntensity' => [
-					'text' => '4: Like the blinding sun',
-					'value' => 4,
-				],
-			],
-		],
-		'q3' => [
-			'name' => 'Daringness',
-			'text' => 'Daringness',
-			'desc' => 'Hucks, hammers, scoobers, "Wow! did he/she really do that?"',
-			'type' => 'radio',
-			'options' => [
-				'PoorDaringness' => [
-					'text' => '0: Snore bore',
-					'value' => 0,
-				],
-				'NotGoodDaringness' => [
-					'text' => '1',
-					'value' => 1,
-				],
-				'GoodDaringness' => [
-					'text' => '2',
-					'value' => 2,
-					'default' => true,
-				],
-				'VeryGoodDaringness' => [
-					'text' => '3',
-					'value' => 3,
-				],
-				'ExcellentDaringness' => [
-					'text' => '4: OMG WTF',
-					'value' => 4,
-				],
-			],
-		],
-		'q4' => [
-			'name' => 'Spirit Speech / Sense of Humor',
-			'text' => ' Spirit Speech',
-			'desc' => 'How much laughter did the other team induce during the match and in the spirit speech?',
-			'type' => 'radio',
-			'options' => [
-				'PoorSpiritSpeech' => [
-					'text' => '0: Somber as a funeral',
-					'value' => 0,
-				],
-				'NotGoodSpiritSpeech' => [
-					'text' => '1',
-					'value' => 1,
-				],
-				'GoodSpiritSpeech' => [
-					'text' => '2',
-					'value' => 2,
-					'default' => true,
-				],
-				'VeryGoodSpiritSpeech' => [
-					'text' => '3',
-					'value' => 3,
-				],
-				'ExcellentSpiritSpeech' => [
-					'text' => '4: Better than many comedians',
-					'value' => 4,
-				],
-			],
-		],
-		'q5' => [
-			'name' => 'Fun',
-			'text' => 'Fun',
-			'desc' => 'How entertaining was the match? Would you do this again?',
-			'type' => 'radio',
-			'options' => [
-				'PoorFun' => [
-					'text' => '0: Never ever again',
-					'value' => 0,
-				],
-				'NotGoodFun' => [
-					'text' => '1',
-					'value' => 1,
-				],
-				'GoodFun' => [
-					'text' => '2',
-					'value' => 2,
-					'default' => true,
-				],
-				'VeryGoodFun' => [
-					'text' => '3',
-					'value' => 3,
-				],
-				'ExcellentFun' => [
-					'text' => '4: I wish every game was like this',
-					'value' => 4,
-				],
-			],
-		],
-		'comments' => [
-			'name' => 'Comments',
-			'text' => 'Do you have any concerns from this game that you would like to bring to the coordinator\'s attention? These will be kept confidential.',
-			'type' => 'textarea',
-			'restricted' => true,
-		],
-		'highlights' => [
-			'name' => 'Highlights',
-			'text' => 'Do you have any spirit highlights from this game that you would like to bring to the coordinator\'s attention? These may be published.',
-			'type' => 'textarea',
-			'restricted' => true,
-		],
-	];
-
 	public $ratios = [
 		'perfect' => 0.75,
 		'ok' => 0.5,
@@ -178,8 +17,169 @@ class SpiritSuzuki extends Spirit {
 	];
 
 	public function __construct() {
-		$this->description = __('Sushi Suzuki\'s {0}, intended "for tournaments where the official WFDF SOTG score sheet may feel \"too serious.\"',
+		$this->description = __('Sushi Suzuki\'s {0}, intended "for tournaments where the official WFDF SOTG score sheet may feel \"too serious.\""',
 			'<a href="http://www.sushi-suzuki.com/sushilog/2014/12/the-alternate-spirit-of-the-game-score-sheet/">' . __('alternate spirit survey') . '</a>');
+
+		$this->questions = [
+			'q1' => [
+				'name' => __('Fair Play'),
+				'text' => __('Fair Play'),
+				'desc' => __('The team tried to win fair and square, no cheap calls or taking advantage of the rules.'),
+				'type' => 'radio',
+				'options' => [
+					'PoorFairPlay' => [
+						'text' => __('0: Full of cheaters'),
+						'value' => 0,
+					],
+					'NotGoodFairPlay' => [
+						'text' => __('1'),
+						'value' => 1,
+					],
+					'GoodFairPlay' => [
+						'text' => __('2'),
+						'value' => 2,
+						'default' => true,
+					],
+					'VeryGoodFairPlay' => [
+						'text' => __('3'),
+						'value' => 3,
+					],
+					'ExcellentFairPlay' => [
+						'text' => __('4: Full of angels'),
+						'value' => 4,
+					],
+				],
+			],
+			'q2' => [
+				'name' => __('Intensity'),
+				'text' => __('Intensity'),
+				'desc' => __('Full sprints, hard cuts, layouts, etc. How intense was the team?'),
+				'type' => 'radio',
+				'options' => [
+					'PoorIntensity' => [
+						'text' => __('0: Sloth-like'),
+						'value' => 0,
+					],
+					'NotGoodIntensity' => [
+						'text' => __('1'),
+						'value' => 1,
+					],
+					'GoodIntensity' => [
+						'text' => __('2'),
+						'value' => 2,
+						'default' => true,
+					],
+					'VeryGoodIntensity' => [
+						'text' => __('3'),
+						'value' => 3,
+					],
+					'ExcellentIntensity' => [
+						'text' => __('4: Like the blinding sun'),
+						'value' => 4,
+					],
+				],
+			],
+			'q3' => [
+				'name' => __('Daringness'),
+				'text' => __('Daringness'),
+				'desc' => __('Hucks, hammers, scoobers, "Wow! did he/she really do that?"'),
+				'type' => 'radio',
+				'options' => [
+					'PoorDaringness' => [
+						'text' => __('0: Snore bore'),
+						'value' => 0,
+					],
+					'NotGoodDaringness' => [
+						'text' => __('1'),
+						'value' => 1,
+					],
+					'GoodDaringness' => [
+						'text' => __('2'),
+						'value' => 2,
+						'default' => true,
+					],
+					'VeryGoodDaringness' => [
+						'text' => __('3'),
+						'value' => 3,
+					],
+					'ExcellentDaringness' => [
+						'text' => __('4: OMG WTF'),
+						'value' => 4,
+					],
+				],
+			],
+			'q4' => [
+				'name' => __('Spirit Speech / Sense of Humor'),
+				'text' => __(' Spirit Speech'),
+				'desc' => __('How much laughter did the other team induce during the match and in the spirit speech?'),
+				'type' => 'radio',
+				'options' => [
+					'PoorSpiritSpeech' => [
+						'text' => __('0: Somber as a funeral'),
+						'value' => 0,
+					],
+					'NotGoodSpiritSpeech' => [
+						'text' => __('1'),
+						'value' => 1,
+					],
+					'GoodSpiritSpeech' => [
+						'text' => __('2'),
+						'value' => 2,
+						'default' => true,
+					],
+					'VeryGoodSpiritSpeech' => [
+						'text' => __('3'),
+						'value' => 3,
+					],
+					'ExcellentSpiritSpeech' => [
+						'text' => __('4: Better than many comedians'),
+						'value' => 4,
+					],
+				],
+			],
+			'q5' => [
+				'name' => __('Fun'),
+				'text' => __('Fun'),
+				'desc' => __('How entertaining was the match? Would you do this again?'),
+				'type' => 'radio',
+				'options' => [
+					'PoorFun' => [
+						'text' => __('0: Never ever again'),
+						'value' => 0,
+					],
+					'NotGoodFun' => [
+						'text' => __('1'),
+						'value' => 1,
+					],
+					'GoodFun' => [
+						'text' => __('2'),
+						'value' => 2,
+						'default' => true,
+					],
+					'VeryGoodFun' => [
+						'text' => __('3'),
+						'value' => 3,
+					],
+					'ExcellentFun' => [
+						'text' => __('4: I wish every game was like this'),
+						'value' => 4,
+					],
+				],
+			],
+			'comments' => [
+				'name' => __('Comments'),
+				'text' => __('Do you have any concerns from this game that you would like to bring to the coordinator\'s attention? These will be kept confidential.'),
+				'type' => 'textarea',
+				'restricted' => true,
+			],
+			'highlights' => [
+				'name' => __('Highlights'),
+				'text' => __('Do you have any spirit highlights from this game that you would like to bring to the coordinator\'s attention? These may be published.'),
+				'type' => 'textarea',
+				'restricted' => true,
+			],
+		];
+
 		parent::__construct();
 	}
 

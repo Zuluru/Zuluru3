@@ -28,7 +28,7 @@ if (!empty($items)):
 					} else {
 						echo $this->element('Teams/block', ['team' => $item->home_team, 'options' => ['max_length' => 16]]);
 						if ($item->division->schedule_type != 'competition') {
-							echo ' (' . __('home') . ')';
+							echo __(' ({0})', __('home'));
 						}
 					}
 					if ($item->division->schedule_type != 'competition') {
@@ -37,7 +37,7 @@ if (!empty($items)):
 							echo $item->away_dependency;
 						} else {
 							echo $this->element('Teams/block', ['team' => $item->away_team, 'options' => ['max_length' => 16]]) .
-								' (' . __('away') . ')';
+								__(' ({0})', __('away'));
 						}
 					}
 					echo ' ' . __('at') . ' ';
@@ -152,7 +152,7 @@ if (!empty($items)):
 				?></td>
 				<td class="splash_item"><?php
 					echo $this->Html->link($item->task->name, ['controller' => 'Tasks', 'action' => 'view', 'task' => $item->task->id]) .
-							' (' . __('report to') . ' ' . $this->element('People/block', ['person' => $item->task->person]) . ')';
+						__(' ({0})', __('report to {0}', $this->element('People/block', ['person' => $item->task->person])));
 				?></td>
 				<td class="actions splash-action"><?php
 					echo $this->Html->link(

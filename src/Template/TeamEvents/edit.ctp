@@ -80,7 +80,7 @@ if (!$team_event->isNew()) {
 		['confirm' => __('Are you sure you want to delete this team_event?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
 		['action' => 'add'],
-		['alt' => __('New'), 'title' => __('New Team Event')]));
+		['alt' => __('Add'), 'title' => __('Add Team Event')]));
 }
 ?>
 	</ul>

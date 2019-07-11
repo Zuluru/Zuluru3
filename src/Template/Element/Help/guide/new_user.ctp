@@ -17,7 +17,7 @@ $identity = $this->Identity->get();
 );
 echo ' ';
 if ($identity) {
-	echo __('You are already logged in to the system, so it seems that you\'ve successfully taken care of this step. For the record, your username is \'\'{0}\'\' and your ID number is {1}.',
+	echo __('You are already logged in to the system, so it seems that you\'ve successfully taken care of this step. For the record, your username is "{0}" and your ID number is {1}.',
 		$identity->user_name, $identity->person->id
 	);
 } else if (Configure::read('feature.control_account_creation')) {

@@ -1,4 +1,5 @@
-<h2><?= __('Administrator Guide: Registration') ?></h2>
+<h2><?= __('{0}: {1}', __('Administrator Guide'), __('Registration')) ?></h2>
+
 <p><?= __('Registration is an optional feature of {0}. It can be disabled completely through the {1} page. If it is disabled, you will be responsible for manually managing and tracking all registrations and payments, so even if you are not doing online payments, using the registration system will typically save you time and reduce problems. This guide will help you understand how to use the registration system to best effect.',
 	ZULURU,
 	$this->Html->link(sprintf('%s -> %s -> %s', __('Configuration'), __('Settings'), __('Features')), ['controller' => 'Settings', 'action' => 'feature'])

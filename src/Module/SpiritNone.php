@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Derived class for implementing functionality for spirit scoring without any questionnaire.
  */

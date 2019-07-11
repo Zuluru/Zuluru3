@@ -237,7 +237,7 @@ if (Configure::read('scoring.allstars') && $game->division->allstars != 'never')
 	foreach ($roster as $person) {
 		$block = $this->element('People/block', ['person' => $person, 'link' => false]);
 		if (!in_array($person->_joinData->role, $player_roles)) {
-			$block .= ' (' . __('substitute') . ')';
+			$block .= __(' ({0})', __('substitute'));
 		}
 		$players[$person->id] = $block;
 	}

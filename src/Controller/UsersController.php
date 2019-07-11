@@ -80,7 +80,7 @@ class UsersController extends AppController {
 	 */
 	public function create_account() {
 		if (!Configure::read('feature.control_account_creation')) {
-			$this->Flash->info(__('This system uses {0} to manage user accounts. Account creation through Zuluru is disabled.', Configure::read('feature.authenticate_through')));
+			$this->Flash->info(__('This system uses {0} to manage user accounts. Account creation through {1} is disabled.', Configure::read('feature.authenticate_through'), ZULURU));
 			return $this->redirect('/');
 		}
 
@@ -148,7 +148,7 @@ class UsersController extends AppController {
 							return $this->redirect(['controller' => 'People', 'action' => 'add_relative']);
 						}
 					} else if (!empty($user->person->relatives)) {
-						$this->Flash->info(__('To add additional children, first log in, then go to {0} -> {1}.', __('My Profile'), __('Add new child')));
+						$this->Flash->info(__('To add additional children, first log in, then go to {0} -> {1}.', __('My Profile'), __('Add New Child')));
 					}
 				}
 				return $this->redirect('/');
@@ -609,7 +609,7 @@ class UsersController extends AppController {
 		if ($users_table->save($user)) {
 			return $this->_sendMail([
 				'to' => $user,
-				'subject' => __('New password'),
+				'subject' => __('New Password'),
 				'template' => 'password_new',
 				'sendAs' => 'both',
 				'viewVars' => compact(['user', 'password']),

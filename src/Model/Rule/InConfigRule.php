@@ -56,6 +56,14 @@ class InConfigRule {
 		if (!is_array($values)) {
 			trigger_error("Configuration '{$this->_configKey}' does not have an array of options.", E_USER_ERROR);
 		}
+
+		// Check for nested option arrays
+		if (is_array(current($values))) {
+			return collection($values)->some(function ($values) use ($check) {
+				return array_key_exists($check, $values);
+			});
+		}
+
 		return array_key_exists($check, $values);
 	}
 

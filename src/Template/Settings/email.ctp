@@ -19,7 +19,7 @@ if (!$affiliate) {
 		'category' => 'email',
 		'name' => 'admin_name',
 		'options' => [
-			'label' => __('Admin name'),
+			'label' => __('Admin Name'),
 			'help' => __('The name (or descriptive role) of the system administrator. Mail from {0} will come from this name.', ZULURU),
 		],
 	]);
@@ -27,7 +27,7 @@ if (!$affiliate) {
 		'category' => 'email',
 		'name' => 'admin_email',
 		'options' => [
-			'label' => __('Admin email'),
+			'label' => __('Admin Email'),
 			'help' => __('The e-mail address of the system administrator. Mail from {0} will come from this address.', ZULURU),
 		],
 	]);
@@ -35,7 +35,7 @@ if (!$affiliate) {
 		'category' => 'email',
 		'name' => 'support_email',
 		'options' => [
-			'label' => __('Support email'),
+			'label' => __('Support Email'),
 			'help' => __('The e-mail address for system support. This address will be linked for bug reports, etc.'),
 		],
 	]);
@@ -45,7 +45,7 @@ if (Configure::read('scoring.incident_reports')) {
 		'category' => 'email',
 		'name' => 'incident_report_email',
 		'options' => [
-			'label' => __('Incident report email'),
+			'label' => __('Incident Report Email'),
 			'help' => __('The e-mail address to send incident reports to, if enabled.'),
 		],
 	]);

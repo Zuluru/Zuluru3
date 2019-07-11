@@ -612,7 +612,7 @@ abstract class LeagueType {
 	}
 
 	/**
-	 * Select a random gameslot
+	 * Select a random game slot
 	 *
 	 * @param \App\Model\Entity\Division $division Entity containing the division data
 	 * @param \Cake\I18n\FrozenDate[] $dates The possible dates of the game
@@ -664,9 +664,9 @@ abstract class LeagueType {
 	}
 
 	/**
-	 * Select an appropriate gameslot for this game.  "appropriate" takes
+	 * Select an appropriate game slot for this game. "appropriate" takes
 	 * field quality, home field designation, and field preferences into account.
-	 * Gameslot is to be selected from those available for the division in which
+	 * Game slot is to be selected from those available for the division in which
 	 * this game exists.
 	 *
 	 * TODO: Take field quality into account when assigning.  Easiest way
@@ -781,7 +781,7 @@ abstract class LeagueType {
 	}
 
 	/**
-	 * Count how many distinct gameslot days are available from $date onwards
+	 * Count how many distinct game slot days are available from $date onwards
 	 */
 	protected function countAvailableGameslotDays(Division $division, $date, $slots_per_day) {
 		if (is_numeric($date)) {
@@ -806,7 +806,7 @@ abstract class LeagueType {
 	}
 
 	/**
-	 * Return next available day of play after $date, based on gameslot availability
+	 * Return next available day of play after $date, based on game slot availability
 	 *
 	 * @return FrozenDate
 	 */

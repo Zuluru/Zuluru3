@@ -72,7 +72,7 @@ endif;
 <div class="actions columns">
 	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('New Facility'),
+echo $this->Html->tag('li', $this->Html->link(__('Add Facility'),
 	['controller' => 'Facilities', 'action' => 'add', 'region' => $region->id]));
 echo $this->Html->tag('li', $this->Html->link(__('List Regions'),
 	['action' => 'index']));
@@ -85,7 +85,7 @@ echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
 	['confirm' => __('Are you sure you want to delete this region?')]));
 echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
 	['action' => 'add'],
-	['alt' => __('Add'), 'title' => __('New Region')]));
+	['alt' => __('Add'), 'title' => __('Add Region')]));
 ?>
 	</ul>
 </div>

@@ -25,7 +25,7 @@ $identity = $this->Authorize->getIdentity();
 	<h2><?php
 	echo h($event->name);
 	if (count($affiliates) > 1) {
-		echo ' (' . $this->Html->link($event->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', 'affiliate' => $event->affiliate->id]) . ')';
+		echo __(' ({0})', $this->Html->link($event->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', 'affiliate' => $event->affiliate->id]));
 	}
 	?></h2>
 	<?= $this->element('Registrations/relative_notice') ?>

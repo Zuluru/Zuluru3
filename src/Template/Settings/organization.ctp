@@ -36,7 +36,7 @@ echo $this->element('Settings/input', [
 	'category' => 'organization',
 	'name' => 'short_name',
 	'options' => [
-		'label' => __('Short name'),
+		'label' => __('Short Name'),
 		'help' => __('Your organization\'s abbreviated name or acronym.'),
 	],
 ]);
@@ -90,7 +90,7 @@ echo $this->element('Settings/input', [
 	'category' => 'organization',
 	'name' => 'postal',
 	'options' => [
-		'label' => __('Postal code'),
+		'label' => __('Postal Code'),
 		'help' => __('Your organization\'s postal code.'),
 	],
 ]);
@@ -108,7 +108,7 @@ echo $this->element('Settings/input', [
 	'options' => [
 		'type' => 'textarea',
 		'label' => __('Announcement Text'),
-		'help' => __('Optional announcement text to display at the top of the home page.'),
+		'help' => __('Optional announcement text to display at the top of the {0}.', __('Dashboard')),
 		'class' => 'wysiwyg_advanced',
 	],
 ]);
@@ -154,7 +154,7 @@ echo $this->element('Settings/input', [
 	'category' => 'organization',
 	'name' => 'first_day',
 	'options' => [
-		'label' => __('First day'),
+		'label' => __('First Day'),
 		'type' => 'select',
 		'options' => [
 			// Numbering matches the PHP date('N') format and ChronosInterface

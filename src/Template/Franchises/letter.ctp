@@ -74,7 +74,7 @@ else:
 								['alt' => __('Edit'), 'title' => __('Edit')]);
 							echo $this->Html->iconLink('move_24.png',
 								['action' => 'add_owner', 'franchise' => $franchise->id],
-								['alt' => __('Add Owner'), 'title' => __('Add an Owner')]);
+								['alt' => __('Add an Owner'), 'title' => __('Add an Owner')]);
 							echo $this->Form->iconPostLink('delete_24.png',
 								['action' => 'delete', 'franchise' => $franchise->id, 'return' => AppController::_return()],
 								['alt' => __('Delete'), 'title' => __('Delete')],

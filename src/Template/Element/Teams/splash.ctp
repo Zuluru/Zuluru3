@@ -17,8 +17,8 @@ if (!empty($teams) || $past_teams > 0):
 			<tr>
 				<td class="splash_item"><?php
 					echo $this->element('Teams/block', ['team' => $team]) .
-						' (' . $this->element('Divisions/block', ['division' => $team->division, 'field' => 'league_name']) . ')' .
-						' (' . $this->element('People/roster_role', ['roster' => $team->_matchingData['TeamsPeople'], 'team' => $team, 'division' => $team->division]) . ')';
+						__(' ({0})', $this->element('Divisions/block', ['division' => $team->division, 'field' => 'league_name'])) .
+						__(' ({0})', $this->element('People/roster_role', ['roster' => $team->_matchingData['TeamsPeople'], 'team' => $team, 'division' => $team->division]));
 					if (!empty($team->division_id)) {
 						$positions = Configure::read("sports.{$team->division->league->sport}.positions");
 						if (!empty($positions)) {

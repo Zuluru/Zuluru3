@@ -38,7 +38,7 @@ echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
 echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
 	['action' => 'delete', 'slot' => $task_slot->id],
 	['alt' => __('Delete'), 'title' => __('Delete Task Slot')],
-	['confirm' => __('Are you sure you want to delete this taskSlot?')]));
+	['confirm' => __('Are you sure you want to delete this task slot?')]));
 ?>
 	</ul>
 </div>

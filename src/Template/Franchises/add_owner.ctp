@@ -5,7 +5,7 @@ $this->Html->addCrumb(__('Add an Owner'));
 ?>
 
 <div class="franchises add_owner">
-	<h2><?= __('Add Owner') . ': ' . $franchise->name ?></h2>
+	<h2><?= __('Add an Owner') . ': ' . $franchise->name ?></h2>
 
 	<?= $this->element('People/search_form', ['affiliate_id' => $franchise->affiliate_id]) ?>
 

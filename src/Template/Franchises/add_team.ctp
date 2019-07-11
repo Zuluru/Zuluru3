@@ -24,7 +24,7 @@ echo $this->Form->input('team_id', [
 		'options' => $options,
 		'empty' => '-- select from list --',
 ]);
-echo $this->Form->button(__('Add team'), ['class' => 'btn-success']);
+echo $this->Form->button(__('Add Team'), ['class' => 'btn-success']);
 echo $this->Form->end();
 ?>
 

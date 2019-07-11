@@ -1,10 +1,10 @@
 <?php
 $this->Html->addCrumb(__('Teams'));
-$this->Html->addCrumb(__('Unassigned List'));
+$this->Html->addCrumb(__('Unassigned Teams'));
 ?>
 
 <div class="teams index">
-	<h2><?= __('List Unassigned Teams') ?></h2>
+	<h2><?= __('Unassigned Teams') ?></h2>
 	<p><?= $this->Paginator->counter([
 		'format' => __('Page {{page}} of {{pages}}, showing {{current}} records out of {{count}} total, starting on record {{start}}, ending on {{end}}')
 	]) ?></p>

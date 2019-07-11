@@ -12,8 +12,8 @@ $this->Html->addCrumb(__('Edit'));
 $preliminary = ($game->home_team_id === null || ($game->division->schedule_type != 'competition' && $game->away_team_id === null));
 if ($preliminary) {
 	$carbon_flip_options = [
-		2 => __('{0} won', __('Home team')),
-		0 => __('{0} won', __('Away team')),
+		2 => __('{0} won', __('Home Team')),
+		0 => __('{0} won', __('Away Team')),
 		1 => __('tie'),
 	];
 } else {
@@ -61,7 +61,7 @@ endif;
 					echo " ({$game->home_dependency})";
 				}
 				if ($game->division->schedule_type != 'tournament') {
-					echo ' (' . __('currently rated') . ": {$game->home_team->rating})";
+					echo __(' ({0})', __('currently rated: {0}', $game->home_team->rating));
 				}
 			}
 		?></dd>
@@ -81,7 +81,7 @@ endif;
 					echo " ({$game->away_dependency})";
 				}
 				if ($game->division->schedule_type != 'tournament') {
-					echo ' (' . __('currently rated') . ": {$game->away_team->rating})";
+					echo ' (' . __('currently rated', $game->away_team->rating);
 				}
 			}
 		?></dd>
@@ -198,8 +198,8 @@ if (!empty($game->score_entries)):
 			<thead>
 				<tr>
 					<th></th>
-					<th><?= $this->Text->truncate($game->home_team->name, 23) . ' (' . __('home') . ')' ?></th>
-					<th><?= $this->Text->truncate($game->away_team->name, 23) . ' (' . __('away') . ')' ?></th>
+					<th><?= $this->Text->truncate($game->home_team->name, 23) . __(' ({0})', __('home')) ?></th>
+					<th><?= $this->Text->truncate($game->away_team->name, 23) . __(' ({0})', __('away')) ?></th>
 				</tr>
 			</thead>
 			<tbody>

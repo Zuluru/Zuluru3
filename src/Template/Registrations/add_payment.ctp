@@ -27,7 +27,7 @@ foreach ($registration->person->credits as $credit) {
 	if ($credit->affiliate_id == $registration->event->affiliate_id) {
 		$credit_options[$credit->id] = $this->Number->currency($credit->balance);
 		if ($credit->amount_used > 0) {
-			$credit_options[$credit->id] .= sprintf(' (%s - %s)', $this->Number->currency($credit->amount), $this->Number->currency($credit->amount_used));
+			$credit_options[$credit->id] .= __(' ({0,number,currency} - {0,number,currency})', $credit->amount, $credit->amount_used);
 		}
 	}
 }

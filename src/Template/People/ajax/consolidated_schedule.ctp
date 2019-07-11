@@ -40,7 +40,7 @@ foreach ($items as $item):
 					} else {
 						echo $this->element('Teams/block', ['team' => $item->home_team, 'options' => ['max_length' => 16]]);
 						if ($item->division->schedule_type != 'competition') {
-							echo ' (' . __('home') . ')';
+							echo __(' ({0})', __('home'));
 						}
 						if ($home_attendance && !$item->game_slot->game_date->isPast()) {
 							echo $this->Html->iconLink('attendance_24.png',
@@ -54,7 +54,7 @@ foreach ($items as $item):
 							echo $item->away_dependency;
 						} else {
 							echo $this->element('Teams/block', ['team' => $item->away_team, 'options' => ['max_length' => 16]]) .
-								' (' . __('away') . ')';
+								__(' ({0})', __('away'));
 							if ($away_attendance && !$item->game_slot->game_date->isPast()) {
 								echo $this->Html->iconLink('attendance_24.png',
 									['controller' => 'Games', 'action' => 'attendance', 'team' => $item->away_team->id, 'game' => $item->id],
@@ -212,7 +212,7 @@ foreach ($items as $item):
 				?></td>
 				<td class="splash_item"><?php
 					echo $this->Html->link($item->task->name, ['controller' => 'Tasks', 'action' => 'view', 'task' => $item->task->id]) .
-							' (' . __('report to') . ' ' . $this->element('People/block', ['person' => $item->task->person]) . ')';
+						__(' ({0})', __('report to {0}', $this->element('People/block', ['person' => $item->task->person])));
 				?></td>
 				<td class="splash_item"><?php
 					if ($item->person_id == $id) {

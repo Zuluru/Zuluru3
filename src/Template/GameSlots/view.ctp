@@ -40,7 +40,7 @@ $this->Html->addCrumb(__('View'));
 						$line .= $this->element('Teams/block', ['team' => $game->away_team]);
 					}
 
-					$line .= ' (' . $this->element('Divisions/block', ['division' => $game->division, 'field' => 'full_league_name']) . ')';
+					$line .= __(' ({0})', $this->element('Divisions/block', ['division' => $game->division, 'field' => 'full_league_name']));
 					$games[] = $line;
 				}
 				echo implode('<br />', $games);

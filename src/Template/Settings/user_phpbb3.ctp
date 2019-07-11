@@ -1,6 +1,6 @@
 <?php
 $this->Html->addCrumb(__('Settings'));
-$this->Html->addCrumb(__('phpBB3'));
+$this->Html->addCrumb('phpBB3');
 ?>
 
 <div class="settings form">
@@ -13,6 +13,7 @@ echo $this->element('Settings/input', [
 	'category' => 'phpbb3',
 	'name' => 'root_path',
 	'options' => [
+		'label' => 'Installation Path',
 		'help' => __('Path to your phpBB3 installation, where config.php is located. Include the trailing slash.'),
 	],
 ]);

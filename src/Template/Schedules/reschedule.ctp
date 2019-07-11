@@ -4,11 +4,11 @@ use Cake\I18n\FrozenDate;
 
 $this->Html->addCrumb(__('Division'));
 $this->Html->addCrumb($division->full_league_name);
-$this->Html->addCrumb(__('Reschedule Day'));
+$this->Html->addCrumb(__('Reschedule'));
 ?>
 
 <div class="schedules reschedule">
-<h2><?= __('Schedule Reschedule') ?></h2>
+<h2><?= __('Reschedule') ?></h2>
 
 <p><?= __('You are about to reschedule {0} games originally scheduled for {1}.',
 	count($division->games), $this->Time->fulldate(new FrozenDate($date))) ?></p>

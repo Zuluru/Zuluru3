@@ -64,9 +64,9 @@ foreach ($division->games as $game):
 					['controller' => 'Games', 'action' => 'edit', 'game' => $game->id, 'return' => AppController::_return()]) ?></td>
 		</tr>
 		<tr>
-			<td><?= __('Home score') ?>:</td>
+			<td><?= __('Home Score') ?>:</td>
 			<td><?= $home->score_for ?></td>
-			<td><?= __('Home score') ?>:</td>
+			<td><?= __('Home Score') ?>:</td>
 			<td><?= $away->score_against ?></td>
 			<td><?php
 			// Tournament games may not have teams filled in
@@ -86,9 +86,9 @@ foreach ($division->games as $game):
 			?></td>
 		</tr>
 		<tr>
-			<td><?= __('Away score') ?>:</td>
+			<td><?= __('Away Score') ?>:</td>
 			<td><?= $home->score_against ?></td>
-			<td><?= __('Away score') ?>:</td>
+			<td><?= __('Away Score') ?>:</td>
 			<td><?= $away->score_for ?></td>
 			<td></td>
 		</tr>

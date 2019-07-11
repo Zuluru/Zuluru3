@@ -187,7 +187,7 @@ class QuestionnairesController extends AppController {
 
 		$questionnaire->active = true;
 		if (!$this->Questionnaires->save($questionnaire)) {
-			$this->Flash->warning(__('Failed to activate questionnaire \'\'{0}\'\'.', addslashes($questionnaire->name)));
+			$this->Flash->warning(__('Failed to activate questionnaire "{0}".', addslashes($questionnaire->name)));
 			return $this->redirect(['controller' => 'Questionnaires']);
 		}
 
@@ -217,7 +217,7 @@ class QuestionnairesController extends AppController {
 
 		$questionnaire->active = false;
 		if (!$this->Questionnaires->save($questionnaire)) {
-			$this->Flash->warning(__('Failed to deactivate questionnaire \'\'{0}\'\'.', addslashes($questionnaire->name)));
+			$this->Flash->warning(__('Failed to deactivate questionnaire "{0}".', addslashes($questionnaire->name)));
 			return $this->redirect(['controller' => 'Questionnaires']);
 		}
 

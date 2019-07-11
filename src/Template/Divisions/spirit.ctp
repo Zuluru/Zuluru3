@@ -199,7 +199,7 @@ if (!empty($team_ids)) {
 <h2><?= __('Distribution of team average spirit scores') ?></h2>
 
 <?php
-	$header = [__('Spirit score'), __('Number of teams'), __('Percentage of division')];
+	$header = [__('Spirit score'), __('Number of Teams'), __('Percentage of Division')];
 
 	$max = $spirit_obj->max();
 	if (array_key_exists($max, $bins)) {
@@ -239,7 +239,7 @@ if ($division->league->sotg_questions != 'none') {
 
 foreach ($spirit_obj->questions as $detail) {
 	if (!in_array($detail['type'], ['text', 'textarea'])) {
-		$header[] = __($detail['name']);
+		$header[] = $detail['name'];
 	}
 }
 

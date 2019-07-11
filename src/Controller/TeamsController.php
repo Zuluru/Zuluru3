@@ -1798,7 +1798,7 @@ class TeamsController extends AppController {
 					$class = 'success';
 				}
 				if (!empty($result[false])) {
-					$msg[] = __n('Failed to send invitation to {1}.', 'Failed to send invitations to {1}.',
+					$msg[] = __n('Failed to send invitation to {0}.', 'Failed to send invitations to {0}.',
 						count($result[false]),
 						Text::toList($result[false])
 					);
@@ -1933,7 +1933,7 @@ class TeamsController extends AppController {
 					$class = 'success';
 				}
 				if (!empty($result[false])) {
-					$msg[] = __n('Failed to send invitation to {1}.', 'Failed to send invitations to {1}.',
+					$msg[] = __n('Failed to send invitation to {0}.', 'Failed to send invitations to {0}.',
 						count($result[false]),
 						Text::toList($result[false])
 					);

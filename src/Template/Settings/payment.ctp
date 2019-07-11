@@ -28,7 +28,7 @@ echo $this->element('Settings/banner');
 			'category' => 'payment',
 			'name' => 'payment_implementation',
 			'options' => [
-				'label' => __('Payment implementation'),
+				'label' => __('Payment Implementation'),
 				'type' => 'select',
 				'options' => $options,
 				'empty' => $empty,
@@ -56,7 +56,7 @@ echo $this->element('Settings/banner');
 			'category' => 'registration',
 			'name' => 'online_payment_text',
 			'options' => [
-				'label' => __('Text of online payment directions'),
+				'label' => __('Text of Online Payment Directions'),
 				'type' => 'textarea',
 				'help' => __('Customize any text to add to the default online payment directions.'),
 				'class' => 'wysiwyg_simple',
@@ -80,7 +80,7 @@ echo $this->element('Settings/banner');
 			'category' => 'payment',
 			'name' => 'invoice_implementation',
 			'options' => [
-				'label' => __('Invoice implementation'),
+				'label' => __('Invoice Implementation'),
 				'type' => 'select',
 				'options' => Configure::read('options.invoice'),
 				'empty' => $empty,
@@ -91,7 +91,7 @@ echo $this->element('Settings/banner');
 			'category' => 'payment',
 			'name' => 'reg_id_format',
 			'options' => [
-				'label' => __('Event ID format string'),
+				'label' => __('Event ID Format String'),
 				'help' => __('sprintf format string for the event ID, sent to the payment processor as the item number.'),
 			],
 		]);
@@ -101,7 +101,7 @@ echo $this->element('Settings/banner');
 		'category' => 'payment',
 		'name' => 'test_payments',
 		'options' => [
-			'label' => __('Test payments'),
+			'label' => __('Test Payments'),
 			'type' => 'radio',
 			'options' => Configure::read('options.test_payment'),
 			'help' => __('Who should get test instead of live payments? If set to admins, then admins are the only ones who will get the online payment option.'),
@@ -120,7 +120,7 @@ echo $this->element('Settings/banner');
 		'category' => 'payment',
 		'name' => 'tax1_enable',
 		'options' => [
-			'label' => __('Tax1 enable'),
+			'label' => __('Tax1 Enable'),
 			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
 			'help' => __('Enable first tax'),
@@ -130,14 +130,14 @@ echo $this->element('Settings/banner');
 		'category' => 'payment',
 		'name' => 'tax1_name',
 		'options' => [
-			'label' => __('First tax name'),
+			'label' => __('First Tax Name'),
 		],
 	]);
 	echo $this->element('Settings/input', [
 		'category' => 'payment',
 		'name' => 'tax2_enable',
 		'options' => [
-			'label' => __('Tax2 enable'),
+			'label' => __('Tax2 Enable'),
 			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
 			'help' => __('Enable second tax'),
@@ -147,7 +147,7 @@ echo $this->element('Settings/banner');
 		'category' => 'payment',
 		'name' => 'tax2_name',
 		'options' => [
-			'label' => __('Second tax name'),
+			'label' => __('Second Tax Name'),
 		],
 	]);
 ?>

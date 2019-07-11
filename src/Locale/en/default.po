@@ -1,17 +1,15 @@
 # LANGUAGE translation of CakePHP Application
-# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Copyright 2019 <admin@zuluru.org>
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PROJECT VERSION\n"
+"Project-Id-Version: Zuluru 3.0\n"
 "POT-Creation-Date: 2015-04-09 15:35-0400\n"
 "PO-Revision-Date: 2015-03-26 16:25-0400\n"
-"Last-Translator: Zuluru Admin <admin@zuluru.org>\n"
-"Language-Team: eng (generated) <http://translate.zuluru.org/projects/zuluru/"
-"default/eng/>\n"
+"Last-Translator: Greg <admin@zuluru.org>\n"
+"Language-Team: Zuluru <admin@zuluru.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: eng\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Weblate 1.10-dev\n"

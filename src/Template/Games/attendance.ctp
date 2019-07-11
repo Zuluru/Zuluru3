@@ -109,7 +109,7 @@ foreach ($attendance->people as $person):
 ?>
 				<tr>
 					<td><?= $this->element('People/block', compact('person')) ?></td>
-					<td><?= __(Configure::read("options.roster_role.{$person->_joinData->role}")) ?></td>
+					<td><?= Configure::read("options.roster_role.{$person->_joinData->role}") ?></td>
 <?php
 if ($display_gender):
 ?>

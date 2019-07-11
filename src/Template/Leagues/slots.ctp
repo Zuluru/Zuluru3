@@ -13,7 +13,7 @@ $this->Html->addCrumb($league->full_name);
 <div class="leagues slots">
 	<h2><?= __('League {0} Availability Report', __(Configure::read("sports.{$league->sport}.field_cap"))) . ': ' . $league->full_name ?></h2>
 
-	<p><?= __('Select a date below on which to view all available gameslots:') ?></p>
+	<p><?= __('Select a date below on which to view all available game slots:') ?></p>
 <?php
 echo $this->Form->create($league, ['align' => 'horizontal', 'id' => 'SlotForm']);
 echo $this->Form->input('date', [

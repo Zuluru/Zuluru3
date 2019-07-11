@@ -68,7 +68,7 @@ echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
 echo $this->Html->tag('li', $this->Html->link(__('List Newsletters'), ['action' => 'index']));
 echo $this->Html->tag('li', $this->Html->iconLink('newsletter_add_32.png',
 	['action' => 'add'],
-	['alt' => __('New'), 'title' => __('New Newsletter')]));
+	['alt' => __('Add'), 'title' => __('Add Newsletter')]));
 ?>
 	</ul>
 </div>

@@ -129,7 +129,7 @@ class GameSlotsTable extends AppTable {
 				'message' => __('You cannot specify game lengths in conjunction with sunset end times!'),
 			])
 
-			->add('weeks', 'valid', ['rule' => ['inList', \App\Config\make_options(range(1, 26))], 'message' => __('Invalid number of weeks.')]);
+			->add('weeks', 'valid', ['rule' => ['inList', array_combine($r = range(1, 26), $r)], 'message' => __('Invalid number of weeks.')]);
 
 			;
 

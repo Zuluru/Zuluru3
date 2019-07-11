@@ -19,10 +19,10 @@ if (!$finalized) {
 	if (isset($division) && $has_dependent_games && $this->Authorize->can('initialize_dependencies', $division)) {
 		echo $this->Html->iconLink('initialize_24.png',
 			['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => $division->id, 'date' => $week[0]->toDateString()],
-			['alt' => __('Initialize'), 'title' => __('Initialize schedule dependencies')]);
+			['alt' => __('Initialize'), 'title' => __('Initialize Schedule Dependencies')]);
 		echo $this->Html->iconLink('reset_24.png',
 			['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => $division->id, 'date' => $week[0]->toDateString(), 'reset' => true],
-			['alt' => __('Reset'), 'title' => __('Reset schedule dependencies')]);
+			['alt' => __('Reset'), 'title' => __('Reset Schedule Dependencies')]);
 	}
 
 	if ($this->Authorize->can('edit_schedule', $resource)) {

@@ -18,7 +18,9 @@ if (!empty($existing->user_name)) {
 ?>
 
 
-<?= __('Your second account has been deleted. If you cannot remember your password for the existing account, please use the \'Forgot your password?\' link below and a new password will be emailed to you.') ?>
+<?= __('Your second account has been deleted. If you cannot remember your password for the existing account, please use the "{0}" link below and a new password will be emailed to you.',
+	__('Forgot your password')
+) ?>
 
 <?= Router::url(Configure::read('App.urls.resetPassword'), true) ?>
 

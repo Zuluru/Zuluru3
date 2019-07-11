@@ -122,7 +122,7 @@ if ($options):
 		}
 
 		echo $this->Form->input('facilities._ids', [
-			'label' => __('Facility preference'),
+			'label' => __('Facility Preference'),
 			'options' => $facility_options,
 			'multiple' => true,
 			'hiddenField' => false,

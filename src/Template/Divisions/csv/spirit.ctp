@@ -24,7 +24,7 @@ if (Configure::read('scoring.missing_score_spirit_penalty')) {
 	$header[] = __('Score Entry Penalty');
 }
 foreach ($spirit_obj->questions as $question => $detail) {
-	$header[] = __($detail['name']);
+	$header[] = $detail['name'];
 }
 if (Configure::read('scoring.most_spirited') && $division->most_spirited != 'never') {
 	$header[] = __('Most Spirited');

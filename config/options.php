@@ -16,32 +16,6 @@ namespace App\Config;
 use Cake\Core\Configure;
 use Cake\I18n\FrozenTime;
 
-if (!function_exists('App\Config\make_options')) {
-	function make_option($value) {
-		if (is_numeric($value)) {
-			return $value;
-		} else {
-			return __($value);
-		}
-	}
-
-	function make_options($values) {
-		if (empty($values)) {
-			return [];
-		}
-		return array_combine($values, array_map('App\Config\make_option', $values));
-	}
-
-	function make_human_options($values) {
-		if (empty($values)) {
-			return [];
-		}
-		$human = array_map('Cake\\Utility\\Inflector::humanize', $values);
-		$human = array_map('__', $human);
-		return array_combine($values, $human);
-	}
-}
-
 $options['options'] = [
 	'enable' => [
 		false => __('Disabled'),
@@ -66,114 +40,114 @@ $options['options'] = [
 		PROFILE_DISABLED => __('Disabled entirely'),
 	],
 
-	'gender' => make_options([
-		'Woman',
-		'Man',
-		'Trans',
-		'Self-defined',
-		'Prefer not to say',
-	]),
+	'gender' => [
+		'Woman' => __x('gender', 'Woman'),
+		'Man' => __x('gender', 'Man'),
+		'Trans' => __x('gender', 'Trans'),
+		'Self-defined' => __x('gender', 'Self-defined'),
+		'Prefer not to say' => __x('gender', 'Prefer not to say'),
+	],
 
 	// The female one must always go first, here and above
 	'gender_binary' => ['Woman', 'Man'],
 
-	'roster_designation' => make_options([
-		'Woman',
-		'Open',
-	]),
+	'roster_designation' => [
+		'Woman' => __x('gender', 'Woman'),
+		'Open' => __x('gender', 'Open'),
+	],
 
-	'shirt_size' => make_options([
-		'Womens XSmall',
-		'Womens Small',
-		'Womens Medium',
-		'Womens Large',
-		'Womens XLarge',
-		'Mens Small',
-		'Mens Medium',
-		'Mens Large',
-		'Mens XLarge',
-		'Mens XXLarge',
-		'Youth Small',
-		'Youth Medium',
-		'Youth Large',
-	]),
+	'shirt_size' => [
+		'Womens XSmall' => __('Womens XSmall'),
+		'Womens Small' => __('Womens Small'),
+		'Womens Medium' => __('Womens Medium'),
+		'Womens Large' => __('Womens Large'),
+		'Womens XLarge' => __('Womens XLarge'),
+		'Mens Small' => __('Mens Small'),
+		'Mens Medium' => __('Mens Medium'),
+		'Mens Large' => __('Mens Large'),
+		'Mens XLarge' => __('Mens XLarge'),
+		'Mens XXLarge' => __('Mens XXLarge'),
+		'Youth Small' => __('Youth Small'),
+		'Youth Medium' => __('Youth Medium'),
+		'Youth Large' => __('Youth Large'),
+	],
 
-	'record_status' => make_options([
-		'new',
-		'inactive',
-		'active',
-		'locked',
-	]),
+	'record_status' => [
+		'new' => __('new'),
+		'inactive' => __('inactive'),
+		'active' => __('active'),
+		'locked' => __('locked'),
+	],
 
-	'sport' => make_human_options([
-		'baseball',
-		'basketball',
-		'cricket',
-		'crossfit',
-		'dodgeball',
-		'football',
-		'hockey',
-		'rugby',
-		'soccer',
-		'ultimate',
-		'volleyball',
-	]),
+	'sport' => [
+		'baseball' => __('Baseball'),
+		'basketball' => __('Basketball'),
+		'cricket' => __('Cricket'),
+		'crossfit' => __('Crossfit'),
+		'dodgeball' => __('Dodgeball'),
+		'football' => __('Football'),
+		'hockey' => __('Hockey'),
+		'rugby' => __('Rubgy'),
+		'soccer' => __('Soccer'),
+		'ultimate' => __('Ultimate'),
+		'volleyball' => __('Volleyball'),
+	],
 
-	'surface' => make_human_options([
-		'grass',
-		'turf',
-		'sand',
-		'dirt',
-		'clay',
-		'hardwood',
-		'rubber',
-		'urethane',
-		'concrete',
-		'asphalt',
-		'ice',
-		'snow',
-	]),
+	'surface' => [
+		'grass' => __('grass'),
+		'turf' => __('turf'),
+		'sand' => __('sand'),
+		'dirt' => __('dirt'),
+		'clay' => __('clay'),
+		'hardwood' => __('hardwood'),
+		'rubber' => __('rubber'),
+		'urethane' => __('urethane'),
+		'concrete' => __('concrete'),
+		'asphalt' => __('asphalt'),
+		'ice' => __('ice'),
+		'snow' => __('snow'),
+	],
 
-	'sotg_display' => make_human_options([
-		'symbols_only', // admin gets to see the actual score
-		'coordinator_only', // admin and coordinator get to see the actual score
-		'numeric', // everyone gets to see the actual score
-		'all', // everyone gets to see the actual score
-	]),
+	'sotg_display' => [
+		'symbols_only' => __('Symbols Only'), // admin gets to see the actual score
+		'coordinator_only' => __('Coordinator Only'), // admin and coordinator get to see the actual score
+		'numeric' => __('Numeric'), // everyone gets to see the actual score
+		'all' => __('All'), // everyone gets to see the actual score
+	],
 
 	'tie_breaker' => [
 		'hth' => __('Head-to-head'),
 		'hthpm' => __('Head-to-head plus-minus'),
 		'pm' => __('Plus-minus'),
-		'gf' => __('Goals for'),
+		'gf' => __('Goals For'),
 		'win' => __('Wins'),
 		'loss' => __('Losses'),
-		'cf' => __('Carbon flip'),
+		'cf' => __('Carbon Flip'),
 		'spirit' => __('Spirit'),
 	],
 
-	'allstar' => make_options([
-		'never',
-		'optional',
-		'always',
-	]),
+	'allstar' => [
+		'never' => __('never'),
+		'optional' => __('optional'),
+		'always' => __('always'),
+	],
 
-	'allstar_from' => make_options([
-		'opponent',
-		'submitter',
-	]),
+	'allstar_from' => [
+		'opponent' => __('opponent'),
+		'submitter' => __('submitter'),
+	],
 
-	'most_spirited' => make_options([
-		'never',
-		'optional',
-		'always',
-	]),
+	'most_spirited' => [
+		'never' => __('never'),
+		'optional' => __('optional'),
+		'always' => __('always'),
+	],
 
-	'stat_tracking' => make_options([
-		'never',
-		'optional',
-		'always',
-	]),
+	'stat_tracking' => [
+		'never' => __('never'),
+		'optional' => __('optional'),
+		'always' => __('always'),
+	],
 
 	'online_payment' => [
 		ONLINE_FULL_PAYMENT => __('Require the full amount to be paid online'),
@@ -184,49 +158,50 @@ $options['options'] = [
 		ONLINE_NO_PAYMENT => __('No online payments will be allowed, the entire amount will be collected offline'),
 	],
 
-	'payment' => make_options([
-		'Unpaid',
-		'Reserved',
-		'Pending',
-		'Deposit',
-		'Partial',
-		'Paid',
-		'Cancelled',
-		'Waiting',
-	]),
+	'payment' => [
+		'Unpaid' => __('Unpaid'),
+		'Reserved' => __('Reserved'),
+		'Pending' => __('Pending'),
+		'Deposit' => __('Deposit'),
+		'Partial' => __('Partial'),
+		'Paid' => __('Paid'),
+		'Cancelled' => __('Cancelled'),
+		'Waiting' => __('Waiting'),
+	],
 
-	'payment_method' => make_options([
-		'Online',
-		'Credit Card',
-		'Cheque',
-		'Electronic Funds Transfer',
-		'Cash',
-		'Money Order',
-		'Other',
-		'Credit Redeemed',
-	]),
+	'payment_method' => [
+		'Online' => __('Online'),
+		'Credit Card' => __('Credit Card'),
+		'Cheque' => __('Cheque'),
+		'Electronic Funds Transfer' => __('Electronic Funds Transfer'),
+		'Cash' => __('Cash'),
+		'Money Order' => __('Money Order'),
+		'Other' => __('Other'),
+		'Credit Redeemed' => __('Credit Redeemed'),
+	],
 
-	'incident_types' => make_options([
-		__(Configure::read('UI.field_cap')) . ' condition',
-		'Injury',
-		'Rules disagreement',
-		'Illegal Substitution',
-		'Escalated incident',
-		'Other',
-	]),
+	'incident_types' => [
+		'Field Condition' => __(Configure::read('UI.field_cap')) . ' condition',
+		'Injury' => __('Injury'),
+		'Rules disagreement' => __('Rules disagreement'),
+		// TODO: Fix capitalization different, requires a migration
+		'Illegal Substitution' => __('Illegal Substitution'),
+		'Escalated incident' => __('Escalated incident'),
+		'Other' => __('Other'),
+	],
 
 	// If additions are made to this, they must also be reflected in features.php
-	'season' => make_options([
-		'None',
-		'Winter',
-		'Winter Indoor',
-		'Spring',
-		'Spring Indoor',
-		'Summer',
-		'Summer Indoor',
-		'Fall',
-		'Fall Indoor',
-	]),
+	'season' => [
+		'None' => __('None'),
+		'Winter' => __('Winter'),
+		'Winter Indoor' => __('Winter Indoor'),
+		'Spring' => __('Spring'),
+		'Spring Indoor' => __('Spring Indoor'),
+		'Summer' => __('Summer'),
+		'Summer Indoor' => __('Summer Indoor'),
+		'Fall' => __('Fall'),
+		'Fall Indoor' => __('Fall Indoor'),
+	],
 
 	'skill' => [
 		'10' => __('10: High calibre touring player (team was top 4 at nationals)'),
@@ -250,39 +225,39 @@ $options['options'] = [
 		'coordinator' => __('Coordinator'),
 	],
 
-	'game_status' => make_human_options([
-		'normal',
-		'in_progress',
-		'home_default',
-		'away_default',
-		'rescheduled',
-		'cancelled',
-		'forfeit',
-	]),
+	'game_status' => [
+		'normal' => __('Normal'),
+		'in_progress' => __('In_Progress'),
+		'home_default' => __('Home Default'),
+		'away_default' => __('Away Default'),
+		'rescheduled' => __('Rescheduled'),
+		'cancelled' => __('Cancelled'),
+		'forfeit' => __('Forfeit'),
+	],
 
-	'game_lengths' => make_options([
-		0,
-		15,
-		30,
-		45,
-		60,
-		75,
-		90,
-		105,
-		120,
-	]),
+	'game_lengths' => [
+		0 => 0,
+		15 => 15,
+		30 => 30,
+		45 => 45,
+		60 => 60,
+		75 => 75,
+		90 => 90,
+		105 => 105,
+		120 => 120,
+	],
 
-	'game_buffers' => make_options([
-		0,
-		5,
-		10,
-		15,
-	]),
+	'game_buffers' => [
+		0 => 0,
+		5 => 5,
+		10 => 10,
+		15 => 15,
+	],
 
 	'field_rating' => [
-		'A' => 'A',
-		'B' => 'B',
-		'C' => 'C',
+		'A' => __x('rating', 'A'),
+		'B' => __x('rating', 'B'),
+		'C' => __x('rating', 'C'),
 	],
 
 	'test_payment' => [
@@ -296,10 +271,10 @@ $options['options'] = [
 		'USD' => __('USA'),
 	],
 
-	'units' => make_options([
-		'Imperial',
-		'Metric',
-	]),
+	'units' => [
+		'Imperial' => __('Imperial'),
+		'Metric' => __('Metric'),
+	],
 
 	'waivers' => [
 		'expiry_type' => [
@@ -327,17 +302,17 @@ $options['options'] = [
 		'HH:mm',
 	],
 
-	'question_types' => make_options([
-		'radio',
-		'select',
-		'checkbox',
-		'text',
-		'textarea',
-		'group_start',
-		'group_end',
-		'description',
-		'label',
-	]),
+	'question_types' => [
+		'radio' => __('Radio'),
+		'select' => __('Select'),
+		'checkbox' => __('Checkbox'),
+		'text' => __('Text'),
+		'textarea' => __('Text Area'),
+		'group_start' => __('Group Start'),
+		'group_end' => __('Group End'),
+		'description' => __('Description'),
+		'label' => __('Label'),
+	],
 
 	// List of available badge categories
 	'category' => [
@@ -413,9 +388,9 @@ $options['options'] = [
 
 	// List of available payment providers
 	'payment_provider' => [
-		'chase' => __('Chase Paymentech'),
-		'moneris' => __('Moneris'),
-		'paypal' => __('Paypal'),
+		'chase' => 'Chase Paymentech',
+		'moneris' => 'Moneris',
+		'paypal' => 'Paypal',
 	],
 
 	// List of available invoice outputs
@@ -424,7 +399,7 @@ $options['options'] = [
 	],
 ];
 
-$options['options']['round'] = make_options(range(1, 5));
+$options['options']['round'] = array_combine($r = range(1, 5), $r);
 $options['options']['games_before_repeat'] = range(0, 9);
 
 $year = FrozenTime::now()->year;

@@ -51,7 +51,7 @@ echo $this->Form->input('role', [
 
 $positions = $team->division_id ? Configure::read("sports.{$team->division->league->sport}.positions") : [];
 if (!empty($positions)) {
-	echo $this->Html->para(null, __('Possible positions are:'));
+	echo $this->Html->para(null, __('Possible roster positions are:'));
 	echo $this->Form->input('position', [
 		'label' => false,
 		'type' => 'radio',

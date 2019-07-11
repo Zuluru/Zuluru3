@@ -267,7 +267,7 @@ class Person extends Entity {
 
 	protected function _getAlternateEmailFormatted() {
 		$email = $this->alternate_email;
-		$name = $this->full_name . ' (' . __('alternate') . ')';
+		$name = $this->full_name . __(' ({0})', __('alternate'));
 		if (empty($email)) {
 			return null;
 		} else if (empty($name)) {
@@ -280,10 +280,10 @@ class Person extends Entity {
 	protected function _getGenderDisplay() {
 		$display = __($this->gender);
 		if ($this->gender == 'Self-defined') {
-			$display .= ' (' . h($this->gender_description) . ')';
+			$display .= __(' ({0})', h($this->gender_description));
 		}
 		if (!in_array($this->gender, Configure::read('options.gender_binary'))) {
-			$display .= ' (' . __('Roster designation: {0}', __($this->roster_designation)) . ')';
+			$display .= __(' ({0}: {1})', __('Roster Designation', __($this->roster_designation)));
 		}
 
 		return $display;

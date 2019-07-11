@@ -66,7 +66,7 @@ if (empty($task_slot->person_id)) {
 		echo $this->Form->iconPostLink('delete_24.png',
 			['controller' => 'TaskSlots', 'action' => 'delete', 'slot' => $task_slot->id],
 			['alt' => __('Delete'), 'title' => __('Delete')],
-			['confirm' => __('Are you sure you want to delete this taskSlot?')]);
+			['confirm' => __('Are you sure you want to delete this task slot?')]);
 	}
 	?></td>
 </tr>

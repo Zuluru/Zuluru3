@@ -35,7 +35,7 @@ if (Configure::read('scoring.most_spirited') && $game->division->most_spirited !
 	foreach ($for_team->people as $person) {
 		$block = $this->element('People/block', ['person' => $person, 'link' => false]);
 		if (!in_array($person->_joinData->role, $player_roles)) {
-			$block .= ' (' . __('substitute') . ')';
+			$block .= __(' ({0})', __('substitute'));
 		}
 		$players[$person->id] = $block;
 	}

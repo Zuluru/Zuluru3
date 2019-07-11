@@ -13,7 +13,7 @@ if ($identity->isOfficial() || $identity->isVolunteer() || $identity->isPlayer()
 				['alt' => __('iCal')]),
 			$this->Html->imageLink ('https://www.google.com/calendar/images/ext/gc_button6.gif',
 				'https://www.google.com/calendar/render?cid=' . Router::url(['_scheme' => 'http', 'controller' => 'People', 'action' => 'ical', $id], true),
-				['alt' => __('add to Google Calendar')],
+				['alt' => __('Add to Google Calendar')],
 				['target' => 'google'])
 		);
 	} else {

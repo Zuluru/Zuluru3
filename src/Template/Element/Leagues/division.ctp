@@ -113,7 +113,6 @@ foreach (Configure::read('sports') as $sport => $details) {
 }
 ksort($ratios);
 echo $this->Form->input("divisions.$index.ratio_rule", [
-	'label' => __('Ratio Rule'),
 	'options' => array_values($ratios),
 	'hide_single' => true,
 	'empty' => '---',
@@ -195,6 +194,7 @@ echo $this->Form->input("divisions.$index.exclude_teams", [
 ]);
 echo $this->Form->input("divisions.$index.double_booking", [
 	'templates' => $advanced,
+	'label' => __('Allow double-booking?'),
 	'options' => Configure::read('options.enable'),
 	'default' => false,
 	'help' => __('Allows coordinators to schedule multiple games in a single game slot.'),
@@ -211,6 +211,7 @@ echo $this->Form->input("divisions.$index.rating_calculator", [
 	'help' => __('What type of ratings calculation to use.'),
 ]);
 echo $this->Form->input("divisions.$index.email_after", [
+	'label' => __('Scoring reminder delay'),
 	'size' => 5,
 	'default' => 0,
 	'help' => __('Email coaches and captains who haven\'t scored games after this many hours, no reminder if 0.'),
@@ -229,6 +230,7 @@ if (Configure::read('scoring.allstars')) {
 	]);
 	echo $this->Form->input("divisions.$index.allstars_from", [
 		'templates' => $advanced,
+		'label' => __('All-star nominations from'),
 		'options' => Configure::read('options.allstar_from'),
 		'default' => 'opponent',
 		'help' => __('Which team will allstar nominations come from? Ignored if the above field is set to "never".'),

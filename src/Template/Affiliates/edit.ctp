@@ -35,7 +35,7 @@ if (!$affiliate->isNew()) {
 		['confirm' => __('Are you sure you want to delete this affiliate?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
 		['action' => 'add'],
-		['alt' => __('New'), 'title' => __('New Affiliate')]));
+		['alt' => __('Add'), 'title' => __('Add Affiliate')]));
 }
 ?>
 	</ul>

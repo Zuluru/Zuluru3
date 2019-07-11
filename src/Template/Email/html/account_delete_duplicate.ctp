@@ -14,8 +14,8 @@ if (!empty($existing->user_name)) {
 	echo ' ' . __('You already have an account.');
 }
 ?></p>
-<p><?= __('Your second account has been deleted. If you cannot remember your password for the existing account, please use the \'{0}?\' feature and a new password will be emailed to you.',
-	$this->Html->link(__('Forgot your password'), Router::url(Configure::read('App.urls.resetPassword'), true))
+<p><?= __('Your second account has been deleted. If you cannot remember your password for the existing account, please use the "{0}" feature and a new password will be emailed to you.',
+	$this->Html->link(__('Forgot your password?'), Router::url(Configure::read('App.urls.resetPassword'), true))
 ) ?></p>
 <p><?= __('If the above email address is no longer correct, please reply to this message and request an address change.') ?></p>
 <?= $this->element('Email/html/footer');

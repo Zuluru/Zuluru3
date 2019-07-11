@@ -28,6 +28,12 @@ $sports['sports'] = [
 			'twitter' => '{0} batting',
 		],
 
+		'ratio_rule' => [
+			'womens' => __('Womens'),
+			'mens' => __('Mens'),
+			'co-ed' => __('Co-ed'),
+		],
+
 		'roster_requirements' => [
 			'womens' => 12,
 			'mens' => 12,
@@ -35,30 +41,34 @@ $sports['sports'] = [
 		],
 
 		'positions' => [
-			'unspecified' => 'Unspecified',
-			'pitcher' => 'Pitcher',
-			'catcher' => 'Catcher',
-			'firstbase' => 'First Base',
-			'secondbase' => 'Second Base',
-			'shortstop' => 'Shortstop',
-			'thirdbase' => 'Third Base',
-			'rightfielder' => 'Right Fielder',
-			'centerfielder' => 'Center Fielder',
-			'leftfielder' => 'Left Fielder',
-			'utilityinfielder' => 'Utility Infielder',
-			'utilityoutfielder' => 'Utility Outfielder',
-			'designatedhitter' => 'Designated Hitter',
+			'unspecified' => __('Unspecified'),
+			'pitcher' => __('Pitcher'),
+			'catcher' => __('Catcher'),
+			'firstbase' => __('First Base'),
+			'secondbase' => __('Second Base'),
+			'shortstop' => __('Shortstop'),
+			'thirdbase' => __('Third Base'),
+			'rightfielder' => __('Right Fielder'),
+			'centerfielder' => __('Center Fielder'),
+			'leftfielder' => __('Left Fielder'),
+			'utilityinfielder' => __('Utility Infielder'),
+			'utilityoutfielder' => __('Utility Outfielder'),
+			'designatedhitter' => __('Designated Hitter'),
 		],
 
 		'score_options' => [
+			'Run' => __('Run'),
+		],
+
+		'score_points' => [
 			'Run' => 1,
 		],
 
 		'other_options' => [
-			'Pitcher' => 'Pitching change',
-			'Fielder' => 'Fielding change',
-			'Batter' => 'Pinch hitter',
-			'Runner' => 'Pinch runner',
+			'Pitcher' => __('Pitching change'),
+			'Fielder' => __('Fielding change'),
+			'Batter' => __('Pinch hitter'),
+			'Runner' => __('Pinch runner'),
 		],
 
 		'rating_questions' => false,
@@ -78,6 +88,12 @@ $sports['sports'] = [
 			'twitter' => null,
 		],
 
+		'ratio_rule' => [
+			'womens' => __('Womens'),
+			'mens' => __('Mens'),
+			'co-ed' => __('Co-ed'),
+		],
+
 		'roster_requirements' => [
 			'womens' => 8,
 			'mens' => 8,
@@ -85,17 +101,23 @@ $sports['sports'] = [
 		],
 
 		'positions' => [
-			'unspecified' => 'Unspecified',
-			'Guard' => 'Guard',
-			'Forward' => 'Forward',
-			'Center' => 'Center',
-			'Point Guard' => 'Point Guard',
-			'Shooting Guard' => 'Shooting Guard',
-			'Small Forward' => 'Small Forward',
-			'Power Forward' => 'Power Forward',
+			'unspecified' => __('Unspecified'),
+			'Guard' => __('Guard'),
+			'Forward' => __('Forward'),
+			'Center' => __('Center'),
+			'Point Guard' => __('Point Guard'),
+			'Shooting Guard' => __('Shooting Guard'),
+			'Small Forward' => __('Small Forward'),
+			'Power Forward' => __('Power Forward'),
 		],
 
 		'score_options' => [
+			'Field goal' => __('Field goal'),
+			'3 pointer' => __('3 pointer'),
+			'Free throw' => __('Free throw'),
+		],
+
+		'score_points' => [
 			'Field goal' => 2,
 			'3 pointer' => 3,
 			'Free throw' => 1,
@@ -122,6 +144,12 @@ $sports['sports'] = [
 			'twitter' => '{0} batting',
 		],
 
+		'ratio_rule' => [
+			'womens' => __('Womens'),
+			'mens' => __('Mens'),
+			'co-ed' => __('Co-ed'),
+		],
+
 		'roster_requirements' => [
 			'womens' => 16,
 			'mens' => 16,
@@ -129,14 +157,18 @@ $sports['sports'] = [
 		],
 
 		'positions' => [
-			'unspecified' => 'Unspecified',
-			'bowler' => 'Bowler',
-			'batter' => 'Batter',
-			'wicketkeeper' => 'Wicketkeeper',
-			'allrounder' => 'All Rounder',
+			'unspecified' => __('Unspecified'),
+			'bowler' => __('Bowler'),
+			'batter' => __('Batter'),
+			'wicketkeeper' => __('Wicketkeeper'),
+			'allrounder' => __('All Rounder'),
 		],
 
 		'score_options' => [
+			// TODO
+		],
+
+		'score_points' => [
 			// TODO
 		],
 
@@ -161,6 +193,10 @@ $sports['sports'] = [
 			'twitter' => null,
 		],
 
+		'ratio_rule' => [
+			'open' => __('Open'),
+		],
+
 		'roster_requirements' => [
 			'open' => 1,
 		],
@@ -169,6 +205,10 @@ $sports['sports'] = [
 		],
 
 		'score_options' => [
+			// TODO
+		],
+
+		'score_points' => [
 			// TODO
 		],
 
@@ -195,14 +235,22 @@ $sports['sports'] = [
 			'twitter' => null,
 		],
 
+		'ratio_rule' => [
+			'6 (min 2 women)' => __('6 (min 2 women)'),
+		],
+
 		'roster_requirements' => [
-			'6 (min 2 women)'       => 6,
+			'6 (min 2 women)' => 6,
 		],
 
 		'positions' => [
 		],
 
 		'score_options' => [
+			// TODO
+		],
+
+		'score_points' => [
 			// TODO
 		],
 
@@ -227,6 +275,20 @@ $sports['sports'] = [
 			'twitter' => '{1} kicks off to {0}',
 		],
 
+		'ratio_rule' => [
+			'3/3' => __('3/3'),
+			'4/2' => __('4/2'),
+			'womens 6s' => __('Womens sixes'),
+			'mens 6s' => __('Mens sixes'),
+			'co-ed 6s' => __('Co-ed sixes'),
+			'womens 11s' => __('Womens elevens'),
+			'mens 11s' => __('Mens elevens'),
+			'co-ed 11s' => __('Co-ed elevens'),
+			'womens 12s' => __('Womens twelves'),
+			'mens 12s' => __('Mens twelves'),
+			'co-ed 12s' => __('Co-ed twelves'),
+		],
+
 		'roster_requirements' => [
 			'3/3' => 10,
 			'4/2' => 10,
@@ -242,25 +304,35 @@ $sports['sports'] = [
 		],
 
 		'positions' => [
-			'unspecified' => 'Unspecified',
-			'quarterback' => 'Quarterback',
-			'center' => 'Center',
-			'tackle' => 'Tackle',
-			'guard' => 'Guard',
-			'tightend' => 'Tight End',
-			'halfback' => 'Halfback',
-			'fullback' => 'Fullback',
-			'runningback' => 'Running Back',
-			'widereceiver' => 'Wide Receiver',
-			'linebacker' => 'Linebacker',
-			'middlelinebacker' => 'Middle Linebacker',
-			'outsidelinebacker' => 'Outside Linebacker',
-			'end' => 'End',
-			'cornerback' => 'Cornerback',
-			'safety' => 'Safety',
+			'unspecified' => __('Unspecified'),
+			'quarterback' => __('Quarterback'),
+			'center' => __('Center'),
+			'tackle' => __('Tackle'),
+			'guard' => __('Guard'),
+			'tightend' => __('Tight End'),
+			'halfback' => __('Halfback'),
+			'fullback' => __('Fullback'),
+			'runningback' => __('Running Back'),
+			'widereceiver' => __('Wide Receiver'),
+			'linebacker' => __('Linebacker'),
+			'middlelinebacker' => __('Middle Linebacker'),
+			'outsidelinebacker' => __('Outside Linebacker'),
+			'end' => __('End'),
+			'cornerback' => __('Cornerback'),
+			'safety' => __('Safety'),
 		],
 
 		'score_options' => [
+			'Touchdown' => __('Touchdown'),
+			'Conversion' => __('Conversion'),
+			'Two-point conversion' => __('Two-point conversion'),
+			'Field goal' => __('Field goal'),
+			'Safety' => __('Safety'),
+			'Single' => __('Single'),
+			'Rouge' => __('Rouge'),
+		],
+
+		'score_points' => [
 			'Touchdown' => 6,
 			'Conversion' => 1,
 			'Two-point conversion' => 2,
@@ -291,6 +363,12 @@ $sports['sports'] = [
 			'twitter' => null,
 		],
 
+		'ratio_rule' => [
+			'womens' => __('Womens'),
+			'mens' => __('Mens'),
+			'co-ed' => __('Co-ed'),
+		],
+
 		'roster_requirements' => [
 			'womens' => 10,
 			'mens' => 10,
@@ -298,16 +376,20 @@ $sports['sports'] = [
 		],
 
 		'positions' => [
-			'unspecified' => 'Unspecified',
-			'goalie' => 'Goalie',
-			'defence' => 'Defence',
-			'forward' => 'Forward',
-			'leftwinger' => 'Left Winger',
-			'center' => 'Center',
-			'rightwinger' => 'Right Winger',
+			'unspecified' => __('Unspecified'),
+			'goalie' => __('Goalie'),
+			'defence' => __('Defence'),
+			'forward' => __('Forward'),
+			'leftwinger' => __('Left Winger'),
+			'center' => __('Center'),
+			'rightwinger' => __('Right Winger'),
 		],
 
 		'score_options' => [
+			'Goal' => __('Goal'),
+		],
+
+		'score_points' => [
 			'Goal' => 1,
 		],
 
@@ -332,40 +414,56 @@ $sports['sports'] = [
 			'twitter' => null,
 		],
 
+		'ratio_rule' => [
+			'womens' => __('Womens'),
+			'mens' => __('Mens'),
+			'co-ed' => __('Co-ed'),
+			'womens 7s' => __('Womens sevens'),
+			'mens 7s' => __('Mens sevens'),
+			'co-ed 7s' => __('Co-ed sevens'),
+			'womens 10s' => __('Womens tens'),
+			'mens 10s' => __('Mens tens'),
+			'co-ed 10s' => __('Co-ed tens'),
+		],
+
 		'roster_requirements' => [
 			'womens' => 18,
 			'mens' => 18,
 			'co-ed' => 18,
-			'womens sevens' => 10,
-			'mens sevens' => 10,
-			'co-ed sevens' => 10,
-			'womens tens' => 13,
-			'mens tens' => 13,
-			'co-ed tens' => 13,
+			'womens 7s' => 10,
+			'mens 7s' => 10,
+			'co-ed 7s' => 10,
+			'womens 10s' => 13,
+			'mens 10s' => 13,
+			'co-ed 10s' => 13,
 		],
 
 		'positions' => [
-			'unspecified' => 'Unspecified',
-			'prop' => 'Prop',
-			'looseheadprop' => 'Loosehead Prop',
-			'hooker' => 'Hooker',
-			'tightheadprop' => 'Tighthead Prop',
-			'secondrower' => 'Second Rower',
-			'blindsideflanker' => 'Blindside Flanker',
-			'opensideflanker' => 'Openside Flanker',
-			'number8' => 'Number 8',
-			'scrumhalf' => 'Scrumhalf',
-			'flyhalf' => 'Flyhalf',
-			'winger' => 'Winger',
-			'center' => 'Center',
-			'weaksidewinger' => 'Weak Side Winger',
-			'insidecenter' => 'Inside Center',
-			'outsidecenter' => 'Outside Center',
-			'strongsidewinger' => 'Strong Side Winger',
-			'fullback' => 'Fullback',
+			'unspecified' => __('Unspecified'),
+			'prop' => __('Prop'),
+			'looseheadprop' => __('Loosehead Prop'),
+			'hooker' => __('Hooker'),
+			'tightheadprop' => __('Tighthead Prop'),
+			'secondrower' => __('Second Rower'),
+			'blindsideflanker' => __('Blindside Flanker'),
+			'opensideflanker' => __('Openside Flanker'),
+			'number8' => __('Number 8'),
+			'scrumhalf' => __('Scrumhalf'),
+			'flyhalf' => __('Flyhalf'),
+			'winger' => __('Winger'),
+			'center' => __('Center'),
+			'weaksidewinger' => __('Weak Side Winger'),
+			'insidecenter' => __('Inside Center'),
+			'outsidecenter' => __('Outside Center'),
+			'strongsidewinger' => __('Strong Side Winger'),
+			'fullback' => __('Fullback'),
 		],
 
 		'score_options' => [
+			// TODO
+		],
+
+		'score_points' => [
 			// TODO
 		],
 
@@ -390,43 +488,71 @@ $sports['sports'] = [
 			'twitter' => '{0} takes the kick-off',
 		],
 
+		'ratio_rule' => [
+			'womens' => __('Womens'),
+			'mens' => __('Mens'),
+			'co-ed' => __('Co-ed'),
+			'womens 9s' => __('Womens nines'),
+			'mens 9s' => __('Mens nines'),
+			'co-ed 9s' => __('Co-ed nines'),
+			'womens 7s' => __('Womens sevens'),
+			'mens 7s' => __('Mens sevens'),
+			'co-ed 7s' => __('Co-ed sevens'),
+			'womens 5s' => __('Womens fives'),
+			'mens 5s' => __('Mens fives'),
+			'co-ed 5s' => __('Co-ed fives'),
+		],
+
 		'roster_requirements' => [
 			'womens' => 16,
 			'mens' => 16,
 			'co-ed' => 16,
+			'womens 9s' => 13,
+			'mens 9s' => 13,
+			'co-ed 9s' => 13,
+			'womens 7s' => 10,
+			'mens 7s' => 10,
+			'co-ed 7s' => 10,
+			'womens 5s' => 7,
+			'mens 5s' => 7,
+			'co-ed 5s' => 7,
 		],
 
 		'positions' => [
-			'unspecified' => 'Unspecified',
-			'goalkeeper' => 'Goalkeeper',
-			'fullback' => 'Fullback',
-			'midfielder' => 'Midfielder',
-			'attacker' => 'Attacker',
-			'sweeper' => 'Sweeper',
-			'centerfullback' => 'Center Fullback',
-			'leftfullback' => 'Left Fullback',
-			'rightfullback' => 'Right Fullback',
-			'leftwingback' => 'Left Wingback',
-			'wingback' => 'Wingback',
-			'rightwingback' => 'Right Wingback',
-			'leftmidfielder' => 'Left Midfielder',
-			'defensivemidfielder' => 'Defensive Midfielder',
-			'attackingmidfielder' => 'Attacking Midfielder',
-			'rightmidfielder' => 'Right Midfielder',
-			'leftwinger' => 'Left Winger',
-			'striker' => 'Striker',
-			'secondstriker' => 'Second Striker',
-			'centerforward' => 'Center Forward',
-			'rightwinger' => 'Right Winger',
+			'unspecified' => __('Unspecified'),
+			'goalkeeper' => __('Goalkeeper'),
+			'fullback' => __('Fullback'),
+			'midfielder' => __('Midfielder'),
+			'attacker' => __('Attacker'),
+			'sweeper' => __('Sweeper'),
+			'centerfullback' => __('Center Fullback'),
+			'leftfullback' => __('Left Fullback'),
+			'rightfullback' => __('Right Fullback'),
+			'leftwingback' => __('Left Wingback'),
+			'wingback' => __('Wingback'),
+			'rightwingback' => __('Right Wingback'),
+			'leftmidfielder' => __('Left Midfielder'),
+			'defensivemidfielder' => __('Defensive Midfielder'),
+			'attackingmidfielder' => __('Attacking Midfielder'),
+			'rightmidfielder' => __('Right Midfielder'),
+			'leftwinger' => __('Left Winger'),
+			'striker' => __('Striker'),
+			'secondstriker' => __('Second Striker'),
+			'centerforward' => __('Center Forward'),
+			'rightwinger' => __('Right Winger'),
 		],
 
 		'score_options' => [
+			'Goal' => __('Goal'),
+		],
+
+		'score_points' => [
 			'Goal' => 1,
 		],
 
 		'other_options' => [
-			'Half' => 'Kick-off to start second half',
-			'Substitution' => 'Substitution',
+			'Half' => __('Kick-off to start second half'),
+			'Substitution' => __('Substitution'),
 		],
 
 		'rating_questions' => false,
@@ -446,16 +572,66 @@ $sports['sports'] = [
 			'twitter' => '{1} pulls to {0}',
 		],
 
+		'ratio_rule' => [
+			__('Sevens') => [
+				'4/3' => '4/3',
+				'5/2' => '5/2',
+				'womens' => __('Womens'),
+				'mens' => __('Mens'),
+				'open' => __('Open'),
+			],
+			__('Sixes') => [
+				'3/3' => '3/3',
+				'4/2' => '4/2',
+				'womens 6s' => __('Womens'),
+				'mens 6s' => __('Mens'),
+				'open 6s' => __('Open'),
+				'6 (min 2 women)' => __('6 (min 2 women)'),
+			],
+			__('Fives') => [
+				'3/2' => '3/2',
+				'womens 5s' => __('Womens'),
+				'mens 5s' => __('Mens'),
+				'open 5s' => __('Open'),
+			],
+			__('Fours') => [
+				'2/2' => '2/2',
+				'womens 4s' => __('Womens'),
+				'mens 4s' => __('Mens'),
+				'open 4s' => __('Open'),
+			],
+			__('Threes') => [
+				'2/1' => '2/1',
+				'womens 3s' => __('Womens'),
+				'mens 3s' => __('Mens'),
+				'open 3s' => __('Open'),
+			],
+		],
+
 		'roster_requirements' => [
 			'4/3' => 12,
 			'5/2' => 12,
-			'3/3' => 10,
-			'4/2' => 10,
-			'3/2' => 8,
-			'2/2' => 7,
 			'womens' => 12,
 			'mens' => 12,
 			'open' => 12,
+			'3/3' => 10,
+			'4/2' => 10,
+			'womens 6s' => 10,
+			'mens 6s' => 10,
+			'open 6s' => 10,
+			'6 (min 2 women)' => 10,
+			'3/2' => 8,
+			'womens 5s' => 8,
+			'mens 5s' => 8,
+			'open 5s' => 8,
+			'2/2' => 6,
+			'womens 4s' => 6,
+			'mens 4s' => 6,
+			'open 4s' => 6,
+			'2/1' => 4,
+			'womens 3s' => 4,
+			'mens 3s' => 4,
+			'open 3s' => 4,
 		],
 
 		'gender_ratio' => [
@@ -469,25 +645,29 @@ $sports['sports'] = [
 		],
 
 		'positions' => [
-			'unspecified' => 'Unspecified',
-			'handler' => 'Handler',
-			'cutter' => 'Cutter',
-			'striker' => 'Striker',
-			'olinehandler' => 'O Line Handler',
-			'olinecutter' => 'O Line Cutter',
-			'olinestriker' => 'O Line Striker',
-			'dlinehandler' => 'D Line Handler',
-			'dlinecutter' => 'D Line Cutter',
-			'dlinestriker' => 'D Line Striker',
+			'unspecified' => __('Unspecified'),
+			'handler' => __('Handler'),
+			'cutter' => __('Cutter'),
+			'striker' => __('Striker'),
+			'olinehandler' => __('O Line Handler'),
+			'olinecutter' => __('O Line Cutter'),
+			'olinestriker' => __('O Line Striker'),
+			'dlinehandler' => __('D Line Handler'),
+			'dlinecutter' => __('D Line Cutter'),
+			'dlinestriker' => __('D Line Striker'),
 		],
 
 		'score_options' => [
+			'Goal' => __('Goal'),
+		],
+
+		'score_points' => [
 			'Goal' => 1,
 		],
 
 		'other_options' => [
-			'Half' => 'Pull to start second half',
-			'Injury' => 'Injury substitution',
+			'Half' => __('Pull to start second half'),
+			'Injury' => __('Injury substitution'),
 		],
 
 		'rating_questions' => [
@@ -605,18 +785,22 @@ $sports['sports'] = [
 		],
 
 		'positions' => [
-			'unspecified' => 'Unspecified',
-			'hitter' => 'Hitter',
-			'attacker' => 'Attacker',
-			'setter' => 'Setter',
-			'blocker' => 'Blocker',
-			'middleblocker' => 'Middle Blocker',
-			'outsidehitter' => 'Outside Hitter',
-			'weaksidehitter' => 'Weakside Hitter',
-			'liberos' => 'Liberos',
+			'unspecified' => __('Unspecified'),
+			'hitter' => __('Hitter'),
+			'attacker' => __('Attacker'),
+			'setter' => __('Setter'),
+			'blocker' => __('Blocker'),
+			'middleblocker' => __('Middle Blocker'),
+			'outsidehitter' => __('Outside Hitter'),
+			'weaksidehitter' => __('Weakside Hitter'),
+			'liberos' => __('Liberos'),
 		],
 
 		'score_options' => [
+			'Point' => __('Point'),
+		],
+
+		'score_points' => [
 			'Point' => 1,
 		],
 
@@ -632,8 +816,6 @@ foreach (array_keys($sports['sports']) as $sport) {
 	if (file_exists(ZULURU_CONFIG . 'sport/' . $sport . '_custom.php')) {
 		include(ZULURU_CONFIG . 'sport/' . $sport . '_custom.php');
 	}
-
-	$sports['sports'][$sport]['ratio_rule'] = make_human_options(array_keys($sports['sports'][$sport]['roster_requirements']));
 }
 
 return $sports;

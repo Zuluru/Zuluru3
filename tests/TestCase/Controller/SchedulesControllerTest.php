@@ -59,8 +59,8 @@ class SchedulesControllerTest extends ControllerTestCase {
 	public function testAddAsAdmin() {
 		// Admins are allowed to add to schedules anywhere
 		$this->assertGetAsAccessOk(['controller' => 'Schedules', 'action' => 'add', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#<input type="radio" name="_options\[type\]" value="single" id="options-type-single">\s*single blank, unscheduled game \(2 teams, one field\)#ms');
-		$this->assertResponseRegExp('#<input type="radio" name="_options\[type\]" value="oneset_ratings_ladder" id="options-type-oneset_ratings_ladder">\s*set of ratings-scheduled games for all teams \(8 teams, 4 games, one day\)#ms');
+		$this->assertResponseRegExp('#<input type="radio" name="_options\[type\]" value="single" id="options-type-single">\s*Single blank, unscheduled game \(2 teams, one field\)#ms');
+		$this->assertResponseRegExp('#<input type="radio" name="_options\[type\]" value="oneset_ratings_ladder" id="options-type-oneset_ratings_ladder">\s*Set of ratings-scheduled games for all teams \(8 teams, 4 games, one day\)#ms');
 		$this->assertResponseContains('<input type="checkbox" name="_options[publish]" value="1" id="options-publish">');
 		$this->assertResponseContains('<input type="checkbox" name="_options[double_header]" value="1" id="options-double-header">');
 		$this->assertResponseContains('/schedules/add?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;playoff=1');

@@ -75,79 +75,79 @@ class LeagueTypeTournament extends LeagueType {
 
 	public function scheduleOptions($num_teams, $stage, $sport) {
 		$types = [
-			'single' => __('single blank, unscheduled game (2 teams, one {0})', __(Configure::read("sports.{$sport}.field"))),
+			'single' => __('Single blank, unscheduled game (2 teams, one {0})', __(Configure::read("sports.{$sport}.field"))),
 		];
 
 		if ($num_teams % 2 == 0) {
-			$types['blankset'] = __('set of blank unscheduled games for all teams in the division ({0} teams, {1} games)', $num_teams, $num_teams / 2);
+			$types['blankset'] = __('Set of blank unscheduled games for all teams in the division ({0} teams, {1} games)', $num_teams, $num_teams / 2);
 		} else {
-			$types['blankset_bye'] = __('set of blank unscheduled games for all but one team in the division ({0} teams, {1} games)', $num_teams, ($num_teams - 1) / 2);
-			$types['blankset_doubleheader'] = __('set of blank unscheduled games for all teams in the division, one team will have a double-header ({0} teams, {1} games)', $num_teams, ($num_teams + 1) / 2);
+			$types['blankset_bye'] = __('Set of blank unscheduled games for all but one team in the division ({0} teams, {1} games)', $num_teams, ($num_teams - 1) / 2);
+			$types['blankset_doubleheader'] = __('Set of blank unscheduled games for all teams in the division, one team will have a double-header ({0} teams, {1} games)', $num_teams, ($num_teams + 1) / 2);
 		}
 
 		if ($num_teams >= 3 && $num_teams <= 10) {
 			$types['round_robin'] = 'round-robin';
 			if ($stage > 1) {
-				$types['round_robin_carry_forward'] = __('round-robin with results from prior-stage matchups carried forward');
+				$types['round_robin_carry_forward'] = __('Round-robin with results from prior-stage matchups carried forward');
 			}
 		}
 
 		// Add more types, depending on the number of teams
 		switch ($num_teams) {
 			case 2:
-				$types['winner_take_all'] = __('single game, winner take all');
-				$types['home_and_home'] = __('"home and home" series');
+				$types['winner_take_all'] = __('Single game, winner take all');
+				$types['home_and_home'] = __('"Home and home" series');
 				break;
 
 			case 3:
-				$types['playin_three'] = __('play-in game for 2nd and 3rd; 1st gets a bye to the finals');
+				$types['playin_three'] = __('Play-in game for 2nd and 3rd; 1st gets a bye to the finals');
 				break;
 
 			case 4:
-				$types['semis_consolation'] = __('bracket with semi-finals, finals and 3rd place');
-				$types['semis_elimination'] = __('bracket with semi-finals and finals, no 3rd place');
+				$types['semis_consolation'] = __('Bracket with semi-finals, finals and 3rd place');
+				$types['semis_elimination'] = __('Bracket with semi-finals and finals, no 3rd place');
 				break;
 
 			case 5:
-				$types['semis_consolation_five'] = __('bracket with semi-finals and finals, plus a 5th place play-in');
+				$types['semis_consolation_five'] = __('Bracket with semi-finals and finals, plus a 5th place play-in');
 				$types['semis_minimal_five'] = __('1st gets a bye to the finals, 4th and 5th place play-in for the bronze');
 				break;
 
 			case 6:
-				$types['semis_consolation_six'] = __('bracket with semi-finals and finals, plus 5th and 6th place play-ins');
-				$types['semis_double_elimination_six'] = __('bracket with semi-finals and finals, 1st and 2nd place have double-elimination option, everyone gets 3 games');
-				$types['semis_complete_six'] = __('bracket with semi-finals and finals, plus 5th and 6th place play-ins, everyone gets 3 games');
-				$types['semis_minimal_six'] = __('bracket with semi-finals and finals, 5th and 6th have consolation games, everyone gets 2 games');
+				$types['semis_consolation_six'] = __('Bracket with semi-finals and finals, plus 5th and 6th place play-ins');
+				$types['semis_double_elimination_six'] = __('Bracket with semi-finals and finals, 1st and 2nd place have double-elimination option, everyone gets 3 games');
+				$types['semis_complete_six'] = __('Bracket with semi-finals and finals, plus 5th and 6th place play-ins, everyone gets 3 games');
+				$types['semis_minimal_six'] = __('Bracket with semi-finals and finals, 5th and 6th have consolation games, everyone gets 2 games');
 				break;
 
 			case 7:
-				$types['quarters_consolation_seven'] = __('bracket with quarter-finals, semi-finals, finals, and all placement games, with a bye every round for whoever should be playing the missing 8th seed');
-				$types['quarters_round_robin_seven'] = __('bracket with play-in quarter-finals for all but the top seed, semi-finals, finals and 3rd place, and a round-robin for the losers of the quarters');
+				$types['quarters_consolation_seven'] = __('Bracket with quarter-finals, semi-finals, finals, and all placement games, with a bye every round for whoever should be playing the missing 8th seed');
+				$types['quarters_round_robin_seven'] = __('Bracket with play-in quarter-finals for all but the top seed, semi-finals, finals and 3rd place, and a round-robin for the losers of the quarters');
 				break;
 
 			case 8:
-				$types['quarters_consolation'] = __('bracket with quarter-finals, semi-finals, finals, and all placement games');
-				$types['quarters_bronze'] = __('bracket with quarter-finals, semi-finals, finals and 3rd place, but no consolation bracket');
-				$types['quarters_elimination'] = __('bracket with quarter-finals, semi-finals and finals, no placement games');
+				$types['quarters_consolation'] = __('Bracket with quarter-finals, semi-finals, finals, and all placement games');
+				$types['quarters_bronze'] = __('Bracket with quarter-finals, semi-finals, finals and 3rd place, but no consolation bracket');
+				$types['quarters_elimination'] = __('Bracket with quarter-finals, semi-finals and finals, no placement games');
 				break;
 
 			case 9:
-				$types['quarters_consolation_nine'] = __('bracket with quarter-finals, semi-finals and finals, plus a 9th place play-in');
+				$types['quarters_consolation_nine'] = __('Bracket with quarter-finals, semi-finals and finals, plus a 9th place play-in');
 				break;
 
 			case 10:
-				$types['quarters_consolation_ten'] = __('bracket with quarter-finals, semi-finals and finals, plus 9th and 10th place play-ins');
-				$types['presemis_consolation_ten'] = __('bracket with pre-semi-finals, semi-finals and finals, everyone gets 3 games');
-				$types['quarters_shuffle_ten'] = __('bracket with quarter-finals, semi-finals and finals, bottom 6 get shuffled to minimize duplicates, everyone gets 3 games');
-				$types['prequarters_shuffle_ten'] = __('bracket with quarter-finals, semi-finals and finals, plus 9th and 10th place play-ins, bottom 6 get shuffled to minimize duplicates, everyone gets 4 games');
+				$types['quarters_consolation_ten'] = __('Bracket with quarter-finals, semi-finals and finals, plus 9th and 10th place play-ins');
+				$types['presemis_consolation_ten'] = __('Bracket with pre-semi-finals, semi-finals and finals, everyone gets 3 games');
+				$types['quarters_shuffle_ten'] = __('Bracket with quarter-finals, semi-finals and finals, bottom 6 get shuffled to minimize duplicates, everyone gets 3 games');
+				$types['prequarters_shuffle_ten'] = __('Bracket with quarter-finals, semi-finals and finals, plus 9th and 10th place play-ins, bottom 6 get shuffled to minimize duplicates, everyone gets 4 games');
 				break;
 
 			case 11:
-				$types['quarters_consolation_eleven'] = __('bracket with quarter-finals, semi-finals and finals, plus 9th, 10th and 11th place play-ins');
+				$types['quarters_consolation_eleven'] = __('Bracket with quarter-finals, semi-finals and finals, plus 9th, 10th and 11th place play-ins');
 				break;
 
 			case 12:
-				$types['quarters_consolation_twelve'] = __('bracket with quarter-finals, semi-finals and finals, plus 9th-12th place play-ins');
+				$types['quarters_consolation_twelve'] = __('Bracket with quarter-finals, semi-finals and finals, plus 9th-12th place play-ins');
 				break;
 		}
 
@@ -411,7 +411,7 @@ class LeagueTypeTournament extends LeagueType {
 		}
 
 		// Now, create our games.  Don't add any teams, or set a round,
-		// or anything, just randomly allocate a gameslot.
+		// or anything, just randomly allocate a game slot.
 		$games = [];
 		$num_games = $num_teams / 2;
 		for ($i = 0; $i < $num_games; ++$i) {

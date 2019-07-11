@@ -45,7 +45,7 @@ $plugin_links = array_map(function ($name, $urls) {
 	$name_links = array_map(function ($name, $url) {
 		return $this->Html->link($name, $url);
 	}, array_keys($urls), $urls);
-	return $name . ' (' . implode(', ', $name_links) . ')';
+	return $name . __(' ({0})', implode(', ', $name_links));
 }, array_keys($plugins), $plugins);
 ?>
 <p><?= __('It is written in {0}, built on the {1}, and uses plugins from {2}. Unit testing is done with Sebastian Bergmann\'s {3}.',

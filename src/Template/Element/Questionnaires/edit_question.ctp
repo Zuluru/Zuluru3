@@ -9,8 +9,8 @@ if (!isset($i)) {
 	<td class="handle"><?php
 		echo $this->Form->hidden("questions.$i.id", ['value' => $question->id]);
 		echo $this->Form->hidden("questions.$i._joinData.sort");
-		echo $question->question . ' (' . $question->type . ')' .
-			($question->anonymous ? (' (' . __('anonymous') . ')') : '');
+		echo $question->question . __(' ({0})', $question->type) .
+			($question->anonymous ? __(' ({0})', __('anonymous')) : '');
 	?></td>
 	<td><?php
 		echo $this->Form->input("questions.$i._joinData.required", [

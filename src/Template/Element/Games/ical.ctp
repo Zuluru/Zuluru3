@@ -57,7 +57,7 @@ DESCRIPTION:<?= __('{0} vs {1} at {2} on {3}',
 	$this->Time->iCalDateTimeRange($game->game_slot)
 );
 if (Configure::read('feature.shirt_colour') && !empty($opponent->shirt_colour)):
-	echo ' (' . __('they wear {0}', \App\Lib\ical_encode($opponent->shirt_colour)) . ')';
+	echo __(' ({0})', __('they wear {0}', \App\Lib\ical_encode($opponent->shirt_colour)));
 ?>
 
 X-OPPONENT-COLOUR:<?= $opponent->shirt_colour ?>

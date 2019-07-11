@@ -27,12 +27,14 @@ $this->Html->addCrumb($team->name);
 $status_descriptions = Configure::read('attendance');
 $roster_descriptions = Configure::read('options.roster_role');
 if (!$is_me) {
-	echo $this->Html->para(null, __('You are attempting to change attendance for') . ' ' .
-		$this->element('People/block', ['person' => $attendance->person]) .
-		' (' . $roster_descriptions[$attendance->person->teams[0]->_joinData->role] . ').');
+	echo $this->Html->para(null, __('You are attempting to change attendance for {0} ({1}).',
+		$this->element('People/block', ['person' => $attendance->person]),
+		$roster_descriptions[$attendance->person->teams[0]->_joinData->role]
+	));
 }
-echo $this->Html->para(null, __('Current status:') . ' ' .
-	$this->Html->tag('strong', __($status_descriptions[$attendance->status])));
+echo $this->Html->para(null, __('Current status: {0}',
+	$this->Html->tag('strong', __($status_descriptions[$attendance->status]))
+));
 
 echo $this->Html->para(null, __('Possible attendance options are:'));
 echo $this->Form->create($attendance, ['align' => 'horizontal']);

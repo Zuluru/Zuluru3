@@ -25,7 +25,7 @@ class LeagueTypeRatingsLadder extends LeagueType {
 	public function links(Division $division, IdentityInterface $identity = null, $controller, $action) {
 		$links = parent::links($division, $identity, $controller, $action);
 		if (($controller != 'Divisions' || $action != 'ratings') && $identity && $identity->can('edit_schedule', $division)) {
-			$links[__('Adjust ratings')] = [
+			$links[__('Adjust Ratings')] = [
 				'url' => ['controller' => 'Divisions', 'action' => 'ratings', 'division' => $division->id],
 			];
 		}
@@ -79,8 +79,8 @@ class LeagueTypeRatingsLadder extends LeagueType {
 
 	public function scheduleOptions($num_teams, $stage, $sport) {
 		$types = [
-			'single' => __('single blank, unscheduled game (2 teams, one {0})', __(Configure::read("sports.{$sport}.field"))),
-			'oneset_ratings_ladder' => __('set of ratings-scheduled games for all teams ({0} teams, {1} games, one day)', $num_teams, $num_teams / 2),
+			'single' => __('Single blank, unscheduled game (2 teams, one {0})', __(Configure::read("sports.{$sport}.field"))),
+			'oneset_ratings_ladder' => __('Set of ratings-scheduled games for all teams ({0} teams, {1} games, one day)', $num_teams, $num_teams / 2),
 		];
 
 		return $types;

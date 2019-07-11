@@ -53,13 +53,13 @@ class LeagueTypeRoundrobin extends LeagueType {
 
 	public function scheduleOptions($num_teams, $stage, $sport) {
 		$types = [
-			'single' => __('single blank, unscheduled game (2 teams, one {0})', __(Configure::read("sports.{$sport}.field"))),
-			'blankset' => __('set of blank unscheduled games for all teams in a division ({0} teams, {1} games, one day)', $num_teams, $num_teams / 2),
-			'oneset' => __('set of randomly scheduled games for all teams in a division ({0} teams, {1} games, one day)', $num_teams, $num_teams / 2),
-			'fullround' => __('full-division round-robin ({0} teams, {1} games over {2} weeks)', $num_teams, ($num_teams - 1) * ($num_teams / 2), $num_teams - 1),
-			'halfroundstandings' => __('half-division round-robin ({0} teams, {1} games over {2} weeks), with 2 pools (top, bottom) divided by team standings', $num_teams, (($num_teams / 2 ) - 1) * ($num_teams / 2), $num_teams / 2 - 1),
-			'halfroundrating' => __('half-division round-robin ({0} teams, {1} games over {2} weeks), with 2 pools (top/bottom) divided by rating', $num_teams, (($num_teams / 2 ) - 1) * ($num_teams / 2), $num_teams / 2 - 1),
-			'halfroundmix' => __('half-division round-robin ({0} teams, {1} games over {2} weeks), with 2 even (interleaved) pools divided by team standings', $num_teams, (($num_teams / 2 ) - 1) * ($num_teams / 2), $num_teams / 2 - 1),
+			'single' => __('Single blank, unscheduled game (2 teams, one {0})', __(Configure::read("sports.{$sport}.field"))),
+			'blankset' => __('Set of blank unscheduled games for all teams in a division ({0} teams, {1} games, one day)', $num_teams, $num_teams / 2),
+			'oneset' => __('Set of randomly scheduled games for all teams in a division ({0} teams, {1} games, one day)', $num_teams, $num_teams / 2),
+			'fullround' => __('Full-division round-robin ({0} teams, {1} games over {2} weeks)', $num_teams, ($num_teams - 1) * ($num_teams / 2), $num_teams - 1),
+			'halfroundstandings' => __('Half-division round-robin ({0} teams, {1} games over {2} weeks), with 2 pools (top, bottom) divided by team standings', $num_teams, (($num_teams / 2 ) - 1) * ($num_teams / 2), $num_teams / 2 - 1),
+			'halfroundrating' => __('Half-division round-robin ({0} teams, {1} games over {2} weeks), with 2 pools (top/bottom) divided by rating', $num_teams, (($num_teams / 2 ) - 1) * ($num_teams / 2), $num_teams / 2 - 1),
+			'halfroundmix' => __('Half-division round-robin ({0} teams, {1} games over {2} weeks), with 2 even (interleaved) pools divided by team standings', $num_teams, (($num_teams / 2 ) - 1) * ($num_teams / 2), $num_teams / 2 - 1),
 		];
 		if($num_teams % 4) {
 			// Can't do a half-round without an even number of teams in
@@ -141,7 +141,7 @@ class LeagueTypeRoundrobin extends LeagueType {
 		}
 
 		// Now, create our games.  Don't add any teams, or set a round,
-		// or anything, just randomly allocate a gameslot.
+		// or anything, just randomly allocate a game slot.
 		$games = [];
 		$num_games = $num_teams / 2;
 		for ($i = 0; $i < $num_games; ++$i) {
@@ -249,11 +249,11 @@ class LeagueTypeRoundrobin extends LeagueType {
 		// For n-1 iterations, generate games by pairing up teams
 		$iterations_remaining = $num_teams - 1;
 
-		// and so we need n-1 days worth of gameslots
+		// and so we need n-1 days worth of game slots
 		$day_count = $this->countAvailableGameslotDays($division, $date, $num_teams / 2 * $repeats);
 
 		if ($day_count < $iterations_remaining) {
-			throw new ScheduleException(__('Need {0} weeks of gameslots, yet only {1} are available. Add more gameslots.', $iterations_remaining, $day_count));
+			throw new ScheduleException(__('Need {0} weeks of game slots, yet only {1} are available. Add more game slots.', $iterations_remaining, $day_count));
 		}
 
 		$games = [];

@@ -42,7 +42,7 @@ if (!$contact->isNew()) {
 		['confirm' => __('Are you sure you want to delete this contact?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
 		['action' => 'add'],
-		['alt' => __('New'), 'title' => __('New Contact')]));
+		['alt' => __('Add'), 'title' => __('Add Contact')]));
 }
 ?>
 	</ul>

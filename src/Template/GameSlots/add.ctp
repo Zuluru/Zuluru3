@@ -145,10 +145,10 @@ else:
 <?php
 endif;
 ?>
-		<legend><?= __('Gameslot details') ?></legend>
+		<legend><?= __('Game slot details') ?></legend>
 <?php
 echo $this->Form->input('game_start', [
-	'label' => __('Start time'),
+	'label' => __('Start Time'),
 	'empty' => '---',
 	'help' => __('Time for games to start.'),
 ]);
@@ -158,21 +158,21 @@ echo $this->Form->input('length', [
 	'help' => __('Length of game slot (in minutes), including buffer time below. If you want only a single game slot, leave this at 0 and just set start and end times.'),
 ]);
 echo $this->Form->input('buffer', [
-	'label' => __('Game buffer'),
+	'label' => __('Game Buffer'),
 	'options' => Configure::read('options.game_buffers'),
 	'help' => __('Buffer between games (in minutes). If slot length is 0 above, this is ignored.'),
 ]);
 echo $this->Form->input('game_end', [
-	'label' => __('End time'),
+	'label' => __('End Time'),
 	'empty' => '---',
-	'help' => __('Time for games to end. Choose "---" to assign the default timecap (dark) for that week (not available if slot length is set above).'),
+	'help' => __('Time for games to end. Choose "---" to assign the default time cap (dark) for that week (not available if slot length is set above).'),
 ]);
 echo $this->Jquery->ajaxInput('game_date', [
 	'selector' => '#DivisionList',
 	'url' => ['controller' => 'Divisions', 'action' => 'select', 'affiliate' => $affiliate],
 	'additional-inputs' => '#sport, input:checked[name="days[]"]',
 ], [
-	'label' => __('First date'),
+	'label' => __('First Date'),
 	'minYear' => Configure::read('options.year.gameslot.min'),
 	'maxYear' => Configure::read('options.year.gameslot.max'),
 	'help' => __('Date of the first game slot to add.'),
@@ -180,20 +180,20 @@ echo $this->Jquery->ajaxInput('game_date', [
 // TODO: Include this only if there are existing divisions, open or opening in the future, which operate on multiple days
 // TODO: Check that the JS works when this isn't the case.
 echo $this->Form->input('days', [
-	'label' => __('Days to include', true),
+	'label' => __('Days to Include', true),
 	'multiple' => 'checkbox',
 	'options' => $days,
 	'val' => [\Cake\I18n\FrozenDate::now()->format('N')],
 	'help' => __('Create the requested game slots on each of these days in each week.'),
 ]);
 echo $this->Form->input('weeks', [
-	'label' => __('Weeks to repeat'),
-	'options' => \App\Config\make_options(range(1, 26)),
-	'help' => __('Number of weeks to repeat this gameslot.'),
+	'label' => __('Weeks to Repeat'),
+	'options' => array_combine($r = range(1, 26), $r),
+	'help' => __('Number of weeks to repeat this game slot.'),
 ]);
 ?>
 		<fieldset>
-			<legend><?= __('Make Gameslot Available To') ?></legend>
+			<legend><?= __('Make Game Slot Available To') ?></legend>
 			<div id="DivisionList">
 <?php
 if (empty($divisions)) {

@@ -19,7 +19,7 @@ if ($this->request->getParam('controller') != 'Events' || $this->request->getPar
 
 if (Configure::read('registration.register_now')) {
 	if ($this->request->getParam('controller') != 'Registrations' || $this->request->getParam('action') != 'register') {
-		$links[] = $this->Html->link(__('Register Now'),
+		$links[] = $this->Html->link(__('Register Now!'),
 			['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id]);
 	}
 }

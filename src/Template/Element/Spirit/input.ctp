@@ -71,6 +71,6 @@ if ($this->request->action == 'edit') {
 
 if ($spirit) {
 	echo $this->Html->tag('fieldset',
-		$this->Html->tag('legend', __('Spirit assigned to') . ' ' . $for_team->name) . $spirit,
+		$this->Html->tag('legend', __('Spirit assigned to {0}', $for_team->name)) . $spirit,
 		['class' => 'spirit normal']);
 }

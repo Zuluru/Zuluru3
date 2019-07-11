@@ -79,7 +79,7 @@ foreach ($field->game_slots as $slot):
 						} else {
 							$division = array_shift($divisions);
 							echo $this->element('Divisions/block', ['division' => $division['division'], 'field' => 'long_league_name']) .
-								' (' . __n('game', 'games', count($division['games'])) . ' ' . implode(', ', $division['games']) . ')';
+								__(' ({0})', __n('game', 'games', count($division['games'])) . ' ' . implode(', ', $division['games']));
 						}
 					?></td>
 					<td><?php
@@ -107,7 +107,7 @@ foreach ($field->game_slots as $slot):
 ?>
 				<tr>
 					<td><?= $this->element('Divisions/block', ['division' => $division['division'], 'field' => 'league_name']) .
-						' (' . __n('game', 'games', count($division['games'])) . ' ' . implode(', ', $division['games']) . ')'
+						__(' ({0})', __n('game', 'games', count($division['games'])) . ' ' . implode(', ', $division['games']))
 					?></td>
 				</tr>
 <?php

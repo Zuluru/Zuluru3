@@ -163,7 +163,7 @@ else:
 					['action' => 'view', 'event' => $event->id],
 					['alt' => __('View'), 'title' => __('View')]);
 				if (Configure::read('registration.register_now')) {
-					echo $this->Html->link(__('Register Now'), ['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id, 'price' => $price->id]);
+					echo $this->Html->link(__('Register Now!'), ['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id, 'price' => $price->id]);
 				}
 				if ($this->Authorize->can('delete', $price)) {
 					echo $this->Form->iconPostLink('delete_24.png',

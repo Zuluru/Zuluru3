@@ -56,14 +56,14 @@ if ($this->Identity->isLoggedIn() && !empty($badge->people)):
 									$reason = $record->reason;
 									if ($this->Authorize->can('edit', $badge)) {
 										$reason = $this->Html->tag('span',
-											$reason . ' (' . $this->Jquery->ajaxLink(__('Delete'), [
+											$reason . __(' ({0})', $this->Jquery->ajaxLink(__('Delete'), [
 												'url' => ['controller' => 'People', 'action' => 'delete_badge', 'badge' => $record->id],
 												'dialog' => 'badge_comment_div',
 												'disposition' => 'remove_closest',
 												'selector' => 'span',
 												'remove-separator' => ', ',
 												'remove-separator-selector' => 'tr',
-											]) . ')'
+											]))
 										);
 									}
 									$reasons[] = $reason;

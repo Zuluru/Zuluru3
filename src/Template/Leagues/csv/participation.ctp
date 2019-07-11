@@ -45,14 +45,14 @@ foreach ($league->divisions as $division) {
 	foreach ($division->teams as $team) {
 		usort($team->people, ['App\Model\Table\TeamsTable', 'compareRoster']);
 		foreach ($team->people as $person) {
-			$role = __(Configure::read("options.roster_role.{$person->_joinData->role}"));
+			$role = Configure::read("options.roster_role.{$person->_joinData->role}");
 			switch ($person->_joinData->status) {
 				case ROSTER_INVITED:
-					$role .= ' (' . __('invited') . ')';
+					$role .= __(' ({0})', __('invited'));
 					break;
 
 				case ROSTER_REQUESTED:
-					$role .= ' (' . __('requested') . ')';
+					$role .= __(' ({0})', __('requested'));
 					break;
 			}
 

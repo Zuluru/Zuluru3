@@ -48,7 +48,7 @@ $carbon_flip_options = [
 					echo " ({$game->home_dependency})";
 				}
 				if ($game->division->schedule_type != 'tournament') {
-					echo ' (' . __('currently rated') . ": {$game->home_team->rating})";
+					echo __(' ({0})', __('currently rated: {0}', $game->home_team->rating));
 					if (!$preliminary && !$game->isFinalized() && $game->division->schedule_type != 'competition') {
 						printf(' (%0.1f%% %s)', $ratings_obj->calculateExpectedWin($game->home_team->rating, $game->away_team->rating) * 100, __('chance to win'));
 					}
@@ -72,7 +72,7 @@ if ($game->division->schedule_type != 'competition'):
 					echo " ({$game->away_dependency})";
 				}
 				if ($game->division->schedule_type != 'tournament') {
-					echo ' (' . __('currently rated') . ": {$game->away_team->rating})";
+					echo __(' ({0})', __('currently rated: {0}', $game->away_team->rating));
 					if (!$preliminary && !$game->isFinalized()) {
 						printf(' (%0.1f%% %s)', $ratings_obj->calculateExpectedWin($game->away_team->rating, $game->home_team->rating) * 100, __('chance to win'));
 					}
@@ -277,8 +277,8 @@ else:
 			<thead>
 				<tr>
 					<th></th>
-					<th><?= $this->Text->truncate($game->home_team->name, 23) . ' (' . __('home') . ')' ?></th>
-					<th><?= $this->Text->truncate($game->away_team->name, 23) . ' (' . __('away') . ')' ?></th>
+					<th><?= $this->Text->truncate($game->home_team->name, 23) . __(' ({0})', __('home')) ?></th>
+					<th><?= $this->Text->truncate($game->away_team->name, 23) . __(' ({0})', __('away')) ?></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -429,14 +429,14 @@ if (!empty($game->score_details)):
 								strtolower($detail->play);
 							if ($detail->points) {
 								$scores[$detail->team_id] += $detail->points;
-								$line .= ' (' . implode(' - ', $scores) . ')';
+								$line .= __(' ({0})', implode(' - ', $scores));
 							}
 							$stats = [];
 							foreach ($detail->score_detail_stats as $stat) {
 								$stats[] = Inflector::singularize(strtolower($stat->stat_type->name)) . ' ' . $stat->person->full_name;
 							}
 							if (!empty($stats)) {
-								$line .= ' (' . implode(', ', $stats) . ')';
+								$line .= __(' ({0})', implode(', ', $stats));
 							}
 						}
 						echo $this->Html->tag('li', $line);

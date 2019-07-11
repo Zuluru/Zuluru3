@@ -162,10 +162,10 @@ if (!$this->fetch('javascript_variables') && method_exists($this->Html, 'iconImg
 		'zuluru_popup' => $this->Html->iconImg('popup_16.png', ['class' => 'tooltip_toggle']),
 		'zuluru_base' => Router::url('/'),
 		'zuluru_mobile' => $this->request->is('mobile') ? true : false,
-		'zuluru_save' => __('Save'),
-		'zuluru_cancel' => __('Cancel'),
-		'zuluru_close' => __('Close'),
-		'zuluru_open_help' => __('Open this help page in a new window'),
+		'zuluru_save' => addslashes(__('Save')),
+		'zuluru_cancel' => addslashes(__('Cancel')),
+		'zuluru_close' => addslashes(__('Close')),
+		'zuluru_open_help' => addslashes(__('Open this help page in a new window')),
 	];
 	if ($this->request->getParam('_csrfToken')) {
 		$vars['zuluru_csrf_token'] = $this->request->getParam('_csrfToken');

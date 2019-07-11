@@ -16,7 +16,11 @@ class ValidPlayRule {
 		$field = $options['errorField'];
 		$check = $entity->$field;
 
-		$options = array_merge(\App\Config\make_options(array_merge(array_keys(Configure::read("sports.{$entity->game->division->league->sport}.score_options")), ['Start', 'Timeout'])), Configure::read("sports.{$entity->game->division->league->sport}.other_options"));
+		$options = array_merge(
+			Configure::read("sports.{$entity->game->division->league->sport}.score_options"),
+			['Start' => __('Start'), 'Timeout' => __('Timeout')],
+			Configure::read("sports.{$entity->game->division->league->sport}.other_options")
+		);
 		return array_key_exists($check, $options);
 	}
 

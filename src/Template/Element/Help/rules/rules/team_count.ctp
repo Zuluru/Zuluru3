@@ -11,7 +11,7 @@ $year = FrozenTime::now()->year;
 <li>&gt;<?= __('YYYY-MM-DD: Counts teams that played at any time starting from the date specified (equivalent to YYYY-MM-DD,9999-12-31)') ?></li>
 </ul>
 <p><?= __('The date specification must be enclosed in quotes.') ?></p>
-<p><?= __('By default, only teams where the player is listed as a captain, assistant captain or regular player, and is accepted on the roster, are counted. You can also include teams where the player is listed as a substitute by including \'include_subs\' after the date.') ?></p>
+<p><?= __('By default, only teams where the player is listed as a captain, assistant captain or regular player, and is accepted on the roster, are counted. You can also include teams where the player is listed as a substitute by including "{0}" after the date.', 'include_subs') ?></p>
 <p><?= __('Example:') ?></p>
 <pre>TEAM_COUNT('<?= $year ?>-06-01')</pre>
 <p><?= __('would return the number of teams playing in the summer of {0} that the player is on.', $year) ?></p>

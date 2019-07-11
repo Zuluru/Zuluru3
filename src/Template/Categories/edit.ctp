@@ -39,7 +39,7 @@ if (!$category->isNew()) {
 		['confirm' => __('Are you sure you want to delete this category?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
 		['action' => 'add'],
-		['alt' => __('New'), 'title' => __('New Category')]));
+		['alt' => __('Add'), 'title' => __('Add Category')]));
 }
 ?>
 	</ul>

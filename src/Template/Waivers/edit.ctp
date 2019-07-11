@@ -109,7 +109,7 @@ if (!$waiver->isNew()) {
 		['confirm' => __('Are you sure you want to delete this waiver?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
 		['action' => 'add'],
-		['alt' => __('New'), 'title' => __('New Waiver')]));
+		['alt' => __('Add'), 'title' => __('Add Waiver')]));
 }
 ?>
 	</ul>

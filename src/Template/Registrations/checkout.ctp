@@ -81,7 +81,7 @@ if (!empty($registrations)):
 ?>
 		<div class="caption">
 <?php
-		echo $this->Jquery->toggleLink($this->Html->iconImg('redeem.png') . $this->Html->para(null, __('Redeem credit')), [
+		echo $this->Jquery->toggleLink($this->Html->iconImg('redeem.png') . $this->Html->para(null, __('Redeem Credit')), [
 			'hide' => '.register-help',
 			'show' => '.credit_help',
 		], [
@@ -124,7 +124,9 @@ if (!empty($registrations)):
 
 	<div class="credit_help register-help">
 		<p><?= $this->Html->iconImg('help_24.png') ?></p>
-		<p><?= __('To redeem a credit, click the "Redeem credit" button next to the registration that you want the credit to be applied to.') ?></p>
+		<p><?= __('To redeem a credit, click the "{0}" button next to the registration that you want the credit to be applied to.',
+			__('Redeem Credit')
+		) ?></p>
 		<p><?= __('You will be given options on the resulting page, including opting not to redeem the credit at this time.') ?></p>
 	</div>
 
@@ -155,7 +157,7 @@ if (!empty($registrations)):
 							} else {
 								$expiry = __('Reserved');
 							}
-							echo ' (' . $expiry . ')';
+							echo __(' ({0})', $expiry);
 						}
 					?></td>
 					<td><?= $this->Number->currency($cost + $tax1 + $tax2) ?></td>
@@ -169,7 +171,7 @@ if (!empty($registrations)):
 							);
 						}
 						if (!empty($person->credits)) {
-							echo $this->Html->link(__('Redeem credit'), ['action' => 'redeem', 'registration' => $registration->id]);
+							echo $this->Html->link(__('Redeem Credit'), ['action' => 'redeem', 'registration' => $registration->id]);
 						}
 					?></td>
 				</tr>

@@ -7,8 +7,9 @@ use Cake\Core\Configure;
 <?php
 if (Configure::read('feature.registration')):
 ?>
-	<li><?= __('Check the {0} to see if there are any "Individuals for Teams" events available. Registering for one of these will reserve you a spot on a "hat" team. Note that hat teams are typically not set up until the league is almost ready to start, so don\'t be surprised if you don\'t show up on a roster right away.',
-		$this->Html->link(__('registration wizard'), ['controller' => 'Events', 'action' => 'wizard'])
+	<li><?= __('Check the {0} to see if there are any "{1}" events available. Registering for one of these will reserve you a spot on a "hat" team. Note that hat teams are typically not set up until the league is almost ready to start, so don\'t be surprised if you don\'t show up on a roster right away.',
+		$this->Html->link(__('Registration Wizard'), ['controller' => 'Events', 'action' => 'wizard']),
+		__('Individuals for Teams')
 	) ?></li>
 <?php
 endif;

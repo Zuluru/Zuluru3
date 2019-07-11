@@ -89,7 +89,7 @@ if (!$<%= $singularVar %>->isNew()) {
 		['confirm' => __('Are you sure you want to delete this <%= strtolower($singularHumanName) %>?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
 		['action' => 'add'],
-		['alt' => __('New'), 'title' => __('New <%= $singularHumanName %>')]));
+		['alt' => __('Add'), 'title' => __('Add <%= $singularHumanName %>')]));
 }
 ?>
 	</ul>

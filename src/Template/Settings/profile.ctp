@@ -18,7 +18,7 @@ echo $this->element('Settings/input', [
 	'category' => 'profile',
 	'name' => 'first_name',
 	'options' => [
-		'label' => __('First name'),
+		'label' => __('First Name'),
 		'type' => 'radio',
 		'options' => Configure::read('options.access_required'),
 	],
@@ -27,7 +27,7 @@ echo $this->element('Settings/input', [
 	'category' => 'profile',
 	'name' => 'last_name',
 	'options' => [
-		'label' => __('Last name'),
+		'label' => __('Last Name'),
 		'type' => 'radio',
 		'options' => Configure::read('options.access_required'),
 	],
@@ -45,7 +45,7 @@ echo $this->element('Settings/input', [
 	'category' => 'profile',
 	'name' => 'addr_street',
 	'options' => [
-		'label' => __('Street address'),
+		'label' => __('Street Address'),
 		'type' => 'radio',
 		'options' => Configure::read('options.access_optional'),
 	],
@@ -81,7 +81,7 @@ echo $this->element('Settings/input', [
 	'category' => 'profile',
 	'name' => 'addr_postalcode',
 	'options' => [
-		'label' => __('Postal code'),
+		'label' => __('Postal Code'),
 		'type' => 'radio',
 		'options' => Configure::read('options.access_optional'),
 	],
@@ -90,7 +90,7 @@ echo $this->element('Settings/input', [
 	'category' => 'profile',
 	'name' => 'home_phone',
 	'options' => [
-		'label' => __('Home phone'),
+		'label' => __('Home Phone'),
 		'type' => 'radio',
 		'options' => Configure::read('options.access_optional'),
 	],
@@ -99,7 +99,7 @@ echo $this->element('Settings/input', [
 	'category' => 'profile',
 	'name' => 'work_phone',
 	'options' => [
-		'label' => __('Work phone'),
+		'label' => __('Work Phone'),
 		'type' => 'radio',
 		'options' => Configure::read('options.access_optional'),
 	],
@@ -108,7 +108,7 @@ echo $this->element('Settings/input', [
 	'category' => 'profile',
 	'name' => 'mobile_phone',
 	'options' => [
-		'label' => __('Mobile phone'),
+		'label' => __('Mobile Phone'),
 		'type' => 'radio',
 		'options' => Configure::read('options.access_optional'),
 	],
@@ -117,7 +117,7 @@ echo $this->element('Settings/input', [
 	'category' => 'profile',
 	'name' => 'skill_level',
 	'options' => [
-		'label' => __('Skill level'),
+		'label' => __('Skill Level'),
 		'type' => 'radio',
 		'options' => Configure::read('options.access_optional'),
 	],
@@ -126,7 +126,7 @@ echo $this->element('Settings/input', [
 	'category' => 'profile',
 	'name' => 'year_started',
 	'options' => [
-		'label' => __('Year started'),
+		'label' => __('Year Started'),
 		'type' => 'radio',
 		'options' => Configure::read('options.access_optional'),
 	],
@@ -144,7 +144,7 @@ echo $this->element('Settings/input', [
 	'category' => 'feature',
 	'name' => 'birth_year_only',
 	'options' => [
-		'label' => __('Birth year only'),
+		'label' => __('Birth Year Only'),
 		'type' => 'radio',
 		'options' => Configure::read('options.enable'),
 		'help' => __('If enabled, the system will not ask for birth month and day.'),
@@ -163,7 +163,7 @@ echo $this->element('Settings/input', [
 	'category' => 'profile',
 	'name' => 'shirt_size',
 	'options' => [
-		'label' => __('Shirt size'),
+		'label' => __('Shirt Size'),
 		'type' => 'radio',
 		'options' => Configure::read('options.access_registration'),
 	],
@@ -172,7 +172,7 @@ echo $this->element('Settings/input', [
 	'category' => 'profile',
 	'name' => 'contact_for_feedback',
 	'options' => [
-		'label' => __('Contact for feedback'),
+		'label' => __('Contact for Feedback'),
 		'type' => 'radio',
 		'options' => Configure::read('options.access_optional'),
 	],

@@ -44,7 +44,7 @@ echo $this->Form->create(false, [
 echo $this->Form->hidden('team_id', ['value' => $team['id']]);
 echo $this->Form->hidden('score_from');
 echo $this->Form->input('play', [
-		'options' => \App\Config\make_options(array_keys($score_options)),
+		'options' => $score_options,
 		'empty' => '---',
 		'hide_single' => true,
 ]);

@@ -89,7 +89,7 @@ class Registration extends Entity {
 		}
 
 		if (!empty($extras)) {
-			$name .= ' (' . implode(', ', $extras) . ')';
+			$name .= __(' ({0})', implode(', ', $extras));
 		}
 		return $name;
 	}

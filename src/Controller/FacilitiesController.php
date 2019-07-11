@@ -257,7 +257,7 @@ class FacilitiesController extends AppController {
 		$this->Authorization->authorize($facility);
 		$facility->is_open = true;
 		if (!$this->Facilities->save($facility)) {
-			$this->Flash->warning(__('Failed to open facility \'\'{0}\'\'.', addslashes($facility->name)));
+			$this->Flash->warning(__('Failed to open facility "{0}".', addslashes($facility->name)));
 			return $this->redirect(['action' => 'index']);
 		}
 
@@ -293,7 +293,7 @@ class FacilitiesController extends AppController {
 		$facility->dirty('fields', true);
 
 		if (!$this->Facilities->save($facility)) {
-			$this->Flash->warning(__('Failed to close facility \'\'{0}\'\'.', addslashes($facility->name)));
+			$this->Flash->warning(__('Failed to close facility "{0}".', addslashes($facility->name)));
 			return $this->redirect(['action' => 'index']);
 		}
 

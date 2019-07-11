@@ -22,7 +22,7 @@ $can_edit = $this->Authorize->can('edit', $facility);
 ?>
 
 <div class="facilities view">
-	<h2><?= h($facility->name) . ' (' . h($facility->code) . ')' ?></h2>
+	<h2><?= h($facility->name) . __(' ({0})', h($facility->code)) ?></h2>
 	<dl class="dl-horizontal">
 <?php
 if (count(Configure::read('options.sport')) > 1):
@@ -34,15 +34,15 @@ if (count(Configure::read('options.sport')) > 1):
 				if (!empty($facility->sport)) {
 					echo Inflector::humanize(__($facility->sport));
 					$sports_list = array_diff($sports_list, [$facility->sport]);
-					echo ' (' . __('Also') . ' ';
 				}
 			}
 			$sports_list = array_map('__', $sports_list, array_fill(0, count($sports_list), true));
 			$sports_list = array_map(['Cake\Utility\Inflector', 'humanize'], $sports_list);
 			sort ($sports_list);
-			echo implode(', ', $sports_list);
 			if (count($sports) > 1 && !empty($facility->sport)) {
-				echo ')';
+				echo __(' (Also {0})', implode(', ', $sports_list));
+			} else {
+				echo implode(', ', $sports_list);
 			}
 		?></dd>
 <?php
@@ -190,10 +190,10 @@ if (!empty($facility->fields)):
 				<td><?php
 				echo $field->num;
 				if (count($surfaces) > 1) {
-					echo ' (' . __($field->surface) . ')';
+					echo __(' ({0})', __($field->surface));
 				}
 				if (count($sports) > 1) {
-					echo ' (' . __($field->sport) . ')';
+					echo __(' ({0})', __($field->sport));
 				}
 				?></td>
 <?php

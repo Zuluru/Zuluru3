@@ -95,7 +95,11 @@ foreach ($game->score_details as $detail) {
 			?></td>
 			<td><?php
 			echo $this->Form->input('add_detail.play', [
-				'options' => array_merge(\App\Config\make_options(array_merge(array_keys(Configure::read("sports.{$game->division->league->sport}.score_options")), ['Start', 'Timeout'])), Configure::read("sports.{$game->division->league->sport}.other_options")),
+				'options' => array_merge(
+					Configure::read("sports.{$game->division->league->sport}.score_options"),
+					['Start' => __('Start'), 'Timeout' => __('Timeout')],
+					Configure::read("sports.{$game->division->league->sport}.other_options")
+				),
 				'empty' => '---',
 				'label' => false,
 			]);

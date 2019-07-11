@@ -236,7 +236,7 @@ if (empty($league->divisions)) {
 		<div class="actions columns">
 			<ul class="nav nav-pills">
 <?php
-	echo $this->Html->tag('li', $this->Jquery->ajaxLink($this->Html->iconImg('add_32.png', ['alt' => __('Add Division'), 'title' => __('New Division')]), [
+	echo $this->Html->tag('li', $this->Jquery->ajaxLink($this->Html->iconImg('add_32.png', ['alt' => __('Add Division'), 'title' => __('Add Division')]), [
 		'url' => ['action' => 'add_division'],
 		'disposition' => 'append',
 		'selector' => '#accordion',
@@ -273,7 +273,7 @@ if (!$league->isNew()) {
 		['confirm' => __('Are you sure you want to delete this league?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
 		['action' => 'add'],
-		['alt' => __('New'), 'title' => $tournaments ? __('New League') : __('New League')]));
+		['alt' => __('Add'), 'title' => $tournaments ? __('Add League') : __('Add League')]));
 }
 ?>
 	</ul>

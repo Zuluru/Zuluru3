@@ -27,7 +27,7 @@ if ($opponent) {
 <?= __('This is your attendance summary for the {0} game{1} at {2} from {3} to {4} on {5}.',
 	$team->name,
 	$opponent_text,
-	$game->game_slot->field->long_name . ' (' . Router::url(['controller' => 'Facilities', 'action' => 'view', 'facility' => $game->game_slot->field->facility_id], true) . ')',
+	$game->game_slot->field->long_name . __(' ({0})', Router::url(['controller' => 'Facilities', 'action' => 'view', 'facility' => $game->game_slot->field->facility_id], true)),
 	$this->Time->time($game->game_slot->game_start),
 	$this->Time->time($game->game_slot->display_game_end),
 	$this->Time->date($game->game_slot->game_date)

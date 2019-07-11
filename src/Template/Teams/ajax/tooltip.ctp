@@ -14,7 +14,7 @@ echo $team->name;
 <?php
 if (Configure::read('feature.shirt_colour') && !empty($team->shirt_colour)):
 ?>
-	<dt><?= __('Shirt colour') ?></dt>
+	<dt><?= __('Shirt Colour') ?></dt>
 	<dd><?= $team->shirt_colour ?></dd>
 <?php
 endif;

@@ -44,7 +44,7 @@ class GroupsController extends AppController {
 
 		$group->active = true;
 		if (!$this->Groups->save($group)) {
-			$this->Flash->warning(__('Failed to activate group \'\'{0}\'\'.', addslashes($group->name)));
+			$this->Flash->warning(__('Failed to activate group "{0}".', addslashes($group->name)));
 			return $this->redirect(['action' => 'index']);
 		}
 
@@ -74,7 +74,7 @@ class GroupsController extends AppController {
 
 		$group->active = false;
 		if (!$this->Groups->save($group)) {
-			$this->Flash->warning(__('Failed to deactivate group \'\'{0}\'\'.', addslashes($group->name)));
+			$this->Flash->warning(__('Failed to deactivate group "{0}".', addslashes($group->name)));
 			return $this->redirect(['action' => 'index']);
 		}
 
