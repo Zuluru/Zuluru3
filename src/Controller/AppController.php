@@ -569,7 +569,7 @@ class AppController extends Controller {
 				}
 			}
 
-			$this->_addMenuItem(__('Bulk import'), ['controller' => 'Users', 'action' => 'import'], __('People'));
+			// TODOLATER: $this->_addMenuItem(__('Bulk import'), ['controller' => 'Users', 'action' => 'import'], __('People'));
 			if (Configure::read('feature.control_account_creation')) {
 				$this->_addMenuItem(__('Create account'), ['controller' => 'Users', 'action' => 'create_account'], __('People'));
 			}
