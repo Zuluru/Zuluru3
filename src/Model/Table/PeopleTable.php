@@ -539,9 +539,12 @@ class PeopleTable extends AppTable {
 			// Start with the list of valid group options for the user making the edit
 			$valid_groups = $this->Groups->find('options', ['require_player' => true])
 				// then limit by the groups that were requested.
-				->where(['Groups.id IN' => collection($entity->groups)->extract('id')->toList()]);
+				->where([
+					'Groups.id IN' => collection($entity->groups)->extract('id')->toList(),
+					'Groups.active' => true,
+				]);
 			// The resulting set should have the same number of rows as there were groups selected
-			return $valid_groups->count() == count($entity->groups);
+			return $valid_groups->count() == count(collection($entity->groups)->match(['active' => true])->toArray());
 		}, 'validGroup', [
 			'errorField' => 'groups',
 			'message' => __('You have selected an invalid group.'),
