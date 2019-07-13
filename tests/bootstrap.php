@@ -15,7 +15,7 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 
 require dirname(__DIR__) . '/config/bootstrap.php';
 
-$_SERVER['PHP_SELF'] = '/';
+$_SERVER['PHP_SELF'] = '/index.php';
 $_SERVER['SERVER_NAME'] = 'zuluru31.zuluru.org';
 $_SERVER['HTTP_HOST'] = 'zuluru31.zuluru.org';
 $_SERVER['REQUEST_SCHEME'] = 'http';
