@@ -189,9 +189,6 @@ class UsersTable extends AppTable {
 					'rule' => function ($value, $context) {
 						// The presence of data in a field that should not be filled in triggers anti-spam measures.
 						if (!empty($value)) {
-							// TODO: We don't really want to sleep here, as it can allow DoS attacks.
-							// Better would be something like the flood mechanism in Drupal.
-							sleep(2);
 							return false;
 						}
 						return true;
@@ -203,7 +200,6 @@ class UsersTable extends AppTable {
 					'rule' => function ($value, $context) {
 						// Also, anyone that fills the form out in under 15 seconds is a spambot.
 						if (FrozenTime::now()->toUnixString() - $value < 15) {
-							sleep(2);
 							return false;
 						}
 						return true;

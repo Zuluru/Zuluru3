@@ -330,16 +330,12 @@ class PeopleTable extends AppTable {
 				->add('relatives', 'antispam', [
 					'rule' => function ($value, $context) {
 						if (!is_array($value) || !array_key_exists(0, $value)) {
-							// TODO: We don't really want to sleep here, as it can allow DoS attacks.
-							// Better would be something like the flood mechanism in Drupal.
-							sleep(2);
 							return false;
 						}
 
 						// Anyone that hasn't selected the parent group, but still sends
 						// child information, is also a spambot.
 						if (!is_array($context['data']['groups']['_ids']) || !in_array(GROUP_PARENT, $context['data']['groups']['_ids'])) {
-							sleep(2);
 							return false;
 						}
 
@@ -348,7 +344,6 @@ class PeopleTable extends AppTable {
 							array_key_exists('birthdate', $context['data']) && $context['data']['birthdate']['year'] &&
 							$value[0]['birthdate']['year'] < $context['data']['birthdate']['year'] + 12
 						) {
-							sleep(2);
 							return false;
 						}
 
