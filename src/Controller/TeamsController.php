@@ -1567,7 +1567,7 @@ class TeamsController extends AppController {
 			$this->Configuration->loadAffiliate($team->division->league->affiliate_id);
 
 			$days = array_unique(collection($team->division->days)->extract('id')->toArray());
-			if (!empty($days)) {
+			if (!empty($days) && $team->division->schedule_type != 'none') {
 				$play_day = min($days);
 				for ($date = $team->division->open; $date <= $team->division->close; $date = $date->addDay()) {
 					$day = $date->format('N');
