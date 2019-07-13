@@ -1114,12 +1114,32 @@ class TeamsControllerTest extends ControllerTestCase {
 	public function testSchedule() {
 		// Anyone is allowed to see the schedule
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'schedule', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/games/edit?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
+		$this->assertResponseContains('/games/view?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
+
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'schedule', 'team' => TEAM_ID_RED], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/games/edit?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
+		$this->assertResponseContains('/games/view?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
+
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'schedule', 'team' => TEAM_ID_RED], PERSON_ID_COORDINATOR);
+		$this->assertResponseContains('/games/edit?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
+		$this->assertResponseContains('/games/view?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
+
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'schedule', 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
+		$this->assertResponseNotContains('/games/edit?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
+		$this->assertResponseContains('/games/view?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
+
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'schedule', 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
+		$this->assertResponseNotContains('/games/edit?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
+		$this->assertResponseContains('/games/view?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
+
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'schedule', 'team' => TEAM_ID_RED], PERSON_ID_VISITOR);
+		$this->assertResponseNotContains('/games/edit?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
+		$this->assertResponseContains('/games/view?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
+
 		$this->assertGetAnonymousAccessOk(['controller' => 'Teams', 'action' => 'schedule', 'team' => TEAM_ID_RED]);
+		$this->assertResponseNotContains('/games/edit?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
+		$this->assertResponseContains('/games/view?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
 	}
 
 	/**
