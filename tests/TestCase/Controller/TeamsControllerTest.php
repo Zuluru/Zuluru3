@@ -1445,7 +1445,6 @@ class TeamsControllerTest extends ControllerTestCase {
 			PERSON_ID_ADMIN, ['event' => EVENT_ID_MEMBERSHIP]);
 		$this->assertResponseContains('<span id="people_person_' .  PERSON_ID_PLAYER . '" class="trigger">Pam Player</span>');
 		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  PERSON_ID_PLAYER . '\]\[role\]" value="captain" id="player-' .  PERSON_ID_PLAYER . '-role-captain">\s*Captain#ms');
-		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  PERSON_ID_PLAYER . '\]\[position\]" value="unspecified" id="player-' .  PERSON_ID_PLAYER . '-position-unspecified" checked="checked">\s*Unspecified#ms');
 
 		// Submit the add form
 		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'add_from_event', 'team' => TEAM_ID_OAKS],
@@ -1520,7 +1519,6 @@ class TeamsControllerTest extends ControllerTestCase {
 			PERSON_ID_MANAGER, ['event' => EVENT_ID_MEMBERSHIP]);
 		$this->assertResponseContains('<span id="people_person_' .  PERSON_ID_PLAYER . '" class="trigger">Pam Player</span>');
 		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  PERSON_ID_PLAYER . '\]\[role\]" value="captain" id="player-' .  PERSON_ID_PLAYER . '-role-captain">\s*Captain#ms');
-		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  PERSON_ID_PLAYER . '\]\[position\]" value="unspecified" id="player-' .  PERSON_ID_PLAYER . '-position-unspecified" checked="checked">\s*Unspecified#ms');
 
 		// But not to teams in other affiliates
 		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'add_from_event', 'team' => TEAM_ID_BEARS],
@@ -1543,7 +1541,6 @@ class TeamsControllerTest extends ControllerTestCase {
 			PERSON_ID_COORDINATOR, ['event' => EVENT_ID_MEMBERSHIP]);
 		$this->assertResponseContains('<span id="people_person_' .  PERSON_ID_PLAYER . '" class="trigger">Pam Player</span>');
 		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  PERSON_ID_PLAYER . '\]\[role\]" value="captain" id="player-' .  PERSON_ID_PLAYER . '-role-captain">\s*Captain#ms');
-		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  PERSON_ID_PLAYER . '\]\[position\]" value="unspecified" id="player-' .  PERSON_ID_PLAYER . '-position-unspecified" checked="checked">\s*Unspecified#ms');
 
 		// But not other divisions
 		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'add_from_event', 'team' => TEAM_ID_OAKS],
