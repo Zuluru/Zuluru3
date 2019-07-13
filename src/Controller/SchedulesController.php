@@ -1256,7 +1256,8 @@ class SchedulesController extends AppController {
 						],
 					]);
 
-				if (!$this->Authentication->getIdentity()->isManager()) {
+				$identity = $this->Authentication->getIdentity();
+				if (!$identity || !$this->Authentication->getIdentity()->isManager()) {
 					$query->andWhere(['Games.published' => true]);
 				}
 
