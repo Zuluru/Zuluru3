@@ -353,6 +353,10 @@ class PeopleFixture extends TestFixture {
 			[
 				'first_name' => 'Carla',
 				'last_name' => 'Child',
+				'publish_email' => true,
+				'publish_home_phone' => true,
+				'publish_work_phone' => false,
+				'publish_mobile_phone' => false,
 				'addr_street' => '567 Main St.',
 				'addr_city' => 'Toronto',
 				'addr_prov' => 'Ontario',
@@ -372,6 +376,9 @@ class PeopleFixture extends TestFixture {
 				'twitter_secret' => '',
 				'user_id' => null,
 				'show_gravatar' => false,
+				'publish_alternate_email' => false,
+				'publish_alternate_work_phone' => false,
+				'publish_alternate_mobile_phone' => false,
 				'modified' => FrozenDate::now(),
 			],
 			[
