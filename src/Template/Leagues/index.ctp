@@ -165,7 +165,7 @@ endif;
 ?>
 </div>
 <?php
-if (!empty($years) && $this->Identity->isLoggedIn()):
+if (!empty($years)):
 ?>
 <div class="actions columns">
 	<ul class="nav nav-pills">

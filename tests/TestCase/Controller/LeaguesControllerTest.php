@@ -54,21 +54,57 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testIndex() {
+		$this_year = date('Y');
+		$last_year = $this_year - 1;
+
 		// Admins are allowed to see the index
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'index'], PERSON_ID_ADMIN);
+		$this->assertResponseContains('/leagues/edit?league=' . LEAGUE_ID_MONDAY);
+		$this->assertResponseContains('/leagues/delete?league=' . LEAGUE_ID_MONDAY);
+		$this->assertResponseContains('/leagues/edit?league=' . LEAGUE_ID_SUNDAY_SUB);
+		$this->assertResponseContains('/leagues/delete?league=' . LEAGUE_ID_SUNDAY_SUB);
+		$this->assertResponseContains('/leagues/index?year=' . $this_year);
+		$this->assertResponseContains('/leagues/index?year=' . $last_year);
 
 		// Managers are allowed to see the index
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'index'], PERSON_ID_MANAGER);
+		$this->assertResponseContains('/leagues/edit?league=' . LEAGUE_ID_MONDAY);
+		$this->assertResponseContains('/leagues/delete?league=' . LEAGUE_ID_MONDAY);
+		$this->assertResponseNotContains('/leagues/edit?league=' . LEAGUE_ID_SUNDAY_SUB);
+		$this->assertResponseNotContains('/leagues/delete?league=' . LEAGUE_ID_SUNDAY_SUB);
+		$this->assertResponseContains('/leagues/index?year=' . $this_year);
+		$this->assertResponseContains('/leagues/index?year=' . $last_year);
 
-		// Coordinators are allowed to see the index
+		// Others are allowed to see the index, but not edit anything
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'index'], PERSON_ID_COORDINATOR);
+		$this->assertResponseNotContains('/leagues/edit?league=' . LEAGUE_ID_MONDAY);
+		$this->assertResponseNotContains('/leagues/delete?league=' . LEAGUE_ID_MONDAY);
+		$this->assertResponseContains('/leagues/index?year=' . $this_year);
+		$this->assertResponseContains('/leagues/index?year=' . $last_year);
 
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'index'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'index'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'index'], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessOk(['controller' => 'Leagues', 'action' => 'index']);
+		$this->assertResponseNotContains('/leagues/edit?league=' . LEAGUE_ID_MONDAY);
+		$this->assertResponseNotContains('/leagues/delete?league=' . LEAGUE_ID_MONDAY);
+		$this->assertResponseContains('/leagues/index?year=' . $this_year);
+		$this->assertResponseContains('/leagues/index?year=' . $last_year);
 
-		$this->markTestIncomplete('More scenarios to test above.');
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'index'], PERSON_ID_PLAYER);
+		$this->assertResponseNotContains('/leagues/edit?league=' . LEAGUE_ID_MONDAY);
+		$this->assertResponseNotContains('/leagues/delete?league=' . LEAGUE_ID_MONDAY);
+		$this->assertResponseContains('/leagues/index?year=' . $this_year);
+		$this->assertResponseContains('/leagues/index?year=' . $last_year);
+
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'index'], PERSON_ID_VISITOR);
+		$this->assertResponseNotContains('/leagues/edit?league=' . LEAGUE_ID_MONDAY);
+		$this->assertResponseNotContains('/leagues/delete?league=' . LEAGUE_ID_MONDAY);
+		$this->assertResponseContains('/leagues/index?year=' . $this_year);
+		$this->assertResponseContains('/leagues/index?year=' . $last_year);
+
+		$this->assertGetAnonymousAccessOk(['controller' => 'Leagues', 'action' => 'index']);
+		$this->assertResponseNotContains('/leagues/edit?league=' . LEAGUE_ID_MONDAY);
+		$this->assertResponseNotContains('/leagues/delete?league=' . LEAGUE_ID_MONDAY);
+		$this->assertResponseContains('/leagues/index?year=' . $this_year);
+		$this->assertResponseContains('/leagues/index?year=' . $last_year);
 	}
 
 	/**
