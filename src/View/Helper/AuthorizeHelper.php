@@ -60,9 +60,6 @@ class AuthorizeHelper extends Helper {
 	 * @return bool
 	 */
 	public function can($action, $resource) {
-		if (empty($this->_identity)) {
-			return false;
-		}
 		if (empty($this->_authorize)) {
 			return false;
 		}
