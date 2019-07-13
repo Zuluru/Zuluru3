@@ -52,11 +52,11 @@ class RuleAnd extends RuleMeta {
 					$this->invariant = true;
 					$reasons = [$rule_reason];
 					break;
-				} else {
+				} else if (!empty($rule_reason)) {
 					$reasons[] = $rule_reason;
 				}
 			} else if ($complete) {
-				if (!$rule->invariant) {
+				if (!$rule->invariant && !empty($rule_reason)) {
 					$reasons[] = $rule_reason;
 				}
 			}

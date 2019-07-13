@@ -42,7 +42,7 @@ class RuleOr extends RuleMeta {
 				$rule_reason = ['format' => $formats[$rule->reason_type], 'replacements' => [$rule_reason]];
 			}
 			if ($rule_success) {
-				if (empty($reasons) || $complete) {
+				if ((empty($reasons) || $complete) && !empty($rule_reason)) {
 					$reasons[] = $rule_reason;
 				}
 
