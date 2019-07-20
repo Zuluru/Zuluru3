@@ -1225,7 +1225,7 @@ class GamesTable extends AppTable {
 		if (is_numeric($team)) {
 			try {
 				$team = $this->HomeTeam->get($team, [
-					'contain' => ['People'],
+					'contain' => ['People', 'Divisions'],
 				]);
 			} catch (RecordNotFoundException $ex) {
 				return [];
