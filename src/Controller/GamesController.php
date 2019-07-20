@@ -2042,7 +2042,7 @@ class GamesController extends AppController {
 		} else {
 			// Include any parameters from emailed confirmation link
 			foreach (['status', 'score_for', 'score_against', 'home_carbon_flip'] as $field) {
-				if ($this->request->getQuery($field)) {
+				if ($this->request->getQuery($field) !== null) {
 					if (empty($game->score_entries)) {
 						$game->score_entries = [$this->Games->ScoreEntries->newEntity()];
 					}
