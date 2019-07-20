@@ -8,7 +8,7 @@ if (!empty($notice)):
 // Use system configuration and current user record to do replacements in notice text
 $person = $this->UserCache->read('Person');
 while (preg_match('#(.*)<%person (.*?) %>(.*)#', $notice->notice, $matches)) {
-	$notice->notice = $matches[1] . $person->$matches[2] . $matches[3];
+	$notice->notice = $matches[1] . $person->{$matches[2]} . $matches[3];
 }
 
 while (preg_match('#(.*)<%icon (.*?) %>(.*)#', $notice->notice, $matches)) {
