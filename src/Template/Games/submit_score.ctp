@@ -314,4 +314,5 @@ jQuery('#Status').on('change', function (){
 		}
 	}
 });
+jQuery('#Status').change();
 ", ['buffer' => true]);
