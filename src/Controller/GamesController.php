@@ -998,7 +998,7 @@ class GamesController extends AppController {
 				} else if (!$this->Authorization->can($team, 'attendance')) {
 					return $this->redirect(['controller' => 'Teams', 'action' => 'view', 'team' => $team_id]);
 				} else if ($id) {
-					return $this->redirect(['Controller' => 'Games', 'action' => 'attendance', 'team' => $team_id, 'game' => $id]);
+					return $this->redirect(['controller' => 'Games', 'action' => 'attendance', 'team' => $team_id, 'game' => $id]);
 				} else {
 					return $this->redirect(['controller' => 'Teams', 'action' => 'attendance', 'team' => $team_id]);
 				}
