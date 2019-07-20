@@ -167,10 +167,16 @@ class ScoreEntriesTable extends AppTable {
 
 		if (Configure::read('scoring.gender_ratio')) {
 			$rules->add(function (EntityInterface $entity, Array $options) {
-				if (in_array($options['game']->status, Configure::read('unplayed_status')) ||
-					strpos($options['game']->status, 'default') !== false
+				// No gender ratio required for unplayed games
+				if ($options['game']->isFinalized()) {
+					if (in_array($options['game']->status, Configure::read('unplayed_status')) ||
+						strpos($options['game']->status, 'default') !== false
+					) {
+						return true;
+					}
+				} else if (in_array($entity->status, Configure::read('unplayed_status')) ||
+					strpos($entity->status, 'default') !== false
 				) {
-					// No gender ratio required for unplayed games
 					return true;
 				}
 
