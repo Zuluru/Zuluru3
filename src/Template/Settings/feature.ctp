@@ -208,8 +208,6 @@ if (function_exists('curl_init')) {
 ?>
 	</fieldset>
 <?php
-*/
-
 echo $this->Form->button(__('Submit'), ['class' => 'btn-success']);
 echo $this->Form->end();
 ?>
