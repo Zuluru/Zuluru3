@@ -75,6 +75,7 @@ foreach ($items as $item):
 							echo $this->element('Games/attendance_change', [
 								'team' => $item->home_team,
 								'game' => $item,
+								'person_id' => $id,
 								'role' => $roster->_matchingData['TeamsPeople']->role,
 								'attendance' => $record,
 								'dedicated' => true,
@@ -90,6 +91,7 @@ foreach ($items as $item):
 							echo $this->element('Games/attendance_change', [
 								'team' => $item->away_team,
 								'game' => $item,
+								'person_id' => $id,
 								'role' => $roster->_matchingData['TeamsPeople']->role,
 								'attendance' => $record,
 								'dedicated' => true,

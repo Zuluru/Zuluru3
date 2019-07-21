@@ -540,7 +540,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 			} else {
 				$person_id = TableRegistry::get('People')->field('id', ['user_id' => $entity->id]);
 			}
-		} else if ($entity->has('person_id')) {
+		} else if ($entity && $entity->has('person_id')) {
 			$person_id = $entity->person_id;
 		} else {
 			throw new Exception('Attempt to check isMe on on a non-person entity type "' . get_class($entity) . '"');
