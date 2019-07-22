@@ -21,13 +21,15 @@ if (empty($fields)) {
 }
 
 $person = $identity->getOriginalData()->person;
-if ($identity->isChild()) {
-	$check = $person->modified->addMonths(6);
-} else {
-	$check = $person->modified->addYear();
-}
-if ($check->isFuture()) {
-	return;
+if ($person->modified) {
+	if ($identity->isChild()) {
+		$check = $person->modified->addMonths(6);
+	} else {
+		$check = $person->modified->addYear();
+	}
+	if ($check->isFuture()) {
+		return;
+	}
 }
 $skills = $this->UserCache->read('Skills');
 $sports = Configure::read('options.sport');

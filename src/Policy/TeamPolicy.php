@@ -208,6 +208,11 @@ class TeamPolicy extends AppPolicy {
 			throw new ForbiddenRedirectException(__('The authorization code is invalid.'));
 		}
 
+		// Users who aren't logged in must have a valid code above
+		if (!$identity) {
+			return false;
+		}
+
 		// Players can change their own attendance; captains and coordinators can change any attendance on their teams; managers can change anything
 		return ($identity->isMe($attendance) || $identity->isRelative($attendance) ||
 			$identity->isCaptainOf($team) || $identity->isCoordinatorOf($team) || $identity->isManagerOf($team)
