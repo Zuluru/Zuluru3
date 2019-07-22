@@ -493,7 +493,7 @@ class UsersController extends AppController {
 							'user_name' => $user->{$users_table->userField},
 							'password' => $this->request->data($users_table->pwdField),
 						],
-						'expire' => $expires,
+						'expire' => $expires->format('U'),
 						'path' => '/' . trim($this->request->getAttribute('webroot'), '/'),
 					]);
 				}
