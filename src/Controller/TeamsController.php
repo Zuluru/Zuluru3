@@ -572,7 +572,7 @@ class TeamsController extends AppController {
 
 		if ($team->division_id) {
 			$team_days = collection($team->division->days)->extract('id')->toArray();
-			if (Configure::read('feature.registration')) {
+			if (Configure::read('feature.registration') && $team->division->flag_membership) {
 				$member_rule = "compare(member_type('{$team->division->open}') != 'none')";
 			}
 		} else {
