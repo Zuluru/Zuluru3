@@ -410,7 +410,8 @@ class PeopleTable extends AppTable {
 					return empty($context['data']['home_phone']) && empty($context['data']['mobile_phone']);
 				})
 				->boolean('publish_work_phone')
-				->boolean('publish_alternate_work_phone');
+				->boolean('publish_alternate_work_phone')
+				->allowEmpty('publish_alternate_work_phone');
 		}
 
 		if (Configure::read('profile.mobile_phone')) {
@@ -420,7 +421,8 @@ class PeopleTable extends AppTable {
 					return empty($context['data']['home_phone']) && empty($context['data']['work_phone']);
 				})
 				->boolean('publish_mobile_phone')
-				->boolean('publish_alternate_mobile_phone');
+				->boolean('publish_alternate_mobile_phone')
+				->allowEmpty('publish_alternate_mobile_phone');
 		}
 
 		if (Configure::read('profile.addr_street')) {
