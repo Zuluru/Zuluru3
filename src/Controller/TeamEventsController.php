@@ -368,7 +368,6 @@ class TeamEventsController extends AppController {
 		$this->set(array_merge(compact('attendance', 'date', 'team', 'attendance_options', 'is_captain', 'is_me'), [
 			'event' => $team_event,
 			'person' => $attendance->person,
-			'attendance' => $attendance,
 		]));
 	}
 

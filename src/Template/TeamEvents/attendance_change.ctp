@@ -1,4 +1,15 @@
 <?php
+/**
+ * @type \App\Model\Entity\Team $team
+ * @type \App\Model\Entity\Person $person
+ * @type \App\Model\Entity\Attendance $attendance
+ * @type \App\Model\Entity\TeamEvent $event
+ * @type \Cake\I18n\FrozenDate $date
+ * @type boolean $is_me
+ * @type boolean $is_captain
+ * @type mixed[] $attendance_options
+ */
+
 use Cake\Core\Configure;
 
 $this->Html->addCrumb(__('Team Events'));
@@ -14,7 +25,7 @@ $this->Html->addCrumb($team->name);
 		<dt><?= __('Event') ?></dt>
 		<dd><?= $event->name ?></dd>
 		<dt><?= __('Description') ?></dt>
-		<dd><?= $event->description ?></dd>
+		<dd><?= $event->description ?>&nbsp;</dd>
 		<dt><?= __('Date') ?></dt>
 		<dd><?= $this->Time->date($event->date) ?></dd>
 		<dt><?= __('Start Time') ?></dt>
