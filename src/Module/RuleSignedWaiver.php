@@ -67,14 +67,15 @@ class RuleSignedWaiver extends Rule {
 
 	// Check if the user has signed the required waiver
 	public function evaluate($affiliate, $params, Team $team = null, $strict = true, $text_reason = false, $complete = true, $absolute_url = false, $formats = []) {
+		$url = ['controller' => 'Waivers', 'action' => 'sign', 'waiver' => $this->waiver_ids[0], 'date' => $this->date->toDateString()];
 		if ($text_reason) {
 			$this->reason = __('have signed the {0} waiver', $this->waiver);
 		} else {
-			$url = ['controller' => 'Waivers', 'action' => 'sign', 'waiver' => $this->waiver_ids[0], 'date' => $this->date->toDateString()];
 			if ($absolute_url) {
-				$url = Router::url($url, true);
+				$target = Router::url($url, true);
 			} else {
 				$url['return'] = AppController::_return();
+				$target = $url;
 			}
 			$this->reason = [
 				'format' => 'have {0}',
@@ -82,12 +83,12 @@ class RuleSignedWaiver extends Rule {
 					[
 						'type' => 'link',
 						'link' => __('signed the {0} waiver', $this->waiver),
-						'target' => $url,
+						'target' => $target,
 					],
 				],
 			];
 		}
-		$this->redirect = ['controller' => 'Waivers', 'action' => 'sign', 'waiver' => $this->waiver_ids[0], 'date' => $this->date->toDateString()];
+		$this->redirect = $url;
 
 		if (!$strict) {
 			// Possible for anyone to sign the waiver. Make it invariant so it doesn't generate output on these preliminary screens.

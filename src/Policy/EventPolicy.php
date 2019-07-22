@@ -118,7 +118,7 @@ class EventPolicy extends AppPolicy {
 		}
 
 		throw new ForbiddenRedirectException('{0}',
-			$redirect ?: ['controller' => 'Events', 'action' => 'wizard'],
+			$redirect ? $resource->redirect : ['controller' => 'Events', 'action' => 'wizard'],
 			'html', ['params' => ['replacements' => $resource->notices, 'class' => 'warning']]);
 	}
 
