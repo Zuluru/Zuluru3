@@ -576,7 +576,7 @@ class PeopleTable extends AppTable {
 				return true;
 			}
 
-			$data = $entity->extract($this->schema()->columns(), true);
+			$data = $entity->extract($this->schema()->columns());
 
 			foreach (collection($entity->groups)->extract('id') as $group) {
 				switch ($group) {
