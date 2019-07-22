@@ -487,7 +487,7 @@ class TeamPolicy extends AppPolicy {
 		}
 
 		$division = $resource->division;
-		if ($division && ($division->is_open || $division->open->isFuture())) {
+		if ($division && ($division->is_open || ($division->open && $division->open->isFuture()))) {
 			return $identity->isManagerOf($team) || $identity->isCoordinatorOf($team) || $identity->isPlayerOn($team);
 		}
 

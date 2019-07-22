@@ -513,7 +513,7 @@ if (!empty($team->people) && $this->Authorize->can('view_roster', \App\Controlle
 <?php
 	endif;
 
-	if ($team->division_id && ($team->division->is_open || $team->division->open->isFuture()) &&
+	if ($team->division_id && ($team->division->is_open || ($team->division->open && $team->division->open->isFuture())) &&
 		$this->Authorize->can('roster_role', $context) &&
 		Configure::read('feature.female_captain') &&
 		($captains['Open'] == 0 || $captains['Woman'] == 0) &&
