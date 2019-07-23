@@ -308,7 +308,7 @@ class SettingsSeed extends AbstractSeed {
 			],
 			[
 				'category' => 'scoring',
-				'name' => 'gender_ratio',
+				'name' => 'women_present',
 				'value' => '0',
 			],
 			[

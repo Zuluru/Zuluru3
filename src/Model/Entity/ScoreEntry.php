@@ -16,7 +16,7 @@ use Cake\ORM\Entity;
  * @property string $status
  * @property \Cake\I18n\FrozenTime $modified
  * @property int $home_carbon_flip
- * @property string $gender_ratio
+ * @property int $women_present
  *
  * @property \App\Model\Entity\Team $team
  * @property \App\Model\Entity\Game $game

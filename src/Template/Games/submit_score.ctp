@@ -128,26 +128,21 @@ if ($game->division->league->hasCarbonFlip()):
 <?php
 endif;
 
-if (Configure::read('scoring.gender_ratio')):
-	$gender_ratio_options = Configure::read("sports.{$game->division->league->sport}.gender_ratio.{$game->division->ratio_rule}");
-	if ($gender_ratio_options):
+if ($game->division->women_present):
 ?>
 				<tr class="normal">
-					<td><?= __('Opponent\'s Gender Ratio') ?></td>
+					<td><?= __('How many women designated players did you have at this game?') ?></td>
 					<td><?php
-						echo $this->Form->input('score_entries.0.gender_ratio', [
+						echo $this->Form->input('score_entries.0.women_present', [
 							'div' => false,
-							'id' => 'GenderRatio',
+							'id' => 'WomenPresent',
 							'label' => false,
-							'empty' => '---',
-							'options' => $gender_ratio_options,
 							'secure' => false,
 						]);
 					?></td>
 					<td></td>
 				</tr>
 <?php
-	endif;
 endif;
 ?>
 			</tbody>

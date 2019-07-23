@@ -4488,8 +4488,8 @@ msgid "You must select a valid play."
 msgstr "Vous devez sélectionner un jeu valide."
 
 #: Model/Table/ScoreEntriesTable.php:119;192
-msgid "You must select a valid gender ratio response."
-msgstr "Vous devez sélectionner une réponse de ratio de genre valide."
+msgid "You must enter the number of women designated players."
+msgstr "Vous devez entrer le nombre de joueuses désignées."
 
 #: Model/Table/ScoreEntriesTable.php:164
 msgid "You cannot select more than two all-stars."
@@ -7201,7 +7201,7 @@ msgstr "Soumission de l'équipe à domicile"
 
 #: Template/Divisions/approve_scores.ctp:19
 msgid "Away Team Submission"
-msgstr "Équipe en déplacement"
+msgstr "Soumission de l'équipe en déplacement"
 
 #: Template/Divisions/approve_scores.ctp:32;33;41;42
 #: Template/Games/edit.ctp:208;209;213;214
@@ -7776,8 +7776,8 @@ msgid "Incident for entry above:"
 msgstr "Incident pour l'entrée ci-dessus:"
 
 #: Template/Divisions/spirit.ctp:357
-msgid "Team Gender Ratio Summary"
-msgstr ""
+msgid "Team Designated Women Summary"
+msgstr "Résumé femmes désignées par équipe"
 
 #: Template/Divisions/spirit.ctp:398
 #: Template/Element/People/search_results.ctp:90
@@ -14383,16 +14383,16 @@ msgstr "Esprit Assigné"
 #: Template/Games/edit.ctp:298
 #: Template/Games/submit_score.ctp:136
 #: Template/Games/view.ctp:330
-msgid "Opponent's Gender Ratio"
-msgstr "Ratio de genre de l'adversaire"
+msgid "How many women designated players did you have at this game?"
+msgstr "Combien de joueuses désignées aviez-vous à ce match?"
 
 #: Template/Games/edit.ctp:346
-msgid "Home Gender Ratio"
-msgstr "Rapport de genre à la maison"
+msgid "Home Team Women Designated Players"
+msgstr "Joueuses désignées de l'équipe à domicile"
 
 #: Template/Games/edit.ctp:353
-msgid "Away Gender Ratio"
-msgstr "Ratio Sexe Extérieur"
+msgid "Away Team Women Designated Players"
+msgstr "Joueuses désignées de l'équipe en déplacement"
 
 #: Template/Games/edit.ctp:383;431
 #: Template/Games/submit_score.ctp:219
@@ -18076,8 +18076,8 @@ msgid "Enable or disable carbon flip, an environmentally-friendly option to repl
 msgstr "Activez ou désactivez les retournements de carbone, une option écologique pour remplacer les lancers de pièces traditionnels avant les matchs."
 
 #: Template/Settings/scoring.ctp:172
-msgid "Ask about the other team's typical gender ratio as part of game scoring"
-msgstr "Renseignez-vous sur le ratio hommes/femmes typique de l'autre équipe dans le cadre du jeu"
+msgid "Ask about the number of women designated players as part of game scoring"
+msgstr "Demandez le nombre de joueuses désignées dans le cadre du jeu."
 
 #: Template/Settings/scoring.ctp:175
 msgid "This will only apply to divisions where the ratio rule permits variation."

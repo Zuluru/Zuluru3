@@ -634,14 +634,9 @@ $sports['sports'] = [
 			'open 3s' => 4,
 		],
 
-		'gender_ratio' => [
-			'4/3' => [
-				'all 3W/4O' => __('All points played 3W/4O'),
-				'some 4W/3O' => __('Some points played 4W/3O'),
-				'half 4W/3O' => __('4W/3O about half the time'),
-				'mostly 4W/3O' => __('Most points played 4W/3O'),
-				'all 4W/3O' => __('All points played 4W/3O'),
-			],
+		'variable_gender_ratio' => [
+			'4/3' => true,
+			'6 (min 2 women)' => true,
 		],
 
 		'positions' => [

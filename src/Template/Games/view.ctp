@@ -185,12 +185,6 @@ if ($game->home_team_id) {
 if ($game->away_team_id) {
 	$team_names[$game->away_team_id] = $game->away_team->name;
 }
-
-if (Configure::read('scoring.gender_ratio')) {
-	$gender_ratio_options = Configure::read("sports.{$game->division->league->sport}.gender_ratio.{$game->division->ratio_rule}");
-} else {
-	$gender_ratio_options = false;
-}
 ?>
 
 	<fieldset class="clear-float wide-labels">
@@ -205,8 +199,8 @@ if ($game->isFinalized()):
 			<dt><?= $this->Text->truncate($game->home_team->name, 28) ?></dt>
 			<dd><?php
 				echo $game->home_score;
-				if ($gender_ratio_options && isset($awayScoreEntry) && $awayScoreEntry->gender_ratio) {
-					echo __(' ({0})', $gender_ratio_options[$awayScoreEntry->gender_ratio]);
+				if ($game->division->women_present && isset($homeScoreEntry) && $homeScoreEntry->women_present) {
+					echo __(' ({0})', $homeScoreEntry->women_present);
 				}
 			?></dd>
 <?php
@@ -215,8 +209,8 @@ if ($game->isFinalized()):
 			<dt><?= $this->Text->truncate($game->away_team->name, 28) ?></dt>
 			<dd><?php
 				echo $game->away_score;
-				if ($gender_ratio_options && isset($homeScoreEntry) && $homeScoreEntry->gender_ratio) {
-					echo __(' ({0})', $gender_ratio_options[$homeScoreEntry->gender_ratio]);
+				if ($game->division->women_present && isset($awayScoreEntry) && $awayScoreEntry->women_present) {
+					echo __(' ({0})', $awayScoreEntry->women_present);
 				}
 			?></dd>
 <?php
@@ -324,12 +318,12 @@ else:
 <?php
 		endif;
 
-		if ($gender_ratio_options):
+		if ($game->division->women_present):
 ?>
 				<tr>
-					<td><?= __('Opponent\'s Gender Ratio') ?></td>
-					<td><?= isset($homeScoreEntry) && $homeScoreEntry->gender_ratio ? $gender_ratio_options[$homeScoreEntry->gender_ratio] : '' ?></td>
-					<td><?= isset($awayScoreEntry) && $awayScoreEntry->gender_ratio ? $gender_ratio_options[$awayScoreEntry->gender_ratio] : '' ?></td>
+					<td><?= __('How many women designated players did you have at this game?') ?></td>
+					<td><?= isset($homeScoreEntry) && $homeScoreEntry->women_present ? $homeScoreEntry->women_present : '' ?></td>
+					<td><?= isset($awayScoreEntry) && $awayScoreEntry->women_present ? $awayScoreEntry->women_present : '' ?></td>
 				</tr>
 <?php
 		endif;

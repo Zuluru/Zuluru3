@@ -32,7 +32,7 @@ class ScoreEntriesFixture extends TestFixture {
 				'status' => 'normal',
 				'modified' => (new FrozenDate('first Monday of June'))->addDay(),
 				'home_carbon_flip' => 1,
-				'gender_ratio' => null,
+				'women_present' => null,
 			],
 			[
 				'team_id' => TEAM_ID_YELLOW,
@@ -44,7 +44,7 @@ class ScoreEntriesFixture extends TestFixture {
 				'status' => 'normal',
 				'modified' => (new FrozenDate('first Monday of June'))->addDay(),
 				'home_carbon_flip' => 1,
-				'gender_ratio' => null,
+				'women_present' => null,
 			],
 			[
 				'team_id' => TEAM_ID_RED,
@@ -56,7 +56,7 @@ class ScoreEntriesFixture extends TestFixture {
 				'status' => 'home_default',
 				'modified' => (new FrozenDate('first Monday of June'))->addDay(),
 				'home_carbon_flip' => 1,
-				'gender_ratio' => null,
+				'women_present' => null,
 			],
 			[
 				'team_id' => TEAM_ID_BLUE,
@@ -68,7 +68,7 @@ class ScoreEntriesFixture extends TestFixture {
 				'status' => 'away_default',
 				'modified' => (new FrozenDate('first Monday of June'))->addDay(),
 				'home_carbon_flip' => 1,
-				'gender_ratio' => null,
+				'women_present' => null,
 			],
 			[
 				'team_id' => TEAM_ID_RED,
@@ -80,7 +80,7 @@ class ScoreEntriesFixture extends TestFixture {
 				'status' => 'normal',
 				'modified' => (new FrozenDate('first Monday of June'))->addDay(),
 				'home_carbon_flip' => 1,
-				'gender_ratio' => null,
+				'women_present' => null,
 			],
 			[
 				'team_id' => TEAM_ID_BLUE,
@@ -92,7 +92,7 @@ class ScoreEntriesFixture extends TestFixture {
 				'status' => 'normal',
 				'modified' => (new FrozenDate('first Monday of June'))->addDay(),
 				'home_carbon_flip' => 1,
-				'gender_ratio' => null,
+				'women_present' => null,
 			],
 			[
 				'team_id' => TEAM_ID_GREEN,
@@ -104,7 +104,7 @@ class ScoreEntriesFixture extends TestFixture {
 				'status' => 'normal',
 				'modified' => (new FrozenDate('first Monday of June'))->addDay(),
 				'home_carbon_flip' => 1,
-				'gender_ratio' => null,
+				'women_present' => null,
 			],
 			[
 				'team_id' => TEAM_ID_YELLOW,
@@ -116,7 +116,7 @@ class ScoreEntriesFixture extends TestFixture {
 				'status' => 'normal',
 				'modified' => (new FrozenDate('first Monday of June'))->addDay(),
 				'home_carbon_flip' => 1,
-				'gender_ratio' => null,
+				'women_present' => null,
 			],
 			[
 				'team_id' => TEAM_ID_RED,
@@ -128,7 +128,7 @@ class ScoreEntriesFixture extends TestFixture {
 				'status' => 'normal',
 				'modified' => new FrozenDate('second Monday of June'),
 				'home_carbon_flip' => 1,
-				'gender_ratio' => null,
+				'women_present' => null,
 			],
 		];
 

@@ -167,9 +167,9 @@ endif;
 	]);
 	echo $this->element('Settings/input', [
 		'category' => 'scoring',
-		'name' => 'gender_ratio',
+		'name' => 'women_present',
 		'options' => [
-			'label' => __('Ask about the other team\'s typical gender ratio as part of game scoring'),
+			'label' => __('Ask about the number of women designated players as part of game scoring'),
 			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
 			'help' => __('This will only apply to divisions where the ratio rule permits variation.'),

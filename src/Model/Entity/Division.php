@@ -1,6 +1,7 @@
 <?php
 namespace App\Model\Entity;
 
+use Cake\Core\Configure;
 use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
 use App\Model\Results\DivisionResults;
@@ -55,6 +56,7 @@ use App\Model\Results\DivisionResults;
  * @property int[] $sister_divisions
  * @property bool $is_playoff
  * @property bool $roster_deadline_passed
+ * @property bool $women_present
  */
 class Division extends Entity {
 
@@ -207,6 +209,10 @@ class Division extends Entity {
 
 	protected function _getRosterDeadlinePassed() {
 		return $this->rosterDeadline()->isPast();
+	}
+
+	protected function _getWomenPresent() {
+		return Configure::read('scoring.women_present') && Configure::read("sports.{$this->league->sport}.variable_gender_ratio.{$this->ratio_rule}");
 	}
 
 	public function addGameResult($game) {

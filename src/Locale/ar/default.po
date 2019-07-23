@@ -4520,7 +4520,7 @@ msgid "You must select a valid play."
 msgstr ""
 
 #: Model/Table/ScoreEntriesTable.php:119;192
-msgid "You must select a valid gender ratio response."
+msgid "You must enter the number of women designated players."
 msgstr ""
 
 #: Model/Table/ScoreEntriesTable.php:164
@@ -7816,7 +7816,7 @@ msgid "Incident for entry above:"
 msgstr ""
 
 #: Template/Divisions/spirit.ctp:357
-msgid "Team Gender Ratio Summary"
+msgid "Team Designated Women Summary"
 msgstr ""
 
 #: Template/Divisions/spirit.ctp:398
@@ -14471,15 +14471,15 @@ msgstr "روح الفريق المعينة"
 #: Template/Games/edit.ctp:298
 #: Template/Games/submit_score.ctp:136
 #: Template/Games/view.ctp:330
-msgid "Opponent's Gender Ratio"
+msgid "How many women designated players did you have at this game?"
 msgstr ""
 
 #: Template/Games/edit.ctp:346
-msgid "Home Gender Ratio"
+msgid "Home Team Women Designated Players"
 msgstr ""
 
 #: Template/Games/edit.ctp:353
-msgid "Away Gender Ratio"
+msgid "Away Team Women Designated Players"
 msgstr ""
 
 #: Template/Games/edit.ctp:383;431
@@ -18172,7 +18172,7 @@ msgid "Enable or disable carbon flip, an environmentally-friendly option to repl
 msgstr ""
 
 #: Template/Settings/scoring.ctp:172
-msgid "Ask about the other team's typical gender ratio as part of game scoring"
+msgid "Ask about the number of women designated players as part of game scoring"
 msgstr ""
 
 #: Template/Settings/scoring.ctp:175

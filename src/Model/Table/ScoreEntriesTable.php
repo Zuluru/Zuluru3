@@ -97,12 +97,13 @@ class ScoreEntriesTable extends AppTable {
 				return Configure::read('scoring.carbon_flip') && array_key_exists('score_for', $context['data']);
 			}, __('You must select a valid carbon flip result.'))
 
-			->requirePresence('gender_ratio', function ($context) {
-				if (!Configure::read('scoring.gender_ratio') ||
+			->range('women_present', [0, 25], __('You must enter the number of women designated players.'))
+			->requirePresence('women_present', function ($context) {
+				if (!Configure::read('scoring.women_present') ||
 					empty($context['data']['game_id']) ||
-					// Score entries for games being finalized may not include a status, and don't need a gender ratio
+					// Score entries for games being finalized may not include a status, and don't need the number of women
 					!array_key_exists('status', $context['data']) ||
-					// Games that were cancelled or defaulted don't need a gender ratio
+					// Games that were cancelled or defaulted don't need the number of women
 					in_array($context['data']['status'], Configure::read('unplayed_status')) ||
 					strpos($context['data']['status'], 'default') !== false ||
 					// Lots of old games without this data, don't require it if we edit those.
@@ -114,9 +115,9 @@ class ScoreEntriesTable extends AppTable {
 				$game = $this->Games->get($context['data']['game_id'], [
 					'contain' => ['Divisions' => ['Leagues']]
 				]);
-				$gender_ratio_options = Configure::read("sports.{$game->division->league->sport}.gender_ratio.{$game->division->ratio_rule}");
-				return !empty($gender_ratio_options);
-			}, __('You must select a valid gender ratio response.'))
+				return $game->division->women_present;
+			}, __('You must enter the number of women designated players.'))
+			->allowEmpty('women_present')
 
 			;
 
@@ -165,37 +166,21 @@ class ScoreEntriesTable extends AppTable {
 			]);
 		}
 
-		if (Configure::read('scoring.gender_ratio')) {
+		if (Configure::read('scoring.women_present')) {
 			$rules->add(function (EntityInterface $entity, Array $options) {
-				// No gender ratio required for unplayed games
-				if ($options['game']->isFinalized()) {
-					if (in_array($options['game']->status, Configure::read('unplayed_status')) ||
-						strpos($options['game']->status, 'default') !== false
-					) {
-						return true;
-					}
-				} else if (in_array($entity->status, Configure::read('unplayed_status')) ||
-					strpos($entity->status, 'default') !== false
+				if (!$options['game']->division->women_present ||
+					// If the game has been finalized, it's an admin editing a score that was not submitted
+					// by the team. These have no women_present value, and we can't require that they do,
+					// because how would the admin know what it should be?
+					$options['game']->isFinalized()
 				) {
 					return true;
 				}
 
-				// Lots of old games without this data, don't require it if we edit those.
-				if (!$entity->isNew() && empty($entity->getOriginal('gender_ratio'))) {
-					return true;
-				}
-
-				// Divisions that use a gender ratio that doesn't permit variations don't use this field
-				$gender_ratio_options = Configure::read("sports.{$options['game']->division->league->sport}.gender_ratio.{$options['game']->division->ratio_rule}");
-				if (empty($gender_ratio_options)) {
-					return true;
-				}
-
-				$rule = new InConfigRule("sports.{$options['game']->division->league->sport}.gender_ratio.{$options['game']->division->ratio_rule}");
-				return $rule($entity, $options);
-			}, 'validGenderRatio', [
-				'errorField' => 'gender_ratio',
-				'message' => __('You must select a valid gender ratio response.'),
+				return ($entity->women_present !== null);
+			}, 'validWomenPresent', [
+				'errorField' => 'women_present',
+				'message' => __('You must enter the number of women designated players.'),
 			]);
 		}
 

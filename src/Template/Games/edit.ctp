@@ -1,4 +1,9 @@
 <?php
+/**
+ * @type \App\Model\Entity\Game $game
+ * @type \App\Module\Spirit $spirit_obj
+ */
+
 use Cake\Core\Configure;
 use App\Controller\AppController;
 use App\Core\ModuleRegistry;
@@ -22,12 +27,6 @@ if ($preliminary) {
 		0 => __('{0} won', $game->away_team->name),
 		1 => __('tie'),
 	];
-}
-
-if (Configure::read('scoring.gender_ratio')) {
-	$gender_ratio_options = Configure::read("sports.{$game->division->league->sport}.gender_ratio.{$game->division->ratio_rule}");
-} else {
-	$gender_ratio_options = false;
 }
 ?>
 
@@ -169,9 +168,11 @@ if ($awayScoreEntry->id) {
 
 if ($game->isFinalized()):
 	$league_obj = ModuleRegistry::getInstance()->load("LeagueType:{$game->division->schedule_type}");
+?>
+        <dl class="dl-horizontal">
+<?php
 	echo $this->element("Leagues/game/{$league_obj->render_element}/score", compact('game'));
 ?>
-		<dl class="dl-horizontal">
 			<dt><?= __('Score Approved By') ?></dt>
 			<dd><?php
 				if ($game->approved_by_id < 0) {
@@ -292,12 +293,12 @@ if (!empty($game->score_entries)):
 <?php
 	endif;
 
-	if ($gender_ratio_options):
+	if ($game->division->women_present):
 ?>
 				<tr>
-					<td><?= __('Opponent\'s Gender Ratio') ?></td>
-					<td><?= $homeScoreEntry->gender_ratio ? $gender_ratio_options[$homeScoreEntry->gender_ratio] : '' ?></td>
-					<td><?= $awayScoreEntry->gender_ratio ? $gender_ratio_options[$awayScoreEntry->gender_ratio] : '' ?></td>
+					<td><?= __('How many women designated players did you have at this game?') ?></td>
+					<td><?= $homeScoreEntry->women_present ?></td>
+					<td><?= $awayScoreEntry->women_present ?></td>
 				</tr>
 <?php
 	endif;
@@ -341,20 +342,16 @@ if (!$preliminary):
 <?php
 	endif;
 
-	if (Configure::read('scoring.gender_ratio') && $gender_ratio_options):
+	if ($game->division->women_present):
 ?>
-			<dt class="normal"><?= __('Home Gender Ratio') ?></dt>
-			<dd class="normal"><?= $this->Form->input('score_entries.1.gender_ratio', [
+			<dt class="normal"><?= __('Home Team Women Designated Players') ?></dt>
+			<dd class="normal"><?= $this->Form->input('score_entries.0.women_present', [
 				'label' => false,
-				'empty' => '---',
-				'options' => $gender_ratio_options,
 				'secure' => false,
 			]) ?></dd>
-			<dt class="normal"><?= __('Away Gender Ratio') ?></dt>
-			<dd class="normal"><?= $this->Form->input('score_entries.0.gender_ratio', [
+			<dt class="normal"><?= __('Away Team Women Designated Players') ?></dt>
+			<dd class="normal"><?= $this->Form->input('score_entries.1.women_present', [
 				'label' => false,
-				'empty' => '---',
-				'options' => $gender_ratio_options,
 				'secure' => false,
 			]) ?></dd>
 <?php

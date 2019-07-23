@@ -332,7 +332,7 @@ class SettingsFixture extends TestFixture {
 			[
 				'person_id' => null,
 				'category' => 'scoring',
-				'name' => 'gender_ratio',
+				'name' => 'women_present',
 				'value' => 0,
 				'affiliate_id' => null,
 			],

@@ -33,9 +33,9 @@ if (Configure::read('scoring.missing_score_spirit_penalty')) {
 	$questions[] = 'score_entry_penalty';
 }
 
-$gender_ratio_options = Configure::read('scoring.gender_ratio') ? Configure::read("sports.{$division->league->sport}.gender_ratio.{$division->ratio_rule}") : null;
-
 $team_ids = collection($division->teams)->extract('id')->toArray();
+$min_women = 99;
+$max_women = 0;
 if (!empty($team_ids)) {
 	$team_records = [];
 	foreach ($division->games as $game) {
@@ -49,7 +49,7 @@ if (!empty($team_ids)) {
 					$team_records[$id] = [
 						'details' => $game->$team,
 						'summary' => array_fill_keys($questions, null),
-						'gender' => $gender_ratio_options ? array_fill_keys(array_keys($gender_ratio_options), 0) : null,
+						'gender' => [],
 						'games' => 0,
 					];
 				}
@@ -63,10 +63,15 @@ if (!empty($team_ids)) {
 					}
 				}
 
-				if ($gender_ratio_options) {
-					$score_entry = $game->getScoreEntry($game->$opp->id);
-					if ($score_entry && !empty($score_entry->gender_ratio)) {
-						++ $team_records[$id]['gender'][$score_entry->gender_ratio];
+				if ($division->women_present) {
+					$score_entry = $game->getScoreEntry($id);
+					if ($score_entry && !empty($score_entry->women_present)) {
+					    if (!array_key_exists($score_entry->women_present, $team_records[$id]['gender'])) {
+							$team_records[$id]['gender'][$score_entry->women_present] = 0;
+                        }
+						++ $team_records[$id]['gender'][$score_entry->women_present];
+					    $min_women = min($min_women, $score_entry->women_present);
+					    $max_women = max($max_women, $score_entry->women_present);
 					}
 				}
 			}
@@ -350,25 +355,27 @@ echo $this->Html->tag('div',
 	['class' => 'table-responsive']
 );
 
-if ($gender_ratio_options):
+if ($division->women_present && $min_women <= $max_women):
 	$team_records = collection($team_records)->sortBy('details.name', SORT_ASC, SORT_STRING | SORT_FLAG_CASE);
 ?>
 
-<h3><?= __('Team Gender Ratio Summary') ?></h3>
+<h3><?= __('Team Designated Women Summary') ?></h3>
 
 <?php
-	$header = $gender_ratio_options;
+	$header = range($min_women, $max_women);
+	$overall = array_fill_keys($header, []);
 	array_unshift($header, __('Team'));
 	$rows = [];
-	$overall = array_fill_keys(array_keys($gender_ratio_options), []);
 	foreach ($team_records as $team) {
-		$row = array_values($team['gender']);
-		array_unshift($row, $this->element('Teams/block', ['team' => $team['details'], 'show_shirt' => false]));
+		$row = [$this->element('Teams/block', ['team' => $team['details'], 'show_shirt' => false])];
+		for ($i = $min_women; $i <= $max_women; ++ $i) {
+		    if (array_key_exists($i, $team['gender'])) {
+				$row[] = $overall[$i][] = $team['gender'][$i];
+			} else {
+		        $row[] = $overall[$i][] = 0;
+            }
+        }
 		$rows[] = $row;
-
-		foreach (array_keys($gender_ratio_options) as $key) {
-			$overall[$key][] = $team['gender'][$key];
-		}
 	}
 
 	$average = [[__('Division average'), ['class' => 'summary']]];
