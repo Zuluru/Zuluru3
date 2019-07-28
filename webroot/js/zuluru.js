@@ -205,6 +205,8 @@ function handleAjaxTrigger(trigger, container, widget, default_disposition, requ
 		var buttons = {};
 		if (submit.length == 0) {
 			buttons[zuluru_save] = function() {
+				dialog.off('keypress');
+
 				// Collect the data to be sent. Links (e.g. jersey number) don't have param and value, their data
 				// comes only from the dialog form. For in-place widgets (e.g. attendance comments), data-param
 				// comes from the url_param parameter, the value is set on each option, and the dialog form
@@ -221,6 +223,14 @@ function handleAjaxTrigger(trigger, container, widget, default_disposition, requ
 				dialog.dialog('close');
 				handleAjaxRequest(trigger, container, widget, default_disposition, require_data, input_selector, data);
 			};
+			dialog.on('keypress', function(event) {
+				if (event.keyCode === jQuery.ui.keyCode.ENTER) {
+					dialog.off('keypress');
+					var save = dialog.closest('.ui-dialog').find('button:contains("' + zuluru_save + '")');
+					save.click();
+					return false;
+				}
+			});
 		} else {
 			dialog.on('click', '[type=submit]', function() {
 				dialog.off('click', '[type=submit]');
