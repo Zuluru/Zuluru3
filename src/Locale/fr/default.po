@@ -9529,8 +9529,8 @@ msgid "Responsibilities"
 msgstr "Responsabilités"
 
 #: Template/Element/Help/guide/captain.ctp:39
-msgid "As a coach or captain, you should familiarize yourself with the details of your league and division. %s has many options for how{0} standings are calculated, playoffs are scheduled, etc. Knowing which options are in play for your team is important."
-msgstr "En tant qu'entraîneur ou capitaine, vous devez vous familiariser avec les détails de votre ligue et de votre division. % s propose de nombreuses options pour le calcul du classement {0}, la planification des séries, etc. Il est important de connaître les options en jeu pour votre équipe."
+msgid "As a coach or captain, you should familiarize yourself with the details of your league and division. {0} has many options for how{1} standings are calculated, playoffs are scheduled, etc. Knowing which options are in play for your team is important."
+msgstr "En tant qu'entraîneur ou capitaine, vous devez vous familiariser avec les détails de votre ligue et de votre division. {0} propose de nombreuses options pour{1} le calcul du classement, la planification des séries, etc. Il est important de connaître les options en jeu pour votre équipe."
 
 #: Template/Element/Help/guide/captain.ctp:40
 msgid " spirit scores are collected,"

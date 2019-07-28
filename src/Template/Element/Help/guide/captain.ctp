@@ -36,10 +36,10 @@ use Cake\Core\Configure;
 ?>
 <hr>
 <h3><?= __('Responsibilities') ?></h3>
-<p><?= __('As a coach or captain, you should familiarize yourself with the details of your league and division. %s has many options for how{0} standings are calculated, playoffs are scheduled, etc. Knowing which options are in play for your team is important.',
+<p><?= __('As a coach or captain, you should familiarize yourself with the details of your league and division. {0} has many options for how{1} standings are calculated, playoffs are scheduled, etc. Knowing which options are in play for your team is important.',
 	ZULURU, (Configure::read('feature.spirit') ? __(' spirit scores are collected,') : '')
 ) ?></p>
 <p><?= __('You should also know who is coordinating your division. Coordinators are listed on the "{0}" page. These are the people responsible for setting your schedule,{1} etc. They do their best, but things do sometimes slip through the cracks, and you need to know who to contact in these cases.',
-	__('View Division')
+	__('View Division'),
 	(Configure::read('feature.spirit') ? __(' handling spirit issues,') : '')
 ) ?></p>
