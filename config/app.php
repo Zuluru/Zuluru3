@@ -330,7 +330,7 @@ return [
 			'password' => env('SMTP_PASSWORD'),
 			'timeout' => 30,
 			'client' => null,
-			'tls' => env('SMTP_TLS'),
+			'tls' => env('SMTP_TLS', false),
 			'url' => env('EMAIL_TRANSPORT_DEFAULT_URL', null),
 		],
 		// When the system is in debug mode, all email is written into the 'email' flash message
