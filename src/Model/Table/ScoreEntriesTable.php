@@ -177,6 +177,13 @@ class ScoreEntriesTable extends AppTable {
 					return true;
 				}
 
+				// Games that were cancelled or defaulted don't need the number of women
+				if (in_array($entity->status, Configure::read('unplayed_status')) ||
+					strpos($entity->status, 'default') !== false
+				) {
+					return true;
+				}
+
 				return ($entity->women_present !== null);
 			}, 'validWomenPresent', [
 				'errorField' => 'women_present',
