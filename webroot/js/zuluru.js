@@ -762,11 +762,11 @@ function initializeStatus() {
 	 * Initialize CKEditor on any applicable input fields
 	 */
 	if (typeof CKEDITOR !== 'undefined') {
-		for(name in CKEDITOR.instances) {
-			CKEDITOR.instances[name].destroy(true);
-		}
 		CKEDITOR.replaceAll(function (textarea, config) {
-			if (jQuery(textarea).hasClass('wysiwyg_advanced')) {
+			textarea = jQuery(textarea);
+			if (CKEDITOR.instances[textarea.attr('id')] != undefined) {
+				return false;
+			} else if (textarea.hasClass('wysiwyg_advanced')) {
 				config.toolbar = [
 					{
 						name: 'clipboard',
@@ -791,7 +791,7 @@ function initializeStatus() {
 					{name: 'tools', items: ['Maximize', 'ShowBlocks', '-', 'About']},
 					{name: 'document', items: ['Source']}
 				];
-			} else if (jQuery(textarea).hasClass('wysiwyg_simple')) {
+			} else if (textarea.hasClass('wysiwyg_simple')) {
 				config.toolbar = [
 					{name: 'clipboard', items: ['Cut', 'Copy', 'PasteText', '-', 'Undo', 'Redo']},
 					{
@@ -801,7 +801,7 @@ function initializeStatus() {
 					{name: 'paragraph', items: ['NumberedList', 'BulletedList']},
 					{name: 'styles', items: ['Format']}
 				];
-			} else if (jQuery(textarea).hasClass('wysiwyg_newsletter')) {
+			} else if (textarea.hasClass('wysiwyg_newsletter')) {
 				config.toolbar = [
 					{
 						name: 'clipboard',
