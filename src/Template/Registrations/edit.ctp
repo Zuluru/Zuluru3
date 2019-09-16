@@ -9,7 +9,7 @@ $this->Html->addCrumb(__('Edit'));
 
 <div class="registrations form">
 	<h2><?= __('Edit Registration') ?></h2>
-	<?= $this->Form->create($registration, ['align' => 'horizontal']) ?>
+	<?= $this->Form->create($registration) // This form is intentionally not 'align' => 'horizontal' ?>
 	<fieldset>
 		<legend><?= __('Registration Details') ?></legend>
 <?php

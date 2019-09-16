@@ -6,6 +6,9 @@ use Cake\Utility\Hash;
  * @type int $key
  */
 
+// There may be multiple checkboxes with the same key, but we need separate indices for them
+$key *= 100;
+
 if ($question->has('question')) {
 	$options = [
 		'label' => [
@@ -64,11 +67,11 @@ switch ($question->type) {
 				$this->Form->input("responses.$key.answer_id", $options);
 		} else if (count($question->answers) > 1) {
 			$item = $this->Html->tag('label', $question->question);
-			foreach ($question->answers as $answer) {
+			foreach ($question->answers as $akey => $answer) {
 				$options['label'] = $answer->answer;
 				$options['value'] = $answer->id;
-				$item .= $this->Form->hidden("responses.$key.question_id", ['value' => $question->id]) .
-					$this->Form->input("responses.$key.answer_id.{$answer->id}", $options);
+				$item .= $this->Form->hidden('responses.' . ($key + $akey) . '.question_id', ['value' => $question->id]) .
+					$this->Form->input('responses.' . ($key + $akey) . '.answer_id', $options);
 			}
 		} else {
 			$answer = current($question->answers);
