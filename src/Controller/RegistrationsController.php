@@ -512,6 +512,7 @@ class RegistrationsController extends AppController {
 					'person_id' => $for_edit ? $price->event->registrations[0]->person_id : $this->UserCache->currentId(),
 					'price' => $price,
 					'for_edit' => $for_edit ? $price->event->registrations[0] : false,
+					'waiting' => $this->request->getQuery('waiting'),
 					'ignore_date' => true,
 				]), 'register');
 
