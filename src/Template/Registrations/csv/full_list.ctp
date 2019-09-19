@@ -49,17 +49,12 @@ $fields += [
 	__('Created Date') => true,
 	__('Modified Date') => true,
 	__('Payment Status') => true,
+	__('Total Amount') => true,
+	__('Amount Paid') => true,
+	__('Price Point') => count($event->prices) > 1,
+	__('Transaction ID') => Configure::read('registration.online_payments') ? true : false,
+	__('Notes') => true,
 ];
-
-if ($is_manager) {
-	$fields += [
-		__('Total Amount') => true,
-		__('Amount Paid') => true,
-		__('Price Point') => count($event->prices) > 1,
-		__('Transaction ID') => Configure::read('registration.online_payments') ? true : false,
-		__('Notes') => true,
-	];
-}
 
 foreach ($event->questionnaire->questions as $question) {
 	if (in_array($question->type, ['text', 'textarea', 'radio', 'select'])) {
