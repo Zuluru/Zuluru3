@@ -32,9 +32,10 @@ class RuleOr extends RuleMeta {
 	public function evaluate($affiliate, $params, Team $team = null, $strict = true, $text_reason = false, $complete = true, $absolute_url = false, $formats = []) {
 		if (empty($this->rule))
 			return null;
-		$reasons = [];
+		$reasons = $invariant_reasons = [];
 		$status = false;
 		$this->invariant = false;
+		$all_failures_invariant = true;
 		foreach ($this->rule as $rule) {
 			$rule_success = $rule->evaluate($affiliate, $params, $team, $strict, $text_reason, $complete, $absolute_url, $formats);
 			$rule_reason = $rule->reason;
@@ -57,6 +58,9 @@ class RuleOr extends RuleMeta {
 				// since there's nothing the user can do
 				if (!$rule->invariant) {
 					$reasons[] = $rule_reason;
+					$all_failures_invariant = false;
+				} else {
+					$invariant_reasons[] = $rule_reason;
 				}
 
 				if (!$this->redirect) {
@@ -64,11 +68,18 @@ class RuleOr extends RuleMeta {
 				}
 			}
 		}
+
+		if ($status == false && $all_failures_invariant) {
+			$this->invariant = true;
+			$reasons = $invariant_reasons;
+		}
+
 		if (count($reasons) > 1) {
 			$this->reason = ['OR' => $reasons];
 		} else {
 			$this->reason = array_pop($reasons);
 		}
+
 		return $status;
 	}
 
