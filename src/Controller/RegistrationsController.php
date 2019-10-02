@@ -989,7 +989,7 @@ class RegistrationsController extends AppController {
 			$registration->payments[] = $refund;
 			$registration->dirty('payments', true);
 
-			$payment->refunded_amount += $this->request->data['payment_amount'];
+			$payment->refunded_amount = round($payment->refunded_amount + $this->request->data['payment_amount'], 2);
 
 			if ($this->Registrations->connection()->transactional(function () use ($registration, $payment_obj, $payment) {
 				// The registration is also passed as an option, so that the payment rules have easy access to it
@@ -1055,7 +1055,7 @@ class RegistrationsController extends AppController {
 			$registration->payments[] = $refund;
 			$registration->dirty('payments', true);
 
-			$payment->refunded_amount += $this->request->data['payment_amount'];
+			$payment->refunded_amount = round($payment->refunded_amount + $this->request->data['payment_amount'], 2);
 
 			$credit = $this->Registrations->People->Credits->newEntity([
 				'affiliate_id' => $registration->event->affiliate_id,
@@ -1182,7 +1182,7 @@ class RegistrationsController extends AppController {
 			$registration->payments[] = $refund;
 			$registration->dirty('payments', true);
 
-			$payment->refunded_amount += $this->request->data['payment_amount'];
+			$payment->refunded_amount = round($payment->refunded_amount + $this->request->data['payment_amount'], 2);
 
 			$transfer = $this->Registrations->Payments->newEntity([
 				'payment_type' => 'Transfer',
