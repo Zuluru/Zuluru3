@@ -1415,15 +1415,15 @@ class TeamsController extends AppController {
 		$this->set('_serialize', ['team']);
 	}
 
-    /**
-     * iCal method
+	/**
+	 * iCal method
 	 *
 	 * This function takes the parameter the old-fashioned way, to try to be more third-party friendly
-     *
-     * @param string|null $id Team id.
-     * @return void
-     * @throws \Cake\Http\Exception\GoneException When record not found.
-     */
+	 *
+	 * @param string|null $id Team id.
+	 * @return void
+	 * @throws \Cake\Http\Exception\GoneException When record not found.
+	 */
 	public function ical($id) {
 		$this->viewBuilder()->layout('ical');
 		$id = intval($id);
@@ -1980,16 +1980,19 @@ class TeamsController extends AppController {
 		}
 
 		// Check if this user is the only approved captain on the team
-		$required_roles = Configure::read('required_roster_roles');
-		if (in_array($role, $required_roles) &&
-			!in_array($this->request->data['role'], $required_roles)
-		) {
-			$captains = collection($team->people)->filter(function ($person) use ($required_roles) {
-				return in_array($person->_joinData->role, $required_roles) && $person->_joinData->status == ROSTER_APPROVED;
-			})->toArray();
-			if (count($captains) == 1) {
-				$this->Flash->info(__('All teams must have at least one player as coach or captain.'));
-				return $this->redirect(['action' => 'view', 'team' => $team->id]);
+		$is_captain = in_array($team->id, $this->UserCache->read('OwnedTeamIDs'));
+		if (!$is_captain) {
+			$required_roles = Configure::read('required_roster_roles');
+			if (in_array($role, $required_roles) &&
+				!in_array($this->request->data['role'], $required_roles)
+			) {
+				$captains = collection($team->people)->filter(function ($person) use ($required_roles) {
+					return in_array($person->_joinData->role, $required_roles) && $person->_joinData->status == ROSTER_APPROVED;
+				})->toArray();
+				if (count($captains) == 1) {
+					$this->Flash->info(__('All teams must have at least one player as coach or captain.'));
+					return $this->redirect(['action' => 'view', 'team' => $team->id]);
+				}
 			}
 		}
 
