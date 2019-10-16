@@ -83,6 +83,13 @@ class Zuluru extends Validation {
 		$teams_table = TableRegistry::get('Teams');
 		$duplicate = $teams_table->find()->where(compact('name'));
 
+		if (isset($context['data']['id'])) {
+			$duplicate->andWhere(['id !=' => $context['data']['id']]);
+			if (empty($context['data']['division_id']) && empty($context['data']['division'])) {
+				$context['data']['division_id'] = TableRegistry::get('Teams')->field('division_id', ['id' => $context['data']['id']]);
+			}
+		}
+
 		if (!empty($context['data']['division_id'])) {
 			$divisions_table = TableRegistry::get('Divisions');
 			$division = $divisions_table->get($context['data']['division_id']);
@@ -95,10 +102,6 @@ class Zuluru extends Validation {
 			$duplicate->andWhere(['division_id IN' => $division->sister_divisions]);
 		} else {
 			$duplicate->andWhere(['division_id IS' => null]);
-		}
-
-		if (isset($context['data']['id'])) {
-			$duplicate->andWhere(['id !=' => $context['data']['id']]);
 		}
 
 		return ($duplicate->count() == 0);
