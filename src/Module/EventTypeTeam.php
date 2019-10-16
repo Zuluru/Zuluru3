@@ -86,14 +86,17 @@ class EventTypeTeam extends EventType {
 				// Possibly narrow the list of possible franchises to those that are represented
 				// in the configured divisions
 				if ($event->division->is_playoff) {
-					$teams = $teams_model->find()
-						->contain('Franchises')
-						->where([
-							'Teams.id IN' => UserCache::getInstance()->read('AllTeamIDs', $user_id),
-							'Teams.division_id IN' => $event->division->season_divisions,
-						])
-						->toArray();
-					$conditions['Franchises.id IN'] = collection($teams)->extract('franchises.{*}.id')->toArray();
+					$team_ids = UserCache::getInstance()->read('AllTeamIDs', $user_id);
+					if (!empty($team_ids)) {
+						$teams = $teams_model->find()
+							->contain('Franchises')
+							->where([
+								'Teams.id IN' => $team_ids,
+								'Teams.division_id IN' => $event->division->season_divisions,
+							])
+							->toArray();
+						$conditions['Franchises.id IN'] = collection($teams)->extract('franchises.{*}.id')->toArray();
+					}
 				}
 
 				$franchises = $teams_model->Franchises->readByPlayerId($user_id, $conditions);
