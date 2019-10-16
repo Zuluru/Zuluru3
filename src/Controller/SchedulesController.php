@@ -1,6 +1,7 @@
 <?php
 namespace App\Controller;
 
+use App\Exception\ScheduleException;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
@@ -13,7 +14,6 @@ use Cake\ORM\Entity;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
-use App\Exception\ScheduleException;
 
 /**
  * Schedules Controller
@@ -947,6 +947,10 @@ class SchedulesController extends AppController {
 
 				return true;
 			})) {
+				// With the deletes being inside a transaction, afterDeleteCommit is not called.
+				$event = new CakeEvent('Model.Game.afterDeleteCommit', $this, [null]);
+				$this->eventManager()->dispatch($event);
+
 				if ($date) {
 					$this->Flash->success(__('Deleted games on the requested date.'));
 				} else {
@@ -1160,9 +1164,10 @@ class SchedulesController extends AppController {
 			$same_pool = [];
 		}
 
-		$games = collection(array_merge($games, $same_pool))->extract('id')->toArray();
+		$games = array_merge($games, $same_pool);
+		$game_ids = collection($games)->extract('id')->toArray();
 
-		if ($this->Divisions->Games->updateAll(['published' => $true], ['id IN' => $games])) {
+		if ($this->Divisions->Games->updateAll(['published' => $true], ['id IN' => $game_ids])) {
 			$this->Flash->success(__('{0} games on the requested date.', $published));
 
 			if (isset($league)) {
@@ -1172,6 +1177,10 @@ class SchedulesController extends AppController {
 			} else {
 				$this->Divisions->clearCache($division, ['schedule', 'standings']);
 			}
+
+			// With the update being done this way, afterSaveCommit is not called.
+			$event = new CakeEvent('Model.Game.afterSaveCommit', $this, [null]);
+			$this->eventManager()->dispatch($event);
 		} else {
 			$this->Flash->warning(__('Failed to {0} games on the requested date.', $publish));
 		}

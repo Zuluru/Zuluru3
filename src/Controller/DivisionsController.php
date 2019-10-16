@@ -8,6 +8,7 @@ use Cake\Core\Configure;
 use Cake\Database\Type\DateType;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
+use Cake\Event\Event;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
@@ -751,6 +752,10 @@ class DivisionsController extends AppController {
 						}
 						return $success;
 					})) {
+						// With the saves being inside a transaction, afterSaveCommit is not called.
+						$event = new Event('Model.Game.afterSaveCommit', $this, [null]);
+						$this->eventManager()->dispatch($event);
+
 						$this->Flash->success(__('Schedule changes saved!'));
 						return $this->redirect(['action' => 'schedule', 'division' => $id]);
 					}
