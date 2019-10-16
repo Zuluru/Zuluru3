@@ -297,7 +297,7 @@ class Person extends Entity {
 	public function merge(Person $new) {
 		$preserve = ['id', 'status', 'user_id'];
 		// These are player fields, which might not be present if the one being merged is a parent
-		$preserve_if_new_is_empty = ['gender', 'gender_description', 'roster_designation', 'birthdate', 'height', 'shirt_size'];
+		$preserve_if_new_is_empty = ['gender', 'gender_description', 'roster_designation', 'birthdate', 'height', 'shirt_size', 'user'];
 
 		foreach (array_keys($new->_properties) as $prop) {
 			if ($this->isAccessible($prop) && !in_array($prop, $preserve)) {
