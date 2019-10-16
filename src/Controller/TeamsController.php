@@ -1981,7 +1981,7 @@ class TeamsController extends AppController {
 
 		// Check if this user is the only approved captain on the team
 		$is_captain = in_array($team->id, $this->UserCache->read('OwnedTeamIDs'));
-		if (!$is_captain) {
+		if ($is_captain) {
 			$required_roles = Configure::read('required_roster_roles');
 			if (in_array($role, $required_roles) &&
 				!in_array($this->request->data['role'], $required_roles)
