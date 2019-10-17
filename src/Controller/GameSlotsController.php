@@ -113,6 +113,15 @@ class GameSlotsController extends AppController {
 				->order('Regions.id')
 				->toArray();
 
+			if (empty($regions)) {
+				if ($affiliate != 1) {
+					$this->Flash->info(__('This affiliate has no regions set up.'));
+				} else {
+					$this->Flash->info(__('You have no regions set up.'));
+				}
+				return $this->redirect('/');
+			}
+
 			$this->Authorization->authorize(current($regions), 'add_game_slots');
 			$this->set(compact('regions'));
 		}
