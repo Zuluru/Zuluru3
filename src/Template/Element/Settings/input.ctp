@@ -21,7 +21,7 @@ if ($id !== false) {
 	echo $this->Form->hidden("$id.category", ['value' => $category]);
 	echo $this->Form->hidden("$id.name", ['value' => $name]);
 	if (isset($affiliate) && $affiliate) {
-		echo $this->Form->hidden("$id.affiliate_id", ['value' => $affiliate]);
+		echo $this->Form->hidden("$id.affiliate_id", ['value' => $affiliate->id]);
 	}
 }
 if (isset($person_id)) {
@@ -84,7 +84,7 @@ if ($options['type'] == 'textarea') {
 
 if (isset($jquery)) {
 	if (isset($affiliate) && $affiliate) {
-		$jquery['url']['affiliate'] = $affiliate;
+		$jquery['url']['affiliate'] = $affiliate->id;
 	}
 	echo $this->Jquery->ajaxInput("$id.value", [
 		'selector' => $jquery['selector'],
