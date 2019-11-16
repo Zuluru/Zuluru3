@@ -1,4 +1,4 @@
-FROM php:7-apache
+FROM php:7-apache-buster
 
 #install all the system dependencies and enable PHP modules 
 RUN apt-get update && apt-get install -y \
@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y \
       libmcrypt-dev \
       zlib1g-dev \
       libzip-dev \
-      mysql-client \
+      default-mysql-client \
       git \
       zip \
       unzip \
