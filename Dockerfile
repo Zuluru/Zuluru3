@@ -1,4 +1,4 @@
-FROM php:7-apache-buster
+FROM php:7.3-apache-buster
 
 #install all the system dependencies and enable PHP modules 
 RUN apt-get update && apt-get install -y \
