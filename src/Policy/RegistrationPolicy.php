@@ -76,7 +76,7 @@ class RegistrationPolicy extends AppPolicy {
 		$person = $resource->person;
 		$cap = $event->cap($person->roster_designation);
 		if ($cap != CAP_UNLIMITED) {
-			$paid = $event->count($person->roster_designation);
+			$paid = $event->count($person->roster_designation, ['Registrations.id !=' => $registration->id]);
 			if ($cap <= $paid || $registration->payment == 'Waiting') {
 				throw new ForbiddenRedirectException(__('You are on the waiting list for this event.'),
 					['action' => 'checkout']);
