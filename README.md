@@ -6,8 +6,7 @@ Table of Contents
    * [Install Zuluru Code](#install-zuluru-code)
    * [Zuluru Folder Permissions](#zuluru-folder-permissions)
    * [Launch Zuluru](#launch-zuluru)
-   * [Experimental Docker Alternative](#docker-quick-start-experimental)
-     * [Advanced Docker Configuration](#advanced-docker-configuration)
+   * [Docker Quick Start (Experimental!)](#docker-quick-start-experimental)
    * [Configuration](#configuration)
    * [Periodic Tasks](#periodic-tasks)
    * [Troubleshooting](#troubleshooting)
@@ -65,19 +64,7 @@ http://localhost/installer/install. The database credentials are `host: db`,
 `username: zuluru`, `password: userpassword`. This provides a quick and easy
 development environment.
 
-#### Advanced Docker Configuration
-
-Open the docker-compose.advanced.yml file and modify a few parameters.  If you're using https://github.com/evertramos/docker-compose-letsencrypt-nginx-proxy-companion, change the LETSENCRYPT and VIRTUAL_HOST parameters to match your domain name. If you aren't using a proxy server, comment or delete the entire "environment" section (i.e. all three variables).  
-
-Change the volume paths at the bottom (i.e. /path/to/db, /externaldirectory/for/deployment) to match the permanent locations you wish to keep your persistent data.  This will keep your database and root directory from getting wiped out everytime you restart the container.  Please make sure you do not create your deployment directory as a subdirectory of the location with the docker-compose file.  There have been instances where duplicating some files in descendent subdirectories has caused issues with various web apps as they find multiple versions of the same file in different locations inside the container.  **It is strongly recommended that you create your persistent data paths outside of your docker-compose.yaml file directory location**. 
-
-If you're super paranoid about security, modify the Dockerfile security salt value (currently set to 5C2Yi3REBrXA5cN06dcH6VdAeJySm6RR) to another 256 bit value.  You can generate another one here, under [CodeIgniter Encryption Keys](https://randomkeygen.com/).  Although the database should be insulated from the Internet (since there's no open external port), you should still change the default passwords in the file to something more difficult to guess than `password` and `rootpassword`, just in case something gets misconfigured along the way. 
-
-In the same directory as your docker-compose file, type `docker-compose -f docker-compose.advanced.yml up -d` to spin up the container.  It will take a while. 
-
-Once it's done, open your browser and type in the address it's located at.  If you have nothing else running and are trying it out on your local machine, you'll likely find it at `http://localhost/`, otherwise it'll be at `your.domain`.  
-
-Follow the configuration instructions below.  For the database connection, use the container name and port number as stated in your docker-compose file.  For example, the database connection for the included docker-compose file would be `zuluru_mariadb:3306`.  Since this connection uses internal Docker networking, you won't need to explictly reference the IP or any external domain name you may be using. 
+For a more advanced configuration template, read through [docker-compose.yml.advanced-example].
 
 ### Configuration
 

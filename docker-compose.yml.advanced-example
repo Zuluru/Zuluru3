@@ -1,0 +1,97 @@
+# Advanced Docker Configuration
+#
+# Copy this file to `docker-compose.advanced.yml`, read through it and modify
+# where necessary. In the same directory as your docker-compose file, type
+# `docker-compose -f docker-compose.advanced.yml up -d` to spin up the
+# container. It will take a while.
+#
+# If you're super paranoid about security, modify the Dockerfile.advanced security salt
+# value (currently set to 5C2Yi3REBrXA5cN06dcH6VdAeJySm6RR) to another 256 bit
+# value.  You can generate another one here, under [CodeIgniter Encryption
+# Keys](https://randomkeygen.com/).  Although the database should be insulated
+# from the Internet (since there's no open external port), you should still
+# change the default passwords in the file to something more difficult to guess
+# than `password` and `rootpassword`, just in case something gets misconfigured
+# along the way.
+#
+# Once it's done, open your browser and type in the address it's located at.
+# If you have nothing else running and are trying it out on your local machine,
+# you'll likely find it at `http://localhost/`, otherwise it'll be at
+# `your.domain`.
+#
+# Follow the [README configuration](https://github.com/Zuluru/Zuluru3/blob/master/README.md#configuration)
+# instructions. For the database connection, use the container name and port
+# number as stated in the docker-compose file.  For example, the database
+# connection for this docker-compose file would be `zuluru_mariadb:3306`. Since
+# this connection uses internal Docker networking, you won't need to explictly
+# reference the IP or any external domain name you may be using.
+version: "3.7"
+services:
+  mariadb:
+    container_name: zuluru_mariadb
+    image: mariadb
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: zuluru
+      MYSQL_USER: zuluru
+      MYSQL_PASSWORD: userpassword
+    volumes:
+      - zulu_mysql:/var/lib/mysql
+    expose:
+      - "3306"
+    networks:
+      - webproxy
+
+  zuluru:
+    container_name: zuluru
+    image: zuluru:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.advanced
+    environment:
+      # If you're using
+      # https://github.com/evertramos/docker-compose-letsencrypt-nginx-proxy-companion,
+      # change the LETSENCRYPT and VIRTUAL_HOST parameters to match your domain name.
+      # If you aren't using a proxy server, comment or delete this entire
+      # "environment" section (i.e. all three variables).
+      LETSENCRYPT_HOST: zuluru.domain.name
+      LETSENCRYPT_EMAIL: admin@domain.name
+      VIRTUAL_HOST: zuluru.domain.name
+    volumes:
+      - zulu_root:/var/www/html
+    networks:
+      - webproxy
+
+volumes:
+  # Change the volume paths (i.e. /path/to/db,
+  # /externaldirectory/for/deployment) to match the permanent locations you
+  # wish to keep your persistent data.  This will keep your database and root
+  # directory from getting wiped out everytime you restart the container.
+  # Please make sure you do not create your deployment directory as a
+  # subdirectory of the location with the docker-compose file.  There have been
+  # instances where duplicating some files in descendent subdirectories has
+  # caused issues with various web apps as they find multiple versions of the
+  # same file in different locations inside the container.  **It is strongly
+  # recommended that you create your persistent data paths outside of your
+  # docker-compose.yaml file directory location**.
+  zulu_mysql:
+    name: zulu_mysql
+    driver: local
+    driver_opts:
+      type: none
+      device: /path/to/db
+      o: bind
+  zulu_root:
+    name: zulu_root
+    driver: local
+    driver_opts:
+      type: none
+      device: /externaldirectory/for/deployment
+      o: bind
+networks:
+  # A network for connecting local services. 
+  # I use the excellent https://github.com/evertramos/docker-compose-letsencrypt-nginx-proxy-companion
+  webproxy:
+    external:
+      name: webproxy
