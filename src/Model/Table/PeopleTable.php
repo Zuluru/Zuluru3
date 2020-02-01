@@ -612,7 +612,7 @@ class PeopleTable extends AppTable {
 		// Don't delete the only admin
 		$rules->addDelete(function ($entity, $options) {
 			if (in_array(GROUP_ADMIN, UserCache::getInstance()->read('GroupIDs', $entity->id))) {
-				$admins = $this->GroupsPeople->find('count', ['conditions' => ['group_id' => GROUP_ADMIN]]);
+				$admins = $this->People->GroupsPeople->find()->where(['group_id' => GROUP_ADMIN])->count();
 				if ($admins == 1) {
 					return false;
 				}
