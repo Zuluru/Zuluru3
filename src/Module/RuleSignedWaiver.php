@@ -53,7 +53,7 @@ class RuleSignedWaiver extends Rule {
 			$model = TableRegistry::get('Waivers');
 			try {
 				$this->waiver_ids = $config;
-				$this->waiver = $model->field('name', ['id' => $this->waiver_ids[0]]);
+				$this->waiver = $model->get($this->waiver_ids[0]);
 			} catch (RecordNotFoundException $ex) {
 				$this->parse_error = __('Invalid waiver.');
 				return false;
@@ -68,8 +68,12 @@ class RuleSignedWaiver extends Rule {
 	// Check if the user has signed the required waiver
 	public function evaluate($affiliate, $params, Team $team = null, $strict = true, $text_reason = false, $complete = true, $absolute_url = false, $formats = []) {
 		$url = ['controller' => 'Waivers', 'action' => 'sign', 'waiver' => $this->waiver_ids[0], 'date' => $this->date->toDateString()];
+		if ($this->waiver->expiry_type == 'never') {
+			$url['date'] = FrozenDate::now()->toDateString();
+		}
+
 		if ($text_reason) {
-			$this->reason = __('have signed the {0} waiver', $this->waiver);
+			$this->reason = __('have signed the {0} waiver', $this->waiver->name);
 		} else {
 			if ($absolute_url) {
 				$target = Router::url($url, true);
@@ -82,7 +86,7 @@ class RuleSignedWaiver extends Rule {
 				'replacements' => [
 					[
 						'type' => 'link',
-						'link' => __('signed the {0} waiver', $this->waiver),
+						'link' => __('signed the {0} waiver', $this->waiver->name),
 						'target' => $target,
 					],
 				],
