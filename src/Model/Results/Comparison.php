@@ -142,6 +142,7 @@ class Comparison {
 
 		foreach ($tied as $i) {
 			$compare[$i] = new Entity([
+				'hth' => 0,
 				'hthpm' => 0,
 				'pm' => 0,
 			]);
@@ -163,6 +164,9 @@ class Comparison {
 				foreach ($tied as $j) {
 					// Not all teams will have played each other; if they didn't the plus-minus
 					// is effectively zero, so no harm in skipping this increment.
+					if ($i != $j && array_key_exists($teams[$j]->id, $record->vs)) {
+						$compare[$i]->hth += $record->vs[$teams[$j]->id];
+					}
 					if ($i != $j && array_key_exists($teams[$j]->id, $record->vspm)) {
 						$compare[$i]->hthpm += $record->vspm[$teams[$j]->id];
 					}
@@ -212,13 +216,19 @@ class Comparison {
 	}
 
 	private static function compareHTH($a, $b) {
-		// First multi-way tie breaker is head-to-head plus minus in games between these teams
+		// First multi-way tie breaker is head-to-head record in games between these teams
+		if ($a->hth > $b->hth)
+			return -1;
+		if ($a->hth < $b->hth)
+			return 1;
+
+		// Second multi-way tie breaker is head-to-head plus minus in games between these teams
 		if ($a->hthpm > $b->hthpm)
 			return -1;
 		if ($a->hthpm < $b->hthpm)
 			return 1;
 
-		// Second multi-way tie breaker is overall plus minus
+		// Third multi-way tie breaker is overall plus minus
 		if ($a->pm > $b->pm)
 			return -1;
 		if ($a->pm < $b->pm)
