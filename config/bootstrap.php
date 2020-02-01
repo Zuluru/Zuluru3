@@ -95,7 +95,7 @@ try {
 	} else {
 		Configure::load('app_local');
 	}
-} catch (Exception $ex) {
+} catch (\Exception $ex) {
 	// File might just not exist
 }
 
