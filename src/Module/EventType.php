@@ -174,7 +174,7 @@ class EventType {
 		if (empty($options['from_expire_reservations']) && empty($options['from_unregister_dependencies']) && $registration->payment != 'Cancelled' && $registration->payment != 'Unpaid' && $registration->payment != 'Reserved' && $registration->total_amount > 0) {
 			\Cake\Log\Log::write('error', $registration);
 			throw new ForbiddenRedirectException('This registration is not marked as unpaid. There is an unresolved issue around this. Details have been logged to assist with correcting it.',
-				['controller' => 'Registration', 'action' => 'view', 'registration' => $registration->id], 'error');
+				['controller' => 'Registrations', 'action' => 'view', 'registration' => $registration->id], 'error');
 		}
 
 		return true;
