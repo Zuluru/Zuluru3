@@ -1,7 +1,6 @@
 version: "3.7"
 services:
-  mariadb:
-    container_name: zuluru_mariadb
+  db:
     image: mariadb
     command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     environment:
@@ -10,45 +9,25 @@ services:
       MYSQL_USER: zuluru
       MYSQL_PASSWORD: userpassword
     volumes:
-      - zulu_mysql:/var/lib/mysql
-    expose:
-      - "3306"
+      - db:/var/lib/mysql
     networks:
-      - webproxy
+      - default
 
-  zuluru:
-    container_name: zuluru
-    image: zuluru:latest
-    build:
-      context: .
-    environment:
-      # following variables are to enable SSL with docker-compose-letsencrypt-nginx-proxy-companion
-      LETSENCRYPT_HOST: zuluru.domain.name
-      LETSENCRYPT_EMAIL: admin@domain.name
-      VIRTUAL_HOST: zuluru.domain.name
+  app:
+    image: zuluru/zuluru:latest
+    build: .
     volumes:
-      - zulu_root:/var/www/html
+      - app:/var/www/html
+    ports:
+      - "80:80"
+    depends_on:
+      - db
     networks:
-      - webproxy
+      - default
 
 volumes:
-  zulu_mysql:
-    name: zulu_mysql
-    driver: local
-    driver_opts:
-      type: none
-      device: /path/to/db
-      o: bind
-  zulu_root:
-    name: zulu_root
-    driver: local
-    driver_opts:
-      type: none
-      device: /externaldirectory/for/deployment
-      o: bind
+  db:
+  app:
+
 networks:
-  # A network for connecting local services. 
-  # I use the excellent https://github.com/evertramos/docker-compose-letsencrypt-nginx-proxy-companion
-  webproxy:
-    external:
-      name: webproxy
+  default:
