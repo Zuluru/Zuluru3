@@ -41,8 +41,16 @@ class RuleLeagueTeamCount extends Rule implements RuleHaving {
 	// If we're only interested in non-subs, if the user in
 	// question is a sub on the current team, we'll just return 0.
 	public function evaluate($affiliate, $params, Team $team = null, $strict = true, $text_reason = false, $complete = true, $absolute_url = false, $formats = []) {
+		if (empty($team->people)) {
+			return 0;
+		}
+
 		$role = collection($team->people)->firstMatch(['id' => $params->id]);
 		if ($role && !in_array($role->_joinData->role, $this->roles)) {
+			return 0;
+		}
+
+		if (empty($params->teams)) {
 			return 0;
 		}
 
