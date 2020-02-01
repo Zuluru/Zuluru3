@@ -8,7 +8,7 @@ use Cake\Core\Configure;
 class AffiliatePolicy extends AppPolicy {
 
 	public function before($identity, $resource, $action) {
-		if (!Configure::read('feature.affiliates')) {
+		if ($action != 'autocomplete' && !Configure::read('feature.affiliates')) {
 			return false;
 		}
 
