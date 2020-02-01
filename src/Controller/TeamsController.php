@@ -1253,7 +1253,7 @@ class TeamsController extends AppController {
 
 		$this->Authorization->authorize($team);
 
-		$dependencies = $this->Teams->dependencies($id);
+		$dependencies = $this->Teams->dependencies($id, ['Facilities']);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this team, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
 			return $this->redirect(['action' => 'index']);
