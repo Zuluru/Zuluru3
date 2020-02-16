@@ -35,6 +35,7 @@ class ScoreDetailsTableTest extends TableTestCase {
 						'app.pools_teams',
 					'app.games',
 						'app.score_details',
+		'app.i18n',
 	];
 
 	/**

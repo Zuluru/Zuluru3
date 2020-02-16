@@ -20,9 +20,9 @@ class LocksTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('locks');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('locks');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Timestamp');
 	}

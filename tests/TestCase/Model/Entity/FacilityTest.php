@@ -35,6 +35,7 @@ class FacilityTest extends TestCase {
 				'app.facilities',
 					'app.fields',
 			'app.leagues',
+		'app.i18n',
 	];
 
 	/**

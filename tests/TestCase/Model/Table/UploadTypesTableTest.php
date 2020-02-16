@@ -27,6 +27,7 @@ class UploadTypesTableTest extends TableTestCase {
 				'app.people',
 					'app.affiliates_people',
 			'app.upload_types',
+		'app.i18n',
 	];
 
 	/**

@@ -33,6 +33,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 				'app.franchises_people',
 				'app.franchises_teams',
 			'app.settings',
+		'app.i18n',
 	];
 
 	/**
@@ -295,8 +296,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 			PERSON_ID_COORDINATOR);
 		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => FRANCHISE_ID_RED],
 			PERSON_ID_CAPTAIN);
-		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => FRANCHISE_ID_LIONS],
-			PERSON_ID_ANDY_SUB);
 		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => FRANCHISE_ID_MAPLES],
 			PERSON_ID_PLAYER);
 		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => FRANCHISE_ID_MAPLES],

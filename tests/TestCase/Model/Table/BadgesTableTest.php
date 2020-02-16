@@ -28,6 +28,7 @@ class BadgesTableTest extends TableTestCase {
 					'app.teams',
 			'app.badges',
 				'app.badges_people',
+		'app.i18n',
 	];
 
 	/**

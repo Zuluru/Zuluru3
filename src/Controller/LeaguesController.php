@@ -179,7 +179,7 @@ class LeaguesController extends AppController {
 						'People',
 						'Days' => [
 							'queryBuilder' => function (Query $q) {
-								return $q->order(['day_id']);
+								return $q->order(['DivisionsDays.day_id']);
 							},
 						],
 						'Teams',
@@ -214,7 +214,7 @@ class LeaguesController extends AppController {
 				'Related' => [Configure::read('Security.authModel')],
 			];
 			try {
-				$sport = $this->Leagues->field('sport', ['id' => $id]);
+				$sport = $this->Leagues->field('sport', ['Leagues.id' => $id]);
 				$contain['Divisions']['Teams']['People']['Skills'] = [
 					'queryBuilder' => function (Query $q) use ($sport) {
 						return $q->where(['Skills.sport' => $sport]);
@@ -424,7 +424,7 @@ class LeaguesController extends AppController {
 						'Divisions' => [
 							'Days' => [
 								'queryBuilder' => function (Query $q) {
-									return $q->order(['day_id']);
+									return $q->order(['DivisionsDays.day_id']);
 								},
 							],
 							'Teams',
@@ -586,7 +586,7 @@ class LeaguesController extends AppController {
 						'Divisions' => [
 							'Days' => [
 								'queryBuilder' => function (Query $q) {
-									return $q->order(['day_id']);
+									return $q->order(['DivisionsDays.day_id']);
 								},
 							],
 							'Teams',

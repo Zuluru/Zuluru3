@@ -298,7 +298,7 @@ if (Configure::read('profile.addr_street') || Configure::read('profile.addr_city
 	if (Configure::read('profile.addr_postalcode')) {
 		echo $this->Form->input('person.addr_postalcode', [
 			'label' => __('Postal Code'),
-			'help' => __('Please enter a correct postal code matching the address above. {0} uses this information to help locate new {1} near its members.', $short, __(Configure::read('UI.fields'))),
+			'help' => __('Please enter a correct postal code matching the address above. {0} uses this information to help locate new {1} near its members.', $short, Configure::read('UI.fields')),
 		]);
 	}
 ?>

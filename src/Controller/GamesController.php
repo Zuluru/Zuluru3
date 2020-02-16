@@ -674,7 +674,7 @@ class GamesController extends AppController {
 							$this->_sendMail([
 								'to' => $team->people,
 								'replyTo' => $person,
-								'subject' => __('{0} game note', $team->name),
+								'subject' => function() use ($team) { return __('{0} game note', $team->name); },
 								'template' => 'game_note',
 								// Notes are entered as HTML
 								'sendAs' => 'html',
@@ -1041,7 +1041,7 @@ class GamesController extends AppController {
 				$this->_sendMail([
 					'to' => $team->people,
 					'replyTo' => $attendance->person,
-					'subject' => __('{0} attendance change', $team->name),
+					'subject' => function() use ($team) { return __('{0} attendance change', $team->name); },
 					'template' => 'attendance_captain_notification',
 					'sendAs' => 'both',
 					'viewVars' => array_merge([
@@ -1060,7 +1060,7 @@ class GamesController extends AppController {
 			$this->_sendMail([
 				'to' => $attendance->person,
 				'replyTo' => $this->UserCache->read('Person'),
-				'subject' => __('{0} attendance change for {1} on {2}', $team->name, __('game'), $date),
+				'subject' => function() use ($team, $date) { return __('{0} attendance change for {1} on {2}', $team->name, __('game'), $date); },
 				'template' => 'attendance_substitute_notification',
 				'sendAs' => 'both',
 				'viewVars' => array_merge([
@@ -1101,7 +1101,7 @@ class GamesController extends AppController {
 				$this->_sendMail([
 					'to' => $team->people,
 					'replyTo' => $attendance->person,
-					'subject' => __('{0} attendance comment', $team->name),
+					'subject' => function() use ($team) { return __('{0} attendance comment', $team->name); },
 					'template' => 'attendance_comment_captain_notification',
 					'sendAs' => 'both',
 					'viewVars' => array_merge([
@@ -2260,7 +2260,7 @@ class GamesController extends AppController {
 			$people = array_unique(collection($game->stats)->match(['team_id' => $game->$key->id])->extract('person_id')->toArray());
 			if (!empty($people)) {
 				$game->$key->people = $this->Games->HomeTeam->People->find()
-					->where(['id IN' => $people])
+					->where(['People.id IN' => $people])
 					->toArray();
 				usort($game->$key->people, ['App\Model\Table\PeopleTable', 'comparePerson']);
 			} else {

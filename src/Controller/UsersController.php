@@ -46,12 +46,20 @@ class UsersController extends AppController {
 		return ['logout'];
 	}
 
+	// TODO: Proper fix for black-holing of logins
+	public function beforeFilter(\Cake\Event\Event $event) {
+		parent::beforeFilter($event);
+		if (isset($this->Security)) {
+			$this->Security->config('unlockedActions', ['login']);
+		}
+	}
+
 	public function login() {
 		$result = $this->Authentication->getResult();
 
 		// Regardless of POST or GET, redirect if user is logged in
 		if ($result->isValid()) {
-			return $this->redirect($this->Authentication->getConfig('loginRedirect'));
+			return $this->redirect($this->Authentication->getLoginRedirect($this->request));
 		}
 
 		if ($this->request->is(['post'])) {
@@ -93,7 +101,7 @@ class UsersController extends AppController {
 		$this->_loadAddressOptions();
 		$this->_loadAffiliateOptions();
 		$users_table = TableRegistry::get(Configure::read('Security.authModel'));
-		$groups = $users_table->People->Groups->find('options', ['min_level' => 3])->toArray();
+		$groups = $users_table->People->Groups->find('options', ['Groups.min_level' => 3])->toArray();
 
 		$this->set([
 			'user_field' => $users_table->userField,
@@ -177,7 +185,7 @@ class UsersController extends AppController {
 
 	public function TODOLATER_import() {
 		$users_table = TableRegistry::get(Configure::read('Security.authModel'));
-		$this->set('groups', $users_table->People->Groups->find('options', ['min_level' => 3])->toArray());
+		$this->set('groups', $users_table->People->Groups->find('options', ['Groups.min_level' => 3])->toArray());
 
 		// TODO: Centralize checking of profile fields
 		$columns = $this->Users->People->schema()->columns();
@@ -279,9 +287,7 @@ class UsersController extends AppController {
 							}
 						}
 						if (!empty($data['Person']['id'])) {
-							$matches = $this->Person->find('count', [
-									'conditions' => ['id' => $data['Person']['id']],
-							]);
+							$matches = $this->Person->find()->where(['People.id' => $data['Person']['id']])->count();
 							if ($matches) {
 								$errors[] = "id ({$data['Person']['id']} already taken)";
 								$continue = false;
@@ -294,9 +300,7 @@ class UsersController extends AppController {
 								$append = 2;
 								while (true) {
 									if (!in_array($user_name, $succeeded) && !in_array($user_name, $resolved)) {
-										$matches = $users_table->find('count', [
-												'conditions' => [$users_table->userField => $user_name],
-										]);
+										$matches = $users_table->find()->where([$users_table->userField => $user_name])->count();
 										if (!$matches) {
 											break;
 										}
@@ -395,7 +399,7 @@ class UsersController extends AppController {
 							if (!$this->request->data['Person']['trial_run'] && $this->request->data['Person']['notify_new_users'] && !$is_child) {
 								$this->_sendMail([
 									'to' => $data,
-									'subject' => __('New account'),
+									'subject' => function() { return __('New account'); },
 									'template' => 'account_new',
 									'sendAs' => 'both',
 									'viewVars' => [
@@ -592,7 +596,7 @@ class UsersController extends AppController {
 	protected function _emailResetCode($user, $person) {
 		return $this->_sendMail([
 			'to' => $user,
-			'subject' => __('Password reset code'),
+			'subject' => function() { return __('Password reset code'); },
 			'template' => 'password_reset',
 			'sendAs' => 'both',
 			'viewVars' => [
@@ -609,7 +613,7 @@ class UsersController extends AppController {
 		if ($users_table->save($user)) {
 			return $this->_sendMail([
 				'to' => $user,
-				'subject' => __('New Password'),
+				'subject' => function() { return __('New Password'); },
 				'template' => 'password_new',
 				'sendAs' => 'both',
 				'viewVars' => compact(['user', 'password']),

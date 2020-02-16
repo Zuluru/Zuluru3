@@ -24,6 +24,7 @@ class UserDrupalTableTest extends TableTestCase {
 	public $fixtures = [
 		'app.affiliates',
 			'app.users',
+		'app.i18n',
 	];
 
 	/**

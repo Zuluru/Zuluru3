@@ -33,9 +33,9 @@ class GameSlotsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('game_slots');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('game_slots');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
 
@@ -113,8 +113,8 @@ class GameSlotsTable extends AppTable {
 		$validator = $this->validationDefault($validator);
 
 		$validator
-			->requirePresence('fields', 'create', __('You must select at least one {0}!', __(Configure::read('UI.field'))))
-			->notEmpty('fields', __('You must select at least one {0}!', __(Configure::read('UI.field'))))
+			->requirePresence('fields', 'create', __('You must select at least one {0}!', Configure::read('UI.field')))
+			->notEmpty('fields', __('You must select at least one {0}!', Configure::read('UI.field')))
 
 			->add('length', 'noLengthWithSunset', [
 				'rule' => function ($value, $context) {
@@ -185,7 +185,7 @@ class GameSlotsTable extends AppTable {
 				])
 				->count();
 			if ($indoor_fields > 0) {
-				$sport = $this->Fields->field('sport', ['id' => current($fields)]);
+				$sport = $this->Fields->field('sport', ['Fields.id' => current($fields)]);
 				return __('You cannot select indoor {0} in conjunction with sunset end times!', __(Configure::read("sports.{$sport}.fields")));
 			}
 
@@ -357,7 +357,7 @@ class GameSlotsTable extends AppTable {
 
 	public function affiliate($id) {
 		try {
-			return $this->Fields->affiliate($this->field('field_id', ['id' => $id]));
+			return $this->Fields->affiliate($this->field('field_id', ['GameSlots.id' => $id]));
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}
@@ -365,7 +365,7 @@ class GameSlotsTable extends AppTable {
 
 	public function sport($id) {
 		try {
-			return $this->Fields->sport($this->field('field_id', ['id' => $id]));
+			return $this->Fields->sport($this->field('field_id', ['GameSlots.id' => $id]));
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

@@ -19,11 +19,12 @@ class EventTypesTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('event_types');
-		$this->displayField('name');
-		$this->primaryKey('id');
+		$this->setTable('event_types');
+		$this->setDisplayField('name');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
+		$this->addBehavior('Translate', ['fields' => ['name']]);
 
 		$this->hasMany('Events', [
 			'foreignKey' => 'event_type_id',

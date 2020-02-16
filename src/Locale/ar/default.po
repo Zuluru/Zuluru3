@@ -16860,7 +16860,7 @@ msgid "Payment Details"
 msgstr "تفاصيل الدفع"
 
 #: Template/Registrations/add_payment.ctp:30
-msgid " ({0,number,currency} - {0,number,currency})"
+msgid " ({0} - {0})"
 msgstr ""
 
 #: Template/Registrations/add_payment.ctp:55
@@ -17177,7 +17177,7 @@ msgid "Payment Amount"
 msgstr "مبلغ الدفع"
 
 #: Template/Registrations/view.ctp:55
-msgid "({0,number,currency} refunded; see below)"
+msgid "({0} refunded; see below)"
 msgstr ""
 
 #: Template/Registrations/view.ctp:58
@@ -17239,11 +17239,11 @@ msgid "Issue Credit"
 msgstr "إصدار رصيد دائن"
 
 #: Template/Registrations/view.ctp:150
-msgid "There is an outstanding balance of {0,number,currency}."
+msgid "There is an outstanding balance of {0}."
 msgstr ""
 
 #: Template/Registrations/view.ctp:152
-msgid "Although this registration is marked as \"Paid\", the total of the payments received ({0,number,currency}) does not match the registration cost ({1,number,currency})."
+msgid "Although this registration is marked as \"Paid\", the total of the payments received ({0}) does not match the registration cost ({1})."
 msgstr ""
 
 #: Template/Registrations/csv/full_list.ctp:50

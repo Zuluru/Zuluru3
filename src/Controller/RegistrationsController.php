@@ -943,7 +943,7 @@ class RegistrationsController extends AppController {
 	public function refund_payment() {
 		$id = $this->request->getQuery('payment');
 		try {
-			$registration_id = $this->Registrations->Payments->field('registration_id', compact('id'));
+			$registration_id = $this->Registrations->Payments->field('registration_id', ['Payments.id' => $id]);
 			$registration = $this->Registrations->get($registration_id, [
 				'contain' => [
 					'People',
@@ -1016,7 +1016,7 @@ class RegistrationsController extends AppController {
 	public function credit_payment() {
 		$id = $this->request->getQuery('payment');
 		try {
-			$registration_id = $this->Registrations->Payments->field('registration_id', compact('id'));
+			$registration_id = $this->Registrations->Payments->field('registration_id', ['Payments.id' => $id]);
 			$registration = $this->Registrations->get($registration_id, [
 				'contain' => [
 					'People' => ['Credits'],
@@ -1085,7 +1085,7 @@ class RegistrationsController extends AppController {
 	public function transfer_payment() {
 		$id = $this->request->getQuery('payment');
 		try {
-			$registration_id = $this->Registrations->Payments->field('registration_id', compact('id'));
+			$registration_id = $this->Registrations->Payments->field('registration_id', ['Payments.id' => $id]);
 			$registration = $this->Registrations->get($registration_id, [
 				'contain' => [
 					'People' => ['Groups'],

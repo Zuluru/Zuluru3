@@ -77,7 +77,7 @@ if ($identity->isManager()):
 				->toList();
 			if (!empty($facilities)):
 ?>
-	<p class="warning-message"><?= __('The following facilities are open but do not have any open {0}:', __(Configure::read('UI.fields'))) ?></p>
+	<p class="warning-message"><?= __('The following facilities are open but do not have any open {0}:', Configure::read('UI.fields')) ?></p>
 	<div class="table-responsive">
 		<table class="table table-striped table-hover table-condensed">
 			<thead>

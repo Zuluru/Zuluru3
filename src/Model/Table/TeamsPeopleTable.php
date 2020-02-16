@@ -30,9 +30,9 @@ class TeamsPeopleTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('teams_people');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('teams_people');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Timestamp');
 
@@ -93,7 +93,7 @@ class TeamsPeopleTable extends AppTable {
 		]);
 
 		$rules->add(function (EntityInterface $entity, Array $options) {
-			$division = $this->Teams->field('division_id', ['id' => $entity->team_id]);
+			$division = $this->Teams->field('division_id', ['Teams.id' => $entity->team_id]);
 			if (!$division) {
 				return true;
 			}
@@ -221,7 +221,7 @@ class TeamsPeopleTable extends AppTable {
 
 	public function team($id) {
 		try {
-			return $this->field('team_id', ['id' => $id]);
+			return $this->field('team_id', ['TeamsPeople.id' => $id]);
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

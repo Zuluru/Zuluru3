@@ -29,6 +29,7 @@ class QuestionnaireTest extends TestCase {
 			'app.groups',
 				'app.groups_people',
 			'app.settings',
+		'app.i18n',
 	];
 
 	/**

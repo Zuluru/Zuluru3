@@ -60,12 +60,18 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 	 * {@inheritDoc}
 	 */
 	public function bootstrap() {
+		// This has to be loaded first, so it's known for getting any local configuration file
+		if (defined('DOMAIN_PLUGIN')) {
+			$this->addPlugin(DOMAIN_PLUGIN, ['bootstrap' => false, 'routes' => false]);
+		}
+
 		// Call parent to load bootstrap from files.
 		parent::bootstrap();
 
 		if (PHP_SAPI === 'cli') {
 			try {
 				$this->addPlugin('Bake');
+				$this->addPlugin('Transifex');
 			} catch (MissingPluginException $e) {
 				// Do not halt if the plugin is missing
 			}
@@ -95,6 +101,10 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 
 		$this->addPlugin('ZuluruBootstrap');
 		$this->addPlugin('ZuluruJquery');
+
+		if (Configure::read('App.theme')) {
+			$this->addPlugin(Configure::read('App.theme'), ['bootstrap' => false, 'routes' => false]);
+		}
 	}
 
 	/**
@@ -228,7 +238,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 		return new AuthorizationService($resolver);
 	}
 
-	public function getLocales() {
+	public static function getLocales() {
 		$translations = Cache::read('available_translations');
 		$translation_strings = Cache::read('available_translation_strings');
 		if (!$translations || !$translation_strings) {
@@ -307,7 +317,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 				$preference = TableRegistry::get('Settings')->find()
 					->where(['person_id' => $identity->person->id, 'name' => 'language'])
 					->first();
-				if ($preference) {
+				if ($preference && $preference->value) {
 					return $preference->value;
 				}
 			}
@@ -453,8 +463,8 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 					'requireAuthorizationCheck' => Configure::read('debug'),
 					'unauthorizedHandler' => [
 						'className' => 'RedirectFlash',
-						'unauthenticatedUrl' => Router::url(Configure::read('App.urls.login'), true),
-						'unauthorizedUrl' => Router::url('/', true),
+						'unauthenticatedUrl' => Router::url(Configure::read('App.urls.login')),
+						'unauthorizedUrl' => Router::url('/'),
 						'exceptions' => [
 							MissingIdentityException::class => function($subject, $request, $response, $exception, $options) {
 								$subject->Flash('error', __('You must login to access full site functionality.'));
@@ -469,7 +479,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 								if (empty($url)) {
 									$url = $subject->getUrl($request, array_merge($options, ['referrer' => false]));
 								} else if (is_array($url)) {
-									$url = Router::url($url, true);
+									$url = Router::url($url);
 								}
 								if ($exception->getMessage()) {
 									$subject->Flash($exception->getClass(), $exception->getMessage(), $exception->getOptions());

@@ -6,15 +6,15 @@ use Migrations\AbstractSeed;
  */
 class MembershipTypesSeed extends AbstractSeed {
 	/**
-	 * Run Method.
+	 * Data Method.
 	 *
-	 * @return void
+	 * @return mixed
 	 */
-	public function run() {
-		$data = [
+	public function data() {
+		return [
 			[
 				'name' => 'full',
-				'description' => __('Full'),
+				'description' => __d('seeds', 'Full'),
 				'active' => '1',
 				'priority' => 1,
 				'report_as' => 'full',
@@ -22,7 +22,7 @@ class MembershipTypesSeed extends AbstractSeed {
 			],
 			[
 				'name' => 'intro',
-				'description' => __('Introductory'),
+				'description' => __d('seeds', 'Introductory'),
 				'active' => '1',
 				'priority' => 2,
 				'report_as' => 'intro',
@@ -30,7 +30,7 @@ class MembershipTypesSeed extends AbstractSeed {
 			],
 			[
 				'name' => 'junior_intro',
-				'description' => __('Junior Introductory'),
+				'description' => __d('seeds', 'Junior Introductory'),
 				'active' => '0',
 				'priority' => 2,
 				'report_as' => 'intro',
@@ -38,7 +38,7 @@ class MembershipTypesSeed extends AbstractSeed {
 			],
 			[
 				'name' => 'trial',
-				'description' => __('Trial'),
+				'description' => __d('seeds', 'Trial'),
 				'active' => '0',
 				'priority' => 2,
 				'report_as' => 'intro',
@@ -46,15 +46,22 @@ class MembershipTypesSeed extends AbstractSeed {
 			],
 			[
 				'name' => 'touring',
-				'description' => __('Touring'),
+				'description' => __d('seeds', 'Touring'),
 				'active' => '0',
 				'priority' => 3,
 				'report_as' => 'touring',
 				'badge' => 'member_touring',
 			],
 		];
+	}
 
+	/**
+	 * Run Method.
+	 *
+	 * @return void
+	 */
+	public function run() {
 		$table = $this->table('membership_types');
-		$table->insert($data)->save();
+		$table->insert($this->data())->save();
 	}
 }

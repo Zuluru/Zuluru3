@@ -40,6 +40,7 @@ class ResponsesTableTest extends TableTestCase {
 				'app.prices',
 					'app.registrations',
 						'app.responses',
+		'app.i18n',
 	];
 
 	/**

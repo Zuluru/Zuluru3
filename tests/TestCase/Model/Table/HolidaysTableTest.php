@@ -24,6 +24,7 @@ class HolidaysTableTest extends TableTestCase {
 	public $fixtures = [
 		'app.affiliates',
 			'app.holidays',
+		'app.i18n',
 	];
 
 	/**

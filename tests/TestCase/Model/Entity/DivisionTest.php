@@ -53,6 +53,7 @@ class DivisionTest extends TestCase {
 						'app.pools_teams',
 					'app.games',
 			'app.settings',
+		'app.i18n',
 	];
 
 	/**

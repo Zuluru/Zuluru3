@@ -24,6 +24,7 @@ class ContactsTableTest extends TableTestCase {
 	public $fixtures = [
 		'app.affiliates',
 			'app.contacts',
+		'app.i18n',
 	];
 
 	/**

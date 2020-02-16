@@ -760,7 +760,7 @@ class SchedulesController extends AppController {
 						'Divisions' => [
 							'Days' => [
 								'queryBuilder' => function (Query $q) {
-									return $q->order(['day_id']);
+									return $q->order(['DivisionsDays.day_id']);
 								},
 							],
 						],
@@ -793,22 +793,22 @@ class SchedulesController extends AppController {
 					'contain' => [
 						'Days' => [
 							'queryBuilder' => function (Query $q) {
-								return $q->order(['day_id']);
+								return $q->order(['DivisionsDays.day_id']);
 							},
 						],
 						'Teams' => [
 							'queryBuilder' => function (Query $q) {
-								return $q->order(['name']);
+								return $q->order(['Teams.name']);
 							},
 						],
 						'Leagues',
 						'Pools' => [
 							'queryBuilder' => function (Query $q) {
-								return $q->order(['id']);
+								return $q->order(['Pools.id']);
 							},
 							'PoolsTeams' => [
 								'queryBuilder' => function (Query $q) {
-									return $q->order(['id']);
+									return $q->order(['PoolsTeams.id']);
 								},
 							],
 						],
@@ -1075,7 +1075,7 @@ class SchedulesController extends AppController {
 						'Divisions' => [
 							'Days' => [
 								'queryBuilder' => function (Query $q) {
-									return $q->order(['day_id']);
+									return $q->order(['DivisionsDays.day_id']);
 								},
 							],
 						],
@@ -1106,7 +1106,7 @@ class SchedulesController extends AppController {
 					'contain' => [
 						'Days' => [
 							'queryBuilder' => function (Query $q) {
-								return $q->order(['day_id']);
+								return $q->order(['DivisionsDays.day_id']);
 							},
 						],
 					]

@@ -29,6 +29,7 @@ class TaskSlotsTableTest extends TableTestCase {
 			'app.categories',
 				'app.tasks',
 					'app.task_slots',
+		'app.i18n',
 	];
 
 	/**

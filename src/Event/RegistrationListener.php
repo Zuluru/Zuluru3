@@ -23,7 +23,7 @@ class RegistrationListener implements EventListenerInterface {
 	public function registrationRemoved(CakeEvent $cakeEvent, $registration) {
 		AppController::_sendMail([
 			'to' => $registration->person,
-			'subject' => __('{0} Registration removed', Configure::read('organization.name')),
+			'subject' => function() { return __('{0} Registration removed', Configure::read('organization.name')); },
 			'template' => 'registration_removed',
 			'sendAs' => 'both',
 			'viewVars' => [
@@ -37,7 +37,7 @@ class RegistrationListener implements EventListenerInterface {
 	public function registrationWaitlisted(CakeEvent $cakeEvent, $registration) {
 		AppController::_sendMail([
 			'to' => $registration->person,
-			'subject' => __('{0} Registration moved to waiting list', Configure::read('organization.name')),
+			'subject' => function() { return __('{0} Registration moved to waiting list', Configure::read('organization.name')); },
 			'template' => 'registration_waiting',
 			'sendAs' => 'both',
 			'viewVars' => [
@@ -51,7 +51,7 @@ class RegistrationListener implements EventListenerInterface {
 	public function registrationOpened(CakeEvent $cakeEvent, $registration) {
 		AppController::_sendMail([
 			'to' => $registration->person,
-			'subject' => __('{0} Waiting list opening', Configure::read('organization.name')),
+			'subject' => function() { return __('{0} Waiting list opening', Configure::read('organization.name')); },
 			'template' => 'registration_opening',
 			'sendAs' => 'both',
 			'viewVars' => [

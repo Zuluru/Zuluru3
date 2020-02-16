@@ -68,12 +68,12 @@ class ReportPeopleRetention extends Report{
 		$people = $registrations_table->find()
 			->select('person_id')
 			->where([
-				'event_id IN' => array_keys($event_list),
-				'payment' => 'Paid',
+				'Registrations.event_id IN' => array_keys($event_list),
+				'Registrations.payment' => 'Paid',
 			]);
 		$member_list = $registrations_table->People->find()
-			->where(['id IN' => $people])
-			->order(['id'])
+			->where(['People.id IN' => $people])
+			->order(['People.id'])
 			->toArray();
 		foreach ($member_list as $person) {
 			// For large membership databases, this minimizes memory usage, increasing the chance that the report will run to completion
@@ -81,9 +81,9 @@ class ReportPeopleRetention extends Report{
 
 			$person->event_ids = $registrations_table->find()
 				->where([
-					'person_id' => $person->id,
-					'event_id IN' => array_keys($event_list),
-					'payment' => 'Paid',
+					'Registrations.person_id' => $person->id,
+					'Registrations.event_id IN' => array_keys($event_list),
+					'Registrations.payment' => 'Paid',
 				])
 				->extract('event_id')
 				->toArray();
@@ -172,7 +172,7 @@ class ReportPeopleRetention extends Report{
 
 		AppController::_sendMail([
 			'to' => $recipient,
-			'subject' => __('{0} Retention Report', Configure::read('organization.short_name')),
+			'subject' => function() { return __('{0} Retention Report', Configure::read('organization.short_name')); },
 			'content' => __('Please find attached your retention report for {0} to {1}.', $params['start'], $params['end']),
 			'sendAs' => 'text',
 			'attachments' => [

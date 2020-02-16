@@ -23,9 +23,9 @@ class IncidentsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('incidents');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('incidents');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
 
@@ -80,7 +80,7 @@ class IncidentsTable extends AppTable {
 
 	public function division($id) {
 		try {
-			return $this->Games->division($this->field('game_id', ['id' => $id]));
+			return $this->Games->division($this->field('game_id', ['Incidents.id' => $id]));
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}
@@ -88,7 +88,7 @@ class IncidentsTable extends AppTable {
 
 	public function team($id) {
 		try {
-			return $this->field('team_id', ['id' => $id]);
+			return $this->field('team_id', ['Incidents.id' => $id]);
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

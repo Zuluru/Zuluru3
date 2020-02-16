@@ -27,6 +27,7 @@ class QuestionnairesTableTest extends TableTestCase {
 				'app.answers',
 			'app.questionnaires',
 				'app.questionnaires_questions',
+		'app.i18n',
 	];
 
 	/**

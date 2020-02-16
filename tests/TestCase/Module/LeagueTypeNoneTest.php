@@ -35,6 +35,7 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 					'app.games',
 						'app.spirit_entries',
 		'app.settings',
+		'app.i18n',
 	];
 
 	/**

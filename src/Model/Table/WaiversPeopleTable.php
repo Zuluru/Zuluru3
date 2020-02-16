@@ -22,9 +22,9 @@ class WaiversPeopleTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('waivers_people');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('waivers_people');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Timestamp');
 

@@ -73,7 +73,7 @@ if ($options):
 		<fieldset>
 			<legend><?= __('Location') ?></legend>
 			<p><?= __('When scheduling games, {0} will look for {1} that match the criteria specified below for the home team{2}. Note that the options available here may change through the season if {1} are added to, or removed from, circulation.',
-				ZULURU, __(Configure::read('UI.fields')), $options > 1 ? __(', from top to bottom') : '') ?></p>
+				ZULURU, Configure::read('UI.fields'), $options > 1 ? __(', from top to bottom') : '') ?></p>
 
 <?php
 	if ($this->Authorize->can('edit_home_field', $team)) {

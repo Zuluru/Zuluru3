@@ -27,7 +27,7 @@ if ($identity && $identity->isManager()):
 	echo $this->Html->tag('li', $this->Html->link(__('Site Setup and Configuration'), ['controller' => 'Help', 'action' => 'guide', 'administrator', 'setup']));
 	echo $this->Html->tag('li', $this->Html->link(__('Player Management'), ['controller' => 'Help', 'action' => 'guide', 'administrator', 'players']));
 	echo $this->Html->tag('li', $this->Html->link(__('League Management'), ['controller' => 'Help', 'action' => 'guide', 'administrator', 'leagues']));
-	echo $this->Html->tag('li', $this->Html->link(__('{0} Management', __(Configure::read('UI.field_cap'))), ['controller' => 'Help', 'action' => 'guide', 'administrator', 'fields']));
+	echo $this->Html->tag('li', $this->Html->link(__('{0} Management', Configure::read('UI.field_cap')), ['controller' => 'Help', 'action' => 'guide', 'administrator', 'fields']));
 	echo $this->Html->tag('li', $this->Html->link(__('Registration'), ['controller' => 'Help', 'action' => 'guide', 'administrator', 'registration']));
 ?>
 	</ul>
@@ -57,7 +57,7 @@ if ($identity && ($identity->isManager() || $identity->isCoordinator())) {
 		$this->Html->link(__('Divisions'), ['controller' => 'Help', 'action' => 'divisions']));
 }
 if ($identity && $identity->isManager()) {
-	echo $this->Html->tag('li', $this->Html->link(__('{0} and {1}', __('Facilities'), __(Configure::read('UI.fields_cap'))), ['controller' => 'Help', 'action' => 'facilities']));
+	echo $this->Html->tag('li', $this->Html->link(__('{0} and {1}', __('Facilities'), Configure::read('UI.fields_cap')), ['controller' => 'Help', 'action' => 'facilities']));
 	echo $this->Html->tag('li', $this->Html->link(__('Rules Engine'), ['controller' => 'Help', 'action' => 'rules']));
 	echo $this->Html->tag('li', $this->Html->link(__('Configuration'), ['controller' => 'Help', 'action' => 'settings']));
 }

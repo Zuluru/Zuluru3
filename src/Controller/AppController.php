@@ -4,16 +4,15 @@ namespace App\Controller;
 use App\Core\UserCache;
 use App\Core\ModuleRegistry;
 use App\Model\Entity\Person;
+use App\Mailer\Email;
 use Cake\Cache\Cache;
 use Cake\Controller\Controller;
 use Cake\Core\Configure;
 use Cake\Event\Event as CakeEvent;
 use Cake\Event\EventManager;
 use Cake\I18n\FrozenTime;
-use Cake\I18n\I18n;
 use Cake\I18n\Number;
 use Cake\Log\Log;
-use Cake\Mailer\Email;
 use Cake\Network\Exception\SocketException;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
@@ -159,6 +158,7 @@ class AppController extends Controller {
 			if (($this->request->getParam('controller') != 'People' || $this->request->action != 'edit') && $this->UserCache->read('Person.user_id') && !$this->request->is('json')) {
 				if (empty($this->UserCache->read('Person.email'))) {
 					$this->Flash->warning(__('Last time we tried to contact you, your email bounced. We require a valid email address as part of your profile. You must update it before proceeding.'));
+					$this->Authorization->skipAuthorization();
 					return $this->forceRedirect(['controller' => 'People', 'action' => 'edit']);
 				}
 			}
@@ -223,6 +223,14 @@ class AppController extends Controller {
 		Configure::load('sports', 'default', false);
 		$configuration_table = TableRegistry::get('Configuration');
 		$configuration_table->loadSystem();
+
+		$field = env('FIELD_NAME', 'field');
+		Configure::write('UI', [
+			'field' => __($field),
+			'field_cap' => __(Inflector::humanize($field)),
+			'fields' => __(Inflector::pluralize($field)),
+			'fields_cap' => __(Inflector::humanize(Inflector::pluralize($field))),
+		]);
 	}
 
 	public function beforeRender(CakeEvent $cakeEvent) {
@@ -243,15 +251,21 @@ class AppController extends Controller {
 	}
 
 	/**
-	 * Redirects to given $url, unless there is a "return" referer to go to instead.
-	 * Script execution is halted after the redirect.
+	 * Redirects to given $url, after turning off $this->autoRender, unless there is a "return" referer to go to instead.
 	 *
 	 * @param string|array $url A string or array-based URL pointing to another location within the app,
 	 *     or an absolute URL
 	 * @param int $status HTTP status code (eg: 301)
-	 * @return void|\Cake\Network\Response
+	 * @return \Cake\Http\Response|null
+	 * @link https://book.cakephp.org/3/en/controllers.html#Controller::redirect
 	 */
 	public function redirect($url, $status = 302) {
+		$this->autoRender = false;
+
+		if ($status) {
+			$this->response = $this->response->withStatus($status);
+		}
+
 		if ($this->request->getQuery('return')) {
 			// If there's a return requested, and nothing already saved to return to, remember the referrer
 			$url = $this->decodeRedirect($this->request->getQuery('return'));
@@ -259,7 +273,26 @@ class AppController extends Controller {
 			$url = $this->request->getQuery('redirect');
 		}
 
-		return $this->forceRedirect($url, $status);
+		// String URLs might have come from $this->here, or might be '/'.
+		// Either way, they need to be normalized.
+		if (is_string($url)) {
+			$url = Router::normalize($url);
+		}
+
+		$event = $this->dispatchEvent('Controller.beforeRedirect', [$url, $this->response]);
+		if ($event->getResult() instanceof Response) {
+			return $this->response = $event->getResult();
+		}
+		if ($event->isStopped()) {
+			return null;
+		}
+		$response = $this->response;
+
+		if (!$response->getHeaderLine('Location')) {
+			$response = $response->withLocation(Router::url($url));
+		}
+
+		return $this->response = $response;
 	}
 
 	/**
@@ -269,17 +302,16 @@ class AppController extends Controller {
 	 * @param string|array $url A string or array-based URL pointing to another location within the app,
 	 *     or an absolute URL
 	 * @param int $status HTTP status code (eg: 301)
-	 * @return void|\Cake\Network\Response
+	 * @return \Cake\Http\Response|null
 	 * @link http://book.cakephp.org/3.0/en/controllers.html#Controller::redirect
 	 */
 	public function forceRedirect($url, $status = 302) {
-		// String URLs might have come from $this->here, or might be '/'.
-		// Either way, they need to be normalized.
-		if (is_string($url)) {
-			$url = Router::normalize($url);
-		}
+		$params = $this->request->getQueryParams();
+		unset($params['redirect']);
+		unset($params['return']);
+		$this->request = $this->request->withQueryParams($params);
 
-		return parent::redirect($url, $status);
+		return $this->redirect($url, $status);
 	}
 
 	private function decodeRedirect($url) {
@@ -318,12 +350,12 @@ class AppController extends Controller {
 		$this->loadModel('Affiliates');
 
 		$conditions = [
-			'active' => true,
+			'Affiliates.active' => true,
 		];
 		$managed = $this->UserCache->read('ManagedAffiliateIDs');
 		if (!empty($managed)) {
 			$conditions['NOT'] = [
-				'id IN' => $managed,
+				'Affiliates.id IN' => $managed,
 			];
 		}
 
@@ -505,26 +537,26 @@ class AppController extends Controller {
 			}
 		}
 
-		$this->_addMenuItem(__(Configure::read('UI.fields_cap')), ['controller' => 'Facilities', 'action' => 'index']);
-		$this->_addMenuItem(__('List'), ['controller' => 'Facilities', 'action' => 'index'], __(Configure::read('UI.fields_cap')));
-		$this->_addMenuItem(__('Map of All {0}', __(Configure::read('UI.fields_cap'))), ['controller' => 'Maps', 'action' => 'index'], __(Configure::read('UI.fields_cap')), null, ['target' => 'map']);
+		$this->_addMenuItem(Configure::read('UI.fields_cap'), ['controller' => 'Facilities', 'action' => 'index']);
+		$this->_addMenuItem(__('List'), ['controller' => 'Facilities', 'action' => 'index'], Configure::read('UI.fields_cap'));
+		$this->_addMenuItem(__('Map of All {0}', Configure::read('UI.fields_cap')), ['controller' => 'Maps', 'action' => 'index'], Configure::read('UI.fields_cap'), null, ['target' => 'map']);
 		if ($identity && $identity->isManager()) {
-			$this->_addMenuItem(__('Closed Facilities'), ['controller' => 'Facilities', 'action' => 'closed'], __(Configure::read('UI.fields_cap')));
-			$this->_addMenuItem(__('Create Facility'), ['controller' => 'Facilities', 'action' => 'add'], __(Configure::read('UI.fields_cap')));
+			$this->_addMenuItem(__('Closed Facilities'), ['controller' => 'Facilities', 'action' => 'closed'], Configure::read('UI.fields_cap'));
+			$this->_addMenuItem(__('Create Facility'), ['controller' => 'Facilities', 'action' => 'add'], Configure::read('UI.fields_cap'));
 
 			if (!Configure::read('feature.affiliates')) {
-				$this->_addMenuItem(__('Add Bulk Game Slots'), ['controller' => 'GameSlots', 'action' => 'add'], __(Configure::read('UI.fields_cap')));
+				$this->_addMenuItem(__('Add Bulk Game Slots'), ['controller' => 'GameSlots', 'action' => 'add'], Configure::read('UI.fields_cap'));
 			} else if (count($affiliates) == 1) {
-				$this->_addMenuItem(__('Add Bulk Game Slots'), ['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => current(array_keys($affiliates))], __(Configure::read('UI.fields_cap')));
+				$this->_addMenuItem(__('Add Bulk Game Slots'), ['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => current(array_keys($affiliates))], Configure::read('UI.fields_cap'));
 			} else {
 				foreach ($affiliates as $affiliate => $name) {
-					$this->_addMenuItem(__($name), ['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => $affiliate], [__(Configure::read('UI.fields_cap')), __('Add Bulk Game Slots')]);
+					$this->_addMenuItem(__($name), ['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => $affiliate], [Configure::read('UI.fields_cap'), __('Add Bulk Game Slots')]);
 				}
 			}
 
-			$this->_addMenuItem(__('Regions'), ['controller' => 'Regions', 'action' => 'index'], __(Configure::read('UI.fields_cap')));
-			$this->_addMenuItem(__('List'), ['controller' => 'Regions', 'action' => 'index'], [__(Configure::read('UI.fields_cap')), __('Regions')]);
-			$this->_addMenuItem(__('Create Region'), ['controller' => 'Regions', 'action' => 'add'], [__(Configure::read('UI.fields_cap')), __('Regions')]);
+			$this->_addMenuItem(__('Regions'), ['controller' => 'Regions', 'action' => 'index'], Configure::read('UI.fields_cap'));
+			$this->_addMenuItem(__('List'), ['controller' => 'Regions', 'action' => 'index'], [Configure::read('UI.fields_cap'), __('Regions')]);
+			$this->_addMenuItem(__('Create Region'), ['controller' => 'Regions', 'action' => 'add'], [Configure::read('UI.fields_cap'), __('Regions')]);
 
 			$this->loadModel('People');
 			if (!Configure::read('feature.minimal_menus')) {
@@ -771,7 +803,7 @@ class AppController extends Controller {
 		if ($identity && $identity->isManager()) {
 			$this->_addMenuItem(__('Player Management'), ['controller' => 'Help', 'action' => 'guide', 'administrator', 'players'], [__('Help'), __('Administrators')]);
 			$this->_addMenuItem(__('League Management'), ['controller' => 'Help', 'action' => 'guide', 'administrator', 'leagues'], [__('Help'), __('Administrators')]);
-			$this->_addMenuItem(__('{0} Management', __(Configure::read('UI.field_cap'))), ['controller' => 'Help', 'action' => 'guide', 'administrator', 'fields'], [__('Help'), __('Administrators')]);
+			$this->_addMenuItem(__('{0} Management', Configure::read('UI.field_cap')), ['controller' => 'Help', 'action' => 'guide', 'administrator', 'fields'], [__('Help'), __('Administrators')]);
 			$this->_addMenuItem(__('Registration'), ['controller' => 'Help', 'action' => 'guide', 'administrator', 'registration'], [__('Help'), __('Administrators')]);
 		}
 
@@ -934,9 +966,13 @@ class AppController extends Controller {
 
 		// Set up default values where applicable
 		if (!array_key_exists('from', $opts)) {
-			$email->from([Configure::read('email.admin_email') => Configure::read('email.admin_name')]);
+			$email->setFrom([Configure::read('email.admin_email') => Configure::read('email.admin_name')]);
 		}
 		// TODO: Use $email->returnPath to set address for delivery failures
+
+		// Prepare for building the list of locales to send the email in
+		$locale = Configure::read('App.defaultLocale');
+		$locales = [substr($locale, 0, 2) => $locale];
 
 		// We may have been given complex Person arrays that the sender wants us to extract details from
 		foreach (['to' => false, 'cc' => false, 'bcc' => false, 'from' => true, 'replyTo' => true] as $var => $single) {
@@ -945,16 +981,21 @@ class AppController extends Controller {
 				if (!empty($emails)) {
 					$email->$var($emails);
 				}
+				$locales = self::_extractLocales($opts[$var], $locales);
 			}
 		}
 
 		// If there are no recipients, don't even bother trying to send
-		if (empty($email->to())) {
+		if (empty($email->getTo())) {
 			return (!empty($opts['ignore_empty_address']));
 		}
 
+		// Randomly order the list of locales, so there's no preference shown to anyone, and remember the default
+		shuffle($locales);
+		$email->setLocales($locales);
+
 		// Set required fields
-		$email->emailFormat($opts['sendAs'])->subject($opts['subject']);
+		$email->setEmailFormat($opts['sendAs'])->setSubject($opts['subject']);
 
 		// Add any custom headers
 		if (array_key_exists('header', $opts)) {
@@ -963,7 +1004,7 @@ class AppController extends Controller {
 
 		// Add any view variables
 		if (array_key_exists('viewVars', $opts)) {
-			$email->viewVars($opts['viewVars']);
+			$email->setViewVars($opts['viewVars']);
 		}
 
 		// Check if there are attachments to be included
@@ -975,10 +1016,10 @@ class AppController extends Controller {
 			$attachments = array_merge($attachments, $opts['attachments']);
 		}
 		if (!empty($attachments)) {
-			$email->attachments($attachments);
+			$email->setAttachments($attachments);
 		}
 
-		$email->helpers([
+		$email->viewBuilder()->setHelpers([
 			'Number', 'Text',
 			'Html' => ['className' => 'ZuluruHtml'],
 			'Time' => ['className' => 'ZuluruTime'],
@@ -989,7 +1030,7 @@ class AppController extends Controller {
 			if (array_key_exists('content', $opts)) {
 				$email->send($opts['content']);
 			} else {
-				$email->template($opts['template']);
+				$email->viewBuilder()->setTemplate($opts['template']);
 				$email->send();
 			}
 		} catch (SocketException $ex) {
@@ -1006,7 +1047,7 @@ class AppController extends Controller {
 		// Set the theme, if any
 		$theme = Configure::read('App.theme');
 		if (!empty($theme)) {
-			$mailer->theme($theme);
+			$mailer->viewBuilder()->setTheme($theme);
 		}
 
 		return $mailer;
@@ -1091,6 +1132,30 @@ class AppController extends Controller {
 			return null;
 		}
 		return array_slice($emails, 0, 1, true);
+	}
+
+	public static function _extractLocales($input, $locales) {
+		if (is_a($input, 'App\Model\Entity\Person')) {
+			// If it's a person, check if they have a language preference
+			$preference = TableRegistry::get('Settings')->find()
+				->where(['person_id' => $input->id, 'name' => 'language'])
+				->first();
+			if ($preference && $preference->value) {
+				$locale = substr($preference->value, 0, 2);
+				if (!array_key_exists($locale, $locales)) {
+					$locales[$locale] = $preference->value;
+				}
+			}
+		} else if (is_array($input)) {
+			// Any other array, assume it's a list of entities, and process each one
+			foreach ($input as $key => $value) {
+				if (is_numeric($key)) {
+					$locales = AppController::_extractLocales($value, $locales);
+				}
+			}
+		}
+
+		return $locales;
 	}
 
 	protected function _handlePersonSearch(array $url_params = [], array $conditions = []) {

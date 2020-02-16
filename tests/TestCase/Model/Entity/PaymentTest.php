@@ -28,6 +28,7 @@ class PaymentTest extends TestCase {
 				'app.prices',
 					'app.registrations',
 						'app.payments',
+		'app.i18n',
 	];
 
 	/**

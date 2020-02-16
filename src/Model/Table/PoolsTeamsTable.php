@@ -23,9 +23,9 @@ class PoolsTeamsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('pools_teams');
-		$this->displayField('alias');
-		$this->primaryKey('id');
+		$this->setTable('pools_teams');
+		$this->setDisplayField('alias');
+		$this->setPrimaryKey('id');
 
 		$this->belongsTo('Pools', [
 			'foreignKey' => 'pool_id',

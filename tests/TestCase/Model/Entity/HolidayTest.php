@@ -23,6 +23,7 @@ class HolidayTest extends TestCase {
 	public $fixtures = [
 		'app.affiliates',
 			'app.holidays',
+		'app.i18n',
 	];
 
 	/**

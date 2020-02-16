@@ -24,6 +24,7 @@ class ActAsIdentityTest extends IntegrationTestCase {
 			'app.groups',
 				'app.groups_people',
 			'app.settings',
+		'app.i18n',
 	];
 
 	/**

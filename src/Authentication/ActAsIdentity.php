@@ -280,7 +280,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 			if ($entity->has('person')) {
 				$person_id = $entity->person->id;
 			} else {
-				$person_id = TableRegistry::get('People')->field('id', ['user_id' => $entity->id]);
+				$person_id = TableRegistry::get('People')->field('id', ['People.user_id' => $entity->id]);
 			}
 			$affiliates = UserCache::getInstance()->read('AffiliateIDs', $person_id);
 			$intersection = array_intersect($this->_managedAffiliateIds, $affiliates);
@@ -538,7 +538,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 			if ($entity->has('person')) {
 				$person_id = $entity->person->id;
 			} else {
-				$person_id = TableRegistry::get('People')->field('id', ['user_id' => $entity->id]);
+				$person_id = TableRegistry::get('People')->field('id', ['People.user_id' => $entity->id]);
 			}
 		} else if ($entity && $entity->has('person_id')) {
 			$person_id = $entity->person_id;
@@ -576,7 +576,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 			if ($entity->has('person')) {
 				$person_id = $entity->person->id;
 			} else {
-				$person_id = TableRegistry::get('People')->field('id', ['user_id' => $entity->id]);
+				$person_id = TableRegistry::get('People')->field('id', ['People.user_id' => $entity->id]);
 			}
 		} else if ($entity->has('person_id')) {
 			$person_id = $entity->person_id;
@@ -633,7 +633,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 			if (!$admin_only || $this->_isAdmin || in_array($affiliate, $this->_managedAffiliateIds)) {
 				return $affiliates_table->find()
 					->hydrate(false)
-					->where(['id' => $affiliate])
+					->where(['Affiliates.id' => $affiliate])
 					->combine('id', 'name')
 					->toArray();
 			}

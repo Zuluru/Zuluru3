@@ -1,6 +1,9 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use App\Application;
+use Cake\Core\Configure;
+use Cake\I18n\I18n;
 use Cake\ORM\TableRegistry;
 use App\Controller\AppController;
 
@@ -22,6 +25,7 @@ class AppControllerTest extends ControllerTestCase {
 			'app.groups',
 				'app.groups_people',
 			'app.settings',
+		'app.i18n',
 	];
 
 	/**
@@ -129,7 +133,82 @@ class AppControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSendMail() {
-		$this->markTestIncomplete('Not implemented yet.');
+		$captain = TableRegistry::getTableLocator()->get('People')->get(PERSON_ID_CAPTAIN);
+		$sub = TableRegistry::getTableLocator()->get('People')->get(PERSON_ID_ANDY_SUB);
+
+		Configure::load('options');
+		$config = TableRegistry::getTableLocator()->exists('Configuration') ? [] : ['className' => 'App\Model\Table\ConfigurationTable'];
+		$configurationTable = TableRegistry::getTableLocator()->get('Configuration', $config);
+		$configurationTable->loadSystem();
+		Application::getLocales();
+
+		$en_sub = __('{0} approved your relative request', $captain->full_name);
+		$en_text = __('Your relative request to {0} on the {1} web site has been approved.', $captain->full_name, Configure::read('organization.name'));
+		I18n::setLocale('fr');
+		$fr_sub = __('{0} approved your relative request', $captain->full_name);
+		$fr_text = __('Your relative request to {0} on the {1} web site has been approved.', $captain->full_name, Configure::read('organization.name'));
+		I18n::setLocale('es');
+		$es_sub = __('{0} approved your relative request', $captain->full_name);
+		$es_text = __('Your relative request to {0} on the {1} web site has been approved.', $captain->full_name, Configure::read('organization.name'));
+		I18n::setLocale('en');
+		$this->assertTextContains('Your relative request', $en_text);
+		$this->assertTextNotContains('Your relative request', $fr_text);
+
+		// Should send in English only (system language; captain has no preference)
+		AppController::_sendMail([
+			'to' => $captain,
+			'subject' => function() use ($captain) { return __('{0} approved your relative request', $captain->full_name); },
+			'template' => 'relative_approve',
+			'sendAs' => 'both',
+			'viewVars' => ['person' => $captain, 'relative' => $sub],
+		]);
+
+		$messages = Configure::consume('test_emails');
+		$this->assertEquals(1, count($messages));
+
+		$this->assertTextContains($en_sub, $messages[0]);
+		$this->assertTextNotContains($fr_sub, $messages[0]);
+		$this->assertTextContains($en_text, $messages[0]);
+		$this->assertTextNotContains($fr_text, $messages[0]);
+
+		// Should send in English and French (system language plus sub's preference)
+		AppController::_sendMail([
+			'to' => $sub,
+			'subject' => function() use ($captain) { return __('{0} approved your relative request', $captain->full_name); },
+			'template' => 'relative_approve',
+			'sendAs' => 'both',
+			'viewVars' => ['person' => $captain, 'relative' => $sub],
+		]);
+
+		$messages = Configure::consume('test_emails');
+		$this->assertEquals(1, count($messages));
+
+		// TODO: Subject tests don't work, due to UTF encoding and line breaks
+		//$this->assertTextContains($en_sub, $messages[0]);
+		//$this->assertTextContains($fr_sub, $messages[0]);
+		$this->assertTextContains($en_text, $messages[0]);
+		$this->assertTextContains($fr_text, $messages[0]);
+
+		// Should send in Spanish and French (system language plus sub's preference)
+		Configure::write('App.defaultLocale', 'es');
+		AppController::_sendMail([
+			'to' => $sub,
+			'subject' => function() use ($captain) { return __('{0} approved your relative request', $captain->full_name); },
+			'template' => 'relative_approve',
+			'sendAs' => 'both',
+			'viewVars' => ['person' => $captain, 'relative' => $sub],
+		]);
+
+		$messages = Configure::consume('test_emails');
+		$this->assertEquals(1, count($messages));
+
+		// TODO: Subject tests don't work, due to UTF encoding and line breaks
+		//$this->assertTextNotContains($en_sub, $messages[0]);
+		//$this->assertTextContains($es_sub, $messages[0]);
+		//$this->assertTextContains($fr_sub, $messages[0]);
+		$this->assertTextNotContains($en_text, $messages[0]);
+		$this->assertTextContains($es_text, $messages[0]);
+		$this->assertTextContains($fr_text, $messages[0]);
 	}
 
 	/**
@@ -138,6 +217,15 @@ class AppControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testExtractEmails() {
+		$this->markTestIncomplete('Not implemented yet.');
+	}
+
+	/**
+	 * Test _extractLocales method
+	 *
+	 * @return void
+	 */
+	public function testExtractLocales() {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

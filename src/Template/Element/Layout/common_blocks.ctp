@@ -210,6 +210,13 @@ if (!$this->fetch('language_scripts')) {
 		]);
 		echo $this->Html->scriptBlock('
 jQuery(".uls-trigger").uls({
+	// Locate the dialog right-aligned with the trigger.
+	// TODO: Likely needs to change with RTL languages.
+	onVisible : function () {
+		var trigger = jQuery(".uls-trigger").first();
+		var right = jQuery(window).width() - (trigger.offset().left + trigger.outerWidth());
+		jQuery(".uls-menu").css("left", "").css("right", right + "px");
+	},
 	onSelect : function (language) {
 		window.location = "' . $this->Url->build(['controller' => 'All', 'action' => 'language', 'return' => AppController::_return()], true) . '&lang=" + language;
 	},

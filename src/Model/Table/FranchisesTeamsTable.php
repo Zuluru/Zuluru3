@@ -18,9 +18,9 @@ class FranchisesTeamsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('franchises_teams');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('franchises_teams');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->belongsTo('Franchises', [
 			'foreignKey' => 'franchise_id',

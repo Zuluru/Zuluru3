@@ -42,9 +42,9 @@ class FieldsController extends AppController {
 	public function view() {
 		$id = $this->request->getQuery('field');
 		try {
-			$facility_id = $this->Fields->field('facility_id', ['id' => $id]);
+			$facility_id = $this->Fields->field('facility_id', ['Fields.id' => $id]);
 		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid {0}.', __(Configure::read('UI.field'))));
+			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
 
@@ -67,10 +67,10 @@ class FieldsController extends AppController {
 				]
 			]);
 		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid {0}.', __(Configure::read('UI.field'))));
+			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		} catch (InvalidPrimaryKeyException $ex) {
-			$this->Flash->info(__('Invalid {0}.', __(Configure::read('UI.field'))));
+			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
 
@@ -90,17 +90,17 @@ class FieldsController extends AppController {
 		try {
 			$field = $this->Fields->get($id);
 		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid {0}.', __(Configure::read('UI.field'))));
+			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		} catch (InvalidPrimaryKeyException $ex) {
-			$this->Flash->info(__('Invalid {0}.', __(Configure::read('UI.field'))));
+			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
 		$this->Authorization->authorize($field);
 
 		$field->is_open = true;
 		if (!$this->Fields->save($field)) {
-			$this->Flash->warning(__('Failed to open {0} "{1}".', __(Configure::read('UI.field')), addslashes($field->long_name)));
+			$this->Flash->warning(__('Failed to open {0} "{1}".', Configure::read('UI.field'), addslashes($field->long_name)));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
 
@@ -119,17 +119,17 @@ class FieldsController extends AppController {
 		try {
 			$field = $this->Fields->get($id);
 		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid {0}.', __(Configure::read('UI.field'))));
+			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		} catch (InvalidPrimaryKeyException $ex) {
-			$this->Flash->info(__('Invalid {0}.', __(Configure::read('UI.field'))));
+			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
 		$this->Authorization->authorize($field);
 
 		$field->is_open = false;
 		if (!$this->Fields->save($field)) {
-			$this->Flash->warning(__('Failed to close {0} "{1}".', __(Configure::read('UI.field')), addslashes($field->long_name)));
+			$this->Flash->warning(__('Failed to close {0} "{1}".', Configure::read('UI.field'), addslashes($field->long_name)));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
 
@@ -150,28 +150,28 @@ class FieldsController extends AppController {
 				'contain' => ['Facilities' => ['Fields']],
 			]);
 		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid {0}.', __(Configure::read('UI.field'))));
+			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		} catch (InvalidPrimaryKeyException $ex) {
-			$this->Flash->info(__('Invalid {0}.', __(Configure::read('UI.field'))));
+			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
 		$this->Authorization->authorize($field);
 
 		$dependencies = $this->Fields->dependencies($id);
 		if ($dependencies !== false) {
-			$this->Flash->warning(__('The following records reference this {0}, so it cannot be deleted.', __(Configure::read('UI.field'))) . '<br>' . $dependencies, ['params' => ['escape' => false]]);
+			$this->Flash->warning(__('The following records reference this {0}, so it cannot be deleted.', Configure::read('UI.field')) . '<br>' . $dependencies, ['params' => ['escape' => false]]);
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
 
 		if ($this->Fields->delete($field)) {
-			$this->Flash->success(__('The {0} has been deleted.', __(Configure::read('UI.field'))));
+			$this->Flash->success(__('The {0} has been deleted.', Configure::read('UI.field')));
 		} else {
 			$errors = $field->errors();
 			if (array_key_exists('delete', $errors)) {
 				$this->Flash->warning(current($errors['delete']));
 			} else {
-				$this->Flash->warning(__('The {0} could not be deleted. Please, try again.', __(Configure::read('UI.field'))));
+				$this->Flash->warning(__('The {0} could not be deleted. Please, try again.', Configure::read('UI.field')));
 			}
 		}
 
@@ -227,10 +227,10 @@ class FieldsController extends AppController {
 				]
 			]);
 		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid {0}.', __(Configure::read('UI.field'))));
+			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		} catch (InvalidPrimaryKeyException $ex) {
-			$this->Flash->info(__('Invalid {0}.', __(Configure::read('UI.field'))));
+			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
 

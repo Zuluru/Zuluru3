@@ -38,6 +38,7 @@ class SpiritEntriesTableTest extends TableTestCase {
 						'app.pools_teams',
 					'app.games',
 						'app.spirit_entries',
+		'app.i18n',
 	];
 
 	/**

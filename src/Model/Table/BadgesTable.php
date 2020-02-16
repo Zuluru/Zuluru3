@@ -23,9 +23,11 @@ class BadgesTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('badges');
-		$this->displayField('name');
-		$this->primaryKey('id');
+		$this->setTable('badges');
+		$this->setDisplayField('name');
+		$this->setPrimaryKey('id');
+
+		$this->addBehavior('Translate', ['fields' => ['name', 'description']]);
 
 		$this->belongsTo('Affiliates', [
 			'foreignKey' => 'affiliate_id',
@@ -105,7 +107,7 @@ class BadgesTable extends AppTable {
 
 	public function affiliate($id) {
 		try {
-			return $this->field('affiliate_id', ['id' => $id]);
+			return $this->field('affiliate_id', ['Badges.id' => $id]);
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

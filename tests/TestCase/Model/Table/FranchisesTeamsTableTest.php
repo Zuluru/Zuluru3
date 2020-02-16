@@ -25,6 +25,7 @@ class FranchisesTeamsTableTest extends TableTestCase {
 		'app.affiliates',
 			'app.franchises',
 				'app.franchises_teams',
+		'app.i18n',
 	];
 
 	/**

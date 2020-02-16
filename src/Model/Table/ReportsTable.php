@@ -24,9 +24,9 @@ class ReportsTable extends AppTable {
 	public function initialize(array $config) {
         parent::initialize($config);
 
-		$this->table('reports');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('reports');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 
 		$this->belongsTo('People', [

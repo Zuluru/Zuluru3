@@ -142,7 +142,6 @@ class LeagueTypeRatingsLadder extends LeagueType {
 	protected function scheduleOneSet(Division $division, $date, $teams) {
 		$games_before_repeat = $division->games_before_repeat;
 		$max_retries = $division->league->schedule_attempts;
-		$ret = false;
 
 		$versus_teams = [];
 		$gbr_diff = [];

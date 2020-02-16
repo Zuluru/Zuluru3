@@ -19,9 +19,9 @@ class RegistrationAuditsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('registration_audits');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('registration_audits');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->hasMany('Payments', [
 			'foreignKey' => 'registration_audit_id',

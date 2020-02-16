@@ -288,7 +288,7 @@ class EventsController extends AppController {
 		if ($this->request->is('post')) {
 			// Validation requires this information
 			if (!empty($this->request->data['event_type_id'])) {
-				$type = $this->Events->EventTypes->field('type', ['id' => $this->request->data['event_type_id']]);
+				$type = $this->Events->EventTypes->field('type', ['EventTypes.id' => $this->request->data['event_type_id']]);
 			} else {
 				$type = 'default';
 			}
@@ -336,7 +336,7 @@ class EventsController extends AppController {
 		]));
 
 		if ($event->has('event_type_id')) {
-			$type = $this->Events->EventTypes->field('type', ['id' => $event->event_type_id]);
+			$type = $this->Events->EventTypes->field('type', ['EventTypes.id' => $event->event_type_id]);
 			$event_obj = $this->moduleRegistry->load("EventType:{$type}");
 		}
 
@@ -377,7 +377,7 @@ class EventsController extends AppController {
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			// Validation requires this information
 			if (!empty($this->request->data['event_type_id'])) {
-				$type = $this->Events->EventTypes->field('type', ['id' => $this->request->data['event_type_id']]);
+				$type = $this->Events->EventTypes->field('type', ['EventTypes.id' => $this->request->data['event_type_id']]);
 			} else {
 				$type = 'default';
 			}
@@ -397,7 +397,7 @@ class EventsController extends AppController {
 			'Questionnaires.active' => true,
 			'Questionnaires.affiliate_id IN' => array_keys($affiliates),
 		]]));
-		$type = $this->Events->EventTypes->field('type', ['id' => $event->event_type_id]);
+		$type = $this->Events->EventTypes->field('type', ['EventTypes.id' => $event->event_type_id]);
 		$event_obj = $this->moduleRegistry->load("EventType:{$type}");
 		$this->set(compact('event', 'affiliates', 'event_obj'));
 	}
@@ -408,7 +408,7 @@ class EventsController extends AppController {
 
 		$this->request->allowMethod('ajax');
 
-		$type = $this->Events->EventTypes->field('type', ['id' => $this->request->data['event_type_id']]);
+		$type = $this->Events->EventTypes->field('type', ['EventTypes.id' => $this->request->data['event_type_id']]);
 		$this->set('event_obj', $this->moduleRegistry->load("EventType:{$type}"));
 		$this->set('affiliates', $this->Authentication->applicableAffiliates(true));
 	}

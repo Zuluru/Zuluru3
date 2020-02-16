@@ -29,7 +29,7 @@ if (isset($field)):
 	echo $this->element('GameSlots/confirm', ['facility' => $field->facility, 'field' => $field, 'weeks' => $weeks, 'times' => $times, 'expanded' => true]);
 else:
 ?>
-		<p><?= __('Click a {0} name below to edit the list of game slots that will be created for that {0}.', __(Configure::read('UI.field'))) ?></p>
+		<p><?= __('Click a {0} name below to edit the list of game slots that will be created for that {0}.', Configure::read('UI.field')) ?></p>
 		<ul>
 <?php
 	foreach ($regions as $region) {

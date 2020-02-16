@@ -63,6 +63,7 @@ class TeamTest extends TestCase {
 			'app.franchises',
 				'app.franchises_teams',
 			'app.settings',
+		'app.i18n',
 	];
 
 	/**

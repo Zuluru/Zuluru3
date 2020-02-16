@@ -26,9 +26,9 @@ class TaskSlotsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('task_slots');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('task_slots');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->belongsTo('Tasks', [
 			'foreignKey' => 'task_id',
@@ -116,7 +116,7 @@ class TaskSlotsTable extends AppTable {
 
 	public function affiliate($id) {
 		try {
-			return $this->Tasks->affiliate($this->field('task_id', ['id' => $id]));
+			return $this->Tasks->affiliate($this->field('task_id', ['TaskSlots.id' => $id]));
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

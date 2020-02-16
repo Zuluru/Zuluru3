@@ -210,7 +210,7 @@ class ControllerTestCase extends IntegrationTestCase {
 		$this->get($url);
 
 		$this->assertResponseCode(302);
-		$this->assertRedirect($redirect);
+		$this->assertRedirectEquals($redirect);
 
 		if ($message) {
 			if ($message[0] == '#') {
@@ -258,7 +258,7 @@ class ControllerTestCase extends IntegrationTestCase {
 			'content' => null,
 			'_message' => $message,
 			'_redirect' => [
-				'url' => Router::url($redirect, true),
+				'url' => Router::url($redirect),
 				'status' => 302,
 			],
 		];
@@ -281,7 +281,7 @@ class ControllerTestCase extends IntegrationTestCase {
 		$this->get($url);
 
 		$this->assertResponseCode(302);
-		$this->assertRedirect($redirect);
+		$this->assertRedirectEquals($redirect);
 
 		if ($message) {
 			if ($message[0] == '#') {
@@ -327,7 +327,7 @@ class ControllerTestCase extends IntegrationTestCase {
 			'content' => null,
 			'_message' => $message,
 			'_redirect' => [
-				'url' => Router::url($redirect, true),
+				'url' => Router::url($redirect),
 				'status' => 302,
 			],
 		];
@@ -352,7 +352,7 @@ class ControllerTestCase extends IntegrationTestCase {
 		$this->post($url, $data);
 
 		$this->assertResponseCode(302);
-		$this->assertRedirect($redirect);
+		$this->assertRedirectEquals($redirect);
 
 		if ($message) {
 			if ($message[0] == '#') {
@@ -400,7 +400,7 @@ class ControllerTestCase extends IntegrationTestCase {
 			'content' => null,
 			'_message' => $message,
 			'_redirect' => [
-				'url' => Router::url($redirect, true),
+				'url' => Router::url($redirect),
 				'status' => 302,
 			],
 		];
@@ -424,7 +424,7 @@ class ControllerTestCase extends IntegrationTestCase {
 		$this->post($url, $data);
 
 		$this->assertResponseCode(302);
-		$this->assertRedirect($redirect);
+		$this->assertRedirectEquals($redirect);
 
 		if ($message) {
 			if ($message[0] == '#') {
@@ -471,7 +471,7 @@ class ControllerTestCase extends IntegrationTestCase {
 			'content' => null,
 			'_message' => $message,
 			'_redirect' => [
-				'url' => Router::url($redirect, true),
+				'url' => Router::url($redirect),
 				'status' => 302,
 			],
 		];
@@ -490,7 +490,7 @@ class ControllerTestCase extends IntegrationTestCase {
 		$this->get($url);
 
 		$this->assertResponseCode(302);
-		$this->assertRedirect('/');
+		$this->assertRedirectEquals('/');
 		$this->assertEquals('You do not have permission to access that page.', $this->_requestSession->read('Flash.flash.0.message'));
 		$this->assertEquals('Flash/error', $this->_requestSession->read('Flash.flash.0.element'));
 	}
@@ -519,7 +519,7 @@ class ControllerTestCase extends IntegrationTestCase {
 				],
 			],
 			'_redirect' => [
-				'url' => Router::url('/', true),
+				'url' => Router::url('/'),
 				'status' => 302,
 			],
 		];
@@ -537,7 +537,7 @@ class ControllerTestCase extends IntegrationTestCase {
 		$this->get($url);
 
 		$this->assertResponseCode(302);
-		$this->assertRedirect(['controller' => 'Users', 'action' => 'login', 'redirect' => Router::url($url, true)]);
+		$this->assertRedirectEquals(['controller' => 'Users', 'action' => 'login', 'redirect' => Router::url($url)]);
 		$this->assertEquals('You must login to access full site functionality.', $this->_requestSession->read('Flash.flash.0.message'));
 		$this->assertEquals('Flash/error', $this->_requestSession->read('Flash.flash.0.element'));
 	}
@@ -565,7 +565,7 @@ class ControllerTestCase extends IntegrationTestCase {
 				],
 			],
 			'_redirect' => [
-				'url' => Router::url(['controller' => 'Users', 'action' => 'login', 'redirect' => Router::url($url, true)], true),
+				'url' => Router::url(['controller' => 'Users', 'action' => 'login', 'redirect' => Router::url($url)]),
 				'status' => 302,
 			],
 		];
@@ -585,7 +585,7 @@ class ControllerTestCase extends IntegrationTestCase {
 		$this->post($url, $data);
 
 		$this->assertResponseCode(302);
-		$this->assertRedirect('/');
+		$this->assertRedirectEquals('/');
 		$this->assertEquals('You do not have permission to access that page.', $this->_requestSession->read('Flash.flash.0.message'));
 		$this->assertEquals('Flash/error', $this->_requestSession->read('Flash.flash.0.element'));
 	}
@@ -615,7 +615,7 @@ class ControllerTestCase extends IntegrationTestCase {
 				],
 			],
 			'_redirect' => [
-				'url' => Router::url('/', true),
+				'url' => Router::url('/'),
 				'status' => 302,
 			],
 		];
@@ -634,7 +634,7 @@ class ControllerTestCase extends IntegrationTestCase {
 		$this->post($url, $data);
 
 		$this->assertResponseCode(302);
-		$this->assertRedirect(['controller' => 'Users', 'action' => 'login', 'redirect' => Router::url($url, true)]);
+		$this->assertRedirectEquals(['controller' => 'Users', 'action' => 'login', 'redirect' => Router::url($url)]);
 		$this->assertEquals('You must login to access full site functionality.', $this->_requestSession->read('Flash.flash.0.message'));
 		$this->assertEquals('Flash/error', $this->_requestSession->read('Flash.flash.0.element'));
 	}
@@ -663,7 +663,7 @@ class ControllerTestCase extends IntegrationTestCase {
 				],
 			],
 			'_redirect' => [
-				'url' => Router::url(['controller' => 'Users', 'action' => 'login', 'redirect' => Router::url($url, true)], true),
+				'url' => Router::url(['controller' => 'Users', 'action' => 'login', 'redirect' => Router::url($url)]),
 				'status' => 302,
 			],
 		];

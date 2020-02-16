@@ -30,7 +30,7 @@ echo $this->Form->input('publish', [
 	'type' => 'checkbox',
 ]);
 
-echo $this->Html->para('warning-message', __('Note that no attempt is made to preserve {0} or time assignments; game slots will be assigned as per the normal algorithms.', __(Configure::read('UI.field'))));
+echo $this->Html->para('warning-message', __('Note that no attempt is made to preserve {0} or time assignments; game slots will be assigned as per the normal algorithms.', Configure::read('UI.field')));
 
 echo $this->Form->button(__('Continue'), ['class' => 'btn-success']);
 echo $this->Form->end();

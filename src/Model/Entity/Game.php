@@ -642,12 +642,12 @@ class Game extends Entity {
 		$id = $this->$id_prop;
 		switch ($this->$type_prop) {
 			case 'game_winner':
-				$game = $games_table->field('name', ['id' => $id]);
+				$game = $games_table->field('name', ['Games.id' => $id]);
 				$dependency = __('Winner of game {0}', $game);
 				break;
 
 			case 'game_loser':
-				$game = $games_table->field('name', ['id' => $id]);
+				$game = $games_table->field('name', ['Games.id' => $id]);
 				$dependency = __('Loser of game {0}', $game);
 				break;
 

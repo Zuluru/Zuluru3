@@ -141,7 +141,7 @@ class TeamEventAttendanceTask extends Shell {
 					if (AppController::_sendMail([
 						'to' => $person,
 						'replyTo' => $team_event->team->people,
-						'subject' => __('{0} attendance reminder', $team->name),
+						'subject' => function() use ($team) { return __('{0} attendance reminder', $team->name); },
 						'template' => 'event_attendance_reminder',
 						'sendAs' => 'both',
 						'viewVars' => array_merge([
@@ -188,7 +188,7 @@ class TeamEventAttendanceTask extends Shell {
 
 		if (AppController::_sendMail([
 			'to' => $team_event->team->people,
-			'subject' => __('{0} attendance summary', $team->name),
+			'subject' => function() use ($team) { return __('{0} attendance summary', $team->name); },
 			'template' => 'event_attendance_summary',
 			'sendAs' => 'both',
 			'viewVars' => array_merge([

@@ -280,7 +280,7 @@ class TeamEventsController extends AppController {
 		// (which we only really need for the role from teams_people, but this is the easiest
 		// way to get it).
 		try {
-			$team_id = $this->TeamEvents->field('team_id', compact('id'));
+			$team_id = $this->TeamEvents->field('team_id', ['TeamEvents.id' => $id]);
 		} catch (RecordNotFoundException $ex) {
 			$this->Flash->info(__('Invalid team event.'));
 			return $this->redirect('/');
@@ -404,7 +404,7 @@ class TeamEventsController extends AppController {
 				$this->_sendMail([
 					'to' => $team->people,
 					'replyTo' => $attendance->person,
-					'subject' => __('{0} attendance change', $team->name),
+					'subject' => function() use ($team) { return __('{0} attendance change', $team->name); },
 					'template' => 'event_attendance_captain_notification',
 					'sendAs' => 'both',
 					'viewVars' => array_merge([
@@ -423,7 +423,7 @@ class TeamEventsController extends AppController {
 			$this->_sendMail([
 				'to' => $attendance->person,
 				'replyTo' => $this->UserCache->read('Person'),
-				'subject' => __('{0} attendance change for {1} on {2}', $team->name, __('event'), $date),
+				'subject' => function() use ($team, $date) { return __('{0} attendance change for {1} on {2}', $team->name, __('event'), $date); },
 				'template' => 'event_attendance_substitute_notification',
 				'sendAs' => 'both',
 				'viewVars' => array_merge([
@@ -464,7 +464,7 @@ class TeamEventsController extends AppController {
 				$this->_sendMail([
 					'to' => $team->people,
 					'replyTo' => $attendance->person,
-					'subject' => __('{0} attendance comment', $team->name),
+					'subject' => function() use ($team) { return __('{0} attendance comment', $team->name); },
 					'template' => 'event_attendance_comment_captain_notification',
 					'sendAs' => 'both',
 					'viewVars' => array_merge([

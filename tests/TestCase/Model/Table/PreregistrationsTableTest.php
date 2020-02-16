@@ -36,6 +36,7 @@ class PreregistrationsTableTest extends TableTestCase {
 							'app.registration_audits',
 						'app.responses',
 				'app.preregistrations',
+		'app.i18n',
 	];
 
 	/**

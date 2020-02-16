@@ -61,7 +61,7 @@ class RedirectFlashHandler extends RedirectHandler {
 			$url = $options['unauthorizedUrl'];
 		}
 		if ($options['referrer'] && $options['queryParam'] !== null && $request->getMethod() === 'GET') {
-			$query = urlencode($options['queryParam']) . '=' . urlencode(Router::url($request->getRequestTarget(), true));
+			$query = urlencode($options['queryParam']) . '=' . urlencode(Router::url($request->getRequestTarget()));
 			if (strpos($url, '?') !== false) {
 				$query = '&' . $query;
 			} else {

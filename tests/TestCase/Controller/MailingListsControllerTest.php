@@ -31,6 +31,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 		'app.newsletters',
 		'app.subscriptions',
 		'app.settings',
+		'app.i18n',
 	];
 
 	private $unsubscribeMessage = 'You have successfully unsubscribed from this mailing list. Note that you may still be on other mailing lists for this site, and some emails (e.g. roster, attendance and score reminders) cannot be opted out of.';

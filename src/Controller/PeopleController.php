@@ -8,6 +8,7 @@ use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Filesystem\File;
+use Cake\Http\Cookie\Cookie;
 use Cake\Http\Exception\GoneException;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\I18n;
@@ -89,7 +90,7 @@ class PeopleController extends AppController {
 				return $q->where(['Groups.id' => $group_id]);
 			});
 			try {
-				$group = $this->People->Groups->field('name', ['id' => $group_id]);
+				$group = $this->People->Groups->field('name', ['Groups.id' => $group_id]);
 			} catch (RecordNotFoundException $ex) {
 				$this->Flash->info(__('Invalid group.'));
 				return $this->redirect('/');
@@ -278,8 +279,8 @@ class PeopleController extends AppController {
 	public function participation() {
 		$this->Authorization->authorize($this);
 		$min = min(
-			TableRegistry::get('Events')->field('open', [], 'open')->year,
-			TableRegistry::get('Leagues')->field('open', [], 'open')->year
+			TableRegistry::get('Events')->field('open', [], 'Events.open')->year,
+			TableRegistry::get('Leagues')->field('open', [], 'Leagues.open')->year
 		);
 		$this->set(compact('min'));
 
@@ -308,8 +309,8 @@ class PeopleController extends AppController {
 	public function retention() {
 		$this->Authorization->authorize($this);
 		$min = min(
-			TableRegistry::get('Events')->field('open', [], 'open'),
-			TableRegistry::get('Leagues')->field('open', [], 'open')
+			TableRegistry::get('Events')->field('open', [], 'Events.open'),
+			TableRegistry::get('Leagues')->field('open', [], 'Leagues.open')
 		);
 		$this->set(compact('min'));
 
@@ -344,7 +345,7 @@ class PeopleController extends AppController {
 		$user_id = $this->request->getQuery('user');
 		if ($user_id) {
 			try {
-				$id = $this->People->field('id', compact('user_id'));
+				$id = $this->People->field('id', ['People.user_id' => $user_id]);
 			} catch (RecordNotFoundException $ex) {
 				$this->Flash->info(__('Invalid person.'));
 				return $this->redirect('/');
@@ -519,7 +520,7 @@ class PeopleController extends AppController {
 
 		$this->_loadAddressOptions();
 		// We always want to include players, even if they aren't a valid "create account" group.
-		$this->set('groups', $this->People->Groups->find('options', ['require_player' => true])->toArray());
+		$this->set('groups', $this->People->Groups->find('options', ['Groups.require_player' => true])->toArray());
 		$this->_loadAffiliateOptions();
 
 		try {
@@ -850,15 +851,10 @@ class PeopleController extends AppController {
 
 						if (empty($lang)) {
 							// Clear any existing cookie, and set to the default language
-							$this->response = $this->response->withCookie('ZuluruLocale', [
-								'value' => '',
-							]);
+							$this->response = $this->response->withExpiredCookie(new Cookie('ZuluruLocale'));
 							$lang = 'en';
 						} else {
-							$this->response = $this->response->withCookie('ZuluruLocale', [
-								'value' => $lang,
-								'path' => '/',
-							]);
+							$this->response = $this->response->withCookie(new Cookie('ZuluruLocale', $lang));
 						}
 						I18n::setLocale($lang);
 						$this->_setLanguage();
@@ -962,7 +958,7 @@ class PeopleController extends AppController {
 						if (!$this->_sendMail([
 							'to' => $relative,
 							'replyTo' => $person,
-							'subject' => __('You have been linked as a relative'),
+							'subject' => function() { return __('You have been linked as a relative'); },
 							'template' => 'relative_link',
 							'sendAs' => 'both',
 							'viewVars' => [
@@ -1019,7 +1015,7 @@ class PeopleController extends AppController {
 		if (!$this->_sendMail([
 			'to' => $relative,
 			'replyTo' => $person,
-			'subject' => __('{0} approved your relative request', $person->full_name),
+			'subject' => function() use ($person) { return __('{0} approved your relative request', $person->full_name); },
 			'template' => 'relative_approve',
 			'sendAs' => 'both',
 			'viewVars' => compact('person', 'relative'),
@@ -1057,7 +1053,7 @@ class PeopleController extends AppController {
 			if (!$this->_sendMail([
 				'to' => $relative,
 				'replyTo' => $person,
-				'subject' => __('{0} removed your relation', $person->full_name),
+				'subject' => function() use ($person) { return __('{0} removed your relation', $person->full_name); },
 				'template' => 'relative_remove',
 				'sendAs' => 'both',
 				'viewVars' => compact('person', 'relative'),
@@ -1070,7 +1066,7 @@ class PeopleController extends AppController {
 			if (!$this->_sendMail([
 				'to' => $person,
 				'replyTo' => $relative,
-				'subject' => __('{0} removed your relation', $relative->full_name),
+				'subject' => function() use ($relative) { return __('{0} removed your relation', $relative->full_name); },
 				'template' => 'relative_remove',
 				'sendAs' => 'both',
 				'viewVars' => ['person' => $relative, 'relative' => $person],
@@ -1083,7 +1079,7 @@ class PeopleController extends AppController {
 			// Must have been an admin / manager doing the operation
 			if (!$this->_sendMail([
 				'to' => [$relative, $person],
-				'subject' => __('An administrator removed your relation'),
+				'subject' => function() { return __('An administrator removed your relation'); },
 				'template' => 'relative_remove_admin',
 				'sendAs' => 'both',
 				'viewVars' => compact('person', 'relative'),
@@ -1321,7 +1317,7 @@ class PeopleController extends AppController {
 		} else {
 			if (!$this->_sendMail([
 				'to' => $photo->person,
-				'subject' => __('{0} Notification of Photo Approval', Configure::read('organization.name')),
+				'subject' => function() { return __('{0} Notification of Photo Approval', Configure::read('organization.name')); },
 				'template' => 'photo_approved',
 				'sendAs' => 'both',
 				'viewVars' => ['person' => $photo->person],
@@ -1357,7 +1353,7 @@ class PeopleController extends AppController {
 		if ($this->People->Uploads->delete($photo)) {
 			if (!$this->_sendMail([
 				'to' => $photo->person,
-				'subject' => __('{0} Notification of Photo Deletion', Configure::read('organization.name')),
+				'subject' => function() { return __('{0} Notification of Photo Deletion', Configure::read('organization.name')); },
 				'template' => 'photo_deleted',
 				'sendAs' => 'both',
 				'viewVars' => ['person' => $photo->person],
@@ -1501,7 +1497,7 @@ class PeopleController extends AppController {
 
 				if (!$this->_sendMail([
 					'to' => $document->person,
-					'subject' => __('{0} Notification of Document Approval', Configure::read('organization.name')),
+					'subject' => function() { return __('{0} Notification of Document Approval', Configure::read('organization.name')); },
 					'template' => 'document_approved',
 					'sendAs' => 'both',
 					'viewVars' => array_merge([
@@ -1542,7 +1538,7 @@ class PeopleController extends AppController {
 
 				if (!$this->_sendMail([
 					'to' => $document->person,
-					'subject' => __('{0} Notification of Document Update', Configure::read('organization.name')),
+					'subject' => function() { return __('{0} Notification of Document Update', Configure::read('organization.name')); },
 					'template' => 'document_updated',
 					'sendAs' => 'both',
 					'viewVars' => array_merge([
@@ -1588,7 +1584,7 @@ class PeopleController extends AppController {
 		if ($document->person_id != $this->UserCache->currentId()) {
 			if (!$this->_sendMail([
 				'to' => $document->person,
-				'subject' => __('{0} Notification of Document Deletion', Configure::read('organization.name')),
+				'subject' => function() { return __('{0} Notification of Document Deletion', Configure::read('organization.name')); },
 				'template' => 'document_deleted',
 				'sendAs' => 'both',
 				'viewVars' => array_merge([
@@ -1764,7 +1760,7 @@ class PeopleController extends AppController {
 						// Inform the recipient
 						if (!$this->_sendMail([
 							'to' => $person,
-							'subject' => __('{0} New Badge Awarded', Configure::read('organization.name')),
+							'subject' => function() { return __('{0} New Badge Awarded', Configure::read('organization.name')); },
 							'template' => 'badge_awarded',
 							'sendAs' => 'both',
 							'viewVars' => array_merge(['link' => $badge->_joinData], compact('person', 'badge', 'nominator')),
@@ -1842,7 +1838,7 @@ class PeopleController extends AppController {
 				// Inform the nominator
 				if (!$this->_sendMail([
 					'to' => $link['nominated_by'],
-					'subject' => __('{0} Notification of Badge Approval', Configure::read('organization.name')),
+					'subject' => function() { return __('{0} Notification of Badge Approval', Configure::read('organization.name')); },
 					'template' => 'badge_nomination_approved',
 					'sendAs' => 'both',
 					'viewVars' => ['link' => $link, 'person' => $link->person, 'badge' => $link->badge, 'nominator' => $link->nominated_by],
@@ -1854,7 +1850,7 @@ class PeopleController extends AppController {
 				// Inform the recipient
 				if (!$this->_sendMail([
 					'to' => $link['person'],
-					'subject' => __('{0} New Badge Awarded', Configure::read('organization.name')),
+					'subject' => function() { return __('{0} New Badge Awarded', Configure::read('organization.name')); },
 					'template' => 'badge_awarded',
 					'sendAs' => 'both',
 					'viewVars' => ['link' => $link, 'person' => $link->person, 'badge' => $link->badge, 'nominator' => $link->nominated_by],
@@ -1898,7 +1894,7 @@ class PeopleController extends AppController {
 					// Inform the badge holder
 					if (!$this->_sendMail([
 						'to' => $link['person'],
-						'subject' => __('{0} Notification of Badge Deletion', Configure::read('organization.name')),
+						'subject' => function() { return __('{0} Notification of Badge Deletion', Configure::read('organization.name')); },
 						'template' => 'badge_deleted',
 						'sendAs' => 'both',
 						'viewVars' => ['person' => $link->person, 'badge' => $link->badge, 'comment' => $this->request->data['comment']],
@@ -1910,7 +1906,7 @@ class PeopleController extends AppController {
 					// Inform the nominator
 					if (!$this->_sendMail([
 						'to' => $link['nominated_by'],
-						'subject' => __('{0} Notification of Badge Rejection', Configure::read('organization.name')),
+						'subject' => function() { return __('{0} Notification of Badge Rejection', Configure::read('organization.name')); },
 						'template' => 'badge_nomination_rejected',
 						'sendAs' => 'both',
 						'viewVars' => ['person' => $link->person, 'badge' => $link->badge, 'nominator' => $link->nominated_by, 'comment' => $this->request->data['comment']],
@@ -2475,10 +2471,13 @@ class PeopleController extends AppController {
 				$fail_message = __('Couldn\'t save new member activation');
 
 				$mail_opts = [
-					'subject' => __('{0} {1} Activation for {2}', Configure::read('organization.name'),
-						empty($person->user_id) ? __('Profile') : __('Account'),
-						empty($person->user_id) ? $person->full_name : $person->user_name
-					),
+					'subject' => function() use ($person) {
+						return __('{0} {1} Activation for {2}',
+							Configure::read('organization.name'),
+							empty($person->user_id) ? __('Profile') : __('Account'),
+							empty($person->user_id) ? $person->full_name : $person->user_name
+						);
+					},
 					'template' => 'account_approved',
 				];
 				break;
@@ -2486,7 +2485,7 @@ class PeopleController extends AppController {
 			/** @noinspection PhpMissingBreakStatementInspection */
 			case 'delete_duplicate':
 				$mail_opts = [
-					'subject' => __('{0} Account Update', Configure::read('organization.name')),
+					'subject' => function() { return __('{0} Account Update', Configure::read('organization.name')); },
 					'template' => 'account_delete_duplicate',
 				];
 				// Intentionally fall through to the next option
@@ -2504,7 +2503,7 @@ class PeopleController extends AppController {
 				$fail_message = __('Couldn\'t save new member information');
 
 				$mail_opts = [
-					'subject' => __('{0} Account Update', Configure::read('organization.name')),
+					'subject' => function() { return __('{0} Account Update', Configure::read('organization.name')); },
 					'template' => 'account_merge_duplicate',
 				];
 				break;

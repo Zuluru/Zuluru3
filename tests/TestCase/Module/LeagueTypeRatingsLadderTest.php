@@ -33,6 +33,7 @@ class LeagueTypeRatingsLadderTest extends ModuleTestCase {
 					'app.games',
 						'app.spirit_entries',
 		'app.settings',
+		'app.i18n',
 	];
 
 	/**
@@ -164,9 +165,7 @@ class LeagueTypeRatingsLadderTest extends ModuleTestCase {
 	 */
 	public function testCreateScheduledSet() {
 		// Seed the random number generator with a fixed value, so that random determinations in field selection become fixed.
-		// Ladder scheduling uses shuffle, which uses rand instead of mt_rand before PHP 7.1, so we have to see both...
 		mt_srand(123);
-		srand(234);
 
 		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER);
 		// Fixtures already have games scheduled for the first 4 weeks
@@ -193,11 +192,12 @@ class LeagueTypeRatingsLadderTest extends ModuleTestCase {
 		// Standings coming into this are Red, Blue, Green, Yellow, Purple, Orange, Black, White.
 		// Because of previous matchups, Red/Blue/Green/Yellow can't play, and Purple/Orange/Black/White can't play.
 		// This gives us Red v Purple, Blue v Orange, Green v Black and Yellow v White
-		$this->assertEquals(TEAM_ID_PURPLE, $games[0]->home_team_id);
-		$this->assertEquals(TEAM_ID_RED, $games[0]->away_team_id);
-		$this->assertEquals(TEAM_ID_BLUE, $games[1]->home_team_id);
-		$this->assertEquals(TEAM_ID_ORANGE, $games[1]->away_team_id);
-		$this->assertEquals(FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_2, $games[1]->game_slot->field_id);
+		// Note that these tests will fail on any PHP version 7.1 or lower due to changes in the RNG as of 7.2.
+		$this->assertEquals(TEAM_ID_BLUE, $games[0]->home_team_id);
+		$this->assertEquals(TEAM_ID_ORANGE, $games[0]->away_team_id);
+		$this->assertEquals(TEAM_ID_PURPLE, $games[1]->home_team_id);
+		$this->assertEquals(TEAM_ID_RED, $games[1]->away_team_id);
+		$this->assertEquals(FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1, $games[1]->game_slot->field_id);
 		$this->assertEquals(TEAM_ID_WHITE, $games[2]->home_team_id);
 		$this->assertEquals(TEAM_ID_YELLOW, $games[2]->away_team_id);
 		$this->assertEquals(TEAM_ID_GREEN, $games[3]->home_team_id);

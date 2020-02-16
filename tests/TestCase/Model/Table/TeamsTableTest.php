@@ -38,6 +38,7 @@ class TeamsTableTest extends TableTestCase {
 			'app.franchises',
 				'app.franchises_teams',
 			'app.settings',
+		'app.i18n',
 	];
 
 	/**

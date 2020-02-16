@@ -29,8 +29,8 @@ class NoticesCell extends Cell {
 
 		// Delete any old reminder requests
 		$this->NoticesPeople->deleteAll([
-			'remind' => true,
-			'created <' => FrozenDate::now()->subMonth(),
+			'NoticesPeople.remind' => true,
+			'NoticesPeople.created <' => FrozenDate::now()->subMonth(),
 		]);
 
 		// Delete any annual recurring notices that are too old
@@ -39,13 +39,13 @@ class NoticesCell extends Cell {
 			->combine('id', 'id')
 			->toArray();
 		$this->NoticesPeople->deleteAll([
-			'created <' => FrozenDate::now()->subYear(),
-			'notice_id IN' => $annual,
+			'NoticesPeople.created <' => FrozenDate::now()->subYear(),
+			'NoticesPeople.notice_id IN' => $annual,
 		]);
 
 		// Find the list of all notices the user has seen
 		$notices = $this->NoticesPeople->find()
-			->where(['person_id' => $identity->getIdentifier()])
+			->where(['NoticesPeople.person_id' => $identity->getIdentifier()])
 			->combine('notice_id', 'created')
 			->toArray();
 
@@ -93,24 +93,28 @@ class NoticesCell extends Cell {
 			$display_to[] = 'coordinator';
 		}
 
+		if (Configure::read('feature.uls')) {
+			$display_to[] = 'translation';
+		}
+
 		// Find a notice that the user hasn't seen, if any
 		$query = $this->Notices->find()
 			->where([
-				'active' => true,
-				'effective_date <= NOW()',
-				'display_to IN' => $display_to,
+				'Notices.active' => true,
+				'Notices.effective_date <= NOW()',
+				'Notices.display_to IN' => $display_to,
 			]);
 
 		if (!empty($notices)) {
-			$query->andWhere(['NOT' => ['id IN' => array_keys($notices)]]);
+			$query->andWhere(['NOT' => ['Notices.id IN' => array_keys($notices)]]);
 		}
 
 		// Don't show the notices that repeat annually to anyone created in the past year
 		$created = UserCache::getInstance()->read('Person.created');
 		if ($created && $created->diffInDays(FrozenDate::now(), false) < 365) {
 			$query->andWhere(['OR' => [
-				'repeat_on IS' => null,
-				'NOT' => ['repeat_on' => 'annual']
+				'Notices.repeat_on IS' => null,
+				'NOT' => ['Notices.repeat_on' => 'annual']
 			]]);
 		}
 

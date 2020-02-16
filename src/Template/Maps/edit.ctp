@@ -1,7 +1,7 @@
 <?php
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('{0} Editor', __(Configure::read('UI.field_cap'))));
+$this->Html->addCrumb(__('{0} Editor', Configure::read('UI.field_cap')));
 $this->Html->addCrumb(trim("{$facility->name} ({$facility->code}) {$field->num}"));
 
 $map_vars = ['id' => true, 'num' => true, 'sport' => true, 'latitude' => false, 'longitude' => false, 'angle' => false, 'width' => false, 'length' => false, 'zoom' => false];

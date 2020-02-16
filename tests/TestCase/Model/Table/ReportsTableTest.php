@@ -22,8 +22,9 @@ class ReportsTableTest extends TableTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-        'app.reports',
-    ];
+		'app.reports',
+		'app.i18n',
+	];
 
 	/**
 	 * setUp method

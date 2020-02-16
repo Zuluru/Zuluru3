@@ -5,6 +5,8 @@
  */
 namespace App\Middleware;
 
+use Cake\Http\Cookie\Cookie;
+use Cake\I18n\FrozenTime;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 
@@ -126,7 +128,7 @@ class LocalizationMiddleware
 	 */
 	public function setCookieExpire($secs)
 	{
-		$this->cookieExpire = gmdate('D, d M Y H:i:s T', time() + $secs);
+		$this->cookieExpire = FrozenTime::now()->addSeconds($secs);
 	}
 
 	/**
@@ -159,11 +161,16 @@ class LocalizationMiddleware
 		$req = $req->withAttribute($this->reqAttrName, $locale);
 
 		if (in_array(self::FROM_COOKIE, $this->searchOrder)) {
-			$resp = $resp->withCookie($this->cookieName, [
-				'value' => $locale,
-				'path' => $this->cookiePath,
-				'expires' => $this->cookieExpire,
-			]);
+			if (!empty($locale)) {
+				$resp = $resp->withCookie(new Cookie(
+					$this->cookieName,
+					$locale,
+					$this->cookieExpire,
+					$this->cookiePath
+				));
+			} else {
+				$resp = $resp->withExpiredCookie(new Cookie($this->cookieName));
+			}
 		}
 
 		return $next($req, $resp);

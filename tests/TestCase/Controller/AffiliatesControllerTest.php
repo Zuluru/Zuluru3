@@ -40,6 +40,7 @@ class AffiliatesControllerTest extends ControllerTestCase {
 			'app.mailing_lists',
 			'app.settings',
 			'app.waivers',
+		'app.i18n',
 	];
 
 	/**

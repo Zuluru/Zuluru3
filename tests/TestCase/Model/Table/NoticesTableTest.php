@@ -28,6 +28,7 @@ class NoticesTableTest extends TableTestCase {
 					'app.affiliates_people',
 			//'app.notices',
 				'app.notices_people',
+		'app.i18n',
 	];
 
 	/**

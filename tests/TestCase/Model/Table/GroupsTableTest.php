@@ -27,6 +27,7 @@ class GroupsTableTest extends TableTestCase {
 				'app.people',
 			'app.groups',
 				'app.groups_people',
+		'app.i18n',
 	];
 
 	/**

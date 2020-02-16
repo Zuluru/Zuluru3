@@ -47,6 +47,7 @@ class LeagueTest extends TestCase {
 				'app.groups_people',
 			'app.leagues',
 			'app.settings',
+		'app.i18n',
 	];
 
 	/**

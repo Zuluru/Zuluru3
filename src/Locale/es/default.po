@@ -16768,7 +16768,7 @@ msgid "Payment Details"
 msgstr "Detalles del pago"
 
 #: Template/Registrations/add_payment.ctp:30
-msgid " ({0,number,currency} - {0,number,currency})"
+msgid " ({0} - {0})"
 msgstr ""
 
 #: Template/Registrations/add_payment.ctp:55
@@ -17085,8 +17085,8 @@ msgid "Payment Amount"
 msgstr "Monto del pago"
 
 #: Template/Registrations/view.ctp:55
-msgid "({0,number,currency} refunded; see below)"
-msgstr "({0,number,currency} reembolsado; véase más adelante)"
+msgid "({0} refunded; see below)"
+msgstr "({0} reembolsado; véase más adelante)"
 
 #: Template/Registrations/view.ctp:58
 msgid "Payment Date"
@@ -17147,12 +17147,12 @@ msgid "Issue Credit"
 msgstr "Crédito tema"
 
 #: Template/Registrations/view.ctp:150
-msgid "There is an outstanding balance of {0,number,currency}."
-msgstr "Hay un saldo pendiente de {0,number,currency}."
+msgid "There is an outstanding balance of {0}."
+msgstr "Hay un saldo pendiente de {0}."
 
 #: Template/Registrations/view.ctp:152
-msgid "Although this registration is marked as \"Paid\", the total of the payments received ({0,number,currency}) does not match the registration cost ({1,number,currency})."
-msgstr "A pesar de que este registro está marcado como \"A cargo\", el total de los pagos recibidos ({0,number,currency}) no coincide con el valor de la inscripción ({1,number,currency})."
+msgid "Although this registration is marked as \"Paid\", the total of the payments received ({0}) does not match the registration cost ({1})."
+msgstr "A pesar de que este registro está marcado como \"A cargo\", el total de los pagos recibidos ({0}) no coincide con el valor de la inscripción ({1})."
 
 #: Template/Registrations/csv/full_list.ctp:50
 msgid "Modified Date"

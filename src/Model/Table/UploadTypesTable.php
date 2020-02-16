@@ -21,11 +21,12 @@ class UploadTypesTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('upload_types');
-		$this->displayField('name');
-		$this->primaryKey('id');
+		$this->setTable('upload_types');
+		$this->setDisplayField('name');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
+		$this->addBehavior('Translate', ['fields' => ['name']]);
 
 		$this->belongsTo('Affiliates', [
 			'foreignKey' => 'affiliate_id',
@@ -71,7 +72,7 @@ class UploadTypesTable extends AppTable {
 
 	public function affiliate($id) {
 		try {
-			return $this->field('affiliate_id', ['id' => $id]);
+			return $this->field('affiliate_id', ['UploadTypes.id' => $id]);
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

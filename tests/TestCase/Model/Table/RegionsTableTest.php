@@ -24,6 +24,7 @@ class RegionsTableTest extends TableTestCase {
 	public $fixtures = [
 		'app.affiliates',
 			'app.regions',
+		'app.i18n',
 	];
 
 	/**

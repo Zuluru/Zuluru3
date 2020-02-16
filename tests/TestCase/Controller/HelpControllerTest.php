@@ -19,6 +19,7 @@ class HelpControllerTest extends ControllerTestCase {
 			'app.groups',
 				'app.groups_people',
 			'app.settings',
+		'app.i18n',
 	];
 
 	/**

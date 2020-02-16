@@ -28,6 +28,7 @@ class AttendancesTableTest extends TableTestCase {
 					'app.teams',
 						'app.team_events',
 			'app.attendances',
+		'app.i18n',
 	];
 
 	/**

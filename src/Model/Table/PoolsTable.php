@@ -24,11 +24,12 @@ class PoolsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('pools');
-		$this->displayField('name');
-		$this->primaryKey('id');
+		$this->setTable('pools');
+		$this->setDisplayField('name');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
+		$this->addBehavior('Translate', ['fields' => ['name']]);
 
 		$this->belongsTo('Divisions', [
 			'foreignKey' => 'division_id',
@@ -105,7 +106,7 @@ class PoolsTable extends AppTable {
 
 	public function division($id) {
 		try {
-			return $this->field('division_id', ['id' => $id]);
+			return $this->field('division_id', ['Pools.id' => $id]);
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

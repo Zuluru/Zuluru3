@@ -33,6 +33,7 @@ class LeaguesTableTest extends TableTestCase {
 					'app.divisions_people',
 					'app.divisions_days',
 			'app.settings',
+		'app.i18n',
 	];
 
 	/**

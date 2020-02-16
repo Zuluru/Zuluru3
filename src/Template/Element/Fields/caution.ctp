@@ -1,8 +1,8 @@
 <?php
 use Cake\Core\Configure;
 
-$field = __(Configure::read('UI.field'));
-$fields = __(Configure::read('UI.fields'));
+$field = Configure::read('UI.field');
+$fields = Configure::read('UI.fields');
 ?>
 <p><?= __('All teams must respect the following rules for all {0}. Note that some facilities have additional restrictions listed that must also be followed.', $fields) ?></p>
 <ul>

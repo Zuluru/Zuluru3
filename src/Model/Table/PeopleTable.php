@@ -55,9 +55,9 @@ class PeopleTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('people');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('people');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
 		$this->addBehavior('Timestamp');
@@ -539,7 +539,7 @@ class PeopleTable extends AppTable {
 			}
 
 			// Start with the list of valid group options for the user making the edit
-			$valid_groups = $this->Groups->find('options', ['require_player' => true])
+			$valid_groups = $this->Groups->find('options', ['Groups.require_player' => true])
 				// then limit by the groups that were requested.
 				->where([
 					'Groups.id IN' => collection($entity->groups)->extract('id')->toList(),

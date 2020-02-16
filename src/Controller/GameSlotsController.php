@@ -85,10 +85,10 @@ class GameSlotsController extends AppController {
 					'contain' => ['Facilities' => ['Regions']],
 				]);
 			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid {0}.', __(Configure::read('UI.field'))));
+				$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 				return $this->redirect('/');
 			} catch (InvalidPrimaryKeyException $ex) {
-				$this->Flash->info(__('Invalid {0}.', __(Configure::read('UI.field'))));
+				$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 				return $this->redirect('/');
 			}
 

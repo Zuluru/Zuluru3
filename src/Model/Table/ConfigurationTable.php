@@ -11,11 +11,13 @@ class ConfigurationTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('settings');
+		$this->setTable('settings');
 	}
 
 	public function loadSystem() {
-		$config = Cache::remember('config', function () {
+		$language = I18n::getLocale();
+
+		$config = Cache::remember("config.$language", function () {
 			$conditions = [
 				'affiliate_id IS' => null,
 				'category !=' => 'personal',
@@ -42,7 +44,7 @@ class ConfigurationTable extends AppTable {
 		}, 'long_term');
 		Configure::write($config);
 
-		$provinces = Cache::remember('provinces', function () {
+		$provinces = Cache::remember("provinces.$language", function () {
 			$provinces_table = TableRegistry::get('Provinces');
 			return $provinces_table->find('list', [
 				'keyField' => 'name',
@@ -51,7 +53,7 @@ class ConfigurationTable extends AppTable {
 		}, 'long_term');
 		Configure::write(compact('provinces'));
 
-		$countries = Cache::remember('countries', function () {
+		$countries = Cache::remember("countries.$language", function () {
 			$countries_table = TableRegistry::get('Countries');
 			return $countries_table->find('list', [
 				'keyField' => 'name',
@@ -60,7 +62,7 @@ class ConfigurationTable extends AppTable {
 		}, 'long_term');
 		Configure::write(compact('countries'));
 
-		Configure::write(Cache::remember('roster_roles', function () {
+		Configure::write(Cache::remember("roster_roles.$language", function () {
 			$roster_roles_table = TableRegistry::get('RosterRoles');
 			$roles = collection($roster_roles_table->find()
 				->where(['active' => true])
@@ -80,7 +82,7 @@ class ConfigurationTable extends AppTable {
 			return $configuration;
 		}, 'long_term'));
 
-		Configure::write(Cache::remember('membership_types', function () {
+		Configure::write(Cache::remember("membership_types.$language", function () {
 			$membership_types_table = TableRegistry::get('MembershipTypes');
 			$types = collection($membership_types_table->find()
 				->where(['active' => true])

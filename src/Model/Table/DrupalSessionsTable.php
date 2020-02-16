@@ -21,8 +21,8 @@ class DrupalSessionsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table(Configure::read('Security.drupalPrefix') . 'sessions');
-		$this->primaryKey('sid');
+		$this->setTable(Configure::read('Security.drupalPrefix') . 'sessions');
+		$this->setPrimaryKey('sid');
 
 		$this->belongsTo('User', [
 			'className' => 'UserDrupal',

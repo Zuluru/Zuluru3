@@ -50,6 +50,7 @@ class EventsControllerTest extends ControllerTestCase {
 			'app.settings',
 			'app.waivers',
 				'app.waivers_people',
+		'app.i18n',
 	];
 
 	/**
@@ -455,6 +456,18 @@ class EventsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'connections', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_PLAYER);
 		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'connections', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_VISITOR);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Events', 'action' => 'connections', 'event' => EVENT_ID_LEAGUE_TEAM]);
+	}
+
+	/**
+	 * Test translation
+	 *
+	 * @return void
+	 */
+	public function testTranslation() {
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_PLAYER);
+		$this->assertResponseContains('<h2>Membership</h2>');
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_ANDY_SUB);
+		$this->assertResponseContains('<h2>Adhésion</h2>');
 	}
 
 }

@@ -46,6 +46,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 			'app.badges',
 				'app.badges_people',
 			'app.settings',
+		'app.i18n',
 	];
 
 	/**

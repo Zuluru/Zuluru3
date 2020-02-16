@@ -66,14 +66,14 @@ class MapsController extends AppController {
 			$facilities_table = TableRegistry::get('Facilities');
 			$field = $facilities_table->Fields->get($id);
 		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid {0}.', __(Configure::read('UI.field'))));
+			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		} catch (InvalidPrimaryKeyException $ex) {
-			$this->Flash->info(__('Invalid {0}.', __(Configure::read('UI.field'))));
+			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
 		if (!$field->latitude) {
-			$this->Flash->info(__('That {0} has not yet been laid out.', __(Configure::read('UI.field'))));
+			$this->Flash->info(__('That {0} has not yet been laid out.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
 
@@ -114,10 +114,10 @@ class MapsController extends AppController {
 			$facilities_table = TableRegistry::get('Facilities');
 			$field = $facilities_table->Fields->get($id);
 		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid {0}.', __(Configure::read('UI.field'))));
+			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		} catch (InvalidPrimaryKeyException $ex) {
-			$this->Flash->info(__('Invalid {0}.', __(Configure::read('UI.field'))));
+			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
 
@@ -140,10 +140,10 @@ class MapsController extends AppController {
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			$facility = $facilities_table->patchEntity($facility, $this->request->data, ['associated' => ['Fields']]);
 			if ($facilities_table->save($facility)) {
-				$this->Flash->warning(__('The {0} layout has been saved.', __(Configure::read('UI.field'))));
+				$this->Flash->warning(__('The {0} layout has been saved.', Configure::read('UI.field')));
 				return $this->redirect(['controller' => 'Maps', 'action' => 'view', 'field' => $id]);
 			} else {
-				$this->Flash->warning(__('The {0} layout could not be saved. Please correct the errors below and try again.', __(Configure::read('UI.field'))));
+				$this->Flash->warning(__('The {0} layout could not be saved. Please correct the errors below and try again.', Configure::read('UI.field')));
 			}
 		}
 

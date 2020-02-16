@@ -15,9 +15,9 @@ class ActivityLogsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('activity_logs');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('activity_logs');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Timestamp');
 	}

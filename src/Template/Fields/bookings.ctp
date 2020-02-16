@@ -2,7 +2,7 @@
 use App\Controller\AppController;
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__(Configure::read('UI.fields_cap')));
+$this->Html->addCrumb(Configure::read('UI.fields_cap'));
 $this->Html->addCrumb(__('Availability and Bookings'));
 $this->Html->addCrumb($field->long_name);
 ?>

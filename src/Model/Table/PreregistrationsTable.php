@@ -22,9 +22,9 @@ class PreregistrationsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('preregistrations');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('preregistrations');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->belongsTo('People', [
 			'foreignKey' => 'person_id',
@@ -65,7 +65,7 @@ class PreregistrationsTable extends AppTable {
 
 	public function affiliate($id) {
 		try {
-			return $this->Events->affiliate($this->field('event_id', ['id' => $id]));
+			return $this->Events->affiliate($this->field('event_id', ['Preregistrations.id' => $id]));
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

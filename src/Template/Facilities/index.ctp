@@ -28,17 +28,17 @@ if (empty($regions)):
 else:
 	if (!$closed) echo $this->element('Fields/caution');
 	echo $this->Html->para(null, __('There is also a {0} available.',
-		$this->Html->link(__('map of all {0}', __(Configure::read('UI.fields'))), ['controller' => 'Maps'], ['target' => 'map'])
+		$this->Html->link(__('map of all {0}', Configure::read('UI.fields')), ['controller' => 'Maps'], ['target' => 'map'])
 	));
 
 	if ($this->Authorize->can('closed', \App\Controller\FacilitiesController::class)) {
 		if ($closed) {
 			echo $this->Html->para('highlight-message', __('This list shows facilities which are closed, or which have at least one closed {0}. Opening a facility leaves all {1} at that facility closed; they must be individually opened through the "facility view" page.',
-				__(Configure::read('UI.field')), __(Configure::read('UI.fields'))
+				Configure::read('UI.field'), Configure::read('UI.fields')
 			));
 		} else {
 			echo $this->Html->para('highlight-message', __('This list shows only facilities which are open, and which also have open {0}. Closing a facility closes all {1} at that facility, and should only be done when a facility is no longer going to be in use.',
-				__(Configure::read('UI.fields')), __(Configure::read('UI.fields'))
+				Configure::read('UI.fields'), Configure::read('UI.fields')
 			));
 		}
 	}

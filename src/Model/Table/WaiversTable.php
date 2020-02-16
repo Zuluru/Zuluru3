@@ -26,11 +26,12 @@ class WaiversTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('waivers');
-		$this->displayField('name');
-		$this->primaryKey('id');
+		$this->setTable('waivers');
+		$this->setDisplayField('name');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
+		$this->addBehavior('Translate', ['fields' => ['name', 'description', 'text']]);
 
 		$this->belongsTo('Affiliates', [
 			'foreignKey' => 'affiliate_id',
@@ -143,7 +144,7 @@ class WaiversTable extends AppTable {
 
 	public function affiliate($id) {
 		try {
-			return $this->field('affiliate_id', ['id' => $id]);
+			return $this->field('affiliate_id', ['Waivers.id' => $id]);
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

@@ -28,6 +28,7 @@ class TasksTableTest extends TableTestCase {
 					'app.affiliates_people',
 			'app.categories',
 				'app.tasks',
+		'app.i18n',
 	];
 
 	/**

@@ -26,6 +26,7 @@ class CreditsTableTest extends TableTestCase {
 			'app.users',
 				'app.people',
 					'app.credits',
+		'app.i18n',
 	];
 
 	/**

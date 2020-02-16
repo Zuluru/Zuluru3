@@ -16768,8 +16768,8 @@ msgid "Payment Details"
 msgstr "Zahlungsdetails"
 
 #: Template/Registrations/add_payment.ctp:30
-msgid " ({0,number,currency} - {0,number,currency})"
-msgstr " ({0,number,currency} - {0,number,currency})"
+msgid " ({0} - {0})"
+msgstr " ({0} - {0})"
 
 #: Template/Registrations/add_payment.ctp:55
 msgid "These notes will be attached to the new payment record, and are only visible to admins."
@@ -17085,8 +17085,8 @@ msgid "Payment Amount"
 msgstr "Zahlungsbetrag"
 
 #: Template/Registrations/view.ctp:55
-msgid "({0,number,currency} refunded; see below)"
-msgstr "({0,number,currency} erstattet, siehe unten)"
+msgid "({0} refunded; see below)"
+msgstr "({0} erstattet, siehe unten)"
 
 #: Template/Registrations/view.ctp:58
 msgid "Payment Date"
@@ -17147,12 +17147,12 @@ msgid "Issue Credit"
 msgstr "Ausgabe Kredit"
 
 #: Template/Registrations/view.ctp:150
-msgid "There is an outstanding balance of {0,number,currency}."
-msgstr "Es ist eine hervorragende Bilanz von {0,number,currency}."
+msgid "There is an outstanding balance of {0}."
+msgstr "Es ist eine hervorragende Bilanz von {0}."
 
 #: Template/Registrations/view.ctp:152
-msgid "Although this registration is marked as \"Paid\", the total of the payments received ({0,number,currency}) does not match the registration cost ({1,number,currency})."
-msgstr "Obwohl diese Registrierung als \"Paid\" markiert ist, erhielt die Summe der Zahlungen ({0,number,currency}) nicht die Registrierungskosten entsprechen ({1,number,currency})."
+msgid "Although this registration is marked as \"Paid\", the total of the payments received ({0}) does not match the registration cost ({1})."
+msgstr "Obwohl diese Registrierung als \"Paid\" markiert ist, erhielt die Summe der Zahlungen ({0}) nicht die Registrierungskosten entsprechen ({1})."
 
 #: Template/Registrations/csv/full_list.ctp:50
 msgid "Modified Date"

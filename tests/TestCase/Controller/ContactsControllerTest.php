@@ -27,6 +27,7 @@ class ContactsControllerTest extends ControllerTestCase {
 					'app.divisions_people',
 			'app.contacts',
 			'app.settings',
+		'app.i18n',
 	];
 
 	/**

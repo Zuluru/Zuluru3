@@ -1,7 +1,9 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
+use Cake\I18n\I18n;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\DivisionsTable;
 
@@ -32,6 +34,7 @@ class DivisionsTableTest extends TableTestCase {
 					'app.teams',
 					'app.divisions_days',
 					'app.divisions_people',
+		'app.i18n',
 	];
 
 	/**
@@ -175,6 +178,43 @@ class DivisionsTableTest extends TableTestCase {
 	 */
 	public function testClearCache() {
 		$this->markTestIncomplete('Not implemented yet.');
+	}
+
+	/**
+	 * Test translation behavior
+	 *
+	 * @return void
+	 */
+	public function testTranslation() {
+		Configure::load('options');
+		Configure::load('sports');
+
+		// With the default locale, it's English
+		$division = $this->DivisionsTable->get(DIVISION_ID_MONDAY_LADDER);
+		$this->assertEquals('Competitive', $division->name);
+
+		// No Spanish name has been set, so it's still English
+		I18n::setLocale('es');
+		$division = $this->DivisionsTable->get(DIVISION_ID_MONDAY_LADDER);
+		$this->assertEquals('Competitive', $division->name);
+
+		// Set the Spanish name and save
+		$division->name = 'Competitiva';
+		$this->assertNotFalse($this->DivisionsTable->save($division));
+		$this->assertEquals('Competitiva', $division->name);
+
+		// Back to English, it should still be English
+		I18n::setLocale('en');
+		$division = $this->DivisionsTable->get(DIVISION_ID_MONDAY_LADDER);
+		$this->assertEquals('Competitive', $division->name);
+
+		// Spanish name has been set now, so it should read that
+		I18n::setLocale('es');
+		$division = $this->DivisionsTable->get(DIVISION_ID_MONDAY_LADDER);
+		$this->assertEquals('Competitiva', $division->name);
+
+		// Put the locale back to default
+		I18n::setLocale('en');
 	}
 
 }

@@ -46,6 +46,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 				'app.newsletters',
 			'app.activity_logs',
 			'app.settings',
+		'app.i18n',
 	];
 
 	/**

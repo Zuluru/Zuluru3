@@ -11,10 +11,10 @@ $collapsed = (empty($errors) && !$facility->isNew());
 
 <div class="panel panel-default">
 	<div class="panel-heading" role="tab" id="FieldHeading<?= $index ?>">
-		<h4 class="panel-title"><a role="button" class="accordion-toggle<?= $collapsed ? ' collapsed' : '' ?>" data-toggle="collapse" data-parent="#accordion" href="#FieldDetails<?= $index ?>" aria-expanded="<?= $collapsed ? 'true' : 'false' ?>" aria-controls="FieldDetails<?= $index ?>"><?= __('{0} Details', __(Configure::read('UI.field_cap'))) ?>:</a>
+		<h4 class="panel-title"><a role="button" class="accordion-toggle<?= $collapsed ? ' collapsed' : '' ?>" data-toggle="collapse" data-parent="#accordion" href="#FieldDetails<?= $index ?>" aria-expanded="<?= $collapsed ? 'true' : 'false' ?>" aria-controls="FieldDetails<?= $index ?>"><?= __('{0} Details', Configure::read('UI.field_cap')) ?>:</a>
 			<?= $this->Form->input("fields.$index.num", [
 				'label' => __('Number'),
-				'placeholder' => __('{0} Number', __(Configure::read('UI.field_cap'))),
+				'placeholder' => __('{0} Number', Configure::read('UI.field_cap')),
 				'duplicate_help' => true,
 			]) ?>
 		</h4>
@@ -30,7 +30,7 @@ echo $this->Form->input("fields.$index.sport", [
 	'options' => Configure::read('options.sport'),
 	'hide_single' => true,
 	'empty' => '---',
-	'help' => __('Sport played at this {0}.', __(Configure::read('UI.field'))),
+	'help' => __('Sport played at this {0}.', Configure::read('UI.field')),
 	'duplicate_help' => true,
 ]);
 if ($new) {

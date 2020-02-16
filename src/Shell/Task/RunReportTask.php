@@ -33,7 +33,7 @@ class RunReportTask extends Shell {
 			// Bad report type. Shouldn't ever happen. Inform the user, and delete the record.
 			AppController::_sendMail([
 				'to' => $report->person,
-				'subject' => __('{0} Report Failed', Configure::read('organization.short_name')),
+				'subject' => function() { return __('{0} Report Failed', Configure::read('organization.short_name')); },
 				'content' => __('The {0} server has failed to run your requested "{1}" report.', Configure::read('organization.short_name'), $report->report) . ' ' .
 					__('This is a fatal error, it will not be retried.'),
 				'sendAs' => 'text',
@@ -51,7 +51,7 @@ class RunReportTask extends Shell {
 				AppController::_sendMail([
 					'to' => $report->person,
 					'bcc' => 'admin@zuluru.org',
-					'subject' => __('{0} Report Failed', Configure::read('organization.short_name')),
+					'subject' => function() { return __('{0} Report Failed', Configure::read('organization.short_name')); },
 					'content' => __('The {0} server has failed to run your requested "{1}" report.', Configure::read('organization.short_name'), $report->report) . ' ' .
 						__('The report has failed three times, so it will not be retried.'),
 					'sendAs' => 'text',

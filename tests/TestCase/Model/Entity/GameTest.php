@@ -68,6 +68,7 @@ class GameTest extends TestCase {
 				'app.newsletters',
 			'app.activity_logs',
 			'app.settings',
+		'app.i18n',
 	];
 
 	/**

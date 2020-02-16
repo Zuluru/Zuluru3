@@ -2,7 +2,7 @@
 use Cake\Core\Configure;
 ?>
 
-<p><?= __('The options you have for what type of games to schedule depend on the schedule type of the league. Each option will indicate how many teams, {0} and days will be involved.', __(Configure::read('UI.fields'))) ?></p>
+<p><?= __('The options you have for what type of games to schedule depend on the schedule type of the league. Each option will indicate how many teams, {0} and days will be involved.', Configure::read('UI.fields')) ?></p>
 <?php
 echo $this->element('Help/topics', [
 	'section' => 'schedules',

@@ -27,9 +27,9 @@ class SkillsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('skills');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('skills');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->belongsTo('People', [
 			'foreignKey' => 'person_id',

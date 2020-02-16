@@ -24,9 +24,9 @@ if (isset($field)):
 else:
 ?>
 		<fieldset class="no-labels">
-			<legend><?= __('{0} Selection', __(Configure::read('UI.field_cap'))) ?></legend>
-			<p class="warning-message"><?= __('NOTE: By default, checking a facility here will create game slots for ALL open {0} at that facility.', __(Configure::read('UI.fields'))) . ' ' .
-				__('If you want to create game slots for selected {0}, click the facility name to see the list of {0} at that facility.', __(Configure::read('UI.fields'))) ?></p>
+			<legend><?= __('{0} Selection', Configure::read('UI.field_cap')) ?></legend>
+			<p class="warning-message"><?= __('NOTE: By default, checking a facility here will create game slots for ALL open {0} at that facility.', Configure::read('UI.fields')) . ' ' .
+				__('If you want to create game slots for selected {0}, click the facility name to see the list of {0} at that facility.', Configure::read('UI.fields')) ?></p>
 <?php
 	$sports = Configure::read('options.sport');
 	if (count($sports) > 1) {

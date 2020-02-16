@@ -27,9 +27,9 @@ class FacilitiesTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('facilities');
-		$this->displayField('name');
-		$this->primaryKey('id');
+		$this->setTable('facilities');
+		$this->setDisplayField('name');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
 		$this->addBehavior('Formatter', [
@@ -41,6 +41,10 @@ class FacilitiesTable extends AppTable {
 				'location_city' => 'proper_case_format',
 			],
 		]);
+		$this->addBehavior('Translate', ['fields' => [
+			'name', 'code', 'driving_directions', 'parking_details', 'transit_directions', 'biking_directions',
+			'washrooms', 'public_instructions', 'site_instructions', 'sponsor',
+		]]);
 
 		$this->belongsTo('Regions', [
 			'foreignKey' => 'region_id',
@@ -149,7 +153,7 @@ class FacilitiesTable extends AppTable {
 
 	public function affiliate($id) {
 		try {
-			return $this->Regions->affiliate($this->field('region_id', ['id' => $id]));
+			return $this->Regions->affiliate($this->field('region_id', ['Facilities.id' => $id]));
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

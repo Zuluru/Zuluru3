@@ -288,7 +288,7 @@ abstract class LeagueType {
 		TableRegistry::get('Divisions')->loadInto($division, [
 			'Days' => [
 				'queryBuilder' => function (Query $q) {
-					return $q->order(['day_id']);
+					return $q->order(['DivisionsDays.day_id']);
 				},
 			],
 			'Teams' => [

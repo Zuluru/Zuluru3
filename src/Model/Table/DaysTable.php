@@ -23,11 +23,12 @@ class DaysTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('days');
-		$this->displayField('name');
-		$this->primaryKey('id');
+		$this->setTable('days');
+		$this->setDisplayField('name');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
+		$this->addBehavior('Translate', ['fields' => ['name']]);
 
 		$this->belongsToMany('Divisions', [
 			'foreignKey' => 'day_id',

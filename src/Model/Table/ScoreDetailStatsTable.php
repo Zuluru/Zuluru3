@@ -23,9 +23,9 @@ class ScoreDetailStatsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('score_detail_stats');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('score_detail_stats');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->belongsTo('ScoreDetails', [
 			'foreignKey' => 'score_detail_id',
@@ -73,7 +73,7 @@ class ScoreDetailStatsTable extends AppTable {
 
 	public function division($id) {
 		try {
-			return $this->ScoreDetails->division($this->field('score_detail_id', ['id' => $id]));
+			return $this->ScoreDetails->division($this->field('score_detail_id', ['ScoreDetailStats.id' => $id]));
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}
@@ -81,7 +81,7 @@ class ScoreDetailStatsTable extends AppTable {
 
 	public function team($id) {
 		try {
-			return $this->ScoreDetails->team($this->field('score_detail_id', ['id' => $id]));
+			return $this->ScoreDetails->team($this->field('score_detail_id', ['ScoreDetailStats.id' => $id]));
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}
