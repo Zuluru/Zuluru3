@@ -11,6 +11,7 @@ use Cake\Core\Exception\Exception;
 use Cake\Database\Expression\IdentifierExpression;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
+use Cake\Event\Event as CakeEvent;
 use Cake\Http\Exception\GoneException;
 use Cake\Http\Exception\NotFoundException;
 use Cake\I18n\FrozenDate;
@@ -1774,7 +1775,7 @@ class TeamsController extends AppController {
 					if ($person) {
 						$person->unsetProperty('_joinData');
 						// TODO: If the team has numbers, take care of that here too
-						$result[$this->_setRosterRole($person, $team, ROSTER_INVITED, $data['role'], $data['position'])][] = $person->full_name;
+						$result[$this->_setRosterRole($person, $team, ROSTER_INVITED, $data['role'], $data['position'])][] = $person;
 					}
 				}
 			}
@@ -1786,21 +1787,24 @@ class TeamsController extends AppController {
 				if (!empty($result[ROSTER_APPROVED])) {
 					$msg[] = __n('{0} has been added to the roster.', '{0} have been added to the roster.',
 						count($result[ROSTER_APPROVED]),
-						Text::toList($result[ROSTER_APPROVED])
+						Text::toList(collection($result[ROSTER_APPROVED])->extract('full_name')->toArray())
 					);
 					$class = 'success';
+
+					$event = new CakeEvent('Model.Team.rosterUpdate', $this, [$team->id, $result[ROSTER_APPROVED]]);
+					$this->eventManager()->dispatch($event);
 				}
 				if (!empty($result[ROSTER_INVITED])) {
 					$msg[] = __n('Invitation has been sent to {0}.', 'Invitations have been sent to {0}.',
 						count($result[ROSTER_INVITED]),
-						Text::toList($result[ROSTER_INVITED])
+						Text::toList(collection($result[ROSTER_INVITED])->extract('full_name')->toArray())
 					);
 					$class = 'success';
 				}
 				if (!empty($result[false])) {
 					$msg[] = __n('Failed to send invitation to {0}.', 'Failed to send invitations to {0}.',
 						count($result[false]),
-						Text::toList($result[false])
+						Text::toList(collection($result[false])->extract('full_name')->toArray())
 					);
 					$class = 'warning';
 				}
@@ -1909,7 +1913,7 @@ class TeamsController extends AppController {
 					if ($registration) {
 						$registration->person->unsetProperty('_joinData');
 						// TODO: If the team has numbers, take care of that here too
-						$result[$this->_setRosterRole($registration->person, $team, ROSTER_APPROVED, $data['role'], $data['position'])][] = $registration->person->full_name;
+						$result[$this->_setRosterRole($registration->person, $team, ROSTER_APPROVED, $data['role'], $data['position'])][] = $registration->person;
 					}
 				}
 			}
@@ -1921,21 +1925,24 @@ class TeamsController extends AppController {
 				if (!empty($result[ROSTER_APPROVED])) {
 					$msg[] = __n('{0} has been added to the roster.', '{0} have been added to the roster.',
 						count($result[ROSTER_APPROVED]),
-						Text::toList($result[ROSTER_APPROVED])
+						Text::toList(collection($result[ROSTER_APPROVED])->extract('full_name')->toArray())
 					);
 					$class = 'success';
+
+					$event = new CakeEvent('Model.Team.rosterUpdate', $this, [$team->id, $result[ROSTER_APPROVED]]);
+					$this->eventManager()->dispatch($event);
 				}
 				if (!empty($result[ROSTER_INVITED])) {
 					$msg[] = __n('Invitation has been sent to {0}.', 'Invitations have been sent to {0}.',
 						count($result[ROSTER_INVITED]),
-						Text::toList($result[ROSTER_INVITED])
+						Text::toList(collection($result[ROSTER_INVITED])->extract('full_name')->toArray())
 					);
 					$class = 'success';
 				}
 				if (!empty($result[false])) {
 					$msg[] = __n('Failed to send invitation to {0}.', 'Failed to send invitations to {0}.',
 						count($result[false]),
-						Text::toList($result[false])
+						Text::toList(collection($result[false])->extract('full_name')->toArray())
 					);
 					$class = 'warning';
 				}
@@ -2209,6 +2216,9 @@ class TeamsController extends AppController {
 				$this->_sendAccept($person, $team, $person->_joinData->role, $oldStatus);
 			}
 
+			$event = new CakeEvent('Model.Team.rosterUpdate', $this, [$team->id, [$person]]);
+			$this->eventManager()->dispatch($event);
+
 			$this->UserCache->_deleteTeamData($person_id);
 
 			if ($this->request->is('ajax')) {
@@ -2386,6 +2396,10 @@ class TeamsController extends AppController {
 			if (Configure::read('feature.generate_roster_email')) {
 				$this->_sendRemove($person, $team, $person->_joinData->getOriginal('role'));
 			}
+
+			$event = new CakeEvent('Model.Team.rosterDelete', $this, [$team->id, $person]);
+			$this->eventManager()->dispatch($event);
+
 			$this->UserCache->_deleteTeamData($person->id);
 			return true;
 		}
@@ -2439,6 +2453,12 @@ class TeamsController extends AppController {
 		// If we are successful in the update, there may be emails to send
 		if ($this->Teams->People->link($team, [$person], compact('person', 'team')) && empty($person->errors())) {
 			$this->UserCache->_deleteTeamData($person->id);
+
+			if ($status == ROSTER_APPROVED) {
+				$event = new CakeEvent('Model.Team.rosterUpdate', $this, [$team->id, [$person]]);
+				$this->eventManager()->dispatch($event);
+			}
+
 			if (!Configure::read('feature.generate_roster_email')) {
 				return $status;
 			}

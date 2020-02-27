@@ -1178,9 +1178,20 @@ class SchedulesController extends AppController {
 				$this->Divisions->clearCache($division, ['schedule', 'standings']);
 			}
 
-			// With the update being done this way, afterSaveCommit is not called.
-			$event = new CakeEvent('Model.Game.afterSaveCommit', $this, [null]);
-			$this->eventManager()->dispatch($event);
+			if ($true) {
+				// With the update being done this way, afterSaveCommit is not called.
+				$team_ids = array_flip(array_unique(array_filter(array_merge(
+					collection($games)->extract('home_team_id')->toArray(),
+					collection($games)->extract('away_team_id')->toArray()
+				))));
+				Configure::write('teams_with_updated_schedules', $team_ids);
+				$event = new CakeEvent('Model.Game.afterSaveCommit', $this, [null]);
+				$this->eventManager()->dispatch($event);
+			} else {
+				Configure::write('deleted_games', $game_ids);
+				$event = new CakeEvent('Model.Game.afterDeleteCommit', $this, [null]);
+				$this->eventManager()->dispatch($event);
+			}
 		} else {
 			$this->Flash->warning(__('Failed to {0} games on the requested date.', $publish));
 		}

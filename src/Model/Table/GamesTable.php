@@ -917,6 +917,56 @@ class GamesTable extends AppTable {
 				return false;
 			}
 		}
+
+		if ($entity->published || $entity->dirty('published')) {
+			$updated_teams = Configure::read('teams_with_updated_schedules');
+			if ($updated_teams === null) {
+				$updated_teams = [];
+			}
+
+			if ($entity->dirty('published') || $entity->dirty('home_team_id')) {
+				if ($entity->home_team_id) {
+					$updated_teams[$entity->home_team_id] = true;
+				}
+				if ($entity->getOriginal('home_team_id')) {
+					$updated_teams[$entity->getOriginal('home_team_id')] = true;
+				}
+			}
+
+			if ($entity->dirty('published') || $entity->dirty('away_team_id')) {
+				if ($entity->away_team_id) {
+					$updated_teams[$entity->away_team_id] = true;
+				}
+				if ($entity->getOriginal('away_team_id')) {
+					$updated_teams[$entity->getOriginal('away_team_id')] = true;
+				}
+			}
+
+			Configure::write('teams_with_updated_schedules', $updated_teams);
+
+			if ($entity->dirty('published') && !$entity->published) {
+				$deleted_games = Configure::read('deleted_games');
+				if ($deleted_games === null) {
+					$deleted_games = [];
+				}
+
+				$deleted_games[$entity->id] = true;
+				Configure::write('deleted_games', $deleted_games);
+			}
+		}
+	}
+
+	/**
+	 * Perform additional operations after it is saved.
+	 *
+	 * @param \Cake\Event\Event $cakeEvent The afterSave event that was fired
+	 * @param \Cake\Datasource\EntityInterface $entity The entity that was saved
+	 * @param \ArrayObject $options The options passed to the save method
+	 * @return void
+	 */
+	public function afterSaveCommit(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+		$event = new CakeEvent('Model.Game.afterSaveCommit', $this, [$entity]);
+		$this->eventManager()->dispatch($event);
 	}
 
 	/**
@@ -971,6 +1021,30 @@ class GamesTable extends AppTable {
 		} else {
 			$this->Divisions->clearCache($entity->division_id);
 		}
+
+		if ($entity->published) {
+			$deleted_games = Configure::read('deleted_games');
+			if ($deleted_games === null) {
+				$deleted_games = [];
+			}
+
+			$deleted_games[$entity->id] = true;
+
+			Configure::write('deleted_games', $deleted_games);
+		}
+	}
+
+	/**
+	 * Perform additional operations after it is saved.
+	 *
+	 * @param \Cake\Event\Event $cakeEvent The afterSave event that was fired
+	 * @param \Cake\Datasource\EntityInterface $entity The entity that was saved
+	 * @param \ArrayObject $options The options passed to the save method
+	 * @return void
+	 */
+	public function afterDeleteCommit(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+		$event = new CakeEvent('Model.Game.afterDeleteCommit', $this, [$entity]);
+		$this->eventManager()->dispatch($event);
 	}
 
 	public function findPlayed(Query $query, Array $options) {
