@@ -1468,6 +1468,7 @@ class GamesTable extends AppTable {
 						'Games.id !=' => $game_id,
 					])
 					->order(['GameSlots.game_date', 'GameSlots.game_start'])
+					->extract('id')
 					->toArray();
 
 				if (count($attendance_game_ids) > count($scheduled_game_ids)) {
