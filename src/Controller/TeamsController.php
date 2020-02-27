@@ -2121,7 +2121,7 @@ class TeamsController extends AppController {
 
 		$roster_role_options = $this->_rosterRoleOptions('none', $team, $person_id);
 		// TODO: In addition to checking the roster method, check if they were on an affiliate's roster.
-		$adding = ($can_add === true && $team->division->roster_method == 'add');
+		$adding = ($can_add === true && $team->division && $team->division->roster_method == 'add');
 
 		$this->set(compact('person', 'team', 'roster_role_options', 'can_add', 'adding'));
 	}
@@ -2409,7 +2409,7 @@ class TeamsController extends AppController {
 		if ($can_add === true) {
 			// Under certain circumstances, an invite is changed to an add
 			// TODO: In addition to checking the roster method, check if they were on an affiliate's roster.
-			if ($status === ROSTER_INVITED && $team->division->roster_method == 'add') {
+			if ($status === ROSTER_INVITED && $team->division && $team->division->roster_method == 'add') {
 				$status = ROSTER_APPROVED;
 			}
 		} else {

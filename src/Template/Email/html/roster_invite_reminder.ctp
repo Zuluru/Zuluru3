@@ -10,7 +10,7 @@ use Cake\Routing\Router;
  * @type string $sport
  */
 
-$min = Configure::read("sports.{$sport}.roster_requirements.{$division->ratio_rule}");
+$min = $division ? Configure::read("sports.{$sport}.roster_requirements.{$division->ratio_rule}") : 0;
 $min_text = ($min > 0 ? __(' (minimum of {0} rostered players)', $min) : '');
 ?>
 
@@ -20,10 +20,16 @@ $min_text = ($min > 0 ? __(' (minimum of {0} rostered players)', $min) : '');
 	$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], true)),
 	Configure::read("options.roster_role.{$roster->role}")
 ) ?></p>
+<?php
+if ($division):
+?>
 <p><?= __('{0} plays in the {1}.',
 	$team->name,
 	$this->element('Email/division')
 ) ?></p>
+<?php
+endif;
+?>
 <p><?= __('We ask that you please accept or decline this invitation at your earliest convenience. The invitation will expire {0} days from now.', $days) ?></p>
 <p><?= __('If you accept the invitation, you will be added to the team\'s roster and your contact information will be made available to the team coaches and captains.') ?></p>
 <p><?= __('Note that, before accepting the invitation, you must be a registered member of {0}.', Configure::read('organization.short_name')) ?></p>

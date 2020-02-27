@@ -122,7 +122,9 @@ class TeamsPeopleTable extends AppTable {
 		} else {
 			$team = $this->Teams->get($entity->team_id);
 		}
-		$this->Teams->Divisions->clearCache($team->division_id, ['standings']);
+		if ($team->division_id) {
+			$this->Teams->Divisions->clearCache($team->division_id, ['standings']);
+		}
 		UserCache::getInstance()->_deleteTeamData($entity->person_id);
 
 		if ($options->offsetExists('person')) {
@@ -157,7 +159,9 @@ class TeamsPeopleTable extends AppTable {
 		} else {
 			$team = $this->Teams->get($entity->team_id);
 		}
-		$this->Teams->Divisions->clearCache($team->division_id, ['standings']);
+		if ($team->division_id) {
+			$this->Teams->Divisions->clearCache($team->division_id, ['standings']);
+		}
 
 		if (Configure::read('feature.badges')) {
 			if ($options->offsetExists('person')) {

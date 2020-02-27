@@ -221,7 +221,7 @@ class TeamsTable extends AppTable {
 		if ($entity->dirty('division_id') && !empty($entity->getOriginal('division_id'))) {
 			$this->Divisions->clearCache($entity->getOriginal('division_id'));
 		}
-		if (!empty($entity->division_id)) {
+		if ($entity->division_id) {
 			$this->Divisions->clearCache($entity->division_id);
 		}
 
@@ -248,7 +248,7 @@ class TeamsTable extends AppTable {
 	 * @return void
 	 */
 	public function afterDelete(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
-		if (!empty($entity->division_id)) {
+		if ($entity->division_id) {
 			$this->Divisions->clearCache($entity->division_id);
 		}
 

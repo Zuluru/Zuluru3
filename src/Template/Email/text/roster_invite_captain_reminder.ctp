@@ -10,7 +10,7 @@ use Cake\Core\Configure;
  * @type string $sport
  */
 
-$min = Configure::read("sports.{$sport}.roster_requirements.{$division->ratio_rule}");
+$min = $division ? Configure::read("sports.{$sport}.roster_requirements.{$division->ratio_rule}") : 0;
 $min_text = ($min > 0 ? __(' (minimum of {0} rostered players)', $min) : '');
 ?>
 

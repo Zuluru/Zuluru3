@@ -11,7 +11,7 @@ use Cake\Routing\Router;
  * @type string $sport
  */
 
-$min = Configure::read("sports.{$sport}.roster_requirements.{$division->ratio_rule}");
+$min = $division ? Configure::read("sports.{$sport}.roster_requirements.{$division->ratio_rule}") : 0;
 $min_text = ($min > 0 ? __(' (minimum of {0} rostered players)', $min) : '');
 ?>
 
@@ -26,12 +26,18 @@ $min_text = ($min > 0 ? __(' (minimum of {0} rostered players)', $min) : '');
 ) ?>
 
 
+<?php
+if ($division):
+?>
 <?= __('{0} plays in the {1}.',
 	$team->name,
 	$this->element('Email/division')
 ) ?>
 
 
+<?php
+endif;
+?>
 <?= __('More details about {0} may be found at', $team->name) ?>
 
 <?= Router::url(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], true) ?>
