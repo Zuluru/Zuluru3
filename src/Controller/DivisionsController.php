@@ -717,6 +717,7 @@ class DivisionsController extends AppController {
 			$is_tournament = collection($division->games)->some(function ($game) use ($edit_date) {
 				return $game->type != SEASON_GAME;
 			});
+			$game_slots = [];
 		}
 
 		// Save posted data
@@ -812,6 +813,7 @@ class DivisionsController extends AppController {
 		// If we're asking for "team" standings, only show the 5 teams above and 5 teams below this team.
 		// Don't bother if there are 24 teams or less (24 is probably the largest fall division size).
 		// If $show_all is set, don't remove teams.
+		$more_before = $more_after = false;
 		if (!$show_all && $team_id != null && count($division->teams) > 24) {
 			$index_of_this_team = false;
 			foreach (array_values($division->teams) as $i => $team) {

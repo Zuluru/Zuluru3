@@ -1,7 +1,7 @@
 <?php
 use Cake\Core\Configure;
 
-echo $this->element('FormBuilder/input', ['prefix' => $prefix, 'questions' => $spirit_obj->questions, 'secure' => false]);
+echo $this->element('FormBuilder/input', ['prefix' => $prefix, 'preview' => false, 'questions' => $spirit_obj->questions, 'secure' => false]);
 
 if (Configure::read('scoring.most_spirited') && $game->division->most_spirited != 'never'):
 	if ($this->request->action != 'edit'):

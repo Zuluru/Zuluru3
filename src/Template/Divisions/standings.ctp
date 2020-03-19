@@ -42,7 +42,7 @@ if (!empty($division->teams) && ($has_season || !$has_tournament)):
 			</thead>
 			<tbody>
 <?php
-	if (isset($more_before)) {
+	if ($more_before) {
 		$seed = $more_before;
 		echo $this->element("Leagues/standings/{$league_obj->render_element}/more", [
 			'league' => $division->league,
@@ -71,7 +71,7 @@ if (!empty($division->teams) && ($has_season || !$has_tournament)):
 			'classes' => $classes,
 		]);
 	}
-	if (isset($more_after)) {
+	if ($more_after) {
 		echo $this->element("Leagues/standings/{$league_obj->render_element}/more", [
 			'league' => $division->league,
 			'division' => $division,

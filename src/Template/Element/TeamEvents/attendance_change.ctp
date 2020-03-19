@@ -38,7 +38,11 @@ if ($team->track_attendance) {
 		'alt' => Configure::read("attendance_alt.$status"),
 	]);
 
-	$context = new ContextResource($team, compact('attendance', 'event', 'future_only'));
+	$context = new ContextResource($team, [
+		'attendance' => $attendance,
+		'event' => isset($event) ? $event : null,
+		'future_only' => isset($future_only) ? $future_only : false,
+	]);
 	if ($this->Authorize->can('attendance_change', $context)) {
 		$identity = $this->Authorize->getIdentity();
 

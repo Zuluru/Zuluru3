@@ -539,6 +539,10 @@ class Game extends Entity {
 	 * or null if there is no clear "best" entry.
 	 */
 	public function getBestScoreEntry() {
+		if (empty($this->score_entries)) {
+			return null;
+		}
+
 		switch (count($this->score_entries)) {
 			case 0:
 				return false;

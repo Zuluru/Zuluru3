@@ -1962,11 +1962,11 @@ class PeopleController extends AppController {
 	public function splash() {
 		$this->Authorization->authorize($this);
 
+		$relatives = $affiliates = $unmanaged = [];
+
 		// TODO: These references to locked should use authorization instead
 		if ($this->UserCache->read('Person.status') != 'locked') {
 			$relatives = collection($this->UserCache->read('Relatives'))->match(['_joinData.approved' => 1])->toList();
-		} else {
-			$relatives = [];
 		}
 
 		if (Configure::read('feature.affiliates') && $this->UserCache->read('Person.status') != 'locked') {
@@ -1990,8 +1990,6 @@ class PeopleController extends AppController {
 					}
 				}
 			}
-		} else {
-			$affiliates = [];
 		}
 
 		$applicable_affiliates = $this->Authentication->applicableAffiliateIDs();

@@ -149,7 +149,7 @@ else:
 					}
 				?></td>
 				<td class="actions<?= " $class" ?>">
-					<?= $this->element('Divisions/actions', compact('division', 'league', 'is_league_manager', 'collapse', 'tournaments')) ?>
+					<?= $this->element('Divisions/actions', compact('division', 'league', 'collapse', 'tournaments')) ?>
 				</td>
 			</tr>
 

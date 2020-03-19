@@ -316,7 +316,6 @@ if (!$this->fetch('common_flash')) {
 if (!$this->fetch('powered_by')):
 	$this->start('powered_by');
 ?>
-	<?= $this->element('Layout/footer') ?>
 	<p class="small text-center"><?php
 		echo __('Powered by {0}, version {1}.{2}.{3}',
 			$this->Html->link(ZULURU, 'https://zuluru.org/'),
