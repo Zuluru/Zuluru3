@@ -374,18 +374,19 @@ function handleAjaxRequest(trigger, container, widget, default_disposition, requ
 			data = new FormData();
 		}
 
-		if (jQuery(this).attr('data-type') == 'date') {
+		input = jQuery(this);
+		if (input.attr('data-type') == 'date') {
 			// Date inputs need to send all three fields, which we assume are inside the closest parent div
-			jQuery(this).closest('div').find('select').each(function() {
-				data.append(jQuery(this).attr('name'), jQuery(this).val());
+			input.closest('div').find('select').each(function() {
+				data.append(input.attr('name'), input.val());
 			});
 		} else {
-			var param_name = jQuery(this).attr('data-param-name');
+			var param_name = input.attr('data-param-name');
 			if (param_name) {
 				// Sometimes, the field name needs to be overridden
-				data.append(param_name, jQuery(this).val());
-			} else {
-				data.append(jQuery(this).attr('name'), jQuery(this).val());
+				data.append(param_name, input.val());
+			} else if (!input.is(':checkbox') || input.prop('checked')) {
+				data.append(input.attr('name'), input.val());
 			}
 		}
 	});

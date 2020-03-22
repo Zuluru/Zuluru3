@@ -540,7 +540,7 @@ class Game extends Entity {
 	 */
 	public function getBestScoreEntry() {
 		if (empty($this->score_entries)) {
-			return null;
+			return false;
 		}
 
 		switch (count($this->score_entries)) {

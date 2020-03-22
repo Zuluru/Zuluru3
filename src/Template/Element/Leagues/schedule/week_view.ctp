@@ -11,6 +11,7 @@ if (isset($division)) {
 	$id = $league->id;
 	$id_field = 'league';
 	$can_edit = $this->Authorize->can('edit_schedule', $league);
+	$division = null;
 }
 
 // Spin through the games before building headers, to eliminate edit-type actions on completed weeks.

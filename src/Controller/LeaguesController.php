@@ -524,6 +524,7 @@ class LeaguesController extends AppController {
 			$is_tournament = collection($league->games)->some(function ($game) {
 				return $game->type != SEASON_GAME;
 			});
+			$game_slots = [];
 		}
 
 		// Save posted data

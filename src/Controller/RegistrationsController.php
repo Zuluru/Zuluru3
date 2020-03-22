@@ -1403,7 +1403,7 @@ class RegistrationsController extends AppController {
 		// TODO: Report to Cake?
 		$responses = [];
 		foreach ($event->questionnaire->questions as $key => $question) {
-			if ($question->type == 'checkbox' && count($question->answers) > 1) {
+			if ($question->type == 'checkbox' && $question->answers && count($question->answers) > 1) {
 				foreach ($question->answers as $akey => $answer) {
 					$response = collection($registration->responses)->firstMatch(['question_id' => $question->id, 'answer_id' => $answer->id]);
 					if ($response) {

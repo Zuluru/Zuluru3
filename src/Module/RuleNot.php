@@ -11,7 +11,7 @@ class RuleNot extends RuleMeta {
 		if ($this->rule == null)
 			return null;
 		$success = $this->rule->evaluate($affiliate, $params, $team, $strict, $text_reason, $complete, $absolute_url, $formats);
-		$this->reason = ['NOT ' => $this->rule->reason];
+		$this->reason = ['NOT' => $this->rule->reason];
 		$this->reason_type = $this->rule->reason_type;
 
 		// If the thing we're negating can't change, then neither can we
