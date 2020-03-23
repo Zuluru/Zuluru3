@@ -50,6 +50,9 @@ class AppTable extends Table {
 			return false;
 		}
 
+		// We always want to ignore I18n dependencies
+		$ignore[] = 'I18n';
+
 		$dependencies = [];
 		$associations = $this->associations();
 
