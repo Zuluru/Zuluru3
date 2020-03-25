@@ -877,12 +877,6 @@ class PeopleController extends AppController {
 		$person = $this->People->newEntity();
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			/* TODODATABASE: User and person records may be in separate databases, so we need a transaction for each
-			$users_table = $this->loadModel(Configure::read('Security.authModel'));
-			$user_transaction = new DatabaseTransaction($users_table);
-			$person_transaction = new DatabaseTransaction($this->Person);
-			*/
-
 			$this->request->data['is_child'] = true;
 			$person = $this->People->patchEntity($person, $this->request->data, [
 				'validate' => 'create',
@@ -2507,8 +2501,6 @@ class PeopleController extends AppController {
 				break;
 		}
 
-		// TODODATABASE: User and person records may be in separate databases, so we need a transaction for each
-		//$user_transaction = new DatabaseTransaction($users_table);
 		if (!$this->People->connection()->transactional(function () use ($save, $delete, $fail_message) {
 			// If we are both deleting and saving, that's a merge operation, and we will want to migrate all
 			// records that aren't part of the in-memory record.
