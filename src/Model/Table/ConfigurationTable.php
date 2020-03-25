@@ -17,7 +17,7 @@ class ConfigurationTable extends AppTable {
 	public function loadSystem() {
 		$language = I18n::getLocale();
 
-		$config = Cache::remember("config.$language", function () {
+		$config = $this->cacheRememberSubkey('config', $language, function () {
 			$conditions = [
 				'affiliate_id IS' => null,
 				'category !=' => 'personal',
@@ -44,7 +44,7 @@ class ConfigurationTable extends AppTable {
 		}, 'long_term');
 		Configure::write($config);
 
-		$provinces = Cache::remember("provinces.$language", function () {
+		$provinces = $this->cacheRememberSubkey('provinces', $language, function () {
 			$provinces_table = TableRegistry::get('Provinces');
 			return $provinces_table->find('list', [
 				'keyField' => 'name',
@@ -53,7 +53,7 @@ class ConfigurationTable extends AppTable {
 		}, 'long_term');
 		Configure::write(compact('provinces'));
 
-		$countries = Cache::remember("countries.$language", function () {
+		$countries = $this->cacheRememberSubkey('countries', $language, function () {
 			$countries_table = TableRegistry::get('Countries');
 			return $countries_table->find('list', [
 				'keyField' => 'name',
@@ -62,7 +62,7 @@ class ConfigurationTable extends AppTable {
 		}, 'long_term');
 		Configure::write(compact('countries'));
 
-		Configure::write(Cache::remember("roster_roles.$language", function () {
+		Configure::write($this->cacheRememberSubkey('roster_roles', $language, function () {
 			$roster_roles_table = TableRegistry::get('RosterRoles');
 			$roles = collection($roster_roles_table->find()
 				->where(['active' => true])
@@ -82,7 +82,7 @@ class ConfigurationTable extends AppTable {
 			return $configuration;
 		}, 'long_term'));
 
-		Configure::write(Cache::remember("membership_types.$language", function () {
+		Configure::write($this->cacheRememberSubkey('membership_types', $language, function () {
 			$membership_types_table = TableRegistry::get('MembershipTypes');
 			$types = collection($membership_types_table->find()
 				->where(['active' => true])
@@ -106,7 +106,7 @@ class ConfigurationTable extends AppTable {
 			return;
 		}
 
-		$config = Cache::remember("config/affiliate/$id", function () use ($id) {
+		$config = $this->cacheRememberSubkey("config/affiliate/$id", I18n::getLocale(), function () use ($id) {
 			return $this->format($this->find()->where(['affiliate_id' => $id])->toArray());
 		}, 'long_term');
 		Configure::write($config);
@@ -129,4 +129,16 @@ class ConfigurationTable extends AppTable {
 		return $ret;
 	}
 
+	protected static function cacheRememberSubkey($key, $subkey, callable $func, $config) {
+		$data = Cache::read($key, $config);
+		if (empty($data)) {
+			$data = [];
+		}
+		if (!array_key_exists($subkey, $data)) {
+			$data[$subkey] = call_user_func($func);
+			Cache::write($key, $data, 'long_term');
+		}
+
+		return $data[$subkey];
+	}
 }
