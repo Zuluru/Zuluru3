@@ -740,7 +740,7 @@ class TeamsController extends AppController {
 			$person = current($team->people);
 			$roster = $person->_joinData;
 		} else {
-			$roster = null;
+			$person = $roster = null;
 		}
 
 		$this->Authorization->authorize(new ContextResource($team, ['division' => $team->division, 'roster' => $roster]));

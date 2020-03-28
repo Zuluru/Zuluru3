@@ -766,6 +766,7 @@ class SchedulesController extends AppController {
 						],
 					]
 				]);
+				$division = null;
 			} catch (RecordNotFoundException $ex) {
 				$this->Flash->warning(__('Invalid league.'));
 				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
@@ -814,6 +815,7 @@ class SchedulesController extends AppController {
 						],
 					]
 				]);
+				$league = null;
 			} catch (RecordNotFoundException $ex) {
 				$this->Flash->warning(__('Invalid division.'));
 				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
@@ -871,6 +873,8 @@ class SchedulesController extends AppController {
 				$this->Flash->warning(__('Invalid pool.'));
 				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 			}
+		} else {
+			$pool = null;
 		}
 
 		if ($query->isEmpty()) {

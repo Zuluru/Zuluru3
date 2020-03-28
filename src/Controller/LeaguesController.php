@@ -160,6 +160,8 @@ class LeaguesController extends AppController {
 		if (count($league->divisions) == 1) {
 			$this->Leagues->Divisions->prepForView($league->divisions[0]);
 			$league_obj = $this->moduleRegistry->load("LeagueType:{$league->divisions[0]->schedule_type}");
+		} else {
+			$league_obj = null;
 		}
 
 		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
@@ -667,7 +669,7 @@ class LeaguesController extends AppController {
 		$this->Configuration->loadAffiliate($league->affiliate_id);
 		$spirit_obj = $league->hasSpirit() ? $this->moduleRegistry->load("Spirit:{$league->sotg_questions}") : null;
 
-		$this->set(compact('league', 'league_obj', 'spirit_obj'));
+		$this->set(compact('league', 'spirit_obj'));
 		$this->set('_serialize', ['league']);
 	}
 
@@ -750,6 +752,9 @@ class LeaguesController extends AppController {
 				->toArray();
 
 			$is_tournament = collection($slots)->extract('games.{*}')->some(function ($game) { return $game->type != SEASON_GAME; });
+		} else {
+			$slots = [];
+			$is_tournament = false;
 		}
 
 		$this->set(compact('league', 'dates', 'date', 'slots', 'is_tournament'));

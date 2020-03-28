@@ -179,7 +179,7 @@ class FranchisesController extends AppController {
 		}
 
 		$affiliates = $this->Authentication->applicableAffiliates(true);
-		$this->set(compact('franchise', 'affiliates', 'people', 'teams'));
+		$this->set(compact('franchise', 'affiliates'));
 	}
 
 	/**

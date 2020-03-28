@@ -97,7 +97,7 @@ class WaiversController extends AppController {
 			}
 		}
 		$this->set('affiliates', $this->Authentication->applicableAffiliates(true));
-		$this->set(compact('waiver', 'affiliates'));
+		$this->set(compact('waiver'));
 		$this->render('edit');
 	}
 

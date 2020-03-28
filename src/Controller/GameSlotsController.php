@@ -188,6 +188,8 @@ class GameSlotsController extends AppController {
 					$date = $date->addWeek();
 				}
 
+				$this->set(compact('times', 'weeks', 'skipped'));
+
 				if ($game_slot->errors()) {
 					$this->Flash->warning(__('The game slots could not be saved. Please correct any issues below and try again.'));
 
@@ -273,7 +275,7 @@ class GameSlotsController extends AppController {
 			->combine('id', 'full_league_name')
 			->toArray();
 
-		$this->set(compact('game_slot', 'affiliate', 'divisions', 'holidays', 'times', 'weeks', 'skipped'));
+		$this->set(compact('game_slot', 'affiliate', 'divisions'));
 		$this->set('days', $divisions_table->Days->find('list'));
 	}
 

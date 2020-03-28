@@ -760,8 +760,8 @@ class RegistrationsController extends AppController {
 		}
 		$payment_obj = $this->moduleRegistry->load('Payment:' . Configure::read('payment.payment_implementation'));
 		list($result, $audit, $registration_ids) = $payment_obj->process($this->request, $checkHash);
+		$errors = [];
 		if ($result) {
-			$errors = [];
 
 			$registrations = $this->Registrations->find()
 				->contain([
@@ -1079,7 +1079,7 @@ class RegistrationsController extends AppController {
 			$this->Flash->warning(__('The credit could not be saved. Please correct the errors below and try again.'));
 		}
 
-		$this->set(compact('registration', 'payment', 'credit'));
+		$this->set(compact('registration', 'payment'));
 	}
 
 	public function transfer_payment() {

@@ -66,6 +66,7 @@ class EventsController extends AppController {
 				];
 			}
 		} else {
+			$year = null;
 			$conditions = [
 				'Events.open <' => FrozenDate::now()->addDays(30),
 				'Events.close >' => FrozenDate::now(),
@@ -250,10 +251,10 @@ class EventsController extends AppController {
 		$this->Configuration->loadAffiliate($event->affiliate_id);
 
 		// Extract some more details, if it's a division registration
+		$facilities = $times = [];
 		if (!empty($event->division->game_slots)) {
 			// Find the list of facilities and time slots
 			// TODOLATER: Probably some nice collection countBy that could simplify this?
-			$facilities = $times = [];
 			foreach ($event->division->game_slots as $slot) {
 				$facilities[$slot->field->facility->id] = $slot->field->facility->name;
 				if ($slot->game_end) {
@@ -338,6 +339,8 @@ class EventsController extends AppController {
 		if ($event->has('event_type_id')) {
 			$type = $this->Events->EventTypes->field('type', ['EventTypes.id' => $event->event_type_id]);
 			$event_obj = $this->moduleRegistry->load("EventType:{$type}");
+		} else {
+			$event_obj = null;
 		}
 
 		$this->set(compact('event', 'affiliates', 'event_obj'));

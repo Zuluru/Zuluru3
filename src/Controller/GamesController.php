@@ -2203,11 +2203,13 @@ class GamesController extends AppController {
 		if ($team_id) {
 			$attendance = $this->Games->readAttendance($team_id, $days, $id, null, true);
 			usort($attendance->people, ['App\Model\Table\PeopleTable', 'comparePerson']);
+			$home_attendance = $away_attendance = null;
 		} else {
 			$home_attendance = $this->Games->readAttendance($game->home_team_id, $days, $id, null, true);
 			usort($home_attendance->people, ['App\Model\Table\PeopleTable', 'comparePerson']);
 			$away_attendance = $this->Games->readAttendance($game->away_team_id, $days, $id, null, true);
 			usort($away_attendance->people, ['App\Model\Table\PeopleTable', 'comparePerson']);
+			$attendance = null;
 		}
 
 		$this->set(compact('game', 'team_id', 'attendance', 'home_attendance', 'away_attendance', 'sport_obj'));

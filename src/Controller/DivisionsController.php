@@ -291,6 +291,7 @@ class DivisionsController extends AppController {
 			$index = current(array_keys($this->request->data['divisions']));
 			$type = $this->request->data['divisions'][$index]['schedule_type'];
 		} else {
+			$index = null;
 			$type = $this->request->data['schedule_type'];
 		}
 		$this->set('league_obj', $this->moduleRegistry->load("LeagueType:{$type}"));
@@ -1064,6 +1065,9 @@ class DivisionsController extends AppController {
 					return $game->type != SEASON_GAME;
 				});
 			});
+		} else {
+			$slots = [];
+			$is_tournament = false;
 		}
 
 		$this->set(compact('division', 'dates', 'date', 'slots', 'is_tournament'));

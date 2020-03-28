@@ -54,6 +54,8 @@ class PreregistrationsController extends AppController {
 			$this->Configuration->loadAffiliate($event->affiliate_id);
 
 			$this->paginate['conditions']['Preregistrations.event_id'] = $event_id;
+		} else {
+			$event = null;
 		}
 		$this->set('preregistrations', $this->paginate($this->Preregistrations));
 		$this->set(compact('event', 'affiliates'));
@@ -84,6 +86,8 @@ class PreregistrationsController extends AppController {
 			$this->Configuration->loadAffiliate($event->affiliate_id);
 
 			$this->Authorization->authorize($event, 'add_preregistration');
+		} else {
+			$event = null;
 		}
 
 		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
