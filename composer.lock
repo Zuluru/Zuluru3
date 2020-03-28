@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f74ba38890f22afac9a26e5d388d9aa8",
+    "content-hash": "5bf8574442ec059a94564fd89b7b3656",
     "packages": [
         {
             "name": "aura/intl",
@@ -138,16 +138,16 @@
         },
         {
             "name": "cakephp-app-installer/installer",
-            "version": "2.0.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/anuj9196/CakePHP-App-Installer.git",
-                "reference": "064eb1ee30f67e7ec35b3d61a0e58e02ebb6df94"
+                "reference": "de2ce42"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/anuj9196/CakePHP-App-Installer/zipball/064eb1ee30f67e7ec35b3d61a0e58e02ebb6df94",
-                "reference": "064eb1ee30f67e7ec35b3d61a0e58e02ebb6df94",
+                "url": "https://api.github.com/repos/anuj9196/CakePHP-App-Installer/zipball/de2ce42",
+                "reference": "de2ce42",
                 "shasum": ""
             },
             "require": {
@@ -182,7 +182,7 @@
                 "cakephp-3.3",
                 "installer"
             ],
-            "time": "2018-08-23T07:31:27+00:00"
+            "time": "2020-03-28T18:17:14+00:00"
         },
         {
             "name": "cakephp/authentication",
@@ -4756,6 +4756,7 @@
         "zuluru/cakephp-jquery": 20,
         "zuluru/cakephp-bootstrap": 20,
         "cakephp/authorization": 20,
+        "cakephp-app-installer/installer": 20,
         "psy/psysh": 0
     },
     "prefer-stable": true,
@@ -4763,5 +4764,6 @@
     "platform": {
         "php": ">=7.2.0"
     },
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
 }

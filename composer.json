@@ -36,7 +36,7 @@
         "zuluru/cakephp-bootstrap": "dev-master",
         "trentrichardson/cakephp-scheduler": "^3.0",
         "josegonzalez/dotenv": "^3.2",
-        "cakephp-app-installer/installer": "^2.0",
+        "cakephp-app-installer/installer": "dev-master#de2ce42",
         "ozee31/cakephp-cors": "^1.1",
         "cakephp/authentication": "^1.0",
         "cakephp/authorization": "dev-master",
