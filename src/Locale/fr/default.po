@@ -25442,6 +25442,38 @@ msgstr "RC"
 msgid "Dog"
 msgstr "Chien"
 
+#: /cakephp-jquery/src/View/Helper/JqueryHelper.php:304
+msgid "More"
+msgstr "Plus"
+
+#: /cakephp-jquery/src/View/Helper/JqueryHelper.php:342
+msgid "Select all {0}"
+msgstr "Sélectionnez tout {0}"
+
+#: /cakephp-jquery/src/View/Helper/JqueryHelper.php:343
+msgid "Unselect all {0}"
+msgstr "Desélectionnez tout {0}"
+
+#: /cakephp-jquery/src/View/Helper/JqueryHelper.php:345
+msgid "Select all"
+msgstr "Tout sélectionnez"
+
+#: /cakephp-jquery/src/View/Helper/JqueryHelper.php:346
+msgid "Unselect all"
+msgstr "Tout desélectionnez"
+
+#: /cakephp-jquery/src/View/Helper/JqueryHelper.php:533
+msgid "Show {0}"
+msgstr "Montrer {0}"
+
+#: /cakephp-jquery/src/View/Helper/JqueryHelper.php:534
+msgid "Hide {0}"
+msgstr "Cache {0}"
+
+#: /zuluru/lib.php:270
+msgid "Contact {0}"
+msgstr "Contacter {0}"
+
 msgid "Field"
 msgstr "Terrain"
 

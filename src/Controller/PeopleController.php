@@ -2779,7 +2779,12 @@ class PeopleController extends AppController {
 		if ($id == $this->UserCache->currentId()) {
 			$waivers = [];
 			foreach ($affiliates as $affiliate) {
-				$signed_names = array_unique(collection($this->UserCache->read('WaiversCurrent'))->match(['affiliate_id' => $affiliate])->extract('name')->toArray());
+				$signed_names = array_unique(
+					collection($this->UserCache->read('WaiversCurrent'))
+						->match(['affiliate_id' => $affiliate])
+						->extract(function ($entity) { return $entity->translateField('name'); })
+						->toArray()
+				);
 				$affiliate_waivers = $this->People->Waivers->find()
 					->contain(['Affiliates'])
 					->where([

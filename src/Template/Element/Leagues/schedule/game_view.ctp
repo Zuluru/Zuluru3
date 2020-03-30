@@ -1,3 +1,13 @@
+<?php
+/**
+ * @type \App\Model\Entity\Game $game
+ * @type boolean $is_tournament
+ * @type boolean $multi_day
+ * @type boolean $same_date
+ * @type boolean $same_slot
+ */
+
+?>
 <tr<?= $game->published ? '' : ' class="unpublished"' ?>>
 	<td><?= ($is_tournament && !$same_slot) ? $game->display_name : '' ?></td>
 <?php

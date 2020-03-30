@@ -1,4 +1,14 @@
 <?php
+/**
+ * @type \App\Model\Entity\Division $division
+ * @type \App\Model\Entity\League $league
+ * @type boolean $competition
+ * @type boolean $multi_day
+ * @type string $id_field
+ * @type int $id
+ * @type \Cake\I18n\FrozenDate[] $week
+ */
+
 use Cake\Core\Configure;
 ?>
 

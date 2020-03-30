@@ -1,9 +1,11 @@
 <?php
 namespace App\Model\Entity;
 
+use App\Model\Traits\TranslateFieldTrait;
+use App\Module\EventType as EventTypeBase;
+use Cake\ORM\Behavior\Translate\TranslateTrait;
 use Cake\ORM\Entity;
 use Cake\Validation\Validator;
-use App\Module\EventType as EventTypeBase;
 
 /**
  * Questionnaire Entity.
@@ -18,6 +20,9 @@ use App\Module\EventType as EventTypeBase;
  * @property \App\Model\Entity\Question[] $questions
  */
 class Questionnaire extends Entity {
+
+	use TranslateTrait;
+	use TranslateFieldTrait;
 
 	/**
 	 * Fields that can be mass assigned using newEntity() or patchEntity().

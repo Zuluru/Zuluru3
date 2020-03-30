@@ -213,7 +213,7 @@ foreach ($items as $item):
 					echo $this->Html->link($time, ['controller' => 'Tasks', 'action' => 'view', 'task' => $item->task->id]);
 				?></td>
 				<td class="splash_item"><?php
-					echo $this->Html->link($item->task->name, ['controller' => 'Tasks', 'action' => 'view', 'task' => $item->task->id]) .
+					echo $this->Html->link($item->task->translateField('name'), ['controller' => 'Tasks', 'action' => 'view', 'task' => $item->task->id]) .
 						__(' ({0})', __('report to {0}', $this->element('People/block', ['person' => $item->task->person])));
 				?></td>
 				<td class="splash_item"><?php

@@ -156,7 +156,16 @@ class UserCache {
 
 				case 'AllOwnedTeams':
 					$self->data[$id][$key] = TableRegistry::get('Teams')->find()
-						->contain(['Divisions' => ['Leagues']])
+						->contain(['Divisions' => [
+							'queryBuilder' => function (Query $q) {
+								return $q->find('translations');
+							},
+							'Leagues' => [
+								'queryBuilder' => function (Query $q) {
+									return $q->find('translations');
+								},
+							],
+						]])
 						->matching('People', function (Query $q) use ($id) {
 							return $q
 								->where(['People.id' => $id]);
@@ -218,7 +227,13 @@ class UserCache {
 
 				case 'Documents':
 					$self->data[$id][$key] = TableRegistry::get('Uploads')->find()
-						->contain(['UploadTypes'])
+						->contain([
+							'UploadTypes' => [
+								'queryBuilder' => function (Query $q) {
+									return $q->find('translations');
+								},
+							]
+						])
 						->where([
 							'person_id' => $id,
 							'type_id IS NOT' => null,
@@ -278,7 +293,14 @@ class UserCache {
 				case 'Person':
 					try {
 						$self->data[$id][$key] = TableRegistry::get('People')->get($id, [
-							'contain' => [Configure::read('Security.authModel'), 'Groups']
+							'contain' => [
+								Configure::read('Security.authModel'),
+								'Groups' => [
+									'queryBuilder' => function (Query $q) {
+										return $q->find('translations');
+									},
+								],
+							]
 						]);
 					} catch (RecordNotFoundException $ex) {
 						$self->data[$id][$key] = [];
@@ -289,7 +311,11 @@ class UserCache {
 
 				case 'Preregistrations':
 					$self->data[$id][$key] = TableRegistry::get('Preregistrations')->find()
-						->contain(['Events'])
+						->contain(['Events' => [
+							'queryBuilder' => function (Query $q) {
+								return $q->find('translations');
+							},
+						]])
 						->where(['person_id' => $id])
 						->toArray();
 					break;
@@ -297,8 +323,26 @@ class UserCache {
 				case 'Registrations':
 					$self->data[$id][$key] = TableRegistry::get('Registrations')->find()
 						->contain([
-							'Events' => ['EventTypes', 'Prices'],
-							'Prices',
+							'Events' => [
+								'queryBuilder' => function (Query $q) {
+									return $q->find('translations');
+								},
+								'EventTypes' => [
+									'queryBuilder' => function (Query $q) {
+										return $q->find('translations');
+									},
+								],
+								'Prices' => [
+									'queryBuilder' => function (Query $q) {
+										return $q->find('translations');
+									},
+								],
+							],
+							'Prices' => [
+								'queryBuilder' => function (Query $q) {
+									return $q->find('translations');
+								},
+							],
 							'Payments',
 						])
 						->where(['person_id' => $id])
@@ -430,7 +474,7 @@ class UserCache {
 					break;
 
 				case 'Waivers':
-					$self->data[$id][$key] = TableRegistry::get('Waivers')->find()
+					$self->data[$id][$key] = TableRegistry::get('Waivers')->find('translations')
 						->matching('People', function (Query $q) use ($id) {
 							return $q
 								->where(['People.id' => $id]);

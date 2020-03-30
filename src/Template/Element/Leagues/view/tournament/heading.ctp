@@ -1,4 +1,10 @@
 <?php
+/**
+ * @type \App\Model\Entity\Division $division
+ * @type \App\Model\Entity\League $league
+ * @type boolean $can_edit
+ */
+
 use Cake\Core\Configure;
 ?>
 

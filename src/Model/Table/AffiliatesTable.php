@@ -140,7 +140,7 @@ class AffiliatesTable extends AppTable {
 			return [];
 		}
 
-		$affiliates = $this->find()
+		$affiliates = $this->find('translations')
 			->matching('People', function (Query $q) use ($id) {
 				return $q->where(['People.id' => $id]);
 			})

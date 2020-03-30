@@ -1,6 +1,8 @@
 <?php
 namespace App\Model\Entity;
 
+use App\Model\Traits\TranslateFieldTrait;
+use Cake\ORM\Behavior\Translate\TranslateTrait;
 use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
 
@@ -31,6 +33,9 @@ use Cake\ORM\TableRegistry;
  * @property string $long_code
  */
 class Field extends Entity {
+
+	use TranslateTrait;
+	use TranslateFieldTrait;
 
 	/**
 	 * Fields that can be mass assigned using newEntity() or patchEntity().
@@ -75,7 +80,7 @@ class Field extends Entity {
 		if ($facility === null) {
 			return null;
 		}
-		return trim($facility->name . ' ' . $this->num);
+		return trim($facility->translateField('name') . ' ' . $this->translateField('num'));
 	}
 
 	protected function _getLongCode() {
@@ -83,7 +88,7 @@ class Field extends Entity {
 		if ($facility === null) {
 			return null;
 		}
-		return trim($facility->code . ' ' . $this->num);
+		return trim($facility->translateField('code') . ' ' . $this->translateField('num'));
 	}
 
 }

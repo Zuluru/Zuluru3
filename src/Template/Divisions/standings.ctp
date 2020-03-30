@@ -1,4 +1,12 @@
 <?php
+/**
+ * @type \App\Model\Entity\Division $division
+ * @type \App\Model\Entity\Team[] $show_teams
+ * @type \App\Module\LeagueType $league_obj
+ * @type int $team_id
+ * @type boolean $more_before
+ * @type boolean $more_after
+ */
 
 use App\Authorization\ContextResource;
 

@@ -480,12 +480,18 @@ class DivisionsTable extends AppTable {
 			return [];
 		}
 
-		$contain = ['Leagues'];
+		$contain = [
+			'Leagues' => [
+				'queryBuilder' => function (Query $q) {
+					return $q->find('translations');
+				},
+			]
+		];
 		if ($teams) {
 			$contain[] = 'Teams';
 		}
 
-		$divisions = $this->find()
+		$divisions = $this->find('translations')
 			->contain($contain)
 			->where([
 				'DivisionsPeople.person_id' => $id,
@@ -523,9 +529,6 @@ class DivisionsTable extends AppTable {
 			// TODO: Any way to get incoming form data to be converted to int instead of string, so this can be simplified?
 			$division_id = $division;
 			$league_id = $this->league($division_id);
-		} else {
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
 		}
 		foreach ($keys as $key) {
 			Cache::delete("division/{$division_id}/{$key}", 'long_term');

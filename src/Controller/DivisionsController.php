@@ -637,6 +637,7 @@ class DivisionsController extends AppController {
 		$division = Cache::remember("division/{$id}/schedule", function () use ($id) {
 			try {
 				$division = $this->Divisions->get($id, [
+					'finder' => 'translations',
 					'contain' => [
 						'Days' => [
 							'queryBuilder' => function (Query $q) {
@@ -645,6 +646,9 @@ class DivisionsController extends AppController {
 						],
 						'Teams',
 						'Leagues' => [
+							'queryBuilder' => function (Query $q) {
+								return $q->find('translations');
+							},
 							'StatTypes' => [
 								'queryBuilder' => function (Query $q) {
 									return $q->where(['StatTypes.type' => 'entered']);
@@ -660,13 +664,40 @@ class DivisionsController extends AppController {
 									],
 								]);
 							},
-							'GameSlots' => ['Fields' => ['Facilities']],
+							'GameSlots' => [
+								'Fields' => [
+									'queryBuilder' => function (Query $q) {
+										return $q->find('translations');
+									},
+									'Facilities' => [
+										'queryBuilder' => function (Query $q) {
+											return $q->find('translations');
+										},
+									],
+								],
+							],
 							'ScoreEntries',
 							'HomeTeam',
-							'HomePoolTeam' => ['DependencyPool'],
+							'HomePoolTeam' => [
+								'DependencyPool' => [
+									'queryBuilder' => function (Query $q) {
+										return $q->find('translations');
+									},
+								],
+							],
 							'AwayTeam',
-							'AwayPoolTeam' => ['DependencyPool'],
-							'Pools',
+							'AwayPoolTeam' => [
+								'DependencyPool' => [
+									'queryBuilder' => function (Query $q) {
+										return $q->find('translations');
+									},
+								],
+							],
+							'Pools' => [
+								'queryBuilder' => function (Query $q) {
+									return $q->find('translations');
+								},
+							],
 						],
 					],
 				]);

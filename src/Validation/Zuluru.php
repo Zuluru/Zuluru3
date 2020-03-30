@@ -109,7 +109,8 @@ class Zuluru extends Validation {
 
 	public static function franchiseOwner($franchise_id) {
 		$groups = UserCache::getInstance()->read('Groups');
-		if (collection($groups)->firstMatch(['name' => 'Administrator'])) {
+		// TODO: This should be a policy or an identity check
+		if (collection($groups)->firstMatch(['id' => GROUP_ADMIN])) {
 			// Admins need to be considered franchise owner for registration edit purposes
 			return true;
 		}

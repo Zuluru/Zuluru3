@@ -100,7 +100,14 @@ class TaskSlotsTable extends AppTable {
 		return $query
 			->contain([
 				'Tasks' => [
-					'Categories',
+					'queryBuilder' => function (Query $q) {
+						return $q->find('translations');
+					},
+					'Categories' => [
+						'queryBuilder' => function (Query $q) {
+							return $q->find('translations');
+						},
+					],
 					'People',
 				],
 				'People',

@@ -1,8 +1,11 @@
 <?php
 namespace App\Model\Entity;
 
-use Cake\ORM\Entity;
+use App\Model\Traits\TranslateFieldTrait;
 use Cake\Core\Configure;
+use Cake\I18n\I18n;
+use Cake\ORM\Behavior\Translate\TranslateTrait;
+use Cake\ORM\Entity;
 use Cake\Utility\Inflector;
 
 /**
@@ -36,6 +39,9 @@ use Cake\Utility\Inflector;
  */
 class League extends Entity {
 
+	use TranslateTrait;
+	use TranslateFieldTrait;
+
 	/**
 	 * Fields that can be mass assigned using newEntity() or patchEntity().
 	 *
@@ -56,18 +62,18 @@ class League extends Entity {
 	];
 
 	protected function _getLongName() {
-		$long_name = $this->name;
+		$long_name = $this->translateField('name');
 
 		// Add the season, if it's not already part of the name
 		if (!empty($this->season) && $this->season != 'None') {
 			if (strpos($long_name, $this->season) === false) {
-				$long_name = $this->season . ' ' . $long_name;
+				$long_name = __($this->season) . ' ' . $long_name;
 			}
 		}
 
 		// Add the sport, if there are multiple options
 		if (!empty($this->sport) && count(Configure::read('options.sport')) > 1) {
-			$long_name .= ' ' . Inflector::humanize($this->sport);
+			$long_name .= ' ' . Inflector::humanize(__($this->sport));
 		}
 
 		return trim($long_name);
@@ -92,12 +98,12 @@ class League extends Entity {
 		if (!empty($this->open) && $this->open != '0000-00-00') {
 			$year = $this->open->year;
 			if (!empty($this->season) && $this->season != 'None') {
-				$long_season = "$year {$this->season}";
+				$long_season = $year . ' ' . __($this->season);
 			} else {
 				$long_season = $year;
 			}
 		} else if (!empty($this->season)) {
-			$long_season = $this->season;
+			$long_season = __($this->season);
 		} else {
 			$long_season = null;
 		}

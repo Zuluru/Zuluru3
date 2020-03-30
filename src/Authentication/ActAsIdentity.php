@@ -109,8 +109,8 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 				continue;
 			}
 
-			switch ($group->name) {
-				case 'Administrator':
+			switch ($group->id) {
+				case GROUP_ADMIN:
 					if ($this->identity->person->status != 'locked') {
 						$this->_isAdmin = $this->_isManager = true;
 						$this->_managedAffiliateIds = TableRegistry::get('Affiliates')->find()
@@ -119,20 +119,20 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 					}
 					break;
 
-				case 'Manager':
+				case GROUP_MANAGER:
 					if ($this->identity->person->status != 'locked') {
 						$this->_isManager = true;
 						$this->_managedAffiliateIds = $user_cache->read('ManagedAffiliateIDs', $this->identity->person->id);
 					}
 					break;
 
-				case 'Official':
+				case GROUP_OFFICIAL:
 					if ($this->identity->person->status != 'locked') {
 						$this->_isOfficial = true;
 					}
 					break;
 
-				case 'Volunteer':
+				case GROUP_VOLUNTEER:
 					if ($this->identity->person->status != 'locked') {
 						$this->_isVolunteer = true;
 						$this->_coordinatedDivisionIds = $user_cache->read('DivisionIDs', $this->identity->person->id);
@@ -140,15 +140,15 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 					}
 					break;
 
-				case 'Coach':
+				case GROUP_COACH:
 					$this->_isCoach = true;
 					break;
 
-				case 'Player':
+				case GROUP_PLAYER:
 					$this->_isPlayer = true;
 					break;
 
-				case 'Parent/Guardian':
+				case GROUP_PARENT:
 					$this->_isParent = true;
 					break;
 			}
@@ -642,7 +642,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 		// Managers may get only their list of managed affiliates
 		if (!$this->_isAdmin && $this->_isManager && $admin_only) {
 			$affiliates = UserCache::getInstance()->read('ManagedAffiliates');
-			$affiliates = collection($affiliates)->combine('id', 'name')->toArray();
+			$affiliates = collection($affiliates)->combine('id', function ($entity) { return $entity->translateField('name'); })->toArray();
 			ksort($affiliates);
 			return $affiliates;
 		}
@@ -651,7 +651,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 		if ($this->_isLoggedIn && !$this->_isAdmin) {
 			$affiliates = UserCache::getInstance()->read('Affiliates');
 			if (!empty($affiliates)) {
-				$affiliates = collection($affiliates)->combine('id', 'name')->toArray();
+				$affiliates = collection($affiliates)->combine('id', function ($entity) { return $entity->translateField('name'); })->toArray();
 				ksort($affiliates);
 				return $affiliates;
 			}

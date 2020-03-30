@@ -1,6 +1,7 @@
 <?php
 
 use Cake\I18n\I18n;
+use Cake\ORM\TableRegistry;
 use Migrations\AbstractSeed;
 
 /**
@@ -16,10 +17,10 @@ class I18nSeed extends AbstractSeed {
 		$table = $this->table('i18n');
 
 		// Generate i18n table entries for all known locales
-		foreach (['ar', 'de', 'es', 'fr'] as $locale) {
+		foreach (['en', 'ar', 'de', 'es', 'fr'] as $locale) {
 			I18n::setLocale($locale);
 
-			// Generate entries for all relevant tables
+			// Generate entries for all seed-based tables
 			foreach ([
 				'Affiliates', 'Countries', 'EventTypes', 'Provinces', 'Regions',
 				'Badges' => ['name', 'description'],
@@ -85,6 +86,45 @@ class I18nSeed extends AbstractSeed {
 			];
 
 			$table->insert($data)->save();
+		}
+
+		// Generate entries for all user data tables, by copying existing data, which will exist only in the default locale
+		$locale = substr(\Cake\Core\Configure::read('App.defaultLocale'), 0, 2);
+		foreach ([
+			'Categories', 'Contacts', 'Holidays', 'Leagues', 'MailingLists', 'Pools', 'Questionnaires', 'UploadTypes',
+			'Answers' => ['answer'],
+			'Divisions' => ['name', 'header', 'footer'],
+			'Events' => ['name', 'description'],
+			'Facilities' => ['name', 'code', 'driving_directions', 'parking_details', 'transit_directions', 'biking_directions', 'washrooms', 'public_instructions', 'site_instructions', 'sponsor'],
+			'Fields' => ['num'],
+			'Newsletters' => ['name', 'subject'],
+			'Prices' => ['name', 'description'],
+			'Questions' => ['name', 'question'],
+			'Tasks' => ['name', 'description', 'notes'],
+		] as $model => $fields) {
+			if (is_numeric($model)) {
+				$model = $fields;
+				$fields = ['name'];
+			}
+
+			// Get the data from the tables
+			$records = TableRegistry::getTableLocator()->get($model)->find();
+			$data = [];
+			foreach ($records as $record) {
+				foreach ($fields as $field) {
+					$data[] = [
+						'locale' => $locale,
+						'model' => $model,
+						'foreign_key' => $record->id,
+						'field' => $field,
+						'content' => $record->$field,
+					];
+				}
+			}
+
+			if (!empty($data)) {
+				$table->insert($data)->save();
+			}
 		}
 
 		// Reset the locale, so that any other seeds aren't affected

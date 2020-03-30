@@ -19,10 +19,10 @@ DTSTART:<?= $this->Time->iCal($task_slot->start_time) ?>
 
 DTEND:<?= $this->Time->iCal($task_slot->end_time) ?>
 
-SUMMARY:<?= \App\Lib\ical_encode($task->name) ?>
+SUMMARY:<?= \App\Lib\ical_encode($task->translateField('name')) ?>
 
 DESCRIPTION:<?= __('{0}, reporting to {1}, on {2}',
-	\App\Lib\ical_encode($task->name),
+	\App\Lib\ical_encode($task->translateField('name')),
 	\App\Lib\ical_encode($task->person->full_name),
 	$this->Time->iCalDateTimeRange($task_slot)
 );

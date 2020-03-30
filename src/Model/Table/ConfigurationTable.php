@@ -1,7 +1,7 @@
 <?php
 namespace App\Model\Table;
 
-use Cake\Cache\Cache;
+use App\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\I18n\I18n;
 use Cake\ORM\TableRegistry;
@@ -17,7 +17,7 @@ class ConfigurationTable extends AppTable {
 	public function loadSystem() {
 		$language = I18n::getLocale();
 
-		$config = $this->cacheRememberSubkey('config', $language, function () {
+		$config = Cache::remember('config', function () {
 			$conditions = [
 				'affiliate_id IS' => null,
 				'category !=' => 'personal',
@@ -41,28 +41,28 @@ class ConfigurationTable extends AppTable {
 			$settings['gender.order'] = $settings['gender.woman'] < $settings['gender.man'] ? 'ASC' : 'DESC';
 
 			return $settings;
-		}, 'long_term');
+		}, 'long_term', $language);
 		Configure::write($config);
 
-		$provinces = $this->cacheRememberSubkey('provinces', $language, function () {
+		$provinces = Cache::remember('provinces', function () {
 			$provinces_table = TableRegistry::get('Provinces');
 			return $provinces_table->find('list', [
 				'keyField' => 'name',
 				'valueField' => 'name',
 			])->toArray();
-		}, 'long_term');
+		}, 'long_term', $language);
 		Configure::write(compact('provinces'));
 
-		$countries = $this->cacheRememberSubkey('countries', $language, function () {
+		$countries = Cache::remember('countries', function () {
 			$countries_table = TableRegistry::get('Countries');
 			return $countries_table->find('list', [
 				'keyField' => 'name',
 				'valueField' => 'name',
 			])->toArray();
-		}, 'long_term');
+		}, 'long_term', $language);
 		Configure::write(compact('countries'));
 
-		Configure::write($this->cacheRememberSubkey('roster_roles', $language, function () {
+		Configure::write(Cache::remember('roster_roles', function () {
 			$roster_roles_table = TableRegistry::get('RosterRoles');
 			$roles = collection($roster_roles_table->find()
 				->where(['active' => true])
@@ -80,9 +80,9 @@ class ConfigurationTable extends AppTable {
 			];
 
 			return $configuration;
-		}, 'long_term'));
+		}, 'long_term', $language));
 
-		Configure::write($this->cacheRememberSubkey('membership_types', $language, function () {
+		Configure::write(Cache::remember('membership_types', function () {
 			$membership_types_table = TableRegistry::get('MembershipTypes');
 			$types = collection($membership_types_table->find()
 				->where(['active' => true])
@@ -98,7 +98,7 @@ class ConfigurationTable extends AppTable {
 			];
 
 			return $configuration;
-		}, 'long_term'));
+		}, 'long_term', $language));
 	}
 
 	public function loadAffiliate($id) {
@@ -106,9 +106,9 @@ class ConfigurationTable extends AppTable {
 			return;
 		}
 
-		$config = $this->cacheRememberSubkey("config/affiliate/$id", I18n::getLocale(), function () use ($id) {
+		$config = Cache::remember("config/affiliate/$id", function () use ($id) {
 			return $this->format($this->find()->where(['affiliate_id' => $id])->toArray());
-		}, 'long_term');
+		}, 'long_term', I18n::getLocale());
 		Configure::write($config);
 	}
 
@@ -129,16 +129,4 @@ class ConfigurationTable extends AppTable {
 		return $ret;
 	}
 
-	protected static function cacheRememberSubkey($key, $subkey, callable $func, $config) {
-		$data = Cache::read($key, $config);
-		if (empty($data)) {
-			$data = [];
-		}
-		if (!array_key_exists($subkey, $data)) {
-			$data[$subkey] = call_user_func($func);
-			Cache::write($key, $data, 'long_term');
-		}
-
-		return $data[$subkey];
-	}
 }

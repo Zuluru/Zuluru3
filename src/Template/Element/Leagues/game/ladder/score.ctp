@@ -1,3 +1,8 @@
+<?php
+/**
+* @type \App\Model\Entity\Game $game
+*/
+?>
 			<dt><?= __('Rating Points') ?></dt>
 			<dd>
 <?php

@@ -294,7 +294,7 @@ if (Configure::read('feature.affiliates') && !$identity->isAdmin() &&
 		$help = __('Select all affiliates you are interested in.');
 		if ($identity->isManager()) {
 			$help .= ' ' . __('Note that affiliates you are already a manager of ({0}) are not included here; this will remain unchanged.',
-				implode(', ', collection($this->UserCache->read('ManagedAffiliates'))->extract('name')->toArray()));
+				implode(', ', collection($this->UserCache->read('ManagedAffiliates'))->extract(function ($entity) { return $entity->translateField('name'); })->toArray()));
 		}
 		echo $this->Form->input('affiliates._ids', [
 			'help' => $help,

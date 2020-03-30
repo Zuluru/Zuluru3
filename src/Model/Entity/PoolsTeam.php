@@ -42,12 +42,16 @@ class PoolsTeam extends Entity {
 				trigger_error('Missing dependency information', E_USER_ERROR);
 			}
 			if ($this->dependency_pool->type == 'crossover') {
-				return ($this->dependency_id == 1 ? 'winner' : 'loser') . ' of ' . $this->dependency_pool->name;
+				if ($this->dependency_id == 1) {
+					return __('winner of {0}', $this->dependency_pool->translateField('name'));
+				} else {
+					return __('loser of {0}', $this->dependency_pool->translateField('name'));
+				}
 			} else {
-				return Number::ordinal($this->dependency_id) . ' in pool ' . $this->dependency_pool->name;
+				return __('{0} in pool {1}', Number::ordinal($this->dependency_id), $this->dependency_pool->translateField('name'));
 			}
 		} else if (!empty($this->dependency_ordinal)) {
-			return Number::ordinal($this->dependency_id) . ' among ' . Number::ordinal($this->dependency_ordinal) . ' place teams';
+			return __('{0} among {1} place teams', Number::ordinal($this->dependency_id), Number::ordinal($this->dependency_ordinal));
 		} else {
 			return __('{0} seed', Number::ordinal($this->dependency_id));
 		}

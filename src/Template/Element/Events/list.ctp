@@ -2,7 +2,7 @@
 use Cake\Core\Configure;
 
 $seasons = array_unique(collection($events)->extract('division.league.season')->toArray());
-echo $this->element('selector', ['title' => 'Season', 'options' => array_intersect(array_keys(Configure::read('options.season')), $seasons)]);
+echo $this->element('selector', ['title' => 'Season', 'options' => array_intersect_key(Configure::read('options.season'), array_flip($seasons))]);
 
 $days = collection($events)->extract('division.days.{*}')->combine('id', 'name')->toArray();
 ksort($days);

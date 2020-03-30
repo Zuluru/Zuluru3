@@ -1,10 +1,13 @@
 <?php
 namespace App\Model\Entity;
 
+use App\Model\Results\DivisionResults;
+use App\Model\Traits\TranslateFieldTrait;
 use Cake\Core\Configure;
+use Cake\I18n\I18n;
+use Cake\ORM\Behavior\Translate\TranslateTrait;
 use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
-use App\Model\Results\DivisionResults;
 
 /**
  * Division Entity.
@@ -60,6 +63,9 @@ use App\Model\Results\DivisionResults;
  */
 class Division extends Entity {
 
+	use TranslateTrait;
+	use TranslateFieldTrait;
+
 	/**
 	 * Fields that can be mass assigned using newEntity() or patchEntity().
 	 *
@@ -106,7 +112,7 @@ class Division extends Entity {
 		if (!$league) {
 			return null;
 		}
-		return trim($league->name . ' ' . $this->name);
+		return trim($league->translateField('name') . ' ' . $this->translateField('name'));
 	}
 
 	protected function _getLongLeagueName() {
@@ -114,7 +120,7 @@ class Division extends Entity {
 		if (!$league) {
 			return null;
 		}
-		return trim($league->long_name . ' ' . $this->name);
+		return trim($league->long_name . ' ' . $this->translateField('name'));
 	}
 
 	protected function _getFullLeagueName() {
@@ -122,7 +128,7 @@ class Division extends Entity {
 		if (!$league) {
 			return null;
 		}
-		return trim($league->full_name . ' ' . $this->name);
+		return trim($league->full_name . ' ' . $this->translateField('name'));
 	}
 
 	//

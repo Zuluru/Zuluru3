@@ -1,3 +1,10 @@
+<?php
+/**
+ * @type \App\Model\Entity\Game $game
+ * @type boolean $can_edit
+ */
+
+?>
 <div class="game">
 <?php
 if ($game->has('id')):
@@ -6,9 +13,9 @@ if ($game->has('id')):
 		<div class="team<?php
 			if ($game->isFinalized()) {
 				if ($game->home_score > $game->away_score) {
-					echo __(' winner');
+					echo ' winner';
 				} else if ($game->home_score < $game->away_score) {
-					echo __(' loser');
+					echo ' loser';
 				}
 			}
 		?>">
@@ -51,9 +58,9 @@ if ($game->has('id')):
 		<div class="team<?php
 			if ($game->isFinalized()) {
 				if ($game->away_score > $game->home_score) {
-					echo __(' winner');
+					echo ' winner';
 				} else if ($game->away_score < $game->home_score) {
-					echo __(' loser');
+					echo ' loser';
 				}
 			}
 		?>">

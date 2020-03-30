@@ -1075,9 +1075,36 @@ class GamesTable extends AppTable {
 				'GameSlots' => ['Fields' => ['Facilities']],
 				'HomeTeam',
 				// TODO: Not everything that uses this function needs both DependencyPool and Pools
-				'HomePoolTeam' => ['DependencyPool', 'Pools'],
+				'HomePoolTeam' => [
+					'DependencyPool' => [
+						'queryBuilder' => function (Query $q) {
+							return $q->find('translations');
+						},
+					],
+					'Pools' => [
+						'queryBuilder' => function (Query $q) {
+							return $q->find('translations');
+						},
+					],
+				],
 				'AwayTeam',
-				'AwayPoolTeam' => ['DependencyPool', 'Pools'],
+				'AwayPoolTeam' => [
+					'DependencyPool' => [
+						'queryBuilder' => function (Query $q) {
+							return $q->find('translations');
+						},
+					],
+					'Pools' => [
+						'queryBuilder' => function (Query $q) {
+							return $q->find('translations');
+						},
+					],
+				],
+				'Pools' => [
+					'queryBuilder' => function (Query $q) {
+						return $q->find('translations');
+					},
+				],
 			])
 			->where(['OR' => $conditions]);
 	}

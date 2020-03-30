@@ -1,16 +1,17 @@
 <?php
 namespace App\Controller;
 
+use App\Cache\Cache;
 use App\Core\UserCache;
 use App\Core\ModuleRegistry;
 use App\Model\Entity\Person;
 use App\Mailer\Email;
-use Cake\Cache\Cache;
 use Cake\Controller\Controller;
 use Cake\Core\Configure;
 use Cake\Event\Event as CakeEvent;
 use Cake\Event\EventManager;
 use Cake\I18n\FrozenTime;
+use Cake\I18n\I18n;
 use Cake\I18n\Number;
 use Cake\Log\Log;
 use Cake\Network\Exception\SocketException;
@@ -528,7 +529,7 @@ class AppController extends Controller {
 				->order(['Leagues.open', 'Leagues.close', 'Leagues.id'])
 				->combine('id', 'name')
 				->toArray();
-		}, 'today');
+		}, 'today', I18n::getLocale());
 		if (!empty($tournaments)) {
 			$this->_addMenuItem(__('Tournaments'), ['controller' => 'Tournaments', 'action' => 'index']);
 			foreach ($tournaments as $id => $name) {
@@ -917,11 +918,6 @@ class AppController extends Controller {
 			$path = [__('Leagues'), __('My Leagues')];
 		}
 
-		if (empty($division->league_name)) {
-			trigger_error('TODOTESTING: Read division data with hydration so league names are present', E_USER_ERROR);
-			exit;
-		}
-
 		$this->_addMenuItem($division->league_name, ['controller' => 'Leagues', 'action' => 'view', 'league' => $league->id], $path);
 	}
 
@@ -1092,10 +1088,6 @@ class AppController extends Controller {
 					}
 				}
 			}
-		} else if (is_array($input) && array_key_exists('id', $input)) {
-			// If it's an array with an ID field, issue an error; we want to deal with entities only.
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
 		} else if (is_array($input)) {
 			// Any other array, assume it's a list of arrays or entities, and process each one
 			foreach ($input as $key => $value) {
@@ -1298,7 +1290,9 @@ class AppController extends Controller {
 	 */
 	public static function _return() {
 		$request = Router::getRequest();
-		if ($request->is('ajax')) {
+		if (!$request) {
+			$url = '/';
+		} else if ($request->is('ajax')) {
 			$url = $request->referer(true);
 		} else {
 			$url = $request->here();
