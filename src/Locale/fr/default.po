@@ -12972,7 +12972,7 @@ msgstr "J'ai trouvé un bug dans {0}"
 
 #: Template/Element/Layout/common_blocks.ctp:325
 msgid "{0} on this page"
-msgstr "{0} on this page"
+msgstr "{0} sur cette page"
 
 #: Template/Element/Layout/common_blocks.ctp:326
 msgid "Report a bug"
