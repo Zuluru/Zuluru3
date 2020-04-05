@@ -1,11 +1,20 @@
 <?php
+/**
+ * @type \App\Model\Entity\Division $division
+ * @type \App\Model\Entity\League $league
+ * @type \App\Model\Entity\Team $team
+ * @type int $seed
+ * @type string[] $classes
+ */
+
+use App\Controller\TeamsController;
 use Cake\Core\Configure;
 ?>
 
 <tr>
 	<th><?= __('Team Name') ?></th>
 <?php
-if ($this->Authorize->can('view_roster', \App\Controller\TeamsController::class)):
+if ($this->Authorize->can('view_roster', TeamsController::class)):
 ?>
 	<th><?= __('Players') ?></th>
 <?php

@@ -1,5 +1,16 @@
 <?php
+/**
+ * @type \App\Model\Entity\League $league
+ * @type string $format
+ * @type string[] $division_actions
+ * @type string[] $division_more
+ * @type int $size
+ * @type boolean $collapse
+ * @type boolean $return
+ */
+
 use App\Controller\AppController;
+use App\Controller\LeaguesController;
 
 if (!isset($format)) {
 	$format = 'links';
@@ -57,7 +68,7 @@ if ($this->Authorize->can('edit', $league)) {
 	}
 
 	if (($this->request->getParam('controller') != 'Leagues' || $this->request->getParam('action') != 'add') &&
-		$this->Authorize->can('add', \App\Controller\LeaguesController::class)
+		$this->Authorize->can('add', LeaguesController::class)
 	) {
 		$more[$tournaments ? __('Clone Tournament') : __('Clone League')] = [
 			'url' => ['controller' => $controller, 'action' => 'add', $model => $league->id, 'return' => $return],

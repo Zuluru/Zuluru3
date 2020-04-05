@@ -1,4 +1,14 @@
 <?php
+/**
+ * @type \App\Model\Entity\Division $division
+ * @type \App\Model\Entity\League $league
+ * @type string $format
+ * @type string[] $league_actions
+ * @type string[] $league_more
+ * @type int $size
+ * @type boolean $collapse
+ * @type boolean $return
+ */
 
 use App\Authorization\ContextResource;
 use App\Controller\AppController;

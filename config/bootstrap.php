@@ -36,32 +36,32 @@ use App\Event\InitializationListener;
 use App\Event\RegistrationListener;
 use Cake\Cache\Cache;
 use Cake\Console\ConsoleErrorHandler;
-use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Core\Configure\Engine\PhpConfig;
-use Cake\Core\Plugin;
 use Cake\Database\Type;
 use Cake\Datasource\ConnectionManager;
 use Cake\Error\ErrorHandler;
 use Cake\Event\EventManager;
 use Cake\Log\Log;
 use Cake\Mailer\Email;
+use Cake\Mailer\TransportFactory;
 use Cake\Network\Request;
-use Cake\Utility\Inflector;
 use Cake\Utility\Security;
+use Detection\MobileDetect;
+use josegonzalez\Dotenv\Loader;
 
 /**
  * Read .env file(s).
  */
 if (!env('APP_NAME') && file_exists(ZULURU_CONFIG . '.env')) {
-	$dotenv = new \josegonzalez\Dotenv\Loader([ZULURU_CONFIG . '.env']);
+	$dotenv = new Loader([ZULURU_CONFIG . '.env']);
 	$dotenv->parse()
 		->putenv(true)
 		->toEnv(true)
 		->toServer(true);
 }
 if (defined('PHPUNIT_TESTSUITE') && PHPUNIT_TESTSUITE && file_exists(ZULURU_CONFIG . '.env_test')) {
-	$dotenv = new \josegonzalez\Dotenv\Loader([ZULURU_CONFIG . '.env_test']);
+	$dotenv = new Loader([ZULURU_CONFIG . '.env_test']);
 	$dotenv->parse()
 		->putenv(true)
 		->toEnv(true)
@@ -161,22 +161,22 @@ if (!Configure::read('App.fullBaseUrl')) {
 	unset($httpHost, $s);
 }
 
-Cache::config(Configure::consume('Cache'));
-ConnectionManager::config(Configure::consume('Datasources'));
-Email::configTransport(Configure::consume('EmailTransport'));
-Email::config(Configure::consume('Email'));
-Log::config(Configure::consume('Log'));
-Security::salt(Configure::consume('Security.salt'));
+Cache::setConfig(Configure::consume('Cache'));
+ConnectionManager::setConfig(Configure::consume('Datasources'));
+TransportFactory::setConfig(Configure::consume('EmailTransport'));
+Email::setConfig(Configure::consume('Email'));
+Log::setConfig(Configure::consume('Log'));
+Security::setSalt(Configure::consume('Security.salt'));
 
 /**
  * Setup detectors for mobile and tablet.
  */
 Request::addDetector('mobile', function ($request) {
-	$detector = new \Detection\MobileDetect();
+	$detector = new MobileDetect();
 	return $detector->isMobile();
 });
 Request::addDetector('tablet', function ($request) {
-	$detector = new \Detection\MobileDetect();
+	$detector = new MobileDetect();
 	return $detector->isTablet();
 });
 
@@ -199,14 +199,10 @@ Request::addDetector('tablet', function ($request) {
  * locale specific date formats. For details see
  * @link https://book.cakephp.org/3.0/en/core-libraries/internationalization-and-localization.html#parsing-localized-datetime-data
  */
-Type::build('time')
-	->useImmutable();
-Type::build('date')
-	->useImmutable();
-Type::build('datetime')
-	->useImmutable();
-Type::build('timestamp')
-	->useImmutable();
+Type::build('time')->useImmutable();
+Type::build('date')->useImmutable();
+Type::build('datetime')->useImmutable();
+Type::build('timestamp')->useImmutable();
 
 /**
  * Enable default locale format parsing.

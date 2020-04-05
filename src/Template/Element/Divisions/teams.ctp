@@ -1,3 +1,12 @@
+<?php
+/**
+ * @type \App\Model\Entity\Division $division
+ * @type \App\Model\Entity\League $league
+ * @type \App\Model\Entity\Team[] $teams
+ * @type \App\Module\LeagueType $league_obj
+ */
+
+?>
 <div class="related">
 <?php
 if (!empty($teams)):

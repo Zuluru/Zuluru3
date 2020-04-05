@@ -1,10 +1,10 @@
 <?php
+/**
+ * @type \App\Model\Entity\Division $division
+ */
+
 use Cake\ORM\TableRegistry;
 
-if (is_array($division)) {
-	trigger_error('TODOTESTING', E_USER_WARNING);
-	exit;
-}
 $id = "divisions_division_{$division->id}";
 
 if (isset($options)) {

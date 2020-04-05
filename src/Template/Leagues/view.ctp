@@ -1,4 +1,10 @@
 <?php
+/**
+ * @type \App\Model\Entity\League $league
+ * @type \App\Module\LeagueType $league_obj
+ * @type int[] $affiliates
+ */
+
 use App\Model\Entity\Division;
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;

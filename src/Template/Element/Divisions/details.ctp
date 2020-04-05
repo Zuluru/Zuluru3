@@ -1,4 +1,11 @@
 <?php
+/**
+ * @type \App\Model\Entity\Division $division
+ * @type \App\Model\Entity\Person $people
+ * @type \App\Module\LeagueType $league_obj
+ */
+
+use App\Controller\DivisionsController;
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 ?>
@@ -96,7 +103,7 @@ endif;
 	echo '&nbsp;' . $this->Html->help(['action' => 'divisions', 'edit', 'schedule_type', $division->schedule_type]);
 ?></dd>
 <?php
-$fields = $league_obj->schedulingFields($this->Authorize->can('scheduling_fields', \App\Controller\DivisionsController::class));
+$fields = $league_obj->schedulingFields($this->Authorize->can('scheduling_fields', DivisionsController::class));
 foreach ($fields as $field => $options):
 ?>
 <dt><?= __($options['label']) ?></dt>
