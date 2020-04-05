@@ -27,6 +27,7 @@ class PriceTest extends TestCase {
 				'app.divisions',
 			'app.events',
 				'app.prices',
+		'app.i18n',
 	];
 
 	/**

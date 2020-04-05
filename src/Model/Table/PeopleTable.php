@@ -55,9 +55,9 @@ class PeopleTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('people');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('people');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
 		$this->addBehavior('Timestamp');
@@ -78,8 +78,6 @@ class PeopleTable extends AppTable {
 
 		// Which user model to use depends on system configuration
 		$user_model = Configure::read('Security.authModel');
-		// TODODATABASE Look into 'strategy' => 'select' for enabling cross-database queries?
-		// https://stackoverflow.com/questions/32033558/how-to-use-different-datasources-in-a-query-using-cakephp3 ?
 		$this->belongsTo($user_model, [
 			'foreignKey' => 'user_id',
 		]);
@@ -539,7 +537,7 @@ class PeopleTable extends AppTable {
 			}
 
 			// Start with the list of valid group options for the user making the edit
-			$valid_groups = $this->Groups->find('options', ['require_player' => true])
+			$valid_groups = $this->Groups->find('options', ['Groups.require_player' => true])
 				// then limit by the groups that were requested.
 				->where([
 					'Groups.id IN' => collection($entity->groups)->extract('id')->toList(),
@@ -896,7 +894,6 @@ class PeopleTable extends AppTable {
 	public function delete(EntityInterface $entity, $options = []) {
 		$cache = UserCache::getInstance();
 
-		// TODODATABASE: User and person records may be in separate databases, so we need a transaction for each
 		$user_model = Configure::read('Security.authModel');
 		$authenticate = TableRegistry::get($user_model);
 		$user_model = Inflector::singularize(Inflector::underscore($user_model));

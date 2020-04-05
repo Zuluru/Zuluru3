@@ -1,4 +1,11 @@
 <?php
+/**
+ * @type \App\Model\Entity\Division $division
+ * @type \App\Model\Entity\League $league
+ * @type int $team_id
+ * @type string[] $classes
+ */
+
 $classes[] = 'center';
 $cols = 2 + $league->hasSpirit();
 ?>

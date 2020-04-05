@@ -43,7 +43,7 @@ if (!empty($teams) && in_array($team->id, $this->UserCache->read('OwnedTeamIDs')
 	echo $this->Form->input('team', [
 		'label' => false,
 		'options' => $options,
-		'empty' => '-- select from list --',
+		'empty' => __('-- select from list --'),
 	]);
 	echo $this->Form->button(__('Show roster'), ['class' => 'btn-success']);
 	echo $this->Form->end();
@@ -61,7 +61,7 @@ if (!empty($events)) {
 	echo $this->Form->input('event', [
 		'label' => false,
 		'options' => $options,
-		'empty' => '-- select from list --',
+		'empty' => __('-- select from list --'),
 	]);
 	echo $this->Form->button(__('Show registrations'), ['class' => 'btn-success']);
 	echo $this->Form->end();

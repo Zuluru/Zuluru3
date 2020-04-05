@@ -760,8 +760,8 @@ class RegistrationsController extends AppController {
 		}
 		$payment_obj = $this->moduleRegistry->load('Payment:' . Configure::read('payment.payment_implementation'));
 		list($result, $audit, $registration_ids) = $payment_obj->process($this->request, $checkHash);
+		$errors = [];
 		if ($result) {
-			$errors = [];
 
 			$registrations = $this->Registrations->find()
 				->contain([
@@ -943,7 +943,7 @@ class RegistrationsController extends AppController {
 	public function refund_payment() {
 		$id = $this->request->getQuery('payment');
 		try {
-			$registration_id = $this->Registrations->Payments->field('registration_id', compact('id'));
+			$registration_id = $this->Registrations->Payments->field('registration_id', ['Payments.id' => $id]);
 			$registration = $this->Registrations->get($registration_id, [
 				'contain' => [
 					'People',
@@ -1016,7 +1016,7 @@ class RegistrationsController extends AppController {
 	public function credit_payment() {
 		$id = $this->request->getQuery('payment');
 		try {
-			$registration_id = $this->Registrations->Payments->field('registration_id', compact('id'));
+			$registration_id = $this->Registrations->Payments->field('registration_id', ['Payments.id' => $id]);
 			$registration = $this->Registrations->get($registration_id, [
 				'contain' => [
 					'People' => ['Credits'],
@@ -1079,13 +1079,13 @@ class RegistrationsController extends AppController {
 			$this->Flash->warning(__('The credit could not be saved. Please correct the errors below and try again.'));
 		}
 
-		$this->set(compact('registration', 'payment', 'credit'));
+		$this->set(compact('registration', 'payment'));
 	}
 
 	public function transfer_payment() {
 		$id = $this->request->getQuery('payment');
 		try {
-			$registration_id = $this->Registrations->Payments->field('registration_id', compact('id'));
+			$registration_id = $this->Registrations->Payments->field('registration_id', ['Payments.id' => $id]);
 			$registration = $this->Registrations->get($registration_id, [
 				'contain' => [
 					'People' => ['Groups'],
@@ -1403,7 +1403,7 @@ class RegistrationsController extends AppController {
 		// TODO: Report to Cake?
 		$responses = [];
 		foreach ($event->questionnaire->questions as $key => $question) {
-			if ($question->type == 'checkbox' && count($question->answers) > 1) {
+			if ($question->type == 'checkbox' && $question->answers && count($question->answers) > 1) {
 				foreach ($question->answers as $akey => $answer) {
 					$response = collection($registration->responses)->firstMatch(['question_id' => $question->id, 'answer_id' => $answer->id]);
 					if ($response) {

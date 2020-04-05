@@ -24,6 +24,7 @@ class FieldTest extends TestCase {
 			'app.regions',
 				'app.facilities',
 					'app.fields',
+		'app.i18n',
 	];
 
 	/**

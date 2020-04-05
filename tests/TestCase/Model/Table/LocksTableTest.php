@@ -23,6 +23,7 @@ class LocksTableTest extends TableTestCase {
 	 */
 	public $fixtures = [
 		'app.locks',
+		'app.i18n',
 	];
 
 	/**

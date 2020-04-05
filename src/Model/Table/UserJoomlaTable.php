@@ -55,8 +55,8 @@ class UserJoomlaTable extends UsersTable {
 		parent::initialize($config);
 		$this->initializeJoomlaConfig();
 
-		$this->table(Configure::read('Security.joomlaPrefix') . 'users');
-		$this->primaryKey('id');
+		$this->setTable(Configure::read('Security.joomlaPrefix') . 'users');
+		$this->setPrimaryKey('id');
 
 		$this->hasOne('JoomlaSessions', [
 			'foreignKey' => 'userid',

@@ -25,6 +25,7 @@ class AnswersTableTest extends TableTestCase {
 		'app.affiliates',
 			'app.questions',
 				'app.answers',
+		'app.i18n',
 	];
 
 	/**

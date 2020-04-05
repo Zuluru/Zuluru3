@@ -1,7 +1,7 @@
 <?php
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('All {0}', __(Configure::read('UI.fields_cap'))));
+$this->Html->addCrumb(__('All {0}', Configure::read('UI.fields_cap')));
 ?>
 
 <?php
@@ -61,9 +61,9 @@ foreach ($regions as $region) {
 if ($this->Authorize->can('closed', \App\Controller\FacilitiesController::class)) {
 	echo $this->Html->tag('br');
 	if ($closed) {
-		echo $this->Html->link(__('Show only open {0}', __(Configure::read('UI.fields'))), ['action' => 'index']);
+		echo $this->Html->link(__('Show only open {0}', Configure::read('UI.fields')), ['action' => 'index']);
 	} else {
-		echo $this->Html->link(__('Show all {0}', __(Configure::read('UI.fields'))), ['closed' => 1]);
+		echo $this->Html->link(__('Show all {0}', Configure::read('UI.fields')), ['closed' => 1]);
 	}
 }
 

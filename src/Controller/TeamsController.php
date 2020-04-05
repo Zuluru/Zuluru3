@@ -740,7 +740,7 @@ class TeamsController extends AppController {
 			$person = current($team->people);
 			$roster = $person->_joinData;
 		} else {
-			$roster = null;
+			$person = $roster = null;
 		}
 
 		$this->Authorization->authorize(new ContextResource($team, ['division' => $team->division, 'roster' => $roster]));
@@ -2590,7 +2590,7 @@ class TeamsController extends AppController {
 		if (!$this->_sendMail([
 			'to' => $person,
 			'replyTo' => $this->UserCache->read('Person'),
-			'subject' => __('You have been added to {0}', $team->name),
+			'subject' => function() use ($team) { return __('You have been added to {0}', $team->name); },
 			'template' => 'roster_add',
 			'sendAs' => 'both',
 			'viewVars' => array_merge($this->_rosterEmailVars($person, $team, $role), [
@@ -2609,7 +2609,7 @@ class TeamsController extends AppController {
 		if (!$this->_sendMail([
 			'to' => $person,
 			'replyTo' => $this->UserCache->read('Person'),
-			'subject' => __('Invitation to join {0}', $team->name),
+			'subject' => function() use ($team) { return __('Invitation to join {0}', $team->name); },
 			'template' => 'roster_invite',
 			'sendAs' => 'both',
 			'viewVars' => array_merge($this->_rosterEmailVars($person, $team, $role), [
@@ -2632,7 +2632,7 @@ class TeamsController extends AppController {
 		if (!$this->_sendMail([
 			'to' => $captains,
 			'replyTo' => $person,
-			'subject' => __('{0} requested to join {1}', $person->full_name, $team->name),
+			'subject' => function() use ($person, $team) { return __('{0} requested to join {1}', $person->full_name, $team->name); },
 			'template' => 'roster_request',
 			'sendAs' => 'both',
 			'viewVars' => array_merge($this->_rosterEmailVars($person, $team, $role), [
@@ -2656,7 +2656,7 @@ class TeamsController extends AppController {
 			if (!$this->_sendMail([
 				'to' => $captains,
 				'replyTo' => $person,
-				'subject' => __('Invitation for {0} to join {1} was accepted', $person->full_name, $team->name),
+				'subject' => function() use ($person, $team) { return __('Invitation for {0} to join {1} was accepted', $person->full_name, $team->name); },
 				'template' => 'roster_accept_invite',
 				'sendAs' => 'both',
 				'viewVars' => array_merge($this->_rosterEmailVars($person, $team, $role), [
@@ -2677,7 +2677,7 @@ class TeamsController extends AppController {
 			if (!$this->_sendMail([
 				'to' => $person,
 				'replyTo' => $this->UserCache->read('Person'),
-				'subject' => __('Request to join {0} was accepted', $team->name),
+				'subject' => function() use ($team) { return __('Request to join {0} was accepted', $team->name); },
 				'template' => 'roster_accept_request',
 				'sendAs' => 'both',
 				'viewVars' => array_merge($this->_rosterEmailVars($person, $team, $role), compact('captain')),
@@ -2702,7 +2702,7 @@ class TeamsController extends AppController {
 				if (!$this->_sendMail([
 					'to' => $captains,
 					'replyTo' => $person,
-					'subject' => __('{0} declined your invitation to join {1}', $person->full_name, $team->name),
+					'subject' => function() use ($person, $team) { return __('{0} declined your invitation to join {1}', $person->full_name, $team->name); },
 					'template' => 'roster_decline_invite',
 					'sendAs' => 'both',
 					'viewVars' => array_merge($this->_rosterEmailVars($person, $team, $role), [
@@ -2719,7 +2719,7 @@ class TeamsController extends AppController {
 				if (!$this->_sendMail([
 					'to' => $person,
 					'replyTo' => $this->UserCache->read('Person'),
-					'subject' => __('Invitation to join {0} was removed', $team->name),
+					'subject' => function() use ($team) { return __('Invitation to join {0} was removed', $team->name); },
 					'template' => 'roster_remove_invite',
 					'sendAs' => 'both',
 					'viewVars' => array_merge($this->_rosterEmailVars($person, $team, $role), [
@@ -2741,7 +2741,7 @@ class TeamsController extends AppController {
 			if (!$this->_sendMail([
 				'to' => $person,
 				'replyTo' => $this->UserCache->read('Person'),
-				'subject' => __('Request to join {0} was declined', $team->name),
+				'subject' => function() use ($team) { return __('Request to join {0} was declined', $team->name); },
 				'template' => 'roster_decline_request',
 				'sendAs' => 'both',
 				'viewVars' => array_merge($this->_rosterEmailVars($person, $team, $role), compact('captain')),
@@ -2768,7 +2768,7 @@ class TeamsController extends AppController {
 			if (!$this->_sendMail([
 				'to' => $captains,
 				'replyTo' => $person,
-				'subject' => __('{0} role change on {1} roster', $person->full_name, $team->name),
+				'subject' => function() use ($person, $team) { return __('{0} role change on {1} roster', $person->full_name, $team->name); },
 				'template' => 'roster_change_by_player',
 				'sendAs' => 'both',
 				'viewVars' => array_merge($this->_rosterEmailVars($person, $team, $role), [
@@ -2785,7 +2785,7 @@ class TeamsController extends AppController {
 			if (!$this->_sendMail([
 				'to' => $person,
 				'replyTo' => $this->UserCache->read('Person'),
-				'subject' => __('Change of roster role on {0}', $team->name),
+				'subject' => function() use ($team) { return __('Change of roster role on {0}', $team->name); },
 				'template' => 'roster_change_by_captain',
 				'sendAs' => 'both',
 				'viewVars' => array_merge($this->_rosterEmailVars($person, $team, $role), [
@@ -2811,7 +2811,7 @@ class TeamsController extends AppController {
 			if (!$this->_sendMail([
 				'to' => $captains,
 				'replyTo' => $person,
-				'subject' => __('{0} removed from {1} roster', $person->full_name, $team->name),
+				'subject' => function() use ($person, $team) { return __('{0} removed from {1} roster', $person->full_name, $team->name); },
 				'template' => 'roster_remove_by_player',
 				'sendAs' => 'both',
 				'viewVars' => array_merge($this->_rosterEmailVars($person, $team), [
@@ -2828,7 +2828,7 @@ class TeamsController extends AppController {
 			if (!$this->_sendMail([
 				'to' => $person,
 				'replyTo' => $this->UserCache->read('Person'),
-				'subject' => __('Removal from {0} roster', $team->name),
+				'subject' => function() use ($team) { return __('Removal from {0} roster', $team->name); },
 				'template' => 'roster_remove_by_captain',
 				'sendAs' => 'both',
 				'viewVars' => array_merge($this->_rosterEmailVars($person, $team), [

@@ -20,14 +20,14 @@ foreach ($teams as $team) {
 echo $this->element('selector', ['title' => 'Year', 'options' => array_unique($years)]);
 
 $seasons = array_unique(collection($teams)->extract('division.league.season')->toArray());
-echo $this->element('selector', ['title' => 'Season', 'options' => array_intersect(array_keys(Configure::read('options.season')), $seasons)]);
+echo $this->element('selector', ['title' => 'Season', 'options' => array_intersect_key(Configure::read('options.season'), array_flip($seasons))]);
 
-$days = collection($teams)->extract('division.days.{*}')->combine('id', 'name')->toArray();
+$days = collection($teams)->extract('division.days.{*}')->combine('id', function ($entity) { return $entity->translateField('name'); })->toArray();
 ksort($days);
 echo $this->element('selector', ['title' => 'Day', 'options' => $days]);
 
 $roles = array_unique(collection($teams)->extract('_matchingData.TeamsPeople.role')->toArray());
-echo $this->element('selector', ['title' => 'Role', 'options' => array_intersect(array_keys(Configure::read('options.roster_role')), $roles)]);
+echo $this->element('selector', ['title' => 'Role', 'options' => array_intersect_key(Configure::read('options.roster_role'), array_flip($roles))]);
 ?>
 	<div class="table-responsive clear-float">
 		<table class="table table-striped table-hover table-condensed">

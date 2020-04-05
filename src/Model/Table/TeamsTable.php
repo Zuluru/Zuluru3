@@ -43,9 +43,9 @@ class TeamsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('teams');
-		$this->displayField('name');
-		$this->primaryKey('id');
+		$this->setTable('teams');
+		$this->setDisplayField('name');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
 
@@ -302,8 +302,20 @@ class TeamsTable extends AppTable {
 		$teams = $this->find()
 			->contain([
 				'Divisions' => [
-					'Leagues' => ['Affiliates'],
-					'Days',
+					'queryBuilder' => function (Query $q) {
+						return $q->find('translations');
+					},
+					'Leagues' => [
+						'queryBuilder' => function (Query $q) {
+							return $q->find('translations');
+						},
+						'Affiliates',
+					],
+					'Days' => [
+						'queryBuilder' => function (Query $q) {
+							return $q->find('translations');
+						},
+					],
 				],
 				'Franchises',
 			])
@@ -376,7 +388,7 @@ class TeamsTable extends AppTable {
 			if ($division) {
 				return $this->Divisions->affiliate($division);
 			} else {
-				return $this->field('affiliate_id', ['id' => $id]);
+				return $this->field('affiliate_id', ['Teams.id' => $id]);
 			}
 		} catch (RecordNotFoundException $ex) {
 			return null;
@@ -385,7 +397,7 @@ class TeamsTable extends AppTable {
 
 	public function division($id) {
 		try {
-			return $this->field('division_id', ['id' => $id]);
+			return $this->field('division_id', ['Teams.id' => $id]);
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}
@@ -394,10 +406,10 @@ class TeamsTable extends AppTable {
 	public function sport($id) {
 		// Teams may be unassigned
 		try {
-			$division = $this->field('division_id', ['id' => $id]);
+			$division = $this->field('division_id', ['Teams.id' => $id]);
 			if ($division) {
-				$league = $this->Divisions->field('league_id', ['id' => $division]);
-				return $this->Divisions->Leagues->field('sport', ['id' => $league]);
+				$league = $this->Divisions->field('league_id', ['Divisions.id' => $division]);
+				return $this->Divisions->Leagues->field('sport', ['Leagues.id' => $league]);
 			} else {
 				return current(array_keys(Configure::read('options.sport')));
 			}

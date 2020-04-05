@@ -26,6 +26,7 @@ class CategoriesControllerTest extends ControllerTestCase {
 			'app.categories',
 				'app.tasks',
 			'app.settings',
+		'app.i18n',
 	];
 
 	/**

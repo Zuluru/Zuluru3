@@ -9,7 +9,7 @@ class DivisionsGameslotsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('divisions_gameslots');
+		$this->setTable('divisions_gameslots');
 
 		$this->belongsTo('Divisions');
 		$this->belongsTo('GameSlots');

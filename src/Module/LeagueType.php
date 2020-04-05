@@ -118,7 +118,7 @@ abstract class LeagueType {
 			if (empty($games)) {
 				$division->_results = [];
 			} else {
-				// Sort games by date, time and field
+				// Sort games by date, time and field. Field makes no difference to these results, but whatever.
 				usort($games, ['App\Model\Table\GamesTable', 'compareDateAndField']);
 				GamesTable::adjustEntryIndices($games);
 			}
@@ -288,7 +288,7 @@ abstract class LeagueType {
 		TableRegistry::get('Divisions')->loadInto($division, [
 			'Days' => [
 				'queryBuilder' => function (Query $q) {
-					return $q->order(['day_id']);
+					return $q->order(['DivisionsDays.day_id']);
 				},
 			],
 			'Teams' => [

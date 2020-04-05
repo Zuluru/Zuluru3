@@ -22,6 +22,7 @@ class GroupTest extends TestCase {
 	public $fixtures = [
 		'app.affiliates',
 			'app.groups',
+		'app.i18n',
 	];
 
 	/**

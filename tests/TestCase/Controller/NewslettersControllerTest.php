@@ -35,6 +35,7 @@ class NewslettersControllerTest extends ControllerTestCase {
 			'app.activity_logs',
 			'app.settings',
 			'app.locks',
+		'app.i18n',
 	];
 
 	/**

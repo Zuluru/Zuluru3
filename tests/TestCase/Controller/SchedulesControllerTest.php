@@ -49,6 +49,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 			'app.activity_logs',
 			'app.notes',
 			'app.settings',
+		'app.i18n',
 	];
 
 	/**
@@ -134,8 +135,8 @@ class SchedulesControllerTest extends ControllerTestCase {
 			'#There are no games to delete on that date.#');
 
 		// Make sure that deleting games actually deletes them, and frees up game slots
-		$slots = TableRegistry::get('game_slots')->find()
-			->where(['id IN' => [GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1, GAME_SLOT_ID_MONDAY_SUNNYBROOK_2_WEEK_1]])
+		$slots = TableRegistry::get('GameSlots')->find()
+			->where(['GameSlots.id IN' => [GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1, GAME_SLOT_ID_MONDAY_SUNNYBROOK_2_WEEK_1]])
 			->toArray();
 		$this->assertEquals(2, count($slots));
 		$this->assertTrue($slots[0]->assigned);
@@ -146,11 +147,11 @@ class SchedulesControllerTest extends ControllerTestCase {
 			PERSON_ID_ADMIN, ['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER],
 			'#Deleted games on the requested date.#');
 
-		$games = TableRegistry::get('games')->find()
-			->where(['id IN' => [GAME_ID_LADDER_FINALIZED_HOME_WIN, GAME_ID_LADDER_CANCELLED]]);
+		$games = TableRegistry::get('Games')->find()
+			->where(['Games.id IN' => [GAME_ID_LADDER_FINALIZED_HOME_WIN, GAME_ID_LADDER_CANCELLED]]);
 		$this->assertEquals(0, $games->count());
-		$slots = TableRegistry::get('game_slots')->find()
-			->where(['id IN' => [GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1, GAME_SLOT_ID_MONDAY_SUNNYBROOK_2_WEEK_1]])
+		$slots = TableRegistry::get('GameSlots')->find()
+			->where(['GameSlots.id IN' => [GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1, GAME_SLOT_ID_MONDAY_SUNNYBROOK_2_WEEK_1]])
 			->toArray();
 		$this->assertEquals(2, count($slots));
 		$this->assertFalse($slots[0]->assigned);
@@ -283,7 +284,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testPublishAsAdmin() {
-		$game = TableRegistry::get('games')->get(GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_2);
+		$game = TableRegistry::get('Games')->get(GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_2);
 		$this->assertFalse($game->published);
 
 		// Admins are allowed to publish schedules anywhere
@@ -292,7 +293,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 			PERSON_ID_ADMIN, ['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN],
 			'#Published games on the requested date.#');
 
-		$game = TableRegistry::get('games')->get(GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_2);
+		$game = TableRegistry::get('Games')->get(GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_2);
 		$this->assertTrue($game->published);
 
 		$date = (new FrozenDate('last Sunday of May'))->addWeeks(2);
@@ -356,7 +357,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testUnpublishAsAdmin() {
-		$game = TableRegistry::get('games')->get(GAME_ID_LADDER_FINALIZED_HOME_WIN);
+		$game = TableRegistry::get('Games')->get(GAME_ID_LADDER_FINALIZED_HOME_WIN);
 		$this->assertTrue($game->published);
 
 		// Admins are allowed to unpublish schedules anywhere
@@ -365,7 +366,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 			PERSON_ID_ADMIN, ['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER],
 			'#Unpublished games on the requested date.#');
 
-		$game = TableRegistry::get('games')->get(GAME_ID_LADDER_FINALIZED_HOME_WIN);
+		$game = TableRegistry::get('Games')->get(GAME_ID_LADDER_FINALIZED_HOME_WIN);
 		$this->assertFalse($game->published);
 
 		$date = (new FrozenDate('last Sunday of May'))->addWeeks(1);

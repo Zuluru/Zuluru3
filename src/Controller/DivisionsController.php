@@ -92,7 +92,7 @@ class DivisionsController extends AppController {
 					'People',
 					'Days' => [
 						'queryBuilder' => function (Query $q) {
-							return $q->order(['day_id']);
+							return $q->order(['DivisionsDays.day_id']);
 						},
 					],
 					'Teams',
@@ -291,6 +291,7 @@ class DivisionsController extends AppController {
 			$index = current(array_keys($this->request->data['divisions']));
 			$type = $this->request->data['divisions'][$index]['schedule_type'];
 		} else {
+			$index = null;
 			$type = $this->request->data['schedule_type'];
 		}
 		$this->set('league_obj', $this->moduleRegistry->load("LeagueType:{$type}"));
@@ -475,7 +476,7 @@ class DivisionsController extends AppController {
 				'contain' => [
 					'Days' => [
 						'queryBuilder' => function (Query $q) {
-							return $q->order(['day_id']);
+							return $q->order(['DivisionsDays.day_id']);
 						},
 					],
 					'Teams' => [
@@ -532,7 +533,7 @@ class DivisionsController extends AppController {
 				'contain' => [
 					'Days' => [
 						'queryBuilder' => function (Query $q) {
-							return $q->order(['day_id']);
+							return $q->order(['DivisionsDays.day_id']);
 						},
 					],
 					'Teams' => [
@@ -636,14 +637,18 @@ class DivisionsController extends AppController {
 		$division = Cache::remember("division/{$id}/schedule", function () use ($id) {
 			try {
 				$division = $this->Divisions->get($id, [
+					'finder' => 'translations',
 					'contain' => [
 						'Days' => [
 							'queryBuilder' => function (Query $q) {
-								return $q->order(['day_id']);
+								return $q->order(['DivisionsDays.day_id']);
 							},
 						],
 						'Teams',
 						'Leagues' => [
+							'queryBuilder' => function (Query $q) {
+								return $q->find('translations');
+							},
 							'StatTypes' => [
 								'queryBuilder' => function (Query $q) {
 									return $q->where(['StatTypes.type' => 'entered']);
@@ -659,13 +664,40 @@ class DivisionsController extends AppController {
 									],
 								]);
 							},
-							'GameSlots' => ['Fields' => ['Facilities']],
+							'GameSlots' => [
+								'Fields' => [
+									'queryBuilder' => function (Query $q) {
+										return $q->find('translations');
+									},
+									'Facilities' => [
+										'queryBuilder' => function (Query $q) {
+											return $q->find('translations');
+										},
+									],
+								],
+							],
 							'ScoreEntries',
 							'HomeTeam',
-							'HomePoolTeam' => ['DependencyPool'],
+							'HomePoolTeam' => [
+								'DependencyPool' => [
+									'queryBuilder' => function (Query $q) {
+										return $q->find('translations');
+									},
+								],
+							],
 							'AwayTeam',
-							'AwayPoolTeam' => ['DependencyPool'],
-							'Pools',
+							'AwayPoolTeam' => [
+								'DependencyPool' => [
+									'queryBuilder' => function (Query $q) {
+										return $q->find('translations');
+									},
+								],
+							],
+							'Pools' => [
+								'queryBuilder' => function (Query $q) {
+									return $q->find('translations');
+								},
+							],
 						],
 					],
 				]);
@@ -717,6 +749,7 @@ class DivisionsController extends AppController {
 			$is_tournament = collection($division->games)->some(function ($game) use ($edit_date) {
 				return $game->type != SEASON_GAME;
 			});
+			$game_slots = [];
 		}
 
 		// Save posted data
@@ -787,7 +820,7 @@ class DivisionsController extends AppController {
 				'contain' => [
 					'Days' => [
 						'queryBuilder' => function (Query $q) {
-							return $q->order(['day_id']);
+							return $q->order(['DivisionsDays.day_id']);
 						},
 					],
 					'Leagues',
@@ -812,6 +845,7 @@ class DivisionsController extends AppController {
 		// If we're asking for "team" standings, only show the 5 teams above and 5 teams below this team.
 		// Don't bother if there are 24 teams or less (24 is probably the largest fall division size).
 		// If $show_all is set, don't remove teams.
+		$more_before = $more_after = false;
 		if (!$show_all && $team_id != null && count($division->teams) > 24) {
 			$index_of_this_team = false;
 			foreach (array_values($division->teams) as $i => $team) {
@@ -852,7 +886,7 @@ class DivisionsController extends AppController {
 				'contain' => [
 					'Days' => [
 						'queryBuilder' => function (Query $q) {
-							return $q->order(['day_id']);
+							return $q->order(['DivisionsDays.day_id']);
 						},
 					],
 					'Teams',
@@ -1062,6 +1096,9 @@ class DivisionsController extends AppController {
 					return $game->type != SEASON_GAME;
 				});
 			});
+		} else {
+			$slots = [];
+			$is_tournament = false;
 		}
 
 		$this->set(compact('division', 'dates', 'date', 'slots', 'is_tournament'));
@@ -1499,7 +1536,7 @@ class DivisionsController extends AppController {
 				'contain' => [
 					'Days' => [
 						'queryBuilder' => function (Query $q) {
-							return $q->order(['day_id']);
+							return $q->order(['DivisionsDays.day_id']);
 						},
 					],
 					'Teams',

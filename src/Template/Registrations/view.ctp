@@ -52,7 +52,7 @@ if ($this->Authorize->getIdentity()->isManagerOf($registration->event)):
 			<dd><?php
 				echo $this->Number->currency($payment->payment_amount);
 				if ($payment->refunded_amount != 0) {
-					echo ' ' . $this->Html->tag('span', __('({0,number,currency} refunded; see below)', $payment->refunded_amount), ['class' => 'warning-message']);
+					echo ' ' . $this->Html->tag('span', __('({0} refunded; see below)', $this->Number->currency($payment->refunded_amount)), ['class' => 'warning-message']);
 				}
 			?></dd>
 			<dt><?= __('Payment Date') ?></dt>
@@ -147,10 +147,10 @@ if ($this->Authorize->getIdentity()->isManagerOf($registration->event)):
 		<div class="related">
 			<p class="warning-message"><?php
 				if ($unpaid) {
-					echo __('There is an outstanding balance of {0,number,currency}.', $registration->balance);
+					echo __('There is an outstanding balance of {0}.', $this->Number->currency($registration->balance));
 				} else {
-					echo __('Although this registration is marked as "Paid", the total of the payments received ({0,number,currency}) does not match the registration cost ({1,number,currency}).',
-						$total_payment, $registration->total_amount);
+					echo __('Although this registration is marked as "Paid", the total of the payments received ({0}) does not match the registration cost ({1}).',
+						$this->Number->currency($total_payment), $this->Number->currency($registration->total_amount));
 				}
 			?></p>
 		</div>

@@ -1,8 +1,10 @@
 <?php
-if (is_array($field)) {
-	trigger_error('TODOTESTING', E_USER_WARNING);
-	exit;
-}
+/**
+ * @type \App\Model\Entity\Field $field
+ * @type mixed[] $options
+ * @type string $display_field
+ */
+
 $id = "fields_field_{$field->id}";
 
 if (isset($options)) {

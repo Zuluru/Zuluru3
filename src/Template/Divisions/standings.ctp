@@ -1,4 +1,12 @@
 <?php
+/**
+ * @type \App\Model\Entity\Division $division
+ * @type \App\Model\Entity\Team[] $show_teams
+ * @type \App\Module\LeagueType $league_obj
+ * @type int $team_id
+ * @type boolean $more_before
+ * @type boolean $more_after
+ */
 
 use App\Authorization\ContextResource;
 
@@ -42,7 +50,7 @@ if (!empty($division->teams) && ($has_season || !$has_tournament)):
 			</thead>
 			<tbody>
 <?php
-	if (isset($more_before)) {
+	if ($more_before) {
 		$seed = $more_before;
 		echo $this->element("Leagues/standings/{$league_obj->render_element}/more", [
 			'league' => $division->league,
@@ -71,7 +79,7 @@ if (!empty($division->teams) && ($has_season || !$has_tournament)):
 			'classes' => $classes,
 		]);
 	}
-	if (isset($more_after)) {
+	if ($more_after) {
 		echo $this->element("Leagues/standings/{$league_obj->render_element}/more", [
 			'league' => $division->league,
 			'division' => $division,

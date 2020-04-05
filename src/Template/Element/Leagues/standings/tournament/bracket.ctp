@@ -1,4 +1,12 @@
 <?php
+/**
+ * @type \App\Model\Entity\Division $division
+ * @type \App\Model\Entity\League $league
+ * @type \App\Model\Entity\Team[] $teams
+ * @type mixed[][] $games
+ * @type boolean $can_edit
+ */
+
 use App\Controller\AppController;
 
 $teams = collection($teams)->indexBy('id')->toArray();

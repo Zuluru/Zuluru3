@@ -28,6 +28,7 @@ class NewslettersTableTest extends TableTestCase {
 					'app.affiliates_people',
 			'app.mailing_lists',
 				'app.newsletters',
+		'app.i18n',
 	];
 
 	/**

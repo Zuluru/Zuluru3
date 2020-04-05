@@ -1,4 +1,11 @@
 <?php
+/**
+ * @type \App\Model\Entity\Division $division
+ * @type \App\Model\Entity\League $league
+ * @type \App\Model\Entity\Team $team
+ * @type string[] $classes
+ * @type int $seed
+ */
 
 use App\Authorization\ContextResource;
 use Cake\Core\Configure;

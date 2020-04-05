@@ -58,6 +58,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'app.activity_logs',
 			'app.notes',
 			'app.settings',
+		'app.i18n',
 	];
 
 	/**

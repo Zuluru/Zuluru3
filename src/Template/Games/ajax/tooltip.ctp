@@ -8,7 +8,7 @@ use Cake\Core\Configure;
 	<dd><?= $this->Time->date($game->game_slot->game_date) ?></dd>
 	<dt><?= __('Time') ?></dt>
 	<dd><?= $this->Time->TimeRange($game->game_slot) ?></dd>
-	<dt><?= __(Configure::read('UI.field_cap')) ?></dt>
+	<dt><?= Configure::read('UI.field_cap') ?></dt>
 	<dd><?= $this->Html->link($game->game_slot->field->long_name,
 		['controller' => 'Facilities', 'action' => 'view', 'facility' => $game->game_slot->field->facility_id]) ?></dd>
 	<dt><?= $game->division->schedule_type == 'competition' ? __('Team') : __('Home Team') ?></dt>

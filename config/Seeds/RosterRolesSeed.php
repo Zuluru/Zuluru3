@@ -6,15 +6,15 @@ use Migrations\AbstractSeed;
  */
 class RosterRolesSeed extends AbstractSeed {
 	/**
-	 * Run Method.
+	 * Data Method.
 	 *
-	 * @return void
+	 * @return mixed
 	 */
-	public function run() {
-		$data = [
+	public function data() {
+		return [
 			[
 				'name' => 'captain',
-				'description' => __('Captain'),
+				'description' => __d('seeds', 'Captain'),
 				'active' => '1',
 				'is_player' => '1',
 				'is_extended_player' => '1',
@@ -24,7 +24,7 @@ class RosterRolesSeed extends AbstractSeed {
 			],
 			[
 				'name' => 'assistant',
-				'description' => __('Assistant captain'),
+				'description' => __d('seeds', 'Assistant captain'),
 				'active' => '1',
 				'is_player' => '1',
 				'is_extended_player' => '1',
@@ -34,7 +34,7 @@ class RosterRolesSeed extends AbstractSeed {
 			],
 			[
 				'name' => 'coach',
-				'description' => __('Non-playing coach'),
+				'description' => __d('seeds', 'Non-playing coach'),
 				'active' => '1',
 				'is_player' => '0',
 				'is_extended_player' => '0',
@@ -44,7 +44,7 @@ class RosterRolesSeed extends AbstractSeed {
 			],
 			[
 				'name' => 'social',
-				'description' => __('Social rep'),
+				'description' => __d('seeds', 'Social rep'),
 				'active' => '0',
 				'is_player' => '1',
 				'is_extended_player' => '1',
@@ -54,7 +54,7 @@ class RosterRolesSeed extends AbstractSeed {
 			],
 			[
 				'name' => 'spiritcaptain',
-				'description' => __('Spirit captain'),
+				'description' => __d('seeds', 'Spirit captain'),
 				'active' => '0',
 				'is_player' => '1',
 				'is_extended_player' => '1',
@@ -64,7 +64,7 @@ class RosterRolesSeed extends AbstractSeed {
 			],
 			[
 				'name' => 'ruleskeeper',
-				'description' => __('Rules keeper'),
+				'description' => __d('seeds', 'Rules keeper'),
 				'active' => '0',
 				'is_player' => '1',
 				'is_extended_player' => '1',
@@ -74,7 +74,7 @@ class RosterRolesSeed extends AbstractSeed {
 			],
 			[
 				'name' => 'player',
-				'description' => __('Regular player'),
+				'description' => __d('seeds', 'Regular player'),
 				'active' => '1',
 				'is_player' => '1',
 				'is_extended_player' => '1',
@@ -84,7 +84,7 @@ class RosterRolesSeed extends AbstractSeed {
 			],
 			[
 				'name' => 'substitute',
-				'description' => __('Substitute player'),
+				'description' => __d('seeds', 'Substitute player'),
 				'active' => '1',
 				'is_player' => '0',
 				'is_extended_player' => '1',
@@ -94,7 +94,7 @@ class RosterRolesSeed extends AbstractSeed {
 			],
 			[
 				'name' => 'cheerleader',
-				'description' => __('Cheerleader'),
+				'description' => __d('seeds', 'Cheerleader'),
 				'active' => '0',
 				'is_player' => '0',
 				'is_extended_player' => '1',
@@ -104,7 +104,7 @@ class RosterRolesSeed extends AbstractSeed {
 			],
 			[
 				'name' => 'none',
-				'description' => __('Not on team'),
+				'description' => __d('seeds', 'Not on team'),
 				'active' => '1',
 				'is_player' => '0',
 				'is_extended_player' => '0',
@@ -113,8 +113,15 @@ class RosterRolesSeed extends AbstractSeed {
 				'is_required' => '0',
 			],
 		];
+	}
 
+	/**
+	 * Run Method.
+	 *
+	 * @return void
+	 */
+	public function run() {
 		$table = $this->table('roster_roles');
-		$table->insert($data)->save();
+		$table->insert($this->data())->save();
 	}
 }

@@ -31,11 +31,12 @@ class PricesTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('prices');
-		$this->displayField('name');
-		$this->primaryKey('id');
+		$this->setTable('prices');
+		$this->setDisplayField('name');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
+		$this->addBehavior('Translate', ['fields' => ['name', 'description']]);
 
 		$this->belongsTo('Events', [
 			'foreignKey' => 'event_id',
@@ -121,9 +122,9 @@ class PricesTable extends AppTable {
 			} else if ($entity->has('event') && $entity->event->has('prices')) {
 				$prices = count($entity->event->prices);
 			} else {
-				$prices = $this->find()->where(['event_id' => $entity->event_id]);
+				$prices = $this->find()->where(['Prices.event_id' => $entity->event_id]);
 				if (!$entity->isNew()) {
-					$prices->andWhere(['id !=' => $entity->id]);
+					$prices->andWhere(['Prices.id !=' => $entity->id]);
 				}
 				$prices = $prices->count() + 1;
 			}
@@ -223,7 +224,7 @@ class PricesTable extends AppTable {
 
 	public function event($id) {
 		try {
-			return $this->field('event_id', ['id' => $id]);
+			return $this->field('event_id', ['Prices.id' => $id]);
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

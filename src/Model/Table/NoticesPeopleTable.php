@@ -20,9 +20,9 @@ class NoticesPeopleTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('notices_people');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('notices_people');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Timestamp');
 

@@ -43,6 +43,7 @@ class BadgesPersonTest extends TestCase {
 				'app.prices',
 					'app.registrations',
 			'app.settings',
+		'app.i18n',
 	];
 
 	/**

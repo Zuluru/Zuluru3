@@ -38,6 +38,7 @@ class StatsTableTest extends TableTestCase {
 						'app.pools_teams',
 					'app.games',
 						'app.stats',
+		'app.i18n',
 	];
 
 	/**

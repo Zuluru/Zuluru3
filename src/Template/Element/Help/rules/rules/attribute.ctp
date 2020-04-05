@@ -10,7 +10,7 @@ use Cake\ORM\TableRegistry;
 <p><?= __('The complete list is as follows. Where there is a limited list of options, they are given in parentheses; note that these are case-sensitive.') ?></p>
 <p><?php
 $fields = [];
-$people_table = TableRegistry::get('people');
+$people_table = TableRegistry::get('People');
 foreach ($people_table->schema()->columns() as $key) {
 	$include = false;
 

@@ -6,4 +6,4 @@ use Cake\Core\Configure;
 	__('Reschedule')
 ) ?></p>
 <p><?= __('When you request to reschedule, you will be given a list of possible dates. Only those with available game slots are shown, to prevent conflicts. As with adding new games, you have the option to publish the rescheduled games immediately, or leave them unpublished so you can make adjustments first.') ?></p>
-<p><?= __('Note that {0} and time assignments are <strong>not</strong> preserved through a reschedule. If there are any such assignments that need to be preserved, you will need to edit the resulting schedule once the reschedule process has completed.', __(Configure::read('UI.field'))) ?></p>
+<p><?= __('Note that {0} and time assignments are <strong>not</strong> preserved through a reschedule. If there are any such assignments that need to be preserved, you will need to edit the resulting schedule once the reschedule process has completed.', Configure::read('UI.field')) ?></p>

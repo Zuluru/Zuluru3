@@ -1,4 +1,10 @@
 <?php
+/**
+ * @type \App\Model\Entity\League $league
+ * @type boolean $multi_day
+ * @type \Cake\I18n\FrozenDate $edit_date
+ */
+
 use App\Model\Entity\Division;
 use Cake\Core\Configure;
 
@@ -13,10 +19,13 @@ $this->Html->addCrumb(__('Schedule'));
 <?php
 $collapse = (count($league->divisions) == 1);
 
-if ($collapse && !empty($league->divisions[0]->header)):
+if ($collapse):
+	$header = $league->divisions[0]->translateField('header');
+	if (!empty($header)):
 ?>
-<div class="division_header"><?= $league->divisions[0]->header ?></div>
+<div class="division_header"><?= $header ?></div>
 <?php
+	endif;
 endif;
 ?>
 <div class="leagues schedule">
@@ -78,7 +87,7 @@ if (!empty($league->games)):
 ?>
 						<th><?= __('Time') ?></th>
 						<th><?= __(Configure::read("sports.{$league->sport}.field_cap")) ?></th>
-						<th><?= __($competition ? 'Team' : 'Home') ?></th>
+						<th><?= $competition ? __('Team') : __('Home') ?></th>
 <?php
 	if (!$competition):
 ?>
@@ -115,8 +124,11 @@ endif;
 		'tournaments' => $tournaments,
 	]) ?></div>
 <?php
-if ($collapse && !empty($league->divisions[0]->footer)):
+if ($collapse):
+	$footer = $league->divisions[0]->translateField('footer');
+	if (!empty($footer)):
 ?>
-	<div class="clear-float division_footer"><?= $league->divisions[0]->footer ?></div>
+	<div class="clear-float division_footer"><?= $footer ?></div>
 <?php
+	endif;
 endif;

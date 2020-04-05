@@ -1,4 +1,11 @@
 <?php
+/**
+ * @type \App\Model\Entity\Division $division
+ * @type \App\Model\Entity\League $league
+ * @type boolean $multi_day
+ * @type \Cake\I18n\FrozenDate $edit_date
+ * @type \Cake\I18n\FrozenDate[] $week
+ */
 
 use App\Model\Entity\Team;
 use Cake\Core\Configure;
@@ -24,11 +31,12 @@ if (isset($division)) {
 	$teams = [];
 	foreach ($league->divisions as $league_division) {
 		if ($this->Authorize->can('edit', $league_division)) {
-			$teams[$league_division->name] = collection($league_division->teams)->combine('id', function (Team $team) { return Text::truncate($team->name, 16); })->toArray();
-			if (empty($teams[$league_division->name])) {
-				unset($teams[$league_division->name]);
+			$name = $league_division->translateField('name');
+			$teams[$name] = collection($league_division->teams)->combine('id', function (Team $team) { return Text::truncate($team->name, 16); })->toArray();
+			if (empty($teams[$name])) {
+				unset($teams[$name]);
 			} else {
-				natcasesort($teams[$league_division->name]);
+				natcasesort($teams[$name]);
 			}
 		}
 	}

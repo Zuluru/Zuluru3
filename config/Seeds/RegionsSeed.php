@@ -6,27 +6,34 @@ use Migrations\AbstractSeed;
  */
 class RegionsSeed extends AbstractSeed {
 	/**
+	 * Data Method.
+	 *
+	 * @return mixed
+	 */
+	public function data() {
+		return [
+			[
+				'name' => __d('seeds', 'North'),
+			],
+			[
+				'name' => __d('seeds', 'South'),
+			],
+			[
+				'name' => __d('seeds', 'East'),
+			],
+			[
+				'name' => __d('seeds', 'West'),
+			],
+		];
+	}
+
+	/**
 	 * Run Method.
 	 *
 	 * @return void
 	 */
 	public function run() {
-		$data = [
-			[
-				'name' => 'North',
-			],
-			[
-				'name' => 'South',
-			],
-			[
-				'name' => 'East',
-			],
-			[
-				'name' => 'West',
-			],
-		];
-
 		$table = $this->table('regions');
-		$table->insert($data)->save();
+		$table->insert($this->data())->save();
 	}
 }

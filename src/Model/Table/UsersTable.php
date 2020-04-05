@@ -73,9 +73,9 @@ class UsersTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('users');
-		$this->displayField($this->userField);
-		$this->primaryKey('id');
+		$this->setTable('users');
+		$this->setDisplayField($this->userField);
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
 
@@ -252,7 +252,7 @@ class UsersTable extends AppTable {
 			$person_id = $entity->person->id;
 		} else {
 			try {
-				$person_id = $this->People->field('id', ['user_id' => $entity->id]);
+				$person_id = $this->People->field('id', ['People.user_id' => $entity->id]);
 			} catch (RecordNotFoundException $ex) {
 				// If there's no person record, then there's no cache to clear.
 				return;

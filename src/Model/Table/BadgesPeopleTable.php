@@ -28,9 +28,9 @@ class BadgesPeopleTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('badges_people');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('badges_people');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Timestamp');
 
@@ -63,7 +63,7 @@ class BadgesPeopleTable extends AppTable {
 
 	public function affiliate($id) {
 		try {
-			return $this->Badges->affiliate($this->field('badge_id', ['id' => $id]));
+			return $this->Badges->affiliate($this->field('badge_id', ['BadgesPeople.id' => $id]));
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

@@ -26,6 +26,7 @@ class AffiliatesTableTest extends TableTestCase {
 			'app.users',
 				'app.people',
 					'app.affiliates_people',
+		'app.i18n',
 	];
 
 	/**

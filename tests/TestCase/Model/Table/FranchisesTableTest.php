@@ -27,6 +27,7 @@ class FranchisesTableTest extends TableTestCase {
 				'app.people',
 			'app.franchises',
 				'app.franchises_people',
+		'app.i18n',
 	];
 
 	/**

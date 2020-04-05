@@ -41,7 +41,7 @@ if (!in_array($registration->payment, Configure::read('registration_cancelled'))
 }
 
 // Turn the list of unpaid registrations into a useful list of select options
-$options = collection($unpaid)->combine('id', 'event.name', 'person_id')->toArray();
+$options = collection($unpaid)->combine('id', function ($entity) { return $entity->event->translateField('name'); }, 'person_id')->toArray();
 if (count($options) == 1 && array_key_exists($registration->person_id, $options)) {
 	$options = current($options);
 } else {

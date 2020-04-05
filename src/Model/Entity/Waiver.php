@@ -1,8 +1,10 @@
 <?php
 namespace App\Model\Entity;
 
+use App\Model\Traits\TranslateFieldTrait;
 use Cake\Chronos\ChronosInterface;
 use Cake\I18n\FrozenDate;
+use Cake\ORM\Behavior\Translate\TranslateTrait;
 use Cake\ORM\Entity;
 
 /**
@@ -25,6 +27,9 @@ use Cake\ORM\Entity;
  * @property \App\Model\Entity\Person[] $people
  */
 class Waiver extends Entity {
+
+	use TranslateTrait;
+	use TranslateFieldTrait;
 
 	/**
 	 * Fields that can be mass assigned using newEntity() or patchEntity().

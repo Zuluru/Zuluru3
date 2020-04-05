@@ -41,6 +41,7 @@ class ScoreEntriesTableTest extends TableTestCase {
 					'app.games',
 						'app.score_entries',
 			'app.settings',
+		'app.i18n',
 	];
 
 	/**

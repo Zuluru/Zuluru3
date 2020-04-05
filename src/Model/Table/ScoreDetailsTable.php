@@ -24,9 +24,9 @@ class ScoreDetailsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('score_details');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('score_details');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Timestamp');
 
@@ -93,7 +93,7 @@ class ScoreDetailsTable extends AppTable {
 
 	public function division($id) {
 		try {
-			return $this->Games->division($this->field('game_id', ['id' => $id]));
+			return $this->Games->division($this->field('game_id', ['ScoreDetails.id' => $id]));
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}
@@ -101,7 +101,7 @@ class ScoreDetailsTable extends AppTable {
 
 	public function team($id) {
 		try {
-			return $this->field('created_team_id', ['id' => $id]);
+			return $this->field('created_team_id', ['ScoreDetails.id' => $id]);
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

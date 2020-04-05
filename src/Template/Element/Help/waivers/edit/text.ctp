@@ -10,7 +10,7 @@ $year = FrozenTime::now()->year;
 		<tr><td>%name%</td><td><?= __('Your organization\'s full name') ?> (<?= Configure::read('organization.name') ?>)</td></tr>
 		<tr><td>%short_name%</td><td><?= __('Your organization\'s short name') ?> (<?= Configure::read('organization.short_name') ?>)</td></tr>
 		<tr><td>%field%</td><td rowspan="4"><?= __('The sport-specific alternative for "field", and the various plural and capitalized versions of this word ({0}/{1}/{2}/{3})',
-				__(Configure::read('UI.field')), __(Configure::read('UI.fields')), __(Configure::read('UI.field_cap')), __(Configure::read('UI.fields_cap'))) ?></td></tr>
+				Configure::read('UI.field'), Configure::read('UI.fields'), Configure::read('UI.field_cap'), Configure::read('UI.fields_cap')) ?></td></tr>
 		<tr><td>%fields%</td></tr>
 		<tr><td>%Field%</td></tr>
 		<tr><td>%Fields%</td></tr>

@@ -232,7 +232,6 @@ class ZuluruHtmlHelper extends HtmlHelper {
 					}
 				}
 
-				// TODOSECOND: Test that this works when the string is already translated by the caller. We want the translation done there, so that the i18n extractor picks it up.
 				$message = __($message['format'], $message['replacements']);
 			} else if (!empty($message['AND'])) {
 				foreach ($message['AND'] as $key => $value) {

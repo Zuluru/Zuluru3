@@ -6,21 +6,21 @@ use Migrations\AbstractSeed;
  */
 class StatTypesSeed extends AbstractSeed {
 	/**
-	 * Run Method.
+	 * Data Method.
 	 *
-	 * @return void
+	 * @return mixed
 	 */
-	public function run() {
-		$data = [
+	public function data() {
+		return [
 			/**
 			 * Ultimate stats
 			 */
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Games Played',
+				'name' => __d('seeds', 'Games Played'),
 				'internal_name' => 'Games Played',
-				'abbr' => 'GP',
+				'abbr' => __dx('seeds', 'stats', 'GP'),
 				'sort' => 10,
 				'class' => 'stat_games',
 				'type' => 'season_calc',
@@ -29,9 +29,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Wins',
+				'name' => __d('seeds', 'Wins'),
 				'internal_name' => 'Wins',
-				'abbr' => 'W',
+				'abbr' => __dx('seeds', 'stats', 'W'),
 				'sort' => 20,
 				'class' => 'stat_games',
 				'type' => 'game_calc',
@@ -40,9 +40,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Wins',
+				'name' => __d('seeds', 'Wins'),
 				'internal_name' => 'Wins',
-				'abbr' => 'W',
+				'abbr' => __dx('seeds', 'stats', 'W'),
 				'sort' => 20,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -52,9 +52,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Losses',
+				'name' => __d('seeds', 'Losses'),
 				'internal_name' => 'Losses',
-				'abbr' => 'L',
+				'abbr' => __dx('seeds', 'stats', 'L'),
 				'sort' => 30,
 				'class' => 'stat_games',
 				'type' => 'game_calc',
@@ -63,9 +63,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Losses',
+				'name' => __d('seeds', 'Losses'),
 				'internal_name' => 'Losses',
-				'abbr' => 'L',
+				'abbr' => __dx('seeds', 'stats', 'L'),
 				'sort' => 30,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -75,9 +75,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Ties',
+				'name' => __d('seeds', 'Ties'),
 				'internal_name' => 'Ties',
-				'abbr' => 'T',
+				'abbr' => __dx('seeds', 'stats', 'T'),
 				'sort' => 40,
 				'class' => 'stat_games',
 				'type' => 'game_calc',
@@ -86,9 +86,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Ties',
+				'name' => __d('seeds', 'Ties'),
 				'internal_name' => 'Ties',
-				'abbr' => 'T',
+				'abbr' => __dx('seeds', 'stats', 'T'),
 				'sort' => 40,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -98,9 +98,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Win Percent',
+				'name' => __d('seeds', 'Win Percent'),
 				'internal_name' => 'Win Percent',
-				'abbr' => 'W%',
+				'abbr' => __dx('seeds', 'stats', 'W%'),
 				'sort' => 50,
 				'class' => 'stat_games',
 				'type' => 'season_calc',
@@ -109,9 +109,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Goals',
+				'name' => __d('seeds', 'Goals'),
 				'internal_name' => 'Goals',
-				'abbr' => 'G',
+				'abbr' => __dx('seeds', 'stats', 'G'),
 				'sort' => 100,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -120,9 +120,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Goals',
+				'name' => __d('seeds', 'Goals'),
 				'internal_name' => 'Goals',
-				'abbr' => 'G',
+				'abbr' => __dx('seeds', 'stats', 'G'),
 				'sort' => 100,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -131,9 +131,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Goals per Game',
+				'name' => __d('seeds', 'Goals per Game'),
 				'internal_name' => 'Goals per Game',
-				'abbr' => 'GPG',
+				'abbr' => __dx('seeds', 'stats', 'GPG'),
 				'sort' => 200,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -142,9 +142,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Assists',
+				'name' => __d('seeds', 'Assists'),
 				'internal_name' => 'Assists',
-				'abbr' => 'A',
+				'abbr' => __dx('seeds', 'stats', 'A'),
 				'sort' => 110,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -153,9 +153,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Assists',
+				'name' => __d('seeds', 'Assists'),
 				'internal_name' => 'Assists',
-				'abbr' => 'A',
+				'abbr' => __dx('seeds', 'stats', 'A'),
 				'sort' => 110,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -164,9 +164,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Assists per Game',
+				'name' => __d('seeds', 'Assists per Game'),
 				'internal_name' => 'Assists per Game',
-				'abbr' => 'APG',
+				'abbr' => __dx('seeds', 'stats', 'APG'),
 				'sort' => 200,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -175,9 +175,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Second Assists',
+				'name' => __d('seeds', 'Second Assists'),
 				'internal_name' => 'Second Assists',
-				'abbr' => '2A',
+				'abbr' => __dx('seeds', 'stats', '2A'),
 				'sort' => 120,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -186,9 +186,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Second Assists',
+				'name' => __d('seeds', 'Second Assists'),
 				'internal_name' => 'Second Assists',
-				'abbr' => '2A',
+				'abbr' => __dx('seeds', 'stats', '2A'),
 				'sort' => 120,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -197,9 +197,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Second Assists per Game',
+				'name' => __d('seeds', 'Second Assists per Game'),
 				'internal_name' => 'Second Assists per Game',
-				'abbr' => '2APG',
+				'abbr' => __dx('seeds', 'stats', '2APG'),
 				'sort' => 220,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -208,9 +208,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Points',
+				'name' => __d('seeds', 'Points'),
 				'internal_name' => 'Points',
-				'abbr' => 'P',
+				'abbr' => __dx('seeds', 'stats', 'P'),
 				'sort' => 130,
 				'class' => 'stat_game',
 				'type' => 'game_calc',
@@ -219,9 +219,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Points',
+				'name' => __d('seeds', 'Points'),
 				'internal_name' => 'Points',
-				'abbr' => 'P',
+				'abbr' => __dx('seeds', 'stats', 'P'),
 				'sort' => 130,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -230,9 +230,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Points per Game',
+				'name' => __d('seeds', 'Points per Game'),
 				'internal_name' => 'Points per Game',
-				'abbr' => 'PPG',
+				'abbr' => __dx('seeds', 'stats', 'PPG'),
 				'sort' => 230,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -241,9 +241,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'D\'s',
+				'name' => __d('seeds', 'D\'s'),
 				'internal_name' => 'D\'s',
-				'abbr' => 'Ds',
+				'abbr' => __dx('seeds', 'stats', 'Ds'),
 				'sort' => 140,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -251,9 +251,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'D\'s',
+				'name' => __d('seeds', 'D\'s'),
 				'internal_name' => 'D\'s',
-				'abbr' => 'Ds',
+				'abbr' => __dx('seeds', 'stats', 'Ds'),
 				'sort' => 140,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -262,9 +262,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'D\'s per Game',
+				'name' => __d('seeds', 'D\'s per Game'),
 				'internal_name' => 'D\'s per Game',
-				'abbr' => 'DsPG',
+				'abbr' => __dx('seeds', 'stats', 'DsPG'),
 				'sort' => 240,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -273,9 +273,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Throwaways',
+				'name' => __d('seeds', 'Throwaways'),
 				'internal_name' => 'Throwaways',
-				'abbr' => 'TA',
+				'abbr' => __dx('seeds', 'stats', 'TA'),
 				'sort' => 150,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -283,9 +283,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Throwaways',
+				'name' => __d('seeds', 'Throwaways'),
 				'internal_name' => 'Throwaways',
-				'abbr' => 'TA',
+				'abbr' => __dx('seeds', 'stats', 'TA'),
 				'sort' => 150,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -294,9 +294,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Throwaways per Game',
+				'name' => __d('seeds', 'Throwaways per Game'),
 				'internal_name' => 'Throwaways per Game',
-				'abbr' => 'TAPG',
+				'abbr' => __dx('seeds', 'stats', 'TAPG'),
 				'sort' => 250,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -305,9 +305,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Drops',
+				'name' => __d('seeds', 'Drops'),
 				'internal_name' => 'Drops',
-				'abbr' => 'Dr',
+				'abbr' => __dx('seeds', 'stats', 'Dr'),
 				'sort' => 160,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -315,9 +315,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Drops',
+				'name' => __d('seeds', 'Drops'),
 				'internal_name' => 'Drops',
-				'abbr' => 'Dr',
+				'abbr' => __dx('seeds', 'stats', 'Dr'),
 				'sort' => 160,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -326,9 +326,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Drops per Game',
+				'name' => __d('seeds', 'Drops per Game'),
 				'internal_name' => 'Drops per Game',
-				'abbr' => 'DrPG',
+				'abbr' => __dx('seeds', 'stats', 'DrPG'),
 				'sort' => 260,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -337,9 +337,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Turnovers',
+				'name' => __d('seeds', 'Turnovers'),
 				'internal_name' => 'Turnovers',
-				'abbr' => 'TO',
+				'abbr' => __dx('seeds', 'stats', 'TO'),
 				'sort' => 170,
 				'class' => 'stat_game',
 				'type' => 'game_calc',
@@ -348,9 +348,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Turnovers',
+				'name' => __d('seeds', 'Turnovers'),
 				'internal_name' => 'Turnovers',
-				'abbr' => 'TO',
+				'abbr' => __dx('seeds', 'stats', 'TO'),
 				'sort' => 170,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -359,9 +359,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Turnovers per Game',
+				'name' => __d('seeds', 'Turnovers per Game'),
 				'internal_name' => 'Turnovers per Game',
-				'abbr' => 'TOPG',
+				'abbr' => __dx('seeds', 'stats', 'TOPG'),
 				'sort' => 270,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -370,9 +370,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'ultimate',
-				'name' => 'Salary',
+				'name' => __d('seeds', 'Salary'),
 				'internal_name' => 'Salary',
-				'abbr' => '$',
+				'abbr' => __dx('seeds', 'stats', '$'),
 				'sort' => 300,
 				'class' => 'stat_season',
 				'type' => 'season_calc',
@@ -385,9 +385,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Games Played',
+				'name' => __d('seeds', 'Games Played'),
 				'internal_name' => 'Games Played',
-				'abbr' => 'GP',
+				'abbr' => __dx('seeds', 'stats', 'GP'),
 				'sort' => 10,
 				'class' => 'stat_games',
 				'type' => 'season_calc',
@@ -396,9 +396,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'At Bats',
+				'name' => __d('seeds', 'At Bats'),
 				'internal_name' => 'At Bats',
-				'abbr' => 'AB',
+				'abbr' => __dx('seeds', 'stats', 'AB'),
 				'sort' => 100,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -406,9 +406,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'At Bats',
+				'name' => __d('seeds', 'At Bats'),
 				'internal_name' => 'At Bats',
-				'abbr' => 'AB',
+				'abbr' => __dx('seeds', 'stats', 'AB'),
 				'sort' => 100,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -417,9 +417,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Singles',
+				'name' => __d('seeds', 'Singles'),
 				'internal_name' => 'Singles',
-				'abbr' => '1B',
+				'abbr' => __dx('seeds', 'stats', '1B'),
 				'sort' => 110,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -427,9 +427,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Singles',
+				'name' => __d('seeds', 'Singles'),
 				'internal_name' => 'Singles',
-				'abbr' => '1B',
+				'abbr' => __dx('seeds', 'stats', '1B'),
 				'sort' => 110,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -438,9 +438,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Doubles',
+				'name' => __d('seeds', 'Doubles'),
 				'internal_name' => 'Doubles',
-				'abbr' => '2B',
+				'abbr' => __dx('seeds', 'stats', '2B'),
 				'sort' => 120,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -448,9 +448,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Doubles',
+				'name' => __d('seeds', 'Doubles'),
 				'internal_name' => 'Doubles',
-				'abbr' => '2B',
+				'abbr' => __dx('seeds', 'stats', '2B'),
 				'sort' => 120,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -459,9 +459,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Triples',
+				'name' => __d('seeds', 'Triples'),
 				'internal_name' => 'Triples',
-				'abbr' => '3B',
+				'abbr' => __dx('seeds', 'stats', '3B'),
 				'sort' => 130,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -469,9 +469,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Triples',
+				'name' => __d('seeds', 'Triples'),
 				'internal_name' => 'Triples',
-				'abbr' => '3B',
+				'abbr' => __dx('seeds', 'stats', '3B'),
 				'sort' => 130,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -480,9 +480,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Home Runs',
+				'name' => __d('seeds', 'Home Runs'),
 				'internal_name' => 'Home Runs',
-				'abbr' => 'HR',
+				'abbr' => __dx('seeds', 'stats', 'HR'),
 				'sort' => 140,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -490,9 +490,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Home Runs',
+				'name' => __d('seeds', 'Home Runs'),
 				'internal_name' => 'Home Runs',
-				'abbr' => 'HR',
+				'abbr' => __dx('seeds', 'stats', 'HR'),
 				'sort' => 140,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -501,9 +501,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Hits',
+				'name' => __d('seeds', 'Hits'),
 				'internal_name' => 'Hits',
-				'abbr' => 'H',
+				'abbr' => __dx('seeds', 'stats', 'H'),
 				'sort' => 150,
 				'class' => 'stat_games',
 				'type' => 'game_calc',
@@ -512,9 +512,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Hits',
+				'name' => __d('seeds', 'Hits'),
 				'internal_name' => 'Hits',
-				'abbr' => 'H',
+				'abbr' => __dx('seeds', 'stats', 'H'),
 				'sort' => 150,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -523,9 +523,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Walks',
+				'name' => __d('seeds', 'Walks'),
 				'internal_name' => 'Walks',
-				'abbr' => 'BB',
+				'abbr' => __dx('seeds', 'stats', 'BB'),
 				'sort' => 160,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -533,9 +533,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Walks',
+				'name' => __d('seeds', 'Walks'),
 				'internal_name' => 'Walks',
-				'abbr' => 'BB',
+				'abbr' => __dx('seeds', 'stats', 'BB'),
 				'sort' => 160,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -544,9 +544,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Hit By Pitch',
+				'name' => __d('seeds', 'Hit By Pitch'),
 				'internal_name' => 'Hit By Pitch',
-				'abbr' => 'HBP',
+				'abbr' => __dx('seeds', 'stats', 'HBP'),
 				'sort' => 170,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -554,9 +554,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Hit By Pitch',
+				'name' => __d('seeds', 'Hit By Pitch'),
 				'internal_name' => 'Hit By Pitch',
-				'abbr' => 'HBP',
+				'abbr' => __dx('seeds', 'stats', 'HBP'),
 				'sort' => 170,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -565,9 +565,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Sacrifice Flies',
+				'name' => __d('seeds', 'Sacrifice Flies'),
 				'internal_name' => 'Sacrifice Flies',
-				'abbr' => 'SF',
+				'abbr' => __dx('seeds', 'stats', 'SF'),
 				'sort' => 180,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -575,9 +575,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Sacrifice Flies',
+				'name' => __d('seeds', 'Sacrifice Flies'),
 				'internal_name' => 'Sacrifice Flies',
-				'abbr' => 'SF',
+				'abbr' => __dx('seeds', 'stats', 'SF'),
 				'sort' => 180,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -586,9 +586,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Strikeouts',
+				'name' => __d('seeds', 'Strikeouts'),
 				'internal_name' => 'Strikeouts',
-				'abbr' => 'K',
+				'abbr' => __dx('seeds', 'stats', 'K'),
 				'sort' => 190,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -596,9 +596,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Strikeouts',
+				'name' => __d('seeds', 'Strikeouts'),
 				'internal_name' => 'Strikeouts',
-				'abbr' => 'K',
+				'abbr' => __dx('seeds', 'stats', 'K'),
 				'sort' => 190,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -607,9 +607,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Runs Batted In',
+				'name' => __d('seeds', 'Runs Batted In'),
 				'internal_name' => 'Runs Batted In',
-				'abbr' => 'RBI',
+				'abbr' => __dx('seeds', 'stats', 'RBI'),
 				'sort' => 200,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -618,9 +618,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Runs Batted In',
+				'name' => __d('seeds', 'Runs Batted In'),
 				'internal_name' => 'Runs Batted In',
-				'abbr' => 'RBI',
+				'abbr' => __dx('seeds', 'stats', 'RBI'),
 				'sort' => 200,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -629,9 +629,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Runs Scored',
+				'name' => __d('seeds', 'Runs Scored'),
 				'internal_name' => 'Runs Scored',
-				'abbr' => 'R',
+				'abbr' => __dx('seeds', 'stats', 'R'),
 				'sort' => 210,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -640,9 +640,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Runs Scored',
+				'name' => __d('seeds', 'Runs Scored'),
 				'internal_name' => 'Runs Scored',
-				'abbr' => 'R',
+				'abbr' => __dx('seeds', 'stats', 'R'),
 				'sort' => 210,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -651,9 +651,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Stolen Bases',
+				'name' => __d('seeds', 'Stolen Bases'),
 				'internal_name' => 'Stolen Bases',
-				'abbr' => 'SB',
+				'abbr' => __dx('seeds', 'stats', 'SB'),
 				'sort' => 220,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -661,9 +661,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Stolen Bases',
+				'name' => __d('seeds', 'Stolen Bases'),
 				'internal_name' => 'Stolen Bases',
-				'abbr' => 'SB',
+				'abbr' => __dx('seeds', 'stats', 'SB'),
 				'sort' => 220,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -672,9 +672,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Batting Average',
+				'name' => __d('seeds', 'Batting Average'),
 				'internal_name' => 'Batting Average',
-				'abbr' => 'BA',
+				'abbr' => __dx('seeds', 'stats', 'BA'),
 				'sort' => 300,
 				'class' => 'stat_games',
 				'type' => 'season_calc',
@@ -683,9 +683,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'On-base Percentage',
+				'name' => __d('seeds', 'On-base Percentage'),
 				'internal_name' => 'On-base Percentage',
-				'abbr' => 'OBP',
+				'abbr' => __dx('seeds', 'stats', 'OBP'),
 				'sort' => 310,
 				'class' => 'stat_games',
 				'type' => 'season_calc',
@@ -694,9 +694,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'Slugging Average',
+				'name' => __d('seeds', 'Slugging Average'),
 				'internal_name' => 'Slugging Average',
-				'abbr' => 'SLG',
+				'abbr' => __dx('seeds', 'stats', 'SLG'),
 				'sort' => 320,
 				'class' => 'stat_games',
 				'type' => 'season_calc',
@@ -705,9 +705,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'baseball',
-				'name' => 'On-base plus slugging',
+				'name' => __d('seeds', 'On-base plus slugging'),
 				'internal_name' => 'On-base plus slugging',
-				'abbr' => 'OPS',
+				'abbr' => __dx('seeds', 'stats', 'OPS'),
 				'sort' => 330,
 				'class' => 'stat_games',
 				'type' => 'season_calc',
@@ -717,9 +717,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'baseball',
 				'positions' => '!designatedhitter',
-				'name' => 'Errors',
+				'name' => __d('seeds', 'Errors'),
 				'internal_name' => 'Errors',
-				'abbr' => 'E',
+				'abbr' => __dx('seeds', 'stats', 'E'),
 				'sort' => 400,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -728,9 +728,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'baseball',
 				'positions' => '!designatedhitter',
-				'name' => 'Errors',
+				'name' => __d('seeds', 'Errors'),
 				'internal_name' => 'Errors',
-				'abbr' => 'E',
+				'abbr' => __dx('seeds', 'stats', 'E'),
 				'sort' => 400,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -740,9 +740,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'baseball',
 				'positions' => 'pitcher',
-				'name' => 'Wins',
+				'name' => __d('seeds', 'Wins'),
 				'internal_name' => 'Wins',
-				'abbr' => 'W',
+				'abbr' => __dx('seeds', 'stats', 'W'),
 				'sort' => 500,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -751,9 +751,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'baseball',
 				'positions' => 'pitcher',
-				'name' => 'Wins',
+				'name' => __d('seeds', 'Wins'),
 				'internal_name' => 'Wins',
-				'abbr' => 'W',
+				'abbr' => __dx('seeds', 'stats', 'W'),
 				'sort' => 500,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -763,9 +763,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'baseball',
 				'positions' => 'pitcher',
-				'name' => 'Losses',
+				'name' => __d('seeds', 'Losses'),
 				'internal_name' => 'Losses',
-				'abbr' => 'L',
+				'abbr' => __dx('seeds', 'stats', 'L'),
 				'sort' => 510,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -774,9 +774,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'baseball',
 				'positions' => 'pitcher',
-				'name' => 'Losses',
+				'name' => __d('seeds', 'Losses'),
 				'internal_name' => 'Losses',
-				'abbr' => 'L',
+				'abbr' => __dx('seeds', 'stats', 'L'),
 				'sort' => 510,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -786,9 +786,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'baseball',
 				'positions' => 'pitcher',
-				'name' => 'Ties',
+				'name' => __d('seeds', 'Ties'),
 				'internal_name' => 'Ties',
-				'abbr' => 'T',
+				'abbr' => __dx('seeds', 'stats', 'T'),
 				'sort' => 520,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -797,9 +797,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'baseball',
 				'positions' => 'pitcher',
-				'name' => 'Ties',
+				'name' => __d('seeds', 'Ties'),
 				'internal_name' => 'Ties',
-				'abbr' => 'T',
+				'abbr' => __dx('seeds', 'stats', 'T'),
 				'sort' => 520,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -809,9 +809,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'baseball',
 				'positions' => 'pitcher',
-				'name' => 'Complete Games',
+				'name' => __d('seeds', 'Complete Games'),
 				'internal_name' => 'Complete Games',
-				'abbr' => 'CG',
+				'abbr' => __dx('seeds', 'stats', 'CG'),
 				'sort' => 530,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -820,9 +820,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'baseball',
 				'positions' => 'pitcher',
-				'name' => 'Complete Games',
+				'name' => __d('seeds', 'Complete Games'),
 				'internal_name' => 'Complete Games',
-				'abbr' => 'CG',
+				'abbr' => __dx('seeds', 'stats', 'CG'),
 				'sort' => 530,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -832,9 +832,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'baseball',
 				'positions' => 'pitcher',
-				'name' => 'Innings Pitched',
+				'name' => __d('seeds', 'Innings Pitched'),
 				'internal_name' => 'Innings Pitched',
-				'abbr' => 'IP',
+				'abbr' => __dx('seeds', 'stats', 'IP'),
 				'sort' => 540,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -844,9 +844,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'baseball',
 				'positions' => 'pitcher',
-				'name' => 'Innings Pitched',
+				'name' => __d('seeds', 'Innings Pitched'),
 				'internal_name' => 'Innings Pitched',
-				'abbr' => 'IP',
+				'abbr' => __dx('seeds', 'stats', 'IP'),
 				'sort' => 540,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -858,9 +858,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'baseball',
 				'positions' => 'pitcher',
-				'name' => 'Hits',
+				'name' => __d('seeds', 'Hits'),
 				'internal_name' => 'Pitcher Hits',
-				'abbr' => 'H',
+				'abbr' => __dx('seeds', 'stats', 'H'),
 				'sort' => 600,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -869,9 +869,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'baseball',
 				'positions' => 'pitcher',
-				'name' => 'Hits',
+				'name' => __d('seeds', 'Hits'),
 				'internal_name' => 'Pitcher Hits',
-				'abbr' => 'H',
+				'abbr' => __dx('seeds', 'stats', 'H'),
 				'sort' => 600,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -881,9 +881,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'baseball',
 				'positions' => 'pitcher',
-				'name' => 'Walks',
+				'name' => __d('seeds', 'Walks'),
 				'internal_name' => 'Pitcher Walks',
-				'abbr' => 'BB',
+				'abbr' => __dx('seeds', 'stats', 'BB'),
 				'sort' => 610,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -892,9 +892,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'baseball',
 				'positions' => 'pitcher',
-				'name' => 'Walks',
+				'name' => __d('seeds', 'Walks'),
 				'internal_name' => 'Pitcher Walks',
-				'abbr' => 'BB',
+				'abbr' => __dx('seeds', 'stats', 'BB'),
 				'sort' => 610,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -904,9 +904,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'baseball',
 				'positions' => 'pitcher',
-				'name' => 'Strikeouts',
+				'name' => __d('seeds', 'Strikeouts'),
 				'internal_name' => 'Pitcher Strikeouts',
-				'abbr' => 'K',
+				'abbr' => __dx('seeds', 'stats', 'K'),
 				'sort' => 620,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -915,9 +915,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'baseball',
 				'positions' => 'pitcher',
-				'name' => 'Strikeouts',
+				'name' => __d('seeds', 'Strikeouts'),
 				'internal_name' => 'Pitcher Strikeouts',
-				'abbr' => 'K',
+				'abbr' => __dx('seeds', 'stats', 'K'),
 				'sort' => 620,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -927,9 +927,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'baseball',
 				'positions' => 'pitcher',
-				'name' => 'Earned Runs',
+				'name' => __d('seeds', 'Earned Runs'),
 				'internal_name' => 'Earned Runs',
-				'abbr' => 'ER',
+				'abbr' => __dx('seeds', 'stats', 'ER'),
 				'sort' => 630,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -939,9 +939,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'baseball',
 				'positions' => 'pitcher',
-				'name' => 'Earned Run Average',
+				'name' => __d('seeds', 'Earned Run Average'),
 				'internal_name' => 'Earned Run Average',
-				'abbr' => 'ERA',
+				'abbr' => __dx('seeds', 'stats', 'ERA'),
 				'sort' => 640,
 				'class' => 'stat_games',
 				'type' => 'season_calc',
@@ -954,9 +954,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Games Played',
+				'name' => __d('seeds', 'Games Played'),
 				'internal_name' => 'Games Played',
-				'abbr' => 'GP',
+				'abbr' => __dx('seeds', 'stats', 'GP'),
 				'sort' => 10,
 				'class' => 'stat_games',
 				'type' => 'season_calc',
@@ -965,9 +965,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Started',
+				'name' => __d('seeds', 'Started'),
 				'internal_name' => 'Started',
-				'abbr' => 'GS',
+				'abbr' => __dx('seeds', 'stats', 'GS'),
 				'sort' => 20,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -975,9 +975,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Games Started',
+				'name' => __d('seeds', 'Games Started'),
 				'internal_name' => 'Games Started',
-				'abbr' => 'GS',
+				'abbr' => __dx('seeds', 'stats', 'GS'),
 				'sort' => 20,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -987,9 +987,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Wins',
+				'name' => __d('seeds', 'Wins'),
 				'internal_name' => 'Wins',
-				'abbr' => 'W',
+				'abbr' => __dx('seeds', 'stats', 'W'),
 				'sort' => 30,
 				'class' => 'stat_games',
 				'type' => 'game_calc',
@@ -998,9 +998,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Wins',
+				'name' => __d('seeds', 'Wins'),
 				'internal_name' => 'Wins',
-				'abbr' => 'W',
+				'abbr' => __dx('seeds', 'stats', 'W'),
 				'sort' => 30,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -1010,9 +1010,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Losses',
+				'name' => __d('seeds', 'Losses'),
 				'internal_name' => 'Losses',
-				'abbr' => 'L',
+				'abbr' => __dx('seeds', 'stats', 'L'),
 				'sort' => 40,
 				'class' => 'stat_games',
 				'type' => 'game_calc',
@@ -1021,9 +1021,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Losses',
+				'name' => __d('seeds', 'Losses'),
 				'internal_name' => 'Losses',
-				'abbr' => 'L',
+				'abbr' => __dx('seeds', 'stats', 'L'),
 				'sort' => 40,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -1033,9 +1033,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Ties',
+				'name' => __d('seeds', 'Ties'),
 				'internal_name' => 'Ties',
-				'abbr' => 'T',
+				'abbr' => __dx('seeds', 'stats', 'T'),
 				'sort' => 50,
 				'class' => 'stat_games',
 				'type' => 'game_calc',
@@ -1044,9 +1044,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Ties',
+				'name' => __d('seeds', 'Ties'),
 				'internal_name' => 'Ties',
-				'abbr' => 'T',
+				'abbr' => __dx('seeds', 'stats', 'T'),
 				'sort' => 50,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -1056,9 +1056,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Win Percent',
+				'name' => __d('seeds', 'Win Percent'),
 				'internal_name' => 'Win Percent',
-				'abbr' => 'W%',
+				'abbr' => __dx('seeds', 'stats', 'W%'),
 				'sort' => 60,
 				'class' => 'stat_games',
 				'type' => 'season_calc',
@@ -1067,9 +1067,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Points',
+				'name' => __d('seeds', 'Points'),
 				'internal_name' => 'Points',
-				'abbr' => 'PTS',
+				'abbr' => __dx('seeds', 'stats', 'PTS'),
 				'sort' => 100,
 				'class' => 'stat_game',
 				'type' => 'game_calc',
@@ -1078,9 +1078,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Points',
+				'name' => __d('seeds', 'Points'),
 				'internal_name' => 'Points',
-				'abbr' => 'PTS',
+				'abbr' => __dx('seeds', 'stats', 'PTS'),
 				'sort' => 100,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -1089,9 +1089,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Points per Game',
+				'name' => __d('seeds', 'Points per Game'),
 				'internal_name' => 'Points per Game',
-				'abbr' => 'PPG',
+				'abbr' => __dx('seeds', 'stats', 'PPG'),
 				'sort' => 200,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -1100,9 +1100,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Field Goals Made',
+				'name' => __d('seeds', 'Field Goals Made'),
 				'internal_name' => 'Field Goals Made',
-				'abbr' => 'FGM',
+				'abbr' => __dx('seeds', 'stats', 'FGM'),
 				'sort' => 110,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -1110,9 +1110,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Field Goals Made',
+				'name' => __d('seeds', 'Field Goals Made'),
 				'internal_name' => 'Field Goals Made',
-				'abbr' => 'FGM',
+				'abbr' => __dx('seeds', 'stats', 'FGM'),
 				'sort' => 110,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -1121,9 +1121,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Field Goals Attempted',
+				'name' => __d('seeds', 'Field Goals Attempted'),
 				'internal_name' => 'Field Goals Attempted',
-				'abbr' => 'FGA',
+				'abbr' => __dx('seeds', 'stats', 'FGA'),
 				'sort' => 111,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -1131,9 +1131,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Field Goals Attempted',
+				'name' => __d('seeds', 'Field Goals Attempted'),
 				'internal_name' => 'Field Goals Attempted',
-				'abbr' => 'FGA',
+				'abbr' => __dx('seeds', 'stats', 'FGA'),
 				'sort' => 111,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -1142,9 +1142,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Field Goal Percent',
+				'name' => __d('seeds', 'Field Goal Percent'),
 				'internal_name' => 'Field Goal Percent',
-				'abbr' => 'FG%',
+				'abbr' => __dx('seeds', 'stats', 'FG%'),
 				'sort' => 210,
 				'class' => 'stat_game',
 				'type' => 'game_calc',
@@ -1154,9 +1154,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Field Goal Percent',
+				'name' => __d('seeds', 'Field Goal Percent'),
 				'internal_name' => 'Field Goal Percent',
-				'abbr' => 'FG%',
+				'abbr' => __dx('seeds', 'stats', 'FG%'),
 				'sort' => 210,
 				'class' => 'stat_total',
 				'type' => 'season_calc',
@@ -1165,9 +1165,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Free Throws Made',
+				'name' => __d('seeds', 'Free Throws Made'),
 				'internal_name' => 'Free Throws Made',
-				'abbr' => 'FGM',
+				'abbr' => __dx('seeds', 'stats', 'FGM'),
 				'sort' => 120,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -1175,9 +1175,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Free Throws Made',
+				'name' => __d('seeds', 'Free Throws Made'),
 				'internal_name' => 'Free Throws Made',
-				'abbr' => 'FGM',
+				'abbr' => __dx('seeds', 'stats', 'FGM'),
 				'sort' => 120,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -1186,9 +1186,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Free Throws Attempted',
+				'name' => __d('seeds', 'Free Throws Attempted'),
 				'internal_name' => 'Free Throws Attempted',
-				'abbr' => 'FGA',
+				'abbr' => __dx('seeds', 'stats', 'FGA'),
 				'sort' => 121,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -1196,9 +1196,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Free Throws Attempted',
+				'name' => __d('seeds', 'Free Throws Attempted'),
 				'internal_name' => 'Free Throws Attempted',
-				'abbr' => 'FGA',
+				'abbr' => __dx('seeds', 'stats', 'FGA'),
 				'sort' => 121,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -1207,9 +1207,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Free Throw Percent',
+				'name' => __d('seeds', 'Free Throw Percent'),
 				'internal_name' => 'Free Throw Percent',
-				'abbr' => 'FT%',
+				'abbr' => __dx('seeds', 'stats', 'FT%'),
 				'sort' => 220,
 				'class' => 'stat_game',
 				'type' => 'game_calc',
@@ -1219,9 +1219,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Free Throw Percent',
+				'name' => __d('seeds', 'Free Throw Percent'),
 				'internal_name' => 'Free Throw Percent',
-				'abbr' => 'FT%',
+				'abbr' => __dx('seeds', 'stats', 'FT%'),
 				'sort' => 220,
 				'class' => 'stat_total',
 				'type' => 'season_calc',
@@ -1230,9 +1230,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Three-point Field Goals Made',
+				'name' => __d('seeds', 'Three-point Field Goals Made'),
 				'internal_name' => 'Three-point Field Goals Made',
-				'abbr' => '3FGM',
+				'abbr' => __dx('seeds', 'stats', '3FGM'),
 				'sort' => 130,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -1240,9 +1240,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Three-point Field Goals Made',
+				'name' => __d('seeds', 'Three-point Field Goals Made'),
 				'internal_name' => 'Three-point Field Goals Made',
-				'abbr' => '3FGM',
+				'abbr' => __dx('seeds', 'stats', '3FGM'),
 				'sort' => 130,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -1251,9 +1251,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Three-point Field Goals Attempted',
+				'name' => __d('seeds', 'Three-point Field Goals Attempted'),
 				'internal_name' => 'Three-point Field Goals Attempted',
-				'abbr' => '3FGA',
+				'abbr' => __dx('seeds', 'stats', '3FGA'),
 				'sort' => 131,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -1261,9 +1261,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Three-point Field Goals Attempted',
+				'name' => __d('seeds', 'Three-point Field Goals Attempted'),
 				'internal_name' => 'Three-point Field Goals Attempted',
-				'abbr' => '3FGA',
+				'abbr' => __dx('seeds', 'stats', '3FGA'),
 				'sort' => 131,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -1272,9 +1272,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Three-point Field Goal Percent',
+				'name' => __d('seeds', 'Three-point Field Goal Percent'),
 				'internal_name' => 'Three-point Field Goal Percent',
-				'abbr' => '3FG%',
+				'abbr' => __dx('seeds', 'stats', '3FG%'),
 				'sort' => 230,
 				'class' => 'stat_game',
 				'type' => 'game_calc',
@@ -1284,9 +1284,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Three-point Field Goal Percent',
+				'name' => __d('seeds', 'Three-point Field Goal Percent'),
 				'internal_name' => 'Three-point Field Goal Percent',
-				'abbr' => '3FG%',
+				'abbr' => __dx('seeds', 'stats', '3FG%'),
 				'sort' => 230,
 				'class' => 'stat_total',
 				'type' => 'season_calc',
@@ -1295,9 +1295,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Offensive Rebounds',
+				'name' => __d('seeds', 'Offensive Rebounds'),
 				'internal_name' => 'Offensive Rebounds',
-				'abbr' => 'OREB',
+				'abbr' => __dx('seeds', 'stats', 'OREB'),
 				'sort' => 140,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -1305,9 +1305,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Offensive Rebounds',
+				'name' => __d('seeds', 'Offensive Rebounds'),
 				'internal_name' => 'Offensive Rebounds',
-				'abbr' => 'OREB',
+				'abbr' => __dx('seeds', 'stats', 'OREB'),
 				'sort' => 140,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -1316,9 +1316,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Defensive Rebounds',
+				'name' => __d('seeds', 'Defensive Rebounds'),
 				'internal_name' => 'Defensive Rebounds',
-				'abbr' => 'DREB',
+				'abbr' => __dx('seeds', 'stats', 'DREB'),
 				'sort' => 141,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -1326,9 +1326,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Defensive Rebounds',
+				'name' => __d('seeds', 'Defensive Rebounds'),
 				'internal_name' => 'Defensive Rebounds',
-				'abbr' => 'DREB',
+				'abbr' => __dx('seeds', 'stats', 'DREB'),
 				'sort' => 141,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -1337,9 +1337,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Rebounds',
+				'name' => __d('seeds', 'Rebounds'),
 				'internal_name' => 'Rebounds',
-				'abbr' => 'REB',
+				'abbr' => __dx('seeds', 'stats', 'REB'),
 				'sort' => 145,
 				'class' => 'stat_game',
 				'type' => 'game_calc',
@@ -1348,9 +1348,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Rebounds',
+				'name' => __d('seeds', 'Rebounds'),
 				'internal_name' => 'Rebounds',
-				'abbr' => 'REB',
+				'abbr' => __dx('seeds', 'stats', 'REB'),
 				'sort' => 145,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -1359,9 +1359,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Rebounds per Game',
+				'name' => __d('seeds', 'Rebounds per Game'),
 				'internal_name' => 'Rebounds per Game',
-				'abbr' => 'RPG',
+				'abbr' => __dx('seeds', 'stats', 'RPG'),
 				'sort' => 245,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -1370,9 +1370,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Assists',
+				'name' => __d('seeds', 'Assists'),
 				'internal_name' => 'Assists',
-				'abbr' => 'AST',
+				'abbr' => __dx('seeds', 'stats', 'AST'),
 				'sort' => 150,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -1380,9 +1380,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Assists',
+				'name' => __d('seeds', 'Assists'),
 				'internal_name' => 'Assists',
-				'abbr' => 'AST',
+				'abbr' => __dx('seeds', 'stats', 'AST'),
 				'sort' => 150,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -1391,9 +1391,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Assists per Game',
+				'name' => __d('seeds', 'Assists per Game'),
 				'internal_name' => 'Assists per Game',
-				'abbr' => 'APG',
+				'abbr' => __dx('seeds', 'stats', 'APG'),
 				'sort' => 250,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -1402,9 +1402,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Steals',
+				'name' => __d('seeds', 'Steals'),
 				'internal_name' => 'Steals',
-				'abbr' => 'STL',
+				'abbr' => __dx('seeds', 'stats', 'STL'),
 				'sort' => 160,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -1412,9 +1412,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Steals',
+				'name' => __d('seeds', 'Steals'),
 				'internal_name' => 'Steals',
-				'abbr' => 'STL',
+				'abbr' => __dx('seeds', 'stats', 'STL'),
 				'sort' => 160,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -1423,9 +1423,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Steals per Game',
+				'name' => __d('seeds', 'Steals per Game'),
 				'internal_name' => 'Steals per Game',
-				'abbr' => 'SPG',
+				'abbr' => __dx('seeds', 'stats', 'SPG'),
 				'sort' => 260,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -1434,9 +1434,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Blocks',
+				'name' => __d('seeds', 'Blocks'),
 				'internal_name' => 'Blocks',
-				'abbr' => 'BLK',
+				'abbr' => __dx('seeds', 'stats', 'BLK'),
 				'sort' => 170,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -1444,9 +1444,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Blocks',
+				'name' => __d('seeds', 'Blocks'),
 				'internal_name' => 'Blocks',
-				'abbr' => 'BLK',
+				'abbr' => __dx('seeds', 'stats', 'BLK'),
 				'sort' => 170,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -1455,9 +1455,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Blocks per Game',
+				'name' => __d('seeds', 'Blocks per Game'),
 				'internal_name' => 'Blocks per Game',
-				'abbr' => 'BPG',
+				'abbr' => __dx('seeds', 'stats', 'BPG'),
 				'sort' => 270,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -1466,9 +1466,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Shots Rejected',
+				'name' => __d('seeds', 'Shots Rejected'),
 				'internal_name' => 'Shots Rejected',
-				'abbr' => 'SR',
+				'abbr' => __dx('seeds', 'stats', 'SR'),
 				'sort' => 180,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -1476,9 +1476,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Shots Rejected',
+				'name' => __d('seeds', 'Shots Rejected'),
 				'internal_name' => 'Shots Rejected',
-				'abbr' => 'SR',
+				'abbr' => __dx('seeds', 'stats', 'SR'),
 				'sort' => 180,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -1487,9 +1487,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Shots Rejected per Game',
+				'name' => __d('seeds', 'Shots Rejected per Game'),
 				'internal_name' => 'Shots Rejected per Game',
-				'abbr' => 'SRPG',
+				'abbr' => __dx('seeds', 'stats', 'SRPG'),
 				'sort' => 280,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -1498,9 +1498,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Turnovers',
+				'name' => __d('seeds', 'Turnovers'),
 				'internal_name' => 'Turnovers',
-				'abbr' => 'TO',
+				'abbr' => __dx('seeds', 'stats', 'TO'),
 				'sort' => 190,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -1508,9 +1508,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Turnovers',
+				'name' => __d('seeds', 'Turnovers'),
 				'internal_name' => 'Turnovers',
-				'abbr' => 'TO',
+				'abbr' => __dx('seeds', 'stats', 'TO'),
 				'sort' => 190,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -1519,9 +1519,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Turnovers per Game',
+				'name' => __d('seeds', 'Turnovers per Game'),
 				'internal_name' => 'Turnovers per Game',
-				'abbr' => 'TPG',
+				'abbr' => __dx('seeds', 'stats', 'TPG'),
 				'sort' => 290,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -1530,9 +1530,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Assist to Turnover Ratio',
+				'name' => __d('seeds', 'Assist to Turnover Ratio'),
 				'internal_name' => 'Assist to Turnover Ratio',
-				'abbr' => 'AST/TO',
+				'abbr' => __dx('seeds', 'stats', 'AST/TO'),
 				'sort' => 295,
 				'class' => 'stat_game',
 				'type' => 'game_calc',
@@ -1542,9 +1542,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Assist to Turnover Ratio',
+				'name' => __d('seeds', 'Assist to Turnover Ratio'),
 				'internal_name' => 'Assist to Turnover Ratio',
-				'abbr' => 'AST/TO',
+				'abbr' => __dx('seeds', 'stats', 'AST/TO'),
 				'sort' => 295,
 				'class' => 'stat_total',
 				'type' => 'season_calc',
@@ -1553,9 +1553,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Personal Fouls',
+				'name' => __d('seeds', 'Personal Fouls'),
 				'internal_name' => 'Personal Fouls',
-				'abbr' => 'PF',
+				'abbr' => __dx('seeds', 'stats', 'PF'),
 				'sort' => 300,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -1563,9 +1563,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Personal Fouls',
+				'name' => __d('seeds', 'Personal Fouls'),
 				'internal_name' => 'Personal Fouls',
-				'abbr' => 'PF',
+				'abbr' => __dx('seeds', 'stats', 'PF'),
 				'sort' => 300,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -1574,9 +1574,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Personal Fouls per Game',
+				'name' => __d('seeds', 'Personal Fouls per Game'),
 				'internal_name' => 'Personal Fouls per Game',
-				'abbr' => 'PFPG',
+				'abbr' => __dx('seeds', 'stats', 'PFPG'),
 				'sort' => 400,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -1585,9 +1585,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Fouls Drawn',
+				'name' => __d('seeds', 'Fouls Drawn'),
 				'internal_name' => 'Fouls Drawn',
-				'abbr' => 'FD',
+				'abbr' => __dx('seeds', 'stats', 'FD'),
 				'sort' => 310,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -1595,9 +1595,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Fouls Drawn',
+				'name' => __d('seeds', 'Fouls Drawn'),
 				'internal_name' => 'Fouls Drawn',
-				'abbr' => 'PF',
+				'abbr' => __dx('seeds', 'stats', 'PF'),
 				'sort' => 310,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -1606,9 +1606,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Efficiency',
+				'name' => __d('seeds', 'Efficiency'),
 				'internal_name' => 'Efficiency',
-				'abbr' => 'EFF',
+				'abbr' => __dx('seeds', 'stats', 'EFF'),
 				'sort' => 500,
 				'class' => 'stat_game',
 				'type' => 'game_calc',
@@ -1618,9 +1618,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Efficiency',
+				'name' => __d('seeds', 'Efficiency'),
 				'internal_name' => 'Efficiency',
-				'abbr' => 'EFF',
+				'abbr' => __dx('seeds', 'stats', 'EFF'),
 				'sort' => 500,
 				'class' => 'stat_total',
 				'type' => 'season_calc',
@@ -1629,9 +1629,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Performance Index Rating',
+				'name' => __d('seeds', 'Performance Index Rating'),
 				'internal_name' => 'Performance Index Rating',
-				'abbr' => 'PIR',
+				'abbr' => __dx('seeds', 'stats', 'PIR'),
 				'sort' => 510,
 				'class' => 'stat_game',
 				'type' => 'game_calc',
@@ -1641,9 +1641,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Performance Index Rating',
+				'name' => __d('seeds', 'Performance Index Rating'),
 				'internal_name' => 'Performance Index Rating',
-				'abbr' => 'PIR',
+				'abbr' => __dx('seeds', 'stats', 'PIR'),
 				'sort' => 510,
 				'class' => 'stat_total',
 				'type' => 'season_calc',
@@ -1652,9 +1652,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Minutes Played',
+				'name' => __d('seeds', 'Minutes Played'),
 				'internal_name' => 'Minutes Played',
-				'abbr' => 'MIN',
+				'abbr' => __dx('seeds', 'stats', 'MIN'),
 				'sort' => 600,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -1664,9 +1664,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'basketball',
-				'name' => 'Minutes per Game',
+				'name' => __d('seeds', 'Minutes per Game'),
 				'internal_name' => 'Minutes per Game',
-				'abbr' => 'MIN',
+				'abbr' => __dx('seeds', 'stats', 'MIN'),
 				'sort' => 600,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -1680,9 +1680,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'cricket',
-				'name' => 'Games Played',
+				'name' => __d('seeds', 'Games Played'),
 				'internal_name' => 'Games Played',
-				'abbr' => 'GP',
+				'abbr' => __dx('seeds', 'stats', 'GP'),
 				'sort' => 10,
 				'class' => 'stat_games',
 				'type' => 'season_calc',
@@ -1691,9 +1691,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'cricket',
-				'name' => 'Wins',
+				'name' => __d('seeds', 'Wins'),
 				'internal_name' => 'Wins',
-				'abbr' => 'W',
+				'abbr' => __dx('seeds', 'stats', 'W'),
 				'sort' => 20,
 				'class' => 'stat_games',
 				'type' => 'game_calc',
@@ -1702,9 +1702,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'cricket',
-				'name' => 'Wins',
+				'name' => __d('seeds', 'Wins'),
 				'internal_name' => 'Wins',
-				'abbr' => 'W',
+				'abbr' => __dx('seeds', 'stats', 'W'),
 				'sort' => 20,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -1714,9 +1714,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'cricket',
-				'name' => 'Losses',
+				'name' => __d('seeds', 'Losses'),
 				'internal_name' => 'Losses',
-				'abbr' => 'L',
+				'abbr' => __dx('seeds', 'stats', 'L'),
 				'sort' => 30,
 				'class' => 'stat_games',
 				'type' => 'game_calc',
@@ -1725,9 +1725,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'cricket',
-				'name' => 'Losses',
+				'name' => __d('seeds', 'Losses'),
 				'internal_name' => 'Losses',
-				'abbr' => 'L',
+				'abbr' => __dx('seeds', 'stats', 'L'),
 				'sort' => 30,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -1737,9 +1737,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'cricket',
-				'name' => 'Ties',
+				'name' => __d('seeds', 'Ties'),
 				'internal_name' => 'Ties',
-				'abbr' => 'T',
+				'abbr' => __dx('seeds', 'stats', 'T'),
 				'sort' => 40,
 				'class' => 'stat_games',
 				'type' => 'game_calc',
@@ -1748,9 +1748,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'cricket',
-				'name' => 'Ties',
+				'name' => __d('seeds', 'Ties'),
 				'internal_name' => 'Ties',
-				'abbr' => 'T',
+				'abbr' => __dx('seeds', 'stats', 'T'),
 				'sort' => 40,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -1760,9 +1760,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'cricket',
-				'name' => 'Win Percent',
+				'name' => __d('seeds', 'Win Percent'),
 				'internal_name' => 'Win Percent',
-				'abbr' => 'W%',
+				'abbr' => __dx('seeds', 'stats', 'W%'),
 				'sort' => 50,
 				'class' => 'stat_games',
 				'type' => 'season_calc',
@@ -1776,9 +1776,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'dodgeball',
-				'name' => 'Games Played',
+				'name' => __d('seeds', 'Games Played'),
 				'internal_name' => 'Games Played',
-				'abbr' => 'GP',
+				'abbr' => __dx('seeds', 'stats', 'GP'),
 				'sort' => 10,
 				'class' => 'stat_games',
 				'type' => 'season_calc',
@@ -1787,9 +1787,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'dodgeball',
-				'name' => 'Wins',
+				'name' => __d('seeds', 'Wins'),
 				'internal_name' => 'Wins',
-				'abbr' => 'W',
+				'abbr' => __dx('seeds', 'stats', 'W'),
 				'sort' => 20,
 				'class' => 'stat_games',
 				'type' => 'game_calc',
@@ -1798,9 +1798,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'dodgeball',
-				'name' => 'Wins',
+				'name' => __d('seeds', 'Wins'),
 				'internal_name' => 'Wins',
-				'abbr' => 'W',
+				'abbr' => __dx('seeds', 'stats', 'W'),
 				'sort' => 20,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -1810,9 +1810,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'dodgeball',
-				'name' => 'Losses',
+				'name' => __d('seeds', 'Losses'),
 				'internal_name' => 'Losses',
-				'abbr' => 'L',
+				'abbr' => __dx('seeds', 'stats', 'L'),
 				'sort' => 30,
 				'class' => 'stat_games',
 				'type' => 'game_calc',
@@ -1821,9 +1821,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'dodgeball',
-				'name' => 'Losses',
+				'name' => __d('seeds', 'Losses'),
 				'internal_name' => 'Losses',
-				'abbr' => 'L',
+				'abbr' => __dx('seeds', 'stats', 'L'),
 				'sort' => 30,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -1833,9 +1833,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'dodgeball',
-				'name' => 'Ties',
+				'name' => __d('seeds', 'Ties'),
 				'internal_name' => 'Ties',
-				'abbr' => 'T',
+				'abbr' => __dx('seeds', 'stats', 'T'),
 				'sort' => 40,
 				'class' => 'stat_games',
 				'type' => 'game_calc',
@@ -1844,9 +1844,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'dodgeball',
-				'name' => 'Ties',
+				'name' => __d('seeds', 'Ties'),
 				'internal_name' => 'Ties',
-				'abbr' => 'T',
+				'abbr' => __dx('seeds', 'stats', 'T'),
 				'sort' => 40,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -1856,9 +1856,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'dodgeball',
-				'name' => 'Win Percent',
+				'name' => __d('seeds', 'Win Percent'),
 				'internal_name' => 'Win Percent',
-				'abbr' => 'W%',
+				'abbr' => __dx('seeds', 'stats', 'W%'),
 				'sort' => 50,
 				'class' => 'stat_games',
 				'type' => 'season_calc',
@@ -1867,9 +1867,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'dodgeball',
-				'name' => 'Kills',
+				'name' => __d('seeds', 'Kills'),
 				'internal_name' => 'Kills',
-				'abbr' => 'K+',
+				'abbr' => __dx('seeds', 'stats', 'K+'),
 				'sort' => 100,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -1877,9 +1877,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'dodgeball',
-				'name' => 'Kills',
+				'name' => __d('seeds', 'Kills'),
 				'internal_name' => 'Kills',
-				'abbr' => 'K+',
+				'abbr' => __dx('seeds', 'stats', 'K+'),
 				'sort' => 100,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -1888,9 +1888,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'dodgeball',
-				'name' => 'Kills per Game',
+				'name' => __d('seeds', 'Kills per Game'),
 				'internal_name' => 'Kills per Game',
-				'abbr' => 'K+PG',
+				'abbr' => __dx('seeds', 'stats', 'K+PG'),
 				'sort' => 200,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -1899,9 +1899,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'dodgeball',
-				'name' => 'Killed',
+				'name' => __d('seeds', 'Killed'),
 				'internal_name' => 'Killed',
-				'abbr' => 'K-',
+				'abbr' => __dx('seeds', 'stats', 'K-'),
 				'sort' => 110,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -1909,9 +1909,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'dodgeball',
-				'name' => 'Killed',
+				'name' => __d('seeds', 'Killed'),
 				'internal_name' => 'Killed',
-				'abbr' => 'K-',
+				'abbr' => __dx('seeds', 'stats', 'K-'),
 				'sort' => 110,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -1920,9 +1920,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'dodgeball',
-				'name' => 'Killed per Game',
+				'name' => __d('seeds', 'Killed per Game'),
 				'internal_name' => 'Killed per Game',
-				'abbr' => 'K-PG',
+				'abbr' => __dx('seeds', 'stats', 'K-PG'),
 				'sort' => 210,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -1931,9 +1931,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'dodgeball',
-				'name' => 'Catches',
+				'name' => __d('seeds', 'Catches'),
 				'internal_name' => 'Catches',
-				'abbr' => 'C+',
+				'abbr' => __dx('seeds', 'stats', 'C+'),
 				'sort' => 120,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -1941,9 +1941,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'dodgeball',
-				'name' => 'Catches',
+				'name' => __d('seeds', 'Catches'),
 				'internal_name' => 'Catches',
-				'abbr' => 'C+',
+				'abbr' => __dx('seeds', 'stats', 'C+'),
 				'sort' => 120,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -1952,9 +1952,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'dodgeball',
-				'name' => 'Catches per Game',
+				'name' => __d('seeds', 'Catches per Game'),
 				'internal_name' => 'Catches per Game',
-				'abbr' => 'C+PG',
+				'abbr' => __dx('seeds', 'stats', 'C+PG'),
 				'sort' => 220,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -1963,9 +1963,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'dodgeball',
-				'name' => 'Caught',
+				'name' => __d('seeds', 'Caught'),
 				'internal_name' => 'Caught',
-				'abbr' => 'C-',
+				'abbr' => __dx('seeds', 'stats', 'C-'),
 				'sort' => 130,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -1973,9 +1973,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'dodgeball',
-				'name' => 'Caught',
+				'name' => __d('seeds', 'Caught'),
 				'internal_name' => 'Caught',
-				'abbr' => 'C-',
+				'abbr' => __dx('seeds', 'stats', 'C-'),
 				'sort' => 130,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -1984,9 +1984,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'dodgeball',
-				'name' => 'Caught per Game',
+				'name' => __d('seeds', 'Caught per Game'),
 				'internal_name' => 'Caught per Game',
-				'abbr' => 'C-PG',
+				'abbr' => __dx('seeds', 'stats', 'C-PG'),
 				'sort' => 230,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -1995,9 +1995,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'dodgeball',
-				'name' => 'Points',
+				'name' => __d('seeds', 'Points'),
 				'internal_name' => 'Points',
-				'abbr' => 'P',
+				'abbr' => __dx('seeds', 'stats', 'P'),
 				'sort' => 190,
 				'class' => 'stat_game',
 				'type' => 'game_calc',
@@ -2006,9 +2006,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'dodgeball',
-				'name' => 'Points',
+				'name' => __d('seeds', 'Points'),
 				'internal_name' => 'Points',
-				'abbr' => 'P',
+				'abbr' => __dx('seeds', 'stats', 'P'),
 				'sort' => 190,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -2017,9 +2017,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'dodgeball',
-				'name' => 'Points per Game',
+				'name' => __d('seeds', 'Points per Game'),
 				'internal_name' => 'Points per Game',
-				'abbr' => 'PPG',
+				'abbr' => __dx('seeds', 'stats', 'PPG'),
 				'sort' => 290,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -2032,9 +2032,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'football',
-				'name' => 'Games Played',
+				'name' => __d('seeds', 'Games Played'),
 				'internal_name' => 'Games Played',
-				'abbr' => 'GP',
+				'abbr' => __dx('seeds', 'stats', 'GP'),
 				'sort' => 10,
 				'class' => 'stat_games',
 				'type' => 'season_calc',
@@ -2043,9 +2043,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'football',
-				'name' => 'Wins',
+				'name' => __d('seeds', 'Wins'),
 				'internal_name' => 'Wins',
-				'abbr' => 'W',
+				'abbr' => __dx('seeds', 'stats', 'W'),
 				'sort' => 20,
 				'class' => 'stat_games',
 				'type' => 'game_calc',
@@ -2054,9 +2054,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'football',
-				'name' => 'Wins',
+				'name' => __d('seeds', 'Wins'),
 				'internal_name' => 'Wins',
-				'abbr' => 'W',
+				'abbr' => __dx('seeds', 'stats', 'W'),
 				'sort' => 20,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -2066,9 +2066,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'football',
-				'name' => 'Losses',
+				'name' => __d('seeds', 'Losses'),
 				'internal_name' => 'Losses',
-				'abbr' => 'L',
+				'abbr' => __dx('seeds', 'stats', 'L'),
 				'sort' => 30,
 				'class' => 'stat_games',
 				'type' => 'game_calc',
@@ -2077,9 +2077,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'football',
-				'name' => 'Losses',
+				'name' => __d('seeds', 'Losses'),
 				'internal_name' => 'Losses',
-				'abbr' => 'L',
+				'abbr' => __dx('seeds', 'stats', 'L'),
 				'sort' => 30,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -2089,9 +2089,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'football',
-				'name' => 'Ties',
+				'name' => __d('seeds', 'Ties'),
 				'internal_name' => 'Ties',
-				'abbr' => 'T',
+				'abbr' => __dx('seeds', 'stats', 'T'),
 				'sort' => 40,
 				'class' => 'stat_games',
 				'type' => 'game_calc',
@@ -2100,9 +2100,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'football',
-				'name' => 'Ties',
+				'name' => __d('seeds', 'Ties'),
 				'internal_name' => 'Ties',
-				'abbr' => 'T',
+				'abbr' => __dx('seeds', 'stats', 'T'),
 				'sort' => 40,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -2112,9 +2112,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'football',
-				'name' => 'Win Percent',
+				'name' => __d('seeds', 'Win Percent'),
 				'internal_name' => 'Win Percent',
-				'abbr' => 'W%',
+				'abbr' => __dx('seeds', 'stats', 'W%'),
 				'sort' => 50,
 				'class' => 'stat_games',
 				'type' => 'season_calc',
@@ -2129,9 +2129,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Games Played',
+				'name' => __d('seeds', 'Games Played'),
 				'internal_name' => 'Games Played',
-				'abbr' => 'GP',
+				'abbr' => __dx('seeds', 'stats', 'GP'),
 				'sort' => 10,
 				'class' => 'stat_games',
 				'type' => 'season_calc',
@@ -2141,9 +2141,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Goals',
+				'name' => __d('seeds', 'Goals'),
 				'internal_name' => 'Goals',
-				'abbr' => 'G',
+				'abbr' => __dx('seeds', 'stats', 'G'),
 				'sort' => 100,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -2153,9 +2153,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Goals',
+				'name' => __d('seeds', 'Goals'),
 				'internal_name' => 'Goals',
-				'abbr' => 'G',
+				'abbr' => __dx('seeds', 'stats', 'G'),
 				'sort' => 100,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -2165,9 +2165,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Goals per Game',
+				'name' => __d('seeds', 'Goals per Game'),
 				'internal_name' => 'Goals per Game',
-				'abbr' => 'GPG',
+				'abbr' => __dx('seeds', 'stats', 'GPG'),
 				'sort' => 200,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -2177,9 +2177,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Assists',
+				'name' => __d('seeds', 'Assists'),
 				'internal_name' => 'Assists',
-				'abbr' => 'A',
+				'abbr' => __dx('seeds', 'stats', 'A'),
 				'sort' => 110,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -2189,9 +2189,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Assists',
+				'name' => __d('seeds', 'Assists'),
 				'internal_name' => 'Assists',
-				'abbr' => 'A',
+				'abbr' => __dx('seeds', 'stats', 'A'),
 				'sort' => 110,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -2201,9 +2201,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Assists per Game',
+				'name' => __d('seeds', 'Assists per Game'),
 				'internal_name' => 'Assists per Game',
-				'abbr' => 'APG',
+				'abbr' => __dx('seeds', 'stats', 'APG'),
 				'sort' => 210,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -2213,9 +2213,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Points',
+				'name' => __d('seeds', 'Points'),
 				'internal_name' => 'Points',
-				'abbr' => 'P',
+				'abbr' => __dx('seeds', 'stats', 'P'),
 				'sort' => 120,
 				'class' => 'stat_game',
 				'type' => 'game_calc',
@@ -2225,9 +2225,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Points',
+				'name' => __d('seeds', 'Points'),
 				'internal_name' => 'Points',
-				'abbr' => 'P',
+				'abbr' => __dx('seeds', 'stats', 'P'),
 				'sort' => 120,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -2237,9 +2237,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Points per Game',
+				'name' => __d('seeds', 'Points per Game'),
 				'internal_name' => 'Points per Game',
-				'abbr' => 'PPG',
+				'abbr' => __dx('seeds', 'stats', 'PPG'),
 				'sort' => 220,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -2249,9 +2249,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Plus/Minus',
+				'name' => __d('seeds', 'Plus/Minus'),
 				'internal_name' => 'Plus Minus',
-				'abbr' => '+/-',
+				'abbr' => __dx('seeds', 'stats', '+/-'),
 				'sort' => 130,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -2260,9 +2260,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Plus/Minus',
+				'name' => __d('seeds', 'Plus/Minus'),
 				'internal_name' => 'Plus Minus',
-				'abbr' => '+/-',
+				'abbr' => __dx('seeds', 'stats', '+/-'),
 				'sort' => 130,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -2272,9 +2272,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Penalty Minutes',
+				'name' => __d('seeds', 'Penalty Minutes'),
 				'internal_name' => 'Penalty Minutes',
-				'abbr' => 'PIM',
+				'abbr' => __dx('seeds', 'stats', 'PIM'),
 				'sort' => 140,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -2283,9 +2283,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Penalty Minutes',
+				'name' => __d('seeds', 'Penalty Minutes'),
 				'internal_name' => 'Penalty Minutes',
-				'abbr' => 'PIM',
+				'abbr' => __dx('seeds', 'stats', 'PIM'),
 				'sort' => 140,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -2295,9 +2295,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Power Play Goals',
+				'name' => __d('seeds', 'Power Play Goals'),
 				'internal_name' => 'Power Play Goals',
-				'abbr' => 'PPG',
+				'abbr' => __dx('seeds', 'stats', 'PPG'),
 				'sort' => 300,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -2306,9 +2306,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Power Play Goals',
+				'name' => __d('seeds', 'Power Play Goals'),
 				'internal_name' => 'Power Play Goals',
-				'abbr' => 'PPG',
+				'abbr' => __dx('seeds', 'stats', 'PPG'),
 				'sort' => 300,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -2318,9 +2318,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Shorthanded Goals',
+				'name' => __d('seeds', 'Shorthanded Goals'),
 				'internal_name' => 'Shorthanded Goals',
-				'abbr' => 'SHG',
+				'abbr' => __dx('seeds', 'stats', 'SHG'),
 				'sort' => 310,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -2329,9 +2329,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Shorthanded Goals',
+				'name' => __d('seeds', 'Shorthanded Goals'),
 				'internal_name' => 'Shorthanded Goals',
-				'abbr' => 'SHG',
+				'abbr' => __dx('seeds', 'stats', 'SHG'),
 				'sort' => 310,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -2341,9 +2341,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Game Winning Goals',
+				'name' => __d('seeds', 'Game Winning Goals'),
 				'internal_name' => 'Game Winning Goals',
-				'abbr' => 'GWG',
+				'abbr' => __dx('seeds', 'stats', 'GWG'),
 				'sort' => 320,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -2352,9 +2352,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Game Winning Goals',
+				'name' => __d('seeds', 'Game Winning Goals'),
 				'internal_name' => 'Game Winning Goals',
-				'abbr' => 'GWG',
+				'abbr' => __dx('seeds', 'stats', 'GWG'),
 				'sort' => 320,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -2364,9 +2364,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Shots',
+				'name' => __d('seeds', 'Shots'),
 				'internal_name' => 'Shots',
-				'abbr' => 'S',
+				'abbr' => __dx('seeds', 'stats', 'S'),
 				'sort' => 330,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -2375,9 +2375,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Shots',
+				'name' => __d('seeds', 'Shots'),
 				'internal_name' => 'Shots',
-				'abbr' => 'S',
+				'abbr' => __dx('seeds', 'stats', 'S'),
 				'sort' => 330,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -2387,9 +2387,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Shooting Percentage',
+				'name' => __d('seeds', 'Shooting Percentage'),
 				'internal_name' => 'Shooting Percentage',
-				'abbr' => 'S%',
+				'abbr' => __dx('seeds', 'stats', 'S%'),
 				'sort' => 340,
 				'class' => 'stat_game',
 				'type' => 'game_calc',
@@ -2400,9 +2400,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Shooting Percentage',
+				'name' => __d('seeds', 'Shooting Percentage'),
 				'internal_name' => 'Shooting Percentage',
-				'abbr' => 'S%',
+				'abbr' => __dx('seeds', 'stats', 'S%'),
 				'sort' => 340,
 				'class' => 'stat_total',
 				'type' => 'season_calc',
@@ -2412,9 +2412,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Shifts',
+				'name' => __d('seeds', 'Shifts'),
 				'internal_name' => 'Shifts',
-				'abbr' => 'SHIFTS',
+				'abbr' => __dx('seeds', 'stats', 'SHIFTS'),
 				'sort' => 400,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -2423,9 +2423,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Shifts',
+				'name' => __d('seeds', 'Shifts'),
 				'internal_name' => 'Shifts',
-				'abbr' => 'SHIFTS',
+				'abbr' => __dx('seeds', 'stats', 'SHIFTS'),
 				'sort' => 400,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -2435,9 +2435,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Time On Ice',
+				'name' => __d('seeds', 'Time On Ice'),
 				'internal_name' => 'Time On Ice',
-				'abbr' => 'TOI',
+				'abbr' => __dx('seeds', 'stats', 'TOI'),
 				'sort' => 410,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -2448,9 +2448,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Time On Ice',
+				'name' => __d('seeds', 'Time On Ice'),
 				'internal_name' => 'Time On Ice',
-				'abbr' => 'TOI',
+				'abbr' => __dx('seeds', 'stats', 'TOI'),
 				'sort' => 410,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -2462,9 +2462,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Time On Ice per Game',
+				'name' => __d('seeds', 'Time On Ice per Game'),
 				'internal_name' => 'Time On Ice per Game',
-				'abbr' => 'TOIPG',
+				'abbr' => __dx('seeds', 'stats', 'TOIPG'),
 				'sort' => 510,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -2474,9 +2474,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie,!defence',
-				'name' => 'Faceoffs',
+				'name' => __d('seeds', 'Faceoffs'),
 				'internal_name' => 'Faceoffs',
-				'abbr' => 'FO',
+				'abbr' => __dx('seeds', 'stats', 'FO'),
 				'sort' => 600,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -2485,9 +2485,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie,!defence',
-				'name' => 'Faceoffs',
+				'name' => __d('seeds', 'Faceoffs'),
 				'internal_name' => 'Faceoffs',
-				'abbr' => 'FO',
+				'abbr' => __dx('seeds', 'stats', 'FO'),
 				'sort' => 600,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -2497,9 +2497,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie,!defence',
-				'name' => 'Faceoffs Won',
+				'name' => __d('seeds', 'Faceoffs Won'),
 				'internal_name' => 'Faceoffs Won',
-				'abbr' => 'FOW',
+				'abbr' => __dx('seeds', 'stats', 'FOW'),
 				'sort' => 610,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -2508,9 +2508,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie,!defence',
-				'name' => 'Faceoffs Won',
+				'name' => __d('seeds', 'Faceoffs Won'),
 				'internal_name' => 'Faceoffs Won',
-				'abbr' => 'FOW',
+				'abbr' => __dx('seeds', 'stats', 'FOW'),
 				'sort' => 610,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -2520,9 +2520,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie,!defence',
-				'name' => 'Faceoff Percentage',
+				'name' => __d('seeds', 'Faceoff Percentage'),
 				'internal_name' => 'Faceoff Percentage',
-				'abbr' => 'FO%',
+				'abbr' => __dx('seeds', 'stats', 'FO%'),
 				'sort' => 620,
 				'class' => 'stat_game',
 				'type' => 'game_calc',
@@ -2533,9 +2533,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie,!defence',
-				'name' => 'Faceoff Percentage',
+				'name' => __d('seeds', 'Faceoff Percentage'),
 				'internal_name' => 'Faceoff Percentage',
-				'abbr' => 'FO%',
+				'abbr' => __dx('seeds', 'stats', 'FO%'),
 				'sort' => 620,
 				'class' => 'stat_total',
 				'type' => 'season_calc',
@@ -2545,9 +2545,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Hits',
+				'name' => __d('seeds', 'Hits'),
 				'internal_name' => 'Hits',
-				'abbr' => 'H',
+				'abbr' => __dx('seeds', 'stats', 'H'),
 				'sort' => 700,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -2556,9 +2556,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => '!goalie',
-				'name' => 'Hits',
+				'name' => __d('seeds', 'Hits'),
 				'internal_name' => 'Hits',
-				'abbr' => 'A',
+				'abbr' => __dx('seeds', 'stats', 'A'),
 				'sort' => 700,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -2568,9 +2568,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Wins',
+				'name' => __d('seeds', 'Wins'),
 				'internal_name' => 'Wins',
-				'abbr' => 'W',
+				'abbr' => __dx('seeds', 'stats', 'W'),
 				'sort' => 1010,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -2579,9 +2579,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Wins',
+				'name' => __d('seeds', 'Wins'),
 				'internal_name' => 'Wins',
-				'abbr' => 'W',
+				'abbr' => __dx('seeds', 'stats', 'W'),
 				'sort' => 1010,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -2591,9 +2591,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Losses',
+				'name' => __d('seeds', 'Losses'),
 				'internal_name' => 'Losses',
-				'abbr' => 'L',
+				'abbr' => __dx('seeds', 'stats', 'L'),
 				'sort' => 1020,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -2602,9 +2602,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Losses',
+				'name' => __d('seeds', 'Losses'),
 				'internal_name' => 'Losses',
-				'abbr' => 'L',
+				'abbr' => __dx('seeds', 'stats', 'L'),
 				'sort' => 1020,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -2614,9 +2614,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Ties',
+				'name' => __d('seeds', 'Ties'),
 				'internal_name' => 'Ties',
-				'abbr' => 'T',
+				'abbr' => __dx('seeds', 'stats', 'T'),
 				'sort' => 1030,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -2625,9 +2625,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Ties',
+				'name' => __d('seeds', 'Ties'),
 				'internal_name' => 'Ties',
-				'abbr' => 'T',
+				'abbr' => __dx('seeds', 'stats', 'T'),
 				'sort' => 1030,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -2637,9 +2637,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Overtime Losses',
+				'name' => __d('seeds', 'Overtime Losses'),
 				'internal_name' => 'Overtime Losses',
-				'abbr' => 'OT',
+				'abbr' => __dx('seeds', 'stats', 'OT'),
 				'sort' => 1040,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -2648,9 +2648,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Overtime Losses',
+				'name' => __d('seeds', 'Overtime Losses'),
 				'internal_name' => 'Overtime Losses',
-				'abbr' => 'OT',
+				'abbr' => __dx('seeds', 'stats', 'OT'),
 				'sort' => 1040,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -2660,9 +2660,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Shutouts',
+				'name' => __d('seeds', 'Shutouts'),
 				'internal_name' => 'Shutouts',
-				'abbr' => 'SO',
+				'abbr' => __dx('seeds', 'stats', 'SO'),
 				'sort' => 1050,
 				'class' => 'stat_games',
 				'type' => 'game_calc',
@@ -2672,9 +2672,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Shutouts',
+				'name' => __d('seeds', 'Shutouts'),
 				'internal_name' => 'Shutouts',
-				'abbr' => 'SO',
+				'abbr' => __dx('seeds', 'stats', 'SO'),
 				'sort' => 1050,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -2684,9 +2684,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Goals Against Average',
+				'name' => __d('seeds', 'Goals Against Average'),
 				'internal_name' => 'Goals Against Average',
-				'abbr' => 'GAA',
+				'abbr' => __dx('seeds', 'stats', 'GAA'),
 				'sort' => 1100,
 				'class' => 'stat_games',
 				'type' => 'season_calc',
@@ -2696,9 +2696,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Save Percentage',
+				'name' => __d('seeds', 'Save Percentage'),
 				'internal_name' => 'Save Percentage',
-				'abbr' => 'SV%',
+				'abbr' => __dx('seeds', 'stats', 'SV%'),
 				'sort' => 1110,
 				'class' => 'stat_games',
 				'type' => 'game_calc',
@@ -2709,9 +2709,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Save Percentage',
+				'name' => __d('seeds', 'Save Percentage'),
 				'internal_name' => 'Save Percentage',
-				'abbr' => 'SV%',
+				'abbr' => __dx('seeds', 'stats', 'SV%'),
 				'sort' => 1110,
 				'class' => 'stat_games',
 				'type' => 'season_calc',
@@ -2721,9 +2721,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Even Strength Goals Against',
+				'name' => __d('seeds', 'Even Strength Goals Against'),
 				'internal_name' => 'Even Strength Goals Against',
-				'abbr' => 'EV GA',
+				'abbr' => __dx('seeds', 'stats', 'EV GA'),
 				'sort' => 1200,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -2732,9 +2732,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Even Strength Goals Against',
+				'name' => __d('seeds', 'Even Strength Goals Against'),
 				'internal_name' => 'Even Strength Goals Against',
-				'abbr' => 'EV GA',
+				'abbr' => __dx('seeds', 'stats', 'EV GA'),
 				'sort' => 1200,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -2744,9 +2744,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Power Play Goals Against',
+				'name' => __d('seeds', 'Power Play Goals Against'),
 				'internal_name' => 'Power Play Goals Against',
-				'abbr' => 'PP GA',
+				'abbr' => __dx('seeds', 'stats', 'PP GA'),
 				'sort' => 1210,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -2755,9 +2755,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Power Play Goals Against',
+				'name' => __d('seeds', 'Power Play Goals Against'),
 				'internal_name' => 'Power Play Goals Against',
-				'abbr' => 'PP GA',
+				'abbr' => __dx('seeds', 'stats', 'PP GA'),
 				'sort' => 1210,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -2767,9 +2767,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Shorthanded Goals Against',
+				'name' => __d('seeds', 'Shorthanded Goals Against'),
 				'internal_name' => 'Shorthanded Goals Against',
-				'abbr' => 'SH GA',
+				'abbr' => __dx('seeds', 'stats', 'SH GA'),
 				'sort' => 1220,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -2778,9 +2778,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Shorthanded Goals Against',
+				'name' => __d('seeds', 'Shorthanded Goals Against'),
 				'internal_name' => 'Shorthanded Goals Against',
-				'abbr' => 'SH GA',
+				'abbr' => __dx('seeds', 'stats', 'SH GA'),
 				'sort' => 1220,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -2790,9 +2790,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Empty Net Goals Against',
+				'name' => __d('seeds', 'Empty Net Goals Against'),
 				'internal_name' => 'Empty Net Goals Against',
-				'abbr' => 'EN GA',
+				'abbr' => __dx('seeds', 'stats', 'EN GA'),
 				'sort' => 1230,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -2801,9 +2801,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Empty Net Goals Against',
+				'name' => __d('seeds', 'Empty Net Goals Against'),
 				'internal_name' => 'Empty Net Goals Against',
-				'abbr' => 'EN GA',
+				'abbr' => __dx('seeds', 'stats', 'EN GA'),
 				'sort' => 1230,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -2813,9 +2813,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Goals Against',
+				'name' => __d('seeds', 'Goals Against'),
 				'internal_name' => 'Goals Against',
-				'abbr' => 'GA',
+				'abbr' => __dx('seeds', 'stats', 'GA'),
 				'sort' => 1240,
 				'class' => 'stat_games',
 				'type' => 'game_calc',
@@ -2825,9 +2825,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Goals Against',
+				'name' => __d('seeds', 'Goals Against'),
 				'internal_name' => 'Goals Against',
-				'abbr' => 'GA',
+				'abbr' => __dx('seeds', 'stats', 'GA'),
 				'sort' => 1240,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -2837,9 +2837,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Shots Against',
+				'name' => __d('seeds', 'Shots Against'),
 				'internal_name' => 'Shots Against',
-				'abbr' => 'SA',
+				'abbr' => __dx('seeds', 'stats', 'SA'),
 				'sort' => 1250,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -2848,9 +2848,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Shots Against',
+				'name' => __d('seeds', 'Shots Against'),
 				'internal_name' => 'Shots Against',
-				'abbr' => 'SA',
+				'abbr' => __dx('seeds', 'stats', 'SA'),
 				'sort' => 1250,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -2860,9 +2860,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Minutes Played',
+				'name' => __d('seeds', 'Minutes Played'),
 				'internal_name' => 'Minutes Played',
-				'abbr' => 'MIN',
+				'abbr' => __dx('seeds', 'stats', 'MIN'),
 				'sort' => 1300,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -2873,9 +2873,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'hockey',
 				'positions' => 'goalie',
-				'name' => 'Minutes Played',
+				'name' => __d('seeds', 'Minutes Played'),
 				'internal_name' => 'Minutes Played',
-				'abbr' => 'MIN',
+				'abbr' => __dx('seeds', 'stats', 'MIN'),
 				'sort' => 1300,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -2890,9 +2890,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Games Played',
+				'name' => __d('seeds', 'Games Played'),
 				'internal_name' => 'Games Played',
-				'abbr' => 'GP',
+				'abbr' => __dx('seeds', 'stats', 'GP'),
 				'sort' => 10,
 				'class' => 'stat_games',
 				'type' => 'season_calc',
@@ -2901,9 +2901,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Started',
+				'name' => __d('seeds', 'Started'),
 				'internal_name' => 'Started',
-				'abbr' => 'GS',
+				'abbr' => __dx('seeds', 'stats', 'GS'),
 				'sort' => 20,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -2911,9 +2911,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Games Started',
+				'name' => __d('seeds', 'Games Started'),
 				'internal_name' => 'Games Started',
-				'abbr' => 'GS',
+				'abbr' => __dx('seeds', 'stats', 'GS'),
 				'sort' => 20,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -2923,9 +2923,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Wins',
+				'name' => __d('seeds', 'Wins'),
 				'internal_name' => 'Wins',
-				'abbr' => 'W',
+				'abbr' => __dx('seeds', 'stats', 'W'),
 				'sort' => 30,
 				'class' => 'stat_games',
 				'type' => 'game_calc',
@@ -2934,9 +2934,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Wins',
+				'name' => __d('seeds', 'Wins'),
 				'internal_name' => 'Wins',
-				'abbr' => 'W',
+				'abbr' => __dx('seeds', 'stats', 'W'),
 				'sort' => 30,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -2946,9 +2946,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Losses',
+				'name' => __d('seeds', 'Losses'),
 				'internal_name' => 'Losses',
-				'abbr' => 'L',
+				'abbr' => __dx('seeds', 'stats', 'L'),
 				'sort' => 40,
 				'class' => 'stat_games',
 				'type' => 'game_calc',
@@ -2957,9 +2957,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Losses',
+				'name' => __d('seeds', 'Losses'),
 				'internal_name' => 'Losses',
-				'abbr' => 'L',
+				'abbr' => __dx('seeds', 'stats', 'L'),
 				'sort' => 40,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -2969,9 +2969,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Draws',
+				'name' => __d('seeds', 'Draws'),
 				'internal_name' => 'Draws',
-				'abbr' => 'D',
+				'abbr' => __dx('seeds', 'stats', 'D'),
 				'sort' => 50,
 				'class' => 'stat_games',
 				'type' => 'game_calc',
@@ -2980,9 +2980,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Draws',
+				'name' => __d('seeds', 'Draws'),
 				'internal_name' => 'Draws',
-				'abbr' => 'D',
+				'abbr' => __dx('seeds', 'stats', 'D'),
 				'sort' => 50,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -2992,9 +2992,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Win Percent',
+				'name' => __d('seeds', 'Win Percent'),
 				'internal_name' => 'Win Percent',
-				'abbr' => 'W%',
+				'abbr' => __dx('seeds', 'stats', 'W%'),
 				'sort' => 60,
 				'class' => 'stat_games',
 				'type' => 'season_calc',
@@ -3003,9 +3003,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Tries',
+				'name' => __d('seeds', 'Tries'),
 				'internal_name' => 'Tries',
-				'abbr' => 'T',
+				'abbr' => __dx('seeds', 'stats', 'T'),
 				'sort' => 100,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -3013,9 +3013,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Tries',
+				'name' => __d('seeds', 'Tries'),
 				'internal_name' => 'Tries',
-				'abbr' => 'T',
+				'abbr' => __dx('seeds', 'stats', 'T'),
 				'sort' => 100,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -3024,9 +3024,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Tries per Game',
+				'name' => __d('seeds', 'Tries per Game'),
 				'internal_name' => 'Tries per Game',
-				'abbr' => 'TPG',
+				'abbr' => __dx('seeds', 'stats', 'TPG'),
 				'sort' => 300,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -3035,9 +3035,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Conversions',
+				'name' => __d('seeds', 'Conversions'),
 				'internal_name' => 'Conversions',
-				'abbr' => 'C',
+				'abbr' => __dx('seeds', 'stats', 'C'),
 				'sort' => 110,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -3045,9 +3045,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Conversions',
+				'name' => __d('seeds', 'Conversions'),
 				'internal_name' => 'Conversions',
-				'abbr' => 'C',
+				'abbr' => __dx('seeds', 'stats', 'C'),
 				'sort' => 110,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -3056,9 +3056,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Conversions per Game',
+				'name' => __d('seeds', 'Conversions per Game'),
 				'internal_name' => 'Conversions per Game',
-				'abbr' => 'CPG',
+				'abbr' => __dx('seeds', 'stats', 'CPG'),
 				'sort' => 310,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -3067,9 +3067,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Penalty Kicks',
+				'name' => __d('seeds', 'Penalty Kicks'),
 				'internal_name' => 'Penalty Kicks',
-				'abbr' => 'PK',
+				'abbr' => __dx('seeds', 'stats', 'PK'),
 				'sort' => 120,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -3077,9 +3077,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Penalty Kicks',
+				'name' => __d('seeds', 'Penalty Kicks'),
 				'internal_name' => 'Penalty Kicks',
-				'abbr' => 'PK',
+				'abbr' => __dx('seeds', 'stats', 'PK'),
 				'sort' => 120,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -3088,9 +3088,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Penalty Kicks per Game',
+				'name' => __d('seeds', 'Penalty Kicks per Game'),
 				'internal_name' => 'Penalty Kicks per Game',
-				'abbr' => 'PKPG',
+				'abbr' => __dx('seeds', 'stats', 'PKPG'),
 				'sort' => 320,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -3099,9 +3099,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Drop Goals',
+				'name' => __d('seeds', 'Drop Goals'),
 				'internal_name' => 'Drop Goals',
-				'abbr' => 'DG',
+				'abbr' => __dx('seeds', 'stats', 'DG'),
 				'sort' => 130,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -3109,9 +3109,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Drop Goals',
+				'name' => __d('seeds', 'Drop Goals'),
 				'internal_name' => 'Drop Goals',
-				'abbr' => 'DG',
+				'abbr' => __dx('seeds', 'stats', 'DG'),
 				'sort' => 130,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -3120,9 +3120,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Drop Goals per Game',
+				'name' => __d('seeds', 'Drop Goals per Game'),
 				'internal_name' => 'Drop Goals per Game',
-				'abbr' => 'DGPG',
+				'abbr' => __dx('seeds', 'stats', 'DGPG'),
 				'sort' => 330,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -3131,9 +3131,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Points',
+				'name' => __d('seeds', 'Points'),
 				'internal_name' => 'Points',
-				'abbr' => 'P',
+				'abbr' => __dx('seeds', 'stats', 'P'),
 				'sort' => 140,
 				'class' => 'stat_game',
 				'type' => 'game_calc',
@@ -3142,9 +3142,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Points',
+				'name' => __d('seeds', 'Points'),
 				'internal_name' => 'Points',
-				'abbr' => 'P',
+				'abbr' => __dx('seeds', 'stats', 'P'),
 				'sort' => 140,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -3153,9 +3153,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Points',
+				'name' => __d('seeds', 'Points'),
 				'internal_name' => 'Points',
-				'abbr' => 'PPG',
+				'abbr' => __dx('seeds', 'stats', 'PPG'),
 				'sort' => 340,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -3164,9 +3164,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Assists',
+				'name' => __d('seeds', 'Assists'),
 				'internal_name' => 'Assists',
-				'abbr' => 'A',
+				'abbr' => __dx('seeds', 'stats', 'A'),
 				'sort' => 150,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -3174,9 +3174,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Assists',
+				'name' => __d('seeds', 'Assists'),
 				'internal_name' => 'Assists',
-				'abbr' => 'A',
+				'abbr' => __dx('seeds', 'stats', 'A'),
 				'sort' => 150,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -3185,9 +3185,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Assists per Game',
+				'name' => __d('seeds', 'Assists per Game'),
 				'internal_name' => 'Assists per Game',
-				'abbr' => 'APG',
+				'abbr' => __dx('seeds', 'stats', 'APG'),
 				'sort' => 350,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -3196,9 +3196,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Interceptions',
+				'name' => __d('seeds', 'Interceptions'),
 				'internal_name' => 'Interceptions',
-				'abbr' => 'I',
+				'abbr' => __dx('seeds', 'stats', 'I'),
 				'sort' => 160,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -3206,9 +3206,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Interceptions',
+				'name' => __d('seeds', 'Interceptions'),
 				'internal_name' => 'Interceptions',
-				'abbr' => 'I',
+				'abbr' => __dx('seeds', 'stats', 'I'),
 				'sort' => 160,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -3217,9 +3217,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Interceptions per Game',
+				'name' => __d('seeds', 'Interceptions per Game'),
 				'internal_name' => 'Interceptions per Game',
-				'abbr' => 'IPG',
+				'abbr' => __dx('seeds', 'stats', 'IPG'),
 				'sort' => 360,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -3228,9 +3228,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Turnovers',
+				'name' => __d('seeds', 'Turnovers'),
 				'internal_name' => 'Turnovers',
-				'abbr' => 'TO',
+				'abbr' => __dx('seeds', 'stats', 'TO'),
 				'sort' => 170,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -3238,9 +3238,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Turnovers',
+				'name' => __d('seeds', 'Turnovers'),
 				'internal_name' => 'Turnovers',
-				'abbr' => 'TO',
+				'abbr' => __dx('seeds', 'stats', 'TO'),
 				'sort' => 170,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -3249,9 +3249,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Turnovers per Game',
+				'name' => __d('seeds', 'Turnovers per Game'),
 				'internal_name' => 'Turnovers per Game',
-				'abbr' => 'TOPG',
+				'abbr' => __dx('seeds', 'stats', 'TOPG'),
 				'sort' => 370,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -3260,9 +3260,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Tackles',
+				'name' => __d('seeds', 'Tackles'),
 				'internal_name' => 'Tackles',
-				'abbr' => 'Ta',
+				'abbr' => __dx('seeds', 'stats', 'Ta'),
 				'sort' => 180,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -3270,9 +3270,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Tackles',
+				'name' => __d('seeds', 'Tackles'),
 				'internal_name' => 'Tackles',
-				'abbr' => 'Ta',
+				'abbr' => __dx('seeds', 'stats', 'Ta'),
 				'sort' => 180,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -3281,9 +3281,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Tackles per Game',
+				'name' => __d('seeds', 'Tackles per Game'),
 				'internal_name' => 'Tackles per Game',
-				'abbr' => 'TaPG',
+				'abbr' => __dx('seeds', 'stats', 'TaPG'),
 				'sort' => 380,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -3292,9 +3292,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Missed Tackles',
+				'name' => __d('seeds', 'Missed Tackles'),
 				'internal_name' => 'Missed Tackles',
-				'abbr' => 'MTa',
+				'abbr' => __dx('seeds', 'stats', 'MTa'),
 				'sort' => 190,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -3302,9 +3302,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Missed Tackles',
+				'name' => __d('seeds', 'Missed Tackles'),
 				'internal_name' => 'Missed Tackles',
-				'abbr' => 'MTa',
+				'abbr' => __dx('seeds', 'stats', 'MTa'),
 				'sort' => 190,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -3313,9 +3313,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Missed Tackles per Game',
+				'name' => __d('seeds', 'Missed Tackles per Game'),
 				'internal_name' => 'Missed Tackles per Game',
-				'abbr' => 'MTaPG',
+				'abbr' => __dx('seeds', 'stats', 'MTaPG'),
 				'sort' => 390,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -3324,9 +3324,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Penalties Conceded',
+				'name' => __d('seeds', 'Penalties Conceded'),
 				'internal_name' => 'Penalties Conceded',
-				'abbr' => 'PC',
+				'abbr' => __dx('seeds', 'stats', 'PC'),
 				'sort' => 200,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -3334,9 +3334,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Penalties Conceded',
+				'name' => __d('seeds', 'Penalties Conceded'),
 				'internal_name' => 'Penalties Conceded',
-				'abbr' => 'PC',
+				'abbr' => __dx('seeds', 'stats', 'PC'),
 				'sort' => 200,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -3345,9 +3345,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Penalties Conceded per Game',
+				'name' => __d('seeds', 'Penalties Conceded per Game'),
 				'internal_name' => 'Penalties Conceded per Game',
-				'abbr' => 'PCPG',
+				'abbr' => __dx('seeds', 'stats', 'PCPG'),
 				'sort' => 400,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -3356,9 +3356,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Penalties Won',
+				'name' => __d('seeds', 'Penalties Won'),
 				'internal_name' => 'Penalties Won',
-				'abbr' => 'PW',
+				'abbr' => __dx('seeds', 'stats', 'PW'),
 				'sort' => 210,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -3366,9 +3366,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Penalties Won',
+				'name' => __d('seeds', 'Penalties Won'),
 				'internal_name' => 'Penalties Won',
-				'abbr' => 'PW',
+				'abbr' => __dx('seeds', 'stats', 'PW'),
 				'sort' => 210,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -3377,9 +3377,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Penalties Won per Game',
+				'name' => __d('seeds', 'Penalties Won per Game'),
 				'internal_name' => 'Penalties Won per Game',
-				'abbr' => 'PWPG',
+				'abbr' => __dx('seeds', 'stats', 'PWPG'),
 				'sort' => 410,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -3388,9 +3388,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Knock-ons',
+				'name' => __d('seeds', 'Knock-ons'),
 				'internal_name' => 'Knock-ons',
-				'abbr' => 'KO',
+				'abbr' => __dx('seeds', 'stats', 'KO'),
 				'sort' => 220,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -3398,9 +3398,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Knock-ons',
+				'name' => __d('seeds', 'Knock-ons'),
 				'internal_name' => 'Knock-ons',
-				'abbr' => 'KO',
+				'abbr' => __dx('seeds', 'stats', 'KO'),
 				'sort' => 220,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -3409,9 +3409,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'rugby',
-				'name' => 'Knock-ons per Game',
+				'name' => __d('seeds', 'Knock-ons per Game'),
 				'internal_name' => 'Knock-ons per Game',
-				'abbr' => 'KOPG',
+				'abbr' => __dx('seeds', 'stats', 'KOPG'),
 				'sort' => 420,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -3424,9 +3424,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'soccer',
-				'name' => 'Games Played',
+				'name' => __d('seeds', 'Games Played'),
 				'internal_name' => 'Games Played',
-				'abbr' => 'GP',
+				'abbr' => __dx('seeds', 'stats', 'GP'),
 				'sort' => 10,
 				'class' => 'stat_games',
 				'type' => 'season_calc',
@@ -3435,9 +3435,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'soccer',
-				'name' => 'Started',
+				'name' => __d('seeds', 'Started'),
 				'internal_name' => 'Started',
-				'abbr' => 'GS',
+				'abbr' => __dx('seeds', 'stats', 'GS'),
 				'sort' => 20,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -3445,9 +3445,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'soccer',
-				'name' => 'Games Started',
+				'name' => __d('seeds', 'Games Started'),
 				'internal_name' => 'Games Started',
-				'abbr' => 'GS',
+				'abbr' => __dx('seeds', 'stats', 'GS'),
 				'sort' => 20,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -3457,9 +3457,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'soccer',
-				'name' => 'Minutes Played',
+				'name' => __d('seeds', 'Minutes Played'),
 				'internal_name' => 'Minutes Played',
-				'abbr' => 'MIN',
+				'abbr' => __dx('seeds', 'stats', 'MIN'),
 				'sort' => 100,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -3469,9 +3469,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'soccer',
-				'name' => 'Minutes Played',
+				'name' => __d('seeds', 'Minutes Played'),
 				'internal_name' => 'Minutes Played',
-				'abbr' => 'MIN',
+				'abbr' => __dx('seeds', 'stats', 'MIN'),
 				'sort' => 100,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -3482,9 +3482,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'soccer',
-				'name' => 'Yellow Cards',
+				'name' => __d('seeds', 'Yellow Cards'),
 				'internal_name' => 'Yellow Cards',
-				'abbr' => 'YC',
+				'abbr' => __dx('seeds', 'stats', 'YC'),
 				'sort' => 110,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -3492,9 +3492,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'soccer',
-				'name' => 'Yellow Cards',
+				'name' => __d('seeds', 'Yellow Cards'),
 				'internal_name' => 'Yellow Cards',
-				'abbr' => 'YC',
+				'abbr' => __dx('seeds', 'stats', 'YC'),
 				'sort' => 110,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -3503,9 +3503,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'soccer',
-				'name' => 'Red Cards',
+				'name' => __d('seeds', 'Red Cards'),
 				'internal_name' => 'Red Cards',
-				'abbr' => 'RC',
+				'abbr' => __dx('seeds', 'stats', 'RC'),
 				'sort' => 120,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -3513,9 +3513,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'soccer',
-				'name' => 'Red Cards',
+				'name' => __d('seeds', 'Red Cards'),
 				'internal_name' => 'Red Cards',
-				'abbr' => 'RC',
+				'abbr' => __dx('seeds', 'stats', 'RC'),
 				'sort' => 120,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -3525,9 +3525,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => '!goalkeeper',
-				'name' => 'Goals',
+				'name' => __d('seeds', 'Goals'),
 				'internal_name' => 'Goals',
-				'abbr' => 'G',
+				'abbr' => __dx('seeds', 'stats', 'G'),
 				'sort' => 200,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -3537,9 +3537,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => '!goalkeeper',
-				'name' => 'Goals',
+				'name' => __d('seeds', 'Goals'),
 				'internal_name' => 'Goals',
-				'abbr' => 'G',
+				'abbr' => __dx('seeds', 'stats', 'G'),
 				'sort' => 200,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -3549,9 +3549,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => '!goalkeeper',
-				'name' => 'Goals per Game',
+				'name' => __d('seeds', 'Goals per Game'),
 				'internal_name' => 'Goals per Game',
-				'abbr' => 'GPG',
+				'abbr' => __dx('seeds', 'stats', 'GPG'),
 				'sort' => 300,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -3561,9 +3561,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => '!goalkeeper',
-				'name' => 'Assists',
+				'name' => __d('seeds', 'Assists'),
 				'internal_name' => 'Assists',
-				'abbr' => 'A',
+				'abbr' => __dx('seeds', 'stats', 'A'),
 				'sort' => 210,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -3573,9 +3573,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => '!goalkeeper',
-				'name' => 'Assists',
+				'name' => __d('seeds', 'Assists'),
 				'internal_name' => 'Assists',
-				'abbr' => 'A',
+				'abbr' => __dx('seeds', 'stats', 'A'),
 				'sort' => 210,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -3585,9 +3585,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => '!goalkeeper',
-				'name' => 'Assists per Game',
+				'name' => __d('seeds', 'Assists per Game'),
 				'internal_name' => 'Assists per Game',
-				'abbr' => 'APG',
+				'abbr' => __dx('seeds', 'stats', 'APG'),
 				'sort' => 310,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -3597,9 +3597,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => '!goalkeeper',
-				'name' => 'Points',
+				'name' => __d('seeds', 'Points'),
 				'internal_name' => 'Points',
-				'abbr' => 'P',
+				'abbr' => __dx('seeds', 'stats', 'P'),
 				'sort' => 220,
 				'class' => 'stat_game',
 				'type' => 'game_calc',
@@ -3609,9 +3609,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => '!goalkeeper',
-				'name' => 'Points',
+				'name' => __d('seeds', 'Points'),
 				'internal_name' => 'Points',
-				'abbr' => 'P',
+				'abbr' => __dx('seeds', 'stats', 'P'),
 				'sort' => 220,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -3621,9 +3621,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => '!goalkeeper',
-				'name' => 'Points per Game',
+				'name' => __d('seeds', 'Points per Game'),
 				'internal_name' => 'Points per Game',
-				'abbr' => 'PPG',
+				'abbr' => __dx('seeds', 'stats', 'PPG'),
 				'sort' => 320,
 				'class' => 'stat_per_game',
 				'type' => 'season_avg',
@@ -3633,9 +3633,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => '!goalkeeper',
-				'name' => 'Game Winning Goals',
+				'name' => __d('seeds', 'Game Winning Goals'),
 				'internal_name' => 'Game Winning Goals',
-				'abbr' => 'GWG',
+				'abbr' => __dx('seeds', 'stats', 'GWG'),
 				'sort' => 230,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -3644,9 +3644,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => '!goalkeeper',
-				'name' => 'Game Winning Goals',
+				'name' => __d('seeds', 'Game Winning Goals'),
 				'internal_name' => 'Game Winning Goals',
-				'abbr' => 'GWG',
+				'abbr' => __dx('seeds', 'stats', 'GWG'),
 				'sort' => 230,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -3656,9 +3656,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => '!goalkeeper',
-				'name' => 'Shots',
+				'name' => __d('seeds', 'Shots'),
 				'internal_name' => 'Shots',
-				'abbr' => 'S',
+				'abbr' => __dx('seeds', 'stats', 'S'),
 				'sort' => 240,
 				'class' => 'stat_game',
 				'type' => 'entered',
@@ -3667,9 +3667,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => '!goalkeeper',
-				'name' => 'Shots',
+				'name' => __d('seeds', 'Shots'),
 				'internal_name' => 'Shots',
-				'abbr' => 'S',
+				'abbr' => __dx('seeds', 'stats', 'S'),
 				'sort' => 240,
 				'class' => 'stat_total',
 				'type' => 'season_total',
@@ -3679,9 +3679,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => '!goalkeeper',
-				'name' => 'Shooting Percentage',
+				'name' => __d('seeds', 'Shooting Percentage'),
 				'internal_name' => 'Shooting Percentage',
-				'abbr' => 'S%',
+				'abbr' => __dx('seeds', 'stats', 'S%'),
 				'sort' => 250,
 				'class' => 'stat_game',
 				'type' => 'game_calc',
@@ -3692,9 +3692,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => '!goalkeeper',
-				'name' => 'Shooting Percentage',
+				'name' => __d('seeds', 'Shooting Percentage'),
 				'internal_name' => 'Shooting Percentage',
-				'abbr' => 'S%',
+				'abbr' => __dx('seeds', 'stats', 'S%'),
 				'sort' => 250,
 				'class' => 'stat_total',
 				'type' => 'season_calc',
@@ -3704,9 +3704,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => 'goalkeeper',
-				'name' => 'Wins',
+				'name' => __d('seeds', 'Wins'),
 				'internal_name' => 'Wins',
-				'abbr' => 'W',
+				'abbr' => __dx('seeds', 'stats', 'W'),
 				'sort' => 400,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -3715,9 +3715,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => 'goalkeeper',
-				'name' => 'Wins',
+				'name' => __d('seeds', 'Wins'),
 				'internal_name' => 'Wins',
-				'abbr' => 'W',
+				'abbr' => __dx('seeds', 'stats', 'W'),
 				'sort' => 400,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -3727,9 +3727,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => 'goalkeeper',
-				'name' => 'Losses',
+				'name' => __d('seeds', 'Losses'),
 				'internal_name' => 'Losses',
-				'abbr' => 'L',
+				'abbr' => __dx('seeds', 'stats', 'L'),
 				'sort' => 410,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -3738,9 +3738,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => 'goalkeeper',
-				'name' => 'Losses',
+				'name' => __d('seeds', 'Losses'),
 				'internal_name' => 'Losses',
-				'abbr' => 'L',
+				'abbr' => __dx('seeds', 'stats', 'L'),
 				'sort' => 410,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -3750,9 +3750,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => 'goalkeeper',
-				'name' => 'Ties',
+				'name' => __d('seeds', 'Ties'),
 				'internal_name' => 'Ties',
-				'abbr' => 'T',
+				'abbr' => __dx('seeds', 'stats', 'T'),
 				'sort' => 420,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -3761,9 +3761,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => 'goalkeeper',
-				'name' => 'Ties',
+				'name' => __d('seeds', 'Ties'),
 				'internal_name' => 'Ties',
-				'abbr' => 'T',
+				'abbr' => __dx('seeds', 'stats', 'T'),
 				'sort' => 420,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -3773,9 +3773,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => 'goalkeeper',
-				'name' => 'Shutouts',
+				'name' => __d('seeds', 'Shutouts'),
 				'internal_name' => 'Shutouts',
-				'abbr' => 'SO',
+				'abbr' => __dx('seeds', 'stats', 'SO'),
 				'sort' => 430,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -3784,9 +3784,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => 'goalkeeper',
-				'name' => 'Shutouts',
+				'name' => __d('seeds', 'Shutouts'),
 				'internal_name' => 'Shutouts',
-				'abbr' => 'SO',
+				'abbr' => __dx('seeds', 'stats', 'SO'),
 				'sort' => 430,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -3796,9 +3796,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => 'goalkeeper',
-				'name' => 'Goals Against',
+				'name' => __d('seeds', 'Goals Against'),
 				'internal_name' => 'Goals Against',
-				'abbr' => 'GA',
+				'abbr' => __dx('seeds', 'stats', 'GA'),
 				'sort' => 440,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -3808,9 +3808,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => 'goalkeeper',
-				'name' => 'Goals Against',
+				'name' => __d('seeds', 'Goals Against'),
 				'internal_name' => 'Goals Against',
-				'abbr' => 'GA',
+				'abbr' => __dx('seeds', 'stats', 'GA'),
 				'sort' => 440,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -3820,9 +3820,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => 'goalkeeper',
-				'name' => 'Shots Against',
+				'name' => __d('seeds', 'Shots Against'),
 				'internal_name' => 'Shots Against',
-				'abbr' => 'SA',
+				'abbr' => __dx('seeds', 'stats', 'SA'),
 				'sort' => 450,
 				'class' => 'stat_games',
 				'type' => 'entered',
@@ -3831,9 +3831,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => 'goalkeeper',
-				'name' => 'Shots Against',
+				'name' => __d('seeds', 'Shots Against'),
 				'internal_name' => 'Shots Against',
-				'abbr' => 'SA',
+				'abbr' => __dx('seeds', 'stats', 'SA'),
 				'sort' => 450,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -3843,9 +3843,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => 'goalkeeper',
-				'name' => 'Save Percentage',
+				'name' => __d('seeds', 'Save Percentage'),
 				'internal_name' => 'Save Percentage',
-				'abbr' => 'SV%',
+				'abbr' => __dx('seeds', 'stats', 'SV%'),
 				'sort' => 460,
 				'class' => 'stat_games',
 				'type' => 'season_calc',
@@ -3855,9 +3855,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => 'goalkeeper',
-				'name' => 'Save Percentage',
+				'name' => __d('seeds', 'Save Percentage'),
 				'internal_name' => 'Save Percentage',
-				'abbr' => 'SV%',
+				'abbr' => __dx('seeds', 'stats', 'SV%'),
 				'sort' => 460,
 				'class' => 'stat_games',
 				'type' => 'game_calc',
@@ -3868,9 +3868,9 @@ class StatTypesSeed extends AbstractSeed {
 			[
 				'sport' => 'soccer',
 				'positions' => 'goalkeeper',
-				'name' => 'Goals Against Average',
+				'name' => __d('seeds', 'Goals Against Average'),
 				'internal_name' => 'Goals Against Average',
-				'abbr' => 'GAA',
+				'abbr' => __dx('seeds', 'stats', 'GAA'),
 				'sort' => 470,
 				'class' => 'stat_games',
 				'type' => 'season_calc',
@@ -3883,9 +3883,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'volleyball',
-				'name' => 'Games Played',
+				'name' => __d('seeds', 'Games Played'),
 				'internal_name' => 'Games Played',
-				'abbr' => 'GP',
+				'abbr' => __dx('seeds', 'stats', 'GP'),
 				'sort' => 10,
 				'class' => 'stat_games',
 				'type' => 'season_calc',
@@ -3894,9 +3894,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'volleyball',
-				'name' => 'Wins',
+				'name' => __d('seeds', 'Wins'),
 				'internal_name' => 'Wins',
-				'abbr' => 'W',
+				'abbr' => __dx('seeds', 'stats', 'W'),
 				'sort' => 20,
 				'class' => 'stat_games',
 				'type' => 'game_calc',
@@ -3905,9 +3905,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'volleyball',
-				'name' => 'Wins',
+				'name' => __d('seeds', 'Wins'),
 				'internal_name' => 'Wins',
-				'abbr' => 'W',
+				'abbr' => __dx('seeds', 'stats', 'W'),
 				'sort' => 20,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -3917,9 +3917,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'volleyball',
-				'name' => 'Losses',
+				'name' => __d('seeds', 'Losses'),
 				'internal_name' => 'Losses',
-				'abbr' => 'L',
+				'abbr' => __dx('seeds', 'stats', 'L'),
 				'sort' => 30,
 				'class' => 'stat_games',
 				'type' => 'game_calc',
@@ -3928,9 +3928,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'volleyball',
-				'name' => 'Losses',
+				'name' => __d('seeds', 'Losses'),
 				'internal_name' => 'Losses',
-				'abbr' => 'L',
+				'abbr' => __dx('seeds', 'stats', 'L'),
 				'sort' => 30,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -3940,9 +3940,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'volleyball',
-				'name' => 'Ties',
+				'name' => __d('seeds', 'Ties'),
 				'internal_name' => 'Ties',
-				'abbr' => 'T',
+				'abbr' => __dx('seeds', 'stats', 'T'),
 				'sort' => 40,
 				'class' => 'stat_games',
 				'type' => 'game_calc',
@@ -3951,9 +3951,9 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'volleyball',
-				'name' => 'Ties',
+				'name' => __d('seeds', 'Ties'),
 				'internal_name' => 'Ties',
-				'abbr' => 'T',
+				'abbr' => __dx('seeds', 'stats', 'T'),
 				'sort' => 40,
 				'class' => 'stat_games',
 				'type' => 'season_total',
@@ -3963,17 +3963,24 @@ class StatTypesSeed extends AbstractSeed {
 
 			[
 				'sport' => 'volleyball',
-				'name' => 'Win Percent',
+				'name' => __d('seeds', 'Win Percent'),
 				'internal_name' => 'Win Percent',
-				'abbr' => 'W%',
+				'abbr' => __dx('seeds', 'stats', 'W%'),
 				'sort' => 50,
 				'class' => 'stat_games',
 				'type' => 'season_calc',
 				'handler' => 'wins',
 			],
 		];
+	}
 
+	/**
+	 * Run Method.
+	 *
+	 * @return void
+	 */
+	public function run() {
 		$table = $this->table('stat_types');
-		$table->insert($data)->save();
+		$table->insert($this->data())->save();
 	}
 }

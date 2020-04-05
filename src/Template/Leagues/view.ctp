@@ -80,10 +80,10 @@ endif;
 		?></dd>
 <?php
 if ($collapse) {
-	echo $this->element('Divisions/details', array_merge([
+	echo $this->element('Divisions/details', [
 		'division' => $league->divisions[0],
 		'people' => $league->divisions[0]->people,
-	], compact('i', 'class')));
+	]);
 }
 ?>
 	</dl>

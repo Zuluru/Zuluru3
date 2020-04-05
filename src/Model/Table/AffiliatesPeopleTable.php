@@ -25,9 +25,9 @@ class AffiliatesPeopleTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('affiliates_people');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('affiliates_people');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->belongsTo('Affiliates', [
 			'foreignKey' => 'affiliate_id',

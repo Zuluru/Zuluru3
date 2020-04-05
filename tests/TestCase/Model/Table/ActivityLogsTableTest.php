@@ -29,6 +29,7 @@ class ActivityLogsTableTest extends TableTestCase {
 			'app.mailing_lists',
 				'app.newsletters',
 			'app.activity_logs',
+		'app.i18n',
 	];
 
 	/**

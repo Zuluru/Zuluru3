@@ -33,9 +33,9 @@ class ScoreEntriesTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('score_entries');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('score_entries');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Timestamp');
 		$this->addBehavior('Muffin/Footprint.Footprint', [
@@ -209,7 +209,7 @@ class ScoreEntriesTable extends AppTable {
 		}
 
 		if ($data['status'] == 'home_default') {
-			$home_team = TableRegistry::get('Games')->field('home_team_id', ['id' => $data['game_id']]);
+			$home_team = TableRegistry::get('Games')->field('home_team_id', ['Games.id' => $data['game_id']]);
 			if ($home_team == $data['team_id']) {
 				$data['score_for'] = Configure::read('scoring.default_losing_score');
 				$data['score_against'] = Configure::read('scoring.default_winning_score');
@@ -218,7 +218,7 @@ class ScoreEntriesTable extends AppTable {
 				$data['score_against'] = Configure::read('scoring.default_losing_score');
 			}
 		} else if ($data['status'] == 'away_default') {
-			$home_team = TableRegistry::get('Games')->field('home_team_id', ['id' => $data['game_id']]);
+			$home_team = TableRegistry::get('Games')->field('home_team_id', ['Games.id' => $data['game_id']]);
 			if ($home_team == $data['team_id']) {
 				$data['score_for'] = Configure::read('scoring.default_winning_score');
 				$data['score_against'] = Configure::read('scoring.default_losing_score');
@@ -271,7 +271,7 @@ class ScoreEntriesTable extends AppTable {
 
 	public function division($id) {
 		try {
-			return $this->Games->division($this->field('game_id', ['id' => $id]));
+			return $this->Games->division($this->field('game_id', ['ScoreEntries.id' => $id]));
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}
@@ -279,7 +279,7 @@ class ScoreEntriesTable extends AppTable {
 
 	public function team($id) {
 		try {
-			return $this->field('team_id', ['id' => $id]);
+			return $this->field('team_id', ['ScoreEntries.id' => $id]);
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

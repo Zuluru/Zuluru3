@@ -1,3 +1,9 @@
+<?php
+/**
+ * @type \App\Model\Entity\Division $division
+ * @type \App\Model\Entity\League $league
+ */
+?>
 <tr>
 	<th rowspan="2"><?= __('Seed') ?></th>
 	<th rowspan="2"><?= __('Team Name') ?></th>

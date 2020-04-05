@@ -23,6 +23,7 @@ class UserTest extends TestCase {
 	 * @var array
 	 */
 	public $fixtures = [
+		'app.i18n',
 	];
 
 	/**

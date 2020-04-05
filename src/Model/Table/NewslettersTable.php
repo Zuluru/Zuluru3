@@ -25,12 +25,13 @@ class NewslettersTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('newsletters');
-		$this->displayField('name');
-		$this->primaryKey('id');
+		$this->setTable('newsletters');
+		$this->setDisplayField('name');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
 		$this->addBehavior('Timestamp');
+		$this->addBehavior('Translate', ['fields' => ['name', 'subject', 'text']]);
 
 		$this->belongsTo('MailingLists', [
 			'foreignKey' => 'mailing_list_id',
@@ -124,7 +125,7 @@ class NewslettersTable extends AppTable {
 
 	public function affiliate($id) {
 		try {
-			return $this->MailingLists->affiliate($this->field('mailing_list_id', ['id' => $id]));
+			return $this->MailingLists->affiliate($this->field('mailing_list_id', ['Newsletters.id' => $id]));
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

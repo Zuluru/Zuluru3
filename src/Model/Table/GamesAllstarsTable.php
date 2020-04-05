@@ -24,9 +24,9 @@ class GamesAllstarsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('games_allstars');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('games_allstars');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->belongsTo('People', [
 			'foreignKey' => 'person_id',

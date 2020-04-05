@@ -1,14 +1,16 @@
 <?php
 namespace App\Model\Entity;
 
+use App\Core\ModuleRegistry;
+use App\Model\Traits\TranslateFieldTrait;
 use Cake\Core\Configure;
 use Cake\Event\Event as CakeEvent;
 use Cake\Event\EventManager;
 use Cake\I18n\FrozenTime;
+use Cake\ORM\Behavior\Translate\TranslateTrait;
 use Cake\ORM\Entity;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
-use App\Core\ModuleRegistry;
 
 /**
  * Event Entity.
@@ -50,6 +52,9 @@ use App\Core\ModuleRegistry;
  * @property \App\Model\Entity\Person $people
  */
 class Event extends Entity {
+
+	use TranslateTrait;
+	use TranslateFieldTrait;
 
 	/**
 	 * Fields that can be mass assigned using newEntity() or patchEntity().

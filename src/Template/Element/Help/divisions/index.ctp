@@ -20,9 +20,9 @@ if ($identity && ($identity->isManager() || $identity->isCoordinator())) {
 			],
 			'fields' => [
 				'image' => 'field_report_32.png',
-				'title' => __('{0} Distribution Report', __(Configure::read('UI.field_cap'))),
+				'title' => __('{0} Distribution Report', Configure::read('UI.field_cap')),
 			],
-			'slots' => __('{0} Availability Report', __(Configure::read('UI.field_cap'))),
+			'slots' => __('{0} Availability Report', Configure::read('UI.field_cap')),
 			'spirit' => [
 				'image' => 'spirit_32.png',
 				'title' => 'Spirit Report',

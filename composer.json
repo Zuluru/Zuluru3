@@ -16,8 +16,8 @@
         }
     ],
     "require": {
-        "php": ">=5.5.9",
-        "cakephp/cakephp": "3.*",
+        "php": ">=7.2.0",
+        "cakephp/cakephp": ">=3.8.4",
         "mobiledetect/mobiledetectlib": "2.*",
         "cakephp/migrations": "~1.0",
         "cakephp/plugin-installer": "*",
@@ -36,11 +36,12 @@
         "zuluru/cakephp-bootstrap": "dev-master",
         "trentrichardson/cakephp-scheduler": "^3.0",
         "josegonzalez/dotenv": "^3.2",
-        "cakephp-app-installer/installer": "^2.0",
+        "cakephp-app-installer/installer": "dev-master#de2ce42",
         "ozee31/cakephp-cors": "^1.1",
         "cakephp/authentication": "^1.0",
         "cakephp/authorization": "dev-master",
-        "firebase/php-jwt": "^5.0"
+        "firebase/php-jwt": "^5.0",
+        "dereuromark/cakephp-transifex": "^2.0"
     },
     "require-dev": {
         "cakephp/debug_kit": "3.2.*",

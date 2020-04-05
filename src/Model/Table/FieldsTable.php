@@ -26,11 +26,12 @@ class FieldsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('fields');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('fields');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
+		$this->addBehavior('Translate', ['fields' => ['num']]);
 
 		$this->belongsTo('Facilities', [
 			'foreignKey' => 'facility_id',
@@ -115,9 +116,9 @@ class FieldsTable extends AppTable {
 			} else if ($entity->has('facility') && $entity->facility->has('fields')) {
 				$fields = count($entity->facility->fields);
 			} else {
-				$fields = $this->find()->where(['facility_id' => $entity->facility_id]);
+				$fields = $this->find()->where(['Fields.facility_id' => $entity->facility_id]);
 				if (!$entity->isNew()) {
-					$fields->andWhere(['id !=' => $entity->id]);
+					$fields->andWhere(['Fields.id !=' => $entity->id]);
 				}
 				$fields = $fields->count() + 1;
 			}
@@ -128,7 +129,7 @@ class FieldsTable extends AppTable {
 			return !empty($entity->num);
 		}, 'validNumber', [
 			'errorField' => 'num',
-			'message' => __('{0} numbers can only be blank if there is a single {1} at the facility.', __(Configure::read('UI.field_cap')), __(Configure::read('UI.field'))),
+			'message' => __('{0} numbers can only be blank if there is a single {1} at the facility.', Configure::read('UI.field_cap'), Configure::read('UI.field')),
 		]);
 
 		$rules->add(new InConfigRule('options.field_rating'), 'validRating', [
@@ -154,7 +155,7 @@ class FieldsTable extends AppTable {
 
 			// Don't delete the last field at a facility
 			if (count($entity->facility->fields) < 2) {
-				return __('You cannot delete the only {0} at a facility.', __(Configure::read('UI.field')));
+				return __('You cannot delete the only {0} at a facility.', Configure::read('UI.field'));
 			}
 			return true;
 		}, 'last', ['errorField' => 'delete']);
@@ -164,7 +165,7 @@ class FieldsTable extends AppTable {
 
 	public function affiliate($id) {
 		try {
-			return $this->Facilities->affiliate($this->field('facility_id', ['id' => $id]));
+			return $this->Facilities->affiliate($this->field('facility_id', ['Fields.id' => $id]));
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}
@@ -172,7 +173,7 @@ class FieldsTable extends AppTable {
 
 	public function sport($id) {
 		try {
-			return $this->field('sport', ['id' => $id]);
+			return $this->field('sport', ['Fields.id' => $id]);
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

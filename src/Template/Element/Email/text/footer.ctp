@@ -2,7 +2,8 @@
 use Cake\Core\Configure;
 ?>
 
-Thanks,
+<?= __('Thanks,') ?>
+
 <?= Configure::read('email.admin_name') ?>
 
 <?= Configure::read('organization.name');

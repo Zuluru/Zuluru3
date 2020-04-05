@@ -25,7 +25,7 @@ echo $this->Form->end();
 
 <div id="SlotResults">
 <?php
-if (isset($slots)) {
+if (!empty($slots)) {
 	echo $this->element('Divisions/slots_results');
 }
 ?>

@@ -49,6 +49,7 @@ class RegistrationTest extends TestCase {
 					'app.registrations',
 						'app.payments',
 		'app.settings',
+		'app.i18n',
 	];
 
 	/**

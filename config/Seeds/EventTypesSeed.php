@@ -6,43 +6,50 @@ use Migrations\AbstractSeed;
  */
 class EventTypesSeed extends AbstractSeed {
 	/**
+	 * Data Method.
+	 *
+	 * @return mixed
+	 */
+	public function data() {
+		return [
+			[
+				'name' => __d('seeds', 'Membership'),
+				'type' => 'membership',
+			],
+			[
+				'name' => __d('seeds', 'Teams for Leagues'),
+				'type' => 'team',
+			],
+			[
+				'name' => __d('seeds', 'Individuals for Leagues'),
+				'type' => 'individual',
+			],
+			[
+				'name' => __d('seeds', 'Teams for Events'),
+				'type' => 'team',
+			],
+			[
+				'name' => __d('seeds', 'Individuals for Events'),
+				'type' => 'individual',
+			],
+			[
+				'name' => __d('seeds', 'Clinics'),
+				'type' => 'generic',
+			],
+			[
+				'name' => __d('seeds', 'Social Events'),
+				'type' => 'generic',
+			],
+		];
+	}
+
+	/**
 	 * Run Method.
 	 *
 	 * @return void
 	 */
 	public function run() {
-		$data = [
-			[
-				'name' => 'Membership',
-				'type' => 'membership',
-			],
-			[
-				'name' => 'Teams for Leagues',
-				'type' => 'team',
-			],
-			[
-				'name' => 'Individuals for Leagues',
-				'type' => 'individual',
-			],
-			[
-				'name' => 'Teams for Events',
-				'type' => 'team',
-			],
-			[
-				'name' => 'Individuals for Events',
-				'type' => 'individual',
-			],
-			[
-				'name' => 'Clinics',
-				'type' => 'generic',
-			],
-			[
-				'name' => 'Social Events',
-				'type' => 'generic',
-			],
-		];
-
 		$table = $this->table('event_types');
-		$table->insert($data)->save();
+		$table->insert($this->data())->save();
 	}
 }

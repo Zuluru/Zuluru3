@@ -28,9 +28,9 @@ class PaymentsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('payments');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('payments');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Timestamp');
 
@@ -177,7 +177,7 @@ class PaymentsTable extends AppTable {
 
 	public function affiliate($id) {
 		try {
-			return $this->Registrations->affiliate($this->field('registration_id', ['id' => $id]));
+			return $this->Registrations->affiliate($this->field('registration_id', ['Payments.id' => $id]));
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

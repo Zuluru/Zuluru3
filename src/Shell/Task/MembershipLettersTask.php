@@ -45,7 +45,7 @@ class MembershipLettersTask extends Shell {
 				foreach ($people as $person) {
 					if (AppController::_sendMail([
 						'to' => $person,
-						'subject' => __('{0} {1} Membership', Configure::read('organization.name'), $event->membership_begins->year),
+						'subject' => function() use ($event) { return __('{0} {1} Membership', Configure::read('organization.name'), $event->membership_begins->year); },
 						'template' => 'membership_letter',
 						'sendAs' => 'both',
 						'header' => [

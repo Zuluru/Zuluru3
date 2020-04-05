@@ -22,6 +22,7 @@ class DaysTableTest extends TableTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
+		'app.i18n',
 	];
 
 	/**

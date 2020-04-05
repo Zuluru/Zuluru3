@@ -22,9 +22,11 @@ class AnswersTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('answers');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('answers');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
+
+		$this->addBehavior('Translate', ['fields' => ['answer']]);
 
 		$this->belongsTo('Questions', [
 			'foreignKey' => 'question_id',
@@ -69,7 +71,7 @@ class AnswersTable extends AppTable {
 
 	public function affiliate($id) {
 		try {
-			return $this->Questions->affiliate($this->field('question_id', ['id' => $id]));
+			return $this->Questions->affiliate($this->field('question_id', ['Answers.id' => $id]));
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

@@ -22,11 +22,12 @@ class RegionsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('regions');
-		$this->displayField('name');
-		$this->primaryKey('id');
+		$this->setTable('regions');
+		$this->setDisplayField('name');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
+		$this->addBehavior('Translate', ['fields' => ['name']]);
 
 		$this->belongsTo('Affiliates', [
 			'foreignKey' => 'affiliate_id',
@@ -72,7 +73,7 @@ class RegionsTable extends AppTable {
 
 	public function affiliate($id) {
 		try {
-			return $this->field('affiliate_id', ['id' => $id]);
+			return $this->field('affiliate_id', ['Regions.id' => $id]);
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

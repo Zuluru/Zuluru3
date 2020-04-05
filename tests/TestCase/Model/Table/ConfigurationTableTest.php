@@ -27,6 +27,7 @@ class ConfigurationTableTest extends TableTestCase {
 			'app.users',
 				'app.people',
 			'app.settings',
+		'app.i18n',
 	];
 
 	/**

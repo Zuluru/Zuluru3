@@ -1,4 +1,13 @@
 <?php
+/**
+ * @type \App\Model\Entity\Division $division
+ * @type \App\Model\Entity\League $league
+ * @type \App\Model\Entity\Team $team
+ * @type \App\Module\Spirit $spirit_obj
+ * @type string[] $classes
+ * @type int $seed
+ */
+
 $class = null;
 if (count($classes)) {
 	$class = ' class="' . implode(' ', $classes). '"';

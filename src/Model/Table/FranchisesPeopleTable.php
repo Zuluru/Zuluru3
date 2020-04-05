@@ -28,9 +28,9 @@ class FranchisesPeopleTable extends AppTable {
 	public function initialize(array $config) {
         parent::initialize($config);
 
-		$this->table('franchises_people');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('franchises_people');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 
 		$this->belongsTo('Franchises', [

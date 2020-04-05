@@ -69,7 +69,7 @@ if (empty($facility->fields)) {
 		<div class="actions columns">
 			<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Jquery->ajaxLink($this->Html->iconImg('add_32.png', ['alt' => __('Add {0}', __(Configure::read('UI.field'))), 'title' => __('Add {0}', __(Configure::read('UI.field')))]), [
+echo $this->Html->tag('li', $this->Jquery->ajaxLink($this->Html->iconImg('add_32.png', ['alt' => __('Add {0}', Configure::read('UI.field')), 'title' => __('Add {0}', Configure::read('UI.field'))]), [
 	'url' => ['action' => 'add_field'],
 	'disposition' => 'append',
 	'selector' => '#accordion',

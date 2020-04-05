@@ -32,6 +32,7 @@ class PricesTableTest extends TableTestCase {
 				'app.divisions',
 			'app.events',
 				'app.prices',
+		'app.i18n',
 	];
 
 	/**

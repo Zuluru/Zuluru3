@@ -39,7 +39,7 @@ class RuleRegistered extends Rule {
 		$model = TableRegistry::get('Events');
 		$this->events = $model->find()
 			->hydrate(false)
-			->where(['id IN' => $this->event_ids])
+			->where(['Events.id IN' => $this->event_ids])
 			->combine('id', 'name')
 			->toArray();
 		if (count($this->events) != count($this->event_ids)) {

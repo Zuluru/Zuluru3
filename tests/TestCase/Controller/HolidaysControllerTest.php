@@ -25,6 +25,7 @@ class HolidaysControllerTest extends ControllerTestCase {
 					'app.divisions_people',
 			'app.holidays',
 			'app.settings',
+		'app.i18n',
 	];
 
 	/**

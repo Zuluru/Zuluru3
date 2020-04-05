@@ -18,9 +18,8 @@ class InitializationListener implements EventListenerInterface {
 		// Set the theme, if any
 		$theme = Configure::read('App.theme');
 		if (!empty($theme)) {
-			Plugin::load($theme);
 			// Assumption here is that the subject is always a controller
-			$event->subject()->viewBuilder()->theme($theme);
+			$event->getSubject()->viewBuilder()->setTheme($theme);
 		}
 	}
 

@@ -158,12 +158,12 @@ endif;
 if (!empty($facility->fields)):
 ?>
 <div class="related">
-	<h3><?= __('{0} at this facility', __(Configure::read('UI.fields_cap'))) ?></h3>
+	<h3><?= __('{0} at this facility', Configure::read('UI.fields_cap')) ?></h3>
 	<div class="table-responsive">
 	<table class="table table-striped table-hover table-condensed tablesorter">
 		<thead>
 			<tr>
-				<th><?= __(Configure::read('UI.field_cap')) ?></th>
+				<th><?= Configure::read('UI.field_cap') ?></th>
 <?php
 	if ($show_indoor):
 ?>
@@ -216,7 +216,7 @@ if (!empty($facility->fields)):
 						['alt' => __('Edit'), 'title' => __('Edit Layout')]);
 				}
 				if (!empty($field->layout_url)) {
-					echo ' / ' . $this->Html->link(__('Layout', __(Configure::read('UI.field'))), $field->layout_url, ['target' => 'map']);
+					echo ' / ' . $this->Html->link(__('Layout', Configure::read('UI.field')), $field->layout_url, ['target' => 'map']);
 				}
 				?></td>
 <?php

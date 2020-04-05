@@ -36,11 +36,12 @@ class EventsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('events');
-		$this->displayField('name');
-		$this->primaryKey('id');
+		$this->setTable('events');
+		$this->setDisplayField('name');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
+		$this->addBehavior('Translate', ['fields' => ['name', 'description']]);
 
 		$this->belongsTo('EventTypes', [
 			'foreignKey' => 'event_type_id',
@@ -272,7 +273,7 @@ class EventsTable extends AppTable {
 		if (!empty($data['event_type']['type'])) {
 			$type = $data['event_type']['type'];
 		} else if (!empty($data['event_type_id'])) {
-			$type = $this->EventTypes->field('type', ['id' => $data['event_type_id']]);
+			$type = $this->EventTypes->field('type', ['EventTypes.id' => $data['event_type_id']]);
 		}
 		if (isset($type)) {
 			$event_obj = ModuleRegistry::getInstance()->load("EventType:{$type}");
@@ -337,7 +338,7 @@ class EventsTable extends AppTable {
 
 	public function affiliate($id) {
 		try {
-			return $this->field('affiliate_id', ['id' => $id]);
+			return $this->field('affiliate_id', ['Events.id' => $id]);
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}
@@ -345,7 +346,7 @@ class EventsTable extends AppTable {
 
 	public function division($id) {
 		try {
-			return $this->field('division_id', ['id' => $id]);
+			return $this->field('division_id', ['Events.id' => $id]);
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

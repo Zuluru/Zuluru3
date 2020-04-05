@@ -67,6 +67,7 @@ class PeopleControllerTest extends ControllerTestCase {
 			'app.settings',
 			'app.waivers',
 				'app.waivers_people',
+		'app.i18n',
 	];
 
 	public function setUp() {
@@ -1198,7 +1199,7 @@ class PeopleControllerTest extends ControllerTestCase {
 					'value' => '',
 				],
 			]);
-		$this->assertCookie('', 'ZuluruLocale');
+		$this->assertCookieNotSet('ZuluruLocale');
 		$this->assertResponseContains('The preferences have been saved.');
 
 		$this->markTestIncomplete('Not implemented yet.');

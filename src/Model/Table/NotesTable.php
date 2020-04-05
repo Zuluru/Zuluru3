@@ -26,9 +26,9 @@ class NotesTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('notes');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('notes');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
 		$this->addBehavior('Timestamp');

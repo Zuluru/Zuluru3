@@ -219,7 +219,7 @@ class NewslettersController extends AppController {
 		$ids = collection($newsletter->deliveries)->extract('person_id')->toArray();
 		if (!empty($ids)) {
 			$people = TableRegistry::get('People')->find()
-				->where(['id IN' => $ids])
+				->where(['People.id IN' => $ids])
 				->order(['last_name', 'first_name'])
 				->toArray();
 		} else {

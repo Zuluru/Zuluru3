@@ -27,6 +27,7 @@ class RegionsControllerTest extends ControllerTestCase {
 					'app.teams',
 					'app.divisions_people',
 			'app.settings',
+		'app.i18n',
 	];
 
 	/**

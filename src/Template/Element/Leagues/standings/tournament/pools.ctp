@@ -1,8 +1,14 @@
 <?php
+/**
+ * @type \App\Model\Entity\Division $division
+ * @type \App\Model\Entity\Pool[][] $games
+ * @type \App\Model\Entity\Team[] $teams
+ * @type boolean $can_edit
+ */
+
 use App\Controller\AppController;
 use App\Model\Results\Comparison;
 use App\Model\Traits\DateTimeCombinator;
-use Cake\Core\Configure;
 
 ksort($games);
 $teams = collection($teams)->indexBy('id')->toArray();
@@ -13,7 +19,7 @@ foreach ($games as $stage_id => $stage):
 ?>
 <div class="pool-results">
 	<h4><?php
-		echo __('Pool {0}', $pool->games[0]->home_pool_team->pool->name);
+		echo __('Pool {0}', $pool->games[0]->home_pool_team->pool->translateField('name'));
 		if ($can_edit) {
 			echo '&nbsp;';
 			echo $this->Form->iconPostLink('delete_24.png',

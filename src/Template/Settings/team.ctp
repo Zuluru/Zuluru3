@@ -79,7 +79,7 @@ echo $this->element('Settings/input', [
 
 	<fieldset>
 		<legend><?= __('Location Preference Features') ?></legend>
-		<p class="warning-message"><?= __('Any or all of these options may be enabled; {0} will be allocated in order of most specific available preference to least.', __(Configure::read('UI.fields'))) ?></p>
+		<p class="warning-message"><?= __('Any or all of these options may be enabled; {0} will be allocated in order of most specific available preference to least.', Configure::read('UI.fields')) ?></p>
 <?php
 echo $this->element('Settings/input', [
 	'category' => 'feature',
@@ -89,7 +89,7 @@ echo $this->element('Settings/input', [
 		'type' => 'radio',
 		'options' => Configure::read('options.enable'),
 		'help' => __('If enabled, administrators will be able to assign home {0} to teams. Teams with home {0} will be scheduled there whenever possible.',
-			__(Configure::read('UI.fields'))
+			Configure::read('UI.fields')
 		),
 	],
 ]);

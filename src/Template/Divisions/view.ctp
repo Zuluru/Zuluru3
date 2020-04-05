@@ -48,10 +48,10 @@ endif;
 ?>
 			</dl>
 		</fieldset>
-		<?= $this->element('Divisions/details', array_merge([
+		<?= $this->element('Divisions/details', [
 			'division' => $division,
 			'people' => $division->people,
-		], compact('i', 'class'))) ?>
+		]) ?>
 	</dl>
 </div>
 <div class="actions columns">

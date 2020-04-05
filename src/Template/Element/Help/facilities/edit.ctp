@@ -3,7 +3,7 @@ use Cake\Core\Configure;
 ?>
 <p><?= __('The "{0}" page is used to update details of your facilities and {1}.',
 	__('Edit Facility'),
-	__(Configure::read('UI.fields'))
+	Configure::read('UI.fields')
 ) ?></p>
 <p><?= __('The "{0}" page is essentially identical to this page.',
 	__('Create Facility')
@@ -27,9 +27,9 @@ echo $this->element('Help/topics', [
 	],
 ]);
 ?>
-<h3><?= __(Configure::read('UI.fields_cap')) ?></h3>
+<h3><?= Configure::read('UI.fields_cap') ?></h3>
 <p><?= __('Details of {0} are also edited through the {1} page.',
-	__(Configure::read('UI.field_cap')), __('Edit Facility')
+	Configure::read('UI.field_cap'), __('Edit Facility')
 ) ?></p>
 <?php
 echo $this->element('Help/topics', [

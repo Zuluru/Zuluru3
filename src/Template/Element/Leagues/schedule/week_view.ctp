@@ -1,4 +1,11 @@
 <?php
+/**
+ * @type \App\Model\Entity\Division $division
+ * @type \App\Model\Entity\League $league
+ * @type boolean $multi_day
+ * @type \Cake\I18n\FrozenDate[] $week
+ */
+
 if (isset($division)) {
 	$games = $division->games;
 	$competition = ($division->schedule_type == 'competition');
@@ -11,6 +18,7 @@ if (isset($division)) {
 	$id = $league->id;
 	$id_field = 'league';
 	$can_edit = $this->Authorize->can('edit_schedule', $league);
+	$division = null;
 }
 
 // Spin through the games before building headers, to eliminate edit-type actions on completed weeks.
@@ -30,9 +38,7 @@ if (!$published && !$can_edit) {
 }
 
 echo $this->element('Leagues/schedule/view_header', compact('division', 'league', 'week', 'competition', 'id_field', 'id', 'published', 'finalized', 'is_tournament', 'multi_day', 'has_dependent_games'));
-?>
 
-<?php
 $last_date = $last_slot = null;
 foreach ($games as $game):
 	if (!$game->published && !$can_edit) {

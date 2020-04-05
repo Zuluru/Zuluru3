@@ -21,9 +21,9 @@ class SettingsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('settings');
-		$this->displayField('name');
-		$this->primaryKey('id');
+		$this->setTable('settings');
+		$this->setDisplayField('name');
+		$this->setPrimaryKey('id');
 
 		$this->belongsTo('People', [
 			'foreignKey' => 'person_id',

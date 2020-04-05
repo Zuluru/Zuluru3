@@ -275,7 +275,7 @@ if (in_array('groups', $visible_properties)):
 		<dd><?php
 			$names = [];
 			foreach ($person->groups as $group) {
-				$names[] = __($group->name);
+				$names[] = $group->translateField('name');
 			}
 			if (empty($names)) {
 				echo __('None');
@@ -706,7 +706,7 @@ if (in_array('preregistrations', $visible_properties) || (!empty($person->prereg
 		foreach ($person->preregistrations as $preregistration):
 ?>
 			<tr>
-				<td><?= $this->Html->link($preregistration->event->name, ['controller' => 'Events', 'action' => 'view', 'event' => $preregistration->event->id]) ?></td>
+				<td><?= $this->Html->link($preregistration->event->translateField('name'), ['controller' => 'Events', 'action' => 'view', 'event' => $preregistration->event->id]) ?></td>
 				<td class="actions"><?php
 					echo $this->Form->iconPostLink('delete_24.png',
 						['action' => 'delete', 'preregistration' => $preregistration->id],
@@ -759,7 +759,7 @@ if ((in_array('registrations', $visible_properties)) && !empty($person->registra
 	foreach ($person->registrations as $registration):
 ?>
 				<tr>
-					<td><?= $this->Html->link($registration->event->name, ['controller' => 'Events', 'action' => 'view', 'event' => $registration->event->id]) ?></td>
+					<td><?= $this->Html->link($registration->event->translateField('name'), ['controller' => 'Events', 'action' => 'view', 'event' => $registration->event->id]) ?></td>
 					<td><?= $this->Time->date($registration->created) ?></td>
 					<td><?= __($registration->payment) ?></td>
 					<td class="actions"><?= $this->element('Registrations/actions', ['registration' => $registration]) ?></td>
@@ -848,7 +848,7 @@ if (in_array('waivers', $visible_properties)):
 		foreach ($person->waivers as $waiver):
 ?>
 				<tr>
-					<td><?= $waiver->name ?></td>
+					<td><?= $waiver->translateField('name') ?></td>
 					<td><?= $this->Time->fulldate($waiver->_matchingData['WaiversPeople']->created) ?></td>
 					<td><?= $this->Time->fulldate($waiver->_matchingData['WaiversPeople']->valid_from) ?></td>
 					<td><?= $this->Time->fulldate($waiver->_matchingData['WaiversPeople']->valid_until) ?></td>
@@ -902,7 +902,7 @@ if (in_array('uploads', $visible_properties)):
 		foreach ($person->uploads as $upload):
 ?>
 				<tr>
-					<td><?= $upload->upload_type->name ?></td>
+					<td><?= $upload->upload_type->translateField('name') ?></td>
 <?php
 			if ($upload->approved):
 ?>
@@ -973,7 +973,7 @@ if ((in_array('tasks', $visible_properties)) && !empty($person->tasks)):
 ?>
 				<tr>
 					<td class="splash_item"><?php
-						echo $this->Html->link($task_slot->task->name, ['controller' => 'Tasks', 'action' => 'view', 'task' => $task_slot->task->id]);
+						echo $this->Html->link($task_slot->task->translateField('name'), ['controller' => 'Tasks', 'action' => 'view', 'task' => $task_slot->task->id]);
 					?></td>
 					<td class="splash_item"><?php
 					echo $this->Time->day($task_slot->task_date) . ', ' .

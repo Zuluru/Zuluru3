@@ -39,11 +39,12 @@ class AffiliatesTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('affiliates');
-		$this->displayField('name');
-		$this->primaryKey('id');
+		$this->setTable('affiliates');
+		$this->setDisplayField('name');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
+		$this->addBehavior('Translate', ['fields' => ['name']]);
 
 		$this->hasMany('Badges', [
 			'foreignKey' => 'affiliate_id',
@@ -139,7 +140,7 @@ class AffiliatesTable extends AppTable {
 			return [];
 		}
 
-		$affiliates = $this->find()
+		$affiliates = $this->find('translations')
 			->matching('People', function (Query $q) use ($id) {
 				return $q->where(['People.id' => $id]);
 			})

@@ -218,14 +218,6 @@ abstract class Rule {
 			'People.status' => 'active',
 		]);
 
-		/* TODODATABASE: Deal with multiple databases, here and above in query
-		$prefix = '';
-		$connectionName = $authenticate->defaultConnectionName();
-		if ($connectionName != 'default') {
-			$config = ConnectionManager::get($connectionName)->config();
-			$prefix = "{$config['database']}.";
-		}
-		*/
 		$query->leftJoin([$user_model => $authenticate->table()], "$user_model.$id_field = People.user_id");
 
 		// TODO: We should really not use this when using TeamCount or LeagueTeamCount or Registered or MemberType

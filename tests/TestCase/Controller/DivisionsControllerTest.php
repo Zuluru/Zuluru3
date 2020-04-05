@@ -60,6 +60,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 			'app.settings',
 			'app.waivers',
 				'app.waivers_people',
+		'app.i18n',
 	];
 
 	/**

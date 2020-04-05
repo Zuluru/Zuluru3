@@ -1,4 +1,5 @@
 <?php
+$preview = false;
 foreach ($questions as $question => $details) {
 	if (!array_key_exists('restricted', $details) || !$details['restricted'] || $show_restricted) {
 		echo $this->Html->tag('h3', $details['text']);
@@ -10,6 +11,6 @@ foreach ($questions as $question => $details) {
 		} else {
 			$answer = null;
 		}
-		echo $this->element("FormBuilder/view/{$details['type']}", compact('options', 'answer'));
+		echo $this->element("FormBuilder/view/{$details['type']}", compact('preview', 'options', 'answer'));
 	}
 }

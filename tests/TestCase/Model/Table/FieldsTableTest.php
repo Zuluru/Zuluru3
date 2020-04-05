@@ -26,6 +26,7 @@ class FieldsTableTest extends TableTestCase {
 			'app.regions',
 				'app.facilities',
 					'app.fields',
+		'app.i18n',
 	];
 
 	/**

@@ -22,7 +22,7 @@ echo $this->Form->create($franchise, ['align' => 'horizontal']);
 echo $this->Form->input('team_id', [
 		'label' => false,
 		'options' => $options,
-		'empty' => '-- select from list --',
+		'empty' => __('-- select from list --'),
 ]);
 echo $this->Form->button(__('Add Team'), ['class' => 'btn-success']);
 echo $this->Form->end();

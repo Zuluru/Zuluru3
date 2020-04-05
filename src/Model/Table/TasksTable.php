@@ -23,9 +23,12 @@ class TasksTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('tasks');
-		$this->displayField('name');
-		$this->primaryKey('id');
+		$this->setTable('tasks');
+		$this->setDisplayField('name');
+		$this->setPrimaryKey('id');
+
+		$this->addBehavior('Trim');
+		$this->addBehavior('Translate', ['fields' => ['name', 'description', 'notes']]);
 
 		$this->belongsTo('Categories', [
 			'foreignKey' => 'category_id',
@@ -99,7 +102,7 @@ class TasksTable extends AppTable {
 
 	public function affiliate($id) {
 		try {
-			return $this->Categories->affiliate($this->field('category_id', ['id' => $id]));
+			return $this->Categories->affiliate($this->field('category_id', ['Tasks.id' => $id]));
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

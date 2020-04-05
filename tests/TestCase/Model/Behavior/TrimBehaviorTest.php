@@ -26,6 +26,7 @@ class TrimBehaviorTest extends TestCase {
 		'app.affiliates',
 			'app.users',
 				'app.people',
+		'app.i18n',
 	];
 
 	/**

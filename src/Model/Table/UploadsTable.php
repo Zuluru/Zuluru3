@@ -29,9 +29,9 @@ class UploadsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('uploads');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('uploads');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Timestamp');
 
@@ -194,7 +194,7 @@ class UploadsTable extends AppTable {
 
 	public function affiliate($id) {
 		try {
-			return $this->UploadTypes->affiliate($this->field('type_id', compact('id')));
+			return $this->UploadTypes->affiliate($this->field('type_id', ['Uploads.id' => $id]));
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

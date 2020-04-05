@@ -54,6 +54,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 			'app.settings',
 			'app.waivers',
 				'app.waivers_people',
+		'app.i18n',
 	];
 
 	/**
@@ -94,7 +95,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$this->assertResponseNotContains('Work Phone');
 		$this->assertResponseNotContains('Work Ext');
 		$this->assertResponseNotContains('Mobile Phone');
-		$this->assertResponseNotContains('Total Amount');
+		$this->assertResponseContains('Total Amount');
 
 		// Others are not allowed to see the list of registrations
 		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'full_list', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_CAPTAIN);

@@ -1,4 +1,7 @@
 <?php
+/**
+ * @type \App\Model\Entity\League $league
+ */
 
 use App\Authorization\ContextResource;
 use App\Model\Entity\Division;
@@ -15,9 +18,10 @@ $this->Html->addCrumb(__('Standings'));
 	<h2><?= ($tournaments ? __('Tournament Standings') : __('League Standings')) . ': ' . $league->full_name ?></h2>
 <?php
 foreach ($league->divisions as $division):
-	if (!empty($division->header) && !empty($division->games)):
+	$header = $division->translateField('header');
+	if (!empty($header) && !empty($division->games)):
 ?>
-	<div class="division_header"><?= $division->header ?></div>
+	<div class="division_header"><?= $header ?></div>
 <?php
 	endif;
 
@@ -32,9 +36,9 @@ foreach ($league->divisions as $division):
 	$show_spirit_scores = $show_spirit && $this->Authorize->can('view_spirit_scores', $context);
 
 	if (!empty($division->teams) && ($has_season || !$has_tournament)):
-		if (count($league->divisions) > 1 && !empty($division->name)):
+		if (count($league->divisions) > 1 && !empty($division->translateField('name'))):
 ?>
-	<h3><?= $division->name ?></h3>
+	<h3><?= $division->translateField('name') ?></h3>
 <?php
 		endif;
 ?>
@@ -104,9 +108,10 @@ foreach ($league->divisions as $division):
 		]);
 	endif;
 
-	if (!empty($division->footer) && !empty($division->games)):
+	$footer = $division->translateField('footer');
+	if (!empty($footer) && !empty($division->games)):
 ?>
-		<div class="division_footer"><?= $division->footer ?></div>
+		<div class="division_footer"><?= $footer ?></div>
 <?php
 	endif;
 endforeach;

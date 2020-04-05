@@ -21,9 +21,9 @@ class QuestionnairesQuestionsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('questionnaires_questions');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('questionnaires_questions');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->belongsTo('Questionnaires', [
 			'foreignKey' => 'questionnaire_id',

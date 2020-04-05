@@ -43,6 +43,7 @@ class GamesTableTest extends TableTestCase {
 						'app.score_details',
 			'app.badges',
 				'app.badges_people',
+		'app.i18n',
 	];
 
 	/**

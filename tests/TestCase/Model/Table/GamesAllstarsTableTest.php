@@ -30,6 +30,7 @@ class GamesAllstarsTableTest extends TableTestCase {
 						'app.pools_teams',
 					'app.games',
 						'app.games_allstars',
+		'app.i18n',
 	];
 
 	/**

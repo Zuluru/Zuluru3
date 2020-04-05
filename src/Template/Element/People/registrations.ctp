@@ -19,7 +19,7 @@ if (isset($registrations)):
 		->filter(function ($registration) {
 			return !empty($registration->event->division_id);
 		})->extract('event.division.league.season')->toArray());
-	echo $this->element('selector', ['title' => 'Season', 'options' => array_intersect(array_keys(Configure::read('options.season')), $seasons)]);
+	echo $this->element('selector', ['title' => 'Season', 'options' => array_intersect_key(Configure::read('options.season'), array_flip($seasons))]);
 
 	$days = collection($registrations)->extract('event.division.days.{*}')->combine('id', 'name')->toArray();
 	ksort($days);

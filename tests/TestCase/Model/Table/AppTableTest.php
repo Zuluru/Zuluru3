@@ -39,6 +39,7 @@ class AppTableTest extends TableTestCase {
 						'app.pools_teams',
 					'app.games',
 			'app.events',
+		'app.i18n',
 	];
 
 	/**
@@ -69,10 +70,10 @@ class AppTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testField() {
-		$this->assertEquals('ratings_ladder', $this->DivisionsTable->field('schedule_type', ['id' => DIVISION_ID_MONDAY_LADDER]));
-		$this->assertEquals(DIVISION_ID_MONDAY_PLAYOFF, $this->DivisionsTable->field('id', ['current_round' => 'playoff']));
+		$this->assertEquals('ratings_ladder', $this->DivisionsTable->field('schedule_type', ['Divisions.id' => DIVISION_ID_MONDAY_LADDER]));
+		$this->assertEquals(DIVISION_ID_MONDAY_PLAYOFF, $this->DivisionsTable->field('id', ['Divisions.current_round' => 'playoff']));
 		try {
-			$this->DivisionsTable->field('schedule_type', ['id' => 0]);
+			$this->DivisionsTable->field('schedule_type', ['Divisions.id' => 0]);
 			$this->assertFalse(true, 'field function should throw on failure');
 		} catch (RecordNotFoundException $ex) {
 			$this->assertTrue(true);

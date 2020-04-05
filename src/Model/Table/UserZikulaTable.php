@@ -42,8 +42,8 @@ class UserZikulaTable extends UsersTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('nuke_users');
-		$this->primaryKey('pn_uid');
+		$this->setTable('nuke_users');
+		$this->setPrimaryKey('pn_uid');
 	}
 
 	public function TODOLATER_activated($data) {

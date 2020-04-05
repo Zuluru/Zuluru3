@@ -294,7 +294,7 @@ if (Configure::read('feature.affiliates') && !$identity->isAdmin() &&
 		$help = __('Select all affiliates you are interested in.');
 		if ($identity->isManager()) {
 			$help .= ' ' . __('Note that affiliates you are already a manager of ({0}) are not included here; this will remain unchanged.',
-				implode(', ', collection($this->UserCache->read('ManagedAffiliates'))->extract('name')->toArray()));
+				implode(', ', collection($this->UserCache->read('ManagedAffiliates'))->extract(function ($entity) { return $entity->translateField('name'); })->toArray()));
 		}
 		echo $this->Form->input('affiliates._ids', [
 			'help' => $help,
@@ -424,10 +424,10 @@ if ($person->user_id):
 			]);
 		}
 		if (in_array(Configure::read('profile.addr_postalcode'), $access)) {
-			$fields = __(Configure::read('UI.fields'));
+			$fields = Configure::read('UI.fields');
 			echo $this->Form->input('addr_postalcode', [
 				'label' => __('Postal Code'),
-				'help' => __('Please enter a correct postal code matching the address above. {0} uses this information to help locate new {1} near its members.', $short, __(Configure::read('UI.fields'))),
+				'help' => __('Please enter a correct postal code matching the address above. {0} uses this information to help locate new {1} near its members.', $short, Configure::read('UI.fields')),
 			]);
 		} else if (Configure::read('profile.addr_postalcode')) {
 			echo $this->Form->input('addr_postalcode', [

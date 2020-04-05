@@ -27,9 +27,9 @@ class ResponsesTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('responses');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('responses');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
 

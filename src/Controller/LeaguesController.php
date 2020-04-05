@@ -160,6 +160,8 @@ class LeaguesController extends AppController {
 		if (count($league->divisions) == 1) {
 			$this->Leagues->Divisions->prepForView($league->divisions[0]);
 			$league_obj = $this->moduleRegistry->load("LeagueType:{$league->divisions[0]->schedule_type}");
+		} else {
+			$league_obj = null;
 		}
 
 		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
@@ -179,7 +181,7 @@ class LeaguesController extends AppController {
 						'People',
 						'Days' => [
 							'queryBuilder' => function (Query $q) {
-								return $q->order(['day_id']);
+								return $q->order(['DivisionsDays.day_id']);
 							},
 						],
 						'Teams',
@@ -214,7 +216,7 @@ class LeaguesController extends AppController {
 				'Related' => [Configure::read('Security.authModel')],
 			];
 			try {
-				$sport = $this->Leagues->field('sport', ['id' => $id]);
+				$sport = $this->Leagues->field('sport', ['Leagues.id' => $id]);
 				$contain['Divisions']['Teams']['People']['Skills'] = [
 					'queryBuilder' => function (Query $q) use ($sport) {
 						return $q->where(['Skills.sport' => $sport]);
@@ -314,7 +316,7 @@ class LeaguesController extends AppController {
 						'People',
 						'Days' => [
 							'queryBuilder' => function (Query $q) {
-								return $q->order('day_id');
+								return $q->order('DivisionsDays.day_id');
 							},
 						],
 					],
@@ -420,11 +422,15 @@ class LeaguesController extends AppController {
 		$league = Cache::remember("league/{$id}/schedule", function () use ($id) {
 			try {
 				$league = $this->Leagues->get($id, [
+					'finder' => 'translations',
 					'contain' => [
 						'Divisions' => [
+							'queryBuilder' => function (Query $q) {
+								return $q->find('translations');
+							},
 							'Days' => [
 								'queryBuilder' => function (Query $q) {
-									return $q->order(['day_id']);
+									return $q->order(['DivisionsDays.day_id']);
 								},
 							],
 							'Teams',
@@ -450,13 +456,40 @@ class LeaguesController extends AppController {
 								],
 							]);
 						},
-						'GameSlots' => ['Fields' => ['Facilities']],
+						'GameSlots' => [
+							'Fields' => [
+								'queryBuilder' => function (Query $q) {
+									return $q->find('translations');
+								},
+								'Facilities' => [
+									'queryBuilder' => function (Query $q) {
+										return $q->find('translations');
+									},
+								],
+							],
+						],
 						'ScoreEntries',
 						'HomeTeam',
-						'HomePoolTeam' => ['DependencyPool'],
+						'HomePoolTeam' => [
+							'DependencyPool' => [
+								'queryBuilder' => function (Query $q) {
+									return $q->find('translations');
+								},
+							],
+						],
 						'AwayTeam',
-						'AwayPoolTeam' => ['DependencyPool'],
-						'Pools',
+						'AwayPoolTeam' => [
+							'DependencyPool' => [
+								'queryBuilder' => function (Query $q) {
+									return $q->find('translations');
+								},
+							],
+						],
+						'Pools' => [
+							'queryBuilder' => function (Query $q) {
+								return $q->find('translations');
+							},
+						],
 					],
 				])
 				->where(['Divisions.id IN' => collection($league->divisions)->extract('id')->toArray()])
@@ -524,6 +557,7 @@ class LeaguesController extends AppController {
 			$is_tournament = collection($league->games)->some(function ($game) {
 				return $game->type != SEASON_GAME;
 			});
+			$game_slots = [];
 		}
 
 		// Save posted data
@@ -582,11 +616,15 @@ class LeaguesController extends AppController {
 		$league = Cache::remember("league/{$id}/standings", function () use ($id) {
 			try {
 				$league = $this->Leagues->get($id, [
+					'finder' => 'translations',
 					'contain' => [
 						'Divisions' => [
+							'queryBuilder' => function (Query $q) {
+								return $q->find('translations');
+							},
 							'Days' => [
 								'queryBuilder' => function (Query $q) {
-									return $q->order(['day_id']);
+									return $q->order(['DivisionsDays.day_id']);
 								},
 							],
 							'Teams',
@@ -625,8 +663,30 @@ class LeaguesController extends AppController {
 				$division->games = $this->Leagues->Divisions->Games->find('played')
 					->contain([
 						'GameSlots',
-						'HomePoolTeam' => ['Pools', 'DependencyPool'],
-						'AwayPoolTeam' => ['Pools', 'DependencyPool'],
+						'HomePoolTeam' => [
+							'Pools' => [
+								'queryBuilder' => function (Query $q) {
+									return $q->find('translations');
+								},
+							],
+							'DependencyPool' => [
+								'queryBuilder' => function (Query $q) {
+									return $q->find('translations');
+								},
+							],
+						],
+						'AwayPoolTeam' => [
+							'Pools' => [
+								'queryBuilder' => function (Query $q) {
+									return $q->find('translations');
+								},
+							],
+							'DependencyPool' => [
+								'queryBuilder' => function (Query $q) {
+									return $q->find('translations');
+								},
+							],
+						],
 						'ScoreEntries',
 						'SpiritEntries',
 					])
@@ -666,7 +726,7 @@ class LeaguesController extends AppController {
 		$this->Configuration->loadAffiliate($league->affiliate_id);
 		$spirit_obj = $league->hasSpirit() ? $this->moduleRegistry->load("Spirit:{$league->sotg_questions}") : null;
 
-		$this->set(compact('league', 'league_obj', 'spirit_obj'));
+		$this->set(compact('league', 'spirit_obj'));
 		$this->set('_serialize', ['league']);
 	}
 
@@ -749,6 +809,9 @@ class LeaguesController extends AppController {
 				->toArray();
 
 			$is_tournament = collection($slots)->extract('games.{*}')->some(function ($game) { return $game->type != SEASON_GAME; });
+		} else {
+			$slots = [];
+			$is_tournament = false;
 		}
 
 		$this->set(compact('league', 'dates', 'date', 'slots', 'is_tournament'));

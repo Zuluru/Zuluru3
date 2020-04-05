@@ -54,9 +54,9 @@ class GamesTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('games');
-		$this->displayField('name');
-		$this->primaryKey('id');
+		$this->setTable('games');
+		$this->setDisplayField('name');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
 		$this->addBehavior('Timestamp');
@@ -666,7 +666,7 @@ class GamesTable extends AppTable {
 						if ($entity->game_slot->game_date == $other_team_game->game_slot->game_date &&
 							$entity->game_slot->facility_id != $other_team_game->game_slot->facility_id
 						) {
-							return __('Team scheduled on {0} at different facilities.', __(Configure::read('UI.fields')));
+							return __('Team scheduled on {0} at different facilities.', Configure::read('UI.fields'));
 						}
 					}
 				} else {
@@ -769,7 +769,7 @@ class GamesTable extends AppTable {
 		// If we're saving a batch of games, and the game slot formerly assigned to this game
 		// is now not assigned to any of this batch, we must free it up.
 		if ($options->offsetExists('games') && $entity->dirty('game_slot_id') && !collection($options['games'])->firstMatch(['game_slot_id' => $entity->getOriginal('game_slot_id')])) {
-			if (!$this->GameSlots->updateAll(['assigned' => false], ['id' => $entity->getOriginal('game_slot_id')])) {
+			if (!$this->GameSlots->updateAll(['assigned' => false], ['GameSlots.id' => $entity->getOriginal('game_slot_id')])) {
 				return false;
 			}
 		}
@@ -1075,9 +1075,36 @@ class GamesTable extends AppTable {
 				'GameSlots' => ['Fields' => ['Facilities']],
 				'HomeTeam',
 				// TODO: Not everything that uses this function needs both DependencyPool and Pools
-				'HomePoolTeam' => ['DependencyPool', 'Pools'],
+				'HomePoolTeam' => [
+					'DependencyPool' => [
+						'queryBuilder' => function (Query $q) {
+							return $q->find('translations');
+						},
+					],
+					'Pools' => [
+						'queryBuilder' => function (Query $q) {
+							return $q->find('translations');
+						},
+					],
+				],
 				'AwayTeam',
-				'AwayPoolTeam' => ['DependencyPool', 'Pools'],
+				'AwayPoolTeam' => [
+					'DependencyPool' => [
+						'queryBuilder' => function (Query $q) {
+							return $q->find('translations');
+						},
+					],
+					'Pools' => [
+						'queryBuilder' => function (Query $q) {
+							return $q->find('translations');
+						},
+					],
+				],
+				'Pools' => [
+					'queryBuilder' => function (Query $q) {
+						return $q->find('translations');
+					},
+				],
 			])
 			->where(['OR' => $conditions]);
 	}
@@ -1700,7 +1727,7 @@ class GamesTable extends AppTable {
 
 	public function division($id) {
 		try {
-			return $this->field('division_id', ['id' => $id]);
+			return $this->field('division_id', ['Games.id' => $id]);
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

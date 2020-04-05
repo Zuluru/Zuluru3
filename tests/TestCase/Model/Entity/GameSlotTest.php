@@ -27,7 +27,8 @@ class GameSlotTest extends TestCase {
 					'app.fields',
 			'app.leagues',
 				'app.divisions',
-					'app.game_slots'
+					'app.game_slots',
+		'app.i18n',
 	];
 
 	/**

@@ -21,11 +21,12 @@ class GroupsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('groups');
-		$this->displayField('name');
-		$this->primaryKey('id');
+		$this->setTable('groups');
+		$this->setDisplayField('name');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
+		$this->addBehavior('Translate', ['fields' => ['name', 'description']]);
 
 		$this->belongsToMany('People', [
 			'foreignKey' => 'group_id',
@@ -79,18 +80,18 @@ class GroupsTable extends AppTable {
 			$level = max(collection($groups)->max('level')->level, $options['min_level']);
 		}
 
-		$query->where(['level <=' => $level]);
+		$query->where(['Groups.level <=' => $level]);
 		if (!empty($options['force_players'])) {
 			$query->andWhere([
 				'OR' => [
-					'id' => GROUP_PLAYER,
-					'active' => true,
+					'Groups.id' => GROUP_PLAYER,
+					'Groups.active' => true,
 				]
 			]);
 		} else {
-			$query->andWhere(['active' => true]);
+			$query->andWhere(['Groups.active' => true]);
 		}
-		$query->order(['level', 'id']);
+		$query->order(['Groups.level', 'Groups.id']);
 		return $query->formatResults(function ($results) {
 			return $results->combine('id', 'long_name');
 		});

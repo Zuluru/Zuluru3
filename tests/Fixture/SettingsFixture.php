@@ -357,50 +357,6 @@ class SettingsFixture extends TestFixture {
 				'value' => 'admin@zuluru.org',
 				'affiliate_id' => null,
 			],
-
-			// Some personal preferences
-			[
-				'person_id' => PERSON_ID_MANAGER,
-				'category' => 'personal',
-				'name' => 'enable_ical',
-				'value' => 0,
-				'affiliate_id' => null,
-			],
-			[
-				'person_id' => PERSON_ID_MANAGER,
-				'category' => 'personal',
-				'name' => 'date_format',
-				'value' => 'M j, Y',
-				'affiliate_id' => null,
-			],
-			[
-				'person_id' => PERSON_ID_DUPLICATE,
-				'category' => 'personal',
-				'name' => 'enable_ical',
-				'value' => 1,
-				'affiliate_id' => null,
-			],
-			[
-				'person_id' => PERSON_ID_DUPLICATE,
-				'category' => 'personal',
-				'name' => 'attendance_emails',
-				'value' => 1,
-				'affiliate_id' => null,
-			],
-			[
-				'person_id' => PERSON_ID_CAPTAIN,
-				'category' => 'personal',
-				'name' => 'enable_ical',
-				'value' => 1,
-				'affiliate_id' => null,
-			],
-			[
-				'person_id' => PERSON_ID_PLAYER,
-				'category' => 'personal',
-				'name' => 'enable_ical',
-				'value' => 1,
-				'affiliate_id' => null,
-			],
 			[
 				'person_id' => null,
 				'category' => 'registration',
@@ -493,6 +449,57 @@ class SettingsFixture extends TestFixture {
 				'name' => 'short_name',
 				'value' => 'TSA',
 				'affiliate_id' => AFFILIATE_ID_SUB,
+			],
+
+			// Some personal preferences
+			[
+				'person_id' => PERSON_ID_MANAGER,
+				'category' => 'personal',
+				'name' => 'enable_ical',
+				'value' => 0,
+				'affiliate_id' => null,
+			],
+			[
+				'person_id' => PERSON_ID_MANAGER,
+				'category' => 'personal',
+				'name' => 'date_format',
+				'value' => 'M j, Y',
+				'affiliate_id' => null,
+			],
+			[
+				'person_id' => PERSON_ID_CAPTAIN,
+				'category' => 'personal',
+				'name' => 'enable_ical',
+				'value' => 1,
+				'affiliate_id' => null,
+			],
+			[
+				'person_id' => PERSON_ID_PLAYER,
+				'category' => 'personal',
+				'name' => 'enable_ical',
+				'value' => 1,
+				'affiliate_id' => null,
+			],
+			[
+				'person_id' => PERSON_ID_ANDY_SUB,
+				'category' => 'personal',
+				'name' => 'language',
+				'value' => 'fr',
+				'affiliate_id' => null,
+			],
+			[
+				'person_id' => PERSON_ID_DUPLICATE,
+				'category' => 'personal',
+				'name' => 'enable_ical',
+				'value' => 1,
+				'affiliate_id' => null,
+			],
+			[
+				'person_id' => PERSON_ID_DUPLICATE,
+				'category' => 'personal',
+				'name' => 'attendance_emails',
+				'value' => 1,
+				'affiliate_id' => null,
 			],
 		];
 

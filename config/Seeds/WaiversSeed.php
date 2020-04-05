@@ -6,15 +6,15 @@ use Migrations\AbstractSeed;
  */
 class WaiversSeed extends AbstractSeed {
 	/**
-	 * Run Method.
+	 * Data Method.
 	 *
-	 * @return void
+	 * @return mixed
 	 */
-	public function run() {
-		$data = [
+	public function data() {
+		return [
 			[
-				'name' => 'Membership',
-				'description' => 'Membership',
+				'name' => __d('seeds', 'Membership'),
+				'description' => __d('seeds', 'Membership'),
 				'text' => '<p>You must agree to the following waiver in order to play in any %short_name% games.</p>
 <p>While the sport of Ultimate is understood to be a non-contact sport, this does not mean that contact does not occur. Ultimate is a fast paced, athletic sport, and as such has all of the attendant risks that are commonly associated with such an activity. While all players are expected to adhere to the Spirit of the Game as outlined in the rules of the sport, it is not possible to absolutely ensure that contact between players will not occur, and that injuries will not be sustained. Members are reminded that they engage in the sport entirely at their own risk.</p>
 <p>Given that %short_name% offers the sport of Ultimate at varied and dispersed locations, and does not have officials such as referees at the games, it falls to the Captains and players of the teams participating in the game to be responsible for the safety of the site at which they are playing. Captains and players are jointly responsible to examine the %field% before their game begins, to determine if it is safe. They are responsible for taking appropriate action if they feel that their safety is being compromised by playing on what they consider an unsafe %field%; this includes but is not limited to the refusal, as a team or individually, to play on a site they deem to be potentially hazardous. %short_name% never forces its members to play when they are not comfortable doing so; games can easily be rescheduled.</p>
@@ -30,8 +30,8 @@ class WaiversSeed extends AbstractSeed {
 				'end_day' => 31,
 			],
 			[
-				'name' => 'Event',
-				'description' => 'Event',
+				'name' => __d('seeds', 'Event'),
+				'description' => __d('seeds', 'Event'),
 				'text' => '<p>You must agree to the following waiver in order to participate in any %short_name% events.</p>
 <p>While the sport of Ultimate is understood to be a non-contact sport, this does not mean that contact does not occur. Ultimate is a fast paced, athletic sport, and as such has all of the attendant risks that are commonly associated with such an activity. While all players are expected to adhere to the Spirit of the Game as outlined in the rules of the sport, it is not possible to absolutely ensure that contact between players will not occur, and that injuries will not be sustained. Participants are reminded that they engage in the sport entirely at their own risk.</p>
 <p>Given that %short_name% offers the sport of Ultimate at varied and dispersed locations, and does not have officials such as referees at the games, it falls to the Captains and players of the teams participating in the game to be responsible for the safety of the site at which they are playing. Captains and players are jointly responsible to examine the %field% before their game begins, to determine if it is safe. They are responsible for taking appropriate action if they feel that their safety is being compromised by playing on what they consider an unsafe %field%; this includes but is not limited to the refusal, as a team or individually, to play on a site they deem to be potentially hazardous. %short_name% never forces participants to play when they are not comfortable doing so; games can easily be rescheduled.</p>
@@ -43,8 +43,8 @@ class WaiversSeed extends AbstractSeed {
 				'expiry_type' => 'event',
 			],
 			[
-				'name' => 'Dog',
-				'description' => 'Dog',
+				'name' => __d('seeds', 'Dog'),
+				'description' => __d('seeds', 'Dog'),
 				'text' => '<p>Since you have indicated you wish to bring a dog to the %fields%, you must agree to the following waiver.</p>
 <p>I am a member of the %name% (%short_name%), and the owner of a dog I wish to bring to %short_name% games, and have read and understood this consent, and as such do hereby agree to be responsible for the conduct and actions of said dog and do hereby release and discharge %short_name% from any and all responsibilities, liabilities and complaints arising from the conduct and actions of my said dog in or about any properties used by %short_name%.</p>
 <p>In respect of said dog, I agree to comply with the following rules:
@@ -62,8 +62,15 @@ class WaiversSeed extends AbstractSeed {
 				'end_day' => 31,
 			],
 		];
+	}
 
+	/**
+	 * Run Method.
+	 *
+	 * @return void
+	 */
+	public function run() {
 		$table = $this->table('waivers');
-		$table->insert($data)->save();
+		$table->insert($this->data())->save();
 	}
 }

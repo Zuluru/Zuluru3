@@ -1,7 +1,7 @@
 <?php
 namespace App\Model\Table;
 
-use Cake\Cache\Cache;
+use App\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\I18n\I18n;
 use Cake\ORM\TableRegistry;
@@ -11,10 +11,12 @@ class ConfigurationTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('settings');
+		$this->setTable('settings');
 	}
 
 	public function loadSystem() {
+		$language = I18n::getLocale();
+
 		$config = Cache::remember('config', function () {
 			$conditions = [
 				'affiliate_id IS' => null,
@@ -39,7 +41,7 @@ class ConfigurationTable extends AppTable {
 			$settings['gender.order'] = $settings['gender.woman'] < $settings['gender.man'] ? 'ASC' : 'DESC';
 
 			return $settings;
-		}, 'long_term');
+		}, 'long_term', $language);
 		Configure::write($config);
 
 		$provinces = Cache::remember('provinces', function () {
@@ -48,7 +50,7 @@ class ConfigurationTable extends AppTable {
 				'keyField' => 'name',
 				'valueField' => 'name',
 			])->toArray();
-		}, 'long_term');
+		}, 'long_term', $language);
 		Configure::write(compact('provinces'));
 
 		$countries = Cache::remember('countries', function () {
@@ -57,7 +59,7 @@ class ConfigurationTable extends AppTable {
 				'keyField' => 'name',
 				'valueField' => 'name',
 			])->toArray();
-		}, 'long_term');
+		}, 'long_term', $language);
 		Configure::write(compact('countries'));
 
 		Configure::write(Cache::remember('roster_roles', function () {
@@ -78,7 +80,7 @@ class ConfigurationTable extends AppTable {
 			];
 
 			return $configuration;
-		}, 'long_term'));
+		}, 'long_term', $language));
 
 		Configure::write(Cache::remember('membership_types', function () {
 			$membership_types_table = TableRegistry::get('MembershipTypes');
@@ -96,7 +98,7 @@ class ConfigurationTable extends AppTable {
 			];
 
 			return $configuration;
-		}, 'long_term'));
+		}, 'long_term', $language));
 	}
 
 	public function loadAffiliate($id) {
@@ -106,7 +108,7 @@ class ConfigurationTable extends AppTable {
 
 		$config = Cache::remember("config/affiliate/$id", function () use ($id) {
 			return $this->format($this->find()->where(['affiliate_id' => $id])->toArray());
-		}, 'long_term');
+		}, 'long_term', I18n::getLocale());
 		Configure::write($config);
 	}
 

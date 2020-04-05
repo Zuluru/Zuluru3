@@ -51,7 +51,7 @@ class RuleHasDocument extends Rule {
 		$model = TableRegistry::get('UploadTypes');
 		try {
 			$this->document_id = $config[0];
-			$this->document = $model->field('name', ['id' => $this->document_id]);
+			$this->document = $model->field('name', ['UploadTypes.id' => $this->document_id]);
 		} catch (RecordNotFoundException $ex) {
 			$this->parse_error = __('Invalid document.');
 			return false;

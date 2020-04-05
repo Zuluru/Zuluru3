@@ -212,7 +212,7 @@ class ReportPeopleParticipation extends Report {
 
 		AppController::_sendMail([
 			'to' => $recipient,
-			'subject' => __('{0} Participation Report', Configure::read('organization.short_name')),
+			'subject' => function() { return __('{0} Participation Report', Configure::read('organization.short_name')); },
 			'content' => __('Please find attached your participation report for {0} to {1}.', $params['start'], $params['end']),
 			'sendAs' => 'text',
 			'attachments' => [

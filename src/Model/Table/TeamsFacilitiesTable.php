@@ -20,9 +20,9 @@ class TeamsFacilitiesTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('teams_facilities');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('teams_facilities');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->belongsTo('Teams', [
 			'foreignKey' => 'team_id',

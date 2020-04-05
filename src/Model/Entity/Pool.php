@@ -1,6 +1,8 @@
 <?php
 namespace App\Model\Entity;
 
+use App\Model\Traits\TranslateFieldTrait;
+use Cake\ORM\Behavior\Translate\TranslateTrait;
 use Cake\ORM\Entity;
 
 /**
@@ -18,6 +20,9 @@ use Cake\ORM\Entity;
  * @property \App\Model\Entity\Team[] $teams
  */
 class Pool extends Entity {
+
+	use TranslateTrait;
+	use TranslateFieldTrait;
 
 	/**
 	 * Fields that can be mass assigned using newEntity() or patchEntity().

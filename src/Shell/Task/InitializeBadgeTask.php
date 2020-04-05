@@ -36,7 +36,7 @@ class InitializeBadgeTask extends Shell {
 				} catch (MissingModuleException $ex) {
 					AppController::_sendMail([
 						'to' => 'admin@zuluru.org',
-						'subject' => __('{0} Badge Initialization Failed', Configure::read('organization.short_name')),
+						'subject' => function() { return __('{0} Badge Initialization Failed', Configure::read('organization.short_name')); },
 						'content' => __('Failed to load the module for the "{0}" badge.', $badge->name) . ' ' .
 							__('This is a fatal error, it will not be retried.'),
 						'sendAs' => 'text',
@@ -195,7 +195,7 @@ class InitializeBadgeTask extends Shell {
 					default:
 						AppController::_sendMail([
 							'to' => 'admin@zuluru.org',
-							'subject' => __('{0} Badge Initialization Failed', Configure::read('organization.short_name')),
+							'subject' => function() { return __('{0} Badge Initialization Failed', Configure::read('organization.short_name')); },
 							'content' => __('Unrecognized badge category "{0}".', __($badge->category)) . ' ' .
 								__('This is a fatal error, it will not be retried.'),
 							'sendAs' => 'text',
@@ -209,7 +209,7 @@ class InitializeBadgeTask extends Shell {
 				if (!$success) {
 					AppController::_sendMail([
 						'to' => 'admin@zuluru.org',
-						'subject' => __('{0} Badge Initialization Failed', Configure::read('organization.short_name')),
+						'subject' => function() { return __('{0} Badge Initialization Failed', Configure::read('organization.short_name')); },
 						'content' => __('Failed to initialize "{0}" badge.', $badge->name) . ' ' .
 							__('This is a fatal error, it will not be retried.'),
 						'sendAs' => 'text',
@@ -229,7 +229,7 @@ class InitializeBadgeTask extends Shell {
 		} catch (\Exception $ex) {
 			AppController::_sendMail([
 				'to' => 'admin@zuluru.org',
-				'subject' => __('{0} Badge Initialization Failed', Configure::read('organization.short_name')),
+				'subject' => function() { return __('{0} Badge Initialization Failed', Configure::read('organization.short_name')); },
 				'content' => __('Caught unexpected exception "{0}" while initializing the "{1}" badge.', $ex->getMessage(), $badge->name) . ' ' .
 					__('This is a fatal error, it will not be retried.'),
 				'sendAs' => 'text',

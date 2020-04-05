@@ -36,6 +36,7 @@ class FieldsControllerTest extends ControllerTestCase {
 					'app.games',
 			'app.notes',
 			'app.settings',
+		'app.i18n',
 	];
 
 	/**
@@ -48,37 +49,37 @@ class FieldsControllerTest extends ControllerTestCase {
 		$this->login(PERSON_ID_ADMIN);
 		$this->get(['controller' => 'Fields', 'action' => 'index']);
 		$this->assertResponseCode(Message::STATUS_MOVED_PERMANENTLY);
-		$this->assertRedirect(['controller' => 'Facilities', 'action' => 'index']);
+		$this->assertRedirectEquals(['controller' => 'Facilities', 'action' => 'index']);
 
 		$this->login(PERSON_ID_ADMIN);
 		$this->get(['controller' => 'Fields', 'action' => 'index']);
 		$this->assertResponseCode(Message::STATUS_MOVED_PERMANENTLY);
-		$this->assertRedirect(['controller' => 'Facilities', 'action' => 'index']);
+		$this->assertRedirectEquals(['controller' => 'Facilities', 'action' => 'index']);
 
 		$this->login(PERSON_ID_COORDINATOR);
 		$this->get(['controller' => 'Fields', 'action' => 'index']);
 		$this->assertResponseCode(Message::STATUS_MOVED_PERMANENTLY);
-		$this->assertRedirect(['controller' => 'Facilities', 'action' => 'index']);
+		$this->assertRedirectEquals(['controller' => 'Facilities', 'action' => 'index']);
 
 		$this->login(PERSON_ID_CAPTAIN);
 		$this->get(['controller' => 'Fields', 'action' => 'index']);
 		$this->assertResponseCode(Message::STATUS_MOVED_PERMANENTLY);
-		$this->assertRedirect(['controller' => 'Facilities', 'action' => 'index']);
+		$this->assertRedirectEquals(['controller' => 'Facilities', 'action' => 'index']);
 
 		$this->login(PERSON_ID_PLAYER);
 		$this->get(['controller' => 'Fields', 'action' => 'index']);
 		$this->assertResponseCode(Message::STATUS_MOVED_PERMANENTLY);
-		$this->assertRedirect(['controller' => 'Facilities', 'action' => 'index']);
+		$this->assertRedirectEquals(['controller' => 'Facilities', 'action' => 'index']);
 
 		$this->login(PERSON_ID_VISITOR);
 		$this->get(['controller' => 'Fields', 'action' => 'index']);
 		$this->assertResponseCode(Message::STATUS_MOVED_PERMANENTLY);
-		$this->assertRedirect(['controller' => 'Facilities', 'action' => 'index']);
+		$this->assertRedirectEquals(['controller' => 'Facilities', 'action' => 'index']);
 
 		$this->logout();
 		$this->get(['controller' => 'Fields', 'action' => 'index']);
 		$this->assertResponseCode(Message::STATUS_MOVED_PERMANENTLY);
-		$this->assertRedirect(['controller' => 'Facilities', 'action' => 'index']);
+		$this->assertRedirectEquals(['controller' => 'Facilities', 'action' => 'index']);
 	}
 
 	/**
@@ -91,37 +92,37 @@ class FieldsControllerTest extends ControllerTestCase {
 		$this->login(PERSON_ID_ADMIN);
 		$this->get(['controller' => 'Fields', 'action' => 'view', 'field' => FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1]);
 		$this->assertResponseCode(Message::STATUS_MOVED_PERMANENTLY);
-		$this->assertRedirect(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK]);
+		$this->assertRedirectEquals(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK]);
 
 		$this->login(PERSON_ID_ADMIN);
 		$this->get(['controller' => 'Fields', 'action' => 'view', 'field' => FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1]);
 		$this->assertResponseCode(Message::STATUS_MOVED_PERMANENTLY);
-		$this->assertRedirect(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK]);
+		$this->assertRedirectEquals(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK]);
 
 		$this->login(PERSON_ID_COORDINATOR);
 		$this->get(['controller' => 'Fields', 'action' => 'view', 'field' => FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1]);
 		$this->assertResponseCode(Message::STATUS_MOVED_PERMANENTLY);
-		$this->assertRedirect(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK]);
+		$this->assertRedirectEquals(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK]);
 
 		$this->login(PERSON_ID_CAPTAIN);
 		$this->get(['controller' => 'Fields', 'action' => 'view', 'field' => FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1]);
 		$this->assertResponseCode(Message::STATUS_MOVED_PERMANENTLY);
-		$this->assertRedirect(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK]);
+		$this->assertRedirectEquals(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK]);
 
 		$this->login(PERSON_ID_PLAYER);
 		$this->get(['controller' => 'Fields', 'action' => 'view', 'field' => FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1]);
 		$this->assertResponseCode(Message::STATUS_MOVED_PERMANENTLY);
-		$this->assertRedirect(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK]);
+		$this->assertRedirectEquals(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK]);
 
 		$this->login(PERSON_ID_VISITOR);
 		$this->get(['controller' => 'Fields', 'action' => 'view', 'field' => FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1]);
 		$this->assertResponseCode(Message::STATUS_MOVED_PERMANENTLY);
-		$this->assertRedirect(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK]);
+		$this->assertRedirectEquals(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK]);
 
 		$this->logout();
 		$this->get(['controller' => 'Fields', 'action' => 'view', 'field' => FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1]);
 		$this->assertResponseCode(Message::STATUS_MOVED_PERMANENTLY);
-		$this->assertRedirect(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK]);
+		$this->assertRedirectEquals(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK]);
 	}
 
 	/**

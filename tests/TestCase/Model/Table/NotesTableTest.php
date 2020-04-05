@@ -22,8 +22,9 @@ class NotesTableTest extends TableTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
+		'app.i18n',
 		// TODO
-    ];
+	];
 
 	/**
 	 * setUp method

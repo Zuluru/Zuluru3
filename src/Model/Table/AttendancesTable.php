@@ -15,9 +15,9 @@ class AttendancesTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('attendances');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('attendances');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Timestamp');
 

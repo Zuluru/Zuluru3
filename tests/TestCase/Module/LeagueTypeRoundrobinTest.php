@@ -33,6 +33,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 					'app.games',
 						'app.spirit_entries',
 		'app.settings',
+		'app.i18n',
 	];
 
 	/**
@@ -222,6 +223,9 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 * @return void
 	 */
 	public function testCreateScheduledSet() {
+		// Seed the random number generator with a fixed value, so that random determinations in field selection become fixed.
+		mt_srand(123);
+
 		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER);
 		// Fixtures already have games scheduled for the first 4 weeks
 		$division->_options = new Entity(['start_date' => (new FrozenDate('first Monday of June'))->addWeeks(4)]);
@@ -253,9 +257,9 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 		$this->assertNotNull($blue_game);
 		$this->assertEquals(FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_2, $blue_game->game_slot->field_id);
 
-		// Red has not yet had an away game, make sure they have one now
-		$red_game = collection($games)->firstMatch(['away_team_id' => TEAM_ID_RED]);
-		$this->assertNotNull($red_game);
+		// Black has not yet had an away game, make sure they have one now
+		$black_game = collection($games)->firstMatch(['away_team_id' => TEAM_ID_BLACK]);
+		$this->assertNotNull($black_game);
 	}
 
 	/**
@@ -297,35 +301,36 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 
 		// Standings coming into this are Purple, Green, Orange, Yellow, Black, Red, White, Blue
 		// Purple, Green, Blue and White have less home games, so will be the home teams in week 1.
+		// Note that these tests will fail on any PHP version 7.1 or lower due to changes in the RNG as of 7.2.
 
 		// Week 1 games should be 1v4, 2v3.
-		$this->assertEquals(TEAM_ID_GREEN, $games[0]->home_team_id);
-		$this->assertEquals(TEAM_ID_ORANGE, $games[0]->away_team_id);
-		$this->assertEquals(TEAM_ID_PURPLE, $games[1]->home_team_id);
-		$this->assertEquals(TEAM_ID_YELLOW, $games[1]->away_team_id);
+		$this->assertEquals(TEAM_ID_PURPLE, $games[0]->home_team_id);
+		$this->assertEquals(TEAM_ID_YELLOW, $games[0]->away_team_id);
+		$this->assertEquals(TEAM_ID_GREEN, $games[1]->home_team_id);
+		$this->assertEquals(TEAM_ID_ORANGE, $games[1]->away_team_id);
 
-		// Week 2 games should be 1v2, 3v3.
-		$this->assertEquals(TEAM_ID_YELLOW, $games[2]->home_team_id);
-		$this->assertEquals(TEAM_ID_ORANGE, $games[2]->away_team_id);
-		$this->assertEquals(TEAM_ID_PURPLE, $games[3]->home_team_id);
-		$this->assertEquals(TEAM_ID_GREEN, $games[3]->away_team_id);
+		// Week 2 games should be 1v2, 3v4.
+		$this->assertEquals(TEAM_ID_PURPLE, $games[2]->home_team_id);
+		$this->assertEquals(TEAM_ID_GREEN, $games[2]->away_team_id);
+		$this->assertEquals(TEAM_ID_YELLOW, $games[3]->home_team_id);
+		$this->assertEquals(TEAM_ID_ORANGE, $games[3]->away_team_id);
 
 		// Week 3 games should be 1v3, 2v4.
-		$this->assertEquals(TEAM_ID_GREEN, $games[4]->home_team_id);
-		$this->assertEquals(TEAM_ID_YELLOW, $games[4]->away_team_id);
-		$this->assertEquals(TEAM_ID_ORANGE, $games[5]->home_team_id);
-		$this->assertEquals(TEAM_ID_PURPLE, $games[5]->away_team_id);
+		$this->assertEquals(TEAM_ID_PURPLE, $games[4]->home_team_id);
+		$this->assertEquals(TEAM_ID_ORANGE, $games[4]->away_team_id);
+		$this->assertEquals(TEAM_ID_GREEN, $games[5]->home_team_id);
+		$this->assertEquals(TEAM_ID_YELLOW, $games[5]->away_team_id);
 
 		// Same schedule for the bottom half
-		$this->assertEquals(TEAM_ID_WHITE, $games[6]->home_team_id);
-		$this->assertEquals(TEAM_ID_RED, $games[6]->away_team_id);
-		$this->assertEquals(TEAM_ID_BLUE, $games[7]->home_team_id);
-		$this->assertEquals(TEAM_ID_BLACK, $games[7]->away_team_id);
+		$this->assertEquals(TEAM_ID_BLUE, $games[6]->home_team_id);
+		$this->assertEquals(TEAM_ID_BLACK, $games[6]->away_team_id);
+		$this->assertEquals(TEAM_ID_WHITE, $games[7]->home_team_id);
+		$this->assertEquals(TEAM_ID_RED, $games[7]->away_team_id);
 
-		$this->assertEquals(TEAM_ID_BLUE, $games[8]->home_team_id);
-		$this->assertEquals(TEAM_ID_WHITE, $games[8]->away_team_id);
-		$this->assertEquals(TEAM_ID_BLACK, $games[9]->home_team_id);
-		$this->assertEquals(TEAM_ID_RED, $games[9]->away_team_id);
+		$this->assertEquals(TEAM_ID_BLACK, $games[8]->home_team_id);
+		$this->assertEquals(TEAM_ID_RED, $games[8]->away_team_id);
+		$this->assertEquals(TEAM_ID_BLUE, $games[9]->home_team_id);
+		$this->assertEquals(TEAM_ID_WHITE, $games[9]->away_team_id);
 
 		$this->assertEquals(TEAM_ID_BLUE, $games[10]->home_team_id);
 		$this->assertEquals(TEAM_ID_RED, $games[10]->away_team_id);
@@ -377,14 +382,15 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 
 		// Standings coming into this are Blue, Red, Green, Yellow, Orange, Purple, Black, White
 		// Blue, Yellow, Purple and Orange have less home games, so will be the home teams in week 1.
+		// Note that these tests will fail on any PHP version 7.1 or lower due to changes in the RNG as of 7.2.
 
 		// Week 1 games should be 1v4, 2v3.
-		$this->assertEquals(TEAM_ID_GREEN, $games[0]->home_team_id);
-		$this->assertEquals(TEAM_ID_RED, $games[0]->away_team_id);
-		$this->assertEquals(FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1, $games[0]->game_slot->field_id);
-		$this->assertEquals(TEAM_ID_BLUE, $games[1]->home_team_id);
-		$this->assertEquals(TEAM_ID_YELLOW, $games[1]->away_team_id);
-		$this->assertEquals(FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_2, $games[1]->game_slot->field_id);
+		$this->assertEquals(TEAM_ID_BLUE, $games[0]->home_team_id);
+		$this->assertEquals(TEAM_ID_YELLOW, $games[0]->away_team_id);
+		$this->assertEquals(FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_2, $games[0]->game_slot->field_id);
+		$this->assertEquals(TEAM_ID_GREEN, $games[1]->home_team_id);
+		$this->assertEquals(TEAM_ID_RED, $games[1]->away_team_id);
+		$this->assertEquals(FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1, $games[1]->game_slot->field_id);
 
 		// Week 2 games should be 1v2, 3v3.
 		$this->assertEquals(TEAM_ID_BLUE, $games[2]->home_team_id);
@@ -394,26 +400,26 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 		$this->assertEquals(TEAM_ID_GREEN, $games[3]->away_team_id);
 
 		// Week 3 games should be 1v3, 2v4.
-		$this->assertEquals(TEAM_ID_YELLOW, $games[4]->home_team_id);
-		$this->assertEquals(TEAM_ID_RED, $games[4]->away_team_id);
-		$this->assertEquals(TEAM_ID_GREEN, $games[5]->home_team_id);
-		$this->assertEquals(TEAM_ID_BLUE, $games[5]->away_team_id);
+		$this->assertEquals(TEAM_ID_GREEN, $games[4]->home_team_id);
+		$this->assertEquals(TEAM_ID_BLUE, $games[4]->away_team_id);
+		$this->assertEquals(TEAM_ID_YELLOW, $games[5]->home_team_id);
+		$this->assertEquals(TEAM_ID_RED, $games[5]->away_team_id);
 
 		// Same schedule for the bottom half
-		$this->assertEquals(TEAM_ID_PURPLE, $games[6]->home_team_id);
-		$this->assertEquals(TEAM_ID_BLACK, $games[6]->away_team_id);
-		$this->assertEquals(TEAM_ID_WHITE, $games[7]->home_team_id);
-		$this->assertEquals(TEAM_ID_ORANGE, $games[7]->away_team_id);
+		$this->assertEquals(TEAM_ID_WHITE, $games[6]->home_team_id);
+		$this->assertEquals(TEAM_ID_ORANGE, $games[6]->away_team_id);
+		$this->assertEquals(TEAM_ID_PURPLE, $games[7]->home_team_id);
+		$this->assertEquals(TEAM_ID_BLACK, $games[7]->away_team_id);
 
-		$this->assertEquals(TEAM_ID_WHITE, $games[8]->home_team_id);
-		$this->assertEquals(TEAM_ID_BLACK, $games[8]->away_team_id);
-		$this->assertEquals(TEAM_ID_PURPLE, $games[9]->home_team_id);
-		$this->assertEquals(TEAM_ID_ORANGE, $games[9]->away_team_id);
+		$this->assertEquals(TEAM_ID_PURPLE, $games[8]->home_team_id);
+		$this->assertEquals(TEAM_ID_ORANGE, $games[8]->away_team_id);
+		$this->assertEquals(TEAM_ID_WHITE, $games[9]->home_team_id);
+		$this->assertEquals(TEAM_ID_BLACK, $games[9]->away_team_id);
 
-		$this->assertEquals(TEAM_ID_PURPLE, $games[10]->home_team_id);
-		$this->assertEquals(TEAM_ID_WHITE, $games[10]->away_team_id);
-		$this->assertEquals(TEAM_ID_ORANGE, $games[11]->home_team_id);
-		$this->assertEquals(TEAM_ID_BLACK, $games[11]->away_team_id);
+		$this->assertEquals(TEAM_ID_ORANGE, $games[10]->home_team_id);
+		$this->assertEquals(TEAM_ID_BLACK, $games[10]->away_team_id);
+		$this->assertEquals(TEAM_ID_PURPLE, $games[11]->home_team_id);
+		$this->assertEquals(TEAM_ID_WHITE, $games[11]->away_team_id);
 	}
 
 	/**
@@ -456,6 +462,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 		// Standings coming into this are Purple, Green, Orange, Yellow, Black, Red, White, Blue
 		// so the pools will be Purple/Yellow/Black/Blue and Green/Orange/Red/White
 		// Purple, Green, Blue and White have less home games, so will be the home teams in week 1.
+		// Note that these tests will fail on any PHP version 7.1 or lower due to changes in the RNG as of 7.2.
 
 		// Week 1 games should be 1v4, 2v3.
 		$this->assertEquals(TEAM_ID_BLUE, $games[0]->home_team_id);
@@ -478,8 +485,8 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 		// Same schedule for the bottom half
 		$this->assertEquals(TEAM_ID_ORANGE, $games[6]->home_team_id);
 		$this->assertEquals(TEAM_ID_RED, $games[6]->away_team_id);
-		$this->assertEquals(TEAM_ID_WHITE, $games[7]->home_team_id);
-		$this->assertEquals(TEAM_ID_GREEN, $games[7]->away_team_id);
+		$this->assertEquals(TEAM_ID_GREEN, $games[7]->home_team_id);
+		$this->assertEquals(TEAM_ID_WHITE, $games[7]->away_team_id);
 
 		$this->assertEquals(TEAM_ID_WHITE, $games[8]->home_team_id);
 		$this->assertEquals(TEAM_ID_RED, $games[8]->away_team_id);
@@ -532,77 +539,78 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 		$this->assertEquals(28, count(array_unique(collection($games)->extract('game_slot_id')->toArray())));
 
 		// Standings coming into this are Purple, Green, Orange, Yellow, Black, Red, White, Blue
+		// Note that these tests will fail on any PHP version 7.1 or lower due to changes in the RNG as of 7.2.
 
 		// Week 1 games should be 1v8, 2v7, 3v6, 4v5.
-		$this->assertEquals(TEAM_ID_ORANGE, $games[0]->home_team_id);
-		$this->assertEquals(TEAM_ID_RED, $games[0]->away_team_id);
-		$this->assertEquals(TEAM_ID_BLUE, $games[1]->home_team_id);
-		$this->assertEquals(TEAM_ID_PURPLE, $games[1]->away_team_id);
-		$this->assertEquals(TEAM_ID_YELLOW, $games[2]->home_team_id);
-		$this->assertEquals(TEAM_ID_BLACK, $games[2]->away_team_id);
-		$this->assertEquals(TEAM_ID_WHITE, $games[3]->home_team_id);
-		$this->assertEquals(TEAM_ID_GREEN, $games[3]->away_team_id);
+		$this->assertEquals(TEAM_ID_BLUE, $games[0]->home_team_id);
+		$this->assertEquals(TEAM_ID_PURPLE, $games[0]->away_team_id);
+		$this->assertEquals(TEAM_ID_ORANGE, $games[1]->home_team_id);
+		$this->assertEquals(TEAM_ID_RED, $games[1]->away_team_id);
+		$this->assertEquals(TEAM_ID_GREEN, $games[2]->home_team_id);
+		$this->assertEquals(TEAM_ID_WHITE, $games[2]->away_team_id);
+		$this->assertEquals(TEAM_ID_YELLOW, $games[3]->home_team_id);
+		$this->assertEquals(TEAM_ID_BLACK, $games[3]->away_team_id);
 
 		// Week 2 games should be 1v2, 3v8, 4v7, 5v6.
-		$this->assertEquals(TEAM_ID_BLACK, $games[4]->home_team_id);
-		$this->assertEquals(TEAM_ID_RED, $games[4]->away_team_id);
-		$this->assertEquals(TEAM_ID_BLUE, $games[5]->home_team_id);
-		$this->assertEquals(TEAM_ID_ORANGE, $games[5]->away_team_id);
+		$this->assertEquals(TEAM_ID_BLUE, $games[4]->home_team_id);
+		$this->assertEquals(TEAM_ID_ORANGE, $games[4]->away_team_id);
+		$this->assertEquals(TEAM_ID_BLACK, $games[5]->home_team_id);
+		$this->assertEquals(TEAM_ID_RED, $games[5]->away_team_id);
 		$this->assertEquals(TEAM_ID_PURPLE, $games[6]->home_team_id);
 		$this->assertEquals(TEAM_ID_GREEN, $games[6]->away_team_id);
 		$this->assertEquals(TEAM_ID_WHITE, $games[7]->home_team_id);
 		$this->assertEquals(TEAM_ID_YELLOW, $games[7]->away_team_id);
 
 		// Week 3 games should be 1v3, 4v2, 5v8, 6v7.
-		$this->assertEquals(TEAM_ID_WHITE, $games[8]->home_team_id);
-		$this->assertEquals(TEAM_ID_RED, $games[8]->away_team_id);
-		$this->assertEquals(TEAM_ID_BLUE, $games[9]->home_team_id);
-		$this->assertEquals(TEAM_ID_BLACK, $games[9]->away_team_id);
-		$this->assertEquals(TEAM_ID_GREEN, $games[10]->home_team_id);
-		$this->assertEquals(TEAM_ID_YELLOW, $games[10]->away_team_id);
-		$this->assertEquals(TEAM_ID_PURPLE, $games[11]->home_team_id);
-		$this->assertEquals(TEAM_ID_ORANGE, $games[11]->away_team_id);
+		$this->assertEquals(TEAM_ID_BLUE, $games[8]->home_team_id);
+		$this->assertEquals(TEAM_ID_BLACK, $games[8]->away_team_id);
+		$this->assertEquals(TEAM_ID_WHITE, $games[9]->home_team_id);
+		$this->assertEquals(TEAM_ID_RED, $games[9]->away_team_id);
+		$this->assertEquals(TEAM_ID_PURPLE, $games[10]->home_team_id);
+		$this->assertEquals(TEAM_ID_ORANGE, $games[10]->away_team_id);
+		$this->assertEquals(TEAM_ID_GREEN, $games[11]->home_team_id);
+		$this->assertEquals(TEAM_ID_YELLOW, $games[11]->away_team_id);
 
 		// Week 4 games should be 1v4, 5v3, 6v2, 7v8.
-		$this->assertEquals(TEAM_ID_BLUE, $games[12]->home_team_id);
-		$this->assertEquals(TEAM_ID_WHITE, $games[12]->away_team_id);
-		$this->assertEquals(TEAM_ID_GREEN, $games[13]->home_team_id);
-		$this->assertEquals(TEAM_ID_RED, $games[13]->away_team_id);
-		$this->assertEquals(TEAM_ID_ORANGE, $games[14]->home_team_id);
-		$this->assertEquals(TEAM_ID_BLACK, $games[14]->away_team_id);
-		$this->assertEquals(TEAM_ID_PURPLE, $games[15]->home_team_id);
-		$this->assertEquals(TEAM_ID_YELLOW, $games[15]->away_team_id);
+		$this->assertEquals(TEAM_ID_GREEN, $games[12]->home_team_id);
+		$this->assertEquals(TEAM_ID_RED, $games[12]->away_team_id);
+		$this->assertEquals(TEAM_ID_BLUE, $games[13]->home_team_id);
+		$this->assertEquals(TEAM_ID_WHITE, $games[13]->away_team_id);
+		$this->assertEquals(TEAM_ID_PURPLE, $games[14]->home_team_id);
+		$this->assertEquals(TEAM_ID_YELLOW, $games[14]->away_team_id);
+		$this->assertEquals(TEAM_ID_ORANGE, $games[15]->home_team_id);
+		$this->assertEquals(TEAM_ID_BLACK, $games[15]->away_team_id);
 
 		// Standings coming into this are Purple, Green, Orange, Yellow, Black, Red, White, Blue
 		// Week 5 games should be 1v5, 6v4, 7v3, 8v2.
-		$this->assertEquals(TEAM_ID_GREEN, $games[16]->home_team_id);
-		$this->assertEquals(TEAM_ID_BLUE, $games[16]->away_team_id);
-		$this->assertEquals(TEAM_ID_YELLOW, $games[17]->home_team_id);
-		$this->assertEquals(TEAM_ID_RED, $games[17]->away_team_id);
+		$this->assertEquals(TEAM_ID_YELLOW, $games[16]->home_team_id);
+		$this->assertEquals(TEAM_ID_RED, $games[16]->away_team_id);
+		$this->assertEquals(TEAM_ID_BLUE, $games[17]->home_team_id);
+		$this->assertEquals(TEAM_ID_GREEN, $games[17]->away_team_id);
 		$this->assertEquals(TEAM_ID_PURPLE, $games[18]->home_team_id);
 		$this->assertEquals(TEAM_ID_BLACK, $games[18]->away_team_id);
 		$this->assertEquals(TEAM_ID_WHITE, $games[19]->home_team_id);
 		$this->assertEquals(TEAM_ID_ORANGE, $games[19]->away_team_id);
 
 		// Week 6 games should be 1v6, 7v5, 8v4, 2v3.
-		$this->assertEquals(TEAM_ID_YELLOW, $games[20]->home_team_id);
-		$this->assertEquals(TEAM_ID_BLUE, $games[20]->away_team_id);
-		$this->assertEquals(TEAM_ID_RED, $games[21]->home_team_id);
-		$this->assertEquals(TEAM_ID_PURPLE, $games[21]->away_team_id);
-		$this->assertEquals(TEAM_ID_ORANGE, $games[22]->home_team_id);
-		$this->assertEquals(TEAM_ID_GREEN, $games[22]->away_team_id);
-		$this->assertEquals(TEAM_ID_BLACK, $games[23]->home_team_id);
-		$this->assertEquals(TEAM_ID_WHITE, $games[23]->away_team_id);
+		$this->assertEquals(TEAM_ID_RED, $games[20]->home_team_id);
+		$this->assertEquals(TEAM_ID_PURPLE, $games[20]->away_team_id);
+		$this->assertEquals(TEAM_ID_YELLOW, $games[21]->home_team_id);
+		$this->assertEquals(TEAM_ID_BLUE, $games[21]->away_team_id);
+		$this->assertEquals(TEAM_ID_BLACK, $games[22]->home_team_id);
+		$this->assertEquals(TEAM_ID_WHITE, $games[22]->away_team_id);
+		$this->assertEquals(TEAM_ID_GREEN, $games[23]->home_team_id);
+		$this->assertEquals(TEAM_ID_ORANGE, $games[23]->away_team_id);
 
 		// Week 7 games should be 1v7, 8v6, 2v5, 3v4.
-		$this->assertEquals(TEAM_ID_BLUE, $games[24]->home_team_id);
-		$this->assertEquals(TEAM_ID_RED, $games[24]->away_team_id);
-		$this->assertEquals(TEAM_ID_YELLOW, $games[25]->home_team_id);
-		$this->assertEquals(TEAM_ID_ORANGE, $games[25]->away_team_id);
+		$this->assertEquals(TEAM_ID_RED, $games[24]->home_team_id);
+		$this->assertEquals(TEAM_ID_BLUE, $games[24]->away_team_id);
+		$this->assertEquals(TEAM_ID_WHITE, $games[25]->home_team_id);
+		$this->assertEquals(TEAM_ID_PURPLE, $games[25]->away_team_id);
 		$this->assertEquals(TEAM_ID_GREEN, $games[26]->home_team_id);
 		$this->assertEquals(TEAM_ID_BLACK, $games[26]->away_team_id);
-		$this->assertEquals(TEAM_ID_PURPLE, $games[27]->home_team_id);
-		$this->assertEquals(TEAM_ID_WHITE, $games[27]->away_team_id);
+		$this->assertEquals(TEAM_ID_ORANGE, $games[27]->home_team_id);
+		$this->assertEquals(TEAM_ID_YELLOW, $games[27]->away_team_id);
 	}
 
 }

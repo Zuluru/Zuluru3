@@ -41,6 +41,7 @@ class WaiverTest extends TestCase {
 	public $fixtures = [
 		'app.affiliates',
 			'app.waivers',
+		'app.i18n',
 	];
 
 	/**

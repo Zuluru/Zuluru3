@@ -28,6 +28,7 @@ class SkillsTableTest extends TableTestCase {
 				'app.people',
 					'app.affiliates_people',
 					'app.skills',
+		'app.i18n',
 	];
 
 	/**

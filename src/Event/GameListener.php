@@ -33,7 +33,7 @@ class GameListener implements EventListenerInterface {
 		if (AppController::_sendMail([
 			'to' => [$addr => __('Incident Manager')],
 			'replyTo' => UserCache::getInstance()->read('Person'),
-			'subject' => __('Incident report: {0}', $game->incidents[0]->type),
+			'subject' => function() use ($game) { return __('Incident report: {0}', $game->incidents[0]->type); },
 			'template' => 'incident_report',
 			'sendAs' => 'both',
 			'viewVars' => [
@@ -132,7 +132,7 @@ class GameListener implements EventListenerInterface {
 			AppController::_sendMail([
 				'to' => $captains,
 				'replyTo' => UserCache::getInstance()->read('Person'),
-				'subject' => __('Opponent score submission'),
+				'subject' => function() { return __('Opponent score submission'); },
 				'template' => 'score_submission',
 				'sendAs' => 'both',
 				'viewVars' => array_merge([
@@ -148,7 +148,7 @@ class GameListener implements EventListenerInterface {
 		if (empty($game->score_mismatch_emails)) {
 			if (AppController::_sendMail([
 				'to' => $game->division->people,
-				'subject' => __('Score entry mismatch'),
+				'subject' => function() { return __('Score entry mismatch'); },
 				'template' => 'score_entry_mismatch',
 				'sendAs' => 'both',
 				'viewVars' => compact('game'),
@@ -184,7 +184,7 @@ class GameListener implements EventListenerInterface {
 		AppController::_sendMail([
 			'to' => $captains->toArray(),
 			'replyTo' => $game->division->people,
-			'subject' => __('{0} notification of score approval', $team->name),
+			'subject' => function() use ($team) { return __('{0} notification of score approval', $team->name); },
 			'template' => 'score_approval',
 			'sendAs' => 'both',
 			'viewVars' => [
@@ -213,7 +213,7 @@ class GameListener implements EventListenerInterface {
 		if (AppController::_sendMail([
 			'to' => $captains->toArray(),
 			'replyTo' => $game->division->people,
-			'subject' => __('{0} reminder to submit score', $team->name),
+			'subject' => function() use ($team) { return __('{0} reminder to submit score', $team->name); },
 			'template' => 'score_reminder',
 			'sendAs' => 'both',
 			'viewVars' => [

@@ -8,7 +8,7 @@ $this->Html->addCrumb(__('View'));
 <div class="gameSlots view">
 	<h2><?= __('Game Slot') ?></h2>
 	<dl class="dl-horizontal">
-		<dt><?= __(Configure::read('UI.field_cap')) ?></dt>
+		<dt><?= Configure::read('UI.field_cap') ?></dt>
 		<dd><?= $this->element('Fields/block', ['field' => $game_slot->field, 'display_field' => 'long_name']) ?></dd>
 		<dt><?= __('Game Date') ?></dt>
 		<dd><?= $this->Time->date($game_slot->game_date) ?></dd>

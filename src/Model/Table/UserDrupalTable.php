@@ -47,9 +47,9 @@ class UserDrupalTable extends UsersTable {
 		parent::initialize($config);
 
 		$this->_initializeDrupal();
-		$this->table(Configure::read('Security.drupalPrefix') . 'users');
-		$this->displayField($this->userField);
-		$this->primaryKey('uid');
+		$this->setTable(Configure::read('Security.drupalPrefix') . 'users');
+		$this->setDisplayField($this->userField);
+		$this->setPrimaryKey('uid');
 
 		$this->hasOne('DrupalSessions', [
 			'foreignKey' => 'uid',

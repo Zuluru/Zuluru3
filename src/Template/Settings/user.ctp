@@ -94,7 +94,7 @@ echo $this->element('Settings/input', [
 		'label' => __('Enable Annotations'),
 		'type' => 'radio',
 		'options' => Configure::read('options.enable'),
-		'help' => __('Allow people to attach notes to other people, teams, games and {0}.', __(Configure::read('UI.fields'))),
+		'help' => __('Allow people to attach notes to other people, teams, games and {0}.', Configure::read('UI.fields')),
 	],
 ]);
 echo $this->element('Settings/input', [

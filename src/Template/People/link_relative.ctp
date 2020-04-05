@@ -10,7 +10,7 @@ $this->Html->addCrumb(__('Link Relative'));
 <p><?= __('By linking someone as a relative, you will be able to see their schedule and perform certain actions in the system on their behalf.') ?>
 <?= __('Linking someone as a relative does <strong>not</strong> give them any control over your information; to allow this, they need to link you as a relative.') ?></p>
 <p><?= __('After linking them, they still need to accept you as a relative before you can manage their account for them.') ?></p>
-<?= $this->element('People/search_form', ['affiliates' => collection($this->UserCache->read('Affiliates'))->combine('id', 'name')->toArray()]) ?>
+<?= $this->element('People/search_form', ['affiliates' => collection($this->UserCache->read('Affiliates'))->combine('id', function ($entity) { return $entity->translateField('name'); })->toArray()]) ?>
 
 	<div id="SearchResults" class="zuluru_pagination">
 

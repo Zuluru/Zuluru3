@@ -46,11 +46,12 @@ class DivisionsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('divisions');
-		$this->displayField('name');
-		$this->primaryKey('id');
+		$this->setTable('divisions');
+		$this->setDisplayField('name');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
+		$this->addBehavior('Translate', ['fields' => ['name', 'header', 'footer']]);
 
 		$this->belongsTo('Leagues', [
 			'foreignKey' => 'league_id',
@@ -195,9 +196,9 @@ class DivisionsTable extends AppTable {
 			} else if ($entity->has('league') && $entity->league->has('divisions')) {
 				$divisions = count($entity->league->divisions);
 			} else {
-				$divisions = $this->find()->where(['league_id' => $entity->league_id]);
+				$divisions = $this->find()->where(['Divisions.league_id' => $entity->league_id]);
 				if (!$entity->isNew()) {
-					$divisions->andWhere(['id !=' => $entity->id]);
+					$divisions->andWhere(['Divisions.id !=' => $entity->id]);
 				}
 				$divisions = $divisions->count() + 1;
 			}
@@ -245,7 +246,7 @@ class DivisionsTable extends AppTable {
 			if ($entity->has('league')) {
 				$sport = $entity->league->sport;
 			} else {
-				$sport = $this->Leagues->field('sport', ['id' => $entity->league_id]);
+				$sport = $this->Leagues->field('sport', ['Leagues.id' => $entity->league_id]);
 			}
 			$rule = new InConfigRule("sports.{$sport}.ratio_rule");
 			return $rule($entity, $options);
@@ -469,7 +470,7 @@ class DivisionsTable extends AppTable {
 	}
 
 	public function findByLeague(Query $query, Array $options) {
-		$query->where(['league_id' => $options['league']]);
+		$query->where(['Divisions.league_id' => $options['league']]);
 		return $query;
 	}
 
@@ -479,12 +480,18 @@ class DivisionsTable extends AppTable {
 			return [];
 		}
 
-		$contain = ['Leagues'];
+		$contain = [
+			'Leagues' => [
+				'queryBuilder' => function (Query $q) {
+					return $q->find('translations');
+				},
+			]
+		];
 		if ($teams) {
 			$contain[] = 'Teams';
 		}
 
-		$divisions = $this->find()
+		$divisions = $this->find('translations')
 			->contain($contain)
 			->where([
 				'DivisionsPeople.person_id' => $id,
@@ -508,7 +515,7 @@ class DivisionsTable extends AppTable {
 
 	public function league($id) {
 		try {
-			return $this->field('league_id', ['id' => $id]);
+			return $this->field('league_id', ['Divisions.id' => $id]);
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}
@@ -522,9 +529,6 @@ class DivisionsTable extends AppTable {
 			// TODO: Any way to get incoming form data to be converted to int instead of string, so this can be simplified?
 			$division_id = $division;
 			$league_id = $this->league($division_id);
-		} else {
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
 		}
 		foreach ($keys as $key) {
 			Cache::delete("division/{$division_id}/{$key}", 'long_term');
@@ -537,7 +541,7 @@ class DivisionsTable extends AppTable {
 			'People',
 			'Days' => [
 				'queryBuilder' => function (Query $q) {
-					return $q->order(['day_id']);
+					return $q->order(['DivisionsDays.day_id']);
 				},
 			],
 			'Leagues',

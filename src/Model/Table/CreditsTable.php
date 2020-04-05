@@ -18,9 +18,9 @@ class CreditsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('credits');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('credits');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Timestamp');
 		$this->addBehavior('Muffin/Footprint.Footprint', [

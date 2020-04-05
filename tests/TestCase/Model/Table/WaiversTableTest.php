@@ -30,6 +30,7 @@ class WaiversTableTest extends TableTestCase {
 					'app.affiliates_people',
 			'app.waivers',
 				'app.waivers_people',
+		'app.i18n',
 	];
 
 	/**

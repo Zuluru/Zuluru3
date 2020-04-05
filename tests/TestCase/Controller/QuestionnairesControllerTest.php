@@ -33,6 +33,7 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 					'app.registrations',
 						'app.responses',
 			'app.settings',
+		'app.i18n',
 	];
 
 	/**

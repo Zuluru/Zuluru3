@@ -9,5 +9,5 @@ use Cake\Core\Configure;
 <ul>
 <li><?= __('all games are equally weighted') ?></li>
 <li><?= __('score differential bonus adjusted for Ultimate patterns (a 3 point win in soccer is a much bigger deal than in Ultimate)') ?></li>
-<li><?= __('no bonus given for home-{0} advantage', __(Configure::read('UI.field'))) ?></li>
+<li><?= __('no bonus given for home-{0} advantage', Configure::read('UI.field')) ?></li>
 </ul>

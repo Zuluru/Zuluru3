@@ -30,6 +30,7 @@ class PaymentsTableTest extends TableTestCase {
 				'app.prices',
 					'app.registrations',
 						'app.payments',
+		'app.i18n',
 	];
 
 	/**

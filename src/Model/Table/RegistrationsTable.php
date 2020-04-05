@@ -34,9 +34,9 @@ class RegistrationsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('registrations');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('registrations');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Timestamp');
 		$this->addBehavior('Muffin/Footprint.Footprint', [
@@ -188,7 +188,7 @@ class RegistrationsTable extends AppTable {
 
 			if ($entity->isNew() || !empty($options['from_expire_reservations'])) {
 				// Check whether we've gone past the cap
-				$roster_designation = $this->People->field('roster_designation', ['id' => $entity->person_id]);
+				$roster_designation = $this->People->field('roster_designation', ['People.id' => $entity->person_id]);
 				$cap = $options['event']->cap($roster_designation);
 
 				// If we're expiring a reservation, we don't want to count it against the cap,
@@ -383,7 +383,7 @@ class RegistrationsTable extends AppTable {
 
 			AppController::_sendMail([
 				'to' => $registration->person,
-				'subject' => __('{0} Reservation expired', Configure::read('organization.name')),
+				'subject' => function() { return __('{0} Reservation expired', Configure::read('organization.name')); },
 				'template' => 'reservation_expired',
 				'sendAs' => 'both',
 				'viewVars' => [
@@ -397,7 +397,7 @@ class RegistrationsTable extends AppTable {
 
 	public function affiliate($id) {
 		try {
-			return $this->Events->affiliate($this->field('event_id', ['id' => $id]));
+			return $this->Events->affiliate($this->field('event_id', ['Registrations.id' => $id]));
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

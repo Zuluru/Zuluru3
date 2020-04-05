@@ -24,6 +24,7 @@ class CategoriesTableTest extends TableTestCase {
 	public $fixtures = [
 		'app.affiliates',
 			'app.categories',
+		'app.i18n',
 	];
 
 	/**

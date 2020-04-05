@@ -24,9 +24,9 @@ class SpiritEntriesTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('spirit_entries');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('spirit_entries');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Muffin/Footprint.Footprint', [
 			'events' => [
@@ -106,7 +106,7 @@ class SpiritEntriesTable extends AppTable {
 
 	public function division($id) {
 		try {
-			return $this->Games->division($this->field('game_id', ['id' => $id]));
+			return $this->Games->division($this->field('game_id', ['SpiritEntries.id' => $id]));
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}
@@ -114,7 +114,7 @@ class SpiritEntriesTable extends AppTable {
 
 	public function team($id) {
 		try {
-			return $this->field('created_team_id', ['id' => $id]);
+			return $this->field('created_team_id', ['SpiritEntries.id' => $id]);
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

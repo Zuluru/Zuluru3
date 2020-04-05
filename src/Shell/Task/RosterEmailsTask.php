@@ -114,7 +114,7 @@ class RosterEmailsTask extends Shell {
 			if (!AppController::_sendMail([
 				'to' => $person,
 				'replyTo' => $captains,
-				'subject' => __('Reminder of invitation to join {0}', $team->name),
+				'subject' => function() use ($team) { return __('Reminder of invitation to join {0}', $team->name); },
 				'template' => 'roster_invite_reminder',
 				'sendAs' => 'both',
 				'ignore_empty_address' => true,
@@ -133,7 +133,7 @@ class RosterEmailsTask extends Shell {
 				if (!AppController::_sendMail([
 					'to' => $captains,
 					'replyTo' => $person,
-					'subject' => __('{0} has not answered invitation to join {1}', $person->full_name, $team->name),
+					'subject' => function() use ($person, $team) { return __('{0} has not answered invitation to join {1}', $person->full_name, $team->name); },
 					'template' => 'roster_invite_captain_reminder',
 					'sendAs' => 'both',
 					'ignore_empty_address' => true,
@@ -151,7 +151,7 @@ class RosterEmailsTask extends Shell {
 			if (!empty($captains) && !AppController::_sendMail([
 					'to' => $captains,
 					'replyTo' => $person,
-					'subject' => __('Reminder of {0} request to join {1}', $person->full_name, $team->name),
+					'subject' => function() use ($person, $team) { return __('Reminder of {0} request to join {1}', $person->full_name, $team->name); },
 					'template' => 'roster_request_reminder',
 					'sendAs' => 'both',
 					'ignore_empty_address' => true,
@@ -170,7 +170,7 @@ class RosterEmailsTask extends Shell {
 				if (!AppController::_sendMail([
 					'to' => $person,
 					'replyTo' => $captains,
-					'subject' => __('Unanswered request to join {0}', $team->name),
+					'subject' => function() use ($team) { return __('Unanswered request to join {0}', $team->name); },
 					'template' => 'roster_request_player_reminder',
 					'sendAs' => 'both',
 					'ignore_empty_address' => true,
@@ -205,7 +205,7 @@ class RosterEmailsTask extends Shell {
 				'to' => $captains,
 				'cc' => $person,
 				'replyTo' => $person,
-				'subject' => __('{0} invitation to join {1} expired', $person->full_name, $team->name),
+				'subject' => function() use ($person, $team) { return __('{0} invitation to join {1} expired', $person->full_name, $team->name); },
 				'template' => 'roster_invite_expire',
 				'sendAs' => 'both',
 				'ignore_empty_address' => true,
@@ -223,7 +223,7 @@ class RosterEmailsTask extends Shell {
 				'to' => $person,
 				'cc' => $captains,
 				'replyTo' => $captains,
-				'subject' => __('{0} request to join {1} expired', $person->full_name, $team->name),
+				'subject' => function() use ($person, $team) { return __('{0} request to join {1} expired', $person->full_name, $team->name); },
 				'template' => 'roster_request_expire',
 				'sendAs' => 'both',
 				'ignore_empty_address' => true,

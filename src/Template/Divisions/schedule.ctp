@@ -1,4 +1,10 @@
 <?php
+/**
+ * @type \App\Model\Entity\Division $division
+ * @type boolean $multi_day
+ * @type \Cake\I18n\FrozenDate $edit_date
+ */
+
 use Cake\Core\Configure;
 
 $this->Html->addCrumb(__('Divisions'));
@@ -71,7 +77,7 @@ if (!empty($division->games)):
 ?>
 						<th><?= __('Time') ?></th>
 						<th><?= __(Configure::read("sports.{$division->league->sport}.field_cap")) ?></th>
-						<th><?= __($competition ? 'Team' : 'Home') ?></th>
+						<th><?= $competition ? __('Team') : __('Home') ?></th>
 <?php
 	if (!$competition):
 ?>

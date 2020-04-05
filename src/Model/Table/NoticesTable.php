@@ -17,11 +17,12 @@ class NoticesTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('notices');
-		$this->displayField('id');
-		$this->primaryKey('id');
+		$this->setTable('notices');
+		$this->setDisplayField('id');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Timestamp');
+		$this->addBehavior('Translate', ['fields' => ['notice']]);
 
 		$this->belongsToMany('People', [
 			'foreignKey' => 'notice_id',

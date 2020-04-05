@@ -21,8 +21,8 @@ class JoomlaSessionsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table(Configure::read('Security.joomlaPrefix') . 'session');
-		$this->primaryKey('sid');
+		$this->setTable(Configure::read('Security.joomlaPrefix') . 'session');
+		$this->setPrimaryKey('sid');
 
 		$this->belongsTo('User', [
 			'className' => 'UserJoomla',

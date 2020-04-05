@@ -335,7 +335,7 @@ class QuestionsController extends AppController {
 		$this->request->allowMethod('ajax');
 
 		try {
-		$affiliate = TableRegistry::get('Affiliates')->get($this->request->getQuery('affiliate'));
+			$affiliate = TableRegistry::get('Affiliates')->get($this->request->getQuery('affiliate'));
 		} catch (RecordNotFoundException $ex) {
 			$this->Flash->info(__('Invalid affiliate.'));
 			return $this->redirect(['action' => 'index']);

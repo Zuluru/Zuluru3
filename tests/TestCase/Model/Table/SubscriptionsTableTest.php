@@ -28,6 +28,7 @@ class SubscriptionsTableTest extends TableTestCase {
 					'app.affiliates_people',
 			'app.mailing_lists',
 				'app.subscriptions',
+		'app.i18n',
 	];
 
 	/**

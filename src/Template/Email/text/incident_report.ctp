@@ -43,7 +43,7 @@ if (!empty($away_team)):
 <?php
 endif;
 ?>
-<?= __(Configure::read('UI.field_cap')) ?>: <?= $field->long_name ?>
+<?= Configure::read('UI.field_cap') ?>: <?= $field->long_name ?>
 
 
 <?= $incident->details ?>

@@ -1,8 +1,11 @@
 <?php
-if (is_array($game)) {
-	trigger_error('TODOTESTING', E_USER_WARNING);
-	exit;
-}
+/**
+ * @type \App\Model\Entity\Game $game
+ * @type \App\Model\Entity\GameSlot $game_slot
+ * @type string $field
+ * @type mixed[] $options
+ */
+
 $id = "games_game_{$game->id}";
 
 if (isset($options)) {

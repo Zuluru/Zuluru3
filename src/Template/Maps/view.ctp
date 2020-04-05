@@ -1,7 +1,7 @@
 <?php
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('{0} Layout', __(Configure::read('UI.field_cap'))));
+$this->Html->addCrumb(__('{0} Layout', Configure::read('UI.field_cap')));
 $this->Html->addCrumb(trim("{$facility->name} ({$facility->code}) {$field->num}"));
 
 $map_vars = ['id', 'num', 'sport', 'latitude', 'longitude', 'angle', 'width', 'length', 'zoom', 'surface'];
@@ -64,7 +64,7 @@ $this->Html->scriptBlock($variables, ['block' => true, 'buffer' => true]);
 <h3><?= $field->long_name ?></h3>
 <p><?= $address ?></p>
 
-<p><?= __('Get directions to this {0} from:', __(Configure::read('UI.field'))) ?></p>
+<p><?= __('Get directions to this {0} from:', Configure::read('UI.field')) ?></p>
 <form action="javascript:getDirections()">
 <input type="text" size=30 maxlength=50 name="saddr" id="saddr" value="<?= $home_addr ?>" /><br>
 <input value="<?= __('Get Directions') ?>" type="submit"><br>

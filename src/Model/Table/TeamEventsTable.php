@@ -27,9 +27,9 @@ class TeamEventsTable extends AppTable {
 	public function initialize(array $config) {
 		parent::initialize($config);
 
-		$this->table('team_events');
-		$this->displayField('name');
-		$this->primaryKey('id');
+		$this->setTable('team_events');
+		$this->setDisplayField('name');
+		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Timestamp');
 		$this->addBehavior('Trim');
@@ -201,7 +201,7 @@ class TeamEventsTable extends AppTable {
 		} else {
 			$event_conditions['id'] = $event_id;
 			$attendance_conditions = ['team_event_id' => $event_id];
-			$date = $this->field('date', ['id' => $event_id]);
+			$date = $this->field('date', ['TeamEvents.id' => $event_id]);
 			$this->createAttendance($team, $event_id, $date);
 		}
 
@@ -281,7 +281,7 @@ class TeamEventsTable extends AppTable {
 
 	public function team($id) {
 		try {
-			return $this->field('team_id', ['id' => $id]);
+			return $this->field('team_id', ['TeamEvents.id' => $id]);
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}

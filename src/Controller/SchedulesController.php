@@ -760,12 +760,13 @@ class SchedulesController extends AppController {
 						'Divisions' => [
 							'Days' => [
 								'queryBuilder' => function (Query $q) {
-									return $q->order(['day_id']);
+									return $q->order(['DivisionsDays.day_id']);
 								},
 							],
 						],
 					]
 				]);
+				$division = null;
 			} catch (RecordNotFoundException $ex) {
 				$this->Flash->warning(__('Invalid league.'));
 				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
@@ -793,27 +794,28 @@ class SchedulesController extends AppController {
 					'contain' => [
 						'Days' => [
 							'queryBuilder' => function (Query $q) {
-								return $q->order(['day_id']);
+								return $q->order(['DivisionsDays.day_id']);
 							},
 						],
 						'Teams' => [
 							'queryBuilder' => function (Query $q) {
-								return $q->order(['name']);
+								return $q->order(['Teams.name']);
 							},
 						],
 						'Leagues',
 						'Pools' => [
 							'queryBuilder' => function (Query $q) {
-								return $q->order(['id']);
+								return $q->order(['Pools.id']);
 							},
 							'PoolsTeams' => [
 								'queryBuilder' => function (Query $q) {
-									return $q->order(['id']);
+									return $q->order(['PoolsTeams.id']);
 								},
 							],
 						],
 					]
 				]);
+				$league = null;
 			} catch (RecordNotFoundException $ex) {
 				$this->Flash->warning(__('Invalid division.'));
 				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
@@ -871,6 +873,8 @@ class SchedulesController extends AppController {
 				$this->Flash->warning(__('Invalid pool.'));
 				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 			}
+		} else {
+			$pool = null;
 		}
 
 		if ($query->isEmpty()) {
@@ -1075,7 +1079,7 @@ class SchedulesController extends AppController {
 						'Divisions' => [
 							'Days' => [
 								'queryBuilder' => function (Query $q) {
-									return $q->order(['day_id']);
+									return $q->order(['DivisionsDays.day_id']);
 								},
 							],
 						],
@@ -1106,7 +1110,7 @@ class SchedulesController extends AppController {
 					'contain' => [
 						'Days' => [
 							'queryBuilder' => function (Query $q) {
-								return $q->order(['day_id']);
+								return $q->order(['DivisionsDays.day_id']);
 							},
 						],
 					]

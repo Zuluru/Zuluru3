@@ -181,7 +181,7 @@ $options['options'] = [
 	],
 
 	'incident_types' => [
-		'Field Condition' => __(Configure::read('UI.field_cap')) . ' condition',
+		'Field Condition' => __('{0} condition', Configure::read('UI.field_cap')),
 		'Injury' => __('Injury'),
 		'Rules disagreement' => __('Rules disagreement'),
 		// TODO: Fix capitalization different, requires a migration
@@ -227,7 +227,7 @@ $options['options'] = [
 
 	'game_status' => [
 		'normal' => __('Normal'),
-		'in_progress' => __('In_Progress'),
+		'in_progress' => __('In Progress'),
 		'home_default' => __('Home Default'),
 		'away_default' => __('Away Default'),
 		'rescheduled' => __('Rescheduled'),

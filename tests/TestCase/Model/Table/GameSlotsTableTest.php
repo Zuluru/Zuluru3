@@ -30,6 +30,7 @@ class GameSlotsTableTest extends TableTestCase {
 				'app.divisions',
 					'app.game_slots',
 						'app.divisions_gameslots',
+		'app.i18n',
 	];
 
 	/**
