@@ -18,7 +18,7 @@ class SettingsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit($section) {
-		$settings = $this->Settings->find()
+		$settings_query = $this->Settings->find()
 			->where([
 				'person_id IS' => null,
 			]);
@@ -34,15 +34,15 @@ class SettingsController extends AppController {
 				$this->Flash->info(__('Invalid affiliate.'));
 				return $this->redirect('/');
 			}
-			$settings = $settings->andWhere(['affiliate_id' => $affiliate_id]);
+			$settings_query = $settings_query->andWhere(['affiliate_id' => $affiliate_id]);
 			$this->Authorization->authorize($affiliate, 'edit_settings');
 		} else {
 			$affiliate = null;
-			$settings = $settings->andWhere(['affiliate_id IS' => null]);
+			$settings_query = $settings_query->andWhere(['affiliate_id IS' => null]);
 			$this->Authorization->authorize($this);
 		}
 
-		$settings = $settings->toArray();
+		$settings = $settings_query->toArray();
 
 		$defaults = $this->Settings->find()
 			->where([
@@ -117,6 +117,10 @@ class SettingsController extends AppController {
 
 				return true;
 			});
+
+			// Reload the settings, so any newly assigned IDs are present
+			// The 'enableBufferedResults' call is to make the query dirty so it doesn't use cached results.
+			$settings = $settings_query->enableBufferedResults(true)->toArray();
 		}
 
 		$this->_loadAddressOptions();

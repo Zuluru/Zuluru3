@@ -1,4 +1,11 @@
 <?php
+/**
+ * @type string $category
+ * @type string $name
+ * @type string[] $options
+ * @type string[] $settings
+ */
+
 if (!isset($options)) {
 	$options = [];
 }
