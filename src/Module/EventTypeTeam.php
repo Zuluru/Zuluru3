@@ -76,11 +76,6 @@ class EventTypeTeam extends EventType {
 			$teams_model = TableRegistry::get('Teams');
 
 			if (Configure::read('feature.franchises')) {
-				if (!isset($event->division->is_playoff)) {
-					\Cake\Log\Log::write('error', $event->division);
-					trigger_error('TODOTESTING: Read the event and division with hydration so playoff details are set', E_USER_WARNING);
-					exit;
-				}
 				$conditions = [];
 
 				// Possibly narrow the list of possible franchises to those that are represented
@@ -401,11 +396,6 @@ class EventTypeTeam extends EventType {
 	}
 
 	public function longDescription(Registration $registration) {
-		if (!is_a($registration, 'App\Model\Entity\Registration')) {
-			\Cake\Log\Log::write('error', $registration);
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
-		}
 		$team = $this->extractAnswer($registration->responses, TEAM_NAME);
 		return parent::longDescription($registration) . ": $team";
 	}

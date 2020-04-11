@@ -167,9 +167,6 @@ if (!empty($items)):
 				<td class="splash_item">&nbsp;</td>
 				<td class="splash_item">&nbsp;</td>
 <?php
-		else:
-			pr($item);
-			trigger_error('TODOTESTING', E_USER_WARNING);
 		endif;
 ?>
 			</tr>

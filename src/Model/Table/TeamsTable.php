@@ -337,11 +337,6 @@ class TeamsTable extends AppTable {
 			$rosterMap = array_flip(array_keys(Configure::read('options.roster_role')));
 		}
 
-		if (!is_a($a, 'App\Model\Entity\Person') || !is_a($b, 'App\Model\Entity\Person')) {
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
-		}
-
 		// If there is no request, we're running in CLI mode (i.e. a shell task), and nothing we do there cares about gender sorting
 		if (array_key_exists('include_gender', $options)) {
 			$include_gender = $options['include_gender'];
@@ -370,15 +365,9 @@ class TeamsTable extends AppTable {
 			return 1;
 		} else if ($include_gender && $a->roster_designation > $b->roster_designation) {
 			return -1;
-		} else if ($a->last_name > $b->last_name) {
-			return 1;
-		} else if ($a->last_name < $b->last_name) {
-			return -1;
-		} else if ($a->first_name > $b->first_name) {
-			return 1;
-		} else {
-			return -1;
 		}
+
+		return PeopleTable::comparePerson($a, $b);
 	}
 
 	public function affiliate($id) {

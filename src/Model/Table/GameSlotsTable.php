@@ -372,15 +372,6 @@ class GameSlotsTable extends AppTable {
 	}
 
 	public static function compareTimeAndField($a, $b) {
-		if (!is_a($a, 'App\Model\Entity\GameSlot')) {
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
-		}
-		if (!is_a($b, 'App\Model\Entity\GameSlot')) {
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
-		}
-
 		if ($a->start_time > $b->start_time) {
 			return 1;
 		} else if ($a->start_time < $b->start_time) {
@@ -393,12 +384,6 @@ class GameSlotsTable extends AppTable {
 			return -1;
 		}
 
-		if ($a->field->long_name > $b->field->long_name) {
-			return 1;
-		} else if ($a->field->long_name < $b->field->long_name) {
-			return -1;
-		}
-
-		return 0;
+		return $a->field->long_name <=> $b->field->long_name;
 	}
 }

@@ -29,11 +29,6 @@ class ZuluruFormHelper extends FormHelper {
 	}
 
 	public function create($model = null, array $options = []) {
-		if ($model !== false && $model !== null && !is_a($model, 'Cake\ORM\Entity') && !is_a($model, 'Cake\Form\Form')) {
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
-		}
-
 		// TODOLATER: Remove this once we're done with validation testing
 		$options['novalidate'] = true;
 
@@ -88,10 +83,6 @@ class ZuluruFormHelper extends FormHelper {
 				$options = $this->_optionsOptions($fieldName, $options);
 
 				if (array_key_exists('options', $options) && count($options['options']) == 1) {
-					if (!is_array($options['options'])) {
-						trigger_error('TODOTESTING', E_USER_WARNING);
-						exit;
-					}
 					$value = current(array_keys($options['options']));
 					if (!is_array($options['options'][$value])) {
 						return parent::hidden($fieldName, ['value' => $value, 'secure' => $options['secure']]);

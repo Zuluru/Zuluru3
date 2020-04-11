@@ -623,11 +623,6 @@ abstract class LeagueType {
 	protected function selectRandomGameslot(Division $division, $dates, $remaining = 1, $recursive = false) {
 		$slots = [];
 		foreach ($dates as $date) {
-			if (is_numeric($date)) {
-				trigger_error('TODOTESTING', E_USER_WARNING);
-				exit;
-				$date = date('Y-m-d', $date);
-			}
 			$slots = array_merge($slots, collection($division->game_slots)->match(['game_date' => $date])->toList());
 			// TODO: When we're not scheduling tournaments, perhaps we should include all possible dates,
 			// to get a better distribution across multiple divisions with multi-night games. See also
@@ -680,11 +675,6 @@ abstract class LeagueType {
 	 * @return mixed The id of the selected slot
 	 */
 	protected function selectWeightedGameslot(Division $division, $date, $game, $remaining) {
-		if (is_numeric($date)) {
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
-			$date = date('Y-m-d', $date);
-		}
 		$slots = [];
 
 		if (!empty($game->home_team_id)) {
@@ -784,11 +774,6 @@ abstract class LeagueType {
 	 * Count how many distinct game slot days are available from $date onwards
 	 */
 	protected function countAvailableGameslotDays(Division $division, $date, $slots_per_day) {
-		if (is_numeric($date)) {
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
-			$date = date('Y-m-d', $date);
-		}
 		$dates = array_unique(collection($division->game_slots)->filter(function ($slot) use ($date) {
 			return $slot->game_date >= $date;
 		})->extract('game_date')->toList());
@@ -811,12 +796,6 @@ abstract class LeagueType {
 	 * @return FrozenDate
 	 */
 	protected function nextGameslotDay(Division $division, $date, $skip) {
-		if (is_numeric($date)) {
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
-			$date = date('Y-m-d', $date);
-		}
-
 		if (!$skip) {
 			// Leagues that operate on multiple nights of the week may have more
 			// game slots available later in the same week, but we don't want to

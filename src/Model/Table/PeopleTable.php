@@ -937,19 +937,8 @@ class PeopleTable extends AppTable {
 	}
 
 	public static function comparePerson($a, $b) {
-		if (!is_a($a, 'App\Model\Entity\Person') || !is_a($b, 'App\Model\Entity\Person')) {
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
-		}
-		if (strtolower($a->last_name) > strtolower($b->last_name)) {
-			return 1;
-		} else if (strtolower($a->last_name) < strtolower($b->last_name)) {
-			return -1;
-		} else if (strtolower($a->first_name) > strtolower($b->first_name)) {
-			return 1;
-		} else {
-			return -1;
-		}
+		return (strtolower($a->last_name) <=> strtolower($b->last_name)) ?:
+			((strtolower($a->full_name) <=> strtolower($b->full_name)) ?: $a->id <=> $b->id);
 	}
 
 }

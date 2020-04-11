@@ -328,11 +328,6 @@ class DivisionsTable extends AppTable {
 		]);
 
 		$rules->addDelete(function ($entity, $options) {
-			if (!$entity->has('league') || !$entity->league->has('divisions')) {
-				trigger_error('TODOTESTING', E_USER_WARNING);
-				exit;
-			}
-
 			// Don't delete the last division in a league
 			if (count($entity->league->divisions) < 2) {
 				return __('You cannot delete the only division in a league.');

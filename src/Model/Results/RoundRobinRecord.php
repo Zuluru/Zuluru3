@@ -254,11 +254,6 @@ class RoundRobinRecord {
 	 * @return RoundRobinRecord|null
 	 */
 	public static function record(Team $team, array $context) {
-		if (empty($context['results'])) {
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
-		}
-
 		switch ($context['results']) {
 			case 'season':
 				if ($team->has('_results') && $team->_results->has('season')) {

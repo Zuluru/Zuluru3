@@ -80,8 +80,7 @@ class RuleRegistered extends Rule {
 				return in_array($registration->event_id, $this->event_ids);
 			});
 		}
-trigger_error('TODOTESTING', E_USER_WARNING);
-exit;
+
 		return false;
 	}
 

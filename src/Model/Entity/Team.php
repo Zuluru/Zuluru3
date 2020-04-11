@@ -161,9 +161,6 @@ class Team extends Entity {
 			} else {
 				$this->average_skill = 'N/A';
 			}
-		} else {
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
 		}
 	}
 

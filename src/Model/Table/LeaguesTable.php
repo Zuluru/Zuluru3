@@ -235,10 +235,6 @@ class LeaguesTable extends AppTable {
 			$a_divisions = [$a->division];
 			$b_league = $b->division->league;
 			$b_divisions = [$b->division];
-		} else {
-			pr($a);
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
 		}
 
 		if ($a_league->has('affiliate')) {
@@ -247,10 +243,6 @@ class LeaguesTable extends AppTable {
 		} else if ($a->has('affiliate')) {
 			$a_affiliate = $a->affiliate;
 			$b_affiliate = $b->affiliate;
-		} else {
-			pr($a);
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
 		}
 
 		// If they are different affiliates, we use that

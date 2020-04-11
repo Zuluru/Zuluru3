@@ -106,9 +106,6 @@ class RuleSignedWaiver extends Rule {
 					$match = $waiver->_joinData;
 				} else if ($waiver->has('_matchingData')) {
 					$match = $waiver->_matchingData['WaiversPeople'];
-				} else {
-					trigger_error('TODOTESTING', E_USER_WARNING);
-					exit;
 				}
 				return $this->date->between($match->valid_from, $match->valid_until) &&
 					in_array($waiver->id, $this->waiver_ids);

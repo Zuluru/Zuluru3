@@ -19,11 +19,7 @@ class ZuluruHtmlHelper extends HtmlHelper {
 	/**
 	 * Extend the default link function by allowing for shortening link titles.
 	 */
-	public function link($title, $url = null, array $options = [], $confirmMessage = false) {
-		if ($confirmMessage !== false) {
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
-		}
+	public function link($title, $url = null, array $options = []) {
 		if (is_array($options) && array_key_exists('max_length', $options)) {
 			$max = $options['max_length'];
 			unset($options['max_length']);
@@ -52,12 +48,7 @@ class ZuluruHtmlHelper extends HtmlHelper {
 	/**
 	 * Create links from images.
 	 */
-	public function imageLink($img, $url, array $imgOptions = [], array $linkOptions = [], $todotesting = null) {
-		if ($todotesting) {
-			trigger_error('Confirm parameter given to imageLink', E_USER_WARNING);
-			exit;
-		}
-
+	public function imageLink($img, $url, array $imgOptions = [], array $linkOptions = []) {
 		if (array_key_exists('class', $linkOptions)) {
 			if (is_array($linkOptions['class'])) {
 				$linkOptions[] = 'icon';
@@ -92,11 +83,7 @@ class ZuluruHtmlHelper extends HtmlHelper {
 	/**
 	 * Create links from icons.
 	 */
-	public function iconLink($img, $url, array $imgOptions = [], array $linkOptions = [], $todotesting = null) {
-		if ($todotesting) {
-			trigger_error('Confirm parameter given to iconLink', E_USER_WARNING);
-			exit;
-		}
+	public function iconLink($img, $url, array $imgOptions = [], array $linkOptions = []) {
 		$linkOptions['class'] = 'icon';
 		return $this->link($this->iconImg($img, $imgOptions),
 			$url, array_merge(['escapeTitle' => false], $linkOptions));

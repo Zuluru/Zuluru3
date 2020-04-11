@@ -1270,10 +1270,6 @@ class AppController extends Controller {
 			return false;
 		}
 
-		if (!is_a($person->birthdate, 'Cake\Chronos\ChronosInterface')) {
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
-		}
 		if (Configure::read('feature.birth_year_only')) {
 			$birth_year = $person->birthdate->year;
 			if ($birth_year == 0) {

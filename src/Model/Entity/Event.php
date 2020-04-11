@@ -104,10 +104,6 @@ class Event extends Entity {
 			$paid->andWhere($conditions);
 		}
 		if ($this->women_cap != CAP_COMBINED) {
-			if ($roster_designation === null) {
-				trigger_error('TODOTESTING', E_USER_WARNING);
-				exit;
-			}
 			$paid->contain(['People'])
 				->andWhere(['People.roster_designation' => $roster_designation]);
 		}
@@ -118,10 +114,6 @@ class Event extends Entity {
 	public function cap($roster_designation) {
 		if ($this->women_cap == CAP_COMBINED) {
 			return $this->open_cap;
-		}
-		if ($roster_designation === null) {
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
 		}
 		return ($roster_designation == 'Open' ? $this->open_cap : $this->women_cap);
 	}

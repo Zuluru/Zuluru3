@@ -258,10 +258,6 @@ class RegistrationsTable extends AppTable {
 	 * @return bool
 	 */
 	private function preProcess(EntityInterface $registration, ArrayObject $options, $original_payment, $new_payment) {
-		if (!array_key_exists('event', $options) || !$options['event']->has('event_type')) {
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
-		}
 		if (!array_key_exists('event_obj', $options)) {
 			$options['event_obj'] = ModuleRegistry::getInstance()->load("EventType:{$options['event']->event_type->type}");
 		}

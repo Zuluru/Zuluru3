@@ -74,10 +74,6 @@ class RuleMemberType extends Rule {
 
 	// Check if the user was a member on the configured date
 	public function evaluate($affiliate, $params, Team $team = null, $strict = true, $text_reason = false, $complete = true, $absolute_url = false, $formats = []) {
-		if (is_array($params)) {
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
-		}
 		if (!$params->has('registrations')) {
 			return 'none';
 		}

@@ -238,9 +238,6 @@ foreach ($items as $item):
 						['controller' => 'Task_slots', 'action' => 'ical', $item->id, 'task.ics']);
 				?></td>
 <?php
-	else:
-		pr($item);
-		trigger_error('TODOTESTING', E_USER_WARNING);
 	endif;
 ?>
 			</tr>

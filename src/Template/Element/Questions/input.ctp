@@ -110,11 +110,6 @@ switch ($question->type) {
 	case 'label':
 		$item = $this->Html->tag('label', $question->question);
 		break;
-
-	default:
-		pr($question);
-		trigger_error('TODOTESTING', E_USER_WARNING);
-		exit;
 }
 
 echo $item;

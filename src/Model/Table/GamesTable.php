@@ -1217,12 +1217,6 @@ class GamesTable extends AppTable {
 			return;
 		}
 
-		if (!$game->game_slot->has('field') || !$game->game_slot->field->has('facility')) {
-			pr($game);
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
-		}
-
 		$some_home_preference = false;
 		foreach (['home_team' => 'home_field_rank', 'away_team' => 'away_field_rank'] as $team_type => $rank_field) {
 			$rank = null;

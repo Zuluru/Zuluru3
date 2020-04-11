@@ -166,11 +166,6 @@ class PricesTable extends AppTable {
 		]);
 
 		$rules->addDelete(function ($entity, $options) {
-			if (!$entity->has('event') || !$entity->event->has('prices')) {
-				trigger_error('TODOTESTING', E_USER_WARNING);
-				exit;
-			}
-
 			// Don't delete the last price on an event
 			if (count($entity->event->prices) < 2) {
 				return __('You cannot delete the only price point on an event.');

@@ -75,9 +75,6 @@ class EventType {
 				return !$question->_joinData->required || !empty($value);
 		}
 
-		\Cake\Log\Log::write('error', $value);
-		\Cake\Log\Log::write('error', $question);
-		trigger_error('TODOTESTING', E_USER_WARNING);
 		return true;
 	}
 

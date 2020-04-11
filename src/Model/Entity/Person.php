@@ -321,11 +321,6 @@ class Person extends Entity {
 							unset($new->$prop);
 							unset($new->user_id);
 						}
-					} else {
-						pr($prop);
-						pr(get_class($new->$prop));
-						trigger_error('TODOTESTING', E_USER_WARNING);
-						exit;
 					}
 				}
 			}

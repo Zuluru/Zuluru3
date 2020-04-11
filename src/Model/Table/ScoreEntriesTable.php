@@ -258,11 +258,6 @@ class ScoreEntriesTable extends AppTable {
 	 * @return void
 	 */
 	public function afterSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
-		if (!$options->offsetExists('game')) {
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
-		}
-
 		if (count($options['game']->score_entries) == 1) {
 			$event = new CakeEvent('Model.Game.scoreSubmission', $this, [$options['game']]);
 			EventManager::instance()->dispatch($event);

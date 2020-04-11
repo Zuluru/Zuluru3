@@ -432,14 +432,7 @@ class TeamsController extends AppController {
 		}
 
 		if ($a->has('name')) {
-			if ($a->name > $b->name) {
-				return 1;
-			} else if ($a->name < $b->name) {
-				return -1;
-			}
-		} else {
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
+			return $a->name <=> $b->name;
 		}
 
 		return 0;

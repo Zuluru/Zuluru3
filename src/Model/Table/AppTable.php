@@ -171,10 +171,6 @@ class AppTable extends Table {
 				} else if (is_a($association, 'Cake\ORM\Association\BelongsTo')) {
 					// Belongs to records remain unchanged, IDs and all.
 				} else {
-					pr(get_class($association));
-					pr($entity->$name);
-					trigger_error('TODOTESTING', E_USER_WARNING);
-					exit;
 					$association->target()->_cloneWithoutIds($entity->$name);
 				}
 			}

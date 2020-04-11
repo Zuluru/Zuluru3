@@ -98,10 +98,6 @@ class Badge {
 	}
 
 	public function aggregate($badge, $person, $extra, $id, $reps) {
-		if (!$person->has('badges')) {
-			trigger_error('TODOTESTING', E_USER_ERROR);
-		}
-
 		$badges = collection($person->badges)->match(['id' => $id])->toList();
 		if (count($badges) >= $reps) {
 			$person->badges = collection($person->badges)->reject(function ($badge, $key) use ($id) {
@@ -136,10 +132,6 @@ class Badge {
 	}
 
 	public function team($badge, $roster, $person, $handler) {
-		if (!is_a($roster, 'App\Model\Entity\TeamsPerson')) {
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
-		}
 		if (!isset($this->team) || $this->team->id != $roster->team_id) {
 			$this->team = TableRegistry::get('Teams')->get($roster->team_id, [
 				'contain' => ['Divisions'],
@@ -165,10 +157,6 @@ class Badge {
 	}
 
 	public function registration($badge, $registration, $paid, $handler) {
-		if (!is_a($registration, 'App\Model\Entity\Registration')) {
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
-		}
 		if (!$registration->has('person')) {
 			TableRegistry::get('Registrations')->loadInto($registration, ['People']);
 		}

@@ -101,9 +101,6 @@ class RuleTeamCount extends Rule implements RuleHaving {
 				$roster = $team->_matchingData['TeamsPeople'];
 			} else if ($team->has('_joinData')) {
 				$roster = $team->_joinData;
-			} else {
-				trigger_error('TODOTESTING', E_USER_WARNING);
-				exit;
 			}
 			return in_array($roster->role, $this->roles) &&
 				$roster->status == ROSTER_APPROVED &&

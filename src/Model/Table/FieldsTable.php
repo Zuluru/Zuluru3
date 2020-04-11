@@ -148,11 +148,6 @@ class FieldsTable extends AppTable {
 		]);
 
 		$rules->addDelete(function ($entity, $options) {
-			if (!$entity->has('facility') || !$entity->facility->has('fields')) {
-				trigger_error('TODOTESTING', E_USER_WARNING);
-				exit;
-			}
-
 			// Don't delete the last field at a facility
 			if (count($entity->facility->fields) < 2) {
 				return __('You cannot delete the only {0} at a facility.', Configure::read('UI.field'));

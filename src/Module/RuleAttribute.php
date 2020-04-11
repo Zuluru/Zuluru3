@@ -43,12 +43,6 @@ class RuleAttribute extends Rule {
 	public function evaluate($affiliate, $params, Team $team = null, $strict = true, $text_reason = false, $complete = true, $absolute_url = false, $formats = []) {
 		// TODO: Look for likely array keys (person, user model config name)
 		// Maybe go through all properties and check in those that are entities? (But not arrays of entities...)
-		if (!is_a($params, 'App\Model\Entity\Person')) {
-			pr($params);
-			trigger_error('TODOTESTING', E_USER_WARNING);
-			exit;
-		}
-
 		$data = $params;
 		foreach ($this->attribute_path as $key) {
 			// We know we have a Person entity, so we can skip that part of the key

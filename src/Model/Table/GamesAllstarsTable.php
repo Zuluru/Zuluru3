@@ -65,11 +65,6 @@ class GamesAllstarsTable extends AppTable {
 	 */
 	public function beforeRules(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options, $operation) {
 		if ($entity->isNew() && !$entity->has('team_id')) {
-			if (!$options->offsetExists('game') || !$options->offsetExists('team_id')) {
-				trigger_error('TODOTESTING', E_USER_WARNING);
-				exit;
-			}
-
 			// Set the team ID, based on what we know
 			if ($options['game']->division->allstars_from == 'submitter') {
 				$entity->team_id = $options['team_id'];
