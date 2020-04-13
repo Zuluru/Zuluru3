@@ -378,7 +378,7 @@ function handleAjaxRequest(trigger, container, widget, default_disposition, requ
 		if (input.attr('data-type') == 'date') {
 			// Date inputs need to send all three fields, which we assume are inside the closest parent div
 			input.closest('div').find('select').each(function() {
-				data.append(input.attr('name'), input.val());
+				data.append(jQuery(this).attr('name'), jQuery(this).val());
 			});
 		} else {
 			var param_name = input.attr('data-param-name');
