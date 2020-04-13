@@ -46,7 +46,7 @@ endif;
 			<tbody>
 <?php
 foreach ($field->game_slots as $slot):
-	$seasons = array_unique(collection($slot->games)->extract('division.league.long_season')->toArray());
+	$seasons = array_unique(collection($slot->divisions)->extract('league.long_season')->toArray());
 	$day = $slot->game_date->format('l');
 
 	$divisions = [];
