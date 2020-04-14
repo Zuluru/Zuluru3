@@ -85,7 +85,7 @@ abstract class LeagueType {
 	public function addResults(Division $division, $spirit_obj) {
 		// Hopefully, everything we need is already cached
 		$results = Cache::remember("division/{$division->id}/standings", function () use ($division, $spirit_obj) {
-			$divisions_table = TableRegistry::get('Divisions');
+			$divisions_table = TableRegistry::getTableLocator()->get('Divisions');
 
 			// Read the team list
 			$divisions_table->loadInto($division, [
@@ -285,7 +285,7 @@ abstract class LeagueType {
 	 * Load everything required for scheduling.
 	 */
 	public function startSchedule(Division $division, $start_date) {
-		TableRegistry::get('Divisions')->loadInto($division, [
+		TableRegistry::getTableLocator()->get('Divisions')->loadInto($division, [
 			'Days' => [
 				'queryBuilder' => function (Query $q) {
 					return $q->order(['DivisionsDays.day_id']);
@@ -369,8 +369,8 @@ abstract class LeagueType {
 			throw new ScheduleException(__('No games were created.'));
 		}
 
-		$games_table = TableRegistry::get('Games');
-		$games_table->connection()->transactional(function () use ($division, $games, $games_table) {
+		$games_table = TableRegistry::getTableLocator()->get('Games');
+		$games_table->getConnection()->transactional(function () use ($division, $games, $games_table) {
 			foreach ($games as $game) {
 				$validate = ($game->isNew() ? 'scheduleAdd' : 'scheduleEdit');
 				if (!$games_table->save($game, ['validate' => $validate, 'games' => $games, 'game_slots' => $division->used_slots])) {
@@ -399,7 +399,7 @@ abstract class LeagueType {
 			throw new ScheduleException(__('Must have two teams.'));
 		}
 
-		$game = TableRegistry::get('Games')->newEntity([
+		$game = TableRegistry::getTableLocator()->get('Games')->newEntity([
 			'type' => SEASON_GAME,
 		], array_merge($division->_options->toArray(), [
 			'validate' => 'scheduleAdd',
@@ -478,7 +478,7 @@ abstract class LeagueType {
 			'home_team_id' => $home->id,
 			'away_team_id' => $away->id,
 		];
-		$game = TableRegistry::get('Games')->newEntity($save,
+		$game = TableRegistry::getTableLocator()->get('Games')->newEntity($save,
 			array_merge($division->_options->toArray(), [
 				'validate' => 'scheduleAdd',
 				'division' => $division,

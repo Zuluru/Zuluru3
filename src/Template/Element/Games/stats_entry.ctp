@@ -9,7 +9,7 @@ if (!$attendance->track_attendance) {
 }
 
 $style = 'width:' . floor(80 / count($game->division->league->stat_types)) . '%;';
-$stats_table = TableRegistry::get('Stats');
+$stats_table = TableRegistry::getTableLocator()->get('Stats');
 ?>
 <div class="table-responsive">
 	<table class="table table-striped table-hover table-condensed" id="team_<?= $attendance->id ?>">

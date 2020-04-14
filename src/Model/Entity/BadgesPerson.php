@@ -50,7 +50,7 @@ class BadgesPerson extends Entity {
 
 		// Make sure whatever extra virtual fields we have are included when we convert to arrays
 		if (!empty($this->game_id)) {
-			$this->game = TableRegistry::get('Games')->get($this->game_id, [
+			$this->game = TableRegistry::getTableLocator()->get('Games')->get($this->game_id, [
 				'contain' => [
 					'Divisions' => ['Leagues'],
 					'GameSlots',
@@ -60,7 +60,7 @@ class BadgesPerson extends Entity {
 		}
 
 		if (!empty($this->registration_id)) {
-			$this->registration = TableRegistry::get('Registrations')->get($this->registration_id, [
+			$this->registration = TableRegistry::getTableLocator()->get('Registrations')->get($this->registration_id, [
 				'contain' => [
 					'Events',
 				]
@@ -69,7 +69,7 @@ class BadgesPerson extends Entity {
 		}
 
 		if (!empty($this->team_id)) {
-			$this->team = TableRegistry::get('Teams')->get($this->team_id, [
+			$this->team = TableRegistry::getTableLocator()->get('Teams')->get($this->team_id, [
 				'contain' => [
 					'Divisions' => ['Leagues'],
 				]

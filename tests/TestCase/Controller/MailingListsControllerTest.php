@@ -16,22 +16,22 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.affiliates',
-		'app.users',
-		'app.people',
-		'app.affiliates_people',
-		'app.people_people',
-		'app.groups',
-		'app.groups_people',
-		'app.leagues',
-		'app.divisions',
-		'app.teams',
-		'app.divisions_people',
-		'app.mailing_lists',
-		'app.newsletters',
-		'app.subscriptions',
-		'app.settings',
-		'app.i18n',
+		'app.Affiliates',
+		'app.Users',
+		'app.People',
+		'app.AffiliatesPeople',
+		'app.PeoplePeople',
+		'app.Groups',
+		'app.GroupsPeople',
+		'app.Leagues',
+		'app.Divisions',
+		'app.Teams',
+		'app.DivisionsPeople',
+		'app.MailingLists',
+		'app.Newsletters',
+		'app.Subscriptions',
+		'app.Settings',
+		'app.I18n',
 	];
 
 	private $unsubscribeMessage = 'You have successfully unsubscribed from this mailing list. Note that you may still be on other mailing lists for this site, and some emails (e.g. roster, attendance and score reminders) cannot be opted out of.';

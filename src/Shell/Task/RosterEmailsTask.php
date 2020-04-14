@@ -29,7 +29,7 @@ class RosterEmailsTask extends Shell {
 			return;
 		}
 
-		$rosters = TableRegistry::get('TeamsPeople')->find()
+		$rosters = TableRegistry::getTableLocator()->get('TeamsPeople')->find()
 			->contain([
 				'People' => [
 					Configure::read('Security.authModel'),
@@ -45,7 +45,7 @@ class RosterEmailsTask extends Shell {
 		}
 
 		// Read all required team records
-		$teams = TableRegistry::get('Teams')->find()
+		$teams = TableRegistry::getTableLocator()->get('Teams')->find()
 			->contain([
 				'Divisions' => [
 					'Days',
@@ -69,7 +69,7 @@ class RosterEmailsTask extends Shell {
 			->indexBy('id')
 			->toArray();
 
-		$this->logs_table = TableRegistry::get('ActivityLogs');
+		$this->logs_table = TableRegistry::getTableLocator()->get('ActivityLogs');
 
 		foreach ($rosters as $roster) {
 			$team_id = $roster->team_id;
@@ -239,7 +239,7 @@ class RosterEmailsTask extends Shell {
 		}
 
 		// Delete the invite/request
-		if (!TableRegistry::get('TeamsPeople')->delete($roster)) {
+		if (!TableRegistry::getTableLocator()->get('TeamsPeople')->delete($roster)) {
 			return false;
 		}
 

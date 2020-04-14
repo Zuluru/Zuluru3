@@ -16,13 +16,13 @@ class PoolsTeamTest extends TestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.affiliates',
-			'app.leagues',
-				'app.divisions',
-					'app.teams',
-					'app.pools',
-						'app.pools_teams',
-		'app.i18n',
+		'app.Affiliates',
+			'app.Leagues',
+				'app.Divisions',
+					'app.Teams',
+					'app.Pools',
+						'app.PoolsTeams',
+		'app.I18n',
 	];
 
 	/**

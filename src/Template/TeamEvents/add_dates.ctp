@@ -9,11 +9,11 @@ $this->Html->addCrumb(__('Dates'));
 	<fieldset>
 		<legend><?= __('Team Event Dates') ?></legend>
 <?php
-for ($i = 0; $i < $this->request->data['repeat_count']; ++ $i) {
+for ($i = 0; $i < $this->getRequest()->getData('repeat_count'); ++ $i) {
 	echo $this->Form->input("dates.$i.date", ['type' => 'date']);
 }
-unset($this->request->data['dates']);
-echo $this->element('hidden', ['fields' => $this->request->data]);
+unset($this->getRequest()->data['dates']);
+echo $this->element('hidden', ['fields' => $this->getRequest()->data]);
 ?>
 	</fieldset>
 	<?= $this->Form->button(__('Submit'), ['class' => 'btn-success']) ?>

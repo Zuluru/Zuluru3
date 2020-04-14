@@ -20,15 +20,15 @@ class PaymentTest extends TestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.event_types',
-		'app.affiliates',
-			'app.leagues',
-				'app.divisions',
-			'app.events',
-				'app.prices',
-					'app.registrations',
-						'app.payments',
-		'app.i18n',
+		'app.EventTypes',
+		'app.Affiliates',
+			'app.Leagues',
+				'app.Divisions',
+			'app.Events',
+				'app.Prices',
+					'app.Registrations',
+						'app.Payments',
+		'app.I18n',
 	];
 
 	/**

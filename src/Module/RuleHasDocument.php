@@ -48,7 +48,7 @@ class RuleHasDocument extends Rule {
 			$config[$key] = trim($val, '"\'');
 		}
 
-		$model = TableRegistry::get('UploadTypes');
+		$model = TableRegistry::getTableLocator()->get('UploadTypes');
 		try {
 			$this->document_id = $config[0];
 			$this->document = $model->field('name', ['UploadTypes.id' => $this->document_id]);

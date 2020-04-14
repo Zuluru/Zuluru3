@@ -73,7 +73,7 @@ class EventTypeTeam extends EventType {
 
 		// These questions are only meaningful when we are creating team records
 		if (!empty($event->division_id)) {
-			$teams_model = TableRegistry::get('Teams');
+			$teams_model = TableRegistry::getTableLocator()->get('Teams');
 
 			if (Configure::read('feature.franchises')) {
 				$conditions = [];
@@ -116,7 +116,7 @@ class EventTypeTeam extends EventType {
 			}
 
 			if (Configure::read('feature.region_preference') && !empty($event->ask_region)) {
-				$regions_table = TableRegistry::get('Regions');
+				$regions_table = TableRegistry::getTableLocator()->get('Regions');
 				$regions = $regions_table->find('list')
 					->where(['affiliate_id' => $event->affiliate_id])
 					->toArray();
@@ -285,11 +285,11 @@ class EventTypeTeam extends EventType {
 			}
 		}
 
-		$teams_model = TableRegistry::get('Teams');
+		$teams_model = TableRegistry::getTableLocator()->get('Teams');
 		$team = $teams_model->newEntity($team, ['associated' => ['People', 'Franchises', 'Franchises.People']]);
 		// TODO: This is hackish, but without it it thinks the person record is dirty and tries to save it,
 		// which fails because of missing Affiliate containment
-		$team->people[0]->dirty('_joinData', false);
+		$team->people[0]->setDirty('_joinData', false);
 
 		// TeamsPeopleTable::afterSave needs access to the person entity
 		if (!$teams_model->save($team, ['person' => $team->people[0]])) {
@@ -300,7 +300,7 @@ class EventTypeTeam extends EventType {
 			'question_id' => TEAM_ID_CREATED,
 			'answer_text' => $team->id,
 		]);
-		$registration->dirty('responses', true);
+		$registration->setDirty('responses', true);
 
 		if (!empty($team->franchises) && $franchise == NEW_FRANCHISE) {
 			$registration->responses[] = new Response([
@@ -325,7 +325,7 @@ class EventTypeTeam extends EventType {
 			return true;
 		}
 
-		$teams_model = TableRegistry::get('Teams');
+		$teams_model = TableRegistry::getTableLocator()->get('Teams');
 		$team = $teams_model->get($team_id, [
 			'contain' => ['People']
 		]);
@@ -340,7 +340,7 @@ class EventTypeTeam extends EventType {
 		$registration->responses = collection($registration->responses)->filter(function ($response) {
 			return !in_array($response->question_id, [TEAM_ID_CREATED, FRANCHISE_ID_CREATED]);
 		})->toArray();
-		$registration->dirty('responses', true);
+		$registration->setDirty('responses', true);
 
 		return true;
 	}
@@ -348,7 +348,7 @@ class EventTypeTeam extends EventType {
 	public function beforeReregister(Event $event, Registration $registration, $options) {
 		$team_id = $this->extractAnswer($registration->responses, TEAM_ID_CREATED);
 		if ($team_id) {
-			$teams_model = TableRegistry::get('Teams');
+			$teams_model = TableRegistry::getTableLocator()->get('Teams');
 			$team = $teams_model->get($team_id, [
 				'contain' => ['People']
 			]);
@@ -360,7 +360,7 @@ class EventTypeTeam extends EventType {
 				'track_attendance' => TRACK_ATTENDANCE,
 			]));
 
-			if ($team->dirty()) {
+			if ($team->isDirty()) {
 				if (!$teams_model->save($team)) {
 					return false;
 				}
@@ -380,7 +380,7 @@ class EventTypeTeam extends EventType {
 						'name' => TEAM_NAME,
 					]));
 
-					if ($franchise->dirty()) {
+					if ($franchise->isDirty()) {
 						if (!$teams_model->Franchises->save($franchise)) {
 							return false;
 						}

@@ -979,7 +979,7 @@ class LeagueTypeTournament extends LeagueType {
 			throw new ScheduleException(__('Unknown away dependency type "{0}".', $away_dependency_type));
 		}
 
-		$this->games[$id] = TableRegistry::get('Games')->newEntity($save,
+		$this->games[$id] = TableRegistry::getTableLocator()->get('Games')->newEntity($save,
 			array_merge($division->_options->toArray(), [
 				'validate' => 'scheduleAdd',
 				'games' => $this->games,

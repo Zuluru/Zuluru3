@@ -61,7 +61,7 @@ class User extends Entity {
 
 		// We also need to copy over the password, but we can't set it directly, as it will be re-hashed
 		$this->_properties['password'] = $new->password;
-		$this->dirty('password', true);
+		$this->setDirty('password', true);
 	}
 
 }

@@ -36,9 +36,9 @@ class RuleRegistered extends Rule {
 			$this->parse_error = __('At least one event has been included more than once in the list.');
 			return false;
 		}
-		$model = TableRegistry::get('Events');
+		$model = TableRegistry::getTableLocator()->get('Events');
 		$this->events = $model->find()
-			->hydrate(false)
+			->enableHydration(false)
 			->where(['Events.id IN' => $this->event_ids])
 			->combine('id', 'name')
 			->toArray();

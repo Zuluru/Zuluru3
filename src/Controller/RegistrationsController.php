@@ -240,7 +240,7 @@ class RegistrationsController extends AppController {
 			->toArray();
 
 		$years = $this->Registrations->Events->find()
-			->hydrate(false)
+			->enableHydration(false)
 			// TODO: Use a query object here
 			->select(['year' => 'YEAR(open)'])
 			->distinct(['year' => 'YEAR(open)'])
@@ -257,8 +257,8 @@ class RegistrationsController extends AppController {
 		$this->Authorization->authorize($this);
 		if ($this->request->is('post')) {
 			// Deconstruct dates
-			$start_date = sprintf('%04d-%02d-%02d', $this->request->data['start_date']['year'], $this->request->data['start_date']['month'], $this->request->data['start_date']['day']);
-			$end_date = sprintf('%04d-%02d-%02d', $this->request->data['end_date']['year'], $this->request->data['end_date']['month'], $this->request->data['end_date']['day']);
+			$start_date = sprintf('%04d-%02d-%02d', $this->request->getData('start_date.year'), $this->request->getData('start_date.month'), $this->request->getData('start_date.day'));
+			$end_date = sprintf('%04d-%02d-%02d', $this->request->getData('end_date.year'), $this->request->getData('end_date.month'), $this->request->getData('end_date.day'));
 		} else {
 			$start_date = $this->request->getQuery('start_date');
 			$end_date = $this->request->getQuery('end_date');
@@ -409,7 +409,7 @@ class RegistrationsController extends AppController {
 		// TODO: Eliminate the 'option' option once all old links are gone
 		$price_id = $this->request->getQuery('variant') ?: $this->request->getQuery('option');
 		if (empty($price_id) && $this->request->is(['patch', 'post', 'put'])) {
-			$price_id = $this->request->data['price_id'];
+			$price_id = $this->request->getData('price_id');
 		}
 		if (!empty($price_id)) {
 			$price = collection($event->prices)->firstMatch(['id' => $price_id]);
@@ -453,10 +453,10 @@ class RegistrationsController extends AppController {
 		if ($this->request->is(['patch', 'post', 'put']) || $force_save) {
 			$responseValidator = $this->Registrations->Responses->validationDefault(new Validator());
 			if (!empty($event->questionnaire->questions)) {
-				$responseValidator = $event->questionnaire->addResponseValidation($responseValidator, $event_obj, $this->request->data['responses'], $event);
+				$responseValidator = $event->questionnaire->addResponseValidation($responseValidator, $event_obj, $this->request->getData('responses'), $event);
 			}
 
-			$registration = $this->Registrations->patchEntity($registration, $this->request->data, ['associated' => [
+			$registration = $this->Registrations->patchEntity($registration, $this->request->getData(), ['associated' => [
 				'Responses' => ['validate' => $responseValidator],
 			]]);
 			$this->_reindexResponses($registration, $event);
@@ -491,7 +491,7 @@ class RegistrationsController extends AppController {
 		$this->Authorization->authorize($this);
 		$this->request->allowMethod('ajax');
 
-		$price_id = $this->request->data['price_id'];
+		$price_id = $this->request->getData('price_id');
 		if (!empty($price_id)) {
 			$contain = ['Events' => ['EventTypes']];
 			$registration = $this->request->getQuery('registration_id');
@@ -582,7 +582,7 @@ class RegistrationsController extends AppController {
 				'notes' => "Applied credit #{$credit->id}",
 			]);
 			$registration->payments[] = $payment;
-			$registration->dirty('payments', true);
+			$registration->setDirty('payments', true);
 
 			if (!empty($credit->notes)) {
 				$credit->notes .= "\n";
@@ -596,8 +596,8 @@ class RegistrationsController extends AppController {
 			if ($this->Registrations->People->hasBehavior('Timestamp')) {
 				$this->Registrations->People->removeBehavior('Timestamp');
 			}
-			$registration->dirty('person', true);
-			$registration->person->dirty('credits', true);
+			$registration->setDirty('person', true);
+			$registration->person->setDirty('credits', true);
 
 			if ($this->Registrations->save($registration, ['registration' => $registration, 'event' => $registration->event])) {
 				$this->Flash->success(__('The credit has been applied to the chosen registration.'));
@@ -808,7 +808,7 @@ class RegistrationsController extends AppController {
 					'payment_method' => 'Online',
 					'payment_amount' => $cost + $tax1 + $tax2,
 				], ['validate' => 'payment', 'registration' => $registration]);
-				$registration->dirty('payments', true);
+				$registration->setDirty('payments', true);
 
 				// The registration is also passed as an option, so that the payment rules have easy access to it
 				if (!$this->Registrations->save($registration, ['registration' => $registration, 'event' => $registration->event])) {
@@ -823,9 +823,9 @@ class RegistrationsController extends AppController {
 
 	public function payment_from_email() {
 		$this->Authorization->authorize($this);
-		if (!empty($this->request->data)) {
+		if (!empty($this->request->getData())) {
 			$payment_obj = $this->moduleRegistry->load('Payment:' . Configure::read('payment.payment_implementation'));
-			$values = $payment_obj->parseEmail($this->request->data['email_text']);
+			$values = $payment_obj->parseEmail($this->request->getData('email_text'));
 			if (!$values) {
 				return;
 			}
@@ -900,7 +900,7 @@ class RegistrationsController extends AppController {
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			// Handle credit redemption
 			if (array_key_exists('credit_id', $this->request->data)) {
-				$credit = collection($registration->person->credits)->firstMatch(['id' => $this->request->data['credit_id']]);
+				$credit = collection($registration->person->credits)->firstMatch(['id' => $this->request->getData('credit_id')]);
 				if (!$credit) {
 					$this->Flash->info(__('Invalid credit.'));
 					return;
@@ -909,26 +909,26 @@ class RegistrationsController extends AppController {
 				$this->request->data['payment_amount'] = min($this->request->data['payment_amount'], $registration->balance, $credit->balance);
 				$this->request->data['notes'] = __('Applied {0} from credit #{1}', Number::currency($this->request->data['payment_amount']), $credit->id);
 
-				$credit->amount_used += $this->request->data['payment_amount'];
+				$credit->amount_used += $this->request->getData('payment_amount');
 				if (!empty($credit->notes)) {
 					$credit->notes .= "\n";
 				}
 				$credit->notes .= __('{0} applied to registration #{1}: {2}',
-					$this->request->data['payment_amount'] == $credit->amount ? __('Credit') : Number::currency($this->request->data['payment_amount']),
+					$this->request->data['payment_amount'] == $credit->amount ? __('Credit') : Number::currency($this->request->getData('payment_amount')),
 					$registration->id, $registration->event->name);
 
 				// We don't actually want to update the "modified" column in the people table here, but we do need to save the credit
 				if ($this->Registrations->People->hasBehavior('Timestamp')) {
 					$this->Registrations->People->removeBehavior('Timestamp');
 				}
-				$registration->dirty('person', true);
-				$registration->person->dirty('credits', true);
+				$registration->setDirty('person', true);
+				$registration->person->setDirty('credits', true);
 			}
 
 			// The registration is also passed as an option, so that the payment marshaller has easy access to it
-			$payment = $this->Registrations->Payments->patchEntity($payment, $this->request->data, ['validate' => 'payment', 'registration' => $registration]);
+			$payment = $this->Registrations->Payments->patchEntity($payment, $this->request->getData(), ['validate' => 'payment', 'registration' => $registration]);
 			$registration->payments[] = $payment;
-			$registration->dirty('payments', true);
+			$registration->setDirty('payments', true);
 
 			// The registration is also passed as an option, so that the payment rules have easy access to it
 			if ($this->Registrations->save($registration, ['registration' => $registration, 'event' => $registration->event])) {
@@ -1141,10 +1141,10 @@ class RegistrationsController extends AppController {
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			try {
-				if (!collection($unpaid)->firstMatch(['id' => $this->request->data['transfer_to_registration_id']])) {
+				if (!collection($unpaid)->firstMatch(['id' => $this->request->getData('transfer_to_registration_id')])) {
 					throw new RecordNotFoundException('Registration is not a valid transfer target.');
 				}
-				$to_registration = $this->Registrations->get($this->request->data['transfer_to_registration_id'], [
+				$to_registration = $this->Registrations->get($this->request->getData('transfer_to_registration_id'), [
 					'contain' => [
 						'People',
 						'Events' => [
@@ -1175,29 +1175,29 @@ class RegistrationsController extends AppController {
 			$refund_data = $this->request->data;
 			$refund_data['payment_amount'] *= -1;
 
-			$registration->mark_refunded = $this->request->data['mark_refunded'];
+			$registration->mark_refunded = $this->request->getData('mark_refunded');
 
 			// The registration is also passed as an option, so that the payment marshaller has easy access to it
 			$refund = $this->Registrations->Payments->patchEntity($refund, $refund_data, ['validate' => 'transferFrom', 'registration' => $registration]);
 			$registration->payments[] = $refund;
-			$registration->dirty('payments', true);
+			$registration->setDirty('payments', true);
 
-			$payment->refunded_amount = round($payment->refunded_amount + $this->request->data['payment_amount'], 2);
+			$payment->refunded_amount = round($payment->refunded_amount + $this->request->getData('payment_amount'), 2);
 
 			$transfer = $this->Registrations->Payments->newEntity([
 				'payment_type' => 'Transfer',
 				'payment_method' => 'Other',
-				'payment_amount' => $this->request->data['payment_amount'],
-				'notes' => $this->request->data['transfer_to_notes'],
+				'payment_amount' => $this->request->getData('payment_amount'),
+				'notes' => $this->request->getData('transfer_to_notes'),
 			], ['validate' => 'transferTo', 'registration' => $to_registration]);
 			$to_registration->payments[] = $transfer;
-			$to_registration->dirty('payments', true);
+			$to_registration->setDirty('payments', true);
 
-			if ($this->Registrations->connection()->transactional(function () use ($registration, $to_registration) {
+			if ($this->Registrations->getConnection()->transactional(function () use ($registration, $to_registration) {
 				return $this->Registrations->save($registration, ['registration' => $registration, 'event' => $registration->event]) &&
 					$this->Registrations->save($to_registration, ['registration' => $to_registration, 'event' => $to_registration->event]);
 			})) {
-				$this->Flash->success(__('Transferred {0}', Number::currency($this->request->data['payment_amount'])));
+				$this->Flash->success(__('Transferred {0}', Number::currency($this->request->getData('payment_amount'))));
 
 				// Which registration we redirect to from here depends on how much was transferred
 				if ($payment['refunded_amount'] < $payment['payment_amount']) {
@@ -1264,7 +1264,7 @@ class RegistrationsController extends AppController {
 			$this->Authorization->can(new ContextResource($registration->event, ['for_edit' => $registration, 'all_rules' => true]), 'register');
 			$responseValidator = $this->Registrations->Responses->validationDefault(new Validator());
 			if (!empty($registration->event->questionnaire->questions)) {
-				$responseValidator = $registration->event->questionnaire->addResponseValidation($responseValidator, $event_obj, $this->request->data['responses'], $registration->event, $registration);
+				$responseValidator = $registration->event->questionnaire->addResponseValidation($responseValidator, $event_obj, $this->request->getData('responses'), $registration->event, $registration);
 			}
 
 			// We use the "replace" saving strategy for responses, so that unnecessary responses get discarded,
@@ -1274,7 +1274,7 @@ class RegistrationsController extends AppController {
 				'franchise_id' => FRANCHISE_ID_CREATED,
 			]);
 
-			$registration = $this->Registrations->patchEntity($registration, $this->request->data, ['associated' => [
+			$registration = $this->Registrations->patchEntity($registration, $this->request->getData(), ['associated' => [
 				'Responses' => ['validate' => $responseValidator],
 			]]);
 			$this->_reindexResponses($registration, $registration->event);
@@ -1283,7 +1283,7 @@ class RegistrationsController extends AppController {
 				// $registration->price_id gets set. Because it's a BelongsTo relationship, perhaps?
 				// But we need it set correctly in RegistrationsTable::beforeSave. We'll do it manually. :-(
 				$registration->price = collection($registration->event->prices)->firstMatch(['id' => $registration->price_id]);
-				$registration->dirty('price', false);
+				$registration->setDirty('price', false);
 
 				if (!empty($preserve['team_id'])) {
 					$registration->responses[] = new Response([

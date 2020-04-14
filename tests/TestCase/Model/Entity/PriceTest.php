@@ -21,13 +21,13 @@ class PriceTest extends TestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.event_types',
-		'app.affiliates',
-			'app.leagues',
-				'app.divisions',
-			'app.events',
-				'app.prices',
-		'app.i18n',
+		'app.EventTypes',
+		'app.Affiliates',
+			'app.Leagues',
+				'app.Divisions',
+			'app.Events',
+				'app.Prices',
+		'app.I18n',
 	];
 
 	/**

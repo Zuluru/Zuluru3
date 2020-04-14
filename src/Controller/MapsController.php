@@ -27,7 +27,7 @@ class MapsController extends AppController {
 
 		$affiliates = $this->Authentication->applicableAffiliateIDs();
 
-		$regions_table = TableRegistry::get('Regions');
+		$regions_table = TableRegistry::getTableLocator()->get('Regions');
 		$regions = $regions_table->find()
 			->contain([
 				'Facilities' => [
@@ -63,7 +63,7 @@ class MapsController extends AppController {
 		$id = $this->request->getQuery('field');
 
 		try {
-			$facilities_table = TableRegistry::get('Facilities');
+			$facilities_table = TableRegistry::getTableLocator()->get('Facilities');
 			$field = $facilities_table->Fields->get($id);
 		} catch (RecordNotFoundException $ex) {
 			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
@@ -111,7 +111,7 @@ class MapsController extends AppController {
 		$id = $this->request->getQuery('field');
 
 		try {
-			$facilities_table = TableRegistry::get('Facilities');
+			$facilities_table = TableRegistry::getTableLocator()->get('Facilities');
 			$field = $facilities_table->Fields->get($id);
 		} catch (RecordNotFoundException $ex) {
 			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
@@ -138,7 +138,7 @@ class MapsController extends AppController {
 		$this->Configuration->loadAffiliate($facility->region->affiliate_id);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$facility = $facilities_table->patchEntity($facility, $this->request->data, ['associated' => ['Fields']]);
+			$facility = $facilities_table->patchEntity($facility, $this->request->getData(), ['associated' => ['Fields']]);
 			if ($facilities_table->save($facility)) {
 				$this->Flash->warning(__('The {0} layout has been saved.', Configure::read('UI.field')));
 				return $this->redirect(['controller' => 'Maps', 'action' => 'view', 'field' => $id]);

@@ -20,7 +20,7 @@ class FinalizeGamesTask extends Shell {
 
 	public function main() {
 		ConfigurationLoader::loadConfiguration();
-		$this->games_table = TableRegistry::get('Games');
+		$this->games_table = TableRegistry::getTableLocator()->get('Games');
 
 		$captain_contain = [
 			'People' => [

@@ -60,7 +60,7 @@ endif;
 if ($identity->isManager()):
 	$my_affiliates = $identity->managedAffiliateIds();
 	if (!empty($my_affiliates)):
-		$facilities = TableRegistry::get('Facilities')->find('open', ['affiliates' => $my_affiliates]);
+		$facilities = TableRegistry::getTableLocator()->get('Facilities')->find('open', ['affiliates' => $my_affiliates]);
 		if ($facilities->count() == 0):
 			echo $this->Html->para('warning-message', __('You have no open facilities.') . ' ' .
 				$this->Html->link(__('Create one now!'), ['controller' => 'Facilities', 'action' => 'add', 'return' => AppController::_return()])
@@ -115,14 +115,14 @@ if ($identity->isManager()):
 			endif;
 		endif;
 
-		$leagues = TableRegistry::get('Leagues')->find('open', ['affiliates' => $my_affiliates]);
+		$leagues = TableRegistry::getTableLocator()->get('Leagues')->find('open', ['affiliates' => $my_affiliates]);
 		if ($leagues->count() == 0) {
 			echo $this->Html->para('warning-message', __('You have no current or upcoming leagues. ') .
 				$this->Html->link(__('Create one now!'), ['controller' => 'Leagues', 'action' => 'add', 'return' => AppController::_return()]));
 		}
 
 		if (Configure::read('feature.registration')) {
-			if (TableRegistry::get('Events')->find('open', ['extended' => true])->count() == 0) {
+			if (TableRegistry::getTableLocator()->get('Events')->find('open', ['extended' => true])->count() == 0) {
 				echo $this->Html->para('warning-message', __('You have no current or upcoming registration events. ') .
 					$this->Html->link(__('Create one now!'), ['controller' => 'Events', 'action' => 'add', 'return' => AppController::_return()]));
 			}
@@ -130,12 +130,12 @@ if ($identity->isManager()):
 	endif;
 elseif ($empty && $identity->isPlayer()):
 	// If the user has nothing going on, pull some more details to allow us to help them get started
-	$waivers = TableRegistry::get('Waivers')->find('active', ['affiliates' => $applicable_affiliates])->toArray();
+	$waivers = TableRegistry::getTableLocator()->get('Waivers')->find('active', ['affiliates' => $applicable_affiliates])->toArray();
 	$signed_waivers = $this->UserCache->read('Waivers', $act_as);
-	$membership_events = TableRegistry::get('Events')->find('open', ['affiliates' => $applicable_affiliates])->find('membership')->count();
-	$non_membership_events = TableRegistry::get('Events')->find('open', ['affiliates' => $applicable_affiliates])->find('notMembership')->count();
-	$open_teams = TableRegistry::get('Teams')->find('openRoster', ['affiliates' => $applicable_affiliates])->count();
-	$leagues = TableRegistry::get('Leagues')->find('open', ['affiliates' => $applicable_affiliates])->count();
+	$membership_events = TableRegistry::getTableLocator()->get('Events')->find('open', ['affiliates' => $applicable_affiliates])->find('membership')->count();
+	$non_membership_events = TableRegistry::getTableLocator()->get('Events')->find('open', ['affiliates' => $applicable_affiliates])->find('notMembership')->count();
+	$open_teams = TableRegistry::getTableLocator()->get('Teams')->find('openRoster', ['affiliates' => $applicable_affiliates])->count();
+	$leagues = TableRegistry::getTableLocator()->get('Leagues')->find('open', ['affiliates' => $applicable_affiliates])->count();
 ?>
 	<h3><?= __('You are not yet on any teams.') ?></h3>
 <?php

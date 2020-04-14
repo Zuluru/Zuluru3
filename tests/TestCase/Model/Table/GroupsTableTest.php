@@ -22,12 +22,12 @@ class GroupsTableTest extends TableTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.affiliates',
-			'app.users',
-				'app.people',
-			'app.groups',
-				'app.groups_people',
-		'app.i18n',
+		'app.Affiliates',
+			'app.Users',
+				'app.People',
+			'app.Groups',
+				'app.GroupsPeople',
+		'app.I18n',
 	];
 
 	/**

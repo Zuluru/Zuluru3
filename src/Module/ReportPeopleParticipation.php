@@ -11,7 +11,7 @@ use Cake\ORM\TableRegistry;
 
 class ReportPeopleParticipation extends Report {
 	public function run($params, Person $recipient) {
-		$events_table = TableRegistry::get('Events');
+		$events_table = TableRegistry::getTableLocator()->get('Events');
 
 		// Initialize the data structures
 		$participation = [];
@@ -29,7 +29,7 @@ class ReportPeopleParticipation extends Report {
 
 		$captains = Configure::read('privileged_roster_roles');
 
-		$membership_event_list = TableRegistry::get('Events')->find()
+		$membership_event_list = TableRegistry::getTableLocator()->get('Events')->find()
 			// TODO: Fix or remove these hard-coded values
 			->where(['event_type_id' => 1])
 			->order(['open', 'close', 'id'])
@@ -42,7 +42,7 @@ class ReportPeopleParticipation extends Report {
 			$end = new FrozenDate("{$year}-12-31");
 
 			// We are interested in teams in divisions that operated this year
-			$divisions = TableRegistry::get('Divisions')->find()
+			$divisions = TableRegistry::getTableLocator()->get('Divisions')->find()
 				->contain([
 					'Teams' => [
 						'People' => [

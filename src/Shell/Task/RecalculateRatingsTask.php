@@ -14,7 +14,7 @@ class RecalculateRatingsTask extends Shell {
 	public function main() {
 		ConfigurationLoader::loadConfiguration();
 		// Find any leagues that are currently open, and possibly recalculate ratings
-		$leagues = TableRegistry::get('Leagues')->find()
+		$leagues = TableRegistry::getTableLocator()->get('Leagues')->find()
 			->contain([
 				'Divisions' => ['Teams'],
 			])

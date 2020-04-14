@@ -22,13 +22,13 @@ class AttendancesTableTest extends TableTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.affiliates',
-			'app.leagues',
-				'app.divisions',
-					'app.teams',
-						'app.team_events',
-			'app.attendances',
-		'app.i18n',
+		'app.Affiliates',
+			'app.Leagues',
+				'app.Divisions',
+					'app.Teams',
+						'app.TeamEvents',
+			'app.Attendances',
+		'app.I18n',
 	];
 
 	/**

@@ -18,14 +18,14 @@ class AppControllerTest extends ControllerTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.affiliates',
-			'app.users',
-				'app.people',
-					'app.affiliates_people',
-			'app.groups',
-				'app.groups_people',
-			'app.settings',
-		'app.i18n',
+		'app.Affiliates',
+			'app.Users',
+				'app.People',
+					'app.AffiliatesPeople',
+			'app.Groups',
+				'app.GroupsPeople',
+			'app.Settings',
+		'app.I18n',
 	];
 
 	/**

@@ -11,14 +11,14 @@ if (!isset($size)) {
 
 $links = $more = [];
 
-if ($this->request->getParam('controller') != 'Events' || $this->request->getParam('action') != 'view') {
+if ($this->getRequest()->getParam('controller') != 'Events' || $this->getRequest()->getParam('action') != 'view') {
 	$links[] = $this->Html->iconLink("view_$size.png",
 		['controller' => 'Events', 'action' => 'view', 'event' => $event->id],
 		['alt' => __('View'), 'title' => __('View')]);
 }
 
 if (Configure::read('registration.register_now')) {
-	if ($this->request->getParam('controller') != 'Registrations' || $this->request->getParam('action') != 'register') {
+	if ($this->getRequest()->getParam('controller') != 'Registrations' || $this->getRequest()->getParam('action') != 'register') {
 		$links[] = $this->Html->link(__('Register Now!'),
 			['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id]);
 	}
@@ -28,20 +28,20 @@ if (!empty($event->division_id)) {
 	$links[] = $this->element('Divisions/block', ['division' => $event->division, 'link_text' => __('View Division')]);
 }
 
-if ($this->request->getParam('controller') != 'Events' || $this->request->getParam('action') != 'index') {
+if ($this->getRequest()->getParam('controller') != 'Events' || $this->getRequest()->getParam('action') != 'index') {
 	$more[__('List Events')] = [
 		'url' => ['controller' => 'Events', 'action' => 'index'],
 	];
 }
 
 if ($this->Authorize->can('edit', $event)) {
-	if ($this->request->getParam('controller') != 'Events' || $this->request->getParam('action') != 'edit') {
+	if ($this->getRequest()->getParam('controller') != 'Events' || $this->getRequest()->getParam('action') != 'edit') {
 		$links[] = $this->Html->iconLink("edit_$size.png",
 			['controller' => 'Events', 'action' => 'edit', 'event' => $event->id, 'return' => AppController::_return()],
 			['alt' => __('Edit'), 'title' => __('Edit')]);
 	}
 
-	if ($this->request->getParam('controller') != 'Events' || $this->request->getParam('action') != 'connections') {
+	if ($this->getRequest()->getParam('controller') != 'Events' || $this->getRequest()->getParam('action') != 'connections') {
 		$more[__('Manage Connections')] = [
 			'url' => ['controller' => 'Events', 'action' => 'connections', 'event' => $event->id],
 		];
@@ -56,7 +56,7 @@ if ($this->Authorize->can('edit', $event)) {
 	];
 
 	$url = ['controller' => 'Events', 'action' => 'delete', 'event' => $event->id];
-	if ($this->request->getParam('controller') != 'Events') {
+	if ($this->getRequest()->getParam('controller') != 'Events') {
 		$url['return'] = AppController::_return();
 	}
 	$more[__('Delete')] = [
@@ -75,13 +75,13 @@ if ($this->Authorize->can('edit', $event)) {
 }
 
 if ($this->Authorize->can('summary', $event)) {
-	if ($this->request->getParam('controller') != 'Registrations' || $this->request->getParam('action') != 'summary') {
+	if ($this->getRequest()->getParam('controller') != 'Registrations' || $this->getRequest()->getParam('action') != 'summary') {
 		$more[__('Registration Summary')] = [
 			'url' => ['controller' => 'Registrations', 'action' => 'summary', 'event' => $event->id],
 		];
 	}
 
-	if ($this->request->getParam('controller') != 'Registrations' || $this->request->getParam('action') != 'full_list') {
+	if ($this->getRequest()->getParam('controller') != 'Registrations' || $this->getRequest()->getParam('action') != 'full_list') {
 		$more[__('Detailed Registration List')] = [
 			'url' => ['controller' => 'Registrations', 'action' => 'full_list', 'event' => $event->id],
 		];
@@ -93,7 +93,7 @@ if ($this->Authorize->can('summary', $event)) {
 }
 
 if ($this->Authorize->can('waiting', $event)) {
-	if ($this->request->getParam('controller') != 'Registrations' || $this->request->getParam('action') != 'summary') {
+	if ($this->getRequest()->getParam('controller') != 'Registrations' || $this->getRequest()->getParam('action') != 'summary') {
 		$more[__('Waiting List')] = [
 			'url' => ['controller' => 'Registrations', 'action' => 'waiting', 'event' => $event->id],
 		];

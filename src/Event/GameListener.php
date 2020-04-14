@@ -154,7 +154,7 @@ class GameListener implements EventListenerInterface {
 				'viewVars' => compact('game'),
 			]))
 			{
-				$logs_table = TableRegistry::get('ActivityLogs');
+				$logs_table = TableRegistry::getTableLocator()->get('ActivityLogs');
 				$logs_table->save($logs_table->newEntity(['type' => 'email_score_mismatch', 'game_id' => $game->id]));
 			}
 		}
@@ -229,7 +229,7 @@ class GameListener implements EventListenerInterface {
 			],
 		]))
 		{
-			$logs_table = TableRegistry::get('ActivityLogs');
+			$logs_table = TableRegistry::getTableLocator()->get('ActivityLogs');
 			$logs_table->save($logs_table->newEntity(['type' => 'email_score_reminder', 'game_id' => $game->id, 'team_id' => $team->id]));
 		}
 	}

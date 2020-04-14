@@ -366,7 +366,7 @@ class LeaguesTable extends AppTable {
 
 	public function divisions($league_id) {
 		return $this->Divisions->find()
-			->hydrate(false)
+			->enableHydration(false)
 			->where(compact('league_id'))
 			->combine('id', 'id')
 			->toArray();

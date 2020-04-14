@@ -22,14 +22,14 @@ class ActivityLogsTableTest extends TableTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.affiliates',
-			'app.leagues',
-				'app.divisions',
-					'app.teams',
-			'app.mailing_lists',
-				'app.newsletters',
-			'app.activity_logs',
-		'app.i18n',
+		'app.Affiliates',
+			'app.Leagues',
+				'app.Divisions',
+					'app.Teams',
+			'app.MailingLists',
+				'app.Newsletters',
+			'app.ActivityLogs',
+		'app.I18n',
 	];
 
 	/**

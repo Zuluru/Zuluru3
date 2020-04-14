@@ -87,7 +87,7 @@ class AppController extends Controller {
 
 		// Use the configured model for handling hashing of passwords, and configure
 		// the Auth field names using it
-		$users_table = TableRegistry::get($this->_userModel);
+		$users_table = TableRegistry::getTableLocator()->get($this->_userModel);
 
 		// Set the default format for converting Time and Date objects to strings,
 		// so that it matches the SQL format that we use for comparing.
@@ -106,7 +106,7 @@ class AppController extends Controller {
 			$identifiers = $this->Authentication->getAuthenticationService()->identifiers();
 			foreach ($identifiers as $identifier) {
 				if (method_exists($identifier, 'needsPasswordRehash') && $identifier->needsPasswordRehash()) {
-					$user->password = $this->request->data('password');
+					$user->password = $this->request->getData('password');
 					break;
 				}
 			}
@@ -222,7 +222,7 @@ class AppController extends Controller {
 		Number::defaultCurrency(Configure::read('payment.currency'));
 		Configure::load('options', 'default', false);
 		Configure::load('sports', 'default', false);
-		$configuration_table = TableRegistry::get('Configuration');
+		$configuration_table = TableRegistry::getTableLocator()->get('Configuration');
 		$configuration_table->loadSystem();
 
 		$field = env('FIELD_NAME', 'field');
@@ -522,7 +522,7 @@ class AppController extends Controller {
 		}
 
 		$tournaments = Cache::remember('tournaments', function () {
-			return TableRegistry::get('Leagues')->find('open')
+			return TableRegistry::getTableLocator()->get('Leagues')->find('open')
 				->matching('Divisions', function (Query $q) {
 					return $q->where(['Divisions.schedule_type' => 'tournament']);
 				})
@@ -609,7 +609,7 @@ class AppController extends Controller {
 
 			$this->_addMenuItem(__('List All'), ['controller' => 'People', 'action' => 'index'], __('People'));
 			$groups = $this->People->Groups->find()
-				->hydrate(false)
+				->enableHydration(false)
 				->where([
 					'OR' => [
 						// We always want to include players, even if they aren't a valid "create account" group.
@@ -1129,7 +1129,7 @@ class AppController extends Controller {
 	public static function _extractLocales($input, $locales) {
 		if (is_a($input, 'App\Model\Entity\Person')) {
 			// If it's a person, check if they have a language preference
-			$preference = TableRegistry::get('Settings')->find()
+			$preference = TableRegistry::getTableLocator()->get('Settings')->find()
 				->where(['person_id' => $input->id, 'name' => 'language'])
 				->first();
 			if ($preference && $preference->value) {
@@ -1200,7 +1200,7 @@ class AppController extends Controller {
 				// Match people in the affiliate, or admins who are effectively in all
 				if (array_key_exists('affiliate_id', $params)) {
 					$admins = $this->People->find()
-						->hydrate(false)
+						->enableHydration(false)
 						->select(['People.id'])
 						->matching('Groups', function (Query $q) {
 							return $q->where(['Groups.id' => GROUP_ADMIN]);
@@ -1229,7 +1229,7 @@ class AppController extends Controller {
 
 	protected function _extractSearchParams(array $url_params = []) {
 		if ($this->request->is('post')) {
-			$params = $url = array_merge($this->request->data, $this->request->getQueryParams());
+			$params = $url = array_merge($this->request->getData(), $this->request->getQueryParams());
 		} else {
 			$params = $url = $this->request->getQueryParams();
 		}
@@ -1291,7 +1291,7 @@ class AppController extends Controller {
 		} else if ($request->is('ajax')) {
 			$url = $request->referer(true);
 		} else {
-			$url = $request->here();
+			$url = $request->getRequestTarget();
 		}
 		if (empty($url)) {
 			$url = '/';

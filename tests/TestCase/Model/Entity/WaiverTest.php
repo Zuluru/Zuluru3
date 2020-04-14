@@ -39,9 +39,9 @@ class WaiverTest extends TestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.affiliates',
-			'app.waivers',
-		'app.i18n',
+		'app.Affiliates',
+			'app.Waivers',
+		'app.I18n',
 	];
 
 	/**

@@ -20,7 +20,7 @@ class AppTable extends Table {
 	 */
 	public function field($field, array $conditions, $order = null) {
 		$query = $this->find()
-			->hydrate(false)
+			->enableHydration(false)
 			->select([$field])
 			->where($conditions);
 		if ($order) {

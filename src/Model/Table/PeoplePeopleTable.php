@@ -75,7 +75,7 @@ class PeoplePeopleTable extends AppTable {
 		$cache = UserCache::getInstance();
 		$cache->clear('Relatives', $entity->person_id);
 		$cache->clear('RelativeIDs', $entity->person_id);
-		if ($entity->dirty('approved')) {
+		if ($entity->isDirty('approved')) {
 			$cache->clear('RelativeTeamIDs', $entity->person_id);
 			$cache->clear('AllRelativeTeamIDs', $entity->person_id);
 		}

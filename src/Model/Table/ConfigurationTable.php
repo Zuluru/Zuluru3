@@ -45,7 +45,7 @@ class ConfigurationTable extends AppTable {
 		Configure::write($config);
 
 		$provinces = Cache::remember('provinces', function () {
-			$provinces_table = TableRegistry::get('Provinces');
+			$provinces_table = TableRegistry::getTableLocator()->get('Provinces');
 			return $provinces_table->find('list', [
 				'keyField' => 'name',
 				'valueField' => 'name',
@@ -54,7 +54,7 @@ class ConfigurationTable extends AppTable {
 		Configure::write(compact('provinces'));
 
 		$countries = Cache::remember('countries', function () {
-			$countries_table = TableRegistry::get('Countries');
+			$countries_table = TableRegistry::getTableLocator()->get('Countries');
 			return $countries_table->find('list', [
 				'keyField' => 'name',
 				'valueField' => 'name',
@@ -63,7 +63,7 @@ class ConfigurationTable extends AppTable {
 		Configure::write(compact('countries'));
 
 		Configure::write(Cache::remember('roster_roles', function () {
-			$roster_roles_table = TableRegistry::get('RosterRoles');
+			$roster_roles_table = TableRegistry::getTableLocator()->get('RosterRoles');
 			$roles = collection($roster_roles_table->find()
 				->where(['active' => true])
 				->toArray()
@@ -83,7 +83,7 @@ class ConfigurationTable extends AppTable {
 		}, 'long_term', $language));
 
 		Configure::write(Cache::remember('membership_types', function () {
-			$membership_types_table = TableRegistry::get('MembershipTypes');
+			$membership_types_table = TableRegistry::getTableLocator()->get('MembershipTypes');
 			$types = collection($membership_types_table->find()
 				->where(['active' => true])
 				->toArray()

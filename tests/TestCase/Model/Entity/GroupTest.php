@@ -20,9 +20,9 @@ class GroupTest extends TestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.affiliates',
-			'app.groups',
-		'app.i18n',
+		'app.Affiliates',
+			'app.Groups',
+		'app.I18n',
 	];
 
 	/**

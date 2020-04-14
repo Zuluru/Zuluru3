@@ -10,7 +10,7 @@ if (!isset($size)) {
 
 $links = [];
 
-if (($this->request->getParam('controller') != 'Registrations' || $this->request->getParam('action') != 'view') &&
+if (($this->getRequest()->getParam('controller') != 'Registrations' || $this->getRequest()->getParam('action') != 'view') &&
 	$this->Authorize->can('view', $registration)
 ) {
 	$links[] = $this->Html->iconLink("view_$size.png",
@@ -19,13 +19,13 @@ if (($this->request->getParam('controller') != 'Registrations' || $this->request
 	);
 }
 
-if (($this->request->getParam('controller') != 'Registrations' || $this->request->getParam('action') != 'add_payment') &&
+if (($this->getRequest()->getParam('controller') != 'Registrations' || $this->getRequest()->getParam('action') != 'add_payment') &&
 	$this->Authorize->can('add_payment', $registration)
 ) {
 	$links[] = $this->Html->link(__('Add Payment'), ['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => $registration->id]);
 }
 
-if (($this->request->getParam('controller') != 'Registrations' || $this->request->getParam('action') != 'edit') &&
+if (($this->getRequest()->getParam('controller') != 'Registrations' || $this->getRequest()->getParam('action') != 'edit') &&
 	$this->Authorize->can('edit', $registration)
 ) {
 	$links[] = $this->Html->iconLink("edit_$size.png",

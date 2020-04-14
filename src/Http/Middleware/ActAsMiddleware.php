@@ -30,7 +30,7 @@ class ActAsMiddleware {
 
 			if ($identity) {
 				try {
-					$target = TableRegistry::get('People')->get($act_as);
+					$target = TableRegistry::getTableLocator()->get('People')->get($act_as);
 					if ($identity->can('act_as', $target)) {
 						$identity->actAs($request, $response, $target);
 						$request->getSession()->write('Zuluru.act_as_temporary', true);

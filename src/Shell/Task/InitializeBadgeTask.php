@@ -20,7 +20,7 @@ class InitializeBadgeTask extends Shell {
 	public function main() {
 		try {
 			ConfigurationLoader::loadConfiguration();
-			$badges_table = TableRegistry::get('Badges');
+			$badges_table = TableRegistry::getTableLocator()->get('Badges');
 			$badge = $badges_table->find()
 				->where(['refresh_from >' => 0])
 				->first();
@@ -28,9 +28,9 @@ class InitializeBadgeTask extends Shell {
 				return;
 			}
 
-			TableRegistry::get('Configuration')->loadAffiliate($badge->affiliate_id);
+			TableRegistry::getTableLocator()->get('Configuration')->loadAffiliate($badge->affiliate_id);
 
-			$badges_table->connection()->transactional(function () use ($badge) {
+			$badges_table->getConnection()->transactional(function () use ($badge) {
 				try {
 					$handler = ModuleRegistry::getInstance()->load("Badge:{$badge->handler}");
 				} catch (MissingModuleException $ex) {
@@ -46,7 +46,7 @@ class InitializeBadgeTask extends Shell {
 				}
 
 				$deletions = $additions = [];
-				$badges_people_table = TableRegistry::get('BadgesPeople');
+				$badges_people_table = TableRegistry::getTableLocator()->get('BadgesPeople');
 				// Try to keep this from running for more than about a minute
 				$abort_time = time() + 45;
 
@@ -54,7 +54,7 @@ class InitializeBadgeTask extends Shell {
 					case 'team':
 						// We don't contain People here, because that would read the roster for all teams all at once,
 						// using massive memory. Instead, we lazy load the rosters on a team-by-team basis.
-						$teams = TableRegistry::get('Teams')->find()
+						$teams = TableRegistry::getTableLocator()->get('Teams')->find()
 							->where(['Teams.id >=' => $badge->refresh_from])
 							->contain(['Divisions'])
 							->order(['Teams.id'])
@@ -95,7 +95,7 @@ class InitializeBadgeTask extends Shell {
 					case 'game':
 						// We don't contain People here, because that would read the roster for all teams all at once,
 						// using massive memory. Instead, we lazy load the rosters on a team-by-team basis.
-						$games = TableRegistry::get('Games')->find()
+						$games = TableRegistry::getTableLocator()->get('Games')->find()
 							->where(['Games.id >=' => $badge->refresh_from])
 							->contain(['HomeTeam', 'AwayTeam'])
 							->order(['Games.id'])
@@ -141,7 +141,7 @@ class InitializeBadgeTask extends Shell {
 
 						// We don't contain Registrations here, because that would read the list for all events all at once,
 						// using massive memory. Instead, we lazy load the registrations on an event-by-event basis.
-						$events = TableRegistry::get('Events')->find()
+						$events = TableRegistry::getTableLocator()->get('Events')->find()
 							->where(['Events.id >=' => $badge->refresh_from])
 							->contain(['EventTypes'])
 							->order(['Events.id'])
@@ -173,7 +173,7 @@ class InitializeBadgeTask extends Shell {
 									}
 								}
 							} else {
-								$event_deletions = TableRegistry::get('Registrations')->find()
+								$event_deletions = TableRegistry::getTableLocator()->get('Registrations')->find()
 									->select('id')
 									->where(['event_id' => $event->id])
 									->extract('id')

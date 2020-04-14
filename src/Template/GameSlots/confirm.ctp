@@ -12,7 +12,7 @@ $this->Html->addCrumb(__('Confirm'));
 		<legend><?= __('Confirm Game Slots') ?></legend>
 <?php
 // The last form's fields need to be carried through as hidden fields
-$hidden = $this->request->data;
+$hidden = $this->getRequest()->data;
 // ...and one new field
 $hidden['confirm'] = true;
 echo $this->element('hidden', ['fields' => $hidden]);

@@ -366,7 +366,7 @@ class PersonPolicy extends AppPolicy {
 
 		// If there are any generic events available, everyone gets it
 		$affiliates = $identity->applicableAffiliateIDs();
-		$events_table = TableRegistry::get('Events');
+		$events_table = TableRegistry::getTableLocator()->get('Events');
 		if ($events_table->find()
 				->contain('EventTypes')
 				->where([

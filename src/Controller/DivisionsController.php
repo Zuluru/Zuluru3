@@ -206,7 +206,7 @@ class DivisionsController extends AppController {
 		$division = $this->Divisions->newEntity();
 
 		if ($this->request->is('post')) {
-			$division = $this->Divisions->patchEntity($division, $this->request->data, ['validateDays' => true]);
+			$division = $this->Divisions->patchEntity($division, $this->request->getData(), ['validateDays' => true]);
 			if ($this->Divisions->save($division)) {
 				$this->Flash->success(__('The division has been saved.'));
 				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
@@ -261,7 +261,7 @@ class DivisionsController extends AppController {
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$division = $this->Divisions->patchEntity($division, $this->request->data, ['validateDays' => true]);
+			$division = $this->Divisions->patchEntity($division, $this->request->getData(), ['validateDays' => true]);
 
 			// This recalculation will save all changes including any modified division data
 			$rating_obj = $this->moduleRegistry->load("Ratings:{$division->rating_calculator}");
@@ -288,11 +288,11 @@ class DivisionsController extends AppController {
 		$this->Authorization->authorize($this);
 
 		if (array_key_exists('divisions', $this->request->data)) {
-			$index = current(array_keys($this->request->data['divisions']));
-			$type = $this->request->data['divisions'][$index]['schedule_type'];
+			$index = current(array_keys($this->request->getData('divisions')));
+			$type = $this->request->getData("divisions.$index.schedule_type");
 		} else {
 			$index = null;
-			$type = $this->request->data['schedule_type'];
+			$type = $this->request->getData('schedule_type');
 		}
 		$this->set('league_obj', $this->moduleRegistry->load("LeagueType:{$type}"));
 		$this->set(compact('index'));
@@ -444,14 +444,14 @@ class DivisionsController extends AppController {
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			$division->teams = [];
-			$default = $this->request->data['teams'][0];
-			foreach ($this->request->data['teams'] as $key => $team) {
+			$default = $this->request->getData('teams.0');
+			foreach ($this->request->getData('teams') as $key => $team) {
 				if (!empty($team['name'])) {
 					$division->teams[$key] = $this->Divisions->Teams->newEntity(array_merge($default, $team));
 				}
 			}
 			if (!empty($division->teams)) {
-				$division->dirty('teams', true);
+				$division->setDirty('teams', true);
 				if ($this->Divisions->save($division)) {
 					$this->Flash->success(__('The teams have been saved.'));
 					return $this->redirect(['action' => 'view', 'division' => $id]);
@@ -506,7 +506,7 @@ class DivisionsController extends AppController {
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$division = $this->Divisions->patchEntity($division, $this->request->data);
+			$division = $this->Divisions->patchEntity($division, $this->request->getData());
 			$rating_obj = $this->moduleRegistry->load("Ratings:{$division->rating_calculator}");
 
 			// This recalculation will save all changes including initial rating adjustments
@@ -563,12 +563,12 @@ class DivisionsController extends AppController {
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$division = $this->Divisions->patchEntity($division, $this->request->data);
+			$division = $this->Divisions->patchEntity($division, $this->request->getData());
 
-			$seeds = collection($this->request->data['teams'])->extract('initial_seed')->toArray();
-			if (count($this->request->data['teams']) != count(array_unique($seeds))) {
+			$seeds = collection($this->request->getData('teams'))->extract('initial_seed')->toArray();
+			if (count($this->request->getData('teams')) != count(array_unique($seeds))) {
 				$this->Flash->warning(__('Each team must have a unique initial seed.'));
-			} else if (min($seeds) != 1 || count($this->request->data['teams']) != max($seeds)) {
+			} else if (min($seeds) != 1 || count($this->request->getData('teams')) != max($seeds)) {
 				$this->Flash->warning(__('Initial seeds must start at 1 and not skip any.'));
 			} else {
 				foreach ($division->teams as $team) {
@@ -758,8 +758,8 @@ class DivisionsController extends AppController {
 
 			if ($this->Lock->lock('scheduling', $this->Divisions->affiliate($id), 'schedule creation or edit')) {
 				try {
-					$edit_games = $this->Divisions->Games->patchEntities($division->games, $this->request->data['games'],
-						array_merge($this->request->data['options'], ['validate' => 'scheduleEdit'])
+					$edit_games = $this->Divisions->Games->patchEntities($division->games, $this->request->getData('games'),
+						array_merge($this->request->getData('options'), ['validate' => 'scheduleEdit'])
 					);
 
 					$edit_ids = collection($edit_games)->extract('id')->toArray();
@@ -769,9 +769,9 @@ class DivisionsController extends AppController {
 					$division->games = array_merge($edit_games, $other_games);
 					usort($division->games, ['App\Model\Table\GamesTable', 'compareDateAndField']);
 
-					if ($this->Divisions->Games->connection()->transactional(function () use ($division, $edit_games, $game_slots) {
+					if ($this->Divisions->Games->getConnection()->transactional(function () use ($division, $edit_games, $game_slots) {
 						$success = true;
-						$options = array_merge($this->request->data['options'], [
+						$options = array_merge($this->request->getData('options'), [
 							'games' => $edit_games,
 							'game_slots' => $game_slots,
 							'validate' => 'scheduleEdit',
@@ -907,7 +907,7 @@ class DivisionsController extends AppController {
 		// Find all games played by teams that are currently in this division,
 		// or tournament games for this division
 		$team_ids = collection($division->teams)->extract('id')->toArray();
-		$division->games = TableRegistry::get('Games')
+		$division->games = TableRegistry::getTableLocator()->get('Games')
 			->find('schedule', ['teams' => $team_ids, 'playoff_division' => $id])
 			->find('played')
 			->where([
@@ -1036,7 +1036,7 @@ class DivisionsController extends AppController {
 
 		// Find all the dates that this division has game slots on
 		$dates = $this->Divisions->GameSlots->find()
-			->hydrate(false)
+			->enableHydration(false)
 			->select(['GameSlots.game_date'])
 			->distinct(['GameSlots.game_date'])
 			->matching('Divisions', function (Query $q) use ($id) {
@@ -1048,7 +1048,7 @@ class DivisionsController extends AppController {
 
 		$date = $this->request->getQuery('date');
 		if ($this->request->is('post') && array_key_exists('date', $this->request->data)) {
-			$date = $this->request->data['date'];
+			$date = $this->request->getData('date');
 			// TODO: Is there a way to make the Ajax form submitter not send the string literal "null"?
 			if (empty($date) || $date == 'null') {
 				$this->Flash->info(__('You must select a date.'));
@@ -1168,13 +1168,13 @@ class DivisionsController extends AppController {
 			return $this->redirect(['action' => 'view', 'division' => $id]);
 		}
 
-		$regions = TableRegistry::get('Regions')->find()
-			->hydrate(false)
+		$regions = TableRegistry::getTableLocator()->get('Regions')->find()
+			->enableHydration(false)
 			->where(['affiliate_id' => $division->league->affiliate_id])
 			->combine('id', 'name')
 			->toArray();
 
-		$fields = TableRegistry::get('Fields')->find()
+		$fields = TableRegistry::getTableLocator()->get('Fields')->find()
 			->contain(['Facilities'])
 			->where(['Facilities.region_id IN' => array_keys($regions)])
 			->indexBy('id')
@@ -1277,7 +1277,7 @@ class DivisionsController extends AppController {
 		if (!$min) {
 			$min = 2;
 		}
-		$allstars_table = TableRegistry::get('GamesAllstars');
+		$allstars_table = TableRegistry::getTableLocator()->get('GamesAllstars');
 		$allstars = $allstars_table->find()
 			->select(['count' => 'COUNT(GamesAllstars.score_entry_id)'])
 			->select($allstars_table->People)
@@ -1358,7 +1358,7 @@ class DivisionsController extends AppController {
 
 		// We need to find all games involving teams that have ever been in this division
 		$team_ids = collection($division->teams)->extract('id')->toArray();
-		$division->games = TableRegistry::get('Games')
+		$division->games = TableRegistry::getTableLocator()->get('Games')
 			->find('schedule', ['teams' => $team_ids, 'division' => $id])
 			->find('played')
 			->contain([
@@ -1513,7 +1513,7 @@ class DivisionsController extends AppController {
 			}
 			$team->rating = $team->initial_rating = $affiliated_team->rating;
 		}
-		$division->dirty('teams', true);
+		$division->setDirty('teams', true);
 
 		if ($this->Divisions->save($division)) {
 			$this->Flash->success(__('Team ratings have been initialized.'));
@@ -1740,7 +1740,7 @@ class DivisionsController extends AppController {
 					}
 
 					$game->$field = $game->$pool_team->team_id = $team_id;
-					$game->dirty($pool_team, true);
+					$game->setDirty($pool_team, true);
 				}
 			}
 
@@ -1831,7 +1831,7 @@ class DivisionsController extends AppController {
 			return $this->redirect(['controller' => 'Schedules', 'action' => 'add', 'division' => $id]);
 		}
 
-		if ($this->Divisions->Pools->connection()->transactional(function () use ($division, $stage) {
+		if ($this->Divisions->Pools->getConnection()->transactional(function () use ($division, $stage) {
 			foreach ($division->pools as $pool) {
 				$this->Divisions->Pools->delete($pool);
 			}
@@ -1865,14 +1865,14 @@ class DivisionsController extends AppController {
 		$this->request->allowMethod('ajax');
 
 		$date = new DateType();
-		$date = $date->marshal($this->request->data['game_date']);
+		$date = $date->marshal($this->request->getData('game_date'));
 
 		$query = $this->Divisions->find('open')
 			->find('date', ['date' => $date])
 			->contain(['Leagues'])
 			->where(['Leagues.affiliate_id' => $this->request->getQuery('affiliate')]);
 
-		$sport = $this->request->data['sport'];
+		$sport = $this->request->getData('sport');
 		if ($sport) {
 			$query->where(['Leagues.sport' => $sport]);
 		}

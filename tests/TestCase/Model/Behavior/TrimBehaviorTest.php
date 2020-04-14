@@ -23,10 +23,10 @@ class TrimBehaviorTest extends TestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.affiliates',
-			'app.users',
-				'app.people',
-		'app.i18n',
+		'app.Affiliates',
+			'app.Users',
+				'app.People',
+		'app.I18n',
 	];
 
 	/**

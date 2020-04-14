@@ -33,7 +33,7 @@ endif;
 </dl>
 
 <p><?php
-if (TableRegistry::get('Divisions')->find('byLeague', ['league' => $division->league_id])->count() == 1) {
+if (TableRegistry::getTableLocator()->get('Divisions')->find('byLeague', ['league' => $division->league_id])->count() == 1) {
 	echo $this->Html->link(__('Details'), ['controller' => 'Leagues', 'action' => 'view', 'league' => $division->league_id]);
 } else {
 	echo $this->Html->link(__('Details'), ['controller' => 'Divisions', 'action' => 'view', 'division' => $division->id]);

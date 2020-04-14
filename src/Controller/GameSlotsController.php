@@ -128,9 +128,9 @@ class GameSlotsController extends AppController {
 		$this->Configuration->loadAffiliate($affiliate);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			if ($field && $this->request->data['length'] == 0 && $this->request->data['weeks'] == 1) {
+			if ($field && $this->request->getData('length') == 0 && $this->request->getData('weeks') == 1) {
 				// Deal with a single game slot being added
-				$game_slot = $this->GameSlots->newEntity(array_merge($this->request->data, [
+				$game_slot = $this->GameSlots->newEntity(array_merge($this->request->getData(), [
 					'field_id' => $field->id,
 				]), ['associated' => 'Divisions', 'divisions' => true]);
 
@@ -151,7 +151,7 @@ class GameSlotsController extends AppController {
 					->combine('date_string', 'name')
 					->toArray();
 
-				$game_slot = $this->GameSlots->patchEntity($game_slot, $this->request->data, [
+				$game_slot = $this->GameSlots->patchEntity($game_slot, $this->request->getData(), [
 					'validate' => 'bulk',
 					'associated' => ['Divisions'],
 					'accessibleFields' => ['length' => true, 'buffer' => true],
@@ -199,14 +199,14 @@ class GameSlotsController extends AppController {
 						$this->Flash->info(current($errors));
 					}
 				} else if (array_key_exists('confirm', $this->request->data)) {
-					if (empty($this->request->data['game_slots'])) {
+					if (empty($this->request->getData('game_slots'))) {
 						$this->Flash->info(__('You must select at least one game slot!'));
 						$this->viewBuilder()->template('confirm');
 					} else {
-						if ($this->GameSlots->connection()->transactional(function () use ($game_slot, $holidays, $times, $weeks) {
+						if ($this->GameSlots->getConnection()->transactional(function () use ($game_slot, $holidays, $times, $weeks) {
 							$division_ids = collection($game_slot->divisions)->extract('id')->toArray();
 
-							foreach ($this->request->data['game_slots'] as $field_id => $field_dates) {
+							foreach ($this->request->getData('game_slots') as $field_id => $field_dates) {
 								foreach ($field_dates as $date => $field_times) {
 									$week = $weeks[$date];
 									foreach (array_keys($field_times) as $time) {
@@ -219,7 +219,7 @@ class GameSlotsController extends AppController {
 											$game_end = $game_slot->game_end;
 										}
 
-										$slot = $this->GameSlots->newEntity(array_merge($this->request->data, [
+										$slot = $this->GameSlots->newEntity(array_merge($this->request->getData(), [
 											'field_id' => $field_id,
 											'game_date' => $week,
 											'game_start' => $game_start,
@@ -265,7 +265,7 @@ class GameSlotsController extends AppController {
 			], ['validate' => 'common']);
 		}
 
-		$divisions_table = TableRegistry::get('Divisions');
+		$divisions_table = TableRegistry::getTableLocator()->get('Divisions');
 		$divisions = $divisions_table->find('open')
 			->find('date', ['date' => $game_slot->game_date])
 			->contain(['Leagues'])
@@ -303,7 +303,7 @@ class GameSlotsController extends AppController {
 		$this->Configuration->loadAffiliate($affiliate);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$game_slot = $this->GameSlots->patchEntity($game_slot, $this->request->data, [
+			$game_slot = $this->GameSlots->patchEntity($game_slot, $this->request->getData(), [
 				'associated' => ['Divisions'],
 				'divisions' => true,
 			]);
@@ -403,7 +403,7 @@ class GameSlotsController extends AppController {
 		if ($this->request->is('post')) {
 			$teams = $games = $incidents = $errors = [];
 
-			$unplayed = in_array($this->request->data['Game']['status'], Configure::read('unplayed_status'));
+			$unplayed = in_array($this->request->getData('Game.status'), Configure::read('unplayed_status'));
 
 			// We could put these as hidden fields in the form, but we'd need to
 			// validate them against the values from the URL anyway, so it's
@@ -412,10 +412,10 @@ class GameSlotsController extends AppController {
 			// because order matters, and this is a good way to ensure that
 			// the correct data gets into the correct form.
 			foreach ($game_slot['Game'] as $i => $game) {
-				if (!array_key_exists($game['home_team_id'], $this->request->data['Game'])) {
+				if (!array_key_exists($game['home_team_id'], $this->request->getData('Game'))) {
 					$errors[$game['home_team_id']]['home_score'] = 'Scores must be entered for all teams.';
 				} else {
-					$details = $this->request->data['Game'][$game['home_team_id']];
+					$details = $this->request->getData("Game.{$game['home_team_id']}");
 					if ($unplayed) {
 						$score = $rating = null;
 					} else {
@@ -431,7 +431,7 @@ class GameSlotsController extends AppController {
 					}
 					$games[$game['home_team_id']] = [
 							'id' => $game['id'],
-							'status' => $this->request->data['Game']['status'],
+							'status' => $this->request->getData('Game.status'),
 							'home_score' => $score,
 							'rating_points' => $rating,
 							'approved_by_id' => $this->UserCache->currentId(),

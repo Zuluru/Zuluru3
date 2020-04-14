@@ -22,14 +22,14 @@ class TaskSlotsTableTest extends TableTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.affiliates',
-			'app.users',
-				'app.people',
-					'app.affiliates_people',
-			'app.categories',
-				'app.tasks',
-					'app.task_slots',
-		'app.i18n',
+		'app.Affiliates',
+			'app.Users',
+				'app.People',
+					'app.AffiliatesPeople',
+			'app.Categories',
+				'app.Tasks',
+					'app.TaskSlots',
+		'app.I18n',
 	];
 
 	/**

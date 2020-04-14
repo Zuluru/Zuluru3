@@ -91,7 +91,7 @@ class Game extends Entity {
 	/*
 	protected function _getHomeTeam($team) {
 		if (empty($team) && $this->home_team_id) {
-			$teams_table = TableRegistry::get('Teams');
+			$teams_table = TableRegistry::getTableLocator()->get('Teams');
 			try {
 				$team = $this->home_team = $teams_table->get($this->home_team_id);
 			} catch (RecordNotFoundException $ex) {
@@ -195,7 +195,7 @@ class Game extends Entity {
 			}
 
 			if ($spirit_obj && !in_array($home_score_entry->status, Configure::read('unplayed_status'))) {
-				$home_spirit_entry = TableRegistry::get('SpiritEntries')->patchEntity(
+				$home_spirit_entry = TableRegistry::getTableLocator()->get('SpiritEntries')->patchEntity(
 					$this->getSpiritEntry($this->home_team_id, $spirit_obj),
 					[ 'score_entry_penalty' => - $penalty ]
 				);
@@ -228,7 +228,7 @@ class Game extends Entity {
 
 			if ($spirit_obj && !in_array($away_score_entry->status, Configure::read('unplayed_status'))) {
 				$home_spirit_entry = $this->getSpiritEntry($this->home_team_id, $spirit_obj, true);
-				$away_spirit_entry = TableRegistry::get('SpiritEntries')->patchEntity(
+				$away_spirit_entry = TableRegistry::getTableLocator()->get('SpiritEntries')->patchEntity(
 					$this->getSpiritEntry($this->away_team_id, $spirit_obj),
 					[ 'score_entry_penalty' => - $penalty ]
 				);
@@ -247,7 +247,7 @@ class Game extends Entity {
 		} else {
 			$this->spirit_entries = [];
 		}
-		$this->dirty('spirit_entries', true);
+		$this->setDirty('spirit_entries', true);
 
 		return true;
 	}
@@ -265,7 +265,7 @@ class Game extends Entity {
 		}
 
 		// Look for games with this as a game dependency
-		$games_table = TableRegistry::get('Games');
+		$games_table = TableRegistry::getTableLocator()->get('Games');
 		foreach (['home', 'away'] as $type) {
 			$dependency_field = "{$type}_dependency_type";
 			$team_field = "{$type}_team_id";
@@ -320,7 +320,7 @@ class Game extends Entity {
 					($this->home_score > $this->away_score && $this->getOriginal('home_score') <= $this->getOriginal('away_score')) ||
 					($this->home_score == $this->away_score && $this->getOriginal('home_score') != $this->getOriginal('away_score')))
 				{
-					$calc_stats = TableRegistry::get('StatTypes')->find()
+					$calc_stats = TableRegistry::getTableLocator()->get('StatTypes')->find()
 						->where([
 							'StatTypes.type' => 'game_calc',
 							'StatTypes.sport' => $this->division->league->sport,
@@ -340,13 +340,13 @@ class Game extends Entity {
 					if ($this->away_team_id) {
 						Cache::delete("team/{$this->away_team_id}/stats", 'long_term');
 					}
-					TableRegistry::get('Divisions')->clearCache($this->division, ['stats']);
+					TableRegistry::getTableLocator()->get('Divisions')->clearCache($this->division, ['stats']);
 				}
 			}
 
 			// Any time that this is called, the division seeding might change.
 			// We just reset it here, and it will be recalculated as required elsewhere.
-			TableRegistry::get('Teams')->updateAll(['seed' => 0], ['division_id' => $this->division_id]);
+			TableRegistry::getTableLocator()->get('Teams')->updateAll(['seed' => 0], ['division_id' => $this->division_id]);
 		}
 	}
 
@@ -356,7 +356,7 @@ class Game extends Entity {
 	public function undoRatings() {
 		if (!empty($this->rating_points)) {
 			if (!$this->has('home_team')) {
-				TableRegistry::get('Games')->loadInto($this, ['HomeTeam', 'AwayTeam']);
+				TableRegistry::getTableLocator()->get('Games')->loadInto($this, ['HomeTeam', 'AwayTeam']);
 			}
 			if ($this->getOriginal('home_score') >= $this->getOriginal('away_score')) {
 				$this->home_team->rating -= $this->rating_points;
@@ -365,8 +365,8 @@ class Game extends Entity {
 				$this->home_team->rating += $this->rating_points;
 				$this->away_team->rating -= $this->rating_points;
 			}
-			$this->dirty('home_team', true);
-			$this->dirty('away_team', true);
+			$this->setDirty('home_team', true);
+			$this->setDirty('away_team', true);
 		}
 	}
 
@@ -414,8 +414,8 @@ class Game extends Entity {
 		$this->rating_points = $change;
 
 		if ($change) {
-			$this->dirty('home_team', true);
-			$this->dirty('away_team', true);
+			$this->setDirty('home_team', true);
+			$this->setDirty('away_team', true);
 		}
 
 		return true;
@@ -437,7 +437,7 @@ class Game extends Entity {
 		}
 
 		try {
-			$score_entries_table = TableRegistry::get('ScoreEntries');
+			$score_entries_table = TableRegistry::getTableLocator()->get('ScoreEntries');
 			$entry = $score_entries_table->find()
 				->where([
 					'game_id' => $this->id,
@@ -470,7 +470,7 @@ class Game extends Entity {
 			return false;
 		}
 
-		$spirit_entries_table = TableRegistry::get('SpiritEntries');
+		$spirit_entries_table = TableRegistry::getTableLocator()->get('SpiritEntries');
 
 		if (!empty($this->spirit_entries)) {
 			foreach ($this->spirit_entries as $spirit) {
@@ -597,7 +597,7 @@ class Game extends Entity {
 		}
 
 		try {
-			$games_table = TableRegistry::get('Games');
+			$games_table = TableRegistry::getTableLocator()->get('Games');
 			$entry = $games_table->ScoreReminderEmails->find()
 				->where([
 					'game_id' => $this->id,
@@ -639,7 +639,7 @@ class Game extends Entity {
 	}
 
 	private function readDependency($pool, $type) {
-		$games_table = TableRegistry::get('Games');
+		$games_table = TableRegistry::getTableLocator()->get('Games');
 		$type .= '_dependency';
 		$id_prop = "{$type}_id";
 		$type_prop = "{$type}_type";

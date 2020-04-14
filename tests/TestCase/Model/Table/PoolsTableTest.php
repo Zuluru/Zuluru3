@@ -22,16 +22,16 @@ class PoolsTableTest extends TableTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.affiliates',
-			'app.users',
-				'app.people',
-					'app.affiliates_people',
-			'app.leagues',
-				'app.divisions',
-					'app.teams',
-					'app.pools',
-						'app.pools_teams',
-		'app.i18n',
+		'app.Affiliates',
+			'app.Users',
+				'app.People',
+					'app.AffiliatesPeople',
+			'app.Leagues',
+				'app.Divisions',
+					'app.Teams',
+					'app.Pools',
+						'app.PoolsTeams',
+		'app.I18n',
 	];
 
 	/**

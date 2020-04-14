@@ -20,9 +20,9 @@
 	 * @return void|\Cake\Network\Response Redirects to index.
 	 */
 	public function delete() {
-		$this->request->allowMethod(['post', 'delete']);
+		$this->getRequest()->allowMethod(['post', 'delete']);
 
-		$id = $this->request->getQuery('<%= $singularName %>');
+		$id = $this->getRequest()->getQuery('<%= $singularName %>');
 		$dependencies = $this-><%= $currentModelName; %>->dependencies($id);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this <%= strtolower($singularHumanName) %>, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);

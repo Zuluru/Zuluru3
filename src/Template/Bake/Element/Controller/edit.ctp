@@ -24,7 +24,7 @@ $compact = ["'" . $singularName . "'"];
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->getQuery('<%= $singularName %>');
+		$id = $this->getRequest()->getQuery('<%= $singularName %>');
 		try {
 			$<%= $singularName %> = $this-><%= $currentModelName %>->get($id, [
 				'contain' => [<%= $this->Bake->stringifyList($belongsToMany, ['indent' => false]) %>]
@@ -37,8 +37,8 @@ $compact = ["'" . $singularName . "'"];
 			return $this->redirect(['action' => 'index']);
 		}
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$<%= $singularName %> = $this-><%= $currentModelName %>->patchEntity($<%= $singularName %>, $this->request->getData());
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$<%= $singularName %> = $this-><%= $currentModelName %>->patchEntity($<%= $singularName %>, $this->getRequest()->getData());
 			if ($this-><%= $currentModelName; %>->save($<%= $singularName %>)) {
 				$this->Flash->success(__('The <%= strtolower($singularHumanName) %> has been saved.'));
 				return $this->redirect(['action' => 'index']);

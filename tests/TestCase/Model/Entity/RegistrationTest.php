@@ -38,18 +38,18 @@ class RegistrationTest extends TestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.event_types',
-		'app.affiliates',
-			'app.users',
-				'app.people',
-			'app.leagues',
-				'app.divisions',
-			'app.events',
-				'app.prices',
-					'app.registrations',
-						'app.payments',
-		'app.settings',
-		'app.i18n',
+		'app.EventTypes',
+		'app.Affiliates',
+			'app.Users',
+				'app.People',
+			'app.Leagues',
+				'app.Divisions',
+			'app.Events',
+				'app.Prices',
+					'app.Registrations',
+						'app.Payments',
+		'app.Settings',
+		'app.I18n',
 	];
 
 	/**

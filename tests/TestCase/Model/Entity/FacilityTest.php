@@ -30,12 +30,12 @@ class FacilityTest extends TestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.affiliates',
-			'app.regions',
-				'app.facilities',
-					'app.fields',
-			'app.leagues',
-		'app.i18n',
+		'app.Affiliates',
+			'app.Regions',
+				'app.Facilities',
+					'app.Fields',
+			'app.Leagues',
+		'app.I18n',
 	];
 
 	/**

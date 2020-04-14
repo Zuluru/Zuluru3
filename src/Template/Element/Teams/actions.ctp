@@ -12,24 +12,24 @@ if (!isset($size)) {
 
 $links = $more = [];
 
-if ($this->request->getParam('controller') != 'Teams' || $this->request->getParam('action') != 'view') {
+if ($this->getRequest()->getParam('controller') != 'Teams' || $this->getRequest()->getParam('action') != 'view') {
 	$links[] = $this->Html->iconLink("view_$size.png",
 		['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 		['alt' => __('View'), 'title' => __('View')]);
 }
 
 if ($team->division_id) {
-	if ($this->request->getParam('controller') != 'Teams' || $this->request->getParam('action') != 'schedule') {
+	if ($this->getRequest()->getParam('controller') != 'Teams' || $this->getRequest()->getParam('action') != 'schedule') {
 		$links[] = $this->Html->iconLink("schedule_$size.png",
 			['controller' => 'Teams', 'action' => 'schedule', 'team' => $team->id],
 			['alt' => __('Schedule'), 'title' => __('Schedule')]);
 	}
-	if ($this->request->getParam('controller') != 'Divisions' || $this->request->getParam('action') != 'standings') {
+	if ($this->getRequest()->getParam('controller') != 'Divisions' || $this->getRequest()->getParam('action') != 'standings') {
 		$links[] = $this->Html->iconLink("standings_$size.png",
 			['controller' => 'Divisions', 'action' => 'standings', 'division' => $division->id, 'team' => $team->id],
 			['alt' => __('Standings'), 'title' => __('Standings')]);
 	}
-	if (($this->request->getParam('controller') != 'Teams' || $this->request->getParam('action') != 'stats') &&
+	if (($this->getRequest()->getParam('controller') != 'Teams' || $this->getRequest()->getParam('action') != 'stats') &&
 		isset($league) && $this->Authorize->can('stats', $league)
 	) {
 		$links[] = $this->Html->iconLink("summary_$size.png",
@@ -44,7 +44,7 @@ if ($this->Authorize->can('add_event', $team)) {
 	];
 }
 
-if (($this->request->getParam('controller') != 'Teams' || $this->request->getParam('action') != 'attendance') &&
+if (($this->getRequest()->getParam('controller') != 'Teams' || $this->getRequest()->getParam('action') != 'attendance') &&
 	$this->Authorize->can('attendance', $team)
 ) {
 	$links[] = $this->Html->iconLink("attendance_$size.png",
@@ -58,7 +58,7 @@ if ($this->Authorize->can('roster_request', new ContextResource($team, ['divisio
 	];
 }
 
-if (($this->request->getParam('controller') != 'Teams' || $this->request->getParam('action') != 'edit') &&
+if (($this->getRequest()->getParam('controller') != 'Teams' || $this->getRequest()->getParam('action') != 'edit') &&
 	$this->Authorize->can('edit', $team)
 ) {
 	$more[__('Edit Team')] = [
@@ -66,7 +66,7 @@ if (($this->request->getParam('controller') != 'Teams' || $this->request->getPar
 	];
 }
 
-if (($this->request->getParam('controller') != 'Teams' || $this->request->getParam('action') != 'emails') &&
+if (($this->getRequest()->getParam('controller') != 'Teams' || $this->getRequest()->getParam('action') != 'emails') &&
 	$this->Authorize->can('emails', $team)
 ) {
 	$more[__('Player Emails')] = [
@@ -74,7 +74,7 @@ if (($this->request->getParam('controller') != 'Teams' || $this->request->getPar
 	];
 }
 
-if (($this->request->getParam('controller') != 'Teams' || $this->request->getParam('action') != 'add_player') &&
+if (($this->getRequest()->getParam('controller') != 'Teams' || $this->getRequest()->getParam('action') != 'add_player') &&
 	$this->Authorize->can('add_player', new ContextResource($team, ['division' => isset($division) ? $division : null]))
 ) {
 	$more[__('Add Player')] = [
@@ -96,7 +96,7 @@ if ($this->Authorize->can('move', $team)) {
 
 if  ($this->Authorize->can('delete', $team)) {
 	$url = ['controller' => 'Teams', 'action' => 'delete', 'team' => $team->id];
-	if ($this->request->getParam('controller') != 'Teams') {
+	if ($this->getRequest()->getParam('controller') != 'Teams') {
 		$url['return'] = AppController::_return();
 	}
 	$more[__('Delete')] = [

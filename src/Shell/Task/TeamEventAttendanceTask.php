@@ -25,8 +25,8 @@ class TeamEventAttendanceTask extends Shell {
 
 	public function main() {
 		ConfigurationLoader::loadConfiguration();
-		$this->events_table = TableRegistry::get('TeamEvents');
-		$this->logs_table = TableRegistry::get('ActivityLogs');
+		$this->events_table = TableRegistry::getTableLocator()->get('TeamEvents');
+		$this->logs_table = TableRegistry::getTableLocator()->get('ActivityLogs');
 
 		$captain_contain = [
 			'People' => [

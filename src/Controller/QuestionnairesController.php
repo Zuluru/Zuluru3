@@ -111,7 +111,7 @@ class QuestionnairesController extends AppController {
 		$questionnaire = $this->Questionnaires->newEntity();
 		$this->Authorization->authorize($questionnaire);
 		if ($this->request->is('post')) {
-			$questionnaire = $this->Questionnaires->patchEntity($questionnaire, $this->request->data);
+			$questionnaire = $this->Questionnaires->patchEntity($questionnaire, $this->request->getData());
 			if ($this->Questionnaires->save($questionnaire)) {
 				$this->Flash->success(__('The questionnaire has been saved.'));
 				return $this->redirect(['action' => 'edit', 'questionnaire' => $questionnaire->id]);
@@ -149,7 +149,7 @@ class QuestionnairesController extends AppController {
 		$this->Configuration->loadAffiliate($questionnaire->affiliate_id);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$questionnaire = $this->Questionnaires->patchEntity($questionnaire, $this->request->data, [
+			$questionnaire = $this->Questionnaires->patchEntity($questionnaire, $this->request->getData(), [
 				'associated' => ['Questions', 'Questions._joinData'],
 			]);
 			if ($this->Questionnaires->save($questionnaire)) {
@@ -354,7 +354,7 @@ class QuestionnairesController extends AppController {
 		$event_ids = collection($questionnaire->events)->combine('id', 'id')->toArray();
 
 		// Now find if there are responses to this question in one of these events
-		$count = TableRegistry::get('Responses')->find()
+		$count = TableRegistry::getTableLocator()->get('Responses')->find()
 			->where([
 				'question_id' => $question_id,
 				'event_id IN' => $event_ids,

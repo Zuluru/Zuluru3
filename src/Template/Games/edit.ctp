@@ -37,7 +37,7 @@ if ($preliminary) {
 		<dt><?= __('League') ?></dt>
 		<dd><?= $this->element('Leagues/block', ['league' => $game->division->league]) ?></dd>
 <?php
-if (TableRegistry::get('Divisions')->find('byLeague', ['league' => $game->division->league_id])->count() != 1):
+if (TableRegistry::getTableLocator()->get('Divisions')->find('byLeague', ['league' => $game->division->league_id])->count() != 1):
 ?>
 		<dt><?= __('Division') ?></dt>
 		<dd><?= $this->element('Divisions/block', ['league' => $game->division->league, 'division' => $game->division]) ?></dd>

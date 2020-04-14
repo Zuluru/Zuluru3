@@ -67,13 +67,13 @@ class UploadTypesController extends AppController {
 		$upload_type = $this->UploadTypes->newEntity();
 		$this->Authorization->authorize($upload_type);
 		if ($this->request->is('post')) {
-			$upload_type = $this->UploadTypes->patchEntity($upload_type, $this->request->data);
+			$upload_type = $this->UploadTypes->patchEntity($upload_type, $this->request->getData());
 			if ($this->UploadTypes->save($upload_type)) {
 				$this->Flash->success(__('The upload type has been saved.'));
 				return $this->redirect(['action' => 'index']);
 			} else {
 				$this->Flash->warning(__('The upload type could not be saved. Please correct the errors below and try again.'));
-				$this->Configuration->loadAffiliate($this->request->data['affiliate_id']);
+				$this->Configuration->loadAffiliate($this->request->getData('affiliate_id'));
 			}
 		}
 
@@ -102,7 +102,7 @@ class UploadTypesController extends AppController {
 		$this->Authorization->authorize($upload_type);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$upload_type = $this->UploadTypes->patchEntity($upload_type, $this->request->data);
+			$upload_type = $this->UploadTypes->patchEntity($upload_type, $this->request->getData());
 			if ($this->UploadTypes->save($upload_type)) {
 				$this->Flash->success(__('The upload type has been saved.'));
 				return $this->redirect(['action' => 'index']);

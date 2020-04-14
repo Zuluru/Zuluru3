@@ -45,7 +45,7 @@ class MessageForm extends Form {
 
 	protected function _execute(array $data) {
 		// If this throws an exception, it must be caught by the caller
-		$contact = TableRegistry::get('Contacts')->get($data['contact_id']);
+		$contact = TableRegistry::getTableLocator()->get('Contacts')->get($data['contact_id']);
 
 		return AppController::_sendMail([
 			'to' => $contact,

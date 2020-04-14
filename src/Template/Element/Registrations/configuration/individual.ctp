@@ -2,7 +2,7 @@
 use Cake\ORM\TableRegistry;
 
 // Get the list of divisions
-$divisions = TableRegistry::get('Divisions')->find()
+$divisions = TableRegistry::getTableLocator()->get('Divisions')->find()
 	->contain('Leagues')
 	->where([
 		'Divisions.close > NOW()',

@@ -82,7 +82,7 @@ elseif (isset($people)):
 </ul></nav>
 
 <?php
-	if (in_array($this->request->action, ['rule_search', 'league_search', 'inactive_search'])):
+	if (in_array($this->getRequest()->action, ['rule_search', 'league_search', 'inactive_search'])):
 ?>
 <div class="actions columns">
 	<ul class="nav nav-pills">

@@ -188,12 +188,12 @@ class BadgesController extends AppController {
 		$this->Authorization->authorize($this);
 
 		if ($this->request->is('post')) {
-			$badge = $this->Badges->patchEntity($badge, $this->request->data);
+			$badge = $this->Badges->patchEntity($badge, $this->request->getData());
 			if ($this->Badges->save($badge)) {
 				$this->Flash->success(__('The badge has been saved.'));
 				return $this->redirect(['action' => 'index']);
 			} else {
-				$this->Configuration->loadAffiliate($this->request->data['affiliate_id']);
+				$this->Configuration->loadAffiliate($this->request->getData('affiliate_id'));
 				$this->Flash->warning(__('The badge could not be saved. Please correct the errors below and try again.'));
 			}
 		}
@@ -223,7 +223,7 @@ class BadgesController extends AppController {
 		$this->Configuration->loadAffiliate($badge->affiliate_id);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$badge = $this->Badges->patchEntity($badge, $this->request->data);
+			$badge = $this->Badges->patchEntity($badge, $this->request->getData());
 			if ($this->Badges->save($badge)) {
 				$this->Flash->success(__('The badge has been saved.'));
 				return $this->redirect(['action' => 'index']);

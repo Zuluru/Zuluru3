@@ -113,7 +113,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 				case GROUP_ADMIN:
 					if ($this->identity->person->status != 'locked') {
 						$this->_isAdmin = $this->_isManager = true;
-						$this->_managedAffiliateIds = TableRegistry::get('Affiliates')->find()
+						$this->_managedAffiliateIds = TableRegistry::getTableLocator()->get('Affiliates')->find()
 							->extract('id')
 							->toArray();
 					}
@@ -280,13 +280,13 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 			if ($entity->has('person')) {
 				$person_id = $entity->person->id;
 			} else {
-				$person_id = TableRegistry::get('People')->field('id', ['People.user_id' => $entity->id]);
+				$person_id = TableRegistry::getTableLocator()->get('People')->field('id', ['People.user_id' => $entity->id]);
 			}
 			$affiliates = UserCache::getInstance()->read('AffiliateIDs', $person_id);
 			$intersection = array_intersect($this->_managedAffiliateIds, $affiliates);
 			return !empty($intersection);
 		} else {
-			$affiliate_id = TableRegistry::get($entity->getSource())->affiliate($entity->id);
+			$affiliate_id = TableRegistry::getTableLocator()->get($entity->getSource())->affiliate($entity->id);
 		}
 
 		return in_array($affiliate_id, $this->_managedAffiliateIds);
@@ -312,7 +312,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 			if (isset($entity->divisions)) {
 				$league_divisions = collection($entity->divisions)->extract('id')->toArray();
 			} else {
-				$league_divisions = TableRegistry::get('Leagues')->divisions($entity);
+				$league_divisions = TableRegistry::getTableLocator()->get('Leagues')->divisions($entity);
 			}
 			$intersection = array_intersect($this->_coordinatedDivisionIds, $league_divisions);
 			return (count($league_divisions) == count($intersection));
@@ -322,7 +322,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 			$division_id = $entity->division_id;
 		} else {
 			try {
-				$division_id = TableRegistry::get($entity->getSource())->division($entity->id);
+				$division_id = TableRegistry::getTableLocator()->get($entity->getSource())->division($entity->id);
 			} catch (BadMethodCallException $ex) {
 				throw new Exception('Attempt to check coordinator of on a non-coordinated entity type "' . get_class($entity) . '"');
 			}
@@ -386,7 +386,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 			$team_id = $entity->team_id;
 		} else {
 			try {
-				$team_id = TableRegistry::get($entity->getSource())->team($entity->id);
+				$team_id = TableRegistry::getTableLocator()->get($entity->getSource())->team($entity->id);
 			} catch (BadMethodCallException $ex) {
 				throw new Exception('Attempt to check team of on a non-team entity type "' . get_class($entity) . '"');
 			}
@@ -414,7 +414,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 			$team_id = $entity->team_id;
 		} else {
 			try {
-				$team_id = TableRegistry::get($entity->getSource())->team($entity->id);
+				$team_id = TableRegistry::getTableLocator()->get($entity->getSource())->team($entity->id);
 			} catch (BadMethodCallException $ex) {
 				throw new Exception('Attempt to check team of on a non-team entity type "' . get_class($entity) . '"');
 			}
@@ -442,7 +442,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 			$team_id = $entity->team_id;
 		} else {
 			try {
-				$team_id = TableRegistry::get($entity->getSource())->team($entity->id);
+				$team_id = TableRegistry::getTableLocator()->get($entity->getSource())->team($entity->id);
 			} catch (BadMethodCallException $ex) {
 				throw new Exception('Attempt to check team of on a non-team entity type "' . get_class($entity) . '"');
 			}
@@ -468,7 +468,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 			$team_id = $entity->team_id;
 		} else {
 			try {
-				$team_id = TableRegistry::get($entity->getSource())->team($entity->id);
+				$team_id = TableRegistry::getTableLocator()->get($entity->getSource())->team($entity->id);
 			} catch (BadMethodCallException $ex) {
 				throw new Exception('Attempt to check team of on a non-team entity type "' . get_class($entity) . '"');
 			}
@@ -494,7 +494,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 			$team_id = $entity->team_id;
 		} else {
 			try {
-				$team_id = TableRegistry::get($entity->getSource())->team($entity->id);
+				$team_id = TableRegistry::getTableLocator()->get($entity->getSource())->team($entity->id);
 			} catch (BadMethodCallException $ex) {
 				throw new Exception('Attempt to check team of on a non-team entity type "' . get_class($entity) . '"');
 			}
@@ -520,7 +520,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 			$team_id = $entity->team_id;
 		} else {
 			try {
-				$team_id = TableRegistry::get($entity->getSource())->team($entity->id);
+				$team_id = TableRegistry::getTableLocator()->get($entity->getSource())->team($entity->id);
 			} catch (BadMethodCallException $ex) {
 				throw new Exception('Attempt to check team of on a non-team entity type "' . get_class($entity) . '"');
 			}
@@ -538,7 +538,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 			if ($entity->has('person')) {
 				$person_id = $entity->person->id;
 			} else {
-				$person_id = TableRegistry::get('People')->field('id', ['People.user_id' => $entity->id]);
+				$person_id = TableRegistry::getTableLocator()->get('People')->field('id', ['People.user_id' => $entity->id]);
 			}
 		} else if ($entity && $entity->has('person_id')) {
 			$person_id = $entity->person_id;
@@ -576,7 +576,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 			if ($entity->has('person')) {
 				$person_id = $entity->person->id;
 			} else {
-				$person_id = TableRegistry::get('People')->field('id', ['People.user_id' => $entity->id]);
+				$person_id = TableRegistry::getTableLocator()->get('People')->field('id', ['People.user_id' => $entity->id]);
 			}
 		} else if ($entity->has('person_id')) {
 			$person_id = $entity->person_id;
@@ -611,7 +611,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 			return [1 => Configure::read('organization.name')];
 		}
 
-		$affiliates_table = TableRegistry::get('Affiliates');
+		$affiliates_table = TableRegistry::getTableLocator()->get('Affiliates');
 
 		// If there's something in the URL, perhaps only use that
 		$request = Router::getRequest();
@@ -619,7 +619,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 			$affiliate = $request->getQuery('affiliate');
 			if ($affiliate === null) {
 				// If the user has selected a specific affiliate to view, perhaps only use that
-				$affiliate = $request->session()->read('Zuluru.CurrentAffiliate');
+				$affiliate = $request->getSession()->read('Zuluru.CurrentAffiliate');
 			}
 		} else {
 			$affiliate = null;
@@ -632,7 +632,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 			// - the current user is a manager of that affiliate
 			if (!$admin_only || $this->_isAdmin || in_array($affiliate, $this->_managedAffiliateIds)) {
 				return $affiliates_table->find()
-					->hydrate(false)
+					->enableHydration(false)
 					->where(['Affiliates.id' => $affiliate])
 					->combine('id', 'name')
 					->toArray();
@@ -659,7 +659,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 
 		// Anyone not logged in, and admins, get the full list
 		return $affiliates_table->find()
-			->hydrate(false)
+			->enableHydration(false)
 			->where(['active' => true])
 			->order('name')
 			->combine('id', 'name')
@@ -678,7 +678,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 			$affiliate = $request->getQuery('affiliate');
 			if ($affiliate === null) {
 				// If the user has selected a specific affiliate to view, perhaps only use that
-				$affiliate = $request->session()->read('Zuluru.CurrentAffiliate');
+				$affiliate = $request->getSession()->read('Zuluru.CurrentAffiliate');
 			}
 		} else {
 			$affiliate = null;
@@ -708,8 +708,8 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 		}
 
 		// Anyone not logged in, and admins, get the full list
-		return array_keys(TableRegistry::get('Affiliates')->find()
-			->hydrate(false)
+		return array_keys(TableRegistry::getTableLocator()->get('Affiliates')->find()
+			->enableHydration(false)
 			->where(['active' => true])
 			->order('name')
 			->combine('id', 'name')

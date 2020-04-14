@@ -26,7 +26,7 @@ class ConfigurationLoader {
 		// This happens before the routing middleware has run, so we have to look at the raw URL, not the plugin property.
 		if (!$request || substr($request->getAttribute('here'), 0, 10) != '/installer') {
 			// Load configuration from database or cache
-			TableRegistry::get('Configuration')->loadSystem();
+			TableRegistry::getTableLocator()->get('Configuration')->loadSystem();
 		}
 
 		Configure::load('sports');

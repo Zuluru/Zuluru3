@@ -38,7 +38,7 @@ class ZikulaSessionAuthenticator extends CMSSessionAuthenticator {
 
 		if ($zikula_user_id) {
 			try {
-				$user = TableRegistry::get('UserZikula')->get($zikula_user_id, [
+				$user = TableRegistry::getTableLocator()->get('UserZikula')->get($zikula_user_id, [
 					'contain' => ['People' => ['Groups']]
 				]);
 			} catch (RecordNotFoundException $ex) {

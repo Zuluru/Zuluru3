@@ -23,16 +23,16 @@ class PricesTableTest extends TableTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.event_types',
-		'app.affiliates',
-			'app.users',
-				'app.people',
-					'app.affiliates_people',
-			'app.leagues',
-				'app.divisions',
-			'app.events',
-				'app.prices',
-		'app.i18n',
+		'app.EventTypes',
+		'app.Affiliates',
+			'app.Users',
+				'app.People',
+					'app.AffiliatesPeople',
+			'app.Leagues',
+				'app.Divisions',
+			'app.Events',
+				'app.Prices',
+		'app.I18n',
 	];
 
 	/**

@@ -106,7 +106,7 @@ class MailingListsController extends AppController {
 		}
 
 		$user_model = Configure::read('Security.authModel');
-		$authenticate = TableRegistry::get($user_model);
+		$authenticate = TableRegistry::getTableLocator()->get($user_model);
 		$email_field = $authenticate->emailField;
 		try {
 			$people = $rule_obj->query($mailing_list->affiliate_id, [
@@ -162,7 +162,7 @@ class MailingListsController extends AppController {
 		$this->Authorization->authorize($this);
 
 		if ($this->request->is('post')) {
-			$mailing_list = $this->MailingLists->patchEntity($mailing_list, $this->request->data);
+			$mailing_list = $this->MailingLists->patchEntity($mailing_list, $this->request->getData());
 			if ($this->MailingLists->save($mailing_list)) {
 				$this->Flash->success(__('The mailing list has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -197,7 +197,7 @@ class MailingListsController extends AppController {
 		$this->Configuration->loadAffiliate($mailing_list->affiliate_id);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$mailing_list = $this->MailingLists->patchEntity($mailing_list, $this->request->data);
+			$mailing_list = $this->MailingLists->patchEntity($mailing_list, $this->request->getData());
 			if ($this->MailingLists->save($mailing_list)) {
 				$this->Flash->success(__('The mailing list has been saved.'));
 				return $this->redirect(['action' => 'index']);

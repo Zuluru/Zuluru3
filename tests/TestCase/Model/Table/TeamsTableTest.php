@@ -25,20 +25,20 @@ class TeamsTableTest extends TableTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.affiliates',
-			'app.users',
-				'app.people',
-					'app.affiliates_people',
-					'app.skills',
-			'app.leagues',
-				'app.divisions',
-					'app.teams',
-						'app.teams_people',
-					'app.divisions_days',
-			'app.franchises',
-				'app.franchises_teams',
-			'app.settings',
-		'app.i18n',
+		'app.Affiliates',
+			'app.Users',
+				'app.People',
+					'app.AffiliatesPeople',
+					'app.Skills',
+			'app.Leagues',
+				'app.Divisions',
+					'app.Teams',
+						'app.TeamsPeople',
+					'app.DivisionsDays',
+			'app.Franchises',
+				'app.FranchisesTeams',
+			'app.Settings',
+		'app.I18n',
 	];
 
 	/**

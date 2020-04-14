@@ -73,7 +73,7 @@ class DrupalSessionAuthenticator extends CMSSessionAuthenticator {
 		}
 
 		if ($drupal_session_id) {
-			$user = TableRegistry::get('UserDrupal')->find()
+			$user = TableRegistry::getTableLocator()->get('UserDrupal')->find()
 				->matching('DrupalSessions', function (Query $q) use ($drupal_session_id) {
 					return $q->where(['DrupalSessions.sid' => $drupal_session_id]);
 				})

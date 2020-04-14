@@ -218,16 +218,16 @@ class TeamsTable extends AppTable {
 	 * @return void
 	 */
 	public function afterSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
-		if ($entity->dirty('division_id') && !empty($entity->getOriginal('division_id'))) {
+		if ($entity->isDirty('division_id') && !empty($entity->getOriginal('division_id'))) {
 			$this->Divisions->clearCache($entity->getOriginal('division_id'));
 		}
 		if ($entity->division_id) {
 			$this->Divisions->clearCache($entity->division_id);
 		}
 
-		if ($entity->dirty('name') || $entity->dirty('division_id') || $entity->dirty('website')
-			|| $entity->dirty('shirt_colour') || $entity->dirty('logo') || $entity->dirty('short_name')
-			|| $entity->dirty('track_attendance')
+		if ($entity->isDirty('name') || $entity->isDirty('division_id') || $entity->isDirty('website')
+			|| $entity->isDirty('shirt_colour') || $entity->isDirty('logo') || $entity->isDirty('short_name')
+			|| $entity->isDirty('track_attendance')
 		) {
 			if (!$entity->has('people')) {
 				$this->loadInto($entity, ['People']);

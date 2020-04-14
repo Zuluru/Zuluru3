@@ -29,9 +29,9 @@ if (!empty($game->division->league->stat_types)) {
 
 echo $this->element('Games/edit_boxscore_line', [
 	'detail' => $detail,
-	'year' => $this->request->data['add_detail']['created']['year'],
-	'month' => $this->request->data['add_detail']['created']['month'],
-	'day' => $this->request->data['add_detail']['created']['day'],
+	'year' => $this->getRequest()->getData('add_detail.created.year'),
+	'month' => $this->getRequest()->getData('add_detail.created.month'),
+	'day' => $this->getRequest()->getData('add_detail.created.day'),
 	'team_names' => $team_names,
 	'roster' => $roster,
 ]);

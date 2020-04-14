@@ -22,10 +22,10 @@ class QuestionsTableTest extends TableTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.affiliates',
-			'app.questions',
-				'app.answers',
-		'app.i18n',
+		'app.Affiliates',
+			'app.Questions',
+				'app.Answers',
+		'app.I18n',
 	];
 
 	/**

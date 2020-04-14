@@ -93,7 +93,7 @@ class TeamsController extends AppController {
 		}
 
 		$letters = $this->Teams->find()
-			->hydrate(false)
+			->enableHydration(false)
 			// TODO: Use a query object here
 			->select(['letter' => 'DISTINCT SUBSTR(Teams.name, 1, 1)'])
 			->matching('Divisions.Leagues.Affiliates', function (Query $q) use ($affiliates) {
@@ -138,7 +138,7 @@ class TeamsController extends AppController {
 			->toArray();
 
 		$letters = $this->Teams->find()
-			->hydrate(false)
+			->enableHydration(false)
 			->select(['letter' => 'DISTINCT SUBSTR(Teams.name, 1, 1)'])
 			->matching('Divisions.Leagues.Affiliates', function (Query $q) use ($affiliates) {
 				return $q->where(['Affiliates.id IN' => $affiliates]);
@@ -747,7 +747,7 @@ class TeamsController extends AppController {
 				$this->request->data['people'][0]['id'] = $person_id;
 			}
 
-			$team = $this->Teams->patchEntity($team, $this->request->data, [
+			$team = $this->Teams->patchEntity($team, $this->request->getData(), [
 				'associated' => ['People._joinData']
 			]);
 
@@ -961,8 +961,8 @@ class TeamsController extends AppController {
 			}
 
 			// Save the facility preference order
-			if (!empty($this->request->data['facilities']['_ids'])) {
-				foreach ($this->request->data['facilities']['_ids'] as $key => $facility_id) {
+			if (!empty($this->request->getData('facilities._ids'))) {
+				foreach ($this->request->getData('facilities._ids') as $key => $facility_id) {
 					$this->request->data['facilities'][$key] = [
 						'id' => $facility_id,
 						'_joinData' => [
@@ -973,7 +973,7 @@ class TeamsController extends AppController {
 				unset($this->request->data['facilities']['_ids']);
 			}
 
-			$team = $this->Teams->patchEntity($team, $this->request->data, [
+			$team = $this->Teams->patchEntity($team, $this->request->getData(), [
 				'associated' => ['People', 'Facilities']
 			]);
 
@@ -988,16 +988,16 @@ class TeamsController extends AppController {
 				$this->Flash->warning(__('The team could not be saved. Please correct the errors below and try again.'));
 			}
 
-			$this->Configuration->loadAffiliate($this->request->data['affiliate_id']);
+			$this->Configuration->loadAffiliate($this->request->getData('affiliate_id'));
 		}
 
 		// TODO: A way to indicate which sport the team is for, and load only applicable facilities
 		$affiliates = $this->Authentication->applicableAffiliates();
-		$regions = TableRegistry::get('Regions')->find('list', [
+		$regions = TableRegistry::getTableLocator()->get('Regions')->find('list', [
 			'conditions' => ['affiliate_id IN' => array_keys($affiliates)],
 		])->toArray();
 
-		$facilities = TableRegistry::get('Facilities')->find()
+		$facilities = TableRegistry::getTableLocator()->get('Facilities')->find()
 			->contain([
 				'Fields' => [
 					'queryBuilder' => function (Query $q) {
@@ -1053,8 +1053,8 @@ class TeamsController extends AppController {
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			// Save the facility preference order
-			if (!empty($this->request->data['facilities']['_ids'])) {
-				foreach ($this->request->data['facilities']['_ids'] as $key => $facility_id) {
+			if (!empty($this->request->getData('facilities._ids'))) {
+				foreach ($this->request->getData('facilities._ids') as $key => $facility_id) {
 					$this->request->data['facilities'][$key] = [
 						'id' => $facility_id,
 						'_joinData' => [
@@ -1065,7 +1065,7 @@ class TeamsController extends AppController {
 				unset($this->request->data['facilities']['_ids']);
 			}
 
-			$team = $this->Teams->patchEntity($team, $this->request->data, [
+			$team = $this->Teams->patchEntity($team, $this->request->getData(), [
 				'associated' => ['Facilities']
 			]);
 
@@ -1096,11 +1096,11 @@ class TeamsController extends AppController {
 			}
 		}
 
-		$regions = TableRegistry::get('Regions')->find('list', [
+		$regions = TableRegistry::getTableLocator()->get('Regions')->find('list', [
 			'conditions' => $region_conditions,
 		])->toArray();
 
-		$facilities = TableRegistry::get('Facilities')->find()
+		$facilities = TableRegistry::getTableLocator()->get('Facilities')->find()
 			->contain([
 				'Fields' => [
 					'queryBuilder' => function (Query $q) use ($field_conditions) {
@@ -1167,7 +1167,7 @@ class TeamsController extends AppController {
 		}
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$note = $this->Teams->Notes->patchEntity($note, $this->request->data);
+			$note = $this->Teams->Notes->patchEntity($note, $this->request->getData());
 
 			if (empty($note->note)) {
 				if ($note->isNew()) {
@@ -1292,7 +1292,7 @@ class TeamsController extends AppController {
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			try {
-				$division = $this->Teams->Divisions->get($this->request->data['to'], [
+				$division = $this->Teams->Divisions->get($this->request->getData('to'), [
 					'contain' => ['Leagues']
 				]);
 			} catch (RecordNotFoundException $ex) {
@@ -1313,7 +1313,7 @@ class TeamsController extends AppController {
 					return $this->redirect(['action' => 'view', 'team' => $id]);
 				}
 			}
-			$team->division_id = $this->request->data['to'];
+			$team->division_id = $this->request->getData('to');
 			if ($this->Teams->save($team)) {
 				$this->Flash->success(__('Team has been moved to {0}.', $division->full_league_name));
 			} else {
@@ -1367,7 +1367,7 @@ class TeamsController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		}
 
-		$team->games = TableRegistry::get('Games')
+		$team->games = TableRegistry::getTableLocator()->get('Games')
 			->find('schedule', ['teams' => [$id]])
 			->find('withAttendance', ['teams' => [$id], 'status' => [ATTENDANCE_ATTENDING]])
 			->contain([
@@ -1439,7 +1439,7 @@ class TeamsController extends AppController {
 			$this->Configuration->loadAffiliate($team->division->league->affiliate_id);
 		}
 
-		$games = TableRegistry::get('Games')
+		$games = TableRegistry::getTableLocator()->get('Games')
 			->find('schedule', ['teams' => [$id]])
 			->where([
 				'Games.published' => true,
@@ -1546,7 +1546,7 @@ class TeamsController extends AppController {
 		$this->Authorization->authorize($team);
 
 		// Find the list of holidays to avoid
-		$holidays_table = TableRegistry::get('Holidays');
+		$holidays_table = TableRegistry::getTableLocator()->get('Holidays');
 		$holidays = $holidays_table->find('list', [
 			'keyField' => 'id',
 			'valueField' => 'date',
@@ -1694,7 +1694,7 @@ class TeamsController extends AppController {
 				}
 			}
 
-			$events = TableRegistry::get('Events')->find()
+			$events = TableRegistry::getTableLocator()->get('Events')->find()
 				->where($conditions)
 				->order(['Events.event_type_id', 'Events.open', 'Events.close', 'Events.id'])
 				->toArray();
@@ -1736,7 +1736,7 @@ class TeamsController extends AppController {
 
 		// Read the old team roster
 		try {
-			$old_team = $this->Teams->get($this->request->data['team'], [
+			$old_team = $this->Teams->get($this->request->getData('team'), [
 				'contain' => [
 					'Divisions' => ['Leagues'],
 					'People' => [
@@ -1762,7 +1762,7 @@ class TeamsController extends AppController {
 		// If this is a form submission, set the role for each player
 		if (array_key_exists('player', $this->request->data)) {
 			$result = [];
-			foreach ($this->request->data['player'] as $player => $data) {
+			foreach ($this->request->getData('player') as $player => $data) {
 				if (!empty($data['role']) && $data['role'] != 'none') {
 					$person = collection($old_team->people)->firstMatch(['id' => $player]);
 					if ($person) {
@@ -1863,7 +1863,7 @@ class TeamsController extends AppController {
 		// Read the event
 		try {
 			$this->loadModel('Events');
-			$event = $this->Events->get($this->request->data['event'], [
+			$event = $this->Events->get($this->request->getData('event'), [
 				'contain' => [
 					'Registrations' => [
 						'queryBuilder' => function (Query $q) use ($current) {
@@ -1900,7 +1900,7 @@ class TeamsController extends AppController {
 		// If this is a form submission, set the role for each player
 		if (array_key_exists('player', $this->request->data)) {
 			$result = [];
-			foreach ($this->request->data['player'] as $player => $data) {
+			foreach ($this->request->getData('player') as $player => $data) {
 				if (!empty($data['role']) && $data['role'] != 'none') {
 					$registration = collection($event->registrations)->firstMatch(['person_id' => $player]);
 					if ($registration) {
@@ -1984,7 +1984,7 @@ class TeamsController extends AppController {
 		if ($is_captain) {
 			$required_roles = Configure::read('required_roster_roles');
 			if (in_array($role, $required_roles) &&
-				!in_array($this->request->data['role'], $required_roles)
+				!in_array($this->request->getData('role'), $required_roles)
 			) {
 				$captains = collection($team->people)->filter(function ($person) use ($required_roles) {
 					return in_array($person->_joinData->role, $required_roles) && $person->_joinData->status == ROSTER_APPROVED;
@@ -1997,10 +1997,10 @@ class TeamsController extends AppController {
 		}
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			if (!array_key_exists($this->request->data['role'], $roster_role_options)) {
+			if (!array_key_exists($this->request->getData('role'), $roster_role_options)) {
 				$this->Flash->info(__('You do not have permission to set that role.'));
 			} else {
-				if ($this->_setRosterRole($person, $team, ROSTER_APPROVED, $this->request->data['role'])) {
+				if ($this->_setRosterRole($person, $team, ROSTER_APPROVED, $this->request->getData('role'))) {
 					$this->UserCache->_deleteTeamData($person_id);
 					if ($this->request->is('ajax')) {
 						return;
@@ -2041,10 +2041,10 @@ class TeamsController extends AppController {
 		$this->set(compact('person', 'team', 'position', 'roster_position_options'));
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			if (!array_key_exists($this->request->data['position'], $roster_position_options)) {
+			if (!array_key_exists($this->request->getData('position'), $roster_position_options)) {
 				$this->Flash->info(__('That is not a valid position.'));
 			} else {
-				$person->_joinData->position = $this->request->data['position'];
+				$person->_joinData->position = $this->request->getData('position');
 				if ($this->Teams->People->link($team, [$person], compact('person', 'team'))) {
 					$this->UserCache->_deleteTeamData($person_id);
 					if ($this->request->is('ajax')) {
@@ -2094,8 +2094,8 @@ class TeamsController extends AppController {
 		// user why. It should only fail in the case of malicious form tinkering, so
 		// we don't try hard to let them correct the error.
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			if (!empty($this->request->data['role'])) {
-				$this->_setRosterRole($person, $team, ROSTER_INVITED, $this->request->data['role'], $this->request->data['position']);
+			if (!empty($this->request->getData('role'))) {
+				$this->_setRosterRole($person, $team, ROSTER_INVITED, $this->request->getData('role'), $this->request->getData('position'));
 				return $this->redirect(['action' => 'view', 'team' => $team->id]);
 			}
 			$this->Flash->info(__('You must select a role for this person.'));
@@ -2157,10 +2157,10 @@ class TeamsController extends AppController {
 		$roster_role_options = $this->_rosterRoleOptions('none', $team, $this->UserCache->currentId(), false);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			if (!array_key_exists($this->request->data['role'], $roster_role_options)) {
+			if (!array_key_exists($this->request->getData('role'), $roster_role_options)) {
 				$this->Flash->info(__('You are not allowed to request that role.'));
-			} else if ($this->_setRosterRole($person, $team, ROSTER_REQUESTED, $this->request->data['role'],
-				array_key_exists('position', $this->request->data) ? $this->request->data['position'] : 'unspecified'
+			} else if ($this->_setRosterRole($person, $team, ROSTER_REQUESTED, $this->request->getData('role'),
+				array_key_exists('position', $this->request->data) ? $this->request->getData('position') : 'unspecified'
 			)) {
 				$this->UserCache->_deleteTeamData();
 			}

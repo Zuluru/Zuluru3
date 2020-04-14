@@ -112,7 +112,7 @@ class SchedulesController extends AppController {
 
 		// Import posted data into the _options property
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$division->_options = new Entity($this->request->data['_options']);
+			$division->_options = new Entity($this->request->getData('_options'));
 			// TODO: Make a non-table-backed entity type with a custom schema that can do this as part of the patch?
 			if ($division->_options->has('start_date')) {
 				if (is_array($division->_options->start_date)) {
@@ -497,7 +497,7 @@ class SchedulesController extends AppController {
 			return $this->redirect(['controller' => 'Divisions', 'action' => 'view', 'division' => $division->id]);
 		}
 
-		if ($this->Divisions->Pools->connection()->transactional(function () use ($division) {
+		if ($this->Divisions->Pools->getConnection()->transactional(function () use ($division) {
 			foreach ($division->_options->pools as $pool) {
 				if (!$this->Divisions->Pools->save($pool, ['division' => $division, 'pools' => $division->_options->pools])) {
 					return false;
@@ -935,7 +935,7 @@ class SchedulesController extends AppController {
 		}
 
 		if ($this->request->getQuery('confirm')) {
-			if ($this->Divisions->connection()->transactional(function () use ($games, $reset_pools, $same_pool, $dependent) {
+			if ($this->Divisions->getConnection()->transactional(function () use ($games, $reset_pools, $same_pool, $dependent) {
 				// Reset dependencies for affected pools
 				if (!empty($reset_pools)) {
 					// There might be no updates here, if pools haven't been initialized yet
@@ -1021,7 +1021,7 @@ class SchedulesController extends AppController {
 			try {
 				// Save the list of games to be rescheduled; we'll overwrite it in startSchedule
 				$games = $division->games;
-				$new_date = new FrozenDate($this->request->data['new_date']);
+				$new_date = new FrozenDate($this->request->getData('new_date'));
 				$division->_options = new Entity(['ignore_games' => $games]);
 				$league_obj->startSchedule($division, $new_date);
 				$league_obj->assignFieldsByPreferences($division, $new_date, $games);
@@ -1035,7 +1035,7 @@ class SchedulesController extends AppController {
 
 		// Find the list of available dates for scheduling this division
 		// TODO: This is similar, but not identical, to GameSlots->find('available'). Refactor for code re-use?
-		$availability_table = TableRegistry::get('DivisionsGameslots');
+		$availability_table = TableRegistry::getTableLocator()->get('DivisionsGameslots');
 		$dates = $availability_table->find()
 			->contain(['GameSlots'])
 			// TODO: Use a query object here
@@ -1225,7 +1225,7 @@ class SchedulesController extends AppController {
 
 	public function day() {
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$date = $this->request->data['date']['year'] . '-' . $this->request->data['date']['month'] . '-' . $this->request->data['date']['day'];
+			$date = $this->request->getData('date.year') . '-' . $this->request->getData('date.month') . '-' . $this->request->getData('date.day');
 		} else {
 			$date = $this->request->getQuery('date');
 		}

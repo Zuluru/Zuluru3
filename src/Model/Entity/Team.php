@@ -74,7 +74,7 @@ class Team extends Entity {
 	 * @return array of approved non-sub players on the team
 	 */
 	protected function _getRoster() {
-		return TableRegistry::get('People')->find()
+		return TableRegistry::getTableLocator()->get('People')->find()
 			->matching('TeamsPeople', function (Query $q) {
 				return $q->where([
 					'TeamsPeople.team_id' => $this->id,
@@ -88,7 +88,7 @@ class Team extends Entity {
 	 * @return array of all players on the team, regardless of status or role
 	 */
 	protected function _getFullRoster() {
-		return TableRegistry::get('People')->find()
+		return TableRegistry::getTableLocator()->get('People')->find()
 			->matching('TeamsPeople', function (Query $q) {
 				return $q->where([
 					'TeamsPeople.team_id' => $this->id,
@@ -112,7 +112,7 @@ class Team extends Entity {
 			return null;
 		}
 
-		$teams_table = TableRegistry::get('Teams');
+		$teams_table = TableRegistry::getTableLocator()->get('Teams');
 
 		$franchises = $teams_table->Franchises->find()
 			->select('id')
@@ -146,7 +146,7 @@ class Team extends Entity {
 					if ($person->skills) {
 						$skill = collection($person->skills)->firstMatch(['enabled' => true, 'sport' => $sport]);
 					} else {
-						$skill = TableRegistry::get('Skills')->find()
+						$skill = TableRegistry::getTableLocator()->get('Skills')->find()
 							->where(['person_id' => $person->id, 'enabled' => true, 'sport' => $sport])
 							->first();
 					}
@@ -182,7 +182,7 @@ class Team extends Entity {
 	public function addGameResult($game, $league, $spirit_obj, $sport_obj) {
 		if (!$this->has('_results')) {
 			$this->_results = new TeamResults();
-			$this->dirty('_results', false);
+			$this->setDirty('_results', false);
 		}
 		$this->_results->addGame($game, $this, $league, $spirit_obj, $sport_obj);
 	}

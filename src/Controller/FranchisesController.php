@@ -51,7 +51,7 @@ class FranchisesController extends AppController {
 		$this->set('franchises', $this->paginate($query));
 
 		$letters = $this->Franchises->find()
-			->hydrate(false)
+			->enableHydration(false)
 			->select(['letter' => 'DISTINCT SUBSTR(Franchises.name, 1, 1)'])
 			->where([
 				'Franchises.affiliate_id IN' => $affiliates,
@@ -82,7 +82,7 @@ class FranchisesController extends AppController {
 			->toArray();
 
 		$letters = $this->Franchises->find()
-			->hydrate(false)
+			->enableHydration(false)
 			->select(['letter' => 'DISTINCT SUBSTR(Franchises.name, 1, 1)'])
 			->where([
 				'Franchises.affiliate_id IN' => $affiliates,
@@ -132,7 +132,7 @@ class FranchisesController extends AppController {
 		$franchise = $this->Franchises->newEntity();
 		if ($this->request->is('post')) {
 			$this->request->data['people'] = ['_ids' => [$this->UserCache->currentId()]];
-			$franchise = $this->Franchises->patchEntity($franchise, $this->request->data);
+			$franchise = $this->Franchises->patchEntity($franchise, $this->request->getData());
 			if ($this->Franchises->save($franchise)) {
 				$this->Flash->success(__('The franchise has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -169,7 +169,7 @@ class FranchisesController extends AppController {
 		$this->Configuration->loadAffiliate($franchise->affiliate_id);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$franchise = $this->Franchises->patchEntity($franchise, $this->request->data);
+			$franchise = $this->Franchises->patchEntity($franchise, $this->request->getData());
 			if ($this->Franchises->save($franchise)) {
 				$this->Flash->success(__('The franchise has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -248,10 +248,10 @@ class FranchisesController extends AppController {
 
 		$teams = $this->UserCache->read('AllOwnedTeams');
 		if ($this->request->data) {
-			if (collection($franchise->teams)->firstMatch(['id' => $this->request->data['team_id']])) {
+			if (collection($franchise->teams)->firstMatch(['id' => $this->request->getData('team_id')])) {
 				$this->Flash->info(__('That team is already part of this franchise.'));
 			} else {
-				$team = collection($teams)->firstMatch(['id' => $this->request->data['team_id']]);
+				$team = collection($teams)->firstMatch(['id' => $this->request->getData('team_id')]);
 				if (!$team) {
 					$this->Flash->info(__('You are not a captain, assistant captain or coach of the selected team.'));
 				}

@@ -16,7 +16,7 @@ class OnTeamRule {
 	 */
 	public function __invoke(EntityInterface $entity, array $options) {
 		try {
-			TableRegistry::get('TeamsPeople')->find()
+			TableRegistry::getTableLocator()->get('TeamsPeople')->find()
 				->where([
 					'team_id' => $entity->team_id,
 					'person_id' => $entity->person_id,

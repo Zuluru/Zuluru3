@@ -60,9 +60,9 @@ else:
 <?php
 	$default_tab_index = 0;
 	$default_tab_id = null;
-	if ($this->request->session()->check('Zuluru.default_tab_id')) {
-		$default_tab_id = $this->request->session()->read('Zuluru.default_tab_id');
-		$this->request->session()->delete('Zuluru.default_tab_id');
+	if ($this->getRequest()->getSession()->check('Zuluru.default_tab_id')) {
+		$default_tab_id = $this->getRequest()->getSession()->read('Zuluru.default_tab_id');
+		$this->getRequest()->getSession()->delete('Zuluru.default_tab_id');
 	}
 
 	foreach ($relatives as $i => $relative):
@@ -107,9 +107,9 @@ if (Configure::read('feature.affiliates') && count($affiliates) > 1):
 ?>
 	<div id="affiliate_select">
 <?php
-	if ($this->request->session()->check('Zuluru.CurrentAffiliate')) {
+	if ($this->getRequest()->getSession()->check('Zuluru.CurrentAffiliate')) {
 		echo $this->Html->para(null, __('You are currently browsing the {0} affiliate. You might want to {1} or {2}.',
-			$affiliates[$this->request->session()->read('Zuluru.CurrentAffiliate')]->name,
+			$affiliates[$this->getRequest()->getSession()->read('Zuluru.CurrentAffiliate')]->name,
 			$this->Html->link(__('remove this restriction'), ['controller' => 'Affiliates', 'action' => 'view_all']),
 			$this->Html->link(__('select a different affiliate to view'), ['controller' => 'Affiliates', 'action' => 'select'])));
 	} else if (count($this->UserCache->read('AffiliateIDs')) != count($affiliates)) {

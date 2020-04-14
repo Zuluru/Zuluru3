@@ -177,7 +177,7 @@ class GameSlotsTable extends AppTable {
 				return true;
 			}
 
-			$fields_table = TableRegistry::get('Fields');
+			$fields_table = TableRegistry::getTableLocator()->get('Fields');
 			$indoor_fields = $fields_table->find()
 				->where([
 					'id IN' => $fields,

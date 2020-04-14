@@ -95,7 +95,7 @@ class Event extends Entity {
 			$status = Configure::read('registration_reserved');
 		}
 
-		$paid = TableRegistry::get('Registrations')->find()
+		$paid = TableRegistry::getTableLocator()->get('Registrations')->find()
 			->where([
 				'Registrations.event_id' => $this->id,
 				'Registrations.payment IN' => $status,
@@ -163,7 +163,7 @@ class Event extends Entity {
 	 * @return Query List of people registered and paid for the event
 	 */
 	protected function _getPeople() {
-		return TableRegistry::get('People')->find()
+		return TableRegistry::getTableLocator()->get('People')->find()
 			->matching('Registrations', function (Query $q) {
 				return $q->where([
 					'Registrations.event_id' => $this->id,
@@ -193,7 +193,7 @@ class Event extends Entity {
 		}
 
 		if (!$this->has('event_type')) {
-			TableRegistry::get('Events')->loadInto($this, ['EventTypes']);
+			TableRegistry::getTableLocator()->get('Events')->loadInto($this, ['EventTypes']);
 		}
 		$event_obj = ModuleRegistry::getInstance()->load("EventType:{$this->event_type->type}");
 
@@ -206,7 +206,7 @@ class Event extends Entity {
 	}
 
 	private function processGenderWaitingList($roster_designation, $event_obj, $skip_registration_id) {
-		$registrations_table = TableRegistry::get('Registrations');
+		$registrations_table = TableRegistry::getTableLocator()->get('Registrations');
 
 		$cap = $this->cap($roster_designation);
 		if ($cap != CAP_UNLIMITED && $this->count($roster_designation) >= $cap ) {

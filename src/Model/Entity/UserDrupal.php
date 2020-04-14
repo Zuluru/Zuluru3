@@ -109,7 +109,7 @@ class UserDrupal extends User {
 
 		// We also need to copy over the password, but we can't set it directly, as it will be re-hashed
 		$this->_properties['pass'] = $new->pass;
-		$this->dirty('pass', true);
+		$this->setDirty('pass', true);
 
 		// TODOSECOND: Update users_roles record too
 	}

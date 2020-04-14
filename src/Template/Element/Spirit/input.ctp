@@ -48,7 +48,7 @@ if ($game->division->league->numeric_sotg) {
 
 // Don't show this when submitting scores, just when editing. We don't need
 // to check admin/coordinator permissions, as that's already been done.
-if ($this->request->action == 'edit') {
+if ($this->getRequest()->action == 'edit') {
 	$checked = false;
 	if (array_key_exists($index, $game->spirit_entries) &&
 		$game->spirit_entries[$index]->has('score_entry_penalty') &&

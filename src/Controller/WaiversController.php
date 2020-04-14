@@ -87,13 +87,13 @@ class WaiversController extends AppController {
 		$waiver = $this->Waivers->newEntity();
 		$this->Authorization->authorize($waiver);
 		if ($this->request->is('post')) {
-			$waiver = $this->Waivers->patchEntity($waiver, $this->request->data);
+			$waiver = $this->Waivers->patchEntity($waiver, $this->request->getData());
 			if ($this->Waivers->save($waiver)) {
 				$this->Flash->success(__('The waiver has been saved.'));
 				return $this->redirect(['action' => 'index']);
 			} else {
 				$this->Flash->warning(__('The waiver could not be saved. Please correct the errors below and try again.'));
-				$this->Configuration->loadAffiliate($this->request->data['affiliate_id']);
+				$this->Configuration->loadAffiliate($this->request->getData('affiliate_id'));
 			}
 		}
 		$this->set('affiliates', $this->Authentication->applicableAffiliates(true));
@@ -124,12 +124,12 @@ class WaiversController extends AppController {
 		$this->set(compact('can_edit_text'));
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			if (array_key_exists('text', $this->request->data) && !$can_edit_text) {
+			if (array_key_exists('text', $this->request->getData()) && !$can_edit_text) {
 				$this->Flash->warning(__('This waiver has already been signed, so for legal reasons the text cannot be edited.'));
 				return $this->redirect(['action' => 'index']);
 			}
 
-			$waiver = $this->Waivers->patchEntity($waiver, $this->request->data);
+			$waiver = $this->Waivers->patchEntity($waiver, $this->request->getData());
 			if ($this->Waivers->save($waiver)) {
 				$this->Flash->success(__('The waiver has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -221,7 +221,7 @@ class WaiversController extends AppController {
 		$this->Configuration->loadAffiliate($waiver->affiliate_id);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			if ($this->request->data['signed'] == 'yes') {
+			if ($this->request->getData('signed') == 'yes') {
 				$person->_joinData = new WaiversPerson(compact('valid_from', 'valid_until'));
 				if ($this->Waivers->People->link($waiver, [$person])) {
 					$this->UserCache->clear('Waivers', $person_id);

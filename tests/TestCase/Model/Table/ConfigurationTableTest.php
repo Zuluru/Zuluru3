@@ -23,11 +23,11 @@ class ConfigurationTableTest extends TableTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.affiliates',
-			'app.users',
-				'app.people',
-			'app.settings',
-		'app.i18n',
+		'app.Affiliates',
+			'app.Users',
+				'app.People',
+			'app.Settings',
+		'app.I18n',
 	];
 
 	/**

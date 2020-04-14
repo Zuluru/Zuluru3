@@ -106,7 +106,7 @@ class RuleMemberType extends Rule {
 
 	protected function buildQuery(Query $query, $affiliate) {
 		if (!isset($this->events)) {
-			$model = TableRegistry::get('Events');
+			$model = TableRegistry::getTableLocator()->get('Events');
 			$types = $model->EventTypes->find('list', [
 				'conditions' => ['type' => 'membership'],
 			])->toArray();

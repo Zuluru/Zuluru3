@@ -22,21 +22,21 @@ class PreregistrationsTableTest extends TableTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.event_types',
-		'app.affiliates',
-			'app.users',
-				'app.people',
-					'app.affiliates_people',
-			'app.leagues',
-				'app.divisions',
-			'app.events',
-				'app.prices',
-					'app.registrations',
-						'app.payments',
-							'app.registration_audits',
-						'app.responses',
-				'app.preregistrations',
-		'app.i18n',
+		'app.EventTypes',
+		'app.Affiliates',
+			'app.Users',
+				'app.People',
+					'app.AffiliatesPeople',
+			'app.Leagues',
+				'app.Divisions',
+			'app.Events',
+				'app.Prices',
+					'app.Registrations',
+						'app.Payments',
+							'app.RegistrationAudits',
+						'app.Responses',
+				'app.Preregistrations',
+		'app.I18n',
 	];
 
 	/**

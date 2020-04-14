@@ -97,7 +97,7 @@ class Division extends Entity {
 		if ($this->_league_record === false) {
 			if (!isset($this->league)) {
 				if ($this->league_id !== null) {
-					$this->_league_record = TableRegistry::get('Leagues')->get($this->league_id);
+					$this->_league_record = TableRegistry::getTableLocator()->get('Leagues')->get($this->league_id);
 				}
 			} else {
 				$this->_league_record = $this->league;
@@ -142,7 +142,7 @@ class Division extends Entity {
 
 	protected function _getPlayoffDivisions() {
 		if ($this->_playoff_divisions === false) {
-			$this->_playoff_divisions = TableRegistry::get('Divisions')->find()
+			$this->_playoff_divisions = TableRegistry::getTableLocator()->get('Divisions')->find()
 				->select('id')
 				->where([
 					'league_id' => $this->league_id,
@@ -161,7 +161,7 @@ class Division extends Entity {
 
 	protected function _getSeasonDivisions() {
 		if ($this->_season_divisions === false) {
-			$this->_season_divisions = TableRegistry::get('Divisions')->find()
+			$this->_season_divisions = TableRegistry::getTableLocator()->get('Divisions')->find()
 				->contain(['Days'])
 				->where([
 					'league_id' => $this->league_id,
@@ -224,7 +224,7 @@ class Division extends Entity {
 	public function addGameResult($game) {
 		if (!$this->has('_results')) {
 			$this->_results = new DivisionResults();
-			$this->dirty('_results', false);
+			$this->setDirty('_results', false);
 		}
 		$this->_results->addGame($game);
 	}

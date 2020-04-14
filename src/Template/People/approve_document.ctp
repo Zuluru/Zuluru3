@@ -4,7 +4,7 @@ use Cake\I18n\FrozenDate;
 
 $this->Html->addCrumb(__('People'));
 $this->Html->addCrumb($document->person->full_name);
-if ($this->request->action == 'edit_document') {
+if ($this->getRequest()->action == 'edit_document') {
 	$this->Html->addCrumb(__('Edit Document'));
 } else {
 	$this->Html->addCrumb(__('Approve Document'));

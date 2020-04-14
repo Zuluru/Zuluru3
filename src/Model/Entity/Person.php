@@ -189,7 +189,7 @@ class Person extends Entity {
 		} else {
 			// Convoluted process to get the name of the property where user table data will be found
 			$user_model = Configure::read('Security.authModel');
-			$people_table = TableRegistry::get('People');
+			$people_table = TableRegistry::getTableLocator()->get('People');
 			$property = $people_table->associations()->get($user_model)->property();
 			if (!array_key_exists($property, $this->_properties)) {
 				$people_table->loadInto($this, [$user_model]);
@@ -249,7 +249,7 @@ class Person extends Entity {
 		}
 
 		// Find the name of the email field in the user model
-		$email_field = TableRegistry::get(Configure::read('Security.authModel'))->emailField;
+		$email_field = TableRegistry::getTableLocator()->get(Configure::read('Security.authModel'))->emailField;
 		return $user->$email_field;
 	}
 
@@ -303,7 +303,7 @@ class Person extends Entity {
 			if ($this->isAccessible($prop) && !in_array($prop, $preserve)) {
 				if (is_array($new->$prop)) {
 					if (!empty($new->$prop)) {
-						$model_table = TableRegistry::get($new->{$prop}[0]->source());
+						$model_table = TableRegistry::getTableLocator()->get($new->{$prop}[0]->source());
 						$this->$prop = $model_table->mergeList($this->$prop, $new->$prop);
 					}
 				} else if (!empty($new->$prop) || !in_array($prop, $preserve_if_new_is_empty)) {
@@ -312,7 +312,7 @@ class Person extends Entity {
 					} else if (is_a($new->$prop, 'App\Model\Entity\User')) {
 						if ($this->has($prop)) {
 							$this->$prop->merge($new->$prop);
-							$this->dirty($prop, true);
+							$this->setDirty($prop, true);
 						} else {
 							// The old record has no user associated with it: it's just a profile.
 							// Move the new user to it.

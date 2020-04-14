@@ -66,7 +66,7 @@ class CategoriesController extends AppController {
 		$this->Authorization->authorize($this);
 
 		if ($this->request->is('post')) {
-			$category = $this->Categories->patchEntity($category, $this->request->data);
+			$category = $this->Categories->patchEntity($category, $this->request->getData());
 			if ($this->Categories->save($category)) {
 				$this->Flash->success(__('The category has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -99,7 +99,7 @@ class CategoriesController extends AppController {
 		$this->Authorization->authorize($category);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$category = $this->Categories->patchEntity($category, $this->request->data);
+			$category = $this->Categories->patchEntity($category, $this->request->getData());
 			if ($this->Categories->save($category)) {
 				$this->Flash->success(__('The category has been saved.'));
 				return $this->redirect(['action' => 'index']);

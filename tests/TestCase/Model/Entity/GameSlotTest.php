@@ -21,14 +21,14 @@ class GameSlotTest extends TestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.affiliates',
-			'app.regions',
-				'app.facilities',
-					'app.fields',
-			'app.leagues',
-				'app.divisions',
-					'app.game_slots',
-		'app.i18n',
+		'app.Affiliates',
+			'app.Regions',
+				'app.Facilities',
+					'app.Fields',
+			'app.Leagues',
+				'app.Divisions',
+					'app.GameSlots',
+		'app.I18n',
 	];
 
 	/**

@@ -20,7 +20,7 @@ class LockComponent extends Component {
 	}
 
 	public function lock($name, $affiliate = null, $text = null) {
-		$this->Locks = TableRegistry::get('Locks');
+		$this->Locks = TableRegistry::getTableLocator()->get('Locks');
 		$conditions = ['name' => $name];
 		if ($affiliate !== null) {
 			$conditions['affiliate_id'] = $affiliate;

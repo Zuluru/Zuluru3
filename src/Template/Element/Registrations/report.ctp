@@ -74,7 +74,7 @@ if (isset($registrations)):
 </ul></nav>
 
 <?php
-	if ($this->request->is('post')):
+	if ($this->getRequest()->is('post')):
 ?>
 
 	<div class="actions columns">

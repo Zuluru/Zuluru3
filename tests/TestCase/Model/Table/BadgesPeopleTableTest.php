@@ -22,15 +22,15 @@ class BadgesPeopleTableTest extends TableTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.affiliates',
-			'app.users',
-				'app.people',
-			'app.leagues',
-				'app.divisions',
-					'app.teams',
-			'app.badges',
-				'app.badges_people',
-		'app.i18n',
+		'app.Affiliates',
+			'app.Users',
+				'app.People',
+			'app.Leagues',
+				'app.Divisions',
+					'app.Teams',
+			'app.Badges',
+				'app.BadgesPeople',
+		'app.I18n',
 	];
 
 	/**

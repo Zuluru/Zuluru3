@@ -81,7 +81,7 @@ class EventTypeIndividual extends EventType {
 				'shirt_size' => SHIRT_SIZE,
 			]);
 			if (!empty($shirt_size)) {
-				$people_table = TableRegistry::get('People');
+				$people_table = TableRegistry::getTableLocator()->get('People');
 				// If it fails, it fails. We're not going to reject the registration because of it.
 				$people_table->updateAll($shirt_size, ['id' => UserCache::getInstance()->currentId()]);
 			}

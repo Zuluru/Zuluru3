@@ -10,7 +10,7 @@ use Cake\ORM\TableRegistry;
 class ReportPeopleRetention extends Report{
 	public function run($params, Person $recipient) {
 		// We are interested in memberships
-		$event_list = TableRegistry::get('Events')->find()
+		$event_list = TableRegistry::getTableLocator()->get('Events')->find()
 			// TODO: Fix or remove these hard-coded values
 			->where(['event_type_id' => 1])
 			->order(['open', 'close', 'id'])
@@ -21,7 +21,7 @@ class ReportPeopleRetention extends Report{
 		$end = new FrozenDate("{$params['end']}-12-31");
 
 		$past_events = [];
-		$registrations_table = TableRegistry::get('Registrations');
+		$registrations_table = TableRegistry::getTableLocator()->get('Registrations');
 		foreach ($event_list as $event) {
 			if ($event->membership_begins < $start || $event->membership_ends > $end) {
 				unset($event_list[$event->id]);

@@ -22,9 +22,9 @@ class RegionsTableTest extends TableTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.affiliates',
-			'app.regions',
-		'app.i18n',
+		'app.Affiliates',
+			'app.Regions',
+		'app.I18n',
 	];
 
 	/**

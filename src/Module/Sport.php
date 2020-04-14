@@ -90,7 +90,7 @@ class Sport {
 			}
 		}
 
-		$this->Stats = TableRegistry::get('Stats');
+		$this->Stats = TableRegistry::getTableLocator()->get('Stats');
 	}
 
 	protected function initRostersFromStats($stats) {
@@ -100,7 +100,7 @@ class Sport {
 
 		$teams = array_unique(collection($stats)->extract('team_id')->toArray());
 		$this->rosters = [];
-		$roster_table = TableRegistry::get('TeamsPeople');
+		$roster_table = TableRegistry::getTableLocator()->get('TeamsPeople');
 		foreach ($teams as $team) {
 			$players = array_unique(collection($stats)->match(['team_id' => $team])->extract('person_id')->toArray());
 			$this->rosters[$team] = $roster_table->find('list', [
@@ -140,7 +140,7 @@ class Sport {
 			return;
 		}
 
-		$stat_types_table = TableRegistry::get('StatTypes');
+		$stat_types_table = TableRegistry::getTableLocator()->get('StatTypes');
 
 		// "entered" stat types take priority
 		$stat_types = $stat_types_table->find()
@@ -368,7 +368,7 @@ class Sport {
 
 	public function winsGameRecalculate($stat_type, Game $game) {
 		foreach (['home_team_id', 'away_team_id'] as $team) {
-			TableRegistry::get('Stats')->updateAll(
+			TableRegistry::getTableLocator()->get('Stats')->updateAll(
 				['value' => $this->isWin($game, $game->{$team})],
 				['stat_type_id' => $stat_type->id, 'game_id' => $game->id, 'team_id' => $game->{$team}]
 			);
@@ -461,7 +461,7 @@ class Sport {
 
 	public function lossesGameRecalculate($stat_type, Game $game) {
 		foreach (['home_team_id', 'away_team_id'] as $team) {
-			TableRegistry::get('Stats')->updateAll(
+			TableRegistry::getTableLocator()->get('Stats')->updateAll(
 				['value' => $this->isLoss($game, $game->{$team})],
 				['stat_type_id' => $stat_type->id, 'game_id' => $game->id, 'team_id' => $game->{$team}]
 			);
@@ -527,7 +527,7 @@ class Sport {
 
 	public function tiesGameRecalculate($stat_type, Game $game) {
 		foreach (['home_team_id', 'away_team_id'] as $team) {
-			TableRegistry::get('Stats')->updateAll(
+			TableRegistry::getTableLocator()->get('Stats')->updateAll(
 				['value' => $this->isTie($game, $game->{$team})],
 				['stat_type_id' => $stat_type->id, 'game_id' => $game->id, 'team_id' => $game->{$team}]
 			);

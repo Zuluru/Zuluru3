@@ -66,7 +66,7 @@ class Field extends Entity {
 	private function _getFacilityRecord() {
 		if ($this->_facility_record === false) {
 			if (!isset($this->facility)) {
-				$this->_facility_record = TableRegistry::get('Facilities')->get($this->facility_id);
+				$this->_facility_record = TableRegistry::getTableLocator()->get('Facilities')->get($this->facility_id);
 			} else {
 				$this->_facility_record = $this->facility;
 			}

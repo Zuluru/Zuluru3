@@ -41,20 +41,20 @@ class EventTest extends TestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.event_types',
-		'app.affiliates',
-			'app.users',
-				'app.people',
-					'app.affiliates_people',
-			'app.groups',
-				'app.groups_people',
-			'app.leagues',
-				'app.divisions',
-			'app.events',
-				'app.prices',
-					'app.registrations',
-			'app.settings',
-		'app.i18n',
+		'app.EventTypes',
+		'app.Affiliates',
+			'app.Users',
+				'app.People',
+					'app.AffiliatesPeople',
+			'app.Groups',
+				'app.GroupsPeople',
+			'app.Leagues',
+				'app.Divisions',
+			'app.Events',
+				'app.Prices',
+					'app.Registrations',
+			'app.Settings',
+		'app.I18n',
 	];
 
 	/**

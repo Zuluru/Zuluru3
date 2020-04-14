@@ -194,7 +194,7 @@ class FieldsController extends AppController {
 			$conditions = ['is_open' => true];
 		}
 
-		$query = TableRegistry::get('Divisions')->find();
+		$query = TableRegistry::getTableLocator()->get('Divisions')->find();
 		$min_date = $query->select(['min' => $query->func()->min('open')])->where($conditions)->first()->min;
 		$slot_conditions = ['GameSlots.game_date >=' => $min_date];
 		if (!$this->Authentication->getIdentity()->isManager()) {

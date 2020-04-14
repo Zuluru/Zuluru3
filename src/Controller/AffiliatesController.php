@@ -74,7 +74,7 @@ class AffiliatesController extends AppController {
 		$this->Authorization->authorize($affiliate);
 
 		if ($this->request->is('post')) {
-			$affiliate = $this->Affiliates->patchEntity($affiliate, $this->request->data);
+			$affiliate = $this->Affiliates->patchEntity($affiliate, $this->request->getData());
 			if ($this->Affiliates->save($affiliate)) {
 				$this->Flash->success(__('The affiliate has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -107,7 +107,7 @@ class AffiliatesController extends AppController {
 		$this->Configuration->loadAffiliate($id);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$affiliate = $this->Affiliates->patchEntity($affiliate, $this->request->data);
+			$affiliate = $this->Affiliates->patchEntity($affiliate, $this->request->getData());
 			if ($this->Affiliates->save($affiliate)) {
 				$this->Flash->success(__('The affiliate has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -210,7 +210,7 @@ class AffiliatesController extends AppController {
 			} else {
 				if (!empty($person->affiliates)) {
 					$person->affiliates[0]->_joinData->position = 'manager';
-					$person->dirty('affiliates', true);
+					$person->setDirty('affiliates', true);
 					$success = $this->Affiliates->People->save($person);
 				} else {
 					$person->_joinData = new AffiliatesPerson(['position' => 'manager']);
@@ -267,7 +267,7 @@ class AffiliatesController extends AppController {
 		}
 
 		$affiliate->people[0]->_joinData->position = 'player';
-		$affiliate->dirty('people', true);
+		$affiliate->setDirty('people', true);
 		if ($this->Affiliates->save($affiliate)) {
 			$this->Flash->success(__('Successfully removed manager.'));
 			$this->Flash->success(__('If this person is no longer going to be managing anything, you should also edit their profile and deselect the "Manager" option.'));
@@ -282,7 +282,7 @@ class AffiliatesController extends AppController {
 		$this->Authorization->authorize($this);
 
 		if ($this->request->is('post')) {
-			$this->request->session()->write('Zuluru.CurrentAffiliate', $this->request->data['affiliate']);
+			$this->request->getSession()->write('Zuluru.CurrentAffiliate', $this->request->getData('affiliate'));
 			return $this->redirect('/');
 		}
 		$affiliates = $this->Affiliates->find('list', [
@@ -294,7 +294,7 @@ class AffiliatesController extends AppController {
 	public function view_all() {
 		$this->Authorization->authorize($this);
 
-		$this->request->session()->delete('Zuluru.CurrentAffiliate');
+		$this->request->getSession()->delete('Zuluru.CurrentAffiliate');
 		return $this->redirect('/');
 	}
 }

@@ -21,12 +21,12 @@ class CallbackPhpbb3 extends Callback {
 	}
 
 	public function afterSave(Event $event, User $user) {
-		$users_table = TableRegistry::get(Configure::read('Security.authModel'));
+		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authModel'));
 		$username_field = $users_table->userField;
 		$email_field = $users_table->emailField;
 
 		// We only care about username and email address changes
-		if (!$user->dirty($username_field) && !$user->dirty($email_field)) {
+		if (!$user->isDirty($username_field) && !$user->isDirty($email_field)) {
 			return;
 		}
 
@@ -37,7 +37,7 @@ class CallbackPhpbb3 extends Callback {
 		require($phpbb_root_path . 'config.php');
 
 		$bb3_class = "{$table_prefix}users";
-		$bb3_model = TableRegistry::get($bb3_class);
+		$bb3_model = TableRegistry::getTableLocator()->get($bb3_class);
 		$bb3_user = $bb3_model->find()
 			->where(['username' => $user->getOriginal($username_field)])
 			->first();
@@ -61,7 +61,7 @@ class CallbackPhpbb3 extends Callback {
 	}
 
 	public function afterDelete(Event $event, User $user) {
-		$users_table = TableRegistry::get(Configure::read('Security.authModel'));
+		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authModel'));
 		$username_field = $users_table->userField;
 
 		// phpBB3 files need these
@@ -71,7 +71,7 @@ class CallbackPhpbb3 extends Callback {
 		require($phpbb_root_path . 'config.php');
 
 		$bb3_class = "{$table_prefix}users";
-		$bb3_model = TableRegistry::get($bb3_class);
+		$bb3_model = TableRegistry::getTableLocator()->get($bb3_class);
 		$bb3_user = $bb3_model->find()
 			->where(['username' => $user->$username_field])
 			->first();

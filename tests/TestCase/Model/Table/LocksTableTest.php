@@ -22,8 +22,8 @@ class LocksTableTest extends TableTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.locks',
-		'app.i18n',
+		'app.Locks',
+		'app.I18n',
 	];
 
 	/**

@@ -161,14 +161,14 @@ if (!$this->fetch('javascript_variables') && method_exists($this->Html, 'iconImg
 		'zuluru_spinner' => $this->Html->iconImg('spinner.gif'),
 		'zuluru_popup' => $this->Html->iconImg('popup_16.png', ['class' => 'tooltip_toggle']),
 		'zuluru_base' => Router::url('/'),
-		'zuluru_mobile' => $this->request->is('mobile') ? true : false,
+		'zuluru_mobile' => $this->getRequest()->is('mobile') ? true : false,
 		'zuluru_save' => addslashes(__('Save')),
 		'zuluru_cancel' => addslashes(__('Cancel')),
 		'zuluru_close' => addslashes(__('Close')),
 		'zuluru_open_help' => addslashes(__('Open this help page in a new window')),
 	];
-	if ($this->request->getParam('_csrfToken')) {
-		$vars['zuluru_csrf_token'] = $this->request->getParam('_csrfToken');
+	if ($this->getRequest()->getParam('_csrfToken')) {
+		$vars['zuluru_csrf_token'] = $this->getRequest()->getParam('_csrfToken');
 	}
 
 	echo $this->Html->scriptBlock(implode("\n", array_map(function ($var, $value) {
@@ -243,7 +243,7 @@ $this->end();
 /**
  * Default `body` blocks.
  */
-$this->prepend('body_attrs', ' class="' . implode(' ', [strtolower($this->request->getParam('controller')), $this->request->action]) . '" ');
+$this->prepend('body_attrs', ' class="' . implode(' ', [strtolower($this->getRequest()->getParam('controller')), $this->getRequest()->action]) . '" ');
 if (!$this->fetch('body_start')) {
 	$this->start('body_start');
 	echo '<body' . $this->fetch('body_attrs') . '>';
@@ -320,7 +320,7 @@ if (!$this->fetch('powered_by')):
 		echo __('Powered by {0}, version {1}.{2}.{3}',
 			$this->Html->link(ZULURU, 'https://zuluru.org/'),
 			ZULURU_MAJOR, ZULURU_MINOR, ZULURU_REVISION) . ' | ';
-		$body = htmlspecialchars(__('I found a bug in {0}', Router::url(Router::normalize($this->request->here()), true)));
+		$body = htmlspecialchars(__('I found a bug in {0}', Router::url(Router::normalize($this->getRequest()->getRequestTarget()), true)));
 		echo __('{0} on this page',
 			$this->Html->link(__('Report a bug'), 'mailto:' . Configure::read('email.support_email') . '?subject=' . ZULURU . "%20Bug&body=$body"));
 		echo ' | ' . $this->Html->link($this->Html->image('facebook.png'), 'https://facebook.com/Zuluru', ['escape' => false, 'target' => 'facebook']) . ' ' .

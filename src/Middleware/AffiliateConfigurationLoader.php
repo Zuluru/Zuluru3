@@ -25,7 +25,7 @@ class AffiliateConfigurationLoader {
 			if (Configure::read('feature.affiliates')) {
 				$affiliates = $identity->applicableAffiliateIDs();
 				if (count($affiliates) == 1) {
-					TableRegistry::get('Configuration')->loadAffiliate(current($affiliates));
+					TableRegistry::getTableLocator()->get('Configuration')->loadAffiliate(current($affiliates));
 				}
 			}
 		}

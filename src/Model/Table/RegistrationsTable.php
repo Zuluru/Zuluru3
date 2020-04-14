@@ -157,13 +157,13 @@ class RegistrationsTable extends AppTable {
 		// For any registration where the price point selection has changed, calculate the total price.
 		if (!$entity->has('price') || $entity->price_id != $entity->price->id) {
 			$entity->price = $this->Prices->get($entity->price_id);
-			$entity->dirty('price', false);
+			$entity->setDirty('price', false);
 		}
-		if ($entity->dirty('price_id')) {
+		if ($entity->isDirty('price_id')) {
 			$entity->total_amount = $entity->price->total;
 		}
 
-		if ($entity->dirty('payments')) {
+		if ($entity->isDirty('payments')) {
 			// Determine the "payment" status based on the new set of payments.
 			if (end($entity->payments)->payment_amount < 0) {
 				if ($entity->mark_refunded) {
@@ -299,7 +299,7 @@ class RegistrationsTable extends AppTable {
 			return false;
 		}
 
-		if ($now_registered && !empty($registration->responses) && $registration->dirty('responses')) {
+		if ($now_registered && !empty($registration->responses) && $registration->isDirty('responses')) {
 			// Manually add the event id to all of the responses
 			foreach ($registration->responses as $response) {
 				$this->Responses->patchEntity($response, ['event_id' => $options['event']->id]);

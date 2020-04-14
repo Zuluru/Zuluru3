@@ -18,7 +18,7 @@ class RunReportTask extends Shell {
 
 	public function main() {
 		ConfigurationLoader::loadConfiguration();
-		$this->reports_table = TableRegistry::get('Reports');
+		$this->reports_table = TableRegistry::getTableLocator()->get('Reports');
 		$report = $this->reports_table->find()
 			->contain(['People' => [Configure::read('Security.authModel')]])
 			->order('Reports.id')

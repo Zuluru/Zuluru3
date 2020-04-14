@@ -14,21 +14,21 @@ class WaiversControllerTest extends ControllerTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.affiliates',
-			'app.users',
-				'app.people',
-					'app.affiliates_people',
-					'app.people_people',
-			'app.groups',
-				'app.groups_people',
-			'app.leagues',
-				'app.divisions',
-					'app.teams',
-					'app.divisions_people',
-			'app.settings',
-			'app.waivers',
-				'app.waivers_people',
-		'app.i18n',
+		'app.Affiliates',
+			'app.Users',
+				'app.People',
+					'app.AffiliatesPeople',
+					'app.PeoplePeople',
+			'app.Groups',
+				'app.GroupsPeople',
+			'app.Leagues',
+				'app.Divisions',
+					'app.Teams',
+					'app.DivisionsPeople',
+			'app.Settings',
+			'app.Waivers',
+				'app.WaiversPeople',
+		'app.I18n',
 	];
 
 	/**

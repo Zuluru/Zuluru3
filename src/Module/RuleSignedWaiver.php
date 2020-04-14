@@ -50,7 +50,7 @@ class RuleSignedWaiver extends Rule {
 				$this->parse_error = __('Invalid date: {0}.', $date);
 				return false;
 			}
-			$model = TableRegistry::get('Waivers');
+			$model = TableRegistry::getTableLocator()->get('Waivers');
 			try {
 				$this->waiver_ids = $config;
 				$this->waiver = $model->get($this->waiver_ids[0]);

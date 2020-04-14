@@ -63,7 +63,7 @@ class JoomlaSessionAuthenticator extends CMSSessionAuthenticator {
 
 		if ($joomla_user && !empty($joomla_user->id)) {
 			try {
-				$user = TableRegistry::get('UserJoomla')->get($joomla_user->id, [
+				$user = TableRegistry::getTableLocator()->get('UserJoomla')->get($joomla_user->id, [
 					'contain' => ['People' => ['Groups']]
 				]);
 			} catch (RecordNotFoundException $ex) {

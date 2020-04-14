@@ -99,7 +99,7 @@ class QuestionsController extends AppController {
 		$question = $this->Questions->newEntity();
 		$this->Authorization->authorize($this);
 		if ($this->request->is('post')) {
-			$question = $this->Questions->patchEntity($question, $this->request->data);
+			$question = $this->Questions->patchEntity($question, $this->request->getData());
 			if ($this->Questions->save($question)) {
 				$this->Flash->success(__('The question has been saved.'));
 				return $this->redirect(['action' => 'edit', 'question' => $question->id]);
@@ -142,7 +142,7 @@ class QuestionsController extends AppController {
 		$this->Configuration->loadAffiliate($question->affiliate_id);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$question = $this->Questions->patchEntity($question, $this->request->data);
+			$question = $this->Questions->patchEntity($question, $this->request->getData());
 			if ($this->Questions->save($question)) {
 				$this->Flash->success(__('The question has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -313,7 +313,7 @@ class QuestionsController extends AppController {
 		$this->Authorization->authorize($answer, 'delete');
 
 		// Find if there are responses that use this answer
-		$count = TableRegistry::get('Responses')->find()
+		$count = TableRegistry::getTableLocator()->get('Responses')->find()
 			->where([
 				'answer_id' => $id,
 			])
@@ -335,7 +335,7 @@ class QuestionsController extends AppController {
 		$this->request->allowMethod('ajax');
 
 		try {
-			$affiliate = TableRegistry::get('Affiliates')->get($this->request->getQuery('affiliate'));
+			$affiliate = TableRegistry::getTableLocator()->get('Affiliates')->get($this->request->getQuery('affiliate'));
 		} catch (RecordNotFoundException $ex) {
 			$this->Flash->info(__('Invalid affiliate.'));
 			return $this->redirect(['action' => 'index']);

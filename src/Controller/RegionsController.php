@@ -63,13 +63,13 @@ class RegionsController extends AppController {
 		$region = $this->Regions->newEntity();
 		$this->Authorization->authorize($region);
 		if ($this->request->is('post')) {
-			$region = $this->Regions->patchEntity($region, $this->request->data);
+			$region = $this->Regions->patchEntity($region, $this->request->getData());
 			if ($this->Regions->save($region)) {
 				$this->Flash->success(__('The region has been saved.'));
 				return $this->redirect(['action' => 'index']);
 			} else {
 				$this->Flash->warning(__('The region could not be saved. Please correct the errors below and try again.'));
-				$this->Configuration->loadAffiliate($this->request->data['affiliate_id']);
+				$this->Configuration->loadAffiliate($this->request->getData('affiliate_id'));
 			}
 		}
 		$affiliates = $this->Authentication->applicableAffiliates(true);
@@ -97,7 +97,7 @@ class RegionsController extends AppController {
 		$this->Authorization->authorize($region);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$region = $this->Regions->patchEntity($region, $this->request->data);
+			$region = $this->Regions->patchEntity($region, $this->request->getData());
 			if ($this->Regions->save($region)) {
 				$this->Flash->success(__('The region has been saved.'));
 				return $this->redirect(['action' => 'index']);

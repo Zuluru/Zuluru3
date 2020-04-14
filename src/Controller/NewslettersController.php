@@ -96,13 +96,13 @@ class NewslettersController extends AppController {
 		$this->Authorization->authorize($newsletter);
 
 		if ($this->request->is('post')) {
-			$newsletter = $this->Newsletters->patchEntity($newsletter, $this->request->data);
+			$newsletter = $this->Newsletters->patchEntity($newsletter, $this->request->getData());
 			if ($this->Newsletters->save($newsletter)) {
 				$this->Flash->success(__('The newsletter has been saved.'));
 				return $this->redirect(['action' => 'index']);
 			} else {
 				$this->Flash->warning(__('The newsletter could not be saved. Please correct the errors below and try again.'));
-				$this->Configuration->loadAffiliate($this->Newsletters->MailingLists->affiliate($this->request->data['mailing_list_id']));
+				$this->Configuration->loadAffiliate($this->Newsletters->MailingLists->affiliate($this->request->getData('mailing_list_id')));
 			}
 		}
 
@@ -142,13 +142,13 @@ class NewslettersController extends AppController {
 		$this->Authorization->authorize($newsletter);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$newsletter = $this->Newsletters->patchEntity($newsletter, $this->request->data);
+			$newsletter = $this->Newsletters->patchEntity($newsletter, $this->request->getData());
 			if ($this->Newsletters->save($newsletter)) {
 				$this->Flash->success(__('The newsletter has been saved.'));
 				return $this->redirect(['action' => 'index']);
 			} else {
 				$this->Flash->warning(__('The newsletter could not be saved. Please correct the errors below and try again.'));
-				$affiliate = $this->Newsletters->MailingLists->affiliate($this->request->data['mailing_list_id']);
+				$affiliate = $this->Newsletters->MailingLists->affiliate($this->request->getData('mailing_list_id'));
 			}
 		} else {
 			$affiliate = $newsletter->mailing_list->affiliate_id;
@@ -218,7 +218,7 @@ class NewslettersController extends AppController {
 
 		$ids = collection($newsletter->deliveries)->extract('person_id')->toArray();
 		if (!empty($ids)) {
-			$people = TableRegistry::get('People')->find()
+			$people = TableRegistry::getTableLocator()->get('People')->find()
 				->where(['People.id IN' => $ids])
 				->order(['last_name', 'first_name'])
 				->toArray();
@@ -273,7 +273,7 @@ class NewslettersController extends AppController {
 			}
 
 			$user_model = Configure::read('Security.authModel');
-			$authenticate = TableRegistry::get($user_model);
+			$authenticate = TableRegistry::getTableLocator()->get($user_model);
 			$email_field = $authenticate->emailField;
 			try {
 				$people = $rule_obj->query($newsletter->mailing_list->affiliate_id, [

@@ -87,8 +87,8 @@ abstract class Ratings {
 			if (!$this->initializeRatings($division)) {
 				// We still need to save any changes to the division details
 				// TODO: Eliminate code duplication between here and in saveRatings.
-				if ($division->dirty()) {
-					$divisions_table = TableRegistry::get('Divisions');
+				if ($division->isDirty()) {
+					$divisions_table = TableRegistry::getTableLocator()->get('Divisions');
 					if (!$divisions_table->save($division, ['update_badges' => false])) {
 						return false;
 					}
@@ -120,7 +120,7 @@ abstract class Ratings {
 	protected function initializeRatings(Division $division) {
 		$this->scheduleType = $division->schedule_type;
 
-		$divisions_table = TableRegistry::get('Divisions');
+		$divisions_table = TableRegistry::getTableLocator()->get('Divisions');
 
 		// Find all finalized games played by teams that are anywhere in this division's league.
 		// Results of games from other divisions can still affect ratings in this division.
@@ -223,13 +223,13 @@ abstract class Ratings {
 		foreach ($division->teams as $team) {
 			if ($this->teams[$team->id]->has('current_rating') && $this->teams[$team->id]->current_rating != $team->rating) {
 				$team->rating = $this->teams[$team->id]->current_rating;
-				$division->dirty('teams', true);
+				$division->setDirty('teams', true);
 				++$team_count;
 			}
 		}
 
 		// If any team rating is dirty, reset ALL team seeds
-		if ($division->dirty('teams')) {
+		if ($division->isDirty('teams')) {
 			foreach ($division->teams as $team) {
 				$team->seed = 0;
 			}
@@ -238,15 +238,15 @@ abstract class Ratings {
 		if (!empty($this->games)) {
 			$division->games = [];
 			foreach ($this->games as $game) {
-				if ($game->division_id == $division->id && $game->dirty()) {
+				if ($game->division_id == $division->id && $game->isDirty()) {
 					$division->games[] = $game;
 				}
 			}
 		}
 
 		// If nothing is dirty, no need to save or clear cache
-		if ($division->dirty()) {
-			$divisions_table = TableRegistry::get('Divisions');
+		if ($division->isDirty()) {
+			$divisions_table = TableRegistry::getTableLocator()->get('Divisions');
 			if (!$divisions_table->save($division, ['update_badges' => false])) {
 				return false;
 			}

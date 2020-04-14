@@ -14,7 +14,7 @@ class DeactivateAccountsTask extends Shell {
 
 	public function main() {
 		ConfigurationLoader::loadConfiguration();
-		$people_table = TableRegistry::get('People');
+		$people_table = TableRegistry::getTableLocator()->get('People');
 
 		// Find all the divisions that have run in the past 2 years
 		$recent_date = FrozenDate::now()->subYears(2);
@@ -26,8 +26,8 @@ class DeactivateAccountsTask extends Shell {
 			// Include everyone that ran a division
 			$divisions->extract('people.{*}.id')->toList(),
 			// Or played in one
-			TableRegistry::get('TeamsPeople')->find()
-				->hydrate(false)
+			TableRegistry::getTableLocator()->get('TeamsPeople')->find()
+				->enableHydration(false)
 				->select('TeamsPeople.person_id')
 				->distinct('TeamsPeople.person_id')
 				->leftJoinWith('Teams')
@@ -38,8 +38,8 @@ class DeactivateAccountsTask extends Shell {
 				->extract('person_id')
 				->toArray(),
 			// Or signed a waiver
-			TableRegistry::get('WaiversPeople')->find()
-				->hydrate(false)
+			TableRegistry::getTableLocator()->get('WaiversPeople')->find()
+				->enableHydration(false)
 				->select('WaiversPeople.person_id')
 				->distinct('WaiversPeople.person_id')
 				->where([
@@ -49,7 +49,7 @@ class DeactivateAccountsTask extends Shell {
 				->toArray(),
 			// Or updated their profile
 			$people_table->find()
-				->hydrate(false)
+				->enableHydration(false)
 				->select('People.id')
 				->distinct('People.id')
 				->where([
@@ -66,7 +66,7 @@ class DeactivateAccountsTask extends Shell {
 			$recent_people = array_unique(array_merge(
 				$recent_people,
 				$people_table->Registrations->find()
-					->hydrate(false)
+					->enableHydration(false)
 					->select('Registrations.person_id')
 					->distinct('Registrations.person_id')
 					->where([

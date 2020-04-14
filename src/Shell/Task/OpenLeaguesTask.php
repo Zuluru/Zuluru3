@@ -13,7 +13,7 @@ class OpenLeaguesTask extends Shell {
 
 	public function main() {
 		ConfigurationLoader::loadConfiguration();
-		$divisions_table = TableRegistry::get('Divisions');
+		$divisions_table = TableRegistry::getTableLocator()->get('Divisions');
 
 		$to_close = $divisions_table->find()
 			->where([
@@ -35,12 +35,12 @@ class OpenLeaguesTask extends Shell {
 
 		foreach ($to_close as $division) {
 			// Just tag it as dirty and re-save. The beforeSave will update is_open as required.
-			$division->dirty('is_open', true);
+			$division->setDirty('is_open', true);
 			$divisions_table->save($division, ['checkRules' => false]);
 		}
 		foreach ($to_open as $division) {
 			// Just tag it as dirty and re-save. The beforeSave will update is_open as required.
-			$division->dirty('is_open', true);
+			$division->setDirty('is_open', true);
 			$divisions_table->save($division, ['checkRules' => false]);
 		}
 	}

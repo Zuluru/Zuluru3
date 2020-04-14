@@ -80,18 +80,18 @@ class Zuluru extends Validation {
 	 * but not in a way that messes with playoff divisions.
 	 */
 	public static function teamUnique($name, $context) {
-		$teams_table = TableRegistry::get('Teams');
+		$teams_table = TableRegistry::getTableLocator()->get('Teams');
 		$duplicate = $teams_table->find()->where(compact('name'));
 
 		if (isset($context['data']['id'])) {
 			$duplicate->andWhere(['id !=' => $context['data']['id']]);
 			if (empty($context['data']['division_id']) && empty($context['data']['division'])) {
-				$context['data']['division_id'] = TableRegistry::get('Teams')->field('division_id', ['id' => $context['data']['id']]);
+				$context['data']['division_id'] = TableRegistry::getTableLocator()->get('Teams')->field('division_id', ['id' => $context['data']['id']]);
 			}
 		}
 
 		if (!empty($context['data']['division_id'])) {
-			$divisions_table = TableRegistry::get('Divisions');
+			$divisions_table = TableRegistry::getTableLocator()->get('Divisions');
 			$division = $divisions_table->get($context['data']['division_id']);
 		} else if (!empty($context['data']['division'])) {
 			$division = $context['data']['division'];
@@ -115,7 +115,7 @@ class Zuluru extends Validation {
 			return true;
 		}
 
-		$franchises_table = TableRegistry::get('Franchises');
+		$franchises_table = TableRegistry::getTableLocator()->get('Franchises');
 		try {
 			$franchise = $franchises_table->get($franchise_id, [
 				'contain' => ['People' => [
@@ -139,7 +139,7 @@ class Zuluru extends Validation {
 	}
 
 	public static function franchiseUnique($name, $context) {
-		$franchises_table = TableRegistry::get('Franchises');
+		$franchises_table = TableRegistry::getTableLocator()->get('Franchises');
 		$duplicate = $franchises_table->find()->where([
 			'name' => $name,
 			'affiliate_id' => $context['data']['affiliate_id'],

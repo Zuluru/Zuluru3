@@ -726,7 +726,7 @@ class PeopleTable extends AppTable {
 					$affiliate->_joinData = $affiliate->_matchingData['AffiliatesPeople'];
 					unset($affiliate->_matchingData);
 					$entity->affiliates[] = $affiliate;
-					$entity->dirty('affiliates', true);
+					$entity->setDirty('affiliates', true);
 				}
 			}
 		}
@@ -741,7 +741,7 @@ class PeopleTable extends AppTable {
 				foreach ($user_cache->read('Groups', $entity->id) as $group) {
 					if (!array_key_exists($group->id, $groups)) {
 						$entity->groups[] = $group;
-						$entity->dirty('groups', true);
+						$entity->setDirty('groups', true);
 					}
 				}
 			}
@@ -820,7 +820,7 @@ class PeopleTable extends AppTable {
 	 * don't yet have a Zuluru profile.
 	 */
 	public function createPersonRecord($user) {
-		$user_table = TableRegistry::get(Configure::read('Security.authModel'));
+		$user_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authModel'));
 		$save = [
 			'user_id' => $user->{$user_table->primaryKey()},
 			'status' => Configure::read('feature.auto_approve') ? 'active' : 'new',
@@ -895,7 +895,7 @@ class PeopleTable extends AppTable {
 		$cache = UserCache::getInstance();
 
 		$user_model = Configure::read('Security.authModel');
-		$authenticate = TableRegistry::get($user_model);
+		$authenticate = TableRegistry::getTableLocator()->get($user_model);
 		$user_model = Inflector::singularize(Inflector::underscore($user_model));
 
 		// Delete the person, and their user record if any

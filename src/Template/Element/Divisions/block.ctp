@@ -23,7 +23,7 @@ if (!isset($link_text)) {
 }
 
 if (!isset($url)) {
-	if (TableRegistry::get('Divisions')->find('byLeague', ['league' => $division->league_id])->count() == 1) {
+	if (TableRegistry::getTableLocator()->get('Divisions')->find('byLeague', ['league' => $division->league_id])->count() == 1) {
 		$url = ['controller' => ($division->schedule_type == 'tournament' ? 'Tournaments' : 'Leagues'), 'action' => 'view', 'league' => $division->league_id];
 	} else {
 		$url = ['controller' => 'Divisions', 'action' => 'view', 'division' => $division->id];

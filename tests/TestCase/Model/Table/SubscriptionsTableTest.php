@@ -22,13 +22,13 @@ class SubscriptionsTableTest extends TableTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.affiliates',
-			'app.users',
-				'app.people',
-					'app.affiliates_people',
-			'app.mailing_lists',
-				'app.subscriptions',
-		'app.i18n',
+		'app.Affiliates',
+			'app.Users',
+				'app.People',
+					'app.AffiliatesPeople',
+			'app.MailingLists',
+				'app.Subscriptions',
+		'app.I18n',
 	];
 
 	/**

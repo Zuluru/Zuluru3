@@ -19,8 +19,8 @@ class MembershipLettersTask extends Shell {
 			return;
 		}
 
-		$people_table = TableRegistry::get('People');
-		$logs_table = TableRegistry::get('ActivityLogs');
+		$people_table = TableRegistry::getTableLocator()->get('People');
+		$logs_table = TableRegistry::getTableLocator()->get('ActivityLogs');
 
 		$events = $people_table->Registrations->Events->find()
 			->matching('EventTypes', function (Query $q) {

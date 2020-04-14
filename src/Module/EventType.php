@@ -140,7 +140,7 @@ class EventType {
 			}
 
 			if (!$can_register) {
-				TableRegistry::get('Registrations')->delete($registration, ['from_unregister_dependencies' => true]);
+				TableRegistry::getTableLocator()->get('Registrations')->delete($registration, ['from_unregister_dependencies' => true]);
 				$unregistered = true;
 
 				// Refresh the list
@@ -195,7 +195,7 @@ class EventType {
 
 		// Delete any preregistration that might exist for this. We don't do it until the time of payment,
 		// because otherwise things like the checkout page might not let the payment proceed.
-		TableRegistry::get('Preregistrations')->deleteAll(['event_id' => $event->id, 'person_id' => $registration->person_id]);
+		TableRegistry::getTableLocator()->get('Preregistrations')->deleteAll(['event_id' => $event->id, 'person_id' => $registration->person_id]);
 
 		return true;
 	}

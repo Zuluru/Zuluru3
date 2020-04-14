@@ -129,13 +129,13 @@ class FacilitiesController extends AppController {
 		$this->Authorization->authorize($this);
 
 		if ($this->request->is('post')) {
-			$facility = $this->Facilities->patchEntity($facility, $this->request->data);
+			$facility = $this->Facilities->patchEntity($facility, $this->request->getData());
 			if ($this->Facilities->save($facility, ['fields' => $facility->fields])) {
 				$this->Flash->success(__('The facility has been saved.'));
 				return $this->redirect(['action' => 'index']);
 			} else {
 				$this->Flash->warning(__('The facility could not be saved. Please correct the errors below and try again.'));
-				$this->Configuration->loadAffiliate($this->Facilities->Regions->affiliate($this->request->data['region_id']));
+				$this->Configuration->loadAffiliate($this->Facilities->Regions->affiliate($this->request->getData('region_id')));
 			}
 		} else {
 			$this->Facilities->patchEntity($facility, [
@@ -198,13 +198,13 @@ class FacilitiesController extends AppController {
 		$this->Configuration->loadAffiliate($facility->region->affiliate_id);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			if (!$this->request->data['is_open']) {
-				foreach (array_keys($this->request->data['fields']) as $key) {
+			if (!$this->request->getData('is_open')) {
+				foreach (array_keys($this->request->getData('fields')) as $key) {
 					$this->request->data['fields'][$key]['is_open'] = false;
 				}
 			}
 
-			$facility = $this->Facilities->patchEntity($facility, $this->request->data);
+			$facility = $this->Facilities->patchEntity($facility, $this->request->getData());
 			if ($this->Facilities->save($facility, ['fields' => $facility->fields])) {
 				$this->Flash->success(__('The facility has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -290,7 +290,7 @@ class FacilitiesController extends AppController {
 		foreach ($facility->fields as $field) {
 			$field->is_open = false;
 		}
-		$facility->dirty('fields', true);
+		$facility->setDirty('fields', true);
 
 		if (!$this->Facilities->save($facility)) {
 			$this->Flash->warning(__('Failed to close facility "{0}".', addslashes($facility->name)));

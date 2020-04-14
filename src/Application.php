@@ -119,7 +119,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 		$authenticators = Configure::read('Security.authenticators');
 
 		// The fields to use for identification
-		$users_table = TableRegistry::get(Configure::read('Security.authModel'));
+		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authModel'));
 		$fields = [
 			IdentifierInterface::CREDENTIAL_USERNAME => $users_table->userField,
 			IdentifierInterface::CREDENTIAL_PASSWORD => $users_table->pwdField,
@@ -314,7 +314,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 		$user_localization->setSearchCallback(function (ServerRequestInterface $request) {
 			$identity = $request->getAttribute('identity');
 			if ($identity) {
-				$preference = TableRegistry::get('Settings')->find()
+				$preference = TableRegistry::getTableLocator()->get('Settings')->find()
 					->where(['person_id' => $identity->person->id, 'name' => 'language'])
 					->first();
 				if ($preference && $preference->value) {
@@ -431,7 +431,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 
 					if (!$user->has('person')) {
 						// Immediately post-authentication, the user record might not have person data in it
-						$users_table = TableRegistry::get(Configure::read('Security.authModel'));
+						$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authModel'));
 						$users_table->loadInto($user, ['People']);
 
 						if (!$user->has('person')) {

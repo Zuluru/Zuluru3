@@ -104,7 +104,7 @@ class LeaguesController extends AppController {
 		$this->set(compact('leagues', 'affiliate', 'affiliates', 'sport', 'tournaments'));
 
 		$this->set(['years' => $this->Leagues->find()
-			->hydrate(false)
+			->enableHydration(false)
 			->select(['year' => 'DISTINCT YEAR(Leagues.open)'])
 			->where([
 				'YEAR(Leagues.open) !=' => 0,
@@ -258,7 +258,7 @@ class LeaguesController extends AppController {
 		$league = $this->Leagues->newEntity();
 
 		if ($this->request->is('post')) {
-			$league = $this->Leagues->patchEntity($league, $this->request->data, [
+			$league = $this->Leagues->patchEntity($league, $this->request->getData(), [
 				'associated' => ['StatTypes', 'Divisions' => ['validateDays' => true], 'Divisions.Days'],
 			]);
 
@@ -335,7 +335,7 @@ class LeaguesController extends AppController {
 		$this->Configuration->loadAffiliate($league->affiliate_id);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$league = $this->Leagues->patchEntity($league, $this->request->data, [
+			$league = $this->Leagues->patchEntity($league, $this->request->getData(), [
 				'associated' => ['StatTypes', 'Divisions' => ['validateDays' => true], 'Divisions.Days'],
 			]);
 
@@ -502,7 +502,7 @@ class LeaguesController extends AppController {
 				unset($raw_division->games);
 				foreach ($games as $game) {
 					$game->division = $raw_division;
-					$game->dirty('division', false);
+					$game->setDirty('division', false);
 					$league->games[] = $game;
 				}
 			}
@@ -566,8 +566,8 @@ class LeaguesController extends AppController {
 
 			if ($this->Lock->lock('scheduling', $this->Leagues->affiliate($league->id), 'schedule creation or edit')) {
 				try {
-					$edit_games = $this->Leagues->Divisions->Games->patchEntities($league->games, $this->request->data['games'],
-						array_merge($this->request->data['options'], ['validate' => 'scheduleEdit'])
+					$edit_games = $this->Leagues->Divisions->Games->patchEntities($league->games, $this->request->getData('games'),
+						array_merge($this->request->getData('options'), ['validate' => 'scheduleEdit'])
 					);
 
 					$edit_ids = collection($edit_games)->extract('id')->toArray();
@@ -577,9 +577,9 @@ class LeaguesController extends AppController {
 					$league->games = array_merge($edit_games, $other_games);
 					usort($league->games, ['App\Model\Table\GamesTable', 'compareDateAndField']);
 
-					if ($this->Leagues->Divisions->Games->connection()->transactional(function () use ($edit_games, $game_slots) {
+					if ($this->Leagues->Divisions->Games->getConnection()->transactional(function () use ($edit_games, $game_slots) {
 						$success = true;
-						$options = array_merge($this->request->data['options'], [
+						$options = array_merge($this->request->getData('options'), [
 							'games' => $edit_games,
 							'game_slots' => $game_slots,
 							'validate' => 'scheduleEdit',
@@ -697,7 +697,7 @@ class LeaguesController extends AppController {
 					// Sort games by date, time and field
 					usort($division->games, ['App\Model\Table\GamesTable', 'compareDateAndField']);
 					GamesTable::adjustEntryIndices($division->games);
-					$division->dirty('games', false);
+					$division->setDirty('games', false);
 				}
 
 				$league_obj = $this->moduleRegistry->load("LeagueType:{$division->schedule_type}");
@@ -710,8 +710,8 @@ class LeaguesController extends AppController {
 					foreach ($division->teams as $tkey => $team) {
 						$team->seed = ++$seed;
 					}
-					$division->dirty('teams', true);
-					$league->dirty('divisions', true);
+					$division->setDirty('teams', true);
+					$league->setDirty('divisions', true);
 				}
 			}
 			$this->Leagues->save($league);
@@ -752,7 +752,7 @@ class LeaguesController extends AppController {
 		// Find all the dates that this league has game slots on
 		$divisions = collection($league->divisions)->extract('id')->toArray();
 		$dates = $this->Leagues->Divisions->GameSlots->find()
-			->hydrate(false)
+			->enableHydration(false)
 			->select(['GameSlots.game_date'])
 			->distinct(['GameSlots.game_date'])
 			->matching('Divisions', function (Query $q) use ($divisions) {
@@ -764,7 +764,7 @@ class LeaguesController extends AppController {
 
 		$date = $this->request->getQuery('date');
 		if ($this->request->is(['patch', 'post', 'put']) && array_key_exists('date', $this->request->data)) {
-			$date = $this->request->data['date'];
+			$date = $this->request->getData('date');
 			// TODO: Is there a way to make the Ajax form submitter not send the string literal "null"?
 			if (empty($date) || $date == 'null') {
 				$this->Flash->info(__('You must select a date.'));

@@ -21,9 +21,9 @@ class HolidayTest extends TestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.affiliates',
-			'app.holidays',
-		'app.i18n',
+		'app.Affiliates',
+			'app.Holidays',
+		'app.I18n',
 	];
 
 	/**

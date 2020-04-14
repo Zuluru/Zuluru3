@@ -159,7 +159,7 @@ class EventPolicy extends AppPolicy {
 		// If the user is not yet approved, we may let them register but not pay
 		if ($is_new && Configure::read('registration.allow_tentative')) {
 			if ($this->_person_duplicates === null) {
-				$this->_person_duplicates = TableRegistry::get('People')->find('duplicates', ['person' => $this->_person]);
+				$this->_person_duplicates = TableRegistry::getTableLocator()->get('People')->find('duplicates', ['person' => $this->_person]);
 			}
 			if ($this->_person_duplicates->count() == 0) {
 				$is_new = false;

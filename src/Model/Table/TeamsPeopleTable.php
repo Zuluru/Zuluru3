@@ -139,7 +139,7 @@ class TeamsPeopleTable extends AppTable {
 		}
 
 		// Acceptance of roster invites requires account reactivation
-		if ($entity->dirty('status') && in_array($entity->status, [ROSTER_APPROVED, ROSTER_REQUESTED]) && $person->status == 'inactive') {
+		if ($entity->isDirty('status') && in_array($entity->status, [ROSTER_APPROVED, ROSTER_REQUESTED]) && $person->status == 'inactive') {
 			$person->status = 'active';
 			$this->People->save($person);
 		}
@@ -181,7 +181,7 @@ class TeamsPeopleTable extends AppTable {
 		}
 
 		// Delete the roster reminder email records, so that people get the full two weeks again if they're re-invited
-		TableRegistry::get('ActivityLogs')->deleteAll([
+		TableRegistry::getTableLocator()->get('ActivityLogs')->deleteAll([
 			'type' => ($entity->status == ROSTER_INVITED ? 'roster_invite_reminder' : 'roster_request_reminder'),
 			'team_id' => $entity->team_id,
 			'person_id' => $entity->person_id,

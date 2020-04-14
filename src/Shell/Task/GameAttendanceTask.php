@@ -25,8 +25,8 @@ class GameAttendanceTask extends Shell {
 
 	public function main() {
 		ConfigurationLoader::loadConfiguration();
-		$this->games_table = TableRegistry::get('Games');
-		$this->logs_table = TableRegistry::get('ActivityLogs');
+		$this->games_table = TableRegistry::getTableLocator()->get('Games');
+		$this->logs_table = TableRegistry::getTableLocator()->get('ActivityLogs');
 
 		$captain_contain = [
 			'People' => [

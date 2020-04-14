@@ -209,7 +209,7 @@ class ScoreEntriesTable extends AppTable {
 		}
 
 		if ($data['status'] == 'home_default') {
-			$home_team = TableRegistry::get('Games')->field('home_team_id', ['Games.id' => $data['game_id']]);
+			$home_team = TableRegistry::getTableLocator()->get('Games')->field('home_team_id', ['Games.id' => $data['game_id']]);
 			if ($home_team == $data['team_id']) {
 				$data['score_for'] = Configure::read('scoring.default_losing_score');
 				$data['score_against'] = Configure::read('scoring.default_winning_score');
@@ -218,7 +218,7 @@ class ScoreEntriesTable extends AppTable {
 				$data['score_against'] = Configure::read('scoring.default_losing_score');
 			}
 		} else if ($data['status'] == 'away_default') {
-			$home_team = TableRegistry::get('Games')->field('home_team_id', ['Games.id' => $data['game_id']]);
+			$home_team = TableRegistry::getTableLocator()->get('Games')->field('home_team_id', ['Games.id' => $data['game_id']]);
 			if ($home_team == $data['team_id']) {
 				$data['score_for'] = Configure::read('scoring.default_winning_score');
 				$data['score_against'] = Configure::read('scoring.default_losing_score');
@@ -245,7 +245,7 @@ class ScoreEntriesTable extends AppTable {
 		// If allstars aren't allowed, remove anything that was submitted.
 		if (!Configure::read('scoring.allstars') && !empty($entity->allstars)) {
 			$entity->allstars = [];
-			$entity->dirty('allstars', true);
+			$entity->setDirty('allstars', true);
 		}
 	}
 

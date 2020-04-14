@@ -21,7 +21,7 @@ class MembershipBadgesTask extends Shell {
 			return;
 		}
 
-		$badges = TableRegistry::get('Badges')->find()
+		$badges = TableRegistry::getTableLocator()->get('Badges')->find()
 			->where([
 				'Badges.category' => 'registration',
 				'Badges.active' => true,
@@ -31,8 +31,8 @@ class MembershipBadgesTask extends Shell {
 		}
 
 		$badge_obj = ModuleRegistry::getInstance()->load('Badge');
-		$events_table = TableRegistry::get('Events');
-		$logs_table = TableRegistry::get('ActivityLogs');
+		$events_table = TableRegistry::getTableLocator()->get('Events');
+		$logs_table = TableRegistry::getTableLocator()->get('ActivityLogs');
 		$today = FrozenDate::now();
 
 		// Find all membership events for which the membership has started,

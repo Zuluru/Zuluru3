@@ -424,21 +424,21 @@ class GamesTable extends AppTable {
 			$game_slot = collection($options['game_slots'])->firstMatch(['id' => $entity->game_slot_id]);
 			if ($game_slot) {
 				// TODO: Use lazy loading to eliminate this?
-				if ($entity->dirty('home_team_id')) {
+				if ($entity->isDirty('home_team_id')) {
 					if ($entity->home_team_id) {
 						$entity->home_team = $this->HomeTeam->get($entity->home_team_id);
 					} else {
 						$entity->home_team = null;
 					}
-					$entity->dirty('home_team', false);
+					$entity->setDirty('home_team', false);
 				}
-				if ($entity->dirty('away_team_id')) {
+				if ($entity->isDirty('away_team_id')) {
 					if ($entity->away_team_id) {
 						$entity->away_team = $this->AwayTeam->get($entity->away_team_id);
 					} else {
 						$entity->away_team = null;
 					}
-					$entity->dirty('away_team', false);
+					$entity->setDirty('away_team', false);
 				}
 
 				if ($entity->home_team && collection($game_slot->divisions)->firstMatch(['id' => $entity->home_team->division_id])) {
@@ -736,7 +736,7 @@ class GamesTable extends AppTable {
 					$game->game_slot = $this->GameSlots->get($game->game_slot_id, [
 						'contain' => ['Fields' => ['Facilities']]
 					]);
-					$game->dirty('game_slot', false);
+					$game->setDirty('game_slot', false);
 				}
 			}
 		}
@@ -746,7 +746,7 @@ class GamesTable extends AppTable {
 			$dependency_type = "{$team_type}_dependency_type";
 			$dependency_id = "{$team_type}_dependency_id";
 			$team_id_field = "{$team_type}_team_id";
-			if ($entity->has($dependency_type) && in_array($entity->$dependency_type, ['game_winner', 'game_loser']) && $entity->dirty($dependency_id)) {
+			if ($entity->has($dependency_type) && in_array($entity->$dependency_type, ['game_winner', 'game_loser']) && $entity->isDirty($dependency_id)) {
 				$entity->$team_id_field = null;
 			}
 		}
@@ -768,7 +768,7 @@ class GamesTable extends AppTable {
 	public function beforeSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		// If we're saving a batch of games, and the game slot formerly assigned to this game
 		// is now not assigned to any of this batch, we must free it up.
-		if ($options->offsetExists('games') && $entity->dirty('game_slot_id') && !collection($options['games'])->firstMatch(['game_slot_id' => $entity->getOriginal('game_slot_id')])) {
+		if ($options->offsetExists('games') && $entity->isDirty('game_slot_id') && !collection($options['games'])->firstMatch(['game_slot_id' => $entity->getOriginal('game_slot_id')])) {
 			if (!$this->GameSlots->updateAll(['assigned' => false], ['GameSlots.id' => $entity->getOriginal('game_slot_id')])) {
 				return false;
 			}
@@ -808,11 +808,11 @@ class GamesTable extends AppTable {
 		// If incident reports aren't allowed, remove anything that was submitted.
 		if (!empty($entity->incidents) && !Configure::read('scoring.incident_reports')) {
 			$entity->incidents = [];
-			$entity->dirty('incidents', true);
+			$entity->setDirty('incidents', true);
 		}
 
 		// "Copy" dependency games do not have a game slot ID set
-		if ($entity->dirty('game_slot_id') && !empty($entity->game_slot_id)) {
+		if ($entity->isDirty('game_slot_id') && !empty($entity->game_slot_id)) {
 			if (empty($entity->game_slot)) {
 				trigger_error('TODOTESTING', E_USER_WARNING);
 				exit;
@@ -843,7 +843,7 @@ class GamesTable extends AppTable {
 			if (in_array($entity->status, Configure::read('unplayed_status'))) {
 				$this->association('SpiritEntries')->saveStrategy('replace');
 				$entity->spirit_entries = [];
-				$entity->dirty('spirit_entries', true);
+				$entity->setDirty('spirit_entries', true);
 			}
 		}
 
@@ -906,7 +906,7 @@ class GamesTable extends AppTable {
 		// TODO: We probably want to change the text of the email slightly if it's an update instead of a new incident.
 		// TODO: This would seem to fit better in afterSaveCommit, but at that point incidents is no longer dirty.
 		// Might also make sense to do this in the IncidentsTable afterSave, but then we don't have the game info handy.
-		if ($entity->dirty('incidents') && !empty($entity->incidents)) {
+		if ($entity->isDirty('incidents') && !empty($entity->incidents)) {
 			$event = new CakeEvent('Model.Game.incidentReport', $this, [$entity]);
 			$this->eventManager()->dispatch($event);
 		}
@@ -918,13 +918,13 @@ class GamesTable extends AppTable {
 			}
 		}
 
-		if ($entity->published || $entity->dirty('published')) {
+		if ($entity->published || $entity->isDirty('published')) {
 			$updated_teams = Configure::read('teams_with_updated_schedules');
 			if ($updated_teams === null) {
 				$updated_teams = [];
 			}
 
-			if ($entity->dirty('published') || $entity->dirty('home_team_id')) {
+			if ($entity->isDirty('published') || $entity->isDirty('home_team_id')) {
 				if ($entity->home_team_id) {
 					$updated_teams[$entity->home_team_id] = true;
 				}
@@ -933,7 +933,7 @@ class GamesTable extends AppTable {
 				}
 			}
 
-			if ($entity->dirty('published') || $entity->dirty('away_team_id')) {
+			if ($entity->isDirty('published') || $entity->isDirty('away_team_id')) {
 				if ($entity->away_team_id) {
 					$updated_teams[$entity->away_team_id] = true;
 				}
@@ -944,7 +944,7 @@ class GamesTable extends AppTable {
 
 			Configure::write('teams_with_updated_schedules', $updated_teams);
 
-			if ($entity->dirty('published') && !$entity->published) {
+			if ($entity->isDirty('published') && !$entity->published) {
 				$deleted_games = Configure::read('deleted_games');
 				if ($deleted_games === null) {
 					$deleted_games = [];
@@ -980,12 +980,12 @@ class GamesTable extends AppTable {
 	public function beforeDelete(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		// If the game was finalized, we have to reverse the ratings change.
 		$entity->undoRatings();
-		if ($entity->dirty('home_team')) {
+		if ($entity->isDirty('home_team')) {
 			if (!$this->HomeTeam->save($entity->home_team)) {
 				return false;
 			}
 		}
-		if ($entity->dirty('away_team')) {
+		if ($entity->isDirty('away_team')) {
 			if (!$this->AwayTeam->save($entity->away_team)) {
 				return false;
 			}
@@ -998,7 +998,7 @@ class GamesTable extends AppTable {
 				$this->loadInto($entity, ['GameSlots']);
 			}
 			$entity->game_slot->assigned = false;
-			$entity->dirty('game_slot', true);
+			$entity->setDirty('game_slot', true);
 			if (!$this->GameSlots->save($entity->game_slot)) {
 				return false;
 			}

@@ -52,7 +52,7 @@ class ContactsController extends AppController {
 		$this->Authorization->authorize($contact);
 
 		if ($this->request->is('post')) {
-			$contact = $this->Contacts->patchEntity($contact, $this->request->data);
+			$contact = $this->Contacts->patchEntity($contact, $this->request->getData());
 			if ($this->Contacts->save($contact)) {
 				$this->Flash->success(__('The contact has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -86,7 +86,7 @@ class ContactsController extends AppController {
 		$this->Authorization->authorize($contact);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$contact = $this->Contacts->patchEntity($contact, $this->request->data);
+			$contact = $this->Contacts->patchEntity($contact, $this->request->getData());
 			if ($this->Contacts->save($contact)) {
 				$this->Flash->success(__('The contact has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -144,7 +144,7 @@ class ContactsController extends AppController {
 		$message = new MessageForm();
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			try {
-				if ($message->execute($this->request->data)) {
+				if ($message->execute($this->request->getData())) {
 					$this->Flash->success(__('Your message has been sent.'));
 					return $this->redirect('/');
 				} else if ($message->errors()) {

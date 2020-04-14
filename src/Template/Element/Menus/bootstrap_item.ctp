@@ -23,7 +23,7 @@ if (array_key_exists('url', $item)) {
 }
 
 $classes = [];
-if ($this->request->here() == $url) {
+if ($this->getRequest()->getRequestTarget() == $url) {
 	$classes[] = 'active';
 	$short_name .= ' ' . $this->Html->tag('span', '(current)', ['class' => 'sr-only']);
 }

@@ -174,7 +174,7 @@ abstract class Rule {
 			$condition_string = serialize($conditions);
 			if (strpos($condition_string, 'Related.') !== false) {
 				$user_model = Configure::read('Security.authModel');
-				$authenticate = TableRegistry::get($user_model);
+				$authenticate = TableRegistry::getTableLocator()->get($user_model);
 				$primary_key = $authenticate->primaryKey();
 
 				// TODO: Use matching instead?
@@ -204,12 +204,12 @@ abstract class Rule {
 	 */
 	protected function initializeQuery($affiliate) {
 		// Create the query object to be manipulated
-		$peopleTable = TableRegistry::get('People');
+		$peopleTable = TableRegistry::getTableLocator()->get('People');
 		$query = $peopleTable->find();
 
 		// Add in invariant conditions, fields and joins
 		$user_model = Configure::read('Security.authModel');
-		$authenticate = TableRegistry::get($user_model);
+		$authenticate = TableRegistry::getTableLocator()->get($user_model);
 		$id_field = $authenticate->primaryKey();
 
 		$query->select('People.id');

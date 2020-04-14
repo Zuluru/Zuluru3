@@ -107,12 +107,12 @@ class TaskSlotsController extends AppController {
 
 		$task_slot = $this->TaskSlots->newEntity();
 		if ($this->request->is('post')) {
-			$task_slot = $this->TaskSlots->patchEntity($task_slot, array_merge($this->request->data, ['task_id' => $id]));
+			$task_slot = $this->TaskSlots->patchEntity($task_slot, array_merge($this->request->getData(), ['task_id' => $id]));
 			$date = $task_slot->task_date;
 			if (!$task_slot->errors()) {
-				for ($days = 0; $days < $this->request->data['days_to_repeat']; ++ $days) {
-					for ($slots = 0; $slots < $this->request->data['number_of_slots']; ++ $slots) {
-						$slot = $this->TaskSlots->newEntity(array_merge($this->request->data, ['task_id' => $id, 'task_date' => $date]));
+				for ($days = 0; $days < $this->request->getData('days_to_repeat'); ++ $days) {
+					for ($slots = 0; $slots < $this->request->getData('number_of_slots'); ++ $slots) {
+						$slot = $this->TaskSlots->newEntity(array_merge($this->request->getData(), ['task_id' => $id, 'task_date' => $date]));
 						$this->TaskSlots->save($slot);
 					}
 					$date = $date->addDay();
@@ -147,7 +147,7 @@ class TaskSlotsController extends AppController {
 		$this->Authorization->authorize($task_slot);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$task_slot = $this->TaskSlots->patchEntity($task_slot, $this->request->data);
+			$task_slot = $this->TaskSlots->patchEntity($task_slot, $this->request->getData());
 			if ($this->TaskSlots->save($task_slot)) {
 				$this->Flash->success(__('The task slot has been saved.'));
 				return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
@@ -216,7 +216,7 @@ class TaskSlotsController extends AppController {
 		$context = new ContextResource($task_slot, ['task' => $task_slot->task]);
 		$this->Authorization->authorize($context);
 
-		$person_id = $this->request->data['person'];
+		$person_id = $this->request->getData('person');
 		if (!empty($person_id)) {
 			try {
 				$this->TaskSlots->People->get($person_id);

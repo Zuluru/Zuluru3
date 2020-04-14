@@ -279,23 +279,23 @@ class PeopleController extends AppController {
 	public function participation() {
 		$this->Authorization->authorize($this);
 		$min = min(
-			TableRegistry::get('Events')->field('open', [], 'Events.open')->year,
-			TableRegistry::get('Leagues')->field('open', [], 'Leagues.open')->year
+			TableRegistry::getTableLocator()->get('Events')->field('open', [], 'Events.open')->year,
+			TableRegistry::getTableLocator()->get('Leagues')->field('open', [], 'Leagues.open')->year
 		);
 		$this->set(compact('min'));
 
 		// Check form data
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			if ($this->request->data['start'] > $this->request->data['end']) {
+			if ($this->request->getData('start') > $this->request->getData('end')) {
 				$this->Flash->info(__('End date cannot precede start date.'));
 				return;
 			}
 
-			$reports_table = TableRegistry::get('Reports');
+			$reports_table = TableRegistry::getTableLocator()->get('Reports');
 			$report = $reports_table->newEntity([
 				'report' => 'people_participation',
 				'person_id' => $this->UserCache->currentId(),
-				'params' => json_encode($this->request->data),
+				'params' => json_encode($this->request->getData()),
 			]);
 			if (!$reports_table->save($report)) {
 				$this->Flash->warning(__('Failed to queue your report request.'));
@@ -309,23 +309,23 @@ class PeopleController extends AppController {
 	public function retention() {
 		$this->Authorization->authorize($this);
 		$min = min(
-			TableRegistry::get('Events')->field('open', [], 'Events.open'),
-			TableRegistry::get('Leagues')->field('open', [], 'Leagues.open')
+			TableRegistry::getTableLocator()->get('Events')->field('open', [], 'Events.open'),
+			TableRegistry::getTableLocator()->get('Leagues')->field('open', [], 'Leagues.open')
 		);
 		$this->set(compact('min'));
 
 		// Check form data
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			if ($this->request->data['start'] > $this->request->data['end']) {
+			if ($this->request->getData('start') > $this->request->getData('end')) {
 				$this->Flash->info(__('End date cannot precede start date.'));
 				return;
 			}
 
-			$reports_table = TableRegistry::get('Reports');
+			$reports_table = TableRegistry::getTableLocator()->get('Reports');
 			$report = $reports_table->newEntity([
 				'report' => 'people_retention',
 				'person_id' => $this->UserCache->currentId(),
-				'params' => json_encode($this->request->data),
+				'params' => json_encode($this->request->getData()),
 			]);
 			if (!$reports_table->save($report)) {
 				$this->Flash->warning(__('Failed to queue your report request.'));
@@ -550,7 +550,7 @@ class PeopleController extends AppController {
 				++ $i;
 			}
 			$person->skills = $skills;
-			$person->dirty('skills', false);
+			$person->setDirty('skills', false);
 		} catch (RecordNotFoundException $ex) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect('/');
@@ -600,7 +600,7 @@ class PeopleController extends AppController {
 				}
 			}
 
-			$person = $this->People->patchEntity($person, $this->request->data, [
+			$person = $this->People->patchEntity($person, $this->request->getData(), [
 				'associated' => ['Affiliates', 'Groups', 'Skills', Configure::read('Security.authModel')],
 				'accessibleFields' => $accessible,
 			]);
@@ -761,7 +761,7 @@ class PeopleController extends AppController {
 		$this->Authorization->authorize($person);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$note = $this->People->Notes->patchEntity($note, $this->request->data);
+			$note = $this->People->Notes->patchEntity($note, $this->request->getData());
 
 			if (empty($note->note)) {
 				if ($note->isNew()) {
@@ -831,9 +831,9 @@ class PeopleController extends AppController {
 			->toArray();
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$settings = $this->People->Settings->patchEntities($settings, $this->request->data);
+			$settings = $this->People->Settings->patchEntities($settings, $this->request->getData());
 
-			if ($this->People->Settings->connection()->transactional(function () use ($settings) {
+			if ($this->People->Settings->getConnection()->transactional(function () use ($settings) {
 				foreach ($settings as $setting) {
 					if (!$this->People->Settings->save($setting)) {
 						return false;
@@ -878,12 +878,12 @@ class PeopleController extends AppController {
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			$this->request->data['is_child'] = true;
-			$person = $this->People->patchEntity($person, $this->request->data, [
+			$person = $this->People->patchEntity($person, $this->request->getData(), [
 				'validate' => 'create',
 				'associated' => ['Affiliates', 'Groups', 'Skills'],
 			]);
 
-			if ($this->People->connection()->transactional(function () use ($person) {
+			if ($this->People->getConnection()->transactional(function () use ($person) {
 				if (!$this->People->save($person)) {
 					$this->Flash->warning(__('The profile could not be saved. Please correct the errors below and try again.'));
 					return false;
@@ -904,7 +904,7 @@ class PeopleController extends AppController {
 
 				return true;
 			})) {
-				if ($this->request->data['action'] == 'continue') {
+				if ($this->request->getData('action') == 'continue') {
 					$person = $this->People->newEntity();
 				} else {
 					return $this->redirect('/');
@@ -996,7 +996,7 @@ class PeopleController extends AppController {
 		$this->Authorization->authorize(new ContextResource($this->UserCache->read('Person', $person_id), ['relation' => $relation, 'code' => $this->request->getQuery('code')]));
 
 		$relation->_joinData->approved = true;
-		$people_people_table = TableRegistry::get('PeoplePeople');
+		$people_people_table = TableRegistry::getTableLocator()->get('PeoplePeople');
 		if (!$people_people_table->save($relation->_joinData)) {
 			$this->Flash->warning(__('Failed to approve the relative request.'));
 			return $this->redirect(['action' => 'view', 'person' => $person_id]);
@@ -1098,8 +1098,8 @@ class PeopleController extends AppController {
 		]);
 
 		if (!empty($this->request->params['url']['oauth_token'])) {
-			$response = $this->request->session()->read('Twitter.response');
-			$this->request->session()->delete('Twitter.response');
+			$response = $this->request->getSession()->read('Twitter.response');
+			$this->request->getSession()->delete('Twitter.response');
 			if ($this->request->params['url']['oauth_token'] !== $response['oauth_token']) {
 				$this->Flash->warning(__('The oauth token you started with doesn\'t match the one you\'ve been redirected with. Do you have multiple tabs open?'));
 				return $this->redirect(['action' => 'preferences']);
@@ -1141,7 +1141,7 @@ class PeopleController extends AppController {
 				'method' => 'POST',
 				'url' => $tmhOAuth->url('oauth/request_token', ''),
 				'params' => [
-					'oauth_callback' => Router::url(Router::normalize($this->request->here()), true),
+					'oauth_callback' => Router::url(Router::normalize($this->request->getRequestTarget()), true),
 				],
 			]);
 
@@ -1158,7 +1158,7 @@ class PeopleController extends AppController {
 				$this->Flash->warning(__('The callback was not confirmed by Twitter so we cannot continue.') . ' ' . $tmhOAuth->response['response']);
 				return $this->redirect(['action' => 'preferences']);
 			} else {
-				$this->request->session()->write('Twitter.response', $response);
+				$this->request->getSession()->write('Twitter.response', $response);
 				return $this->redirect($tmhOAuth->url('oauth/authorize', '') . "?oauth_token={$response['oauth_token']}");
 			}
 		}
@@ -1229,8 +1229,8 @@ class PeopleController extends AppController {
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			// Extract base64 file for standard data
-			$fileBin = file_get_contents($this->request->data['cropped']);
-			$mimeType = mime_content_type($this->request->data['cropped']);
+			$fileBin = file_get_contents($this->request->getData('cropped'));
+			$mimeType = mime_content_type($this->request->getData('cropped'));
 
 			// Check allowed mime type
 			if (substr($mimeType, 0, 6) == 'image/') {
@@ -1240,7 +1240,7 @@ class PeopleController extends AppController {
 
 				// Are approvals required?
 				$approved = (Configure::read('feature.approve_photos') ? false : true);
-				$upload = $this->People->Uploads->patchEntity($upload, array_merge($this->request->data, compact('filename', 'approved')));
+				$upload = $this->People->Uploads->patchEntity($upload, array_merge($this->request->getData(), compact('filename', 'approved')));
 				if ($this->People->Uploads->save($upload)) {
 					if (isset($old_filename) && $old_filename != $filename) {
 						unlink(Configure::read('App.paths.uploads') . DS . $old_filename);
@@ -1438,7 +1438,7 @@ class PeopleController extends AppController {
 				],
 			]);
 
-			$upload = $this->People->Uploads->patchEntity($upload, $this->request->data);
+			$upload = $this->People->Uploads->patchEntity($upload, $this->request->getData());
 
 			if ($this->People->Uploads->save($upload)) {
 				$this->Flash->success(__('Document saved, you will receive an email when it has been approved.'));
@@ -1485,7 +1485,7 @@ class PeopleController extends AppController {
 		$this->Authorization->authorize($document);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$document = $this->People->Uploads->patchEntity($document, $this->request->data);
+			$document = $this->People->Uploads->patchEntity($document, $this->request->getData());
 			if ($this->People->Uploads->save($document)) {
 				$this->Flash->success(__('Approved document.'));
 
@@ -1526,7 +1526,7 @@ class PeopleController extends AppController {
 		$this->Authorization->authorize($document);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$document = $this->People->Uploads->patchEntity($document, $this->request->data);
+			$document = $this->People->Uploads->patchEntity($document, $this->request->getData());
 			if ($this->People->Uploads->save($document)) {
 				$this->Flash->success(__('Updated document.'));
 
@@ -1583,7 +1583,7 @@ class PeopleController extends AppController {
 				'sendAs' => 'both',
 				'viewVars' => array_merge([
 					'person' => $document->person,
-				], $this->request->data, compact('document')),
+				], $this->request->getData(), compact('document')),
 			]))
 			{
 				$this->Flash->warning(__('Error sending email to {0}.', $document->person->full_name));
@@ -1595,10 +1595,10 @@ class PeopleController extends AppController {
 		$this->Authorization->authorize($this);
 
 		if ($this->request->is('post')) {
-			if (empty($this->request->data['badge'])) {
+			if (empty($this->request->getData('badge'))) {
 				$this->Flash->warning(__('You must select a badge!'));
 			} else {
-				return $this->redirect(['action' => 'nominate_badge', 'badge' => $this->request->data['badge']]);
+				return $this->redirect(['action' => 'nominate_badge', 'badge' => $this->request->getData('badge')]);
 			}
 		}
 
@@ -1735,7 +1735,7 @@ class PeopleController extends AppController {
 
 		if ($this->request->is('post')) {
 			$data = [
-				'reason' => $this->request->data['reason'],
+				'reason' => $this->request->getData('reason'),
 			];
 			if ($badge->category == 'assigned') {
 				$data['approved'] = true;
@@ -1801,7 +1801,7 @@ class PeopleController extends AppController {
 
 		$id = $this->request->getQuery('badge');
 		try {
-			$badges_table = TableRegistry::get('BadgesPeople');
+			$badges_table = TableRegistry::getTableLocator()->get('BadgesPeople');
 			$link = $badges_table->get($id, [
 				'contain' => [
 					'Badges',
@@ -1861,7 +1861,7 @@ class PeopleController extends AppController {
 
 		$id = $this->request->getQuery('badge');
 		try {
-			$badges_table = TableRegistry::get('BadgesPeople');
+			$badges_table = TableRegistry::getTableLocator()->get('BadgesPeople');
 			$link = $badges_table->get($id, [
 				'contain' => [
 					'Badges',
@@ -1891,7 +1891,7 @@ class PeopleController extends AppController {
 						'subject' => function() { return __('{0} Notification of Badge Deletion', Configure::read('organization.name')); },
 						'template' => 'badge_deleted',
 						'sendAs' => 'both',
-						'viewVars' => ['person' => $link->person, 'badge' => $link->badge, 'comment' => $this->request->data['comment']],
+						'viewVars' => ['person' => $link->person, 'badge' => $link->badge, 'comment' => $this->request->getData('comment')],
 					])
 					) {
 						$this->Flash->warning(__('Error sending email to {0}.', $link->person->full_name));
@@ -1903,7 +1903,7 @@ class PeopleController extends AppController {
 						'subject' => function() { return __('{0} Notification of Badge Rejection', Configure::read('organization.name')); },
 						'template' => 'badge_nomination_rejected',
 						'sendAs' => 'both',
-						'viewVars' => ['person' => $link->person, 'badge' => $link->badge, 'nominator' => $link->nominated_by, 'comment' => $this->request->data['comment']],
+						'viewVars' => ['person' => $link->person, 'badge' => $link->badge, 'nominator' => $link->nominated_by, 'comment' => $this->request->getData('comment')],
 					])
 					) {
 						$this->Flash->warning(__('Error sending email to {0}.', $link->nominated_by->full_name));
@@ -1964,7 +1964,7 @@ class PeopleController extends AppController {
 		}
 
 		if (Configure::read('feature.affiliates') && $this->UserCache->read('Person.status') != 'locked') {
-			$affiliates_table = TableRegistry::get('Affiliates');
+			$affiliates_table = TableRegistry::getTableLocator()->get('Affiliates');
 			$affiliates = $affiliates_table->find('active')->indexBy('id')->toArray();
 			if ($this->Authorization->can(current($affiliates), 'add_manager')) {
 				$unmanaged = $affiliates_table->find('active')
@@ -2011,7 +2011,7 @@ class PeopleController extends AppController {
 	private function _schedule($people, $team_ids) {
 		if (!empty($team_ids)) {
 			$limit = max(4, ceil(count(array_unique($team_ids)) * 1.5));
-			$games_table = TableRegistry::get('Games');
+			$games_table = TableRegistry::getTableLocator()->get('Games');
 			$past = $games_table->find('schedule', ['teams' => $team_ids])
 				->find('withAttendance', compact('people'))
 				->contain([
@@ -2097,7 +2097,7 @@ class PeopleController extends AppController {
 
 			$items = array_merge($past, $future);
 
-			$events_table = TableRegistry::get('TeamEvents');
+			$events_table = TableRegistry::getTableLocator()->get('TeamEvents');
 			$past = $events_table->find('schedule', ['teams' => $team_ids])
 				->where([
 					'TeamEvents.date <' => FrozenDate::now(),
@@ -2420,11 +2420,11 @@ class PeopleController extends AppController {
 			->contain(['Affiliates', 'Skills', 'Groups', 'Related', 'Settings']);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			if (empty($this->request->data['disposition'])) {
+			if (empty($this->request->getData('disposition'))) {
 				$this->Flash->info(__('You must select a disposition for this account.'));
 			} else {
-				if (strpos($this->request->data['disposition'], ':') !== false) {
-					list($disposition, $dup_id) = explode(':', $this->request->data['disposition']);
+				if (strpos($this->request->getData('disposition'), ':') !== false) {
+					list($disposition, $dup_id) = explode(':', $this->request->getData('disposition'));
 					$duplicate = collection($duplicates)->firstMatch(['id' => $dup_id]);
 					if ($duplicate) {
 						if ($this->_approve($person, $disposition, $duplicate)) {
@@ -2437,7 +2437,7 @@ class PeopleController extends AppController {
 						$this->Flash->info(__('You have selected an invalid user!'));
 					}
 				} else {
-					if ($this->_approve($person, $this->request->data['disposition'])) {
+					if ($this->_approve($person, $this->request->getData('disposition'))) {
 						return $this->redirect(['action' => 'list_new']);
 					}
 				}
@@ -2445,7 +2445,7 @@ class PeopleController extends AppController {
 		}
 
 		$user_model = Configure::read('Security.authModel');
-		$users_table = TableRegistry::get($user_model);
+		$users_table = TableRegistry::getTableLocator()->get($user_model);
 		$activated = $users_table->activated($person);
 
 		$this->set(compact('person', 'duplicates', 'activated'));
@@ -2501,7 +2501,7 @@ class PeopleController extends AppController {
 				break;
 		}
 
-		if (!$this->People->connection()->transactional(function () use ($save, $delete, $fail_message) {
+		if (!$this->People->getConnection()->transactional(function () use ($save, $delete, $fail_message) {
 			// If we are both deleting and saving, that's a merge operation, and we will want to migrate all
 			// records that aren't part of the in-memory record.
 			if ($save && $delete) {
@@ -2642,7 +2642,7 @@ class PeopleController extends AppController {
 		$team_ids = $this->UserCache->read('TeamIDs', $id);
 
 		if (!empty($team_ids)) {
-			$games = TableRegistry::get('Games')
+			$games = TableRegistry::getTableLocator()->get('Games')
 				->find('schedule', ['teams' => $team_ids])
 				->contain([
 					'ScoreEntries' => [

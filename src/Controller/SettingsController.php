@@ -84,9 +84,9 @@ class SettingsController extends AppController {
 				return $setting->has('id') && in_array($setting->id, $to_delete);
 			})->toArray();
 
-			$this->Settings->connection()->transactional(function () use ($settings, $to_delete, $affiliate_id) {
-				if (!empty($this->request->data)) {
-					$settings = $this->Settings->patchEntities($settings, $this->request->data, ['validate' => false]);
+			$this->Settings->getConnection()->transactional(function () use ($settings, $to_delete, $affiliate_id) {
+				if (!empty($this->request->getData())) {
+					$settings = $this->Settings->patchEntities($settings, $this->request->getData(), ['validate' => false]);
 					foreach ($settings as $setting) {
 						if (!$this->Settings->save($setting)) {
 							$this->Flash->warning(__('Failed to save the settings.'));
@@ -148,7 +148,7 @@ class SettingsController extends AppController {
 			])
 			->toArray();
 
-		$provider = $this->request->data['payment_implementation'];
+		$provider = $this->request->getData('payment_implementation');
 		$this->set(compact('affiliate', 'provider', 'settings', 'defaults'));
 	}
 

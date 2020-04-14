@@ -101,7 +101,7 @@ class EventsController extends AppController {
 			->toArray();
 
 		$years = $this->Events->find()
-			->hydrate(false)
+			->enableHydration(false)
 			->select(['year' => 'DISTINCT YEAR(Events.open)'])
 			->where([
 				'YEAR(Events.open) !=' => 0,
@@ -176,7 +176,7 @@ class EventsController extends AppController {
 			->toArray();
 
 		$types = $this->Events->EventTypes->find()
-			->hydrate(false)
+			->enableHydration(false)
 			->order(['EventTypes.id'])
 			->toArray();
 
@@ -288,13 +288,13 @@ class EventsController extends AppController {
 
 		if ($this->request->is('post')) {
 			// Validation requires this information
-			if (!empty($this->request->data['event_type_id'])) {
-				$type = $this->Events->EventTypes->field('type', ['EventTypes.id' => $this->request->data['event_type_id']]);
+			if (!empty($this->request->getData('event_type_id'))) {
+				$type = $this->Events->EventTypes->field('type', ['EventTypes.id' => $this->request->getData('event_type_id')]);
 			} else {
 				$type = 'default';
 			}
 
-			$event = $this->Events->patchEntity($event, $this->request->data, ['validate' => $type]);
+			$event = $this->Events->patchEntity($event, $this->request->getData(), ['validate' => $type]);
 			if ($this->Events->save($event, ['prices' => $event->prices])) {
 				$this->Flash->success(__('The event has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -379,13 +379,13 @@ class EventsController extends AppController {
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			// Validation requires this information
-			if (!empty($this->request->data['event_type_id'])) {
-				$type = $this->Events->EventTypes->field('type', ['EventTypes.id' => $this->request->data['event_type_id']]);
+			if (!empty($this->request->getData('event_type_id'))) {
+				$type = $this->Events->EventTypes->field('type', ['EventTypes.id' => $this->request->getData('event_type_id')]);
 			} else {
 				$type = 'default';
 			}
 
-			$event = $this->Events->patchEntity($event, $this->request->data, ['validate' => $type]);
+			$event = $this->Events->patchEntity($event, $this->request->getData(), ['validate' => $type]);
 			if ($this->Events->save($event, ['prices' => $event->prices])) {
 				$this->Flash->success(__('The event has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -411,7 +411,7 @@ class EventsController extends AppController {
 
 		$this->request->allowMethod('ajax');
 
-		$type = $this->Events->EventTypes->field('type', ['EventTypes.id' => $this->request->data['event_type_id']]);
+		$type = $this->Events->EventTypes->field('type', ['EventTypes.id' => $this->request->getData('event_type_id')]);
 		$this->set('event_obj', $this->moduleRegistry->load("EventType:{$type}"));
 		$this->set('affiliates', $this->Authentication->applicableAffiliates(true));
 	}
@@ -493,8 +493,8 @@ class EventsController extends AppController {
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			// Alternates always go both ways
-			$this->request->data['alternate_to'] = $this->request->data['alternate'];
-			$event = $this->Events->patchEntity($event, $this->request->data);
+			$this->request->data['alternate_to'] = $this->request->getData('alternate');
+			$event = $this->Events->patchEntity($event, $this->request->getData());
 
 			// We need to add join data for all of the connections we're about to make,
 			// to tell the system what type of connections they are.

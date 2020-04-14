@@ -22,9 +22,9 @@ class UsersTableTest extends TableTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.affiliates',
-			'app.users',
-		'app.i18n',
+		'app.Affiliates',
+			'app.Users',
+		'app.I18n',
 	];
 
 	/**

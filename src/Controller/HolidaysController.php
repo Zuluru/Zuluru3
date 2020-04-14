@@ -38,7 +38,7 @@ class HolidaysController extends AppController {
 		$this->Authorization->authorize($holiday);
 
 		if ($this->request->is('post')) {
-			$holiday = $this->Holidays->patchEntity($holiday, $this->request->data);
+			$holiday = $this->Holidays->patchEntity($holiday, $this->request->getData());
 			if ($this->Holidays->save($holiday)) {
 				$this->Flash->success(__('The holiday has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -74,7 +74,7 @@ class HolidaysController extends AppController {
 		$this->Configuration->loadAffiliate($holiday->affiliate_id);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$holiday = $this->Holidays->patchEntity($holiday, $this->request->data);
+			$holiday = $this->Holidays->patchEntity($holiday, $this->request->getData());
 			if ($this->Holidays->save($holiday)) {
 				$this->Flash->success(__('The holiday has been saved.'));
 				return $this->redirect(['action' => 'index']);
