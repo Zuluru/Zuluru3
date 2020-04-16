@@ -25,6 +25,8 @@ class AjaxView extends View {
 		$this->loadHelper('Form', ['className' => 'ZuluruForm']);
 		$this->loadHelper('Time', ['className' => 'ZuluruTime']);
 		$this->loadHelper('Game', ['className' => 'ZuluruGame']);
+		$this->loadHelper('BootstrapUI.Flash');
+		$this->loadHelper('BootstrapUI.Paginator', ['templates' => 'paginator-templates']);
 		$this->loadHelper('ZuluruJquery.Jquery');
     }
 

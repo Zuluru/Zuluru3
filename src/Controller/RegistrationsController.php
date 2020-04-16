@@ -952,7 +952,11 @@ class RegistrationsController extends AppController {
 						'Divisions' => ['Leagues'],
 					],
 					'Responses',
-					'Payments',
+					'Payments' => [
+						'queryBuilder' => function (Query  $q) {
+							return $q->order(['Payments.created']);
+						},
+					],
 				]
 			]);
 
@@ -974,43 +978,17 @@ class RegistrationsController extends AppController {
 		} else {
 			$payment_obj = null;
 		}
-		$this->set(compact('registration', 'payment', 'refund', 'payment_obj'));
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			// The form has a positive amount to be refunded, which needs to be retained in case of an error.
-			// But the refund record must have a negative amount.
-			$refund_data = $this->request->data;
-			$refund_data['payment_amount'] *= -1;
-
-			$registration->mark_refunded = $this->request->data['mark_refunded'];
-
 			// The registration is also passed as an option, so that the payment marshaller has easy access to it
-			$refund = $this->Registrations->Payments->patchEntity($refund, $refund_data, ['validate' => 'refund', 'registration' => $registration]);
-			$registration->payments[] = $refund;
-			$registration->dirty('payments', true);
-
-			$payment->refunded_amount = round($payment->refunded_amount + $this->request->data['payment_amount'], 2);
-
-			if ($this->Registrations->connection()->transactional(function () use ($registration, $payment_obj, $payment) {
-				// The registration is also passed as an option, so that the payment rules have easy access to it
-				if (!$this->Registrations->save($registration, ['registration' => $registration, 'event' => $registration->event])) {
-					$this->Flash->warning(__('The refund could not be saved. Please correct the errors below and try again.'));
-					return false;
-				}
-
-				if ($payment_obj && $payment_obj->can_refund && $this->request->data['online_refund']) {
-					if (!$payment_obj->refund($payment, $this->request->data['payment_amount'])) {
-						$this->Flash->error(__('Failed to issue refund through online processor. Refund data was NOT saved. You can try again, or uncheck the "Issue refund through online payment provider" box and issue the refund manually.'));
-						return false;
-					}
-				}
-
-				return true;
-			})) {
+			$refund = $this->Registrations->Payments->patchEntity($refund, $this->request->getData(), ['validate' => 'refund', 'registration' => $registration]);
+			if ($this->Registrations->refundPayment($registration->event, $registration, $payment, $refund, $this->request->getData('mark_refunded'), $payment_obj)) {
 				$this->Flash->success(__('The refund has been saved.'));
 				return $this->redirect(['action' => 'view', 'registration' => $registration->id]);
 			}
 		}
+
+		$this->set(compact('registration', 'payment', 'refund', 'payment_obj'));
 	}
 
 	public function credit_payment() {
@@ -1043,43 +1021,16 @@ class RegistrationsController extends AppController {
 		$refund = $this->Registrations->Payments->newEntity();
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			// The form has a positive amount to be credited, which needs to be retained in case of an error.
-			// But the credit record must have a negative amount.
-			$refund_data = $this->request->data;
-			$refund_data['payment_amount'] *= -1;
-
-			$registration->mark_refunded = $this->request->data['mark_refunded'];
-
 			// The registration is also passed as an option, so that the payment marshaller has easy access to it
-			$refund = $this->Registrations->Payments->patchEntity($refund, $refund_data, ['validate' => 'credit', 'registration' => $registration]);
-			$registration->payments[] = $refund;
-			$registration->dirty('payments', true);
-
-			$payment->refunded_amount = round($payment->refunded_amount + $this->request->data['payment_amount'], 2);
-
-			$credit = $this->Registrations->People->Credits->newEntity([
-				'affiliate_id' => $registration->event->affiliate_id,
-				'amount' => $this->request->data['payment_amount'],
-				'notes' => $this->request->data['credit_notes'],
-			]);
-			$registration->person->credits[] = $credit;
-
-			// We don't actually want to update the "modified" column in the people table here, but we do need to save the credit
-			if ($this->Registrations->People->hasBehavior('Timestamp')) {
-				$this->Registrations->People->removeBehavior('Timestamp');
-			}
-			$registration->dirty('person', true);
-			$registration->person->dirty('credits', true);
-
-			if ($this->Registrations->save($registration, ['registration' => $registration, 'event' => $registration->event])) {
+			$refund = $this->Registrations->Payments->patchEntity($refund, $this->request->getData(), ['validate' => 'credit', 'registration' => $registration]);
+			if ($this->Registrations->refundPayment($registration->event, $registration, $payment, $refund, $this->request->getData('mark_refunded'), null, $this->request->getData('credit_notes'))) {
 				$this->Flash->success(__('The credit has been saved.'));
 				$this->UserCache->clear('Credits', $registration->person_id);
 				return $this->redirect(['action' => 'view', 'registration' => $registration->id]);
 			}
-			$this->Flash->warning(__('The credit could not be saved. Please correct the errors below and try again.'));
 		}
 
-		$this->set(compact('registration', 'payment'));
+		$this->set(compact('registration', 'payment', 'refund'));
 	}
 
 	public function transfer_payment() {

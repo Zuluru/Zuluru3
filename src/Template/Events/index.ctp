@@ -1,4 +1,11 @@
 <?php
+/**
+ * @type \App\Model\Entity\Event[] $events
+ * @type string $year
+ * @type string[][] $years
+ * @type int[] $affiliates
+ */
+
 use App\Controller\AppController;
 use Cake\Core\Configure;
 
@@ -171,6 +178,9 @@ else:
 						['alt' => __('Delete'), 'title' => __('Delete')],
 						['confirm' => __('Are you sure you want to delete this price?')]);
 				}
+				if ($this->Authorize->can('refund', $event)) {
+					echo $this->Html->link(__('Bulk Refunds'), ['controller' => 'Events', 'action' => 'refund', 'event' => $event->id, 'price' => $price->id]);
+				}
 				?></td>
 			</tr>
 <?php
@@ -191,8 +201,8 @@ if ($this->Authorize->can('add', \App\Controller\EventsController::class)):
 <div class="actions columns">
 	<ul class="nav nav-pills">
 <?php
-	foreach ($years as $year) {
-		echo $this->Html->tag('li', $this->Html->link($year['year'], ['year' => $year['year']]));
+	foreach ($years as $y) {
+		echo $this->Html->tag('li', $this->Html->link($y['year'], ['year' => $y['year']]));
 	}
 ?>
 	</ul>

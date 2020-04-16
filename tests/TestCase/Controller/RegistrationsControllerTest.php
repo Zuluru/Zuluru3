@@ -5,6 +5,7 @@ use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
+use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 
 /**
@@ -592,9 +593,67 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRefundPaymentAsAdmin() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		// Common data
+		$refund_data = [
+			'registration_id' => REGISTRATION_ID_PLAYER_MEMBERSHIP,
+			'payment_type' => 'Refund',
+			'payment_method' => 'Other',
+			'mark_refunded' => true,
+			'notes' => 'Test notes',
+		];
+
 		// Admins are allowed to refund payments
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'refund_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_ADMIN);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertResponseContains('<input type="checkbox" name="mark_refunded" value="1"');
+		$this->assertResponseContains('<input type="number" name="payment_amount" required="required" step="any" id="payment-amount" class="form-control" value="11.5"/>');
+
+		// Try to refund more than the paid amount
+		$this->assertPostAsAccessOk(['controller' => 'Registrations', 'action' => 'refund_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP],
+			PERSON_ID_ADMIN, $refund_data + ['payment_amount' => 1000]);
+		$this->assertResponseContains('The refund could not be saved. Please correct the errors below and try again.');
+		$this->assertResponseContains('This would refund more than the amount paid.');
+		$this->assertResponseContains('<input type="number" name="payment_amount" required="required" step="any" id="payment-amount" class="form-control" value="1000"/>');
+		$this->assertResponseContains('<input type="checkbox" name="mark_refunded" value="1"');
+
+		// Try to refund $0
+		$this->assertPostAsAccessOk(['controller' => 'Registrations', 'action' => 'refund_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP],
+			PERSON_ID_ADMIN, $refund_data + ['payment_amount' => 0]);
+		$this->assertResponseContains('The refund could not be saved. Please correct the errors below and try again.');
+		$this->assertResponseContains('Refund amounts must be positive.');
+		$this->assertResponseContains('<input type="number" name="payment_amount" required="required" step="any" id="payment-amount" class="form-control" value="0"/>');
+		$this->assertResponseContains('<input type="checkbox" name="mark_refunded" value="1"');
+
+		// Try to refund just the right amount
+		$this->assertPostAsAccessRedirect(['controller' => 'Registrations', 'action' => 'refund_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP],
+			PERSON_ID_ADMIN, $refund_data + ['payment_amount' => 11.50],
+			['controller' => 'Registrations', 'action' => 'view', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP],
+			'The refund has been saved.');
+		$registration = TableRegistry::getTableLocator()->get('Registrations')->get(REGISTRATION_ID_PLAYER_MEMBERSHIP, [
+			'contain' => ['Payments' => [
+				'queryBuilder' => function (Query  $q) {
+					return $q->order(['Payments.created']);
+				},
+			]]
+		]);
+		$this->assertEquals('Cancelled', $registration->payment);
+		$this->assertEquals(2, count($registration->payments));
+		$this->assertEquals(11.5, $registration->payments[0]->refunded_amount);
+		$this->assertEquals(PERSON_ID_ADMIN, $registration->payments[0]->updated_person_id);
+		$refund = $registration->payments[1];
+		$this->assertEquals(REGISTRATION_ID_PLAYER_MEMBERSHIP, $refund->registration_id);
+		$this->assertEquals('Refund', $refund->payment_type);
+		$this->assertEquals(-11.5, $refund->payment_amount);
+		$this->assertEquals(0, $refund->refunded_amount);
+		$this->assertEquals('Test notes', $refund->notes);
+		$this->assertEquals(PERSON_ID_ADMIN, $refund->created_person_id);
+		$this->assertEquals('Other', $refund->payment_method);
+
+		$messages = Configure::consume('test_emails');
+		$this->assertEquals(1, count($messages));
+		$this->assertTextContains('You have been issued a refund of CA$11.50 for your registration for Membership.', $messages[0]);
 	}
 
 	/**
@@ -628,9 +687,78 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testCreditPaymentAsAdmin() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		// Common data
+		$refund_data = [
+			'registration_id' => REGISTRATION_ID_PLAYER_MEMBERSHIP,
+			'payment_type' => 'Credit',
+			'payment_method' => 'Other',
+			'mark_refunded' => true,
+			'notes' => 'Test notes',
+			'credit_notes' => 'Test credit notes',
+		];
+
 		// Admins are allowed to credit payments
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'credit_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_ADMIN);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertResponseContains('<input type="checkbox" name="mark_refunded" value="1"');
+		$this->assertResponseContains('<input type="number" name="payment_amount" required="required" step="any" id="payment-amount" class="form-control" value="11.5"/>');
+
+		// Try to credit more than the paid amount
+		$this->assertPostAsAccessOk(['controller' => 'Registrations', 'action' => 'credit_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP],
+			PERSON_ID_ADMIN, $refund_data + ['payment_amount' => 1000]);
+		$this->assertResponseContains('The refund could not be saved. Please correct the errors below and try again.');
+		$this->assertResponseContains('This would refund more than the amount paid.');
+		$this->assertResponseContains('<input type="number" name="payment_amount" required="required" step="any" id="payment-amount" class="form-control" value="1000"/>');
+		$this->assertResponseContains('<input type="checkbox" name="mark_refunded" value="1"');
+
+		// Try to credit $0
+		$this->assertPostAsAccessOk(['controller' => 'Registrations', 'action' => 'credit_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP],
+			PERSON_ID_ADMIN, $refund_data + ['payment_amount' => 0]);
+		$this->assertResponseContains('The refund could not be saved. Please correct the errors below and try again.');
+		$this->assertResponseContains('Credit amounts must be positive.');
+		$this->assertResponseContains('<input type="number" name="payment_amount" required="required" step="any" id="payment-amount" class="form-control" value="0"/>');
+		$this->assertResponseContains('<input type="checkbox" name="mark_refunded" value="1"');
+
+		// Try to credit just the right amount
+		$this->assertPostAsAccessRedirect(['controller' => 'Registrations', 'action' => 'credit_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP],
+			PERSON_ID_ADMIN, $refund_data + ['payment_amount' => 11.50],
+			['controller' => 'Registrations', 'action' => 'view', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP],
+			'The credit has been saved.');
+		$registration = TableRegistry::getTableLocator()->get('Registrations')->get(REGISTRATION_ID_PLAYER_MEMBERSHIP, [
+			'contain' => ['Payments' => [
+				'queryBuilder' => function (Query  $q) {
+					return $q->order(['Payments.created']);
+				},
+			]]
+		]);
+		$this->assertEquals('Cancelled', $registration->payment);
+		$this->assertEquals(2, count($registration->payments));
+		$this->assertEquals(11.5, $registration->payments[0]->refunded_amount);
+		$this->assertEquals(PERSON_ID_ADMIN, $registration->payments[0]->updated_person_id);
+		$refund = $registration->payments[1];
+		$this->assertEquals(REGISTRATION_ID_PLAYER_MEMBERSHIP, $refund->registration_id);
+		$this->assertEquals('Credit', $refund->payment_type);
+		$this->assertEquals(-11.5, $refund->payment_amount);
+		$this->assertEquals(0, $refund->refunded_amount);
+		$this->assertEquals('Test notes', $refund->notes);
+		$this->assertEquals(PERSON_ID_ADMIN, $refund->created_person_id);
+		$this->assertEquals('Other', $refund->payment_method);
+
+		$credits = TableRegistry::getTableLocator()->get('Credits')->find()
+			->where(['person_id' => PERSON_ID_PLAYER])
+			->toArray();
+		$this->assertEquals(1, count($credits));
+		$this->assertEquals(11.5, $credits[0]->amount);
+		$this->assertEquals(0, $credits[0]->amount_used);
+		$this->assertEquals('Test credit notes', $credits[0]->notes);
+		$this->assertEquals(PERSON_ID_ADMIN, $credits[0]->created_person_id);
+
+		$messages = Configure::consume('test_emails');
+		$this->assertEquals(1, count($messages));
+		$this->assertTextContains('You have been issued a credit of CA$11.50 for your registration for Membership.', $messages[0]);
+		$this->assertTextContains('This credit can be redeemed towards any future purchase on the Test Zuluru Affiliate site', $messages[0]);
 	}
 
 	/**

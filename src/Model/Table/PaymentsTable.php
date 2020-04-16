@@ -131,6 +131,8 @@ class PaymentsTable extends AppTable {
 	 * @return \Cake\ORM\RulesChecker
 	 */
 	public function buildRules(RulesChecker $rules) {
+		$rules->add($rules->existsIn(['registration_id'], 'Registrations'));
+
 		$rules->add(new InConfigRule('options.payment_method'), 'validPaymentMethod', [
 			'errorField' => 'payment_method',
 			'message' => __('Select a valid payment method.'),
@@ -172,6 +174,10 @@ class PaymentsTable extends AppTable {
 			} else {
 				$data['payment_type'] = 'Installment';
 			}
+		}
+
+		if (in_array($data['payment_type'], ['Refund', 'Credit']) && array_key_exists('payment_amount', $data)) {
+			$data['payment_amount'] *= -1;
 		}
 	}
 

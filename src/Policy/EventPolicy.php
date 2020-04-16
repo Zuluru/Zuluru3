@@ -72,6 +72,10 @@ class EventPolicy extends AppPolicy {
 		return $identity->isManagerOf($event) || $identity->isCoordinatorOf($event);
 	}
 
+	public function canRefund(IdentityInterface $identity, Event $event) {
+		return $identity->isManagerOf($event);
+	}
+
 	/**
 	 * Test whether a user is allowed to register for something.
 	 *

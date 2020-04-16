@@ -1,6 +1,11 @@
 <?php
 namespace App\Model\Table;
 
+use App\Event\FlashTrait;
+use App\Model\Entity\Credit;
+use App\Model\Entity\Event;
+use App\Model\Entity\Payment;
+use App\Model\Entity\Registration;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
@@ -24,6 +29,8 @@ use App\Core\ModuleRegistry;
  * @property \Cake\ORM\Association\HasMany $Responses
  */
 class RegistrationsTable extends AppTable {
+
+	use FlashTrait;
 
 	/**
 	 * Initialize method
@@ -389,6 +396,155 @@ class RegistrationsTable extends AppTable {
 				],
 			]);
 		}
+	}
+
+	public function refund(Event $event, Registration $registration, $data, $payment_obj = null) {
+		return $this->getConnection()->transactional(function () use ($event, $registration, $data, $payment_obj) {
+			if (empty($registration->payments)) {
+				$this->Flash('warning', __('This registration has no payments recorded. When receiving offline payments, be sure to use the "Add Payment" function, rather than just marking the registration as "Paid".'));
+				return false;
+			}
+
+			switch ($data['amount_type']) {
+				case 'total':
+					$refund_amount = $registration->total_payment;
+					break;
+				case 'prorated':
+					$refund_amount = round($registration->total_amount * $data['payment_percent'] / 100, 2);
+					break;
+				case 'input':
+					$refund_amount = $data['payment_amount'];
+					break;
+			}
+
+			if (array_key_exists('credit_notes', $data)) {
+				$credit_notes = $data['credit_notes'];
+			} else {
+				$credit_notes = null;
+			}
+
+			// Check if there's a payment that exactly matches the refund amount
+			$payment = collection($registration->payments)->match(['paid' => $refund_amount])->first();
+			if ($payment) {
+				// The registration is also passed as an option, so that the payment marshaller has easy access to it
+				$refund = $this->Payments->newEntity(array_merge($data, [
+					'registration_id' => $registration->id,
+					'payment_amount' => $refund_amount,
+				]), ['validate' => 'refund', 'registration' => $registration]);
+
+				return $this->refundPayment($event, $registration, $payment, $refund, $data['mark_refunded'], $payment_obj, $credit_notes);
+			}
+
+			// Go through all the payments, refunding them one at a time, until the requested amount has been covered
+			foreach ($registration->payments as $payment) {
+				$amount = min($refund_amount, $payment->paid);
+				$refund_amount -= $amount;
+
+				// The registration is also passed as an option, so that the payment marshaller has easy access to it
+				$refund = $this->Payments->newEntity(array_merge($data, [
+					'registration_id' => $registration->id,
+					'payment_amount' => $amount,
+				]), ['validate' => 'refund', 'registration' => $registration]);
+
+				if (!$this->refundPayment($event, $registration, $payment, $refund, $data['mark_refunded'], $payment_obj, $credit_notes)) {
+					if ($payment->getErrors()) {
+						foreach ($payment->getErrors() as $errors) {
+							foreach ($errors as $error) {
+								$this->Flash('warning', $error);
+							}
+						}
+					}
+
+					if ($refund->getErrors()) {
+						foreach ($refund->getErrors() as $errors) {
+							foreach ($errors as $error) {
+								$this->Flash('warning', $error);
+							}
+						}
+					}
+
+					return false;
+				}
+
+				if ($refund_amount == 0) {
+					// We don't need to refund any more payments to complete the request
+					return true;
+				}
+			}
+
+			// There's still some amount left to refund?
+			$this->Flash('warning', __('This would refund more than the amount paid.'));
+			return false;
+		});
+	}
+
+	public function refundPayment(Event $event, Registration $registration, Payment $payment = null, Payment $refund, $mark_refunded, $payment_obj = null, $credit_notes = null) {
+		// The form has a positive amount to be refunded, but the refund record has a negative amount.
+		$payment->refunded_amount = round($payment->refunded_amount - $refund->payment_amount, 2);
+		$registration->mark_refunded = $mark_refunded;
+
+		$registration->payments[] = $refund;
+		$registration->setDirty('payments', true);
+
+		if ($refund->payment_type == 'Credit') {
+			if (empty($registration->person->credits)) {
+				$registration->person->credits = [];
+			}
+			$registration->person->credits[] = $this->People->Credits->newEntity([
+				'affiliate_id' => $event->affiliate_id,
+				'person_id' => $registration->person_id,
+				'amount' => -$refund->payment_amount,
+				'notes' => $credit_notes,
+			]);
+			$registration->person->setDirty('credits', true);
+
+			// We don't actually want to update the "modified" column in the people table here, but we do need to save the credit
+			if ($this->People->hasBehavior('Timestamp')) {
+				$this->People->removeBehavior('Timestamp');
+			}
+			$registration->setDirty('person', true);
+		}
+
+		return $this->getConnection()->transactional(function () use ($event, $registration, $payment_obj, $payment, $refund) {
+			// The registration is also passed as an option, so that the payment rules have easy access to it
+			if (!$this->save($registration, ['registration' => $registration, 'event' => $event])) {
+				$this->Flash('warning', __('The refund could not be saved. Please correct the errors below and try again.'));
+
+				if ($payment->getError('payment_amount')) {
+					$refund->setErrors(['payment_amount' => $payment->getError('payment_amount')]);
+				}
+
+				return false;
+			}
+
+			if ($refund->payment_type == 'Refund' && $payment_obj && $payment_obj->can_refund && $this->request->getData('online_refund') &&
+				!$payment_obj->refund($payment, $this->request->getData('payment_amount'))
+			) {
+				$this->Flash('error', __('Failed to issue refund through online processor. Refund data was NOT saved. You can try again, or uncheck the "Issue refund through online payment provider" box and issue the refund manually.'));
+				return false;
+			}
+
+			AppController::_sendMail([
+				'to' => $registration->person,
+				'subject' => function() use ($refund) {
+					if ($refund->payment_type == 'Refund') {
+						return __('{0} Registration refunded', Configure::read('organization.name'));
+					} else {
+						return __('{0} Registration credited', Configure::read('organization.name'));
+					}
+				},
+				'template' => 'registration_refunded',
+				'sendAs' => 'both',
+				'viewVars' => [
+					'event' => $event,
+					'registration' => $registration,
+					'refund' => $refund,
+					'person' => $registration->person,
+				],
+			]);
+
+			return true;
+		});
 	}
 
 	public function affiliate($id) {

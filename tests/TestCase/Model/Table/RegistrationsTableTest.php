@@ -157,7 +157,7 @@ class RegistrationsTableTest extends TableTestCase {
 		$this->assertEquals('Paid', $registration->payment);
 		$registration->payments[] = $this->RegistrationsTable->Payments->newEntity([
 			'payment_type' => 'Refund',
-			'payment_amount' => - $registration->total_amount,
+			'payment_amount' => $registration->total_amount,
 			'payment_method' => 'Online',
 		]);
 		$registration->dirty('payments', true);

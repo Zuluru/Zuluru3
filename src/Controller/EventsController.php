@@ -552,4 +552,103 @@ class EventsController extends AppController {
 		$this->set(compact('event', 'events', 'event_types', 'predecessor', 'predecessorTo', 'successor', 'successorTo', 'alternate'));
 	}
 
+	/**
+	 * Refund method
+	 *
+	 * @return void|\Cake\Network\Response
+	 */
+	public function refund() {
+		$this->paginate['order'] = ['Registrations.payment' => 'DESC', 'Registrations.created' => 'DESC'];
+		$this->paginate['limit'] = 10;
+		$id = $this->request->getQuery('event');
+		$price_id = $this->request->getQuery('price');
+
+		try {
+			$event = $this->Events->get($id, [
+				'contain' => [
+					'EventTypes',
+					'Prices' => [
+						'queryBuilder' => function (Query $q) use ($price_id) {
+							if ($price_id) {
+								$q->where(['Prices.id' => $price_id]);
+							}
+							return $q->order(['Prices.open', 'Prices.close', 'Prices.id']);
+						},
+					],
+				],
+			]);
+		} catch (RecordNotFoundException $ex) {
+			$this->Flash->info(__('Invalid event.'));
+			return $this->redirect(['action' => 'index']);
+		} catch (InvalidPrimaryKeyException $ex) {
+			$this->Flash->info(__('Invalid event.'));
+			return $this->redirect(['action' => 'index']);
+		}
+
+		$this->Authorization->authorize($event, 'refund');
+		$this->Configuration->loadAffiliate($event->affiliate_id);
+		$event->prices = collection($event->prices)->indexBy('id')->toArray();
+
+		$refund = $this->Events->Registrations->Payments->newEntity();
+
+		if ($this->request->is('post')) {
+			$data = $this->request->getData();
+			$refund = $this->Events->Registrations->Payments->patchEntity($refund, $data);
+
+			if (!in_array($data['amount_type'], ['total', 'prorated', 'input'])) {
+				$refund->setError('amount_type', __('Select a refund amount option.'));
+			} else {
+				if (!empty($data['registrations'])) {
+					$registration_ids = $data['registrations'];
+					unset($data['registrations']);
+
+					if (Configure::read('registration.online_payments')) {
+						$payment_obj = $this->moduleRegistry->load('Payment:' . Configure::read('payment.payment_implementation'));
+					} else {
+						$payment_obj = null;
+					}
+
+					$registrations = $this->Events->Registrations->find()
+						->contain([
+							'Payments' => [
+								'queryBuilder' => function (Query $q) {
+									return $q->order(['Payments.created']);
+								},
+							],
+							'People',
+						])
+						->where(['Registrations.id IN' => array_keys($registration_ids)]);
+
+					$failed = [];
+					foreach ($registrations as $registration) {
+						if (!$this->Events->Registrations->refund($event, $registration, $data, $payment_obj)) {
+							$failed[$registration->id] = $registration->person->full_name;
+						}
+					}
+
+					if (!empty($failed)) {
+						$this->Flash->refunds_failed(null, ['params' => compact('failed')]);
+					} else if ($data['payment_type'] == 'Credit') {
+						$this->Flash->success(__('The credits have been saved.'));
+					} else {
+						$this->Flash->success(__('The refunds have been saved.'));
+					}
+				} else {
+					$this->Flash->info(__('You didn\'t select any registrations to refund.'));
+				}
+			}
+		}
+
+		$query = $this->Events->Registrations->find()
+			->contain(['People', 'Payments'])
+			->where(['Registrations.event_id' => $id, 'Registrations.payment IN' => Configure::read('registration_some_paid')])
+			->order(['Registrations.price_id', 'Registrations.created', 'People.last_name', 'People.first_name']);
+		if ($price_id) {
+			$query->andWhere(['Registrations.price_id' => $price_id]);
+		}
+
+		$this->set(compact('id', 'price_id', 'event', 'refund'));
+		$this->set('registrations', $this->paginate($query));
+	}
+
 }

@@ -1,4 +1,8 @@
 <?php
+/**
+ * @type \App\Model\Entity\Event $event
+ */
+
 use App\Controller\AppController;
 use Cake\Core\Configure;
 
@@ -96,6 +100,14 @@ if ($this->Authorize->can('waiting', $event)) {
 	if ($this->getRequest()->getParam('controller') != 'Registrations' || $this->getRequest()->getParam('action') != 'summary') {
 		$more[__('Waiting List')] = [
 			'url' => ['controller' => 'Registrations', 'action' => 'waiting', 'event' => $event->id],
+		];
+	}
+}
+
+if ($this->Authorize->can('refund', $event)) {
+	if ($this->getRequest()->getParam('controller') != 'Events' || $this->getRequest()->getParam('action') != 'refund') {
+		$more[__('Bulk Refunds')] = [
+			'url' => ['controller' => 'Events', 'action' => 'refund', 'event' => $event->id],
 		];
 	}
 }
