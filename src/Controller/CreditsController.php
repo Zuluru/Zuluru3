@@ -5,8 +5,10 @@ use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Http\Exception\MethodNotAllowedException;
+use Cake\I18n\FrozenDate;
 use Cake\ORM\Entity;
 use Cake\ORM\Query;
+use Cake\ORM\TableRegistry;
 
 /**
  * Credits Controller
@@ -225,7 +227,55 @@ class CreditsController extends AppController {
 			}
 		}
 
-		$this->set(compact('credit'));
+		// Get all this person's relatives, and also their relatives, to make it easy to transfer among family
+		$relative_ids = array_unique(array_merge(
+			$this->UserCache->read('RelativeIDs', $credit->person_id),
+			$this->UserCache->read('RelatedToIDs', $credit->person_id)
+		));
+		$relatives = $relative_ids;
+		foreach ($relative_ids as $relative) {
+			$relatives += array_merge(
+				$this->UserCache->read('RelativeIDs', $relative),
+				$this->UserCache->read('RelatedToIDs', $relative)
+			);
+		}
+		if (!empty($relatives)) {
+			$relatives = $this->Credits->People->find()
+				->where([
+					'People.id IN' => $relatives,
+					'People.id !=' => $credit->person_id,
+					'People.status !=' => 'inactive',
+				])
+				->toArray();
+		}
+
+		// Find all recent, current and upcoming teams, and their captains
+		$teams = TableRegistry::getTableLocator()->get('Teams')->find()
+			->contain(['Divisions'])
+			->matching('People', function (Query $q) use ($credit) {
+				return $q->where(['People.id' => $credit->person_id]);
+			})
+			->where([
+				'Teams.division_id IS NOT' => null,
+				'Divisions.close >' => FrozenDate::now()->subMonths(3),
+			])
+			->extract('id')
+			->toArray();
+		if (!empty($teams)) {
+			$captains = $this->Credits->People->find()
+				->distinct()
+				->matching('Teams', function (Query $q) use ($teams) {
+					return $q->where([
+						'Teams.id IN' => $teams,
+						'TeamsPeople.role IN' => Configure::read('privileged_roster_roles'),
+					]);
+				})
+				->toArray();
+		} else {
+			$captains = [];
+		}
+
+		$this->set(compact('credit', 'relatives', 'captains'));
 		$this->_handlePersonSearch(['credit']);
 	}
 

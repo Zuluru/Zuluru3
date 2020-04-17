@@ -60,10 +60,16 @@ elseif (isset($people)):
 								$extra_url_field = $url_params['url_field'];
 								unset($url_params['url_field']);
 							}
+							if (empty($url_params['link_opts'])) {
+								$link_opts = [];
+							} else {
+								$link_opts = $url_params['link_opts'];
+								unset($url_params['link_opts']);
+							}
 
 							if (!empty($person[$extra_url_field])) {
 								$url_params = array_merge([$extra_url_parameter => $person[$extra_url_field], 'return' => AppController::_return()], $url_params);
-								echo $this->Html->link($title, $url_params);
+								echo $this->Html->link($title, $url_params, $link_opts);
 							}
 						}
 					}
