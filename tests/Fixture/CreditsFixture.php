@@ -25,13 +25,19 @@ class CreditsFixture extends TestFixture {
 			[
 				'affiliate_id' => AFFILIATE_ID_CLUB,
 				'person_id' => PERSON_ID_CAPTAIN,
-				'amount' => 1,
+				'payment_id' => null,
+				'amount' => 11,
 				'amount_used' => 10,
-				'notes' => 'Lorem ipsum dolor sit amet, aliquet feugiat. Convallis morbi fringilla gravida, phasellus feugiat dapibus velit nunc, pulvinar eget sollicitudin venenatis cum nullam, vivamus ut a sed, mollitia lectus. Nulla vestibulum massa neque ut et, id hendrerit sit, feugiat in taciti enim proin nibh, tempor dignissim, rhoncus duis vestibulum nunc mattis convallis.',
+				'notes' => 'Credit note.',
 				'created' => FrozenDate::now(),
 				'created_person_id' => PERSON_ID_ADMIN,
 			],
 		];
+
+		if (!defined('CREDIT_ID_CAPTAIN')) {
+			$i = 0;
+			define('CREDIT_ID_CAPTAIN', ++$i);
+		}
 
 		parent::init();
 	}

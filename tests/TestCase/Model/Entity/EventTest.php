@@ -102,7 +102,7 @@ class EventTest extends TestCase {
 	 */
 	public function testCount() {
 		$this->assertEquals(3, $this->Event1->count('Woman'));
-		$this->assertEquals(0, $this->Event1->count('Open'));
+		$this->assertEquals(1, $this->Event1->count('Open'));
 		$this->assertEquals(3, $this->Event1->count('Woman', ['People.addr_city' => 'Toronto']));
 		$this->assertEquals(0, $this->Event1->count('Woman', ['People.addr_city' => 'Ottawa']));
 		$this->assertEquals(3, $this->Event1->count('Woman', [], ['Paid', 'Unpaid']));
@@ -170,13 +170,14 @@ class EventTest extends TestCase {
 	 */
 	public function testGetPeople() {
 		$people1 = $this->Event1->people->toArray();
-		// Only three people have made some payment paid
-		$this->assertEquals(3, count($people1));
+		// Only four people have made some payment
+		$this->assertEquals(4, count($people1));
 		$this->assertEquals(PERSON_ID_PLAYER, $people1[0]->id);
 		$this->assertEquals(PERSON_ID_CAPTAIN, $people1[1]->id);
-		$this->assertEquals(PERSON_ID_CHILD, $people1[2]->id);
+		$this->assertEquals(PERSON_ID_CAPTAIN2, $people1[2]->id);
+		$this->assertEquals(PERSON_ID_CHILD, $people1[3]->id);
 
-		$this->assertEmpty($this->Event2->people->toArray());
+		$this->assertEmpty($this->Event3->people->toArray());
 	}
 
 	public function testMergeAutoQuestions() {

@@ -16,6 +16,8 @@ use App\Model\Rule\InConfigRule;
  *
  * @property \Cake\ORM\Association\BelongsTo $Registrations
  * @property \Cake\ORM\Association\BelongsTo $RegistrationAudits
+ * @property \Cake\ORM\Association\BelongsTo $Payments
+ * @property \Cake\ORM\Association\HasMany $Credits
  */
 class PaymentsTable extends AppTable {
 
@@ -58,6 +60,14 @@ class PaymentsTable extends AppTable {
 		]);
 		$this->belongsTo('RegistrationAudits', [
 			'foreignKey' => 'registration_audit_id',
+		]);
+		$this->belongsTo('Payments', [
+			'foreignKey' => 'payment_id',
+		]);
+
+		$this->hasMany('Credits', [
+			'foreignKey' => 'payment_id',
+			'dependent' => true,
 		]);
 	}
 
@@ -115,14 +125,6 @@ class PaymentsTable extends AppTable {
 		return $this->validationAmount($validator, __('Credit'), ['comparison', '<', 0]);
 	}
 
-	public function validationTransferFrom(Validator $validator) {
-		return $this->validationAmount($validator, __('Transfer'), ['comparison', '<', 0]);
-	}
-
-	public function validationTransferTo(Validator $validator) {
-		return $this->validationAmount($validator, __('Transfer'));
-	}
-
 	/**
 	 * Returns a rules checker object that will be used for validating
 	 * application integrity.
@@ -146,7 +148,7 @@ class PaymentsTable extends AppTable {
 		]);
 
 		$rules->add(function (EntityInterface $entity, Array $options) {
-			return ($entity->refunded_amount <= $entity->payment_amount);
+			return ($entity->refunded_amount <= $entity->payment_amount) || in_array($entity->payment_type, ['Refund', 'Credit', 'Transfer']);
 		}, 'validPayments', [
 			'errorField' => 'payment_amount',
 			'message' => __('This would refund more than the amount paid.'),
@@ -178,6 +180,22 @@ class PaymentsTable extends AppTable {
 
 		if (in_array($data['payment_type'], ['Refund', 'Credit']) && array_key_exists('payment_amount', $data)) {
 			$data['payment_amount'] *= -1;
+		}
+	}
+
+	/**
+	 * Perform additional operations before it is deleted.
+	 *
+	 * @param \Cake\Event\Event $cakeEvent The beforeDelete event that was fired
+	 * @param \Cake\Datasource\EntityInterface $entity The entity to be deleted
+	 * @param \ArrayObject $options The options passed to the delete method
+	 * @return bool
+	 */
+	public function beforeDelete(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+		if ($entity->payment) {
+			// To avoid the registration ugliness from CreditsTable::beforeSave, we go straight to the table here.
+			// This will be fine, as deleting a refund can't put us into any invalid state.
+			$this->Payments->updateAll(['refunded_amount' => $entity->payment->refunded_amount + $entity->payment_amount], ['id' => $entity->payment->id]);
 		}
 	}
 

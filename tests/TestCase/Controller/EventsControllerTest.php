@@ -2,6 +2,7 @@
 namespace App\Test\TestCase\Controller;
 
 use Cake\Core\Configure;
+use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
@@ -36,10 +37,20 @@ class EventsControllerTest extends ControllerTestCase {
 				'app.Divisions',
 					'app.Teams',
 						'app.TeamsPeople',
+						'app.TeamEvents',
+						'app.TeamsFacilities',
 					'app.DivisionsDays',
 					'app.GameSlots',
 						'app.DivisionsGameslots',
 					'app.DivisionsPeople',
+					'app.Pools',
+						'app.PoolsTeams',
+					'app.Games',
+						'app.GamesAllstars',
+						'app.ScoreEntries',
+						'app.SpiritEntries',
+						'app.Stats',
+			'app.Attendances',
 			'app.Franchises',
 				'app.FranchisesTeams',
 			'app.Questionnaires',
@@ -52,6 +63,10 @@ class EventsControllerTest extends ControllerTestCase {
 				'app.EventsConnections',
 			'app.Badges',
 				'app.BadgesPeople',
+			'app.MailingLists',
+				'app.Newsletters',
+			'app.ActivityLogs',
+			'app.Notes',
 			'app.Settings',
 			'app.Waivers',
 				'app.WaiversPeople',
@@ -477,7 +492,7 @@ class EventsControllerTest extends ControllerTestCase {
 			'payment_type' => 'Refund',
 			'payment_method' => 'Other',
 			'amount_type' => 'input',
-			'mark_refunded' => true,
+			'mark_refunded' => false,
 			'notes' => 'Test notes',
 			'registrations' => [
 				REGISTRATION_ID_PLAYER_MEMBERSHIP => true,
@@ -518,7 +533,7 @@ class EventsControllerTest extends ControllerTestCase {
 				},
 			]]
 		]);
-		$this->assertEquals('Cancelled', $registration->payment);
+		$this->assertEquals('Paid', $registration->payment);
 		$this->assertEquals(2, count($registration->payments));
 		$this->assertEquals(11.5, $registration->payments[0]->refunded_amount);
 		$this->assertEquals(PERSON_ID_ADMIN, $registration->payments[0]->updated_person_id);
@@ -530,6 +545,7 @@ class EventsControllerTest extends ControllerTestCase {
 		$this->assertEquals('Test notes', $refund->notes);
 		$this->assertEquals(PERSON_ID_ADMIN, $refund->created_person_id);
 		$this->assertEquals('Other', $refund->payment_method);
+		$this->assertEquals(PAYMENT_ID_PLAYER_MEMBERSHIP, $refund->payment_id);
 
 		$messages = Configure::consume('test_emails');
 		$this->assertEquals(1, count($messages));
@@ -540,6 +556,60 @@ class EventsControllerTest extends ControllerTestCase {
 		$this->assertPostAsAccessOk(['controller' => 'Events', 'action' => 'refund', 'event' => EVENT_ID_MEMBERSHIP],
 			PERSON_ID_ADMIN, $refund_data);
 		$this->assertResponseContains('You didn&#039;t select any registrations to refund.');
+	}
+
+	/**
+	 * Test refunding of team events
+	 *
+	 * @return void
+	 */
+	public function testRefundTeamEvent() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		$this->assertPostAsAccessOk(['controller' => 'Events', 'action' => 'refund', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_ADMIN, [
+			'payment_type' => 'Refund',
+			'payment_method' => 'Other',
+			'payment_amount' => 575,
+			'amount_type' => 'input',
+			'mark_refunded' => true,
+			'notes' => 'Full refund',
+			'registrations' => [
+				REGISTRATION_ID_CAPTAIN2_TEAM => true,
+			],
+		]);
+		$this->assertResponseContains('The refunds have been saved.');
+		$registration = TableRegistry::getTableLocator()->get('Registrations')->get(REGISTRATION_ID_CAPTAIN2_TEAM, [
+			'contain' => ['Payments' => [
+				'queryBuilder' => function (Query  $q) {
+					return $q->order(['Payments.created']);
+				},
+			]]
+		]);
+		$this->assertEquals('Cancelled', $registration->payment);
+		$this->assertEquals(2, count($registration->payments));
+		$this->assertEquals(575, $registration->payments[0]->refunded_amount);
+		$this->assertEquals(PERSON_ID_ADMIN, $registration->payments[0]->updated_person_id);
+		$refund = $registration->payments[1];
+		$this->assertEquals(REGISTRATION_ID_CAPTAIN2_TEAM, $refund->registration_id);
+		$this->assertEquals('Refund', $refund->payment_type);
+		$this->assertEquals(-575, $refund->payment_amount);
+		$this->assertEquals(0, $refund->refunded_amount);
+		$this->assertEquals('Full refund', $refund->notes);
+		$this->assertEquals(PERSON_ID_ADMIN, $refund->created_person_id);
+		$this->assertEquals('Other', $refund->payment_method);
+		$this->assertEquals(PAYMENT_ID_CAPTAIN2_TEAM, $refund->payment_id);
+
+		$messages = Configure::consume('test_emails');
+		$this->assertEquals(1, count($messages));
+		$this->assertTextContains('You have been issued a refund of CA$575.00 for your registration for Team.', $messages[0]);
+
+		try {
+			$team = TableRegistry::getTableLocator()->get('Teams')->get(TEAM_ID_BLUE);
+			$this->assertNull($team, 'The team was not successfully deleted.');
+		} catch (RecordNotFoundException $ex) {
+			// Expected result; the team should be gone
+		}
 	}
 
 	/**
@@ -587,6 +657,7 @@ class EventsControllerTest extends ControllerTestCase {
 		$this->assertEquals('Test notes', $refund->notes);
 		$this->assertEquals(PERSON_ID_ADMIN, $refund->created_person_id);
 		$this->assertEquals('Other', $refund->payment_method);
+		$this->assertEquals(PAYMENT_ID_PLAYER_MEMBERSHIP, $refund->payment_id);
 
 		$credits = TableRegistry::getTableLocator()->get('Credits')->find()
 			->where(['person_id' => PERSON_ID_PLAYER])
@@ -596,6 +667,7 @@ class EventsControllerTest extends ControllerTestCase {
 		$this->assertEquals(0, $credits[0]->amount_used);
 		$this->assertEquals('Test credit notes', $credits[0]->notes);
 		$this->assertEquals(PERSON_ID_ADMIN, $credits[0]->created_person_id);
+		$this->assertEquals(PAYMENT_ID_NEW, $credits[0]->payment_id);
 
 		$messages = Configure::consume('test_emails');
 		$this->assertEquals(1, count($messages));

@@ -52,22 +52,4 @@ class PaymentPolicy extends AppPolicy {
 		return true;
 	}
 
-	public function canTransfer_payment(IdentityInterface $identity, Payment $payment) {
-		if (!$identity->isManagerOf($payment)) {
-			return false;
-		}
-
-		// Check whether we can even transfer this
-		if ($payment->payment_amount == $payment->refunded_amount) {
-			throw new ForbiddenRedirectException(__('This payment has already been fully refunded.'),
-				['action' => 'view', 'registration' => $payment->registration_id]);
-		}
-		if (!in_array($payment->payment_type, Configure::read('payment_payment'))) {
-			throw new ForbiddenRedirectException(__('Only payments can be transferred.'),
-				['action' => 'view', 'registration' => $payment->registration_id]);
-		}
-
-		return true;
-	}
-
 }

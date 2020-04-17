@@ -478,31 +478,26 @@ class RegistrationsTable extends AppTable {
 		});
 	}
 
-	public function refundPayment(Event $event, Registration $registration, Payment $payment = null, Payment $refund, $mark_refunded, $payment_obj = null, $credit_notes = null) {
+	public function refundPayment(Event $event, Registration $registration, Payment $payment, Payment $refund, $mark_refunded, $payment_obj = null, $credit_notes = null) {
 		// The form has a positive amount to be refunded, but the refund record has a negative amount.
 		$payment->refunded_amount = round($payment->refunded_amount - $refund->payment_amount, 2);
 		$registration->mark_refunded = $mark_refunded;
 
 		$registration->payments[] = $refund;
+		$refund->payment_id = $payment->id;
 		$registration->setDirty('payments', true);
 
 		if ($refund->payment_type == 'Credit') {
-			if (empty($registration->person->credits)) {
-				$registration->person->credits = [];
+			if (empty($refund->credits)) {
+				$refund->credits = [];
 			}
-			$registration->person->credits[] = $this->People->Credits->newEntity([
+			$refund->credits[] = $this->Payments->Credits->newEntity([
 				'affiliate_id' => $event->affiliate_id,
 				'person_id' => $registration->person_id,
 				'amount' => -$refund->payment_amount,
 				'notes' => $credit_notes,
 			]);
-			$registration->person->setDirty('credits', true);
-
-			// We don't actually want to update the "modified" column in the people table here, but we do need to save the credit
-			if ($this->People->hasBehavior('Timestamp')) {
-				$this->People->removeBehavior('Timestamp');
-			}
-			$registration->setDirty('person', true);
+			$refund->setDirty('credits', true);
 		}
 
 		return $this->getConnection()->transactional(function () use ($event, $registration, $payment_obj, $payment, $refund) {

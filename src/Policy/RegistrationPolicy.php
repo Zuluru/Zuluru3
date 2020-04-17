@@ -165,8 +165,4 @@ class RegistrationPolicy extends AppPolicy {
 		return $identity->isManager();
 	}
 
-	public function canCredits(IdentityInterface $identity, $controller) {
-		return $identity->isManager();
-	}
-
 }

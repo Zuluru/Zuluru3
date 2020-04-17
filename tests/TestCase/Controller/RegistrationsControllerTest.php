@@ -3,6 +3,7 @@ namespace App\Test\TestCase\Controller;
 
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
+use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
@@ -31,12 +32,25 @@ class RegistrationsControllerTest extends ControllerTestCase {
 				'app.GroupsPeople',
 			'app.UploadTypes',
 				'app.Uploads',
+			'app.Regions',
+				'app.Facilities',
+					'app.Fields',
 			'app.Leagues',
 				'app.Divisions',
 					'app.Teams',
 						'app.TeamsPeople',
+						'app.TeamEvents',
+						'app.TeamsFacilities',
 					'app.DivisionsDays',
 					'app.DivisionsPeople',
+					'app.Pools',
+						'app.PoolsTeams',
+					'app.Games',
+						'app.GamesAllstars',
+						'app.ScoreEntries',
+						'app.SpiritEntries',
+						'app.Stats',
+			'app.Attendances',
 			'app.Franchises',
 				'app.FranchisesPeople',
 				'app.FranchisesTeams',
@@ -52,6 +66,11 @@ class RegistrationsControllerTest extends ControllerTestCase {
 						'app.Responses',
 				'app.Preregistrations',
 			'app.Badges',
+				'app.BadgesPeople',
+			'app.MailingLists',
+				'app.Newsletters',
+			'app.ActivityLogs',
+			'app.Notes',
 			'app.Settings',
 			'app.Waivers',
 				'app.WaiversPeople',
@@ -429,7 +448,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 */
 	public function testUnregisterAsAdmin() {
 		// Admins are allowed to unregister
-		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => REGISTRATION_ID_CAPTAIN2_MEMBERSHIP],
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => REGISTRATION_ID_COORDINATOR_MEMBERSHIP],
 			PERSON_ID_ADMIN, '/',
 			'Successfully unregistered from this event.');
 		$this->markTestIncomplete('Not implemented yet.');
@@ -442,7 +461,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 */
 	public function testUnregisterAsManager() {
 		// Managers are allowed to unregister
-		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => REGISTRATION_ID_CAPTAIN2_MEMBERSHIP],
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => REGISTRATION_ID_COORDINATOR_MEMBERSHIP],
 			PERSON_ID_MANAGER, '/',
 			'Successfully unregistered from this event.');
 		$this->markTestIncomplete('Not implemented yet.');
@@ -469,7 +488,8 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	public function testUnregisterAsCaptain() {
 		// Captains are allowed to unregister
 		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => REGISTRATION_ID_CAPTAIN2_MEMBERSHIP],
-			PERSON_ID_CAPTAIN2, ['controller' => 'Registrations', 'action' => 'checkout'], 'Successfully unregistered from this event.');
+			PERSON_ID_CAPTAIN2, ['controller' => 'Registrations', 'action' => 'checkout'],
+			'You have already paid for this! Contact the office to arrange a refund.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -601,7 +621,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 			'registration_id' => REGISTRATION_ID_PLAYER_MEMBERSHIP,
 			'payment_type' => 'Refund',
 			'payment_method' => 'Other',
-			'mark_refunded' => true,
+			'mark_refunded' => false,
 			'notes' => 'Test notes',
 		];
 
@@ -638,7 +658,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 				},
 			]]
 		]);
-		$this->assertEquals('Cancelled', $registration->payment);
+		$this->assertEquals('Paid', $registration->payment);
 		$this->assertEquals(2, count($registration->payments));
 		$this->assertEquals(11.5, $registration->payments[0]->refunded_amount);
 		$this->assertEquals(PERSON_ID_ADMIN, $registration->payments[0]->updated_person_id);
@@ -650,10 +670,65 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$this->assertEquals('Test notes', $refund->notes);
 		$this->assertEquals(PERSON_ID_ADMIN, $refund->created_person_id);
 		$this->assertEquals('Other', $refund->payment_method);
+		$this->assertEquals(PAYMENT_ID_PLAYER_MEMBERSHIP, $refund->payment_id);
 
 		$messages = Configure::consume('test_emails');
 		$this->assertEquals(1, count($messages));
 		$this->assertTextContains('You have been issued a refund of CA$11.50 for your registration for Membership.', $messages[0]);
+	}
+
+	/**
+	 * Test refunding of team events
+	 *
+	 * @return void
+	 */
+	public function testRefundTeamEvent() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		$this->assertPostAsAccessRedirect(['controller' => 'Registrations', 'action' => 'refund_payment', 'payment' => PAYMENT_ID_CAPTAIN2_TEAM],
+			PERSON_ID_ADMIN,
+			[
+				'registration_id' => REGISTRATION_ID_CAPTAIN2_TEAM,
+				'payment_type' => 'Refund',
+				'payment_method' => 'Other',
+				'payment_amount' => 575,
+				'mark_refunded' => true,
+				'notes' => 'Full refund',
+			],
+			['controller' => 'Registrations', 'action' => 'view', 'registration' => REGISTRATION_ID_CAPTAIN2_TEAM],
+			'The refund has been saved.');
+		$registration = TableRegistry::getTableLocator()->get('Registrations')->get(REGISTRATION_ID_CAPTAIN2_TEAM, [
+			'contain' => ['Payments' => [
+				'queryBuilder' => function (Query  $q) {
+					return $q->order(['Payments.created']);
+				},
+			]]
+		]);
+		$this->assertEquals('Cancelled', $registration->payment);
+		$this->assertEquals(2, count($registration->payments));
+		$this->assertEquals(575, $registration->payments[0]->refunded_amount);
+		$this->assertEquals(PERSON_ID_ADMIN, $registration->payments[0]->updated_person_id);
+		$refund = $registration->payments[1];
+		$this->assertEquals(REGISTRATION_ID_CAPTAIN2_TEAM, $refund->registration_id);
+		$this->assertEquals('Refund', $refund->payment_type);
+		$this->assertEquals(-575, $refund->payment_amount);
+		$this->assertEquals(0, $refund->refunded_amount);
+		$this->assertEquals('Full refund', $refund->notes);
+		$this->assertEquals(PERSON_ID_ADMIN, $refund->created_person_id);
+		$this->assertEquals('Other', $refund->payment_method);
+		$this->assertEquals(PAYMENT_ID_CAPTAIN2_TEAM, $refund->payment_id);
+
+		$messages = Configure::consume('test_emails');
+		$this->assertEquals(1, count($messages));
+		$this->assertTextContains('You have been issued a refund of CA$575.00 for your registration for Team.', $messages[0]);
+
+		try {
+			$team = TableRegistry::getTableLocator()->get('Teams')->get(TEAM_ID_BLUE);
+			$this->assertNull($team, 'The team was not successfully deleted.');
+		} catch (RecordNotFoundException $ex) {
+			// Expected result; the team should be gone
+		}
 	}
 
 	/**
@@ -745,6 +820,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$this->assertEquals('Test notes', $refund->notes);
 		$this->assertEquals(PERSON_ID_ADMIN, $refund->created_person_id);
 		$this->assertEquals('Other', $refund->payment_method);
+		$this->assertEquals(PAYMENT_ID_PLAYER_MEMBERSHIP, $refund->payment_id);
 
 		$credits = TableRegistry::getTableLocator()->get('Credits')->find()
 			->where(['person_id' => PERSON_ID_PLAYER])
@@ -754,6 +830,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$this->assertEquals(0, $credits[0]->amount_used);
 		$this->assertEquals('Test credit notes', $credits[0]->notes);
 		$this->assertEquals(PERSON_ID_ADMIN, $credits[0]->created_person_id);
+		$this->assertEquals(PAYMENT_ID_NEW, $credits[0]->payment_id);
 
 		$messages = Configure::consume('test_emails');
 		$this->assertEquals(1, count($messages));
@@ -784,42 +861,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'credit_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_PLAYER);
 		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'credit_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_VISITOR);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'credit_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP]);
-	}
-
-	/**
-	 * Test transfer_payment method as an admin
-	 *
-	 * @return void
-	 */
-	public function testTransferPaymentAsAdmin() {
-		// Admins are allowed to transfer payments
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'transfer_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_ADMIN);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test transfer_payment method as a manager
-	 *
-	 * @return void
-	 */
-	public function testTransferPaymentAsManager() {
-		// Managers are allowed to transfer payments
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'transfer_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_MANAGER);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test transfer_payment method as others
-	 *
-	 * @return void
-	 */
-	public function testTransferPaymentAsOthers() {
-		// Others are not allowed to transfer payments
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'transfer_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'transfer_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'transfer_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'transfer_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'transfer_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP]);
 	}
 
 	/**
@@ -888,26 +929,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'unpaid'], PERSON_ID_PLAYER);
 		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'unpaid'], PERSON_ID_VISITOR);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'unpaid']);
-	}
-
-	/**
-	 * Test credits method
-	 *
-	 * @return void
-	 */
-	public function testCredits() {
-		// Admins are allowed to list credits
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'credits'], PERSON_ID_ADMIN);
-
-		// Managers are allowed to list credits
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'credits'], PERSON_ID_MANAGER);
-
-		// Others are not allowed to list credits
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'credits'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'credits'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'credits'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'credits'], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'credits']);
 	}
 
 	/**

@@ -41,13 +41,13 @@ class PricesControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		// Admins are allowed to delete prices
-		$this->assertPostAsAccessRedirect(['controller' => 'Prices', 'action' => 'delete', 'price' => PRICE_ID_LEAGUE_TEAM],
+		$this->assertPostAsAccessRedirect(['controller' => 'Prices', 'action' => 'delete', 'price' => PRICE_ID_LEAGUE_TEAM2],
 			PERSON_ID_ADMIN, [], ['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_LEAGUE_TEAM],
 			'The price point has been deleted.');
 
-		// But not the last price on an event (league team 2 will be last, now that league team is gone)
-		$this->assertPostAsAccessRedirect(['controller' => 'Prices', 'action' => 'delete', 'price' => PRICE_ID_LEAGUE_TEAM2],
-			PERSON_ID_ADMIN, [], ['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_LEAGUE_TEAM],
+		// But not the last price on an event
+		$this->assertPostAsAccessRedirect(['controller' => 'Prices', 'action' => 'delete', 'price' => PRICE_ID_LEAGUE_INDIVIDUAL_MONDAY],
+			PERSON_ID_ADMIN, [], ['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_LEAGUE_INDIVIDUAL_MONDAY],
 			'You cannot delete the only price point on an event.');
 
 		// And not ones with dependencies
@@ -66,7 +66,7 @@ class PricesControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		// Managers are allowed to delete prices in their affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'Prices', 'action' => 'delete', 'price' => PRICE_ID_LEAGUE_TEAM],
+		$this->assertPostAsAccessRedirect(['controller' => 'Prices', 'action' => 'delete', 'price' => PRICE_ID_LEAGUE_TEAM2],
 			PERSON_ID_MANAGER, [], ['controller' => 'Events', 'action' => 'view', 'event' => EVENT_ID_LEAGUE_TEAM],
 			'The price point has been deleted.');
 

@@ -7,6 +7,11 @@
 use Cake\Core\Configure;
 ?>
 
+<div class="actions columns">
+	<ul class="nav nav-pills">
+<?= $this->Html->tag('li', $this->Jquery->selectAll('#RegistrationList')) ?>
+	</ul>
+</div>
 <div class="index">
 	<p><?php
 	echo $this->Paginator->counter([

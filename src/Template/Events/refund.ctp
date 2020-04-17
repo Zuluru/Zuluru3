@@ -104,7 +104,7 @@ echo $this->Html->tag('div',
 	</fieldset>
 
 	<fieldset>
-		<legend><?= __('Refund Details') ?></legend>
+		<legend><?= __('Registrations') ?></legend>
 		<div id="RegistrationList" class="zuluru_pagination">
 
 <?= $this->element('Events/refunds', compact('event', 'registrations')) ?>

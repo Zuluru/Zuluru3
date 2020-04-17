@@ -559,7 +559,7 @@ class EventsController extends AppController {
 	 */
 	public function refund() {
 		$this->paginate['order'] = ['Registrations.payment' => 'DESC', 'Registrations.created' => 'DESC'];
-		$this->paginate['limit'] = 10;
+		$this->paginate['limit'] = 100;
 		$id = $this->request->getQuery('event');
 		$price_id = $this->request->getQuery('price');
 
@@ -575,6 +575,7 @@ class EventsController extends AppController {
 							return $q->order(['Prices.open', 'Prices.close', 'Prices.id']);
 						},
 					],
+					'Divisions',
 				],
 			]);
 		} catch (RecordNotFoundException $ex) {
@@ -610,12 +611,13 @@ class EventsController extends AppController {
 
 					$registrations = $this->Events->Registrations->find()
 						->contain([
+							'People',
+							'Responses',
 							'Payments' => [
 								'queryBuilder' => function (Query $q) {
 									return $q->order(['Payments.created']);
 								},
 							],
-							'People',
 						])
 						->where(['Registrations.id IN' => array_keys($registration_ids)]);
 
