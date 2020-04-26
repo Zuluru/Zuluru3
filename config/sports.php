@@ -769,6 +769,16 @@ $sports['sports'] = [
 			'twitter' => '{1} serves to {0}',
 		],
 
+		'ratio_rule' => [
+			'3/3' => __('3/3'),
+			'4/2' => __('4/2'),
+			'3/2' => __('3/2'),
+			'2/2' => __('2/2'),
+			'womens' => __('Womens'),
+			'mens' => __('Mens'),
+			'open' => __('Open'),
+		],
+
 		'roster_requirements' => [
 			'3/3' => 10,
 			'4/2' => 10,
