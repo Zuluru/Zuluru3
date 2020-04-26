@@ -908,7 +908,7 @@ class SchedulesController extends AppController {
 
 			$stages = $this->Divisions->Pools->find('list', [
 				'conditions' => [
-					'id IN' => $pools,
+					'Pools.id IN' => $pools,
 				],
 				'keyField' => 'id',
 				'valueField' => 'stage',
@@ -917,8 +917,8 @@ class SchedulesController extends AppController {
 			if (!empty($stages)) {
 				$later_pools = $this->Divisions->Pools->find('list', [
 					'conditions' => [
-						'division_id IN' => $divisions,
-						'stage >' => max($stages),
+						'Pools.division_id IN' => $divisions,
+						'Pools.stage >' => max($stages),
 					],
 					'keyField' => 'id',
 					'valueField' => 'id',
@@ -928,7 +928,7 @@ class SchedulesController extends AppController {
 					$reset_pools = array_merge($reset_pools, $later_pools);
 
 					$dependent = $this->Divisions->Games->find()
-						->where(['pool_id IN' => $later_pools])
+						->where(['Games.pool_id IN' => $later_pools])
 						->toArray();
 				}
 			}
