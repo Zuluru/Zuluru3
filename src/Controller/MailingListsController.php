@@ -231,7 +231,7 @@ class MailingListsController extends AppController {
 
 		$this->Authorization->authorize($mailing_list);
 
-		$dependencies = $this->MailingLists->dependencies($id);
+		$dependencies = $this->MailingLists->dependencies($id, ['Subscriptions']);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this mailing list, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
 			return $this->redirect(['action' => 'index']);
