@@ -17,8 +17,11 @@ if ($note->isNew()) {
 		<dt><?= __('Home Team') ?></dt>
 		<dd><?php
 			if ($game->home_team_id === null) {
-				echo $game->home_dependency;
-				$game->home_team->people = [];
+				if ($game->has('home_dependency')) {
+					echo $game->home_dependency;
+				} else {
+					echo __('Unassigned');
+				}
 			} else {
 				echo $this->element('Teams/block', ['team' => $game->home_team]);
 				if ($game->has('home_dependency')) {
@@ -29,8 +32,11 @@ if ($note->isNew()) {
 		<dt><?= __('Away Team') ?></dt>
 		<dd><?php
 			if ($game->away_team_id === null) {
-				echo $game->away_dependency;
-				$game->away_team->people = [];
+				if ($game->has('away_dependency')) {
+					echo $game->away_dependency;
+				} else {
+					echo __('Unassigned');
+				}
 			} else {
 				echo $this->element('Teams/block', ['team' => $game->away_team]);
 				if ($game->has('away_dependency')) {
