@@ -71,11 +71,10 @@ foreach ($registrations as $registration):
 					<td><?= $this->Number->currency($registration->total_payment) ?></td>
 					<td class="actions"><?= $this->element('Registrations/actions', ['registration' => $registration]) ?></td>
 				</tr>
-			</tbody>
 <?php
 endforeach;
 ?>
-
+			</tbody>
 		</table>
 	</div>
 </div>

@@ -150,6 +150,18 @@ class CreditsTable extends AppTable {
 		UserCache::getInstance()->clear('Credits', $entity->person_id);
 	}
 
+	/**
+	 * Perform post-processing to ensure that any required event-type-specific steps are taken.
+	 *
+	 * @param \Cake\Event\Event $cakeEvent The afterSave event that was fired
+	 * @param \Cake\Datasource\EntityInterface $entity The entity that was saved
+	 * @param \ArrayObject $options The options passed to the save method
+	 * @return void
+	 */
+	public function afterDelete(Event $cakeEvent, EntityInterface $entity, \ArrayObject $options) {
+		UserCache::getInstance()->clear('Credits', $entity->person_id);
+	}
+
 	public function affiliate($id) {
 		try {
 			return $this->field('affiliate_id', ['Credits.id' => $id]);
