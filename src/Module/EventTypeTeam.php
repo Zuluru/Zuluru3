@@ -7,6 +7,7 @@ namespace App\Module;
 
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
+use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\Rule\ExistsIn;
 use Cake\ORM\TableRegistry;
 use App\Core\UserCache;
@@ -372,21 +373,25 @@ class EventTypeTeam extends EventType {
 			if (Configure::read('feature.franchises')) {
 				$franchise_id = $this->extractAnswer($registration->responses, FRANCHISE_ID_CREATED);
 				if ($franchise_id) {
-					// Update the franchise name too
-					$franchise = $teams_model->Franchises->get($franchise_id, [
-						'contain' => ['People']
-					]);
-					$franchise = $teams_model->Franchises->patchEntity($franchise, $this->extractAnswers($registration->responses, [
-						'name' => TEAM_NAME,
-					]));
+					try {
+						// Update the franchise name too
+						$franchise = $teams_model->Franchises->get($franchise_id, [
+							'contain' => ['People']
+						]);
+						$franchise = $teams_model->Franchises->patchEntity($franchise, $this->extractAnswers($registration->responses, [
+							'name' => TEAM_NAME,
+						]));
 
-					if ($franchise->isDirty()) {
-						if (!$teams_model->Franchises->save($franchise)) {
-							return false;
+						if ($franchise->isDirty()) {
+							if (!$teams_model->Franchises->save($franchise)) {
+								return false;
+							}
+							foreach ($franchise->people as $person) {
+								UserCache::getInstance()->_deleteFranchiseData($person->id);
+							}
 						}
-						foreach ($franchise->people as $person) {
-							UserCache::getInstance()->_deleteFranchiseData($person->id);
-						}
+					} catch (RecordNotFoundException $ex) {
+						// Franchise was removed after creation. No biggie.
 					}
 				}
 			}
