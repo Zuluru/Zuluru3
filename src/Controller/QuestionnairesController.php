@@ -351,15 +351,19 @@ class QuestionnairesController extends AppController {
 			return $this->redirect(['action' => 'view', 'questionnaire' => $questionnaire_id]);
 		}
 
-		$event_ids = collection($questionnaire->events)->combine('id', 'id')->toArray();
+		if (!empty($questionnaire->events)) {
+			$event_ids = collection($questionnaire->events)->combine('id', 'id')->toArray();
 
-		// Now find if there are responses to this question in one of these events
-		$count = TableRegistry::getTableLocator()->get('Responses')->find()
-			->where([
-				'question_id' => $question_id,
-				'event_id IN' => $event_ids,
-			])
-			->count();
+			// Now find if there are responses to this question in one of these events
+			$count = TableRegistry::getTableLocator()->get('Responses')->find()
+				->where([
+					'question_id' => $question_id,
+					'event_id IN' => $event_ids,
+				])
+				->count();
+		} else {
+			$count = 0;
+		}
 
 		// Only questions with no responses through this questionnaire can be removed
 		if ($count == 0) {
