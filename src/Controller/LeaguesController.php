@@ -128,6 +128,12 @@ class LeaguesController extends AppController {
 				'Leagues.affiliate_id IN' => $affiliates,
 			])
 			->toArray();
+
+		if (empty($divisions)) {
+			$this->Flash->info(__('You have no current or upcoming leagues. '));
+			return $this->redirect('/');
+		}
+
 		$this->Authorization->authorize(current($divisions)->league);
 		usort($divisions, ['App\Model\Table\LeaguesTable', 'compareLeagueAndDivision']);
 		$this->set(compact('divisions', 'affiliates'));
