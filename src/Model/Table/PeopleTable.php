@@ -658,7 +658,7 @@ class PeopleTable extends AppTable {
 					// Check the requested groups and do not auto-approve above a certain level
 					$invalid_groups = $this->Groups->find()
 						->where([
-							'id IN' => $data['groups']['_ids'],
+							'Groups.id IN' => $data['groups']['_ids'],
 							'level >' => 1,
 						]);
 					if ($invalid_groups->count() == 0) {
