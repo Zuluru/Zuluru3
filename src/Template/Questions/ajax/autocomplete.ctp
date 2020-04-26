@@ -7,7 +7,7 @@ foreach($questions as $id => $question) {
 	$question = trim($question);
 	if (strpos($question, '<') !== false) {
 		try {
-			$question = Html2Text::convert($question);
+			$question = Html2Text::convert($question, true);
 		} catch (Html2TextException $ex) {
 			// If there's a parsing exception, just return the HTML.
 		}
