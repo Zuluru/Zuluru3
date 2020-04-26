@@ -23,7 +23,7 @@ if ($team->division->league->sotg_questions != 'none') {
 
 // TODO: Move display details into an element to share between this, division spirit report, maybe others
 foreach ($spirit_obj->questions as $detail) {
-	if ($detail['type'] != 'textarea') {
+	if (!in_array($detail['type'], ['text', 'textarea'])) {
 		$header[] = $detail['name'];
 	}
 }
@@ -52,7 +52,7 @@ foreach ($team->games as $game) {
 				$row[] = $spirit_obj->calculate($entry);
 			}
 			foreach ($spirit_obj->questions as $question => $detail) {
-				if ($detail['type'] != 'textarea') {
+				if (!in_array($detail['type'], ['text', 'textarea'])) {
 					$row[] = $this->element('Spirit/symbol', [
 						'spirit_obj' => $spirit_obj,
 						'league' => $team->division->league,
