@@ -20,6 +20,8 @@ use Cake\ORM\Entity;
  *
  * @property \App\Model\Entity\Registration $registration
  * @property \App\Model\Entity\RegistrationAudit $registration_audit
+ * @property \App\Model\Entity\Payment $payment
+ * @property \App\Model\Entity\Credit[] $credits
  *
  * @property float $paid
  */

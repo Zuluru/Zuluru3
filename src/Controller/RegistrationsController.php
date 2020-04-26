@@ -952,7 +952,11 @@ class RegistrationsController extends AppController {
 						'Divisions' => ['Leagues'],
 					],
 					'Responses',
-					'Payments',
+					'Payments' => [
+						'queryBuilder' => function (Query  $q) {
+							return $q->order(['Payments.created']);
+						},
+					],
 				]
 			]);
 
@@ -974,43 +978,17 @@ class RegistrationsController extends AppController {
 		} else {
 			$payment_obj = null;
 		}
-		$this->set(compact('registration', 'payment', 'refund', 'payment_obj'));
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			// The form has a positive amount to be refunded, which needs to be retained in case of an error.
-			// But the refund record must have a negative amount.
-			$refund_data = $this->request->data;
-			$refund_data['payment_amount'] *= -1;
-
-			$registration->mark_refunded = $this->request->data['mark_refunded'];
-
 			// The registration is also passed as an option, so that the payment marshaller has easy access to it
-			$refund = $this->Registrations->Payments->patchEntity($refund, $refund_data, ['validate' => 'refund', 'registration' => $registration]);
-			$registration->payments[] = $refund;
-			$registration->dirty('payments', true);
-
-			$payment->refunded_amount = round($payment->refunded_amount + $this->request->data['payment_amount'], 2);
-
-			if ($this->Registrations->connection()->transactional(function () use ($registration, $payment_obj, $payment) {
-				// The registration is also passed as an option, so that the payment rules have easy access to it
-				if (!$this->Registrations->save($registration, ['registration' => $registration, 'event' => $registration->event])) {
-					$this->Flash->warning(__('The refund could not be saved. Please correct the errors below and try again.'));
-					return false;
-				}
-
-				if ($payment_obj && $payment_obj->can_refund && $this->request->data['online_refund']) {
-					if (!$payment_obj->refund($payment, $this->request->data['payment_amount'])) {
-						$this->Flash->error(__('Failed to issue refund through online processor. Refund data was NOT saved. You can try again, or uncheck the "Issue refund through online payment provider" box and issue the refund manually.'));
-						return false;
-					}
-				}
-
-				return true;
-			})) {
+			$refund = $this->Registrations->Payments->patchEntity($refund, $this->request->getData(), ['validate' => 'refund', 'registration' => $registration]);
+			if ($this->Registrations->refundPayment($registration->event, $registration, $payment, $refund, $this->request->getData('mark_refunded'), $payment_obj)) {
 				$this->Flash->success(__('The refund has been saved.'));
 				return $this->redirect(['action' => 'view', 'registration' => $registration->id]);
 			}
 		}
+
+		$this->set(compact('registration', 'payment', 'refund', 'payment_obj'));
 	}
 
 	public function credit_payment() {
@@ -1043,175 +1021,16 @@ class RegistrationsController extends AppController {
 		$refund = $this->Registrations->Payments->newEntity();
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			// The form has a positive amount to be credited, which needs to be retained in case of an error.
-			// But the credit record must have a negative amount.
-			$refund_data = $this->request->data;
-			$refund_data['payment_amount'] *= -1;
-
-			$registration->mark_refunded = $this->request->data['mark_refunded'];
-
 			// The registration is also passed as an option, so that the payment marshaller has easy access to it
-			$refund = $this->Registrations->Payments->patchEntity($refund, $refund_data, ['validate' => 'credit', 'registration' => $registration]);
-			$registration->payments[] = $refund;
-			$registration->dirty('payments', true);
-
-			$payment->refunded_amount = round($payment->refunded_amount + $this->request->data['payment_amount'], 2);
-
-			$credit = $this->Registrations->People->Credits->newEntity([
-				'affiliate_id' => $registration->event->affiliate_id,
-				'amount' => $this->request->data['payment_amount'],
-				'notes' => $this->request->data['credit_notes'],
-			]);
-			$registration->person->credits[] = $credit;
-
-			// We don't actually want to update the "modified" column in the people table here, but we do need to save the credit
-			if ($this->Registrations->People->hasBehavior('Timestamp')) {
-				$this->Registrations->People->removeBehavior('Timestamp');
-			}
-			$registration->dirty('person', true);
-			$registration->person->dirty('credits', true);
-
-			if ($this->Registrations->save($registration, ['registration' => $registration, 'event' => $registration->event])) {
+			$refund = $this->Registrations->Payments->patchEntity($refund, $this->request->getData(), ['validate' => 'credit', 'registration' => $registration]);
+			if ($this->Registrations->refundPayment($registration->event, $registration, $payment, $refund, $this->request->getData('mark_refunded'), null, $this->request->getData('credit_notes'))) {
 				$this->Flash->success(__('The credit has been saved.'));
 				$this->UserCache->clear('Credits', $registration->person_id);
 				return $this->redirect(['action' => 'view', 'registration' => $registration->id]);
 			}
-			$this->Flash->warning(__('The credit could not be saved. Please correct the errors below and try again.'));
 		}
 
-		$this->set(compact('registration', 'payment'));
-	}
-
-	public function transfer_payment() {
-		$id = $this->request->getQuery('payment');
-		try {
-			$registration_id = $this->Registrations->Payments->field('registration_id', ['Payments.id' => $id]);
-			$registration = $this->Registrations->get($registration_id, [
-				'contain' => [
-					'People' => ['Groups'],
-					'Events' => [
-						'EventTypes',
-						'Divisions' => ['Leagues'],
-					],
-					'Responses',
-					'Payments',
-				]
-			]);
-
-			$payment = collection($registration->payments)->firstMatch(compact('id'));
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid payment.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
-			$this->Flash->info(__('Invalid payment.'));
-			return $this->redirect('/');
-		}
-
-		$this->Authorization->authorize($payment);
-		$this->Configuration->loadAffiliate($registration->event->affiliate_id);
-		$refund = $this->Registrations->Payments->newEntity();
-
-		$unpaid = $this->UserCache->read('RegistrationsUnpaid', $registration->person_id);
-		foreach ($this->UserCache->read('RelativeIDs', $registration->person_id) as $relative_id) {
-			$unpaid = array_merge($unpaid, $this->UserCache->read('RegistrationsUnpaid', $relative_id));
-		}
-		if ($this->_isChild($registration->person)) {
-			// Check everyone related to this child's adult relatives. Assumption is that those
-			// people will be their siblings, which is a common transfer target.
-			$relations = $this->UserCache->read('RelatedTo', $registration->person_id);
-			foreach ($relations as $relation) {
-				$this->Registrations->People->loadInto($relation, ['Groups']);
-				if (!$this->_isChild($relation)) {
-					foreach ($this->UserCache->read('RelativeIDs', $relation->id) as $relative_id) {
-						if ($relative_id != $registration->person_id) {
-							$unpaid = array_merge($unpaid, $this->UserCache->read('RegistrationsUnpaid', $relative_id));
-						}
-					}
-				}
-			}
-		}
-
-		$unpaid = collection($unpaid)->filter(function ($unpaid) use ($registration) {
-			return $unpaid->event->affiliate_id == $registration->event->affiliate_id;
-		})->toArray();
-		if (empty($unpaid)) {
-			$this->Flash->info(__('This user has no unpaid registrations to transfer the payment to.'));
-			return $this->redirect('/');
-		}
-
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			try {
-				if (!collection($unpaid)->firstMatch(['id' => $this->request->getData('transfer_to_registration_id')])) {
-					throw new RecordNotFoundException('Registration is not a valid transfer target.');
-				}
-				$to_registration = $this->Registrations->get($this->request->getData('transfer_to_registration_id'), [
-					'contain' => [
-						'People',
-						'Events' => [
-							'EventTypes',
-							'Divisions' => ['Leagues'],
-						],
-						'Responses',
-						'Payments',
-					]
-				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid registration.'));
-				return $this->redirect(['action' => 'view', 'registration' => $registration->id]);
-			} catch (InvalidPrimaryKeyException $ex) {
-				$this->Flash->info(__('Invalid registration.'));
-				return $this->redirect(['action' => 'view', 'registration' => $registration->id]);
-			}
-
-			if (!in_array($to_registration->payment, Configure::read('registration_unpaid'))) {
-				$this->Flash->info(__('This registration is marked as {0}.', __($to_registration->payment)));
-				return $this->redirect(['action' => 'view', 'registration' => $registration->id]);
-			}
-
-			$this->request->data['payment_amount'] = min($this->request->data['payment_amount'], $payment->paid, $to_registration->balance);
-
-			// The form has a positive amount to be transferred, which needs to be retained in case of an error.
-			// But the transfer record must have a negative amount.
-			$refund_data = $this->request->data;
-			$refund_data['payment_amount'] *= -1;
-
-			$registration->mark_refunded = $this->request->getData('mark_refunded');
-
-			// The registration is also passed as an option, so that the payment marshaller has easy access to it
-			$refund = $this->Registrations->Payments->patchEntity($refund, $refund_data, ['validate' => 'transferFrom', 'registration' => $registration]);
-			$registration->payments[] = $refund;
-			$registration->setDirty('payments', true);
-
-			$payment->refunded_amount = round($payment->refunded_amount + $this->request->getData('payment_amount'), 2);
-
-			$transfer = $this->Registrations->Payments->newEntity([
-				'payment_type' => 'Transfer',
-				'payment_method' => 'Other',
-				'payment_amount' => $this->request->getData('payment_amount'),
-				'notes' => $this->request->getData('transfer_to_notes'),
-			], ['validate' => 'transferTo', 'registration' => $to_registration]);
-			$to_registration->payments[] = $transfer;
-			$to_registration->setDirty('payments', true);
-
-			if ($this->Registrations->getConnection()->transactional(function () use ($registration, $to_registration) {
-				return $this->Registrations->save($registration, ['registration' => $registration, 'event' => $registration->event]) &&
-					$this->Registrations->save($to_registration, ['registration' => $to_registration, 'event' => $to_registration->event]);
-			})) {
-				$this->Flash->success(__('Transferred {0}', Number::currency($this->request->getData('payment_amount'))));
-
-				// Which registration we redirect to from here depends on how much was transferred
-				if ($payment['refunded_amount'] < $payment['payment_amount']) {
-					// There is still unrefunded money on the old registration, go back there
-					return $this->redirect(['action' => 'view', 'registration' => $registration->id]);
-				} else {
-					// Go to the registration the money was just transferred to
-					return $this->redirect(['action' => 'view', 'registration' => $to_registration->id]);
-				}
-			}
-			$this->Flash->warning(__('The transfer could not be saved. Please correct the errors below and try again.'));
-		}
-
-		$this->set(compact('registration', 'payment', 'unpaid'));
+		$this->set(compact('registration', 'payment', 'refund'));
 	}
 
 	/**
@@ -1338,27 +1157,6 @@ class RegistrationsController extends AppController {
 		}
 
 		$this->set(compact('registrations', 'affiliates'));
-	}
-
-	public function credits() {
-		$this->Authorization->authorize($this);
-		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
-		$credits = $this->Registrations->People->Credits->find()
-			->contain([
-				'Affiliates',
-				'People',
-			])
-			->where([
-				'Credits.amount != Credits.amount_used',
-				'Credits.affiliate_id IN' => $affiliates,
-			])
-			->order(['Credits.affiliate_id', 'Credits.created']);
-		if (empty($credits)) {
-			$this->Flash->info(__('There are no unused credits.'));
-			return $this->redirect('/');
-		}
-
-		$this->set(compact('credits', 'affiliates'));
 	}
 
 	public function waiting() {

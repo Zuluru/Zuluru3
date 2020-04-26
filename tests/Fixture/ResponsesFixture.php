@@ -23,10 +23,31 @@ class ResponsesFixture extends TestFixture {
 		$this->records = [
 			[
 				'event_id' => EVENT_ID_MEMBERSHIP,
-				'registration_id' => 1,
-				'question_id' => 1,
+				'registration_id' => REGISTRATION_ID_CAPTAIN2_TEAM,
+				'question_id' => TEAM_NAME,
+				'answer_id' => null,
+				'answer_text' => 'Blue',
+			],
+			[
+				'event_id' => EVENT_ID_MEMBERSHIP,
+				'registration_id' => REGISTRATION_ID_CAPTAIN2_TEAM,
+				'question_id' => SHIRT_COLOUR,
+				'answer_id' => null,
+				'answer_text' => 'Blue',
+			],
+			[
+				'event_id' => EVENT_ID_MEMBERSHIP,
+				'registration_id' => REGISTRATION_ID_CAPTAIN2_TEAM,
+				'question_id' => TEAM_ID_CREATED,
+				'answer_id' => null,
+				'answer_text' => TEAM_ID_BLUE,
+			],
+			[
+				'event_id' => EVENT_ID_MEMBERSHIP,
+				'registration_id' => REGISTRATION_ID_CAPTAIN2_TEAM,
+				'question_id' => TRACK_ATTENDANCE,
 				'answer_id' => 1,
-				'answer_text' => 'Lorem ipsum dolor sit amet, aliquet feugiat. Convallis morbi fringilla gravida, phasellus feugiat dapibus velit nunc, pulvinar eget sollicitudin venenatis cum nullam, vivamus ut a sed, mollitia lectus. Nulla vestibulum massa neque ut et, id hendrerit sit, feugiat in taciti enim proin nibh, tempor dignissim, rhoncus duis vestibulum nunc mattis convallis.'
+				'answer_text' => null,
 			],
 		];
 

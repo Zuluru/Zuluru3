@@ -1,8 +1,11 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use Cake\Core\Configure;
+use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
+use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 
 /**
@@ -22,6 +25,7 @@ class EventsControllerTest extends ControllerTestCase {
 				'app.People',
 					'app.AffiliatesPeople',
 					'app.PeoplePeople',
+					'app.Credits',
 			'app.Groups',
 				'app.GroupsPeople',
 			'app.UploadTypes',
@@ -33,10 +37,20 @@ class EventsControllerTest extends ControllerTestCase {
 				'app.Divisions',
 					'app.Teams',
 						'app.TeamsPeople',
+						'app.TeamEvents',
+						'app.TeamsFacilities',
 					'app.DivisionsDays',
 					'app.GameSlots',
 						'app.DivisionsGameslots',
 					'app.DivisionsPeople',
+					'app.Pools',
+						'app.PoolsTeams',
+					'app.Games',
+						'app.GamesAllstars',
+						'app.ScoreEntries',
+						'app.SpiritEntries',
+						'app.Stats',
+			'app.Attendances',
 			'app.Franchises',
 				'app.FranchisesTeams',
 			'app.Questionnaires',
@@ -47,6 +61,12 @@ class EventsControllerTest extends ControllerTestCase {
 						'app.Responses',
 				'app.Preregistrations',
 				'app.EventsConnections',
+			'app.Badges',
+				'app.BadgesPeople',
+			'app.MailingLists',
+				'app.Newsletters',
+			'app.ActivityLogs',
+			'app.Notes',
 			'app.Settings',
 			'app.Waivers',
 				'app.WaiversPeople',
@@ -456,6 +476,203 @@ class EventsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'connections', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_PLAYER);
 		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'connections', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_VISITOR);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Events', 'action' => 'connections', 'event' => EVENT_ID_LEAGUE_TEAM]);
+	}
+
+	/**
+	 * Test refund method as an admin
+	 *
+	 * @return void
+	 */
+	public function testRefundAsAdmin() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		// Common data
+		$refund_data = [
+			'payment_type' => 'Refund',
+			'payment_method' => 'Other',
+			'amount_type' => 'input',
+			'mark_refunded' => false,
+			'notes' => 'Test notes',
+			'registrations' => [
+				REGISTRATION_ID_PLAYER_MEMBERSHIP => true,
+				REGISTRATION_ID_CAPTAIN_MEMBERSHIP => true,
+				REGISTRATION_ID_CHILD_MEMBERSHIP => true,
+			],
+		];
+
+		// Admins are allowed to refund payments
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'refund', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_ADMIN);
+		$this->assertResponseContains('<input type="checkbox" name="mark_refunded" value="1"');
+
+		// Try to refund more than the paid amount
+		$this->assertPostAsAccessOk(['controller' => 'Events', 'action' => 'refund', 'event' => EVENT_ID_MEMBERSHIP],
+			PERSON_ID_ADMIN, $refund_data + ['payment_amount' => 1000]);
+		$this->assertResponseContains('This would refund more than the amount paid.');
+		$this->assertResponseContains('This registration has no payments recorded.');
+		$this->assertResponseContains('<input type="checkbox" name="mark_refunded" value="1"');
+
+		// Try to refund $0
+		$this->assertPostAsAccessOk(['controller' => 'Events', 'action' => 'refund', 'event' => EVENT_ID_MEMBERSHIP],
+			PERSON_ID_ADMIN, $refund_data + ['payment_amount' => 0]);
+		$this->assertResponseContains('Refund amounts must be positive.');
+		$this->assertResponseContains('This registration has no payments recorded.');
+		$this->assertResponseContains('<input type="checkbox" name="mark_refunded" value="1"');
+
+		// Try to refund just the right amount; player is the only one with all the right payments
+		$refund_data['registrations'] = [
+			REGISTRATION_ID_PLAYER_MEMBERSHIP => true,
+		];
+		$this->assertPostAsAccessOk(['controller' => 'Events', 'action' => 'refund', 'event' => EVENT_ID_MEMBERSHIP],
+			PERSON_ID_ADMIN, $refund_data + ['payment_amount' => 11.50]);
+		$this->assertResponseContains('The refunds have been saved.');
+		$registration = TableRegistry::getTableLocator()->get('Registrations')->get(REGISTRATION_ID_PLAYER_MEMBERSHIP, [
+			'contain' => ['Payments' => [
+				'queryBuilder' => function (Query  $q) {
+					return $q->order(['Payments.created']);
+				},
+			]]
+		]);
+		$this->assertEquals('Paid', $registration->payment);
+		$this->assertEquals(2, count($registration->payments));
+		$this->assertEquals(11.5, $registration->payments[0]->refunded_amount);
+		$this->assertEquals(PERSON_ID_ADMIN, $registration->payments[0]->updated_person_id);
+		$refund = $registration->payments[1];
+		$this->assertEquals(REGISTRATION_ID_PLAYER_MEMBERSHIP, $refund->registration_id);
+		$this->assertEquals('Refund', $refund->payment_type);
+		$this->assertEquals(-11.5, $refund->payment_amount);
+		$this->assertEquals(0, $refund->refunded_amount);
+		$this->assertEquals('Test notes', $refund->notes);
+		$this->assertEquals(PERSON_ID_ADMIN, $refund->created_person_id);
+		$this->assertEquals('Other', $refund->payment_method);
+		$this->assertEquals(PAYMENT_ID_PLAYER_MEMBERSHIP, $refund->payment_id);
+
+		$messages = Configure::consume('test_emails');
+		$this->assertEquals(1, count($messages));
+		$this->assertTextContains('You have been issued a refund of CA$11.50 for your registration for Membership.', $messages[0]);
+
+		// Try to refund without selecting any registrations
+		unset($refund_data['registrations']);
+		$this->assertPostAsAccessOk(['controller' => 'Events', 'action' => 'refund', 'event' => EVENT_ID_MEMBERSHIP],
+			PERSON_ID_ADMIN, $refund_data);
+		$this->assertResponseContains('You didn&#039;t select any registrations to refund.');
+	}
+
+	/**
+	 * Test refunding of team events
+	 *
+	 * @return void
+	 */
+	public function testRefundTeamEvent() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		$this->assertPostAsAccessOk(['controller' => 'Events', 'action' => 'refund', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_ADMIN, [
+			'payment_type' => 'Refund',
+			'payment_method' => 'Other',
+			'payment_amount' => 575,
+			'amount_type' => 'input',
+			'mark_refunded' => true,
+			'notes' => 'Full refund',
+			'registrations' => [
+				REGISTRATION_ID_CAPTAIN2_TEAM => true,
+			],
+		]);
+		$this->assertResponseContains('The refunds have been saved.');
+		$registration = TableRegistry::getTableLocator()->get('Registrations')->get(REGISTRATION_ID_CAPTAIN2_TEAM, [
+			'contain' => ['Payments' => [
+				'queryBuilder' => function (Query  $q) {
+					return $q->order(['Payments.created']);
+				},
+			]]
+		]);
+		$this->assertEquals('Cancelled', $registration->payment);
+		$this->assertEquals(2, count($registration->payments));
+		$this->assertEquals(575, $registration->payments[0]->refunded_amount);
+		$this->assertEquals(PERSON_ID_ADMIN, $registration->payments[0]->updated_person_id);
+		$refund = $registration->payments[1];
+		$this->assertEquals(REGISTRATION_ID_CAPTAIN2_TEAM, $refund->registration_id);
+		$this->assertEquals('Refund', $refund->payment_type);
+		$this->assertEquals(-575, $refund->payment_amount);
+		$this->assertEquals(0, $refund->refunded_amount);
+		$this->assertEquals('Full refund', $refund->notes);
+		$this->assertEquals(PERSON_ID_ADMIN, $refund->created_person_id);
+		$this->assertEquals('Other', $refund->payment_method);
+		$this->assertEquals(PAYMENT_ID_CAPTAIN2_TEAM, $refund->payment_id);
+
+		$messages = Configure::consume('test_emails');
+		$this->assertEquals(1, count($messages));
+		$this->assertTextContains('You have been issued a refund of CA$575.00 for your registration for Team.', $messages[0]);
+
+		try {
+			$team = TableRegistry::getTableLocator()->get('Teams')->get(TEAM_ID_BLUE);
+			$this->assertNull($team, 'The team was not successfully deleted.');
+		} catch (RecordNotFoundException $ex) {
+			// Expected result; the team should be gone
+		}
+	}
+
+	/**
+	 * Test issuing bulk credits as an admin
+	 *
+	 * @return void
+	 */
+	public function testCreditAsAdmin() {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		// Common data
+		$refund_data = [
+			'payment_type' => 'Credit',
+			'payment_method' => 'Other',
+			'amount_type' => 'input',
+			'mark_refunded' => true,
+			'notes' => 'Test notes',
+			'credit_notes' => 'Test credit notes',
+			'registrations' => [
+				REGISTRATION_ID_PLAYER_MEMBERSHIP => true,
+			],
+		];
+
+		// Try to credit just the right amount
+		$this->assertPostAsAccessOk(['controller' => 'Events', 'action' => 'refund', 'event' => EVENT_ID_MEMBERSHIP],
+			PERSON_ID_ADMIN, $refund_data + ['payment_amount' => 11.50]);
+		$this->assertResponseContains('The credits have been saved.');
+		$registration = TableRegistry::getTableLocator()->get('Registrations')->get(REGISTRATION_ID_PLAYER_MEMBERSHIP, [
+			'contain' => ['Payments' => [
+				'queryBuilder' => function (Query  $q) {
+					return $q->order(['Payments.created']);
+				},
+			]]
+		]);
+		$this->assertEquals('Cancelled', $registration->payment);
+		$this->assertEquals(2, count($registration->payments));
+		$this->assertEquals(11.5, $registration->payments[0]->refunded_amount);
+		$this->assertEquals(PERSON_ID_ADMIN, $registration->payments[0]->updated_person_id);
+		$refund = $registration->payments[1];
+		$this->assertEquals(REGISTRATION_ID_PLAYER_MEMBERSHIP, $refund->registration_id);
+		$this->assertEquals('Credit', $refund->payment_type);
+		$this->assertEquals(-11.5, $refund->payment_amount);
+		$this->assertEquals(0, $refund->refunded_amount);
+		$this->assertEquals('Test notes', $refund->notes);
+		$this->assertEquals(PERSON_ID_ADMIN, $refund->created_person_id);
+		$this->assertEquals('Other', $refund->payment_method);
+		$this->assertEquals(PAYMENT_ID_PLAYER_MEMBERSHIP, $refund->payment_id);
+
+		$credits = TableRegistry::getTableLocator()->get('Credits')->find()
+			->where(['person_id' => PERSON_ID_PLAYER])
+			->toArray();
+		$this->assertEquals(1, count($credits));
+		$this->assertEquals(11.5, $credits[0]->amount);
+		$this->assertEquals(0, $credits[0]->amount_used);
+		$this->assertEquals('Test credit notes', $credits[0]->notes);
+		$this->assertEquals(PERSON_ID_ADMIN, $credits[0]->created_person_id);
+		$this->assertEquals(PAYMENT_ID_NEW, $credits[0]->payment_id);
+
+		$messages = Configure::consume('test_emails');
+		$this->assertEquals(1, count($messages));
+		$this->assertTextContains('You have been issued a credit of CA$11.50 for your registration for Membership.', $messages[0]);
+		$this->assertTextContains('This credit can be redeemed towards any future purchase on the Test Zuluru Affiliate site', $messages[0]);
 	}
 
 	/**

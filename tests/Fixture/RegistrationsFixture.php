@@ -53,7 +53,7 @@ class RegistrationsFixture extends TestFixture {
 				'event_id' => EVENT_ID_MEMBERSHIP,
 				'created' => FrozenTime::now()->startOfYear(),
 				'modified' => FrozenTime::now()->startOfYear(),
-				'payment' => 'Unpaid',
+				'payment' => 'Paid',
 				'notes' => null,
 				'total_amount' => 11.50,
 				'price_id' => PRICE_ID_MEMBERSHIP,
@@ -126,6 +126,19 @@ class RegistrationsFixture extends TestFixture {
 				'reservation_expires' => null,
 				'delete_on_expiry' => false,
 			],
+			[
+				'person_id' => PERSON_ID_CAPTAIN2,
+				'event_id' => EVENT_ID_LEAGUE_TEAM,
+				'created' => FrozenTime::now()->startOfYear(),
+				'modified' => FrozenTime::now()->startOfYear(),
+				'payment' => 'Paid',
+				'notes' => null,
+				'total_amount' => 575,
+				'price_id' => PRICE_ID_LEAGUE_TEAM,
+				'deposit_amount' => null,
+				'reservation_expires' => null,
+				'delete_on_expiry' => false,
+			],
 		];
 
 		if (!defined('REGISTRATION_ID_PLAYER_MEMBERSHIP')) {
@@ -138,6 +151,7 @@ class RegistrationsFixture extends TestFixture {
 			define('REGISTRATION_ID_CHILD_MEMBERSHIP', ++$i);
 			define('REGISTRATION_ID_PLAYER_INDIVIDUAL_THURSDAY', ++$i);
 			define('REGISTRATION_ID_ANDY_SUB_INDIVIDUAL', ++$i);
+			define('REGISTRATION_ID_CAPTAIN2_TEAM', ++$i);
 			// This must always be the last one in the list: it is for new
 			// records created in registration tests
 			define('REGISTRATION_ID_NEW', ++$i);

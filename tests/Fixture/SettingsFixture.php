@@ -409,6 +409,13 @@ class SettingsFixture extends TestFixture {
 			[
 				'person_id' => null,
 				'category' => 'payment',
+				'name' => 'currency',
+				'value' => 'CAD',
+				'affiliate_id' => null,
+			],
+			[
+				'person_id' => null,
+				'category' => 'payment',
 				'name' => 'tax1_enable',
 				'value' => 1,
 				'affiliate_id' => null,

@@ -1,4 +1,11 @@
 <?php
+/**
+ * @type \App\Model\Entity\Registration $registration
+ * @type \App\Model\Entity\Payment $payment
+ * @type \App\Model\Entity\Payment $refund
+ * @type \App\Module\Payment $payment_obj
+ */
+
 use Cake\Core\Configure;
 
 $this->Html->addCrumb(__('Registration'));
@@ -25,7 +32,7 @@ echo $this->Form->hidden('payment_method', [
 ]);
 echo $this->Form->input('payment_amount', [
 	'label' => __('Refund Amount'),
-	'default' => $payment->paid,
+	'default' => ($refund->getErrors() || $registration->getErrors()) ? -$refund->amount : $payment->paid,
 ]);
 
 if (empty($payment->registration_audit_id)) {
@@ -40,7 +47,7 @@ if (empty($payment->registration_audit_id)) {
 	]);
 }
 
-if (!in_array($registration->payment, Configure::read('registration_cancelled'))) {
+if (!in_array($registration->getOriginal('payment'), Configure::read('registration_cancelled'))) {
 	echo $this->Form->input('mark_refunded', [
 		'label' => __('Mark this registration as refunded?'),
 		'type' => 'checkbox',

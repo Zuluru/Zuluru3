@@ -234,6 +234,9 @@ if (count($event->prices) > 1):
 								['alt' => __('Delete'), 'title' => __('Delete')],
 								['confirm' => __('Are you sure you want to delete this price?')]);
 						}
+						if ($this->Authorize->can('refund', $event)) {
+							echo $this->Html->link(__('Bulk Refunds'), ['controller' => 'Events', 'action' => 'refund', 'event' => $event->id, 'price' => $price->id]);
+						}
 					?></td>
 				</tr>
 <?php

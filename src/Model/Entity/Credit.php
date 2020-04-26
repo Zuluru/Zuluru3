@@ -17,6 +17,7 @@ use Cake\ORM\Entity;
  *
  * @property \App\Model\Entity\Affiliate $affiliate
  * @property \App\Model\Entity\Person $person
+ * @property \App\Model\Entity\Payment $payment
  *
  * @property float $balance
  */

@@ -6,6 +6,7 @@
 
 use App\Authorization\ContextResource;
 use App\Controller\AppController;
+use App\Model\Entity\Credit;
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 
@@ -782,10 +783,13 @@ if ((in_array('registrations', $visible_properties)) && !empty($person->registra
 <?php
 endif;
 
-if ((in_array('credits', $visible_properties)) && !empty($person->credits)):
+if (in_array('credits', $visible_properties)):
 ?>
 <div class="related">
-	<h3><?= __('Available Credits') ?></h3>
+	<h3><?= __('Credits') ?></h3>
+<?php
+if (!empty($person->credits)):
+?>
 	<p><?= __('These credits can be applied to future registrations.') ?></p>
 	<div class="table-responsive">
 		<table class="table table-striped table-hover table-condensed">
@@ -795,6 +799,7 @@ if ((in_array('credits', $visible_properties)) && !empty($person->credits)):
 					<th><?= __('Initial Amount') ?></th>
 					<th><?= __('Amount Used') ?></th>
 					<th><?= __('Notes') ?></th>
+					<th class="actions"><?= __('Actions') ?></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -806,6 +811,33 @@ if ((in_array('credits', $visible_properties)) && !empty($person->credits)):
 					<td><?= $this->Number->currency($credit->amount) ?></td>
 					<td><?= $this->Number->currency($credit->amount_used) ?></td>
 					<td><?= str_replace("\n", '<br />', $credit->notes) ?></td>
+					<td class="actions"><?php
+						if ($this->Authorize->can('view', $credit)) {
+							echo $this->Html->iconLink('view_24.png',
+								['action' => 'view', 'credit' => $credit->id],
+								['alt' => __('View'), 'title' => __('View')]);
+						}
+						if ($this->Authorize->can('edit', $credit)) {
+							echo $this->Html->iconLink('edit_24.png',
+								['controller' => 'Credits', 'action' => 'edit', 'credit' => $credit->id],
+								['alt' => __('Edit'), 'title' => __('Edit')]);
+						}
+						if ($this->Authorize->can('delete', $credit)) {
+							$confirm = __('Are you sure you want to delete this credit?');
+							if ($credit->payment_id) {
+								$confirm .= "\n\n" . __('Doing so will also delete the related refund, but will NOT change the payment status of the registration.');
+							}
+							echo $this->Form->iconPostLink('delete_24.png',
+								['controller' => 'Credits', 'action' => 'delete', 'credit' => $credit->id],
+								['alt' => __('Delete'), 'title' => __('Delete')],
+								['confirm' => $confirm]);
+						}
+						if ($this->Authorize->can('transfer', $credit)) {
+							echo $this->Html->iconLink('move_24.png',
+								['controller' => 'Credits', 'action' => 'transfer', 'credit' => $credit->id],
+								['alt' => __('Transfer'), 'title' => __('Transfer')]);
+						}
+					?></td>
 				</tr>
 
 <?php
@@ -814,10 +846,18 @@ if ((in_array('credits', $visible_properties)) && !empty($person->credits)):
 			</tbody>
 		</table>
 	</div>
+<?php
+endif;
+?>
 	<div class="actions columns">
 		<ul class="nav nav-pills">
 <?php
-	echo $this->Html->tag('li', $this->Html->link(__('Show Credit History'), ['controller' => 'People', 'action' => 'credits', 'person' => $person->id]));
+echo $this->Html->tag('li', $this->Html->link(__('Show Credit History'), ['controller' => 'People', 'action' => 'credits', 'person' => $person->id]));
+$dummy = new Credit();
+$dummy->person = $person;
+if ($this->Authorize->can('add', $dummy)) {
+	echo $this->Html->tag('li', $this->Html->link(__('Add'), ['controller' => 'Credits', 'action' => 'add', 'person' => $person->id]));
+}
 ?>
 		</ul>
 	</div>
