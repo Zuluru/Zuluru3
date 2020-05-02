@@ -347,7 +347,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 			// Routes collection cache enabled by default, to disable route caching
 			// pass null as cacheConfig, example: `new RoutingMiddleware($this)`
 			// you might want to disable this cache in case your routing is extremely simple
-			->add(RoutingMiddleware::class)
+			->add(new RoutingMiddleware($this))
 
 			// Parse request bodies, allowing for JSON data in authentication
 			->add(BodyParserMiddleware::class)
