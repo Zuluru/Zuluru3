@@ -39,10 +39,12 @@
 			return $this->redirect(['action' => 'index']);
 		}
 
+		$this->Authorization->authorize($<%= $singularName%>);
+
 		if ($this-><%= $currentModelName; %>->delete($<%= $singularName %>)) {
 			$this->Flash->success(__('The <%= strtolower($singularHumanName) %> has been deleted.'));
-		} else if (<%= $singularName %>->errors('delete')) {
-			$this->Flash->warning(current(<%= $singularName %>->errors('delete')));
+		} else if ($<%= $singularName %>->getError('delete')) {
+			$this->Flash->warning(current($<%= $singularName %>->getError('delete')));
 		} else {
 			$this->Flash->warning(__('The <%= strtolower($singularHumanName) %> could not be deleted. Please, try again.'));
 		}

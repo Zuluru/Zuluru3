@@ -21,6 +21,10 @@ $fields = collection($fields)
 	->take(7);
 %>
 <?php
+/**
+ * @type \App\Model\Entity\<%= $singularHumanName %>[] $<%= $pluralVar %>
+ */
+
 $this->Html->addCrumb(__('<%= $pluralHumanName %>'));
 $this->Html->addCrumb(__('List'));
 ?>

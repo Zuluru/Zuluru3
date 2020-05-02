@@ -26,5 +26,6 @@
 			'contain' => [<%= $this->Bake->stringifyList($belongsTo, ['indent' => false]) %>]
 		];
 <% endif; %>
+		$this->Authorization->authorize($this);
 		$this->set('<%= $pluralName %>', $this->paginate($this-><%= $currentModelName %>));
 	}

@@ -39,5 +39,7 @@ $allAssociations = array_merge(
 			return $this->redirect(['action' => 'index']);
 		}
 
+		$this->Authorization->authorize($<%= $singularName%>);
+
 		$this->set(compact('<%= $singularName %>'));
 	}

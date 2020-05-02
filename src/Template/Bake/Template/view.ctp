@@ -33,6 +33,10 @@ $associationFields = collection($fields)
 $pk = "\$$singularVar->{$primaryKey[0]}";
 %>
 <?php
+/**
+ * @type \App\Model\Entity\<%= $singularHumanName %> $<%= $singularVar %>
+ */
+
 $this->Html->addCrumb(__('<%= $singularHumanName %>'));
 $this->Html->addCrumb(h($<%= $singularVar %>-><%= $displayField %>));
 $this->Html->addCrumb(__('View'));

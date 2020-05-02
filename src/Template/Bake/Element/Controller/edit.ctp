@@ -37,6 +37,8 @@ $compact = ["'" . $singularName . "'"];
 			return $this->redirect(['action' => 'index']);
 		}
 
+		$this->Authorization->authorize($<%= $singularName%>);
+
 		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			$<%= $singularName %> = $this-><%= $currentModelName %>->patchEntity($<%= $singularName %>, $this->getRequest()->getData());
 			if ($this-><%= $currentModelName; %>->save($<%= $singularName %>)) {

@@ -22,6 +22,7 @@ $compact = ["'" . $singularName . "'"];
 	 */
 	public function add() {
 		$<%= $singularName %> = $this-><%= $currentModelName %>->newEntity();
+		$this->Authorization->authorize($<%= $singularName%>);
 		if ($this->getRequest()->is('post')) {
 			$<%= $singularName %> = $this-><%= $currentModelName %>->patchEntity($<%= $singularName %>, $this->getRequest()->getData());
 			if ($this-><%= $currentModelName; %>->save($<%= $singularName %>)) {
