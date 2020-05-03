@@ -24,7 +24,7 @@ class ConfigurationLoader {
 
 		// Test cases don't have a request object, but need this done anyway.
 		// This happens before the routing middleware has run, so we have to look at the raw URL, not the plugin property.
-		if (!$request || substr($request->getAttribute('here'), 0, 10) != '/installer') {
+		if (!Configure::read('Installer')) {
 			// Load configuration from database or cache
 			TableRegistry::getTableLocator()->get('Configuration')->loadSystem();
 		}
