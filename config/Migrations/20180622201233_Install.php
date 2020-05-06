@@ -3887,12 +3887,14 @@ class Install extends AbstractMigration {
 			->create();
 
 		$migrations = new Migrations();
-		$files = glob(CONFIG . 'Seeds' . DS . '*Seed.php');
-		foreach ($files as $file) {
-			$file = explode(DS, $file);
-			$file = explode('.', array_pop($file));
-			$seed = array_shift($file);
-			$migrations->seed(compact('seed'));
+		$seeds = [
+			'Affiliates', 'Notices', 'Settings', 'Waivers',
+			'Countries', 'Provinces', 'Regions', 'Days',
+			'Badges', 'EventTypes', 'MembershipTypes', 'StatTypes', 'RosterRoles',
+			'Users', 'People', 'AffiliatesPeople', 'Groups', 'GroupsPeople',
+		];
+		foreach ($seeds as $seed) {
+			$migrations->seed(['seed' => "{$seed}Seed"]);
 		}
 	}
 

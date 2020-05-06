@@ -68,43 +68,46 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 		// Call parent to load bootstrap from files.
 		parent::bootstrap();
 
-		if (PHP_SAPI === 'cli') {
-			try {
-				$this->addPlugin('Bake');
-				$this->addPlugin('Transifex');
-			} catch (MissingPluginException $e) {
-				// Do not halt if the plugin is missing
-			}
-
-			$this->addPlugin('Scheduler', ['autoload' => true]);
-		} else {
+		if (array_key_exists('REQUEST_URI', $_SERVER) && strpos($_SERVER['REQUEST_URI'], '/installer/') !== false) {
 			Configure::write('Installer.config', ['installer']);
 			$this->addPlugin('Installer', ['bootstrap' => true, 'routes' => true]);
+		} else {
+			if (PHP_SAPI === 'cli') {
+				try {
+					$this->addPlugin('Bake');
+					$this->addPlugin('Transifex');
+				} catch (MissingPluginException $e) {
+					// Do not halt if the plugin is missing
+				}
+
+				$this->addPlugin('Scheduler', ['autoload' => true]);
+			}
+
+			/*
+			 * Only try to load DebugKit in development mode
+			 * Debug Kit should not be installed on a production system
+			 */
+			if (Configure::read('debug')) {
+				$this->addPlugin('DebugKit', ['bootstrap' => true]);
+			}
+
+			$this->addPlugin('Authentication');
+			$this->addPlugin('Authorization');
+			$this->addPlugin('Ajax');
+			$this->addPlugin('Josegonzalez/Upload');
+			$this->addPlugin('Muffin/Footprint');
+			$this->addPlugin('Cors', ['bootstrap' => true, 'routes' => false]);
+
+			$this->addPlugin('ZuluruBootstrap');
+			$this->addPlugin('ZuluruJquery');
+
+			if (Configure::read('App.theme')) {
+				$this->addPlugin(Configure::read('App.theme'), ['bootstrap' => false, 'routes' => false]);
+			}
 		}
 
-		/*
-		 * Only try to load DebugKit in development mode
-		 * Debug Kit should not be installed on a production system
-		 */
-		if (Configure::read('debug')) {
-			$this->addPlugin('DebugKit', ['bootstrap' => true]);
-		}
-
-		$this->addPlugin('Authentication');
-		$this->addPlugin('Authorization');
-		$this->addPlugin('Ajax');
 		$this->addPlugin('Bootstrap', ['bootstrap' => true]);
-		$this->addPlugin('Josegonzalez/Upload');
-		$this->addPlugin('Muffin/Footprint');
-		$this->addPlugin('Cors', ['bootstrap' => true, 'routes' => false]);
 		$this->addPlugin('Migrations');
-
-		$this->addPlugin('ZuluruBootstrap');
-		$this->addPlugin('ZuluruJquery');
-
-		if (Configure::read('App.theme')) {
-			$this->addPlugin(Configure::read('App.theme'), ['bootstrap' => false, 'routes' => false]);
-		}
 	}
 
 	/**
@@ -456,62 +459,67 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 				Response $response,
 				callable $next
 			) {
-				// We wrap this in a function, so that by the time the Router::url calls below happen,
-				// the router has been initialized by its middleware, and the base path is set.
-				$authorization = new AuthorizationMiddleware($this, [
-					'identityDecorator' => ActAsIdentity::class,
-					'requireAuthorizationCheck' => Configure::read('debug'),
-					'unauthorizedHandler' => [
-						'className' => 'RedirectFlash',
-						'unauthenticatedUrl' => Router::url(Configure::read('App.urls.login')),
-						'unauthorizedUrl' => Router::url('/'),
-						'exceptions' => [
-							MissingIdentityException::class => function($subject, $request, $response, $exception, $options) {
-								$subject->Flash('error', __('You must login to access full site functionality.'));
-								$url = $subject->getUrl($request, array_merge($options, ['referrer' => true, 'unauthenticated' => true]));
+				// Do not attempt authorization for the installer
+				if ($request && $request->getParam('plugin') != 'Installer') {
+					// We wrap this in a function, so that by the time the Router::url calls below happen,
+					// the router has been initialized by its middleware, and the base path is set.
+					$authorization = new AuthorizationMiddleware($this, [
+						'identityDecorator' => ActAsIdentity::class,
+						'requireAuthorizationCheck' => Configure::read('debug'),
+						'unauthorizedHandler' => [
+							'className' => 'RedirectFlash',
+							'unauthenticatedUrl' => Router::url(Configure::read('App.urls.login')),
+							'unauthorizedUrl' => Router::url('/'),
+							'exceptions' => [
+								MissingIdentityException::class => function($subject, $request, $response, $exception, $options) {
+									$subject->Flash('error', __('You must login to access full site functionality.'));
+									$url = $subject->getUrl($request, array_merge($options, ['referrer' => true, 'unauthenticated' => true]));
 
-								return $response
-									->withHeader('Location', $url)
-									->withStatus($options['statusCode']);
-							},
-							ForbiddenRedirectException::class => function($subject, $request, $response, $exception, $options) {
-								$url = $exception->getUrl();
-								if (empty($url)) {
+									return $response
+										->withHeader('Location', $url)
+										->withStatus($options['statusCode']);
+								},
+								ForbiddenRedirectException::class => function($subject, $request, $response, $exception, $options) {
+									$url = $exception->getUrl();
+									if (empty($url)) {
+										$url = $subject->getUrl($request, array_merge($options, ['referrer' => false]));
+									} else if (is_array($url)) {
+										$url = Router::url($url);
+									}
+									if ($exception->getMessage()) {
+										$subject->Flash($exception->getClass(), $exception->getMessage(), $exception->getOptions());
+									}
+
+									return $response
+										->withHeader('Location', $url)
+										->withStatus($options['statusCode']);
+								},
+								LockedIdentityException::class => function($subject, $request, $response, $exception, $options) {
+									$subject->Flash('error', __('Your profile is currently {0}, so you can continue to use the site, but may be limited in some areas. To reactivate, {1}.',
+										__(UserCache::getInstance()->read('Person.status')),
+										__('contact {0}', Configure::read('email.admin_name'))
+									));
 									$url = $subject->getUrl($request, array_merge($options, ['referrer' => false]));
-								} else if (is_array($url)) {
-									$url = Router::url($url);
-								}
-								if ($exception->getMessage()) {
-									$subject->Flash($exception->getClass(), $exception->getMessage(), $exception->getOptions());
-								}
 
-								return $response
-									->withHeader('Location', $url)
-									->withStatus($options['statusCode']);
-							},
-							LockedIdentityException::class => function($subject, $request, $response, $exception, $options) {
-								$subject->Flash('error', __('Your profile is currently {0}, so you can continue to use the site, but may be limited in some areas. To reactivate, {1}.',
-									__(UserCache::getInstance()->read('Person.status')),
-									__('contact {0}', Configure::read('email.admin_name'))
-								));
-								$url = $subject->getUrl($request, array_merge($options, ['referrer' => false]));
+									return $response
+										->withHeader('Location', $url)
+										->withStatus($options['statusCode']);
+								},
+								ForbiddenException::class => function($subject, $request, $response, $exception, $options) {
+									$subject->Flash('error', __('You do not have permission to access that page.'));
+									$url = $subject->getUrl($request, array_merge($options, ['referrer' => false]));
 
-								return $response
-									->withHeader('Location', $url)
-									->withStatus($options['statusCode']);
-							},
-							ForbiddenException::class => function($subject, $request, $response, $exception, $options) {
-								$subject->Flash('error', __('You do not have permission to access that page.'));
-								$url = $subject->getUrl($request, array_merge($options, ['referrer' => false]));
-
-								return $response
-									->withHeader('Location', $url)
-									->withStatus($options['statusCode']);
-							},
+									return $response
+										->withHeader('Location', $url)
+										->withStatus($options['statusCode']);
+								},
+							],
 						],
-					],
-				]);
-				return $authorization($request, $response, $next);
+					]);
+					return $authorization($request, $response, $next);
+				} else {
+					return $next($request, $response);
+				}
 			})
 
 			// Handle "act as" parameters in the URL
