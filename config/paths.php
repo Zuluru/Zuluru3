@@ -56,10 +56,6 @@ define('WWW_ROOT', ROOT . DS . 'webroot' . DS);
  */
 define('TESTS', ROOT . DS . 'tests' . DS);
 
-if (!defined('DOMAIN_PLUGIN') && array_key_exists('DOMAIN_PLUGIN', $_SERVER)) {
-	define('DOMAIN_PLUGIN', $_SERVER['DOMAIN_PLUGIN']);
-}
-
 if (defined('DOMAIN_PLUGIN')) {
 	/**
 	 * Path to the temporary files directory.

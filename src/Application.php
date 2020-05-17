@@ -60,6 +60,10 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 	 * {@inheritDoc}
 	 */
 	public function bootstrap() {
+		if (!defined('DOMAIN_PLUGIN') && !empty(env('DOMAIN_PLUGIN'))) {
+			define('DOMAIN_PLUGIN', env('DOMAIN_PLUGIN'));
+		}
+
 		// This has to be loaded first, so it's known for getting any local configuration file
 		if (defined('DOMAIN_PLUGIN')) {
 			$this->addPlugin(DOMAIN_PLUGIN, ['bootstrap' => false, 'routes' => false]);

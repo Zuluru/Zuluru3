@@ -71,7 +71,7 @@ return [
 
 		// The base directory the app resides in. If false this will be auto
 		// detected.
-		'base' => false,
+		'base' => env('APP_BASE') ?: false,
 
 		// Name of app directory.
 		'dir' => 'src',
