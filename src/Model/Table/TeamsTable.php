@@ -377,7 +377,7 @@ class TeamsTable extends AppTable {
 			if ($division) {
 				return $this->Divisions->affiliate($division);
 			} else {
-				return $this->field('affiliate_id', ['Teams.id' => $id]);
+				return $this->field('affiliate_id', [$this->getAlias() . '.id' => $id]);
 			}
 		} catch (RecordNotFoundException $ex) {
 			return null;
@@ -386,7 +386,7 @@ class TeamsTable extends AppTable {
 
 	public function division($id) {
 		try {
-			return $this->field('division_id', ['Teams.id' => $id]);
+			return $this->field('division_id', [$this->getAlias() . '.id' => $id]);
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}
@@ -395,7 +395,7 @@ class TeamsTable extends AppTable {
 	public function sport($id) {
 		// Teams may be unassigned
 		try {
-			$division = $this->field('division_id', ['Teams.id' => $id]);
+			$division = $this->field('division_id', [$this->getAlias() . '.id' => $id]);
 			if ($division) {
 				$league = $this->Divisions->field('league_id', ['Divisions.id' => $division]);
 				return $this->Divisions->Leagues->field('sport', ['Leagues.id' => $league]);
