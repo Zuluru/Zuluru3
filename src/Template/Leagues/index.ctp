@@ -1,4 +1,13 @@
 <?php
+/**
+ * @type \App\Model\Entity\League[] $leagues
+ * @type string $sport
+ * @type bool $tournaments
+ * @type int[] $affiliates
+ * @type int $affiliate
+ * @type int[] $years
+ */
+
 use App\Controller\AppController;
 use Cake\Utility\Inflector;
 
@@ -37,11 +46,12 @@ else:
 ?>
 	<div class="table-responsive clear-float">
 	<table class="table table-hover table-condensed">
-		<thead>
 <?php
 	$affiliate_id = null;
 
 	foreach ($leagues as $league):
+		$this->start('thead');
+
 		if ($league->affiliate_id != $affiliate_id):
 			$affiliate_id = $league->affiliate_id;
 			$affiliate_leagues = collection($leagues)->filter(function ($league) use ($affiliate_id) {
@@ -70,8 +80,6 @@ else:
 				endif;
 ?>
 			</tr>
-		</thead>
-		<tbody>
 <?php
 			endif;
 		endif;
@@ -108,6 +116,14 @@ else:
 			endif;
 		endif;
 
+		$this->end('thead');
+		$thead = $this->fetch('thead');
+		if (!empty($thead)) {
+			echo $this->Html->tag('thead', $thead);
+		}
+?>
+		<tbody>
+<?php
 		// If the league has only a single division, we'll merge the details
 		$collapse = (count($league->divisions) == 1);
 		if ($collapse):
@@ -155,9 +171,11 @@ else:
 
 <?php
 		endforeach;
-	endforeach;
 ?>
 		</tbody>
+<?php
+	endforeach;
+?>
 	</table>
 	</div>
 <?php
