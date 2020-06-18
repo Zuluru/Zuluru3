@@ -1215,9 +1215,9 @@ class AppController extends Controller {
 						->order(['Affiliates.name']);
 				}
 
-				if (array_key_exists('group_id', $conditions)) {
+				if (array_key_exists('group_id IN', $conditions)) {
 					$query->matching('Groups', function (Query $q) use ($conditions) {
-						return $q->where(['Groups.id IN' => $conditions['group_id']]);
+						return $q->where(['Groups.id IN' => $conditions['group_id IN']]);
 					});
 				}
 
