@@ -2,6 +2,7 @@
 namespace App\Test\TestCase\Controller;
 
 use Cake\Core\Configure;
+use Cake\ORM\TableRegistry;
 
 /**
  * App\Controller\AffiliatesController Test Case
@@ -203,7 +204,21 @@ class AffiliatesControllerTest extends ControllerTestCase {
 		// Admins are allowed to add managers
 		$this->assertGetAsAccessOk(['controller' => 'Affiliates', 'action' => 'add_manager', 'affiliate' => AFFILIATE_ID_CLUB], PERSON_ID_ADMIN);
 
-		// Try the search page
+		// Try the search page for an ineligible person
+		$this->assertPostAsAccessOk(['controller' => 'Affiliates', 'action' => 'add_manager', 'affiliate' => AFFILIATE_ID_CLUB],
+			PERSON_ID_ADMIN, [
+				'affiliate_id' => '1',
+				'first_name' => 'pam',
+				'last_name' => '',
+				'sort' => 'last_name',
+				'direction' => 'asc',
+			]
+		);
+		$this->assertResponseContains('showing 0 records out of 0 total');
+
+		// Make her eligible and try again
+		$groups = TableRegistry::getTableLocator()->get('GroupsPeople');
+		$groups->save($groups->newEntity(['group_id' => GROUP_ID_MANAGER, 'person_id' => PERSON_ID_PLAYER]));
 		$this->assertPostAsAccessOk(['controller' => 'Affiliates', 'action' => 'add_manager', 'affiliate' => AFFILIATE_ID_CLUB],
 			PERSON_ID_ADMIN, [
 				'affiliate_id' => '1',
