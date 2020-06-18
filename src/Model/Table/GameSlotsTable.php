@@ -180,7 +180,7 @@ class GameSlotsTable extends AppTable {
 			$fields_table = TableRegistry::getTableLocator()->get('Fields');
 			$indoor_fields = $fields_table->find()
 				->where([
-					'id IN' => $fields,
+					'Fields.id IN' => $fields,
 					'indoor' => true,
 				])
 				->count();
