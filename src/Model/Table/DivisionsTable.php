@@ -151,7 +151,7 @@ class DivisionsTable extends AppTable {
 			->notEmpty('rating_calculator', null, function ($context) { return array_key_exists('schedule_type', $context['data']) && $context['data']['schedule_type'] == 'ratings_ladder'; })
 
 			->boolean('flag_membership')
-			->notEmpty('flag_membership')
+			->notEmpty('flag_membership', null, function () { return Configure::read('feature.registration'); })
 
 			->boolean('flag_roster_conflict')
 			->notEmpty('flag_roster_conflict')
@@ -290,7 +290,7 @@ class DivisionsTable extends AppTable {
 			'message' => __('You must select whether or not teams can be excluded from scheduling.'),
 		]);
 
-		$rules->add(new InConfigRule('options.enable'), 'validFlagMembership', [
+		$rules->add(new InConfigRule(['key' => 'options.enable', 'optional' => !Configure::read('feature.registration')]), 'validFlagMembership', [
 			'errorField' => 'flag_membership',
 			'message' => __('You must select whether or not to flag players without current memberships on team rosters.'),
 		]);
