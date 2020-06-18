@@ -83,8 +83,7 @@ foreach ($games as $stage_id => $stage):
 			if (count($pool_dates) == 1) {
 				$date_range = 0;
 			} else {
-				$range_dates = $pool_dates;
-				$date_range = end($range_dates)->diffInDays($range_dates[0]);
+				$date_range = end($pool_dates)->diffInDays($pool_dates[1]);
 			}
 		} else {
 			$date_range = end($pool_dates)->diffInDays($pool_dates[0]);
@@ -188,7 +187,7 @@ foreach ($games as $stage_id => $stage):
 							$last_date = $date;
 						}
 					?></td>
-					<td><?= $this->Time->time($time) ?></td>
+					<td><?= !empty($time) ? $this->Time->time($time) : '' ?></td>
 <?php
 					foreach ($time_games[$date_key][$time_key] as $game):
 						if ($game->published) {
