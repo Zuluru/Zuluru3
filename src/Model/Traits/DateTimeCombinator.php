@@ -29,7 +29,10 @@ trait DateTimeCombinator {
 		return $this->combine($this->{$this->_dateTimeCombinatorFields['date']}, $this->{$this->_dateTimeCombinatorFields[$which]});
 	}
 
-	public static function combine(ChronosInterface $date, ChronosInterface $time) {
+	public static function combine(ChronosInterface $date = null, ChronosInterface $time = null) {
+		if ($date === null || $time === null) {
+			return null;
+		}
 		return FrozenTime::create($date->year, $date->month, $date->day, $time->hour, $time->minute, $time->second, Configure::read('App.timezone.name'));
 	}
 
