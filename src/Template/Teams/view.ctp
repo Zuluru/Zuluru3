@@ -392,7 +392,7 @@ if (!empty($team->people) && $this->Authorize->can('view_roster', \App\Controlle
 				$skill_total += $skill->skill_level;
 			}
 		}
-		if (in_array($person->_joinData->role, Configure::read('required_roster_roles'))) {
+		if ($person->roster_designation && in_array($person->_joinData->role, Configure::read('required_roster_roles'))) {
 			++$captains[$person->roster_designation];
 		}
 
