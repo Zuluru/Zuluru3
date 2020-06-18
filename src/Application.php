@@ -66,7 +66,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 
 		// This has to be loaded first, so it's known for getting any local configuration file
 		if (defined('DOMAIN_PLUGIN')) {
-			$this->addPlugin(DOMAIN_PLUGIN, ['bootstrap' => false, 'routes' => false]);
+			$this->addPlugin(DOMAIN_PLUGIN, ['bootstrap' => false, 'routes' => true]);
 		}
 
 		// Call parent to load bootstrap from files.
@@ -105,7 +105,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 			$this->addPlugin('ZuluruBootstrap');
 			$this->addPlugin('ZuluruJquery');
 
-			if (Configure::read('App.theme')) {
+			if (Configure::read('App.theme') && (!defined('DOMAIN_PLUGIN') || Configure::read('App.theme') != DOMAIN_PLUGIN)) {
 				$this->addPlugin(Configure::read('App.theme'), ['bootstrap' => false, 'routes' => false]);
 			}
 		}
@@ -531,6 +531,16 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 
 			->add(AffiliateConfigurationLoader::class)
 		;
+
+		if (Configure::read('debug')) {
+			// Disable authz for debugkit
+			$middlewareQueue->add(function ($req, $res, $next) {
+				if ($req->getParam('plugin') === 'DebugKit') {
+					$req->getAttribute('authorization')->skipAuthorization();
+				}
+				return $next($req, $res);
+			});
+		}
 
 		return $middlewareQueue;
 	}
