@@ -59,6 +59,6 @@ endforeach;
 	'league' => $league,
 	'format' => 'list',
 	'tournaments' => $tournaments,
-	'extra' => $this->Html->link(__('Download {0} List', 'Participation'), ['action' => 'participation', 'league' => $league->id, '_ext' => 'csv']),
+	'extra_links' => $this->Html->link(__('Download {0} List', 'Participation'), ['action' => 'participation', 'league' => $league->id, '_ext' => 'csv']),
 ]) ?></div>
 <?= $this->element('People/roster_div');

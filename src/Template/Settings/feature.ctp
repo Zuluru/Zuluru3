@@ -1,4 +1,9 @@
 <?php
+/**
+ * @type string[] $plugin_elements
+ * @type \App\Model\Entity\Affiliate $affiliate
+ */
+
 use Cake\Core\Configure;
 
 $this->Html->addCrumb(__('Settings'));
@@ -208,6 +213,10 @@ if (function_exists('curl_init')) {
 ?>
 	</fieldset>
 <?php
+foreach ($plugin_elements as $element) {
+	echo $this->element($element);
+}
+
 echo $this->Form->button(__('Submit'), ['class' => 'btn-success']);
 echo $this->Form->end();
 ?>

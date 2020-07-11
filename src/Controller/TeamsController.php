@@ -2390,7 +2390,7 @@ class TeamsController extends AppController {
 				$this->_sendRemove($person, $team, $person->_joinData->getOriginal('role'));
 			}
 
-			$event = new CakeEvent('Model.Team.rosterDelete', $this, [$team->id, $person]);
+			$event = new CakeEvent('Model.Team.rosterRemove', $this, [$team->id, $person]);
 			$this->eventManager()->dispatch($event);
 
 			$this->UserCache->_deleteTeamData($person->id);

@@ -112,6 +112,12 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 
 		$this->addPlugin('Bootstrap', ['bootstrap' => true]);
 		$this->addPlugin('Migrations');
+
+		foreach (TableRegistry::getTableLocator()->get('Settings')->find()->where(['category' => 'plugin']) as $plugin) {
+			if ($plugin->value) {
+				$this->addPlugin($plugin->name, ['bootstrap' => true, 'routes' => true]);
+			}
+		}
 	}
 
 	/**

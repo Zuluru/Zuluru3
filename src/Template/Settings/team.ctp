@@ -1,4 +1,9 @@
 <?php
+/**
+ * @type string[] $plugin_elements
+ * @type \App\Model\Entity\Affiliate $affiliate
+ */
+
 use Cake\Core\Configure;
 
 $this->Html->addCrumb(__('Settings'));
@@ -74,6 +79,17 @@ echo $this->element('Settings/input', [
 		'help' => __('Enable or disable attachment of Flickr slideshows to team records.'),
 	],
 ]);
+echo $this->element('Settings/input', [
+	'category' => 'plugin',
+	'name' => 'Javelin',
+	'options' => [
+		'label' => 'Javelin',
+		'type' => 'radio',
+		'options' => Configure::read('options.enable'),
+		'help' => __('Enable or disable integration with the {0}.', $this->Html->link(__('Javelin mobile app'), 'https://www.javelinsportsinc.com/')),
+		'confirm' => __('Note that {0} is not a free service.\n\nEither contact them to discuss payment options, or notify your teams that they will be responsible for this.', 'Javelin'),
+	],
+]);
 ?>
 	</fieldset>
 
@@ -142,6 +158,10 @@ echo $this->element('Settings/input', [
 ?>
 	</fieldset>
 <?php
+foreach ($plugin_elements as $element) {
+	echo $this->element($element);
+}
+
 echo $this->Form->button(__('Submit'), ['class' => 'btn-success']);
 echo $this->Form->end();
 ?>

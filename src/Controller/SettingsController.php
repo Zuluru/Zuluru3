@@ -4,6 +4,7 @@ namespace App\Controller;
 use Cake\Cache\Cache;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
+use Cake\Event\Event;
 
 /**
  * Settings Controller
@@ -41,6 +42,10 @@ class SettingsController extends AppController {
 			$settings_query = $settings_query->andWhere(['affiliate_id IS' => null]);
 			$this->Authorization->authorize($this);
 		}
+
+		$plugin_elements = new \ArrayObject();
+		$event = new Event("Plugin.settings.{$section}", $this, [$plugin_elements]);
+		$this->getEventManager()->dispatch($event);
 
 		$settings = $settings_query->toArray();
 
@@ -84,7 +89,7 @@ class SettingsController extends AppController {
 				return $setting->has('id') && in_array($setting->id, $to_delete);
 			})->toArray();
 
-			$this->Settings->getConnection()->transactional(function () use ($settings, $to_delete, $affiliate_id) {
+			if ($this->Settings->getConnection()->transactional(function () use ($settings, $to_delete, $affiliate_id) {
 				if (!empty($this->request->getData())) {
 					$settings = $this->Settings->patchEntities($settings, $this->request->getData(), ['validate' => false]);
 					foreach ($settings as $setting) {
@@ -116,16 +121,15 @@ class SettingsController extends AppController {
 				$this->_initMenu();
 
 				return true;
-			});
-
-			// Reload the settings, so any newly assigned IDs are present
-			// The 'enableBufferedResults' call is to make the query dirty so it doesn't use cached results.
-			$settings = $settings_query->enableBufferedResults(true)->toArray();
+			})) {
+				// For things like language and plugin settings to be recognized, we need to start a new request
+				return $this->redirect(['action' => 'edit', $section]);
+			}
 		}
 
 		$this->_loadAddressOptions();
 
-		$this->set(compact('affiliate', 'settings', 'defaults'));
+		$this->set(compact('affiliate', 'settings', 'plugin_elements', 'defaults'));
 		$this->render($section);
 	}
 

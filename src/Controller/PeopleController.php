@@ -7,6 +7,7 @@ use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
+use Cake\Event\Event;
 use Cake\Filesystem\File;
 use Cake\Http\Cookie\Cookie;
 use Cake\Http\Exception\GoneException;
@@ -830,6 +831,10 @@ class PeopleController extends AppController {
 			->where(['person_id' => $id])
 			->toArray();
 
+		$plugin_elements = new \ArrayObject();
+		$event = new Event('Plugin.preferences', $this, [$plugin_elements]);
+		$this->getEventManager()->dispatch($event);
+
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			$settings = $this->People->Settings->patchEntities($settings, $this->request->getData());
 
@@ -868,7 +873,7 @@ class PeopleController extends AppController {
 			}
 		}
 
-		$this->set(compact('id', 'person', 'settings'));
+		$this->set(compact('id', 'person', 'plugin_elements', 'settings'));
 	}
 
 	public function add_relative() {
@@ -1234,7 +1239,7 @@ class PeopleController extends AppController {
 
 			// Check allowed mime type
 			if (substr($mimeType, 0, 6) == 'image/') {
-				list(, $ext) = explode('/', $mimeType);
+				[, $ext] = explode('/', $mimeType);
 				$filename = $person->id . '.' . strtolower($ext);
 				file_put_contents(Configure::read('App.paths.uploads') . DS . $filename, $fileBin);
 
@@ -2229,7 +2234,7 @@ class PeopleController extends AppController {
 
 	public function rule_search() {
 		$this->Authorization->authorize($this);
-		list($params, $url) = $this->_extractSearchParams();
+		[$params, $url] = $this->_extractSearchParams();
 		if (!$this->_handleRuleSearch($params, $url)) {
 			return $this->redirect(['action' => 'rule_search']);
 		}
@@ -2237,7 +2242,7 @@ class PeopleController extends AppController {
 
 	public function league_search() {
 		$this->Authorization->authorize($this);
-		list($params, $url) = $this->_extractSearchParams();
+		[$params, $url] = $this->_extractSearchParams();
 		unset($url['league_id']);
 		unset($url['include_subs']);
 		if (array_key_exists('league_id', $params)) {
@@ -2277,7 +2282,7 @@ class PeopleController extends AppController {
 
 	public function inactive_search() {
 		$this->Authorization->authorize($this);
-		list($params, $url) = $this->_extractSearchParams();
+		[$params, $url] = $this->_extractSearchParams();
 		$params['affiliate_id'] = array_keys($this->Authentication->applicableAffiliates());
 		if (!empty($params) || !Configure::read('feature.affiliates')) {
 			$params['rule'] = "NOT(COMPARE(TEAM_COUNT('today') > '0'))";
@@ -2424,7 +2429,7 @@ class PeopleController extends AppController {
 				$this->Flash->info(__('You must select a disposition for this account.'));
 			} else {
 				if (strpos($this->request->getData('disposition'), ':') !== false) {
-					list($disposition, $dup_id) = explode(':', $this->request->getData('disposition'));
+					[$disposition, $dup_id] = explode(':', $this->request->getData('disposition'));
 					$duplicate = collection($duplicates)->firstMatch(['id' => $dup_id]);
 					if ($duplicate) {
 						if ($this->_approve($person, $disposition, $duplicate)) {

@@ -216,7 +216,7 @@ class SchedulesController extends AppController {
 	protected function _crosscount($division, $stage) {
 		// Validate any data posted to us
 		if ($this->request->is(['patch', 'post', 'put']) && $division->_options->step == 'crosscount') {
-			list($type, $pools) = explode('_', $division->_options->pool_type);
+			[$type, $pools] = explode('_', $division->_options->pool_type);
 			$pool_data = [
 				'division_id' => $division->id,
 				'type' => $type,
@@ -242,7 +242,7 @@ class SchedulesController extends AppController {
 	}
 
 	protected function _details($division, $stage) {
-		list($type, $pools) = explode('_', $division->_options->pool_type);
+		[$type, $pools] = explode('_', $division->_options->pool_type);
 
 		$pool_data = [
 			'division_id' => $division->id,
@@ -358,7 +358,7 @@ class SchedulesController extends AppController {
 
 	protected function _reseed($division, $stage) {
 		$options = $valid_options = $pool_sizes = $ordinal_counts = $save = [];
-		list($type, $pools) = explode('_', $division->_options->pool_type);
+		[$type, $pools] = explode('_', $division->_options->pool_type);
 
 		$this_stage = $stage + 1;
 
@@ -448,7 +448,7 @@ class SchedulesController extends AppController {
 				foreach ($data['pools_teams'] as $j => $team) {
 					// TODOLATER: Move this differentiation into beforeMarshal?
 					if (strpos($team['qualifier'], '-') !== false) {
-						list($qpool, $qpos) = explode('-', $team['qualifier']);
+						[$qpool, $qpos] = explode('-', $team['qualifier']);
 					} else {
 						$qpool = 1; // Don't want to run the firstMatch check in this case
 						$qpos = null;
@@ -951,15 +951,15 @@ class SchedulesController extends AppController {
 
 				return true;
 			})) {
-				// With the deletes being inside a transaction, afterDeleteCommit is not called.
-				$event = new CakeEvent('Model.Game.afterDeleteCommit', $this, [null]);
-				$this->eventManager()->dispatch($event);
-
 				if ($date) {
 					$this->Flash->success(__('Deleted games on the requested date.'));
 				} else {
 					$this->Flash->success(__('Deleted games from the requested pool.'));
 				}
+
+				// With the saves being inside a transaction, afterDeleteCommit is not called.
+				$event = new CakeEvent('Model.afterDeleteCommit', $this, [null]);
+				$this->getEventManager()->dispatch($event);
 
 				if (isset($league)) {
 					foreach ($league->divisions as $division) {
@@ -972,6 +972,9 @@ class SchedulesController extends AppController {
 				}
 			} else {
 				$this->Flash->warning(__('Failed to delete games on the requested date.'));
+
+				$event = new CakeEvent('Model.afterDeleteRollback', $this, [null]);
+				$this->getEventManager()->dispatch($event);
 			}
 		}
 
@@ -1169,9 +1172,16 @@ class SchedulesController extends AppController {
 		}
 
 		$games = array_merge($games, $same_pool);
-		$game_ids = collection($games)->extract('id')->toArray();
+		if ($this->Divisions->Games->getConnection()->transactional(function () use ($games, $true) {
+			foreach ($games as $game) {
+				$game->published = $true;
+				if (!$this->Divisions->Games->save($game, ['update_badges' => false])) {
+					return false;
+				}
+			}
 
-		if ($this->Divisions->Games->updateAll(['published' => $true], ['id IN' => $game_ids])) {
+			return true;
+		})) {
 			$this->Flash->success(__('{0} games on the requested date.', $published));
 
 			if (isset($league)) {
@@ -1182,22 +1192,18 @@ class SchedulesController extends AppController {
 				$this->Divisions->clearCache($division, ['schedule', 'standings']);
 			}
 
-			if ($true) {
-				// With the update being done this way, afterSaveCommit is not called.
-				$team_ids = array_flip(array_unique(array_filter(array_merge(
-					collection($games)->extract('home_team_id')->toArray(),
-					collection($games)->extract('away_team_id')->toArray()
-				))));
-				Configure::write('teams_with_updated_schedules', $team_ids);
-				$event = new CakeEvent('Model.Game.afterSaveCommit', $this, [null]);
-				$this->eventManager()->dispatch($event);
-			} else {
-				Configure::write('deleted_games', $game_ids);
-				$event = new CakeEvent('Model.Game.afterDeleteCommit', $this, [null]);
-				$this->eventManager()->dispatch($event);
-			}
+			// With the saves being inside a transaction, afterSaveCommit is not called.
+			$event = new CakeEvent('Model.afterSaveCommit', $this, [null]);
+			$this->getEventManager()->dispatch($event);
 		} else {
 			$this->Flash->warning(__('Failed to {0} games on the requested date.', $publish));
+
+			if ($true) {
+				$event = new CakeEvent('Model.afterSaveRollback', $this, [null]);
+			} else {
+				$event = new CakeEvent('Model.afterDeleteRollback', $this, [null]);
+			}
+			$this->getEventManager()->dispatch($event);
 		}
 
 		if (isset($league)) {

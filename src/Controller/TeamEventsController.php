@@ -136,7 +136,6 @@ class TeamEventsController extends AppController {
 							// so that the team_event that is sent to the view has original data
 							// in it, not the modified date.
 							$team_event['dates'][$i] = $this->TeamEvents->newEntity(array_merge($this->request->getData(), ['team_id' => $id, 'date' => $date]));
-							$this->TeamEvents->save($team_event['dates'][$i]);
 
 							// Calculate the date of the next event
 							switch ($this->request->getData('repeat_type')) {
@@ -161,6 +160,7 @@ class TeamEventsController extends AppController {
 									break;
 							}
 						}
+						$this->TeamEvents->saveMany($team_event['dates']);
 						$this->Flash->success(__('Your team events have been created. Selections have been preserved here in case you have more like this to create.'));
 					}
 				}

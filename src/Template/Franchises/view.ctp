@@ -109,7 +109,11 @@ if ($this->Identity->isLoggedIn()):
 							['alt' => __('Remove'), 'title' => __('Remove Team from this Franchise')],
 							['confirm' => __('Are you sure you want to remove this team?')]);
 					}
-					echo $this->element('Teams/actions', ['team' => $team, 'division' => $team->division, 'league' => $team->division->league]);
+					echo $this->element('Teams/actions', [
+						'team' => $team,
+						'division' => $team->division_id ? $team->division : null,
+						'league' => $team->division_id ? $team->division->league : null,
+					]);
 					?></td>
 				</tr>
 

@@ -14,6 +14,7 @@ use App\Authorization\ContextResource;
 use App\Controller\AppController;
 use App\Core\ModuleRegistry;
 use Cake\Core\Configure;
+use Cake\Event\Event;
 
 if (!isset($format)) {
 	$format = 'links';
@@ -34,7 +35,8 @@ if ($from_league_actions) {
 	$links = $league_actions;
 	$more = $league_more;
 } else {
-	$links = $more = [];
+	$links = new ArrayObject();
+	$more = new ArrayObject();
 }
 
 if (!$collapse) {
@@ -183,14 +185,35 @@ if (!$collapse && $this->Authorize->can('delete', $division)) {
 // Some items are only applicable depending on league configuration
 if (!empty($division->schedule_type)) {
 	$league_obj = ModuleRegistry::getInstance()->load("LeagueType:{$division->schedule_type}");
-	$more = array_merge($more, $league_obj->links($division, $this->Authorize->getIdentity(), $this->getRequest()->getParam('controller'), $this->getRequest()->getParam('action')));
+	foreach ($league_obj->links($division, $this->Authorize->getIdentity(), $this->getRequest()->getParam('controller'), $this->getRequest()->getParam('action')) as $key => $link) {
+		if (is_numeric($key)) {
+			$more[] = $link;
+		} else {
+			$more[$key] = $link;
+		}
+	}
 }
 
-if (!empty($extra)) {
-	if (is_array($extra)) {
-		$more = array_merge($more, $extra);
-	} else {
-		$more[] = $extra;
+$plugin_event = new Event('Plugin.actions.division.links', $this, [$links, $more, $this->Authorize, $this->Html, $division]);
+$this->getEventManager()->dispatch($plugin_event);
+
+if (!empty($extra_links)) {
+	foreach ((array)$extra_links as $key => $link) {
+		if (is_numeric($key)) {
+			$links[] = $link;
+		} else {
+			$links[$key] = $link;
+		}
+	}
+}
+
+if (!empty($extra_more)) {
+	foreach ((array)$extra_more as $key => $link) {
+		if (is_numeric($key)) {
+			$more[] = $link;
+		} else {
+			$more[$key] = $link;
+		}
 	}
 }
 
@@ -199,15 +222,18 @@ if ($collapse && !$from_league_actions) {
 		compact('league', 'format', 'size', 'collapse', 'return'),
 		[
 			'from_division_actions' => true,
-			'extra' => $links,
-			'more' => $more,
+			'extra_links' => $links,
+			'extra_more' => $more,
 		]
 	));
 } else {
-	$links[] = $this->Jquery->moreWidget(['type' => "division_actions_{$division->id}"], $more);
+	if ($more->count() != 0) {
+		$links[] = $this->Jquery->moreWidget(['type' => "division_actions_{$division->id}"], $more->getArrayCopy());
+	}
+
 	if ($format == 'links') {
-		echo implode("\n", $links);
+		echo implode("\n", $links->getArrayCopy());
 	} else {
-		echo $this->Html->nestedList($links, ['class' => 'nav nav-pills']);
+		echo $this->Html->nestedList($links->getArrayCopy(), ['class' => 'nav nav-pills']);
 	}
 }

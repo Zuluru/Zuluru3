@@ -493,4 +493,5 @@ class TeamPolicy extends AppPolicy {
 
 		return false;
 	}
+
 }

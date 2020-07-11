@@ -1,4 +1,9 @@
 <?php
+/**
+ * @type \App\Model\Entity\Person $person
+ * @type int $id
+ * @type string[] $plugin_elements
+ */
 use Cake\Core\Configure;
 use Cake\I18n\FrozenTime;
 
@@ -119,6 +124,10 @@ if (Configure::read('feature.twitter')):
 		</fieldset>
 <?php
 endif;
+
+foreach ($plugin_elements as $element) {
+	echo $this->element($element);
+}
 ?>
 	</fieldset>
 <?php

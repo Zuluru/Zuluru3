@@ -1,4 +1,9 @@
 <?php
+/**
+ * @type string[] $plugin_elements
+ * @type \App\Model\Entity\Affiliate $affiliate
+ */
+
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 use Cake\Utility\Text;
@@ -173,6 +178,10 @@ echo $this->element('Settings/input', [
 ?>
 	</fieldset>
 <?php
+foreach ($plugin_elements as $element) {
+	echo $this->element($element);
+}
+
 echo $this->Form->button(__('Submit'), ['class' => 'btn-success']);
 echo $this->Form->end();
 ?>

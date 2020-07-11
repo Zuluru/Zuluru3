@@ -27,7 +27,12 @@ if (!empty($teams) || $past_teams > 0):
 					}
 				?></td>
 				<td class="actions splash-action"><?php
-					echo $this->element('Teams/actions', ['team' => $team, 'division' => $team->division, 'league' => $team->division->league, 'format' => 'links']);
+					echo $this->element('Teams/actions', [
+						'team' => $team,
+						'division' => $team->division_id ? $team->division : null,
+						'league' => $team->division_id ? $team->division->league : null,
+						'format' => 'links',
+					]);
 				?></td>
 			</tr>
 <?php

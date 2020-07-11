@@ -6,6 +6,7 @@ use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
+use Cake\Event\Event;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\Query;
 use App\Exception\ScheduleException;
@@ -600,12 +601,23 @@ class LeaguesController extends AppController {
 						return $success;
 					})) {
 						$this->Flash->success(__('Schedule changes saved!'));
+
+						// With the saves being inside a transaction, afterSaveCommit is not called.
+						$event = new Event('Model.afterSaveCommit', $this, [null]);
+						$this->getEventManager()->dispatch($event);
+
 						return $this->redirect (['action' => 'schedule', 'league' => $id]);
 					}
 
 					$this->Flash->warning(__('The games could not be saved. Please correct the errors below and try again.'));
+
+					$event = new Event('Model.afterSaveRollback', $this, [null]);
+					$this->getEventManager()->dispatch($event);
 				} catch (ScheduleException $ex) {
 					$this->Flash->html($ex->getMessages(), ['params' => $ex->getAttributes()]);
+
+					$event = new Event('Model.afterSaveRollback', $this, [null]);
+					$this->getEventManager()->dispatch($event);
 				}
 			}
 		}

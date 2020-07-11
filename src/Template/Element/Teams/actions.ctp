@@ -1,7 +1,14 @@
 <?php
-
+/**
+ * @type \App\Model\Entity\Division $division
+ * @type \App\Model\Entity\League $league
+ * @type \App\Model\Entity\Team $team
+ * @type string $format
+ * @type string $size
+ */
 use App\Authorization\ContextResource;
 use App\Controller\AppController;
+use Cake\Event\Event;
 
 if (!isset($format)) {
 	$format = 'links';
@@ -10,7 +17,8 @@ if (!isset($size)) {
 	$size = ($format == 'links' ? 24 : 32);
 }
 
-$links = $more = [];
+$links = new ArrayObject();
+$more = new ArrayObject();
 
 if ($this->getRequest()->getParam('controller') != 'Teams' || $this->getRequest()->getParam('action') != 'view') {
 	$links[] = $this->Html->iconLink("view_$size.png",
@@ -112,17 +120,35 @@ if ($this->Authorize->can('note', $team)) {
 	];
 }
 
-if (!empty($extra)) {
-	if (is_array($extra)) {
-		$more = array_merge($more, $extra);
-	} else {
-		$more[] = $extra;
+$plugin_event = new Event('Plugin.actions.team.links', $this, [$links, $more, $this->Authorize, $this->Html, $team, isset($division) ? $division : null]);
+$this->getEventManager()->dispatch($plugin_event);
+
+if (!empty($extra_links)) {
+	foreach ((array)$extra_links as $key => $link) {
+		if (is_numeric($key)) {
+			$links[] = $link;
+		} else {
+			$links[$key] = $link;
+		}
 	}
 }
 
-$links[] = $this->Jquery->moreWidget(['type' => "team_actions_{$team->id}"], $more);
+if (!empty($extra_more)) {
+	foreach ((array)$extra_more as $key => $link) {
+		if (is_numeric($key)) {
+			$more[] = $link;
+		} else {
+			$more[$key] = $link;
+		}
+	}
+}
+
+if ($more->count() != 0) {
+	$links[] = $this->Jquery->moreWidget(['type' => "team_actions_{$team->id}"], $more->getArrayCopy());
+}
+
 if ($format == 'links') {
-	echo implode("\n", $links);
+	echo implode("\n", $links->getArrayCopy());
 } else {
-	echo $this->Html->nestedList($links, ['class' => 'nav nav-pills']);
+	echo $this->Html->nestedList($links->getArrayCopy(), ['class' => 'nav nav-pills']);
 }

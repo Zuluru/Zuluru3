@@ -11,6 +11,7 @@
 
 use App\Controller\AppController;
 use App\Controller\LeaguesController;
+use Cake\Event\Event;
 
 if (!isset($format)) {
 	$format = 'links';
@@ -29,10 +30,10 @@ if (!isset($from_division_actions)) {
 	$from_division_actions = false;
 }
 if (!isset($more)) {
-	$more = [];
+	$more = new ArrayObject();
 }
 
-$links = [];
+$links = new ArrayObject();
 
 if (!isset($tournaments)) {
 	$tournaments = false;
@@ -102,11 +103,26 @@ if (($this->getRequest()->getParam('controller') != 'Leagues' || $this->getReque
 	];
 }
 
-if (!empty($extra)) {
-	if (is_array($extra)) {
-		$links = array_merge($links, $extra);
-	} else {
-		$links[] = $extra;
+$plugin_event = new Event('Plugin.actions.league.links', $this, [$links, $more, $this->Authorize, $this->Html, $league]);
+$this->getEventManager()->dispatch($plugin_event);
+
+if (!empty($extra_links)) {
+	foreach ((array)$extra_links as $key => $link) {
+		if (is_numeric($key)) {
+			$links[] = $link;
+		} else {
+			$links[$key] = $link;
+		}
+	}
+}
+
+if (!empty($extra_more)) {
+	foreach ((array)$extra_more as $key => $link) {
+		if (is_numeric($key)) {
+			$more[] = $link;
+		} else {
+			$more[$key] = $link;
+		}
 	}
 }
 
@@ -121,10 +137,13 @@ if ($collapse && !$from_division_actions) {
 		]
 	));
 } else {
-	$links[] = $this->Jquery->moreWidget(['type' => "league_actions_{$league->id}"], $more);
+	if ($more->count() != 0) {
+		$links[] = $this->Jquery->moreWidget(['type' => "league_actions_{$league->id}"], $more->getArrayCopy());
+	}
+
 	if ($format == 'links') {
-		echo implode("\n", $links);
+		echo implode("\n", $links->getArrayCopy());
 	} else {
-		echo $this->Html->nestedList($links, ['class' => 'nav nav-pills']);
+		echo $this->Html->nestedList($links->getArrayCopy(), ['class' => 'nav nav-pills']);
 	}
 }

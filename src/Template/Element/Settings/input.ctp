@@ -4,6 +4,7 @@
  * @type string $name
  * @type string[] $options
  * @type string[] $settings
+ * @type string[] $defaults
  */
 
 if (!isset($options)) {
@@ -83,6 +84,11 @@ if (file_exists($help_file)) {
 	}
 }
 
+if (array_key_exists('confirm', $options)) {
+	$confirm = $options['confirm'];
+	unset($options['confirm']);
+}
+
 if ($options['type'] == 'textarea') {
 	$options = array_merge(['cols' => 70, 'rows' => 10], $options);
 } else if ($options['type'] == 'text' && !array_key_exists('size', $options)) {
@@ -100,6 +106,17 @@ if (isset($jquery)) {
 	], $options) . "\n";
 } else {
 	echo $this->Form->input("$id.value", $options) . "\n";
+}
+
+if (!empty($confirm)) {
+	$confirm = str_replace("'", "\\'", $confirm);
+	if ($options['type'] == 'radio') {
+		echo $this->Html->scriptBlock("jQuery('#{$id}-value-1').on('click', function () {
+			return confirm('$confirm');
+		});", ['buffer' => true]);
+	} else {
+		trigger_error("The 'confirm' option has not been implemented for the {$options['type']} input type.", E_USER_WARNING);
+	}
 }
 
 // TODO: Is there a fix that could be done in Cake, based on the template, that would eliminate this necessity?

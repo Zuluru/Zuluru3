@@ -71,11 +71,11 @@ if (!empty($events)) {
 
 <div class="actions columns">
 <?php
-$args = ['team' => $team, 'format' => 'list'];
-if (!empty($team->division_id)) {
-	$args['division'] = $team->division;
-	$args['league'] = $team->division->league;
-}
-echo $this->element('Teams/actions', $args);
+echo $this->element('Teams/actions', [
+	'team' => $team,
+	'division' => $team->division_id ? $team->division : null,
+	'league' => $team->division_id ? $team->division->league : null,
+	'format' => 'list',
+]);
 ?>
 </div>

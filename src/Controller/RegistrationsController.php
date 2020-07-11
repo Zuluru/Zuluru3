@@ -759,7 +759,7 @@ class RegistrationsController extends AppController {
 			$this->viewBuilder()->layout('bare');
 		}
 		$payment_obj = $this->moduleRegistry->load('Payment:' . Configure::read('payment.payment_implementation'));
-		list($result, $audit, $registration_ids) = $payment_obj->process($this->request, $checkHash);
+		[$result, $audit, $registration_ids] = $payment_obj->process($this->request, $checkHash);
 		$errors = [];
 		if ($result) {
 
@@ -802,7 +802,7 @@ class RegistrationsController extends AppController {
 			}
 
 			foreach ($registrations as $key => $registration) {
-				list ($cost, $tax1, $tax2) = $registration->paymentAmounts();
+				[$cost, $tax1, $tax2] = $registration->paymentAmounts();
 				$registration->payments[] = $this->Registrations->Payments->newEntity([
 					'registration_audit_id' => $audit->id,
 					'payment_method' => 'Online',
@@ -830,7 +830,7 @@ class RegistrationsController extends AppController {
 				return;
 			}
 
-			list($result, $audit, $registration_ids) = $payment_obj->processData($values, false);
+			[$result, $audit, $registration_ids] = $payment_obj->processData($values, false);
 			if (!$result) {
 				$this->Flash->warning(__('Unable to extract payment information from the text provided.'));
 				return;

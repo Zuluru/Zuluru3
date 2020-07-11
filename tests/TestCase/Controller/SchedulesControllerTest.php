@@ -44,6 +44,8 @@ class SchedulesControllerTest extends ControllerTestCase {
 						'app.Stats',
 						'app.ScoreDetails',
 			'app.Attendances',
+			'app.Badges',
+				'app.BadgesPeople',
 			'app.MailingLists',
 				'app.Newsletters',
 			'app.ActivityLogs',
@@ -329,8 +331,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 		$date = (new FrozenDate('last Thursday of May'))->addWeeks(1);
 		$this->assertGetAsAccessRedirect(['controller' => 'Schedules', 'action' => 'publish', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN, 'date' => $date->toDateString()],
 			PERSON_ID_COORDINATOR, ['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN],
-			// There are no unpublished games on this date, so the message will be a failure. But at least it passed permission checks...
-			'#Failed to publish games on the requested date.#');
+			'#Published games on the requested date.#');
 
 		// But not in other divisions
 		$date = (new FrozenDate('last Tuesday of May'))->addWeeks(2);

@@ -1,5 +1,12 @@
 <?php
+/**
+ * @type \App\Model\Entity\Registration $registration
+ * @type string $format
+ * @type string $size
+ */
+
 use App\Controller\AppController;
+use Cake\Event\Event;
 
 if (!isset($format)) {
 	$format = 'links';
@@ -8,7 +15,8 @@ if (!isset($size)) {
 	$size = ($format == 'links' ? 24 : 32);
 }
 
-$links = [];
+$links = new ArrayObject();
+$more = new ArrayObject();
 
 if (($this->getRequest()->getParam('controller') != 'Registrations' || $this->getRequest()->getParam('action') != 'view') &&
 	$this->Authorize->can('view', $registration)
@@ -41,8 +49,35 @@ if ($this->Authorize->can('unregister', $registration)) {
 	);
 }
 
+$plugin_event = new Event('Plugin.actions.registration.links', $this, [$links, $more, $this->Authorize, $this->Html, $registration]);
+$this->getEventManager()->dispatch($plugin_event);
+
+if (!empty($extra_links)) {
+	foreach ((array)$extra_links as $key => $link) {
+		if (is_numeric($key)) {
+			$links[] = $link;
+		} else {
+			$links[$key] = $link;
+		}
+	}
+}
+
+if (!empty($extra_more)) {
+	foreach ((array)$extra_more as $key => $link) {
+		if (is_numeric($key)) {
+			$more[] = $link;
+		} else {
+			$more[$key] = $link;
+		}
+	}
+}
+
+if ($more->count() != 0) {
+	$links[] = $this->Jquery->moreWidget(['type' => "registration_actions_{$registration->id}"], $more->getArrayCopy());
+}
+
 if ($format == 'links') {
-	echo implode("\n", $links);
+	echo implode("\n", $links->getArrayCopy());
 } else {
-	echo $this->Html->nestedList($links, ['class' => 'nav nav-pills']);
+	echo $this->Html->nestedList($links->getArrayCopy(), ['class' => 'nav nav-pills']);
 }

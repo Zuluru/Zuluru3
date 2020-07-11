@@ -7,6 +7,7 @@ use Authorization\Policy\OrmResolver;
 class TypeResolver extends OrmResolver {
 
 	protected $_manglers;
+	protected $_plugin = null;
 
 	/**
 	 * Constructor
@@ -19,16 +20,20 @@ class TypeResolver extends OrmResolver {
 		$this->_manglers = $manglers;
 	}
 
+	public function setPlugin($plugin) {
+		$this->_plugin = $plugin;
+	}
+
 	public function getPolicy($resource) {
 		$name = is_object($resource) ? get_class($resource) : (is_string($resource) ? $resource : gettype($resource));
-		$policy = $this->getTypePolicy($name, $resource);
+		$policy = $this->getTypePolicy($name, $resource, $this->_plugin);
 		if ($policy) {
 			return $policy;
 		}
 		throw new MissingPolicyException([$name]);
 	}
 
-	protected function getTypePolicy($class, $resource) {
+	protected function getTypePolicy($class, $resource, $plugin) {
 		$name = null;
 		foreach ($this->_manglers as $type => $callable) {
 			$needle = "\\{$type}\\";
@@ -48,6 +53,11 @@ class TypeResolver extends OrmResolver {
 			// Assume that the callable returned a final policy instead of the name of the policy.
 			return $name;
 		}
+
+		if ($plugin) {
+			$namespace = $plugin;
+		}
+
 		return $this->findPolicy($class, $name, $namespace);
 	}
 

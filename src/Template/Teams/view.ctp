@@ -271,11 +271,13 @@ if (Configure::read('feature.shirt_numbers') && !$has_numbers &&
 	];
 }
 
-if (empty($team->division_id)) {
-	echo $this->element('Teams/actions', ['team' => $team, 'division' => null, 'league' => null, 'format' => 'list', 'extra' => $extra]);
-} else {
-	echo $this->element('Teams/actions', ['team' => $team, 'division' => $team->division, 'league' => $team->division->league, 'format' => 'list', 'extra' => $extra]);
-}
+echo $this->element('Teams/actions', [
+	'team' => $team,
+	'division' => $team->division_id ? $team->division : null,
+	'league' => $team->division_id ? $team->division->league : null,
+	'format' => 'list',
+	'extra_more' => $extra,
+]);
 ?>
 </div>
 

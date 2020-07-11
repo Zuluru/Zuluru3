@@ -1,6 +1,9 @@
 <?php
 namespace App\Model\Table;
 
+use App\Event\FlashTrait;
+use Cake\Datasource\EntityInterface;
+use Cake\Event\Event;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
 
@@ -11,6 +14,8 @@ use Cake\Validation\Validator;
  * @property \Cake\ORM\Association\BelongsTo $Affiliates
  */
 class SettingsTable extends AppTable {
+
+	use FlashTrait;
 
 	/**
 	 * Initialize method
@@ -68,6 +73,20 @@ class SettingsTable extends AppTable {
 	public function buildRules(RulesChecker $rules) {
 		$rules->add($rules->existsIn(['affiliate_id'], 'Affiliates', __('You must select a valid affiliate.')));
 		return $rules;
+	}
+
+	/**
+	 * Perform additional operations after it is saved.
+	 *
+	 * @param \Cake\Event\Event $event The afterSave event that was fired
+	 * @param \Cake\Datasource\EntityInterface $entity The entity that was saved
+	 * @param \ArrayObject $options The options passed to the save method
+	 * @return void
+	 */
+	public function afterSave(Event $event, EntityInterface $entity, \ArrayObject $options) {
+		if ($entity->category == 'plugin' && $entity->value) {
+			$this->Flash('success', __('There may be new plugin-specific options below.'));
+		}
 	}
 
 	public function mergeList(Array $old, Array $new) {

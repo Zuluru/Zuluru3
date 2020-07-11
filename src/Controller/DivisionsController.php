@@ -785,17 +785,24 @@ class DivisionsController extends AppController {
 						}
 						return $success;
 					})) {
-						// With the saves being inside a transaction, afterSaveCommit is not called.
-						$event = new Event('Model.Game.afterSaveCommit', $this, [null]);
-						$this->eventManager()->dispatch($event);
-
 						$this->Flash->success(__('Schedule changes saved!'));
+
+						// With the saves being inside a transaction, afterSaveCommit is not called.
+						$event = new Event('Model.afterSaveCommit', $this, [null]);
+						$this->getEventManager()->dispatch($event);
+
 						return $this->redirect(['action' => 'schedule', 'division' => $id]);
 					}
 
 					$this->Flash->warning(__('The games could not be saved. Please correct the errors below and try again.'));
+
+					$event = new Event('Model.afterSaveRollback', $this, [null]);
+					$this->getEventManager()->dispatch($event);
 				} catch (ScheduleException $ex) {
 					$this->Flash->html($ex->getMessages(), ['params' => $ex->getAttributes()]);
+
+					$event = new Event('Model.afterSaveRollback', $this, [null]);
+					$this->getEventManager()->dispatch($event);
 				}
 			}
 		}

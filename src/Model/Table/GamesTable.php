@@ -917,56 +917,6 @@ class GamesTable extends AppTable {
 				return false;
 			}
 		}
-
-		if ($entity->published || $entity->isDirty('published')) {
-			$updated_teams = Configure::read('teams_with_updated_schedules');
-			if ($updated_teams === null) {
-				$updated_teams = [];
-			}
-
-			if ($entity->isDirty('published') || $entity->isDirty('home_team_id')) {
-				if ($entity->home_team_id) {
-					$updated_teams[$entity->home_team_id] = true;
-				}
-				if ($entity->getOriginal('home_team_id')) {
-					$updated_teams[$entity->getOriginal('home_team_id')] = true;
-				}
-			}
-
-			if ($entity->isDirty('published') || $entity->isDirty('away_team_id')) {
-				if ($entity->away_team_id) {
-					$updated_teams[$entity->away_team_id] = true;
-				}
-				if ($entity->getOriginal('away_team_id')) {
-					$updated_teams[$entity->getOriginal('away_team_id')] = true;
-				}
-			}
-
-			Configure::write('teams_with_updated_schedules', $updated_teams);
-
-			if ($entity->isDirty('published') && !$entity->published) {
-				$deleted_games = Configure::read('deleted_games');
-				if ($deleted_games === null) {
-					$deleted_games = [];
-				}
-
-				$deleted_games[$entity->id] = true;
-				Configure::write('deleted_games', $deleted_games);
-			}
-		}
-	}
-
-	/**
-	 * Perform additional operations after it is saved.
-	 *
-	 * @param \Cake\Event\Event $cakeEvent The afterSave event that was fired
-	 * @param \Cake\Datasource\EntityInterface $entity The entity that was saved
-	 * @param \ArrayObject $options The options passed to the save method
-	 * @return void
-	 */
-	public function afterSaveCommit(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
-		$event = new CakeEvent('Model.Game.afterSaveCommit', $this, [$entity]);
-		$this->eventManager()->dispatch($event);
 	}
 
 	/**
@@ -1014,37 +964,29 @@ class GamesTable extends AppTable {
 	 * @return void
 	 */
 	public function afterDelete(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
-		$this->Attendances->updateAll(['game_id' => null], ['game_id' => $entity->id]);
+		if ($this->Attendances->getConnection()->transactional(function () use ($entity) {
+			foreach ($this->Attendances->find()->where(['game_id' => $entity->id]) as $attendance) {
+				$attendance->game_id = null;
+				if (!$this->Attendances->save($attendance)) {
+					return false;
+				}
+			}
+
+			return true;
+		})) {
+			// With the saves being inside a transaction, afterDeleteCommit is not called.
+			$event = new CakeEvent('Model.afterDeleteCommit', $this, [null]);
+			$this->getEventManager()->dispatch($event);
+		} else {
+			$event = new CakeEvent('Model.afterDeleteRollback', $this, [null]);
+			$this->getEventManager()->dispatch($event);
+		}
 
 		if ($entity->has('division')) {
 			$this->Divisions->clearCache($entity->division);
 		} else {
 			$this->Divisions->clearCache($entity->division_id);
 		}
-
-		if ($entity->published) {
-			$deleted_games = Configure::read('deleted_games');
-			if ($deleted_games === null) {
-				$deleted_games = [];
-			}
-
-			$deleted_games[$entity->id] = true;
-
-			Configure::write('deleted_games', $deleted_games);
-		}
-	}
-
-	/**
-	 * Perform additional operations after it is saved.
-	 *
-	 * @param \Cake\Event\Event $cakeEvent The afterSave event that was fired
-	 * @param \Cake\Datasource\EntityInterface $entity The entity that was saved
-	 * @param \ArrayObject $options The options passed to the save method
-	 * @return void
-	 */
-	public function afterDeleteCommit(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
-		$event = new CakeEvent('Model.Game.afterDeleteCommit', $this, [$entity]);
-		$this->eventManager()->dispatch($event);
 	}
 
 	public function findPlayed(Query $query, Array $options) {
@@ -1438,6 +1380,8 @@ class GamesTable extends AppTable {
 	// games is then edited to another team, the extra records won't be deleted. Not really a problem, but
 	// would be nice to clear those strays out in such cases.
 	protected function createAttendance($team, $days, $game_id, $date) {
+		$copy_from_game_id = false;
+
 		// Find game details
 		if ($game_id !== null) {
 			try {
@@ -1559,57 +1503,67 @@ class GamesTable extends AppTable {
 			return;
 		}
 
-		// Extract list of players on the roster as of this date.
-		$roster = collection($team->people)->filter(function ($person) use ($date) {
-			return $person->_joinData->created < $date->addDay() && $person->_joinData->status == ROSTER_APPROVED;
-		})->toArray();
+		if ($this->getConnection()->transactional(function () use ($attendance, $team, $date, $game_id, $copy_from_game_id) {
+			// Extract list of players on the roster as of this date.
+			$roster = collection($team->people)->filter(function ($person) use ($date) {
+				return $person->_joinData->created < $date->addDay() && $person->_joinData->status == ROSTER_APPROVED;
+			})->toArray();
 
-		// Go through the roster and make sure there are records for all players on this date.
-		foreach ($roster as $person) {
-			if (isset($copy_from_game_id)) {
-				$record = collection($attendance)->firstMatch(['person_id' => $person->id, 'game_id' => $copy_from_game_id]);
-			} else if (isset($rescheduled_game_id)) {
-				// We might need to update an existing record with a rescheduled game id.
-				$record = collection($attendance)->firstMatch(['person_id' => $person->id, 'game_id' => $rescheduled_game_id]);
-			} else {
-				$record = collection($attendance)->firstMatch(['person_id' => $person->id]);
-			}
+			// Go through the roster and make sure there are records for all players on this date.
+			foreach ($roster as $person) {
+				if ($copy_from_game_id !== false) {
+					$record = collection($attendance)->firstMatch(['person_id' => $person->id, 'game_id' => $copy_from_game_id]);
+				} else if (isset($rescheduled_game_id)) {
+					// We might need to update an existing record with a rescheduled game id.
+					$record = collection($attendance)->firstMatch(['person_id' => $person->id, 'game_id' => $rescheduled_game_id]);
+				} else {
+					$record = collection($attendance)->firstMatch(['person_id' => $person->id]);
+				}
 
-			// Any record we have at this point is either something to copy from,
-			// rescheduled or a new game on a date that we already had a placeholder
-			// record for, or correct.
-			if (!empty($record)) {
-				if (isset($copy_from_game_id)) {
-					$record = $this->Attendances->cloneWithoutIds($record);
-					$record = $this->Attendances->patchEntity($record, [
-						'game_id' => $game_id,
-					]);
-				} else if ($game_id != $record->game_id) {
-					$record = $this->Attendances->patchEntity($record, [
-						'game_id' => $game_id,
+				// Any record we have at this point is either something to copy from,
+				// rescheduled or a new game on a date that we already had a placeholder
+				// record for, or correct.
+				if (!empty($record)) {
+					if ($copy_from_game_id !== false) {
+						$record = $this->Attendances->cloneWithoutIds($record);
+						$record = $this->Attendances->patchEntity($record, [
+							'game_id' => $game_id,
+						]);
+					} else if ($game_id != $record->game_id) {
+						$record = $this->Attendances->patchEntity($record, [
+							'game_id' => $game_id,
+							'game_date' => $date,
+						]);
+					}
+					if ($this->Attendances->hasBehavior('Timestamp')) {
+						$this->Attendances->removeBehavior('Timestamp');
+					}
+				} else {
+					// We didn't find any appropriate record, so create a new one
+					$record = $this->Attendances->newEntity([
+						'team_id' => $team->id,
 						'game_date' => $date,
+						'game_id' => $game_id,
+						'person_id' => $person->id,
+						'status' => ATTENDANCE_UNKNOWN,
 					]);
+					if (!$this->Attendances->hasBehavior('Timestamp')) {
+						$this->Attendances->addBehavior('Timestamp');
+					}
 				}
-				if ($this->Attendances->hasBehavior('Timestamp')) {
-					$this->Attendances->removeBehavior('Timestamp');
-				}
-			} else {
-				// We didn't find any appropriate record, so create a new one
-				$record = $this->Attendances->newEntity([
-					'team_id' => $team->id,
-					'game_date' => $date,
-					'game_id' => $game_id,
-					'person_id' => $person->id,
-					'status' => ATTENDANCE_UNKNOWN,
-				]);
-				if (!$this->Attendances->hasBehavior('Timestamp')) {
-					$this->Attendances->addBehavior('Timestamp');
-				}
+
+				// It's possible that there were no patches made, in which case this is a no-op
+				$this->Attendances->save($record);
 			}
 
-			// It's possible that there were no patches made, in which case this is a no-op
-			$this->Attendances->save($record);
+			return true;
+		})) {
+			// With the saves being inside a transaction, afterSaveCommit is not called.
+			$event = new CakeEvent('Model.afterSaveCommit', $this, [null]);
+		} else {
+			$event = new CakeEvent('Model.afterSaveRollback', $this, [null]);
 		}
+		$this->getEventManager()->dispatch($event);
 	}
 
 	protected function forcedAttendance($team, $game_id) {

@@ -1,10 +1,13 @@
 <?php
 /**
  * @type \App\Model\Entity\Event $event
+ * @type string $format
+ * @type string $size
  */
 
 use App\Controller\AppController;
 use Cake\Core\Configure;
+use Cake\Event\Event;
 
 if (!isset($format)) {
 	$format = 'links';
@@ -13,7 +16,8 @@ if (!isset($size)) {
 	$size = ($format == 'links' ? 24 : 32);
 }
 
-$links = $more = [];
+$links = new ArrayObject();
+$more = new ArrayObject();
 
 if ($this->getRequest()->getParam('controller') != 'Events' || $this->getRequest()->getParam('action') != 'view') {
 	$links[] = $this->Html->iconLink("view_$size.png",
@@ -112,17 +116,35 @@ if ($this->Authorize->can('refund', $event)) {
 	}
 }
 
-if (!empty($extra)) {
-	if (is_array($extra)) {
-		$more = array_merge($more, $extra);
-	} else {
-		$more[] = $extra;
+$plugin_event = new Event('Plugin.actions.event.links', $this, [$links, $more, $this->Authorize, $this->Html, $event]);
+$this->getEventManager()->dispatch($plugin_event);
+
+if (!empty($extra_links)) {
+	foreach ((array)$extra_links as $key => $link) {
+		if (is_numeric($key)) {
+			$links[] = $link;
+		} else {
+			$links[$key] = $link;
+		}
 	}
 }
 
-$links[] = $this->Jquery->moreWidget(['type' => "event_actions_{$event->id}"], $more);
+if (!empty($extra_more)) {
+	foreach ((array)$extra_more as $key => $link) {
+		if (is_numeric($key)) {
+			$more[] = $link;
+		} else {
+			$more[$key] = $link;
+		}
+	}
+}
+
+if ($more->count() != 0) {
+	$links[] = $this->Jquery->moreWidget(['type' => "event_actions_{$event->id}"], $more->getArrayCopy());
+}
+
 if ($format == 'links') {
-	echo implode("\n", $links);
+	echo implode("\n", $links->getArrayCopy());
 } else {
-	echo $this->Html->nestedList($links, ['class' => 'nav nav-pills']);
+	echo $this->Html->nestedList($links->getArrayCopy(), ['class' => 'nav nav-pills']);
 }

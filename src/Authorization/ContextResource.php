@@ -7,18 +7,24 @@ class ContextResource {
 
 	protected $_resource;
 	protected $_context;
+	protected $_plugin;
 
-	public function __construct($resource, $context) {
+	public function __construct($resource, $context, $plugin = null) {
 		if (!is_array($context)) {
 			throw new \InvalidArgumentException('Second parameter to ContextResource constructor must be an array.');
 		}
 
 		$this->_resource = $resource;
 		$this->_context = $context;
+		$this->_plugin = $plugin;
 	}
 
 	public function getResolver(ResolverInterface $resolver) {
-		return $resolver->getPolicy($this->_resource);
+		// Would be better to pass the plugin to the getPolicy function, but that causes a mismatch with a Cake interface
+		$resolver->setPlugin($this->_plugin);
+		$policy = $resolver->getPolicy($this->_resource);
+		$resolver->setPlugin(null);
+		return $policy;
 	}
 
 	public function resource() {
