@@ -463,7 +463,7 @@ class Listener implements EventListenerInterface {
 		// If it's an opt-in or opt-out of Javelin, we need to do roster "updates"
 		if ($setting->category == 'personal' && $setting->name == 'javelin') {
 			$teams = collection(UserCache::getInstance()->read('Teams', $setting->person_id))
-				->filter(['user_javelin' => true])
+				->match(['use_javelin' => true])
 				->toArray();
 			if ($setting->value) {
 				foreach ($teams as $team) {
