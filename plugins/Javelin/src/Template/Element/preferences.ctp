@@ -3,6 +3,7 @@ use Cake\Core\Configure;
 ?>
 <?php
 echo $this->element('Settings/input', [
+	'person_id' => $id,
 	'category' => 'personal',
 	'name' => 'javelin',
 	'options' => [
