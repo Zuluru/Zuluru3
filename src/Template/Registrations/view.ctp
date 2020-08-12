@@ -126,7 +126,6 @@ if ($this->Authorize->getIdentity()->isManagerOf($registration->event)):
 <?php
 			echo $this->Html->tag('li', $this->Html->link(__('Issue Refund'), ['action' => 'refund_payment', 'payment' => $payment->id]));
 			echo $this->Html->tag('li', $this->Html->link(__('Issue Credit'), ['action' => 'credit_payment', 'payment' => $payment->id]));
-			echo $this->Html->tag('li', $this->Html->link(__('Transfer Payment'), ['action' => 'transfer_payment', 'payment' => $payment->id]));
 ?>
 		</ul>
 	</div>
