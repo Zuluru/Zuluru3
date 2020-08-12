@@ -74,7 +74,7 @@ class PreregistrationsController extends AppController {
 		if (!empty($event_id)) {
 			try {
 				$event = $this->Preregistrations->Events->get($event_id, [
-					'contain' => ['EventTypes', 'Prices', 'Affiliates'],
+					'contain' => ['EventTypes', 'Prices', 'Affiliates', 'Divisions'],
 				]);
 			} catch (RecordNotFoundException $ex) {
 				$this->Flash->info(__('Invalid event.'));
@@ -126,8 +126,8 @@ class PreregistrationsController extends AppController {
 			// Any other post will be from the search form, handled below.
 			if ($this->request->is(['post']) && !empty($this->request->getData('event'))) {
 				return $this->redirect($this->request->getData());
-			} else if ($this->request->is(['post']) && array_key_exists('first_name', $this->request->data)) {
-				// Handle a post to the search form
+			} else if ($this->request->is('ajax')) {
+				// Handle a post to the search form or a pagination link
 				$this->_handlePersonSearch(['event']);
 			} else if (!$event_id) {
 				$this->Authorization->authorize($this);
@@ -148,6 +148,7 @@ class PreregistrationsController extends AppController {
 				} else {
 					$events = collection($events)->combine('id', 'name')->toArray();
 				}
+				$this->set(compact('events'));
 
 				// Any post that reached this point must not have selected an event
 				if ($this->request->is(['post'])) {
@@ -156,7 +157,7 @@ class PreregistrationsController extends AppController {
 			}
 		}
 
-		$this->set(compact('event', 'events', 'affiliates'));
+		$this->set(compact('event', 'affiliates'));
 	}
 
 	/**
