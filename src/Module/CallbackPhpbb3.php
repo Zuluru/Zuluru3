@@ -21,7 +21,7 @@ class CallbackPhpbb3 extends Callback {
 	}
 
 	public function afterSave(Event $event, User $user) {
-		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authModel'));
+		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'));
 		$username_field = $users_table->userField;
 		$email_field = $users_table->emailField;
 
@@ -61,7 +61,7 @@ class CallbackPhpbb3 extends Callback {
 	}
 
 	public function afterDelete(Event $event, User $user) {
-		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authModel'));
+		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'));
 		$username_field = $users_table->userField;
 
 		// phpBB3 files need these

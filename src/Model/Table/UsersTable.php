@@ -290,4 +290,35 @@ class UsersTable extends AppTable {
 		return true;
 	}
 
+	/**
+	 * Create a simple person record. This will be called in the case where
+	 * a third-party authentication system has logged someone in, but they
+	 * don't yet have a Zuluru profile.
+	 */
+	public function createPersonRecord($user) {
+		$save = [
+			'user_id' => $user->{$this->primaryKey()},
+			'status' => Configure::read('feature.auto_approve') ? 'active' : 'new',
+			'complete' => false,
+			'gender' => '',
+			'groups' => ['_ids' => [GROUP_PLAYER]],
+			'affiliates' => ['_ids' => [AFFILIATE_DUMMY]],
+		];
+		if (!empty($this->nameField)) {
+			$save['first_name'] = trim($user->{$this->nameField});
+		}
+		if (!empty($save['first_name'])) {
+			if (strpos($save['first_name'], ' ') !== false) {
+				list($save['first_name'], $save['last_name']) = explode(' ', $save['first_name'], 2);
+			} else if (preg_match('/^([[:upper:]][[:lower:]]+)([[:upper:]][[:lower:]]+)$/', $save['first_name'], $matches)) {
+				$save['first_name'] = $matches[1];
+				$save['last_name'] = $matches[2];
+			}
+		}
+
+		// We know that this largely won't pass any validation.
+		$person = $this->People->newEntity($save, ['validate' => false]);
+		return $this->People->save($person, ['checkRules' => false]);
+	}
+
 }

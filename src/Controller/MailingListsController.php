@@ -106,7 +106,7 @@ class MailingListsController extends AppController {
 		}
 
 		$user_model = Configure::read('Security.authModel');
-		$authenticate = TableRegistry::getTableLocator()->get($user_model);
+		$authenticate = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . $user_model);
 		$email_field = $authenticate->emailField;
 		try {
 			$people = $rule_obj->query($mailing_list->affiliate_id, [

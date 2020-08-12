@@ -70,7 +70,7 @@ class UsersController extends AppController {
 		}
 
 		// Set some variables the login page needs to properly render the form
-		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authModel'));
+		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'));
 		$this->set('model', $users_table->alias());
 		$this->set('user_field', $users_table->userField);
 		$this->set('pwd_field', $users_table->pwdField);
@@ -100,7 +100,7 @@ class UsersController extends AppController {
 
 		$this->_loadAddressOptions();
 		$this->_loadAffiliateOptions();
-		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authModel'));
+		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'));
 		$groups = $users_table->People->Groups->find('options', ['Groups.min_level' => 3])->toArray();
 
 		$this->set([
@@ -184,7 +184,7 @@ class UsersController extends AppController {
 	}
 
 	public function TODOLATER_import() {
-		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authModel'));
+		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'));
 		$this->set('groups', $users_table->People->Groups->find('options', ['Groups.min_level' => 3])->toArray());
 
 		// TODO: Centralize checking of profile fields
@@ -455,7 +455,7 @@ class UsersController extends AppController {
 			'success' => true,
 			'data' => [
 				'token' => JWT::encode([
-					'sub' => $user[TableRegistry::getTableLocator()->get(Configure::read('Security.authModel'))->primaryKey()],
+					'sub' => $user[TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'))->primaryKey()],
 					'exp' =>  FrozenTime::now()->addWeek()->toUnixString()
 				], Security::salt())
 			],
@@ -470,7 +470,7 @@ class UsersController extends AppController {
 		}
 
 		$user_model = Configure::read('Security.authModel');
-		$users_table = TableRegistry::getTableLocator()->get($user_model);
+		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . $user_model);
 		try {
 			$user = $users_table->get($id, [
 				'contain' => ['People']
@@ -518,7 +518,7 @@ class UsersController extends AppController {
 		}
 
 		$user_model = Configure::read('Security.authModel');
-		$users_table = TableRegistry::getTableLocator()->get($user_model);
+		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . $user_model);
 		$user = $users_table->newEntity();
 		if ($code !== null) {
 			try {
@@ -608,7 +608,7 @@ class UsersController extends AppController {
 	}
 
 	protected function _emailNewPassword($user, $person) {
-		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authModel'));
+		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'));
 		$user->password = $password = $this->_password(16);
 		if ($users_table->save($user)) {
 			return $this->_sendMail([

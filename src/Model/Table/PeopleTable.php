@@ -78,8 +78,9 @@ class PeopleTable extends AppTable {
 
 		// Which user model to use depends on system configuration
 		$user_model = Configure::read('Security.authModel');
-		$this->belongsTo($user_model, [
+		$this->belongsTo(Configure::read('Security.authPlugin') . $user_model, [
 			'foreignKey' => 'user_id',
+			'strategy' => 'select',
 		]);
 
 		$this->hasMany('GamesAllstars', [
@@ -814,38 +815,6 @@ class PeopleTable extends AppTable {
 		$this->eventManager()->dispatch($event);
 	}
 
-	/**
-	 * Create a simple person record. This will be called in the case where
-	 * a third-party authentication system has logged someone in, but they
-	 * don't yet have a Zuluru profile.
-	 */
-	public function createPersonRecord($user) {
-		$user_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authModel'));
-		$save = [
-			'user_id' => $user->{$user_table->primaryKey()},
-			'status' => Configure::read('feature.auto_approve') ? 'active' : 'new',
-			'complete' => false,
-			'gender' => '',
-			'groups' => ['_ids' => [GROUP_PLAYER]],
-			'affiliates' => ['_ids' => [AFFILIATE_DUMMY]],
-		];
-		if (!empty($user_table->nameField)) {
-			$save['first_name'] = trim($user->{$user_table->nameField});
-		}
-		if (!empty($save['first_name'])) {
-			if (strpos($save['first_name'], ' ') !== false) {
-				list($save['first_name'], $save['last_name']) = explode(' ', $save['first_name'], 2);
-			} else if (preg_match('/^([[:upper:]][[:lower:]]+)([[:upper:]][[:lower:]]+)$/', $save['first_name'], $matches)) {
-				$save['first_name'] = $matches[1];
-				$save['last_name'] = $matches[2];
-			}
-		}
-
-		// We know that this largely won't pass any validation.
-		$person = $this->newEntity($save, ['validate' => false]);
-		return $this->save($person, ['checkRules' => false]);
-	}
-
 	public function findDuplicates(Query $query, Array $options) {
 		// $options parameter must be an array. So we'll pass the entity in the array...
 		$person = $options['person'];
@@ -864,7 +833,14 @@ class PeopleTable extends AppTable {
 		];
 
 		if (!empty($person->email)) {
-			$conditions['OR']["$user_model.$email_field"] = $person->email;
+			// This has to be a separate query, to handle situations where the user table is in a separate database
+			$duplicate_users = $this->$user_model->find()
+				->where([$email_field => $person->email])
+				->extract($this->$user_model->getPrimaryKey())
+				->toArray();
+			if (!empty($duplicate_users)) {
+				$conditions['OR']['People.user_id IN'] = $duplicate_users;
+			}
 			$conditions['OR']['People.alternate_email'] = $person->email;
 		}
 
@@ -895,7 +871,7 @@ class PeopleTable extends AppTable {
 		$cache = UserCache::getInstance();
 
 		$user_model = Configure::read('Security.authModel');
-		$authenticate = TableRegistry::getTableLocator()->get($user_model);
+		$authenticate = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . $user_model);
 		$user_model = Inflector::singularize(Inflector::underscore($user_model));
 
 		// Delete the person, and their user record if any

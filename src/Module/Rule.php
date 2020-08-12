@@ -174,7 +174,7 @@ abstract class Rule {
 			$condition_string = serialize($conditions);
 			if (strpos($condition_string, 'Related.') !== false) {
 				$user_model = Configure::read('Security.authModel');
-				$authenticate = TableRegistry::getTableLocator()->get($user_model);
+				$authenticate = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . $user_model);
 				$primary_key = $authenticate->primaryKey();
 
 				// TODO: Use matching instead?
@@ -209,7 +209,7 @@ abstract class Rule {
 
 		// Add in invariant conditions, fields and joins
 		$user_model = Configure::read('Security.authModel');
-		$authenticate = TableRegistry::getTableLocator()->get($user_model);
+		$authenticate = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . $user_model);
 		$id_field = $authenticate->primaryKey();
 
 		$query->select('People.id');

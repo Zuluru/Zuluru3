@@ -619,7 +619,7 @@ class PeopleController extends AppController {
 			}
 		}
 
-		$users_table = $this->loadModel(Configure::read('Security.authModel'));
+		$users_table = $this->loadModel(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'));
 		$this->set([
 			'person' => $person,
 			'user_model' => Configure::read('Security.authModel'),
@@ -2450,7 +2450,7 @@ class PeopleController extends AppController {
 		}
 
 		$user_model = Configure::read('Security.authModel');
-		$users_table = TableRegistry::getTableLocator()->get($user_model);
+		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . $user_model);
 		$activated = $users_table->activated($person);
 
 		$this->set(compact('person', 'duplicates', 'activated'));

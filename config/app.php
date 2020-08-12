@@ -180,6 +180,9 @@ return [
 		// Which model to use for user authentication. Use 'Users' if you're
 		// not sure.
 		'authModel' => 'Users',
+		// If your authModel is from a plugin, the plugin name goes here, ending
+		// with a period. Otherwise, leave it blank.
+		'authPlugin' => '',
 	],
 
 	/**

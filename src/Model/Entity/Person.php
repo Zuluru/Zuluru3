@@ -249,7 +249,7 @@ class Person extends Entity {
 		}
 
 		// Find the name of the email field in the user model
-		$email_field = TableRegistry::getTableLocator()->get(Configure::read('Security.authModel'))->emailField;
+		$email_field = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'))->emailField;
 		return $user->$email_field;
 	}
 

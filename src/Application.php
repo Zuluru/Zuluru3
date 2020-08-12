@@ -132,7 +132,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 		$authenticators = Configure::read('Security.authenticators');
 
 		// The fields to use for identification
-		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authModel'));
+		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'));
 		$fields = [
 			IdentifierInterface::CREDENTIAL_USERNAME => $users_table->userField,
 			IdentifierInterface::CREDENTIAL_PASSWORD => $users_table->pwdField,
@@ -191,7 +191,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 			'fields' => $fields,
 			'resolver' => [
 				'className' => 'Authentication.Orm',
-				'userModel' => Configure::read('Security.authModel'),
+				'userModel' => Configure::read('Security.authPlugin') . Configure::read('Security.authModel'),
 			],
 			'passwordHasher' => $hasher,
 		]);
@@ -202,7 +202,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 				'tokenField' => $users_table->getPrimaryKey(),
 				'resolver' => [
 					'className' => 'Authentication.Orm',
-					'userModel' => Configure::read('Security.authModel'),
+					'userModel' => Configure::read('Security.authPlugin') . Configure::read('Security.authModel'),
 				],
 			]);
 
@@ -444,12 +444,12 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 
 					if (!$user->has('person')) {
 						// Immediately post-authentication, the user record might not have person data in it
-						$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authModel'));
+						$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'));
 						$users_table->loadInto($user, ['People']);
 
 						if (!$user->has('person')) {
 							// Still might not have person data, if it's a brand new user from a third-party system
-							$user->person = $users_table->People->createPersonRecord($user);
+							$user->person = $users_table->createPersonRecord($user);
 						}
 
 						// We need to update the identity, so that the new person ID is in the in-memory record

@@ -16,7 +16,7 @@ while (preg_match('#(.*)<%icon (.*?) %>(.*)#', $notice->notice, $matches)) {
 }
 
 while (preg_match('#(.*)<%link (.*?) (.*?) (.*?) %>(.*)#', $notice->notice, $matches)) {
-	$notice->notice = $matches[1] . $this->Html->link($matches[4], ['controller' => $matches[2], 'action' => $matches[3]]) . $matches[5];
+	$notice->notice = $matches[1] . $this->Html->link($matches[4], ['plugin' => false, 'controller' => $matches[2], 'action' => $matches[3]]) . $matches[5];
 }
 
 while (preg_match('#(.*)<%setting (.*?) %>(.*)#', $notice->notice, $matches)) {
@@ -28,12 +28,12 @@ echo $notice->notice;
 	<div class="actions">
 <?php
 	echo $this->Jquery->ajaxLink(__('I\'m busy, remind me later'), [
-		'url' => ['controller' => 'Notices', 'action' => 'viewed', $notice->id, true],
+		'url' => ['plugin' => false, 'controller' => 'Notices', 'action' => 'viewed', $notice->id, true],
 		'disposition' => 'hide',
 		'selector' => '#SystemNotice',
 	]);
 	echo $this->Jquery->ajaxLink(__('Okay, got it'), [
-		'url' => ['controller' => 'Notices', 'action' => 'viewed', $notice->id],
+		'url' => ['plugin' => false, 'controller' => 'Notices', 'action' => 'viewed', $notice->id],
 		'disposition' => 'hide',
 		'selector' => '#SystemNotice',
 	]);

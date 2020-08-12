@@ -458,11 +458,11 @@ class UserCache {
 					$user_id = $this->read('Person.user_id');
 					try {
 						if ($user_id) {
-							$self->data[$id][$key] = TableRegistry::getTableLocator()->get(Configure::read('Security.authModel'))->get($user_id, [
+							$self->data[$id][$key] = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'))->get($user_id, [
 								'contain' => ['People']
 							]);
 						} else {
-							$user = TableRegistry::getTableLocator()->get(Configure::read('Security.authModel'))->newEntity();
+							$user = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'))->newEntity();
 							$user->person = TableRegistry::getTableLocator()->get('People')->get($id);
 							$self->data[$id][$key] = $user;
 						}
