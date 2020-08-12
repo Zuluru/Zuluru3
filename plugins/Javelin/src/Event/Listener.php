@@ -21,6 +21,7 @@ use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
 use Cake\Event\EventListenerInterface;
+use Cake\Event\EventManager;
 use Cake\Http\Client;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
@@ -387,7 +388,7 @@ class Listener implements EventListenerInterface {
 
 		$updated_teams = Configure::read('javelin.updated_schedules', []);
 
-		if ($game->isDirty('published') || $game->isDirty('home_team_id')) {
+		if (($game->isDirty('published') && $game->published) || $game->isDirty('home_team_id')) {
 			if ($game->home_team_id) {
 				$updated_teams[$game->home_team_id] = true;
 			}
@@ -396,7 +397,7 @@ class Listener implements EventListenerInterface {
 			}
 		}
 
-		if ($game->isDirty('published') || $game->isDirty('away_team_id')) {
+		if (($game->isDirty('published') && $game->published) || $game->isDirty('away_team_id')) {
 			if ($game->away_team_id) {
 				$updated_teams[$game->away_team_id] = true;
 			}
@@ -408,8 +409,25 @@ class Listener implements EventListenerInterface {
 		Configure::write('javelin.updated_schedules', $updated_teams);
 
 		if ($game->isDirty('published') && !$game->published) {
+			// Javelin wants at least one team id, doesn't need both
+			if ($game->home_team && $game->home_team->use_javelin) {
+				$team_id = $game->home_team_id;
+			} else if ($game->away_team && $game->away_team->use_javelin) {
+				$team_id = $game->away_team_id;
+			} else if ($game->home_team_id || $game->away_team_id) {
+				$team = TableRegistry::getTableLocator()->get('Teams')->find()
+					->where(['Teams.id IN' => [$game->home_team_id, $game->away_team_id], 'Teams.use_javelin' => true])
+					->first();
+				if (!$team) {
+					return;
+				}
+				$team_id = $team->id;
+			} else {
+				return;
+			}
+
 			$deleted_games = Configure::read('javelin.deleted_games', []);
-			$deleted_games[$game->id] = true;
+			$deleted_games[$game->id] = ['game_id' => $game->id, 'team_id' => $team_id];
 			Configure::write('javelin.deleted_games', $deleted_games);
 		}
 	}
@@ -466,14 +484,19 @@ class Listener implements EventListenerInterface {
 				->match(['use_javelin' => true])
 				->toArray();
 			if ($setting->value) {
+				if ($setting->person) {
+					$person = $setting->person;
+				} else {
+					$person = TableRegistry::getTableLocator()->get('People')->get($setting->person_id);
+				}
 				foreach ($teams as $team) {
-					$e = new Event('Model.Team.rosterUpdate', $this, [$team, [$setting->person]]);
-					$this->getEventManager()->dispatch($e);
+					$e = new Event('Model.Team.rosterUpdate', $this, [$team, [$person]]);
+					EventManager::instance()->dispatch($e);
 				}
 			} else {
 				foreach ($teams as $team) {
 					$e = new Event('Model.Team.rosterRemove', $this, [$team, $setting->person_id]);
-					$this->getEventManager()->dispatch($e);
+					EventManager::instance()->dispatch($e);
 				}
 			}
 		}
@@ -584,7 +607,10 @@ class Listener implements EventListenerInterface {
 
 	public function afterDeleteEvent(Event $event, TeamEvent $team_event) {
 		$deleted_events = Configure::read('javelin.deleted_team_events', []);
-		$deleted_events[$team_event->id] = true;
+		$deleted_events[$team_event->id] = [
+			'event_id' => $team_event->id,
+			'team_id' => $team_event->team_id,
+		];
 		Configure::write('javelin.deleted_team_events', $deleted_events);
 	}
 
@@ -670,6 +696,10 @@ class Listener implements EventListenerInterface {
 			$data['attendance'][] = $game_data;
 		}
 
+		if (empty($data['attendance'])) {
+			return;
+		}
+
 		$http = new Client();
 		$response = $http->post($this->base_url . 'attendance.php', ['data' => json_encode($data, JSON_UNESCAPED_SLASHES)]);
 
@@ -725,7 +755,7 @@ class Listener implements EventListenerInterface {
 		$data = [
 			'site_url' => Router::url('/', true),
 			'api_key' => Configure::read('javelin.api_key'),
-			'game_id' => array_keys($deleted_games),
+			'games' => array_values($deleted_games),
 		];
 
 		$http = new Client();
@@ -771,7 +801,7 @@ class Listener implements EventListenerInterface {
 		$data = [
 			'site_url' => Router::url('/', true),
 			'api_key' => Configure::read('javelin.api_key'),
-			'event_id' => array_keys($deleted_events),
+			'events' => array_values($deleted_events),
 		];
 
 		$http = new Client();

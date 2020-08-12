@@ -60,10 +60,6 @@ if (!empty($team['games'])):
 		</tr>
 <?php
 	foreach ($team->games as $game):
-		if (!$this->Authorize->can('view', $game)) {
-			continue;
-		}
-
 		$class = null;
 		$is_event = is_a($game, 'App\Model\Entity\TeamEvent');
 		if (!$is_event) {

@@ -1386,6 +1386,10 @@ class TeamsController extends AppController {
 			$team->games = array_merge($team->games, $this->Teams->TeamEvents->readAttendance($team, null, true));
 		}
 
+		$team->games = collection($team->games)->filter(function ($game) {
+			return $this->Authorization->can($game, 'view');
+		})->toList();
+
 		if (empty($team->games)) {
 			$this->Flash->info(__('This team has no games scheduled yet.'));
 			return $this->redirect(['action' => 'view', 'team' => $id]);
