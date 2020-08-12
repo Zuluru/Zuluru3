@@ -278,6 +278,10 @@ class Person extends Entity {
 	}
 
 	protected function _getGenderDisplay() {
+		if (empty($this->gender)) {
+			return '';
+		}
+
 		$display = __($this->gender);
 		if ($this->gender == 'Self-defined') {
 			$display .= __(' ({0})', h($this->gender_description));

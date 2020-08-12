@@ -8,7 +8,7 @@ $this->Html->addCrumb(__('Starting with {0}', $letter));
 <?php
 if (empty($teams)):
 ?>
-	<p class="warning-message">There are no teams currently running. Please check back periodically for updates.</p>
+	<p class="warning-message"><?= __('There are no teams currently running. Please check back periodically for updates.') ?></p>
 <?php
 else:
 ?>

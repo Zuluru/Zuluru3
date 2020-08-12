@@ -35,7 +35,7 @@ if ($person->user_id):
 	if (in_array('user_name', $visible_properties)):
 ?>
 		<dt><?= __('Username') ?></dt>
-		<dd><?= $person->user_name ?></dd>
+		<dd><?= $person->user_name ?>&nbsp;</dd>
 <?php
 	endif;
 
