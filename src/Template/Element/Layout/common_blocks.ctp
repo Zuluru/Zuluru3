@@ -69,9 +69,9 @@ $this->start('prepend_css');
 $language = Configure::read('personal.language');
 if (Configure::read('feature.uls') && empty($language)) {
 	echo $this->Html->css([
-		'https://zuluru.net/css/uls/jquery.uls.css',
-		'https://zuluru.net/css/uls/jquery.uls.grid.css',
-		'https://zuluru.net/css/uls/jquery.uls.lcd.css',
+		'https://www.zuluru.net/css/uls/jquery.uls.css',
+		'https://www.zuluru.net/css/uls/jquery.uls.grid.css',
+		'https://www.zuluru.net/css/uls/jquery.uls.lcd.css',
 	]);
 }
 echo $this->fetch('third_party_css');
@@ -202,11 +202,11 @@ if (!$this->fetch('language_scripts')) {
 	$this->start('language_scripts');
 	if (Configure::read('feature.uls') && empty($language)) {
 		echo $this->Html->script([
-			'https://zuluru.net/js/uls/jquery.uls.data.js',
-			'https://zuluru.net/js/uls/jquery.uls.data.utils.js',
-			'https://zuluru.net/js/uls/jquery.uls.lcd.js',
-			'https://zuluru.net/js/uls/jquery.uls.languagefilter.js',
-			'https://zuluru.net/js/uls/jquery.uls.core.js',
+			'https://www.zuluru.net/js/uls/jquery.uls.data.js',
+			'https://www.zuluru.net/js/uls/jquery.uls.data.utils.js',
+			'https://www.zuluru.net/js/uls/jquery.uls.lcd.js',
+			'https://www.zuluru.net/js/uls/jquery.uls.languagefilter.js',
+			'https://www.zuluru.net/js/uls/jquery.uls.core.js',
 		]);
 		echo $this->Html->scriptBlock('
 jQuery(".uls-trigger").uls({
@@ -318,7 +318,7 @@ if (!$this->fetch('powered_by')):
 ?>
 	<p class="small text-center"><?php
 		echo __('Powered by {0}, version {1}.{2}.{3}',
-			$this->Html->link(ZULURU, 'https://zuluru.org/'),
+			$this->Html->link(ZULURU, 'https://www.zuluru.org/'),
 			ZULURU_MAJOR, ZULURU_MINOR, ZULURU_REVISION) . ' | ';
 		$body = htmlspecialchars(__('I found a bug in {0}', Router::url(Router::normalize($this->getRequest()->getRequestTarget()), true)));
 		echo __('{0} on this page',
