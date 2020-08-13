@@ -51,7 +51,7 @@ class User extends Entity {
 	}
 
 	public function merge(User $new) {
-		foreach ($new->visibleProperties() as $prop) {
+		foreach ($new->getVisible() as $prop) {
 			// We never want to copy empty properties in the user record;
 			// it would only be things like last login date
 			if ($this->isAccessible($prop) && !empty($new->$prop)) {

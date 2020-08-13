@@ -22,9 +22,19 @@ echo $this->element('Settings/input', [
 	'category' => 'profile',
 	'name' => 'first_name',
 	'options' => [
-		'label' => __('First Name'),
+		'label' => Configure::read('profile.legal_name') ? __('Preferred Name') : __('First Name'),
 		'type' => 'radio',
 		'options' => Configure::read('options.access_required'),
+	],
+]);
+echo $this->element('Settings/input', [
+	'category' => 'profile',
+	'name' => 'legal_name',
+	'options' => [
+		'label' => __('Legal Name'),
+		'type' => 'radio',
+		'options' => Configure::read('options.access_required'),
+		'help' => __('If enabled, \'First Name\' will be re-labelled as \'Preferred Name\' in profiles.'),
 	],
 ]);
 echo $this->element('Settings/input', [

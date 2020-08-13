@@ -1159,7 +1159,7 @@ class AppController extends Controller {
 
 		if (!empty($params)) {
 			$names = [];
-			foreach (['first_name', 'last_name'] as $field) {
+			foreach (['first_name', 'legal_name', 'last_name'] as $field) {
 				if (!empty($params[$field])) {
 					$names[] = trim($params[$field], ' *');
 				}
@@ -1244,6 +1244,9 @@ class AppController extends Controller {
 			unset($params[$param]);
 		}
 		unset($params['return']);
+		if (!$this->Authorization->can(\App\Controller\PeopleController::class, 'display_legal_names')) {
+			unset($params['legal_name']);
+		}
 
 		if (!$this->request->is('post')) {
 			$this->request->data = $params;

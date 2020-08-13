@@ -132,10 +132,22 @@ $this->Form->unlockField('groups._ids');
 <?php
 if (in_array(Configure::read('profile.first_name'), $access)) {
 	echo $this->Form->input('first_name', [
+		'label' => Configure::read('profile.legal_name') ? __('Preferred Name') : __('First Name'),
 		'help' => __('First (and, if desired, middle) name.'),
 	]);
 } else {
 	echo $this->Form->input('first_name', [
+		'disabled' => true,
+		'class' => 'disabled',
+		'help' => __('To prevent system abuses, this can only be changed by an administrator. To change this, please email your {0} to {1}.', __('new name'), $this->Html->link($admin, "mailto:$admin")),
+	]);
+}
+if (in_array(Configure::read('profile.legal_name'), $access)) {
+	echo $this->Form->input('legal_name', [
+		'help' => __('For insurance and legal purposes. This will be visible only to administrators. Required only if substantially different from your Preferred Name.'),
+	]);
+} else {
+	echo $this->Form->input('legal_name', [
 		'disabled' => true,
 		'class' => 'disabled',
 		'help' => __('To prevent system abuses, this can only be changed by an administrator. To change this, please email your {0} to {1}.', __('new name'), $this->Html->link($admin, "mailto:$admin")),

@@ -1,10 +1,14 @@
 <?php
 namespace App\View;
 
+use App\View\Helper\AuthorizeHelper;
 use Cake\View\View;
 
 /**
  * App View class
+ *
+ * @property AuthorizeHelper $Authorize
+ * TODO: Add @type $this \App\View\AppView to all templates
  */
 class AppView extends View {
 

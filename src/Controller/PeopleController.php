@@ -2643,7 +2643,7 @@ class PeopleController extends AppController {
 				// For anything that we have in memory, we must skip doing a direct query
 				$ignore = [];
 				$save->setHidden([]);
-				foreach ($save->visibleProperties() as $prop) {
+				foreach ($save->getVisible() as $prop) {
 					if ($save->isAccessible($prop) && (is_array($delete->$prop))) {
 						$ignore[] = Inflector::camelize($prop);
 					}

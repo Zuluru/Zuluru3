@@ -13,6 +13,7 @@ use Cake\Routing\Router;
  *
  * @property int $id
  * @property string $first_name
+ * @property string $legal_name
  * @property string $last_name
  * @property bool $publish_email
  * @property string $home_phone
@@ -112,6 +113,7 @@ class Person extends Entity {
 	 * @var array
 	 */
 	protected $_hidden = [
+		'legal_name',
 		'publish_email',
 		'alternate_email',
 		'publish_alternate_email',
@@ -445,6 +447,7 @@ class Person extends Entity {
 			if ($is_manager || $is_me) {
 				$visible += [
 					'gender_display' => true,
+					'legal_name' => true,
 				];
 			}
 
@@ -535,6 +538,9 @@ class Person extends Entity {
 			}
 			if (!Configure::read('scoring.allstars') || !$is_player) {
 				unset($visible['allstars']);
+			}
+			if (!Configure::read('profile.legal_name')) {
+				unset($visible['legal_name']);
 			}
 			if (!Configure::read('profile.home_phone')) {
 				unset($visible['home_phone']);

@@ -15,6 +15,9 @@ if (isset($affiliate_id)) {
 }
 
 echo $this->Form->input('first_name', ['size' => 70, 'maxlength' => 100]);
+if ($this->Authorize->can('display_legal_names', \App\Controller\PeopleController::class)) {
+	echo $this->Form->input('legal_name', ['size' => 70, 'maxlength' => 100]);
+}
 echo $this->Form->input('last_name', ['size' => 70, 'maxlength' => 100]);
 echo $this->Form->hidden('sort', ['value' => 'last_name']);
 echo $this->Form->hidden('direction', ['value' => 'asc']);

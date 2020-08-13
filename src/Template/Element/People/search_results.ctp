@@ -20,6 +20,13 @@ elseif (isset($people)):
 			<thead>
 				<tr class="paginator">
 					<th><?= $this->Paginator->sort('first_name') ?></th>
+<?php
+	if ($this->Authorize->can('display_legal_names', \App\Controller\PeopleController::class)):
+?>
+					<th><?= $this->Paginator->sort('legal_name') ?></th>
+<?php
+	endif;
+?>
 					<th><?= $this->Paginator->sort('last_name') ?></th>
 					<th class="actions"><?= __('Actions') ?></th>
 				</tr>
@@ -33,6 +40,13 @@ elseif (isset($people)):
 ?>
 				<tr>
 					<td><?= $this->element('People/block', ['person' => $person, 'display_field' => 'first_name']) ?></td>
+<?php
+	if ($this->Authorize->can('display_legal_names', \App\Controller\PeopleController::class)):
+?>
+					<td><?= $this->element('People/block', ['person' => $person, 'display_field' => 'legal_name']) ?></td>
+<?php
+	endif;
+?>
 					<td><?= $this->element('People/block', ['person' => $person, 'display_field' => 'last_name']) ?></td>
 					<td class="actions"><?php
 					echo $this->Html->iconLink('view_24.png', ['controller' => 'People', 'action' => 'view', 'person' => $person->id, 'return' => AppController::_return()], ['alt' => __('View Profile'), 'title' => __('View Profile')]);

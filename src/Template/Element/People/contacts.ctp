@@ -4,7 +4,7 @@
  */
 
 $lines = [];
-$visible_properties = $person->visibleProperties();
+$visible_properties = $person->getVisible();
 
 if (in_array('email', $visible_properties) && !empty($person->email)) {
 	$lines[] = $this->Html->link($person->email, "mailto:{$person->email}");

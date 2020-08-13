@@ -152,7 +152,7 @@ class ReportPeopleParticipation extends Report {
 
 		$header = [
 			__('User ID'),
-			__('First Name'),
+			Configure::read('profile.legal_name') ? __('Preferred Name') : __('First Name'),
 			__('Last Name'),
 			Configure::read('gender.label'),
 			__('Birthdate'),

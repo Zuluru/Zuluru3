@@ -64,6 +64,7 @@ class PeopleTable extends AppTable {
 		$this->addBehavior('Formatter', [
 			'fields' => [
 				'first_name' => 'proper_case_format',
+				'legal_name' => 'proper_case_format',
 				'last_name' => 'proper_case_format',
 				'addr_street' => 'proper_case_format',
 				'addr_city' => 'proper_case_format',
@@ -226,13 +227,20 @@ class PeopleTable extends AppTable {
 				'rule' => ['custom', self::NAME_REGEX],
 				'message' => __('Names can only include letters, numbers, spaces, commas, periods, apostrophes and hyphens.'),
 			])
-			->requirePresence('first_name', 'create', __('First name must not be blank.'))
-			->notEmpty('first_name', __('First name must not be blank.'))
+			->requirePresence('first_name', 'create', Configure::read('profile.legal_name') ? __('Preferred name must not be blank.') : __('First name must not be blank.'))
+			->notEmpty('first_name', Configure::read('profile.legal_name') ? __('Preferred name must not be blank.') : __('First name must not be blank.'))
 
 			->add('last_name', 'valid', [
 				'rule' => ['custom', self::NAME_REGEX],
 				'message' => __('Names can only include letters, numbers, spaces, commas, periods, apostrophes and hyphens.'),
 			])
+
+			->add('legal_name', 'valid', [
+				'rule' => ['custom', self::NAME_REGEX],
+				'message' => __('Names can only include letters, numbers, spaces, commas, periods, apostrophes and hyphens.'),
+			])
+			->allowEmpty('legal_name')
+
 			->requirePresence('last_name', 'create', __('Last name must not be blank.'))
 			->notEmpty('last_name', __('Last name must not be blank.'))
 
