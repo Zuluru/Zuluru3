@@ -328,11 +328,6 @@ class SettingsSeed extends AbstractSeed {
 			],
 			[
 				'category' => 'payment',
-				'name' => 'payment_implementation',
-				'value' => 'paypal',
-			],
-			[
-				'category' => 'payment',
 				'name' => 'reg_id_format',
 				'value' => 'Reg%05d',
 			],

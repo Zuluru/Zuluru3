@@ -26,8 +26,7 @@ class TeamPolicy extends AppPolicy {
 		}
 
 		$division = $resource->division;
-		return Configure::read('plugin.Javelin') &&
-			($division->is_open || $division->open->isFuture()) &&
+		return ($division->is_open || $division->open->isFuture()) &&
 			!$team->use_javelin && ($identity->wasCaptainOf($team) || $identity->isManagerOf($team));
 	}
 
@@ -39,8 +38,7 @@ class TeamPolicy extends AppPolicy {
 		}
 
 		$division = $resource->division;
-		return Configure::read('plugin.Javelin') &&
-			($division->is_open || $division->open->isFuture()) &&
+		return ($division->is_open || $division->open->isFuture()) &&
 			$team->use_javelin && ($identity->wasCaptainOf($team) || $identity->isManagerOf($team));
 	}
 

@@ -11465,7 +11465,7 @@ msgstr "تم الإنتهاء من الجزء المتواجد على الشبك
 msgid "Refund Policy"
 msgstr "سياسة إرجاع الأموال"
 
-#: Template/Element/Payments/forms/chase.ctp:148
+#: plugins/Chase/src/Template/Element/checkout.ctp:148
 msgid "Pay"
 msgstr ""
 
@@ -16917,7 +16917,7 @@ msgid "Note that this will delete all of your preferences and you may lose the s
 msgstr "سوف تحذف جميع خياراتك المفضلة ومن الممكن ان تخسر المكان المحجوز لك."
 
 #: Template/Registrations/checkout.ctp:114
-msgid "To pay online with {0}, click the \"{1}\" button below."
+msgid "To pay online with {0}, click the payment button below."
 msgstr ""
 
 #: Template/Registrations/checkout.ctp:127

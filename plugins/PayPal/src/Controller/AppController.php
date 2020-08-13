@@ -1,0 +1,10 @@
+<?php
+
+namespace PayPal\Controller;
+
+use App\Controller\AppController as BaseController;
+
+class AppController extends BaseController
+{
+
+}

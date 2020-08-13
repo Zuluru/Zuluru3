@@ -28,6 +28,7 @@ class ContactsControllerTest extends ControllerTestCase {
 			'app.Contacts',
 			'app.Settings',
 		'app.I18n',
+		'app.Plugins',
 	];
 
 	/**

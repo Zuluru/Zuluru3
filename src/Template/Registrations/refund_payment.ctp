@@ -3,7 +3,6 @@
  * @type \App\Model\Entity\Registration $registration
  * @type \App\Model\Entity\Payment $payment
  * @type \App\Model\Entity\Payment $refund
- * @type \App\Module\Payment $payment_obj
  */
 
 use Cake\Core\Configure;
@@ -37,15 +36,19 @@ echo $this->Form->input('payment_amount', [
 
 if (empty($payment->registration_audit_id)) {
 	echo $this->Html->para('warning-message', __('This payment was recorded manually, so in addition to noting the refund here you will need to issue a refund manually.'));
-} else if ($payment_obj && !$payment_obj->can_refund) {
+} else {
 	echo $this->Html->para('warning-message', __('Note that your online payment provider does not currently support automatic refunds, so in addition to noting the refund here you will need to issue a refund manually.'));
-} else if ($payment_obj) {
+}
+/**
+ * TODO: Handle online refunds
+else if ($payment_obj) {
 	echo $this->Form->input('online_refund', [
 		'label' => __('Issue refund through online payment provider'),
 		'type' => 'checkbox',
 		'checked' => true,
 	]);
 }
+*/
 
 if (!in_array($registration->getOriginal('payment'), Configure::read('registration_cancelled'))) {
 	echo $this->Form->input('mark_refunded', [

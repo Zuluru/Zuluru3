@@ -75,20 +75,6 @@ class SettingsTable extends AppTable {
 		return $rules;
 	}
 
-	/**
-	 * Perform additional operations after it is saved.
-	 *
-	 * @param \Cake\Event\Event $event The afterSave event that was fired
-	 * @param \Cake\Datasource\EntityInterface $entity The entity that was saved
-	 * @param \ArrayObject $options The options passed to the save method
-	 * @return void
-	 */
-	public function afterSave(Event $event, EntityInterface $entity, \ArrayObject $options) {
-		if ($entity->category == 'plugin' && $entity->value) {
-			$this->Flash('success', __('There may be new plugin-specific options below.'));
-		}
-	}
-
 	public function mergeList(Array $old, Array $new) {
 		// Clear ids from all the new settings
 		foreach ($new as $setting) {

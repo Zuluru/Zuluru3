@@ -58,6 +58,7 @@ class AllControllerTest extends ControllerTestCase {
 			'app.Waivers',
 				'app.WaiversPeople',
 		'app.I18n',
+		'app.Plugins',
 	];
 
 	/**

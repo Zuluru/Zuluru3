@@ -42,6 +42,7 @@ class AffiliatesControllerTest extends ControllerTestCase {
 			'app.Settings',
 			'app.Waivers',
 		'app.I18n',
+		'app.Plugins',
 	];
 
 	/**

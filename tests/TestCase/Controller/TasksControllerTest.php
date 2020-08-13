@@ -28,6 +28,7 @@ class TasksControllerTest extends ControllerTestCase {
 					'app.TaskSlots',
 			'app.Settings',
 		'app.I18n',
+		'app.Plugins',
 	];
 
 	/**

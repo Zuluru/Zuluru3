@@ -388,13 +388,6 @@ $options['options'] = [
 		'suzuki' => __('Sushi Suzuki\'s Alternate'),
 	],
 
-	// List of available payment providers
-	'payment_provider' => [
-		'chase' => 'Chase Paymentech',
-		'moneris' => 'Moneris',
-		'paypal' => 'Paypal',
-	],
-
 	// List of available invoice outputs
 	'invoice' => [
 		'invoice' => __('Standard'),

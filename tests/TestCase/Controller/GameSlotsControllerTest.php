@@ -34,6 +34,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 					'app.Games',
 			'app.Settings',
 		'app.I18n',
+		'app.Plugins',
 	];
 
 	/**

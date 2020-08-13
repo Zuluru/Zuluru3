@@ -1,0 +1,4 @@
+plugin:
+    description: Accept payments through Chase Paymentech. Officially supported by Zuluru.
+    url: https://chase.e-xact.com/
+    settings: true

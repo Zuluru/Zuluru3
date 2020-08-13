@@ -3162,8 +3162,9 @@ msgid ""
 " to rosters, etc."
 msgstr "Your payment was approved, but there was an error updating your payment status in the database. Contact the office to ensure that your information is updated, quoting order #<b>{0}</b>, or you may not be allowed to be added to rosters, etc."
 
-#: Controller/RegistrationsController.php:835 Module/PaymentChase.php:113
-#: Module/PaymentChase.php:123
+#: Controller/RegistrationsController.php:835
+#: plugins/Chase/src/Controller/PaymentController.php:113
+#: plugins/Chase/src/Controller/PaymentController.php:123
 msgid "Unable to extract payment information from the text provided."
 msgstr "Impossible d'extraire les informations de paiement du texte fourni."
 
@@ -13352,7 +13353,7 @@ msgstr "La partie en ligne de votre processus d'inscription est maintenant termi
 msgid "Refund Policy"
 msgstr "Politique de remboursement"
 
-#: Template/Element/Payments/forms/chase.ctp:148
+#: plugins/Chase/src/Template/Element/checkout.ctp:148
 msgid "Pay"
 msgstr "Payer"
 
@@ -19175,8 +19176,8 @@ msgid ""
 msgstr "Notez que cela supprimera toutes vos préférences et vous risquez de perdre la place qui vous est provisoirement réservée."
 
 #: Template/Registrations/checkout.ctp:114
-msgid "To pay online with {0}, click the \"{1}\" button below."
-msgstr "To pay online with {0}, click the «{1}» bouton ci-dessous."
+msgid "To pay online with {0}, click the payment button below."
+msgstr "To pay online with {0}, click the bouton de paiement ci-dessous."
 
 #: Template/Registrations/checkout.ctp:127
 msgid ""

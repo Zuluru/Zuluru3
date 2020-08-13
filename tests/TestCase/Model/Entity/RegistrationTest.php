@@ -48,7 +48,7 @@ class RegistrationTest extends TestCase {
 				'app.Prices',
 					'app.Registrations',
 						'app.Payments',
-		'app.Settings',
+			'app.Settings',
 		'app.I18n',
 	];
 

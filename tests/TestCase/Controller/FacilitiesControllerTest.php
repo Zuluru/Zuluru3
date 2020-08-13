@@ -36,6 +36,7 @@ class FacilitiesControllerTest extends ControllerTestCase {
 			'app.Notes',
 			'app.Settings',
 		'app.I18n',
+		'app.Plugins',
 	];
 
 	/**

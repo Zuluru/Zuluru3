@@ -1,0 +1,4 @@
+plugin:
+    description: Accept payments through PayPal. Officially supported by Zuluru.
+    url: https://www.paypal.com/
+    settings: true

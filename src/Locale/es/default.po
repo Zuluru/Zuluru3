@@ -11409,7 +11409,7 @@ msgstr "La parte en línea del proceso de inscripción se ha completado, pero ha
 msgid "Refund Policy"
 msgstr "Politica de reembolso"
 
-#: Template/Element/Payments/forms/chase.ctp:148
+#: plugins/Chase/src/Template/Element/checkout.ctp:148
 msgid "Pay"
 msgstr "Paga"
 
@@ -16825,8 +16825,8 @@ msgid "Note that this will delete all of your preferences and you may lose the s
 msgstr "Tenga en cuenta que esto eliminará todas sus preferencias y puede perder el punto de que actualmente está tentativamente reservado para usted."
 
 #: Template/Registrations/checkout.ctp:114
-msgid "To pay online with {0}, click the \"{1}\" button below."
-msgstr "Para pagar en línea con {0}, haga clic en el \"{1}\" botón a continuación."
+msgid "To pay online with {0}, click the payment button below."
+msgstr "Para pagar en línea con {0}, haga clic en el botón de pago a continuación."
 
 #: Template/Registrations/checkout.ctp:127
 msgid "To redeem a credit, click the \"{0}\" button next to the registration that you want the credit to be applied to."

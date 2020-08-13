@@ -395,13 +395,6 @@ class SettingsFixture extends TestFixture {
 			[
 				'person_id' => null,
 				'category' => 'payment',
-				'name' => 'payment_implementation',
-				'value' => 'paypal',
-				'affiliate_id' => null,
-			],
-			[
-				'person_id' => null,
-				'category' => 'payment',
 				'name' => 'invoice_implementation',
 				'value' => 'invoice',
 				'affiliate_id' => null,

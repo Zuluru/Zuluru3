@@ -34,6 +34,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 				'app.FranchisesTeams',
 			'app.Settings',
 		'app.I18n',
+		'app.Plugins',
 	];
 
 	/**

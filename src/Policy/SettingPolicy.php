@@ -9,8 +9,4 @@ class SettingPolicy extends AppPolicy {
 		return $identity->isManager();
 	}
 
-	public function canPayment_provider_fields(IdentityInterface $identity, $controller) {
-		return $identity->isManager();
-	}
-
 }

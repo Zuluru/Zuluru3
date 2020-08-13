@@ -29,6 +29,7 @@ class PricesControllerTest extends ControllerTestCase {
 					'app.Registrations',
 			'app.Settings',
 		'app.I18n',
+		'app.Plugins',
 	];
 
 	/**

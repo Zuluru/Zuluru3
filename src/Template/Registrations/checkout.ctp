@@ -1,4 +1,14 @@
 <?php
+/**
+ * @type \App\View\AppView $this
+ * @type \App\Model\Entity\Registration[] $registrations
+ * @type \App\Model\Entity\Registration[] $other
+ * @type \App\Model\Entity\Person $person
+ * @type ArrayObject $plugin_elements
+ * @type bool $is_test
+ */
+
+use App\Controller\AppController;
 use Cake\Core\Configure;
 
 $this->Html->addCrumb(__('Registration'));
@@ -97,21 +107,13 @@ if (!empty($registrations)):
 
 	<div class="unregister-help register-help">
 		<p><?= $this->Html->iconImg('help_24.png') ?></p>
-		<p><?= __('To remove an item, click the "Unregister" button next to it.') ?></p>
+		<p><?= __('To remove an item, click the {0} button next to it.', $this->Html->iconImg('delete_24.png', ['style' => 'float: none; margin-left: 0;'])) ?></p>
 		<p><?= __('Note that this will delete all of your preferences and you may lose the spot that is currently tentatively reserved for you.') ?></p>
 	</div>
 
 	<div class="online_help register-help">
-<?php
-	$provider = Configure::read('payment.payment_implementation');
-	if ($provider == 'paypal') {
-		$button = 'Check out with PayPal';
-	} else {
-		$button = 'Pay';
-	}
-?>
 		<p><?= $this->Html->iconImg('help_24.png') ?></p>
-		<p><?= __('To pay online with {0}, click the "{1}" button below.', Configure::read('payment.options'), $button) ?></p>
+		<p><?= __('To pay online with {0}, click the payment button below.', Configure::read('payment.options')) ?></p>
 		<?= Configure::read('registration.online_payment_text') ?>
 	</div>
 
@@ -134,20 +136,39 @@ if (!empty($registrations)):
 		<table class="table table-striped table-hover table-condensed">
 			<thead>
 				<tr>
+					<th></th>
 					<th><?= __('Order ID') ?></th>
 					<th><?= __('Event') ?></th>
 					<th><?= __('Balance') ?></th>
-					<th><?= __('Actions') ?></th>
 				</tr>
 			</thead>
 			<tbody>
 <?php
 	$total = 0;
 	foreach ($registrations as $registration):
-		list($cost, $tax1, $tax2) = $registration->paymentAmounts();
+		[$cost, $tax1, $tax2] = $registration->paymentAmounts();
 		$total += $cost + $tax1 + $tax2;
 ?>
 				<tr>
+					<td class="actions"><?php
+						if ($this->Authorize->can('edit', $registration)) {
+							echo $this->Html->iconLink('edit_32.png',
+								['action' => 'edit', 'registration' => $registration->id, 'return' => AppController::_return()],
+								['alt' => __('Edit'), 'title' => __('Edit Registration')]
+							);
+						}
+
+						if ($this->Authorize->can('unregister', $registration)) {
+							echo $this->Html->iconLink('delete_32.png',
+								['action' => 'unregister', 'registration' => $registration->id, 'return' => AppController::_return()],
+								['confirm' => __('Are you sure you want to unregister from this event? This will delete all of your preferences and you may lose the spot that is currently tentatively reserved for you.')]
+							);
+						}
+
+						if (!empty($person->credits)) {
+							echo $this->Html->link(__('Redeem Credit'), ['action' => 'redeem', 'registration' => $registration->id]);
+						}
+					?></td>
 					<td><?= sprintf($order_id_format, $registration->id) ?></td>
 					<td><?php
 						echo $this->Html->link($registration->long_description, ['controller' => 'Events', 'action' => 'view', 'event' => $registration->event->id]);
@@ -161,19 +182,6 @@ if (!empty($registrations)):
 						}
 					?></td>
 					<td><?= $this->Number->currency($cost + $tax1 + $tax2) ?></td>
-					<td class="actions"><?php
-						echo $this->Html->link(__('Edit'),
-								['action' => 'edit', 'registration' => $registration->id]);
-						if (in_array($registration->payment, Configure::read('registration_none_paid'))) {
-							echo $this->Html->link(__('Unregister'),
-								['action' => 'unregister', 'registration' => $registration->id],
-								['confirm' => __('Are you sure you want to unregister from this event? This will delete all of your preferences and you may lose the spot that is currently tentatively reserved for you.')]
-							);
-						}
-						if (!empty($person->credits)) {
-							echo $this->Html->link(__('Redeem Credit'), ['action' => 'redeem', 'registration' => $registration->id]);
-						}
-					?></td>
 				</tr>
 <?php
 	endforeach;
@@ -181,18 +189,27 @@ if (!empty($registrations)):
 
 				<tr>
 					<th></th>
+					<th></th>
 					<th><?= __('Total') ?>:</th>
 					<th><?= $this->Number->currency($total) ?></th>
-					<th class="actions"><?php
-						if ($take_payments) {
-							echo $this->element("Payments/forms/$provider");
-						}
-					?></th>
 				</tr>
 			</tbody>
 		</table>
 	</div>
 <?php
+
+	if ($plugin_elements->count() > 0) {
+		foreach ($plugin_elements as $element => $params) {
+			if (is_numeric($element)) {
+				$element = $params;
+				$params = [];
+			}
+			echo $this->element($element, array_merge($params, ['number_of_providers' => $plugin_elements->count()]));
+		}
+	} else {
+		echo $this->Html->para('warning-message', __('Online payments have been enabled on this system, but no payment provider has been configured.'));
+	}
+
 endif;
 
 if (!empty($other)):
@@ -202,36 +219,36 @@ if (!empty($other)):
 		<table class="table table-striped table-hover table-condensed">
 			<thead>
 				<tr>
+					<th></th>
 					<th><?= __('Order ID') ?></th>
 					<th><?= __('Event') ?></th>
 					<th><?= __('Cost') ?></th>
 					<th><?= __('Reason') ?></th>
-					<th><?= __('Actions') ?></th>
 				</tr>
 			</thead>
 			<tbody>
 <?php
 	foreach ($other as $registration):
-		list($cost, $tax1, $tax2) = $registration['registration']->paymentAmounts();
+		[$cost, $tax1, $tax2] = $registration['registration']->paymentAmounts();
 ?>
 				<tr>
-					<td><?= sprintf($order_id_format, $registration['registration']->id) ?></td>
-					<td><?= $this->Html->link($registration['registration']->event->name, ['controller' => 'Events', 'action' => 'view', 'event' => $registration['registration']->event->id]) ?></td>
-					<td><?= $this->Number->currency($cost + $tax1 + $tax2) ?></td>
-					<td><?= $registration['reason'] ?></td>
 					<td class="actions"><?php
 						if (!empty($registration['change_price'])) {
 							echo $this->Html->link(__('Reregister'),
 									['action' => 'edit', 'registration' => $registration['registration']->id]);
 						}
 
-						if (!in_array($registration['registration']->payment, Configure::read('registration_some_paid'))) {
-							echo $this->Html->link(__('Unregister'),
-								['action' => 'unregister', 'registration' => $registration['registration']->id],
+						if ($this->Authorize->can('unregister', $registration['registration'])) {
+							echo $this->Html->iconLink('delete_32.png',
+								['action' => 'unregister', 'registration' => $registration['registration']->id, 'return' => AppController::_return()],
 								['confirm' => __('Are you sure you want to unregister from this event? This will delete all of your preferences and you may lose the spot that is currently tentatively reserved for you.')]
 							);
 						}
 					?></td>
+					<td><?= sprintf($order_id_format, $registration['registration']->id) ?></td>
+					<td><?= $this->Html->link($registration['registration']->event->name, ['controller' => 'Events', 'action' => 'view', 'event' => $registration['registration']->event->id]) ?></td>
+					<td><?= $this->Number->currency($cost + $tax1 + $tax2) ?></td>
+					<td><?= $registration['reason'] ?></td>
 				</tr>
 <?php
 	endforeach;

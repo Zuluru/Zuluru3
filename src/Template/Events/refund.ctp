@@ -3,7 +3,6 @@
  * @type \App\Model\Entity\Event $event
  * @type \App\Model\Entity\Registration[] $registrations
  * @type \App\Model\Entity\Payment $refund
- * @type \App\Module\Payment $payment_obj
  * @type int $id
  * @type int $price_id
  */

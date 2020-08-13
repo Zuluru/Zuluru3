@@ -16,6 +16,15 @@
 		<testsuite name="App Test Suite">
 			<directory>./tests/TestCase</directory>
 		</testsuite>
+		<testsuite name="Chase Test Suite">
+			<directory>./plugins/Chase/tests/TestCase</directory>
+		</testsuite>
+		<testsuite name="PayPal Test Suite">
+			<directory>./plugins/PayPal/tests/TestCase</directory>
+		</testsuite>
+		<testsuite name="Stripe Test Suite">
+			<directory>./plugins/Stripe/tests/TestCase</directory>
+		</testsuite>
 		<!-- Add plugin test suites here. -->
 	</testsuites>
 

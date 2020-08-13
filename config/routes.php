@@ -66,7 +66,6 @@ Router::scope('/', function (RouteBuilder $routes) {
 	/**
 	 * Connect most settings URLs to the edit function.
 	 */
-	$routes->connect('/settings/payment_provider_fields', ['controller' => 'Settings', 'action' => 'payment_provider_fields']);
 	$routes->connect('/settings/*', ['controller' => 'Settings', 'action' => 'edit']);
 
 	/**
