@@ -50,7 +50,7 @@ echo $this->element('Settings/input', [
 	'category' => 'profile',
 	'name' => 'gender',
 	'options' => [
-		'label' => __('Gender'),
+		'label' => __('Gender Identification'),
 		'type' => 'radio',
 		'options' => Configure::read('options.access_required'),
 	],

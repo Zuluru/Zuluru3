@@ -22,6 +22,7 @@ if (!empty($prefix)) {
 
 if (!$edit || in_array(Configure::read('profile.gender'), $access)) {
 	echo $this->Jquery->toggleInput("{$prefix}gender", [
+		'label' => __('Gender Identification'),
 		'type' => 'select',
 		'empty' => '---',
 		'options' => Configure::read('options.gender'),
@@ -29,12 +30,16 @@ if (!$edit || in_array(Configure::read('profile.gender'), $access)) {
 	], [
 		'values' => [
 			'Trans' => ".{$class_prefix}trans",
+			//'Agender' => __x('gender', 'Agender'),
+			//'Non-Binary' => __x('gender', 'Non-Binary'),
+			//'Questioning' => __x('gender', 'Questioning'),
 			'Self-defined' => ".{$class_prefix}self-defined",
 			'Prefer not to say' => ".{$class_prefix}prefer-not",
 		],
 	]);
 } else {
 	echo $this->Form->input("{$prefix}gender", [
+		'label' => __('Gender Identification'),
 		'disabled' => true,
 		'class' => 'disabled',
 		'help' => __('To prevent system abuses, this can only be changed by an administrator. To change this, please email your {0} to {1}.', __('new gender'), $this->Html->link($admin, "mailto:$admin")),

@@ -220,7 +220,7 @@ endif;
 
 if (in_array('gender_display', $visible_properties)):
 ?>
-		<dt><?= __('Gender') ?></dt>
+		<dt><?= __('Gender Identification') ?></dt>
 		<dd><?= __($person->gender_display) ?>&nbsp;</dd>
 <?php
 endif;

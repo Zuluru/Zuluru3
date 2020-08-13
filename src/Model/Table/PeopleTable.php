@@ -365,8 +365,8 @@ class PeopleTable extends AppTable {
 
 	public function validationPlayer(Validator $validator) {
 		$validator
-			->requirePresence('gender', 'create', __('You must select a gender.'))
-			->notEmpty('gender', __('You must select a gender.'));
+			->requirePresence('gender', 'create', __('You must select a gender identification.'))
+			->notEmpty('gender', __('You must select a gender identification.'));
 
 		$validator
 			->requirePresence('roster_designation', function ($context) {
