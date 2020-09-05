@@ -1,0 +1,23 @@
+{
+    "name": "Zuluru/StripePayment",
+    "description": "Stripe payment processing plugin for CakePHP",
+    "type": "cakephp-plugin",
+    "require": {
+        "php": ">=7.2.0",
+        "cakephp/cakephp": ">=3.8.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "StripePayment\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "StripePayment\\Test\\": "tests",
+            "Cake\\Test\\": "./vendor/cakephp/cakephp/tests"
+        }
+    }
+}

@@ -43,9 +43,9 @@ class AddPluginsTable extends AbstractMigration {
 		$payment = $settings->find()->where(['category' => 'payment', 'name' => 'payment_implementation'])->first();
 		if ($payment) {
 			if ($payment->value == 'chase') {
-				$this->execute('UPDATE plugins SET enabled = 1 WHERE load_name = \'Chase\'');
+				$this->execute('UPDATE plugins SET enabled = 1 WHERE load_name = \'ChasePayment\'');
 			} else if ($payment->value == 'paypal') {
-				$this->execute('UPDATE plugins SET enabled = 1 WHERE load_name = \'PayPal\'');
+				$this->execute('UPDATE plugins SET enabled = 1 WHERE load_name = \'PayPalPayment\'');
 			}
 			$settings->delete($payment);
 		}
@@ -68,7 +68,7 @@ class AddPluginsTable extends AbstractMigration {
 		$settings = \Cake\ORM\TableRegistry::getTableLocator()->get('Settings');
 		foreach (\Cake\ORM\TableRegistry::getTableLocator()->get('Plugins')->find()->where(['enabled' => true]) as $plugin) {
 			switch($plugin->load_name) {
-				case 'Chase':
+				case 'ChasePayment':
 					$settings->save($settings->newEntity([
 						'category' => 'payment',
 						'name' => 'payment_implementation',
@@ -76,7 +76,7 @@ class AddPluginsTable extends AbstractMigration {
 					]));
 					break;
 
-				case 'PayPal':
+				case 'PayPalPayment':
 					$settings->save($settings->newEntity([
 						'category' => 'payment',
 						'name' => 'payment_implementation',

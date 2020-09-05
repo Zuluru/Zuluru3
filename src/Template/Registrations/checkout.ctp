@@ -5,7 +5,6 @@
  * @type \App\Model\Entity\Registration[] $other
  * @type \App\Model\Entity\Person $person
  * @type ArrayObject $plugin_elements
- * @type bool $is_test
  */
 
 use App\Controller\AppController;
