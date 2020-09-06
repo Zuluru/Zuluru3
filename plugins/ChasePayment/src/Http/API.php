@@ -1,7 +1,6 @@
 <?php
 namespace ChasePayment\Http;
 
-use App\Controller\RegistrationsController;
 use Cake\Core\Configure;
 
 class API extends \App\Http\API {

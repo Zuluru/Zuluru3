@@ -47,7 +47,7 @@ class PaymentControllerTest extends ControllerTestCase {
 	];
 
 	/**
-	 * Set up the mock API object to avoid talking to the Stripe servers
+	 * Set up the mock API object to avoid talking to the Chase servers
 	 */
 	public function controllerSpy($event, $controller = null) {
 		parent::controllerSpy($event, $controller);

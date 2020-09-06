@@ -1,7 +1,6 @@
 <?php
 namespace PayPalPayment\Http;
 
-use App\Controller\RegistrationsController;
 use Cake\Core\Configure;
 use Psr\Log\LogLevel;
 

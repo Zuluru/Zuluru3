@@ -8,7 +8,7 @@ abstract class API {
 	/**
 	 * @var bool
 	 */
-	private $test = false;
+	private $test = true;
 
 	/**
 	 * API constructor.
