@@ -6,7 +6,12 @@ use Cake\Core\Configure;
 
 class API extends \App\Http\API {
 
-	public static function parsePayment(Array $data, $checkHash = true) {
+	/**
+	 * @param array $data
+	 * @param bool $checkHash
+	 * @return array
+	 */
+	public function parsePayment(Array $data, $checkHash = true) {
 		// Retrieve the parameters sent from the server
 		$audit = [];
 		foreach ([
@@ -64,7 +69,7 @@ class API extends \App\Http\API {
 
 		if ($checkHash) {
 			// Validate the hash
-			if (RegistrationsController::isTest()) {
+			if ($this->isTest()) {
 				$login = Configure::read('payment.chase_test_store');
 				$key = Configure::read('payment.chase_test_response');
 			} else {

@@ -692,6 +692,7 @@ class RegistrationsController extends AppController {
 		// Forms will use $registrations[0], but that may have been unset above.
 		$registrations = array_values($registrations);
 		$this->set(compact('registrations', 'other', 'person', 'plugin_elements'));
+		$this->set(['is_test' => $this->isTest()]);
 	}
 
 	public function unregister() {

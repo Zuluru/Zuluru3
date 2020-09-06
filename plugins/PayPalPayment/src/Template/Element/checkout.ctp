@@ -3,8 +3,9 @@
  * @type \App\View\AppView $this
  * @type \App\Model\Entity\Registration[] $registrations
  * @type \App\Model\Entity\Person $person
+ * @type \PayPalPayment\Event\Listener $listener
  * @type int $number_of_providers
- * @type \PayPalPayment\Http\API $api
+ * @type bool $is_test
  */
 
 use Cake\Core\Configure;
@@ -83,10 +84,10 @@ if ($total_tax > 0) {
 	$fields['PAYMENTREQUEST_0_TAXAMT'] = $total_tax;
 }
 
-$response = $api->SetExpressCheckout($fields);
+$response = $listener->getAPI($is_test)->SetExpressCheckout($fields);
 if (is_array($response)) {
 	// Build the online payment form
-	if ($api->isTest()) {
+	if ($is_test) {
 		$paypal_url = 'https://www.sandbox.paypal.com/';
 	} else {
 		$paypal_url = 'https://www.paypal.com/';

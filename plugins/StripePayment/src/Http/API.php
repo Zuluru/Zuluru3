@@ -12,6 +12,14 @@ class API extends \App\Http\API {
 	private $client = null;
 
 	/**
+	 * @return bool
+	 */
+	public static function isTestData($data) {
+		$data = json_decode($data, true);
+		return !$data['livemode'];
+	}
+
+	/**
 	 * @return StripeClient
 	 */
 	private function client() {
@@ -37,12 +45,14 @@ class API extends \App\Http\API {
 		return $this->client()->checkout->sessions->create($options);
 	}
 
-	public static function parsePayment($input) {
-		$data = json_decode($input, true);
-		$api = new API(!$data['livemode']);
-
+	/**
+	 * @param $input
+	 * @return array
+	 * @throws \Stripe\Exception\ApiErrorException
+	 */
+	public function parsePayment($input) {
 		try {
-			$event = $api->constructEvent($input);
+			$event = $this->constructEvent($input);
 		} catch(\UnexpectedValueException $ex) {
 			// Invalid payload
 			return [false, ['message' => $ex->getMessage()], []];
@@ -53,7 +63,7 @@ class API extends \App\Http\API {
 
 		$session = $event->data->object;
 		if ($event->type == 'checkout.session.completed') {
-			$payment = $api->paymentIntentsRetrieve($session->payment_intent);
+			$payment = $this->paymentIntentsRetrieve($session->payment_intent);
 			if ($payment->status == 'succeeded') {
 				$charge = $payment->charges->data[0];
 
@@ -72,7 +82,7 @@ class API extends \App\Http\API {
 					'time' => date('H:i:s', $payment->created),
 				];
 
-				$registration_ids = $api->getRegistrationIds($session->id);
+				$registration_ids = $this->getRegistrationIds($session->id);
 
 				return [true, $audit, $registration_ids];
 			}

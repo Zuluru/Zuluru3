@@ -1,6 +1,8 @@
 <?php
 namespace App\Http;
 
+use App\Controller\RegistrationsController;
+
 abstract class API {
 
 	/**
@@ -28,6 +30,13 @@ abstract class API {
 	 */
 	public function isTest() {
 		return $this->test;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public static function isTestData($data) {
+		return RegistrationsController::isTest();
 	}
 
 }

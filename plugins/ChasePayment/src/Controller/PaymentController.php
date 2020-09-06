@@ -16,6 +16,23 @@ class PaymentController extends AppController {
 	use PaymentsTrait;
 
 	/**
+	 * @var \ChasePayment\Http\API
+	 */
+	public $api = null;
+
+	/**
+	 * @param $test
+	 * @return API
+	 */
+	public function getAPI($test) {
+		if (!$this->api) {
+			$this->api = new API($test);
+		}
+
+		return $this->api;
+	}
+
+	/**
 	 * _noAuthenticationActions method
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
@@ -37,7 +54,6 @@ class PaymentController extends AppController {
 		$this->loadModel('Registrations');
 	}
 
-	// TODO: Proper fix for black-holing of payment details posted to us from processors
 	public function beforeFilter(\Cake\Event\Event $event) {
 		parent::beforeFilter($event);
 		if (isset($this->Security)) {
@@ -49,8 +65,10 @@ class PaymentController extends AppController {
 		if (Configure::read('payment.popup')) {
 			$this->viewBuilder()->setLayout('bare');
 		}
+
 		// Chase posts data back to us as if we're a form
-		[$result, $audit, $registration_ids] = API::parsePayment($this->request->getData());
+		$data = $this->request->getData();
+		[$result, $audit, $registration_ids] = $this->getAPI(API::isTestData($data))->parsePayment($data);
 		$this->_processPayment($result, $audit, $registration_ids);
 	}
 
@@ -62,7 +80,7 @@ class PaymentController extends AppController {
 				return;
 			}
 
-			[$result, $audit, $registration_ids] = API::parsePayment($values, false);
+			[$result, $audit, $registration_ids] = $this->getAPI(API::isTestData($values))->parsePayment($values, false);
 			if (!$result) {
 				$this->Flash->warning(__('Unable to extract payment information from the text provided.'));
 				return;
@@ -92,7 +110,8 @@ class PaymentController extends AppController {
 	public function from_email_confirmation() {
 		$this->Authorization->authorize($this);
 		$this->viewBuilder()->setTemplate('index');
-		[$result, $audit, $registration_ids] = API::parsePayment($this->request->getData(), false);
+		$data = $this->request->getData();
+		[$result, $audit, $registration_ids] = $this->getAPI(API::isTestData($data))->parsePayment($data, false);
 		$this->_processPayment($result, $audit, $registration_ids);
 	}
 

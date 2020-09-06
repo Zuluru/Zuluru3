@@ -5,12 +5,16 @@
 
 namespace StripePayment\Event;
 
-use App\Controller\RegistrationsController;
 use Cake\Event\Event;
 use Cake\Event\EventListenerInterface;
 use StripePayment\Http\API;
 
 class Listener implements EventListenerInterface {
+
+	/**
+	 * @var \StripePayment\Http\API
+	 */
+	public $api = null;
 
 	public function implementedEvents() {
 		return [
@@ -20,7 +24,15 @@ class Listener implements EventListenerInterface {
 	}
 
 	public function checkout(Event $event, \ArrayObject $elements) {
-		$elements['StripePayment.checkout'] = ['api' => new API(RegistrationsController::isTest())];
+		$elements['StripePayment.checkout'] = ['listener' => $this];
+	}
+
+	public function getAPI($test) {
+		if (!$this->api) {
+			$this->api = new API($test);
+		}
+
+		return $this->api;
 	}
 
 }

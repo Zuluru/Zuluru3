@@ -2,7 +2,7 @@
 namespace StripePayment\Test\TestCase\Controller;
 
 use App\Test\TestCase\Controller\ControllerTestCase;
-use StripePayment\Test\Mocks\MockCheckoutSession;
+use StripePayment\Test\Mock;
 
 /**
  * StripePayment\Controller\PaymentController Test Case
@@ -43,6 +43,17 @@ class PaymentControllerTest extends ControllerTestCase {
 		'app.I18n',
 		'app.Plugins',
 	];
+
+	/**
+	 * Set up the mock API object to avoid talking to the Stripe servers
+	 */
+	public function controllerSpy($event, $controller = null) {
+		parent::controllerSpy($event, $controller);
+
+		if (isset($this->_controller)) {
+			$this->_controller->api = Mock::setup($this);
+		}
+	}
 
 	/**
 	 * Test index method without being logged in

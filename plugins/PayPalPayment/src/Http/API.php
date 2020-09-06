@@ -7,14 +7,17 @@ use Psr\Log\LogLevel;
 
 class API extends \App\Http\API {
 
-	public static function parsePayment(Array $data) {
-		$api = new API(RegistrationsController::isTest());
-		$details = $api->GetExpressCheckoutDetails(['TOKEN' => $data['token']]);
+	/**
+	 * @param array $data
+	 * @return array
+	 */
+	public function parsePayment(Array $data) {
+		$details = $this->GetExpressCheckoutDetails(['TOKEN' => $data['token']]);
 		if (!is_array($details)) {
 			return [false, ['message' => $details], []];
 		}
 
-		$response = $api->DoExpressCheckoutPayment([
+		$response = $this->DoExpressCheckoutPayment([
 			'PAYMENTACTION' => 'Sale',
 			'PAYERID' => $details['PAYERID'],
 			'TOKEN' => $details['TOKEN'],
@@ -44,8 +47,7 @@ class API extends \App\Http\API {
 		$audit['time'] = $matches[2];
 
 		// Validate the response code
-		if ($response['PAYMENTINFO_0_ERRORCODE'] == 0)
-		{
+		if ($response['PAYMENTINFO_0_ERRORCODE'] == 0) {
 			[$user_id, $registration_ids] = explode(':', $details['PAYMENTREQUEST_0_CUSTOM']);
 			$registration_ids = explode(',', $registration_ids);
 			return [true, $audit, $registration_ids];

@@ -2,8 +2,8 @@
 namespace PayPalPayment\Test\TestCase\Controller;
 
 use App\Test\TestCase\Controller\ControllerTestCase;
-use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
+use PayPalPayment\Test\Mock;
 
 /**
  * PayPalPayment\Controller\PaymentController Test Case
@@ -52,30 +52,8 @@ class PaymentControllerTest extends ControllerTestCase {
 		parent::controllerSpy($event, $controller);
 
 		if (isset($this->_controller)) {
-			$this->_controller->_api = $this->createMock('PayPalPayment\Http\API');
+			$this->_controller->api = Mock::setup($this);
 
-			$this->_controller->_api
-				->method('GetExpressCheckoutDetails')
-				->will($this->returnValue([
-					'PAYERID' => PERSON_ID_CAPTAIN,
-					'TOKEN' => 'testing',
-					'PAYMENTREQUEST_0_AMT' => 1.50, // There are already payments totalling 10 of 11.50
-					'PAYMENTREQUEST_0_CURRENCYCODE' => 'CAD',
-					'PAYMENTREQUEST_0_INVNUM' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP,
-					'FIRSTNAME' => 'Crystal',
-					'LASTNAME' => 'Captain',
-					'PAYMENTREQUEST_0_CUSTOM' => PERSON_ID_CAPTAIN . ':' . REGISTRATION_ID_CAPTAIN_MEMBERSHIP,
-				]));
-
-			$this->_controller->_api
-				->method('DoExpressCheckoutPayment')
-				->will($this->returnValue([
-					'PAYMENTINFO_0_ERRORCODE' => 0,
-					'PAYMENTINFO_0_TRANSACTIONID' => '1234567890',
-					'PAYMENTINFO_0_TRANSACTIONTYPE' => 'expresscheckout',
-					'PAYMENTINFO_0_PAYMENTTYPE' => 'instant',
-					'TIMESTAMP' => FrozenTime::now()->format('Y-m-d\TH:i:s\Z'),
-				]));
 		}
 	}
 

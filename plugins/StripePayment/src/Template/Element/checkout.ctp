@@ -3,8 +3,9 @@
  * @type \App\View\AppView $this
  * @type \App\Model\Entity\Registration[] $registrations
  * @type \App\Model\Entity\Person $person
+ * @type \StripePayment\Event\Listener $listener
  * @type int $number_of_providers
- * @type \StripePayment\Http\API $api
+ * @type bool $is_test
  */
 
 use Cake\Core\Configure;
@@ -50,7 +51,7 @@ foreach ($registrations as $registration) {
 }
 
 try {
-	$session = $api->checkoutSessionCreate([
+	$session = $listener->getAPI($is_test)->checkoutSessionCreate([
 		'client_reference_id' => $registrations[0]->id,
 		'customer_email' => $email,
 		'payment_method_types' => ['card'],
@@ -61,7 +62,7 @@ try {
 	]);
 
 	if ($session->getLastResponse() && $session->getLastResponse()->code == 200) {
-		if ($api->isTest()) {
+		if ($is_test) {
 			$login = Configure::read('payment.stripe_test_publishable_key');
 		} else {
 			$login = Configure::read('payment.stripe_live_publishable_key');

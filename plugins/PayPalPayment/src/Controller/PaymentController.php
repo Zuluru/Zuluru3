@@ -15,6 +15,23 @@ class PaymentController extends AppController {
 	use PaymentsTrait;
 
 	/**
+	 * @var \PayPalPayment\Http\API
+	 */
+	public $api = null;
+
+	/**
+	 * @param $test
+	 * @return API
+	 */
+	public function getAPI($test) {
+		if (!$this->api) {
+			$this->api = new API($test);
+		}
+
+		return $this->api;
+	}
+
+	/**
 	 * Initialization hook method.
 	 *
 	 * Use this method to add common initialization code like loading components.
@@ -32,8 +49,10 @@ class PaymentController extends AppController {
 		if (Configure::read('payment.popup')) {
 			$this->viewBuilder()->setLayout('bare');
 		}
+
 		// PayPal sends data back through the URL
-		[$result, $audit, $registration_ids] = API::parsePayment($this->request->getQueryParams());
+		$data = $this->request->getQueryParams();
+		[$result, $audit, $registration_ids] = $this->getAPI(API::isTestData($data))->parsePayment($data);
 		$this->_processPayment($result, $audit, $registration_ids);
 	}
 

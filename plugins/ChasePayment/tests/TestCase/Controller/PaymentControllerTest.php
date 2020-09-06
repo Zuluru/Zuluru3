@@ -53,7 +53,13 @@ class PaymentControllerTest extends ControllerTestCase {
 		parent::controllerSpy($event, $controller);
 
 		if (isset($this->_controller)) {
-			$this->_controller->_api = $this->createMock('ChasePayment\Http\API');
+			$this->_controller->api = $this->getMockBuilder('ChasePayment\Http\API')
+				->disableOriginalConstructor()
+				->disableOriginalClone()
+				->disableArgumentCloning()
+				->disallowMockingUnknownTypes()
+				->setMethods(null)
+				->getMock();
 		}
 	}
 

@@ -16,6 +16,23 @@ class PaymentController extends AppController {
 	use PaymentsTrait;
 
 	/**
+	 * @var \StripePayment\Http\API
+	 */
+	public $api = null;
+
+	/**
+	 * @param $test
+	 * @return API
+	 */
+	public function getAPI($test) {
+		if (!$this->api) {
+			$this->api = new API($test);
+		}
+
+		return $this->api;
+	}
+
+	/**
 	 * _noAuthenticationActions method
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
@@ -37,7 +54,6 @@ class PaymentController extends AppController {
 		$this->loadModel('Registrations');
 	}
 
-	// TODO: Proper fix for black-holing of payment details posted to us from processors
 	public function beforeFilter(\Cake\Event\Event $event) {
 		parent::beforeFilter($event);
 		if (isset($this->Security)) {
@@ -47,7 +63,8 @@ class PaymentController extends AppController {
 
 	public function index() {
 		// Stripe sends data back through an event
-		[$result, $audit, $registration_ids] = API::parsePayment($this->request->input());
+		$data = $this->request->input();
+		[$result, $audit, $registration_ids] = $this->getAPI(API::isTestData($data))->parsePayment($data);
 		$this->_processPayment($result, $audit, $registration_ids);
 
 		if (!$result) {

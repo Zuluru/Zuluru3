@@ -72,9 +72,9 @@
             "App\\Test\\": "tests",
             "Cake\\Test\\": "vendor/cakephp/cakephp/tests",
             "Javelin\\Test\\": "plugins/Javelin/tests",
-            "ChasePayment\\Test\\": "./plugins/ChasePayment/tests",
-            "PayPaPaymentl\\Test\\": "./plugins/PayPalPayment/tests",
-            "StripePayment\\Test\\": "./plugins/StripePayment/tests"
+            "ChasePayment\\Test\\": "plugins/ChasePayment/tests",
+            "PayPalPayment\\Test\\": "plugins/PayPalPayment/tests",
+            "StripePayment\\Test\\": "plugins/StripePayment/tests"
         }
     },
     "scripts": {

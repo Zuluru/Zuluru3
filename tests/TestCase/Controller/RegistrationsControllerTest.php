@@ -1,11 +1,9 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
-use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\I18n\FrozenDate;
-use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 
@@ -77,6 +75,22 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		'app.I18n',
 		'app.Plugins',
 	];
+
+	/**
+	 * Set up mock API objects to avoid talking to various servers
+	 */
+	public function controllerSpy($event, $controller = null) {
+		parent::controllerSpy($event, $controller);
+
+		$globalListeners = Configure::read('App.globalListeners');
+
+		if (array_key_exists('PayPal', $globalListeners)) {
+			$globalListeners['PayPal']->api = \PayPalPayment\Test\Mock::setup($this);
+		}
+		if (array_key_exists('Stripe', $globalListeners)) {
+			$globalListeners['Stripe']->api = \StripePayment\Test\Mock::setup($this);
+		}
+	}
 
 	/**
 	 * Test full_list method

@@ -3,39 +3,38 @@
  * @type \App\View\AppView $this
  * @type \App\Model\Entity\Registration[] $registrations
  * @type \App\Model\Entity\Person $person
+ * @type \ChasePayment\Event\Listener $listener
  * @type int $number_of_providers
- * @type \ChasePayment\Http\API $api
+ * @type bool $is_test
  */
 
 use Cake\Core\Configure;
 use Cake\I18n\FrozenTime;
 
-if (function_exists ('mhash')) {
-
-	// Use mhash function to compute the hash.
-	function hmac($key, $data) {
-		return (bin2hex (mhash(MHASH_MD5, $data, $key)));
-	}
-
-} else {
-
-	function hmac($key, $data) {
-		// RFC 2104 HMAC implementation for php to compute the MD5 HMAC.
-		// Credit: Lance Rushing - http://www.php.net/manual/en/function.mhash.php
-
-		$b = 64; // byte length for MD5
-		if (strlen($key) > $b) {
-			$key = pack("H*",md5($key));
+if (!function_exists('quick_hidden')) {
+	if (function_exists('mhash')) {
+		// Use mhash function to compute the hash.
+		function hmac($key, $data) {
+			return (bin2hex(mhash(MHASH_MD5, $data, $key)));
 		}
-		$key  = str_pad($key, $b, chr(0x00));
-		$ipad = str_pad('', $b, chr(0x36));
-		$opad = str_pad('', $b, chr(0x5c));
-		$k_ipad = $key ^ $ipad ;
-		$k_opad = $key ^ $opad;
+	} else {
+		function hmac($key, $data) {
+			// RFC 2104 HMAC implementation for php to compute the MD5 HMAC.
+			// Credit: Lance Rushing - http://www.php.net/manual/en/function.mhash.php
 
-		return md5($k_opad  . pack("H*",md5($k_ipad . $data)));
+			$b = 64; // byte length for MD5
+			if (strlen($key) > $b) {
+				$key = pack("H*", md5($key));
+			}
+			$key = str_pad($key, $b, chr(0x00));
+			$ipad = str_pad('', $b, chr(0x36));
+			$opad = str_pad('', $b, chr(0x5c));
+			$k_ipad = $key ^ $ipad;
+			$k_opad = $key ^ $opad;
+
+			return md5($k_opad . pack("H*", md5($k_ipad . $data)));
+		}
 	}
-
 }
 
 // JavaScript for no address bar
@@ -54,7 +53,7 @@ $invoice_num = sprintf($order_fmt, $registrations[0]->id);
 $unique_order_num = $invoice_num . sprintf('-%010d', $time);
 
 // Build the online payment form
-if ($api->isTest()) {
+if ($is_test) {
 	$login = Configure::read('payment.chase_test_store');
 	$key = Configure::read('payment.chase_test_password');
 	$server = 'rpm.demo';
@@ -74,12 +73,14 @@ if (Configure::read('payment.popup')) {
 
 echo $this->Form->create(false, $form_options);
 
-function quick_hidden($ths, $name, $value) {
-	return $ths->Form->hidden($name, ['name' => $name, 'value' => $value]);
+if (!function_exists('quick_hidden')) {
+	function quick_hidden($ths, $name, $value) {
+		return $ths->Form->hidden($name, ['name' => $name, 'value' => $value]);
+	}
 }
 
 echo quick_hidden($this, 'x_login', $login);
-echo quick_hidden($this, 'x_test_request', $api->isTest() ? 'TRUE' : 'FALSE');
+echo quick_hidden($this, 'x_test_request', $is_test ? 'TRUE' : 'FALSE');
 echo quick_hidden($this, 'x_fp_sequence', $unique_order_num);
 echo quick_hidden($this, 'x_fp_timestamp', $time);
 echo quick_hidden($this, 'x_show_form', 'PAYMENT_FORM');
