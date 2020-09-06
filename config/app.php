@@ -126,13 +126,13 @@ return [
 		// logout requires a token that Zuluru doesn't have access to, so
 		// you'll need to rely on Joomla's own logout being visible somewhere.
 		'urls' => [
-			'privacyPolicy' => ['controller' => 'Pages', 'action' => 'privacy'],
+			'privacyPolicy' => ['plugin' => false, 'controller' => 'Pages', 'action' => 'privacy'],
 			// TODO: Determine these dynamically in the most common situations and
 			// only require configuration here in extreme cases.
-			'register' => ['controller' => 'Users', 'action' => 'create_account'],
-			'login' => ['controller' => 'Users', 'action' => 'login'],
-			'logout' => ['controller' => 'Users', 'action' => 'logout'],
-			'resetPassword' => ['controller' => 'Users', 'action' => 'reset_password'],
+			'register' => ['plugin' => false, 'controller' => 'Users', 'action' => 'create_account'],
+			'login' => ['plugin' => false, 'controller' => 'Users', 'action' => 'login'],
+			'logout' => ['plugin' => false, 'controller' => 'Users', 'action' => 'logout'],
+			'resetPassword' => ['plugin' => false, 'controller' => 'Users', 'action' => 'reset_password'],
 		],
 
 		// Author information to include in HTML meta tags.
