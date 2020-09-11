@@ -57,7 +57,7 @@ try {
 		'payment_method_types' => ['card'],
 		'line_items' => $items,
 		'mode' => 'payment',
-		'success_url' => Router::url(['controller' => 'Payment', 'action' => 'success'], true),
+		'success_url' => Router::url(['plugin' => 'StripePayment', 'controller' => 'Payment', 'action' => 'success'], true),
 		'cancel_url' => Router::url(['plugin' => false, 'controller' => 'Registrations', 'action' => 'checkout'], true),
 	]);
 

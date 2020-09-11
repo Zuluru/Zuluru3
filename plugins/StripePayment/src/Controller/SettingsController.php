@@ -54,7 +54,7 @@ class SettingsController extends AppController {
 		$stripe = new \Stripe\StripeClient($key);
 		$settings_table = TableRegistry::getTableLocator()->get('Settings');
 		$webhook_setting = $settings_table->find()
-			->where(['name' => "payment.stripe_{$env}_webhook_signing"])
+			->where(['category' => 'payment', 'name' => "stripe_{$env}_webhook_signing"])
 			->first();
 		if ($webhook_setting) {
 			try {
@@ -88,7 +88,7 @@ class SettingsController extends AppController {
 
 		if (!$settings_table->save($settings_table->newEntity([
 			'category' => 'payment',
-			'name' => "payment.stripe_{$env}_webhook_signing",
+			'name' => "stripe_{$env}_webhook_signing",
 			'value' => $webhook->secret,
 		]))) {
 			$this->Flash->error(__('Failed to save the webhook signing key.', $env));

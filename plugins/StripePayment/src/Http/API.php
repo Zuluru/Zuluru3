@@ -114,11 +114,11 @@ class API extends \App\Http\API {
 	}
 
 	/**
-	 * @param \Stripe\PaymentIntent $intent
+	 * @param string $intent
 	 * @return \Stripe\PaymentIntent
 	 * @throws \Stripe\Exception\ApiErrorException
 	 */
-	public function paymentIntentsRetrieve(\Stripe\PaymentIntent $intent) {
+	public function paymentIntentsRetrieve($intent) {
 		return $this->client()->paymentIntents->retrieve($intent);
 	}
 
