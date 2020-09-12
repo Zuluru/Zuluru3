@@ -40,12 +40,33 @@ $options['options'] = [
 		PROFILE_DISABLED => __('Disabled entirely'),
 	],
 
+	'ages' => [
+		'Youth' => __('Youth only'),
+		'Adult' => __('Adult only'),
+		'Both' => __('Both youth and adult'),
+	],
+
+	'modes' => [
+		'Leagues' => __('Leagues only'),
+		'Tournaments' => __('Tournaments/competitions only'),
+		'Both' => __('Both leagues and tournaments/competitions'),
+	],
+
+	'genders' => [
+		'Single' => __('Single-gender only, both women\'s and men\'s'),
+		'Women' => __('Women\'s only'),
+		'Men' => __('Men\'s only'),
+		'Co-ed' => __('At least some co-ed where gender ratios are enforced'),
+		'Open' => __('Anyone can play without restriction'),
+	],
+
 	'gender' => [
 		'Woman' => __x('gender', 'Woman'),
 		'Man' => __x('gender', 'Man'),
 		'Trans' => __x('gender', 'Trans'),
 		'Agender' => __x('gender', 'Agender'),
 		'Non-Binary' => __x('gender', 'Non-Binary'),
+		'Two Spirit' => __x('gender', 'Two Spirit'),
 		'Questioning' => __x('gender', 'Questioning'),
 		'Self-defined' => __x('gender', 'Self-defined'),
 		'Prefer not to say' => __x('gender', 'Prefer not to say'),
@@ -57,6 +78,15 @@ $options['options'] = [
 	'roster_designation' => [
 		'Woman' => __x('gender', 'Woman'),
 		'Open' => __x('gender', 'Open'),
+	],
+
+	'pronouns' => [
+		'He, Him, His' => __x('gender', 'He, Him, His'),
+		'She, Her, Hers' => __x('gender', 'She, Her, Hers'),
+		'They, Them, Theirs' => __x('gender', 'They, Them, Theirs'),
+		'Xe, Xem, Xyr' => __x('gender', 'Xe, Xem, Xyr'),
+		'Ze/Zie, Hir, Hirs' => __x('gender', 'Ze/Zie, Hir, Hirs'),
+		'Self-defined' => __x('gender', 'Self-defined'),
 	],
 
 	'shirt_size' => [

@@ -120,6 +120,45 @@ echo $this->element('Settings/input', [
 	</fieldset>
 
 	<fieldset>
+		<legend><?= __('Offerings') ?></legend>
+<?php
+echo $this->element('Settings/input', [
+	'category' => 'offerings',
+	'name' => 'modes',
+	'options' => [
+		'label' => __('Modes'),
+		'type' => 'select',
+		'options' => Configure::read('options.modes'),
+		'empty' => $empty,
+		'help' => __('What modes of competition do you offer?'),
+	],
+]);
+echo $this->element('Settings/input', [
+	'category' => 'offerings',
+	'name' => 'ages',
+	'options' => [
+		'label' => __('Ages'),
+		'type' => 'select',
+		'options' => Configure::read('options.ages'),
+		'empty' => $empty,
+		'help' => __('What age groups do you serve?'),
+	],
+]);
+echo $this->element('Settings/input', [
+	'category' => 'offerings',
+	'name' => 'genders',
+	'options' => [
+		'label' => __('Genders'),
+		'type' => 'select',
+		'options' => Configure::read('options.genders'),
+		'empty' => $empty,
+		'help' => __('What gender options do you offer?'),
+	],
+]);
+?>
+	</fieldset>
+
+	<fieldset>
 		<legend><?= __('Location and Mapping') ?></legend>
 <?php
 echo $this->element('Settings/input', [

@@ -225,6 +225,13 @@ if (in_array('gender_display', $visible_properties)):
 <?php
 endif;
 
+if (in_array('pronoun_display', $visible_properties)):
+?>
+		<dt><?= __('Pronouns') ?></dt>
+		<dd><?= __($person->pronoun_display) ?>&nbsp;</dd>
+<?php
+endif;
+
 if (in_array('height', $visible_properties) && !empty($person->height)):
 ?>
 		<dt><?= __('Height') ?></dt>

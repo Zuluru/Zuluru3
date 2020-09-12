@@ -370,10 +370,20 @@ class PeopleTable extends AppTable {
 
 		$validator
 			->requirePresence('roster_designation', function ($context) {
-				return !empty($context['data']['gender']) && !in_array($context['data']['gender'], Configure::read('options.gender_binary'));
+				return Configure::read('offerings.genders') !== 'Open';
 			}, __('You must select a roster designation.'))
 			->notEmpty('roster_designation', __('You must select a roster designation.'), function ($context) {
 				return !empty($context['data']['gender']) && !in_array($context['data']['gender'], Configure::read('options.gender_binary'));
+			});
+
+		$validator
+			->requirePresence('pronouns', 'create', __('You must select your preferred pronouns.'))
+			->notEmpty('pronouns', __('You must select your preferred pronouns.'));
+
+		$validator
+			->requirePresence('personal_pronouns', 'create', __('You must select your preferred pronouns.'))
+			->notEmpty('personal_pronouns', __('You must select your preferred pronouns.'), function ($context) {
+				return $context['data']['pronouns'] == 'Self-defined';
 			});
 
 		if (Configure::read('profile.height')) {
@@ -495,12 +505,17 @@ class PeopleTable extends AppTable {
 
 		$rules->add(new InConfigRule(['key' => 'options.gender', 'optional' => true]), 'validGender', [
 			'errorField' => 'gender',
-			'message' => __('You must select a gender.'),
+			'message' => __('You must select a gender identification.'),
 		]);
 
 		$rules->add(new InConfigRule(['key' => 'options.roster_designation', 'optional' => true]), 'validRosterDesignation', [
 			'errorField' => 'roster_designation',
-			'message' => __('You must select a gender.'),
+			'message' => __('You must select a roster designation.'),
+		]);
+
+		$rules->add(new InConfigRule(['key' => 'options.pronouns', 'optional' => true]), 'validPronouns', [
+			'errorField' => 'pronouns',
+			'message' => __('You must select your preferred pronouns.'),
 		]);
 
 		$rules->add(new InDateConfigRule('born'), 'validBirthdate', [
@@ -772,9 +787,9 @@ class PeopleTable extends AppTable {
 			$entity->complete = true;
 		}
 
-		if ($entity->gender == 'Woman' && $entity->roster_designation != 'Woman') {
+		if ($entity->gender == 'Woman' && empty($entity->roster_designation)) {
 			$entity->roster_designation = 'Woman';
-		} else if ($entity->gender == 'Man' && $entity->roster_designation != 'Open') {
+		} else if ($entity->gender == 'Man' && empty($entity->roster_designation)) {
 			$entity->roster_designation = 'Open';
 		}
 	}

@@ -31,6 +31,8 @@ use Cake\Routing\Router;
  * @property string $gender
  * @property string $gender_description
  * @property string $roster_designation
+ * @property string $pronouns
+ * @property string $personal_pronouns
  * @property \Cake\I18n\FrozenTime $birthdate
  * @property int $height
  * @property string $shirt_size
@@ -88,6 +90,7 @@ use Cake\Routing\Router;
  * @property string $email_formatted
  * @property string $alternate_email_formatted
  * @property string $gender_display
+ * @property string $pronoun_display
  */
 class Person extends Entity {
 
@@ -133,6 +136,9 @@ class Person extends Entity {
 		'gender_display',
 		'gender_description',
 		'roster_designation',
+		'pronouns',
+		'personal_pronouns',
+		'pronoun_display',
 		'birthdate',
 		'height',
 		'shirt_size',
@@ -178,7 +184,7 @@ class Person extends Entity {
 	// Make sure the virtual fields are included when we convert to arrays
 	protected $_virtual = [
 		'user_name', 'password', 'last_login', 'client_ip', 'email',
-		'full_name', 'alternate_full_name', 'gender_display',
+		'full_name', 'alternate_full_name', 'gender_display', 'pronoun_display',
 	];
 
 	protected function _getUser($default = null) {
@@ -290,6 +296,19 @@ class Person extends Entity {
 		}
 		if (!in_array($this->gender, Configure::read('options.gender_binary'))) {
 			$display .= __(' ({0}: {1})', __('Roster Designation', __($this->roster_designation)));
+		}
+
+		return $display;
+	}
+
+	protected function _getPronounDisplay() {
+		if (empty($this->pronouns)) {
+			return '';
+		}
+
+		$display = __($this->pronouns);
+		if ($this->pronouns == 'Self-defined') {
+			$display .= __(' ({0})', h($this->personal_pronouns));
 		}
 
 		return $display;

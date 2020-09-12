@@ -253,10 +253,15 @@ class EventPolicy extends AppPolicy {
 				$paid = $event->count($this->_person->roster_designation);
 			}
 
-			if ($cap == 0) {
+			if ($event->open_cap == 0 && in_array($event->women_cap, [0, CAP_COMBINED])) {
+				return [[
+					'text' => __('This event is not accepting registrations at this time.'),
+					'class' => 'error-message',
+				]];
+			} else if ($cap == 0) {
 				// 0 means that nobody of this gender is allowed.
 				return [[
-					'text' => __('This event is for the opposite gender only.'),
+					'text' => $this->_person->roster_designation == 'Open' ? __('This event is only for participants with a Womxn Roster Designation.') : __('This event is only for participants with an Open Roster Designation.'),
 					'class' => 'error-message',
 				]];
 			} else if ($cap > 0 && !$resource->waiting) {

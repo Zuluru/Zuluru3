@@ -57,6 +57,15 @@ echo $this->element('Settings/input', [
 ]);
 echo $this->element('Settings/input', [
 	'category' => 'profile',
+	'name' => 'pronouns',
+	'options' => [
+		'label' => __('Pronouns'),
+		'type' => 'radio',
+		'options' => Configure::read('options.access_required'),
+	],
+]);
+echo $this->element('Settings/input', [
+	'category' => 'profile',
 	'name' => 'addr_street',
 	'options' => [
 		'label' => __('Street Address'),

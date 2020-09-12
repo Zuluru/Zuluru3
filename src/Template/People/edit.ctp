@@ -482,7 +482,7 @@ if (Configure::read('profile.gender') || Configure::read('profile.birthdate') ||
 	<fieldset class="player">
 		<legend><?= __('Your Player Profile') ?></legend>
 <?php
-	echo $this->element('People/gender_inputs', ['prefix' => '', 'secure' => false, 'edit' => $access, 'gender' => $person->gender]);
+	echo $this->element('People/gender_inputs', ['prefix' => '', 'secure' => false, 'edit' => $access, 'person' => $person]);
 
 	if (in_array(Configure::read('profile.birthdate'), $access)) {
 		if (Configure::read('feature.birth_year_only')) {
