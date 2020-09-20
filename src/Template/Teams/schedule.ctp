@@ -155,17 +155,21 @@ if (!empty($team['games'])):
 				$counts = collection($game->attendances)->countBy(function ($attendance) use ($column) {
 					return $attendance->person->$column;
 				})->toArray();
-				if ($team->division->ratio_rule != 'womens') {
-					$counts += [Configure::read('gender.man') => 0];
+				if (Configure::read('offerings.genders') === 'Open') {
+					echo array_sum($counts);
+				} else {
+					if ($team->division->ratio_rule != 'womens') {
+						$counts += [Configure::read('gender.man') => 0];
+					}
+					if ($team->division->ratio_rule != 'mens') {
+						$counts += [Configure::read('gender.woman') => 0];
+					}
+					krsort($counts);
+					$counts = collection($counts)->map(function ($count, $gender) {
+						return $count . substr(__x('gender', $gender), 0, 1);
+					})->toArray();
+					echo implode(' / ', $counts);
 				}
-				if ($team->division->ratio_rule != 'mens') {
-					$counts += [Configure::read('gender.woman') => 0];
-				}
-				krsort($counts);
-				$counts = collection($counts)->map(function ($count, $gender) {
-					return $count . substr(__x('gender', $gender), 0, 1);
-				})->toArray();
-				echo implode(' / ', $counts);
 			}
 			?></td>
 <?php

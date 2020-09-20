@@ -294,7 +294,7 @@ class Person extends Entity {
 		if ($this->gender == 'Self-defined') {
 			$display .= __(' ({0})', h($this->gender_description));
 		}
-		if (!in_array($this->gender, Configure::read('options.gender_binary'))) {
+		if (Configure::read('offerings.genders') !== 'Open' && !in_array($this->gender, Configure::read('options.gender_binary'))) {
 			$display .= __(' ({0}: {1})', __('Roster Designation', __($this->roster_designation)));
 		}
 

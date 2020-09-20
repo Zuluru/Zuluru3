@@ -319,7 +319,7 @@ if (!empty($team->people) && $this->Authorize->can('view_roster', \App\Controlle
 		++$cols;
 	endif;
 
-	$display_gender = $this->Authorize->can('display_gender', $context);
+	$display_gender = $this->Authorize->can('display_gender', $context) && Configure::read('offerings.genders') !== 'Open';
 	if ($display_gender):
 		$column = Configure::read('gender.column');
 ?>

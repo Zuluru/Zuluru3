@@ -8,7 +8,7 @@ $this->Html->addCrumb(__('Attendance'));
 $this->Html->addCrumb($team->name);
 $this->Html->addCrumb($this->Time->date($game->game_slot->game_date));
 
-$display_gender = $this->Authorize->can('display_gender', new ContextResource($team, ['division' => $game->division]));
+$display_gender = $this->Authorize->can('display_gender', new ContextResource($team, ['division' => $game->division])) && Configure::read('offerings.genders') !== 'Open';
 ?>
 
 <div class="games attendance">
