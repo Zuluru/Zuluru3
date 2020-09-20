@@ -39,9 +39,9 @@ if (!function_exists('quick_hidden')) {
 
 // JavaScript for no address bar
 $this->Html->scriptBlock('
-function open_payment_window() {
-	window.open("", "payment_window", "menubar=1,toolbar=1,scrollbars=1,resizable=1,status=1,location=0");
-	var a = window.setTimeout("document.payment_form.submit();", 500);
+function open_payment_window_chase() {
+	window.open("", "payment_window_chase", "menubar=1,toolbar=1,scrollbars=1,resizable=1,status=1,location=0");
+	var a = window.setTimeout("document.chase_form.submit();", 500);
 }
 ', ['block' => true, 'buffer' => true]);
 
@@ -63,12 +63,12 @@ if ($is_test) {
 	$server = 'checkout';
 }
 
-$form_options = ['url' => "https://$server.e-xact.com/payment", 'name' => 'payment_form'];
+$form_options = ['url' => "https://$server.e-xact.com/payment", 'name' => 'chase_form'];
 $submit_options = ['div' => false];
 
 if (Configure::read('payment.popup')) {
-	$form_options['target'] = 'payment_window';
-	$submit_options['onClick'] = 'open_payment_window();';
+	$form_options['target'] = 'payment_window_chase';
+	$submit_options['onClick'] = 'open_payment_window_chase();';
 }
 
 echo $this->Form->create(false, $form_options);

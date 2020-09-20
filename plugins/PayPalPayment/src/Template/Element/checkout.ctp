@@ -13,9 +13,9 @@ use Cake\Routing\Router;
 
 // JavaScript for no address bar
 $this->Html->scriptBlock('
-function open_payment_window() {
-	window.open("", "payment_window", "menubar=1,toolbar=1,scrollbars=1,resizable=1,status=1,location=0");
-	var a = window.setTimeout("document.payment_form.submit();", 500);
+function open_payment_window_paypal() {
+	window.open("", "payment_window_paypal", "menubar=1,toolbar=1,scrollbars=1,resizable=1,status=1,location=0");
+	var a = window.setTimeout("document.paypal_form.submit();", 500);
 }
 ', ['block' => true, 'buffer' => true]);
 
@@ -93,11 +93,11 @@ if (is_array($response)) {
 		$paypal_url = 'https://www.paypal.com/';
 	}
 	$url = "{$paypal_url}webscr?cmd=_express-checkout&token=" . urlencode($response['TOKEN']);
-	$form_options = ['url' => $url, 'name' => 'payment_form', 'escape' => false];
+	$form_options = ['url' => $url, 'name' => 'paypal_form', 'escape' => false];
 	$submit_options = ['div' => false, 'alt' => 'Pay'];
 	if (Configure::read('payment.popup')) {
-		$form_options['target'] = 'payment_window';
-		$submit_options['onClick'] = 'open_payment_window();';
+		$form_options['target'] = 'payment_window_paypal';
+		$submit_options['onClick'] = 'open_payment_window_paypal();';
 	}
 	echo $this->Form->create(false, $form_options);
 	echo $this->Form->submit('https://www.paypal.com/en_US/i/btn/btn_xpressCheckout.gif', $submit_options);

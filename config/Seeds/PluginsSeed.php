@@ -13,7 +13,6 @@ class PluginsSeed extends AbstractSeed {
 	public function data() {
 		return [
 			[
-				'id' => 1,
 				'name' => 'PayPal',
 				'load_name' => 'PayPalPayment',
 				'path' => 'plugins/PayPalPayment',
@@ -21,7 +20,6 @@ class PluginsSeed extends AbstractSeed {
 				'enabled' => false,
 			],
 			[
-				'id' => 2,
 				'name' => 'Chase Paymentech',
 				'load_name' => 'ChasePayment',
 				'path' => 'plugins/ChasePayment',
@@ -29,7 +27,6 @@ class PluginsSeed extends AbstractSeed {
 				'enabled' => false,
 			],
 			[
-				'id' => 3,
 				'name' => 'Stripe',
 				'load_name' => 'StripePayment',
 				'path' => 'plugins/StripePayment',
@@ -37,7 +34,13 @@ class PluginsSeed extends AbstractSeed {
 				'enabled' => false,
 			],
 			[
-				'id' => 4,
+				'name' => 'Bambora',
+				'load_name' => 'BamboraPayment',
+				'path' => 'plugins/BamboraPayment',
+				'advertise' => true,
+				'enabled' => false,
+			],
+			[
 				'name' => 'Javelin',
 				'load_name' => 'Javelin',
 				'path' => 'plugins/Javelin',

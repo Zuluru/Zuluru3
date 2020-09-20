@@ -58,6 +58,7 @@
         "psr-4": {
             "App\\": "src",
             "Javelin\\": "./plugins/Javelin/src",
+            "BamboraPayment\\": "./plugins/BamboraPayment/src",
             "ChasePayment\\": "./plugins/ChasePayment/src",
             "PayPalPayment\\": "./plugins/PayPalPayment/src",
             "StripePayment\\": "./plugins/StripePayment/src"

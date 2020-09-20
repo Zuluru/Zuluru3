@@ -71,7 +71,7 @@ try {
 		$this->Html->script('https://js.stripe.com/v3/', ['block' => true]);
 		$this->Html->scriptBlock("
 var stripe = Stripe('$login');
-function open_payment_window() {
+function open_payment_window_stripe() {
 	stripe.redirectToCheckout({
 		sessionId: '$session->id'
 	}).then(function (result) {
@@ -83,8 +83,8 @@ function open_payment_window() {
 		<div id="payment-request-button"></div>
 		<?php
 		// Build the online payment form
-		$form_options = ['url' => '#', 'name' => 'payment_form', 'escape' => false];
-		$submit_options = ['div' => false, 'alt' => 'Pay', 'onClick' => 'open_payment_window();'];
+		$form_options = ['url' => '#', 'name' => 'stripe_form', 'escape' => false];
+		$submit_options = ['div' => false, 'alt' => 'Pay', 'onClick' => 'open_payment_window_stripe();'];
 		echo $this->Form->create(false, $form_options);
 		echo $this->Form->submit(__n('Pay', 'Pay with Stripe', $number_of_providers), $submit_options);
 		echo $this->Form->end();
