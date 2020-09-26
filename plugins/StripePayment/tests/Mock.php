@@ -32,7 +32,7 @@ abstract class Mock {
 			->will($test->returnValue(json_decode(json_encode([
 				'status' => 'succeeded',
 				'created' => FrozenTime::now()->getTimestamp(),
-				'amount' => 7,
+				'amount' => 799,
 				'charges' => [
 					'data' => [
 						[

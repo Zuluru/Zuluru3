@@ -72,7 +72,7 @@ class API extends \App\Http\API {
 					'response_code' => '0',
 					'transaction_id' => '0',
 					'transaction_name' => $charge->payment_method_details->card->funding,
-					'charge_total' => $payment->amount,
+					'charge_total' => $payment->amount / 100,
 					'cardholder' => $charge->billing_details->name,
 					'expiry' => sprintf('%02d %04d', $charge->payment_method_details->card->exp_month, $charge->payment_method_details->card->exp_year),
 					'f4l4' => '***' . $charge->payment_method_details->card->last4,

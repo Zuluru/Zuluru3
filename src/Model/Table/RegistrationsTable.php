@@ -73,6 +73,7 @@ class RegistrationsTable extends AppTable {
 		$this->hasMany('Payments', [
 			'foreignKey' => 'registration_id',
 			'dependent' => true,
+			'sort' => 'created',
 		]);
 		$this->hasMany('Responses', [
 			'foreignKey' => 'registration_id',

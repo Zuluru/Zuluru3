@@ -90,12 +90,14 @@ class PaymentControllerTest extends ControllerTestCase {
 		$this->assertPostAnonymousAccessOk(['plugin' => 'StripePayment', 'controller' => 'Payment', 'action' => 'index'], $payload);
 
 		$registration = TableRegistry::getTableLocator()->get('Registrations')->get(REGISTRATION_ID_CAPTAIN_MEMBERSHIP, [
-			'contain' => ['Payments']
+			'contain' => ['Payments' => ['RegistrationAudits']]
 		]);
 		$this->assertResponseContains('Your Transaction has been Approved');
 		$this->assertResponseNotContains('Your payment was declined');
 		$this->assertEquals('Paid', $registration->payment);
 		$this->assertEquals(3, count($registration->payments));
+		$this->assertEquals(1, count($registration->payments[2]->registration_audit));
+		$this->assertEquals(7.99, $registration->payments[2]->registration_audit->charge_total);
 	}
 
 }
