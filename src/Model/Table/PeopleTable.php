@@ -788,7 +788,7 @@ class PeopleTable extends AppTable {
 		}
 
 		if ($entity->gender == 'Woman' && empty($entity->roster_designation)) {
-			$entity->roster_designation = 'Woman';
+			$entity->roster_designation = 'Womxn';
 		} else if ($entity->gender == 'Man' && empty($entity->roster_designation)) {
 			$entity->roster_designation = 'Open';
 		}

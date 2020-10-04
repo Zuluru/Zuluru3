@@ -3925,11 +3925,11 @@ msgid "The open cap cannot be less than -1."
 msgstr "El tapa macho no puede ser inferior a -1."
 
 #: Model/Table/EventsTable.php:154;155;156
-msgid "You must enter a number for the women cap."
+msgid "You must enter a number for the womxn cap."
 msgstr "Debe introducir un número para la tapa de la hembra."
 
 #: Model/Table/EventsTable.php:159
-msgid "The women cap cannot be less than -2."
+msgid "The womxn cap cannot be less than -2."
 msgstr "El tapa hembra no puede ser inferior a -2."
 
 #: Model/Table/EventsTable.php:162
@@ -4488,7 +4488,7 @@ msgid "You must select a valid play."
 msgstr "Debe seleccionar un juego válido."
 
 #: Model/Table/ScoreEntriesTable.php:119;192
-msgid "You must enter the number of women designated players."
+msgid "You must enter the number of womxn designated players."
 msgstr ""
 
 #: Model/Table/ScoreEntriesTable.php:164
@@ -7776,7 +7776,7 @@ msgid "Incident for entry above:"
 msgstr "Incidente de entrada anterior:"
 
 #: Template/Divisions/spirit.ctp:357
-msgid "Team Designated Women Summary"
+msgid "Team Designated Womxn Summary"
 msgstr ""
 
 #: Template/Divisions/spirit.ctp:398
@@ -10232,11 +10232,11 @@ msgid "{0}'s mailing lists are unlike traditional mailing lists, in that members
 msgstr "{0}'s listas de correo son a diferencia de las listas de distribución tradicionales, en los que la pertenencia es dinámica. Cada vez que se envía un boletín de noticias, la regla para su inclusión en la lista de correo se vuelve a evaluar y una nueva lista de personas a enviar se genera a. Cuando la creación de reglas de la lista de correo que implican fechas, a continuación, por lo general es preferible utilizar las fechas relativas en lugar de absolutas. Por ejemplo:"
 
 #: Template/Element/Help/rules/mailing_lists.ctp:15
-msgid "will find all women who are Masters age this year, but this would need to be updated annually. If you instead use:"
+msgid "will find all womxn who are Masters age this year, but this would need to be updated annually. If you instead use:"
 msgstr "encontrará a todas las mujeres que tienen Maestría de edad este año, pero esto debería actualizarse anualmente. Si, en su lugar, usa:"
 
 #: Template/Element/Help/rules/mailing_lists.ctp:20
-msgid "this will always find all women who are Masters age in whatever year the newsletter is being sent. This allows you to set up the mailing list once and re-use it for years without modification."
+msgid "this will always find all womxn who are Masters age in whatever year the newsletter is being sent. This allows you to set up the mailing list once and re-use it for years without modification."
 msgstr "esto siempre encontrará a todas las mujeres que tienen más edad en cualquier año en que se envíe el boletín. Esto le permite configurar la lista de correo una vez y volver a usarla durante años sin modificaciones."
 
 #: Template/Element/Help/rules/mailing_lists.ctp:21
@@ -10302,7 +10302,7 @@ msgid "Example:"
 msgstr "Ejemplo:"
 
 #: Template/Element/Help/rules/rules/and.ctp:15
-msgid "will return <em>true</em> for women born on or before Dec 31, {0} (i.e. is a Masters age player in {1}), <em>false</em> otherwise."
+msgid "will return <em>true</em> for womxn born on or before Dec 31, {0} (i.e. is a Masters age player in {1}), <em>false</em> otherwise."
 msgstr "devolverá <em>true</em> para mujeres nacidas en o antes del 31 dic, {0} (es decir, es un jugador maestros en {1}), <em>false</em> lo contrario."
 
 #: Template/Element/Help/rules/rules/and.ctp:20
@@ -10484,7 +10484,7 @@ msgid "The {0} rule accepts a comma-separated list of two or more other rules, r
 msgstr "El {0} regla acepta una lista separada por comas de otros dos o más reglas, regresando <em>true</em> si al menos uno de ellos es verdadero, <em>false</em> lo contrario."
 
 #: Template/Element/Help/rules/rules/or.ctp:21
-msgid "will return <em>true</em> for women born on or before Dec 31, {0}, or men born on or before Dec 31, {1} (i.e. is a gender-specific Masters age player in {2}), <em>false</em> otherwise."
+msgid "will return <em>true</em> for womxn born on or before Dec 31, {0}, or men born on or before Dec 31, {1} (i.e. is a gender-specific Masters age player in {2}), <em>false</em> otherwise."
 msgstr "devolverá <em>true</em> Para mujeres nacidas el 31 de diciembre o antes, {0}, o hombres nacidos el 31 de diciembre o antes de esa fecha, {1} (es decir, es un género específico maestro jugador en {2}), <em>falso</em> de lo contrario."
 
 #: Template/Element/Help/rules/rules/registered.ctp:2
@@ -11712,7 +11712,7 @@ msgid "new gender"
 msgstr "nuevo género"
 
 #: Template/Element/People/gender_inputs.ctp:58
-msgid "Our league recognizes the gender inequities in sport and is working towards making ultimate more equitable for woman players. As such, we are implementing a minimum requirement of women on your team's roster. Do you wish to fill one of the designated women's spots on your team?"
+msgid "Our league recognizes the gender inequities in sport and is working towards making ultimate more equitable for woman players. As such, we are implementing a minimum requirement of women on your team's roster. Do you wish to fill one of the designated womxn's spots on your team?"
 msgstr ""
 
 #: Template/Element/People/ical_links.ctp:10
@@ -13556,7 +13556,7 @@ msgid "Open Cap"
 msgstr "Tapa abierto"
 
 #: Template/Events/view.ctp:117
-msgid "Women Cap"
+msgid "Womxn cap"
 msgstr "Tapa Mujer"
 
 #: Template/Events/view.ctp:123
@@ -14383,15 +14383,15 @@ msgstr "Espíritu Asignado"
 #: Template/Games/edit.ctp:298
 #: Template/Games/submit_score.ctp:136
 #: Template/Games/view.ctp:330
-msgid "How many women designated players did you have at this game?"
+msgid "How many womxn designated players did you have at this game?"
 msgstr ""
 
 #: Template/Games/edit.ctp:346
-msgid "Home Team Women Designated Players"
+msgid "Home Team Womxn Designated Players"
 msgstr ""
 
 #: Template/Games/edit.ctp:353
-msgid "Away Team Women Designated Players"
+msgid "Away Team Womxn Designated Players"
 msgstr ""
 
 #: Template/Games/edit.ctp:383;431
@@ -18076,7 +18076,7 @@ msgid "Enable or disable carbon flip, an environmentally-friendly option to repl
 msgstr "Activar o desactivar tirón de carbono, una opción ecológica para reemplazar la moneda antes del juego tradicional voltea."
 
 #: Template/Settings/scoring.ctp:172
-msgid "Ask about the number of women designated players as part of game scoring"
+msgid "Ask about the number of womxn designated players as part of game scoring"
 msgstr ""
 
 #: Template/Settings/scoring.ctp:175
@@ -18096,7 +18096,7 @@ msgid "Team Features"
 msgstr "Características del equipo"
 
 #: Template/Settings/team.ctp:21
-msgid "Require Man and Woman Captains"
+msgid "Require Man and Womxn Captains"
 msgstr ""
 
 #: Template/Settings/team.ctp:24
@@ -18886,7 +18886,7 @@ msgid "If an individual has not replied promptly to your request to join, we sug
 msgstr "Si un individuo no ha respondido con rapidez a su solicitud para unirse, le sugerimos que se ponga en contacto con ellos para recordarles que deben responder."
 
 #: Template/Teams/view.ctp:526
-msgid "Notice: All teams are required to have a minimum of 1 open and 1 woman Captain (or Coach, where applicable) on their team roster. This does not include 'Assistant' Captains, of which there is no minimum requirement. Your team roster is not considered valid until this corrected. To change a player's 'role' please click on the role next to the player's name (e.g. Regular Player) and change to 'Captain' or 'Coach'."
+msgid "Notice: All teams are required to have a minimum of 1 Open and 1 Womxn Captain (or Coach, where applicable) on their team roster. This does not include 'Assistant' Captains, of which there is no minimum requirement. Your team roster is not considered valid until this corrected. To change a player's 'role' please click on the role next to the player's name (e.g. Regular Player) and change to 'Captain' or 'Coach'."
 msgstr ""
 
 #: Template/Teams/ajax/tooltip.ctp:46
@@ -20258,23 +20258,23 @@ msgid "Public"
 msgstr ""
 
 #: /config/options.php:52
-msgid "Womens XSmall"
+msgid "Womxns XSmall"
 msgstr ""
 
 #: /config/options.php:53
-msgid "Womens Small"
+msgid "Womxns Small"
 msgstr ""
 
 #: /config/options.php:54
-msgid "Womens Medium"
+msgid "Womxns Medium"
 msgstr ""
 
 #: /config/options.php:55
-msgid "Womens Large"
+msgid "Womxns Large"
 msgstr ""
 
 #: /config/options.php:56
-msgid "Womens XLarge"
+msgid "Womxns XLarge"
 msgstr ""
 
 #: /config/options.php:57
@@ -20585,5 +20585,5 @@ msgstr ""
 
 #: /views/elements/divisions/details.ctp:75
 #: /views/events/view.ctp:99
-msgid "Womens"
+msgid "Womxns"
 msgstr ""

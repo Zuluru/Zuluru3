@@ -1,0 +1,1 @@
+<?= __('We recognize that gender identity is not binary, but initiatives to promote on-field equity currently rely on that distinction. As such, we ask that you indicate whether you will fill a womxn\'s spot on team rosters. If not, then select \'open\' here.');

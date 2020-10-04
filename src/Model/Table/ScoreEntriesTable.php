@@ -97,7 +97,7 @@ class ScoreEntriesTable extends AppTable {
 				return Configure::read('scoring.carbon_flip') && array_key_exists('score_for', $context['data']);
 			}, __('You must select a valid carbon flip result.'))
 
-			->range('women_present', [0, 25], __('You must enter the number of women designated players.'))
+			->range('women_present', [0, 25], __('You must enter the number of womxn designated players.'))
 			->requirePresence('women_present', function ($context) {
 				if (!Configure::read('scoring.women_present') ||
 					empty($context['data']['game_id']) ||
@@ -116,7 +116,7 @@ class ScoreEntriesTable extends AppTable {
 					'contain' => ['Divisions' => ['Leagues']]
 				]);
 				return $game->division->women_present;
-			}, __('You must enter the number of women designated players.'))
+			}, __('You must enter the number of womxn designated players.'))
 			->allowEmpty('women_present')
 
 			;
@@ -187,7 +187,7 @@ class ScoreEntriesTable extends AppTable {
 				return ($entity->women_present !== null);
 			}, 'validWomenPresent', [
 				'errorField' => 'women_present',
-				'message' => __('You must enter the number of women designated players.'),
+				'message' => __('You must enter the number of womxn designated players.'),
 			]);
 		}
 

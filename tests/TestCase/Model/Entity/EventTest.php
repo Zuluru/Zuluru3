@@ -101,12 +101,12 @@ class EventTest extends TestCase {
 	 * @return void
 	 */
 	public function testCount() {
-		$this->assertEquals(3, $this->Event1->count('Woman'));
+		$this->assertEquals(3, $this->Event1->count('Womxn'));
 		$this->assertEquals(1, $this->Event1->count('Open'));
-		$this->assertEquals(3, $this->Event1->count('Woman', ['People.addr_city' => 'Toronto']));
-		$this->assertEquals(0, $this->Event1->count('Woman', ['People.addr_city' => 'Ottawa']));
-		$this->assertEquals(3, $this->Event1->count('Woman', [], ['Paid', 'Unpaid']));
-		$this->assertEquals(2, $this->Event1->count('Woman', [], ['Unpaid']));
+		$this->assertEquals(3, $this->Event1->count('Womxn', ['People.addr_city' => 'Toronto']));
+		$this->assertEquals(0, $this->Event1->count('Womxn', ['People.addr_city' => 'Ottawa']));
+		$this->assertEquals(3, $this->Event1->count('Womxn', [], ['Paid', 'Unpaid']));
+		$this->assertEquals(2, $this->Event1->count('Womxn', [], ['Unpaid']));
 	}
 
 	/**
@@ -116,11 +116,11 @@ class EventTest extends TestCase {
 	 */
 	public function testCap() {
 		$this->assertEquals(-1, $this->Event1->cap('Open'));
-		$this->assertEquals(-1, $this->Event1->cap('Woman'));
+		$this->assertEquals(-1, $this->Event1->cap('Womxn'));
 		$this->assertEquals(2, $this->Event2->cap('Open'));
-		$this->assertEquals(2, $this->Event2->cap('Woman'));
+		$this->assertEquals(2, $this->Event2->cap('Womxn'));
 		$this->assertEquals(1, $this->Event3->cap('Open'));
-		$this->assertEquals(1, $this->Event3->cap('Woman'));
+		$this->assertEquals(1, $this->Event3->cap('Womxn'));
 	}
 
 	/**

@@ -29,7 +29,7 @@ $sports['sports'] = [
 		],
 
 		'ratio_rule' => [
-			'womens' => __('Womens'),
+			'womens' => __('Womxns'),
 			'mens' => __('Mens'),
 			'co-ed' => __('Co-ed'),
 		],
@@ -89,7 +89,7 @@ $sports['sports'] = [
 		],
 
 		'ratio_rule' => [
-			'womens' => __('Womens'),
+			'womens' => __('Womxns'),
 			'mens' => __('Mens'),
 			'co-ed' => __('Co-ed'),
 		],
@@ -145,7 +145,7 @@ $sports['sports'] = [
 		],
 
 		'ratio_rule' => [
-			'womens' => __('Womens'),
+			'womens' => __('Womxns'),
 			'mens' => __('Mens'),
 			'co-ed' => __('Co-ed'),
 		],
@@ -236,7 +236,7 @@ $sports['sports'] = [
 		],
 
 		'ratio_rule' => [
-			'6 (min 2 women)' => __('6 (min 2 women)'),
+			'6 (min 2 women)' => __('6 (min 2 womxn)'),
 		],
 
 		'roster_requirements' => [
@@ -278,13 +278,13 @@ $sports['sports'] = [
 		'ratio_rule' => [
 			'3/3' => __('3/3'),
 			'4/2' => __('4/2'),
-			'womens 6s' => __('Womens sixes'),
+			'womens 6s' => __('Womxns sixes'),
 			'mens 6s' => __('Mens sixes'),
 			'co-ed 6s' => __('Co-ed sixes'),
-			'womens 11s' => __('Womens elevens'),
+			'womens 11s' => __('Womxns elevens'),
 			'mens 11s' => __('Mens elevens'),
 			'co-ed 11s' => __('Co-ed elevens'),
-			'womens 12s' => __('Womens twelves'),
+			'womens 12s' => __('Womxns twelves'),
 			'mens 12s' => __('Mens twelves'),
 			'co-ed 12s' => __('Co-ed twelves'),
 		],
@@ -364,7 +364,7 @@ $sports['sports'] = [
 		],
 
 		'ratio_rule' => [
-			'womens' => __('Womens'),
+			'womens' => __('Womxns'),
 			'mens' => __('Mens'),
 			'co-ed' => __('Co-ed'),
 		],
@@ -415,13 +415,13 @@ $sports['sports'] = [
 		],
 
 		'ratio_rule' => [
-			'womens' => __('Womens'),
+			'womens' => __('Womxns'),
 			'mens' => __('Mens'),
 			'co-ed' => __('Co-ed'),
-			'womens 7s' => __('Womens sevens'),
+			'womens 7s' => __('Womxns sevens'),
 			'mens 7s' => __('Mens sevens'),
 			'co-ed 7s' => __('Co-ed sevens'),
-			'womens 10s' => __('Womens tens'),
+			'womens 10s' => __('Womxns tens'),
 			'mens 10s' => __('Mens tens'),
 			'co-ed 10s' => __('Co-ed tens'),
 		],
@@ -489,16 +489,16 @@ $sports['sports'] = [
 		],
 
 		'ratio_rule' => [
-			'womens' => __('Womens'),
+			'womens' => __('Womxns'),
 			'mens' => __('Mens'),
 			'co-ed' => __('Co-ed'),
-			'womens 9s' => __('Womens nines'),
+			'womens 9s' => __('Womxns nines'),
 			'mens 9s' => __('Mens nines'),
 			'co-ed 9s' => __('Co-ed nines'),
-			'womens 7s' => __('Womens sevens'),
+			'womens 7s' => __('Womxns sevens'),
 			'mens 7s' => __('Mens sevens'),
 			'co-ed 7s' => __('Co-ed sevens'),
-			'womens 5s' => __('Womens fives'),
+			'womens 5s' => __('Womxns fives'),
 			'mens 5s' => __('Mens fives'),
 			'co-ed 5s' => __('Co-ed fives'),
 		],
@@ -576,33 +576,33 @@ $sports['sports'] = [
 			__('Sevens') => [
 				'4/3' => '4/3',
 				'5/2' => '5/2',
-				'womens' => __('Womens'),
+				'womens' => __('Womxns'),
 				'mens' => __('Mens'),
 				'open' => __('Open'),
 			],
 			__('Sixes') => [
 				'3/3' => '3/3',
 				'4/2' => '4/2',
-				'womens 6s' => __('Womens'),
+				'womens 6s' => __('Womxns'),
 				'mens 6s' => __('Mens'),
 				'open 6s' => __('Open'),
-				'6 (min 2 women)' => __('6 (min 2 women)'),
+				'6 (min 2 women)' => __('6 (min 2 womxn)'),
 			],
 			__('Fives') => [
 				'3/2' => '3/2',
-				'womens 5s' => __('Womens'),
+				'womens 5s' => __('Womxns'),
 				'mens 5s' => __('Mens'),
 				'open 5s' => __('Open'),
 			],
 			__('Fours') => [
 				'2/2' => '2/2',
-				'womens 4s' => __('Womens'),
+				'womens 4s' => __('Womxns'),
 				'mens 4s' => __('Mens'),
 				'open 4s' => __('Open'),
 			],
 			__('Threes') => [
 				'2/1' => '2/1',
-				'womens 3s' => __('Womens'),
+				'womens 3s' => __('Womxns'),
 				'mens 3s' => __('Mens'),
 				'open 3s' => __('Open'),
 			],
@@ -774,7 +774,7 @@ $sports['sports'] = [
 			'4/2' => __('4/2'),
 			'3/2' => __('3/2'),
 			'2/2' => __('2/2'),
-			'womens' => __('Womens'),
+			'womens' => __('Womxns'),
 			'mens' => __('Mens'),
 			'open' => __('Open'),
 		],

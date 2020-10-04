@@ -348,7 +348,7 @@ if (!empty($team->people) && $this->Authorize->can('view_roster', \App\Controlle
 				<tbody>
 <?php
 	$roster_count = $skill_count = $skill_total = 0;
-	$captains = ['Open' => 0, 'Woman' => 0];
+	$captains = ['Open' => 0, 'Womxn' => 0];
 	if ($team->division_id) {
 		$roster_required = Configure::read("sports.{$team->division->league->sport}.roster_requirements.{$team->division->ratio_rule}");
 	} else {
@@ -518,11 +518,11 @@ if (!empty($team->people) && $this->Authorize->can('view_roster', \App\Controlle
 	if ($team->division_id && ($team->division->is_open || ($team->division->open && $team->division->open->isFuture())) &&
 		$this->Authorize->can('roster_role', $context) &&
 		Configure::read('feature.female_captain') &&
-		($captains['Open'] == 0 || $captains['Woman'] == 0) &&
+		($captains['Open'] == 0 || $captains['Womxn'] == 0) &&
 		!in_array($team->division->ratio_rule, ['mens', 'womens'])
 	):
 ?>
-	<p class="warning-message"><?= __('Notice: All teams are required to have a minimum of 1 open and 1 woman Captain (or Coach, where applicable) on their team roster. This does not include \'Assistant\' Captains, of which there is no minimum requirement. Your team roster is not considered valid until this corrected. To change a player\'s \'role\' please click on the role next to the player\'s name (e.g. Regular Player) and change to \'Captain\' or \'Coach\'.') ?></p>
+	<p class="warning-message"><?= __('Notice: All teams are required to have a minimum of 1 Open and 1 Womxn Captain (or Coach, where applicable) on their team roster. This does not include \'Assistant\' Captains, of which there is no minimum requirement. Your team roster is not considered valid until this corrected. To change a player\'s \'role\' please click on the role next to the player\'s name (e.g. Regular Player) and change to \'Captain\' or \'Coach\'.') ?></p>
 <?php
 	endif;
 ?>

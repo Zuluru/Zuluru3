@@ -70,7 +70,7 @@ if (Configure::read('offerings.genders') !== 'Open' &&
 			'options' => Configure::read('options.roster_designation'),
 			'empty' => '---',
 			'secure' => false,
-			'help' => __('We recognize that gender identity is not binary, but co-ed sports don\'t always provide ideal spectrum matchups for everyone. As such, we ask that you indicate whether you will typically choose to match up against a female-identifying opponent or male-identifying.'),
+			'help' => $this->element('People/gender_equity_statement'),
 		])
 	);
 }

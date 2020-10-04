@@ -114,7 +114,7 @@ else:
 	endif;
 	if ($event->women_cap > 0):
 ?>
-		<dt><?= __('Women Cap') ?></dt>
+		<dt><?= __('Womxn cap') ?></dt>
 		<dd><?= $event->women_cap ?></dd>
 <?php
 	endif;

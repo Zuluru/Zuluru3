@@ -131,7 +131,7 @@ endif;
 if ($game->division->women_present):
 ?>
 				<tr class="normal">
-					<td><?= __('How many women designated players did you have at this game?') ?></td>
+					<td><?= __('How many womxn designated players did you have at this game?') ?></td>
 					<td><?php
 						echo $this->Form->input('score_entries.0.women_present', [
 							'div' => false,

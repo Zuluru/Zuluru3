@@ -22,7 +22,7 @@ echo $this->element('Settings/input', [
 	'category' => 'feature',
 	'name' => 'female_captain',
 	'options' => [
-		'label' => __('Require Man and Woman Captains'),
+		'label' => __('Require Man and Womxn Captains'),
 		'type' => 'radio',
 		'options' => Configure::read('options.enable'),
 		'help' => __('Enable or disable the requirement for co-ed teams to have both a man and a woman captain (or coach, where applicable).'),

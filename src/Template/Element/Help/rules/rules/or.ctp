@@ -18,4 +18,4 @@ $year = FrozenTime::now()->year;
         COMPARE(ATTRIBUTE('birthdate') &lt;= '<?= $year - 33 ?>-12-31')
     )
 )</pre>
-<p><?= __('will return <em>true</em> for women born on or before Dec 31, {0}, or men born on or before Dec 31, {1} (i.e. is a gender-specific Masters age player in {2}), <em>false</em> otherwise.', $year - 30, $year - 33, $year) ?></p>
+<p><?= __('will return <em>true</em> for womxn born on or before Dec 31, {0}, or men born on or before Dec 31, {1} (i.e. is a gender-specific Masters age player in {2}), <em>false</em> otherwise.', $year - 30, $year - 33, $year) ?></p>

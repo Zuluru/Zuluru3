@@ -173,7 +173,7 @@ endif;
 		'category' => 'scoring',
 		'name' => 'women_present',
 		'options' => [
-			'label' => __('Ask about the number of women designated players as part of game scoring'),
+			'label' => __('Ask about the number of womxn designated players as part of game scoring'),
 			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
 			'help' => __('This will only apply to divisions where the ratio rule permits variation.'),

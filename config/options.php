@@ -53,8 +53,8 @@ $options['options'] = [
 	],
 
 	'genders' => [
-		'Single' => __('Single-gender only, both women\'s and men\'s'),
-		'Women' => __('Women\'s only'),
+		'Single' => __('Single-gender only, both womxn\'s and men\'s'),
+		'Women' => __('Womxn\'s only'),
 		'Men' => __('Men\'s only'),
 		'Co-ed' => __('At least some co-ed where gender ratios are enforced'),
 		'Open' => __('Anyone can play without restriction'),
@@ -76,7 +76,7 @@ $options['options'] = [
 	'gender_binary' => ['Woman', 'Man'],
 
 	'roster_designation' => [
-		'Woman' => __x('gender', 'Woman'),
+		'Womxn' => __x('gender', 'Womxn'),
 		'Open' => __x('gender', 'Open'),
 	],
 
@@ -90,11 +90,11 @@ $options['options'] = [
 	],
 
 	'shirt_size' => [
-		'Womens XSmall' => __('Womens XSmall'),
-		'Womens Small' => __('Womens Small'),
-		'Womens Medium' => __('Womens Medium'),
-		'Womens Large' => __('Womens Large'),
-		'Womens XLarge' => __('Womens XLarge'),
+		'Womxns XSmall' => __('Womxns XSmall'),
+		'Womxns Small' => __('Womxns Small'),
+		'Womxns Medium' => __('Womxns Medium'),
+		'Womxns Large' => __('Womxns Large'),
+		'Womxns XLarge' => __('Womxns XLarge'),
 		'Mens Small' => __('Mens Small'),
 		'Mens Medium' => __('Mens Medium'),
 		'Mens Large' => __('Mens Large'),
