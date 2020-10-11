@@ -24,7 +24,7 @@ if (!Configure::read('feature.auto_approve')) {
 	);
 	?></span>
 </div>
-<p><?= __('Note that email and phone publish settings below only apply to regular people. Coaches and captains will always have access to view the phone numbers and email addresses of their confirmed players. All team coaches and captains will also have their email address viewable by other players.') ?></p>
+<p><?= __('Note that email and phone publish settings below apply to most registered users on the site. Coaches and captains will always have access to view the phone numbers and email addresses of their confirmed players. All team coaches and captains will also have their email address viewable by other players. People using the site without being logged in will never see any contact information.') ?></p>
 <?php
 if (Configure::read('App.urls.privacyPolicy')):
 ?>
@@ -113,7 +113,7 @@ if (Configure::read('profile.home_phone')) {
 		'help' => __('Enter your home telephone number.'),
 	]);
 	echo $this->Form->input('person.publish_home_phone', [
-		'label' => __('Allow other people to view home number'),
+		'label' => __('Allow registered users to view home number'),
 	]);
 }
 if (Configure::read('profile.work_phone')) {
@@ -125,7 +125,7 @@ if (Configure::read('profile.work_phone')) {
 		'help' => __('Enter your work extension (optional).'),
 	]);
 	echo $this->Form->input('person.publish_work_phone', [
-		'label' => __('Allow other people to view work number'),
+		'label' => __('Allow registered users to view work number'),
 	]);
 }
 if (Configure::read('profile.mobile_phone')) {
@@ -133,7 +133,7 @@ if (Configure::read('profile.mobile_phone')) {
 		'help' => __('Enter your cell or pager number (optional).'),
 	]);
 	echo $this->Form->input('person.publish_mobile_phone', [
-		'label' => __('Allow other people to view mobile number'),
+		'label' => __('Allow registered users to view mobile number'),
 	]);
 }
 
@@ -165,7 +165,7 @@ if (array_key_exists(GROUP_PARENT, $groups)):
 			'secure' => false,
 		]);
 		echo $this->Form->input('person.publish_alternate_work_phone', [
-			'label' => __('Allow other people to view work number'),
+			'label' => __('Allow registered users to view work number'),
 			'secure' => false,
 		]);
 	}
@@ -176,7 +176,7 @@ if (array_key_exists(GROUP_PARENT, $groups)):
 			'secure' => false,
 		]);
 		echo $this->Form->input('person.publish_alternate_mobile_phone', [
-			'label' => __('Allow other people to view mobile number'),
+			'label' => __('Allow registered users to view mobile number'),
 			'secure' => false,
 		]);
 	}
@@ -227,13 +227,13 @@ echo $this->Form->input($email_field, [
 	'label' => __('Email'),
 ]);
 echo $this->Form->input('person.publish_email', [
-	'label' => __('Allow other people to view my email address'),
+	'label' => __('Allow registered users to view my email address'),
 ]);
 echo $this->Form->input('person.alternate_email', [
 	'help' => __('Optional second email address.'),
 ]);
 echo $this->Form->input('person.publish_alternate_email', [
-	'label' => __('Allow other people to view my alternate email address'),
+	'label' => __('Allow registered users to view my alternate email address'),
 ]);
 if (Configure::read('feature.gravatar')) {
 	if (Configure::read('feature.photos')) {
@@ -352,7 +352,7 @@ if (Configure::read('profile.height')) {
 	}
 	echo $this->Form->input('person.height', [
 		'size' => 6,
-		'help' => __('Please enter your height in {0}. This is used to help generate even teams for hat leagues.', $units),
+		'help' => __('Please enter your height in {0}. This is used to help build even teams from individual signups.', $units),
 		'secure' => false,
 	]);
 }
@@ -362,6 +362,7 @@ if (in_array(Configure::read('profile.shirt_size'), [PROFILE_USER_UPDATE, PROFIL
 		'type' => 'select',
 		'empty' => '---',
 		'options' => Configure::read('options.shirt_size'),
+		'help' => __('This information may be used by the league or your team captain to order shirts/jerseys.'),
 		'secure' => false,
 	]);
 }
@@ -384,6 +385,7 @@ if (array_key_exists(GROUP_COACH, $groups) && Configure::read('profile.shirt_siz
 			'type' => 'select',
 			'empty' => '---',
 			'options' => Configure::read('options.shirt_size'),
+			'help' => __('This information may be used by the league or your team captain to order shirts/jerseys.'),
 			'secure' => false,
 		]);
 	}
@@ -448,7 +450,7 @@ if (array_key_exists(GROUP_PARENT, $groups)):
 		}
 		echo $this->Form->input('person.relatives.0.height', [
 			'size' => 6,
-			'help' => __('Please enter your height in {0}. This is used to help generate even teams for hat leagues.', $units),
+			'help' => __('Please enter your height in {0}. This is used to help build even teams from individual signups.', $units),
 			'secure' => false,
 		]);
 	}
@@ -457,6 +459,7 @@ if (array_key_exists(GROUP_PARENT, $groups)):
 			'type' => 'select',
 			'empty' => '---',
 			'options' => Configure::read('options.shirt_size'),
+			'help' => __('This information may be used by the league or your team captain to order shirts/jerseys.'),
 			'secure' => false,
 		]);
 	}

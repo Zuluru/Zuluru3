@@ -43,7 +43,7 @@ echo $identity->isMe($person) ? __('Edit Your Profile') : $person->full_name ?><
 if ($person->user_id):
 ?>
 
-<p><?= __('Note that email and phone publish settings below only apply to regular people. Coaches and captains will always have access to view the phone numbers and email addresses of their confirmed players. All team coaches and captains will also have their email address viewable by other players.') ?></p>
+<p><?= __('Note that email and phone publish settings below apply to most registered users on the site. Coaches and captains will always have access to view the phone numbers and email addresses of their confirmed players. All team coaches and captains will also have their email address viewable by other players. People using the site without being logged in will never see any contact information.') ?></p>
 <?php
 	if (Configure::read('App.urls.privacyPolicy')):
 ?>
@@ -174,7 +174,7 @@ if ($person->user_id) {
 	}
 	if (Configure::read('profile.home_phone')) {
 		echo $this->Form->input('publish_home_phone', [
-			'label' => __('Allow other people to view home number'),
+			'label' => __('Allow registered users to view home number'),
 		]);
 	}
 	if (in_array(Configure::read('profile.work_phone'), $access)) {
@@ -199,7 +199,7 @@ if ($person->user_id) {
 	}
 	if (Configure::read('profile.work_phone')) {
 		echo $this->Form->input('publish_work_phone', [
-			'label' => __('Allow other people to view work number'),
+			'label' => __('Allow registered users to view work number'),
 		]);
 	}
 	if (in_array(Configure::read('profile.mobile_phone'), $access)) {
@@ -215,7 +215,7 @@ if ($person->user_id) {
 	}
 	if (Configure::read('profile.mobile_phone')) {
 		echo $this->Form->input('publish_mobile_phone', [
-			'label' => __('Allow other people to view mobile number'),
+			'label' => __('Allow registered users to view mobile number'),
 		]);
 	}
 }
@@ -251,7 +251,7 @@ if ($person->user_id):
 			'secure' => false,
 		]);
 		echo $this->Form->input('publish_alternate_work_phone', [
-			'label' => __('Allow other people to view work number'),
+			'label' => __('Allow registered users to view work number'),
 			'secure' => false,
 		]);
 	}
@@ -262,7 +262,7 @@ if ($person->user_id):
 			'secure' => false,
 		]);
 		echo $this->Form->input('publish_alternate_mobile_phone', [
-			'label' => __('Allow other people to view mobile number'),
+			'label' => __('Allow registered users to view mobile number'),
 			'secure' => false,
 		]);
 	}
@@ -343,13 +343,13 @@ if ($person->user_id):
 		),
 	]);
 	echo $this->Form->input('publish_email', [
-		'label' => __('Allow other people to view my email address'),
+		'label' => __('Allow registered users to view my email address'),
 	]);
 	echo $this->Form->input('alternate_email', [
 		'help' => __('Optional second email address.'),
 	]);
 	echo $this->Form->input('publish_alternate_email', [
-		'label' => __('Allow other people to view my alternate email address'),
+		'label' => __('Allow registered users to view my alternate email address'),
 	]);
 	if (Configure::read('feature.gravatar')) {
 		if (Configure::read('feature.photos')) {
@@ -532,7 +532,7 @@ if (Configure::read('profile.gender') || Configure::read('profile.birthdate') ||
 		}
 		echo $this->Form->input('height', [
 			'size' => 6,
-			'help' => __('Please enter your height in {0}. This is used to help generate even teams for hat leagues.', $units),
+			'help' => __('Please enter your height in {0}. This is used to help build even teams from individual signups.', $units),
 			'secure' => false,
 		]);
 	} else if (Configure::read('profile.height')) {
@@ -549,6 +549,7 @@ if (Configure::read('profile.gender') || Configure::read('profile.birthdate') ||
 			'type' => 'select',
 			'empty' => '---',
 			'options' => Configure::read('options.shirt_size'),
+			'help' => __('This information may be used by the league or your team captain to order shirts/jerseys.'),
 			'secure' => false,
 		]);
 	} else if (Configure::read('profile.shirt_size')) {
@@ -582,6 +583,7 @@ if (array_key_exists(GROUP_COACH, $groups) && $person->user_id && Configure::rea
 			'type' => 'select',
 			'empty' => '---',
 			'options' => Configure::read('options.shirt_size'),
+			'help' => __('This information may be used by the league or your team captain to order shirts/jerseys.'),
 			'secure' => false,
 		]);
 	} else if (Configure::read('profile.shirt_size')) {

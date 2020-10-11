@@ -58,7 +58,7 @@ if (Configure::read('profile.height')) {
 	}
 	echo $this->Form->input('height', [
 		'size' => 6,
-		'help' => __('Please enter your height in {0}. This is used to help generate even teams for hat leagues.', $units),
+		'help' => __('Please enter your height in {0}. This is used to help build even teams from individual signups.', $units),
 	]);
 }
 if (Configure::read('profile.shirt_size')) {
@@ -66,6 +66,7 @@ if (Configure::read('profile.shirt_size')) {
 		'type' => 'select',
 		'empty' => '---',
 		'options' => Configure::read('options.shirt_size'),
+		'help' => __('This information may be used by the league or your team captain to order shirts/jerseys.'),
 	]);
 }
 echo $this->element('People/skill_edit');
