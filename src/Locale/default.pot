@@ -3631,8 +3631,8 @@ msgid "Your payment was approved, but there was an error updating your payment s
 msgstr ""
 
 #: Controller/RegistrationsController.php:835
-#: Module/PaymentChase.php:113
-#: Module/PaymentChase.php:123
+#: plugins/Chase/src/Controller/PaymentController.php:113
+#: plugins/Chase/src/Controller/PaymentController.php:123
 msgid "Unable to extract payment information from the text provided."
 msgstr ""
 
@@ -13121,7 +13121,7 @@ msgstr ""
 msgid "Refund Policy"
 msgstr ""
 
-#: Template/Element/Payments/forms/chase.ctp:148
+#: plugins/Chase/src/Template/Element/checkout.ctp:148
 msgid "Pay"
 msgstr ""
 
@@ -18737,7 +18737,7 @@ msgid "Note that this will delete all of your preferences and you may lose the s
 msgstr ""
 
 #: Template/Registrations/checkout.ctp:114
-msgid "To pay online with {0}, click the \"{1}\" button below."
+msgid "To pay online with {0}, click the payment button below."
 msgstr ""
 
 #: Template/Registrations/checkout.ctp:127

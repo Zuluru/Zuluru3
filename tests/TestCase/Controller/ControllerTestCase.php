@@ -9,9 +9,12 @@ use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
 use Cake\Routing\Router;
-use Cake\TestSuite\IntegrationTestCase;
+use Cake\TestSuite\IntegrationTestTrait;
+use Cake\TestSuite\TestCase;
 
-class ControllerTestCase extends IntegrationTestCase {
+class ControllerTestCase extends TestCase {
+
+	use IntegrationTestTrait;
 
 	protected $_jsonOptions = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_PARTIAL_OUTPUT_ON_ERROR;
 
@@ -42,7 +45,7 @@ class ControllerTestCase extends IntegrationTestCase {
 		while (Router::popRequest()) {};
 
 		if (is_array($personId)) {
-			list ($personId, $actAs) = $personId;
+			[$personId, $actAs] = $personId;
 			$actAs = TableRegistry::get('People')->get($actAs);
 		} else {
 			$actAs = null;
@@ -537,7 +540,7 @@ class ControllerTestCase extends IntegrationTestCase {
 		$this->get($url);
 
 		$this->assertResponseCode(302);
-		$this->assertRedirectEquals(['controller' => 'Users', 'action' => 'login', 'redirect' => Router::url($url)]);
+		$this->assertRedirectEquals(['plugin' => false, 'controller' => 'Users', 'action' => 'login', 'redirect' => Router::url($url)]);
 		$this->assertEquals('You must login to access full site functionality.', $this->_requestSession->read('Flash.flash.0.message'));
 		$this->assertEquals('Flash/error', $this->_requestSession->read('Flash.flash.0.element'));
 	}
@@ -634,7 +637,7 @@ class ControllerTestCase extends IntegrationTestCase {
 		$this->post($url, $data);
 
 		$this->assertResponseCode(302);
-		$this->assertRedirectEquals(['controller' => 'Users', 'action' => 'login', 'redirect' => Router::url($url)]);
+		$this->assertRedirectEquals(['plugin' => false, 'controller' => 'Users', 'action' => 'login', 'redirect' => Router::url($url)]);
 		$this->assertEquals('You must login to access full site functionality.', $this->_requestSession->read('Flash.flash.0.message'));
 		$this->assertEquals('Flash/error', $this->_requestSession->read('Flash.flash.0.element'));
 	}

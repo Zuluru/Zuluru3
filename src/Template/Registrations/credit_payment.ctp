@@ -3,7 +3,6 @@
  * @type \App\Model\Entity\Registration $registration
  * @type \App\Model\Entity\Payment $payment
  * @type \App\Model\Entity\Payment $refund
- * @type \App\Module\Payment $payment_obj
  */
 
 use Cake\Core\Configure;

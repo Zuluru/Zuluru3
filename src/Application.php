@@ -113,10 +113,12 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 		$this->addPlugin('Bootstrap', ['bootstrap' => true]);
 		$this->addPlugin('Migrations');
 
-		foreach (TableRegistry::getTableLocator()->get('Settings')->find()->where(['category' => 'plugin']) as $plugin) {
-			if ($plugin->value) {
-				$this->addPlugin($plugin->name, ['bootstrap' => true, 'routes' => true]);
+		try {
+			foreach (TableRegistry::getTableLocator()->get('Plugins')->find()->where(['enabled' => true])->order('Plugins.name') as $plugin) {
+				$this->addPlugin($plugin->load_name, ['bootstrap' => true, 'routes' => true]);
 			}
+		} catch (\Exception $ex) {
+			// The plugins table may not exist, if the migration hasn't run.
 		}
 	}
 
@@ -371,7 +373,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 				Response $response,
 				callable $next
 			) {
-				$payment = ($request->getParam('controller') == 'Registrations' && $request->getParam('action') == 'payment');
+				$payment = ($request->getParam('controller') == 'Payment' && $request->getParam('action') == 'index');
 				if (!$payment && !$request->is('json')) {
 					$csrf = new CsrfProtectionMiddleware();
 

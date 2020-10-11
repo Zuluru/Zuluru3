@@ -668,6 +668,8 @@ class AppController extends Controller {
 		}
 
 		if ($identity && $identity->isAdmin()) {
+			$this->_addMenuItem(__('Plugins'), ['plugin' => false, 'controller' => 'Plugins', 'action' => 'index'], __('Configuration'));
+
 			if (Configure::read('feature.affiliates')) {
 				$this->_addMenuItem(__('Affiliates'), ['plugin' => false, 'controller' => 'Affiliates', 'action' => 'index'], __('Configuration'));
 			}

@@ -395,13 +395,6 @@ class SettingsFixture extends TestFixture {
 			[
 				'person_id' => null,
 				'category' => 'payment',
-				'name' => 'payment_implementation',
-				'value' => 'paypal',
-				'affiliate_id' => null,
-			],
-			[
-				'person_id' => null,
-				'category' => 'payment',
 				'name' => 'invoice_implementation',
 				'value' => 'invoice',
 				'affiliate_id' => null,
@@ -439,6 +432,29 @@ class SettingsFixture extends TestFixture {
 				'category' => 'payment',
 				'name' => 'tax2_name',
 				'value' => 'PST',
+				'affiliate_id' => null,
+			],
+
+			// Payment provider keys
+			[
+				'person_id' => null,
+				'category' => 'payment',
+				'name' => 'chase_test_store',
+				'value' => 'ABC-ABCDE-123',
+				'affiliate_id' => null,
+			],
+			[
+				'person_id' => null,
+				'category' => 'payment',
+				'name' => 'chase_test_response',
+				'value' => 'a1b2c3d4e5f6g7h8i9j0',
+				'affiliate_id' => null,
+			],
+			[
+				'person_id' => null,
+				'category' => 'payment',
+				'name' => 'bambora_test_hash_key',
+				'value' => '12345678-ABCD-EFGH-1234-12345678',
 				'affiliate_id' => null,
 			],
 

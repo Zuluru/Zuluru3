@@ -1,0 +1,4 @@
+plugin:
+    description: Adds support for the Javelin mobile app. Officially supported by Zuluru.
+    url: https://www.javelinsportsinc.com/
+    settings: true

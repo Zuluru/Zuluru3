@@ -73,6 +73,7 @@ class RegistrationsTable extends AppTable {
 		$this->hasMany('Payments', [
 			'foreignKey' => 'registration_id',
 			'dependent' => true,
+			'sort' => 'created',
 		]);
 		$this->hasMany('Responses', [
 			'foreignKey' => 'registration_id',
@@ -398,8 +399,8 @@ class RegistrationsTable extends AppTable {
 		}
 	}
 
-	public function refund(Event $event, Registration $registration, $data, $payment_obj = null) {
-		return $this->getConnection()->transactional(function () use ($event, $registration, $data, $payment_obj) {
+	public function refund(Event $event, Registration $registration, $data) {
+		return $this->getConnection()->transactional(function () use ($event, $registration, $data) {
 			if (empty($registration->payments)) {
 				$this->Flash('warning', __('This registration has no payments recorded. When receiving offline payments, be sure to use the "Add Payment" function, rather than just marking the registration as "Paid".'));
 				return false;
@@ -432,7 +433,7 @@ class RegistrationsTable extends AppTable {
 					'payment_amount' => $refund_amount,
 				]), ['validate' => 'refund', 'registration' => $registration]);
 
-				return $this->refundPayment($event, $registration, $payment, $refund, $data['mark_refunded'], $payment_obj, $credit_notes);
+				return $this->refundPayment($event, $registration, $payment, $refund, $data['mark_refunded'], $credit_notes);
 			}
 
 			// Go through all the payments, refunding them one at a time, until the requested amount has been covered
@@ -446,7 +447,7 @@ class RegistrationsTable extends AppTable {
 					'payment_amount' => $amount,
 				]), ['validate' => 'refund', 'registration' => $registration]);
 
-				if (!$this->refundPayment($event, $registration, $payment, $refund, $data['mark_refunded'], $payment_obj, $credit_notes)) {
+				if (!$this->refundPayment($event, $registration, $payment, $refund, $data['mark_refunded'], $credit_notes)) {
 					if ($payment->getErrors()) {
 						foreach ($payment->getErrors() as $errors) {
 							foreach ($errors as $error) {
@@ -478,7 +479,7 @@ class RegistrationsTable extends AppTable {
 		});
 	}
 
-	public function refundPayment(Event $event, Registration $registration, Payment $payment, Payment $refund, $mark_refunded, $payment_obj = null, $credit_notes = null) {
+	public function refundPayment(Event $event, Registration $registration, Payment $payment, Payment $refund, $mark_refunded, $credit_notes = null) {
 		// The form has a positive amount to be refunded, but the refund record has a negative amount.
 		$payment->refunded_amount = round($payment->refunded_amount - $refund->payment_amount, 2);
 		$registration->mark_refunded = $mark_refunded;
@@ -500,7 +501,7 @@ class RegistrationsTable extends AppTable {
 			$refund->setDirty('credits', true);
 		}
 
-		return $this->getConnection()->transactional(function () use ($event, $registration, $payment_obj, $payment, $refund) {
+		return $this->getConnection()->transactional(function () use ($event, $registration, $payment, $refund) {
 			// The registration is also passed as an option, so that the payment rules have easy access to it
 			if (!$this->save($registration, ['registration' => $registration, 'event' => $event])) {
 				$this->Flash('warning', __('The refund could not be saved. Please correct the errors below and try again.'));
@@ -512,12 +513,16 @@ class RegistrationsTable extends AppTable {
 				return false;
 			}
 
-			if ($refund->payment_type == 'Refund' && $payment_obj && $payment_obj->can_refund && $this->request->getData('online_refund') &&
+			/**
+			 * TODO: Handle refunds through the registered payment processor. Will need to remember which one processed it,
+			 * for sites that enable multiple processors.
+			if ($refund->payment_type == 'Refund' && $payment_obj->can_refund && $this->request->getData('online_refund') &&
 				!$payment_obj->refund($payment, $this->request->getData('payment_amount'))
 			) {
 				$this->Flash('error', __('Failed to issue refund through online processor. Refund data was NOT saved. You can try again, or uncheck the "Issue refund through online payment provider" box and issue the refund manually.'));
 				return false;
 			}
+			 */
 
 			AppController::_sendMail([
 				'to' => $registration->person,

@@ -1,11 +1,9 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
-use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\I18n\FrozenDate;
-use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 
@@ -75,7 +73,24 @@ class RegistrationsControllerTest extends ControllerTestCase {
 			'app.Waivers',
 				'app.WaiversPeople',
 		'app.I18n',
+		'app.Plugins',
 	];
+
+	/**
+	 * Set up mock API objects to avoid talking to various servers
+	 */
+	public function controllerSpy($event, $controller = null) {
+		parent::controllerSpy($event, $controller);
+
+		$globalListeners = Configure::read('App.globalListeners');
+
+		if (array_key_exists('PayPal', $globalListeners)) {
+			$globalListeners['PayPal']->api = \PayPalPayment\Test\Mock::setup($this);
+		}
+		if (array_key_exists('Stripe', $globalListeners)) {
+			$globalListeners['Stripe']->api = \StripePayment\Test\Mock::setup($this);
+		}
+	}
 
 	/**
 	 * Test full_list method
@@ -524,51 +539,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 */
 	public function testUnregisterAsAnonymous() {
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP]);
-	}
-
-	/**
-	 * Test payment method
-	 *
-	 * @return void
-	 */
-	public function testPaymentReceipt() {
-		// Payments come from third-party payment processors, and don't use CSRF or form security
-
-		// Default setting is PayPal, which sends parameters in the URL
-		$this->assertGetAnonymousAccessOk(['controller' => 'Registrations', 'action' => 'payment', 'token' => 'TESTING']);
-
-		// Also test Chase, which posts parameters
-		TableRegistry::get('Settings')->updateAll(['value' => 'chase'], ['name' => 'payment_implementation']);
-		Cache::clear(false, 'long_term');
-
-		$login = Configure::read('payment.chase_test_store');
-		$key = Configure::read('payment.chase_test_response');
-		$calculated_hash = md5("{$key}{$login}12345678907.00");
-
-		$this->assertPostAnonymousAccessOk(['controller' => 'Registrations', 'action' => 'payment'], [
-			'exact_ctr' => 'DATE/TIME: ' . FrozenTime::now()->format('d M y H:i:s'),
-			'Reference_No' => 'R00000000' . REGISTRATION_ID_CAPTAIN_MEMBERSHIP,
-			'Bank_Resp_Code' => '000',
-			'Bank_Message' => 'APPROVED',
-			'CardHoldersName' => 'Crystal Captain',
-			'Expiry_Date' => FrozenTime::now()->addYear()->format('MMyy'),
-			'Card_Number' => '############1234',
-			'TransactionCardType' => 'VISA',
-			'x_response_code' => 1,
-			'x_trans_id' => '1234567890',
-			'x_auth_code' => '12345A',
-			'x_amount' => '7.00',
-			'x_MD5_Hash' => $calculated_hash,
-			'x_description' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP,
-		]);
-
-		$registration = TableRegistry::get('Registrations')->get(REGISTRATION_ID_CAPTAIN_MEMBERSHIP, [
-			'contain' => ['Payments']
-		]);
-		$this->assertEquals('Paid', $registration->payment);
-		$this->assertEquals(3, count($registration->payments));
-
-		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**

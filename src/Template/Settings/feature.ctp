@@ -1,6 +1,5 @@
 <?php
 /**
- * @type string[] $plugin_elements
  * @type \App\Model\Entity\Affiliate $affiliate
  */
 
@@ -213,10 +212,6 @@ if (function_exists('curl_init')) {
 ?>
 	</fieldset>
 <?php
-foreach ($plugin_elements as $element) {
-	echo $this->element($element);
-}
-
 echo $this->Form->button(__('Submit'), ['class' => 'btn-success']);
 echo $this->Form->end();
 ?>

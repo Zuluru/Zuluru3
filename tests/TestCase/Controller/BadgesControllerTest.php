@@ -42,6 +42,7 @@ class BadgesControllerTest extends ControllerTestCase {
 				'app.BadgesPeople',
 			'app.Settings',
 		'app.I18n',
+		'app.Plugins',
 	];
 
 	/**

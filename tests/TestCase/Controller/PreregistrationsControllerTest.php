@@ -28,6 +28,7 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 				'app.Preregistrations',
 			'app.Settings',
 		'app.I18n',
+		'app.Plugins',
 	];
 
 	/**

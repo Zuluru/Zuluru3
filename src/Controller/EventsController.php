@@ -603,12 +603,6 @@ class EventsController extends AppController {
 					$registration_ids = $data['registrations'];
 					unset($data['registrations']);
 
-					if (Configure::read('registration.online_payments')) {
-						$payment_obj = $this->moduleRegistry->load('Payment:' . Configure::read('payment.payment_implementation'));
-					} else {
-						$payment_obj = null;
-					}
-
 					$registrations = $this->Events->Registrations->find()
 						->contain([
 							'People',
@@ -623,7 +617,7 @@ class EventsController extends AppController {
 
 					$failed = [];
 					foreach ($registrations as $registration) {
-						if (!$this->Events->Registrations->refund($event, $registration, $data, $payment_obj)) {
+						if (!$this->Events->Registrations->refund($event, $registration, $data)) {
 							$failed[$registration->id] = $registration->person->full_name;
 						}
 					}

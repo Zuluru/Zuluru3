@@ -1,0 +1,4 @@
+plugin:
+    description: Accept payments through Stripe. Officially supported by Zuluru.
+    url: https://stripe.com/
+    settings: true

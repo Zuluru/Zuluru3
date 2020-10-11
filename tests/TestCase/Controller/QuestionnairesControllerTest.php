@@ -34,6 +34,7 @@ class QuestionnairesControllerTest extends ControllerTestCase {
 						'app.Responses',
 			'app.Settings',
 		'app.I18n',
+		'app.Plugins',
 	];
 
 	/**

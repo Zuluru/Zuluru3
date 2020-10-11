@@ -1,0 +1,4 @@
+plugin:
+    description: Accept payments through Bambora. Officially supported by Zuluru.
+    url: https://www.bambora.com/
+    settings: true

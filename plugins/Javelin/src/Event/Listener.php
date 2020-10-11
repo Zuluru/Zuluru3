@@ -52,7 +52,6 @@ class Listener implements EventListenerInterface {
 			'Model.afterDeleteRollback' => 'afterRollback',
 
 			// Listeners for events that collect elements to be displayed
-			'Plugin.settings.team' => 'team_settings',
 			'Plugin.actions.team.links' => 'team_action_links',
 			'Plugin.preferences' => 'preferences',
 		];
@@ -819,25 +818,6 @@ class Listener implements EventListenerInterface {
 		Configure::delete('javelin.updated_schedules');
 		Configure::delete('javelin.deleted_games');
 		Configure::delete('javelin.updated_team_events');
-	}
-
-	public function team_settings(Event $event, \ArrayObject $elements) {
-		$elements[] = 'Javelin.team_settings';
-
-		if (!Configure::check('javelin.api_key')) {
-			$this->flash('html', __('You have enabled the {0} plugin but not yet registered your site. To complete this process, you must {1}.'), [
-				'params' => [
-					'replacements' => [
-						'Javelin',
-						[
-							'type' => 'link',
-							'link' => __('register your site with them'),
-							'target' => ['plugin' => 'Javelin', 'controller' => 'Register', 'action' => 'index'],
-						],
-					],
-				],
-			]);
-		}
 	}
 
 	public function team_action_links(Event $event, \ArrayObject $links, \ArrayObject $more, $authorize, $html, $team, $division) {

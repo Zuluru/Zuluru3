@@ -27,6 +27,7 @@ class AnswersControllerTest extends ControllerTestCase {
 				'app.Answers',
 			'app.Settings',
 		'app.I18n',
+		'app.Plugins',
 	];
 
 	/**

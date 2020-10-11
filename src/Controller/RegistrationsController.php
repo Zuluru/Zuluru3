@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Authorization\ContextResource;
+use App\Core\UserCache;
 use App\Model\Entity\Event;
 use App\Model\Entity\Registration;
 use Cake\Core\Configure;
@@ -21,28 +22,6 @@ use App\Module\EventType as EventTypeBase;
  * @property \App\Model\Table\RegistrationsTable $Registrations
  */
 class RegistrationsController extends AppController {
-
-	/**
-	 * _noAuthenticationActions method
-	 *
-	 * @return array of actions that can be taken even by visitors that are not logged in.
-	 */
-	protected function _noAuthenticationActions() {
-		if (!Configure::read('feature.registration')) {
-			return [];
-		}
-
-		// 'Payment' comes from the payment processor.
-		return ['payment'];
-	}
-
-	// TODO: Proper fix for black-holing of payment details posted to us from processors
-	public function beforeFilter(\Cake\Event\Event $event) {
-		parent::beforeFilter($event);
-		if (isset($this->Security)) {
-			$this->Security->config('unlockedActions', ['payment']);
-		}
-	}
 
 	/**
 	 * Full list method
@@ -706,13 +685,14 @@ class RegistrationsController extends AppController {
 		$this->Configuration->loadAffiliate($affiliate);
 		$person->credits = collection($person->credits)->match(['affiliate_id' => $affiliate])->toArray();
 
-		if (Configure::read('registration.online_payments')) {
-			$payment_obj = $this->moduleRegistry->load('Payment:' . Configure::read('payment.payment_implementation'));
-		}
+		$plugin_elements = new \ArrayObject();
+		$event = new \Cake\Event\Event('Plugin.checkout', $this, [$plugin_elements]);
+		$this->getEventManager()->dispatch($event);
 
 		// Forms will use $registrations[0], but that may have been unset above.
 		$registrations = array_values($registrations);
-		$this->set(compact('registrations', 'other', 'person', 'payment_obj'));
+		$this->set(compact('registrations', 'other', 'person', 'plugin_elements'));
+		$this->set(['is_test' => $this->isTest()]);
 	}
 
 	public function unregister() {
@@ -748,119 +728,6 @@ class RegistrationsController extends AppController {
 		} else {
 			return $this->redirect('/');
 		}
-	}
-
-	public function payment() {
-		return $this->_payment();
-	}
-
-	private function _payment($checkHash = true) {
-		if (Configure::read('payment.popup')) {
-			$this->viewBuilder()->layout('bare');
-		}
-		$payment_obj = $this->moduleRegistry->load('Payment:' . Configure::read('payment.payment_implementation'));
-		[$result, $audit, $registration_ids] = $payment_obj->process($this->request, $checkHash);
-		$errors = [];
-		if ($result) {
-
-			$registrations = $this->Registrations->find()
-				->contain([
-					'People',
-					'Events' => [
-						'EventTypes',
-						'Divisions' => ['Leagues'],
-					],
-					'Prices',
-					'Payments',
-					'Responses',
-				])
-				->where(['Registrations.id IN' => $registration_ids])
-				->toArray();
-			$this->Configuration->loadAffiliate($registrations[0]->event->affiliate_id);
-
-			// We need another copy of the registrations, to send to the invoice page,
-			// so that it will display registration state as it stood before the payment.
-			// TODO: Maybe change the invoice page instead?
-			$registrations_original = $this->Registrations->find()
-				->contain([
-					'People',
-					'Events' => [
-						'EventTypes',
-						'Divisions' => ['Leagues'],
-					],
-					'Prices',
-					'Payments',
-					'Responses',
-				])
-				->where(['Registrations.id IN' => $registration_ids])
-				->toArray();
-
-			$audit = $this->Registrations->Payments->RegistrationAudits->newEntity($audit);
-			if (!$this->Registrations->Payments->RegistrationAudits->save($audit)) {
-				$errors[] = __('There was an error updating the audit record in the database. Contact the office to ensure that your information is updated, quoting order #<b>{0}</b>, or you may not be allowed to be added to rosters, etc.', $audit->order_id);
-				$this->log($audit->errors());
-			}
-
-			foreach ($registrations as $key => $registration) {
-				[$cost, $tax1, $tax2] = $registration->paymentAmounts();
-				$registration->payments[] = $this->Registrations->Payments->newEntity([
-					'registration_audit_id' => $audit->id,
-					'payment_method' => 'Online',
-					'payment_amount' => $cost + $tax1 + $tax2,
-				], ['validate' => 'payment', 'registration' => $registration]);
-				$registration->setDirty('payments', true);
-
-				// The registration is also passed as an option, so that the payment rules have easy access to it
-				if (!$this->Registrations->save($registration, ['registration' => $registration, 'event' => $registration->event])) {
-					$errors[] = __('Your payment was approved, but there was an error updating your payment status in the database. Contact the office to ensure that your information is updated, quoting order #<b>{0}</b>, or you may not be allowed to be added to rosters, etc.', $audit->order_id);
-				}
-			}
-		} else {
-			$registrations_original = [];
-		}
-		$this->set(array_merge(compact('result', 'audit', 'errors'), ['registrations' => $registrations_original]));
-	}
-
-	public function payment_from_email() {
-		$this->Authorization->authorize($this);
-		if (!empty($this->request->getData())) {
-			$payment_obj = $this->moduleRegistry->load('Payment:' . Configure::read('payment.payment_implementation'));
-			$values = $payment_obj->parseEmail($this->request->getData('email_text'));
-			if (!$values) {
-				return;
-			}
-
-			[$result, $audit, $registration_ids] = $payment_obj->processData($values, false);
-			if (!$result) {
-				$this->Flash->warning(__('Unable to extract payment information from the text provided.'));
-				return;
-			}
-
-			// Check that the registrations aren't already marked as paid
-			$registrations = $this->Registrations->find()
-				->contain(['Payments' => ['RegistrationAudits']])
-				->where(['Registrations.id IN' => $registration_ids]);
-			if ($registrations->count() != count($registration_ids)) {
-				$this->Flash->warning(__('A registration in this email could not be loaded.'));
-				return;
-			}
-			if ($registrations->some(function (Registration $registration) {
-				if ($registration->payment == 'Paid') {
-					return !empty($registration->payments);
-				}
-			})) {
-				$this->Flash->warning(__('A registration in this email has already been marked as paid. All registrations must be unpaid before this can proceed.'));
-				return;
-			}
-
-			$this->set(['fields' => $values]);
-		}
-	}
-
-	public function payment_from_email_confirmation() {
-		$this->Authorization->authorize($this);
-		$this->viewBuilder()->template('payment');
-		return $this->_payment(false);
 	}
 
 	public function add_payment() {
@@ -973,22 +840,16 @@ class RegistrationsController extends AppController {
 		$this->Configuration->loadAffiliate($registration->event->affiliate_id);
 		$refund = $this->Registrations->Payments->newEntity();
 
-		if (Configure::read('registration.online_payments')) {
-			$payment_obj = $this->moduleRegistry->load('Payment:' . Configure::read('payment.payment_implementation'));
-		} else {
-			$payment_obj = null;
-		}
-
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			// The registration is also passed as an option, so that the payment marshaller has easy access to it
 			$refund = $this->Registrations->Payments->patchEntity($refund, $this->request->getData(), ['validate' => 'refund', 'registration' => $registration]);
-			if ($this->Registrations->refundPayment($registration->event, $registration, $payment, $refund, $this->request->getData('mark_refunded'), $payment_obj)) {
+			if ($this->Registrations->refundPayment($registration->event, $registration, $payment, $refund, $this->request->getData('mark_refunded'))) {
 				$this->Flash->success(__('The refund has been saved.'));
 				return $this->redirect(['action' => 'view', 'registration' => $registration->id]);
 			}
 		}
 
-		$this->set(compact('registration', 'payment', 'refund', 'payment_obj'));
+		$this->set(compact('registration', 'payment', 'refund'));
 	}
 
 	public function credit_payment() {
@@ -1023,7 +884,7 @@ class RegistrationsController extends AppController {
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			// The registration is also passed as an option, so that the payment marshaller has easy access to it
 			$refund = $this->Registrations->Payments->patchEntity($refund, $this->request->getData(), ['validate' => 'credit', 'registration' => $registration]);
-			if ($this->Registrations->refundPayment($registration->event, $registration, $payment, $refund, $this->request->getData('mark_refunded'), null, $this->request->getData('credit_notes'))) {
+			if ($this->Registrations->refundPayment($registration->event, $registration, $payment, $refund, $this->request->getData('mark_refunded'), $this->request->getData('credit_notes'))) {
 				$this->Flash->success(__('The credit has been saved.'));
 				$this->UserCache->clear('Credits', $registration->person_id);
 				return $this->redirect(['action' => 'view', 'registration' => $registration->id]);
@@ -1193,6 +1054,24 @@ class RegistrationsController extends AppController {
 		}
 
 		$this->set(compact('event'));
+	}
+
+	public static function isTest() {
+		$test_config = Configure::read('payment.test_payments');
+		switch ($test_config) {
+			case TEST_PAYMENTS_EVERYBODY:
+				return true;
+
+			case TEST_PAYMENTS_ADMINS:
+				// TODO: Better way to do this
+				$groups = UserCache::getInstance()->read('Groups');
+				return collection($groups)->some(function ($group) {
+					return in_array($group->id, [GROUP_ADMIN, GROUP_MANAGER]);
+				});
+
+			default:
+				return false;
+		}
 	}
 
 	private function _reindexResponses(Registration $registration, Event $event) {

@@ -1,6 +1,5 @@
 <?php
 /**
- * @type string[] $plugin_elements
  * @type \App\Model\Entity\Affiliate $affiliate
  */
 
@@ -23,31 +22,9 @@ echo $this->element('Settings/banner');
 ?>
 	<fieldset>
 		<legend><?= __('Common Options') ?></legend>
+		<p class="warning-message"><?= __('Note that selection and configuration of your payment provider has moved to the Plugins section of the Configuration menu') ?></p>
 <?php
 	if (!$affiliate) {
-		$options = Configure::read('options.payment_provider');
-		if (!function_exists('curl_init')) {
-			unset($options['paypal']);
-		}
-		echo $this->element('Settings/input', [
-			'category' => 'payment',
-			'name' => 'payment_implementation',
-			'options' => [
-				'label' => __('Payment Implementation'),
-				'type' => 'select',
-				'options' => $options,
-				'empty' => $empty,
-				'hide_single' => true,
-			],
-			'jquery' => [
-				'selector' => '#PaymentProviderFields',
-				'url' => ['action' => 'payment_provider_fields'],
-			],
-		]);
-
-		if (!function_exists('curl_init')) {
-			echo $this->Html->para('warning-message', __('PayPal integration requires the cUrl library, which your installation of PHP does not support. If you need PayPal support, talk to your system administrator or hosting company about enabling cUrl.'));
-		}
 		echo $this->element('Settings/input', [
 			'category' => 'payment',
 			'name' => 'options',
@@ -158,20 +135,6 @@ echo $this->element('Settings/banner');
 ?>
 	</fieldset>
 <?php
-if (!$affiliate):
-?>
-	<div id="PaymentProviderFields">
-<?php
-	echo $this->element('Payments/settings/' . Configure::read('payment.payment_implementation'));
-?>
-	</div>
-<?php
-endif;
-
-foreach ($plugin_elements as $element) {
-	echo $this->element($element);
-}
-
 echo $this->Form->button(__('Submit'), ['class' => 'btn-success']);
 echo $this->Form->end();
 ?>

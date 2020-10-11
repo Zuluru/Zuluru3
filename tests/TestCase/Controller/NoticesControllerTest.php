@@ -27,6 +27,7 @@ class NoticesControllerTest extends ControllerTestCase {
 				'app.NoticesPeople',
 			'app.Settings',
 		'app.I18n',
+		'app.Plugins',
 	];
 
 	/**
