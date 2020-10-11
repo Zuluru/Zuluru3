@@ -66,7 +66,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 
 		// This has to be loaded first, so it's known for getting any local configuration file
 		if (defined('DOMAIN_PLUGIN')) {
-			$this->addPlugin(DOMAIN_PLUGIN, ['bootstrap' => false, 'routes' => true]);
+			$this->addPlugin(DOMAIN_PLUGIN, ['bootstrap' => true, 'routes' => true]);
 		}
 
 		// Call parent to load bootstrap from files.
