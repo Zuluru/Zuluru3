@@ -97,9 +97,11 @@ if (!empty($registrations)):
 			'title' => __('Click for instructions'),
 			'escape' => false,
 		]);
-	endif;
 ?>
 		</div>
+<?php
+	endif;
+?>
 	</div>
 
 	<div class="clear-float">&nbsp;</div>
