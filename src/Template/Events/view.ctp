@@ -355,7 +355,7 @@ if (!empty($event->preregistrations) && $this->Authorize->can('add_preregistrati
 						<td><?= $this->element('People/block', ['person' => $preregistration->person]) ?></td>
 						<td class="actions"><?php
 							echo $this->Form->iconPostLink('delete_24.png',
-								['action' => 'delete', 'preregistration' => $preregistration->id],
+								['controller' => 'Preregistrations', 'action' => 'delete', 'preregistration' => $preregistration->id],
 								['alt' => __('Delete'), 'title' => __('Delete')],
 								['confirm' => __('Are you sure you want to delete this preregistration?')]);
 						?></td>

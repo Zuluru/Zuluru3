@@ -710,7 +710,7 @@ if (in_array('preregistrations', $visible_properties) || (!empty($person->prereg
 				<td><?= $this->Html->link($preregistration->event->translateField('name'), ['controller' => 'Events', 'action' => 'view', 'event' => $preregistration->event->id]) ?></td>
 				<td class="actions"><?php
 					echo $this->Form->iconPostLink('delete_24.png',
-						['action' => 'delete', 'preregistration' => $preregistration->id],
+						['controller' => 'Preregistrations', 'action' => 'delete', 'preregistration' => $preregistration->id],
 						['alt' => __('Delete'), 'title' => __('Delete')],
 						['confirm' => __('Are you sure you want to delete this preregistration?')])
 				?></td>
@@ -814,7 +814,7 @@ if (!empty($person->credits)):
 					<td class="actions"><?php
 						if ($this->Authorize->can('view', $credit)) {
 							echo $this->Html->iconLink('view_24.png',
-								['action' => 'view', 'credit' => $credit->id],
+								['controller' => 'Credits', 'action' => 'view', 'credit' => $credit->id],
 								['alt' => __('View'), 'title' => __('View')]);
 						}
 						if ($this->Authorize->can('edit', $credit)) {
