@@ -466,6 +466,8 @@ class GamesTable extends AppTable {
 							[$entity->away_team_id, $entity->away_team, $entity->home_team_id, $entity->home_team];
 						// No check to prevent dirtying here; it's already going to be dirty from the team swap.
 						$entity->division_id = $entity->away_team->division_id;
+					} else if ($entity->type == SEASON_GAME && $entity->home_team_id == null && $entity->away_team_id == null) {
+						// Regular season game that's got no teams assigned at all, don't need to change the division at all
 					} else {
 						return __('This game slot is not available to these teams.');
 					}
