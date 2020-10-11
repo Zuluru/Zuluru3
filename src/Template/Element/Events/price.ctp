@@ -77,7 +77,7 @@ if (Configure::read('registration.online_payments')) {
 		'values' => [
 			ONLINE_MINIMUM_DEPOSIT => ".minimum-deposit-$index",
 			ONLINE_SPECIFIC_DEPOSIT => ".specific-deposit-$index",
-			ONLINE_DEPOSIT_ONLY => ".specific-deposit-$index",
+			ONLINE_DEPOSIT_ONLY => ".deposit-only-$index",
 		],
 		'parent_selector' => '.form-group',
 	]);
@@ -90,6 +90,12 @@ if (Configure::read('registration.online_payments')) {
 	echo $this->Form->input("prices.$index.minimum_deposit", [
 		'label' => __('Deposit Amount'),
 		'class' => "specific-deposit-$index",
+		'default' => 0,
+		'secure' => false,
+	]);
+	echo $this->Form->input("prices.$index.minimum_deposit", [
+		'label' => __('Deposit Amount'),
+		'class' => "deposit-only-$index",
 		'default' => 0,
 		'secure' => false,
 	]);
