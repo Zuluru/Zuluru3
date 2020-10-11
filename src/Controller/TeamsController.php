@@ -835,7 +835,7 @@ class TeamsController extends AppController {
 				->where(['division_id' => $team->division_id])
 				->combine('id', 'name')
 				->toArray();
-			if (empty($teams)) {
+			if (empty($teams) || empty($team->people)) {
 				return ['stats' => [], 'calculated_stats' => []];
 			}
 
