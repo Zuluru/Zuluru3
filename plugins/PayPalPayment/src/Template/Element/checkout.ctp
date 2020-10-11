@@ -41,8 +41,8 @@ if (!empty($person->email)) {
 }
 
 $fields = [
-	'RETURNURL' => Router::url(['controller' => 'Registrations', 'action' => 'payment'], true),
-	'CANCELURL' => Router::url(['controller' => 'Registrations', 'action' => 'checkout'], true),
+	'RETURNURL' => Router::url(['plugin' => 'PayPalPayment', 'controller' => 'Payment', 'action' => 'index'], true),
+	'CANCELURL' => Router::url(['plugin' => 'PayPalPayment', 'controller' => 'Payment', 'action' => 'index'], true),
 	'SOLUTIONTYPE' => 'Sole',
 	'REQCONFIRMSHIPPING' => 0,
 	'NOSHIPPING' => 1,
