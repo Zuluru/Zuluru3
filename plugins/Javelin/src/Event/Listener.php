@@ -407,7 +407,7 @@ class Listener implements EventListenerInterface {
 
 		Configure::write('javelin.updated_schedules', $updated_teams);
 
-		if ($game->isDirty('published') && !$game->published) {
+		if (!$game->isNew() && $game->isDirty('published') && !$game->published) {
 			// Javelin wants at least one team id, doesn't need both
 			if ($game->home_team && $game->home_team->use_javelin) {
 				$team_id = $game->home_team_id;
