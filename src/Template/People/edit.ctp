@@ -1,4 +1,17 @@
 <?php
+/**
+ * @type $person \App\Model\Entity\Person
+ * @type $groups \App\Model\Entity\Group[]
+ * @type $provinces string[]
+ * @type $countries string[]
+ * @type $affiliates string[]
+ * @type $user_model string
+ * @type $id_field string
+ * @type $user_field string
+ * @type $email_field string
+ * @type $manage_users bool
+ */
+
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 
@@ -262,7 +275,7 @@ endif;
 
 	</fieldset>
 <?php
-if ($person->user_id):
+if ($person->user_id && $manage_users):
 ?>
 
 	<fieldset>
@@ -324,6 +337,10 @@ if ($person->user_id):
 <?php
 	echo $this->Form->input("$user_model.$email_field", [
 		'label' => __('Email'),
+		'disabled' => !$manage_users,
+		'help' => $manage_users ? null : __('This field is managed through your {0}.',
+			$this->Html->link(__('primary account'), Configure::read('App.urls.manage'))
+		),
 	]);
 	echo $this->Form->input('publish_email', [
 		'label' => __('Allow other people to view my email address'),

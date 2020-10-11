@@ -626,6 +626,7 @@ class PeopleController extends AppController {
 			'id_field' => $users_table->primaryKey(),
 			'user_field' => $users_table->userField,
 			'email_field' => $users_table->emailField,
+			'manage_users' => $users_table->manageUsers,
 			'_serialize' => true,
 		]);
 	}

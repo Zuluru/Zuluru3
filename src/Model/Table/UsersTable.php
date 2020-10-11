@@ -65,6 +65,11 @@ class UsersTable extends AppTable {
 	public $hashMethod = 'sha256';
 
 	/**
+	 * Do we even try to manage anything about user records?
+	 */
+	public $manageUsers = true;
+
+	/**
 	 * Initialize method
 	 *
 	 * @param array $config The configuration for the Table.
