@@ -250,6 +250,17 @@ $features['no_download_extensions'] = [
 	'bmp', 'gif', 'jpe', 'jpeg', 'jpg', 'png', 'tif', 'tiff',
 ];
 
+// Default demographic ranges per Ultimate Canada. Can be overridden on a per-sport basis if required.
+// The values are the lower end of each range. 0 is assumed to be the bottom of the first range, so
+// this will have buckets for 0-12, 13-17, etc.
+$features['demographic_ranges'] = [
+	13,
+	18,
+	30,
+	41,
+	55,
+];
+
 if (file_exists(ZULURU_CONFIG . 'features_custom.php')) {
 	include(ZULURU_CONFIG . 'features_custom.php');
 }

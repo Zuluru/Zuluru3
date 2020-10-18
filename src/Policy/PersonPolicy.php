@@ -31,6 +31,10 @@ class PersonPolicy extends AppPolicy {
 		return $identity->isManager();
 	}
 
+	public function canDemographics(IdentityInterface $identity, $controller) {
+		return $identity->isManager();
+	}
+
 	public function canParticipation(IdentityInterface $identity, $controller) {
 		return $identity->isManager();
 	}

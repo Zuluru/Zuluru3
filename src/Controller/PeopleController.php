@@ -277,6 +277,124 @@ class PeopleController extends AppController {
 		$this->set(compact('status_count', 'group_count', 'gender_count', 'roster_designation_count', 'age_count', 'started_count', 'skill_count', 'city_count'));
 	}
 
+	public function demographics() {
+		$this->Authorization->authorize($this);
+		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
+		$this->set(compact('affiliates'));
+
+		// Get the list of members by gender for each sport
+		$buckets = $demographics = [];
+		// TODO: Allow for pulling demographics from past years
+		$reportDate = new FrozenDate('Aug 31');
+		$end = $reportDate->addDay(); // Registrations have times, we'll find anything less than this to include the whole report date day.
+		$start = $end->subYear();
+
+		foreach (Configure::read('options.sport') as $sport) {
+			$buckets[$sport] = Configure::read("sports.$sport.demographic_ranges");
+			if (!$buckets[$sport]) {
+				$buckets[$sport] = Configure::read('demographic_ranges');
+			}
+
+			$query = $this->People->find();
+			$cases = [$query->newExpr()->isNull('birthdate')];
+			$names = ['Unknown'];
+			$types = ['string'];
+			$min = 0;
+			foreach ($buckets[$sport] as $key => $next) {
+				$max = $next - 1;
+				$cases[] = $query->newExpr()->gt('birthdate', $reportDate->subYears($next));
+				$names[] = "{$min}-{$max}";
+				$types[] = 'string';
+				$min = $next;
+			}
+			$cases[] = $query->newExpr()->lte('birthdate', $reportDate->subYears($next));
+			$names[] = "{$next}+";
+			$types[] = 'string';
+
+			// Determine who are members. Are there membership registrations?
+			$membershipEventList = TableRegistry::getTableLocator()->get('Events')->find()
+				->contain(['EventTypes'])
+				->where(['EventTypes.type' => 'membership'])
+				->order(['Events.open', 'Events.close', 'Events.id']);
+
+			// We are interested in memberships that covered this year
+			$eventNames = $membershipEventIds = $leagueNames = [];
+			foreach ($membershipEventList as $event) {
+				if ($event->membership_begins < $end && $event->membership_ends >= $start) {
+					$eventNames[$event->id] = $event->name;
+					$membershipEventIds[] = $event->id;
+				}
+			}
+
+			if (!empty($membershipEventIds)) {
+				$people = TableRegistry::getTableLocator()->get('Registrations')->find()
+					->select('person_id')
+					->where([
+						'Registrations.created <' => $end,
+						'Registrations.payment' => 'Paid',
+						'Registrations.event_id IN'  => $membershipEventIds,
+					]);
+			} else {
+				// If there are no memberships, we look at teams that played in this time
+				$conditions = [
+					'Divisions.schedule_type NOT IN' => ['tournament', 'none'],
+					'Divisions.open <' => $end,
+					'Divisions.close >=' => $start,
+				];
+
+				$leagueNames = TableRegistry::get('Divisions')->find()
+					->contain(['Leagues'])
+					->where($conditions)
+					->extract('league.full_name')
+					->toArray();
+
+				$divisions = TableRegistry::get('Divisions')->find()
+					->select('id')
+					->where($conditions);
+				$people = TableRegistry::get('TeamsPeople')->find()
+					->distinct('person_id')
+					->select('person_id')
+					->contain(['Teams'])
+					->where([
+						'Teams.division_id IN' => $divisions,
+						'TeamsPeople.role IN' => Configure::read('playing_roster_roles'),
+					]);
+			}
+
+			$demographics[$sport] = $query
+				->select([
+					'gender',
+					'bucket' => $query->newExpr()->addCase($cases, $names, $types),
+					'person_count' => $query->func()->count('People.id'),
+				])
+				->select($this->People->Affiliates)
+				->where(['People.id IN' => $people])
+				->matching('Affiliates', function (Query $q) use ($affiliates) {
+					return $q->where(['Affiliates.id IN' => $affiliates]);
+				})
+				->matching('Skills', function (Query $q) use ($sport) {
+					return $q->where(['Skills.enabled' => true, 'Skills.sport' => $sport]);
+				})
+				->matching('Groups', function (Query $q) {
+					return $q->where(['Groups.id' => GROUP_PLAYER]);
+				})
+				->group(['AffiliatesPeople.affiliate_id', 'People.gender', 'bucket'])
+				->order(['Affiliates.name', 'People.gender', 'bucket'])
+				->groupBy('_matchingData.Affiliates.id')
+				->map(function ($group) {
+					return collection($group)
+						->groupBy('bucket')
+						->map(function ($group) {
+							return collection($group)->indexBy('gender')->toArray();
+						})
+						->toArray();
+				})
+				->toArray();
+		}
+
+		$this->set(compact('demographics', 'start', 'reportDate', 'eventNames', 'leagueNames'));
+	}
+
 	public function participation() {
 		$this->Authorization->authorize($this);
 		$min = min(

@@ -319,7 +319,7 @@ class AppController extends Controller {
 		$url = \App\Lib\base64_url_decode($url);
 
 		if (strpos($url, '?') !== false) {
-			list($short_url, $querystr) = explode('?', $url);
+			[$short_url, $querystr] = explode('?', $url);
 			parse_str($querystr, $queryArgs);
 			if (array_key_exists('act_as', $queryArgs)) {
 				// Remove act_as from the list of arguments, to prevent people from going back to whoever
@@ -655,6 +655,9 @@ class AppController extends Controller {
 			$this->_addMenuItem(__('Inactive'), ['plugin' => false, 'controller' => 'People', 'action' => 'inactive_search'], [__('People'), __('Search')]);
 
 			$this->_addMenuItem(__('Statistics'), ['plugin' => false, 'controller' => 'People', 'action' => 'statistics'], __('People'));
+			if (Configure::read('profile.birthdate')) {
+				$this->_addMenuItem(__('Demographics'), ['plugin' => false, 'controller' => 'People', 'action' => 'demographics'], __('People'));
+			}
 			$this->_addMenuItem(__('Participation'), ['plugin' => false, 'controller' => 'People', 'action' => 'participation'], [__('People'), __('Statistics')]);
 			$this->_addMenuItem(__('Retention'), ['plugin' => false, 'controller' => 'People', 'action' => 'retention'], [__('People'), __('Statistics')]);
 
@@ -1153,7 +1156,7 @@ class AppController extends Controller {
 	}
 
 	protected function _handlePersonSearch(array $url_params = [], array $conditions = []) {
-		list($params, $url) = $this->_extractSearchParams($url_params);
+		[$params, $url] = $this->_extractSearchParams($url_params);
 
 		if (!empty($params)) {
 			$names = [];
