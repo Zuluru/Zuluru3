@@ -85,10 +85,6 @@ class AppController extends Controller {
 		// Footprint trait needs the _userModel set to whatever is being used for authentication
 		$this->_userModel = Configure::read('Security.authModel');
 
-		// Use the configured model for handling hashing of passwords, and configure
-		// the Auth field names using it
-		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . $this->_userModel);
-
 		// Set the default format for converting Time and Date objects to strings,
 		// so that it matches the SQL format that we use for comparing.
 		\Cake\I18n\FrozenTime::setToStringFormat('yyyy-MM-dd HH:mm:ss');
@@ -96,24 +92,27 @@ class AppController extends Controller {
 
 		$identity = $this->Authentication->getIdentity();
 		if ($identity) {
-			$user = $identity->getOriginalData();
-			$this->UserCache->clear('User', $user->person->id);
+			$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . $this->_userModel);
+			if ($users_table->manageUsers) {
+				$user = $identity->getOriginalData();
+				$this->UserCache->clear('User', $user->person->id);
 
-			$user->last_login = FrozenTime::now();
-			$this->request->trustProxy = true;
-			$user->client_ip = $this->request->clientIp();
+				$user->last_login = FrozenTime::now();
+				$this->request->trustProxy = true;
+				$user->client_ip = $this->request->clientIp();
 
-			$identifiers = $this->Authentication->getAuthenticationService()->identifiers();
-			foreach ($identifiers as $identifier) {
-				if (method_exists($identifier, 'needsPasswordRehash') && $identifier->needsPasswordRehash()) {
-					$user->password = $this->request->getData('password');
-					break;
+				$identifiers = $this->Authentication->getAuthenticationService()->identifiers();
+				foreach ($identifiers as $identifier) {
+					if (method_exists($identifier, 'needsPasswordRehash') && $identifier->needsPasswordRehash()) {
+						$user->password = $this->request->getData('password');
+						break;
+					}
 				}
-			}
 
-			// Nothing useful to do if this save fails; they still log in, we just don't get an update of the IP and time.
-			// We do NOT want to update the act-as profile's user_id with the real user's!
-			$users_table->save($user, ['checkRules' => false, 'associated' => false]);
+				// Nothing useful to do if this save fails; they still log in, we just don't get an update of the IP and time.
+				// We do NOT want to update the act-as profile's user_id with the real user's!
+				$users_table->save($user, ['checkRules' => false, 'associated' => false]);
+			}
 		}
 	}
 

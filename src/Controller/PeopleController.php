@@ -642,8 +642,14 @@ class PeopleController extends AppController {
 		$this->set('groups', $this->People->Groups->find('options', ['Groups.require_player' => true])->toArray());
 		$this->_loadAffiliateOptions();
 
+		$users_table = $this->loadModel(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'));
 		try {
-			$contain = ['Affiliates', 'Skills', 'Groups', Configure::read('Security.authModel')];
+			$contain = $associated = ['Affiliates', 'Skills', 'Groups'];
+			if ($users_table->manageUsers) {
+				$contain[] = Configure::read('Security.authModel');
+				$associated[] = Configure::read('Security.authModel');
+			}
+
 			if (Configure::read('feature.photos')) {
 				$contain['Uploads'] = [
 					'queryBuilder' => function (Query $q) use ($id) {
@@ -720,7 +726,7 @@ class PeopleController extends AppController {
 			}
 
 			$person = $this->People->patchEntity($person, $this->request->getData(), [
-				'associated' => ['Affiliates', 'Groups', 'Skills', Configure::read('Security.authModel')],
+				'associated' => $associated,
 				'accessibleFields' => $accessible,
 			]);
 
@@ -737,7 +743,6 @@ class PeopleController extends AppController {
 			}
 		}
 
-		$users_table = $this->loadModel(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'));
 		$this->set([
 			'person' => $person,
 			'user_model' => Configure::read('Security.authModel'),
