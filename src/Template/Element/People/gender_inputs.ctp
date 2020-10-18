@@ -20,6 +20,7 @@ if (!empty($prefix)) {
 	$class_prefix = '';
 }
 
+echo $this->element('People/gender_equity_statement');
 if (!$edit || in_array(Configure::read('profile.gender'), $access)) {
 	switch (Configure::read('offerings.genders')) {
 		case 'Open':
@@ -62,17 +63,21 @@ if (!$edit || in_array(Configure::read('profile.gender'), $access) || $gender ==
 	);
 }
 
-if (Configure::read('offerings.genders') !== 'Open' &&
-	(!$edit || in_array(Configure::read('profile.gender'), $access) || !in_array($gender, Configure::read('options.gender_binary')))
-) {
-	echo $this->Html->tag('div',
-		$this->Form->input("{$prefix}roster_designation", [
+if (Configure::read('offerings.genders') !== 'Open') {
+	if (!$edit || in_array(Configure::read('profile.gender'), $access)) {
+		echo $this->Form->input("{$prefix}roster_designation", [
 			'options' => Configure::read('options.roster_designation'),
 			'empty' => '---',
 			'secure' => false,
-			'help' => $this->element('People/gender_equity_statement'),
-		])
-	);
+			'help' => $this->element('People/roster_designation_help'),
+		]);
+	} else {
+		echo $this->Form->input("{$prefix}roster_designation", [
+			'disabled' => true,
+			'class' => 'disabled',
+			'help' => __('To prevent system abuses, this can only be changed by an administrator. To change this, please email your {0} to {1}.', __('new roster designation'), $this->Html->link($admin, "mailto:$admin")),
+		]);
+	}
 }
 
 if (!$edit || in_array(Configure::read('profile.pronouns'), $access)) {

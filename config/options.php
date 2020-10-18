@@ -81,10 +81,13 @@ $options['options'] = [
 	],
 
 	'pronouns' => [
-		'He, Him, His' => __x('gender', 'He, Him, His'),
 		'She, Her, Hers' => __x('gender', 'She, Her, Hers'),
+		'He, Him, His' => __x('gender', 'He, Him, His'),
 		'They, Them, Theirs' => __x('gender', 'They, Them, Theirs'),
-		'Xe, Xem, Xyr' => __x('gender', 'Xe, Xem, Xyr'),
+		'Ey, Em, Eirs' => __x('gender', 'Ey, Em, Eirs'),
+		'Ne, Nem, Nirs' => __x('gender', 'Ne, Nem, Nirs'),
+		'Ve, Ver, Vis' => __x('gender', 'Ve, Ver, Vis'),
+		'Xe, Xem, Xyrs' => __x('gender', 'Xe, Xem, Xyrs'),
 		'Ze/Zie, Hir, Hirs' => __x('gender', 'Ze/Zie, Hir, Hirs'),
 		'Self-defined' => __x('gender', 'Self-defined'),
 	],
