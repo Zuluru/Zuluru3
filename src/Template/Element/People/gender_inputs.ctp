@@ -63,7 +63,7 @@ if (!$edit || in_array(Configure::read('profile.gender'), $access) || $gender ==
 	);
 }
 
-if (Configure::read('offerings.genders') !== 'Open') {
+if (Configure::read('gender.column') == 'roster_designation') {
 	if (!$edit || in_array(Configure::read('profile.gender'), $access)) {
 		echo $this->Form->input("{$prefix}roster_designation", [
 			'options' => Configure::read('options.roster_designation'),

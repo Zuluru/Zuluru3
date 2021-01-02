@@ -73,8 +73,6 @@ $options['options'] = [
 	],
 
 	// The female one must always go first, here and above
-	'gender_binary' => ['Woman', 'Man'],
-
 	'roster_designation' => [
 		'Womxn' => __x('gender', 'Womxn'),
 		'Open' => __x('gender', 'Open'),

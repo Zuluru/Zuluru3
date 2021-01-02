@@ -370,11 +370,9 @@ class PeopleTable extends AppTable {
 
 		$validator
 			->requirePresence('roster_designation', function ($context) {
-				return Configure::read('offerings.genders') !== 'Open';
+				return Configure::read('gender.column') == 'roster_designation';
 			}, __('You must select a roster designation.'))
-			->notEmpty('roster_designation', __('You must select a roster designation.'), function ($context) {
-				return !empty($context['data']['gender']) && !in_array($context['data']['gender'], Configure::read('options.gender_binary'));
-			});
+			->notEmpty('roster_designation', __('You must select a roster designation.'));
 
 		$validator
 			->requirePresence('pronouns', 'create', __('You must select your preferred pronouns.'))
@@ -785,12 +783,6 @@ class PeopleTable extends AppTable {
 	public function afterRules(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options, $result, $operation) {
 		if ($result && !$entity->complete) {
 			$entity->complete = true;
-		}
-
-		if ($entity->gender == 'Woman' && empty($entity->roster_designation)) {
-			$entity->roster_designation = 'Womxn';
-		} else if ($entity->gender == 'Man' && empty($entity->roster_designation)) {
-			$entity->roster_designation = 'Open';
 		}
 	}
 

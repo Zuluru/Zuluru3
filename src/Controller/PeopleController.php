@@ -160,7 +160,7 @@ class PeopleController extends AppController {
 		);
 
 		// Get the list of players by roster designation
-		if (Configure::read('offerings.genders') !== 'Open' && Configure::read('gender.column') == 'roster_designation') {
+		if (Configure::read('gender.column') == 'roster_designation') {
 			$query = $this->People->find();
 			$this->set('roster_designation_count', $query
 				->select([Configure::read('gender.column'), 'person_count' => $query->func()->count('People.id')])
