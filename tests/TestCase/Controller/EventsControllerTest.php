@@ -141,28 +141,31 @@ class EventsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testWizard() {
+		$good_date = new FrozenDate('first Friday of May');
+		$bad_date = $good_date->subMonth();
+
 		// The admin user here is not a player, so doesn't have access to individual or membership events.
-		FrozenTime::setTestNow(new FrozenTime('April 30 00:00:00'));
+		FrozenTime::setTestNow($good_date);
 		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'wizard'], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/events/view?event=' . EVENT_ID_LEAGUE_TEAM);
 
 		// Admins get access to events before they open.
-		FrozenTime::setTestNow(new FrozenTime('March 30 00:00:00'));
+		FrozenTime::setTestNow($bad_date);
 		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'wizard'], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/events/view?event=' . EVENT_ID_LEAGUE_TEAM);
 
 		// The manager user here is not a player, so doesn't have access to individual or membership events.
-		FrozenTime::setTestNow(new FrozenTime('April 30 00:00:00'));
+		FrozenTime::setTestNow($good_date);
 		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'wizard'], PERSON_ID_MANAGER);
 		$this->assertResponseContains('/events/view?event=' . EVENT_ID_LEAGUE_TEAM);
 
 		// Managers get access to events before they open.
-		FrozenTime::setTestNow(new FrozenTime('March 30 00:00:00'));
+		FrozenTime::setTestNow($bad_date);
 		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'wizard'], PERSON_ID_MANAGER);
 		$this->assertResponseContains('/events/view?event=' . EVENT_ID_LEAGUE_TEAM);
 
 		// The coordinator user here is not a player, so doesn't have access to individual or membership events.
-		FrozenTime::setTestNow(new FrozenTime('April 30 00:00:00'));
+		FrozenTime::setTestNow($good_date);
 		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'wizard'], PERSON_ID_COORDINATOR);
 		$this->assertResponseContains('/events/view?event=' . EVENT_ID_LEAGUE_TEAM);
 

@@ -131,18 +131,19 @@ class PeopleController extends AppController {
 
 		// Get the list of accounts by status
 		$query = $this->People->find();
-		$status_count = $query
+		$this->set('status_count', $query
 			->select(['status', 'person_count' => $query->func()->count('People.id')])
 			->select($this->People->Affiliates)
 			->matching('Affiliates', function (Query $q) use ($affiliates) {
 				return $q->where(['Affiliates.id IN' => $affiliates]);
 			})
 			->group(['AffiliatesPeople.affiliate_id', 'People.status'])
-			->order(['Affiliates.name', 'People.status']);
+			->order(['Affiliates.name', 'People.status'])
+		);
 
 		// Get the list of players by gender
 		$query = $this->People->find();
-		$gender_count = $query
+		$this->set('gender_count', $query
 			->select(['gender', 'person_count' => $query->func()->count('People.id')])
 			->select($this->People->Affiliates)
 			->select($this->People->Skills)
@@ -155,12 +156,13 @@ class PeopleController extends AppController {
 			->leftJoinWith('Skills')
 			->where(['Skills.enabled' => true])
 			->group(['AffiliatesPeople.affiliate_id', 'Skills.sport', 'People.gender'])
-			->order(['Affiliates.name', 'Skills.sport', 'People.gender' => 'DESC']);
+			->order(['Affiliates.name', 'Skills.sport', 'People.gender' => 'DESC'])
+		);
 
 		// Get the list of players by roster designation
 		if (Configure::read('gender.column') == 'roster_designation') {
 			$query = $this->People->find();
-			$roster_designation_count = $query
+			$this->set('roster_designation_count', $query
 				->select([Configure::read('gender.column'), 'person_count' => $query->func()->count('People.id')])
 				->select($this->People->Affiliates)
 				->select($this->People->Skills)
@@ -173,12 +175,13 @@ class PeopleController extends AppController {
 				->leftJoinWith('Skills')
 				->where(['Skills.enabled' => true])
 				->group(['AffiliatesPeople.affiliate_id', 'Skills.sport', 'People.' . Configure::read('gender.column')])
-				->order(['Affiliates.name', 'Skills.sport', 'People.' . Configure::read('gender.column') => Configure::read('gender.order')]);
+				->order(['Affiliates.name', 'Skills.sport', 'People.' . Configure::read('gender.column') => Configure::read('gender.order')])
+			);
 		}
 
 		// Get the list of accounts by group
 		$query = $this->People->find();
-		$group_count = $query
+		$this->set('group_count', $query
 			->select([Configure::read('gender.column'), 'person_count' => $query->func()->count('People.id')])
 			->select($this->People->Affiliates)
 			->select($this->People->Groups)
@@ -187,12 +190,13 @@ class PeopleController extends AppController {
 			})
 			->matching('Groups')
 			->group(['AffiliatesPeople.affiliate_id', 'Groups.id'])
-			->order(['Affiliates.name', 'Groups.id']);
+			->order(['Affiliates.name', 'Groups.id'])
+		);
 
 		// Get the list of players by age
 		if (Configure::read('profile.birthdate')) {
 			$query = $this->People->find();
-			$age_count = $query
+			$this->set('age_count', $query
 				->select([
 					// TODO: Use a query function for the age bucket
 					'age_bucket' => 'FLOOR((YEAR(NOW()) - YEAR(birthdate)) / 5) * 5',
@@ -213,13 +217,14 @@ class PeopleController extends AppController {
 					'birthdate !=' => '0000-00-00',
 				])
 				->group(['AffiliatesPeople.affiliate_id', 'Skills.sport', 'age_bucket'])
-				->order(['Affiliates.name', 'Skills.sport', 'age_bucket']);
+				->order(['Affiliates.name', 'Skills.sport', 'age_bucket'])
+			);
 		}
 
 		// Get the list of players by year started for each sport
 		if (Configure::read('profile.year_started')) {
 			$query = $this->People->find();
-			$started_count = $query
+			$this->set('started_count', $query
 				->select(['person_count' => $query->func()->count('People.id')])
 				->select($this->People->Affiliates)
 				->select($this->People->Skills)
@@ -232,13 +237,14 @@ class PeopleController extends AppController {
 				->leftJoinWith('Skills')
 				->where(['Skills.enabled' => true])
 				->group(['AffiliatesPeople.affiliate_id', 'Skills.sport', 'Skills.year_started'])
-				->order(['Affiliates.name', 'Skills.sport', 'Skills.year_started']);
+				->order(['Affiliates.name', 'Skills.sport', 'Skills.year_started'])
+			);
 		}
 
 		// Get the list of players by skill level for each sport
 		if (Configure::read('profile.skill_level')) {
 			$query = $this->People->find();
-			$skill_count = $query
+			$this->set('skill_count', $query
 				->select(['person_count' => $query->func()->count('People.id')])
 				->select($this->People->Affiliates)
 				->select($this->People->Skills)
@@ -251,13 +257,14 @@ class PeopleController extends AppController {
 				->leftJoinWith('Skills')
 				->where(['Skills.enabled' => true])
 				->group(['AffiliatesPeople.affiliate_id', 'Skills.sport', 'Skills.skill_level'])
-				->order(['Affiliates.name', 'Skills.sport', 'Skills.skill_level']);
+				->order(['Affiliates.name', 'Skills.sport', 'Skills.skill_level'])
+			);
 		}
 
 		// Get the list of players by city
 		if (Configure::read('profile.addr_city')) {
 			$query = $this->People->find();
-			$city_count = $query
+			$this->set('city_count', $query
 				->select(['addr_city', 'person_count' => $query->func()->count('People.id')])
 				->select($this->People->Affiliates)
 				->select($this->People->Skills)
@@ -271,10 +278,9 @@ class PeopleController extends AppController {
 				->where(['Skills.enabled' => true])
 				->group(['AffiliatesPeople.affiliate_id', 'Skills.sport', 'addr_city'])
 				->having(['person_count >' => 2])
-				->order(['Affiliates.name', 'Skills.sport', 'person_count' => 'DESC']);
+				->order(['Affiliates.name', 'Skills.sport', 'person_count' => 'DESC'])
+			);
 		}
-
-		$this->set(compact('status_count', 'group_count', 'gender_count', 'roster_designation_count', 'age_count', 'started_count', 'skill_count', 'city_count'));
 	}
 
 	public function demographics() {
