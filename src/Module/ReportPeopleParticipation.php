@@ -30,9 +30,9 @@ class ReportPeopleParticipation extends Report {
 		$captains = Configure::read('privileged_roster_roles');
 
 		$membership_event_list = TableRegistry::getTableLocator()->get('Events')->find()
-			// TODO: Fix or remove these hard-coded values
-			->where(['event_type_id' => 1])
-			->order(['open', 'close', 'id'])
+			->contain(['EventTypes'])
+			->where(['EventTypes.type' => 'membership'])
+			->order(['Events.open', 'Events.close', 'Events.id'])
 			->indexBy('id')
 			->toArray();
 		$event_names = [];
