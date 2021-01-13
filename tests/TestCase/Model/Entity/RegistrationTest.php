@@ -3,6 +3,7 @@ namespace App\Test\TestCase\Model\Entity;
 
 use App\Middleware\ConfigurationLoader;
 use App\Model\Entity\Registration;
+use App\Test\Factory\GameFactory;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 
@@ -33,32 +34,13 @@ class RegistrationTest extends TestCase {
 	public $Registration4;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.EventTypes',
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-			'app.Leagues',
-				'app.Divisions',
-			'app.Events',
-				'app.Prices',
-					'app.Registrations',
-						'app.Payments',
-			'app.Settings',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
 	 *
 	 * @return void
 	 */
 	public function setUp() {
 		parent::setUp();
+        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 
 		ConfigurationLoader::loadConfiguration();
 

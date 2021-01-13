@@ -17,16 +17,6 @@ class EventTypesTableTest extends TableTestCase {
 	public $EventTypes;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.I18n',
-		// TODO
-	];
-
-	/**
 	 * setUp method
 	 *
 	 * @return void

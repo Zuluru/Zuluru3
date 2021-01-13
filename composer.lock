@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f873639ed413673f5a0bf0153bd522c3",
+    "content-hash": "ec1751b00a3d4bf4ad6d506eea1514ed",
     "packages": [
         {
             "name": "aura/intl",
@@ -3259,6 +3259,57 @@
             "time": "2019-10-21T16:45:58+00:00"
         },
         {
+            "name": "fzaninotto/faker",
+            "version": "v1.9.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/fzaninotto/Faker.git",
+                "reference": "848d8125239d7dbf8ab25cb7f054f1a630e68c2e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/848d8125239d7dbf8ab25cb7f054f1a630e68c2e",
+                "reference": "848d8125239d7dbf8ab25cb7f054f1a630e68c2e",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.3.3 || ^7.0"
+            },
+            "require-dev": {
+                "ext-intl": "*",
+                "phpunit/phpunit": "^4.8.35 || ^5.7",
+                "squizlabs/php_codesniffer": "^2.9.2"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.9-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Faker\\": "src/Faker/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "François Zaninotto"
+                }
+            ],
+            "description": "Faker is a PHP library that generates fake data for you.",
+            "keywords": [
+                "data",
+                "faker",
+                "fixtures"
+            ],
+            "abandoned": true,
+            "time": "2020-12-11T09:56:16+00:00"
+        },
+        {
             "name": "jakub-onderka/php-console-color",
             "version": "v0.2",
             "source": {
@@ -4820,6 +4871,112 @@
                 "dump"
             ],
             "time": "2020-01-25T12:44:29+00:00"
+        },
+        {
+            "name": "vierge-noire/cakephp-fixture-factories",
+            "version": "v1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/vierge-noire/cakephp-fixture-factories.git",
+                "reference": "28d8f4d237fca5922197ab736a17574a1be7e000"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/vierge-noire/cakephp-fixture-factories/zipball/28d8f4d237fca5922197ab736a17574a1be7e000",
+                "reference": "28d8f4d237fca5922197ab736a17574a1be7e000",
+                "shasum": ""
+            },
+            "require": {
+                "cakephp/cakephp": "^3.7",
+                "fzaninotto/faker": "^1.9@dev",
+                "php": ">=7.0.0",
+                "vierge-noire/cakephp-test-suite-light": "^1.1"
+            },
+            "require-dev": {
+                "cakephp/bake": "^1.5",
+                "josegonzalez/dotenv": "dev-master",
+                "phpunit/phpunit": "^6.1",
+                "vierge-noire/cakephp-test-migrator": "^1.1"
+            },
+            "type": "cakephp-plugin",
+            "autoload": {
+                "psr-4": {
+                    "CakephpFixtureFactories\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Masson",
+                    "email": "nicolas@b-projects.tech"
+                },
+                {
+                    "name": "Juan Pablo Ramìrez",
+                    "email": "pabloelcolombiano@gmail.com"
+                }
+            ],
+            "description": "CakePHP Dynamic Fixtures",
+            "keywords": [
+                "cakephp",
+                "dynamic",
+                "fixtures",
+                "tests"
+            ],
+            "time": "2020-11-25T22:05:17+00:00"
+        },
+        {
+            "name": "vierge-noire/cakephp-test-suite-light",
+            "version": "v1.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/vierge-noire/cakephp-test-suite-light.git",
+                "reference": "f0a68d48e5ca02feb151aa6d3cade9b95bd61b3c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/vierge-noire/cakephp-test-suite-light/zipball/f0a68d48e5ca02feb151aa6d3cade9b95bd61b3c",
+                "reference": "f0a68d48e5ca02feb151aa6d3cade9b95bd61b3c",
+                "shasum": ""
+            },
+            "require": {
+                "cakephp/cakephp": "^3.7",
+                "ext-pdo": "*",
+                "php": ">=7.0"
+            },
+            "require-dev": {
+                "cakephp/migrations": "^2.3",
+                "josegonzalez/dotenv": "dev-master",
+                "phpunit/phpunit": "^6.1"
+            },
+            "type": "cakephp-plugin",
+            "autoload": {
+                "psr-4": {
+                    "CakephpTestSuiteLight\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Masson",
+                    "email": "nicolas@b-projects.tech"
+                },
+                {
+                    "name": "Juan Pablo Ramìrez",
+                    "email": "pabloelcolombiano@gmail.com"
+                }
+            ],
+            "description": "A test suite for CakePHP application based on Sql queries",
+            "keywords": [
+                "cakephp",
+                "test"
+            ],
+            "time": "2021-01-04T18:41:44+00:00"
         },
         {
             "name": "webmozart/assert",

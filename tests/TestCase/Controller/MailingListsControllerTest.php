@@ -10,31 +10,6 @@ class MailingListsControllerTest extends ControllerTestCase {
 
 	use HasherTrait;
 
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-		'app.Users',
-		'app.People',
-		'app.AffiliatesPeople',
-		'app.PeoplePeople',
-		'app.Groups',
-		'app.GroupsPeople',
-		'app.Leagues',
-		'app.Divisions',
-		'app.Teams',
-		'app.DivisionsPeople',
-		'app.MailingLists',
-		'app.Newsletters',
-		'app.Subscriptions',
-		'app.Settings',
-		'app.I18n',
-		'app.Plugins',
-	];
-
 	private $unsubscribeMessage = 'You have successfully unsubscribed from this mailing list. Note that you may still be on other mailing lists for this site, and some emails (e.g. roster, attendance and score reminders) cannot be opted out of.';
 
 	/**

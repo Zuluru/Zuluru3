@@ -17,16 +17,6 @@ class LocksTableTest extends TableTestCase {
 	public $LocksTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Locks',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
 	 *
 	 * @return void

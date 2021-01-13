@@ -14,66 +14,6 @@ class TeamsControllerTest extends ControllerTestCase {
 	use HasherTrait;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.EventTypes',
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-					'app.PeoplePeople',
-					'app.Skills',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.UploadTypes',
-				'app.Uploads',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-						'app.TeamsPeople',
-						'app.TeamEvents',
-						'app.TeamsFacilities',
-					'app.DivisionsDays',
-					'app.GameSlots',
-						'app.DivisionsGameslots',
-					'app.DivisionsPeople',
-					'app.Pools',
-						'app.PoolsTeams',
-					'app.Games',
-						'app.ScoreEntries',
-						'app.SpiritEntries',
-						'app.Incidents',
-						'app.Stats',
-				'app.LeaguesStatTypes',
-			'app.Attendances',
-			'app.Franchises',
-				'app.FranchisesPeople',
-				'app.FranchisesTeams',
-			'app.Events',
-				'app.Prices',
-					'app.Registrations',
-						'app.Payments',
-			'app.Badges',
-				'app.BadgesPeople',
-			'app.MailingLists',
-				'app.Newsletters',
-			'app.ActivityLogs',
-			'app.Holidays',
-			'app.Notes',
-			'app.Settings',
-			'app.Waivers',
-				'app.WaiversPeople',
-		'app.I18n',
-		'app.Plugins',
-	];
-
-	/**
 	 * Test index method
 	 *
 	 * @return void

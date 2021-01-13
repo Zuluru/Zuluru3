@@ -14,67 +14,6 @@ use Cake\ORM\TableRegistry;
 class EventsControllerTest extends ControllerTestCase {
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.EventTypes',
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-					'app.PeoplePeople',
-					'app.Credits',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.UploadTypes',
-				'app.Uploads',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-						'app.TeamsPeople',
-						'app.TeamEvents',
-						'app.TeamsFacilities',
-					'app.DivisionsDays',
-					'app.GameSlots',
-						'app.DivisionsGameslots',
-					'app.DivisionsPeople',
-					'app.Pools',
-						'app.PoolsTeams',
-					'app.Games',
-						'app.GamesAllstars',
-						'app.ScoreEntries',
-						'app.SpiritEntries',
-						'app.Stats',
-			'app.Attendances',
-			'app.Franchises',
-				'app.FranchisesTeams',
-			'app.Questionnaires',
-			'app.Events',
-				'app.Prices',
-					'app.Registrations',
-						'app.Payments',
-						'app.Responses',
-				'app.Preregistrations',
-				'app.EventsConnections',
-			'app.Badges',
-				'app.BadgesPeople',
-			'app.MailingLists',
-				'app.Newsletters',
-			'app.ActivityLogs',
-			'app.Notes',
-			'app.Settings',
-			'app.Waivers',
-				'app.WaiversPeople',
-		'app.I18n',
-		'app.Plugins',
-	];
-
-	/**
 	 * Test index method
 	 *
 	 * @return void

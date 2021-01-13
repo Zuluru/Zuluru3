@@ -2,6 +2,7 @@
 namespace App\Test\TestCase\Model\Entity;
 
 use App\Model\Entity\Waiver;
+use App\Test\Factory\GameFactory;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
@@ -32,18 +33,6 @@ class WaiverTest extends TestCase {
 	 */
 	public $WaiverPerpetual;
 
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Waivers',
-		'app.I18n',
-	];
-
 	/**
 	 * setUp method
 	 *
@@ -51,6 +40,7 @@ class WaiverTest extends TestCase {
 	 */
 	public function setUp() {
 		parent::setUp();
+        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$waivers = TableRegistry::get('Waivers');
 		$this->WaiverAnnual = $waivers->get(WAIVER_ID_ANNUAL);
 		$this->WaiverAnnual2 = $waivers->get(WAIVER_ID_ANNUAL2);

@@ -7,50 +7,6 @@ namespace App\Test\TestCase\Controller;
 class LeaguesControllerTest extends ControllerTestCase {
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.EventTypes',
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-					'app.PeoplePeople',
-					'app.Skills',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-						'app.TeamsPeople',
-					'app.DivisionsDays',
-					'app.GameSlots',
-						'app.DivisionsGameslots',
-					'app.DivisionsPeople',
-					'app.Pools',
-						'app.PoolsTeams',
-					'app.Games',
-						'app.ScoreEntries',
-						'app.SpiritEntries',
-				'app.LeaguesStatTypes',
-			'app.Franchises',
-				'app.FranchisesTeams',
-			'app.Events',
-				'app.Prices',
-					'app.Registrations',
-			'app.Badges',
-				'app.BadgesPeople',
-			'app.Settings',
-		'app.I18n',
-		'app.Plugins',
-	];
-
-	/**
 	 * Test index method
 	 *
 	 * @return void

@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\HolidayFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\HolidaysTable;
 
@@ -15,17 +16,6 @@ class HolidaysTableTest extends TableTestCase {
 	 * @var \App\Model\Table\HolidaysTable
 	 */
 	public $HolidaysTable;
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Holidays',
-		'app.I18n',
-	];
 
 	/**
 	 * setUp method
@@ -55,7 +45,9 @@ class HolidaysTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->HolidaysTable->affiliate(1));
+	    $affiliateId = rand();
+	    $holiday = HolidayFactory::make(['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->HolidaysTable->affiliate($holiday->id));
 	}
 
 }

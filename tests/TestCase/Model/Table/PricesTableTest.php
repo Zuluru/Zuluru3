@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\PriceFactory;
 use Cake\Event\Event;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\PricesTable;
@@ -16,24 +17,6 @@ class PricesTableTest extends TableTestCase {
 	 * @var \App\Model\Table\PricesTable
 	 */
 	public $PricesTable;
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.EventTypes',
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Leagues',
-				'app.Divisions',
-			'app.Events',
-				'app.Prices',
-		'app.I18n',
-	];
 
 	/**
 	 * setUp method
@@ -107,7 +90,9 @@ class PricesTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->PricesTable->affiliate(PRICE_ID_MEMBERSHIP));
+        $affiliateId = rand();
+        $entity = PriceFactory::make()->with('Events', ['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->PricesTable->affiliate($entity->id));
 	}
 
 	/**
@@ -116,8 +101,7 @@ class PricesTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testDuration() {
-		$price = $this->PricesTable->get(PRICE_ID_LEAGUE_TEAM);
-		$this->assertEquals('1 day, 1 hour, 15 minutes', $this->PricesTable->duration($price->reservation_duration));
+		$this->assertEquals('1 day, 1 hour, 15 minutes', $this->PricesTable->duration(1515));
 	}
 
 }

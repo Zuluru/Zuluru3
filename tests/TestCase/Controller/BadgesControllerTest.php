@@ -11,41 +11,6 @@ use Cake\ORM\TableRegistry;
 class BadgesControllerTest extends ControllerTestCase {
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.EventTypes',
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-					'app.PeoplePeople',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-						'app.TeamsPeople',
-					'app.DivisionsPeople',
-					'app.Pools',
-						'app.PoolsTeams',
-					'app.Games',
-			'app.Events',
-				'app.Prices',
-					'app.Registrations',
-			'app.Badges',
-				'app.BadgesPeople',
-			'app.Settings',
-		'app.I18n',
-		'app.Plugins',
-	];
-
-	/**
 	 * Test index method
 	 *
 	 * @return void

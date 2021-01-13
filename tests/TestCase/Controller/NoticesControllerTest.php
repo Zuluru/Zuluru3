@@ -7,30 +7,6 @@ namespace App\Test\TestCase\Controller;
 class NoticesControllerTest extends ControllerTestCase {
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-					'app.PeoplePeople',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-					'app.DivisionsPeople',
-			//'app.Notices',
-				'app.NoticesPeople',
-			'app.Settings',
-		'app.I18n',
-		'app.Plugins',
-	];
-
-	/**
 	 * Test viewed method as an admin
 	 *
 	 * @return void

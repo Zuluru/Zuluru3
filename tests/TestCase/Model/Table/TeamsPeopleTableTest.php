@@ -17,23 +17,6 @@ class TeamsPeopleTableTest extends TableTestCase {
 	public $TeamsPeopleTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-						'app.TeamsPeople',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
 	 *
 	 * @return void

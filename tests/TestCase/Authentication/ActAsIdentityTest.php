@@ -12,22 +12,6 @@ use Cake\TestSuite\IntegrationTestCase;
 class ActAsIdentityTest extends IntegrationTestCase {
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.Settings',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
 	 *
 	 * @return void

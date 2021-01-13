@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\PaymentFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\PaymentsTable;
 
@@ -15,23 +16,6 @@ class PaymentsTableTest extends TableTestCase {
 	 * @var \App\Model\Table\PaymentsTable
 	 */
 	public $PaymentsTable;
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.EventTypes',
-		'app.Affiliates',
-			'app.Leagues',
-				'app.Divisions',
-			'app.Events',
-				'app.Prices',
-					'app.Registrations',
-						'app.Payments',
-		'app.I18n',
-	];
 
 	/**
 	 * setUp method
@@ -124,7 +108,9 @@ class PaymentsTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->PaymentsTable->affiliate(1));
+        $affiliateId = rand();
+        $payment = PaymentFactory::make()->with('Registrations.Events', ['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->PaymentsTable->affiliate($payment->id));
 	}
 
 }

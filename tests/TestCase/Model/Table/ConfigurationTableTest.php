@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\GameFactory;
 use Cake\Core\Configure;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\ConfigurationTable;
@@ -18,24 +19,12 @@ class ConfigurationTableTest extends TableTestCase {
 	public $ConfigurationTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-			'app.Settings',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
 	 *
 	 * @return void
 	 */
 	public function setUp() {
+        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		parent::setUp();
 		$config = TableRegistry::exists('Configuration') ? [] : ['className' => 'App\Model\Table\ConfigurationTable'];
 		$this->ConfigurationTable = TableRegistry::get('Configuration', $config);

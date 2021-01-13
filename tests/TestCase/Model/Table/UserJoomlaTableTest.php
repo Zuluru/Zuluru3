@@ -18,17 +18,6 @@ class UserJoomlaTableTest extends TableTestCase {
 	public $UserJoomlaTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
 	 *
 	 * @return void

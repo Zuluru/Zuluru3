@@ -2,39 +2,13 @@
 namespace App\Test\TestCase\Module;
 
 use App\Core\ModuleRegistry;
+use App\Test\Factory\GameFactory;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\Entity;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 
 class LeagueTypeRatingsLadderTest extends ModuleTestCase {
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-						'app.TeamsFacilities',
-					'app.DivisionsDays',
-					'app.GameSlots',
-						'app.DivisionsGameslots',
-					'app.Pools',
-						'app.PoolsTeams',
-					'app.Games',
-						'app.SpiritEntries',
-		'app.Settings',
-		'app.I18n',
-	];
 
 	/**
 	 * Test subject
@@ -99,6 +73,7 @@ class LeagueTypeRatingsLadderTest extends ModuleTestCase {
 	 * @return void
 	 */
 	public function testCompareTeams() {
+        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER, true);
 
 		$this->assertEquals(8, count($division->teams));
@@ -164,6 +139,7 @@ class LeagueTypeRatingsLadderTest extends ModuleTestCase {
 	 * @return void
 	 */
 	public function testCreateScheduledSet() {
+        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		// Seed the random number generator with a fixed value, so that random determinations in field selection become fixed.
 		mt_srand(123);
 

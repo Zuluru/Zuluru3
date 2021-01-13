@@ -10,52 +10,6 @@ use Cake\ORM\TableRegistry;
 class SchedulesControllerTest extends ControllerTestCase {
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-					'app.PeoplePeople',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-						'app.TeamsPeople',
-						'app.TeamEvents',
-					'app.DivisionsDays',
-					'app.DivisionsPeople',
-					'app.GameSlots',
-						'app.DivisionsGameslots',
-					'app.Pools',
-						'app.PoolsTeams',
-					'app.Games',
-						'app.GamesAllstars',
-						'app.ScoreEntries',
-						'app.SpiritEntries',
-						'app.Incidents',
-						'app.Stats',
-						'app.ScoreDetails',
-			'app.Attendances',
-			'app.Badges',
-				'app.BadgesPeople',
-			'app.MailingLists',
-				'app.Newsletters',
-			'app.ActivityLogs',
-			'app.Notes',
-			'app.Settings',
-		'app.I18n',
-		'app.Plugins',
-	];
-
-	/**
 	 * Test add method as an admin
 	 *
 	 * @return void

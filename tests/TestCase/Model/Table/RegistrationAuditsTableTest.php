@@ -17,16 +17,6 @@ class RegistrationAuditsTableTest extends TableTestCase {
 	public $RegistrationAudits;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.I18n',
-		// TODO
-	];
-
-	/**
 	 * setUp method
 	 *
 	 * @return void

@@ -2,6 +2,7 @@
 namespace App\Test\TestCase\Module;
 
 use App\Core\ModuleRegistry;
+use App\Test\Factory\GameFactory;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 
@@ -11,32 +12,6 @@ use Cake\ORM\TableRegistry;
  * test directly due to the abstract declaration of LeagueType.
  */
 class LeagueTypeNoneTest extends ModuleTestCase {
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-					'app.DivisionsDays',
-					'app.GameSlots',
-						'app.DivisionsGameslots',
-					'app.Pools',
-						'app.PoolsTeams',
-					'app.Games',
-						'app.SpiritEntries',
-		'app.Settings',
-		'app.I18n',
-	];
 
 	/**
 	 * Test subject
@@ -155,6 +130,7 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 	 * @return void
 	 */
 	public function testCompareTeams() {
+        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER, true);
 
 		$this->assertEquals(8, count($division->teams));

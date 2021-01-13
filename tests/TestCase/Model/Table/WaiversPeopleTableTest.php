@@ -17,21 +17,6 @@ class WaiversPeopleTableTest extends TableTestCase {
 	public $WaiversPeopleTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Waivers',
-				'app.WaiversPeople',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
 	 *
 	 * @return void

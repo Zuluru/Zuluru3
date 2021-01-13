@@ -17,15 +17,6 @@ class DaysTableTest extends TableTestCase {
 	public $DaysTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
 	 *
 	 * @return void

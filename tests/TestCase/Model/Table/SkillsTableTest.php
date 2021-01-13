@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\GameFactory;
 use Cake\Event\Event;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\SkillsTable;
@@ -16,20 +17,6 @@ class SkillsTableTest extends TableTestCase {
 	 * @var \App\Model\Table\SkillsTable
 	 */
 	public $SkillsTable;
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-					'app.Skills',
-		'app.I18n',
-	];
 
 	/**
 	 * setUp method
@@ -72,6 +59,7 @@ class SkillsTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testMergeList() {
+        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$original = $this->SkillsTable->People->get(PERSON_ID_MANAGER, ['contain' => ['Skills']]);
 		$this->assertEquals(1, count($original->skills));
 		$duplicate = $this->SkillsTable->People->get(PERSON_ID_DUPLICATE, ['contain' => ['Skills']]);

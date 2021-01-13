@@ -1,8 +1,8 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\BadgeFactory;
 use Cake\ORM\TableRegistry;
-use App\Model\Table\BadgesTable;
 
 /**
  * App\Model\Table\BadgesTable Test Case
@@ -15,21 +15,6 @@ class BadgesTableTest extends TableTestCase {
 	 * @var \App\Model\Table\BadgesTable
 	 */
 	public $BadgesTable;
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-			'app.Badges',
-				'app.BadgesPeople',
-		'app.I18n',
-	];
 
 	/**
 	 * setUp method
@@ -59,7 +44,9 @@ class BadgesTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->BadgesTable->affiliate(1));
+        $affiliateId = rand();
+        $badge = BadgeFactory::make(['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->BadgesTable->affiliate($badge->id));
 	}
 
 }

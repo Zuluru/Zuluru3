@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\UploadFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\UploadsTable;
 
@@ -15,21 +16,6 @@ class UploadsTableTest extends TableTestCase {
 	 * @var \App\Model\Table\UploadsTable
 	 */
 	public $UploadsTable;
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.UploadTypes',
-				'app.Uploads',
-		'app.I18n',
-	];
 
 	/**
 	 * setUp method
@@ -77,7 +63,9 @@ class UploadsTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->UploadsTable->affiliate(UPLOAD_ID_CHILD_WAIVER));
+        $affiliateId = rand();
+        $entity = UploadFactory::make()->with('UploadTypes', ['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->UploadsTable->affiliate($entity->id));
 	}
 
 }

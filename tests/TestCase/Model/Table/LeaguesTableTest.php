@@ -2,6 +2,9 @@
 namespace App\Test\TestCase\Model\Table;
 
 use App\Middleware\ConfigurationLoader;
+use App\Test\Factory\DivisionFactory;
+use App\Test\Factory\GameFactory;
+use App\Test\Factory\LeagueFactory;
 use Cake\Event\Event as CakeEvent;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\LeaguesTable;
@@ -17,24 +20,6 @@ class LeaguesTableTest extends TableTestCase {
 	 * @var \App\Model\Table\LeaguesTable
 	 */
 	public $LeaguesTable;
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Leagues',
-				'app.Divisions',
-					'app.DivisionsPeople',
-					'app.DivisionsDays',
-			'app.Settings',
-		'app.I18n',
-	];
 
 	/**
 	 * setUp method
@@ -77,6 +62,7 @@ class LeaguesTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testCompareLeagueAndDivision() {
+        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		ConfigurationLoader::loadConfiguration();
 
 		// TODO: Add more league records, to more completely test the sort options
@@ -117,7 +103,9 @@ class LeaguesTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->LeaguesTable->affiliate(LEAGUE_ID_MONDAY));
+	    $affiliateId = rand();
+	    $league = LeagueFactory::make(['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->LeaguesTable->affiliate($league->id));
 	}
 
 	/**
@@ -126,12 +114,16 @@ class LeaguesTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testDivisions() {
-		$expected = [
-			DIVISION_ID_MONDAY_LADDER => DIVISION_ID_MONDAY_LADDER,
-			DIVISION_ID_MONDAY_LADDER2 => DIVISION_ID_MONDAY_LADDER2,
-			DIVISION_ID_MONDAY_PLAYOFF => DIVISION_ID_MONDAY_PLAYOFF,
+	    DivisionFactory::make(3)->persist();
+	    $league = LeagueFactory::make()
+            ->with('Divisions', 2)
+            ->persist();
+
+	    $expected = [
+			$league->divisions[0]->id => $league->divisions[0]->id,
+			$league->divisions[1]->id => $league->divisions[1]->id,
 		];
-		$this->assertEquals($expected, $this->LeaguesTable->divisions(LEAGUE_ID_MONDAY));
+		$this->assertEquals($expected, $this->LeaguesTable->divisions($league->id));
 	}
 
 }

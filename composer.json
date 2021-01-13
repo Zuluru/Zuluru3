@@ -48,7 +48,8 @@
     "require-dev": {
         "cakephp/debug_kit": "3.2.*",
         "psy/psysh": "@stable",
-        "phpunit/phpunit": "^5.3"
+        "phpunit/phpunit": "^5.3",
+        "vierge-noire/cakephp-fixture-factories": "^1.0"
     },
     "suggest": {
         "phpunit/phpunit": "Allows automated tests to be run without system-wide install.",

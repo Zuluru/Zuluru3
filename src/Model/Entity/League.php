@@ -85,7 +85,7 @@ class League extends Entity {
 		// Add the year, if it's not already part of the name
 		if (!empty($this->open) && $this->open != '0000-00-00') {
 			$year = $this->open->year;
-			if (strpos($full_name, $year) === false) {
+			if (strpos($full_name, (string)$year) === false) {
 				// TODO: Add closing year, if different than opening
 				$full_name = $year . ' ' . $full_name;
 			}

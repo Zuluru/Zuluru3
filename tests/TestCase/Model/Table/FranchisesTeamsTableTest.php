@@ -17,18 +17,6 @@ class FranchisesTeamsTableTest extends TableTestCase {
 	public $FranchisesTeamsTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Franchises',
-				'app.FranchisesTeams',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
 	 *
 	 * @return void

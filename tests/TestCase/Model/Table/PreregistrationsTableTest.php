@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\PreregistrationFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\PreregistrationsTable;
 
@@ -15,29 +16,6 @@ class PreregistrationsTableTest extends TableTestCase {
 	 * @var \App\Model\Table\PreregistrationsTable
 	 */
 	public $PreregistrationsTable;
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.EventTypes',
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Leagues',
-				'app.Divisions',
-			'app.Events',
-				'app.Prices',
-					'app.Registrations',
-						'app.Payments',
-							'app.RegistrationAudits',
-						'app.Responses',
-				'app.Preregistrations',
-		'app.I18n',
-	];
 
 	/**
 	 * setUp method
@@ -67,7 +45,9 @@ class PreregistrationsTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->PreregistrationsTable->affiliate(1));
+        $affiliateId = rand();
+        $entity = PreregistrationFactory::make()->with('Events', ['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->PreregistrationsTable->affiliate($entity->id));
 	}
 
 }

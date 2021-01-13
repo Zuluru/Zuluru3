@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\MailingListFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\MailingListsTable;
 
@@ -15,21 +16,6 @@ class MailingListsTableTest extends TableTestCase {
 	 * @var \App\Model\Table\MailingListsTable
 	 */
 	public $MailingListsTable;
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.MailingLists',
-				'app.Subscriptions',
-		'app.I18n',
-	];
 
 	/**
 	 * setUp method
@@ -59,7 +45,9 @@ class MailingListsTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->MailingListsTable->affiliate(1));
+	    $affiliateId = rand();
+	    $mailingList = MailingListFactory::make(['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->MailingListsTable->affiliate($mailingList->id));
 	}
 
 }

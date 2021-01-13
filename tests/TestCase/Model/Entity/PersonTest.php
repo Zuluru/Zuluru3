@@ -2,6 +2,7 @@
 namespace TestCase\Model\Entity;
 
 use App\Model\Entity\Person;
+use App\Test\Factory\PersonFactory;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
@@ -18,26 +19,26 @@ class PersonTest extends TestCase {
 	public $Person1;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
 	 *
 	 * @return void
 	 */
 	public function setUp() {
 		parent::setUp();
-		$people = TableRegistry::get('People');
-		$this->Person1 = $people->get(PERSON_ID_ADMIN);
+		$this->Person1 = PersonFactory::make([
+            'first_name' => 'Amy',
+            'last_name' => 'Administrator',
+            'roster_designation' => 'Woman',
+            'status' => 'active',
+            'alternate_first_name' => 'Buford',
+            'alternate_last_name' => 'Tannen',
+            'alternate_email' => 'Buford.Tannen@HillValley.com',
+
+        ])->with('Users', [
+            'user_name' => 'amy',
+            'password' => 'amypassword',
+            'email' => 'amy@zuluru.org',
+        ])->getEntity();
 	}
 
 	/**
@@ -55,6 +56,7 @@ class PersonTest extends TestCase {
 	 * Test _getUserName()
 	 */
 	public function testGetUserName() {
+//	    dd($this->Person1->toArray());
 		$this->assertEquals('amy', $this->Person1->user_name);
 	}
 

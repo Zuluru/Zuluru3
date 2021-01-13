@@ -124,8 +124,8 @@ class Event extends Entity {
 		if (array_key_exists($field, $this->_properties)) {
 			return $this->_properties[$field];
 		}
-		if ($this->has('_custom')) {
-			$custom = $this->_custom;
+		if ($this->has('custom')) {
+			$custom = unserialize($this->get('custom'));
 			if (array_key_exists($field, $custom)) {
 				return $custom[$field];
 			}

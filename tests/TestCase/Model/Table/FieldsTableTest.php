@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\FieldFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\FieldsTable;
 
@@ -15,19 +16,6 @@ class FieldsTableTest extends TableTestCase {
 	 * @var \App\Model\Table\FieldsTable
 	 */
 	public $FieldsTable;
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-		'app.I18n',
-	];
 
 	/**
 	 * setUp method
@@ -57,7 +45,11 @@ class FieldsTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->FieldsTable->affiliate(FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1));
+        $affiliateId = rand();
+        $field = FieldFactory::make()
+            ->with('Facilities.Regions', ['affiliate_id' => $affiliateId])
+            ->persist();
+		$this->assertEquals($affiliateId, $this->FieldsTable->affiliate($field->id));
 	}
 
 	/**
@@ -66,7 +58,8 @@ class FieldsTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testSport() {
-		$this->assertEquals('ultimate', $this->FieldsTable->sport(FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1));
+        $field = FieldFactory::make()->persist();
+		$this->assertEquals($field->get('sport'), $this->FieldsTable->sport($field->id));
 	}
 
 }

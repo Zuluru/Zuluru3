@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\TaskSlotFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\TaskSlotsTable;
 
@@ -15,22 +16,6 @@ class TaskSlotsTableTest extends TableTestCase {
 	 * @var \App\Model\Table\TaskSlotsTable
 	 */
 	public $TaskSlotsTable;
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Categories',
-				'app.Tasks',
-					'app.TaskSlots',
-		'app.I18n',
-	];
 
 	/**
 	 * setUp method
@@ -60,7 +45,9 @@ class TaskSlotsTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->TaskSlotsTable->affiliate(1));
+        $affiliateId = rand();
+        $entity = TaskSlotFactory::make()->with('Tasks.Categories', ['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->TaskSlotsTable->affiliate($entity->id));
 	}
 
 }

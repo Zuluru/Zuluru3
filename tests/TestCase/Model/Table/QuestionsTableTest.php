@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\QuestionFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\QuestionsTable;
 
@@ -15,18 +16,6 @@ class QuestionsTableTest extends TableTestCase {
 	 * @var \App\Model\Table\QuestionsTable
 	 */
 	public $QuestionsTable;
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Questions',
-				'app.Answers',
-		'app.I18n',
-	];
 
 	/**
 	 * setUp method
@@ -56,7 +45,9 @@ class QuestionsTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->QuestionsTable->affiliate(1));
+        $affiliateId = rand();
+        $entity = QuestionFactory::make(['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->QuestionsTable->affiliate($entity->id));
 	}
 
 }

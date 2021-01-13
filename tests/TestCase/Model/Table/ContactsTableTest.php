@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\ContactFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\ContactsTable;
 
@@ -15,17 +16,6 @@ class ContactsTableTest extends TableTestCase {
 	 * @var \App\Model\Table\ContactsTable
 	 */
 	public $ContactsTable;
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Contacts',
-		'app.I18n',
-	];
 
 	/**
 	 * setUp method
@@ -55,7 +45,9 @@ class ContactsTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->ContactsTable->affiliate(1));
+        $affiliateId = rand();
+        $contact = ContactFactory::make(['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->ContactsTable->affiliate($contact->id));
 	}
 
 }

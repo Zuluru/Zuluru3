@@ -3,6 +3,7 @@ namespace App\Test\TestCase\Model\Entity;
 
 use App\Middleware\ConfigurationLoader;
 use App\Model\Entity\Team;
+use App\Test\Factory\GameFactory;
 use Cake\Core\Configure;
 use Cake\Event\EventList;
 use Cake\Event\EventManager;
@@ -36,44 +37,13 @@ class TeamTest extends TestCase {
 	public $Team3;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-					'app.Skills',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-						'app.TeamsPeople',
-					'app.DivisionsDays',
-					'app.GameSlots',
-					'app.Pools',
-						'app.PoolsTeams',
-					'app.Games',
-			'app.Franchises',
-				'app.FranchisesTeams',
-			'app.Settings',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
 	 *
 	 * @return void
 	 */
 	public function setUp() {
 		parent::setUp();
-
+        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		EventManager::instance()->setEventList(new EventList());
 		foreach (Configure::read('App.globalListeners') as $listener) {
 			EventManager::instance()->on($listener);

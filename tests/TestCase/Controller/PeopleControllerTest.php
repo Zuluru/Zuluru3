@@ -12,65 +12,6 @@ use Cake\ORM\TableRegistry;
  */
 class PeopleControllerTest extends ControllerTestCase {
 
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.EventTypes',
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-					'app.PeoplePeople',
-					'app.Skills',
-					'app.Credits',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.UploadTypes',
-				'app.Uploads',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-						'app.TeamsPeople',
-						'app.TeamEvents',
-					'app.DivisionsDays',
-					'app.DivisionsPeople',
-					'app.GameSlots',
-					'app.Pools',
-						'app.PoolsTeams',
-					'app.Games',
-						'app.GamesAllstars',
-						'app.ScoreEntries',
-						'app.Stats',
-			'app.Attendances',
-			'app.Franchises',
-				'app.FranchisesPeople',
-				'app.FranchisesTeams',
-			'app.Events',
-				'app.Prices',
-					'app.Registrations',
-						'app.Payments',
-				'app.Preregistrations',
-			'app.Categories',
-				'app.Tasks',
-					'app.TaskSlots',
-			'app.Badges',
-				'app.BadgesPeople',
-			'app.MailingLists',
-				'app.Subscriptions',
-			'app.Notes',
-			'app.Settings',
-			'app.Waivers',
-				'app.WaiversPeople',
-		'app.I18n',
-		'app.Plugins',
-	];
-
 	public function setUp() {
 		parent::setUp();
 

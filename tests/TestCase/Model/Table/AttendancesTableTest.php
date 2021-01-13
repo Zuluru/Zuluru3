@@ -17,21 +17,6 @@ class AttendancesTableTest extends TableTestCase {
 	public $AttendancesTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-						'app.TeamEvents',
-			'app.Attendances',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
 	 *
 	 * @return void

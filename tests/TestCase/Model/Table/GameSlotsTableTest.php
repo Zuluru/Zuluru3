@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\GameSlotFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\GameSlotsTable;
 
@@ -15,23 +16,6 @@ class GameSlotsTableTest extends TableTestCase {
 	 * @var \App\Model\Table\GameSlotsTable
 	 */
 	public $GameSlotsTable;
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-			'app.Leagues',
-				'app.Divisions',
-					'app.GameSlots',
-						'app.DivisionsGameslots',
-		'app.I18n',
-	];
 
 	/**
 	 * setUp method
@@ -106,7 +90,11 @@ class GameSlotsTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->GameSlotsTable->affiliate(1));
+        $affiliateId = rand();
+        $gameSlot = GameSlotFactory::make()
+            ->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliateId])
+            ->persist();
+		$this->assertEquals($affiliateId, $this->GameSlotsTable->affiliate($gameSlot->id));
 	}
 
 	/**
@@ -115,8 +103,10 @@ class GameSlotsTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testSport() {
-		$this->assertEquals('ultimate', $this->GameSlotsTable->sport(GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1));
-		$this->assertEquals('soccer', $this->GameSlotsTable->sport(GAME_SLOT_ID_MONDAY_BROADACRES_WEEK_1));
+        $gameSlot1 = GameSlotFactory::make()->with('Fields', ['sport' => 'ultimate'])->persist();
+        $gameSlot2 = GameSlotFactory::make()->with('Fields', ['sport' => 'soccer'])->persist();
+		$this->assertEquals('ultimate', $this->GameSlotsTable->sport($gameSlot1->id));
+		$this->assertEquals('soccer', $this->GameSlotsTable->sport($gameSlot2->id));
 	}
 
 	/**

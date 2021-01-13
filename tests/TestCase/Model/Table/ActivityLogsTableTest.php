@@ -17,22 +17,6 @@ class ActivityLogsTableTest extends TableTestCase {
 	public $ActivityLogsTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-			'app.MailingLists',
-				'app.Newsletters',
-			'app.ActivityLogs',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
 	 *
 	 * @return void

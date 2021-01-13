@@ -20,6 +20,7 @@ vendor/dnoegel/
 vendor/doctrine/
 vendor/elboletaire/
 vendor/empty
+vendor/fzaninotto
 vendor/firebase/
 vendor/friendsofcake/
 vendor/giggsey/
@@ -48,6 +49,7 @@ vendor/soundasleep/
 vendor/stripe/
 vendor/symfony/
 vendor/trentrichardson/
+vendor/vierge-noire/
 vendor/webmozart/
 vendor/zendframework/
 vendor/zuluru/cakephp-bootstrap/

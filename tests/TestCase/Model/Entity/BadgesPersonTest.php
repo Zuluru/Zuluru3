@@ -2,6 +2,10 @@
 namespace App\Test\TestCase\Model\Entity;
 
 use App\Model\Entity\BadgesPerson;
+use App\Test\Factory\BadgesPersonFactory;
+use App\Test\Factory\GameFactory;
+use Cake\Core\Configure;
+use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 
 /**
@@ -17,47 +21,28 @@ class BadgesPersonTest extends TestCase {
 	public $BadgesPerson;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.EventTypes',
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-					'app.GameSlots',
-					'app.Pools',
-						'app.PoolsTeams',
-					'app.Games',
-			'app.Events',
-				'app.Prices',
-					'app.Registrations',
-			'app.Settings',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
 	 *
 	 * @return void
 	 */
 	public function setUp() {
 		parent::setUp();
-		$this->BadgesPerson = new BadgesPerson([
-			'game_id' => GAME_ID_LADDER_MATCHED_SCORES,
-			'registration_id' => 1,
-			'team_id' => TEAM_ID_RED,
-		]);
+        Configure::write('options.sport', ['ultimate']);
+
+		// Create a BadgesPerson entity associated to a game, a registration
+        // and a team
+		$badgePerson = BadgesPersonFactory::make()
+            ->with('Games',
+                GameFactory::make()
+                    ->with('Divisions.Leagues')
+                    ->with('GameSlots')
+            )
+            ->with('Registrations.Events')
+            ->with('Teams.Divisions.Leagues')
+            ->persist()
+            ->toArray();
+
+        $this->BadgesPerson = new BadgesPerson($badgePerson);
 	}
 
 	/**

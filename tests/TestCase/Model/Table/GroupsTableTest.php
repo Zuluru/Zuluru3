@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\GameFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\GroupsTable;
 
@@ -15,20 +16,6 @@ class GroupsTableTest extends TableTestCase {
 	 * @var \App\Model\Table\GroupsTable
 	 */
 	public $GroupsTable;
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-			'app.Groups',
-				'app.GroupsPeople',
-		'app.I18n',
-	];
 
 	/**
 	 * setUp method
@@ -67,6 +54,7 @@ class GroupsTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testMergeList() {
+        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$original = $this->GroupsTable->People->get(PERSON_ID_MANAGER, ['contain' => ['Groups']]);
 		$duplicate = $this->GroupsTable->People->get(PERSON_ID_DUPLICATE, ['contain' => ['Groups']]);
 		$groups = $this->GroupsTable->mergeList($original->groups, $duplicate->groups);

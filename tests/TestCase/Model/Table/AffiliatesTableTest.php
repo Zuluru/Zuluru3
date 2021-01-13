@@ -1,6 +1,9 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\AffiliateFactory;
+use App\Test\Factory\GameFactory;
+use App\Test\Factory\PersonFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\AffiliatesTable;
 
@@ -15,19 +18,6 @@ class AffiliatesTableTest extends TableTestCase {
 	 * @var \App\Model\Table\AffiliatesTable
 	 */
 	public $AffiliatesTable;
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-		'app.I18n',
-	];
 
 	/**
 	 * setUp method
@@ -57,13 +47,14 @@ class AffiliatesTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testReadByPlayerId() {
-		$affiliates = $this->AffiliatesTable->readByPlayerId(PERSON_ID_PLAYER);
+        $player = PersonFactory::make()->with('Affiliates')->persist();
+		$affiliates = $this->AffiliatesTable->readByPlayerId($player->id);
 		$this->assertEquals(1, count($affiliates));
 		$this->assertArrayHasKey(0, $affiliates);
 		$this->assertTrue($affiliates[0]->has('id'));
 		$this->assertArrayHasKey('People', $affiliates[0]->_matchingData);
 		$this->assertTrue($affiliates[0]->_matchingData['People']->has('id'));
-		$this->assertEquals(PERSON_ID_PLAYER, $affiliates[0]->_matchingData['People']->id);
+		$this->assertEquals($player->id, $affiliates[0]->_matchingData['People']->id);
 	}
 
 	/**
@@ -72,6 +63,7 @@ class AffiliatesTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testMergeList() {
+        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$original = $this->AffiliatesTable->People->get(PERSON_ID_MANAGER, ['contain' => ['Affiliates']]);
 		$duplicate = $this->AffiliatesTable->People->get(PERSON_ID_DUPLICATE, ['contain' => ['Affiliates']]);
 		$affiliates = $this->AffiliatesTable->mergeList($original->affiliates, $duplicate->affiliates);

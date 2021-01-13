@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\BadgesPersonFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\BadgesPeopleTable;
 
@@ -15,23 +16,6 @@ class BadgesPeopleTableTest extends TableTestCase {
 	 * @var \App\Model\Table\BadgesPeopleTable
 	 */
 	public $BadgesPeopleTable;
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-			'app.Badges',
-				'app.BadgesPeople',
-		'app.I18n',
-	];
 
 	/**
 	 * setUp method
@@ -61,7 +45,9 @@ class BadgesPeopleTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->BadgesPeopleTable->affiliate(1));
+	    $affiliateId = rand();
+	    $badgesPeople = BadgesPersonFactory::make()->with('Badges', ['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->BadgesPeopleTable->affiliate($badgesPeople->id));
 	}
 
 }

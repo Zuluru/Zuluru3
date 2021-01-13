@@ -2,6 +2,8 @@
 namespace App\Test\TestCase\Model\Entity;
 
 use App\Model\Entity\League;
+use App\Test\Factory\LeagueFactory;
+use Cake\Chronos\Date;
 use Cake\Core\Configure;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
@@ -13,70 +15,6 @@ use Cake\TestSuite\TestCase;
 class LeagueTest extends TestCase {
 
 	/**
-	 * Test subject 1
-	 *
-	 * @var \App\Model\Entity\League
-	 */
-	public $League1;
-
-	/**
-	 * Test subject 2
-	 *
-	 * @var \App\Model\Entity\League
-	 */
-	public $League2;
-
-	/**
-	 * Test subject 3
-	 *
-	 * @var \App\Model\Entity\League
-	 */
-	public $League3;
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.Leagues',
-			'app.Settings',
-		'app.I18n',
-	];
-
-	/**
-	 * setUp method
-	 *
-	 * @return void
-	 */
-	public function setUp() {
-		parent::setUp();
-		$leagues = TableRegistry::get('Leagues');
-		$this->League1 = $leagues->get(LEAGUE_ID_MONDAY);
-		$this->League2 = $leagues->get(LEAGUE_ID_TUESDAY);
-		$this->League3 = $leagues->get(LEAGUE_ID_THURSDAY);
-	}
-
-	/**
-	 * tearDown method
-	 *
-	 * @return void
-	 */
-	public function tearDown() {
-		unset($this->League1);
-		unset($this->League2);
-		unset($this->League3);
-
-		parent::tearDown();
-	}
-
-	/**
 	 * Test hasSpirit method
 	 *
 	 * @return void
@@ -85,15 +23,19 @@ class LeagueTest extends TestCase {
 		// Save to later revert
 		$spirit = Configure::read('feature.spirit');
 
+		$leagues = LeagueFactory::make([
+		    ['numeric_sotg' => true],
+            ['sotg_questions' => 'none'],
+		    ['sotg_questions' => 'Foo'],
+        ])->getEntities();
+
 		Configure::write('feature.spirit', false);
-		$this->assertFalse($this->League1->hasSpirit());
-		$this->assertFalse($this->League2->hasSpirit());
-		$this->assertFalse($this->League3->hasSpirit());
+		$this->assertFalse($leagues[0]->hasSpirit());
 
 		Configure::write('feature.spirit', true);
-		$this->assertTrue($this->League1->hasSpirit());
-		$this->assertFalse($this->League2->hasSpirit());
-		$this->assertTrue($this->League3->hasSpirit());
+		$this->assertTrue($leagues[0]->hasSpirit());
+		$this->assertFalse($leagues[1]->hasSpirit());
+		$this->assertTrue($leagues[2]->hasSpirit());
 
 		// Revert the setting
 		Configure::write('feature.spirit', $spirit);
@@ -107,14 +49,17 @@ class LeagueTest extends TestCase {
 	public function testHasCarbonFlip() {
 		// Save to later revert
 		$flip = Configure::read('scoring.carbon_flip');
+        $leagues = LeagueFactory::make([
+            ['carbon_flip' => true],
+            ['carbon_flip' => false],
+        ])->getEntities();
 
 		Configure::write('scoring.carbon_flip', false);
-		$this->assertFalse($this->League2->hasCarbonFlip());
-		$this->assertFalse($this->League3->hasCarbonFlip());
+		$this->assertFalse($leagues[0]->hasCarbonFlip());
 
 		Configure::write('scoring.carbon_flip', true);
-		$this->assertTrue($this->League2->hasCarbonFlip());
-		$this->assertFalse($this->League3->hasCarbonFlip());
+        $this->assertTrue($leagues[0]->hasCarbonFlip());
+        $this->assertFalse($leagues[1]->hasCarbonFlip());
 
 		// Revert the setting
 		Configure::write('scoring.carbon_flip', $flip);
@@ -128,14 +73,20 @@ class LeagueTest extends TestCase {
 	public function testHasStats() {
 		// Save to later revert
 		$stats = Configure::read('scoring.stat_tracking');
+        $leagues = LeagueFactory::make([
+            ['schedule_type' => 'none'],
+            ['stat_tracking' => 'foo'],
+            ['stat_tracking' => 'never'],
+        ])->getEntities();
 
 		Configure::write('scoring.stat_tracking', false);
-		$this->assertFalse($this->League2->hasStats());
-		$this->assertFalse($this->League3->hasStats());
+		$this->assertFalse($leagues[0]->hasStats());
+
 
 		Configure::write('scoring.stat_tracking', true);
-		$this->assertFalse($this->League2->hasStats());
-		$this->assertTrue($this->League3->hasStats());
+        $this->assertFalse($leagues[0]->hasStats());
+        $this->assertTrue($leagues[1]->hasStats());
+        $this->assertFalse($leagues[2]->hasStats());
 
 		// Revert the setting
 		Configure::write('scoring.carbon_flip', $stats);
@@ -145,13 +96,18 @@ class LeagueTest extends TestCase {
 	 * Test _getLongName()
 	 */
 	public function testGetLongName() {
+        $leagues = LeagueFactory::make([
+            ['name' => 'Monday Night', 'season' => 'Summer', 'sport' => 'ultimate'],
+            ['name' => 'Tuesday Night Summer', 'season' => 'Summer', 'sport' => 'baseball'],
+        ])->getEntities();
+
 		Configure::write('options.sport', ['ultimate', 'baseball']);
-		$this->assertEquals('Summer Monday Night Ultimate', $this->League1->long_name);
-		$this->assertEquals('Tuesday Night Baseball', $this->League2->long_name);
+		$this->assertEquals('Summer Monday Night Ultimate', $leagues[0]->long_name);
+		$this->assertEquals('Tuesday Night Summer Baseball', $leagues[1]->long_name);
 
 		Configure::write('options.sport', ['ultimate']);
-		$this->assertEquals('Summer Monday Night', $this->League1->long_name);
-		$this->assertEquals('Tuesday Night', $this->League2->long_name);
+		$this->assertEquals('Summer Monday Night', $leagues[0]->long_name);
+		$this->assertEquals('Tuesday Night Summer', $leagues[1]->long_name);
 	}
 
 	/**
@@ -159,13 +115,16 @@ class LeagueTest extends TestCase {
 	 */
 	public function testGetFullName() {
 		$year = FrozenTime::now()->year;
-		Configure::write('options.sport', ['ultimate', 'baseball']);
-		$this->assertEquals("$year Summer Monday Night Ultimate", $this->League1->full_name);
-		$this->assertEquals("$year Tuesday Night Baseball", $this->League2->full_name);
+        $leagues = LeagueFactory::make([
+            ['name' => 'Monday Night', 'season' => 'Summer', 'open' => Date::now()],
+            ['name' => $year . ' Monday Night', 'season' => 'Summer', 'open' => Date::now()],
+            ['name' => 'Tuesday Night', 'season' => 'Summer', 'open' => '0000-00-00'],
+        ])->getEntities();
 
-		Configure::write('options.sport', ['ultimate']);
-		$this->assertEquals("$year Summer Monday Night", $this->League1->full_name);
-		$this->assertEquals("$year Tuesday Night", $this->League2->full_name);
+		Configure::write('options.sport', ['ultimate', 'baseball']);
+		$this->assertEquals($year . ' ' . $leagues[0]->long_name, $leagues[0]->full_name);
+		$this->assertEquals($leagues[1]->long_name, $leagues[1]->full_name);
+		$this->assertEquals($leagues[2]->long_name, $leagues[2]->full_name);
 	}
 
 	/**
@@ -173,17 +132,25 @@ class LeagueTest extends TestCase {
 	 */
 	public function testGetLongSeason() {
 		$year = FrozenTime::now()->year;
-		$this->assertEquals("$year Summer", $this->League1->long_season);
-		$this->assertEquals($year, $this->League2->long_season);
-		$this->assertEquals("$year Fall", $this->League3->long_season);
+        $leagues = LeagueFactory::make([
+            ['season' => 'Summer', 'open' => Date::now()],
+            ['season' => 'None', 'open' => Date::now()],
+            ['season' => 'Summer', 'open' => '0000-00-00'],
+            ['season' => null, 'open' => '0000-00-00'],
+        ])->getEntities();
 
+		$this->assertEquals("$year Summer", $leagues[0]->long_season);
+		$this->assertEquals("$year", $leagues[1]->long_season);
+		$this->assertEquals("Summer", $leagues[2]->long_season);
+		$this->assertEquals(null, $leagues[3]->long_season);
 	}
 
 	/**
 	 * Test _getGetTieBreakers()
 	 */
 	public function testGetTieBreakers() {
-		$this->assertEquals(['win', 'hth', 'hthpm', 'pm', 'gf', 'loss'], $this->League1->tie_breakers);
+	    $league = LeagueFactory::make(['tie_breaker' => 'win,hth,hthpm,pm,gf,loss',])->getEntity();
+		$this->assertEquals(['win', 'hth', 'hthpm', 'pm', 'gf', 'loss'], $league->tie_breakers);
 	}
 
 }

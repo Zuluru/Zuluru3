@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\CategoryFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\CategoriesTable;
 
@@ -15,17 +16,6 @@ class CategoriesTableTest extends TableTestCase {
 	 * @var \App\Model\Table\CategoriesTable
 	 */
 	public $CategoriesTable;
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Categories',
-		'app.I18n',
-	];
 
 	/**
 	 * setUp method
@@ -55,7 +45,9 @@ class CategoriesTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->CategoriesTable->affiliate(1));
+        $affiliateId = rand();
+        $category = CategoryFactory::make(['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->CategoriesTable->affiliate($category->id));
 	}
 
 }

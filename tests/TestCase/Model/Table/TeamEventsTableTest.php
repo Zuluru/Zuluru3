@@ -17,30 +17,6 @@ class TeamEventsTableTest extends TableTestCase {
 	public $TeamEventsTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-						'app.TeamEvents',
-					'app.Pools',
-						'app.PoolsTeams',
-					'app.Games',
-			'app.Attendances',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
 	 *
 	 * @return void

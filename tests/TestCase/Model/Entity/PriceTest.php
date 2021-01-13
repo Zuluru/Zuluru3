@@ -2,7 +2,9 @@
 namespace TestCase\Model\Entity;
 
 use App\Model\Entity\Price;
+use App\Test\Factory\PriceFactory;
 use Cake\Core\Configure;
+use Cake\I18n\FrozenDate;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 
@@ -16,29 +18,27 @@ class PriceTest extends TestCase {
 	public $Price;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.EventTypes',
-		'app.Affiliates',
-			'app.Leagues',
-				'app.Divisions',
-			'app.Events',
-				'app.Prices',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
 	 *
 	 * @return void
 	 */
 	public function setUp() {
 		parent::setUp();
-		$prices = TableRegistry::get('Prices');
-		$this->Price = $prices->get(1);
+		$this->Price = PriceFactory::make([
+            'event_id' => 1,
+            'cost' => 10,
+            'tax1' => 0.70,
+            'tax2' => 0.80,
+            'open' => new FrozenDate('January 1 00:00:00'),
+            'close' => new FrozenDate('December 31 23:59:00'),
+            'register_rule' => '',
+            'minimum_deposit' => 0,
+            'allow_late_payment' => false,
+            'online_payment_option' => ONLINE_FULL_PAYMENT,
+            'allow_reservations' => false,
+            'reservation_duration' => 0,
+        ])->getEntity();
+
 	}
 
 	/**

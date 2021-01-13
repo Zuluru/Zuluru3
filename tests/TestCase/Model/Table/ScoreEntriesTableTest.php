@@ -2,6 +2,7 @@
 namespace App\Test\TestCase\Model\Table;
 
 use App\Middleware\ConfigurationLoader;
+use App\Test\Factory\GameFactory;
 use Cake\Event\Event as CakeEvent;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\ScoreEntriesTable;
@@ -17,32 +18,6 @@ class ScoreEntriesTableTest extends TableTestCase {
 	 * @var \App\Model\Table\ScoreEntriesTable
 	 */
 	public $ScoreEntriesTable;
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-					'app.Pools',
-						'app.PoolsTeams',
-					'app.Games',
-						'app.ScoreEntries',
-			'app.Settings',
-		'app.I18n',
-	];
 
 	/**
 	 * setUp method
@@ -72,6 +47,7 @@ class ScoreEntriesTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testBeforeMarshal() {
+        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		ConfigurationLoader::loadConfiguration();
 
 		$data = new \ArrayObject([

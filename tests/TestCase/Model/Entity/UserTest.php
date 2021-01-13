@@ -18,15 +18,6 @@ class UserTest extends TestCase {
 	public $User;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
 	 *
 	 * @return void

@@ -2,39 +2,13 @@
 namespace App\Test\TestCase\Module;
 
 use App\Core\ModuleRegistry;
+use App\Test\Factory\GameFactory;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\Entity;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 
 class LeagueTypeRoundrobinTest extends ModuleTestCase {
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-						'app.TeamsFacilities',
-					'app.DivisionsDays',
-					'app.GameSlots',
-						'app.DivisionsGameslots',
-					'app.Pools',
-						'app.PoolsTeams',
-					'app.Games',
-						'app.SpiritEntries',
-		'app.Settings',
-		'app.I18n',
-	];
 
 	/**
 	 * Test subject
@@ -90,6 +64,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 * @return void
 	 */
 	public function testCompareTeams() {
+        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER, true);
 
 		$this->assertEquals(8, count($division->teams));
@@ -168,6 +143,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 * @return void
 	 */
 	public function testCreateEmptyGame() {
+        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER);
 		// Fixtures already have games scheduled for the first 4 weeks
 		$division->_options = new Entity(['start_date' => (new FrozenDate('first Monday of June'))->addWeeks(4)]);
@@ -190,6 +166,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 * @return void
 	 */
 	public function testCreateEmptySet() {
+        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER);
 		// Fixtures already have games scheduled for the first 4 weeks
 		$division->_options = new Entity(['start_date' => (new FrozenDate('first Monday of June'))->addWeeks(4)]);
@@ -223,6 +200,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 * @return void
 	 */
 	public function testCreateScheduledSet() {
+        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		// Seed the random number generator with a fixed value, so that random determinations in field selection become fixed.
 		mt_srand(123);
 
@@ -268,6 +246,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 * @return void
 	 */
 	public function testCreateHalfRoundrobinStandings() {
+        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		// Seed the random number generator with a fixed value, so that random determinations in field selection become fixed.
 		mt_srand(123);
 
@@ -349,6 +328,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 * @return void
 	 */
 	public function testCreateHalfRoundrobinRating() {
+        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		// Seed the random number generator with a fixed value, so that random determinations in field selection become fixed.
 		mt_srand(123);
 
@@ -428,6 +408,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 * @return void
 	 */
 	public function testCreateHalfRoundrobinMix() {
+        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		// Seed the random number generator with a fixed value, so that random determinations in field selection become fixed.
 		mt_srand(123);
 
@@ -509,6 +490,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 * @return void
 	 */
 	public function testCreateFullRoundrobin() {
+        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		// Seed the random number generator with a fixed value, so that random determinations in field selection become fixed.
 		mt_srand(123);
 

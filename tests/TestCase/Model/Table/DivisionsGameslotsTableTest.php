@@ -17,23 +17,6 @@ class DivisionsGameslotsTableTest extends TableTestCase {
 	public $DivisionsGameslotsTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-			'app.Leagues',
-				'app.Divisions',
-					'app.GameSlots',
-						'app.DivisionsGameslots',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
 	 *
 	 * @return void

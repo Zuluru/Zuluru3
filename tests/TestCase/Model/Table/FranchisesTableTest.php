@@ -1,6 +1,8 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\FranchiseFactory;
+use App\Test\Factory\GameFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\FranchisesTable;
 
@@ -15,20 +17,6 @@ class FranchisesTableTest extends TableTestCase {
 	 * @var \App\Model\Table\FranchisesTable
 	 */
 	public $FranchisesTable;
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-			'app.Franchises',
-				'app.FranchisesPeople',
-		'app.I18n',
-	];
 
 	/**
 	 * setUp method
@@ -58,6 +46,7 @@ class FranchisesTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testReadByPlayerId() {
+        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$franchises = $this->FranchisesTable->readByPlayerId(PERSON_ID_CAPTAIN);
 		$this->assertEquals(2, count($franchises));
 		$this->assertArrayHasKey(0, $franchises);
@@ -79,7 +68,9 @@ class FranchisesTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->FranchisesTable->affiliate(FRANCHISE_ID_RED));
+	    $affiliateId = rand();
+	    $franchise = FranchiseFactory::make(['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->FranchisesTable->affiliate($franchise->id));
 	}
 
 }

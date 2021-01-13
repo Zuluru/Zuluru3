@@ -1,6 +1,8 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\EventFactory;
+use App\Test\Factory\GameFactory;
 use Cake\Event\Event;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\TableRegistry;
@@ -17,20 +19,6 @@ class EventsTableTest extends TableTestCase {
 	 * @var \App\Model\Table\EventsTable
 	 */
 	public $EventsTable;
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.EventTypes',
-		'app.Affiliates',
-			'app.Leagues',
-				'app.Divisions',
-			'app.Events',
-		'app.I18n',
-	];
 
 	/**
 	 * setUp method
@@ -96,6 +84,7 @@ class EventsTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testBeforeMarshal() {
+        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$date = FrozenDate::now();
 		$custom_membership = [
 			'membership_begins' => $date,
@@ -144,7 +133,9 @@ class EventsTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->EventsTable->affiliate(1));
+        $affiliateId = rand();
+        $event = EventFactory::make(['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->EventsTable->affiliate($event->id));
 	}
 
 }

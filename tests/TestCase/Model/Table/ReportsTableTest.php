@@ -17,16 +17,6 @@ class ReportsTableTest extends TableTestCase {
 	public $Reports;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Reports',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
 	 *
 	 * @return void

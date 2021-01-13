@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\GameFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\GamesTable;
 
@@ -15,36 +16,6 @@ class GamesTableTest extends TableTestCase {
 	 * @var \App\Model\Table\GamesTable
 	 */
 	public $GamesTable;
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-						'app.TeamsPeople',
-					'app.GameSlots',
-						'app.DivisionsGameslots',
-					'app.Pools',
-						'app.PoolsTeams',
-					'app.Games',
-						'app.GamesAllstars',
-						'app.ScoreEntries',
-						'app.SpiritEntries',
-						'app.ScoreDetails',
-			'app.Badges',
-				'app.BadgesPeople',
-		'app.I18n',
-	];
 
 	/**
 	 * setUp method
@@ -218,7 +189,14 @@ class GamesTableTest extends TableTestCase {
 	 * @return void
 	 */
 	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->GamesTable->affiliate(1));
+        $affiliateId = rand();
+        $game = GameFactory::make()
+            ->with('Divisions.Leagues', [
+                'affiliate_id' => $affiliateId,
+            ])
+            ->persist();
+
+		$this->assertEquals($affiliateId, $this->GamesTable->affiliate($game->id));
 	}
 
 }

@@ -17,21 +17,6 @@ class SubscriptionsTableTest extends TableTestCase {
 	public $SubscriptionsTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.MailingLists',
-				'app.Subscriptions',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
 	 *
 	 * @return void

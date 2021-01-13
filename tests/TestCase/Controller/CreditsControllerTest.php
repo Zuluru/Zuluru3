@@ -11,31 +11,6 @@ use Cake\ORM\TableRegistry;
 class CreditsControllerTest extends ControllerTestCase {
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.EventTypes',
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-					'app.PeoplePeople',
-					'app.Credits',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-						'app.TeamsPeople',
-					'app.DivisionsPeople',
-			'app.Settings',
-		'app.I18n',
-		'app.Plugins',
-    ];
-
-	/**
 	 * Test credits method
 	 *
 	 * @return void
