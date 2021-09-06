@@ -488,6 +488,11 @@ class SettingsSeed extends AbstractSeed {
 			],
 			[
 				'category' => 'profile',
+				'name' => 'pronouns',
+				'value' => '0',
+			],
+			[
+				'category' => 'profile',
 				'name' => 'birthdate',
 				'value' => '2',
 			],

@@ -4954,11 +4954,11 @@ msgstr ""
 #: Model/Table/EventsTable.php:155
 #: Model/Table/EventsTable.php:156
 #: Model/Table/EventsTable.php:157
-msgid "You must enter a number for the womxn cap."
+msgid "You must enter a number for the women cap."
 msgstr ""
 
 #: Model/Table/EventsTable.php:160
-msgid "The womxn cap cannot be less than -2."
+msgid "The women cap cannot be less than -2."
 msgstr ""
 
 #: Model/Table/EventsTable.php:163
@@ -5623,7 +5623,7 @@ msgstr ""
 #: Model/Table/ScoreEntriesTable.php:100
 #: Model/Table/ScoreEntriesTable.php:119
 #: Model/Table/ScoreEntriesTable.php:190
-msgid "You must enter the number of womxn designated players."
+msgid "You must enter the number of women designated players."
 msgstr ""
 
 #: Model/Table/ScoreEntriesTable.php:165
@@ -9291,7 +9291,7 @@ msgid "Incident for entry above:"
 msgstr ""
 
 #: Template/Divisions/spirit.ctp:362
-msgid "Team Designated Womxn Summary"
+msgid "Team Designated Women Summary"
 msgstr ""
 
 #: Template/Divisions/spirit.ctp:405
@@ -11841,11 +11841,11 @@ msgid "{0}'s mailing lists are unlike traditional mailing lists, in that members
 msgstr ""
 
 #: Template/Element/Help/rules/mailing_lists.ctp:15
-msgid "will find all womxn who are Masters age this year, but this would need to be updated annually. If you instead use:"
+msgid "will find all women who are Masters age this year, but this would need to be updated annually. If you instead use:"
 msgstr ""
 
 #: Template/Element/Help/rules/mailing_lists.ctp:20
-msgid "this will always find all womxn who are Masters age in whatever year the newsletter is being sent. This allows you to set up the mailing list once and re-use it for years without modification."
+msgid "this will always find all women who are Masters age in whatever year the newsletter is being sent. This allows you to set up the mailing list once and re-use it for years without modification."
 msgstr ""
 
 #: Template/Element/Help/rules/mailing_lists.ctp:21
@@ -11911,7 +11911,7 @@ msgid "Example:"
 msgstr ""
 
 #: Template/Element/Help/rules/rules/and.ctp:15
-msgid "will return <em>true</em> for womxn born on or before Dec 31, {0} (i.e. is a Masters age player in {1}), <em>false</em> otherwise."
+msgid "will return <em>true</em> for women born on or before Dec 31, {0} (i.e. is a Masters age player in {1}), <em>false</em> otherwise."
 msgstr ""
 
 #: Template/Element/Help/rules/rules/and.ctp:20
@@ -12093,7 +12093,7 @@ msgid "The {0} rule accepts a comma-separated list of two or more other rules, r
 msgstr ""
 
 #: Template/Element/Help/rules/rules/or.ctp:21
-msgid "will return <em>true</em> for womxn born on or before Dec 31, {0}, or men born on or before Dec 31, {1} (i.e. is a gender-specific Masters age player in {2}), <em>false</em> otherwise."
+msgid "will return <em>true</em> for women born on or before Dec 31, {0}, or men born on or before Dec 31, {1} (i.e. is a gender-specific Masters age player in {2}), <em>false</em> otherwise."
 msgstr ""
 
 #: Template/Element/Help/rules/rules/registered.ctp:2
@@ -13440,7 +13440,7 @@ msgid "new gender"
 msgstr ""
 
 #: Template/Element/People/gender_inputs.ctp:58
-msgid "Our league recognizes the gender inequities in sport and is working towards making ultimate more equitable for woman players. As such, we are implementing a minimum requirement of women on your team's roster. Do you wish to fill one of the designated womxn's spots on your team?"
+msgid "Our league recognizes the gender inequities in sport and is working towards making ultimate more equitable for woman players. As such, we are implementing a minimum requirement of women on your team's roster. Do you wish to fill one of the designated women's spots on your team?"
 msgstr ""
 
 #: Template/Element/People/ical_links.ctp:10
@@ -15307,7 +15307,7 @@ msgid "Open Cap"
 msgstr ""
 
 #: Template/Events/view.ctp:117
-msgid "Womxn cap"
+msgid "Women Cap"
 msgstr ""
 
 #: Template/Events/view.ctp:123
@@ -16168,15 +16168,15 @@ msgstr ""
 #: Template/Games/edit.ctp:299
 #: Template/Games/submit_score.ctp:134
 #: Template/Games/view.ctp:324
-msgid "How many womxn designated players did you have at this game?"
+msgid "How many women designated players did you have at this game?"
 msgstr ""
 
 #: Template/Games/edit.ctp:347
-msgid "Home Team Womxn Designated Players"
+msgid "Home Team Women Designated Players"
 msgstr ""
 
 #: Template/Games/edit.ctp:352
-msgid "Away Team Womxn Designated Players"
+msgid "Away Team Women Designated Players"
 msgstr ""
 
 #: Template/Games/edit.ctp:380
@@ -19996,7 +19996,7 @@ msgid "Enable or disable carbon flip, an environmentally-friendly option to repl
 msgstr ""
 
 #: Template/Settings/scoring.ctp:172
-msgid "Ask about the number of womxn designated players as part of game scoring"
+msgid "Ask about the number of women designated players as part of game scoring"
 msgstr ""
 
 #: Template/Settings/scoring.ctp:175
@@ -20016,7 +20016,7 @@ msgid "Team Features"
 msgstr ""
 
 #: Template/Settings/team.ctp:21
-msgid "Require Man and Womxn Captains"
+msgid "Require Man and Woman Captains"
 msgstr ""
 
 #: Template/Settings/team.ctp:24
@@ -20825,7 +20825,7 @@ msgid "If an individual has not replied promptly to your request to join, we sug
 msgstr ""
 
 #: Template/Teams/view.ctp:523
-msgid "Notice: All teams are required to have a minimum of 1 Open and 1 Womxn Captain (or Coach, where applicable) on their team roster. This does not include 'Assistant' Captains, of which there is no minimum requirement. Your team roster is not considered valid until this corrected. To change a player's 'role' please click on the role next to the player's name (e.g. Regular Player) and change to 'Captain' or 'Coach'."
+msgid "Notice: All teams are required to have a minimum of 1 Open and 1 Woman Captain (or Coach, where applicable) on their team roster. This does not include 'Assistant' Captains, of which there is no minimum requirement. Your team roster is not considered valid until this corrected. To change a player's 'role' please click on the role next to the player's name (e.g. Regular Player) and change to 'Captain' or 'Coach'."
 msgstr ""
 
 #: Template/Teams/ajax/tooltip.ctp:46
@@ -21333,23 +21333,23 @@ msgid "Updated during event registration"
 msgstr ""
 
 #: options.php:60
-msgid "Womxns XSmall"
+msgid "Womens XSmall"
 msgstr ""
 
 #: options.php:61
-msgid "Womxns Small"
+msgid "Womens Small"
 msgstr ""
 
 #: options.php:62
-msgid "Womxns Medium"
+msgid "Womens Medium"
 msgstr ""
 
 #: options.php:63
-msgid "Womxns Large"
+msgid "Womens Large"
 msgstr ""
 
 #: options.php:64
-msgid "Womxns XLarge"
+msgid "Womens XLarge"
 msgstr ""
 
 #: options.php:65
@@ -21935,14 +21935,9 @@ msgctxt "gender"
 msgid "Man"
 msgstr ""
 
-#: options.php:46
-msgctxt "gender"
-msgid "Trans"
-msgstr ""
-
 #: options.php:47
 msgctxt "gender"
-msgid "Self-defined"
+msgid "Prefer to specify"
 msgstr ""
 
 #: options.php:48
@@ -21971,7 +21966,7 @@ msgstr ""
 #: sports.php:593
 #: sports.php:599
 #: sports.php:605
-msgid "Womxns"
+msgid "Womens"
 msgstr ""
 
 #: sports.php:33
@@ -22129,7 +22124,7 @@ msgstr ""
 
 #: sports.php:239
 #: sports.php:589
-msgid "6 (min 2 womxn)"
+msgid "6 (min 2 women)"
 msgstr ""
 
 #: sports.php:279
@@ -22141,7 +22136,7 @@ msgid "4/2"
 msgstr ""
 
 #: sports.php:281
-msgid "Womxns sixes"
+msgid "Womens sixes"
 msgstr ""
 
 #: sports.php:282
@@ -22153,7 +22148,7 @@ msgid "Co-ed sixes"
 msgstr ""
 
 #: sports.php:284
-msgid "Womxns elevens"
+msgid "Womens elevens"
 msgstr ""
 
 #: sports.php:285
@@ -22165,7 +22160,7 @@ msgid "Co-ed elevens"
 msgstr ""
 
 #: sports.php:287
-msgid "Womxns twelves"
+msgid "Womens twelves"
 msgstr ""
 
 #: sports.php:288
@@ -22273,7 +22268,7 @@ msgstr ""
 
 #: sports.php:421
 #: sports.php:498
-msgid "Womxns sevens"
+msgid "Womens sevens"
 msgstr ""
 
 #: sports.php:422
@@ -22287,7 +22282,7 @@ msgid "Co-ed sevens"
 msgstr ""
 
 #: sports.php:424
-msgid "Womxns tens"
+msgid "Womens tens"
 msgstr ""
 
 #: sports.php:425
@@ -22359,7 +22354,7 @@ msgid "Strong Side Winger"
 msgstr ""
 
 #: sports.php:495
-msgid "Womxns nines"
+msgid "Womens nines"
 msgstr ""
 
 #: sports.php:496
@@ -22371,7 +22366,7 @@ msgid "Co-ed nines"
 msgstr ""
 
 #: sports.php:501
-msgid "Womxns fives"
+msgid "Womens fives"
 msgstr ""
 
 #: sports.php:502

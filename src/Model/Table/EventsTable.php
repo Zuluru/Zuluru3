@@ -152,12 +152,12 @@ class EventsTable extends AppTable {
 				'message' => __('The open cap cannot be less than -1.'),
 			])
 
-			->numeric('women_cap', __('You must enter a number for the womxn cap.'))
-			->requirePresence('women_cap', 'create', __('You must enter a number for the womxn cap.'))
-			->notEmpty('women_cap', __('You must enter a number for the womxn cap.'))
+			->numeric('women_cap', __('You must enter a number for the women cap.'))
+			->requirePresence('women_cap', 'create', __('You must enter a number for the women cap.'))
+			->notEmpty('women_cap', __('You must enter a number for the women cap.'))
 			->add('women_cap', 'range', [
 				'rule' => ['comparison', '>=', CAP_COMBINED],
-				'message' => __('The womxn cap cannot be less than -2.'),
+				'message' => __('The women cap cannot be less than -2.'),
 			])
 
 			->boolean('multiple', __('Indicate whether multiple registrations are allowed.'))

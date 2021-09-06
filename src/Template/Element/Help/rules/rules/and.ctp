@@ -12,7 +12,7 @@ $year = FrozenTime::now()->year;
     COMPARE(ATTRIBUTE('<?= Configure::read('gender.column') ?>') = '<?= Configure::read('gender.woman') ?>'),
     COMPARE(ATTRIBUTE('birthdate') &lt;= '<?= $year - 30 ?>-12-31')
 )</pre>
-<p><?= __('will return <em>true</em> for womxn born on or before Dec 31, {0} (i.e. is a Masters age player in {1}), <em>false</em> otherwise.', $year - 30, $year) ?></p>
+<p><?= __('will return <em>true</em> for women born on or before Dec 31, {0} (i.e. is a Masters age player in {1}), <em>false</em> otherwise.', $year - 30, $year) ?></p>
 <pre>AND(
     COMPARE(ATTRIBUTE('<?= Configure::read('gender.column') ?>') = '<?= Configure::read('gender.man') ?>'),
     COMPARE(ATTRIBUTE('birthdate') &lt;= '<?= $year - 33 ?>-12-31')

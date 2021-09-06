@@ -15,31 +15,26 @@ class AdditionalGenderEquityChanges extends AbstractMigration {
 				'null' => true,
 				'after' => 'first_name',
 			])
+			->addColumn('publish_gender', 'boolean', [
+				'default' => false,
+				'null' => false,
+				'after' => 'gender_description',
+			])
 			->addColumn('pronouns', 'string', [
 				'default' => null,
 				'limit' => 32,
 				'null' => true,
 				'after' => 'roster_designation',
 			])
-			->addColumn('personal_pronouns', 'string', [
-				'default' => null,
-				'limit' => 32,
-				'null' => true,
+			->addColumn('publish_pronouns', 'boolean', [
+				'default' => false,
+				'null' => false,
 				'after' => 'pronouns',
 			])
 			->update();
 
-		// Default pronouns for women and men; no good default for anyone else, so set them as incomplete and let them choose
-		$this->execute("UPDATE people SET pronouns = 'She, Her, Hers' WHERE gender = 'Woman'");
-		$this->execute("UPDATE people SET pronouns = 'He, Him, His' WHERE gender = 'Man'");
-		$this->execute("UPDATE people SET complete = 0 WHERE gender NOT IN ('Woman', 'Man')");
-
-		$this->execute("UPDATE people SET roster_designation = 'Womxn' WHERE roster_designation = 'Woman'");
-		$this->execute("UPDATE people SET shirt_size = 'Womxns XSmall' WHERE roster_designation = 'Womens XSmall'");
-		$this->execute("UPDATE people SET shirt_size = 'Womxns Small' WHERE roster_designation = 'Womens Small'");
-		$this->execute("UPDATE people SET shirt_size = 'Womxns Medium' WHERE roster_designation = 'Womens Medium'");
-		$this->execute("UPDATE people SET shirt_size = 'Womxns Large' WHERE roster_designation = 'Womens Large'");
-		$this->execute("UPDATE people SET shirt_size = 'Womxns XLarge' WHERE roster_designation = 'Womens XLarge'");
+		$this->execute("UPDATE people SET gender = '', complete = 0 WHERE gender = 'Trans'");
+		$this->execute("UPDATE people SET gender = 'Prefer to specify' WHERE gender = 'Self-defined'");
 
 		$settings = \Cake\ORM\TableRegistry::getTableLocator()->get('Settings');
 		$settings->saveMany($settings->newEntities([
@@ -69,16 +64,12 @@ class AdditionalGenderEquityChanges extends AbstractMigration {
 	public function down() {
 		$this->table('people')
 			->removeColumn('legal_name')
+			->removeColumn('publish_gender')
 			->removeColumn('pronouns')
-			->removeColumn('personal_pronouns')
+			->removeColumn('publish_pronouns')
 			->update();
 
-		$this->execute("UPDATE people SET roster_designation = 'Woman' WHERE roster_designation = 'Womxn'");
-		$this->execute("UPDATE people SET shirt_size = 'Womens XSmall' WHERE roster_designation = 'Womxns XSmall'");
-		$this->execute("UPDATE people SET shirt_size = 'Womens Small' WHERE roster_designation = 'Womxns Small'");
-		$this->execute("UPDATE people SET shirt_size = 'Womens Medium' WHERE roster_designation = 'Womxns Medium'");
-		$this->execute("UPDATE people SET shirt_size = 'Womens Large' WHERE roster_designation = 'Womxns Large'");
-		$this->execute("UPDATE people SET shirt_size = 'Womens XLarge' WHERE roster_designation = 'Womxns XLarge'");
+		$this->execute("UPDATE people SET gender = 'Self-defined' WHERE gender = 'Prefer to specify'");
 
 		\Cake\ORM\TableRegistry::getTableLocator()->get('Settings')
 			->deleteAll(['category' => 'offerings']);

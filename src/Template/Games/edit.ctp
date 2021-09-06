@@ -296,7 +296,7 @@ if (!empty($game->score_entries)):
 	if ($game->division->women_present):
 ?>
 				<tr>
-					<td><?= __('How many womxn designated players did you have at this game?') ?></td>
+					<td><?= __('How many women designated players did you have at this game?') ?></td>
 					<td><?= $homeScoreEntry->women_present ?></td>
 					<td><?= $awayScoreEntry->women_present ?></td>
 				</tr>
@@ -344,12 +344,12 @@ if (!$preliminary):
 
 	if ($game->division->women_present):
 ?>
-			<dt class="normal"><?= __('Home Team Womxn Designated Players') ?></dt>
+			<dt class="normal"><?= __('Home Team Women Designated Players') ?></dt>
 			<dd class="normal"><?= $this->Form->input('score_entries.0.women_present', [
 				'label' => false,
 				'secure' => false,
 			]) ?></dd>
-			<dt class="normal"><?= __('Away Team Womxn Designated Players') ?></dt>
+			<dt class="normal"><?= __('Away Team Women Designated Players') ?></dt>
 			<dd class="normal"><?= $this->Form->input('score_entries.1.women_present', [
 				'label' => false,
 				'secure' => false,

@@ -61,7 +61,7 @@ echo $this->element('Settings/input', [
 	'options' => [
 		'label' => __('Pronouns'),
 		'type' => 'radio',
-		'options' => Configure::read('options.access_required'),
+		'options' => Configure::read('options.access_optional'),
 	],
 ]);
 echo $this->element('Settings/input', [

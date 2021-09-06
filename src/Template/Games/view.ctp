@@ -321,7 +321,7 @@ else:
 		if ($game->division->women_present):
 ?>
 				<tr>
-					<td><?= __('How many womxn designated players did you have at this game?') ?></td>
+					<td><?= __('How many women designated players did you have at this game?') ?></td>
 					<td><?= isset($homeScoreEntry) && $homeScoreEntry->women_present ? $homeScoreEntry->women_present : '' ?></td>
 					<td><?= isset($awayScoreEntry) && $awayScoreEntry->women_present ? $awayScoreEntry->women_present : '' ?></td>
 				</tr>

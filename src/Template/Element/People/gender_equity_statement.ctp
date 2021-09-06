@@ -1,1 +1,0 @@
-<?= __('We recognize that gender identity is not binary, but initiatives to promote in-game equity currently rely on that distinction. As such, we ask that you indicate what role you will typically fill on team rosters.');

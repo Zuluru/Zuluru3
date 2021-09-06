@@ -359,7 +359,7 @@ if ($division->women_present && $min_women <= $max_women):
 	$team_records = collection($team_records)->sortBy('details.name', SORT_ASC, SORT_STRING | SORT_FLAG_CASE);
 ?>
 
-<h3><?= __('Team Designated Womxn Summary') ?></h3>
+<h3><?= __('Team Designated Women Summary') ?></h3>
 
 <?php
 	$header = range($min_women, $max_women);

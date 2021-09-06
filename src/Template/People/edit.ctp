@@ -473,7 +473,7 @@ if ($person->user_id):
 	endif;
 endif;
 
-if (Configure::read('profile.gender') || Configure::read('profile.birthdate') ||
+if (Configure::read('profile.gender') || Configure::read('profile.pronouns') || Configure::read('profile.birthdate') ||
 	Configure::read('profile.year_started') || Configure::read('profile.skill_level') ||
 	Configure::read('profile.height') || Configure::read('profile.shirt_size') ||
 	Configure::read('feature.dog_questions')):

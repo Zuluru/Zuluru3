@@ -221,14 +221,20 @@ endif;
 if (in_array('gender_display', $visible_properties)):
 ?>
 		<dt><?= __('Gender Identification') ?></dt>
-		<dd><?= __($person->gender_display) ?>&nbsp;</dd>
+		<dd><?php
+			echo __($person->gender_display);
+			echo __(' ({0})', $person->publish_gender ? __('published') : __('private'));
+		?>&nbsp;</dd>
 <?php
 endif;
 
-if (in_array('pronoun_display', $visible_properties)):
+if (in_array('pronouns', $visible_properties)):
 ?>
 		<dt><?= __('Pronouns') ?></dt>
-		<dd><?= __($person->pronoun_display) ?>&nbsp;</dd>
+		<dd><?php
+			echo $person->pronouns;
+			echo __(' ({0})', $person->publish_pronouns ? __('published') : __('private'));
+		?>&nbsp;</dd>
 <?php
 endif;
 

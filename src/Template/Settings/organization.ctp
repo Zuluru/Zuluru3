@@ -155,6 +155,16 @@ echo $this->element('Settings/input', [
 		'help' => __('What gender options do you offer?'),
 	],
 ]);
+echo $this->element('Settings/input', [
+	'category' => 'organization',
+	'name' => 'gender_equity_statement',
+	'options' => [
+		'type' => 'textarea',
+		'label' => __('Gender Equity Statement'),
+		'help' => __('Optional gender equity statement to show on profile creation/edit.'),
+		'class' => 'wysiwyg_advanced',
+	],
+]);
 ?>
 	</fieldset>
 

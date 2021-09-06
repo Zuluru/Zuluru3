@@ -201,7 +201,7 @@ class Event extends Entity {
 			$this->processGenderWaitingList(null, $event_obj, $skip_registration_id);
 		} else {
 			$this->processGenderWaitingList('Open', $event_obj, $skip_registration_id);
-			$this->processGenderWaitingList('Womxn', $event_obj, $skip_registration_id);
+			$this->processGenderWaitingList('Woman', $event_obj, $skip_registration_id);
 		}
 	}
 

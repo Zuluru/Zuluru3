@@ -261,7 +261,7 @@ class EventPolicy extends AppPolicy {
 			} else if ($cap == 0) {
 				// 0 means that nobody of this gender is allowed.
 				return [[
-					'text' => $this->_person->roster_designation == 'Open' ? __('This event is only for participants with a Womxn Roster Designation.') : __('This event is only for participants with an Open Roster Designation.'),
+					'text' => $this->_person->roster_designation == 'Open' ? __('This event is only for participants with a Woman Roster Designation.') : __('This event is only for participants with an Open Roster Designation.'),
 					'class' => 'error-message',
 				]];
 			} else if ($cap > 0 && !$resource->waiting) {

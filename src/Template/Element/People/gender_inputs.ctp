@@ -20,28 +20,18 @@ if (!empty($prefix)) {
 	$class_prefix = '';
 }
 
-echo $this->element('People/gender_equity_statement');
+echo Configure::read('organization.gender_equity_statement');
 if (!$edit || in_array(Configure::read('profile.gender'), $access)) {
-	switch (Configure::read('offerings.genders')) {
-		case 'Open':
-			$help = __('This information will help us better understand the gender diversity of the {0} community.', Configure::read('organization.short_name'));
-			break;
-
-		default:
-			$help = false;
-			break;
-	}
-
 	echo $this->Jquery->toggleInput("{$prefix}gender", [
 		'label' => __('Gender Identification'),
 		'type' => 'select',
 		'empty' => '---',
 		'options' => Configure::read('options.gender'),
-		'help' => $help,
+		'help' => __('Sharing your gender identity is optional. It can help us better understand the gender representation of our community, leading to more informed decisions about programming.'),
 		'secure' => $secure,
 	], [
 		'values' => [
-			'Self-defined' => ".{$class_prefix}self-defined-gender",
+			'Prefer to specify' => ".{$class_prefix}self-defined-gender",
 		],
 	]);
 } else {
@@ -54,7 +44,7 @@ if (!$edit || in_array(Configure::read('profile.gender'), $access)) {
 }
 
 $gender = isset($person) ? $person->gender : null;
-if (!$edit || in_array(Configure::read('profile.gender'), $access) || $gender == 'Self-defined') {
+if (!$edit || in_array(Configure::read('profile.gender'), $access) || $gender == 'Prefer to specify') {
 	echo $this->Html->tag('div',
 		$this->Form->input("{$prefix}gender_description", [
 			'secure' => false,
@@ -62,6 +52,10 @@ if (!$edit || in_array(Configure::read('profile.gender'), $access) || $gender ==
 		['class' => "{$class_prefix}self-defined-gender"]
 	);
 }
+
+echo $this->Form->input("{$prefix}publish_gender", [
+	'label' => __('Allow registered users to view gender identification'),
+]);
 
 if (Configure::read('gender.column') == 'roster_designation') {
 	if (!$edit || in_array(Configure::read('profile.gender'), $access)) {
@@ -80,34 +74,23 @@ if (Configure::read('gender.column') == 'roster_designation') {
 	}
 }
 
-if (!$edit || in_array(Configure::read('profile.pronouns'), $access)) {
-	echo $this->Jquery->toggleInput("{$prefix}pronouns", [
-		'label' => __('Pronouns'),
-		'type' => 'select',
-		'empty' => '---',
-		'options' => Configure::read('options.pronouns'),
-		'help' => $help,
-		'secure' => $secure,
-	], [
-		'values' => [
-			'Self-defined' => ".{$class_prefix}self-defined-pronouns",
-		],
-	]);
-} else {
-	echo $this->Form->input("{$prefix}pronouns", [
-		'label' => __('Pronouns'),
-		'disabled' => true,
-		'class' => 'disabled',
-		'help' => __('To prevent system abuses, this can only be changed by an administrator. To change this, please email your {0} to {1}.', __('new pronouns'), $this->Html->link($admin, "mailto:$admin")),
-	]);
-}
+if (Configure::read('profile.pronouns')) {
+	if (!$edit || in_array(Configure::read('profile.pronouns'), $access)) {
+		echo $this->Form->input("{$prefix}pronouns", [
+			'label' => __('Pronouns'),
+			'help' => __('In case we need to get in touch with you or introduce you to another player, captain, or volunteer, what pronouns should we use? (Optional)'),
+			'secure' => $secure,
+		]);
+	} else {
+		echo $this->Form->input("{$prefix}pronouns", [
+			'label' => __('Pronouns'),
+			'disabled' => true,
+			'class' => 'disabled',
+			'help' => __('To prevent system abuses, this can only be changed by an administrator. To change this, please email your {0} to {1}.', __('new pronouns'), $this->Html->link($admin, "mailto:$admin")),
+		]);
+	}
 
-$pronouns = isset($person) ? $person->pronouns : null;
-if (!$edit || in_array(Configure::read('profile.pronouns'), $access) || $pronouns == 'Self-defined') {
-	echo $this->Html->tag('div',
-		$this->Form->input("{$prefix}personal_pronouns", [
-			'secure' => false,
-		]),
-		['class' => "{$class_prefix}self-defined-pronouns"]
-	);
+	echo $this->Form->input("{$prefix}publish_pronouns", [
+		'label' => __('Allow registered users to view pronouns'),
+	]);
 }

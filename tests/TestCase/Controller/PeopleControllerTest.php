@@ -131,7 +131,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	public function testStatistics() {
 		// Admins are allowed to view the statistics page
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'statistics'], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#<h4 class="affiliate">Club</h4>.*<td>Ultimate</td>[\s]*<td>Womxn</td>[\s]*<td>6</td>#ms');
+		$this->assertResponseRegExp('#<h4 class="affiliate">Club</h4>.*<td>Ultimate</td>[\s]*<td>Woman</td>[\s]*<td>6</td>#ms');
 
 		// Managers are allowed to view the statistics page
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'statistics'], PERSON_ID_MANAGER);
@@ -1245,7 +1245,7 @@ class PeopleControllerTest extends ControllerTestCase {
 				'last_name' => 'Test',
 				'gender' => 'Woman',
 				'gender_description' => null,
-				'roster_designation' => 'Womxn',
+				'roster_designation' => 'Woman',
 				'pronouns' => 'She, Her, Hers',
 				'birthdate' => ['year' => FrozenDate::now()->year - 10, 'month' => '01', 'day' => '01'],
 				'height' => 50,
@@ -2720,7 +2720,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertEmpty($person->work_phone);
 		$this->assertEquals('(416) 345-6790', $person->mobile_phone);
 		$this->assertEquals('236 Main St.', $person->addr_street);
-		$this->assertEquals('Womxns Large', $person->shirt_size);
+		$this->assertEquals('Womens Large', $person->shirt_size);
 		$this->assertEquals(USER_ID_MANAGER, $person->user_id);
 		$this->assertNotNull($person->user);
 		$this->assertEquals(USER_ID_MANAGER, $person->user->id);

@@ -12,12 +12,12 @@ $year = FrozenTime::now()->year;
     COMPARE(ATTRIBUTE('<?= Configure::read('gender.column') ?>') = '<?= Configure::read('gender.woman') ?>'),
     COMPARE(ATTRIBUTE('birthdate') &lt;= '<?= $year - 30 ?>-12-31')
 )</pre>
-<p><?= __('will find all womxn who are Masters age this year, but this would need to be updated annually. If you instead use:') ?></p>
+<p><?= __('will find all women who are Masters age this year, but this would need to be updated annually. If you instead use:') ?></p>
 <pre>AND(
     COMPARE(ATTRIBUTE('<?= Configure::read('gender.column') ?>') = '<?= Configure::read('gender.woman') ?>'),
     COMPARE(ATTRIBUTE('birthdate') &lt;= FORMAT_DATE('Dec 31 - 30 years'))
 )</pre>
-<p><?= __('this will always find all womxn who are Masters age in whatever year the newsletter is being sent. This allows you to set up the mailing list once and re-use it for years without modification.') ?></p>
+<p><?= __('this will always find all women who are Masters age in whatever year the newsletter is being sent. This allows you to set up the mailing list once and re-use it for years without modification.') ?></p>
 <p><?= __('{0} uses the PHP strtotime function. For more details of options you can use, see PHP\'s {1}, in particular the Relative Formats page.',
 	'FORMAT_DATE',
 	$this->Html->link(__('Supported Date and Time Formats'), 'https://php.net/manual/en/datetime.formats.php')

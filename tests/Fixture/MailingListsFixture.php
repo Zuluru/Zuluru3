@@ -42,7 +42,7 @@ class MailingListsFixture extends TestFixture {
 			[
 				'name' => 'Women',
 				'opt_out' => true,
-				'rule' => 'compare(attribute(roster_designation) = \'Womxn\'))',
+				'rule' => 'compare(attribute(roster_designation) = \'Woman\'))',
 				'affiliate_id' => AFFILIATE_ID_SUB,
 			],
 		];
