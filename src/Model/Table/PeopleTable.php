@@ -764,6 +764,11 @@ class PeopleTable extends AppTable {
 			$entity->complete = true;
 		}
 
+		// Should this go in beforeMarshal instead?
+		if (Configure::read('feature.auto_approve') && $entity->status == 'new' && $entity->complete) {
+			$entity->status = 'active';
+		}
+
 		if ($entity->gender == 'Woman' && $entity->roster_designation != 'Woman') {
 			$entity->roster_designation = 'Woman';
 		} else if ($entity->gender == 'Man' && $entity->roster_designation != 'Open') {

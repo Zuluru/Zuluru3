@@ -77,11 +77,11 @@ else:
 			<li><a href="<?= Router::url(['action' => 'consolidated_schedule']) ?>"><?= __('Consolidated Schedule') ?></a></li>
 		</ul>
 <?php
-	echo $this->Html->tag('div', $this->element('All/blank_splash', ['id' => $this->UserCache->currentId(), 'name' => __('My Teams')]), ['id' => 'ui-tabs-1']);
+	echo $this->Html->tag('div', $this->element('All/blank_splash', ['id' => $this->UserCache->currentId(), 'name' => __('My Teams'), 'person' => null]), ['id' => 'ui-tabs-1']);
 	foreach ($relatives as $i => $relative) {
-		echo $this->Html->tag('div', $this->element('All/blank_splash', ['id' => $relative->id, 'name' => __('{0}\'s Teams', $relative->first_name)]), ['id' => 'ui-tabs-' . ($i + 2)]);
+		echo $this->Html->tag('div', $this->element('All/blank_splash', ['id' => $relative->id, 'name' => __('{0}\'s Teams', $relative->first_name), 'person' => $relative]), ['id' => 'ui-tabs-' . ($i + 2)]);
 	}
-	echo $this->Html->tag('div', $this->element('All/blank_splash'), ['id' => 'ui-tabs-' . ($i + 3)]);
+	echo $this->Html->tag('div', $this->element('All/blank_splash'), ['id' => 'ui-tabs-' . ($i + 3), 'person' => null]);
 ?>
 	</div>
 <?php
