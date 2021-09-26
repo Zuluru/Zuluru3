@@ -285,8 +285,8 @@ class ZuluruHtmlHelper extends HtmlHelper {
 
 			'have a People.gender of Woman' => 'be a woman',
 			'have a People.gender of Man' => 'be a man',
-			'have a People.roster_designation of Woman' => 'be a woman',
-			'have a People.roster_designation of Open' => 'be a man',
+			'have a People.roster_designation of Woman' => 'have a roster designation of Woman',
+			'have a People.roster_designation of Open' => 'have a roster designation of Open',
 
 			'have a People.has_dog of 0' => 'not have a dog',
 			'have a People.has_dog of 1' => 'have a dog',

@@ -1246,6 +1246,7 @@ class PeopleControllerTest extends ControllerTestCase {
 				'gender' => 'Woman',
 				'gender_description' => null,
 				'roster_designation' => 'Woman',
+				'pronouns' => 'She, Her, Hers',
 				'birthdate' => ['year' => FrozenDate::now()->year - 10, 'month' => '01', 'day' => '01'],
 				'height' => 50,
 				'shirt_size' => 'Youth Large',

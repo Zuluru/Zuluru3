@@ -95,8 +95,14 @@ endif;
 		<legend><?= __('Your Information') . ' ' . $this->Html->tag('span', __('(parent\'s name, not the child\'s)'), ['style' => 'display:none;', 'class' => 'parent']) ?></legend>
 <?php
 echo $this->Form->input('person.first_name', [
+	'label' => Configure::read('profile.legal_name') ? __('Preferred Name') : __('First Name'),
 	'help' => __('First (and, if desired, middle) name.'),
 ]);
+if (Configure::read('profile.legal_name')) {
+	echo $this->Form->input('person.legal_name', [
+		'help' => __('For insurance and legal purposes. This will be visible only to administrators. Required only if substantially different from your Preferred Name.'),
+	]);
+}
 echo $this->Form->input('person.last_name');
 
 $phone_numbers_enabled = array_diff([

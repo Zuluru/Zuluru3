@@ -25,7 +25,7 @@ $this->Html->addCrumb(__('View'));
 
 <?php
 $has_visible_contact = false;
-$visible_properties = $person->visibleProperties();
+$visible_properties = $person->getVisible();
 $is_player = collection($person->groups)->some(function ($group) { return $group->id == GROUP_PLAYER; });
 $identity = $this->Authorize->getIdentity();
 ?>
@@ -65,6 +65,13 @@ if (in_array('client_ip', $visible_properties) && !empty($person->client_ip)):
 ?>
 		<dt><?= __('IP Address') ?></dt>
 		<dd><?= $person->client_ip ?></dd>
+<?php
+endif;
+
+if (!empty($person->legal_name) && in_array('legal_name', $visible_properties)):
+?>
+		<dt><?= __('Legal Name') ?></dt>
+		<dd><?= $person->legal_name ?></dd>
 <?php
 endif;
 
@@ -213,8 +220,21 @@ endif;
 
 if (in_array('gender_display', $visible_properties)):
 ?>
-		<dt><?= __('Gender') ?></dt>
-		<dd><?= __($person->gender_display) ?>&nbsp;</dd>
+		<dt><?= __('Gender Identification') ?></dt>
+		<dd><?php
+			echo __($person->gender_display);
+			echo __(' ({0})', $person->publish_gender ? __('published') : __('private'));
+		?>&nbsp;</dd>
+<?php
+endif;
+
+if (in_array('pronouns', $visible_properties)):
+?>
+		<dt><?= __('Pronouns') ?></dt>
+		<dd><?php
+			echo $person->pronouns;
+			echo __(' ({0})', $person->publish_pronouns ? __('published') : __('private'));
+		?>&nbsp;</dd>
 <?php
 endif;
 

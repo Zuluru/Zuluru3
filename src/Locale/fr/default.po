@@ -21482,7 +21482,7 @@ msgstr "Si une personne n'a pas répondu rapidement à votre demande d'adhésion
 
 #: Template/Teams/view.ctp:523
 msgid ""
-"Notice: All teams are required to have a minimum of 1 open and 1 woman "
+"Notice: All teams are required to have a minimum of 1 Open and 1 Woman "
 "Captain (or Coach, where applicable) on their team roster. This does not "
 "include 'Assistant' Captains, of which there is no minimum requirement. Your"
 " team roster is not considered valid until this corrected. To change a "
@@ -22613,15 +22613,10 @@ msgctxt "gender"
 msgid "Man"
 msgstr "Homme"
 
-#: options.php:46
-msgctxt "gender"
-msgid "Trans"
-msgstr "Trans"
-
 #: options.php:47
 msgctxt "gender"
-msgid "Self-defined"
-msgstr "Auto-défini"
+msgid "Prefer to specify"
+msgstr "Je préfère préciser"
 
 #: options.php:48
 msgctxt "gender"

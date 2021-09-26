@@ -26,9 +26,9 @@ class ConfigurationTable extends AppTable {
 			$settings = $this->format($this->find()->where($conditions)->toArray());
 
 			// Add some gender-related pseudo-settings
-			if (count(Configure::read('options.gender')) <= 2) {
+			if (Configure::read('offerings.genders') === 'Open' || count(Configure::read('options.gender')) <= 2) {
 				$settings['gender.column'] = 'gender';
-				$settings['gender.label'] = __('Gender');
+				$settings['gender.label'] = __('Gender Identification');
 				$settings['gender.name'] = __('gender');
 			} else {
 				$settings['gender.column'] = 'roster_designation';

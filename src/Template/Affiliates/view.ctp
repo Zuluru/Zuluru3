@@ -1,4 +1,7 @@
 <?php
+
+use Cake\Core\Configure;
+
 $this->Html->addCrumb(__('Affiliates'));
 $this->Html->addCrumb(h($affiliate->name));
 $this->Html->addCrumb(__('View'));
@@ -21,7 +24,7 @@ if (!empty($affiliate->people)):
 		<table class="table table-striped table-hover table-condensed">
 			<thead>
 				<tr>
-					<th><?= __('First Name') ?></th>
+					<th><?= Configure::read('profile.legal_name') ? __('Preferred Name') : __('First Name') ?></th>
 					<th><?= __('Last Name') ?></th>
 					<th class="actions"><?= __('Actions') ?></th>
 				</tr>

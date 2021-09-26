@@ -165,7 +165,11 @@ if ($this->Authorize->can('display_gender', new ContextResource($team, ['divisio
 ?>
 					<td><?php
 						if (array_key_exists($key, $counts)) {
-							echo implode(' / ', $counts[$key]);
+							if (Configure::read('offerings.genders') === 'Open') {
+								echo array_sum($counts[$key]);
+							} else {
+								echo implode(' / ', $counts[$key]);
+							}
 						}
 					?></td>
 <?php

@@ -65,7 +65,6 @@ class ControllerTestCase extends TestCase {
 			$user->person = $person;
 		}
 
-		Configure::write('options.gender_binary', []);
 		Configure::write('test_emails', []);
 		$this->session(['Auth' => $user]);
 		UserCache::setIdentity(null);

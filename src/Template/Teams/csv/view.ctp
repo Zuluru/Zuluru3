@@ -17,11 +17,11 @@ $positions = $team->division_id ? Configure::read("sports.{$team->division->leag
 
 $fields = [
 	__('Number') => $has_numbers,
-	'first_name' => __('First Name'),
+	'first_name' => Configure::read('profile.legal_name') ? __('Preferred Name') : __('First Name'),
 	'last_name' => __('Last Name'),
 	__('Role') => true,
 	__('Position') => !empty($positions),
-	Configure::read('gender.label') => $this->Authorize->can('display_gender', new ContextResource($team, ['division' => $team->division])),
+	Configure::read('gender.label') => $this->Authorize->can('display_gender', new ContextResource($team, ['division' => $team->division])) && Configure::read('offerings.genders') !== 'Open',
 	__('Date Joined') => true,
 	'email' => __('Email Address'),
 	'alternate_email' => __('Alternate Email Address'),

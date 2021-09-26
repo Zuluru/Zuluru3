@@ -13,6 +13,7 @@ use Cake\Routing\Router;
  *
  * @property int $id
  * @property string $first_name
+ * @property string $legal_name
  * @property string $last_name
  * @property bool $publish_email
  * @property string $home_phone
@@ -29,7 +30,10 @@ use Cake\Routing\Router;
  * @property string $addr_postalcode
  * @property string $gender
  * @property string $gender_description
+ * @property bool $publish_gender
  * @property string $roster_designation
+ * @property string $pronouns
+ * @property bool $publish_pronouns
  * @property \Cake\I18n\FrozenTime $birthdate
  * @property int $height
  * @property string $shirt_size
@@ -112,6 +116,7 @@ class Person extends Entity {
 	 * @var array
 	 */
 	protected $_hidden = [
+		'legal_name',
 		'publish_email',
 		'alternate_email',
 		'publish_alternate_email',
@@ -131,6 +136,7 @@ class Person extends Entity {
 		'gender_display',
 		'gender_description',
 		'roster_designation',
+		'pronouns',
 		'birthdate',
 		'height',
 		'shirt_size',
@@ -282,12 +288,13 @@ class Person extends Entity {
 			return '';
 		}
 
-		$display = __($this->gender);
-		if ($this->gender == 'Self-defined') {
-			$display .= __(' ({0})', h($this->gender_description));
+		if ($this->gender == 'Prefer to specify') {
+			$display = h($this->gender_description);
+		} else {
+			$display = __($this->gender);
 		}
-		if (!in_array($this->gender, Configure::read('options.gender_binary'))) {
-			$display .= __(' ({0}: {1})', __('Roster Designation', __($this->roster_designation)));
+		if (Configure::read('gender.column') == 'roster_designation') {
+			$display .= __(' ({0}: {1})', __('Roster Designation'), __($this->roster_designation));
 		}
 
 		return $display;
@@ -301,7 +308,10 @@ class Person extends Entity {
 	public function merge(Person $new) {
 		$preserve = ['id', 'status', 'user_id'];
 		// These are player fields, which might not be present if the one being merged is a parent
-		$preserve_if_new_is_empty = ['gender', 'gender_description', 'roster_designation', 'birthdate', 'height', 'shirt_size', 'user'];
+		$preserve_if_new_is_empty = [
+			'gender', 'gender_description', 'publish_gender', 'roster_designation', 'pronouns', 'publish_pronouns',
+			'birthdate', 'height', 'shirt_size', 'user',
+		];
 
 		foreach (array_keys($new->_properties) as $prop) {
 			if ($this->isAccessible($prop) && !in_array($prop, $preserve)) {
@@ -445,6 +455,10 @@ class Person extends Entity {
 			if ($is_manager || $is_me) {
 				$visible += [
 					'gender_display' => true,
+					'publish_gender' => true,
+					'legal_name' => true,
+					'pronouns' => true,
+					'publish_pronouns' => true,
 				];
 			}
 
@@ -513,6 +527,16 @@ class Person extends Entity {
 						'publish_alternate_mobile_phone' => true,
 					];
 				}
+				if ($this->publish_gender) {
+					$visible += [
+						'gender_display' => true,
+					];
+				}
+				if ($this->publish_pronouns) {
+					$visible += [
+						'pronouns' => true,
+					];
+				}
 			}
 
 			// Remove things based on disabled features
@@ -535,6 +559,9 @@ class Person extends Entity {
 			}
 			if (!Configure::read('scoring.allstars') || !$is_player) {
 				unset($visible['allstars']);
+			}
+			if (!Configure::read('profile.legal_name')) {
+				unset($visible['legal_name']);
 			}
 			if (!Configure::read('profile.home_phone')) {
 				unset($visible['home_phone']);
@@ -569,6 +596,10 @@ class Person extends Entity {
 			if (!Configure::read('profile.addr_postalcode')) {
 				unset($visible['addr_postalcode']);
 			}
+			if (!Configure::read('profile.pronouns')) {
+				unset($visible['pronouns']);
+				unset($visible['publish_pronouns']);
+			}
 			if (!Configure::read('profile.birthdate')) {
 				unset($visible['birthdate']);
 			}
@@ -600,6 +631,9 @@ class Person extends Entity {
 			if (!$is_player) {
 				unset($visible['birthdate']);
 				unset($visible['gender_display']);
+				unset($visible['publish_gender']);
+				unset($visible['pronouns']);
+				unset($visible['publish_pronouns']);
 				unset($visible['height']);
 				unset($visible['shirt_size']);
 				unset($visible['skills']);
