@@ -12,6 +12,7 @@ if ($id == $identity->getIdentifier()) {
 } else {
 	$act_as = $id;
 }
+$isPlayer = $person ? in_array(GROUP_PLAYER, $this->UserCache->read('GroupIDs', $person->id)) : $identity->isPlayer();
 
 if ($this->Authorize->can('index', \App\Controller\AffiliatesController::class)):
 	if (empty($affiliates)):
@@ -128,7 +129,7 @@ if ($identity->isManager()):
 			}
 		}
 	endif;
-elseif ($empty && $identity->isPlayer()):
+elseif ($empty && $isPlayer):
 	// If the user has nothing going on, pull some more details to allow us to help them get started
 	$waivers = TableRegistry::getTableLocator()->get('Waivers')->find('active', ['affiliates' => $applicable_affiliates])->toArray();
 	$signed_waivers = $this->UserCache->read('Waivers', $act_as);

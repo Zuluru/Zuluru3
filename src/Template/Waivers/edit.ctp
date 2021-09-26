@@ -60,18 +60,22 @@ echo $this->Jquery->toggleInput('expiry_type', [
 echo $this->Form->input('start_month', [
 	'type' => 'month',
 	'label' => __('From month'),
+	'value' => sprintf('%02f', $waiver->start_month),
 ]);
 echo $this->Form->input('start_day', [
 	'type' => 'day',
 	'label' => __('From day'),
+	'value' => sprintf('%02f', $waiver->start_day),
 ]);
 echo $this->Form->input('end_month', [
 	'type' => 'month',
 	'label' => __('Through month'),
+	'value' => sprintf('%02f', $waiver->end_month),
 ]);
 echo $this->Form->input('end_day', [
 	'type' => 'day',
 	'label' => __('Through day'),
+	'value' => sprintf('%02f', $waiver->end_day),
 ]);
 ?>
 			</div>

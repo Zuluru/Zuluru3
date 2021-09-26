@@ -77,6 +77,7 @@ function open_payment_window_stripe() {
 	}).then(function (result) {
 		alert(result.error.message);
 	});
+	return false;
 }
 ", ['block' => true]);
 		?>
@@ -84,7 +85,7 @@ function open_payment_window_stripe() {
 		<?php
 		// Build the online payment form
 		$form_options = ['url' => '#', 'name' => 'stripe_form', 'escape' => false];
-		$submit_options = ['div' => false, 'alt' => 'Pay', 'onClick' => 'open_payment_window_stripe();'];
+		$submit_options = ['div' => false, 'alt' => 'Pay', 'onClick' => 'return open_payment_window_stripe();'];
 		echo $this->Form->create(false, $form_options);
 		echo $this->Form->submit(__n('Pay', 'Pay with Stripe', $number_of_providers), $submit_options);
 		echo $this->Form->end();
