@@ -767,6 +767,22 @@ class PeopleTable extends AppTable {
 	}
 
 	/**
+	 * Modifies the entity after rules are run.
+	 *
+	 * @param \Cake\Event\Event $cakeEvent The beforeRules event that was fired
+	 * @param \Cake\Datasource\EntityInterface $entity The entity that is going to be saved
+	 * @param \ArrayObject $options The options passed to the save method
+	 * @param boolean $result Indication of whether the rules passed
+	 * @param mixed $operation The operation (e.g. create, delete) about to be run
+	 * @return void
+	 */
+	public function afterRules(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options, $result, $operation) {
+		if ($result && !$entity->complete) {
+			$entity->complete = true;
+		}
+	}
+
+	/**
 	 * Perform additional operations after it is saved.
 	 *
 	 * @param \Cake\Event\Event $cakeEvent The afterSave event that was fired
