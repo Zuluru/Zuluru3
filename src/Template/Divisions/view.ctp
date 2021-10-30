@@ -21,7 +21,7 @@ endif;
 		<dd><?php
 			echo $this->element('Leagues/block', ['league' => $division->league]);
 			echo $this->Html->iconLink('view_24.png', ['controller' => 'Leagues', 'action' => 'view', 'league' => $division->league_id], ['id' => 'LeagueDetailsIcon']);
-			$this->Html->scriptBlock('jQuery("#LeagueDetailsIcon").bind("click", function (event) { jQuery("#LeagueDetails").toggle(); return false; });', ['buffer' => true]);
+			$this->Html->scriptBlock('zjQuery("#LeagueDetailsIcon").bind("click", function (event) { zjQuery("#LeagueDetails").toggle(); return false; });', ['buffer' => true]);
 		?></dd>
 		<fieldset id="LeagueDetails" style="display:none;">
 			<legend><?= __('League Details') ?></legend>

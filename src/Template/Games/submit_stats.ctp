@@ -153,9 +153,9 @@ function check_score(team_score, opponent_score, team_id) {
 ");
 
 $this->Html->scriptBlock("
-jQuery('input').on('change', function () { statsInputChanged(jQuery(this)); });
-jQuery('tr#sub_row').find('input[class^=stat_]').each(function() { statsInputChanged(jQuery(this)); });
-jQuery('.unapplicable, .attendance_details').hide();
+zjQuery('input').on('change', function () { statsInputChanged(zjQuery(this)); });
+zjQuery('tr#sub_row').find('input[class^=stat_]').each(function() { statsInputChanged(zjQuery(this)); });
+zjQuery('.unapplicable, .attendance_details').hide();
 ", ['buffer' => true]);
 
 echo $this->element('Games/attendance_div');

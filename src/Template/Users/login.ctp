@@ -38,5 +38,5 @@ echo $this->Form->button(__('Login'), ['class' => 'btn-success', 'tabindex' => 1
 echo $this->Form->end();
 
 // TODO: Add a jQuery initialization that sets focus to something with a class? This is currently the only place we do this.
-$this->Html->scriptBlock('jQuery("#UserName").focus();', ['buffer' => true]);
+$this->Html->scriptBlock('zjQuery("#UserName").focus();', ['buffer' => true]);
 ?>

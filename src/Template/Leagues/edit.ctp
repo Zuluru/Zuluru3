@@ -157,7 +157,7 @@ echo $this->Form->input('tie_breakers', [
 $this->Form->unlockField('asmSelect0');
 $this->Html->css('jquery.asmselect.css', ['block' => true]);
 $this->Html->script('jquery.asmselect.js', ['block' => true]);
-$this->Html->scriptBlock('jQuery("select[multiple]").asmSelect({sortable:true});', ['buffer' => true]);
+$this->Html->scriptBlock('zjQuery("select[multiple]").asmSelect({sortable:true});', ['buffer' => true]);
 
 echo $this->Form->input('expected_max_score', [
 	'div' => 'input advanced',
@@ -260,7 +260,7 @@ if (empty($league->divisions)) {
 </div>
 
 <?php
-$this->Html->scriptBlock('jQuery(".advanced").hide();', ['buffer' => true]);
+$this->Html->scriptBlock('zjQuery(".advanced").hide();', ['buffer' => true]);
 ?>
 <div class="actions columns">
 	<ul class="nav nav-pills">

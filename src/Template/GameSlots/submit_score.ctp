@@ -65,7 +65,7 @@ foreach ($game_slot->games as $game):
 						]);
 						echo $this->Form->hidden("Game.{$game['home_team_id']}.type");
 						echo $this->Form->hidden("Game.{$game['home_team_id']}.details");
-						$this->Html->scriptBlock("jQuery('#Game{$game['home_team_id']}Incident').data('team_id', {$game['home_team_id']});", ['buffer' => true]);
+						$this->Html->scriptBlock("zjQuery('#Game{$game['home_team_id']}Incident').data('team_id', {$game['home_team_id']});", ['buffer' => true]);
 					?></td>
 <?php
 	endif;
@@ -114,50 +114,50 @@ endif;
 <?php
 $this->Html->scriptBlock("
 function statusChanged() {
-	if (jQuery('#Status').val() == 'normal') {
+	if (zjQuery('#Status').val() == 'normal') {
 		enableCommon();
 		enableScores();
 	} else {
-		jQuery('.score').val(0);
+		zjQuery('.score').val(0);
 		disableCommon();
 		disableScores();
 	}
 }
 
 function disableScores() {
-	jQuery('#Scores').css('display', 'none');
+	zjQuery('#Scores').css('display', 'none');
 }
 
 function enableScores() {
-	jQuery('#Scores').css('display', '');
+	zjQuery('#Scores').css('display', '');
 }
 
 function disableCommon() {
-	jQuery('input:text').prop('disabled', true);
-	jQuery('input[type=\"number\"]').prop('disabled', true);
-	jQuery('.incident_checkbox').prop('disabled', true);
+	zjQuery('input:text').prop('disabled', true);
+	zjQuery('input[type=\"number\"]').prop('disabled', true);
+	zjQuery('.incident_checkbox').prop('disabled', true);
 }
 
 function enableCommon() {
-	jQuery('input:text').prop('disabled', false);
-	jQuery('input[type=\"number\"]').prop('disabled', false);
-	jQuery('.incident_checkbox').prop('disabled', false);
+	zjQuery('input:text').prop('disabled', false);
+	zjQuery('input[type=\"number\"]').prop('disabled', false);
+	zjQuery('.incident_checkbox').prop('disabled', false);
 }
 
 function incidentCheckboxChanged(checkbox) {
 	var team = checkbox.data('team_id');
 	if (checkbox.prop('checked')) {
-		jQuery('#IncidentTeam').val(team);
-		jQuery('#IncidentType').val(jQuery('#Game' + team + 'Type').val());
-		jQuery('#IncidentDetails').val(jQuery('#Game' + team + 'Details').val());
-		jQuery('#IncidentDialog').dialog('open');
+		zjQuery('#IncidentTeam').val(team);
+		zjQuery('#IncidentType').val(zjQuery('#Game' + team + 'Type').val());
+		zjQuery('#IncidentDetails').val(zjQuery('#Game' + team + 'Details').val());
+		zjQuery('#IncidentDialog').dialog('open');
 	}
 }
 
 function updateIncident() {
-	var team = jQuery('#IncidentTeam').val();
-	jQuery('#Game' + team + 'Type').val(jQuery('#IncidentType').val());
-	jQuery('#Game' + team + 'Details').val(jQuery('#IncidentDetails').val());
+	var team = zjQuery('#IncidentTeam').val();
+	zjQuery('#Game' + team + 'Type').val(zjQuery('#IncidentType').val());
+	zjQuery('#Game' + team + 'Details').val(zjQuery('#IncidentDetails').val());
 }
 ", ['buffer' => true]);
 
@@ -166,16 +166,16 @@ function updateIncident() {
 $continue = __('Continue');
 $cancel = __('Cancel');
 $this->Html->scriptBlock("
-jQuery('#Status').on('change', function (){statusChanged();});
-jQuery('.incident_checkbox').on('change', function (){incidentCheckboxChanged(jQuery(this));});
-jQuery('#IncidentDialog').dialog({
+zjQuery('#Status').on('change', function (){statusChanged();});
+zjQuery('.incident_checkbox').on('change', function (){incidentCheckboxChanged(zjQuery(this));});
+zjQuery('#IncidentDialog').dialog({
 		autoOpen: false,
 		buttons: {
 			'$continue': function () {
-				jQuery(this).dialog('close');
+				zjQuery(this).dialog('close');
 				updateIncident();
 			},
-			'$cancel': function () { jQuery(this).dialog('close'); }
+			'$cancel': function () { zjQuery(this).dialog('close'); }
 		},
 		modal: true,
 		resizable: false,

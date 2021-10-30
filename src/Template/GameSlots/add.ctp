@@ -218,12 +218,12 @@ echo $this->Form->end();
 
 <?php
 $this->Html->scriptBlock("
-jQuery('[name^=\"game_date\"]').on('change', function (){
+zjQuery('[name^=\"game_date\"]').on('change', function (){
 	// If there's only a single day checkbox checked, change it to match the new date
-	var d = new Date(jQuery('[name=\"game_date[year]\"]').val(), jQuery('[name=\"game_date[month]\"]').val() - 1, jQuery('[name=\"game_date[day]\"]').val());
-	if (jQuery('input:checked[name=\"days[]\"]').length == 1) {
-		jQuery('input:checked[name=\"days[]\"]').prop('checked', false);
+	var d = new Date(zjQuery('[name=\"game_date[year]\"]').val(), zjQuery('[name=\"game_date[month]\"]').val() - 1, zjQuery('[name=\"game_date[day]\"]').val());
+	if (zjQuery('input:checked[name=\"days[]\"]').length == 1) {
+		zjQuery('input:checked[name=\"days[]\"]').prop('checked', false);
 	}
-	jQuery('#days-' + ((d.getDay() + 6) % 7 + 1)).prop('checked', true);
+	zjQuery('#days-' + ((d.getDay() + 6) % 7 + 1)).prop('checked', true);
 });
 ", ['buffer' => true]);

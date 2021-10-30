@@ -69,8 +69,8 @@ if (Configure::read('feature.twitter')) {
 	echo $this->Form->end();
 
 	$this->Html->scriptBlock("
-        jQuery(document).ready(function() {
-            jQuery('#TwitterLiveScoreForm').ajaxForm({target: '#temp_update'});
+        zjQuery(document).ready(function() {
+            zjQuery('#TwitterLiveScoreForm').ajaxForm({target: '#temp_update'});
         });
 	", ['buffer' => true]);
 }
@@ -113,12 +113,12 @@ if (empty($game->score_details)):
 <?php
 	$submit = __('Submit');
 	$this->Html->scriptBlock("
-		jQuery('#StartDetails{$team->id}').dialog({
+		zjQuery('#StartDetails{$team->id}').dialog({
 			autoOpen: true,
 			buttons: {
 				'$submit': function () {
-					jQuery(this).dialog('close');
-					jQuery('#StartForm{$team->id}').ajaxSubmit({
+					zjQuery(this).dialog('close');
+					zjQuery('#StartForm{$team->id}').ajaxSubmit({
 						type: 'POST',
 						target: '#temp_update',
 						error: function (message, status, error){
@@ -126,7 +126,7 @@ if (empty($game->score_details)):
 						}
 					});
 					// Reset the form for the next time
-					jQuery('#StartForm{$team->id}').each(function(){
+					zjQuery('#StartForm{$team->id}').each(function(){
 						this.reset();
 					});
 				}

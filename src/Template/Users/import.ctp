@@ -25,9 +25,9 @@ if (!empty($succeeded)):
 <p><?= __('{0} accounts had no problems', count($succeeded)) ?>: <a class="success_hidden" href="#"><?= __('Show details') ?></a><a class="success_details" href="#"><?= __('Hide details') ?></a></p>
 <div class="success_details"><?= $this->Html->nestedList($succeeded) ?></div>
 <?php
-$this->Html->scriptBlock('jQuery("a.success_hidden").bind("click", function (event) { jQuery(".success_details").show(); jQuery(".success_hidden").hide(); return false; });', ['buffer' => true]);
-$this->Html->scriptBlock('jQuery("a.success_details").bind("click", function (event) { jQuery(".success_details").hide(); jQuery(".success_hidden").show(); return false; });', ['buffer' => true]);
-$this->Html->scriptBlock('jQuery(".success_details").hide();', ['buffer' => true]);
+$this->Html->scriptBlock('zjQuery("a.success_hidden").bind("click", function (event) { zjQuery(".success_details").show(); zjQuery(".success_hidden").hide(); return false; });', ['buffer' => true]);
+$this->Html->scriptBlock('zjQuery("a.success_details").bind("click", function (event) { zjQuery(".success_details").hide(); zjQuery(".success_hidden").show(); return false; });', ['buffer' => true]);
+$this->Html->scriptBlock('zjQuery(".success_details").hide();', ['buffer' => true]);
 endif;
 
 if (!empty($resolved)):
@@ -35,9 +35,9 @@ if (!empty($resolved)):
 <p><?= __('{0} accounts had one or more problems which were resolved', count($resolved)) ?>: <a class="resolved_hidden" href="#"><?= __('Show details') ?></a><a class="resolved_details" href="#"><?= __('Hide details') ?></a></p>
 <div class="resolved_details"><?= $this->Html->nestedList($resolved) ?></div>
 <?php
-	$this->Html->scriptBlock('jQuery("a.resolved_hidden").bind("click", function (event) { jQuery(".resolved_details").show(); jQuery(".resolved_hidden").hide(); return false; });', ['buffer' => true]);
-	$this->Html->scriptBlock('jQuery("a.resolved_details").bind("click", function (event) { jQuery(".resolved_details").hide(); jQuery(".resolved_hidden").show(); return false; });', ['buffer' => true]);
-	$this->Html->scriptBlock('jQuery(".resolved_details").hide();', ['buffer' => true]);
+	$this->Html->scriptBlock('zjQuery("a.resolved_hidden").bind("click", function (event) { zjQuery(".resolved_details").show(); zjQuery(".resolved_hidden").hide(); return false; });', ['buffer' => true]);
+	$this->Html->scriptBlock('zjQuery("a.resolved_details").bind("click", function (event) { zjQuery(".resolved_details").hide(); zjQuery(".resolved_hidden").show(); return false; });', ['buffer' => true]);
+	$this->Html->scriptBlock('zjQuery(".resolved_details").hide();', ['buffer' => true]);
 endif;
 ?>
 
@@ -47,9 +47,9 @@ if (!empty($failed)):
 <p><?= __('{0} accounts had one more more unresolvable problems', count($failed)) ?>: <a class="failure_hidden" href="#"><?= __('Show details') ?></a><a class="failure_details" href="#"><?= __('Hide details') ?></a></p>
 <div class="failure_details"><?= $this->Html->nestedList($failed) ?></div>
 <?php
-	$this->Html->scriptBlock('jQuery("a.failure_hidden").bind("click", function (event) { jQuery(".failure_details").show(); jQuery(".failure_hidden").hide(); return false; });', ['buffer' => true]);
-	$this->Html->scriptBlock('jQuery("a.failure_details").bind("click", function (event) { jQuery(".failure_details").hide(); jQuery(".failure_hidden").show(); return false; });', ['buffer' => true]);
-	$this->Html->scriptBlock('jQuery(".failure_details").hide();', ['buffer' => true]);
+	$this->Html->scriptBlock('zjQuery("a.failure_hidden").bind("click", function (event) { zjQuery(".failure_details").show(); zjQuery(".failure_hidden").hide(); return false; });', ['buffer' => true]);
+	$this->Html->scriptBlock('zjQuery("a.failure_details").bind("click", function (event) { zjQuery(".failure_details").hide(); zjQuery(".failure_hidden").show(); return false; });', ['buffer' => true]);
+	$this->Html->scriptBlock('zjQuery(".failure_details").hide();', ['buffer' => true]);
 endif;
 ?>
 

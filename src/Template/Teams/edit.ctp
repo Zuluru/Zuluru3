@@ -133,7 +133,7 @@ if ($options):
 		$this->Form->unlockField('facilities._ids');
 		$this->Html->css('jquery.asmselect.css', ['block' => true]);
 		$this->Html->script('jquery.asmselect.js', ['block' => true]);
-		$this->Html->scriptBlock('jQuery("select[multiple]").asmSelect({sortable:true});', ['buffer' => true]);
+		$this->Html->scriptBlock('zjQuery("select[multiple]").asmSelect({sortable:true});', ['buffer' => true]);
 	}
 
 	if (Configure::read('feature.region_preference')) {

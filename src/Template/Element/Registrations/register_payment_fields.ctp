@@ -53,10 +53,10 @@ if (isset($price) && ($price->canRegister['allowed'] || !empty($for_edit))) {
 		echo $this->Html->para('warning-message', __('After clicking "Submit", your registration will be reserved for you for {0}. During this time, your spot is guaranteed. After this time, if you have not yet paid, it will revert to "unpaid" status, meaning that someone else can take it.', PricesTable::duration($price->reservation_duration)));
 	}
 
-	echo $this->Html->scriptBlock("jQuery(':button[type=\"submit\"]').prop('disabled', false);", ['buffer' => true]);
+	echo $this->Html->scriptBlock("zjQuery(':button[type=\"submit\"]').prop('disabled', false);", ['buffer' => true]);
 } else {
 	// This happens when a price has not yet been selected, or when a previously selected price is no longer valid.
-	echo $this->Html->scriptBlock("jQuery(':button[type=\"submit\"]').prop('disabled', true);", ['buffer' => true]);
+	echo $this->Html->scriptBlock("zjQuery(':button[type=\"submit\"]').prop('disabled', true);", ['buffer' => true]);
 }
 
 // We always need to unlock these inputs so that the form security component is happy.

@@ -76,12 +76,12 @@ echo $this->Html->tag('li', $this->Html->iconLink('newsletter_add_32.png',
 <?php
 $this->Html->scriptBlock('
 function display_letter(id) {
-	jQuery(".letter").css("display", "none");
-	jQuery("." + id).css("display", "");
+	zjQuery(".letter").css("display", "none");
+	zjQuery("." + id).css("display", "");
 }
 ', ['buffer' => true]);
 
 $this->Html->scriptBlock('
 display_letter("letter_A");
-jQuery(".letter_link").bind("click", function () { display_letter(jQuery(this).attr("id")); return false;});
+zjQuery(".letter_link").bind("click", function () { display_letter(zjQuery(this).attr("id")); return false;});
 ', ['buffer' => true]);

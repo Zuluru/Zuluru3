@@ -69,18 +69,18 @@ function footballInlinePositions(id)
 
 function footballUpdateForm()
 {
-	jQuery('#football_fields .show_angle').html(fields[current].angle);
-	jQuery('#football_fields .show_width').html(fields[current].width);
-	jQuery('#football_fields .show_length').html(fields[current].length);
-	jQuery('#football_fields .show_field').html(footballFieldLength(fields[current].length));
-	jQuery('#football_fields .show_endzone').html(footballEndzoneLength(fields[current].length));
+	zjQuery('#football_fields .show_angle').html(fields[current].angle);
+	zjQuery('#football_fields .show_width').html(fields[current].width);
+	zjQuery('#football_fields .show_length').html(fields[current].length);
+	zjQuery('#football_fields .show_field').html(footballFieldLength(fields[current].length));
+	zjQuery('#football_fields .show_endzone').html(footballEndzoneLength(fields[current].length));
 }
 
 function footballSaveField()
 {
 	if (current != 0) {
-		fields[current].angle = parseInt(jQuery('#football_fields .show_angle').html());
-		fields[current].width = parseInt(jQuery('#football_fields .show_width').html());
-		fields[current].length = parseInt(jQuery('#football_fields .show_length').html());
+		fields[current].angle = parseInt(zjQuery('#football_fields .show_angle').html());
+		fields[current].width = parseInt(zjQuery('#football_fields .show_width').html());
+		fields[current].length = parseInt(zjQuery('#football_fields .show_length').html());
 	}
 }

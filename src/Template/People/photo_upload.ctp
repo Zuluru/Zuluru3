@@ -39,8 +39,8 @@ $this->Html->scriptBlock('
 				uploadCrop.croppie("bind", {
 					url: e.target.result
 				});
-				jQuery(".step1").hide();
-				jQuery(".step2").show();
+				zjQuery(".step1").hide();
+				zjQuery(".step2").show();
 			}
 
 			reader.readAsDataURL(input.files[0]);
@@ -49,7 +49,7 @@ $this->Html->scriptBlock('
 		}
 	}
 
-	uploadCrop = jQuery("#croppie").croppie({
+	uploadCrop = zjQuery("#croppie").croppie({
 		viewport: {
 			width: 150,
 			height: 150
@@ -58,20 +58,20 @@ $this->Html->scriptBlock('
 		enableExif: true
 	});
 
-	jQuery("#photo").on("change", function () { readFile(this); });
-	jQuery("#UploadButton").on("click", function (ev) {
+	zjQuery("#photo").on("change", function () { readFile(this); });
+	zjQuery("#UploadButton").on("click", function (ev) {
 		uploadCrop.croppie("result", {
 			type: "canvas",
 			size: "viewport"
 		}).then(function (croppedData) {
-			jQuery("#CroppedData").val(croppedData);
+			zjQuery("#CroppedData").val(croppedData);
 		});
 	});
-	jQuery("#RotateLeftButton").on("click", function (ev) {
+	zjQuery("#RotateLeftButton").on("click", function (ev) {
 		uploadCrop.croppie("rotate", 90);
 		return false;
 	});
-	jQuery("#RotateRightButton").on("click", function (ev) {
+	zjQuery("#RotateRightButton").on("click", function (ev) {
 		uploadCrop.croppie("rotate", -90);
 		return false;
 	});

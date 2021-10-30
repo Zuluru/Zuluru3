@@ -135,4 +135,4 @@ endforeach;
 // Make the table sortable
 $this->Html->script(['jquery.tablesorter.min.js'], ['block' => true]);
 $this->Html->css(['jquery.tablesorter.css'], ['block' => true]);
-$this->Html->scriptBlock("jQuery('.tablesorter').tablesorter({sortInitialOrder: 'desc'});", ['buffer' => true]);
+$this->Html->scriptBlock("zjQuery('.tablesorter').tablesorter({sortInitialOrder: 'desc'});", ['buffer' => true]);

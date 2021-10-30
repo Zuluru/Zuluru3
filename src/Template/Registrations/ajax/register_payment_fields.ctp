@@ -10,11 +10,11 @@ if (isset($price)) {
 
 	if ($price->has('canRegister')) {
 		if ($price->canRegister['allowed']) {
-			echo $this->Html->scriptBlock("jQuery(':button[type=\"submit\"]').prop('disabled', false);");
+			echo $this->Html->scriptBlock("zjQuery(':button[type=\"submit\"]').prop('disabled', false);");
 		} else {
-			echo $this->Html->scriptBlock("jQuery(':button[type=\"submit\"]').prop('disabled', true);");
+			echo $this->Html->scriptBlock("zjQuery(':button[type=\"submit\"]').prop('disabled', true);");
 		}
 	}
 } else {
-	echo $this->Html->scriptBlock("jQuery(':button[type=\"submit\"]').prop('disabled', true);");
+	echo $this->Html->scriptBlock("zjQuery(':button[type=\"submit\"]').prop('disabled', true);");
 }

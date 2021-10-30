@@ -65,16 +65,16 @@ function cricketInlinePositions(id)
 
 function cricketUpdateForm()
 {
-	jQuery('#cricket_fields .show_angle').html(fields[current].angle);
-	jQuery('#cricket_fields .show_width').html(fields[current].width);
-	jQuery('#cricket_fields .show_length').html(fields[current].length);
+	zjQuery('#cricket_fields .show_angle').html(fields[current].angle);
+	zjQuery('#cricket_fields .show_width').html(fields[current].width);
+	zjQuery('#cricket_fields .show_length').html(fields[current].length);
 }
 
 function cricketSaveField()
 {
 	if (current != 0) {
-		fields[current].angle = parseInt(jQuery('#cricket_fields .show_angle').html());
-		fields[current].width = parseInt(jQuery('#cricket_fields .show_width').html());
-		fields[current].length = parseInt(jQuery('#cricket_fields .show_length').html());
+		fields[current].angle = parseInt(zjQuery('#cricket_fields .show_angle').html());
+		fields[current].width = parseInt(zjQuery('#cricket_fields .show_width').html());
+		fields[current].length = parseInt(zjQuery('#cricket_fields .show_length').html());
 	}
 }

@@ -44,9 +44,9 @@ echo $this->Html->tag('li', $this->Html->link(__('Add an existing question to th
 // Prepare the dialog
 $cancel = __('Cancel');
 $this->Html->scriptBlock("
-	jQuery('#AddQuestionDiv').dialog({
+	zjQuery('#AddQuestionDiv').dialog({
 		autoOpen: false,
-		buttons: { '$cancel': function () { jQuery(this).dialog('close'); } },
+		buttons: { '$cancel': function () { zjQuery(this).dialog('close'); } },
 		modal: true,
 		resizable: false,
 		width: 500

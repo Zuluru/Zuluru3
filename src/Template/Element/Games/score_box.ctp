@@ -86,13 +86,13 @@ if ($has_stats) {
 </div>
 <?php
 	$this->Html->scriptBlock("
-		jQuery('#ScoreDetails{$team['id']}').dialog({
+		zjQuery('#ScoreDetails{$team['id']}').dialog({
 			autoOpen: false,
 			buttons: {
 				'$submit': function () {
-					jQuery(this).dialog('close');
-					jQuery('#ScoreForm{$team['id']}').find('#score_from').val(jQuery('#score_team_{$team['id']} td.score').html());
-					jQuery('#ScoreForm{$team['id']}').ajaxSubmit({
+					zjQuery(this).dialog('close');
+					zjQuery('#ScoreForm{$team['id']}').find('#score_from').val(zjQuery('#score_team_{$team['id']} td.score').html());
+					zjQuery('#ScoreForm{$team['id']}').ajaxSubmit({
 						type: 'POST',
 						target: '#temp_update',
 						error: function (message, status, error){
@@ -100,26 +100,26 @@ if ($has_stats) {
 						}
 					});
 					// Reset the form for the next time
-					jQuery('#ScoreForm{$team['id']}').each(function(){
+					zjQuery('#ScoreForm{$team['id']}').each(function(){
 						this.reset();
 					});
 				},
-				'$cancel': function () { jQuery(this).dialog('close'); }
+				'$cancel': function () { zjQuery(this).dialog('close'); }
 			},
 			modal: true,
 			resizable: false,
 			width: 500
 		});
 	", ['buffer' => true]);
-	$this->Html->scriptBlock("jQuery('#score_team_{$team['id']}').find('td.up a').bind('click', function (event) { openDialog('#ScoreDetails{$team['id']}'); return false; });", ['buffer' => true]);
+	$this->Html->scriptBlock("zjQuery('#score_team_{$team['id']}').find('td.up a').bind('click', function (event) { openDialog('#ScoreDetails{$team['id']}'); return false; });", ['buffer' => true]);
 else:
 	$url_up = Router::url($url_up);
 	$play = current(array_keys($score_options));
 	// TODOLATER: Deal with all usages of temp_update
-	$this->Html->scriptBlock("jQuery('#score_team_{$team['id']}').find('td.up a').bind('click', function (event) {
-		var score_from = jQuery('#score_team_{$team['id']}').find('td.score').html();
-		jQuery('#score_team_{$team['id']}').find('td.score').html('$spinner');
-		jQuery.ajax({
+	$this->Html->scriptBlock("zjQuery('#score_team_{$team['id']}').find('td.up a').bind('click', function (event) {
+		var score_from = zjQuery('#score_team_{$team['id']}').find('td.score').html();
+		zjQuery('#score_team_{$team['id']}').find('td.score').html('$spinner');
+		zjQuery.ajax({
 			type: 'POST',
 			data: {
 				'data[team_id]': {$team['id']},
@@ -127,7 +127,7 @@ else:
 				'data[play]': '$play'
 			},
 			success: function (data, textStatus) {
-				jQuery('#temp_update').html(data.content);
+				zjQuery('#temp_update').html(data.content);
 			},
 			url: '$url_up'
 		});
@@ -136,17 +136,17 @@ else:
 endif;
 
 $url_down = Router::url($url_down);
-$this->Html->scriptBlock("jQuery('#score_team_{$team['id']}').find('td.down a').bind('click', function (event) {
-	var score_from = jQuery('#score_team_{$team['id']}').find('td.score').html();
-	jQuery('#score_team_{$team['id']}').find('td.score').html('$spinner');
-	jQuery.ajax({
+$this->Html->scriptBlock("zjQuery('#score_team_{$team['id']}').find('td.down a').bind('click', function (event) {
+	var score_from = zjQuery('#score_team_{$team['id']}').find('td.score').html();
+	zjQuery('#score_team_{$team['id']}').find('td.score').html('$spinner');
+	zjQuery.ajax({
 		type: 'POST',
 		data: {
 			'data[team_id]': {$team['id']},
 			'data[score_from]': score_from
 		},
 		success: function (data, textStatus) {
-			jQuery('#temp_update').html(data.content);
+			zjQuery('#temp_update').html(data.content);
 		},
 		url: '$url_down'
 	});
@@ -154,16 +154,16 @@ $this->Html->scriptBlock("jQuery('#score_team_{$team['id']}').find('td.down a').
 });", ['buffer' => true]);
 
 $url_timeout = Router::url($url_timeout);
-$this->Html->scriptBlock("jQuery('#score_team_{$team['id']}').find('td.timeout').find('a').bind('click', function (event) {
+$this->Html->scriptBlock("zjQuery('#score_team_{$team['id']}').find('td.timeout').find('a').bind('click', function (event) {
 	if (confirm('Timeout called?')) {
-		jQuery.ajax({
+		zjQuery.ajax({
 			type: 'POST',
 			data: {
 				'data[team_id]': {$team['id']},
-				'data[score_from]': jQuery('#score_team_{$team['id']}').find('td.score').html(),
+				'data[score_from]': zjQuery('#score_team_{$team['id']}').find('td.score').html(),
 			},
 			success: function (data, textStatus) {
-				jQuery('#temp_update').html(data.content);
+				zjQuery('#temp_update').html(data.content);
 			},
 			url: '$url_timeout'
 		});
@@ -201,13 +201,13 @@ if (count($other_options) > 1):
 	$url_other = Router::url($url_other);
 	// TODOLATER: What's with the doubled # selector below?
 	$this->Html->scriptBlock("
-		jQuery('#OtherDetails{$team['id']}').dialog({
+		zjQuery('#OtherDetails{$team['id']}').dialog({
 			autoOpen: false,
 			buttons: {
 				'$submit': function () {
-					jQuery(this).dialog('close');
-					jQuery('#OtherForm{$team['id']} #score_from').val(jQuery('#score_team_{$team['id']} td.score').html());
-					jQuery('#OtherForm{$team['id']}').ajaxSubmit({
+					zjQuery(this).dialog('close');
+					zjQuery('#OtherForm{$team['id']} #score_from').val(zjQuery('#score_team_{$team['id']} td.score').html());
+					zjQuery('#OtherForm{$team['id']}').ajaxSubmit({
 						type: 'POST',
 						target: '#temp_update',
 						error: function (message, status, error){
@@ -215,18 +215,18 @@ if (count($other_options) > 1):
 						}
 					});
 					// Reset the form for the next time
-					jQuery('#OtherForm{$team['id']}').each(function(){
+					zjQuery('#OtherForm{$team['id']}').each(function(){
 						this.reset();
 					});
 				},
-				'$cancel': function () { jQuery(this).dialog('close'); }
+				'$cancel': function () { zjQuery(this).dialog('close'); }
 			},
 			modal: true,
 			resizable: false,
 			width: 500
 		});
 	", ['buffer' => true]);
-	$this->Html->scriptBlock("jQuery('#score_team_{$team['id']}').find('td.other').find('a').bind('click', function (event) { openDialog('#OtherDetails{$team['id']}'); return false; });");
+	$this->Html->scriptBlock("zjQuery('#score_team_{$team['id']}').find('td.other').find('a').bind('click', function (event) { openDialog('#OtherDetails{$team['id']}'); return false; });");
 endif;
 
 $this->Html->scriptBlock("
@@ -249,9 +249,9 @@ function openDialog(id) {
 	if (m < 10) {
 		m = '0' + m;
 	}
-	jQuery(id + ' #createdHour').val(h);
-	jQuery(id + ' #createdMin').val(m);
-	jQuery(id + ' #createdMeridian').val(mer);
-	jQuery(id).dialog('open');
+	zjQuery(id + ' #createdHour').val(h);
+	zjQuery(id + ' #createdMin').val(m);
+	zjQuery(id + ' #createdMeridian').val(mer);
+	zjQuery(id).dialog('open');
 }
 ", ['buffer' => true]);

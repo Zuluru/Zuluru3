@@ -267,4 +267,4 @@ echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
 <?php
 endif;
 
-$this->Html->scriptBlock('jQuery(".advanced").hide();', ['buffer' => true]);
+$this->Html->scriptBlock('zjQuery(".advanced").hide();', ['buffer' => true]);

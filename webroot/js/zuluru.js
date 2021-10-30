@@ -26,7 +26,7 @@ function loadTooltip(base, trigger, callback) {
 			}
 			var params = id.split('_');
 			Pace.ignore(function(){
-				jQuery.ajax({
+				zjQuery.ajax({
 					type: 'GET',
 					url: base + params[0] + '/tooltip?' + params[1] + '=' + params[2],
 					success: function(data){
@@ -60,8 +60,8 @@ function loadTooltip(base, trigger, callback) {
  */
 function tableReorder(table) {
 	var position = 0;
-	jQuery('tr', table).each(function () {
-		var sort = jQuery('input[name$="[sort]"]', jQuery(this));
+	zjQuery('tr', table).each(function () {
+		var sort = zjQuery('input[name$="[sort]"]', zjQuery(this));
 		if (sort.length > 0) {
 			// Update the sort field with the new counter.
 			sort.val(++position);
@@ -75,19 +75,19 @@ function tableReorder(table) {
 function selectorChanged() {
 	var hide_selector = '';
 	var show_selector = '';
-	jQuery('span.selector').find('select').each(function() {
-		var id = jQuery(this).attr('id');
-		var setting = jQuery(this).val();
+	zjQuery('span.selector').find('select').each(function() {
+		var id = zjQuery(this).attr('id');
+		var setting = zjQuery(this).val();
 		if (setting != '') {
 			show_selector += '.' + id + '_' + setting;
 		}
 	});
-	var all = jQuery('[class*=\"selector_\"]');
+	var all = zjQuery('[class*=\"selector_\"]');
 	if (show_selector == '') {
 		all.css('display', '');
 		all.filter(':input').not('.disabled').removeAttr('disabled');
 	} else {
-		var show = jQuery(show_selector);
+		var show = zjQuery(show_selector);
 		all.css('display', 'none');
 		show.css('display', '');
 		all.filter(':input').attr('disabled', 'disabled');
@@ -99,24 +99,24 @@ function closeInPlaceWidgets(container) {
 	var open = false;
 
 	// Close any already-open widgets, and cancel any associated bindings
-	jQuery('.zuluru-in-place-widget-options').each(function () {
-		if (jQuery(this).css('display') != 'none') {
+	zjQuery('.zuluru-in-place-widget-options').each(function () {
+		if (zjQuery(this).css('display') != 'none') {
 			if (container) {
 				// Find the expected position, relative to the clicked link
 				var e_offset = container.offset();
-				var a_offset = jQuery(this).offset();
+				var a_offset = zjQuery(this).offset();
 				if (a_offset.top == e_offset.top + 16 && a_offset.left == e_offset.left + 10) {
 					open = true;
 				}
 			}
-			jQuery(this).css('display', 'none');
-			jQuery('body').unbind('click.zuluruWidget');
-			jQuery('body').unbind('keyup.zuluruWidget');
+			zjQuery(this).css('display', 'none');
+			zjQuery('body').unbind('click.zuluruWidget');
+			zjQuery('body').unbind('keyup.zuluruWidget');
 		}
 	});
 
 	// Mark all widgets as not open
-	jQuery('.zuluru-in-place-widget-open').removeClass('zuluru-in-place-widget-open');
+	zjQuery('.zuluru-in-place-widget-open').removeClass('zuluru-in-place-widget-open');
 
 	// If the thing that was clicked on was an already-open widget (now closed),
 	// return true from this, and the caller will skip re-opening it.
@@ -195,7 +195,7 @@ function handleAjaxTrigger(trigger, container, widget, default_disposition, requ
 	// Some options need us to open a dialog, and the actual Ajax submission comes from there
 	var dialog_id = trigger.attr('data-dialog');
 	if (dialog_id) {
-		dialog = jQuery('#' + dialog_id);
+		dialog = zjQuery('#' + dialog_id);
 		if (!dialog.length) {
 			alert('Dialog ' + dialog_id + ' requested, but not found.');
 			return;
@@ -224,7 +224,7 @@ function handleAjaxTrigger(trigger, container, widget, default_disposition, requ
 				handleAjaxRequest(trigger, container, widget, default_disposition, require_data, input_selector, data);
 			};
 			dialog.on('keypress', function(event) {
-				if (event.keyCode === jQuery.ui.keyCode.ENTER) {
+				if (event.keyCode === zjQuery.ui.keyCode.ENTER) {
 					dialog.off('keypress');
 					var save = dialog.closest('.ui-dialog').find('button:contains("' + zuluru_save + '")');
 					save.click();
@@ -281,13 +281,13 @@ function handleAjaxTrigger(trigger, container, widget, default_disposition, requ
 		}
 
 		if (value) {
-			jQuery(input).val(value);
+			zjQuery(input).val(value);
 			input.selectionStart = input.selectionEnd = input.value.length;
 		} else {
-			jQuery(input).val('');
+			zjQuery(input).val('');
 		}
 
-		jQuery(input).focus();
+		zjQuery(input).focus();
 	} else {
 		var data = new FormData();
 		if (container.attr('data-param')) {
@@ -307,10 +307,10 @@ function handleAjaxRequest(trigger, container, widget, default_disposition, requ
 	if (!input_selector) {
 		input_selector = trigger.attr('data-input-selector');
 	}
-	var inputs = jQuery();
+	var inputs = zjQuery();
 	var form = trigger.closest('form');
 	if (input_selector) {
-		inputs = inputs.add(jQuery(input_selector));
+		inputs = inputs.add(zjQuery(input_selector));
 	} else {
 		if (form) {
 			inputs = form.find(':input');
@@ -341,7 +341,7 @@ function handleAjaxRequest(trigger, container, widget, default_disposition, requ
 
 	// All but the *_closest dispositions may take a specific (e.g. ID) selector as their target
 	if (disposition_selector && disposition != 'remove_closest' && disposition != 'replace_closest') {
-		target = jQuery(disposition_selector);
+		target = zjQuery(disposition_selector);
 		if (!target) {
 			alert('Selector ' + disposition_selector + ' requested, but not found.');
 			return;
@@ -359,7 +359,7 @@ function handleAjaxRequest(trigger, container, widget, default_disposition, requ
 	if (input_selectors) {
 		input_selectors = input_selectors.split(',');
 		for (i = 0; i < input_selectors.length; ++i) {
-			var input = jQuery(input_selectors[i]);
+			var input = zjQuery(input_selectors[i]);
 			if (!input) {
 				alert('Invalid input selector "' + input_selectors[i] + '"!');
 				return;
@@ -374,11 +374,11 @@ function handleAjaxRequest(trigger, container, widget, default_disposition, requ
 			data = new FormData();
 		}
 
-		input = jQuery(this);
+		input = zjQuery(this);
 		if (input.attr('data-type') == 'date') {
 			// Date inputs need to send all three fields, which we assume are inside the closest parent div
 			input.closest('div').find('select').each(function() {
-				data.append(jQuery(this).attr('name'), jQuery(this).val());
+				data.append(zjQuery(this).attr('name'), zjQuery(this).val());
 			});
 		} else {
 			var param_name = input.attr('data-param-name');
@@ -416,7 +416,7 @@ function handleAjaxRequest(trigger, container, widget, default_disposition, requ
 			if (!disposition_selector) {
 				alert('Error: "remove_selector" disposition requested, but no selector provided.')
 			} else {
-				remove = jQuery(disposition_selector);
+				remove = zjQuery(disposition_selector);
 			}
 			break;
 	}
@@ -454,7 +454,7 @@ function handleAjaxRequest(trigger, container, widget, default_disposition, requ
 		opts.contentType = false; // tell jQuery not to set contentType
 	}
 
-	jQuery.ajax(opts)
+	zjQuery.ajax(opts)
 		.done(function (response) {
 			// Any time there is a message, we want to display it. It means *something* failed,
 			// though the request may still have been considered a success. For example, we
@@ -557,7 +557,7 @@ function animatedRemove(remove, hide, separator, selector) {
 		var change = {backgroundColor: "#fbc7c7"};
 	}
 	animate.animate(change, function () {
-		jQuery(this).slideUp(function () {
+		zjQuery(this).slideUp(function () {
 			// If we're also dealing with separators, we do it below, but we do need
 			// to save this item's parent to examine; it'll be too late to find it
 			// once we remove the item in question!
@@ -631,7 +631,7 @@ function toggleInput(trigger) {
 			var value_selector = trigger.attr('data-selector-' + values[i]);
 			if (values[i] == value) {
 				var selector_show = value_selector;
-			} else if (jQuery.inArray(value_selector, selector_hide) == -1) {
+			} else if (zjQuery.inArray(value_selector, selector_hide) == -1) {
 				selector_hide.push(value_selector);
 			}
 		}
@@ -703,11 +703,11 @@ function toggleInput(trigger) {
  * at elements or their parents.
  */
 function matchSelector(selector, parent_selector, parent_selector_optional, exclude_in_hidden) {
-	var matches = jQuery();
+	var matches = zjQuery();
 
 	if (parent_selector) {
 		if (parent_selector_optional) {
-			jQuery(selector).each(function () {
+			zjQuery(selector).each(function () {
 				var parent = this.closest(parent_selector);
 				if (parent) {
 					if (exclude_in_hidden) {
@@ -724,13 +724,13 @@ function matchSelector(selector, parent_selector, parent_selector_optional, excl
 				}
 			});
 		} else {
-			matches = jQuery(selector).closest(parent_selector);
+			matches = zjQuery(selector).closest(parent_selector);
 			if (exclude_in_hidden) {
 				matches = matches.not(':hidden ' + parent_selector);
 			}
 		}
 	} else {
-		matches = jQuery(selector);
+		matches = zjQuery(selector);
 		if (exclude_in_hidden) {
 			// Find all the hidden parent elements that aren't in the list of what we're about to show
 			var hidden_parents = matches.closest(':hidden').not(matches);
@@ -750,8 +750,8 @@ function initializeStatus() {
 	/**
 	 * Initialize toggled DOM elements based on initial settings of inputs
 	 */
-	jQuery('.zuluru_toggle_input').each(function () {
-		toggleInput(jQuery(this));
+	zjQuery('.zuluru_toggle_input').each(function () {
+		toggleInput(zjQuery(this));
 	});
 
 	/**
@@ -764,7 +764,7 @@ function initializeStatus() {
 	 */
 	if (typeof CKEDITOR !== 'undefined') {
 		CKEDITOR.replaceAll(function (textarea, config) {
-			textarea = jQuery(textarea);
+			textarea = zjQuery(textarea);
 			if (CKEDITOR.instances[textarea.attr('id')] != undefined) {
 				return false;
 			} else if (textarea.hasClass('wysiwyg_advanced')) {
@@ -839,19 +839,19 @@ function initializeStatus() {
 	 * exist, so that when this is called a second time because of an Ajax response,
 	 * we don't end up with duplicated picker icons.
 	 */
-	jQuery('input.datepicker').remove();
-	jQuery('.ui-datepicker-trigger').remove();
-	jQuery('div.date').each(function () {
-		jQuery(this).find('select').last().not('.disabled').after('<input class="datepicker" type="hidden"/>');
+	zjQuery('input.datepicker').remove();
+	zjQuery('.ui-datepicker-trigger').remove();
+	zjQuery('div.date').each(function () {
+		zjQuery(this).find('select').last().not('.disabled').after('<input class="datepicker" type="hidden"/>');
 	});
-	jQuery('div.datetime').each(function () {
-		jQuery(this).find('select').last().not('.disabled').after('<input class="datepicker" type="hidden"/>');
+	zjQuery('div.datetime').each(function () {
+		zjQuery(this).find('select').last().not('.disabled').after('<input class="datepicker" type="hidden"/>');
 	});
 
 	/**
 	 * Enable the date picker inputs and handle their events
 	 */
-	jQuery('.datepicker').datepicker({
+	zjQuery('.datepicker').datepicker({
 		dateFormat: 'yy-mm-dd',
 		buttonImage: zuluru_img_path + 'calendar.png',
 		buttonImageOnly: true,
@@ -865,9 +865,9 @@ function initializeStatus() {
 			// class, and then at the end we will fire the first one. Assumption here is that if any of them have
 			// that class, all of them will.
 
-			var inputs = jQuery(this).siblings('select');
+			var inputs = zjQuery(this).siblings('select');
 			inputs.each(function () {
-				var input = jQuery(this);
+				var input = zjQuery(this);
 				var name = input.attr('name');
 				if (name.substring(name.length - 5, name.length) == '[day]' && input.val() != newDate[2]) {
 					input.val(newDate[2]);
@@ -889,8 +889,8 @@ function initializeStatus() {
 				}
 			});
 
-			if (inputs.length > 0 && jQuery(inputs[0]).hasClass('zuluru_ajax_input')) {
-				jQuery(inputs[0]).change();
+			if (inputs.length > 0 && zjQuery(inputs[0]).hasClass('zuluru_ajax_input')) {
+				zjQuery(inputs[0]).change();
 			}
 		},
 		beforeShow: function () {
@@ -898,13 +898,13 @@ function initializeStatus() {
 			var month = '';
 			var day = '';
 			var name = '';
-			jQuery(this).siblings('select').each(function () {
-				name = jQuery(this).attr('name');
-				if (name.substring(name.length - 5, name.length) == '[day]') day = jQuery(this).val();
-				else if (name.substring(name.length - 7, name.length) == '[month]') month = jQuery(this).val();
-				else if (name.substring(name.length - 6, name.length) == '[year]') year = jQuery(this).val();
+			zjQuery(this).siblings('select').each(function () {
+				name = zjQuery(this).attr('name');
+				if (name.substring(name.length - 5, name.length) == '[day]') day = zjQuery(this).val();
+				else if (name.substring(name.length - 7, name.length) == '[month]') month = zjQuery(this).val();
+				else if (name.substring(name.length - 6, name.length) == '[year]') year = zjQuery(this).val();
 			});
-			jQuery(this).val(year + '-' + month + '-' + day);
+			zjQuery(this).val(year + '-' + month + '-' + day);
 			return {};
 		}
 	});
@@ -915,61 +915,61 @@ function initializeStatus() {
 	if (zuluru_mobile) {
 		// Mobile devices don't have "hover" semantics, so instead
 		// we'll add a bunch of separate icons to toggle tooltips.
-		jQuery('.trigger').before(zuluru_popup + ' ');
-		jQuery('.tooltip_toggle').uitooltip({
+		zjQuery('.trigger').before(zuluru_popup + ' ');
+		zjQuery('.tooltip_toggle').uitooltip({
 				items: '.tooltip_toggle',
 				position: { my: 'center bottom', at: 'center top-5' },
 				content: function (callback) {
-					jQuery(this).next().data('wait_for_tooltip', true);
-					loadTooltip(zuluru_base, jQuery(this).next(), callback);
+					zjQuery(this).next().data('wait_for_tooltip', true);
+					loadTooltip(zuluru_base, zjQuery(this).next(), callback);
 				}
 			})
 			// Handle clicks to open/close tooltips
 			.on('click', function () {
-				var visible = jQuery(this).next().data('tooltip_displayed');
+				var visible = zjQuery(this).next().data('tooltip_displayed');
 				// Close all other visible tooltips
-				jQuery('.tooltip_toggle').each(function(){
-					jQuery(this).next().data('wait_for_tooltip', false);
-					if (jQuery(this).next().data('tooltip_displayed')) {
-						jQuery(this).next().data('tooltip_displayed', false);
-						jQuery(this).uitooltip('close');
+				zjQuery('.tooltip_toggle').each(function(){
+					zjQuery(this).next().data('wait_for_tooltip', false);
+					if (zjQuery(this).next().data('tooltip_displayed')) {
+						zjQuery(this).next().data('tooltip_displayed', false);
+						zjQuery(this).uitooltip('close');
 					}
 				});
 				if (!visible) {
-					jQuery(this).uitooltip('open');
+					zjQuery(this).uitooltip('open');
 				}
 				return false;
 			});
 		// Turn off the default hover mechanic
-		jQuery('.tooltip_toggle').uitooltip('disable');
+		zjQuery('.tooltip_toggle').uitooltip('disable');
 	} else {
 		// Add the standard tooltip handler
-		jQuery('.zuluru').on({
+		zjQuery('.zuluru').on({
 			mouseleave: function () {
-				jQuery(this).data('wait_for_tooltip', false);
+				zjQuery(this).data('wait_for_tooltip', false);
 			},
 			focusout: function () {
-				jQuery(this).data('wait_for_tooltip', false);
+				zjQuery(this).data('wait_for_tooltip', false);
 			}
 		},'.trigger');
-		jQuery('.zuluru').uitooltip({
+		zjQuery('.zuluru').uitooltip({
 			items: '.trigger',
 			show: { delay: 500 },
 			hide: { delay: 500 },
 			// TODO: This may push off the side of the page, for example first name in search results
 			position: { my: 'center bottom', at: 'center top-5' },
 			content: function (callback) {
-				jQuery(this).data('wait_for_tooltip', true);
-				loadTooltip(zuluru_base, jQuery(this), callback);
+				zjQuery(this).data('wait_for_tooltip', true);
+				loadTooltip(zuluru_base, zjQuery(this), callback);
 			},
 			// Adapted from http://stackoverflow.com/a/15014759
 			close: function (event, ui) {
 				ui.tooltip.hover(
 					function() {
-						jQuery(this).stop(true).fadeTo(500, 1);
+						zjQuery(this).stop(true).fadeTo(500, 1);
 					},
 					function() {
-						jQuery(this).fadeOut('500', function (){ jQuery(this).remove(); })
+						zjQuery(this).fadeOut('500', function (){ zjQuery(this).remove(); })
 					}
 				);
 			}
@@ -980,7 +980,7 @@ function initializeStatus() {
 /**
  * Code to execute on the browser's Ready state. Takes the jQuery object as a parameter, so we can safely reference $ in here.
  */
-jQuery(function($) {
+zjQuery(function($) {
 	// Add the X-CSRF-Token header to all Ajax POST requests, so that they don't get black-holed
 	$.ajaxPrefilter(function(options, originalOptions, jqXHR) {
 		jqXHR.setRequestHeader('X-CSRF-Token', zuluru_csrf_token);
@@ -989,7 +989,7 @@ jQuery(function($) {
 	// This is from http://jsbin.com/icuguz/12/edit, referenced by http://bugs.jqueryui.com/ticket/4731, to keep the
 	// focus from jumping to the first tabbable element in the dialog.
 	// TODO: Somehow make this apply only to help dialogs, not ones that allow comments to be sent.
-	jQuery.ui.dialog.prototype._focusTabbable = function () {
+	zjQuery.ui.dialog.prototype._focusTabbable = function () {
 		this.uiDialogTitlebarClose.focus();
 	};
 
@@ -1045,14 +1045,14 @@ jQuery(function($) {
 
 		var buttons = {};
 		buttons[zuluru_open_help] = function () {
-			jQuery('#' + id).dialog('close');
+			zjQuery('#' + id).dialog('close');
 			window.open(link, '_blank');
 		};
 		buttons[zuluru_close] = function () {
-			jQuery('#' + id).dialog('close');
+			zjQuery('#' + id).dialog('close');
 		};
 
-		jQuery('#' + id).dialog({
+		zjQuery('#' + id).dialog({
 			buttons: buttons,
 			modal: true,
 			resizable: false,
@@ -1154,7 +1154,7 @@ jQuery(function($) {
 			return false;
 		}
 		var container = $(this).closest('.zuluru_pagination');
-		jQuery.ajax({
+		zjQuery.ajax({
 			type: 'get',
 			url: url,
 		})
@@ -1226,7 +1226,7 @@ jQuery(function($) {
 			}
 		}
 
-		jQuery(selector + ' :checkbox').prop('checked', check);
+		zjQuery(selector + ' :checkbox').prop('checked', check);
 
 		// Don't bubble the event up any further, unless the trigger itself was a checkbox
 		if (!trigger.is(':checkbox')) {
@@ -1547,7 +1547,7 @@ function statsInputChanged(input) {
 		handler = false;
 	}
 	table.find('input.stat_' + id).each(function(){
-		var val = parseFloat(jQuery(this).val());
+		var val = parseFloat(zjQuery(this).val());
 		if (!isNaN(val)) {
 			if (handler) {
 				total = window[handler](total, val);
@@ -1602,10 +1602,10 @@ function null_sum() {
 
 function suggestSpirit(index) {
 	var sotg = 0;
-	jQuery('input:checked[id^=SpiritEntry' + index + 'Q]').each(function() {
-		sotg += parseInt(jQuery(this).val());
+	zjQuery('input:checked[id^=SpiritEntry' + index + 'Q]').each(function() {
+		sotg += parseInt(zjQuery(this).val());
 	});
-	jQuery('#SpiritEntry' + index + 'EnteredSotg').val(sotg);
+	zjQuery('#SpiritEntry' + index + 'EnteredSotg').val(sotg);
 }
 
 /**
@@ -1613,8 +1613,8 @@ function suggestSpirit(index) {
  */
 
 function addQuestion() {
-	jQuery('#AddQuestion').val('');
-	jQuery('#AddQuestionDiv').dialog('open');
-	jQuery('#AddQuestion').focus();
+	zjQuery('#AddQuestion').val('');
+	zjQuery('#AddQuestionDiv').dialog('open');
+	zjQuery('#AddQuestion').focus();
 	return false;
 }
