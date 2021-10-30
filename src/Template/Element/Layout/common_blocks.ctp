@@ -185,7 +185,8 @@ if (!$this->fetch('javascript_variables') && method_exists($this->Html, 'iconImg
 if (!$this->fetch('bootstrap_scripts')) {
 	$this->start('bootstrap_scripts');
 	echo $this->Html->script([
-		'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js',
+		//'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js',
+		'bootstrap.min.js',
 	]);
 	$this->end();
 }
