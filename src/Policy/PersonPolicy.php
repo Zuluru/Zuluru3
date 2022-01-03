@@ -72,6 +72,15 @@ class PersonPolicy extends AppPolicy {
 		return $identity->isManagerOf($person) || $identity->isMe($person) || $identity->isRelative($person);
 	}
 
+	public function canAdd_account(IdentityInterface $identity, Person $person) {
+		if (!empty($person->user_id)) {
+			throw new ForbiddenRedirectException(__('This profile already has a login.'),
+				['action' => 'view', 'person' => $person->id]);
+		}
+
+		return $identity->isManagerOf($person) || $identity->isMe($person) || $identity->isRelative($person);
+	}
+
 	public function canDeactivate(IdentityInterface $identity, Person $person) {
 		return $identity->isManagerOf($person) || $identity->isMe($person) || $identity->isRelative($person);
 	}

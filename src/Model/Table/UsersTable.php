@@ -314,7 +314,7 @@ class UsersTable extends AppTable {
 		}
 		if (!empty($save['first_name'])) {
 			if (strpos($save['first_name'], ' ') !== false) {
-				list($save['first_name'], $save['last_name']) = explode(' ', $save['first_name'], 2);
+				[$save['first_name'], $save['last_name']] = explode(' ', $save['first_name'], 2);
 			} else if (preg_match('/^([[:upper:]][[:lower:]]+)([[:upper:]][[:lower:]]+)$/', $save['first_name'], $matches)) {
 				$save['first_name'] = $matches[1];
 				$save['last_name'] = $matches[2];

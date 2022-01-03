@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Authorization\ContextResource;
+use Authorization\Exception\ForbiddenException;
 use Cake\Cache\Cache;
 use Cake\Core\App;
 use Cake\Core\Configure;
@@ -15,6 +16,7 @@ use Cake\I18n\FrozenDate;
 use Cake\I18n\I18n;
 use Cake\ORM\Entity;
 use Cake\ORM\Query;
+use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Routing\Router;
@@ -761,6 +763,58 @@ class PeopleController extends AppController {
 	}
 
 	/**
+	 * add_account method
+	 *
+	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 */
+	public function add_account() {
+		$id = $this->request->getQuery('person');
+		if (!$id) {
+			$id = $this->UserCache->read('Person.id');
+		}
+
+		$person = $this->UserCache->read('Person', $id);
+		if (empty($person)) {
+			$this->Flash->info(__('Invalid person.'));
+			return $this->redirect('/');
+		}
+
+		$this->Authorization->authorize($person);
+
+		$this->_loadAddressOptions();
+		$this->_loadAffiliateOptions();
+		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'));
+
+		$this->set([
+			'user_field' => $users_table->userField,
+			'email_field' => $users_table->emailField,
+		]);
+
+		if ($this->request->is(['patch', 'post', 'put'])) {
+			$this->request = $this->request->withData("user.{$users_table->pwdField}", $this->request->getData('new_password'));
+			$person = $this->People->patchEntity($person, $this->request->getData(), [
+				'Associated' => [
+					'Users' => ['validate' => 'create'],
+				],
+			]);
+
+			if ($this->People->save($person)) {
+				$this->Flash->success(__('Your account has been created.'));
+				Cache::delete("person/{$id}", 'long_term');
+				return $this->redirect('/');
+			}
+
+			$this->Flash->warning(__('The account could not be saved. Please correct the errors below and try again.'));
+
+			// Force the various rules checks to run, for better feedback to the user
+			$users_table->checkRules($person->user, RulesChecker::CREATE);
+			$this->People->checkRules($person, RulesChecker::UPDATE);
+		}
+
+		$this->set(compact('person'));
+	}
+
+	/**
 	 * Deactivate profile method
 	 *
 	 * @return void|\Cake\Network\Response Redirects
@@ -1119,16 +1173,22 @@ class PeopleController extends AppController {
 	}
 
 	public function approve_relative() {
+		// The profile being granted control, which is not the current user
 		$person_id = $this->request->getQuery('person');
+		// The profile to be controlled, which is the current user
 		$relative_id = $this->request->getQuery('relative');
 		if ($relative_id === null || $person_id === null) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect(['action' => 'view', 'person' => $person_id]);
 		}
 
-		$relation = collection($this->UserCache->read('RelatedTo', $person_id))->firstMatch(['_joinData.approved' => false, '_joinData.person_id' => $relative_id]);
+		// The relation being updated is in the current user's Related list
+		$relation = collection($this->UserCache->read('RelatedTo', $relative_id))->firstMatch(['_joinData.approved' => false, '_joinData.person_id' => $person_id]);
 
-		$this->Authorization->authorize(new ContextResource($this->UserCache->read('Person', $person_id), ['relation' => $relation, 'code' => $this->request->getQuery('code')]));
+		// The profile to be controlled, i.e. the relative, is the one that grants permission for this
+		$person = $this->UserCache->read('Person', $person_id);
+		$relative = $this->UserCache->read('Person', $relative_id);
+		$this->Authorization->authorize(new ContextResource($relative, ['relation' => $relation, 'code' => $this->request->getQuery('code')]));
 
 		$relation->_joinData->approved = true;
 		$people_people_table = TableRegistry::getTableLocator()->get('PeoplePeople');
@@ -1139,42 +1199,53 @@ class PeopleController extends AppController {
 
 		$this->Flash->success(__('Approved the relative request.'));
 
-		$person = $this->UserCache->read('Person', $person_id);
-		$relative = $this->UserCache->read('Person', $relative_id);
 		if (!$this->_sendMail([
-			'to' => $relative,
-			'replyTo' => $person,
-			'subject' => function() use ($person) { return __('{0} approved your relative request', $person->full_name); },
+			'to' => $person,
+			'replyTo' => $relative,
+			'subject' => function() use ($relative) { return __('{0} approved your relative request', $relative->full_name); },
 			'template' => 'relative_approve',
 			'sendAs' => 'both',
 			'viewVars' => compact('person', 'relative'),
 		]))
 		{
-			$this->Flash->warning(__('Error sending email to {0}.', $relative->full_name));
+			$this->Flash->warning(__('Error sending email to {0}.', $person->full_name));
 		}
 
-		return $this->redirect(['action' => 'view', 'person' => $person_id]);
+		return $this->redirect(['action' => 'view', 'person' => $relative_id]);
 	}
 
 	public function remove_relative() {
+		// The profile that was granted control
 		$person_id = $this->request->getQuery('person');
+		// The profile that is controlled
 		$relative_id = $this->request->getQuery('relative');
 		if ($relative_id === null || $person_id === null) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect(['action' => 'view', 'person' => $person_id]);
 		}
 
-		$relation = collection($this->UserCache->read('RelatedTo', $person_id))->firstMatch(['_joinData.person_id' => $relative_id]);
-		if (empty($relation)) {
-			$relation = collection($this->UserCache->read('Relatives', $person_id))->firstMatch(['_joinData.relative_id' => $relative_id]);
-		}
+		// The relation being updated is in the relative's Related list
+		$relations = $this->UserCache->read('RelatedTo', $relative_id);
+		$relation = collection($relations)->firstMatch(['_joinData.person_id' => $person_id]);
 
 		$person = $this->UserCache->read('Person', $person_id);
-		$this->Authorization->authorize(new ContextResource($person, ['relation' => $relation, 'code' => $this->request->getQuery('code')]));
-
-		// TODOLATER: Check for unlink return value, if they change it so it returns success
-		// https://github.com/cakephp/cakephp/issues/8196
 		$relative = $this->UserCache->read('Person', $relative_id);
+
+		// If the relative is only a profile, and this is the only remaining relation, don't allow it
+		if (empty($relative->user_id) && count($relations) == 1) {
+			$this->Flash->info(__('Youth profiles must always have a relative.'));
+			return $this->redirect(['action' => 'view', 'person' => $person_id]);
+		}
+
+		// Either side of the relation may grant permission for this
+		try {
+			$this->Authorization->authorize(new ContextResource($relative, ['relation' => $relation, 'code' => $this->request->getQuery('code')]));
+		} catch (ForbiddenException $ex) {
+			$this->Authorization->authorize(new ContextResource($person, ['relation' => $relation, 'code' => $this->request->getQuery('code')]));
+		}
+
+		// TODOLATER: Check for unlink return value, if they change it such that it returns success
+		// https://github.com/cakephp/cakephp/issues/8196
 		$this->People->Relatives->unlink($person, [$relative]);
 		$this->Flash->success(__('Removed the relation.'));
 
@@ -2071,7 +2142,7 @@ class PeopleController extends AppController {
 
 		$this->Authorization->authorize($person);
 
-		$dependencies = $this->People->dependencies($id, ['Affiliates', 'Groups', 'Relatives', 'Related', 'Skills', 'Settings', 'Subscriptions']);
+		$dependencies = $this->People->dependencies($id, ['Affiliates', 'Groups', 'Relatives', 'Related', 'Skills', 'Settings', 'Subscriptions', 'CreatedNotes']);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this person, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
 			return $this->redirect('/');
@@ -2552,7 +2623,7 @@ class PeopleController extends AppController {
 		$this->Authorization->authorize($person);
 
 		$duplicates = $this->People->find('duplicates', compact('person'))
-			->contain(['Affiliates', 'Skills', 'Groups', 'Related', 'Settings']);
+			->contain([Configure::read('Security.authModel'), 'Affiliates', 'Skills', 'Groups', 'Related', 'Settings']);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			if (empty($this->request->getData('disposition'))) {
@@ -2636,10 +2707,9 @@ class PeopleController extends AppController {
 				break;
 		}
 
-		if (!$this->People->getConnection()->transactional(function () use ($save, $delete, $fail_message) {
-			// If we are both deleting and saving, that's a merge operation, and we will want to migrate all
-			// records that aren't part of the in-memory record.
-			if ($save && $delete) {
+		if (!$this->People->getConnection()->transactional(function () use ($disposition, $save, $delete, $fail_message) {
+			// If we are merging, we want to migrate all records that aren't part of the in-memory record.
+			if ($disposition == 'merge_duplicate') {
 				// For anything that we have in memory, we must skip doing a direct query
 				$ignore = [];
 				$save->setHidden([]);
@@ -2651,7 +2721,7 @@ class PeopleController extends AppController {
 
 				$associations = $this->People->associations();
 
-				foreach ($associations->type('BelongsToMany') as $association) {
+				foreach ($associations->getByType('BelongsToMany') as $association) {
 					if (!in_array($association->name(), $ignore)) {
 						$foreign_key = $association->foreignKey();
 						$conditions = [$foreign_key => $delete->id];
@@ -2667,7 +2737,7 @@ class PeopleController extends AppController {
 					$ignore[] = $association->junction()->alias();
 				}
 
-				foreach ($associations->type('HasMany') as $association) {
+				foreach ($associations->getByType('HasMany') as $association) {
 					if (!in_array($association->name(), $ignore)) {
 						$foreign_key = $association->foreignKey();
 						$conditions = [$foreign_key => $delete->id];

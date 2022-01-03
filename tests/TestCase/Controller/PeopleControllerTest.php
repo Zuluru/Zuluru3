@@ -47,6 +47,8 @@ class PeopleControllerTest extends ControllerTestCase {
 						'app.GamesAllstars',
 						'app.ScoreEntries',
 						'app.Stats',
+						'app.ScoreDetails',
+							'app.ScoreDetailStats',
 			'app.Attendances',
 			'app.Franchises',
 				'app.FranchisesPeople',
@@ -62,7 +64,9 @@ class PeopleControllerTest extends ControllerTestCase {
 			'app.Badges',
 				'app.BadgesPeople',
 			'app.MailingLists',
+				'app.Newsletters',
 				'app.Subscriptions',
+			'app.ActivityLogs',
 			'app.Notes',
 			'app.Settings',
 			'app.Waivers',
@@ -1357,8 +1361,12 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testApproveRelative() {
+		// The person that sent the request is not allowed to approve the request
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve_relative', 'person' => PERSON_ID_CAPTAIN2, 'relative' => PERSON_ID_CAPTAIN],
+			PERSON_ID_CAPTAIN2);
+
 		// The invited relative is allowed to approve the request
-		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'approve_relative', 'person' => PERSON_ID_CAPTAIN, 'relative' => PERSON_ID_CAPTAIN2],
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'approve_relative', 'person' => PERSON_ID_CAPTAIN2, 'relative' => PERSON_ID_CAPTAIN],
 			PERSON_ID_CAPTAIN, ['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_CAPTAIN],
 			'Approved the relative request.');
 

@@ -84,6 +84,10 @@ class PeopleTable extends AppTable {
 			'strategy' => 'select',
 		]);
 
+		$this->hasMany('ActivityLogs', [
+			'foreignKey' => 'person_id',
+			'dependent' => true,
+		]);
 		$this->hasMany('GamesAllstars', [
 			'foreignKey' => 'person_id',
 			'dependent' => false,
@@ -147,6 +151,40 @@ class PeopleTable extends AppTable {
 			'dependent' => true,
 		]);
 
+		// Some associations here mainly to automate the profile merge process
+		$this->hasMany('CreatedCredits', [
+			'className' => 'Credits',
+			'foreignKey' => 'created_person_id',
+			'dependent' => true,
+		]);
+		$this->hasMany('CreatedNotes', [
+			'className' => 'Notes',
+			'foreignKey' => 'created_person_id',
+			'dependent' => true,
+		]);
+		$this->hasMany('CreatedPayments', [
+			'className' => 'Payments',
+			'foreignKey' => 'created_person_id',
+			'dependent' => true,
+		]);
+		$this->hasMany('UpdatedPayments', [
+			'className' => 'Payments',
+			'foreignKey' => 'updated_person_id',
+			'dependent' => true,
+		]);
+		$this->hasMany('ScoreDetailStats', [
+			'foreignKey' => 'person_id',
+			'dependent' => true,
+		]);
+		$this->hasMany('ScoreEntries', [
+			'foreignKey' => 'person_id',
+			'dependent' => true,
+		]);
+		$this->hasMany('ScoreEntries', [
+			'foreignKey' => 'person_id',
+			'dependent' => true,
+		]);
+
 		$this->belongsToMany('Affiliates', [
 			'joinTable' => 'affiliates_people',
 			'foreignKey' => 'person_id',
@@ -179,6 +217,7 @@ class PeopleTable extends AppTable {
 			'targetForeignKey' => 'group_id',
 			'saveStrategy' => 'replace',
 		]);
+		// Profiles that this person controls
 		$this->belongsToMany('Relatives', [
 			'className' => 'People',
 			'joinTable' => 'people_people',
@@ -187,6 +226,7 @@ class PeopleTable extends AppTable {
 			'targetForeignKey' => 'relative_id',
 			'saveStrategy' => 'append',
 		]);
+		// Profiles that control this person
 		$this->belongsToMany('Related', [
 			'className' => 'People',
 			'joinTable' => 'people_people',
