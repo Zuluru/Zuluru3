@@ -427,7 +427,7 @@ class UserCache {
 					if ($self->read('Relatives', $id, true)) {
 						$self->data[$id][$key] = [];
 						foreach ($self->data[$id]['Relatives'] as $relative) {
-							$self->data[$id][$key] = array_merge($self->data[$id][$key], $self->read('TeamIDs', $relative['Relative']['id']));
+							$self->data[$id][$key] = array_merge($self->data[$id][$key], $self->read('TeamIDs', $relative->id));
 						}
 						$self->data[$id][$key] = array_unique($self->data[$id][$key]);
 					}

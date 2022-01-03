@@ -1,7 +1,8 @@
 <?php
 /**
- * @type \App\Model\Entity\Person $person
- * @type \App\Model\Entity\Person $relative
+ * @type $this \App\View\AppView
+ * @type $person \App\Model\Entity\Person
+ * @type $relative \App\Model\Entity\Person
  */
 
 use Cake\Core\Configure;

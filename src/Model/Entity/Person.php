@@ -57,6 +57,7 @@ use Cake\Routing\Router;
  * @property \Cake\I18n\FrozenTime $modified
  *
  * @property \App\Model\Entity\User $user
+ * @property \App\Model\Entity\ActivityLog[] $activity_logs
  * @property \App\Model\Entity\Allstar[] $allstars
  * @property \App\Model\Entity\Attendance[] $attendances
  * @property \App\Model\Entity\Credit[] $credits
@@ -71,13 +72,20 @@ use Cake\Routing\Router;
  * @property \App\Model\Entity\Task[] $tasks
  * @property \App\Model\Entity\Upload[] $uploads
  * @property \App\Model\Entity\TeamsPerson[] $teams_people
+ * @property \App\Model\Entity\Credit[] $created_credits
+ * @property \App\Model\Entity\Note[] $created_notes
+ * @property \App\Model\Entity\Payment[] $created_payments
+ * @property \App\Model\Entity\Payment[] $updated_payments
+ * @property \App\Model\Entity\ScoreDetailStat[] $score_detail_stats
+ * @property \App\Model\Entity\ScoreEntry[] $score_entries
+ * @property \App\Model\Entity\SpiritEntry[] $spirit_entries
  * @property \App\Model\Entity\Affiliate[] $affiliates
  * @property \App\Model\Entity\Badge[] $badges
  * @property \App\Model\Entity\Division[] $divisions
  * @property \App\Model\Entity\Franchise[] $franchises
  * @property \App\Model\Entity\Group[] $groups
- * @property \App\Model\Entity\Person[] $relatives
- * @property \App\Model\Entity\Person[] $related
+ * @property \App\Model\Entity\Person[] $relatives Profiles that this person controls
+ * @property \App\Model\Entity\Person[] $related Profiles that control this person
  * @property \App\Model\Entity\Team[] $teams
  * @property \App\Model\Entity\Waiver[] $waivers
  *
@@ -313,6 +321,9 @@ class Person extends Entity {
 			'birthdate', 'height', 'shirt_size', 'user',
 		];
 
+		if (empty($this->user_id)) {
+			$preserve_if_new_is_empty += ['home_phone', 'work_phone', 'mobile_phone', 'addr_street', 'addr_city', 'addr_prov', 'addr_country', 'addr_postalcode'];
+		}
 		foreach (array_keys($new->_properties) as $prop) {
 			if ($this->isAccessible($prop) && !in_array($prop, $preserve)) {
 				if (is_array($new->$prop)) {
