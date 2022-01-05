@@ -134,6 +134,12 @@ class EventPolicy extends AppPolicy {
 		if ($person_id != $this->_person_id) {
 			$this->_person_id = $person_id;
 			$this->_person = $userCache->read('Person', $person_id);
+			if (!$this->_person) {
+				return [[
+					'text' => __('Only players are allowed to register for this type of event.'),
+					'class' => 'warning-message',
+				]];
+			}
 			$this->_person->group_ids = $userCache->read('GroupIDs', $person_id);
 			$this->_person->teams = $userCache->read('AllTeams', $person_id);
 			$this->_person->preregistrations = $userCache->read('Preregistrations', $person_id);

@@ -61,7 +61,7 @@ class PeopleController extends AppController {
 	 * @return array list of actions that people can perform even if the system wants them to do something else
 	 */
 	protected function _freeActions() {
-		return ['act_as'];
+		return ['edit', 'act_as'];
 	}
 
 	/**
