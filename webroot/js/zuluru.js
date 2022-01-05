@@ -733,7 +733,7 @@ function matchSelector(selector, parent_selector, parent_selector_optional, excl
 		matches = zjQuery(selector);
 		if (exclude_in_hidden) {
 			// Find all the hidden parent elements that aren't in the list of what we're about to show
-			var hidden_parents = matches.closest(':hidden').not(matches);
+			var hidden_parents = matches.closest(':hidden', zjQuery('.zuluru').get(0)).not(matches);
 			// and remove everything that's inside one of those parent elements
 			matches = matches.not(hidden_parents.find(selector));
 		}
