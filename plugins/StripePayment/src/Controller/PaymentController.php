@@ -70,6 +70,8 @@ class PaymentController extends AppController {
 		if (!$result) {
 			return $this->response->withStatus(400);
 		}
+
+		return $this->response->withStringBody('OK');
 	}
 
 	public function success() {
