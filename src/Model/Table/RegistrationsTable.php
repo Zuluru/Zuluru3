@@ -154,6 +154,27 @@ class RegistrationsTable extends AppTable {
 	}
 
 	/**
+	 * Modifies the entity before rules are run. Updates done in here rely on the earlier games in the set already
+	 * having been saved so their ID is available, so they can't be done in beforeMarshal.
+	 *
+	 * @param \Cake\Event\Event $cakeEvent The beforeRules event that was fired
+	 * @param \Cake\Datasource\EntityInterface $entity The entity that is going to be saved
+	 * @param \ArrayObject $options The options passed to the save method
+	 * @param mixed $operation The operation (e.g. create, delete) about to be run
+	 * @return void
+	 */
+	public function beforeRules(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options, $operation) {
+		if (!$entity->has('price') || $entity->price_id != $entity->price->id) {
+			$entity->price = $this->Prices->get($entity->price_id);
+			$entity->setDirty('price', false);
+		}
+
+		if ($entity->payment_type == 'Deposit' && $entity->price->fixed_deposit) {
+			$entity->deposit_amount = $entity->price->minimum_deposit;
+		}
+	}
+
+	/**
 	 * Modifies the entity before it is saved.
 	 *
 	 * @param \Cake\Event\Event $cakeEvent The beforeSave event that was fired

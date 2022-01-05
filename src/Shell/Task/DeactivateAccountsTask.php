@@ -21,6 +21,10 @@ class DeactivateAccountsTask extends Shell {
 		$divisions = $people_table->Divisions->find()
 			->contain(['People'])
 			->where(['Divisions.close >' => $recent_date]);
+		$division_ids = $divisions->extract('id')->toList();
+		if (empty($division_ids)) {
+			$division_ids = [-1];
+		}
 
 		$recent_people = array_unique(array_merge(
 			// Include everyone that ran a division
@@ -32,7 +36,7 @@ class DeactivateAccountsTask extends Shell {
 				->distinct('TeamsPeople.person_id')
 				->leftJoinWith('Teams')
 				->where([
-					'Teams.division_id IN' => $divisions->extract('id')->toList(),
+					'Teams.division_id IN' => $division_ids,
 					'TeamsPeople.status' => ROSTER_APPROVED,
 				])
 				->extract('person_id')

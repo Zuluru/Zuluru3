@@ -142,13 +142,15 @@ if (Configure::read('profile.mobile_phone')) {
 		'label' => __('Allow registered users to view mobile number'),
 	]);
 }
-
+?>
+	</fieldset>
+<?php
 if (array_key_exists(GROUP_PARENT, $groups)):
 ?>
-		<fieldset class="parent" style="display:none;">
-			<legend><?= __('Alternate Contact (optional)') ?></legend>
-			<p><?= __('This alternate parent/guardian contact information is for display purposes only. If the alternate contact should have their own login, do not enter their information here; instead create a separate account and then link them together.') ?></p>
-			<p><?= __('This is not for your child\'s name; enter that in the "Child Profile" section below.') ?></p>
+	<fieldset class="parent" style="display:none;">
+		<legend><?= __('Alternate Contact (optional)') ?></legend>
+		<p><?= __('This alternate parent/guardian contact information is for display purposes only. If the alternate contact should have their own login, do not enter their information here; instead create a separate account and then link them together.') ?></p>
+		<p><?= __('This is not for your child\'s name; enter that in the "Child Profile" section below.') ?></p>
 <?php
 	echo $this->Form->input('person.alternate_first_name', [
 		'label' => __('First Name'),
@@ -187,11 +189,10 @@ if (array_key_exists(GROUP_PARENT, $groups)):
 		]);
 	}
 ?>
-		</fieldset>
+	</fieldset>
 <?php
 endif;
 ?>
-	</fieldset>
 	<fieldset>
 		<legend><?= __('Username and Password') ?></legend>
 <?php

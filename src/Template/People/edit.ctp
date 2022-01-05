@@ -128,7 +128,6 @@ $this->Form->unlockField('groups._ids');
 
 	<fieldset>
 		<legend><?= __('Your Information') ?></legend>
-		<div style="float:left;">
 <?php
 if (in_array(Configure::read('profile.first_name'), $access)) {
 	echo $this->Form->input('first_name', [
@@ -146,7 +145,7 @@ if (in_array(Configure::read('profile.legal_name'), $access)) {
 	echo $this->Form->input('legal_name', [
 		'help' => __('For insurance and legal purposes. This will be visible only to administrators. Required only if substantially different from your Preferred Name.'),
 	]);
-} else {
+} else if (Configure::read('profile.legal_name')) {
 	echo $this->Form->input('legal_name', [
 		'disabled' => true,
 		'class' => 'disabled',
@@ -233,14 +232,14 @@ if ($person->user_id) {
 }
 ?>
 
-		</div>
+	</fieldset>
 <?php
 if ($person->user_id):
 ?>
 
-		<fieldset class="parent" style="display:none; float:left">
-			<legend><?= __('Alternate Contact (optional)') ?></legend>
-			<p style="max-width:18em;"><?= __('This alternate contact information is for display purposes only. If the alternate contact should have their own login details, do not enter their information here; instead create a separate account and then link them together.') ?></p>
+	<fieldset class="parent" style="display:none;">
+		<legend><?= __('Alternate Contact (optional)') ?></legend>
+		<p><?= __('This alternate contact information is for display purposes only. If the alternate contact should have their own login details, do not enter their information here; instead create a separate account and then link them together.') ?></p>
 <?php
 	echo $this->Form->input('alternate_first_name', [
 		'label' => __('First Name'),
@@ -280,13 +279,10 @@ if ($person->user_id):
 	}
 ?>
 
-		</fieldset>
-<?php
-endif;
-?>
-
 	</fieldset>
 <?php
+endif;
+
 if ($person->user_id && $manage_users):
 ?>
 
