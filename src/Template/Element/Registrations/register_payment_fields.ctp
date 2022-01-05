@@ -5,7 +5,7 @@ if (isset($price) && !empty($price->canRegister) && empty($for_edit)) {
 	echo $this->element('messages', ['messages' => [$price->canRegister]]);
 }
 
-if (isset($price) && ($price->canRegister['allowed'] || !empty($for_edit))) {
+if (isset($price) && (($price->canRegister && $price->canRegister['allowed']) || !empty($for_edit))) {
 	$options = [];
 	if ($price->allow_deposit) {
 		if ($price->fixed_deposit) {

@@ -13,7 +13,7 @@ $this->Html->addCrumb(__('View'));
 if (count($affiliates) > 1):
 ?>
 		<dt><?= __('Affiliate') ?></dt>
-		<dd><?= $this->Html->link($mailing_list->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', 'affiliate' => $mailing_list['Affiliate']['id']]) ?></dd>
+		<dd><?= $this->Html->link($mailing_list->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', 'affiliate' => $mailing_list->affiliate->id]) ?></dd>
 <?php
 endif;
 ?>
