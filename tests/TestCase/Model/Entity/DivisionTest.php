@@ -1,7 +1,6 @@
 <?php
 namespace App\Test\TestCase\Model\Entity;
 
-use App\Model\Entity\Division;
 use Cake\Chronos\ChronosInterface;
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
@@ -106,7 +105,7 @@ class DivisionTest extends TestCase {
 	 */
 	public function testGetFullLeagueName() {
 		$result = $this->LadderDivision->full_league_name;
-		$year = (new FrozenDate('next Monday'))->year;
+		$year = FrozenDate::now()->year;
 		$this->assertEquals("$year Summer Monday Night Ultimate Competitive", $result, 'Wrong full league name');
 	}
 
