@@ -236,5 +236,5 @@ Configure::write('App.globalListeners', $globalListeners);
 if (!defined('ZULURU_VERSION')) {
 	define('ZULURU_MAJOR', 3);
 	define('ZULURU_MINOR', 3);
-	define('ZULURU_REVISION', 0);
+	define('ZULURU_REVISION', 1);
 }
