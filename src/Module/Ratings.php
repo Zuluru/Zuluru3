@@ -184,18 +184,25 @@ abstract class Ratings {
 				$change = $home_change = 0;
 			} else if ($this->scheduleType == 'competition') {
 				$change = $home_change = $this->calculateRatingsChange($game->home_score, 0, 0);
-			} else if ($game->home_score >= $game->away_score) {
-				$expected = $this->calculateExpectedWin($this->teams[$game->home_team_id]->current_rating, $this->teams[$game->away_team_id]->current_rating);
-				$change = $home_change = $this->calculateRatingsChange($game->home_score, $game->away_score, $expected);
 			} else {
-				$expected = $this->calculateExpectedWin($this->teams[$game->away_team_id]->current_rating, $this->teams[$game->home_team_id]->current_rating);
-				$change = $this->calculateRatingsChange($game->home_score, $game->away_score, $expected);
-				$home_change = -$change;
+				if (!array_key_exists($game->away_team_id, $this->teams) || !array_key_exists($game->home_team_id, $this->teams)) {
+					// TODO: Can we do better in the case of an unknown opponent?
+					$change = $home_change = 0;
+				} else if ($game->home_score >= $game->away_score) {
+					$expected = $this->calculateExpectedWin($this->teams[$game->home_team_id]->current_rating, $this->teams[$game->away_team_id]->current_rating);
+					$change = $home_change = $this->calculateRatingsChange($game->home_score, $game->away_score, $expected);
+				} else {
+					$expected = $this->calculateExpectedWin($this->teams[$game->away_team_id]->current_rating, $this->teams[$game->home_team_id]->current_rating);
+					$change = $this->calculateRatingsChange($game->home_score, $game->away_score, $expected);
+					$home_change = -$change;
+				}
 			}
 
-			$this->teams[$game->home_team_id]->current_rating += $home_change;
-			if ($this->scheduleType != 'competition') {
-				$this->teams[$game->away_team_id]->current_rating -= $home_change;
+			if ($home_change != 0) {
+				$this->teams[$game->home_team_id]->current_rating += $home_change;
+				if ($this->scheduleType != 'competition') {
+					$this->teams[$game->away_team_id]->current_rating -= $home_change;
+				}
 			}
 			if ($game->rating_points != $change) {
 				$game->rating_points = $change;

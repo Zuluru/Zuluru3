@@ -9,7 +9,7 @@ $header = [
 	__('Event'),
 	__('Price Point'),
 	__('User ID'),
-	__('First Name'),
+	Configure::read('profile.legal_name') ? __('Preferred Name') : __('First Name'),
 	__('Last Name'),
 	__('Payment Status'),
 	__('Total Amount'),

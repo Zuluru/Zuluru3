@@ -43,6 +43,10 @@ class PersonPolicy extends AppPolicy {
 		return $identity->isManager();
 	}
 
+	public function canDisplay_legal_names(IdentityInterface $identity, $controller) {
+		return Configure::read('profile.legal_name') && $identity->isManager();
+	}
+
 	public function canView(IdentityInterface $identity = null, Person $person) {
 		if ($person->status == 'inactive' && (!$identity || !$identity->isLoggedIn())) {
 			throw new GoneException();
@@ -65,6 +69,15 @@ class PersonPolicy extends AppPolicy {
 	}
 
 	public function canEdit(IdentityInterface $identity, Person $person) {
+		return $identity->isManagerOf($person) || $identity->isMe($person) || $identity->isRelative($person);
+	}
+
+	public function canAdd_account(IdentityInterface $identity, Person $person) {
+		if (!empty($person->user_id)) {
+			throw new ForbiddenRedirectException(__('This profile already has a login.'),
+				['action' => 'view', 'person' => $person->id]);
+		}
+
 		return $identity->isManagerOf($person) || $identity->isMe($person) || $identity->isRelative($person);
 	}
 

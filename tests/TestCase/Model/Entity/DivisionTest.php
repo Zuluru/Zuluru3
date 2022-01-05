@@ -29,17 +29,17 @@ class DivisionTest extends TestCase {
 	 * Test _getLeagueName, _getLongLeagueName(), _getFullLeagueName(),
 	 */
 	public function testGetVirtualLeagueNames() {
-        $open = (new FrozenDate('next Monday'));
-        $division = DivisionFactory::make(['name' => 'Competitive'])
-            ->with('Leagues', [
-                'season' => 'Summer',
-                'name' => 'Monday Night',
-                'sport' => 'ultimate',
-                'open' => $open,
-            ])
-            ->getEntity();
+		$open = (new FrozenDate('next Monday'));
+		$division = DivisionFactory::make(['name' => 'Competitive'])
+			->with('Leagues', [
+				'season' => 'Summer',
+				'name' => 'Monday Night',
+				'sport' => 'ultimate',
+				'open' => $open,
+			])
+			->getEntity();
 
-        $this->assertEquals('Monday Night Competitive', $division->league_name,'Wrong league name');
+		$this->assertEquals('Monday Night Competitive', $division->league_name,'Wrong league name');
 		$this->assertEquals('Summer Monday Night Ultimate Competitive', $division->long_league_name, 'Wrong long league name');
 		$this->assertEquals($open->year . ' Summer Monday Night Ultimate Competitive', $division->full_league_name, 'Wrong long league name');
 	}
@@ -48,14 +48,14 @@ class DivisionTest extends TestCase {
 	 * Test _getPlayoffDivisions()
 	 */
 	public function testGetPlayoffDivisions() {
-	    $league = LeagueFactory::make()
-            ->with('Divisions', DivisionFactory::make()->inPlayoff())
-            ->with('Divisions')
-            ->persist();
+		$league = LeagueFactory::make()
+			->with('Divisions', DivisionFactory::make()->inPlayoff())
+			->with('Divisions')
+			->persist();
 
-	    $playoffDivision = $league->divisions[0];
-	    $noPlayoffDivisionInLeague = $league->divisions[1];
-	    $noPlayoffDivisionInOtherLeague = DivisionFactory::make()->persist();
+		$playoffDivision = $league->divisions[0];
+		$noPlayoffDivisionInLeague = $league->divisions[1];
+		$noPlayoffDivisionInOtherLeague = DivisionFactory::make()->persist();
 
 		// Round 1 means you get to know about others in the playoffs
 		$this->assertEquals([$playoffDivision->id], $noPlayoffDivisionInLeague->playoff_divisions, 'Should have gotten info');
@@ -69,10 +69,10 @@ class DivisionTest extends TestCase {
 	 * Get _getSeasonDivisions
 	 */
 	public function testGetSeasonDivisions() {
-        $league = LeagueFactory::make()
-            ->with('Divisions', DivisionFactory::make()->inPlayoff())
-            ->with('Divisions', 2)
-            ->persist();
+		$league = LeagueFactory::make()
+			->with('Divisions', DivisionFactory::make()->inPlayoff())
+			->with('Divisions', 2)
+			->persist();
 
 		$result = $league->divisions[0]->season_divisions;
 		$expect = [$league->divisions[1]->id, $league->divisions[2]->id];
@@ -83,17 +83,17 @@ class DivisionTest extends TestCase {
 	 * Test _getSeasonDays()
 	 */
 	public function testGetSeasonDays() {
-        $league = LeagueFactory::make()
-            ->with('Divisions',
-                DivisionFactory::make()
-                    ->inPlayoff()
-                    ->with('Days')
-            )
-            ->with('Divisions.Days')
-            ->persist();
+		$league = LeagueFactory::make()
+			->with('Divisions',
+				DivisionFactory::make()
+					->inPlayoff()
+					->with('Days')
+			)
+			->with('Divisions.Days')
+			->persist();
 
-        $playoffDivision = $league->divisions[0];
-        $notPlayoffDivision = $league->divisions[1];
+		$playoffDivision = $league->divisions[0];
+		$notPlayoffDivision = $league->divisions[1];
 
 		$this->assertEquals([], $notPlayoffDivision->season_days);
 		$this->assertEquals([$notPlayoffDivision->days[0]->id], $playoffDivision->season_days);
@@ -103,14 +103,14 @@ class DivisionTest extends TestCase {
 	 * Test _getSisterDivisions()
 	 */
 	public function testGetSisterDivisions() {
-        $league = LeagueFactory::make()
-            ->with('Divisions', DivisionFactory::make()->inPlayoff())
-            ->with('Divisions', 2)
-            ->persist();
+		$league = LeagueFactory::make()
+			->with('Divisions', DivisionFactory::make()->inPlayoff())
+			->with('Divisions', 2)
+			->persist();
 
-        $playoffDivision = $league->divisions[0];
-        $sisterDivisionsNotPlayoff1 = $league->divisions[1];
-        $sisterDivisionsNotPlayoff2 = $league->divisions[2];
+		$playoffDivision = $league->divisions[0];
+		$sisterDivisionsNotPlayoff1 = $league->divisions[1];
+		$sisterDivisionsNotPlayoff2 = $league->divisions[2];
 
 		$this->assertEquals([$sisterDivisionsNotPlayoff1->id, $sisterDivisionsNotPlayoff2->id], $sisterDivisionsNotPlayoff1->sister_divisions);
 		$this->assertEquals([$playoffDivision->id], $playoffDivision->sister_divisions);
@@ -131,14 +131,14 @@ class DivisionTest extends TestCase {
 	 */
 	public function testGetRosterDeadline() {
 		$this->assertEquals(
-            FrozenDate::now(),
-            DivisionFactory::make(['roster_deadline' => FrozenDate::now()])->getEntity()->rosterDeadline(),
-            'Wrong deadline provided');
+			FrozenDate::now(),
+			DivisionFactory::make(['roster_deadline' => FrozenDate::now()])->getEntity()->rosterDeadline(),
+			'Wrong deadline provided');
 		$this->assertEquals(
-            FrozenDate::now(),
-            DivisionFactory::make(['close' => FrozenDate::now()])->getEntity()->rosterDeadline(),
-            'Wrong deadline provided'
-        );
+			FrozenDate::now(),
+			DivisionFactory::make(['close' => FrozenDate::now()])->getEntity()->rosterDeadline(),
+			'Wrong deadline provided'
+		);
 	}
 
 	/**

@@ -6,7 +6,7 @@ $fp = fopen('php://output','w+');
 
 $fields = [
 	__('User ID') => true,
-	'first_name' => __('First Name'),
+	'first_name' => Configure::read('profile.legal_name') ? __('Preferred Name') : __('First Name'),
 	'last_name' => __('Last Name'),
 	'email' => __('Email Address'),
 	'alternate_email' => __('Alternate Email Address'),

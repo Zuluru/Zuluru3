@@ -52,7 +52,7 @@ if ($this->Authorize->getIdentity()->isManagerOf($registration->event)):
 			<dd><?php
 				echo $this->Number->currency($payment->payment_amount);
 				if ($payment->refunded_amount != 0) {
-					echo ' ' . $this->Html->tag('span', __('({0} refunded; see below)', $this->Number->currency($payment->refunded_amount)), ['class' => 'warning-message']);
+					echo ' ' . $this->Html->tag('span', __('({0} refunded/credited; see below)', $this->Number->currency($payment->refunded_amount)), ['class' => 'warning-message']);
 				}
 			?></dd>
 			<dt><?= __('Payment Date') ?></dt>

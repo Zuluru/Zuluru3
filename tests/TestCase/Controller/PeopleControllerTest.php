@@ -1187,6 +1187,7 @@ class PeopleControllerTest extends ControllerTestCase {
 				'gender' => 'Woman',
 				'gender_description' => null,
 				'roster_designation' => 'Woman',
+				'pronouns' => 'She, Her, Hers',
 				'birthdate' => ['year' => FrozenDate::now()->year - 10, 'month' => '01', 'day' => '01'],
 				'height' => 50,
 				'shirt_size' => 'Youth Large',
@@ -1297,8 +1298,12 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testApproveRelative() {
+		// The person that sent the request is not allowed to approve the request
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'approve_relative', 'person' => PERSON_ID_CAPTAIN2, 'relative' => PERSON_ID_CAPTAIN],
+			PERSON_ID_CAPTAIN2);
+
 		// The invited relative is allowed to approve the request
-		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'approve_relative', 'person' => PERSON_ID_CAPTAIN, 'relative' => PERSON_ID_CAPTAIN2],
+		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'approve_relative', 'person' => PERSON_ID_CAPTAIN2, 'relative' => PERSON_ID_CAPTAIN],
 			PERSON_ID_CAPTAIN, ['controller' => 'People', 'action' => 'view', 'person' => PERSON_ID_CAPTAIN],
 			'Approved the relative request.');
 

@@ -22,7 +22,7 @@ if (isset($registrations)):
 					<th><?= __('Event') ?></th>
 					<th><?= __('Price Point') ?></th>
 					<th><?= $this->Paginator->sort('person_id', __('Person ID')) ?></th>
-					<th><?= __('First Name') ?></th>
+					<th><?= Configure::read('profile.legal_name') ? __('Preferred Name') : __('First Name') ?></th>
 					<th><?= __('Last Name') ?></th>
 					<th><?= __('Payment') ?></th>
 					<th><?= __('Total Amount') ?></th>

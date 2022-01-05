@@ -11,9 +11,9 @@ class ReportPeopleRetention extends Report{
 	public function run($params, Person $recipient) {
 		// We are interested in memberships
 		$event_list = TableRegistry::getTableLocator()->get('Events')->find()
-			// TODO: Fix or remove these hard-coded values
-			->where(['event_type_id' => 1])
-			->order(['open', 'close', 'id'])
+			->contain(['EventTypes'])
+			->where(['EventTypes.type' => 'membership'])
+			->order(['Events.open', 'Events.close', 'Events.id'])
 			->indexBy('id')
 			->toArray();
 

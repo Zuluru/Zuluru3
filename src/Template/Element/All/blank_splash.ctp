@@ -37,6 +37,7 @@ if (isset($id)) {
 			'id' => $id,
 			'affiliates' => $affiliates,
 			'empty' => (empty($teams) && empty($divisions) && empty($tasks)),
+			'person' => $person ?? null,
 		]);
 		if (!empty($divisions)) {
 			echo $this->element('Divisions/splash', ['divisions' => $divisions]);

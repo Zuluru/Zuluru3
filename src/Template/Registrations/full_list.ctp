@@ -1,5 +1,7 @@
 <?php
-use Cake\Core\Configure;
+/**
+ * @type \App\Model\Entity\Event $event
+ */
 
 $this->Html->addCrumb(__('Registrations'));
 $this->Html->addCrumb($event->name);

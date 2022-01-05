@@ -28,12 +28,18 @@ use Cake\Core\Configure;
 <li><?= __('Any coordinator of a division may see the contact information for all of the captains of all teams in their division') ?></li>
 </ul>
 <p><?= __('In the above, "captain" includes assistant captains and coaches, "player" includes anyone who has accepted an invitation to join the roster, and "team" and "division" refer only to those which are currently active (e.g. the captain of a team in a division which has completed can no longer access the contact information of players on that team).') ?></p>
-<p><?= __('In order to facilitate team organization, the {0} software in use on this site may provide your {1}, even if not otherwise published, to certain individuals. In particular:', ZULURU, Configure::read('gender.name')) ?></p>
+<?php
+if (Configure::read('offerings.genders') !== 'Open'):
+?>
+<p><?= __('In order to facilitate team organization, the {0} software in use on this site may provide your {1} to certain individuals. In particular:', ZULURU, Configure::read('gender.name')) ?></p>
 <ul>
 <li><?= __('Any member of a team may see the {0} for all of the players on that team', Configure::read('gender.name')) ?></li>
 <li><?= __('Any coordinator of a division may see the {0} for all players in their division', Configure::read('gender.name')) ?></li>
 </ul>
 <p><?= __('In the above, "member of a team" includes anyone (including captains, coaches, players and subs) who has accepted an invitation to join the roster, and "team" and "division" refer only to those which are currently active (e.g. members of a team in a division which has completed can no longer access the {0} of players on that team).', Configure::read('gender.name')) ?></p>
+<?php
+endif;
+?>
 <h3><?= __('Your Consent') ?></h3>
 <p><?= __('By using our site, you consent to this online privacy policy.') ?></p>
 <h3><?= __('Changes to our Privacy Policy') ?></h3>

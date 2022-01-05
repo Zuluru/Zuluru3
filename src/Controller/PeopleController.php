@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Authorization\ContextResource;
+use Authorization\Exception\ForbiddenException;
 use Cake\Cache\Cache;
 use Cake\Core\App;
 use Cake\Core\Configure;
@@ -15,6 +16,7 @@ use Cake\I18n\FrozenDate;
 use Cake\I18n\I18n;
 use Cake\ORM\Entity;
 use Cake\ORM\Query;
+use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Routing\Router;
@@ -59,7 +61,7 @@ class PeopleController extends AppController {
 	 * @return array list of actions that people can perform even if the system wants them to do something else
 	 */
 	protected function _freeActions() {
-		return ['act_as'];
+		return ['edit', 'act_as'];
 	}
 
 	/**
@@ -131,18 +133,19 @@ class PeopleController extends AppController {
 
 		// Get the list of accounts by status
 		$query = $this->People->find();
-		$status_count = $query
+		$this->set('status_count', $query
 			->select(['status', 'person_count' => $query->func()->count('People.id')])
 			->select($this->People->Affiliates)
 			->matching('Affiliates', function (Query $q) use ($affiliates) {
 				return $q->where(['Affiliates.id IN' => $affiliates]);
 			})
 			->group(['AffiliatesPeople.affiliate_id', 'People.status'])
-			->order(['Affiliates.name', 'People.status']);
+			->order(['Affiliates.name', 'People.status'])
+		);
 
 		// Get the list of players by gender
 		$query = $this->People->find();
-		$gender_count = $query
+		$this->set('gender_count', $query
 			->select(['gender', 'person_count' => $query->func()->count('People.id')])
 			->select($this->People->Affiliates)
 			->select($this->People->Skills)
@@ -155,12 +158,13 @@ class PeopleController extends AppController {
 			->leftJoinWith('Skills')
 			->where(['Skills.enabled' => true])
 			->group(['AffiliatesPeople.affiliate_id', 'Skills.sport', 'People.gender'])
-			->order(['Affiliates.name', 'Skills.sport', 'People.gender' => 'DESC']);
+			->order(['Affiliates.name', 'Skills.sport', 'People.gender' => 'DESC'])
+		);
 
 		// Get the list of players by roster designation
 		if (Configure::read('gender.column') == 'roster_designation') {
 			$query = $this->People->find();
-			$roster_designation_count = $query
+			$this->set('roster_designation_count', $query
 				->select([Configure::read('gender.column'), 'person_count' => $query->func()->count('People.id')])
 				->select($this->People->Affiliates)
 				->select($this->People->Skills)
@@ -173,12 +177,13 @@ class PeopleController extends AppController {
 				->leftJoinWith('Skills')
 				->where(['Skills.enabled' => true])
 				->group(['AffiliatesPeople.affiliate_id', 'Skills.sport', 'People.' . Configure::read('gender.column')])
-				->order(['Affiliates.name', 'Skills.sport', 'People.' . Configure::read('gender.column') => Configure::read('gender.order')]);
+				->order(['Affiliates.name', 'Skills.sport', 'People.' . Configure::read('gender.column') => Configure::read('gender.order')])
+			);
 		}
 
 		// Get the list of accounts by group
 		$query = $this->People->find();
-		$group_count = $query
+		$this->set('group_count', $query
 			->select([Configure::read('gender.column'), 'person_count' => $query->func()->count('People.id')])
 			->select($this->People->Affiliates)
 			->select($this->People->Groups)
@@ -187,12 +192,13 @@ class PeopleController extends AppController {
 			})
 			->matching('Groups')
 			->group(['AffiliatesPeople.affiliate_id', 'Groups.id'])
-			->order(['Affiliates.name', 'Groups.id']);
+			->order(['Affiliates.name', 'Groups.id'])
+		);
 
 		// Get the list of players by age
 		if (Configure::read('profile.birthdate')) {
 			$query = $this->People->find();
-			$age_count = $query
+			$this->set('age_count', $query
 				->select([
 					// TODO: Use a query function for the age bucket
 					'age_bucket' => 'FLOOR((YEAR(NOW()) - YEAR(birthdate)) / 5) * 5',
@@ -213,13 +219,14 @@ class PeopleController extends AppController {
 					'birthdate !=' => '0000-00-00',
 				])
 				->group(['AffiliatesPeople.affiliate_id', 'Skills.sport', 'age_bucket'])
-				->order(['Affiliates.name', 'Skills.sport', 'age_bucket']);
+				->order(['Affiliates.name', 'Skills.sport', 'age_bucket'])
+			);
 		}
 
 		// Get the list of players by year started for each sport
 		if (Configure::read('profile.year_started')) {
 			$query = $this->People->find();
-			$started_count = $query
+			$this->set('started_count', $query
 				->select(['person_count' => $query->func()->count('People.id')])
 				->select($this->People->Affiliates)
 				->select($this->People->Skills)
@@ -232,13 +239,14 @@ class PeopleController extends AppController {
 				->leftJoinWith('Skills')
 				->where(['Skills.enabled' => true])
 				->group(['AffiliatesPeople.affiliate_id', 'Skills.sport', 'Skills.year_started'])
-				->order(['Affiliates.name', 'Skills.sport', 'Skills.year_started']);
+				->order(['Affiliates.name', 'Skills.sport', 'Skills.year_started'])
+			);
 		}
 
 		// Get the list of players by skill level for each sport
 		if (Configure::read('profile.skill_level')) {
 			$query = $this->People->find();
-			$skill_count = $query
+			$this->set('skill_count', $query
 				->select(['person_count' => $query->func()->count('People.id')])
 				->select($this->People->Affiliates)
 				->select($this->People->Skills)
@@ -251,13 +259,14 @@ class PeopleController extends AppController {
 				->leftJoinWith('Skills')
 				->where(['Skills.enabled' => true])
 				->group(['AffiliatesPeople.affiliate_id', 'Skills.sport', 'Skills.skill_level'])
-				->order(['Affiliates.name', 'Skills.sport', 'Skills.skill_level']);
+				->order(['Affiliates.name', 'Skills.sport', 'Skills.skill_level'])
+			);
 		}
 
 		// Get the list of players by city
 		if (Configure::read('profile.addr_city')) {
 			$query = $this->People->find();
-			$city_count = $query
+			$this->set('city_count', $query
 				->select(['addr_city', 'person_count' => $query->func()->count('People.id')])
 				->select($this->People->Affiliates)
 				->select($this->People->Skills)
@@ -271,10 +280,9 @@ class PeopleController extends AppController {
 				->where(['Skills.enabled' => true])
 				->group(['AffiliatesPeople.affiliate_id', 'Skills.sport', 'addr_city'])
 				->having(['person_count >' => 2])
-				->order(['Affiliates.name', 'Skills.sport', 'person_count' => 'DESC']);
+				->order(['Affiliates.name', 'Skills.sport', 'person_count' => 'DESC'])
+			);
 		}
-
-		$this->set(compact('status_count', 'group_count', 'gender_count', 'roster_designation_count', 'age_count', 'started_count', 'skill_count', 'city_count'));
 	}
 
 	public function demographics() {
@@ -755,6 +763,58 @@ class PeopleController extends AppController {
 	}
 
 	/**
+	 * add_account method
+	 *
+	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 */
+	public function add_account() {
+		$id = $this->request->getQuery('person');
+		if (!$id) {
+			$id = $this->UserCache->read('Person.id');
+		}
+
+		$person = $this->UserCache->read('Person', $id);
+		if (empty($person)) {
+			$this->Flash->info(__('Invalid person.'));
+			return $this->redirect('/');
+		}
+
+		$this->Authorization->authorize($person);
+
+		$this->_loadAddressOptions();
+		$this->_loadAffiliateOptions();
+		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'));
+
+		$this->set([
+			'user_field' => $users_table->userField,
+			'email_field' => $users_table->emailField,
+		]);
+
+		if ($this->request->is(['patch', 'post', 'put'])) {
+			$this->request = $this->request->withData("user.{$users_table->pwdField}", $this->request->getData('new_password'));
+			$person = $this->People->patchEntity($person, $this->request->getData(), [
+				'Associated' => [
+					'Users' => ['validate' => 'create'],
+				],
+			]);
+
+			if ($this->People->save($person)) {
+				$this->Flash->success(__('Your account has been created.'));
+				Cache::delete("person/{$id}", 'long_term');
+				return $this->redirect('/');
+			}
+
+			$this->Flash->warning(__('The account could not be saved. Please correct the errors below and try again.'));
+
+			// Force the various rules checks to run, for better feedback to the user
+			$users_table->checkRules($person->user, RulesChecker::CREATE);
+			$this->People->checkRules($person, RulesChecker::UPDATE);
+		}
+
+		$this->set(compact('person'));
+	}
+
+	/**
 	 * Deactivate profile method
 	 *
 	 * @return void|\Cake\Network\Response Redirects
@@ -1113,16 +1173,22 @@ class PeopleController extends AppController {
 	}
 
 	public function approve_relative() {
+		// The profile being granted control, which is not the current user
 		$person_id = $this->request->getQuery('person');
+		// The profile to be controlled, which is the current user
 		$relative_id = $this->request->getQuery('relative');
 		if ($relative_id === null || $person_id === null) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect(['action' => 'view', 'person' => $person_id]);
 		}
 
-		$relation = collection($this->UserCache->read('RelatedTo', $person_id))->firstMatch(['_joinData.approved' => false, '_joinData.person_id' => $relative_id]);
+		// The relation being updated is in the current user's Related list
+		$relation = collection($this->UserCache->read('RelatedTo', $relative_id))->firstMatch(['_joinData.approved' => false, '_joinData.person_id' => $person_id]);
 
-		$this->Authorization->authorize(new ContextResource($this->UserCache->read('Person', $person_id), ['relation' => $relation, 'code' => $this->request->getQuery('code')]));
+		// The profile to be controlled, i.e. the relative, is the one that grants permission for this
+		$person = $this->UserCache->read('Person', $person_id);
+		$relative = $this->UserCache->read('Person', $relative_id);
+		$this->Authorization->authorize(new ContextResource($relative, ['relation' => $relation, 'code' => $this->request->getQuery('code')]));
 
 		$relation->_joinData->approved = true;
 		$people_people_table = TableRegistry::getTableLocator()->get('PeoplePeople');
@@ -1133,42 +1199,53 @@ class PeopleController extends AppController {
 
 		$this->Flash->success(__('Approved the relative request.'));
 
-		$person = $this->UserCache->read('Person', $person_id);
-		$relative = $this->UserCache->read('Person', $relative_id);
 		if (!$this->_sendMail([
-			'to' => $relative,
-			'replyTo' => $person,
-			'subject' => function() use ($person) { return __('{0} approved your relative request', $person->full_name); },
+			'to' => $person,
+			'replyTo' => $relative,
+			'subject' => function() use ($relative) { return __('{0} approved your relative request', $relative->full_name); },
 			'template' => 'relative_approve',
 			'sendAs' => 'both',
 			'viewVars' => compact('person', 'relative'),
 		]))
 		{
-			$this->Flash->warning(__('Error sending email to {0}.', $relative->full_name));
+			$this->Flash->warning(__('Error sending email to {0}.', $person->full_name));
 		}
 
-		return $this->redirect(['action' => 'view', 'person' => $person_id]);
+		return $this->redirect(['action' => 'view', 'person' => $relative_id]);
 	}
 
 	public function remove_relative() {
+		// The profile that was granted control
 		$person_id = $this->request->getQuery('person');
+		// The profile that is controlled
 		$relative_id = $this->request->getQuery('relative');
 		if ($relative_id === null || $person_id === null) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect(['action' => 'view', 'person' => $person_id]);
 		}
 
-		$relation = collection($this->UserCache->read('RelatedTo', $person_id))->firstMatch(['_joinData.person_id' => $relative_id]);
-		if (empty($relation)) {
-			$relation = collection($this->UserCache->read('Relatives', $person_id))->firstMatch(['_joinData.relative_id' => $relative_id]);
-		}
+		// The relation being updated is in the relative's Related list
+		$relations = $this->UserCache->read('RelatedTo', $relative_id);
+		$relation = collection($relations)->firstMatch(['_joinData.person_id' => $person_id]);
 
 		$person = $this->UserCache->read('Person', $person_id);
-		$this->Authorization->authorize(new ContextResource($person, ['relation' => $relation, 'code' => $this->request->getQuery('code')]));
-
-		// TODOLATER: Check for unlink return value, if they change it so it returns success
-		// https://github.com/cakephp/cakephp/issues/8196
 		$relative = $this->UserCache->read('Person', $relative_id);
+
+		// If the relative is only a profile, and this is the only remaining relation, don't allow it
+		if (empty($relative->user_id) && count($relations) == 1) {
+			$this->Flash->info(__('Youth profiles must always have a relative.'));
+			return $this->redirect(['action' => 'view', 'person' => $person_id]);
+		}
+
+		// Either side of the relation may grant permission for this
+		try {
+			$this->Authorization->authorize(new ContextResource($relative, ['relation' => $relation, 'code' => $this->request->getQuery('code')]));
+		} catch (ForbiddenException $ex) {
+			$this->Authorization->authorize(new ContextResource($person, ['relation' => $relation, 'code' => $this->request->getQuery('code')]));
+		}
+
+		// TODOLATER: Check for unlink return value, if they change it such that it returns success
+		// https://github.com/cakephp/cakephp/issues/8196
 		$this->People->Relatives->unlink($person, [$relative]);
 		$this->Flash->success(__('Removed the relation.'));
 
@@ -2065,7 +2142,7 @@ class PeopleController extends AppController {
 
 		$this->Authorization->authorize($person);
 
-		$dependencies = $this->People->dependencies($id, ['Affiliates', 'Groups', 'Relatives', 'Related', 'Skills', 'Settings', 'Subscriptions']);
+		$dependencies = $this->People->dependencies($id, ['Affiliates', 'Groups', 'Relatives', 'Related', 'Skills', 'Settings', 'Subscriptions', 'CreatedNotes']);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this person, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
 			return $this->redirect('/');
@@ -2546,7 +2623,7 @@ class PeopleController extends AppController {
 		$this->Authorization->authorize($person);
 
 		$duplicates = $this->People->find('duplicates', compact('person'))
-			->contain(['Affiliates', 'Skills', 'Groups', 'Related', 'Settings']);
+			->contain([Configure::read('Security.authModel'), 'Affiliates', 'Skills', 'Groups', 'Related', 'Settings']);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			if (empty($this->request->getData('disposition'))) {
@@ -2630,14 +2707,13 @@ class PeopleController extends AppController {
 				break;
 		}
 
-		if (!$this->People->getConnection()->transactional(function () use ($save, $delete, $fail_message) {
-			// If we are both deleting and saving, that's a merge operation, and we will want to migrate all
-			// records that aren't part of the in-memory record.
-			if ($save && $delete) {
+		if (!$this->People->getConnection()->transactional(function () use ($disposition, $save, $delete, $fail_message) {
+			// If we are merging, we want to migrate all records that aren't part of the in-memory record.
+			if ($disposition == 'merge_duplicate') {
 				// For anything that we have in memory, we must skip doing a direct query
 				$ignore = [];
 				$save->setHidden([]);
-				foreach ($save->visibleProperties() as $prop) {
+				foreach ($save->getVisible() as $prop) {
 					if ($save->isAccessible($prop) && (is_array($delete->$prop))) {
 						$ignore[] = Inflector::camelize($prop);
 					}
@@ -2645,7 +2721,7 @@ class PeopleController extends AppController {
 
 				$associations = $this->People->associations();
 
-				foreach ($associations->type('BelongsToMany') as $association) {
+				foreach ($associations->getByType('BelongsToMany') as $association) {
 					if (!in_array($association->name(), $ignore)) {
 						$foreign_key = $association->foreignKey();
 						$conditions = [$foreign_key => $delete->id];
@@ -2661,7 +2737,7 @@ class PeopleController extends AppController {
 					$ignore[] = $association->junction()->alias();
 				}
 
-				foreach ($associations->type('HasMany') as $association) {
+				foreach ($associations->getByType('HasMany') as $association) {
 					if (!in_array($association->name(), $ignore)) {
 						$foreign_key = $association->foreignKey();
 						$conditions = [$foreign_key => $delete->id];

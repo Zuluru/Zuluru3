@@ -3,7 +3,7 @@
  * @type \App\Model\Entity\Person $person
  */
 
-$visible_properties = $person->visibleProperties();
+$visible_properties = $person->getVisible();
 ?>
 N:<?= "{$person->last_name};{$person->first_name}" ?>
 

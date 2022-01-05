@@ -1556,35 +1556,6 @@ class TeamsController extends AppController {
 			'valueField' => 'date',
 		])->toArray();
 
-		// Calculate the expected list of dates that games will be on. For divisions that play
-		// on multiple days, this will include only the first day of each week.
-		$dates = [];
-		if (empty($team->division_id)) {
-			$this->Configuration->loadAffiliate($team->affiliate_id);
-		} else {
-			$this->Configuration->loadAffiliate($team->division->league->affiliate_id);
-
-			$days = array_unique(collection($team->division->days)->extract('id')->toArray());
-			if (!empty($days) && $team->division->schedule_type != 'none') {
-				$play_day = min($days);
-				for ($date = $team->division->open; $date <= $team->division->close; $date = $date->addDay()) {
-					$day = $date->format('N');
-					// TODO: If it is a holiday, and the division plays on multiple days,
-					// try the other days to see if one is valid
-					if ($day == $play_day && !in_array($date, $holidays)) {
-						$dates[] = $date;
-					}
-				}
-
-				// Daylight savings time can result in dates being duplicated
-				// TODOLATER: Still true?
-				$dates = array_unique($dates);
-			}
-		}
-
-		$attendance = $this->Teams->Divisions->Games->readAttendance($team, $days, null, $dates);
-		$event_attendance = $this->Teams->TeamEvents->readAttendance($team);
-
 		$games = $this->Teams->Divisions->Games->find()
 			->contain([
 				'GameSlots' => ['Fields' => ['Facilities']],
@@ -1604,6 +1575,39 @@ class TeamsController extends AppController {
 			])
 			->order(['GameSlots.game_date', 'GameSlots.game_start'])
 			->toArray();
+		$game_dates = collection($games)->extract('game_slot.game_date')->toArray();
+
+		// Calculate the expected list of dates that games will be on. For divisions that play
+		// on multiple days, this will include only the first day of each week.
+		$dates = [];
+		if (empty($team->division_id)) {
+			$this->Configuration->loadAffiliate($team->affiliate_id);
+		} else {
+			$this->Configuration->loadAffiliate($team->division->league->affiliate_id);
+
+			$days = array_unique(collection($team->division->days)->extract('id')->toArray());
+			if (!empty($days) && $team->division->schedule_type != 'none') {
+				$play_day = min($days);
+				for ($date = $team->division->open; $date <= $team->division->close; $date = $date->addDay()) {
+					$day = $date->format('N');
+					// TODO: If it is a holiday, and the division plays on multiple days,
+					// try the other days to see if one is valid
+					if ($day == $play_day && (
+						// It's not a holiday, or it's a date that has a game explicitly scheduled
+						!in_array($date, $holidays) || in_array($date, $game_dates)
+					)) {
+						$dates[] = $date;
+					}
+				}
+
+				// Daylight savings time can result in dates being duplicated
+				// TODOLATER: Still true?
+				$dates = array_unique($dates);
+			}
+		}
+
+		$attendance = $this->Teams->Divisions->Games->readAttendance($team, $days, null, $dates);
+		$event_attendance = $this->Teams->TeamEvents->readAttendance($team);
 
 		$this->set(compact('team', 'attendance', 'event_attendance', 'dates', 'days', 'games'));
 	}

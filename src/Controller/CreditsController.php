@@ -4,9 +4,7 @@ namespace App\Controller;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Http\Exception\MethodNotAllowedException;
 use Cake\I18n\FrozenDate;
-use Cake\ORM\Entity;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 
@@ -25,26 +23,36 @@ class CreditsController extends AppController {
 	public function index() {
 		$this->Authorization->authorize($this);
 		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
+		$all = $this->getRequest()->getQuery('all') ? true : false;
 
-		$this->paginate = [
-			'order' => ['Credits.affiliate_id', 'Credits.created'],
-			'contain' => [
+		$conditions = [
+			'Credits.affiliate_id IN' => $affiliates,
+		];
+		if (!$all) {
+			$conditions[] = 'Credits.amount != Credits.amount_used';
+		}
+
+		$credits = $this->Credits->find()
+			->where($conditions)
+			->contain([
 				'Affiliates',
 				'People',
-			],
-			'conditions' => [
-				'Credits.amount != Credits.amount_used',
-				'Credits.affiliate_id IN' => $affiliates,
-			],
-		];
-
-		$credits = $this->paginate($this->Credits);
+			])
+			->order(['Credits.affiliate_id', 'Credits.created']);
 		if ($credits->isEmpty()) {
-			$this->Flash->info(__('There are no unused credits.'));
+			$this->Flash->info($all ? __('There are no credits.') : __('There are no unused credits.'));
 			return $this->redirect('/');
 		}
 
-		$this->set(compact('credits', 'affiliates'));
+		if ($this->request->is('csv')) {
+			$date = FrozenDate::now()->format('Y-m-d');
+			$this->setResponse($this->getResponse()->withDownload("Credits - {$date}.csv"));
+		} else {
+			$credits = $this->paginate($credits);
+		}
+
+		$credits = $credits->toArray();
+		$this->set(compact('credits', 'affiliates', 'all'));
 	}
 
 	/**

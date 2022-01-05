@@ -130,36 +130,42 @@ class TeamEventAttendanceTask extends Shell {
 
 		foreach ($attendance->attendances as $record) {
 			$person = collection($team->people)->firstMatch(['id' => $record->person_id]);
-			$regular = in_array($person->_joinData->role, $regular_roles);
-			$sub = (!$regular && in_array($person->_joinData->role, $sub_roles));
-			$always = (!empty($person->settings) && $person->settings[0]->value != false);
-			if (!in_array($person->id, $reminded)) {
-				if (($regular && $record->status == ATTENDANCE_UNKNOWN) ||
-					($sub && $record->status == ATTENDANCE_INVITED) ||
-					$always)
-				{
-					if (AppController::_sendMail([
-						'to' => $person,
-						'replyTo' => $team_event->team->people,
-						'subject' => function() use ($team) { return __('{0} attendance reminder', $team->name); },
-						'template' => 'event_attendance_reminder',
-						'sendAs' => 'both',
-						'viewVars' => array_merge([
-							'person' => $person,
-							'status' => $record->status,
-							'code' => $this->_makeHash([$record->id, $record->team_event_id, $record->person_id, $record->created]),
-						], compact('team_event', 'team')),
-						'header' => [
-							'Auto-Submitted' => 'auto-generated',
-							'X-Auto-Response-Suppress' => 'OOF',
-						],
-					]))
+
+			if (!$person) {
+				// Person has been removed from the roster, delete their attendance
+				$this->events_table->Attendances->delete($record);
+			} else {
+				$regular = in_array($person->_joinData->role, $regular_roles);
+				$sub = (!$regular && in_array($person->_joinData->role, $sub_roles));
+				$always = (!empty($person->settings) && $person->settings[0]->value != false);
+				if (!in_array($person->id, $reminded)) {
+					if (($regular && $record->status == ATTENDANCE_UNKNOWN) ||
+						($sub && $record->status == ATTENDANCE_INVITED) ||
+						$always)
 					{
-						$this->logs_table->save($this->logs_table->newEntity([
-							'type' => 'email_event_attendance_reminder',
-							'team_event_id' => $team_event->id,
-							'person_id' => $person->id,
-						]));
+						if (AppController::_sendMail([
+							'to' => $person,
+							'replyTo' => $team_event->team->people,
+							'subject' => function() use ($team) { return __('{0} attendance reminder', $team->name); },
+							'template' => 'event_attendance_reminder',
+							'sendAs' => 'both',
+							'viewVars' => array_merge([
+								'person' => $person,
+								'status' => $record->status,
+								'code' => $this->_makeHash([$record->id, $record->team_event_id, $record->person_id, $record->created]),
+							], compact('team_event', 'team')),
+							'header' => [
+								'Auto-Submitted' => 'auto-generated',
+								'X-Auto-Response-Suppress' => 'OOF',
+							],
+						]))
+						{
+							$this->logs_table->save($this->logs_table->newEntity([
+								'type' => 'email_event_attendance_reminder',
+								'team_event_id' => $team_event->id,
+								'person_id' => $person->id,
+							]));
+						}
 					}
 				}
 			}

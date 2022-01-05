@@ -128,14 +128,25 @@ $this->Form->unlockField('groups._ids');
 
 	<fieldset>
 		<legend><?= __('Your Information') ?></legend>
-		<div style="float:left;">
 <?php
 if (in_array(Configure::read('profile.first_name'), $access)) {
 	echo $this->Form->input('first_name', [
+		'label' => Configure::read('profile.legal_name') ? __('Preferred Name') : __('First Name'),
 		'help' => __('First (and, if desired, middle) name.'),
 	]);
 } else {
 	echo $this->Form->input('first_name', [
+		'disabled' => true,
+		'class' => 'disabled',
+		'help' => __('To prevent system abuses, this can only be changed by an administrator. To change this, please email your {0} to {1}.', __('new name'), $this->Html->link($admin, "mailto:$admin")),
+	]);
+}
+if (in_array(Configure::read('profile.legal_name'), $access)) {
+	echo $this->Form->input('legal_name', [
+		'help' => __('For insurance and legal purposes. This will be visible only to administrators. Required only if substantially different from your Preferred Name.'),
+	]);
+} else if (Configure::read('profile.legal_name')) {
+	echo $this->Form->input('legal_name', [
 		'disabled' => true,
 		'class' => 'disabled',
 		'help' => __('To prevent system abuses, this can only be changed by an administrator. To change this, please email your {0} to {1}.', __('new name'), $this->Html->link($admin, "mailto:$admin")),
@@ -221,14 +232,14 @@ if ($person->user_id) {
 }
 ?>
 
-		</div>
+	</fieldset>
 <?php
 if ($person->user_id):
 ?>
 
-		<fieldset class="parent" style="display:none; float:left">
-			<legend><?= __('Alternate Contact (optional)') ?></legend>
-			<p style="max-width:18em;"><?= __('This alternate contact information is for display purposes only. If the alternate contact should have their own login details, do not enter their information here; instead create a separate account and then link them together.') ?></p>
+	<fieldset class="parent" style="display:none;">
+		<legend><?= __('Alternate Contact (optional)') ?></legend>
+		<p><?= __('This alternate contact information is for display purposes only. If the alternate contact should have their own login details, do not enter their information here; instead create a separate account and then link them together.') ?></p>
 <?php
 	echo $this->Form->input('alternate_first_name', [
 		'label' => __('First Name'),
@@ -268,13 +279,10 @@ if ($person->user_id):
 	}
 ?>
 
-		</fieldset>
-<?php
-endif;
-?>
-
 	</fieldset>
 <?php
+endif;
+
 if ($person->user_id && $manage_users):
 ?>
 
@@ -461,7 +469,7 @@ if ($person->user_id):
 	endif;
 endif;
 
-if (Configure::read('profile.gender') || Configure::read('profile.birthdate') ||
+if (Configure::read('profile.gender') || Configure::read('profile.pronouns') || Configure::read('profile.birthdate') ||
 	Configure::read('profile.year_started') || Configure::read('profile.skill_level') ||
 	Configure::read('profile.height') || Configure::read('profile.shirt_size') ||
 	Configure::read('feature.dog_questions')):
@@ -470,7 +478,7 @@ if (Configure::read('profile.gender') || Configure::read('profile.birthdate') ||
 	<fieldset class="player">
 		<legend><?= __('Your Player Profile') ?></legend>
 <?php
-	echo $this->element('People/gender_inputs', ['prefix' => '', 'secure' => false, 'edit' => $access, 'gender' => $person->gender]);
+	echo $this->element('People/gender_inputs', ['prefix' => '', 'secure' => false, 'edit' => $access, 'person' => $person]);
 
 	if (in_array(Configure::read('profile.birthdate'), $access)) {
 		if (Configure::read('feature.birth_year_only')) {

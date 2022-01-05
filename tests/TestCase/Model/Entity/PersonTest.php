@@ -7,7 +7,6 @@ use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
-use Cake\Utility\Security;
 
 class PersonTest extends TestCase {
 
@@ -26,19 +25,19 @@ class PersonTest extends TestCase {
 	public function setUp() {
 		parent::setUp();
 		$this->Person1 = PersonFactory::make([
-            'first_name' => 'Amy',
-            'last_name' => 'Administrator',
-            'roster_designation' => 'Woman',
-            'status' => 'active',
-            'alternate_first_name' => 'Buford',
-            'alternate_last_name' => 'Tannen',
-            'alternate_email' => 'Buford.Tannen@HillValley.com',
+			'first_name' => 'Amy',
+			'last_name' => 'Administrator',
+			'roster_designation' => 'Woman',
+			'status' => 'active',
+			'alternate_first_name' => 'Buford',
+			'alternate_last_name' => 'Tannen',
+			'alternate_email' => 'Buford.Tannen@HillValley.com',
 
-        ])->with('Users', [
-            'user_name' => 'amy',
-            'password' => 'amypassword',
-            'email' => 'amy@zuluru.org',
-        ])->getEntity();
+		])->with('Users', [
+			'user_name' => 'amy',
+			'password' => 'amypassword',
+			'email' => 'amy@zuluru.org',
+		])->getEntity();
 	}
 
 	/**
@@ -56,7 +55,7 @@ class PersonTest extends TestCase {
 	 * Test _getUserName()
 	 */
 	public function testGetUserName() {
-//	    dd($this->Person1->toArray());
+//		dd($this->Person1->toArray());
 		$this->assertEquals('amy', $this->Person1->user_name);
 	}
 
@@ -119,9 +118,49 @@ class PersonTest extends TestCase {
 	}
 
 	/**
-	 * Test merge method
+	 * Test merge method for two users
 	 */
-	public function testMerge() {
+	public function testMergeUserWithUser() {
+		$user1 = TableRegistry::getTableLocator()->get('People')->get(PERSON_ID_CAPTAIN);
+		$user2 = TableRegistry::getTableLocator()->get('People')->get(PERSON_ID_CAPTAIN2);
+		$user1->merge($user2);
+		$this->assertEquals($user2->first_name, $user1->first_name);
+		$this->assertEquals($user2->gender, $user1->gender);
+		$this->assertEquals(USER_ID_CAPTAIN, $user1->user_id);
+	}
+
+	/**
+	 * Test merge method for a user and a profile
+	 */
+	public function testMergeUserWithProfile() {
+		$user1 = TableRegistry::getTableLocator()->get('People')->get(PERSON_ID_CAPTAIN);
+		$user2 = TableRegistry::getTableLocator()->get('People')->get(PERSON_ID_CHILD);
+		$user1->merge($user2);
+		$this->assertEquals($user2->first_name, $user1->first_name);
+		$this->assertEquals($user2->gender, $user1->gender);
+		$this->assertEquals(USER_ID_CAPTAIN, $user1->user_id);
+	}
+
+	/**
+	 * Test merge method for a profile and a user
+	 */
+	public function testMergeProfileWithUser() {
+		$user1 = TableRegistry::getTableLocator()->get('People')->get(PERSON_ID_CHILD, [
+			'contain' => ['Users']
+		]);
+		$user2 = TableRegistry::getTableLocator()->get('People')->get(PERSON_ID_CAPTAIN, [
+			'contain' => ['Users']
+		]);
+		$user1->merge($user2);
+		$this->assertEquals($user2->first_name, $user1->first_name);
+		$this->assertEquals($user2->gender, $user1->gender);
+		$this->assertEquals(USER_ID_CAPTAIN, $user1->user_id);
+	}
+
+	/**
+	 * Test merge method for two profiles
+	 */
+	public function testMergeProfileWithProfile() {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

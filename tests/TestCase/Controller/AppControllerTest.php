@@ -126,14 +126,14 @@ class AppControllerTest extends ControllerTestCase {
 		$configurationTable->loadSystem();
 		Application::getLocales();
 
-		$en_sub = __('{0} approved your relative request', $captain->full_name);
-		$en_text = __('Your relative request to {0} on the {1} web site has been approved.', $captain->full_name, Configure::read('organization.name'));
+		$en_sub = __('{0} approved your relative request', $sub->full_name);
+		$en_text = __('Your relative request to {0} on the {1} web site has been approved.', $sub->full_name, Configure::read('organization.name'));
 		I18n::setLocale('fr');
-		$fr_sub = __('{0} approved your relative request', $captain->full_name);
-		$fr_text = __('Your relative request to {0} on the {1} web site has been approved.', $captain->full_name, Configure::read('organization.name'));
+		$fr_sub = __('{0} approved your relative request', $sub->full_name);
+		$fr_text = __('Your relative request to {0} on the {1} web site has been approved.', $sub->full_name, Configure::read('organization.name'));
 		I18n::setLocale('es');
-		$es_sub = __('{0} approved your relative request', $captain->full_name);
-		$es_text = __('Your relative request to {0} on the {1} web site has been approved.', $captain->full_name, Configure::read('organization.name'));
+		$es_sub = __('{0} approved your relative request', $sub->full_name);
+		$es_text = __('Your relative request to {0} on the {1} web site has been approved.', $sub->full_name, Configure::read('organization.name'));
 		I18n::setLocale('en');
 		$this->assertTextContains('Your relative request', $en_text);
 		$this->assertTextNotContains('Your relative request', $fr_text);
@@ -141,7 +141,7 @@ class AppControllerTest extends ControllerTestCase {
 		// Should send in English only (system language; captain has no preference)
 		AppController::_sendMail([
 			'to' => $captain,
-			'subject' => function() use ($captain) { return __('{0} approved your relative request', $captain->full_name); },
+			'subject' => function() use ($sub) { return __('{0} approved your relative request', $sub->full_name); },
 			'template' => 'relative_approve',
 			'sendAs' => 'both',
 			'viewVars' => ['person' => $captain, 'relative' => $sub],
@@ -158,7 +158,7 @@ class AppControllerTest extends ControllerTestCase {
 		// Should send in English and French (system language plus sub's preference)
 		AppController::_sendMail([
 			'to' => $sub,
-			'subject' => function() use ($captain) { return __('{0} approved your relative request', $captain->full_name); },
+			'subject' => function() use ($sub) { return __('{0} approved your relative request', $sub->full_name); },
 			'template' => 'relative_approve',
 			'sendAs' => 'both',
 			'viewVars' => ['person' => $captain, 'relative' => $sub],
@@ -177,10 +177,10 @@ class AppControllerTest extends ControllerTestCase {
 		Configure::write('App.defaultLocale', 'es');
 		AppController::_sendMail([
 			'to' => $sub,
-			'subject' => function() use ($captain) { return __('{0} approved your relative request', $captain->full_name); },
+			'subject' => function() use ($sub) { return __('{0} approved your relative request', $sub->full_name); },
 			'template' => 'relative_approve',
 			'sendAs' => 'both',
-			'viewVars' => ['person' => $captain, 'relative' => $sub],
+			'viewVars' => ['person' => $sub, 'relative' => $sub],
 		]);
 
 		$messages = Configure::consume('test_emails');

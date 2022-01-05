@@ -9,7 +9,7 @@ $this->Html->addCrumb(h($team_event->team->name));
 $this->Html->addCrumb(h($team_event->name));
 $this->Html->addCrumb(__('View'));
 
-$display_gender = $this->Authorize->can('display_gender', new ContextResource($team_event->team, ['division' => $team_event->team->division]));
+$display_gender = $this->Authorize->can('display_gender', new ContextResource($team_event->team, ['division' => $team_event->team->division])) && Configure::read('offerings.genders') !== 'Open';
 ?>
 
 <div class="team_events view">

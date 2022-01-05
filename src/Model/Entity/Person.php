@@ -13,6 +13,7 @@ use Cake\Routing\Router;
  *
  * @property int $id
  * @property string $first_name
+ * @property string $legal_name
  * @property string $last_name
  * @property bool $publish_email
  * @property string $home_phone
@@ -29,7 +30,10 @@ use Cake\Routing\Router;
  * @property string $addr_postalcode
  * @property string $gender
  * @property string $gender_description
+ * @property bool $publish_gender
  * @property string $roster_designation
+ * @property string $pronouns
+ * @property bool $publish_pronouns
  * @property \Cake\I18n\FrozenTime $birthdate
  * @property int $height
  * @property string $shirt_size
@@ -53,6 +57,7 @@ use Cake\Routing\Router;
  * @property \Cake\I18n\FrozenTime $modified
  *
  * @property \App\Model\Entity\User $user
+ * @property \App\Model\Entity\ActivityLog[] $activity_logs
  * @property \App\Model\Entity\Allstar[] $allstars
  * @property \App\Model\Entity\Attendance[] $attendances
  * @property \App\Model\Entity\Credit[] $credits
@@ -67,13 +72,20 @@ use Cake\Routing\Router;
  * @property \App\Model\Entity\Task[] $tasks
  * @property \App\Model\Entity\Upload[] $uploads
  * @property \App\Model\Entity\TeamsPerson[] $teams_people
+ * @property \App\Model\Entity\Credit[] $created_credits
+ * @property \App\Model\Entity\Note[] $created_notes
+ * @property \App\Model\Entity\Payment[] $created_payments
+ * @property \App\Model\Entity\Payment[] $updated_payments
+ * @property \App\Model\Entity\ScoreDetailStat[] $score_detail_stats
+ * @property \App\Model\Entity\ScoreEntry[] $score_entries
+ * @property \App\Model\Entity\SpiritEntry[] $spirit_entries
  * @property \App\Model\Entity\Affiliate[] $affiliates
  * @property \App\Model\Entity\Badge[] $badges
  * @property \App\Model\Entity\Division[] $divisions
  * @property \App\Model\Entity\Franchise[] $franchises
  * @property \App\Model\Entity\Group[] $groups
- * @property \App\Model\Entity\Person[] $relatives
- * @property \App\Model\Entity\Person[] $related
+ * @property \App\Model\Entity\Person[] $relatives Profiles that this person controls
+ * @property \App\Model\Entity\Person[] $related Profiles that control this person
  * @property \App\Model\Entity\Team[] $teams
  * @property \App\Model\Entity\Waiver[] $waivers
  *
@@ -112,6 +124,7 @@ class Person extends Entity {
 	 * @var array
 	 */
 	protected $_hidden = [
+		'legal_name',
 		'publish_email',
 		'alternate_email',
 		'publish_alternate_email',
@@ -131,6 +144,7 @@ class Person extends Entity {
 		'gender_display',
 		'gender_description',
 		'roster_designation',
+		'pronouns',
 		'birthdate',
 		'height',
 		'shirt_size',
@@ -282,12 +296,13 @@ class Person extends Entity {
 			return '';
 		}
 
-		$display = __($this->gender);
-		if ($this->gender == 'Self-defined') {
-			$display .= __(' ({0})', h($this->gender_description));
+		if ($this->gender == 'Prefer to specify') {
+			$display = h($this->gender_description);
+		} else {
+			$display = __($this->gender);
 		}
-		if (!in_array($this->gender, Configure::read('options.gender_binary'))) {
-			$display .= __(' ({0}: {1})', __('Roster Designation', __($this->roster_designation)));
+		if (Configure::read('gender.column') == 'roster_designation') {
+			$display .= __(' ({0}: {1})', __('Roster Designation'), __($this->roster_designation));
 		}
 
 		return $display;
@@ -301,8 +316,14 @@ class Person extends Entity {
 	public function merge(Person $new) {
 		$preserve = ['id', 'status', 'user_id'];
 		// These are player fields, which might not be present if the one being merged is a parent
-		$preserve_if_new_is_empty = ['gender', 'gender_description', 'roster_designation', 'birthdate', 'height', 'shirt_size', 'user'];
+		$preserve_if_new_is_empty = [
+			'gender', 'gender_description', 'publish_gender', 'roster_designation', 'pronouns', 'publish_pronouns',
+			'birthdate', 'height', 'shirt_size', 'user',
+		];
 
+		if (empty($this->user_id)) {
+			$preserve_if_new_is_empty += ['home_phone', 'work_phone', 'mobile_phone', 'addr_street', 'addr_city', 'addr_prov', 'addr_country', 'addr_postalcode'];
+		}
 		foreach (array_keys($new->_properties) as $prop) {
 			if ($this->isAccessible($prop) && !in_array($prop, $preserve)) {
 				if (is_array($new->$prop)) {
@@ -445,6 +466,10 @@ class Person extends Entity {
 			if ($is_manager || $is_me) {
 				$visible += [
 					'gender_display' => true,
+					'publish_gender' => true,
+					'legal_name' => true,
+					'pronouns' => true,
+					'publish_pronouns' => true,
 				];
 			}
 
@@ -513,6 +538,16 @@ class Person extends Entity {
 						'publish_alternate_mobile_phone' => true,
 					];
 				}
+				if ($this->publish_gender) {
+					$visible += [
+						'gender_display' => true,
+					];
+				}
+				if ($this->publish_pronouns) {
+					$visible += [
+						'pronouns' => true,
+					];
+				}
 			}
 
 			// Remove things based on disabled features
@@ -535,6 +570,9 @@ class Person extends Entity {
 			}
 			if (!Configure::read('scoring.allstars') || !$is_player) {
 				unset($visible['allstars']);
+			}
+			if (!Configure::read('profile.legal_name')) {
+				unset($visible['legal_name']);
 			}
 			if (!Configure::read('profile.home_phone')) {
 				unset($visible['home_phone']);
@@ -569,6 +607,10 @@ class Person extends Entity {
 			if (!Configure::read('profile.addr_postalcode')) {
 				unset($visible['addr_postalcode']);
 			}
+			if (!Configure::read('profile.pronouns')) {
+				unset($visible['pronouns']);
+				unset($visible['publish_pronouns']);
+			}
 			if (!Configure::read('profile.birthdate')) {
 				unset($visible['birthdate']);
 			}
@@ -600,6 +642,9 @@ class Person extends Entity {
 			if (!$is_player) {
 				unset($visible['birthdate']);
 				unset($visible['gender_display']);
+				unset($visible['publish_gender']);
+				unset($visible['pronouns']);
+				unset($visible['publish_pronouns']);
 				unset($visible['height']);
 				unset($visible['shirt_size']);
 				unset($visible['skills']);

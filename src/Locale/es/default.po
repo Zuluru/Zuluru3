@@ -18886,7 +18886,7 @@ msgid "If an individual has not replied promptly to your request to join, we sug
 msgstr "Si un individuo no ha respondido con rapidez a su solicitud para unirse, le sugerimos que se ponga en contacto con ellos para recordarles que deben responder."
 
 #: Template/Teams/view.ctp:526
-msgid "Notice: All teams are required to have a minimum of 1 open and 1 woman Captain (or Coach, where applicable) on their team roster. This does not include 'Assistant' Captains, of which there is no minimum requirement. Your team roster is not considered valid until this corrected. To change a player's 'role' please click on the role next to the player's name (e.g. Regular Player) and change to 'Captain' or 'Coach'."
+msgid "Notice: All teams are required to have a minimum of 1 Open and 1 Woman Captain (or Coach, where applicable) on their team roster. This does not include 'Assistant' Captains, of which there is no minimum requirement. Your team roster is not considered valid until this corrected. To change a player's 'role' please click on the role next to the player's name (e.g. Regular Player) and change to 'Captain' or 'Coach'."
 msgstr ""
 
 #: Template/Teams/ajax/tooltip.ctp:46

@@ -83,7 +83,7 @@ foreach ($sports as $sport => $name):
 		if (Configure::read("sports.{$sport}.rating_questions")) {
 			$after = $this->Html->para(null, __('Please use the questionnaire to ') . $this->Html->link(__('calculate your rating'), '#', ['onclick' => "dorating('$sport', '#{$id_prefix}skills-{$i}-skill-level'); return false;"]) . '.');
 		} else {
-			$after = null;
+			$after = $this->Html->para(null, __('This is used to help build teams from individual sign-ups and inform our skills development programming.'));
 		}
 		echo $this->Form->input("{$prefix}skills.{$i}.skill_level", [
 			'type' => 'select',

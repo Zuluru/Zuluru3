@@ -40,17 +40,35 @@ $options['options'] = [
 		PROFILE_DISABLED => __('Disabled entirely'),
 	],
 
+	'ages' => [
+		'Youth' => __('Youth only'),
+		'Adult' => __('Adult only'),
+		'Both' => __('Both youth and adult'),
+	],
+
+	'modes' => [
+		'Leagues' => __('Leagues only'),
+		'Tournaments' => __('Tournaments/competitions only'),
+		'Both' => __('Both leagues and tournaments/competitions'),
+	],
+
+	'genders' => [
+		'Single' => __('Single-gender only, both women\'s and men\'s'),
+		'Women' => __('Women\'s only'),
+		'Men' => __('Men\'s only'),
+		'Co-ed' => __('At least some co-ed where gender ratios are enforced'),
+		'Open' => __('Anyone can play without restriction'),
+	],
+
 	'gender' => [
 		'Woman' => __x('gender', 'Woman'),
 		'Man' => __x('gender', 'Man'),
-		'Trans' => __x('gender', 'Trans'),
-		'Self-defined' => __x('gender', 'Self-defined'),
+		'Non-Binary' => __x('gender', 'Non-Binary'),
 		'Prefer not to say' => __x('gender', 'Prefer not to say'),
+		'Prefer to specify' => __x('gender', 'Prefer to specify'),
 	],
 
 	// The female one must always go first, here and above
-	'gender_binary' => ['Woman', 'Man'],
-
 	'roster_designation' => [
 		'Woman' => __x('gender', 'Woman'),
 		'Open' => __x('gender', 'Open'),

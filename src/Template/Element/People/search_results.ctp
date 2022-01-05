@@ -20,6 +20,13 @@ elseif (isset($people)):
 			<thead>
 				<tr class="paginator">
 					<th><?= $this->Paginator->sort('first_name') ?></th>
+<?php
+	if ($this->Authorize->can('display_legal_names', \App\Controller\PeopleController::class)):
+?>
+					<th><?= $this->Paginator->sort('legal_name') ?></th>
+<?php
+	endif;
+?>
 					<th><?= $this->Paginator->sort('last_name') ?></th>
 					<th class="actions"><?= __('Actions') ?></th>
 				</tr>
@@ -33,6 +40,13 @@ elseif (isset($people)):
 ?>
 				<tr>
 					<td><?= $this->element('People/block', ['person' => $person, 'display_field' => 'first_name']) ?></td>
+<?php
+	if ($this->Authorize->can('display_legal_names', \App\Controller\PeopleController::class)):
+?>
+					<td><?= $this->element('People/block', ['person' => $person, 'display_field' => 'legal_name']) ?></td>
+<?php
+	endif;
+?>
 					<td><?= $this->element('People/block', ['person' => $person, 'display_field' => 'last_name']) ?></td>
 					<td class="actions"><?php
 					echo $this->Html->iconLink('view_24.png', ['controller' => 'People', 'action' => 'view', 'person' => $person->id, 'return' => AppController::_return()], ['alt' => __('View Profile'), 'title' => __('View Profile')]);
@@ -44,6 +58,9 @@ elseif (isset($people)):
 					}
 					if ($this->Authorize->can('edit', $person)) {
 						echo $this->Html->iconLink('edit_24.png', ['controller' => 'People', 'action' => 'edit', 'person' => $person->id, 'return' => AppController::_return()], ['alt' => __('Edit Profile'), 'title' => __('Edit Profile')]);
+						if (!$person->user_id) {
+							echo $this->Html->iconLink('add_24.png', ['controller' => 'People', 'action' => 'add_account', 'person' => $person->id, 'return' => AppController::_return()], ['alt' => __('Create Login'), 'title' => __('Create Login')]);
+						}
 						echo $this->Form->iconPostLink('delete_24.png', ['controller' => 'People', 'action' => 'delete', 'person' => $person->id], ['alt' => __('Delete Player'), 'title' => __('Delete Player')], ['confirm' => __('Are you sure you want to delete this person?')]);
 					}
 					if (!empty($extra_url)) {

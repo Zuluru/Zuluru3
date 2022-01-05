@@ -64,6 +64,7 @@ class PeopleTable extends AppTable {
 		$this->addBehavior('Formatter', [
 			'fields' => [
 				'first_name' => 'proper_case_format',
+				'legal_name' => 'proper_case_format',
 				'last_name' => 'proper_case_format',
 				'addr_street' => 'proper_case_format',
 				'addr_city' => 'proper_case_format',
@@ -83,6 +84,10 @@ class PeopleTable extends AppTable {
 			'strategy' => 'select',
 		]);
 
+		$this->hasMany('ActivityLogs', [
+			'foreignKey' => 'person_id',
+			'dependent' => true,
+		]);
 		$this->hasMany('GamesAllstars', [
 			'foreignKey' => 'person_id',
 			'dependent' => false,
@@ -146,6 +151,40 @@ class PeopleTable extends AppTable {
 			'dependent' => true,
 		]);
 
+		// Some associations here mainly to automate the profile merge process
+		$this->hasMany('CreatedCredits', [
+			'className' => 'Credits',
+			'foreignKey' => 'created_person_id',
+			'dependent' => true,
+		]);
+		$this->hasMany('CreatedNotes', [
+			'className' => 'Notes',
+			'foreignKey' => 'created_person_id',
+			'dependent' => true,
+		]);
+		$this->hasMany('CreatedPayments', [
+			'className' => 'Payments',
+			'foreignKey' => 'created_person_id',
+			'dependent' => true,
+		]);
+		$this->hasMany('UpdatedPayments', [
+			'className' => 'Payments',
+			'foreignKey' => 'updated_person_id',
+			'dependent' => true,
+		]);
+		$this->hasMany('ScoreDetailStats', [
+			'foreignKey' => 'person_id',
+			'dependent' => true,
+		]);
+		$this->hasMany('ScoreEntries', [
+			'foreignKey' => 'person_id',
+			'dependent' => true,
+		]);
+		$this->hasMany('ScoreEntries', [
+			'foreignKey' => 'person_id',
+			'dependent' => true,
+		]);
+
 		$this->belongsToMany('Affiliates', [
 			'joinTable' => 'affiliates_people',
 			'foreignKey' => 'person_id',
@@ -178,6 +217,7 @@ class PeopleTable extends AppTable {
 			'targetForeignKey' => 'group_id',
 			'saveStrategy' => 'replace',
 		]);
+		// Profiles that this person controls
 		$this->belongsToMany('Relatives', [
 			'className' => 'People',
 			'joinTable' => 'people_people',
@@ -186,6 +226,7 @@ class PeopleTable extends AppTable {
 			'targetForeignKey' => 'relative_id',
 			'saveStrategy' => 'append',
 		]);
+		// Profiles that control this person
 		$this->belongsToMany('Related', [
 			'className' => 'People',
 			'joinTable' => 'people_people',
@@ -220,94 +261,101 @@ class PeopleTable extends AppTable {
 
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', 'create')
 
 			->add('first_name', 'valid', [
 				'rule' => ['custom', self::NAME_REGEX],
 				'message' => __('Names can only include letters, numbers, spaces, commas, periods, apostrophes and hyphens.'),
 			])
-			->requirePresence('first_name', 'create', __('First name must not be blank.'))
-			->notEmpty('first_name', __('First name must not be blank.'))
+			->requirePresence('first_name', 'create', Configure::read('profile.legal_name') ? __('Preferred name must not be blank.') : __('First name must not be blank.'))
+			->notEmptyString('first_name', Configure::read('profile.legal_name') ? __('Preferred name must not be blank.') : __('First name must not be blank.'))
 
 			->add('last_name', 'valid', [
 				'rule' => ['custom', self::NAME_REGEX],
 				'message' => __('Names can only include letters, numbers, spaces, commas, periods, apostrophes and hyphens.'),
 			])
+
+			->add('legal_name', 'valid', [
+				'rule' => ['custom', self::NAME_REGEX],
+				'message' => __('Names can only include letters, numbers, spaces, commas, periods, apostrophes and hyphens.'),
+			])
+			->allowEmptyString('legal_name')
+
 			->requirePresence('last_name', 'create', __('Last name must not be blank.'))
-			->notEmpty('last_name', __('Last name must not be blank.'))
+			->notEmptyString('last_name', __('Last name must not be blank.'))
 
 			->add('alternate_first_name', 'valid', [
 				'rule' => ['custom', self::NAME_REGEX],
 				'message' => __('Names can only include letters, numbers, spaces, commas, periods, apostrophes and hyphens.'),
 			])
-			->allowEmpty('alternate_first_name')
+			->allowEmptyString('alternate_first_name')
 
 			->add('alternate_last_name', 'valid', [
 				'rule' => ['custom', self::NAME_REGEX],
 				'message' => __('Names can only include letters, numbers, spaces, commas, periods, apostrophes and hyphens.'),
 			])
-			->allowEmpty('alternate_last_name')
+			->allowEmptyString('alternate_last_name')
 
 			->requirePresence('status', 'create', __('You must select a valid status.'))
-			->notEmpty('status', __('You must select a valid status.'))
+			->notEmptyString('status', __('You must select a valid status.'))
 
 			->boolean('show_gravatar')
-			->allowEmpty('show_gravatar')
+			->allowEmptyString('show_gravatar')
 
 			->boolean('publish_email')
-			->allowEmpty('publish_email')
+			->allowEmptyString('publish_email')
 
 			->email('alternate_email', false, __('You must supply a valid email address.'))
-			->allowEmpty('alternate_email')
+			->allowEmptyString('alternate_email')
 
 			->boolean('publish_alternate_email')
-			->allowEmpty('publish_alternate_email')
+			->allowEmptyString('publish_alternate_email')
 
 			->boolean('has_dog')
-			->allowEmpty('has_dog')
+			->allowEmptyString('has_dog')
 
 			->boolean('contact_for_feedback')
-			->allowEmpty('contact_for_feedback')
+			->allowEmptyString('contact_for_feedback')
 
 			->add('home_phone', 'valid', ['provider' => 'intl', 'rule' => 'phone', 'message' => __('Please supply area code and number.')])
-			->allowEmpty('home_phone')
+			->allowEmptyString('home_phone')
 
 			->boolean('publish_home_phone')
-			->allowEmpty('publish_home_phone')
+			->allowEmptyString('publish_home_phone')
 
 			->add('work_phone', 'valid', ['provider' => 'intl', 'rule' => 'phone', 'message' => __('Please supply area code and number.')])
-			->allowEmpty('work_phone')
+			->allowEmptyString('work_phone')
 
 			->naturalNumber('work_ext', __('Please supply extension, if any.'))
-			->allowEmpty('work_ext')
+			->allowEmptyString('work_ext')
 
 			->boolean('publish_work_phone')
-			->allowEmpty('publish_work_phone')
+			->allowEmptyString('publish_work_phone')
 
 			->add('alternate_work_phone', 'valid', ['provider' => 'intl', 'rule' => 'phone', 'message' => __('Please supply area code and number.')])
-			->allowEmpty('alternate_work_phone')
+			->allowEmptyString('alternate_work_phone')
 
 			->naturalNumber('alternate_work_ext', __('Please supply extension, if any.'))
-			->allowEmpty('alternate_work_ext')
+			->allowEmptyString('alternate_work_ext')
 
 			->boolean('publish_alternate_work_phone')
-			->allowEmpty('publish_alternate_work_phone')
+			->allowEmptyString('publish_alternate_work_phone')
 
 			->add('mobile_phone', 'valid', ['provider' => 'intl', 'rule' => 'phone', 'message' => __('Please supply area code and number.')])
-			->allowEmpty('mobile_phone')
+			->allowEmptyString('mobile_phone')
 
 			->boolean('publish_mobile_phone')
-			->allowEmpty('publish_mobile_phone')
+			->allowEmptyString('publish_mobile_phone')
 
 			->add('alternate_mobile_phone', 'valid', ['provider' => 'intl', 'rule' => 'phone', 'message' => __('Please supply area code and number.')])
-			->allowEmpty('alternate_mobile_phone')
+			->allowEmptyString('alternate_mobile_phone')
 
 			->boolean('publish_alternate_mobile_phone')
-			->allowEmpty('publish_alternate_mobile_phone')
+			->allowEmptyString('publish_alternate_mobile_phone')
 
 			// TODO: validate this by province
 			->add('addr_postalcode', 'valid', ['provider' => 'intl', 'rule' => 'postal', 'message' => __('You must enter a valid postal/zip code')])
-			->allowEmpty('addr_postalcode')
+			->allowEmptyString('addr_postalcode')
 
 			;
 
@@ -357,34 +405,43 @@ class PeopleTable extends AppTable {
 
 	public function validationPlayer(Validator $validator) {
 		$validator
-			->requirePresence('gender', 'create', __('You must select a gender.'))
-			->notEmpty('gender', __('You must select a gender.'));
+			->requirePresence('gender', 'create', __('You must select a gender identification.'))
+			->notEmptyString('gender', __('You must select a gender identification.'));
+
+		$validator
+			->boolean('publish_gender')
+			->allowEmptyString('publish_gender');
 
 		$validator
 			->requirePresence('roster_designation', function ($context) {
-				return !empty($context['data']['gender']) && !in_array($context['data']['gender'], Configure::read('options.gender_binary'));
+				return Configure::read('gender.column') == 'roster_designation';
 			}, __('You must select a roster designation.'))
-			->notEmpty('roster_designation', __('You must select a roster designation.'), function ($context) {
-				return !empty($context['data']['gender']) && !in_array($context['data']['gender'], Configure::read('options.gender_binary'));
-			});
+			->notEmptyString('roster_designation', __('You must select a roster designation.'));
+
+		$validator
+			->allowEmptyString('pronouns');
+
+		$validator
+			->boolean('publish_pronouns')
+			->allowEmptyString('publish_pronouns');
 
 		if (Configure::read('profile.height')) {
 			$validator
 				->requirePresence('height', 'create', __('You must enter a valid height.'))
-				->notEmpty('height', __('You must enter a valid height.'));
+				->notEmptyString('height', __('You must enter a valid height.'));
 		}
 
 		if (Configure::read('profile.shirt_size')) {
 			$validator
 				->requirePresence('shirt_size', 'create', __('You must select a valid shirt size.'))
-				->notEmpty('shirt_size', __('You must select a valid shirt size.'));
+				->notEmptyString('shirt_size', __('You must select a valid shirt size.'));
 		}
 
 		if (Configure::read('profile.birthdate')) {
 			$date_format = (Configure::read('feature.birth_year_only') ? 'y' : 'ymd');
 			$validator
 				->requirePresence('birthdate', 'create', __('You must provide a valid birthdate.'))
-				->notEmpty('birthdate', __('You must provide a valid birthdate.'))
+				->notEmptyString('birthdate', __('You must provide a valid birthdate.'))
 				->add('birthdate', 'valid', ['rule' => ['date', $date_format], 'message' => __('You must provide a valid birthdate.')]);
 		}
 
@@ -397,7 +454,7 @@ class PeopleTable extends AppTable {
 		if (Configure::read('profile.home_phone')) {
 			$validator
 				->requirePresence('home_phone', 'create', __('You must provide at least one phone number.'))
-				->notEmpty('home_phone', __('You must provide at least one phone number.'), function ($context) {
+				->notEmptyString('home_phone', __('You must provide at least one phone number.'), function ($context) {
 					return empty($context['data']['work_phone']) && empty($context['data']['mobile_phone']);
 				});
 		}
@@ -405,53 +462,53 @@ class PeopleTable extends AppTable {
 		if (Configure::read('profile.work_phone')) {
 			$validator
 				->requirePresence('work_phone', 'create', __('You must provide at least one phone number.'))
-				->notEmpty('work_phone', __('You must provide at least one phone number.'), function ($context) {
+				->notEmptyString('work_phone', __('You must provide at least one phone number.'), function ($context) {
 					return empty($context['data']['home_phone']) && empty($context['data']['mobile_phone']);
 				})
 				->boolean('publish_work_phone')
 				->boolean('publish_alternate_work_phone')
-				->allowEmpty('publish_alternate_work_phone');
+				->allowEmptyString('publish_alternate_work_phone');
 		}
 
 		if (Configure::read('profile.mobile_phone')) {
 			$validator
 				->requirePresence('mobile_phone', 'create', __('You must provide at least one phone number.'))
-				->notEmpty('mobile_phone', __('You must provide at least one phone number.'), function ($context) {
+				->notEmptyString('mobile_phone', __('You must provide at least one phone number.'), function ($context) {
 					return empty($context['data']['home_phone']) && empty($context['data']['work_phone']);
 				})
 				->boolean('publish_mobile_phone')
 				->boolean('publish_alternate_mobile_phone')
-				->allowEmpty('publish_alternate_mobile_phone');
+				->allowEmptyString('publish_alternate_mobile_phone');
 		}
 
 		if (Configure::read('profile.addr_street')) {
 			$validator
 				->requirePresence('addr_street', 'create', __('You must supply a valid street address.'))
-				->notEmpty('addr_street', __('You must supply a valid street address.'));
+				->notEmptyString('addr_street', __('You must supply a valid street address.'));
 		}
 
 		if (Configure::read('profile.addr_city')) {
 			$validator
 				->requirePresence('addr_city', 'create', __('You must supply a city.'))
-				->notEmpty('addr_city', __('You must supply a city.'));
+				->notEmptyString('addr_city', __('You must supply a city.'));
 		}
 
 		if (Configure::read('profile.addr_prov')) {
 			$validator
 				->requirePresence('addr_prov', 'create', __('Select a province/state from the list.'))
-				->notEmpty('addr_prov', __('Select a province/state from the list.'));
+				->notEmptyString('addr_prov', __('Select a province/state from the list.'));
 		}
 
 		if (Configure::read('profile.addr_country')) {
 			$validator
 				->requirePresence('addr_country', 'create', __('You must select a country.'))
-				->notEmpty('addr_country', __('You must select a country.'));
+				->notEmptyString('addr_country', __('You must select a country.'));
 		}
 
 		if (Configure::read('profile.addr_postalcode')) {
 			$validator
 				->requirePresence('addr_postalcode', 'create', __('You must enter a valid postal/zip code'))
-				->notEmpty('addr_postalcode', __('You must enter a valid postal/zip code'));
+				->notEmptyString('addr_postalcode', __('You must enter a valid postal/zip code'));
 		}
 
 		return $validator;
@@ -461,7 +518,7 @@ class PeopleTable extends AppTable {
 		if (Configure::read('profile.shirt_size')) {
 			$validator
 				->requirePresence('shirt_size', 'create', __('You must select a valid shirt size.'))
-				->notEmpty('shirt_size', __('You must select a valid shirt size.'));
+				->notEmptyString('shirt_size', __('You must select a valid shirt size.'));
 		}
 
 		return $validator;
@@ -487,12 +544,12 @@ class PeopleTable extends AppTable {
 
 		$rules->add(new InConfigRule(['key' => 'options.gender', 'optional' => true]), 'validGender', [
 			'errorField' => 'gender',
-			'message' => __('You must select a gender.'),
+			'message' => __('You must select a gender identification.'),
 		]);
 
 		$rules->add(new InConfigRule(['key' => 'options.roster_designation', 'optional' => true]), 'validRosterDesignation', [
 			'errorField' => 'roster_designation',
-			'message' => __('You must select a gender.'),
+			'message' => __('You must select a roster designation.'),
 		]);
 
 		$rules->add(new InDateConfigRule('born'), 'validBirthdate', [
@@ -580,15 +637,15 @@ class PeopleTable extends AppTable {
 			foreach (collection($entity->groups)->extract('id') as $group) {
 				switch ($group) {
 					case GROUP_PLAYER:
-						$validator = $this->validator('player');
+						$validator = $this->getValidator('player');
 						$errors = $validator->errors($data, $entity->isNew());
-						$entity->errors($errors);
+						$entity->setErrors($errors);
 						break;
 
 					case GROUP_COACH:
-						$validator = $this->validator('coach');
+						$validator = $this->getValidator('coach');
 						$errors = $validator->errors($data, $entity->isNew());
-						$entity->errors($errors);
+						$entity->setErrors($errors);
 						break;
 				}
 			}
@@ -600,12 +657,12 @@ class PeopleTable extends AppTable {
 			// this temporary field during creation plus pseudo-accessor
 			$is_child = $entity->is_child || (!$entity->isNew() && !$entity->user_id);
 			if (!$is_child) {
-				$validator = $this->validator('contact');
+				$validator = $this->getValidator('contact');
 				$errors = $validator->errors($data, $entity->isNew());
-				$entity->errors($errors);
+				$entity->setErrors($errors);
 			}
 
-			return empty($entity->errors());
+			return empty($entity->getErrors());
 		});
 
 		// Don't delete the only admin
@@ -764,10 +821,9 @@ class PeopleTable extends AppTable {
 			$entity->complete = true;
 		}
 
-		if ($entity->gender == 'Woman' && $entity->roster_designation != 'Woman') {
-			$entity->roster_designation = 'Woman';
-		} else if ($entity->gender == 'Man' && $entity->roster_designation != 'Open') {
-			$entity->roster_designation = 'Open';
+		// Should this go in beforeMarshal instead?
+		if (Configure::read('feature.auto_approve') && $entity->status == 'new' && $entity->complete) {
+			$entity->status = 'active';
 		}
 	}
 

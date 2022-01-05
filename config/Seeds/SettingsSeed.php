@@ -433,6 +433,11 @@ class SettingsSeed extends AbstractSeed {
 			],
 			[
 				'category' => 'profile',
+				'name' => 'legal_name',
+				'value' => '0',
+			],
+			[
+				'category' => 'profile',
 				'name' => 'last_name',
 				'value' => '2',
 			],
@@ -480,6 +485,11 @@ class SettingsSeed extends AbstractSeed {
 				'category' => 'profile',
 				'name' => 'gender',
 				'value' => '2',
+			],
+			[
+				'category' => 'profile',
+				'name' => 'pronouns',
+				'value' => '0',
 			],
 			[
 				'category' => 'profile',

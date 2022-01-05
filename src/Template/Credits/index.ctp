@@ -2,13 +2,15 @@
 /**
  * @type \App\Model\Entity\Credit[] $credits
  * @type \App\Model\Entity\Affiliate[] $affiliates
+ * @type boolean $all
  */
 
-$this->Html->addCrumb(__('Unused Credits'));
+$title = ($all ? __('Credits') : __('Unused Credits'));
+$this->Html->addCrumb($title);
 ?>
 
 <div class="registrations index">
-	<h2><?= __('Unused Credits') ?></h2>
+	<h2><?= $title ?></h2>
 	<p><?= $this->Paginator->counter([
 		'format' => __('Page {{page}} of {{pages}}, showing {{current}} records out of {{count}} total, starting on record {{start}}, ending on {{end}}')
 	]) ?></p>
@@ -84,4 +86,16 @@ endforeach;
 	<nav class="paginator"><ul class="pagination">
 		<?= $this->Paginator->numbers(['prev' => true, 'next' => true]) ?>
 	</ul></nav>
+</div>
+<div class="actions columns">
+	<ul class="nav nav-pills">
+<?php
+if ($all) {
+	echo $this->Html->tag('li', $this->Html->link(__('Unused Credits'), ['action' => 'index']));
+} else {
+	echo $this->Html->tag('li', $this->Html->link(__('All Credits'), ['action' => 'index', 'all' => true]));
+}
+echo $this->Html->tag('li', $this->Html->link(__('Download'), array_merge($this->getRequest()->getQueryParams(), ['_ext' => 'csv'])));
+?>
+	</ul>
 </div>

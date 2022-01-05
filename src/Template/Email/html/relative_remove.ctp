@@ -1,4 +1,10 @@
 <?php
+/**
+ * @type $this \App\View\AppView
+ * @type $person \App\Model\Entity\Person
+ * @type $relative \App\Model\Entity\Person
+ */
+
 use Cake\Core\Configure;
 ?>
 

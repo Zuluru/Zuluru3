@@ -151,19 +151,17 @@ class AppController extends Controller {
 		$this->response->type(['csv' => 'text/x-csv']);
 
 		// Check if we need to redirect logged-in users for some required step first
-		// We will allow them to see help or logout. Or get the leagues list, as that's where some things redirect to.
+		// Don't cause redirects for JSON requests.
 		$free = $this->_freeActions();
 		$identity = $this->Authentication->getIdentity();
-		if ($identity && $identity->isLoggedIn() && !in_array($this->request->action, $free)) {
-			if (($this->request->getParam('controller') != 'People' || $this->request->action != 'edit') && $this->UserCache->read('Person.user_id') && !$this->request->is('json')) {
-				if (empty($this->UserCache->read('Person.email'))) {
-					$this->Flash->warning(__('Last time we tried to contact you, your email bounced. We require a valid email address as part of your profile. You must update it before proceeding.'));
-					$this->Authorization->skipAuthorization();
-					return $this->forceRedirect(['plugin' => false, 'controller' => 'People', 'action' => 'edit']);
-				}
+		if (!$this->request->is('json') && $identity && $identity->isLoggedIn() && !in_array($this->request->action, $free)) {
+			if ($this->UserCache->read('Person.user_id') && empty($this->UserCache->read('Person.email'))) {
+				$this->Flash->warning(__('Last time we tried to contact you, your email bounced. We require a valid email address as part of your profile. You must update it before proceeding.'));
+				$this->Authorization->skipAuthorization();
+				return $this->forceRedirect(['plugin' => false, 'controller' => 'People', 'action' => 'edit']);
 			}
 
-			if (($this->request->getParam('controller') != 'People' || $this->request->action != 'edit') && $this->UserCache->read('Person.complete') == 0 && !$this->request->is('json')) {
+			if ($this->UserCache->read('Person.complete') == 0) {
 				$this->Flash->warning(__('Your profile is incomplete. You must update it before proceeding.'));
 				$this->Authorization->skipAuthorization();
 				return $this->forceRedirect(['plugin' => false, 'controller' => 'People', 'action' => 'edit']);
@@ -179,12 +177,8 @@ class AppController extends Controller {
 				if (!empty($response_required) &&
 					// Let's not block admins from turning off this setting if they have a team request
 					$this->request->getParam('controller') != 'Settings' &&
-					// Allow people to change who they are acting as
-					($this->request->getParam('controller') != 'People' || $this->request->action != 'act_as') &&
 					// We will let people look at information about teams that they've been invited to
-					($this->request->getParam('controller') != 'Teams' || !in_array($this->request->getQuery('team'), $response_required)) &&
-					// Don't cause redirects for JSON requests
-					!$this->request->is('json')
+					($this->request->getParam('controller') != 'Teams' || !in_array($this->request->getQuery('team'), $response_required))
 				) {
 					$this->Flash->info(__('You have been invited to join a team, and must either accept or decline this invitation before proceeding. Before deciding, you have the ability to look at this team\'s roster, schedule, etc.'));
 					return $this->redirect(['plugin' => false, 'controller' => 'Teams', 'action' => 'view', 'team' => current($response_required)]);
@@ -421,6 +415,9 @@ class AppController extends Controller {
 			$this->_addMenuItem(__('My Profile'), ['plugin' => false, 'controller' => 'People', 'action' => 'view']);
 			$this->_addMenuItem(__('View'), ['plugin' => false, 'controller' => 'People', 'action' => 'view'], __('My Profile'));
 			$this->_addMenuItem(__('Edit'), ['plugin' => false, 'controller' => 'People', 'action' => 'edit'], __('My Profile'));
+			if (!$identity->getOriginalData()->person->user_id) {
+				$this->_addMenuItem(__('Create Login'), ['plugin' => false, 'controller' => 'People', 'action' => 'add_account'], __('My Profile'));
+			}
 			$this->_addMenuItem(__('Preferences'), ['plugin' => false, 'controller' => 'People', 'action' => 'preferences'], __('My Profile'));
 			if (in_array(GROUP_PARENT, $groups)) {
 				$this->_addMenuItem(__('Add New Child'), ['plugin' => false, 'controller' => 'People', 'action' => 'add_relative'], __('My Profile'));
@@ -832,6 +829,9 @@ class AppController extends Controller {
 		if ($id) {
 			$this->_addMenuItem(__('View'), ['plugin' => false, 'controller' => 'People', 'action' => 'view', 'act_as' => $id], [__('My Profile'), $name]);
 			$this->_addMenuItem(__('Edit'), ['plugin' => false, 'controller' => 'People', 'action' => 'edit', 'act_as' => $id], [__('My Profile'), $name]);
+			if (!$this->UserCache->read('Person.user_id', $id)) {
+				$this->_addMenuItem(__('Create Login'), ['plugin' => false, 'controller' => 'People', 'action' => 'add_account', 'person' => $id], [__('My Profile'), $name]);
+			}
 			$this->_addMenuItem(__('Preferences'), ['plugin' => false, 'controller' => 'People', 'action' => 'preferences', 'act_as' => $id], [__('My Profile'), $name]);
 			$this->_addMenuItem(__('Waiver History'), ['plugin' => false, 'controller' => 'People', 'action' => 'waivers', 'act_as' => $id], [__('My Profile'), $name]);
 			$this->_addMenuItem(__('Upload Photo'), ['plugin' => false, 'controller' => 'People', 'action' => 'photo_upload', 'act_as' => $id], [__('My Profile'), $name]);
@@ -1065,16 +1065,16 @@ class AppController extends Controller {
 			}
 			if (!empty($input->email)) {
 				if (isset($name)) {
-					$emails[$input->email] = $name;
+					$emails[trim($input->email)] = $name;
 				} else {
-					$emails[$input->email] = $input->email;
+					$emails[trim($input->email)] = $input->email;
 				}
 			}
 			if (!empty($input->alternate_email)) {
 				if (isset($name)) {
-					$emails[$input->alternate_email] = $name . __(' ({0})', __('alternate'));
+					$emails[trim($input->alternate_email)] = $name . __(' ({0})', __('alternate'));
 				} else {
-					$emails[$input->alternate_email] = $input->alternate_email;
+					$emails[trim($input->alternate_email)] = $input->alternate_email;
 				}
 			}
 
@@ -1103,7 +1103,7 @@ class AppController extends Controller {
 			}
 		} else if (is_string($input) && strpos($input, '@') !== false) {
 			// Looks like an email address, most likely from newsletter sending
-			$emails = [$input];
+			$emails = [trim($input)];
 		} else {
 			// Anything else, we don't know what to do with!
 			pr($input);
@@ -1159,7 +1159,7 @@ class AppController extends Controller {
 
 		if (!empty($params)) {
 			$names = [];
-			foreach (['first_name', 'last_name'] as $field) {
+			foreach (['first_name', 'legal_name', 'last_name'] as $field) {
 				if (!empty($params[$field])) {
 					$names[] = trim($params[$field], ' *');
 				}
@@ -1187,16 +1187,13 @@ class AppController extends Controller {
 						continue;
 					}
 
-					// Add each element of the search string one by one
-					foreach(explode(' ', $value) as $str) {
-						$term = "People.$field";
-						if ($str) {
-							if (strpos($str, '*') !== false) {
-								$term .= ' LIKE';
-								$str = strtr($str, '*', '%');
-							}
-							$search_conditions[] = [$term => $str];
+					$term = "People.$field";
+					if ($value) {
+						if (strpos($value, '*') !== false) {
+							$term .= ' LIKE';
+							$value = strtr($value, '*', '%');
 						}
+						$search_conditions[] = [$term => $value];
 					}
 				}
 				$query->where($search_conditions);
@@ -1244,6 +1241,9 @@ class AppController extends Controller {
 			unset($params[$param]);
 		}
 		unset($params['return']);
+		if (!$this->Authorization->can(\App\Controller\PeopleController::class, 'display_legal_names')) {
+			unset($params['legal_name']);
+		}
 
 		if (!$this->request->is('post')) {
 			$this->request->data = $params;

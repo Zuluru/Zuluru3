@@ -125,7 +125,7 @@ endif;
 
 <?php
 if (count($event->prices) == 1):
-	if ($event->prices[0]->canRegister['allowed'] && $event->prices[0]->open->isFuture() && $identity->isManagerOf($event)) {
+	if ($event->prices[0]->canRegister && $event->prices[0]->canRegister['allowed'] && $event->prices[0]->open->isFuture() && $identity->isManagerOf($event)) {
 		$admin_register = true;
 	}
 ?>

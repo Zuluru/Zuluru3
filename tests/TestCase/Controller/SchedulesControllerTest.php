@@ -78,7 +78,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('<p>You have requested to delete games on ' . $date->i18nFormat('MMMM d, yyyy') . '.</p><p>This will remove 2 games, of which 2 are published.</p>');
 
 		// Or any affiliate
-		$date = (new FrozenDate('last Sunday of May'))->addWeeks(1);
+		$date = (new FrozenDate('last Monday of May'))->subDay()->addWeeks(1);
 		$this->assertGetAsAccessOk(['controller' => 'Schedules', 'action' => 'delete', 'division' => DIVISION_ID_SUNDAY_SUB, 'date' => $date->toDateString()], PERSON_ID_ADMIN);
 
 		// Check the errors for dates with no games
@@ -131,7 +131,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('<p>You have requested to delete games on ' . $date->i18nFormat('MMMM d, yyyy') . '.</p><p>This will remove 2 games, of which 2 are published.</p>');
 
 		// But not other affiliates
-		$date = (new FrozenDate('last Sunday of May'))->addWeeks(1);
+		$date = (new FrozenDate('last Monday of May'))->subDay()->addWeeks(1);
 		$this->assertGetAsAccessDenied(['controller' => 'Schedules', 'action' => 'delete', 'division' => DIVISION_ID_SUNDAY_SUB, 'date' => $date->toDateString()], PERSON_ID_MANAGER);
 	}
 
@@ -147,13 +147,13 @@ class SchedulesControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('<p>You have requested to delete games on ' . $date->i18nFormat('MMMM d, yyyy') . '.</p><p>This will remove 2 games, of which 2 are published.</p>');
 
 		// Or any league where they coordinate all of the divisions
-		$date = (new FrozenDate('last Thursday of May'))->addWeeks(4);
+		$date = (new FrozenDate('last Monday of May'))->addDays(3)->addWeeks(4);
 		$this->assertGetAsAccessRedirect(['controller' => 'Schedules', 'action' => 'delete', 'league' => LEAGUE_ID_THURSDAY, 'date' => $date->toDateString()],
 			PERSON_ID_COORDINATOR, ['controller' => 'Leagues', 'action' => 'schedule', 'league' => LEAGUE_ID_THURSDAY],
 			'#There are no games to delete on that date.#');
 
 		// But not other divisions
-		$date = (new FrozenDate('last Tuesday of May'))->addWeeks(1);
+		$date = (new FrozenDate('last Monday of May'))->addDay()->addWeeks(1);
 		$this->assertGetAsAccessDenied(['controller' => 'Schedules', 'action' => 'delete', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN, 'date' => $date->toDateString()], PERSON_ID_COORDINATOR);
 
 		// And not leagues where they coordinate only some divisions
@@ -245,7 +245,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 		$this->assertFalse($game->published);
 
 		// Admins are allowed to publish schedules anywhere
-		$date = (new FrozenDate('last Tuesday of May'))->addWeeks(2);
+		$date = (new FrozenDate('last Monday of May'))->addDay()->addWeeks(2);
 		$this->assertGetAsAccessRedirect(['controller' => 'Schedules', 'action' => 'publish', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN, 'date' => $date->toDateString()],
 			PERSON_ID_ADMIN, ['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN],
 			'#Published games on the requested date.#');
@@ -253,7 +253,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 		$game = TableRegistry::get('Games')->get(GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_2);
 		$this->assertTrue($game->published);
 
-		$date = (new FrozenDate('last Sunday of May'))->addWeeks(2);
+		$date = (new FrozenDate('last Monday of May'))->subDay()->addWeeks(2);
 		$this->assertGetAsAccessRedirect(['controller' => 'Schedules', 'action' => 'publish', 'division' => DIVISION_ID_SUNDAY_SUB, 'date' => $date->toDateString()],
 			PERSON_ID_ADMIN, ['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_SUNDAY_SUB],
 			'#Published games on the requested date.#');
@@ -266,13 +266,13 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 */
 	public function testPublishAsManager() {
 		// Managers are allowed to publish schedules anywhere
-		$date = (new FrozenDate('last Tuesday of May'))->addWeeks(2);
+		$date = (new FrozenDate('last Monday of May'))->addDay()->addWeeks(2);
 		$this->assertGetAsAccessRedirect(['controller' => 'Schedules', 'action' => 'publish', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN, 'date' => $date->toDateString()],
 			PERSON_ID_MANAGER, ['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN],
 			'#Published games on the requested date.#');
 
 		// But not in other affiliates
-		$date = (new FrozenDate('last Sunday of May'))->addWeeks(2);
+		$date = (new FrozenDate('last Monday of May'))->subDay()->addWeeks(2);
 		$this->assertGetAsAccessDenied(['controller' => 'Schedules', 'action' => 'publish', 'division' => DIVISION_ID_SUNDAY_SUB, 'date' => $date->toDateString()], PERSON_ID_MANAGER);
 	}
 
@@ -283,13 +283,13 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 */
 	public function testPublishAsCoordinator() {
 		// Coordinators are allowed to publish schedules in their own divisions
-		$date = (new FrozenDate('last Thursday of May'))->addWeeks(1);
+		$date = (new FrozenDate('last Monday of May'))->addDays(3)->addWeeks(1);
 		$this->assertGetAsAccessRedirect(['controller' => 'Schedules', 'action' => 'publish', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN, 'date' => $date->toDateString()],
 			PERSON_ID_COORDINATOR, ['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN],
 			'#Published games on the requested date.#');
 
 		// But not in other divisions
-		$date = (new FrozenDate('last Tuesday of May'))->addWeeks(2);
+		$date = (new FrozenDate('last Monday of May'))->addDay()->addWeeks(2);
 		$this->assertGetAsAccessDenied(['controller' => 'Schedules', 'action' => 'publish', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN, 'date' => $date->toDateString()], PERSON_ID_COORDINATOR);
 	}
 
@@ -300,7 +300,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 */
 	public function testPublishAsOthers() {
 		// Others are not allowed to publish schedules at all
-		$date = (new FrozenDate('last Tuesday of May'))->addWeeks(2);
+		$date = (new FrozenDate('last Monday of May'))->addDay()->addWeeks(2);
 		$this->assertGetAsAccessDenied(['controller' => 'Schedules', 'action' => 'publish', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN, 'date' => $date->toDateString()], PERSON_ID_CAPTAIN);
 		$this->assertGetAsAccessDenied(['controller' => 'Schedules', 'action' => 'publish', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN, 'date' => $date->toDateString()], PERSON_ID_PLAYER);
 		$this->assertGetAsAccessDenied(['controller' => 'Schedules', 'action' => 'publish', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN, 'date' => $date->toDateString()], PERSON_ID_VISITOR);
@@ -325,7 +325,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 		$game = TableRegistry::get('Games')->get(GAME_ID_LADDER_FINALIZED_HOME_WIN);
 		$this->assertFalse($game->published);
 
-		$date = (new FrozenDate('last Sunday of May'))->addWeeks(1);
+		$date = (new FrozenDate('last Monday of May'))->subDay()->addWeeks(1);
 		$this->assertGetAsAccessRedirect(['controller' => 'Schedules', 'action' => 'unpublish', 'division' => DIVISION_ID_SUNDAY_SUB, 'date' => $date->toDateString()],
 			PERSON_ID_ADMIN, ['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_SUNDAY_SUB],
 			'#Unpublished games on the requested date.#');
@@ -344,7 +344,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 			'#Unpublished games on the requested date.#');
 
 		// But not in other affiliates
-		$date = (new FrozenDate('last Sunday of May'))->addWeeks(2);
+		$date = (new FrozenDate('last Monday of May'))->subDay()->addWeeks(2);
 		$this->assertGetAsAccessDenied(['controller' => 'Schedules', 'action' => 'unpublish', 'division' => DIVISION_ID_SUNDAY_SUB, 'date' => $date->toDateString()], PERSON_ID_MANAGER);
 	}
 
@@ -355,14 +355,14 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 */
 	public function testUnpublishAsCoordinator() {
 		// Coordinators are allowed to unpublish schedules in their own divisions
-		$date = (new FrozenDate('last Thursday of May'))->addWeeks(1);
+		$date = (new FrozenDate('last Monday of May'))->addDays(3)->addWeeks(1);
 		$this->assertGetAsAccessRedirect(['controller' => 'Schedules', 'action' => 'unpublish', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN, 'date' => $date->toDateString()],
 			PERSON_ID_COORDINATOR, ['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN],
 			// There are no unpublished games on this date, so the message will be a failure. But at least it passed permission checks...
 			'#Unpublished games on the requested date.#');
 
 		// But not in other divisions
-		$date = (new FrozenDate('last Tuesday of May'))->addWeeks(1);
+		$date = (new FrozenDate('last Monday of May'))->addDay()->addWeeks(1);
 		$this->assertGetAsAccessDenied(['controller' => 'Schedules', 'action' => 'unpublish', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN, 'date' => $date->toDateString()], PERSON_ID_COORDINATOR);
 	}
 
@@ -373,7 +373,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 */
 	public function testUnpublishAsOthers() {
 		// Others are not allowed to unpublish schedules at all
-		$date = (new FrozenDate('last Tuesday of May'))->addWeeks(1);
+		$date = (new FrozenDate('last Monday of May'))->addDay()->addWeeks(1);
 		$this->assertGetAsAccessDenied(['controller' => 'Schedules', 'action' => 'unpublish', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN, 'date' => $date->toDateString()], PERSON_ID_CAPTAIN);
 		$this->assertGetAsAccessDenied(['controller' => 'Schedules', 'action' => 'unpublish', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN, 'date' => $date->toDateString()], PERSON_ID_PLAYER);
 		$this->assertGetAsAccessDenied(['controller' => 'Schedules', 'action' => 'unpublish', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN, 'date' => $date->toDateString()], PERSON_ID_VISITOR);

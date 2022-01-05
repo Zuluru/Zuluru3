@@ -4,7 +4,7 @@
  * @type \App\Model\Entity\Upload $photo
  */
 
-$visible_properties = $person->visibleProperties();
+$visible_properties = $person->getVisible();
 ?>
 
 <h2><?php
