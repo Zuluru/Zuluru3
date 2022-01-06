@@ -17,18 +17,18 @@ class ForbiddenRedirectException extends ForbiddenException {
 		$this->_url = $url;
 		$this->_class = $class;
 		$this->_options = $options;
-    }
+	}
 
 	public function getUrl() {
 		return $this->_url;
-    }
+	}
 
 	public function getClass() {
 		return $this->_class;
-    }
+}
 
 	public function getOptions() {
 		return $this->_options;
-    }
+	}
 
 }

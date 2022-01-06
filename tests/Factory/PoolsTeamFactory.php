@@ -6,30 +6,30 @@ use Faker\Generator;
 
 class PoolsTeamFactory extends BaseFactory
 {
-    /**
-     * Defines the Table Registry used to generate entities with
-     * @return string
-     */
-    protected function getRootTableRegistryName(): string
-    {
-        return "PoolsTeams";
-    }
+	/**
+	 * Defines the Table Registry used to generate entities with
+	 * @return string
+	 */
+	protected function getRootTableRegistryName(): string
+	{
+		return "PoolsTeams";
+	}
 
-    /**
-     * Defines the default values of you factory. Useful for
-     * not nullable fields.
-     * Use the patchData method to set the field values.
-     * You may use methods of the factory here
-     * @return void
-     */
-    protected function setDefaultTemplate()
-    {
-        $this->setDefaultData(function(Generator $faker) {
-            return [
-                'alias' => substr($faker->text(6), 4),
-                'dependency_type' => $faker->text(32),
-                'dependency_id' => 1,
-            ];
-        });
-    }
+	/**
+	 * Defines the default values of you factory. Useful for
+	 * not nullable fields.
+	 * Use the patchData method to set the field values.
+	 * You may use methods of the factory here
+	 * @return void
+	 */
+	protected function setDefaultTemplate()
+	{
+		$this->setDefaultData(function(Generator $faker) {
+			return [
+				'alias' => substr($faker->text(6), 4),
+				'dependency_type' => $faker->text(32),
+				'dependency_id' => 1,
+			];
+		});
+	}
 }

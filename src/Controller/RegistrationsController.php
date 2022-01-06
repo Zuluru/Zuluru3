@@ -992,7 +992,7 @@ class RegistrationsController extends AppController {
 			$this->Authorization->can(new ContextResource($registration->event, ['price' => $registration->price, 'for_edit' => $registration, 'all_rules' => true]), 'register');
 		}
 
-        $this->_reindexResponses($registration, $registration->event);
+		$this->_reindexResponses($registration, $registration->event);
 
 		$this->set(compact('registration'));
 	}

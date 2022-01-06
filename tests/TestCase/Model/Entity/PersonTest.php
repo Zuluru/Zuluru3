@@ -55,7 +55,6 @@ class PersonTest extends TestCase {
 	 * Test _getUserName()
 	 */
 	public function testGetUserName() {
-//		dd($this->Person1->toArray());
 		$this->assertEquals('amy', $this->Person1->user_name);
 	}
 

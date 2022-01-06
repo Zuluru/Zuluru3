@@ -18,7 +18,7 @@ p { margin: 1em 0; }
 <html>
 <head>
 	<title><?= $this->fetch('title') ?></title>
-    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+	<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
 	<style type="text/css">
 <?= $style ?>
 	</style>

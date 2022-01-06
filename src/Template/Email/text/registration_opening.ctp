@@ -3,12 +3,12 @@ use Cake\Core\Configure;
 use Cake\Routing\Router;
 
 if (Configure::read('registration.reservation_time') > 0) {
-    $reservation_text = __(' for {0} hours (your reservation will expire and your registration will be deleted at {1})',
-        Configure::read('registration.reservation_time'),
-        $this->Time->datetime($registration->reservation_expires)
-    );
+	$reservation_text = __(' for {0} hours (your reservation will expire and your registration will be deleted at {1})',
+		Configure::read('registration.reservation_time'),
+		$this->Time->datetime($registration->reservation_expires)
+	);
 } else {
-    $reservation_text = '';
+	$reservation_text = '';
 }
 ?>
 
@@ -34,7 +34,7 @@ if (Configure::read('registration.reservation_time') > 0) {
 
 
 <?= __('If you have any questions or concerns about this, please contact {0}.',
-    __('{0} at {1}', Configure::read('email.admin_name'), Configure::read('email.admin_email'))
+	__('{0} at {1}', Configure::read('email.admin_name'), Configure::read('email.admin_email'))
 ) ?>
 
 

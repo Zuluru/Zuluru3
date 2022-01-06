@@ -54,7 +54,7 @@ $this->Html->scriptBlock('
 			width: 150,
 			height: 150
 		},
-	    enableOrientation: true,
+		enableOrientation: true,
 		enableExif: true
 	});
 

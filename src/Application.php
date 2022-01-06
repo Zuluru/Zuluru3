@@ -93,7 +93,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 			 */
 			if (Configure::read('debug')) {
 				$this->addPlugin('DebugKit', ['bootstrap' => true]);
-                $this->addPlugin('CakephpFixtureFactories');
+				$this->addPlugin('CakephpFixtureFactories');
 			}
 
 			$this->addPlugin('Authentication');

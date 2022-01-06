@@ -169,7 +169,7 @@ if ($awayScoreEntry->id) {
 if ($game->isFinalized()):
 	$league_obj = ModuleRegistry::getInstance()->load("LeagueType:{$game->division->schedule_type}");
 ?>
-        <dl class="dl-horizontal">
+		<dl class="dl-horizontal">
 <?php
 	echo $this->element("Leagues/game/{$league_obj->render_element}/score", compact('game'));
 ?>

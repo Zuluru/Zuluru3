@@ -6,29 +6,29 @@ use Faker\Generator;
 
 class EventTypeFactory extends BaseFactory
 {
-    /**
-     * Defines the Table Registry used to generate entities with
-     * @return string
-     */
-    protected function getRootTableRegistryName(): string
-    {
-        return "EventTypes";
-    }
+	/**
+	 * Defines the Table Registry used to generate entities with
+	 * @return string
+	 */
+	protected function getRootTableRegistryName(): string
+	{
+		return "EventTypes";
+	}
 
-    /**
-     * Defines the default values of you factory. Useful for
-     * not nullable fields.
-     * Use the patchData method to set the field values.
-     * You may use methods of the factory here
-     * @return void
-     */
-    protected function setDefaultTemplate()
-    {
-        $this->setDefaultData(function(Generator $faker) {
-            return [
-                'name' => $faker->word,
-                'type' => $faker->word,
-            ];
-        });
-    }
+	/**
+	 * Defines the default values of you factory. Useful for
+	 * not nullable fields.
+	 * Use the patchData method to set the field values.
+	 * You may use methods of the factory here
+	 * @return void
+	 */
+	protected function setDefaultTemplate()
+	{
+		$this->setDefaultData(function(Generator $faker) {
+			return [
+				'name' => $faker->word,
+				'type' => $faker->word,
+			];
+		});
+	}
 }
