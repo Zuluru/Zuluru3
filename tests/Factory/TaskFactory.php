@@ -12,7 +12,7 @@ class TaskFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return "Tasks";
+		return 'Tasks';
 	}
 
 	/**

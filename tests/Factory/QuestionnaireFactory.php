@@ -12,7 +12,7 @@ class QuestionnaireFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return "Questionnaires";
+		return 'Questionnaires';
 	}
 
 	/**

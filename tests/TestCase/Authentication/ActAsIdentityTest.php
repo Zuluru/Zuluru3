@@ -4,12 +4,15 @@ namespace App\Test\TestCase\Authentication;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Event\EventManager;
-use Cake\TestSuite\IntegrationTestCase;
+use Cake\TestSuite\IntegrationTestTrait;
+use Cake\TestSuite\TestCase;
 
 /**
  * App\Authentication\ActAsIdentity Test Case
  */
-class ActAsIdentityTest extends IntegrationTestCase {
+class ActAsIdentityTest extends TestCase {
+
+	use IntegrationTestTrait;
 
 	/**
 	 * setUp method

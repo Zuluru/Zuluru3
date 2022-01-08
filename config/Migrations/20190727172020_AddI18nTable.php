@@ -19,8 +19,10 @@ class AddI18nTable extends AbstractMigration {
 			->addIndex(['model', 'foreign_key', 'field'], ['name' => 'I18N_FIELD'])
 			->create();
 
-		$migrations = new Migrations();
-		$migrations->seed(['seed' => 'I18nSeed']);
+		if (!defined('PHPUNIT_TESTSUITE') || !PHPUNIT_TESTSUITE) {
+			$migrations = new Migrations();
+			$migrations->seed(['seed' => 'I18nSeed']);
+		}
 	}
 
 	/**

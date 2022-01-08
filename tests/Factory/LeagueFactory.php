@@ -13,7 +13,7 @@ class LeagueFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return "Leagues";
+		return 'Leagues';
 	}
 
 	/**

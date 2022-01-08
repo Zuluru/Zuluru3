@@ -1,6 +1,9 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use App\Test\Factory\PersonFactory;
+use App\Test\Factory\TeamFactory;
+use App\Test\Factory\TeamsPersonFactory;
 use Cake\I18n\FrozenDate;
 
 /**
@@ -9,14 +12,27 @@ use Cake\I18n\FrozenDate;
 class AllControllerTest extends ControllerTestCase {
 
 	/**
+	 * Fixtures
+	 *
+	 * @var array
+	 */
+	public $fixtures = [
+		'app.Groups',
+		'app.RosterRoles',
+		'app.Settings',
+	];
+
+	/**
 	 * Test clear_cache method as an admin
 	 *
 	 * @return void
 	 */
 	public function testClearCacheAsAdmin() {
 		// Admins are allowed to clear the cache
+		$admin = PersonFactory::makeAdmin()->persist();
+
 		$this->assertGetAsAccessRedirect(['controller' => 'All', 'action' => 'clear_cache'],
-			PERSON_ID_ADMIN, '/',
+			$admin->id, '/',
 			'The cache has been cleared.');
 		$this->markTestIncomplete('Not implemented yet.');
 	}
@@ -28,11 +44,13 @@ class AllControllerTest extends ControllerTestCase {
 	 */
 	public function testClearCacheAsOthers() {
 		// Others are not allowed to clear the cache
-		$this->assertGetAsAccessDenied(['controller' => 'All', 'action' => 'clear_cache'], PERSON_ID_MANAGER);
-		$this->assertGetAsAccessDenied(['controller' => 'All', 'action' => 'clear_cache'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'All', 'action' => 'clear_cache'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'All', 'action' => 'clear_cache'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'All', 'action' => 'clear_cache'], PERSON_ID_VISITOR);
+		$manager = PersonFactory::makeManager()->persist();
+		$volunteer = PersonFactory::makeVolunteer()->persist();
+		$player = PersonFactory::makePlayer()->persist();
+
+		$this->assertGetAsAccessDenied(['controller' => 'All', 'action' => 'clear_cache'], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'All', 'action' => 'clear_cache'], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'All', 'action' => 'clear_cache'], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'All', 'action' => 'clear_cache']);
 	}
 
@@ -43,39 +61,34 @@ class AllControllerTest extends ControllerTestCase {
 	 */
 	public function testLanguage() {
 		// Anyone is allowed to set their language for the session
+		$admin = PersonFactory::makeAdmin()->persist();
+		$manager = PersonFactory::makeManager()->persist();
+		$volunteer = PersonFactory::makeVolunteer()->persist();
+		$player = PersonFactory::makePlayer()->persist();
+
 		$this->assertGetAsAccessRedirect(['controller' => 'All', 'action' => 'language', 'lang' => 'en_US'],
-			PERSON_ID_ADMIN, '/',
+			$admin->id, '/',
 			'Your language has been changed for this session. To change it permanently, {0}.');
 		$this->assertCookie('en_US', 'ZuluruLocale');
 
 		$this->assertGetAsAccessRedirect(['controller' => 'All', 'action' => 'language', 'lang' => 'en_US'],
-			PERSON_ID_MANAGER, '/',
+			$manager->id, '/',
 			'Your language has been changed for this session. To change it permanently, {0}.');
 		$this->assertCookie('en_US', 'ZuluruLocale');
 
 		$this->assertGetAsAccessRedirect(['controller' => 'All', 'action' => 'language', 'lang' => 'en_US'],
-			PERSON_ID_COORDINATOR, '/',
+			$volunteer->id, '/',
 			'Your language has been changed for this session. To change it permanently, {0}.');
 		$this->assertCookie('en_US', 'ZuluruLocale');
 
 		$this->assertGetAsAccessRedirect(['controller' => 'All', 'action' => 'language', 'lang' => 'en_US'],
-			PERSON_ID_CAPTAIN, '/',
-			'Your language has been changed for this session. To change it permanently, {0}.');
-		$this->assertCookie('en_US', 'ZuluruLocale');
-
-		$this->assertGetAsAccessRedirect(['controller' => 'All', 'action' => 'language', 'lang' => 'en_US'],
-			PERSON_ID_PLAYER, '/',
-			'Your language has been changed for this session. To change it permanently, {0}.');
-		$this->assertCookie('en_US', 'ZuluruLocale');
-
-		$this->assertGetAsAccessRedirect(['controller' => 'All', 'action' => 'language', 'lang' => 'en_US'],
-			PERSON_ID_VISITOR, '/',
+			$player->id, '/',
 			'Your language has been changed for this session. To change it permanently, {0}.');
 		$this->assertCookie('en_US', 'ZuluruLocale');
 
 		// Others are allowed to set their language for the session
 		$this->assertGetAnonymousAccessRedirect(['controller' => 'All', 'action' => 'language', 'lang' => 'en_US'],
-			'/', false);
+			'/');
 		$this->assertCookie('en_US', 'ZuluruLocale');
 	}
 
@@ -90,8 +103,10 @@ class AllControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAuth1UnauthenticatedAccessToObsoleteResource() {
+		$team = TeamFactory::make()->persist();
+
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
-		$this->get(['controller' => 'Teams', 'action' => 'ical', TEAM_ID_RED_PAST]);
+		$this->get(['controller' => 'Teams', 'action' => 'ical', $team->id]);
 		$this->assertResponseCode(410);
 	}
 
@@ -102,7 +117,9 @@ class AllControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAuth2aUnauthenticatedAccessToProtectedResourceHTTPForbiddenException() {
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'edit', 'team' => TEAM_ID_RED]);
+		$team = TeamFactory::make()->persist();
+
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'edit', 'team' => $team->id]);
 	}
 
 	/**
@@ -112,7 +129,7 @@ class AllControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAuth2bUnauthenticatedAccessToProtectedResourceAjax() {
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Groups', 'action' => 'activate', 'group' => GROUP_ID_OFFICIAL]);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Groups', 'action' => 'activate', 'group' => GROUP_OFFICIAL]);
 	}
 
 	/**
@@ -133,13 +150,18 @@ class AllControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAuth3bUnauthenticatedAccessToProtectedResourceHTTPForbiddenRedirectException() {
-		$this->assertGetAnonymousAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED, 'code' => 'wrong'],
-			['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		$player = PersonFactory::makePlayer()
+			->with('TeamsPeople', TeamsPersonFactory::make(['status' => ROSTER_INVITED])->with('Teams'))
+			->persist();
+
+		$team = $player->teams_people[0]->team;
+		$this->assertGetAnonymousAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => $player->id, 'team' => $team->id, 'code' => 'wrong'],
+			['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'The authorization code is invalid.');
 
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
-			PERSON_ID_PLAYER);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => $player->id, 'team' => $team->id],
+			$player->id);
 	}
 
 	/**
@@ -150,7 +172,10 @@ class AllControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAuth4aUnauthorizedAccessToProtectedResourceHTTPForbiddenException() {
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'edit', 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
+		$player = PersonFactory::makePlayer()->with('Teams')->persist();
+
+		$team = $player->teams[0];
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'edit', 'team' => $team->id], $player->id);
 	}
 
 	/**
@@ -161,8 +186,10 @@ class AllControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAuth4bUnauthorizedAccessToProtectedResourceAjaxForbiddenException() {
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Groups', 'action' => 'activate', 'group' => GROUP_ID_OFFICIAL],
-			PERSON_ID_PLAYER);
+		$player = PersonFactory::makePlayer()->persist();
+
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Groups', 'action' => 'activate', 'group' => GROUP_OFFICIAL],
+			$player->id);
 	}
 
 	/**
@@ -173,7 +200,10 @@ class AllControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAuth4cUnauthorizedAccessToProtectedResourceHTTPMissingIdentityException() {
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED]);
+		$player = PersonFactory::makePlayer()->with('Teams')->persist();
+
+		$team = $player->teams[0];
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => $player->id, 'team' => $team->id]);
 	}
 
 	/**
@@ -184,7 +214,10 @@ class AllControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAuth4cUnauthorizedAccessToProtectedResourceAjaxMissingIdentityException() {
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED]);
+		$player = PersonFactory::makePlayer()->with('Teams')->persist();
+
+		$team = $player->teams[0];
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => $player->id, 'team' => $team->id]);
 	}
 
 	/**
@@ -194,34 +227,57 @@ class AllControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAuth5aUnauthorizedAccessToMissingResource() {
-		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'stats', 'team' => TEAM_ID_RED],
-			PERSON_ID_MANAGER, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		$team = TeamFactory::make()->with('Divisions.Leagues')->persist();
+		$manager = PersonFactory::makeManager()->persist();
+
+		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'stats', 'team' => $team->id],
+			$manager->id, ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'This league does not have stat tracking enabled.');
 	}
 
 	/**
-	 * 5a. Unauthorized 'get' access (e.g. an edit page or admin-only view)
+	 * 5b. Unauthorized 'get' access (e.g. an edit page or admin-only view)
 	 * Should redirect to somewhere (e.g. a public view). Will set a custom message.
 	 * Handled via custom authorization handler on the custom ForbiddenRedirectException.
 	 *
 	 * @return void
 	 */
-	public function testAuth5aUnauthorizedAccessToProtectedResourceHTTPForbiddenRedirectException() {
-		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
-			PERSON_ID_CAPTAIN, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+	public function testAuth5bUnauthorizedAccessToProtectedResourceHTTPForbiddenRedirectException() {
+		$captain = PersonFactory::makePlayer()
+			->with('TeamsPeople', TeamsPersonFactory::make(['role' => 'captain'])->with('Teams'))
+			->persist();
+
+		$team = $captain->teams_people[0]->team;
+
+		$player = PersonFactory::makePlayer()
+			->with('TeamsPeople', TeamsPersonFactory::make(['team_id' => $team->id, 'status' => ROSTER_INVITED]))
+			->persist();
+
+		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => $player->id, 'team' => $team->id],
+			$captain->id, ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'You are not allowed to accept this roster invitation.');
 	}
 
 	/**
-	 * 5b. Unauthorized 'get' access (e.g. an edit page or admin-only view) via Ajax
+	 * 5c. Unauthorized 'get' access (e.g. an edit page or admin-only view) via Ajax
 	 * Should redirect to somewhere (e.g. a public view). Will set a custom message.
 	 * Handled via custom authorization handler on the custom ForbiddenRedirectException.
 	 *
 	 * @return void
 	 */
-	public function testAuth5bUnauthorizedAccessToProtectedResourceAjaxForbiddenRedirectException() {
-		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
-			PERSON_ID_CAPTAIN, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+	public function testAuth5cUnauthorizedAccessToProtectedResourceAjaxForbiddenRedirectException() {
+		$captain = PersonFactory::makePlayer()
+			->with('TeamsPeople', TeamsPersonFactory::make(['role' => 'captain'])->with('Teams'))
+			->persist();
+
+		$team = $captain->teams_people[0]->team;
+
+		$player = PersonFactory::makePlayer()
+			->with('TeamsPeople', TeamsPersonFactory::make(['team_id' => $team->id, 'status' => ROSTER_INVITED]))
+			->persist();
+
+		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => $player->id, 'team' => $team->id],
+			$captain->id, ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'You are not allowed to accept this roster invitation.', 'warning');
 	}
 

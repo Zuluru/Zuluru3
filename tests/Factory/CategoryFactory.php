@@ -13,7 +13,7 @@ class CategoryFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return "Categories";
+		return 'Categories';
 	}
 
 	/**

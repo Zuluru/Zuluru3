@@ -12,7 +12,7 @@ class PaymentFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return "Payments";
+		return 'Payments';
 	}
 
 	/**

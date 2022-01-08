@@ -1180,7 +1180,7 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'add_relative'],
 			PERSON_ID_PLAYER, [
-				'groups' => ['_ids' => [GROUP_ID_PLAYER]],
+				'groups' => ['_ids' => [GROUP_PLAYER]],
 				'affiliates' => [['id' => AFFILIATE_ID_CLUB]],
 				'first_name' => 'Young',
 				'last_name' => 'Test',
@@ -1223,7 +1223,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertEquals(1, count($child->affiliates));
 		$this->assertEquals(AFFILIATE_ID_CLUB, $child->affiliates[0]->id);
 		$this->assertEquals(1, count($child->groups));
-		$this->assertEquals(GROUP_ID_PLAYER, $child->groups[0]->id);
+		$this->assertEquals(GROUP_PLAYER, $child->groups[0]->id);
 		$this->assertEquals(2, count($child->skills));
 		$this->assertEquals('baseball', $child->skills[0]->sport);
 		$this->assertFalse($child->skills[0]->enabled);

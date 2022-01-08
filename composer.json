@@ -20,7 +20,6 @@
         "cakephp/cakephp": ">=3.8.4",
         "mobiledetect/mobiledetectlib": "2.*",
         "cakephp/migrations": "~1.0",
-        "cakephp/plugin-installer": "*",
         "dereuromark/cakephp-ajax": "dev-master#1a87079f009d56e0b9d46aabb6cc18c81a71168d",
         "elboletaire/twbs-cake-plugin": "master",
         "cakephp/bake": "1.1.*",
@@ -49,7 +48,8 @@
         "cakephp/debug_kit": "3.2.*",
         "psy/psysh": "@stable",
         "phpunit/phpunit": "^5.3",
-        "vierge-noire/cakephp-fixture-factories": "^1.0"
+        "vierge-noire/cakephp-fixture-factories": "^1.0",
+        "vierge-noire/cakephp-test-migrator": "^1.0"
     },
     "suggest": {
         "phpunit/phpunit": "Allows automated tests to be run without system-wide install.",

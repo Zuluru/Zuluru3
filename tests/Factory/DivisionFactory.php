@@ -13,7 +13,7 @@ class DivisionFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return "Divisions";
+		return 'Divisions';
 	}
 
 	/**

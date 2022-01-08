@@ -12,7 +12,7 @@ class EventTypeFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return "EventTypes";
+		return 'EventTypes';
 	}
 
 	/**

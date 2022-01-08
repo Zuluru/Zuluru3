@@ -13,7 +13,7 @@ class ContactFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return "Contacts";
+		return 'Contacts';
 	}
 
 	/**

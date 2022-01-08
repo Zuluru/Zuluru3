@@ -12,7 +12,7 @@ class PriceFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return "Prices";
+		return 'Prices';
 	}
 
 	/**

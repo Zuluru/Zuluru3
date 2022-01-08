@@ -61,10 +61,10 @@ class GroupsTableTest extends TableTestCase {
 		$this->assertEquals(2, count($groups));
 
 		$this->assertArrayHasKey(0, $groups);
-		$this->assertEquals(GROUP_ID_PLAYER, $groups[0]->id);
+		$this->assertEquals(GROUP_PLAYER, $groups[0]->id);
 
 		$this->assertArrayHasKey(1, $groups);
-		$this->assertEquals(GROUP_ID_MANAGER, $groups[1]->id);
+		$this->assertEquals(GROUP_MANAGER, $groups[1]->id);
 	}
 
 }

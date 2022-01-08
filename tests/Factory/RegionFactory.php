@@ -12,7 +12,7 @@ class RegionFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return "Regions";
+		return 'Regions';
 	}
 
 	/**

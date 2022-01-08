@@ -4,7 +4,7 @@ namespace App\Test\Factory;
 use CakephpFixtureFactories\Factory\BaseFactory;
 use Faker\Generator;
 
-class WaiverFactory extends BaseFactory
+class SettingFactory extends BaseFactory
 {
 	/**
 	 * Defines the Table Registry used to generate entities with
@@ -12,7 +12,7 @@ class WaiverFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return 'Waivers';
+		return 'Settings';
 	}
 
 	/**
@@ -25,11 +25,8 @@ class WaiverFactory extends BaseFactory
 	protected function setDefaultTemplate()
 	{
 		$this->setDefaultData(function(Generator $faker) {
-			return [
-				'name' => $faker->word,
-				'description' => $faker->text(256),
-				'expiry_type' => $faker->text(32),
-			];
+			// No meaningful default available, settings are always entirely test-specific
+			return [];
 		});
 	}
 }

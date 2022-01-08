@@ -1,10 +1,11 @@
 <?php
 namespace App\Test\Factory;
 
+use Cake\Chronos\Date;
 use CakephpFixtureFactories\Factory\BaseFactory;
 use Faker\Generator;
 
-class WaiverFactory extends BaseFactory
+class TeamsPersonFactory extends BaseFactory
 {
 	/**
 	 * Defines the Table Registry used to generate entities with
@@ -12,7 +13,7 @@ class WaiverFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return 'Waivers';
+		return 'TeamsPeople';
 	}
 
 	/**
@@ -26,9 +27,8 @@ class WaiverFactory extends BaseFactory
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [
-				'name' => $faker->word,
-				'description' => $faker->text(256),
-				'expiry_type' => $faker->text(32),
+				'role' => 'player',
+				'status' => ROSTER_APPROVED,
 			];
 		});
 	}

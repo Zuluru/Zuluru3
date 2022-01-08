@@ -1,5 +1,5 @@
 <?php
-namespace App\Test\Fixture_deprecated;
+namespace App\Test\Fixture;
 
 use Cake\TestSuite\Fixture\TestFixture;
 
@@ -458,6 +458,7 @@ class SettingsFixture extends TestFixture {
 				'affiliate_id' => null,
 			],
 
+			/*
 			// Some affiliate settings
 			[
 				'person_id' => null,
@@ -524,6 +525,7 @@ class SettingsFixture extends TestFixture {
 				'value' => 1,
 				'affiliate_id' => null,
 			],
+			*/
 		];
 
 		parent::init();

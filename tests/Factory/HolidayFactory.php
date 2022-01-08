@@ -12,7 +12,7 @@ class HolidayFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return "Holidays";
+		return 'Holidays';
 	}
 
 	/**

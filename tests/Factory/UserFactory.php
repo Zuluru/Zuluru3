@@ -13,7 +13,7 @@ class UserFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return "Users";
+		return 'Users';
 	}
 
 	/**
@@ -27,6 +27,8 @@ class UserFactory extends BaseFactory
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [
+				'user_name' => $faker->userName(),
+				'email' => $faker->email(),
 				'last_login' => FrozenDate::now()->subDay(),
 				'client_ip' => '127.0.0.1',
 			];

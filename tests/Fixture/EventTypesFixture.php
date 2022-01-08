@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Test\Fixture_deprecated;
+namespace App\Test\Fixture;
 
 use Cake\TestSuite\Fixture\TestFixture;
 

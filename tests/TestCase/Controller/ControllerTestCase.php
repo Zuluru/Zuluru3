@@ -46,17 +46,17 @@ class ControllerTestCase extends TestCase {
 
 		if (is_array($personId)) {
 			[$personId, $actAs] = $personId;
-			$actAs = TableRegistry::get('People')->get($actAs);
+			$actAs = TableRegistry::getTableLocator()->get('People')->get($actAs);
 		} else {
 			$actAs = null;
 		}
 
-		$person = TableRegistry::get('People')->get($personId);
+		$person = TableRegistry::getTableLocator()->get('People')->get($personId);
 		if (!$person->user_id) {
 			$this->fail('Cannot log in as a profile without a user record.');
 		}
 
-		$user_table = TableRegistry::get(Configure::read('Security.authModel', 'Users'));
+		$user_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authModel', 'Users'));
 		$user = $user_table->get($person->user_id);
 		if ($actAs) {
 			$user->person = $actAs;

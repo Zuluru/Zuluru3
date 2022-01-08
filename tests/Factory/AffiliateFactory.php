@@ -13,7 +13,7 @@ class AffiliateFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return "Affiliates";
+		return 'Affiliates';
 	}
 
 	/**

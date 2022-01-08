@@ -13,7 +13,7 @@ class DayFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return "Days";
+		return 'Days';
 	}
 
 	/**

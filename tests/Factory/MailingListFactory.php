@@ -12,7 +12,7 @@ class MailingListFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return "MailingLists";
+		return 'MailingLists';
 	}
 
 	/**

@@ -14,7 +14,7 @@ class GameFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return "Games";
+		return 'Games';
 	}
 
 	/**

@@ -12,7 +12,7 @@ class FieldFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return "Fields";
+		return 'Fields';
 	}
 
 	/**

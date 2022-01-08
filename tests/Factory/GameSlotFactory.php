@@ -13,7 +13,7 @@ class GameSlotFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return "GameSlots";
+		return 'GameSlots';
 	}
 
 	/**

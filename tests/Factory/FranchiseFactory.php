@@ -12,7 +12,7 @@ class FranchiseFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return "Franchises";
+		return 'Franchises';
 	}
 
 	/**

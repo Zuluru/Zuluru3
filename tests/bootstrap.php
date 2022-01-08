@@ -22,12 +22,8 @@ $_SERVER['HTTP_HOST'] = 'zuluru31.zuluru.org';
 $_SERVER['REQUEST_SCHEME'] = 'https';
 $_SERVER['HTTPS'] = 1;
 
-
-//\Cake\Core\Plugin::load('Migrations');
-//$migrations = new \Migrations\Migrations();
-//$migrations->markMigrated(null, ['target' => 20180622171412]);
-//$migrations->migrate();
+\Cake\Core\Plugin::load('Migrations');
+\CakephpTestMigrator\Migrator::migrate();
 
 // When testing controllers, set notice frequency to something under 0 so we don't need the fixture everywhere.
 Configure::write('notice_frequency', -1);
-

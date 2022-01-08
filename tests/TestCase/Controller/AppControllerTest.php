@@ -2,7 +2,10 @@
 namespace App\Test\TestCase\Controller;
 
 use App\Application;
+use App\Test\Factory\PersonFactory;
+use App\Test\Factory\SettingFactory;
 use Cake\Core\Configure;
+use Cake\I18n\FrozenDate;
 use Cake\I18n\I18n;
 use Cake\ORM\TableRegistry;
 use App\Controller\AppController;
@@ -11,6 +14,16 @@ use App\Controller\AppController;
  * App\Controller\AppController Test Case
  */
 class AppControllerTest extends ControllerTestCase {
+
+	/**
+	 * Fixtures
+	 *
+	 * @var array
+	 */
+	public $fixtures = [
+		'app.Groups',
+		'app.Settings',
+	];
 
 	/**
 	 * Test initialize method
@@ -117,8 +130,8 @@ class AppControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSendMail() {
-		$captain = TableRegistry::getTableLocator()->get('People')->get(PERSON_ID_CAPTAIN);
-		$sub = TableRegistry::getTableLocator()->get('People')->get(PERSON_ID_ANDY_SUB);
+		$players = PersonFactory::makePlayer(2)->persist();
+		SettingFactory::make(['person_id' => $players[1]->id, 'category' => 'personal', 'name' => 'language', 'value' => 'fr'])->persist();
 
 		Configure::load('options');
 		$config = TableRegistry::getTableLocator()->exists('Configuration') ? [] : ['className' => 'App\Model\Table\ConfigurationTable'];
@@ -126,25 +139,25 @@ class AppControllerTest extends ControllerTestCase {
 		$configurationTable->loadSystem();
 		Application::getLocales();
 
-		$en_sub = __('{0} approved your relative request', $sub->full_name);
-		$en_text = __('Your relative request to {0} on the {1} web site has been approved.', $sub->full_name, Configure::read('organization.name'));
+		$en_sub = __('{0} approved your relative request', $players[1]->full_name);
+		$en_text = __('Your relative request to {0} on the {1} web site has been approved.', $players[1]->full_name, Configure::read('organization.name'));
 		I18n::setLocale('fr');
-		$fr_sub = __('{0} approved your relative request', $sub->full_name);
-		$fr_text = __('Your relative request to {0} on the {1} web site has been approved.', $sub->full_name, Configure::read('organization.name'));
+		$fr_sub = __('{0} approved your relative request', $players[1]->full_name);
+		$fr_text = __('Your relative request to {0} on the {1} web site has been approved.', $players[1]->full_name, Configure::read('organization.name'));
 		I18n::setLocale('es');
-		$es_sub = __('{0} approved your relative request', $sub->full_name);
-		$es_text = __('Your relative request to {0} on the {1} web site has been approved.', $sub->full_name, Configure::read('organization.name'));
+		$es_sub = __('{0} approved your relative request', $players[1]->full_name);
+		$es_text = __('Your relative request to {0} on the {1} web site has been approved.', $players[1]->full_name, Configure::read('organization.name'));
 		I18n::setLocale('en');
 		$this->assertTextContains('Your relative request', $en_text);
 		$this->assertTextNotContains('Your relative request', $fr_text);
 
 		// Should send in English only (system language; captain has no preference)
 		AppController::_sendMail([
-			'to' => $captain,
-			'subject' => function() use ($sub) { return __('{0} approved your relative request', $sub->full_name); },
+			'to' => $players[0],
+			'subject' => function() use ($players) { return __('{0} approved your relative request', $players[1]->full_name); },
 			'template' => 'relative_approve',
 			'sendAs' => 'both',
-			'viewVars' => ['person' => $captain, 'relative' => $sub],
+			'viewVars' => ['person' => $players[0], 'relative' => $players[1]],
 		]);
 
 		$messages = Configure::consume('test_emails');
@@ -157,11 +170,11 @@ class AppControllerTest extends ControllerTestCase {
 
 		// Should send in English and French (system language plus sub's preference)
 		AppController::_sendMail([
-			'to' => $sub,
-			'subject' => function() use ($sub) { return __('{0} approved your relative request', $sub->full_name); },
+			'to' => $players[1],
+			'subject' => function() use ($players) { return __('{0} approved your relative request', $players[1]->full_name); },
 			'template' => 'relative_approve',
 			'sendAs' => 'both',
-			'viewVars' => ['person' => $captain, 'relative' => $sub],
+			'viewVars' => ['person' => $players[0], 'relative' => $players[1]],
 		]);
 
 		$messages = Configure::consume('test_emails');
@@ -176,11 +189,11 @@ class AppControllerTest extends ControllerTestCase {
 		// Should send in Spanish and French (system language plus sub's preference)
 		Configure::write('App.defaultLocale', 'es');
 		AppController::_sendMail([
-			'to' => $sub,
-			'subject' => function() use ($sub) { return __('{0} approved your relative request', $sub->full_name); },
+			'to' => $players[1],
+			'subject' => function() use ($players) { return __('{0} approved your relative request', $players[1]->full_name); },
 			'template' => 'relative_approve',
 			'sendAs' => 'both',
-			'viewVars' => ['person' => $sub, 'relative' => $sub],
+			'viewVars' => ['person' => $players[1], 'relative' => $players[1]],
 		]);
 
 		$messages = Configure::consume('test_emails');
@@ -219,14 +232,13 @@ class AppControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testIsChild() {
-		$person = TableRegistry::get('People')->get(PERSON_ID_PLAYER, [
-			'contain' => ['Groups']
-		]);
-		$this->assertFalse(AppController::_isChild($person));
-		$person = TableRegistry::get('People')->get(PERSON_ID_CHILD, [
-			'contain' => ['Groups']
-		]);
-		$this->assertTrue(AppController::_isChild($person));
+		$admin = PersonFactory::makeAdmin()->getEntity();
+		$adult = PersonFactory::makePlayer(['birthdate' => FrozenDate::now()->subYears(19)])->getEntity();
+		$child = PersonFactory::makePlayer(['birthdate' => FrozenDate::now()->subYears(17)])->getEntity();
+
+		$this->assertFalse(AppController::_isChild($admin));
+		$this->assertFalse(AppController::_isChild($adult));
+		$this->assertTrue(AppController::_isChild($child));
 	}
 
 }

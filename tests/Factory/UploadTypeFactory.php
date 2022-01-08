@@ -12,7 +12,7 @@ class UploadTypeFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return "UploadTypes";
+		return 'UploadTypes';
 	}
 
 	/**

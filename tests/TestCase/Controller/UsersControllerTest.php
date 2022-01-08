@@ -138,7 +138,7 @@ class UsersControllerTest extends ControllerTestCase {
 				'confirm_password' => 'password',
 				'timestamp' => FrozenTime::now()->subMinute()->toUnixString(),
 				'person' => [
-					'groups' => ['_ids' => [GROUP_ID_PLAYER]],
+					'groups' => ['_ids' => [GROUP_PLAYER]],
 					'affiliates' => [['id' => AFFILIATE_ID_CLUB]],
 					'first_name' => 'Test',
 					'last_name' => 'Test',
@@ -202,7 +202,7 @@ class UsersControllerTest extends ControllerTestCase {
 		$this->assertEquals(1, count($user->person->affiliates));
 		$this->assertEquals(AFFILIATE_ID_CLUB, $user->person->affiliates[0]->id);
 		$this->assertEquals(1, count($user->person->groups));
-		$this->assertEquals(GROUP_ID_PLAYER, $user->person->groups[0]->id);
+		$this->assertEquals(GROUP_PLAYER, $user->person->groups[0]->id);
 		$this->assertEquals(2, count($user->person->skills));
 		$this->assertEquals('baseball', $user->person->skills[0]->sport);
 		$this->assertFalse($user->person->skills[0]->enabled);
@@ -229,7 +229,7 @@ class UsersControllerTest extends ControllerTestCase {
 				'confirm_password' => 'password',
 				'timestamp' => FrozenTime::now()->subMinute()->toUnixString(),
 				'person' => [
-					'groups' => ['_ids' => [GROUP_ID_PARENT]],
+					'groups' => ['_ids' => [GROUP_PARENT]],
 					'affiliates' => [['id' => AFFILIATE_ID_CLUB]],
 					'first_name' => 'Test',
 					'last_name' => 'Test',
@@ -304,7 +304,7 @@ class UsersControllerTest extends ControllerTestCase {
 		$this->assertEquals(1, count($user->person->affiliates));
 		$this->assertEquals(AFFILIATE_ID_CLUB, $user->person->affiliates[0]->id);
 		$this->assertEquals(1, count($user->person->groups));
-		$this->assertEquals(GROUP_ID_PARENT, $user->person->groups[0]->id);
+		$this->assertEquals(GROUP_PARENT, $user->person->groups[0]->id);
 		$this->assertEmpty(count($user->person->skills));
 
 		$this->assertEquals(1, count($user->person->relatives));
@@ -317,7 +317,7 @@ class UsersControllerTest extends ControllerTestCase {
 		$this->assertEquals(1, count($user->person->relatives[0]->affiliates));
 		$this->assertEquals(AFFILIATE_ID_CLUB, $user->person->relatives[0]->affiliates[0]->id);
 		$this->assertEquals(1, count($user->person->relatives[0]->groups));
-		$this->assertEquals(GROUP_ID_PLAYER, $user->person->relatives[0]->groups[0]->id);
+		$this->assertEquals(GROUP_PLAYER, $user->person->relatives[0]->groups[0]->id);
 		$this->assertEquals(2, count($user->person->relatives[0]->skills));
 		$this->assertEquals('baseball', $user->person->relatives[0]->skills[0]->sport);
 		$this->assertFalse($user->person->relatives[0]->skills[0]->enabled);
@@ -344,7 +344,7 @@ class UsersControllerTest extends ControllerTestCase {
 				'confirm_password' => 'password',
 				'timestamp' => FrozenTime::now()->subMinute()->toUnixString(),
 				'person' => [
-					'groups' => ['_ids' => [GROUP_ID_PARENT]],
+					'groups' => ['_ids' => [GROUP_PARENT]],
 					'affiliates' => [['id' => AFFILIATE_ID_CLUB]],
 					'first_name' => 'Test',
 					'last_name' => 'Test',

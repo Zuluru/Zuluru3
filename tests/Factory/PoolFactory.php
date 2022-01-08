@@ -12,7 +12,7 @@ class PoolFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return "Pools";
+		return 'Pools';
 	}
 
 	/**

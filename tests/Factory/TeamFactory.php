@@ -12,7 +12,7 @@ class TeamFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return "Teams";
+		return 'Teams';
 	}
 
 	/**
@@ -26,7 +26,7 @@ class TeamFactory extends BaseFactory
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [
-
+				'name' => $faker->city() . ' ' . $faker->colorName(),
 			];
 		});
 	}

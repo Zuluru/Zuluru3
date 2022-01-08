@@ -12,7 +12,7 @@ class GroupFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return "Groups";
+		return 'Groups';
 	}
 
 	/**

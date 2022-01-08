@@ -7,12 +7,15 @@ use Cake\Event\EventList;
 use Cake\Event\EventManager;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
-use Cake\TestSuite\IntegrationTestCase;
+use Cake\TestSuite\IntegrationTestTrait;
+use Cake\TestSuite\TestCase;
 
 /**
  * Base class for all table tests
  */
-class TableTestCase extends IntegrationTestCase {
+class TableTestCase extends TestCase {
+
+	use IntegrationTestTrait;
 
 	/**
 	 * setUp method

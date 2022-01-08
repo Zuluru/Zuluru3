@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Test\Fixture_deprecated;
+namespace App\Test\Fixture;
 
 
 use Cake\TestSuite\Fixture\TestFixture;
@@ -63,17 +63,6 @@ class GroupsFixture extends TestFixture {
 				'description' 	=> 	'You are an organizational administrator with absolute privileges.'
 			]
 		];
-
-		if (!defined('GROUP_ID_')) {
-			$i = 0;
-			define('GROUP_ID_PLAYER', ++$i);
-			define('GROUP_ID_PARENT', ++$i);
-			define('GROUP_ID_COACH', ++$i);
-			define('GROUP_ID_VOLUNTEER', ++$i);
-			define('GROUP_ID_OFFICIAL', ++$i);
-			define('GROUP_ID_MANAGER', ++$i);
-			define('GROUP_ID_ADMINISTRATOR', ++$i);
-		}
 
 		parent::init();
 	}

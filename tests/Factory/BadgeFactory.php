@@ -13,7 +13,7 @@ class BadgeFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return "Badges";
+		return 'Badges';
 	}
 
 	/**

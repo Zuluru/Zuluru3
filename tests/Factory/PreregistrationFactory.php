@@ -12,7 +12,7 @@ class PreregistrationFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return "Preregistrations";
+		return 'Preregistrations';
 	}
 
 	/**

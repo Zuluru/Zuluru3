@@ -14,7 +14,6 @@ use Cake\Utility\Inflector;
 use Cake\Validation\Validation;
 use Cake\Validation\Validator;
 use App\Core\UserCache;
-use App\Model\Entity\Person;
 use App\Model\Rule\InConfigRule;
 use App\Model\Rule\InDateConfigRule;
 

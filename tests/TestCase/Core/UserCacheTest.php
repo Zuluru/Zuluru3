@@ -1,13 +1,16 @@
 <?php
 namespace App\Test\TestCase\Controller\Component;
 
-use Cake\TestSuite\IntegrationTestCase;
 use App\Core\UserCache;
+use Cake\TestSuite\IntegrationTestTrait;
+use Cake\TestSuite\TestCase;
 
 /**
  * App\Core\UserCache Test Case
  */
-class UserCacheTest extends IntegrationTestCase {
+class UserCacheTest extends TestCase {
+
+	use IntegrationTestTrait;
 
 	/**
 	 * Test subject

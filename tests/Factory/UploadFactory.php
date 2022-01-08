@@ -12,7 +12,7 @@ class UploadFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return "Uploads";
+		return 'Uploads';
 	}
 
 	/**
