@@ -1,221 +1,88 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
-use App\Controller\CreditsController;
+use App\Test\Factory\AffiliateFactory;
+use App\Test\Factory\AffiliatesPersonFactory;
+use App\Test\Factory\CreditFactory;
+use App\Test\Factory\PersonFactory;
+use App\Test\Scenario\DiverseUsersScenario;
 use Cake\Core\Configure;
-use Cake\ORM\TableRegistry;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * App\Controller\CreditsController Test Case
  */
 class CreditsControllerTest extends ControllerTestCase {
 
+	use ScenarioAwareTrait;
+
 	/**
-	 * Test credits method
+	 * Fixtures
+	 *
+	 * @var array
+	 */
+	public $fixtures = [
+		'app.Groups',
+		'app.Settings',
+	];
+
+	/**
+	 * Test index method
 	 *
 	 * @return void
 	 */
-	public function testCredits() {
-		// Admins are allowed to list credits
-		$this->assertGetAsAccessOk(['controller' => 'Credits', 'action' => 'index'], PERSON_ID_ADMIN);
+	public function testIndex() {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+		$credits = CreditFactory::make([
+			['affiliate_id' => $affiliates[0]->id],
+			['affiliate_id' => $affiliates[1]->id],
+		])->with('People')->persist();
 
-		// Managers are allowed to list credits
-		$this->assertGetAsAccessOk(['controller' => 'Credits', 'action' => 'index'], PERSON_ID_MANAGER);
+		// Admins are allowed to list credits
+		$this->assertGetAsAccessOk(['controller' => 'Credits', 'action' => 'index'], $admin->id);
+		$this->assertResponseContains('/credits/edit?credit=' . $credits[0]->id);
+		$this->assertResponseContains('/credits/delete?credit=' . $credits[0]->id);
+		$this->assertResponseContains('/credits/edit?credit=' . $credits[1]->id);
+		$this->assertResponseContains('/credits/delete?credit=' . $credits[1]->id);
+
+		// Managers are allowed to see the index, but don't see credits in other affiliates
+		$this->assertGetAsAccessOk(['controller' => 'Credits', 'action' => 'index'], $manager->id);
+		$this->assertResponseContains('/credits/edit?credit=' . $credits[0]->id);
+		$this->assertResponseContains('/credits/delete?credit=' . $credits[0]->id);
+		$this->assertResponseNotContains('/credits/edit?credit=' . $credits[1]->id);
+		$this->assertResponseNotContains('/credits/delete?credit=' . $credits[1]->id);
 
 		// Others are not allowed to list credits
-		$this->assertGetAsAccessDenied(['controller' => 'Credits', 'action' => 'index'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Credits', 'action' => 'index'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Credits', 'action' => 'index'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Credits', 'action' => 'index'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Credits', 'action' => 'index'], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Credits', 'action' => 'index'], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Credits', 'action' => 'index']);
 	}
 
 	/**
-	 * Test view method as an admin
+	 * Test view method
 	 *
 	 * @return void
 	 */
-	public function testViewAsAdmin() {
+	public function testView() {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test view method as a manager
+	 * Test add method
 	 *
 	 * @return void
 	 */
-	public function testViewAsManager() {
+	public function testAdd() {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
-	 * Test view method as a coordinator
+	 * Test edit method
 	 *
 	 * @return void
 	 */
-	public function testViewAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as a captain
-	 *
-	 * @return void
-	 */
-	public function testViewAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as a player
-	 *
-	 * @return void
-	 */
-	public function testViewAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method as someone else
-	 *
-	 * @return void
-	 */
-	public function testViewAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test view method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testViewAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as an admin
-	 *
-	 * @return void
-	 */
-	public function testAddAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as a manager
-	 *
-	 * @return void
-	 */
-	public function testAddAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testAddAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as a captain
-	 *
-	 * @return void
-	 */
-	public function testAddAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as a player
-	 *
-	 * @return void
-	 */
-	public function testAddAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method as someone else
-	 *
-	 * @return void
-	 */
-	public function testAddAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test add method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testAddAsAnonymous() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as an admin
-	 *
-	 * @return void
-	 */
-	public function testEditAsAdmin() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as a manager
-	 *
-	 * @return void
-	 */
-	public function testEditAsManager() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testEditAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as a captain
-	 *
-	 * @return void
-	 */
-	public function testEditAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as a player
-	 *
-	 * @return void
-	 */
-	public function testEditAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method as someone else
-	 *
-	 * @return void
-	 */
-	public function testEditAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test edit method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testEditAsAnonymous() {
+	public function testEdit() {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -225,8 +92,15 @@ class CreditsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testTransferAsAdmin() {
+		$affiliates = AffiliateFactory::make(2)->persist();
+		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliates)->persist();
+		$credits = CreditFactory::make([
+			['affiliate_id' => $affiliates[0]->id],
+			['affiliate_id' => $affiliates[1]->id],
+		])->with('People')->persist();
+
 		// Admins are allowed to transfer credits
-		$this->assertGetAsAccessOk(['controller' => 'Credits', 'action' => 'transfer', 'credit' => CREDIT_ID_CAPTAIN], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Credits', 'action' => 'transfer', 'credit' => $credits[0]->id], $admin->id);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -236,9 +110,20 @@ class CreditsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testTransferAsManager() {
+		$affiliates = AffiliateFactory::make(2)->persist();
+		$manager = PersonFactory::makeManager()
+			->with('AffiliatesPeople', AffiliatesPersonFactory::make(['position' => 'manager', 'affiliate_id' => $affiliates[0]->id]))
+			->persist();
+		$credits = CreditFactory::make([
+			['affiliate_id' => $affiliates[0]->id],
+			['affiliate_id' => $affiliates[1]->id],
+		])->with('People')->persist();
+
 		// Managers are allowed to transfer credits
-		$this->assertGetAsAccessOk(['controller' => 'Credits', 'action' => 'transfer', 'credit' => CREDIT_ID_CAPTAIN], PERSON_ID_MANAGER);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'Credits', 'action' => 'transfer', 'credit' => $credits[0]->id], $manager->id);
+
+		// But not ones in other affiliates
+		$this->assertGetAsAccessDenied(['controller' => 'Credits', 'action' => 'transfer', 'credit' => $credits[1]->id], $manager->id);
 	}
 
 	/**
@@ -247,16 +132,23 @@ class CreditsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testTransferAsOwner() {
-		// Peopler are allowed to transfer their own credits
-		$this->assertGetAsAccessOk(['controller' => 'Credits', 'action' => 'transfer', 'credit' => CREDIT_ID_CAPTAIN], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessRedirect(['controller' => 'Credits', 'action' => 'transfer', 'credit' => CREDIT_ID_CAPTAIN, 'person' => PERSON_ID_CHILD],
-			PERSON_ID_CAPTAIN,
+		[$admin, $manager, $source, $target] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
+		$credit = CreditFactory::make(['amount' => 11, 'amount_used' => 10, 'notes' => 'Credit note.'])
+			->with('People', $source)
+			->with('Affiliates', $affiliate)
+			->persist();
+
+		// People are allowed to transfer their own credits
+		$this->assertGetAsAccessOk(['controller' => 'Credits', 'action' => 'transfer', 'credit' => $credit->id], $source->id);
+		$this->assertGetAsAccessRedirect(['controller' => 'Credits', 'action' => 'transfer', 'credit' => $credit->id, 'person' => $target->id],
+			$source->id,
 			'/', 'The credit has been transferred.'
 		);
 
-		$credit = TableRegistry::getTableLocator()->get('Credits')->get(CREDIT_ID_CAPTAIN);
-		$this->assertEquals("Credit note.\nTransferred from Crystal Captain.", $credit->notes);
-		$this->assertEquals(PERSON_ID_CHILD, $credit->person_id);
+		$credit = CreditFactory::get($credit->id);
+		$this->assertEquals("Credit note.\nTransferred from {$source->full_name}.", $credit->notes);
+		$this->assertEquals($target->id, $credit->person_id);
 
 		$messages = Configure::consume('test_emails');
 		$this->assertEquals(1, count($messages));
@@ -279,11 +171,18 @@ class CreditsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testTransferAsOthers() {
+		$affiliates = AffiliateFactory::make(2)->persist();
+		$player = PersonFactory::makePlayer()->with('Affiliates', $affiliates[0])->persist();
+		$credits = CreditFactory::make([
+			['affiliate_id' => $affiliates[0]->id],
+			['affiliate_id' => $affiliates[1]->id],
+		])->with('People')->persist();
+
 		// Others are not allowed to transfer credits
-		$this->assertGetAsAccessDenied(['controller' => 'Credits', 'action' => 'transfer', 'credit' => CREDIT_ID_CAPTAIN], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Credits', 'action' => 'transfer', 'credit' => CREDIT_ID_CAPTAIN], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Credits', 'action' => 'transfer', 'credit' => CREDIT_ID_CAPTAIN], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Credits', 'action' => 'transfer', 'credit' => CREDIT_ID_CAPTAIN]);
+		$this->assertGetAsAccessDenied(['controller' => 'Credits', 'action' => 'transfer', 'credit' => $credits[0]->id], $player->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Credits', 'action' => 'transfer', 'credit' => $credits[1]->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Credits', 'action' => 'transfer', 'credit' => $credits[0]->id]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Credits', 'action' => 'transfer', 'credit' => $credits[1]->id]);
 	}
 
 	/**
@@ -309,43 +208,7 @@ class CreditsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsCoordinator() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as a captain
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsCaptain() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as a player
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsPlayer() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsVisitor() {
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeleteAsAnonymous() {
+	public function testDeleteAsOthers() {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

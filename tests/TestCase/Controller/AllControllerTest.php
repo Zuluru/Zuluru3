@@ -4,12 +4,16 @@ namespace App\Test\TestCase\Controller;
 use App\Test\Factory\PersonFactory;
 use App\Test\Factory\TeamFactory;
 use App\Test\Factory\TeamsPersonFactory;
+use App\Test\Scenario\DiverseUsersScenario;
 use Cake\I18n\FrozenDate;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * App\Controller\AllController Test Case
  */
 class AllControllerTest extends ControllerTestCase {
+
+	use ScenarioAwareTrait;
 
 	/**
 	 * Fixtures
@@ -23,35 +27,25 @@ class AllControllerTest extends ControllerTestCase {
 	];
 
 	/**
-	 * Test clear_cache method as an admin
+	 * Test clear_cache method
 	 *
 	 * @return void
 	 */
-	public function testClearCacheAsAdmin() {
-		// Admins are allowed to clear the cache
-		$admin = PersonFactory::makeAdmin()->persist();
+	public function testClearCache() {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
+		// Admins are allowed to clear the cache
 		$this->assertGetAsAccessRedirect(['controller' => 'All', 'action' => 'clear_cache'],
 			$admin->id, '/',
 			'The cache has been cleared.');
-		$this->markTestIncomplete('Not implemented yet.');
-	}
 
-	/**
-	 * Test clear_cache method as others
-	 *
-	 * @return void
-	 */
-	public function testClearCacheAsOthers() {
 		// Others are not allowed to clear the cache
-		$manager = PersonFactory::makeManager()->persist();
-		$volunteer = PersonFactory::makeVolunteer()->persist();
-		$player = PersonFactory::makePlayer()->persist();
-
 		$this->assertGetAsAccessDenied(['controller' => 'All', 'action' => 'clear_cache'], $manager->id);
 		$this->assertGetAsAccessDenied(['controller' => 'All', 'action' => 'clear_cache'], $volunteer->id);
 		$this->assertGetAsAccessDenied(['controller' => 'All', 'action' => 'clear_cache'], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'All', 'action' => 'clear_cache']);
+
+		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
@@ -60,12 +54,9 @@ class AllControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testLanguage() {
-		// Anyone is allowed to set their language for the session
-		$admin = PersonFactory::makeAdmin()->persist();
-		$manager = PersonFactory::makeManager()->persist();
-		$volunteer = PersonFactory::makeVolunteer()->persist();
-		$player = PersonFactory::makePlayer()->persist();
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
+		// Anyone is allowed to set their language for the session
 		$this->assertGetAsAccessRedirect(['controller' => 'All', 'action' => 'language', 'lang' => 'en_US'],
 			$admin->id, '/',
 			'Your language has been changed for this session. To change it permanently, {0}.');

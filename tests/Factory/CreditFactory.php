@@ -1,10 +1,11 @@
 <?php
 namespace App\Test\Factory;
 
+use Cake\I18n\FrozenTime;
 use CakephpFixtureFactories\Factory\BaseFactory;
 use Faker\Generator;
 
-class ContactFactory extends BaseFactory
+class CreditFactory  extends BaseFactory
 {
 	/**
 	 * Defines the Table Registry used to generate entities with
@@ -12,7 +13,7 @@ class ContactFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return 'Contacts';
+		return 'Credits';
 	}
 
 	/**
@@ -26,8 +27,8 @@ class ContactFactory extends BaseFactory
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [
-				'name' => $faker->word,
-				'email' => $faker->email,
+				'amount' => $faker->randomFloat(2, 1, 100),
+				'created' => FrozenTime::now(),
 			];
 		});
 	}

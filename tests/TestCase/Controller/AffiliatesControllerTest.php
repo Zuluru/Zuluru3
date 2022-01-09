@@ -4,12 +4,16 @@ namespace App\Test\TestCase\Controller;
 use App\Test\Factory\AffiliateFactory;
 use App\Test\Factory\AffiliatesPersonFactory;
 use App\Test\Factory\PersonFactory;
+use App\Test\Scenario\DiverseUsersScenario;
 use Cake\Core\Configure;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * App\Controller\AffiliatesController Test Case
  */
 class AffiliatesControllerTest extends ControllerTestCase {
+
+	use ScenarioAwareTrait;
 
 	/**
 	 * Fixtures
@@ -27,25 +31,13 @@ class AffiliatesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testIndex() {
-		$affiliate = AffiliateFactory::make()->persist();
-		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliate)->persist();
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
 
 		// Admins are allowed to see the index
 		$this->assertGetAsAccessOk(['controller' => 'Affiliates', 'action' => 'index'], $admin->id);
 		$this->assertResponseContains('/affiliates/edit?affiliate=' . $affiliate->id);
 		$this->assertResponseContains('/affiliates/delete?affiliate=' . $affiliate->id);
-	}
-
-	/**
-	 * Test index method as others
-	 *
-	 * @return void
-	 */
-	public function testIndexAsOthers() {
-		$affiliate = AffiliateFactory::make()->persist();
-		$manager = PersonFactory::makeManager()->with('Affiliates', $affiliate)->persist();
-		$volunteer = PersonFactory::makeVolunteer()->with('Affiliates', $affiliate)->persist();
-		$player = PersonFactory::makePlayer()->with('Affiliates', $affiliate)->persist();
 
 		// Others are not allowed to see the index
 		$this->assertGetAsAccessDenied(['controller' => 'Affiliates', 'action' => 'index'], $manager->id);
@@ -60,25 +52,13 @@ class AffiliatesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testView() {
-		$affiliate = AffiliateFactory::make()->persist();
-		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliate)->persist();
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
 
 		// Admins are allowed to view affiliates
 		$this->assertGetAsAccessOk(['controller' => 'Affiliates', 'action' => 'view', 'affiliate' => $affiliate->id], $admin->id);
 		$this->assertResponseContains('/affiliates/edit?affiliate=' . $affiliate->id);
 		$this->assertResponseContains('/affiliates/delete?affiliate=' . $affiliate->id);
-	}
-
-	/**
-	 * Test view method as others
-	 *
-	 * @return void
-	 */
-	public function testViewAsOthers() {
-		$affiliate = AffiliateFactory::make()->persist();
-		$manager = PersonFactory::makeManager()->with('Affiliates', $affiliate)->persist();
-		$volunteer = PersonFactory::makeVolunteer()->with('Affiliates', $affiliate)->persist();
-		$player = PersonFactory::makePlayer()->with('Affiliates', $affiliate)->persist();
 
 		// Others are not allowed to view affiliates
 		$this->assertGetAsAccessDenied(['controller' => 'Affiliates', 'action' => 'view', 'affiliate' => $affiliate->id], $manager->id);
@@ -88,26 +68,15 @@ class AffiliatesControllerTest extends ControllerTestCase {
 	}
 
 	/**
-	 * Test add method as an admin
+	 * Test add method
 	 *
 	 * @return void
 	 */
-	public function testAddAsAdmin() {
-		$admin = PersonFactory::makeAdmin()->persist();
+	public function testAdd() {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
 		// Admins are allowed to add affiliates
 		$this->assertGetAsAccessOk(['controller' => 'Affiliates', 'action' => 'add'], $admin->id);
-	}
-
-	/**
-	 * Test add method as others
-	 *
-	 * @return void
-	 */
-	public function testAddAsOthers() {
-		$manager = PersonFactory::makeManager()->persist();
-		$volunteer = PersonFactory::makeVolunteer()->persist();
-		$player = PersonFactory::makePlayer()->persist();
 
 		// Others are not allowed to add affiliates
 		$this->assertGetAsAccessDenied(['controller' => 'Affiliates', 'action' => 'add'], $manager->id);
@@ -117,28 +86,16 @@ class AffiliatesControllerTest extends ControllerTestCase {
 	}
 
 	/**
-	 * Test edit method as an admin
+	 * Test edit method
 	 *
 	 * @return void
 	 */
-	public function testEditAsAdmin() {
-		$affiliate = AffiliateFactory::make()->persist();
-		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliate)->persist();
+	public function testEdit() {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
 
 		// Admins are allowed to edit affiliates
 		$this->assertGetAsAccessOk(['controller' => 'Affiliates', 'action' => 'edit', 'affiliate' => $affiliate->id], $admin->id);
-	}
-
-	/**
-	 * Test edit method as others
-	 *
-	 * @return void
-	 */
-	public function testEditAsOthers() {
-		$affiliate = AffiliateFactory::make()->persist();
-		$manager = PersonFactory::makeManager()->with('Affiliates', $affiliate)->persist();
-		$volunteer = PersonFactory::makeVolunteer()->with('Affiliates', $affiliate)->persist();
-		$player = PersonFactory::makePlayer()->with('Affiliates', $affiliate)->persist();
 
 		// Others are not allowed to edit affiliates
 		$this->assertGetAsAccessDenied(['controller' => 'Affiliates', 'action' => 'edit', 'affiliate' => $affiliate->id], $manager->id);
@@ -182,10 +139,8 @@ class AffiliatesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		$affiliate = AffiliateFactory::make()->persist();
-		$manager = PersonFactory::makeManager()->with('Affiliates', $affiliate)->persist();
-		$volunteer = PersonFactory::makeVolunteer()->with('Affiliates', $affiliate)->persist();
-		$player = PersonFactory::makePlayer()->with('Affiliates', $affiliate)->persist();
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
 
 		// Others are not allowed to delete affiliates
 		$this->assertPostAsAccessDenied(['controller' => 'Affiliates', 'action' => 'delete', 'affiliate' => $affiliate->id], $manager->id);
@@ -203,6 +158,7 @@ class AffiliatesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		// We don't use the DiverseUsersScenario here, as that creates the manager user already managing the affiliate
 		$affiliate = AffiliateFactory::make()->persist();
 		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliate)->persist();
 		// TODOLATER: Shouldn't need gender fields to be specified for non-players
@@ -254,10 +210,8 @@ class AffiliatesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddManagerAsOthers() {
-		$affiliate = AffiliateFactory::make()->persist();
-		$manager = PersonFactory::makeManager()->with('Affiliates', $affiliate)->persist();
-		$volunteer = PersonFactory::makeVolunteer()->with('Affiliates', $affiliate)->persist();
-		$player = PersonFactory::makePlayer()->with('Affiliates', $affiliate)->persist();
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
 
 		// Others are not allowed to add managers
 		$this->assertGetAsAccessDenied(['controller' => 'Affiliates', 'action' => 'add_manager', 'affiliate' => $affiliate->id], $manager->id);
@@ -305,10 +259,8 @@ class AffiliatesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		$affiliate = AffiliateFactory::make()->persist();
-		$manager = PersonFactory::makeManager()->with('Affiliates', $affiliate)->persist();
-		$volunteer = PersonFactory::makeVolunteer()->with('Affiliates', $affiliate)->persist();
-		$player = PersonFactory::makePlayer()->with('Affiliates', $affiliate)->persist();
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
 
 		// Others are not allowed to remove managers
 		$this->assertPostAsAccessDenied(['controller' => 'Affiliates', 'action' => 'remove_manager', 'affiliate' => $affiliate->id, 'person' => $manager->id], $manager->id);
@@ -326,11 +278,8 @@ class AffiliatesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		$affiliates = AffiliateFactory::make(2)->persist();
-		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliates[0])->persist();
-		$manager = PersonFactory::makeManager()->with('Affiliates', $affiliates[0])->persist();
-		$volunteer = PersonFactory::makeVolunteer()->with('Affiliates', $affiliates[0])->persist();
-		$player = PersonFactory::makePlayer()->with('Affiliates', $affiliates[0])->persist();
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
 
 		// Anyone logged in is allowed to select their affiliate(s) for this session
 		$this->assertGetAsAccessOk(['controller' => 'Affiliates', 'action' => 'select'], $admin->id);
@@ -354,11 +303,8 @@ class AffiliatesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testViewAll() {
-		$affiliate = AffiliateFactory::make()->persist();
-		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliate)->persist();
-		$manager = PersonFactory::makeManager()->with('Affiliates', $affiliate)->persist();
-		$volunteer = PersonFactory::makeVolunteer()->with('Affiliates', $affiliate)->persist();
-		$player = PersonFactory::makePlayer()->with('Affiliates', $affiliate)->persist();
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
 
 		// Anyone logged in is allowed to reset their affiliate selection for this session
 		$this->session(['Zuluru.CurrentAffiliate' => $affiliate->id]);

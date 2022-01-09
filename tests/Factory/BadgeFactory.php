@@ -28,8 +28,7 @@ class BadgeFactory extends BaseFactory
 		$this->setDefaultData(function(Generator $faker) {
 			return [
 				'name' => $faker->word,
-				'category' => $faker->word,
-				'handler' => $faker->word,
+				'category' => 'assigned',
 				'icon' => $faker->word,
 			];
 		});

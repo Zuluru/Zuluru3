@@ -1,7 +1,7 @@
 <?php
 namespace App\Test\Factory;
 
-use Cake\I18n\FrozenDate;
+use Cake\I18n\FrozenTime;
 use CakephpFixtureFactories\Factory\BaseFactory;
 use Faker\Generator;
 
@@ -29,7 +29,7 @@ class UserFactory extends BaseFactory
 			return [
 				'user_name' => $faker->userName(),
 				'email' => $faker->email(),
-				'last_login' => FrozenDate::now()->subDay(),
+				'last_login' => FrozenTime::now()->startOfDay()->subDay(),
 				'client_ip' => '127.0.0.1',
 			];
 		});

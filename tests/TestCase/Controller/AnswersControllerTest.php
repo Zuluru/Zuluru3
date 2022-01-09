@@ -6,11 +6,15 @@ use App\Test\Factory\AffiliatesPersonFactory;
 use App\Test\Factory\AnswerFactory;
 use App\Test\Factory\PersonFactory;
 use App\Test\Factory\QuestionFactory;
+use App\Test\Scenario\DiverseUsersScenario;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * App\Controller\AnswersController Test Case
  */
 class AnswersControllerTest extends ControllerTestCase {
+
+	use ScenarioAwareTrait;
 
 	/**
 	 * Fixtures
@@ -129,9 +133,8 @@ class AnswersControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testDeactivateAsOthers() {
-		$affiliate = AffiliateFactory::make()->persist();
-		$volunteer = PersonFactory::makeVolunteer()->with('Affiliates', $affiliate)->persist();
-		$player = PersonFactory::makePlayer()->with('Affiliates', $affiliate)->persist();
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
 		$answer = AnswerFactory::make()->with('Questions', ['affiliate_id' => $affiliate->id])->persist();
 
 		// Others are not allowed to deactivate answers
