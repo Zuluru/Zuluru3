@@ -4,7 +4,7 @@ namespace App\Test\Factory;
 use CakephpFixtureFactories\Factory\BaseFactory;
 use Faker\Generator;
 
-class TeamsPersonFactory extends BaseFactory
+class SpiritEntryFactory extends BaseFactory
 {
 	/**
 	 * Defines the Table Registry used to generate entities with
@@ -12,7 +12,7 @@ class TeamsPersonFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return 'TeamsPeople';
+		return 'SpiritEntries';
 	}
 
 	/**
@@ -26,8 +26,19 @@ class TeamsPersonFactory extends BaseFactory
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [
-				'role' => 'player',
-				'status' => ROSTER_APPROVED,
+				'score_entry_penalty' => 0,
+				'q1' => 2,
+				'q2' => 2,
+				'q3' => 2,
+				'q4' => 2,
+				'q5' => 2,
+				'q6' => 0,
+				'q7' => 0,
+				'q8' => 0,
+				'q9' => 0,
+				'q10' => 0,
+				'comments' => '',
+				'highlights' => '',
 			];
 		});
 	}

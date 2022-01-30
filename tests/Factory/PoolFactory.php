@@ -26,8 +26,9 @@ class PoolFactory extends BaseFactory
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [
-				'name' => 'XX',
-				'type' => $faker->text(16),
+				'stage' => 1,
+				'name' => 'A',
+				'type' => 'seeded',
 			];
 		});
 	}

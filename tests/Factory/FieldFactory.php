@@ -26,7 +26,9 @@ class FieldFactory extends BaseFactory
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [
-				'sport' => $faker->word,
+				'num' => $faker->word,
+				'sport' => 'ultimate',
+				'is_open' => true,
 			];
 		});
 	}

@@ -114,21 +114,28 @@ class Team extends Entity {
 
 		$teams_table = TableRegistry::getTableLocator()->get('Teams');
 
-		$franchises = $teams_table->Franchises->find()
-			->select('id')
-			->matching('Teams', function (Query $q) {
-				return $q->where([
-					'Teams.id' => $this->id,
-				]);
-			});
-		$affiliated_teams = $teams_table->find()
-			->contain($contain)
-			->matching('Franchises', function (Query $q) use ($franchises) {
-				return $q->where([
-					'Franchises.id IN' => $franchises,
-				]);
-			})
-			->where(['Teams.division_id IN' => $season_divisions]);
+		if (Configure::read('feature.franchises')) {
+			$franchises = $teams_table->Franchises->find()
+				->select('id')
+				->matching('Teams', function (Query $q) {
+					return $q->where([
+						'Teams.id' => $this->id,
+					]);
+				});
+			$affiliated_teams = $teams_table->find()
+				->contain($contain)
+				->matching('Franchises', function (Query $q) use ($franchises) {
+					return $q->where([
+						'Franchises.id IN' => $franchises,
+					]);
+				})
+				->where(['Teams.division_id IN' => $season_divisions]);
+		} else {
+			$affiliated_teams = $teams_table->find()
+				->contain($contain)
+				->where(['Teams.division_id IN' => $season_divisions, 'Teams.name' => $this->name]);
+		}
+
 		if ($affiliated_teams->count() != 1) {
 			return null;
 		}

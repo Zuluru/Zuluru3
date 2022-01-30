@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Authorization\ContextResource;
+use App\Model\Entity\Division;
 use App\Model\Entity\Game;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
@@ -1489,6 +1490,7 @@ class DivisionsController extends AppController {
 	public function initialize_ratings() {
 		$id = intval($this->request->getQuery('division'));
 		try {
+			/** @var Division $division */
 			$division = $this->Divisions->get($id, [
 				'contain' => [
 					'Teams',

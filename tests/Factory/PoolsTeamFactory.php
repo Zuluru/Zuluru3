@@ -27,7 +27,7 @@ class PoolsTeamFactory extends BaseFactory
 		$this->setDefaultData(function(Generator $faker) {
 			return [
 				'alias' => substr($faker->text(6), 4),
-				'dependency_type' => $faker->text(32),
+				'dependency_type' => 'seed',
 				'dependency_id' => 1,
 			];
 		});

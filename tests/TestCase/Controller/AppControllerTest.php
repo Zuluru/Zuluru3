@@ -139,13 +139,13 @@ class AppControllerTest extends ControllerTestCase {
 		$configurationTable->loadSystem();
 		Application::getLocales();
 
-		$en_sub = __('{0} approved your relative request', $players[1]->full_name);
+		$en_sub = h(__('{0} approved your relative request', $players[1]->full_name));
 		$en_text = __('Your relative request to {0} on the {1} web site has been approved.', $players[1]->full_name, Configure::read('organization.name'));
 		I18n::setLocale('fr');
-		$fr_sub = __('{0} approved your relative request', $players[1]->full_name);
+		$fr_sub = h(__('{0} approved your relative request', $players[1]->full_name));
 		$fr_text = __('Your relative request to {0} on the {1} web site has been approved.', $players[1]->full_name, Configure::read('organization.name'));
 		I18n::setLocale('es');
-		$es_sub = __('{0} approved your relative request', $players[1]->full_name);
+		$es_sub = h(__('{0} approved your relative request', $players[1]->full_name));
 		$es_text = __('Your relative request to {0} on the {1} web site has been approved.', $players[1]->full_name, Configure::read('organization.name'));
 		I18n::setLocale('en');
 		$this->assertTextContains('Your relative request', $en_text);

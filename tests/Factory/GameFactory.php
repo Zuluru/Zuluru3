@@ -28,7 +28,10 @@ class GameFactory extends BaseFactory
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [
-				'round' => $faker->text(10),
+				'round' => '1',
+				'status' => 'normal',
+				'published' => true,
+				'type' => SEASON_GAME,
 			];
 		});
 	}

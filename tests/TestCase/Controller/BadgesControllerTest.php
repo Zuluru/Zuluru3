@@ -8,7 +8,7 @@ use App\Test\Factory\BadgeFactory;
 use App\Test\Factory\BadgesPersonFactory;
 use App\Test\Factory\PersonFactory;
 use App\Test\Scenario\DiverseUsersScenario;
-use App\Test\Scenario\LeagueScenario;
+use App\Test\Scenario\LeagueWithRostersScenario;
 use Cake\Core\Configure;
 use Cake\ORM\TableRegistry;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
@@ -227,7 +227,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testInitializeAwardsAsAdmin() {
-		$league = $this->loadFixtureScenario(LeagueScenario::class);
+		$league = $this->loadFixtureScenario(LeagueWithRostersScenario::class);
 		$affiliate = $league->affiliate;
 		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliate)->persist();
 		$badge = BadgeFactory::make(['category' => 'team', 'handler' => 'player_active', 'affiliate_id' => $affiliate->id])->persist();

@@ -26,14 +26,18 @@ class LeagueFactory extends BaseFactory
 	protected function setDefaultTemplate()
 	{
 		$this->setDefaultData(function(Generator $faker) {
+			$seasons = ['Spring', 'Summer', 'Fall', 'Winter'];
 			return [
 				'name' => $faker->word,
-				'sport' => $faker->word,
-				'season' => $faker->word,
+				'sport' => 'ultimate',
+				'season' => $faker->randomElement($seasons),
 				'open' => (new FrozenDate('first Monday of June'))->subWeeks(52),
 				'close' => (new FrozenDate('first Monday of September'))->subWeeks(52),
 				'expected_max_score' => 17,
 				'tie_breaker' => 'win,hth,hthpm,pm,gf,loss',
+				'sotg_questions' => 'wfdf2',
+				'display_sotg' => 'symbols_only',
+				'numeric_sotg' => false,
 			];
 		});
 	}

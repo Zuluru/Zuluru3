@@ -2,6 +2,7 @@
 namespace App\Test\Factory;
 
 use Cake\I18n\FrozenDate;
+use Cake\I18n\FrozenTime;
 use CakephpFixtureFactories\Factory\BaseFactory;
 use Faker\Generator;
 
@@ -28,10 +29,9 @@ class GameSlotFactory extends BaseFactory
 		$this->setDefaultData(function(Generator $faker) {
 			$date = new FrozenDate('tomorrow');
 			return [
-				'start_date' => new FrozenDate('last Monday of May'),
 				'game_date' => $date,
-				'game_start' => $date->hour(9),
-				'game_end'=> $date->hour(18),
+				'game_start' => FrozenTime::createFromTime(19),
+				'game_end'=> FrozenTime::createFromTime(21),
 			];
 		});
 	}
