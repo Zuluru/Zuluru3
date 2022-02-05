@@ -1,11 +1,10 @@
 <?php
 namespace App\Test\Factory;
 
-use Cake\I18n\FrozenTime;
 use CakephpFixtureFactories\Factory\BaseFactory;
 use Faker\Generator;
 
-class EventFactory extends BaseFactory
+class ResponseFactory extends BaseFactory
 {
 	/**
 	 * Defines the Table Registry used to generate entities with
@@ -13,7 +12,7 @@ class EventFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return 'Events';
+		return 'Responses';
 	}
 
 	/**
@@ -27,17 +26,7 @@ class EventFactory extends BaseFactory
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [
-				'name' => $faker->word,
-				'open' => FrozenTime::now()->startOfYear(),
-				'close' => FrozenTime::now()->endOfYear(),
-				'open_cap' => -1,
-				'women_cap' => -1,
 			];
 		});
-	}
-
-	public function setCustom(array $customFields)
-	{
-		return $this->patchData(['custom' => serialize($customFields)]);
 	}
 }
