@@ -48,7 +48,7 @@ class TeamsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAfterSave() {
+	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -57,7 +57,7 @@ class TeamsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAfterDelete() {
+	public function testAfterDelete(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -66,7 +66,7 @@ class TeamsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testReadByPlayerId() {
+	public function testReadByPlayerId(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		// We need this for sorting leagues by season
 		Configure::load('options');
@@ -93,7 +93,7 @@ class TeamsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCompareRoster() {
+	public function testCompareRoster(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		UserCache::getInstance()->initializeIdForTests(PERSON_ID_CAPTAIN);
 
@@ -117,7 +117,7 @@ class TeamsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCanEditRoster() {
+	public function testCanEditRoster(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -126,7 +126,7 @@ class TeamsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAffiliate() {
+	public function testAffiliate(): void {
         $affiliateId = rand();
         $entity = TeamFactory::make(['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->TeamsTable->affiliate($entity->id));
@@ -141,7 +141,7 @@ class TeamsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSport() {
+	public function testSport(): void {
 
 	    $team = TeamFactory::make()->with('Divisions.Leagues')->persist();
 		$this->assertEquals($team->division->league->sport, $this->TeamsTable->sport($team->id));

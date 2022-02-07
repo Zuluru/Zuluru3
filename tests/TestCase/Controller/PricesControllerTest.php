@@ -11,7 +11,7 @@ class PricesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsAdmin() {
+	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -36,7 +36,7 @@ class PricesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsManager() {
+	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -55,7 +55,7 @@ class PricesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsOthers() {
+	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 

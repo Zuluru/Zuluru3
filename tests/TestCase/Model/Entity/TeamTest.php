@@ -74,7 +74,7 @@ class TeamTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testConsolidateRoster() {
+	public function testConsolidateRoster(): void {
 		$this->assertEquals(0, $this->Team1->roster_count);
 		$this->assertEquals(0, $this->Team1->skill_count);
 		$this->assertEquals(0, $this->Team1->skill_total);
@@ -97,7 +97,7 @@ class TeamTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testTwitterName() {
+	public function testTwitterName(): void {
 		$this->assertEquals('Red @redteam', $this->Team1->twitterName());
 		$this->assertEquals('Blue @blueteam', $this->Team2->twitterName());
 	}
@@ -107,13 +107,13 @@ class TeamTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddGameResult() {
+	public function testAddGameResult(): void {
 		$this->markTestIncomplete('Not implemented yet. Pretty complex.');
 	}
 	/**
 	 * Test _getRoster();
 	 */
-	public function testGetRoster() {
+	public function testGetRoster(): void {
 		$people = $this->Team1->roster;
 		$ids = [];
 		foreach ($people as $person) {
@@ -127,7 +127,7 @@ class TeamTest extends TestCase {
 	/**
 	 * Test _getFullRoster();
 	 */
-	public function testGetFullRoster() {
+	public function testGetFullRoster(): void {
 		$people = $this->Team1->full_roster;
 		$ids = [];
 		foreach ($people as $person) {
@@ -142,7 +142,7 @@ class TeamTest extends TestCase {
 	/**
 	 * Test _getAffiliateTeam();
 	 */
-	public function testGetAffiliatedTeam() {
+	public function testGetAffiliatedTeam(): void {
 		$this->assertEquals(null, $this->Team1->affiliated_team);
 		$this->assertEquals(TEAM_ID_RED, $this->Team3->affiliated_team->id);
 	}

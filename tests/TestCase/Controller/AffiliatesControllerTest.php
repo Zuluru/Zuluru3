@@ -30,7 +30,7 @@ class AffiliatesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testIndex() {
+	public function testIndex(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliate = $admin->affiliates[0];
 
@@ -51,7 +51,7 @@ class AffiliatesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testView() {
+	public function testView(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliate = $admin->affiliates[0];
 
@@ -72,7 +72,7 @@ class AffiliatesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAdd() {
+	public function testAdd(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
 		// Admins are allowed to add affiliates
@@ -90,7 +90,7 @@ class AffiliatesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEdit() {
+	public function testEdit(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliate = $admin->affiliates[0];
 
@@ -109,7 +109,7 @@ class AffiliatesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsAdmin() {
+	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -135,7 +135,7 @@ class AffiliatesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsOthers() {
+	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -154,7 +154,7 @@ class AffiliatesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddManagerAsAdmin() {
+	public function testAddManagerAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -209,7 +209,7 @@ class AffiliatesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddManagerAsOthers() {
+	public function testAddManagerAsOthers(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliate = $admin->affiliates[0];
 
@@ -225,7 +225,7 @@ class AffiliatesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRemoveManagerAsAdmin() {
+	public function testRemoveManagerAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -255,7 +255,7 @@ class AffiliatesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRemoveManagerAsOthers() {
+	public function testRemoveManagerAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -274,7 +274,7 @@ class AffiliatesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSelect() {
+	public function testSelect(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -302,7 +302,7 @@ class AffiliatesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testViewAll() {
+	public function testViewAll(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliate = $admin->affiliates[0];
 

@@ -31,7 +31,7 @@ class AllControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testClearCache() {
+	public function testClearCache(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
 		// Admins are allowed to clear the cache
@@ -53,7 +53,7 @@ class AllControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testLanguage() {
+	public function testLanguage(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
 		// Anyone is allowed to set their language for the session
@@ -93,7 +93,7 @@ class AllControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAuth1UnauthenticatedAccessToObsoleteResource() {
+	public function testAuth1UnauthenticatedAccessToObsoleteResource(): void {
 		$team = TeamFactory::make()->persist();
 
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
@@ -107,7 +107,7 @@ class AllControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAuth2aUnauthenticatedAccessToProtectedResourceHTTPForbiddenException() {
+	public function testAuth2aUnauthenticatedAccessToProtectedResourceHTTPForbiddenException(): void {
 		$team = TeamFactory::make()->persist();
 
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'edit', 'team' => $team->id]);
@@ -119,7 +119,7 @@ class AllControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAuth2bUnauthenticatedAccessToProtectedResourceAjax() {
+	public function testAuth2bUnauthenticatedAccessToProtectedResourceAjax(): void {
 		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Groups', 'action' => 'activate', 'group' => GROUP_OFFICIAL]);
 	}
 
@@ -129,7 +129,7 @@ class AllControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAuth3aUnauthenticatedAccessToProtectedViewOfPublicResource() {
+	public function testAuth3aUnauthenticatedAccessToProtectedViewOfPublicResource(): void {
 		$this->assertGetAnonymousAccessRedirect(['controller' => 'Events', 'action' => 'wizard'],
 			['controller' => 'Events', 'action' => 'index']);
 	}
@@ -140,7 +140,7 @@ class AllControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAuth3bUnauthenticatedAccessToProtectedResourceHTTPForbiddenRedirectException() {
+	public function testAuth3bUnauthenticatedAccessToProtectedResourceHTTPForbiddenRedirectException(): void {
 		$player = PersonFactory::makePlayer()
 			->with('TeamsPeople', TeamsPersonFactory::make(['status' => ROSTER_INVITED])->with('Teams'))
 			->persist();
@@ -162,7 +162,7 @@ class AllControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAuth4aUnauthorizedAccessToProtectedResourceHTTPForbiddenException() {
+	public function testAuth4aUnauthorizedAccessToProtectedResourceHTTPForbiddenException(): void {
 		$player = PersonFactory::makePlayer()->with('Teams')->persist();
 
 		$team = $player->teams[0];
@@ -176,7 +176,7 @@ class AllControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAuth4bUnauthorizedAccessToProtectedResourceAjaxForbiddenException() {
+	public function testAuth4bUnauthorizedAccessToProtectedResourceAjaxForbiddenException(): void {
 		$player = PersonFactory::makePlayer()->persist();
 
 		$this->assertGetAjaxAsAccessDenied(['controller' => 'Groups', 'action' => 'activate', 'group' => GROUP_OFFICIAL],
@@ -190,7 +190,7 @@ class AllControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAuth4cUnauthorizedAccessToProtectedResourceHTTPMissingIdentityException() {
+	public function testAuth4cUnauthorizedAccessToProtectedResourceHTTPMissingIdentityException(): void {
 		$player = PersonFactory::makePlayer()->with('Teams')->persist();
 
 		$team = $player->teams[0];
@@ -204,7 +204,7 @@ class AllControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAuth4cUnauthorizedAccessToProtectedResourceAjaxMissingIdentityException() {
+	public function testAuth4cUnauthorizedAccessToProtectedResourceAjaxMissingIdentityException(): void {
 		$player = PersonFactory::makePlayer()->with('Teams')->persist();
 
 		$team = $player->teams[0];
@@ -217,7 +217,7 @@ class AllControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAuth5aUnauthorizedAccessToMissingResource() {
+	public function testAuth5aUnauthorizedAccessToMissingResource(): void {
 		$team = TeamFactory::make()->with('Divisions.Leagues')->persist();
 		$manager = PersonFactory::makeManager()->persist();
 
@@ -233,7 +233,7 @@ class AllControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAuth5bUnauthorizedAccessToProtectedResourceHTTPForbiddenRedirectException() {
+	public function testAuth5bUnauthorizedAccessToProtectedResourceHTTPForbiddenRedirectException(): void {
 		$captain = PersonFactory::makePlayer()
 			->with('TeamsPeople', TeamsPersonFactory::make(['role' => 'captain'])->with('Teams'))
 			->persist();
@@ -256,7 +256,7 @@ class AllControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAuth5cUnauthorizedAccessToProtectedResourceAjaxForbiddenRedirectException() {
+	public function testAuth5cUnauthorizedAccessToProtectedResourceAjaxForbiddenRedirectException(): void {
 		$captain = PersonFactory::makePlayer()
 			->with('TeamsPeople', TeamsPersonFactory::make(['role' => 'captain'])->with('Teams'))
 			->persist();

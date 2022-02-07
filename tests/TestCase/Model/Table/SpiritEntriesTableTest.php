@@ -43,7 +43,7 @@ class SpiritEntriesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddValidation() {
+	public function testAddValidation(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

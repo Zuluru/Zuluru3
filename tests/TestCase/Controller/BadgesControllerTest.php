@@ -36,7 +36,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testIndex() {
+	public function testIndex(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
 
@@ -106,7 +106,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeactivated() {
+	public function testDeactivated(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliate = $admin->affiliates[0];
 		$badges = BadgeFactory::make([
@@ -141,7 +141,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testView() {
+	public function testView(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
 		$badges = BadgeFactory::make([
@@ -226,7 +226,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testInitializeAwardsAsAdmin() {
+	public function testInitializeAwardsAsAdmin(): void {
 		$league = $this->loadFixtureScenario(LeagueWithRostersScenario::class);
 		$affiliate = $league->affiliate;
 		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliate)->persist();
@@ -270,7 +270,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testInitializeAwardsAsManager() {
+	public function testInitializeAwardsAsManager(): void {
 		$affiliate = AffiliateFactory::make()->persist();
 		$manager = PersonFactory::makeManager()
 			->with('AffiliatesPeople', AffiliatesPersonFactory::make(['position' => 'manager', 'affiliate_id' => $affiliate->id]))
@@ -290,7 +290,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testInitializeAwardsAsOthers() {
+	public function testInitializeAwardsAsOthers(): void {
 		$affiliate = AffiliateFactory::make()->persist();
 		$player = PersonFactory::makePlayer()->with('Affiliates', $affiliate)->persist();
 		$badge = BadgeFactory::make(['category' => 'team', 'handler' => 'player_active', 'affiliate_id' => $affiliate->id])->persist();
@@ -305,7 +305,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testTooltip() {
+	public function testTooltip(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
 		$badges = BadgeFactory::make([
@@ -366,7 +366,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAdd() {
+	public function testAdd(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
 		// Admins are allowed to add badges
@@ -386,7 +386,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEdit() {
+	public function testEdit(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
 		$badges = BadgeFactory::make([
@@ -418,7 +418,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeactivateAsAdmin() {
+	public function testDeactivateAsAdmin(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
 		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliates)->persist();
 		$badges = BadgeFactory::make([
@@ -440,7 +440,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeactivateAsManager() {
+	public function testDeactivateAsManager(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
 		$manager = PersonFactory::makeManager()
 			->with('AffiliatesPeople', AffiliatesPersonFactory::make(['position' => 'manager', 'affiliate_id' => $affiliates[0]->id]))
@@ -465,7 +465,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeactivateAsOthers() {
+	public function testDeactivateAsOthers(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
 		$player = PersonFactory::makePlayer()->with('Affiliates', $affiliates[0])->persist();
 		$badges = BadgeFactory::make([
@@ -487,7 +487,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testActivateAsAdmin() {
+	public function testActivateAsAdmin(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
 		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliates)->persist();
 		$badges = BadgeFactory::make([
@@ -509,7 +509,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testActivateAsManager() {
+	public function testActivateAsManager(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
 		$manager = PersonFactory::makeManager()
 			->with('AffiliatesPeople', AffiliatesPersonFactory::make(['position' => 'manager', 'affiliate_id' => $affiliates[0]->id]))
@@ -534,7 +534,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testActivateAsOthers() {
+	public function testActivateAsOthers(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
 		$player = PersonFactory::makePlayer()->with('Affiliates', $affiliates[0])->persist();
 		$badges = BadgeFactory::make([
@@ -556,7 +556,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsAdmin() {
+	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -584,7 +584,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsManager() {
+	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -612,7 +612,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsOthers() {
+	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 

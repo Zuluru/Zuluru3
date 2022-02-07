@@ -48,7 +48,7 @@ class DivisionsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testBeforeSave() {
+	public function testBeforeSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -57,7 +57,7 @@ class DivisionsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAfterSave() {
+	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -66,7 +66,7 @@ class DivisionsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testFindOpen() {
+	public function testFindOpen(): void {
 
 	    DivisionFactory::make([
 	        ['is_open' => true, 'open' => FrozenDate::yesterday(),], // Is open
@@ -84,7 +84,7 @@ class DivisionsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testFindDate() {
+	public function testFindDate(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$divisions = $this->DivisionsTable->find('date', ['date' => new FrozenDate('Monday')]);
 		$this->assertEquals(3, $divisions->count());
@@ -100,7 +100,7 @@ class DivisionsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testReadByPlayerId() {
+	public function testReadByPlayerId(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		// readByPlayerId compares the open date to today, so we need to set "today" for this test to be reliable
 		FrozenDate::setTestNow(new FrozenDate('May 31'));
@@ -149,7 +149,7 @@ class DivisionsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAffiliate() {
+	public function testAffiliate(): void {
 	    $affiliateId = rand();
 	    $division = DivisionFactory::make()
             ->with('Leagues', [
@@ -164,7 +164,7 @@ class DivisionsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testLeague() {
+	public function testLeague(): void {
         $division = DivisionFactory::make()
             ->with('Leagues')
             ->persist();
@@ -176,7 +176,7 @@ class DivisionsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testClearCache() {
+	public function testClearCache(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -185,7 +185,7 @@ class DivisionsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testTranslation() {
+	public function testTranslation(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		Configure::load('options');
 		Configure::load('sports');

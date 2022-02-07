@@ -32,7 +32,7 @@ class EventTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testConstruct() {
+	public function testConstruct(): void {
 		// Check the virtual fields show up from the serialized custom field
         $event = EventFactory::make()->setCustom([
                 'membership_begins' => FrozenDate::now()->startOfYear(),
@@ -50,7 +50,7 @@ class EventTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testCount() {
+	public function testCount(): void {
 	    $nWoman = 3;
 	    $nOpen = 1;
 	    $event = EventFactory::make()
@@ -85,7 +85,7 @@ class EventTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testCap() {
+	public function testCap(): void {
 	    $openCap = rand();
 	    $event = EventFactory::make(['women_cap' => CAP_COMBINED, 'open_cap' => $openCap])->getEntity();
         $this->assertEquals($openCap, $event->cap(''));
@@ -100,7 +100,7 @@ class EventTest extends TestCase {
 	 * Test _getMembershipBegins(), _getMembershipEnds(), _getMembershipType(),
      * _getLevelOfPlay(), _testGetAskStatus(), _getAskAttendance()
 	 */
-	public function testGetMembershipParameters() {
+	public function testGetMembershipParameters(): void {
         $event = EventFactory::make()->setCustom([
             'membership_begins' => FrozenDate::now()->startOfYear(),
             'membership_ends' => FrozenDate::now()->endOfYear(),
@@ -120,7 +120,7 @@ class EventTest extends TestCase {
 	/**
 	 * test _getPeople()
 	 */
-	public function testGetPeople() {
+	public function testGetPeople(): void {
 	    $nPaid = 4;
 	    $event = EventFactory::make()
             ->with('Registrations',
@@ -149,7 +149,7 @@ class EventTest extends TestCase {
 		$this->assertEmpty($event->people->toArray());
 	}
 
-	public function testMergeAutoQuestions() {
+	public function testMergeAutoQuestions(): void {
 	    $event = EventFactory::make()->getEntity();
 		// Make sure we have no questions
 		$this->assertNull($event->questionnaire);
@@ -173,7 +173,7 @@ class EventTest extends TestCase {
 	/**
 	 * Test processWaitingList();
 	 */
-	public function testProcessWaitingList() {
+	public function testProcessWaitingList(): void {
 		$this->markTestIncomplete('Not implemented yet. Need to discuss with Greg, I don\'t think the method does what I think it should be or that could just be some complexity I don\t understand.');
 	}
 

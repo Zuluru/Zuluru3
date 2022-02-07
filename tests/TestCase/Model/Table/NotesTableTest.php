@@ -43,7 +43,7 @@ class NotesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testInitialize() {
+	public function testInitialize(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -52,7 +52,7 @@ class NotesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testValidationDefault() {
+	public function testValidationDefault(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

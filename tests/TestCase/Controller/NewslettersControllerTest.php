@@ -11,7 +11,7 @@ class NewslettersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testIndex() {
+	public function testIndex(): void {
 		// Admins are allowed to see the index, and all future newsletters will be on it
 		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'index'], PERSON_ID_ADMIN);
 		$this->assertResponseNotContains('/newsletters/edit?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS);
@@ -45,7 +45,7 @@ class NewslettersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testPast() {
+	public function testPast(): void {
 		// Admins are allowed to see the past index
 		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'past'], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/newsletters/edit?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS);
@@ -79,7 +79,7 @@ class NewslettersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testView() {
+	public function testView(): void {
 		// Admins are allowed to view newsletters
 		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'view', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/newsletters/edit?newsletter=' . NEWSLETTER_ID_JUNIOR_CLINICS);
@@ -112,7 +112,7 @@ class NewslettersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsAdmin() {
+	public function testAddAsAdmin(): void {
 		// Admins are allowed to add newsletters
 		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'add'], PERSON_ID_ADMIN);
 		$this->assertResponseContains('<option value="' . MAILING_LIST_ID_JUNIORS . '">Juniors</option>');
@@ -124,7 +124,7 @@ class NewslettersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsManager() {
+	public function testAddAsManager(): void {
 		// Managers are allowed to add newsletters
 		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'add'], PERSON_ID_MANAGER);
 		$this->assertResponseContains('<option value="' . MAILING_LIST_ID_JUNIORS . '">Juniors</option>');
@@ -136,7 +136,7 @@ class NewslettersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsOthers() {
+	public function testAddAsOthers(): void {
 		// Others are not allowed to add newsletters
 		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'add'], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'add'], PERSON_ID_CAPTAIN);
@@ -150,7 +150,7 @@ class NewslettersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsAdmin() {
+	public function testEditAsAdmin(): void {
 		// Admins are allowed to edit newsletters
 		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'edit', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'edit', 'newsletter' => NEWSLETTER_ID_WOMENS_CLINICS_SUB], PERSON_ID_ADMIN);
@@ -161,7 +161,7 @@ class NewslettersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsManager() {
+	public function testEditAsManager(): void {
 		// Managers are allowed to edit newsletters
 		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'edit', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS], PERSON_ID_MANAGER);
 
@@ -174,7 +174,7 @@ class NewslettersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsOthers() {
+	public function testEditAsOthers(): void {
 		// Others are not allowed to edit newsletters
 		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'edit', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'edit', 'newsletter' => NEWSLETTER_ID_JUNIOR_CLINICS], PERSON_ID_CAPTAIN);
@@ -188,7 +188,7 @@ class NewslettersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsAdmin() {
+	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -208,7 +208,7 @@ class NewslettersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsManager() {
+	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -227,7 +227,7 @@ class NewslettersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsOthers() {
+	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -248,7 +248,7 @@ class NewslettersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDelivery() {
+	public function testDelivery(): void {
 		// Admins are allowed to see the delivery report
 		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'delivery', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS], PERSON_ID_ADMIN);
 
@@ -268,7 +268,7 @@ class NewslettersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSendAsAdmin() {
+	public function testSendAsAdmin(): void {
 		// Admins are allowed to send
 		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'send', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'send', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS, 'execute' => true, 'test' => true], PERSON_ID_ADMIN);
@@ -280,7 +280,7 @@ class NewslettersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSendAsManager() {
+	public function testSendAsManager(): void {
 		// Managers are allowed to send
 		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'send', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -291,7 +291,7 @@ class NewslettersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSendAsOthers() {
+	public function testSendAsOthers(): void {
 		// Others are not allowed to send
 		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'send', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'Newsletters', 'action' => 'send', 'newsletter' => NEWSLETTER_ID_MASTER_MEETUPS], PERSON_ID_CAPTAIN);

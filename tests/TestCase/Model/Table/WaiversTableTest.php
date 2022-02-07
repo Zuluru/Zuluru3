@@ -47,7 +47,7 @@ class WaiversTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSigned() {
+	public function testSigned(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$person = $this->WaiversTable->People->get(PERSON_ID_ADMIN, [
 			'contain' => ['Waivers' => [
@@ -69,7 +69,7 @@ class WaiversTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAffiliate() {
+	public function testAffiliate(): void {
         $affiliateId = rand();
         $entity = WaiverFactory::make(['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->WaiversTable->affiliate($entity->id));

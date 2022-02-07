@@ -48,7 +48,7 @@ class UserDrupalTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testActivated() {
+	public function testActivated(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -57,7 +57,7 @@ class UserDrupalTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testBeforeDelete() {
+	public function testBeforeDelete(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -66,7 +66,7 @@ class UserDrupalTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testBeforeSave() {
+	public function testBeforeSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

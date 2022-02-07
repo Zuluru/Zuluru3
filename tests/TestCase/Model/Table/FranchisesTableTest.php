@@ -45,7 +45,7 @@ class FranchisesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testReadByPlayerId() {
+	public function testReadByPlayerId(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$franchises = $this->FranchisesTable->readByPlayerId(PERSON_ID_CAPTAIN);
 		$this->assertEquals(2, count($franchises));
@@ -67,7 +67,7 @@ class FranchisesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAffiliate() {
+	public function testAffiliate(): void {
 	    $affiliateId = rand();
 	    $franchise = FranchiseFactory::make(['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->FranchisesTable->affiliate($franchise->id));

@@ -13,7 +13,7 @@ class WaiversControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testIndex() {
+	public function testIndex(): void {
 		// Admins are allowed to see the index
 		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'index'], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/waivers/edit?waiver=' . WAIVER_ID_ANNUAL);
@@ -41,7 +41,7 @@ class WaiversControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testView() {
+	public function testView(): void {
 		// Admins are allowed to view waivers
 		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'view', 'waiver' => WAIVER_ID_ANNUAL], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/waivers/edit?waiver=' . WAIVER_ID_ANNUAL);
@@ -72,7 +72,7 @@ class WaiversControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsAdmin() {
+	public function testAddAsAdmin(): void {
 		// Admins are allowed to add waivers
 		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'add'], PERSON_ID_ADMIN);
 	}
@@ -82,7 +82,7 @@ class WaiversControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsManager() {
+	public function testAddAsManager(): void {
 		// Managers are allowed to add waivers
 		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'add'], PERSON_ID_MANAGER);
 	}
@@ -92,7 +92,7 @@ class WaiversControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsOthers() {
+	public function testAddAsOthers(): void {
 		// Others are not allowed to add waivers
 		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'add'], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'add'], PERSON_ID_CAPTAIN);
@@ -106,7 +106,7 @@ class WaiversControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsAdmin() {
+	public function testEditAsAdmin(): void {
 		// Admins are allowed to edit waivers
 		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => WAIVER_ID_ANNUAL], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => WAIVER_ID_PERPETUAL], PERSON_ID_ADMIN);
@@ -117,7 +117,7 @@ class WaiversControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsManager() {
+	public function testEditAsManager(): void {
 		// Managers are allowed to edit waivers
 		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => WAIVER_ID_ANNUAL], PERSON_ID_MANAGER);
 
@@ -130,7 +130,7 @@ class WaiversControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsOthers() {
+	public function testEditAsOthers(): void {
 		// Others are not allowed to edit waivers
 		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => WAIVER_ID_ANNUAL], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => WAIVER_ID_ANNUAL], PERSON_ID_CAPTAIN);
@@ -144,7 +144,7 @@ class WaiversControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsAdmin() {
+	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -164,7 +164,7 @@ class WaiversControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsManager() {
+	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -183,7 +183,7 @@ class WaiversControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsOthers() {
+	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -204,7 +204,7 @@ class WaiversControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSignAsAdmin() {
+	public function testSignAsAdmin(): void {
 		// Admins are allowed to sign
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'sign', 'waiver' => WAIVER_ID_EVENT, 'date' => FrozenDate::now()->toDateString()], PERSON_ID_ADMIN);
@@ -216,7 +216,7 @@ class WaiversControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSignAsManager() {
+	public function testSignAsManager(): void {
 		// Managers are allowed to sign
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'sign', 'waiver' => WAIVER_ID_EVENT, 'date' => FrozenDate::now()->toDateString()], PERSON_ID_MANAGER);
@@ -228,7 +228,7 @@ class WaiversControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSignAsCoordinator() {
+	public function testSignAsCoordinator(): void {
 		// Coordinators are allowed to sign
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'sign', 'waiver' => WAIVER_ID_EVENT, 'date' => FrozenDate::now()->toDateString()], PERSON_ID_COORDINATOR);
@@ -240,7 +240,7 @@ class WaiversControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSignAsCaptain() {
+	public function testSignAsCaptain(): void {
 		// Captains are allowed to sign
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'sign', 'waiver' => WAIVER_ID_EVENT, 'date' => FrozenDate::now()->toDateString()], PERSON_ID_CAPTAIN);
@@ -252,7 +252,7 @@ class WaiversControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSignAsPlayer() {
+	public function testSignAsPlayer(): void {
 		// Players are allowed to sign
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'sign', 'waiver' => WAIVER_ID_EVENT, 'date' => FrozenDate::now()->toDateString()], PERSON_ID_PLAYER);
@@ -264,7 +264,7 @@ class WaiversControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSignAsVisitor() {
+	public function testSignAsVisitor(): void {
 		// Visitors are allowed to sign
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'sign', 'waiver' => WAIVER_ID_EVENT, 'date' => FrozenDate::now()->toDateString()], PERSON_ID_VISITOR);
@@ -276,7 +276,7 @@ class WaiversControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSignAsAnonymous() {
+	public function testSignAsAnonymous(): void {
 		// Others are not allowed to sign
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Waivers', 'action' => 'sign', 'waiver' => WAIVER_ID_EVENT, 'date' => FrozenDate::now()->toDateString()]);
@@ -287,7 +287,7 @@ class WaiversControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testReview() {
+	public function testReview(): void {
 		// Admins are allowed to review
 		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'review', 'waiver' => WAIVER_ID_EVENT], PERSON_ID_ADMIN);
 

@@ -44,7 +44,7 @@ class GroupsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testFindOptions() {
+	public function testFindOptions(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -53,7 +53,7 @@ class GroupsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testMergeList() {
+	public function testMergeList(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$original = $this->GroupsTable->People->get(PERSON_ID_MANAGER, ['contain' => ['Groups']]);
 		$duplicate = $this->GroupsTable->People->get(PERSON_ID_DUPLICATE, ['contain' => ['Groups']]);

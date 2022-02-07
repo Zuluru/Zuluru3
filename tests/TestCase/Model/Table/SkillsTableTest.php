@@ -45,7 +45,7 @@ class SkillsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testBeforeMarshal() {
+	public function testBeforeMarshal(): void {
 		$data = new \ArrayObject([
 			'year_started' => ['year' => 2000, 'month' => 1, 'day' => 1],
 		]);
@@ -58,7 +58,7 @@ class SkillsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testMergeList() {
+	public function testMergeList(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$original = $this->SkillsTable->People->get(PERSON_ID_MANAGER, ['contain' => ['Skills']]);
 		$this->assertEquals(1, count($original->skills));

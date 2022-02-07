@@ -75,7 +75,7 @@ class GameTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testFinalize() {
+	public function testFinalize(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -84,7 +84,7 @@ class GameTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testUpdateDependencies() {
+	public function testUpdateDependencies(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -93,7 +93,7 @@ class GameTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testAdjustScoreAndRatings() {
+	public function testAdjustScoreAndRatings(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -102,7 +102,7 @@ class GameTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testUndoRatings() {
+	public function testUndoRatings(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -111,7 +111,7 @@ class GameTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testModifyTeamRatings() {
+	public function testModifyTeamRatings(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -120,7 +120,7 @@ class GameTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testGetScoreEntry() {
+	public function testGetScoreEntry(): void {
 		$entry = $this->Game1->getScoreEntry(TEAM_ID_RED);
 		$this->assertEquals(SCORE_ID_LADDER_MATCHED_SCORES_HOME, $entry->id);
 
@@ -139,7 +139,7 @@ class GameTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testGetSpiritEntry() {
+	public function testGetSpiritEntry(): void {
 		$this->assertNotNull($this->Game1->division);
 		$this->assertNotNull($this->Game1->division->league);
 		$spirit_obj = ModuleRegistry::getInstance()->load("Spirit:{$this->Game1->division->league->sotg_questions}");
@@ -169,7 +169,7 @@ class GameTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testGetBestScoreEntry() {
+	public function testGetBestScoreEntry(): void {
 		$entry = $this->Game1->getBestScoreEntry();
 		$this->assertNotEmpty($entry);
 		$this->assertEquals(SCORE_ID_LADDER_MATCHED_SCORES_HOME, $entry->id);
@@ -189,7 +189,7 @@ class GameTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testGetScoreReminderEmail() {
+	public function testGetScoreReminderEmail(): void {
 		$entity = $this->Game1->getScoreReminderEmail(TEAM_ID_RED);
 		$this->assertNotEmpty($entity);
 		$this->assertEquals(1, $entity->id);
@@ -202,7 +202,7 @@ class GameTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testIsFinalized() {
+	public function testIsFinalized(): void {
 		$this->assertFalse($this->Game1->isFinalized());
 		$this->Game1->finalize();
 		$this->Game1->adjustScoreAndRatings();
@@ -216,7 +216,7 @@ class GameTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testReadDependencies() {
+	public function testReadDependencies(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

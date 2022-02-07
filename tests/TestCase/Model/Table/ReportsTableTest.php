@@ -43,7 +43,7 @@ class ReportsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testInitialize() {
+	public function testInitialize(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -52,7 +52,7 @@ class ReportsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testValidationDefault() {
+	public function testValidationDefault(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -61,7 +61,7 @@ class ReportsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testBuildRules() {
+	public function testBuildRules(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

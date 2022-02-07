@@ -44,7 +44,7 @@ class RegionsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAffiliate() {
+	public function testAffiliate(): void {
         $affiliateId = rand();
         $entity = RegionFactory::make(['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->RegionsTable->affiliate($entity->id));

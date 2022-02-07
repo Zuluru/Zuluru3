@@ -44,7 +44,7 @@ class PaymentsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testValidationAmount() {
+	public function testValidationAmount(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -53,7 +53,7 @@ class PaymentsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testValidationPayment() {
+	public function testValidationPayment(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -62,7 +62,7 @@ class PaymentsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testValidationRefund() {
+	public function testValidationRefund(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -71,7 +71,7 @@ class PaymentsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testValidationCredit() {
+	public function testValidationCredit(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -80,7 +80,7 @@ class PaymentsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testValidationTransferFrom() {
+	public function testValidationTransferFrom(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -89,7 +89,7 @@ class PaymentsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testValidationTransferTo() {
+	public function testValidationTransferTo(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -98,7 +98,7 @@ class PaymentsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testBeforeMarshal() {
+	public function testBeforeMarshal(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -107,7 +107,7 @@ class PaymentsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAffiliate() {
+	public function testAffiliate(): void {
         $affiliateId = rand();
         $payment = PaymentFactory::make()->with('Registrations.Events', ['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->PaymentsTable->affiliate($payment->id));

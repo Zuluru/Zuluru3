@@ -11,7 +11,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testIndex() {
+	public function testIndex(): void {
 		$this_year = date('Y');
 		$last_year = $this_year - 1;
 
@@ -70,7 +70,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSummary() {
+	public function testSummary(): void {
 		// Admins are allowed to view the summary
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'summary'], PERSON_ID_ADMIN);
 
@@ -92,7 +92,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testView() {
+	public function testView(): void {
 		// Admins are allowed to view leagues, with full edit and delete permissions
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'view', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/leagues/edit?league=' . LEAGUE_ID_MONDAY);
@@ -139,7 +139,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testTooltip() {
+	public function testTooltip(): void {
 		// Anyone is allowed to view league tooltips
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Leagues', 'action' => 'tooltip', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/leagues\\/view?league=' . LEAGUE_ID_MONDAY);
@@ -198,7 +198,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testParticipation() {
+	public function testParticipation(): void {
 		// Admins are allowed to view the participation report
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'participation', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_ADMIN);
 
@@ -218,7 +218,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsAdmin() {
+	public function testAddAsAdmin(): void {
 		// Admins are allowed to add new leagues anywhere
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'add'], PERSON_ID_ADMIN);
 		$this->assertResponseContains('<option value="1" selected="selected">Club</option>');
@@ -234,7 +234,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsManager() {
+	public function testAddAsManager(): void {
 		// Managers are allowed to add new leagues in their own affiliate, but not others
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'add'], PERSON_ID_MANAGER);
 		$this->assertResponseContains('<input type="hidden" name="affiliate_id" value="1"/>');
@@ -248,7 +248,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsOthers() {
+	public function testAddAsOthers(): void {
 		// Others are not allowed to add
 		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'add'], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'add'], PERSON_ID_CAPTAIN);
@@ -262,7 +262,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsAdmin() {
+	public function testEditAsAdmin(): void {
 		// Admins are allowed to edit leagues anywhere
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'edit', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'edit', 'league' => LEAGUE_ID_SUNDAY_SUB], PERSON_ID_ADMIN);
@@ -273,7 +273,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsManager() {
+	public function testEditAsManager(): void {
 		// Managers are allowed to edit leagues in their own affiliate, but not others
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'edit', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_MANAGER);
 		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'edit', 'league' => LEAGUE_ID_SUNDAY_SUB], PERSON_ID_MANAGER);
@@ -284,7 +284,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsCoordinator() {
+	public function testEditAsCoordinator(): void {
 		// Coordinators are allowed to edit leagues where they coordinate all the divisions
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'edit', 'league' => LEAGUE_ID_THURSDAY], PERSON_ID_COORDINATOR);
 
@@ -297,7 +297,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsOthers() {
+	public function testEditAsOthers(): void {
 		// Others are not allowed to edit leagues
 		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'edit', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_CAPTAIN);
 		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'edit', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_PLAYER);
@@ -310,7 +310,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddDivisionAsAdmin() {
+	public function testAddDivisionAsAdmin(): void {
 		// Admins are allowed to add division
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Leagues', 'action' => 'add_division'], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -321,7 +321,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddDivisionAsManager() {
+	public function testAddDivisionAsManager(): void {
 		// Managers are allowed to add divisions
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Leagues', 'action' => 'add_division'], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -332,7 +332,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddDivisionAsOthers() {
+	public function testAddDivisionAsOthers(): void {
 		// Coordinators are not allowed to add divisions
 		$this->assertGetAjaxAsAccessDenied(['controller' => 'Leagues', 'action' => 'add_division'], PERSON_ID_COORDINATOR);
 		$this->assertGetAjaxAsAccessDenied(['controller' => 'Leagues', 'action' => 'add_division'], PERSON_ID_CAPTAIN);
@@ -346,7 +346,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsAdmin() {
+	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -366,7 +366,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsManager() {
+	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -385,7 +385,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsOthers() {
+	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -406,7 +406,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSchedule() {
+	public function testSchedule(): void {
 		// Anyone is allowed to see the schedule
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'schedule', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'schedule', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_MANAGER);
@@ -424,7 +424,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testStandings() {
+	public function testStandings(): void {
 		// Anyone is allowed to see the standings
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'standings', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'standings', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_MANAGER);
@@ -442,7 +442,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSlots() {
+	public function testSlots(): void {
 		// Admins are allowed to see the slots report
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'slots', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_ADMIN);
 

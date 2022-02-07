@@ -44,7 +44,7 @@ class HolidaysTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAffiliate() {
+	public function testAffiliate(): void {
 	    $affiliateId = rand();
 	    $holiday = HolidayFactory::make(['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->HolidaysTable->affiliate($holiday->id));

@@ -48,7 +48,7 @@ class LeaguesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testBeforeMarshal() {
+	public function testBeforeMarshal(): void {
 		$data = new \ArrayObject([
 			'tie_breakers' => ['a', 'b', 'c', 'd']
 		]);
@@ -61,7 +61,7 @@ class LeaguesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCompareLeagueAndDivision() {
+	public function testCompareLeagueAndDivision(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		ConfigurationLoader::loadConfiguration();
 
@@ -102,7 +102,7 @@ class LeaguesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAffiliate() {
+	public function testAffiliate(): void {
 	    $affiliateId = rand();
 	    $league = LeagueFactory::make(['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->LeaguesTable->affiliate($league->id));
@@ -113,7 +113,7 @@ class LeaguesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDivisions() {
+	public function testDivisions(): void {
 	    DivisionFactory::make(3)->persist();
 	    $league = LeagueFactory::make()
             ->with('Divisions', 2)

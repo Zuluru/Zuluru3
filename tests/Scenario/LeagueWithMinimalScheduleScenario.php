@@ -45,7 +45,9 @@ class LeagueWithMinimalScheduleScenario implements FixtureScenarioInterface {
 		// Where will the games be played?
 		$fields = array_map(static function ($k) { return ['num' => $k]; }, range(1, count($league->divisions) * 2));
 		/** @var \App\Model\Entity\Region $region */
-		$region = RegionFactory::make()->with('Facilities.Fields', $fields)->persist();
+		$region = RegionFactory::make(['affiliate_id' => isset($args['affiliate']) ? $args['affiliate']->id : 1])
+			->with('Facilities.Fields', $fields)
+			->persist();
 		$fields = $region->facilities[0]->fields;
 
 		foreach ($league->divisions as $key => $division) {

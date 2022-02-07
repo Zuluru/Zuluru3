@@ -11,7 +11,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testView() {
+	public function testView(): void {
 		// Admins are allowed to view game slots, with full edit permissions
 		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'view', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/game_slots/edit?slot=' . GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1);
@@ -44,7 +44,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsAdmin() {
+	public function testAddAsAdmin(): void {
 		// Admins are allowed to add
 		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'add', 'field' => FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => AFFILIATE_ID_CLUB], PERSON_ID_ADMIN);
@@ -57,7 +57,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsManager() {
+	public function testAddAsManager(): void {
 		// Managers are allowed to add
 		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'add', 'field' => FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1], PERSON_ID_MANAGER);
 		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => AFFILIATE_ID_CLUB], PERSON_ID_MANAGER);
@@ -69,7 +69,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsOthers() {
+	public function testAddAsOthers(): void {
 		// Others are not allowed to add
 		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'field' => FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => AFFILIATE_ID_CLUB], PERSON_ID_COORDINATOR);
@@ -92,7 +92,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsAdmin() {
+	public function testEditAsAdmin(): void {
 		// Admins are allowed to edit
 		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -103,7 +103,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsManager() {
+	public function testEditAsManager(): void {
 		// Managers are allowed to edit
 		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -114,7 +114,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsOthers() {
+	public function testEditAsOthers(): void {
 		// Others are not allowed to edit
 		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_CAPTAIN);
@@ -128,7 +128,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsAdmin() {
+	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -148,7 +148,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsManager() {
+	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -167,7 +167,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsOthers() {
+	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -188,7 +188,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSubmitScoreAsAdmin() {
+	public function testSubmitScoreAsAdmin(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
@@ -197,7 +197,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSubmitScoreAsManager() {
+	public function testSubmitScoreAsManager(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
@@ -206,7 +206,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSubmitScoreAsCoordinator() {
+	public function testSubmitScoreAsCoordinator(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
@@ -215,7 +215,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSubmitScoreAsCaptain() {
+	public function testSubmitScoreAsCaptain(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 
@@ -224,7 +224,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSubmitScoreAsOthers() {
+	public function testSubmitScoreAsOthers(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
 

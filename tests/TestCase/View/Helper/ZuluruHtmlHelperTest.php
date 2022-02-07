@@ -44,7 +44,7 @@ class ZuluruHtmlHelperTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testLink() {
+	public function testLink(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -53,7 +53,7 @@ class ZuluruHtmlHelperTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testScriptBlock() {
+	public function testScriptBlock(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -62,7 +62,7 @@ class ZuluruHtmlHelperTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testImageLink() {
+	public function testImageLink(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -71,7 +71,7 @@ class ZuluruHtmlHelperTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testIconImg() {
+	public function testIconImg(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -80,7 +80,7 @@ class ZuluruHtmlHelperTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testIconLink() {
+	public function testIconLink(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -89,7 +89,7 @@ class ZuluruHtmlHelperTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testHelp() {
+	public function testHelp(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -98,7 +98,7 @@ class ZuluruHtmlHelperTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testFormatMessage() {
+	public function testFormatMessage(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

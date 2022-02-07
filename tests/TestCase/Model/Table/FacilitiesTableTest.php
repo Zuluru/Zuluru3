@@ -44,7 +44,7 @@ class FacilitiesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAffiliate() {
+	public function testAffiliate(): void {
         $affiliateId = rand();
         $facility = FacilityFactory::make()
             ->with('Regions', ['affiliate_id' => $affiliateId])

@@ -11,7 +11,7 @@ class HelpControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testView() {
+	public function testView(): void {
 		// Anyone is allowed to view
 		$this->assertGetAsAccessOk(['controller' => 'Help', 'action' => 'view'], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessOk(['controller' => 'Help', 'action' => 'view'], PERSON_ID_MANAGER);

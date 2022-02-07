@@ -41,7 +41,7 @@ class UserTest extends TestCase {
 	/**
 	 * Test _setPassword($value);
 	 */
-	public function testSetPassword() {
+	public function testSetPassword(): void {
 		$testPassword = 'insecure';
 		$this->User->password = $testPassword;
 		$this->assertNotEquals($testPassword, $this->User->password, 'Password stored in plain-text');
@@ -52,7 +52,7 @@ class UserTest extends TestCase {
 	/**
 	 * Test merge method
 	 */
-	public function testMerge() {
+	public function testMerge(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

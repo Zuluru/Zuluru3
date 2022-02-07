@@ -36,7 +36,7 @@ class ActAsIdentityTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testApplicableAffiliateIDsAsAdmin() {
+	public function testApplicableAffiliateIDsAsAdmin(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -45,7 +45,7 @@ class ActAsIdentityTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testApplicableAffiliateIDsAsManager() {
+	public function testApplicableAffiliateIDsAsManager(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -54,7 +54,7 @@ class ActAsIdentityTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testApplicableAffiliateIDsAsCoordinator() {
+	public function testApplicableAffiliateIDsAsCoordinator(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -63,7 +63,7 @@ class ActAsIdentityTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testApplicableAffiliateIDsAsCaptain() {
+	public function testApplicableAffiliateIDsAsCaptain(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -72,7 +72,7 @@ class ActAsIdentityTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testApplicableAffiliateIDsAsPlayer() {
+	public function testApplicableAffiliateIDsAsPlayer(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -81,7 +81,7 @@ class ActAsIdentityTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testApplicableAffiliateIDsAsVisitor() {
+	public function testApplicableAffiliateIDsAsVisitor(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -90,7 +90,7 @@ class ActAsIdentityTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testApplicableAffiliateIDsAsAnonymous() {
+	public function testApplicableAffiliateIDsAsAnonymous(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

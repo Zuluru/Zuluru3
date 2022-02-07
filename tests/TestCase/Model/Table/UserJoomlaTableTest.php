@@ -49,7 +49,7 @@ class UserJoomlaTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDefaultConnectionName() {
+	public function testDefaultConnectionName(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -58,7 +58,7 @@ class UserJoomlaTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testComparepassword() {
+	public function testComparepassword(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -67,7 +67,7 @@ class UserJoomlaTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testHashPassword() {
+	public function testHashPassword(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -76,7 +76,7 @@ class UserJoomlaTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testActivated() {
+	public function testActivated(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -85,7 +85,7 @@ class UserJoomlaTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testBeforeDelete() {
+	public function testBeforeDelete(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

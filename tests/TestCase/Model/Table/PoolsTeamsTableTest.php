@@ -43,7 +43,7 @@ class PoolsTeamsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testValidationQualifiers() {
+	public function testValidationQualifiers(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

@@ -11,7 +11,7 @@ class TasksControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testIndex() {
+	public function testIndex(): void {
 		// Admins are allowed to view tasks, with full edit permissions
 		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'view', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/tasks/edit?task=' . TASK_ID_CAPTAINS_MEETING);
@@ -48,7 +48,7 @@ class TasksControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testView() {
+	public function testView(): void {
 		// Admins are allowed to view tasks
 		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'view', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_ADMIN);
 
@@ -78,7 +78,7 @@ class TasksControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsAdmin() {
+	public function testAddAsAdmin(): void {
 		// Admins are allowed to add tasks
 		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'add'], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -89,7 +89,7 @@ class TasksControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsManager() {
+	public function testAddAsManager(): void {
 		// Managers are allowed to add tasks
 		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'add'], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -100,7 +100,7 @@ class TasksControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsOthers() {
+	public function testAddAsOthers(): void {
 		// Others are not allowed to add tasks
 		$this->assertGetAsAccessDenied(['controller' => 'Tasks', 'action' => 'add'], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'Tasks', 'action' => 'add'], PERSON_ID_CAPTAIN);
@@ -114,7 +114,7 @@ class TasksControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsAdmin() {
+	public function testEditAsAdmin(): void {
 		// Admins are allowed to edit tasks
 		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'edit', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -125,7 +125,7 @@ class TasksControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsManager() {
+	public function testEditAsManager(): void {
 		// Managers are allowed to edit tasks
 		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'edit', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -136,7 +136,7 @@ class TasksControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsOthers() {
+	public function testEditAsOthers(): void {
 		// Others are not allowed to edit tasks
 		$this->assertGetAsAccessDenied(['controller' => 'Tasks', 'action' => 'edit', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'Tasks', 'action' => 'edit', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_CAPTAIN);
@@ -150,7 +150,7 @@ class TasksControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsAdmin() {
+	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -170,7 +170,7 @@ class TasksControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsManager() {
+	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -189,7 +189,7 @@ class TasksControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsOthers() {
+	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 

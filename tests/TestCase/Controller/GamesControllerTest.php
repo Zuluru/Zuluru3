@@ -16,7 +16,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testView() {
+	public function testView(): void {
 		// Make sure that we're after the game date
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 
@@ -136,7 +136,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testTooltip() {
+	public function testTooltip(): void {
 		// Anyone is allowed to view game tooltips
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Games', 'action' => 'tooltip', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/facilities\\/view?facility=' . FACILITY_ID_SUNNYBROOK);
@@ -189,7 +189,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRatingsTable() {
+	public function testRatingsTable(): void {
 		// Anyone logged in is allowed to view ratings tables
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'ratings_table', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'ratings_table', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_MANAGER);
@@ -208,7 +208,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testIcal() {
+	public function testIcal(): void {
 		// Can get the ical feed for any game in the future, but not after the division has been closed for a couple weeks
 		FrozenDate::setTestNow(new FrozenDate('June 1'));
 		$this->assertGetAnonymousAccessOk(['controller' => 'Games', 'action' => 'ical', GAME_ID_LADDER_MATCHED_SCORES, TEAM_ID_RED]);
@@ -223,7 +223,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsAdmin() {
+	public function testEditAsAdmin(): void {
 		// Admins are allowed to edit
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -234,7 +234,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsManager() {
+	public function testEditAsManager(): void {
 		// Managers are allowed to edit games
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_MANAGER);
 		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', 'game' => GAME_ID_SUB], PERSON_ID_MANAGER);
@@ -246,7 +246,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsCoordinator() {
+	public function testEditAsCoordinator(): void {
 		// Coordinators are allowed to edit games
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', 'game' => GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_1], PERSON_ID_COORDINATOR);
@@ -258,7 +258,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsOthers() {
+	public function testEditAsOthers(): void {
 		// Others are not allowed to edit games
 		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_CAPTAIN);
 		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', 'game' => GAME_ID_LADDER_MATCHED_SCORES], [PERSON_ID_CAPTAIN, PERSON_ID_ADMIN]);
@@ -272,7 +272,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditBoxscoreAsAdmin() {
+	public function testEditBoxscoreAsAdmin(): void {
 		// Admins are allowed to edit boxscore
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -283,7 +283,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditBoxscoreAsManager() {
+	public function testEditBoxscoreAsManager(): void {
 		// Managers are allowed to edit boxscore
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -294,7 +294,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditBoxscoreAsCoordinator() {
+	public function testEditBoxscoreAsCoordinator(): void {
 		// Coordinators are allowed to edit boxscore
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_COORDINATOR);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -305,7 +305,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditBoxscoreAsOthers() {
+	public function testEditBoxscoreAsOthers(): void {
 		// Others are not allowed to edit boxscores
 		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_CAPTAIN);
 		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_PLAYER);
@@ -318,7 +318,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteScoreAsAdmin() {
+	public function testDeleteScoreAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -332,7 +332,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteScoreAsManager() {
+	public function testDeleteScoreAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -346,7 +346,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteScoreAsCoordinator() {
+	public function testDeleteScoreAsCoordinator(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -360,7 +360,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteScoreAsOthers() {
+	public function testDeleteScoreAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -379,7 +379,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddScoreAsAdmin() {
+	public function testAddScoreAsAdmin(): void {
 		$this->enableCsrfToken();
 
 		// Game date
@@ -400,7 +400,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddScoreAsManager() {
+	public function testAddScoreAsManager(): void {
 		$this->enableCsrfToken();
 
 		// Game date
@@ -421,7 +421,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddScoreAsCoordinator() {
+	public function testAddScoreAsCoordinator(): void {
 		$this->enableCsrfToken();
 
 		// Game date
@@ -442,7 +442,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddScoreAsOthers() {
+	public function testAddScoreAsOthers(): void {
 		$this->enableCsrfToken();
 
 		// Others are not allowed to add scores
@@ -460,7 +460,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testNoteAsAdmin() {
+	public function testNoteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -515,7 +515,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testNoteAsManager() {
+	public function testNoteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -560,7 +560,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testNoteAsCoordinator() {
+	public function testNoteAsCoordinator(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -600,7 +600,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testNoteAsCaptain() {
+	public function testNoteAsCaptain(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -666,7 +666,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testNoteAsPlayer() {
+	public function testNoteAsPlayer(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -734,7 +734,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testNoteAsOthers() {
+	public function testNoteAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -751,7 +751,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteNoteAsAdmin() {
+	public function testDeleteNoteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -781,7 +781,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteNoteAsManager() {
+	public function testDeleteNoteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -811,7 +811,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteNoteAsCoordinator() {
+	public function testDeleteNoteAsCoordinator(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -838,7 +838,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteNoteAsCaptain() {
+	public function testDeleteNoteAsCaptain(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -865,7 +865,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteNoteAsPlayer() {
+	public function testDeleteNoteAsPlayer(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -892,7 +892,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteNoteAsVisitor() {
+	public function testDeleteNoteAsVisitor(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -919,7 +919,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteNoteAsAnonymous() {
+	public function testDeleteNoteAsAnonymous(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -933,7 +933,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsAdmin() {
+	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -965,7 +965,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsManager() {
+	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -984,7 +984,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsCoordinator() {
+	public function testDeleteAsCoordinator(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -1003,7 +1003,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsOthers() {
+	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -1022,7 +1022,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAttendance() {
+	public function testAttendance(): void {
 		// Admins are allowed to see attendance
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance', 'game' => GAME_ID_LADDER_MATCHED_SCORES, 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
 
@@ -1052,7 +1052,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddSubAsAdmin() {
+	public function testAddSubAsAdmin(): void {
 		// Admins are allowed to add sub
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1062,7 +1062,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddSubAsManager() {
+	public function testAddSubAsManager(): void {
 		// Managers are allowed to add sub
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1072,7 +1072,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddSubAsCoordinator() {
+	public function testAddSubAsCoordinator(): void {
 		// Coordinators are allowed to add sub
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1082,7 +1082,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddSubAsCaptain() {
+	public function testAddSubAsCaptain(): void {
 		// Captains are allowed to add sub
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1092,7 +1092,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddSubAsPlayer() {
+	public function testAddSubAsPlayer(): void {
 		// Players are allowed to add sub
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1102,7 +1102,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddSubAsVisitor() {
+	public function testAddSubAsVisitor(): void {
 		// Visitors are allowed to add sub
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1112,7 +1112,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddSubAsAnonymous() {
+	public function testAddSubAsAnonymous(): void {
 		// Others are allowed to add sub
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1122,7 +1122,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAttendanceChangeAsAdmin() {
+	public function testAttendanceChangeAsAdmin(): void {
 		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
 
 		// Admins are allowed to change attendance
@@ -1135,7 +1135,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAttendanceChangeAsManager() {
+	public function testAttendanceChangeAsManager(): void {
 		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
 
 		// Managers are allowed to change attendance
@@ -1148,7 +1148,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAttendanceChangeAsCoordinator() {
+	public function testAttendanceChangeAsCoordinator(): void {
 		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
 
 		// Coordinators are allowed to change attendance
@@ -1161,7 +1161,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAttendanceChangeAsCaptain() {
+	public function testAttendanceChangeAsCaptain(): void {
 		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
 
 		// Captains are allowed to change attendance
@@ -1174,7 +1174,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAttendanceChangeAsPlayer() {
+	public function testAttendanceChangeAsPlayer(): void {
 		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
 
 		// Players are allowed to change attendance
@@ -1196,7 +1196,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAttendanceChangeAsOthers() {
+	public function testAttendanceChangeAsOthers(): void {
 		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
 
 		// Others are not allowed to change attendance
@@ -1209,7 +1209,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testStatSheet() {
+	public function testStatSheet(): void {
 		// Admins are allowed to see the stat sheet
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stat_sheet', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN, 'team' => TEAM_ID_CHICKADEES], PERSON_ID_ADMIN);
 
@@ -1235,7 +1235,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testLiveScoreAsAdmin() {
+	public function testLiveScoreAsAdmin(): void {
 		// Admins are allowed to live score
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1245,7 +1245,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testLiveScoreAsManager() {
+	public function testLiveScoreAsManager(): void {
 		// Managers are allowed to live score
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1255,7 +1255,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testLiveScoreAsCoordinator() {
+	public function testLiveScoreAsCoordinator(): void {
 		// Coordinators are allowed to live score
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1265,7 +1265,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testLiveScoreAsCaptain() {
+	public function testLiveScoreAsCaptain(): void {
 		// Captains are allowed to live score
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1275,7 +1275,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testLiveScoreAsPlayer() {
+	public function testLiveScoreAsPlayer(): void {
 		// Players are allowed to live score
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1285,7 +1285,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testLiveScoreAsVisitor() {
+	public function testLiveScoreAsVisitor(): void {
 		// Visitors are allowed to live score
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1295,7 +1295,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testLiveScoreAsAnonymous() {
+	public function testLiveScoreAsAnonymous(): void {
 		// Others are allowed to live score
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1305,7 +1305,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testScoreUpAsAdmin() {
+	public function testScoreUpAsAdmin(): void {
 		// Admins are allowed to score up
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1315,7 +1315,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testScoreUpAsManager() {
+	public function testScoreUpAsManager(): void {
 		// Managers are allowed to score up
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1325,7 +1325,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testScoreUpAsCoordinator() {
+	public function testScoreUpAsCoordinator(): void {
 		// Coordinators are allowed to score up
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1335,7 +1335,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testScoreUpAsCaptain() {
+	public function testScoreUpAsCaptain(): void {
 		// Captains are allowed to score up
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1345,7 +1345,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testScoreUpAsPlayer() {
+	public function testScoreUpAsPlayer(): void {
 		// Players are allowed to score up
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1355,7 +1355,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testScoreUpAsVisitor() {
+	public function testScoreUpAsVisitor(): void {
 		// Visitors are allowed to score up
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1365,7 +1365,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testScoreUpAsAnonymous() {
+	public function testScoreUpAsAnonymous(): void {
 		// Others are allowed to score up
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1375,7 +1375,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testScoreDownAsAdmin() {
+	public function testScoreDownAsAdmin(): void {
 		// Admins are allowed to score down
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1385,7 +1385,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testScoreDownAsManager() {
+	public function testScoreDownAsManager(): void {
 		// Managers are allowed to score down
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1395,7 +1395,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testScoreDownAsCoordinator() {
+	public function testScoreDownAsCoordinator(): void {
 		// Coordinators are allowed to score down
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1405,7 +1405,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testScoreDownAsCaptain() {
+	public function testScoreDownAsCaptain(): void {
 		// Captains are allowed to score down
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1415,7 +1415,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testScoreDownAsPlayer() {
+	public function testScoreDownAsPlayer(): void {
 		// Players are allowed to score down
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1425,7 +1425,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testScoreDownAsVisitor() {
+	public function testScoreDownAsVisitor(): void {
 		// Visitors are allowed to score down
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1435,7 +1435,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testScoreDownAsAnonymous() {
+	public function testScoreDownAsAnonymous(): void {
 		// Others are allowed to score down
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1445,7 +1445,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testTimeoutAsAdmin() {
+	public function testTimeoutAsAdmin(): void {
 		// Admins are allowed to timeout
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1455,7 +1455,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testTimeoutAsManager() {
+	public function testTimeoutAsManager(): void {
 		// Managers are allowed to timeout
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1465,7 +1465,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testTimeoutAsCoordinator() {
+	public function testTimeoutAsCoordinator(): void {
 		// Coordinators are allowed to timeout
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1475,7 +1475,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testTimeoutAsCaptain() {
+	public function testTimeoutAsCaptain(): void {
 		// Captains are allowed to timeout
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1485,7 +1485,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testTimeoutAsPlayer() {
+	public function testTimeoutAsPlayer(): void {
 		// Players are allowed to timeout
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1495,7 +1495,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testTimeoutAsVisitor() {
+	public function testTimeoutAsVisitor(): void {
 		// Visitors are allowed to timeout
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1505,7 +1505,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testTimeoutAsAnonymous() {
+	public function testTimeoutAsAnonymous(): void {
 		// Others are allowed to timeout
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1515,7 +1515,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testPlayAsAdmin() {
+	public function testPlayAsAdmin(): void {
 		// Admins are allowed to play
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1525,7 +1525,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testPlayAsManager() {
+	public function testPlayAsManager(): void {
 		// Managers are allowed to play
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1535,7 +1535,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testPlayAsCoordinator() {
+	public function testPlayAsCoordinator(): void {
 		// Coordinators are allowed to play
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1545,7 +1545,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testPlayAsCaptain() {
+	public function testPlayAsCaptain(): void {
 		// Captains are allowed to play
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1555,7 +1555,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testPlayAsPlayer() {
+	public function testPlayAsPlayer(): void {
 		// Players are allowed to play
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1565,7 +1565,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testPlayAsVisitor() {
+	public function testPlayAsVisitor(): void {
 		// Visitors are allowed to play
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1575,7 +1575,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testPlayAsAnonymous() {
+	public function testPlayAsAnonymous(): void {
 		// Others are allowed to play
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1585,7 +1585,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testTweetAsAdmin() {
+	public function testTweetAsAdmin(): void {
 		// Admins are allowed to tweet
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1595,7 +1595,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testTweetAsManager() {
+	public function testTweetAsManager(): void {
 		// Managers are allowed to tweet
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1605,7 +1605,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testTweetAsCoordinator() {
+	public function testTweetAsCoordinator(): void {
 		// Coordinators are allowed to tweet
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1615,7 +1615,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testTweetAsCaptain() {
+	public function testTweetAsCaptain(): void {
 		// Captains are allowed to tweet
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1625,7 +1625,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testTweetAsPlayer() {
+	public function testTweetAsPlayer(): void {
 		// Players are allowed to tweet
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1635,7 +1635,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testTweetAsVisitor() {
+	public function testTweetAsVisitor(): void {
 		// Visitors are allowed to tweet
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1645,7 +1645,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testTweetAsAnonymous() {
+	public function testTweetAsAnonymous(): void {
 		// Others are allowed to tweet
 		$this->markTestIncomplete('Operation not implemented yet.');
 	}
@@ -1655,7 +1655,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSubmitScoreAsCaptain() {
+	public function testSubmitScoreAsCaptain(): void {
 		$url = ['controller' => 'Games', 'action' => 'submit_score', 'game' => GAME_ID_LADDER_NO_SCORES, 'team' => TEAM_ID_BLUE];
 
 		// Scores can only be submitted after the game, so we need to set "today" for this test to be reliable
@@ -1737,7 +1737,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSubmitScoreActingAsCaptain() {
+	public function testSubmitScoreActingAsCaptain(): void {
 		$url = ['controller' => 'Games', 'action' => 'submit_score', 'game' => GAME_ID_LADDER_NO_SCORES, 'team' => TEAM_ID_BLUE];
 
 		// Scores can only be submitted after the game, so we need to set "today" for this test to be reliable
@@ -1819,7 +1819,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSubmitMatchingScoreAsCaptain() {
+	public function testSubmitMatchingScoreAsCaptain(): void {
 		$url = ['controller' => 'Games', 'action' => 'submit_score', 'game' => GAME_ID_LADDER_HOME_SCORE_ONLY, 'team' => TEAM_ID_GREEN];
 
 		// Scores can only be submitted after the game, so we need to set "today" for this test to be reliable
@@ -1887,7 +1887,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSubmitMismatchedScoreAsCaptain() {
+	public function testSubmitMismatchedScoreAsCaptain(): void {
 		$url = ['controller' => 'Games', 'action' => 'submit_score', 'game' => GAME_ID_LADDER_HOME_SCORE_ONLY, 'team' => TEAM_ID_GREEN];
 
 		// Scores can only be submitted after the game, so we need to set "today" for this test to be reliable
@@ -1972,7 +1972,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSubmitCorrectScoreAsCaptain() {
+	public function testSubmitCorrectScoreAsCaptain(): void {
 		$url = ['controller' => 'Games', 'action' => 'submit_score', 'game' => GAME_ID_LADDER_MISMATCHED_SCORES, 'team' => TEAM_ID_YELLOW];
 
 		// Scores can only be submitted after the game, so we need to set "today" for this test to be reliable
@@ -2042,7 +2042,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSubmitScoreAsOthers() {
+	public function testSubmitScoreAsOthers(): void {
 		// Others are not allowed to submit scores
 		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_score', 'game' => GAME_ID_LADDER_MATCHED_SCORES, 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_score', 'game' => GAME_ID_LADDER_MATCHED_SCORES, 'team' => TEAM_ID_RED], PERSON_ID_MANAGER);
@@ -2057,7 +2057,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSubmitStatsAsAdmin() {
+	public function testSubmitStatsAsAdmin(): void {
 		// Make sure that we're after the game date
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 
@@ -2071,7 +2071,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSubmitStatsAsManager() {
+	public function testSubmitStatsAsManager(): void {
 		// Make sure that we're after the game date
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 
@@ -2085,7 +2085,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSubmitStatsAsCoordinator() {
+	public function testSubmitStatsAsCoordinator(): void {
 		// Make sure that we're after the game date
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 
@@ -2099,7 +2099,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSubmitStatsAsCaptain() {
+	public function testSubmitStatsAsCaptain(): void {
 		// Make sure that we're after the game date
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 
@@ -2113,7 +2113,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSubmitStatsAsOthers() {
+	public function testSubmitStatsAsOthers(): void {
 		// Make sure that we're after the game date
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 
@@ -2128,7 +2128,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testStats() {
+	public function testStats(): void {
 		// Make sure that we're after the game date
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 
@@ -2151,7 +2151,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testFuture() {
+	public function testFuture(): void {
 		// Anyone logged in is allowed to see future games
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'future', '_ext' => 'json'], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'future', '_ext' => 'json'], PERSON_ID_MANAGER);
@@ -2171,7 +2171,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testResults() {
+	public function testResults(): void {
 		// Anyone is allowed to see recent results
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'results', '_ext' => 'json'], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'results', '_ext' => 'json'], PERSON_ID_MANAGER);

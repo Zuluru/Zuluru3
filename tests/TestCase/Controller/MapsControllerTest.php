@@ -11,7 +11,7 @@ class MapsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testIndex() {
+	public function testIndex(): void {
 		// Anyone is allowed to see the index
 		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'index'], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'index'], PERSON_ID_MANAGER);
@@ -29,7 +29,7 @@ class MapsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testView() {
+	public function testView(): void {
 		// Anyone is allowed to view maps
 		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'view', 'field' => FIELD_ID_SUNNYBROOK_GREENSPACE], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'view', 'field' => FIELD_ID_SUNNYBROOK_GREENSPACE], PERSON_ID_MANAGER);
@@ -66,7 +66,7 @@ class MapsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsAdmin() {
+	public function testEditAsAdmin(): void {
 		// Admins are allowed to edit maps
 		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'edit', 'field' => FIELD_ID_SUNNYBROOK_GREENSPACE], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -77,7 +77,7 @@ class MapsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsManager() {
+	public function testEditAsManager(): void {
 		// Managers are allowed to edit maps
 		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'edit', 'field' => FIELD_ID_SUNNYBROOK_GREENSPACE], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -88,7 +88,7 @@ class MapsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsOthers() {
+	public function testEditAsOthers(): void {
 		// Others are not allowed to edit maps
 		$this->assertGetAsAccessDenied(['controller' => 'Maps', 'action' => 'edit', 'field' => FIELD_ID_SUNNYBROOK_GREENSPACE], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'Maps', 'action' => 'edit', 'field' => FIELD_ID_SUNNYBROOK_GREENSPACE], PERSON_ID_CAPTAIN);

@@ -43,7 +43,7 @@ class StatsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testApplicable() {
+	public function testApplicable(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

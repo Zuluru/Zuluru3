@@ -44,7 +44,7 @@ class NewslettersTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAffiliate() {
+	public function testAffiliate(): void {
         $affiliateId = rand();
         $newsletter = NewsletterFactory::make()->with('MailingLists', ['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->NewslettersTable->affiliate($newsletter->id));

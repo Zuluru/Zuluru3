@@ -64,49 +64,49 @@ class PersonTest extends TestCase {
 	/**
 	 * Test _getUserName()
 	 */
-	public function testGetUserName() {
+	public function testGetUserName(): void {
 		$this->assertEquals('amy', $this->person->user_name);
 	}
 
 	/**
 	 * Test _getPassword()
 	 */
-	public function testGetPassword() {
+	public function testGetPassword(): void {
 		$this->assertTrue(password_verify('amypassword', $this->person->password));
 	}
 
 	/**
 	 * Test _getLastLogin()
 	 */
-	public function testLastLogin() {
+	public function testLastLogin(): void {
 		$this->assertEquals(new FrozenTime('yesterday'), $this->person->last_login);
 	}
 
 	/**
 	 * Test _getClientIp()
 	 */
-	public function testGetClientIp() {
+	public function testGetClientIp(): void {
 		$this->assertEquals('127.0.0.1', $this->person->client_ip);
 	}
 
 	/**
 	 * Test _getFullName()
 	 */
-	public function testGetFullName() {
+	public function testGetFullName(): void {
 		$this->assertEquals('Amy Administrator', $this->person->full_name);
 	}
 
 	/**
 	 * Test _getAlternateFullName()
 	 */
-	public function testGetAlternateFullName() {
+	public function testGetAlternateFullName(): void {
 		$this->assertEquals('Buford Tannen', $this->person->alternate_full_name);
 	}
 
 	/**
 	 * Test _getEmail()
 	 */
-	public function testGetEmail() {
+	public function testGetEmail(): void {
 		$this->assertEquals('amy@zuluru.org', $this->person->email);
 
 	}
@@ -114,7 +114,7 @@ class PersonTest extends TestCase {
 	/**
 	 * Test _getEmailFormatted()
 	 */
-	public function testGetEmailFormatted() {
+	public function testGetEmailFormatted(): void {
 		$this->assertEquals('"Amy Administrator" <amy@zuluru.org>', $this->person->email_formatted);
 
 	}
@@ -122,14 +122,14 @@ class PersonTest extends TestCase {
 	/**
 	 * Test _getAlternateEmailFormatted()
 	 */
-	public function testGetAlternateEmailFormatted() {
+	public function testGetAlternateEmailFormatted(): void {
 		$this->assertEquals('"Amy Administrator (alternate)" <Buford.Tannen@HillValley.com>', $this->person->alternate_email_formatted);
 	}
 
 	/**
 	 * Test merge method for two users
 	 */
-	public function testMergeUserWithUser() {
+	public function testMergeUserWithUser(): void {
 		$this->loadFixtures();
 
 		[$user1, $user2] = PersonFactory::makePlayer([
@@ -148,7 +148,7 @@ class PersonTest extends TestCase {
 	/**
 	 * Test merge method for a user and a profile
 	 */
-	public function testMergeUserWithProfile() {
+	public function testMergeUserWithProfile(): void {
 		$this->loadFixtures();
 
 		$user1 = PersonFactory::makePlayer(['gender' => 'Woman'])->persist();
@@ -166,7 +166,7 @@ class PersonTest extends TestCase {
 	/**
 	 * Test merge method for a profile and a user
 	 */
-	public function testMergeProfileWithUser() {
+	public function testMergeProfileWithUser(): void {
 		$this->loadFixtures();
 
 		$user1 = PersonFactory::make(['gender' => 'Man'])->withGroup(GROUP_PLAYER)->persist();
@@ -183,7 +183,7 @@ class PersonTest extends TestCase {
 	/**
 	 * Test merge method for two profiles
 	 */
-	public function testMergeProfileWithProfile() {
+	public function testMergeProfileWithProfile(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

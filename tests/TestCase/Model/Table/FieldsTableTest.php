@@ -44,7 +44,7 @@ class FieldsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAffiliate() {
+	public function testAffiliate(): void {
         $affiliateId = rand();
         $field = FieldFactory::make()
             ->with('Facilities.Regions', ['affiliate_id' => $affiliateId])
@@ -57,7 +57,7 @@ class FieldsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSport() {
+	public function testSport(): void {
         $field = FieldFactory::make()->persist();
 		$this->assertEquals($field->get('sport'), $this->FieldsTable->sport($field->id));
 	}

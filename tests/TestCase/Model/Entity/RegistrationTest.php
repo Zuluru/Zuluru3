@@ -68,7 +68,7 @@ class RegistrationTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testPaymentAmounts() {
+	public function testPaymentAmounts(): void {
 		$this->assertEquals([1.31, 0.09, 0.10], $this->Registration2->paymentAmounts()); // $1.50 outstanding
 		$this->assertEquals([0, 0, 0], $this->Registration3->paymentAmounts()); // online payments not allowed
 		$this->assertEquals([1.74, 0.12, 0.14], $this->Registration4->paymentAmounts()); // $2 deposit
@@ -77,7 +77,7 @@ class RegistrationTest extends TestCase {
 	/**
 	 * Test _getLongDescription();
 	 */
-	public function testGetLongDescription() {
+	public function testGetLongDescription(): void {
 		$this->assertEquals('Membership', $this->Registration2->long_description);
 		$this->assertEquals('Membership (price2)', $this->Registration3->long_description);
 		$this->assertEquals('Membership (Deposit)', $this->Registration4->long_description);
@@ -87,7 +87,7 @@ class RegistrationTest extends TestCase {
 	/**
 	 * Test _getTotalPayment()
 	 */
-	public function testGetTotalPayment() {
+	public function testGetTotalPayment(): void {
 		$this->assertEquals(10.0, $this->Registration2->total_payment);
 		$this->assertEquals(0.0, $this->Registration3->total_payment);
 	}
@@ -95,7 +95,7 @@ class RegistrationTest extends TestCase {
 	/**
 	 * Test _getBalance();
 	 */
-	public function testGetBalance() {
+	public function testGetBalance(): void {
 		$this->assertEquals(1.50, $this->Registration2->balance);
 		$this->assertEquals(57.50, $this->Registration3->balance);
 	}

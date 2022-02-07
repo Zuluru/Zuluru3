@@ -11,7 +11,7 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testIndex() {
+	public function testIndex(): void {
 		// Admins are allowed to see the index
 		$this->assertGetAsAccessOk(['controller' => 'Preregistrations', 'action' => 'index'], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/preregistrations/delete?preregistration=' . PREREGISTRATION_ID_ADMIN_MEMBERSHIP);
@@ -36,7 +36,7 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsAdmin() {
+	public function testAddAsAdmin(): void {
 		// Admins are allowed to add preregistrations
 		$this->assertGetAsAccessOk(['controller' => 'Preregistrations', 'action' => 'add'], PERSON_ID_ADMIN);
 	}
@@ -46,7 +46,7 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsManager() {
+	public function testAddAsManager(): void {
 		// Managers are allowed to add preregistrations
 		$this->assertGetAsAccessOk(['controller' => 'Preregistrations', 'action' => 'add'], PERSON_ID_MANAGER);
 	}
@@ -56,7 +56,7 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsOthers() {
+	public function testAddAsOthers(): void {
 		// Others are not allowed to add preregistrations
 		$this->assertGetAsAccessDenied(['controller' => 'Preregistrations', 'action' => 'add'], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'Preregistrations', 'action' => 'add'], PERSON_ID_CAPTAIN);
@@ -70,7 +70,7 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsAdmin() {
+	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -85,7 +85,7 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsManager() {
+	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -104,7 +104,7 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsOthers() {
+	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 

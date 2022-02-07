@@ -13,7 +13,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testIndex() {
+	public function testIndex(): void {
 		// Admins are allowed to see the index
 		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'index'], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/questions/edit?question=' . QUESTION_ID_TEAM_RETURNING);
@@ -51,7 +51,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeactivated() {
+	public function testDeactivated(): void {
 		// Admins are allowed to see the deactivated list
 		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'deactivated'], PERSON_ID_ADMIN);
 		$this->assertResponseNotContains('/questions/edit?question=' . QUESTION_ID_TEAM_RETURNING);
@@ -83,7 +83,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testView() {
+	public function testView(): void {
 		// Admins are allowed to view questions
 		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'view', 'question' => QUESTION_ID_TEAM_RETURNING], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/questions/edit?question=' . QUESTION_ID_TEAM_RETURNING);
@@ -114,7 +114,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsAdmin() {
+	public function testAddAsAdmin(): void {
 		// Admins are allowed to add questions
 		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'add'], PERSON_ID_ADMIN);
 	}
@@ -124,7 +124,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsManager() {
+	public function testAddAsManager(): void {
 		// Managers are allowed to add questions
 		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'add'], PERSON_ID_MANAGER);
 	}
@@ -134,7 +134,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsOthers() {
+	public function testAddAsOthers(): void {
 		// Others are not allowed to add questions
 		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'add'], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'add'], PERSON_ID_CAPTAIN);
@@ -148,7 +148,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsAdmin() {
+	public function testEditAsAdmin(): void {
 		// Admins are allowed to edit questions
 		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'edit', 'question' => QUESTION_ID_TEAM_RETURNING], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'edit', 'question' => QUESTION_ID_TEAM_RETURNING_SUB], PERSON_ID_ADMIN);
@@ -159,7 +159,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsManager() {
+	public function testEditAsManager(): void {
 		// Managers are allowed to edit questions
 		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'edit', 'question' => QUESTION_ID_TEAM_RETURNING], PERSON_ID_MANAGER);
 
@@ -172,7 +172,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsOthers() {
+	public function testEditAsOthers(): void {
 		// Others are not allowed to edit questions
 		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'edit', 'question' => QUESTION_ID_TEAM_RETURNING], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'edit', 'question' => QUESTION_ID_TEAM_RETURNING], PERSON_ID_CAPTAIN);
@@ -186,7 +186,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testActivateAsAdmin() {
+	public function testActivateAsAdmin(): void {
 		// Admins are allowed to activate questions
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'activate', 'question' => QUESTION_ID_TEAM_OBSOLETE], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/questions\\/deactivate?question=' . QUESTION_ID_TEAM_OBSOLETE);
@@ -197,7 +197,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testActivateAsManager() {
+	public function testActivateAsManager(): void {
 		// Managers are allowed to activate questions
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'activate', 'question' => QUESTION_ID_TEAM_OBSOLETE], PERSON_ID_MANAGER);
 		$this->assertResponseContains('/questions\\/deactivate?question=' . QUESTION_ID_TEAM_OBSOLETE);
@@ -211,7 +211,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testActivateAsOthers() {
+	public function testActivateAsOthers(): void {
 		// Others are not allowed to activate questions
 		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'activate', 'question' => QUESTION_ID_TEAM_OBSOLETE],
 			PERSON_ID_COORDINATOR);
@@ -229,7 +229,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeactivateAsAdmin() {
+	public function testDeactivateAsAdmin(): void {
 		// Admins are allowed to deactivate questions
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'deactivate', 'question' => QUESTION_ID_TEAM_NIGHT], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/questions\\/activate?question=' . QUESTION_ID_TEAM_NIGHT);
@@ -240,7 +240,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeactivateAsManager() {
+	public function testDeactivateAsManager(): void {
 		// Managers are allowed to deactivate questions
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'deactivate', 'question' => QUESTION_ID_TEAM_NIGHT], PERSON_ID_MANAGER);
 		$this->assertResponseContains('/questions\\/activate?question=' . QUESTION_ID_TEAM_NIGHT);
@@ -254,7 +254,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeactivateAsOthers() {
+	public function testDeactivateAsOthers(): void {
 		// Others are not allowed to deactivate questions
 		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'deactivate', 'question' => QUESTION_ID_TEAM_NIGHT],
 			PERSON_ID_COORDINATOR);
@@ -272,7 +272,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsAdmin() {
+	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -292,7 +292,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsManager() {
+	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -311,7 +311,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsOthers() {
+	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -332,7 +332,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAnswerAsAdmin() {
+	public function testAddAnswerAsAdmin(): void {
 		// Admins are allowed to add answers
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'add_answer', 'question' => QUESTION_ID_TEAM_PREVIOUS],
 			PERSON_ID_ADMIN);
@@ -344,7 +344,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAnswerAsManager() {
+	public function testAddAnswerAsManager(): void {
 		// Managers are allowed to add answers
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'add_answer', 'question' => QUESTION_ID_TEAM_PREVIOUS],
 			PERSON_ID_MANAGER);
@@ -356,7 +356,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAnswerAsOthers() {
+	public function testAddAnswerAsOthers(): void {
 		// Others are not allowed to add answers
 		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'add_answer', 'question' => QUESTION_ID_TEAM_PREVIOUS],
 			PERSON_ID_COORDINATOR);
@@ -374,7 +374,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAnswerAsAdmin() {
+	public function testDeleteAnswerAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -389,7 +389,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAnswerAsManager() {
+	public function testDeleteAnswerAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -404,7 +404,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAnswerAsOthers() {
+	public function testDeleteAnswerAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -425,7 +425,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAutocomplete() {
+	public function testAutocomplete(): void {
 		// Admins are allowed to autocomplete
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'autocomplete', 'affiliate' => AFFILIATE_ID_CLUB, 'term' => 'night'],
 			PERSON_ID_ADMIN);
@@ -451,7 +451,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testConsolidateAsAdmin() {
+	public function testConsolidateAsAdmin(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
 
 		// Admins are allowed to consolidate
@@ -463,7 +463,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testConsolidateAsManager() {
+	public function testConsolidateAsManager(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
 
 		// Managers are allowed to consolidate
@@ -475,7 +475,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testConsolidateAsOthers() {
+	public function testConsolidateAsOthers(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
 
 		// Others are now allowed to consolidate

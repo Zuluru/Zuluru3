@@ -43,7 +43,7 @@ class PeoplePeopleTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAfterSave() {
+	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

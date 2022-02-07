@@ -44,7 +44,7 @@ class GameSlotsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testValidationCommon() {
+	public function testValidationCommon(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -53,7 +53,7 @@ class GameSlotsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testValidationDefault() {
+	public function testValidationDefault(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -62,7 +62,7 @@ class GameSlotsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testValidationBulk() {
+	public function testValidationBulk(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -71,7 +71,7 @@ class GameSlotsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testBeforeMarshal() {
+	public function testBeforeMarshal(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -80,7 +80,7 @@ class GameSlotsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testFindAvailable() {
+	public function testFindAvailable(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -89,7 +89,7 @@ class GameSlotsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAffiliate() {
+	public function testAffiliate(): void {
         $affiliateId = rand();
         $gameSlot = GameSlotFactory::make()
             ->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliateId])
@@ -102,7 +102,7 @@ class GameSlotsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSport() {
+	public function testSport(): void {
         $gameSlot1 = GameSlotFactory::make()->with('Fields', ['sport' => 'ultimate'])->persist();
         $gameSlot2 = GameSlotFactory::make()->with('Fields', ['sport' => 'soccer'])->persist();
 		$this->assertEquals('ultimate', $this->GameSlotsTable->sport($gameSlot1->id));
@@ -114,7 +114,7 @@ class GameSlotsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCompareTimeAndField() {
+	public function testCompareTimeAndField(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

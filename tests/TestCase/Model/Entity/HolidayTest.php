@@ -13,7 +13,7 @@ class HolidayTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testGetDate() {
+	public function testGetDate(): void {
         $holiday = HolidayFactory::make([
             'date' => new FrozenDate('December 25'),
             'name' => 'Christmas',

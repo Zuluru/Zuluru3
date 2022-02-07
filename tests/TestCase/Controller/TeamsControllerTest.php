@@ -18,7 +18,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testIndex() {
+	public function testIndex(): void {
 		// Anyone is allowed to see the index
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'index'], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'index'], PERSON_ID_MANAGER);
@@ -34,7 +34,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testLetter() {
+	public function testLetter(): void {
 		// Anyone is allowed to see the list by letter
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'letter', 'letter' => 'R'], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'letter', 'letter' => 'R'], PERSON_ID_MANAGER);
@@ -50,7 +50,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testJoin() {
+	public function testJoin(): void {
 		// Anyone logged in is allowed to try to find teams to join
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'join', 'team' => TEAM_ID_BLACK], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'join', 'team' => TEAM_ID_BLACK], PERSON_ID_MANAGER);
@@ -68,7 +68,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testUnassigned() {
+	public function testUnassigned(): void {
 		// Admins are allowed to see the unassigned teams list
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'unassigned'], PERSON_ID_ADMIN);
 
@@ -88,7 +88,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testStatistics() {
+	public function testStatistics(): void {
 		// Admins are allowed to view statistics
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'statistics'], PERSON_ID_ADMIN);
 
@@ -108,7 +108,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCompareAffiliateAndCount() {
+	public function testCompareAffiliateAndCount(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -117,7 +117,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testView() {
+	public function testView(): void {
 		// Admins are allowed to view teams, with full edit permissions
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
 		// The strings for edit are all longer here than other places, because there can be simple edit links in help text.
@@ -168,7 +168,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testNumbersAsAdmin() {
+	public function testNumbersAsAdmin(): void {
 		// Admins are allowed to set numbers
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'numbers', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -179,7 +179,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testNumbersAsManager() {
+	public function testNumbersAsManager(): void {
 		// Managers are allowed to set numbers
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'numbers', 'team' => TEAM_ID_RED], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -190,7 +190,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testNumbersAsCaptain() {
+	public function testNumbersAsCaptain(): void {
 		// Captains are allowed to set numbers before the roster deadline
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'numbers', 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
@@ -209,7 +209,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testNumbersAsCoordinator() {
+	public function testNumbersAsCoordinator(): void {
 		// Coordinators are allowed to set numbers
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'numbers', 'team' => TEAM_ID_RED], PERSON_ID_COORDINATOR);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -220,7 +220,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testNumbersAsPlayer() {
+	public function testNumbersAsPlayer(): void {
 		// Players are allowed to set only their own number
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'numbers', 'team' => TEAM_ID_RED, 'person' => PERSON_ID_PLAYER], PERSON_ID_PLAYER);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -231,7 +231,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testNumbersAsOthers() {
+	public function testNumbersAsOthers(): void {
 		// Others are not allowed to set numbers
 		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'numbers', 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
 		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'numbers', 'team' => TEAM_ID_RED], PERSON_ID_VISITOR);
@@ -243,7 +243,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testStats() {
+	public function testStats(): void {
 		// Anyone logged in is allowed to see stats
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'stats', 'team' => TEAM_ID_CHICKADEES], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'stats', 'team' => TEAM_ID_CHICKADEES], PERSON_ID_MANAGER);
@@ -261,7 +261,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testStatSheet() {
+	public function testStatSheet(): void {
 		// Admins are allowed to see the stat sheet
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'stat_sheet', 'team' => TEAM_ID_CHICKADEES], PERSON_ID_ADMIN);
 
@@ -286,7 +286,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testTooltip() {
+	public function testTooltip(): void {
 		// Anyone is allowed to view team tooltips
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'tooltip', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/teams\\/view?team=' . TEAM_ID_RED);
@@ -325,7 +325,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsAdmin() {
+	public function testAddAsAdmin(): void {
 		// Admins are allowed to add teams
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'add'], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -336,7 +336,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsManager() {
+	public function testAddAsManager(): void {
 		// Managers are allowed to add teams
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'add'], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -347,7 +347,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsOthers() {
+	public function testAddAsOthers(): void {
 		// Others are not allowed to add teams
 		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'add'],
 			PERSON_ID_COORDINATOR, '/',
@@ -369,7 +369,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsAdmin() {
+	public function testEditAsAdmin(): void {
 		// Admins are allowed to  teams
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'edit', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -380,7 +380,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsManager() {
+	public function testEditAsManager(): void {
 		// Managers are allowed to edit teams in their affiliate
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'edit', 'team' => TEAM_ID_RED], PERSON_ID_MANAGER);
 
@@ -395,7 +395,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsCoordinator() {
+	public function testEditAsCoordinator(): void {
 		// Coordinators are not allowed to edit teams
 		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'edit', 'team' => TEAM_ID_RED], PERSON_ID_COORDINATOR);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -406,7 +406,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsCaptain() {
+	public function testEditAsCaptain(): void {
 		// Captains are allowed to edit their own teams
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'edit', 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'edit', 'team' => TEAM_ID_CHICKADEES], PERSON_ID_CAPTAIN);
@@ -422,7 +422,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsOthers() {
+	public function testEditAsOthers(): void {
 		// Others are not allowed to edit teams
 		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'edit', 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
 		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'edit', 'team' => TEAM_ID_RED], PERSON_ID_VISITOR);
@@ -434,7 +434,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testNoteAsAdmin() {
+	public function testNoteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -527,7 +527,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testNoteAsManager() {
+	public function testNoteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -572,7 +572,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testNoteAsCoordinator() {
+	public function testNoteAsCoordinator(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -612,7 +612,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testNoteAsCaptain() {
+	public function testNoteAsCaptain(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -661,7 +661,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testNoteAsPlayer() {
+	public function testNoteAsPlayer(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -710,7 +710,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testNoteAsVisitor() {
+	public function testNoteAsVisitor(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -724,7 +724,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testNoteAsAnonymous() {
+	public function testNoteAsAnonymous(): void {
 		// Others are not allowed to add notes
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'note', 'team' => TEAM_ID_RED]);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -735,7 +735,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteNoteAsAdmin() {
+	public function testDeleteNoteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -765,7 +765,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteNoteAsManager() {
+	public function testDeleteNoteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -795,7 +795,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteNoteAsCoordinator() {
+	public function testDeleteNoteAsCoordinator(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -822,7 +822,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteNoteAsCaptain() {
+	public function testDeleteNoteAsCaptain(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -849,7 +849,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteNoteAsPlayer() {
+	public function testDeleteNoteAsPlayer(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -876,7 +876,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteNoteAsVisitor() {
+	public function testDeleteNoteAsVisitor(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -903,7 +903,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteNoteAsOthers() {
+	public function testDeleteNoteAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -916,7 +916,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsAdmin() {
+	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -936,7 +936,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsManager() {
+	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -955,7 +955,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsCoordinator() {
+	public function testDeleteAsCoordinator(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -971,7 +971,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsCaptain() {
+	public function testDeleteAsCaptain(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -992,7 +992,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsOthers() {
+	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -1007,7 +1007,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testMoveAsAdmin() {
+	public function testMoveAsAdmin(): void {
 		// Admins are allowed to move teams
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'move', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -1018,7 +1018,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testMoveAsManager() {
+	public function testMoveAsManager(): void {
 		// Managers are allowed to move teams
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'move', 'team' => TEAM_ID_RED], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -1029,7 +1029,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testMoveAsCoordinator() {
+	public function testMoveAsCoordinator(): void {
 		// Coordinators are not allowed to move teams
 		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'move', 'team' => TEAM_ID_RED], PERSON_ID_COORDINATOR);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -1040,7 +1040,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testMoveAsOthers() {
+	public function testMoveAsOthers(): void {
 		// Others are not allowed to move teams
 		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'move', 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
 		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'move', 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
@@ -1053,7 +1053,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSchedule() {
+	public function testSchedule(): void {
 		// Anyone is allowed to see the schedule
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'schedule', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/games/edit?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
@@ -1096,7 +1096,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testIcal() {
+	public function testIcal(): void {
 		// Make sure that we're before the division close date
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 
@@ -1112,7 +1112,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSpirit() {
+	public function testSpirit(): void {
 		// Admins are allowed to see the spirit report
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'spirit', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
 
@@ -1136,7 +1136,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAttendance() {
+	public function testAttendance(): void {
 		// Admins are allowed to see attendance
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'attendance', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
 
@@ -1172,7 +1172,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEmails() {
+	public function testEmails(): void {
 		// Admins are allowed to see emails
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'emails', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
 
@@ -1196,7 +1196,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddPlayerAsAdmin() {
+	public function testAddPlayerAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -1222,7 +1222,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddPlayerAsManager() {
+	public function testAddPlayerAsManager(): void {
 		// Managers are allowed to add players to teams
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'add_player', 'team' => TEAM_ID_OAKS], PERSON_ID_MANAGER);
 
@@ -1235,7 +1235,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddPlayerAsCoordinator() {
+	public function testAddPlayerAsCoordinator(): void {
 		// Coordinators are allowed to add players to teams in their divisions
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'add_player', 'team' => TEAM_ID_RED], PERSON_ID_COORDINATOR);
 
@@ -1248,7 +1248,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddPlayerAsCaptain() {
+	public function testAddPlayerAsCaptain(): void {
 		// Make sure that we're before the roster deadline for captains to add players
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 
@@ -1264,7 +1264,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddPlayerAsOthers() {
+	public function testAddPlayerAsOthers(): void {
 		// Others are not allowed to add players to teams
 		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'add_player', 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
 		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'add_player', 'team' => TEAM_ID_RED], PERSON_ID_VISITOR);
@@ -1276,7 +1276,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddFromTeamAsAdmin() {
+	public function testAddFromTeamAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -1291,7 +1291,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddFromTeamAsManager() {
+	public function testAddFromTeamAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -1308,7 +1308,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddFromTeamAsCoordinator() {
+	public function testAddFromTeamAsCoordinator(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -1325,7 +1325,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddFromTeamAsCaptain() {
+	public function testAddFromTeamAsCaptain(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -1388,7 +1388,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddFromTeamAsOthers() {
+	public function testAddFromTeamAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -1405,7 +1405,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddFromEventAsAdmin() {
+	public function testAddFromEventAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -1479,7 +1479,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddFromEventAsManager() {
+	public function testAddFromEventAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -1501,7 +1501,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddFromEventAsCoordinator() {
+	public function testAddFromEventAsCoordinator(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -1523,7 +1523,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddFromEventAsOthers() {
+	public function testAddFromEventAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -1547,7 +1547,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterRoleAsAdmin() {
+	public function testRosterRoleAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -1562,7 +1562,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterRoleAsManager() {
+	public function testRosterRoleAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -1577,7 +1577,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterRoleAsCoordinator() {
+	public function testRosterRoleAsCoordinator(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -1595,7 +1595,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterRoleAsCaptain() {
+	public function testRosterRoleAsCaptain(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -1627,7 +1627,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterRoleAsPlayer() {
+	public function testRosterRoleAsPlayer(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -1652,7 +1652,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterRoleAsVisitor() {
+	public function testRosterRoleAsVisitor(): void {
 		// Others are not allowed to change roster roles
 		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'roster_role', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_BLUE], PERSON_ID_VISITOR);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'roster_role', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_BLUE]);
@@ -1663,7 +1663,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterPositionAsAdmin() {
+	public function testRosterPositionAsAdmin(): void {
 		$this->enableCsrfToken();
 
 		// Admins are allowed to change roster positions
@@ -1678,7 +1678,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterPositionAsManager() {
+	public function testRosterPositionAsManager(): void {
 		$this->enableCsrfToken();
 
 		// Managers are allowed to change roster positions
@@ -1693,7 +1693,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterPositionAsCoordinator() {
+	public function testRosterPositionAsCoordinator(): void {
 		$this->enableCsrfToken();
 
 		// Coordinators are allowed to change roster positions
@@ -1708,7 +1708,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterPositionAsCaptain() {
+	public function testRosterPositionAsCaptain(): void {
 		$this->enableCsrfToken();
 
 		// Make sure that we're before the roster deadline
@@ -1731,7 +1731,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterPositionAsPlayer() {
+	public function testRosterPositionAsPlayer(): void {
 		$this->enableCsrfToken();
 
 		// Make sure that we're before the roster deadline
@@ -1755,7 +1755,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterPositionAsOthers() {
+	public function testRosterPositionAsOthers(): void {
 		$this->enableCsrfToken();
 
 		// Others are not allowed to change roster positions
@@ -1770,7 +1770,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterAddAsAdmin() {
+	public function testRosterAddAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -1816,7 +1816,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterAddAsManager() {
+	public function testRosterAddAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -1840,7 +1840,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterAddAsCoordinator() {
+	public function testRosterAddAsCoordinator(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -1864,7 +1864,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterAddAsCaptain() {
+	public function testRosterAddAsCaptain(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -1890,7 +1890,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterAddAsOthers() {
+	public function testRosterAddAsOthers(): void {
 		// Others are not allowed to add players to teams
 		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'roster_add', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
 		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'roster_add', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED], PERSON_ID_VISITOR);
@@ -1902,7 +1902,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterRequestAsCaptain() {
+	public function testRosterRequestAsCaptain(): void {
 		// Make sure that we're before the roster deadline
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 
@@ -1916,7 +1916,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterRequestAsPlayer() {
+	public function testRosterRequestAsPlayer(): void {
 		// Make sure that we're before the roster deadline
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 
@@ -1930,7 +1930,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterRequestAsVisitor() {
+	public function testRosterRequestAsVisitor(): void {
 		// Make sure that we're before the roster deadline
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 
@@ -1944,7 +1944,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterRequestAsOthers() {
+	public function testRosterRequestAsOthers(): void {
 		// Make sure that we're before the roster deadline
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 
@@ -1960,7 +1960,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterAcceptAsAdmin() {
+	public function testRosterAcceptAsAdmin(): void {
 		// Admins are allowed to accept roster invitations
 		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
 			PERSON_ID_ADMIN, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
@@ -1973,7 +1973,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterAcceptAsManager() {
+	public function testRosterAcceptAsManager(): void {
 		// Managers are allowed to accept roster invitations
 		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
 			PERSON_ID_MANAGER, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
@@ -1986,7 +1986,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterAcceptAsCoordinator() {
+	public function testRosterAcceptAsCoordinator(): void {
 		// Coordinators are allowed to accept roster invitations
 		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
 			PERSON_ID_COORDINATOR, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
@@ -1999,7 +1999,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterAcceptAsCaptain() {
+	public function testRosterAcceptAsCaptain(): void {
 		// Make sure that we're before the roster deadline
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 
@@ -2015,7 +2015,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterAcceptAsPlayer() {
+	public function testRosterAcceptAsPlayer(): void {
 		// Cannot accept invites after the roster deadline!
 		FrozenDate::setTestNow(new FrozenDate('November 1'));
 		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
@@ -2038,7 +2038,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterAcceptWithCode() {
+	public function testRosterAcceptWithCode(): void {
 		// Make sure that we're before the roster deadline
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 
@@ -2054,7 +2054,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterAcceptAsOthers() {
+	public function testRosterAcceptAsOthers(): void {
 		// Others are not allowed to accept roster invitations
 		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
 			PERSON_ID_VISITOR, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
@@ -2071,7 +2071,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterDeclineAsAdmin() {
+	public function testRosterDeclineAsAdmin(): void {
 		// Admins are allowed to decline roster invitations
 		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
 			PERSON_ID_ADMIN, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
@@ -2084,7 +2084,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterDeclineAsManager() {
+	public function testRosterDeclineAsManager(): void {
 		// Managers are allowed to decline roster invitations
 		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
 			PERSON_ID_MANAGER, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
@@ -2097,7 +2097,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterDeclineAsCoordinator() {
+	public function testRosterDeclineAsCoordinator(): void {
 		// Coordinators are allowed to decline roster invitations
 		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
 			PERSON_ID_COORDINATOR, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
@@ -2110,7 +2110,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterDeclineAsCaptain() {
+	public function testRosterDeclineAsCaptain(): void {
 		// Make sure that we're before the roster deadline
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 
@@ -2127,7 +2127,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterDeclineAsPlayer() {
+	public function testRosterDeclineAsPlayer(): void {
 		// Cannot decline invites after the roster deadline!
 		FrozenDate::setTestNow(new FrozenDate('November 1'));
 		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
@@ -2155,7 +2155,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterDeclineWithCode() {
+	public function testRosterDeclineWithCode(): void {
 		// Make sure that we're before the roster deadline
 		FrozenDate::setTestNow(new FrozenDate('July 1'));
 
@@ -2171,7 +2171,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRosterDeclineAsOthers() {
+	public function testRosterDeclineAsOthers(): void {
 		// Others are not allowed to decline roster invitations
 		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
 			PERSON_ID_VISITOR, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],

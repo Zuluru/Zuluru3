@@ -40,7 +40,7 @@ class EventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testIndex() {
+	public function testIndex(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
 
@@ -102,7 +102,7 @@ class EventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testWizard() {
+	public function testWizard(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
 
@@ -119,8 +119,8 @@ class EventsControllerTest extends ControllerTestCase {
 			->with('Prices')
 			->persist();
 
-		/** @var \App\Model\Entity\Event $league_individual */
-		$league_individual = EventFactory::make(['affiliate_id' => $affiliates[0]->id, 'event_type_id' => EVENT_TYPE_ID_INDIVIDUALS_FOR_LEAGUES])
+		// We don't reference this event in this test, but it's needed to make pages do what we expect
+		EventFactory::make(['affiliate_id' => $affiliates[0]->id, 'event_type_id' => EVENT_TYPE_ID_INDIVIDUALS_FOR_LEAGUES])
 			->with('Prices')
 			->persist();
 
@@ -170,7 +170,7 @@ class EventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testView() {
+	public function testView(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
 
@@ -222,7 +222,7 @@ class EventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsAdmin() {
+	public function testAddAsAdmin(): void {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
 
@@ -250,7 +250,7 @@ class EventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsManager() {
+	public function testAddAsManager(): void {
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
 
@@ -272,7 +272,7 @@ class EventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsOthers() {
+	public function testAddAsOthers(): void {
 		[, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
 		// Others are not allowed to add events
@@ -286,7 +286,7 @@ class EventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsAdmin() {
+	public function testEditAsAdmin(): void {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
 
@@ -310,7 +310,7 @@ class EventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsManager() {
+	public function testEditAsManager(): void {
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
 
@@ -334,7 +334,7 @@ class EventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsOthers() {
+	public function testEditAsOthers(): void {
 		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
 
@@ -354,7 +354,7 @@ class EventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEventTypeFields() {
+	public function testEventTypeFields(): void {
 		$this->enableCsrfToken();
 
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -381,7 +381,7 @@ class EventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddPrice() {
+	public function testAddPrice(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
 		// Admins are allowed to add a price
@@ -405,7 +405,7 @@ class EventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsAdmin() {
+	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -448,7 +448,7 @@ class EventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsManager() {
+	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -480,7 +480,7 @@ class EventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsOthers() {
+	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -505,7 +505,7 @@ class EventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testConnectionsAsAdmin() {
+	public function testConnectionsAsAdmin(): void {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
 
@@ -525,7 +525,7 @@ class EventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testConnectionsAsManager() {
+	public function testConnectionsAsManager(): void {
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
 
@@ -545,7 +545,7 @@ class EventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testConnectionsAsOthers() {
+	public function testConnectionsAsOthers(): void {
 		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
 
@@ -566,7 +566,7 @@ class EventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRefundAsAdmin() {
+	public function testRefundAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -623,6 +623,7 @@ class EventsControllerTest extends ControllerTestCase {
 		$this->assertPostAsAccessOk(['controller' => 'Events', 'action' => 'refund', 'event' => $league_team->id],
 			$admin->id, $refund_data + ['payment_amount' => 10]);
 		$this->assertResponseContains('The refunds have been saved.');
+		/** @var \App\Model\Entity\Registration $registration */
 		$registration = TableRegistry::getTableLocator()->get('Registrations')->get($registrations[2]->id, [
 			'contain' => ['Payments' => [
 				'queryBuilder' => function (Query  $q) {
@@ -631,7 +632,7 @@ class EventsControllerTest extends ControllerTestCase {
 			]]
 		]);
 		$this->assertEquals('Paid', $registration->payment);
-		$this->assertEquals(2, count($registration->payments));
+		$this->assertCount(2, $registration->payments);
 		$this->assertEquals(10, $registration->payments[0]->refunded_amount);
 		$this->assertEquals($admin->id, $registration->payments[0]->updated_person_id);
 		$refund = $registration->payments[1];
@@ -645,7 +646,7 @@ class EventsControllerTest extends ControllerTestCase {
 		$this->assertEquals($payment->id, $refund->payment_id);
 
 		$messages = Configure::consume('test_emails');
-		$this->assertEquals(1, count($messages));
+		$this->assertCount(1, $messages);
 		$this->assertTextContains('You have been issued a refund of CA$10.00 for your registration for ' . $league_team->name . '.', $messages[0]);
 
 		// Try to refund without selecting any registrations
@@ -660,15 +661,16 @@ class EventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRefundTeamEvent() {
+	public function testRefundTeamEvent(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
 
-		/** @var \App\Model\Entity\Event $league_team */
+		/** @var \App\Model\Entity\Team $team */
 		$team = TeamFactory::make()->with('Divisions.Leagues')->persist();
+		/** @var \App\Model\Entity\Event $league_team */
 		$league_team = EventFactory::make(['affiliate_id' => $affiliates[0]->id, 'event_type_id' => EVENT_TYPE_ID_TEAMS_FOR_LEAGUES, 'division_id' => $team->division_id])
 			->with('Prices')
 			->persist();
@@ -690,6 +692,7 @@ class EventsControllerTest extends ControllerTestCase {
 			],
 		]);
 		$this->assertResponseContains('The refunds have been saved.');
+		/** @var \App\Model\Entity\Registration $registration */
 		$registration = TableRegistry::getTableLocator()->get('Registrations')->get($registration->id, [
 			'contain' => ['Payments' => [
 				'queryBuilder' => function (Query  $q) {
@@ -698,7 +701,7 @@ class EventsControllerTest extends ControllerTestCase {
 			]]
 		]);
 		$this->assertEquals('Cancelled', $registration->payment);
-		$this->assertEquals(2, count($registration->payments));
+		$this->assertCount(2, $registration->payments);
 		$this->assertEquals(10, $registration->payments[0]->refunded_amount);
 		$this->assertEquals($admin->id, $registration->payments[0]->updated_person_id);
 		$refund = $registration->payments[1];
@@ -712,7 +715,7 @@ class EventsControllerTest extends ControllerTestCase {
 		$this->assertEquals($payment->id, $refund->payment_id);
 
 		$messages = Configure::consume('test_emails');
-		$this->assertEquals(1, count($messages));
+		$this->assertCount(1, $messages);
 		$this->assertTextContains('You have been issued a refund of CA$10.00 for your registration for ' . $league_team->name . '.', $messages[0]);
 
 		$this->expectException(RecordNotFoundException::class);
@@ -724,7 +727,7 @@ class EventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCreditAsAdmin() {
+	public function testCreditAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -756,6 +759,7 @@ class EventsControllerTest extends ControllerTestCase {
 		$this->assertPostAsAccessOk(['controller' => 'Events', 'action' => 'refund', 'event' => $league_team->id],
 			$admin->id, $refund_data + ['payment_amount' => 10]);
 		$this->assertResponseContains('The credits have been saved.');
+		/** @var \App\Model\Entity\Registration $registration */
 		$registration = TableRegistry::getTableLocator()->get('Registrations')->get($registration->id, [
 			'contain' => ['Payments' => [
 				'queryBuilder' => function (Query  $q) {
@@ -764,7 +768,7 @@ class EventsControllerTest extends ControllerTestCase {
 			]]
 		]);
 		$this->assertEquals('Cancelled', $registration->payment);
-		$this->assertEquals(2, count($registration->payments));
+		$this->assertCount(2, $registration->payments);
 		$this->assertEquals(10, $registration->payments[0]->refunded_amount);
 		$this->assertEquals($admin->id, $registration->payments[0]->updated_person_id);
 		$refund = $registration->payments[1];
@@ -780,7 +784,7 @@ class EventsControllerTest extends ControllerTestCase {
 		$credits = TableRegistry::getTableLocator()->get('Credits')->find()
 			->where(['person_id' => $player->id])
 			->toArray();
-		$this->assertEquals(1, count($credits));
+		$this->assertCount(1, $credits);
 		$this->assertEquals(10, $credits[0]->amount);
 		$this->assertEquals(0, $credits[0]->amount_used);
 		$this->assertEquals('Test credit notes', $credits[0]->notes);
@@ -788,7 +792,7 @@ class EventsControllerTest extends ControllerTestCase {
 		$this->assertEquals($registration->payments[1]->id, $credits[0]->payment_id);
 
 		$messages = Configure::consume('test_emails');
-		$this->assertEquals(1, count($messages));
+		$this->assertCount(1, $messages);
 		$this->assertTextContains('You have been issued a credit of CA$10.00 for your registration for ' . $league_team->name . '.', $messages[0]);
 		$this->assertTextContains('This credit can be redeemed towards any future purchase on the Test Zuluru Affiliate site', $messages[0]);
 	}
@@ -798,7 +802,7 @@ class EventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testTranslation() {
+	public function testTranslation(): void {
 		$this->markTestIncomplete('Fix this test once translations are changed.');
 
 		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);

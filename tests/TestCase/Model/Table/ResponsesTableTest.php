@@ -43,7 +43,7 @@ class ResponsesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testBeforeSave() {
+	public function testBeforeSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

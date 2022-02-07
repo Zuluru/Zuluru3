@@ -44,7 +44,7 @@ class BadgesPeopleTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAffiliate() {
+	public function testAffiliate(): void {
 	    $affiliateId = rand();
 	    $badgesPeople = BadgesPersonFactory::make()->with('Badges', ['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->BadgesPeopleTable->affiliate($badgesPeople->id));

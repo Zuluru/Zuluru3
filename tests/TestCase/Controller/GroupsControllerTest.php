@@ -13,7 +13,7 @@ class GroupsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testIndex() {
+	public function testIndex(): void {
 		// Admins are allowed to see the index
 		$this->assertGetAsAccessOk(['controller' => 'Groups', 'action' => 'index'], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/groups/deactivate?group=' . GROUP_PLAYER);
@@ -33,7 +33,7 @@ class GroupsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testActivateAsAdmin() {
+	public function testActivateAsAdmin(): void {
 		// Admins are allowed to activate groups
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Groups', 'action' => 'activate', 'group' => GROUP_OFFICIAL],
 			PERSON_ID_ADMIN);
@@ -45,7 +45,7 @@ class GroupsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testActivateAsOthers() {
+	public function testActivateAsOthers(): void {
 		// Others are not allowed to activate groups
 		$this->assertGetAjaxAsAccessDenied(['controller' => 'Groups', 'action' => 'activate', 'group' => GROUP_OFFICIAL],
 			PERSON_ID_MANAGER);
@@ -65,7 +65,7 @@ class GroupsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeactivateAsAdmin() {
+	public function testDeactivateAsAdmin(): void {
 		// Admins are allowed to deactivate groups
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Groups', 'action' => 'deactivate', 'group' => GROUP_VOLUNTEER],
 			PERSON_ID_ADMIN);
@@ -77,7 +77,7 @@ class GroupsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeactivateAsOthers() {
+	public function testDeactivateAsOthers(): void {
 		// Others are not allowed to deactivate groups
 		$this->assertGetAjaxAsAccessDenied(['controller' => 'Groups', 'action' => 'deactivate', 'group' => GROUP_VOLUNTEER],
 			PERSON_ID_MANAGER);

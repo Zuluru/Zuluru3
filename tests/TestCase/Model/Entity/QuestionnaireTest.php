@@ -14,7 +14,7 @@ class QuestionnaireTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddResponseValidation() {
+	public function testAddResponseValidation(): void {
 		$this->markTestIncomplete('Not implemented yet. Pretty complex and I\'m not sure how this is used in the app yet.');
 	}
 

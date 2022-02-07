@@ -30,7 +30,7 @@ class AppControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testInitialize() {
+	public function testInitialize(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -39,7 +39,7 @@ class AppControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAfterIdentify() {
+	public function testAfterIdentify(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -48,7 +48,7 @@ class AppControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testBeforeFilter() {
+	public function testBeforeFilter(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -57,7 +57,7 @@ class AppControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testFlashEmail() {
+	public function testFlashEmail(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -66,7 +66,7 @@ class AppControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testFlash() {
+	public function testFlash(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -75,7 +75,7 @@ class AppControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testBeforeRender() {
+	public function testBeforeRender(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -84,7 +84,7 @@ class AppControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRedirect() {
+	public function testRedirect(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -93,7 +93,7 @@ class AppControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddTeamMenuItems() {
+	public function testAddTeamMenuItems(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -102,7 +102,7 @@ class AppControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddFranchiseMenuItems() {
+	public function testAddFranchiseMenuItems(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -111,7 +111,7 @@ class AppControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddDivisionMenuItems() {
+	public function testAddDivisionMenuItems(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -120,7 +120,7 @@ class AppControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddMenuItem() {
+	public function testAddMenuItem(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -129,7 +129,7 @@ class AppControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSendMail() {
+	public function testSendMail(): void {
 		$players = PersonFactory::makePlayer(2)->persist();
 		SettingFactory::make(['person_id' => $players[1]->id, 'category' => 'personal', 'name' => 'language', 'value' => 'fr'])->persist();
 
@@ -213,7 +213,7 @@ class AppControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testExtractEmails() {
+	public function testExtractEmails(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -222,7 +222,7 @@ class AppControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testExtractLocales() {
+	public function testExtractLocales(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -231,7 +231,7 @@ class AppControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testIsChild() {
+	public function testIsChild(): void {
 		$admin = PersonFactory::makeAdmin()->getEntity();
 		$adult = PersonFactory::makePlayer(['birthdate' => FrozenDate::now()->subYears(19)])->getEntity();
 		$child = PersonFactory::makePlayer(['birthdate' => FrozenDate::now()->subYears(17)])->getEntity();

@@ -44,7 +44,7 @@ class PeopleTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testValidationCreate() {
+	public function testValidationCreate(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -53,7 +53,7 @@ class PeopleTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testValidationPlayer() {
+	public function testValidationPlayer(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -62,7 +62,7 @@ class PeopleTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testValidationContact() {
+	public function testValidationContact(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -71,7 +71,7 @@ class PeopleTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testValidationCoach() {
+	public function testValidationCoach(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -80,7 +80,7 @@ class PeopleTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testBeforeRules() {
+	public function testBeforeRules(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -89,7 +89,7 @@ class PeopleTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAfterSave() {
+	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -98,7 +98,7 @@ class PeopleTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCreatePersonRecord() {
+	public function testCreatePersonRecord(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -107,7 +107,7 @@ class PeopleTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testFindDuplicates() {
+	public function testFindDuplicates(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$person = $this->PeopleTable->get(PERSON_ID_MANAGER, ['contain' => ['Affiliates']]);
 		$duplicates = $this->PeopleTable->find('duplicates', compact('person'))->toArray();
@@ -125,7 +125,7 @@ class PeopleTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDelete() {
+	public function testDelete(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -134,7 +134,7 @@ class PeopleTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testMergeList() {
+	public function testMergeList(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -143,7 +143,7 @@ class PeopleTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testComparePerson() {
+	public function testComparePerson(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		// TODO: Add more person records, to more completely test the sort options
 		$people = $this->PeopleTable->find()->toArray();

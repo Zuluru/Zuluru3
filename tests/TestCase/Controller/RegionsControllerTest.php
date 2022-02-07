@@ -11,7 +11,7 @@ class RegionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testIndex() {
+	public function testIndex(): void {
 		// Admins are allowed to see the index
 		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'index'], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/regions/edit?region=' . REGION_ID_EAST);
@@ -39,7 +39,7 @@ class RegionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testView() {
+	public function testView(): void {
 		// Admins are allowed to view regions
 		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'view', 'region' => REGION_ID_EAST], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/regions/edit?region=' . REGION_ID_EAST);
@@ -66,7 +66,7 @@ class RegionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsAdmin() {
+	public function testAddAsAdmin(): void {
 		// Admins are allowed to add regions
 		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'add'], PERSON_ID_ADMIN);
 	}
@@ -76,7 +76,7 @@ class RegionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsManager() {
+	public function testAddAsManager(): void {
 		// Managers are allowed to add regions
 		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'add'], PERSON_ID_MANAGER);
 	}
@@ -86,7 +86,7 @@ class RegionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsOthers() {
+	public function testAddAsOthers(): void {
 		// Others are not allowed to add regions
 		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'add'], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'add'], PERSON_ID_CAPTAIN);
@@ -100,7 +100,7 @@ class RegionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsAdmin() {
+	public function testEditAsAdmin(): void {
 		// Admins are allowed to edit regions
 		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'edit', 'region' => REGION_ID_EAST], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'edit', 'region' => REGION_ID_SOUTH], PERSON_ID_ADMIN);
@@ -111,7 +111,7 @@ class RegionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsManager() {
+	public function testEditAsManager(): void {
 		// Managers are allowed to edit regions
 		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'edit', 'region' => REGION_ID_EAST], PERSON_ID_MANAGER);
 
@@ -124,7 +124,7 @@ class RegionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsOthers() {
+	public function testEditAsOthers(): void {
 		// Others are not allowed to edit regions
 		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'edit', 'region' => REGION_ID_EAST], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'edit', 'region' => REGION_ID_EAST], PERSON_ID_CAPTAIN);
@@ -138,7 +138,7 @@ class RegionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsAdmin() {
+	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -158,7 +158,7 @@ class RegionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsManager() {
+	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -177,7 +177,7 @@ class RegionsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsOthers() {
+	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 

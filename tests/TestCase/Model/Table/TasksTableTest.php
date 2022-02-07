@@ -44,7 +44,7 @@ class TasksTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAffiliate() {
+	public function testAffiliate(): void {
         $affiliateId = rand();
         $entity = TaskFactory::make()->with('Categories', ['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->TasksTable->affiliate($entity->id));

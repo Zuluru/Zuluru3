@@ -44,7 +44,7 @@ class UploadsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAfterSave() {
+	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -53,7 +53,7 @@ class UploadsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAfterDeleteCommit() {
+	public function testAfterDeleteCommit(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -62,7 +62,7 @@ class UploadsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAffiliate() {
+	public function testAffiliate(): void {
         $affiliateId = rand();
         $entity = UploadFactory::make()->with('UploadTypes', ['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->UploadsTable->affiliate($entity->id));

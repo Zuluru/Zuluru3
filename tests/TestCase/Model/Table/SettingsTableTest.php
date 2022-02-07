@@ -44,7 +44,7 @@ class SettingsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testMergeList() {
+	public function testMergeList(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$original = $this->SettingsTable->People->get(PERSON_ID_MANAGER, ['contain' => ['Settings']]);
 		$this->assertEquals(2, count($original->settings));

@@ -19,7 +19,7 @@ class LeagueTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testHasSpirit() {
+	public function testHasSpirit(): void {
 		// Save to later revert
 		$spirit = Configure::read('feature.spirit');
 
@@ -46,7 +46,7 @@ class LeagueTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testHasCarbonFlip() {
+	public function testHasCarbonFlip(): void {
 		// Save to later revert
 		$flip = Configure::read('scoring.carbon_flip');
         $leagues = LeagueFactory::make([
@@ -70,7 +70,7 @@ class LeagueTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testHasStats() {
+	public function testHasStats(): void {
 		// Save to later revert
 		$stats = Configure::read('scoring.stat_tracking');
         $leagues = LeagueFactory::make([
@@ -95,7 +95,7 @@ class LeagueTest extends TestCase {
 	/**
 	 * Test _getLongName()
 	 */
-	public function testGetLongName() {
+	public function testGetLongName(): void {
         $leagues = LeagueFactory::make([
             ['name' => 'Monday Night', 'season' => 'Summer', 'sport' => 'ultimate'],
             ['name' => 'Tuesday Night Summer', 'season' => 'Summer', 'sport' => 'baseball'],
@@ -113,7 +113,7 @@ class LeagueTest extends TestCase {
 	/**
 	 * Test _getFullName()
 	 */
-	public function testGetFullName() {
+	public function testGetFullName(): void {
 		$year = FrozenTime::now()->year;
         $leagues = LeagueFactory::make([
             ['name' => 'Monday Night', 'season' => 'Summer', 'open' => Date::now()],
@@ -130,7 +130,7 @@ class LeagueTest extends TestCase {
 	/**
 	 * Test _getLongSeason()
 	 */
-	public function testGetLongSeason() {
+	public function testGetLongSeason(): void {
 		$year = FrozenTime::now()->year;
         $leagues = LeagueFactory::make([
             ['season' => 'Summer', 'open' => Date::now()],
@@ -148,7 +148,7 @@ class LeagueTest extends TestCase {
 	/**
 	 * Test _getGetTieBreakers()
 	 */
-	public function testGetTieBreakers() {
+	public function testGetTieBreakers(): void {
 	    $league = LeagueFactory::make(['tie_breaker' => 'win,hth,hthpm,pm,gf,loss',])->getEntity();
 		$this->assertEquals(['win', 'hth', 'hthpm', 'pm', 'gf', 'loss'], $league->tie_breakers);
 	}

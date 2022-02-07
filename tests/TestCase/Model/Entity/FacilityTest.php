@@ -101,7 +101,7 @@ class FacilityTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testGetPermits() {
+	public function testGetPermits(): void {
 		$year = FrozenTime::now()->year;
 
 		$resultSunnybrook = $this->FacilitySunnybrook->permits;

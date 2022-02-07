@@ -43,7 +43,7 @@ class TeamsPeopleTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAfterSave() {
+	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -52,7 +52,7 @@ class TeamsPeopleTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testBeforeDelete() {
+	public function testBeforeDelete(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

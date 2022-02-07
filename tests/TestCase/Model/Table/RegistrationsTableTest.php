@@ -49,7 +49,7 @@ class RegistrationsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testBeforeSave() {
+	public function testBeforeSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -58,7 +58,7 @@ class RegistrationsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAfterSave() {
+	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -67,7 +67,7 @@ class RegistrationsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testBeforeDelete() {
+	public function testBeforeDelete(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -76,7 +76,7 @@ class RegistrationsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAfterDelete() {
+	public function testAfterDelete(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -85,7 +85,7 @@ class RegistrationsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testExpireReservations() {
+	public function testExpireReservations(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -94,7 +94,7 @@ class RegistrationsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAffiliate() {
+	public function testAffiliate(): void {
         $affiliateId = rand();
         $event = RegistrationFactory::make()->with('Events', ['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->RegistrationsTable->affiliate($event->id));
@@ -106,7 +106,7 @@ class RegistrationsTableTest extends TableTestCase {
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function testWaitingListWithRefund() {
+	public function testWaitingListWithRefund(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		// First, we add a new registration to a full event, it should go on the waiting list
 		UserCache::getInstance()->initializeIdForTests(PERSON_ID_CAPTAIN);
@@ -151,7 +151,7 @@ class RegistrationsTableTest extends TableTestCase {
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function testWaitingListCapRaised() {
+	public function testWaitingListCapRaised(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		// First, we add a new registration to a full event, it should go on the waiting list
 		UserCache::getInstance()->initializeIdForTests(PERSON_ID_CAPTAIN);

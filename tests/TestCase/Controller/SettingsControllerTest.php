@@ -11,7 +11,7 @@ class SettingsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsAdmin() {
+	public function testEditAsAdmin(): void {
 		// Admins are allowed to edit settings
 		$this->assertGetAsAccessOk(['controller' => 'Settings', 'action' => 'edit', 'organization'], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -22,7 +22,7 @@ class SettingsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsManager() {
+	public function testEditAsManager(): void {
 		// Managers are allowed to edit settings
 		$this->assertGetAsAccessOk(['controller' => 'Settings', 'action' => 'edit', 'organization'], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -33,7 +33,7 @@ class SettingsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsOthers() {
+	public function testEditAsOthers(): void {
 		// Others are not allowed to edit
 		$this->assertGetAsAccessDenied(['controller' => 'Settings', 'action' => 'edit', 'organization'], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'Settings', 'action' => 'edit', 'organization'], PERSON_ID_CAPTAIN);

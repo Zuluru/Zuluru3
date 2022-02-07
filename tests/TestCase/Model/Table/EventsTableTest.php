@@ -47,7 +47,7 @@ class EventsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testValidationGeneric() {
+	public function testValidationGeneric(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -56,7 +56,7 @@ class EventsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testValidationIndividual() {
+	public function testValidationIndividual(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -65,7 +65,7 @@ class EventsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testValidationMembership() {
+	public function testValidationMembership(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -74,7 +74,7 @@ class EventsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testValidationTeam() {
+	public function testValidationTeam(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -83,7 +83,7 @@ class EventsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testBeforeMarshal() {
+	public function testBeforeMarshal(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$date = FrozenDate::now();
 		$custom_membership = [
@@ -123,7 +123,7 @@ class EventsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAfterSave() {
+	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -132,7 +132,7 @@ class EventsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAffiliate() {
+	public function testAffiliate(): void {
         $affiliateId = rand();
         $event = EventFactory::make(['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->EventsTable->affiliate($event->id));

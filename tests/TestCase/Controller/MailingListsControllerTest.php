@@ -17,7 +17,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testIndex() {
+	public function testIndex(): void {
 		// Admins are allowed to see the index
 		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'index'], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/mailing_lists/edit?mailing_list=' . MAILING_LIST_ID_JUNIORS);
@@ -47,7 +47,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testView() {
+	public function testView(): void {
 		// Admins are allowed to view mailing lists
 		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'view', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/mailing_lists/edit?mailing_list=' . MAILING_LIST_ID_JUNIORS);
@@ -77,7 +77,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testPreview() {
+	public function testPreview(): void {
 		// Admins are allowed to preview
 		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'preview', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_ADMIN);
 
@@ -97,7 +97,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsAdmin() {
+	public function testAddAsAdmin(): void {
 		// Admins are allowed to add mailing lists
 		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'add'], PERSON_ID_ADMIN);
 		$this->assertResponseContains('<option value="1" selected="selected">Club</option>');
@@ -109,7 +109,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsManager() {
+	public function testAddAsManager(): void {
 		// Managers are allowed to add mailing lists
 		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'add'], PERSON_ID_MANAGER);
 		$this->assertResponseContains('<input type="hidden" name="affiliate_id" value="1"/>');
@@ -121,7 +121,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsOthers() {
+	public function testAddAsOthers(): void {
 		// Others are not allowed to add mailing lists
 		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'add'], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'add'], PERSON_ID_CAPTAIN);
@@ -135,7 +135,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsAdmin() {
+	public function testEditAsAdmin(): void {
 		// Admins are allowed to edit mailing lists
 		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => MAILING_LIST_ID_WOMEN_SUB], PERSON_ID_ADMIN);
@@ -146,7 +146,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsManager() {
+	public function testEditAsManager(): void {
 		// Managers are allowed to edit mailing lists
 		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_MANAGER);
 
@@ -159,7 +159,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsOthers() {
+	public function testEditAsOthers(): void {
 		// Others are not allowed to edit mailing lists
 		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => MAILING_LIST_ID_JUNIORS], PERSON_ID_CAPTAIN);
@@ -173,7 +173,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsAdmin() {
+	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -193,7 +193,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsManager() {
+	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -212,7 +212,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsOthers() {
+	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -233,7 +233,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testUnsubscribeAsAdmin() {
+	public function testUnsubscribeAsAdmin(): void {
 		// Admins are allowed to unsubscribe
 		$this->assertGetAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => MAILING_LIST_ID_JUNIORS],
 			PERSON_ID_ADMIN, '/',
@@ -249,7 +249,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testUnsubscribeAsManager() {
+	public function testUnsubscribeAsManager(): void {
 		// Managers are allowed to unsubscribe
 		$this->assertGetAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => MAILING_LIST_ID_JUNIORS],
 			PERSON_ID_MANAGER, '/',
@@ -262,7 +262,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testUnsubscribeAsCoordinator() {
+	public function testUnsubscribeAsCoordinator(): void {
 		// Coordinators are allowed to unsubscribe
 		$this->assertGetAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => MAILING_LIST_ID_JUNIORS],
 			PERSON_ID_COORDINATOR, '/',
@@ -275,7 +275,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testUnsubscribeAsCaptain() {
+	public function testUnsubscribeAsCaptain(): void {
 		// Captains are allowed to unsubscribe
 		$this->assertGetAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => MAILING_LIST_ID_JUNIORS],
 			PERSON_ID_CAPTAIN, '/',
@@ -288,7 +288,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testUnsubscribeAsPlayer() {
+	public function testUnsubscribeAsPlayer(): void {
 		// Players are allowed to unsubscribe
 		$this->assertGetAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => MAILING_LIST_ID_JUNIORS],
 			PERSON_ID_PLAYER, '/',
@@ -301,7 +301,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testUnsubscribeAsVisitor() {
+	public function testUnsubscribeAsVisitor(): void {
 		// Visitors are allowed to unsubscribe
 		$this->assertGetAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => MAILING_LIST_ID_JUNIORS],
 			PERSON_ID_VISITOR, '/',
@@ -314,7 +314,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testUnsubscribeAsAnonymous() {
+	public function testUnsubscribeAsAnonymous(): void {
 		// Others are allowed to unsubscribe
 		$this->assertGetAnonymousAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => MAILING_LIST_ID_JUNIORS, 'person' => PERSON_ID_PLAYER, 'code' => $this->_makeHash([PERSON_ID_PLAYER, MAILING_LIST_ID_JUNIORS])],
 			'/', $this->unsubscribeMessage);

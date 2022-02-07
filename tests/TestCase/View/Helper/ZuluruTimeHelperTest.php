@@ -44,7 +44,7 @@ class ZuluruTimeHelperTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testTime() {
+	public function testTime(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -53,7 +53,7 @@ class ZuluruTimeHelperTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testDate() {
+	public function testDate(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -62,7 +62,7 @@ class ZuluruTimeHelperTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testDatetime() {
+	public function testDatetime(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -71,7 +71,7 @@ class ZuluruTimeHelperTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testDay() {
+	public function testDay(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -80,7 +80,7 @@ class ZuluruTimeHelperTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testFulldate() {
+	public function testFulldate(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -89,7 +89,7 @@ class ZuluruTimeHelperTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testFulldatetime() {
+	public function testFulldatetime(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -98,7 +98,7 @@ class ZuluruTimeHelperTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testDateRange() {
+	public function testDateRange(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -107,7 +107,7 @@ class ZuluruTimeHelperTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testTimeRange() {
+	public function testTimeRange(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -116,7 +116,7 @@ class ZuluruTimeHelperTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testDateTimeRange() {
+	public function testDateTimeRange(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -125,7 +125,7 @@ class ZuluruTimeHelperTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testICal() {
+	public function testICal(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -134,7 +134,7 @@ class ZuluruTimeHelperTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testICalDateTimeRange() {
+	public function testICalDateTimeRange(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

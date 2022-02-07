@@ -31,7 +31,7 @@ class ContactsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testIndex() {
+	public function testIndex(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
 		$contacts = ContactFactory::make([
@@ -66,7 +66,7 @@ class ContactsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAdd() {
+	public function testAdd(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
 		// Admins are allowed to add contacts
@@ -86,7 +86,7 @@ class ContactsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEdit() {
+	public function testEdit(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
 		$contacts = ContactFactory::make([
@@ -118,7 +118,7 @@ class ContactsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsAdmin() {
+	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -140,7 +140,7 @@ class ContactsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsManager() {
+	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -167,7 +167,7 @@ class ContactsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsOthers() {
+	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -190,7 +190,7 @@ class ContactsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testMessage() {
+	public function testMessage(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
 		$contacts = ContactFactory::make([
@@ -218,7 +218,7 @@ class ContactsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testMessageAsPlayerWithOneContact() {
+	public function testMessageAsPlayerWithOneContact(): void {
 		$player = PersonFactory::makePlayer()->with('Affiliates')->persist();
 		$contact = ContactFactory::make(['affiliate_id' => $player->affiliates[0]->id])->persist();
 
@@ -232,7 +232,7 @@ class ContactsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testExecute() {
+	public function testExecute(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -261,7 +261,7 @@ class ContactsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testExecuteWithCC() {
+	public function testExecuteWithCC(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 

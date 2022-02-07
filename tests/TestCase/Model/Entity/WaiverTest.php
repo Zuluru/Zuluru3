@@ -69,7 +69,7 @@ class WaiverTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testCanSign() {
+	public function testCanSign(): void {
 		// Check same day signing
 		$now = FrozenDate::now();
 		$this->assertTrue($this->WaiverElapsed->canSign());
@@ -95,7 +95,7 @@ class WaiverTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testValidRange() {
+	public function testValidRange(): void {
 		// Set the date to something after the April 1 start of the the second annual waiver
 		FrozenDate::setTestNow(new FrozenDate('May 31'));
 		$now = FrozenDate::now();

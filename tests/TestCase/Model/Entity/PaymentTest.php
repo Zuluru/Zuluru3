@@ -13,7 +13,7 @@ class PaymentTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testGetPaid() {
+	public function testGetPaid(): void {
 	    $payment = PaymentFactory::make([
 	        'payment_amount' => 20,
             'refunded_amount' => 8.5,

@@ -17,7 +17,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testLogin() {
+	public function testLogin(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -26,7 +26,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testLogout() {
+	public function testLogout(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -35,7 +35,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCreateAccountAsAdmin() {
+	public function testCreateAccountAsAdmin(): void {
 		// Admins are allowed to create account
 		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'create_account'], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -46,7 +46,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCreateAccountAsManager() {
+	public function testCreateAccountAsManager(): void {
 		// Managers are allowed to create account
 		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'create_account'], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -57,7 +57,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCreateAccountAsCoordinator() {
+	public function testCreateAccountAsCoordinator(): void {
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
 			PERSON_ID_COORDINATOR, '/',
 			'You are already logged in!');
@@ -68,7 +68,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCreateAccountAsCaptain() {
+	public function testCreateAccountAsCaptain(): void {
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
 			PERSON_ID_CAPTAIN, '/',
 			'You are already logged in!');
@@ -79,7 +79,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCreateAccountAsPlayer() {
+	public function testCreateAccountAsPlayer(): void {
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
 			PERSON_ID_PLAYER, '/',
 			'You are already logged in!');
@@ -90,7 +90,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCreateAccountAsVisitor() {
+	public function testCreateAccountAsVisitor(): void {
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
 			PERSON_ID_VISITOR, '/',
 			'You are already logged in!');
@@ -101,7 +101,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCreateAccountAsAnonymous() {
+	public function testCreateAccountAsAnonymous(): void {
 		$this->assertGetAnonymousAccessOk(['controller' => 'Users', 'action' => 'create_account']);
 		$this->assertResponseContains('You will be participating as a player');
 		$this->assertResponseContains('You have one or more children who will be participating as players');
@@ -117,7 +117,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCreateAccountAntiSpam() {
+	public function testCreateAccountAntiSpam(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -126,7 +126,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCreateAccountForPlayer() {
+	public function testCreateAccountForPlayer(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -217,7 +217,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCreateAccountForParent() {
+	public function testCreateAccountForParent(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -332,7 +332,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCreateAccountForParentWithSecondChild() {
+	public function testCreateAccountForParentWithSecondChild(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -401,7 +401,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testImportAsAdmin() {
+	public function testImportAsAdmin(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
 
 		// Admins are allowed to import
@@ -413,7 +413,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testImportAsManager() {
+	public function testImportAsManager(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
 
 		// Managers are allowed to import
@@ -425,7 +425,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testImportAsOthers() {
+	public function testImportAsOthers(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
 
 		// Others are not allowed to import
@@ -441,7 +441,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testToken() {
+	public function testToken(): void {
 		// Lock the time so that the token has a reliable value.
 		// We have to use a time around now, because the underlying JWT library
 		// uses time(), not Cake's special classes.
@@ -469,7 +469,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testChangePasswordAsAdmin() {
+	public function testChangePasswordAsAdmin(): void {
 		// Admins are allowed to change password
 		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'change_password'], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -480,7 +480,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testChangePasswordAsManager() {
+	public function testChangePasswordAsManager(): void {
 		// Managers are allowed to change password
 		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'change_password'], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -491,7 +491,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testChangePasswordAsCoordinator() {
+	public function testChangePasswordAsCoordinator(): void {
 		// Coordinators are allowed to change password
 		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'change_password'], PERSON_ID_COORDINATOR);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -502,7 +502,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testChangePasswordAsCaptain() {
+	public function testChangePasswordAsCaptain(): void {
 		// Captains are allowed to change password
 		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'change_password'], PERSON_ID_CAPTAIN);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -513,7 +513,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testChangePasswordAsPlayer() {
+	public function testChangePasswordAsPlayer(): void {
 		// Players are allowed to change password
 		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'change_password'], PERSON_ID_PLAYER);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -524,7 +524,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testChangePasswordAsVisitor() {
+	public function testChangePasswordAsVisitor(): void {
 		// Visitors are allowed to change password
 		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'change_password'], PERSON_ID_VISITOR);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -535,7 +535,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testChangePasswordAsAnonymous() {
+	public function testChangePasswordAsAnonymous(): void {
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Users', 'action' => 'change_password']);
 	}
 
@@ -544,7 +544,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testResetPasswordAsAdmin() {
+	public function testResetPasswordAsAdmin(): void {
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
 			PERSON_ID_ADMIN, ['controller' => 'Users', 'action' => 'change_password'],
 			'You are already logged in. Use the change password form instead.');
@@ -555,7 +555,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testResetPasswordAsManager() {
+	public function testResetPasswordAsManager(): void {
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
 			PERSON_ID_MANAGER, ['controller' => 'Users', 'action' => 'change_password'],
 			'You are already logged in. Use the change password form instead.');
@@ -566,7 +566,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testResetPasswordAsCoordinator() {
+	public function testResetPasswordAsCoordinator(): void {
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
 			PERSON_ID_COORDINATOR, ['controller' => 'Users', 'action' => 'change_password'],
 			'You are already logged in. Use the change password form instead.');
@@ -577,7 +577,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testResetPasswordAsCaptain() {
+	public function testResetPasswordAsCaptain(): void {
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
 			PERSON_ID_CAPTAIN, ['controller' => 'Users', 'action' => 'change_password'],
 			'You are already logged in. Use the change password form instead.');
@@ -588,7 +588,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testResetPasswordAsPlayer() {
+	public function testResetPasswordAsPlayer(): void {
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
 			PERSON_ID_PLAYER, ['controller' => 'Users', 'action' => 'change_password'],
 			'You are already logged in. Use the change password form instead.');
@@ -599,7 +599,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testResetPasswordAsVisitor() {
+	public function testResetPasswordAsVisitor(): void {
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
 			PERSON_ID_VISITOR, ['controller' => 'Users', 'action' => 'change_password'],
 			'You are already logged in. Use the change password form instead.');
@@ -610,7 +610,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testResetPasswordAsAnonymous() {
+	public function testResetPasswordAsAnonymous(): void {
 		$this->assertGetAnonymousAccessOk(['controller' => 'Users', 'action' => 'reset_password']);
 		$this->markTestIncomplete('Not implemented yet.');
 	}

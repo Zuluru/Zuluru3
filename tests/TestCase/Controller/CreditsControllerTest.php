@@ -31,7 +31,7 @@ class CreditsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testIndex() {
+	public function testIndex(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
 		$credits = CreditFactory::make([
@@ -64,7 +64,7 @@ class CreditsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testView() {
+	public function testView(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -73,7 +73,7 @@ class CreditsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAdd() {
+	public function testAdd(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -82,7 +82,7 @@ class CreditsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEdit() {
+	public function testEdit(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -91,7 +91,7 @@ class CreditsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testTransferAsAdmin() {
+	public function testTransferAsAdmin(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
 		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliates)->persist();
 		$credits = CreditFactory::make([
@@ -109,7 +109,7 @@ class CreditsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testTransferAsManager() {
+	public function testTransferAsManager(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
 		$manager = PersonFactory::makeManager()
 			->with('AffiliatesPeople', AffiliatesPersonFactory::make(['position' => 'manager', 'affiliate_id' => $affiliates[0]->id]))
@@ -131,7 +131,7 @@ class CreditsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testTransferAsOwner() {
+	public function testTransferAsOwner(): void {
 		[$admin, $manager, $source, $target] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliate = $admin->affiliates[0];
 		$credit = CreditFactory::make(['amount' => 11, 'amount_used' => 10, 'notes' => 'Credit note.'])
@@ -161,7 +161,7 @@ class CreditsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testTransferAsRelative() {
+	public function testTransferAsRelative(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -170,7 +170,7 @@ class CreditsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testTransferAsOthers() {
+	public function testTransferAsOthers(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
 		$player = PersonFactory::makePlayer()->with('Affiliates', $affiliates[0])->persist();
 		$credits = CreditFactory::make([
@@ -190,7 +190,7 @@ class CreditsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsAdmin() {
+	public function testDeleteAsAdmin(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -199,7 +199,7 @@ class CreditsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsManager() {
+	public function testDeleteAsManager(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -208,7 +208,7 @@ class CreditsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsOthers() {
+	public function testDeleteAsOthers(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

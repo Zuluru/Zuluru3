@@ -13,7 +13,7 @@ class GroupTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testGetLongName() {
+	public function testGetLongName(): void {
 	    $description = 'Foo';
 
 	    $group = GroupFactory::make()->getEntity();

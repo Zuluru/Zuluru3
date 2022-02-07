@@ -86,7 +86,8 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is GET access allowed for the given user to the given URL
 	 *
 	 * @param $url array
-	 * @param null $user User ID
+	 * @param $user int User ID
+	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertGetAsAccessOk($url, $user) {
 		$this->login($user);
@@ -99,7 +100,7 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is AJAX GET access allowed for the given user to the given URL
 	 *
 	 * @param $url array
-	 * @param null $user User ID
+	 * @param $user int User ID
 	 */
 	protected function assertGetAjaxAsAccessOk($url, $user) {
 		$this->login($user);
@@ -142,7 +143,7 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is POST access allowed for the given user to the given URL
 	 *
 	 * @param $url array
-	 * @param null $user User ID
+	 * @param $user int User ID
 	 * @param $data string|mixed[]
 	 */
 	protected function assertPostAsAccessOk($url, $user, $data) {
@@ -156,7 +157,7 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is AJAX POST access allowed for the given user to the given URL
 	 *
 	 * @param $url array
-	 * @param null $user User ID
+	 * @param $user int User ID
 	 * @param $data string|mixed[]
 	 */
 	protected function assertPostAjaxAsAccessOk($url, $user, $data = []) {
@@ -200,7 +201,7 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is no GET access allowed for the given user to the given URL
 	 *
 	 * @param $url array
-	 * @param null $user User ID
+	 * @param $user int User ID
 	 * @param $redirect string|array
 	 * @param $message string|boolean
 	 * @param $key string
@@ -229,7 +230,7 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is no AJAX GET access allowed for the given user to the given URL
 	 *
 	 * @param $url array
-	 * @param null $user User ID
+	 * @param $user int User ID
 	 * @param $redirect string|array
 	 * @param $message string
 	 * @param $class string
@@ -341,7 +342,7 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is no POST access allowed for the given user to the given URL
 	 *
 	 * @param $url array
-	 * @param null $user User ID
+	 * @param $user int User ID
 	 * @param $data string|mixed[]
 	 * @param $redirect string|array
 	 * @param $message string|boolean
@@ -371,7 +372,7 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is no AJAX POST access allowed for the given user to the given URL
 	 *
 	 * @param $url array
-	 * @param null $user User ID
+	 * @param $user int User ID
 	 * @param $data string|mixed[]
 	 * @param $redirect string|array
 	 * @param $message string
@@ -485,7 +486,7 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is no GET access allowed for the given user to the given URL
 	 *
 	 * @param $url array
-	 * @param null $user User ID
+	 * @param $user int User ID
 	 */
 	protected function assertGetAsAccessDenied($url, $user) {
 		$this->login($user);
@@ -501,7 +502,7 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is no AJAX GET access allowed for the given user to the given URL
 	 *
 	 * @param $url array
-	 * @param null $user User ID
+	 * @param $user int User ID
 	 */
 	protected function assertGetAjaxAsAccessDenied($url, $user) {
 		$this->login($user);
@@ -579,7 +580,7 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is no POST access allowed for the given user to the given URL
 	 *
 	 * @param $url array
-	 * @param null $user User ID
+	 * @param $user int User ID
 	 * @param $data string|mixed[]
 	 */
 	protected function assertPostAsAccessDenied($url, $user, $data = []) {
@@ -596,7 +597,7 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is no AJAX POST access allowed for the given user to the given URL
 	 *
 	 * @param $url array
-	 * @param null $user User ID
+	 * @param $user int User ID
 	 * @param $data string|mixed[]
 	 */
 	protected function assertPostAjaxAsAccessDenied($url, $user, $data = []) {

@@ -63,7 +63,7 @@ class LeagueTypeRatingsLadderTest extends ModuleTestCase {
 	 *
 	 * @return void
 	 */
-	public function testLinks() {
+	public function testLinks(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -72,7 +72,7 @@ class LeagueTypeRatingsLadderTest extends ModuleTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCompareTeams() {
+	public function testCompareTeams(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER, true);
 
@@ -102,7 +102,7 @@ class LeagueTypeRatingsLadderTest extends ModuleTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSchedulingFields() {
+	public function testSchedulingFields(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -111,7 +111,7 @@ class LeagueTypeRatingsLadderTest extends ModuleTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSchedulingFieldsRules() {
+	public function testSchedulingFieldsRules(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -120,7 +120,7 @@ class LeagueTypeRatingsLadderTest extends ModuleTestCase {
 	 *
 	 * @return void
 	 */
-	public function testScheduleOptions() {
+	public function testScheduleOptions(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -129,7 +129,7 @@ class LeagueTypeRatingsLadderTest extends ModuleTestCase {
 	 *
 	 * @return void
 	 */
-	public function testScheduleRequirements() {
+	public function testScheduleRequirements(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -138,7 +138,7 @@ class LeagueTypeRatingsLadderTest extends ModuleTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCreateScheduledSet() {
+	public function testCreateScheduledSet(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		// Seed the random number generator with a fixed value, so that random determinations in field selection become fixed.
 		mt_srand(123);

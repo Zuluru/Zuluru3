@@ -30,7 +30,7 @@ class FacilityFactory extends BaseFactory
 				'code' => strtoupper($faker->randomLetter() . $faker->randomLetter() . $faker->randomLetter()),
 				'location_street' => $faker->streetAddress,
 				'location_city' => $faker->city,
-				'location_province' => 'ON',
+				'location_province' => 'Ontario',
 				'location_postal_code' => $faker->postcode,
 				'location_country' => 'Canada',
 				'sport' => 'ultimate',

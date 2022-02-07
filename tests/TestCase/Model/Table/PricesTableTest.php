@@ -45,7 +45,7 @@ class PricesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testBeforeMarshal() {
+	public function testBeforeMarshal(): void {
 		$data = new \ArrayObject([
 			'online_payment_option' => ONLINE_FULL_PAYMENT,
 			'minimum_deposit' => 100,
@@ -80,7 +80,7 @@ class PricesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAfterSave() {
+	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -89,7 +89,7 @@ class PricesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAffiliate() {
+	public function testAffiliate(): void {
         $affiliateId = rand();
         $entity = PriceFactory::make()->with('Events', ['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->PricesTable->affiliate($entity->id));
@@ -100,7 +100,7 @@ class PricesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDuration() {
+	public function testDuration(): void {
 		$this->assertEquals('1 day, 1 hour, 15 minutes', $this->PricesTable->duration(1515));
 	}
 

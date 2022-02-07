@@ -9,6 +9,7 @@ use Cake\ORM\Entity;
  * @property int $id
  * @property int $registration_id
  * @property int $registration_audit_id
+ * @property int $payment_id
  * @property string $payment_type
  * @property float $payment_amount
  * @property float $refunded_amount

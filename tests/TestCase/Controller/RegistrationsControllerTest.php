@@ -33,7 +33,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testFullList() {
+	public function testFullList(): void {
 		// Admins are allowed to see the full list of registrations
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'full_list', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/registrations/view?registration=' . REGISTRATION_ID_PLAYER_MEMBERSHIP);
@@ -82,7 +82,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSummary() {
+	public function testSummary(): void {
 		// Admins are allowed to see the summary of registrations
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'summary', 'event' => EVENT_ID_MEMBERSHIP], PERSON_ID_ADMIN);
 
@@ -109,7 +109,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testStatistics() {
+	public function testStatistics(): void {
 		// Admins are allowed to see statistics
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'statistics'], PERSON_ID_ADMIN);
 
@@ -131,7 +131,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testReport() {
+	public function testReport(): void {
 		// Admins are allowed to report
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'report'], PERSON_ID_ADMIN);
 
@@ -153,7 +153,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAccounting() {
+	public function testAccounting(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
 
 		// Admins are allowed to see accounting
@@ -175,7 +175,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testView() {
+	public function testView(): void {
 		// Admins are allowed to view registrations, with full edit permissions
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'view', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/registrations/edit?registration=' . REGISTRATION_ID_PLAYER_MEMBERSHIP);
@@ -211,7 +211,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRegisterAsAdmin() {
+	public function testRegisterAsAdmin(): void {
 		// Admins are allowed to register, within or somewhat before the date range
 		FrozenDate::setTestNow(new FrozenDate('first Monday of April'));
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_ADMIN);
@@ -227,7 +227,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRegisterAsManager() {
+	public function testRegisterAsManager(): void {
 		// Managers are allowed to register, within or somewhat before the date range
 		FrozenDate::setTestNow(new FrozenDate('first Monday of April'));
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_MANAGER);
@@ -243,7 +243,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRegisterAsCoordinator() {
+	public function testRegisterAsCoordinator(): void {
 		// Coordinators are allowed to register, within the date range
 		FrozenDate::setTestNow(new FrozenDate('first Monday of April'));
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_COORDINATOR);
@@ -255,7 +255,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRegisterAsCaptain() {
+	public function testRegisterAsCaptain(): void {
 		// Captains are allowed to register, within the date range
 		FrozenDate::setTestNow(new FrozenDate('first Monday of April'));
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_CAPTAIN);
@@ -267,7 +267,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRegisterAsPlayer() {
+	public function testRegisterAsPlayer(): void {
 		// Players are allowed to register, within the date range
 		FrozenDate::setTestNow(new FrozenDate('first Monday of April'));
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_PLAYER);
@@ -279,7 +279,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRegisterAsVisitor() {
+	public function testRegisterAsVisitor(): void {
 		// Visitors are allowed to register, within the date range
 		FrozenDate::setTestNow(new FrozenDate('first Monday of April'));
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', 'event' => EVENT_ID_LEAGUE_TEAM], PERSON_ID_VISITOR);
@@ -291,7 +291,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRegisterAsAnonymous() {
+	public function testRegisterAsAnonymous(): void {
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'register', 'event' => EVENT_ID_LEAGUE_TEAM]);
 	}
 
@@ -300,7 +300,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRegisterPaymentFields() {
+	public function testRegisterPaymentFields(): void {
 		$this->enableCsrfToken();
 
 		// Anyone logged in is allowed to get register payment fields, within the date range
@@ -329,7 +329,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRedeemSuccess() {
+	public function testRedeemSuccess(): void {
 		// People are allowed to redeem their own credits
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'redeem', 'registration' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP], PERSON_ID_CAPTAIN);
 
@@ -341,7 +341,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRedeemFailure() {
+	public function testRedeemFailure(): void {
 		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'redeem', 'registration' => REGISTRATION_ID_COORDINATOR_MEMBERSHIP],
 			PERSON_ID_COORDINATOR, ['controller' => 'Registrations', 'action' => 'checkout'],
 			'You have no available credits.');
@@ -355,7 +355,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRedeemAsOthers() {
+	public function testRedeemAsOthers(): void {
 		// Even admins are not allowed to redeem credits on behalf of players
 		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'redeem', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'redeem', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP], PERSON_ID_MANAGER);
@@ -367,7 +367,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCheckoutSuccess() {
+	public function testCheckoutSuccess(): void {
 		// Anyone with outstanding registrations is allowed to checkout
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'checkout'], PERSON_ID_MANAGER);
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'checkout'], PERSON_ID_COORDINATOR);
@@ -380,7 +380,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCheckoutFailure() {
+	public function testCheckoutFailure(): void {
 		// Anyone without an outstanding registration has no reason to checkout
 		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'checkout'],
 			PERSON_ID_ADMIN, ['controller' => 'Events', 'action' => 'wizard']);
@@ -397,7 +397,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testUnregisterAsAdmin() {
+	public function testUnregisterAsAdmin(): void {
 		// Admins are allowed to unregister
 		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => REGISTRATION_ID_COORDINATOR_MEMBERSHIP],
 			PERSON_ID_ADMIN, '/',
@@ -410,7 +410,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testUnregisterAsManager() {
+	public function testUnregisterAsManager(): void {
 		// Managers are allowed to unregister
 		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => REGISTRATION_ID_COORDINATOR_MEMBERSHIP],
 			PERSON_ID_MANAGER, '/',
@@ -423,7 +423,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testUnregisterAsCoordinator() {
+	public function testUnregisterAsCoordinator(): void {
 		// Coordinators are allowed to unregister
 		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => REGISTRATION_ID_COORDINATOR_MEMBERSHIP],
 			PERSON_ID_COORDINATOR, ['controller' => 'Registrations', 'action' => 'checkout'],
@@ -436,7 +436,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testUnregisterAsCaptain() {
+	public function testUnregisterAsCaptain(): void {
 		// Captains are allowed to unregister
 		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => REGISTRATION_ID_CAPTAIN2_MEMBERSHIP],
 			PERSON_ID_CAPTAIN2, ['controller' => 'Registrations', 'action' => 'checkout'],
@@ -449,7 +449,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testUnregisterAsPlayer() {
+	public function testUnregisterAsPlayer(): void {
 		// Players are allowed to unregister
 		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP],
 			PERSON_ID_PLAYER, ['controller' => 'Registrations', 'action' => 'checkout'],
@@ -462,7 +462,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testUnregisterAsVisitor() {
+	public function testUnregisterAsVisitor(): void {
 		// Visitors are allowed to unregister
 		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP], PERSON_ID_VISITOR);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -473,7 +473,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testUnregisterAsAnonymous() {
+	public function testUnregisterAsAnonymous(): void {
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP]);
 	}
 
@@ -482,7 +482,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddPaymentAsAdmin() {
+	public function testAddPaymentAsAdmin(): void {
 		// Admins are allowed to add payments
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -493,7 +493,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddPaymentAsManager() {
+	public function testAddPaymentAsManager(): void {
 		// Managers are allowed to add payments
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -504,7 +504,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddPaymentAsOthers() {
+	public function testAddPaymentAsOthers(): void {
 		// Others are not allowed to add payments
 		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP], PERSON_ID_CAPTAIN);
@@ -518,7 +518,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRefundPaymentAsAdmin() {
+	public function testRefundPaymentAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -588,7 +588,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRefundTeamEvent() {
+	public function testRefundTeamEvent(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -642,7 +642,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRefundPaymentAsManager() {
+	public function testRefundPaymentAsManager(): void {
 		// Managers are allowed to refund payments
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'refund_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -653,7 +653,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRefundPaymentAsOthers() {
+	public function testRefundPaymentAsOthers(): void {
 		// Others are not allowed to refund payments
 		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'refund_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'refund_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_CAPTAIN);
@@ -667,7 +667,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCreditPaymentAsAdmin() {
+	public function testCreditPaymentAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -749,7 +749,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCreditPaymentAsManager() {
+	public function testCreditPaymentAsManager(): void {
 		// Managers are allowed to credit payments
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'credit_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -760,7 +760,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCreditPaymentAsOthers() {
+	public function testCreditPaymentAsOthers(): void {
 		// Others are not allowed to credit payments
 		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'credit_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'credit_payment', 'payment' => PAYMENT_ID_PLAYER_MEMBERSHIP], PERSON_ID_CAPTAIN);
@@ -774,7 +774,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsAdmin() {
+	public function testEditAsAdmin(): void {
 		// Admins are allowed to edit registrations, with full edit permissions
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'edit', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'edit', 'registration' => REGISTRATION_ID_MANAGER_MEMBERSHIP], PERSON_ID_ADMIN);
@@ -786,7 +786,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsManager() {
+	public function testEditAsManager(): void {
 		// Managers are allowed to edit registrations
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'edit', 'registration' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP], PERSON_ID_MANAGER);
 
@@ -799,7 +799,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsOthers() {
+	public function testEditAsOthers(): void {
 		// Others are allowed to edit, if payments have not been made
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'edit', 'registration' => REGISTRATION_ID_COORDINATOR_MEMBERSHIP], PERSON_ID_COORDINATOR);
 
@@ -820,7 +820,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testUnpaid() {
+	public function testUnpaid(): void {
 		// Admins are allowed to list unpaid registrations
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'unpaid'], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -842,7 +842,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testWaiting() {
+	public function testWaiting(): void {
 		// Admins are allowed to see the waiting list
 		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'waiting', 'event' => EVENT_ID_MEMBERSHIP],
 			PERSON_ID_ADMIN, '/',

@@ -43,7 +43,7 @@ class TeamEventsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testReadAttendance() {
+	public function testReadAttendance(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -52,7 +52,7 @@ class TeamEventsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCreateAttendance() {
+	public function testCreateAttendance(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

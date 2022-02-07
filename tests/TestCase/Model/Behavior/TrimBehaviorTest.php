@@ -44,7 +44,7 @@ class TrimBehaviorTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testTrim() {
+	public function testTrim(): void {
 		$entity = new ArrayObject([
 			'first_name' => ' first',
 			'last_name' => 'last ',

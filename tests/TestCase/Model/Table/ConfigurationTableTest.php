@@ -46,7 +46,7 @@ class ConfigurationTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testLoadSystem() {
+	public function testLoadSystem(): void {
 		Configure::load('options');
 
 		$this->assertEmpty(Configure::read('provinces'), 'Province list should not have been loaded yet');
@@ -65,7 +65,7 @@ class ConfigurationTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testLoadAffiliate() {
+	public function testLoadAffiliate(): void {
 		Configure::load('options');
 
 		$this->ConfigurationTable->loadSystem();
@@ -79,7 +79,7 @@ class ConfigurationTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testLoadUser() {
+	public function testLoadUser(): void {
 		$this->assertEmpty(Configure::read('personal'), 'Personal settings should not have been loaded yet');
 		$this->ConfigurationTable->loadUser(PERSON_ID_MANAGER);
 		$this->assertNotEmpty(Configure::read('personal'), 'Personal settings should have been loaded');

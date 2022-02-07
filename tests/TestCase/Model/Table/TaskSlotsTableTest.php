@@ -44,7 +44,7 @@ class TaskSlotsTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAffiliate() {
+	public function testAffiliate(): void {
         $affiliateId = rand();
         $entity = TaskSlotFactory::make()->with('Tasks.Categories', ['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->TaskSlotsTable->affiliate($entity->id));

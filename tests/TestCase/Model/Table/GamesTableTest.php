@@ -44,7 +44,7 @@ class GamesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testValidationGameEdit() {
+	public function testValidationGameEdit(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -53,7 +53,7 @@ class GamesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testValidationScheduleAdd() {
+	public function testValidationScheduleAdd(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -62,7 +62,7 @@ class GamesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testValidationScheduleEdit() {
+	public function testValidationScheduleEdit(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -71,7 +71,7 @@ class GamesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testBeforeMarshal() {
+	public function testBeforeMarshal(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -80,7 +80,7 @@ class GamesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testBeforeRules() {
+	public function testBeforeRules(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -89,7 +89,7 @@ class GamesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testBeforeSave() {
+	public function testBeforeSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -98,7 +98,7 @@ class GamesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAfterSave() {
+	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -107,7 +107,7 @@ class GamesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testBeforeDelete() {
+	public function testBeforeDelete(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -116,7 +116,7 @@ class GamesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAfterDelete() {
+	public function testAfterDelete(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -125,7 +125,7 @@ class GamesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCompareSportDateAndField() {
+	public function testCompareSportDateAndField(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -134,7 +134,7 @@ class GamesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCompareDateAndField() {
+	public function testCompareDateAndField(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -143,7 +143,7 @@ class GamesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAdjustEntryIndices() {
+	public function testAdjustEntryIndices(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -152,7 +152,7 @@ class GamesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testReadAttendance() {
+	public function testReadAttendance(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -161,7 +161,7 @@ class GamesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testMatchDates() {
+	public function testMatchDates(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -170,7 +170,7 @@ class GamesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAttendanceOptions() {
+	public function testAttendanceOptions(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -179,7 +179,7 @@ class GamesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testTwitterScore() {
+	public function testTwitterScore(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -188,7 +188,7 @@ class GamesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAffiliate() {
+	public function testAffiliate(): void {
         $affiliateId = rand();
         $game = GameFactory::make()
             ->with('Divisions.Leagues', [

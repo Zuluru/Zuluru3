@@ -50,7 +50,7 @@ class CreditTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testGetBalance() {
+	public function testGetBalance(): void {
 		$result = $this->Credit->balance;
 		$this->assertEquals(8.09, $result, 'Wrong credit balance remaining');
 	}

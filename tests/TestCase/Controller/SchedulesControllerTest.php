@@ -14,7 +14,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsAdmin() {
+	public function testAddAsAdmin(): void {
 		// Admins are allowed to add to schedules anywhere
 		$this->assertGetAsAccessOk(['controller' => 'Schedules', 'action' => 'add', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
 		$this->assertResponseRegExp('#<input type="radio" name="_options\[type\]" value="single" id="options-type-single">\s*Single blank, unscheduled game \(2 teams, one field\)#ms');
@@ -31,7 +31,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsManager() {
+	public function testAddAsManager(): void {
 		// Managers are allowed to add to schedules in their own affiliate
 		$this->assertGetAsAccessOk(['controller' => 'Schedules', 'action' => 'add', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
 		$this->assertGetAsAccessDenied(['controller' => 'Schedules', 'action' => 'add', 'division' => DIVISION_ID_SUNDAY_SUB], PERSON_ID_MANAGER);
@@ -42,7 +42,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsCoordinator() {
+	public function testAddAsCoordinator(): void {
 		// Coordinators are allowed to add to schedules in their divisions
 		$this->assertGetAsAccessOk(['controller' => 'Schedules', 'action' => 'add', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'Schedules', 'action' => 'add', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN], PERSON_ID_COORDINATOR);
@@ -53,7 +53,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsOthers() {
+	public function testAddAsOthers(): void {
 		// Others are not allowed to add to schedules
 		$this->assertGetAsAccessDenied(['controller' => 'Schedules', 'action' => 'add', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
 		$this->assertGetAsAccessDenied(['controller' => 'Schedules', 'action' => 'add', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
@@ -66,7 +66,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsAdmin() {
+	public function testDeleteAsAdmin(): void {
 		// Admins are allowed to delete schedules for any division
 		$date = (new FrozenDate('last Monday of May'))->addWeeks(4);
 		$this->assertGetAsAccessOk(['controller' => 'Schedules', 'action' => 'delete', 'division' => DIVISION_ID_MONDAY_LADDER, 'date' => $date->toDateString()], PERSON_ID_ADMIN);
@@ -120,7 +120,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsManager() {
+	public function testDeleteAsManager(): void {
 		// Managers are allowed to delete schedules for any division
 		$date = (new FrozenDate('last Monday of May'))->addWeeks(4);
 		$this->assertGetAsAccessOk(['controller' => 'Schedules', 'action' => 'delete', 'division' => DIVISION_ID_MONDAY_LADDER, 'date' => $date->toDateString()], PERSON_ID_MANAGER);
@@ -140,7 +140,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsCoordinator() {
+	public function testDeleteAsCoordinator(): void {
 		// Coordinators are allowed to delete schedules for any or their divisions
 		$date = (new FrozenDate('last Monday of May'))->addWeeks(4);
 		$this->assertGetAsAccessOk(['controller' => 'Schedules', 'action' => 'delete', 'division' => DIVISION_ID_MONDAY_LADDER, 'date' => $date->toDateString()], PERSON_ID_COORDINATOR);
@@ -166,7 +166,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsOthers() {
+	public function testDeleteAsOthers(): void {
 		// Others are not allowed to delete schedules for any division
 		$date = (new FrozenDate('last Monday of May'))->addWeeks(4);
 		$this->assertGetAsAccessDenied(['controller' => 'Schedules', 'action' => 'delete', 'division' => DIVISION_ID_MONDAY_LADDER, 'date' => $date->toDateString()], PERSON_ID_CAPTAIN);
@@ -186,7 +186,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRescheduleAsAdmin() {
+	public function testRescheduleAsAdmin(): void {
 		$date = (new FrozenDate('last Monday of May'))->addWeeks(3);
 
 		// Admins are allowed to reschedule
@@ -199,7 +199,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRescheduleAsManager() {
+	public function testRescheduleAsManager(): void {
 		$date = (new FrozenDate('last Monday of May'))->addWeeks(3);
 
 		// Managers are allowed to reschedule
@@ -212,7 +212,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRescheduleAsCoordinator() {
+	public function testRescheduleAsCoordinator(): void {
 		$date = (new FrozenDate('last Monday of May'))->addWeeks(3);
 
 		// Coordinators are allowed to reschedule
@@ -225,7 +225,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testRescheduleAsOthers() {
+	public function testRescheduleAsOthers(): void {
 		$date = (new FrozenDate('last Monday of May'))->addWeeks(3);
 
 		// Others are not allowed to reschedule
@@ -240,7 +240,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testPublishAsAdmin() {
+	public function testPublishAsAdmin(): void {
 		$game = TableRegistry::get('Games')->get(GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_2);
 		$this->assertFalse($game->published);
 
@@ -264,7 +264,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testPublishAsManager() {
+	public function testPublishAsManager(): void {
 		// Managers are allowed to publish schedules anywhere
 		$date = (new FrozenDate('last Monday of May'))->addDay()->addWeeks(2);
 		$this->assertGetAsAccessRedirect(['controller' => 'Schedules', 'action' => 'publish', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN, 'date' => $date->toDateString()],
@@ -281,7 +281,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testPublishAsCoordinator() {
+	public function testPublishAsCoordinator(): void {
 		// Coordinators are allowed to publish schedules in their own divisions
 		$date = (new FrozenDate('last Monday of May'))->addDays(3)->addWeeks(1);
 		$this->assertGetAsAccessRedirect(['controller' => 'Schedules', 'action' => 'publish', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN, 'date' => $date->toDateString()],
@@ -298,7 +298,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testPublishAsOthers() {
+	public function testPublishAsOthers(): void {
 		// Others are not allowed to publish schedules at all
 		$date = (new FrozenDate('last Monday of May'))->addDay()->addWeeks(2);
 		$this->assertGetAsAccessDenied(['controller' => 'Schedules', 'action' => 'publish', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN, 'date' => $date->toDateString()], PERSON_ID_CAPTAIN);
@@ -312,7 +312,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testUnpublishAsAdmin() {
+	public function testUnpublishAsAdmin(): void {
 		$game = TableRegistry::get('Games')->get(GAME_ID_LADDER_FINALIZED_HOME_WIN);
 		$this->assertTrue($game->published);
 
@@ -336,7 +336,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testUnpublishAsManager() {
+	public function testUnpublishAsManager(): void {
 		// Managers are allowed to unpublish schedules anywhere
 		$date = (new FrozenDate('last Monday of May'))->addWeeks(1);
 		$this->assertGetAsAccessRedirect(['controller' => 'Schedules', 'action' => 'unpublish', 'division' => DIVISION_ID_MONDAY_LADDER, 'date' => $date->toDateString()],
@@ -353,7 +353,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testUnpublishAsCoordinator() {
+	public function testUnpublishAsCoordinator(): void {
 		// Coordinators are allowed to unpublish schedules in their own divisions
 		$date = (new FrozenDate('last Monday of May'))->addDays(3)->addWeeks(1);
 		$this->assertGetAsAccessRedirect(['controller' => 'Schedules', 'action' => 'unpublish', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN, 'date' => $date->toDateString()],
@@ -371,7 +371,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testUnpublishAsOthers() {
+	public function testUnpublishAsOthers(): void {
 		// Others are not allowed to unpublish schedules at all
 		$date = (new FrozenDate('last Monday of May'))->addDay()->addWeeks(1);
 		$this->assertGetAsAccessDenied(['controller' => 'Schedules', 'action' => 'unpublish', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN, 'date' => $date->toDateString()], PERSON_ID_CAPTAIN);
@@ -385,7 +385,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testToday() {
+	public function testToday(): void {
 		// Anyone is allowed to get today's schedule
 		$this->assertGetAsAccessOk(['controller' => 'Schedules', 'action' => 'today'], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessOk(['controller' => 'Schedules', 'action' => 'today'], PERSON_ID_MANAGER);
@@ -403,7 +403,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDay() {
+	public function testDay(): void {
 		// Anyone is allowed to get a day's schedule
 		$this->assertGetAsAccessOk(['controller' => 'Schedules', 'action' => 'day'], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessOk(['controller' => 'Schedules', 'action' => 'day'], PERSON_ID_MANAGER);

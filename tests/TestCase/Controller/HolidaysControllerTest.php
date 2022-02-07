@@ -11,7 +11,7 @@ class HolidaysControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testIndex() {
+	public function testIndex(): void {
 		// Admins are allowed to see the index
 		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'index'], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/holidays/edit?holiday=' . HOLIDAY_ID_CHRISTMAS);
@@ -39,7 +39,7 @@ class HolidaysControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsAdmin() {
+	public function testAddAsAdmin(): void {
 		// Admins are allowed to add holidays
 		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'add'], PERSON_ID_ADMIN);
 	}
@@ -49,7 +49,7 @@ class HolidaysControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsManager() {
+	public function testAddAsManager(): void {
 		// Managers are allowed to add holidays
 		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'add'], PERSON_ID_MANAGER);
 	}
@@ -59,7 +59,7 @@ class HolidaysControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsOthers() {
+	public function testAddAsOthers(): void {
 		// Others are not allowed to add holidays
 		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'add'], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'add'], PERSON_ID_CAPTAIN);
@@ -73,7 +73,7 @@ class HolidaysControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsAdmin() {
+	public function testEditAsAdmin(): void {
 		// Admins are allowed to edit holidays
 		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS_SUB], PERSON_ID_ADMIN);
@@ -84,7 +84,7 @@ class HolidaysControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsManager() {
+	public function testEditAsManager(): void {
 		// Managers are allowed to edit holidays
 		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS], PERSON_ID_MANAGER);
 
@@ -97,7 +97,7 @@ class HolidaysControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsOthers() {
+	public function testEditAsOthers(): void {
 		// Others are not allowed to edit holidays
 		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS], PERSON_ID_CAPTAIN);
@@ -111,7 +111,7 @@ class HolidaysControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsAdmin() {
+	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -126,7 +126,7 @@ class HolidaysControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsManager() {
+	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -145,7 +145,7 @@ class HolidaysControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsOthers() {
+	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 

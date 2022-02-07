@@ -44,7 +44,7 @@ class ZuluruFormHelperTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testCreate() {
+	public function testCreate(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -53,7 +53,7 @@ class ZuluruFormHelperTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testInput() {
+	public function testInput(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -62,7 +62,7 @@ class ZuluruFormHelperTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testIconPostLink() {
+	public function testIconPostLink(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

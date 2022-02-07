@@ -55,7 +55,7 @@ class PriceTest extends TestCase {
 	/**
 	 * Test _getTotal
 	 */
-	public function testGetTotal() {
+	public function testGetTotal(): void {
 		$defaultTax1 = Configure::read('payment.tax1_enable');
 		$defaultTax2 = Configure::read('payment.tax2_enable');
 
@@ -79,21 +79,21 @@ class PriceTest extends TestCase {
 	/**
 	 * Test _getAllowDeposit()
 	 */
-	public function testGetAllowDeposit() {
+	public function testGetAllowDeposit(): void {
 		$this->assertFalse($this->Price->allow_deposit);
 	}
 
 	/**
 	 * Test _getFixedDeposit()
 	 */
-	public function testGetFixedDeposit() {
+	public function testGetFixedDeposit(): void {
 		$this->assertFalse($this->Price->fixed_deposit);
 	}
 
 	/**
 	 * Test _getDepositOnly
 	 */
-	public function testGetDepositOnly() {
+	public function testGetDepositOnly(): void {
 		$this->assertFalse($this->Price->deposit_only);
 	}
 

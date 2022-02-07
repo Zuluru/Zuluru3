@@ -43,7 +43,7 @@ class UsersTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testValidationPassword() {
+	public function testValidationPassword(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -52,7 +52,7 @@ class UsersTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testValidationCreate() {
+	public function testValidationCreate(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -61,7 +61,7 @@ class UsersTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testFindAuth() {
+	public function testFindAuth(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -70,7 +70,7 @@ class UsersTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testActivated() {
+	public function testActivated(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

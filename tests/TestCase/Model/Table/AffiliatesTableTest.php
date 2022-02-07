@@ -46,7 +46,7 @@ class AffiliatesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testReadByPlayerId() {
+	public function testReadByPlayerId(): void {
         $player = PersonFactory::make()->with('Affiliates')->persist();
 		$affiliates = $this->AffiliatesTable->readByPlayerId($player->id);
 		$this->assertEquals(1, count($affiliates));
@@ -62,7 +62,7 @@ class AffiliatesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testMergeList() {
+	public function testMergeList(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$original = $this->AffiliatesTable->People->get(PERSON_ID_MANAGER, ['contain' => ['Affiliates']]);
 		$duplicate = $this->AffiliatesTable->People->get(PERSON_ID_DUPLICATE, ['contain' => ['Affiliates']]);

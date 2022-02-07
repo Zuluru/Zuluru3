@@ -31,7 +31,7 @@ class AnswersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testActivateAsAdmin() {
+	public function testActivateAsAdmin(): void {
 		$affiliate = AffiliateFactory::make()->persist();
 		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliate)->persist();
 		$answer = AnswerFactory::make(['active' => false])->with('Questions', ['affiliate_id' => $affiliate->id])->persist();
@@ -47,7 +47,7 @@ class AnswersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testActivateAsManager() {
+	public function testActivateAsManager(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
 		$manager = PersonFactory::makeManager()
 			->with('AffiliatesPeople', AffiliatesPersonFactory::make(['position' => 'manager', 'affiliate_id' => $affiliates[0]->id]))
@@ -72,7 +72,7 @@ class AnswersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testActivateAsOthers() {
+	public function testActivateAsOthers(): void {
 		$affiliate = AffiliateFactory::make()->persist();
 		$volunteer = PersonFactory::makeVolunteer()->with('Affiliates', $affiliate)->persist();
 		$player = PersonFactory::makePlayer()->with('Affiliates', $affiliate)->persist();
@@ -91,7 +91,7 @@ class AnswersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeactivateAsAdmin() {
+	public function testDeactivateAsAdmin(): void {
 		$affiliate = AffiliateFactory::make()->persist();
 		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliate)->persist();
 		$answer = AnswerFactory::make()->with('Questions', ['affiliate_id' => $affiliate->id])->persist();
@@ -107,7 +107,7 @@ class AnswersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeactivateAsManager() {
+	public function testDeactivateAsManager(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
 		$manager = PersonFactory::makeManager()
 			->with('AffiliatesPeople', AffiliatesPersonFactory::make(['position' => 'manager', 'affiliate_id' => $affiliates[0]->id]))
@@ -132,7 +132,7 @@ class AnswersControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeactivateAsOthers() {
+	public function testDeactivateAsOthers(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliate = $admin->affiliates[0];
 		$answer = AnswerFactory::make()->with('Questions', ['affiliate_id' => $affiliate->id])->persist();

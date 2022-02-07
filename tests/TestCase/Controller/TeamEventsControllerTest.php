@@ -13,7 +13,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testView() {
+	public function testView(): void {
 		// Admins are allowed to view
 		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'view', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_ADMIN);
 
@@ -44,7 +44,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsAdmin() {
+	public function testAddAsAdmin(): void {
 		// Admins are allowed to add events
 		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'add', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -55,7 +55,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsManager() {
+	public function testAddAsManager(): void {
 		// Managers are allowed to add events
 		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'add', 'team' => TEAM_ID_RED], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -66,7 +66,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsCaptain() {
+	public function testAddAsCaptain(): void {
 		// Captains are allowed to add events to their own teams
 		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'add', 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
 		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'add', 'team' => TEAM_ID_BLUE], PERSON_ID_CAPTAIN);
@@ -78,7 +78,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsOthers() {
+	public function testAddAsOthers(): void {
 		// Others are not allowed to add events
 		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'add', 'team' => TEAM_ID_RED], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'add', 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
@@ -91,7 +91,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsAdmin() {
+	public function testEditAsAdmin(): void {
 		// Admins are allowed to edit team events
 		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -102,7 +102,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsManager() {
+	public function testEditAsManager(): void {
 		// Managers are allowed to edit team events in their affiliate
 		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_MANAGER);
 
@@ -117,7 +117,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsCaptain() {
+	public function testEditAsCaptain(): void {
 		// Captains are allowed to edit their own team's events
 		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_CAPTAIN);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -128,7 +128,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsOthers() {
+	public function testEditAsOthers(): void {
 		// Others are not allowed to edit
 		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_PLAYER);
@@ -141,7 +141,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsAdmin() {
+	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -156,7 +156,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsManager() {
+	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -175,7 +175,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsCaptain() {
+	public function testDeleteAsCaptain(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -191,7 +191,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsOthers() {
+	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -210,7 +210,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAttendanceChangeAsAdmin() {
+	public function testAttendanceChangeAsAdmin(): void {
 		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
 
 		// Admins are allowed to change attendance
@@ -223,7 +223,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAttendanceChangeAsManager() {
+	public function testAttendanceChangeAsManager(): void {
 		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
 
 		// Managers are allowed to change attendance
@@ -236,7 +236,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAttendanceChangeAsCoordinator() {
+	public function testAttendanceChangeAsCoordinator(): void {
 		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
 
 		// Coordinators are allowed to change attendance
@@ -249,7 +249,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAttendanceChangeAsCaptain() {
+	public function testAttendanceChangeAsCaptain(): void {
 		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
 
 		// Captains are allowed to change attendance
@@ -262,7 +262,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAttendanceChangeAsPlayer() {
+	public function testAttendanceChangeAsPlayer(): void {
 		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
 
 		// Players are allowed to change attendance
@@ -284,7 +284,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAttendanceChangeAsOthers() {
+	public function testAttendanceChangeAsOthers(): void {
 		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
 
 		// Others are not allowed to change attendance

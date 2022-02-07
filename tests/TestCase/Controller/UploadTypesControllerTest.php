@@ -11,7 +11,7 @@ class UploadTypesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testIndex() {
+	public function testIndex(): void {
 		// Admins are allowed to see the index
 		$this->assertGetAsAccessOk(['controller' => 'UploadTypes', 'action' => 'index'], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/upload_types/edit?type=' . UPLOAD_TYPE_ID_JUNIOR_WAIVER);
@@ -39,7 +39,7 @@ class UploadTypesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testView() {
+	public function testView(): void {
 		// Admins are allowed to view upload_types
 		$this->assertGetAsAccessOk(['controller' => 'UploadTypes', 'action' => 'view', 'type' => UPLOAD_TYPE_ID_JUNIOR_WAIVER], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/upload_types/edit?type=' . UPLOAD_TYPE_ID_JUNIOR_WAIVER);
@@ -70,7 +70,7 @@ class UploadTypesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsAdmin() {
+	public function testAddAsAdmin(): void {
 		// Admins are allowed to add upload_types
 		$this->assertGetAsAccessOk(['controller' => 'UploadTypes', 'action' => 'add'], PERSON_ID_ADMIN);
 	}
@@ -80,7 +80,7 @@ class UploadTypesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsManager() {
+	public function testAddAsManager(): void {
 		// Managers are allowed to add upload_types
 		$this->assertGetAsAccessOk(['controller' => 'UploadTypes', 'action' => 'add'], PERSON_ID_MANAGER);
 	}
@@ -90,7 +90,7 @@ class UploadTypesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsOthers() {
+	public function testAddAsOthers(): void {
 		// Others are not allowed to add upload_types
 		$this->assertGetAsAccessDenied(['controller' => 'UploadTypes', 'action' => 'add'], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'UploadTypes', 'action' => 'add'], PERSON_ID_CAPTAIN);
@@ -104,7 +104,7 @@ class UploadTypesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsAdmin() {
+	public function testEditAsAdmin(): void {
 		// Admins are allowed to edit upload types
 		$this->assertGetAsAccessOk(['controller' => 'UploadTypes', 'action' => 'edit', 'type' => UPLOAD_TYPE_ID_JUNIOR_WAIVER], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessOk(['controller' => 'UploadTypes', 'action' => 'edit', 'type' => UPLOAD_TYPE_ID_JUNIOR_WAIVER_SUB], PERSON_ID_ADMIN);
@@ -115,7 +115,7 @@ class UploadTypesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsManager() {
+	public function testEditAsManager(): void {
 		// Managers are allowed to edit upload types
 		$this->assertGetAsAccessOk(['controller' => 'UploadTypes', 'action' => 'edit', 'type' => UPLOAD_TYPE_ID_JUNIOR_WAIVER], PERSON_ID_MANAGER);
 
@@ -128,7 +128,7 @@ class UploadTypesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsOthers() {
+	public function testEditAsOthers(): void {
 		// Others are not allowed to edit upload types
 		$this->assertGetAsAccessDenied(['controller' => 'UploadTypes', 'action' => 'edit', 'type' => UPLOAD_TYPE_ID_JUNIOR_WAIVER], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'UploadTypes', 'action' => 'edit', 'type' => UPLOAD_TYPE_ID_JUNIOR_WAIVER], PERSON_ID_CAPTAIN);
@@ -142,7 +142,7 @@ class UploadTypesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsAdmin() {
+	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -162,7 +162,7 @@ class UploadTypesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsManager() {
+	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -181,7 +181,7 @@ class UploadTypesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsOthers() {
+	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 

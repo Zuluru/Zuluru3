@@ -16,7 +16,7 @@ class GameSlotTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testGetDisplayGameEnd() {
+	public function testGetDisplayGameEnd(): void {
         $gameSlot = GameSlotFactory::make([
             'game_date' => Date::now(),
             'game_end' => null,
@@ -34,7 +34,7 @@ class GameSlotTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testGetStartTime() {
+	public function testGetStartTime(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$this->assertEquals((new FrozenTime('first Monday of June'))->addHours(19), $this->GameSlot->start_time);
 	}
@@ -44,7 +44,7 @@ class GameSlotTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testGetEndTime() {
+	public function testGetEndTime(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$this->assertEquals((new FrozenTime('first Monday of June'))->addHours(21), $this->GameSlot->end_time);
 	}
@@ -54,7 +54,7 @@ class GameSlotTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testOverlaps() {
+	public function testOverlaps(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$slot1 = new GameSlot(['game_date' => FrozenTime::now(), 'game_start' => new FrozenTime('18:00:00'), 'game_end' => new FrozenTime('19:00:00')]);
 		$slot2 = new GameSlot(['game_date' => FrozenTime::now(), 'game_start' => new FrozenTime('18:30:00'), 'game_end' => new FrozenTime('19:30:00')]);

@@ -63,7 +63,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCompareTeams() {
+	public function testCompareTeams(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER, true);
 
@@ -106,7 +106,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSchedulingFields() {
+	public function testSchedulingFields(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -115,7 +115,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 *
 	 * @return void
 	 */
-	public function testSchedulingFieldsRules() {
+	public function testSchedulingFieldsRules(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -124,7 +124,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 *
 	 * @return void
 	 */
-	public function testScheduleOptions() {
+	public function testScheduleOptions(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -133,7 +133,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 *
 	 * @return void
 	 */
-	public function testScheduleRequirements() {
+	public function testScheduleRequirements(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -142,7 +142,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCreateEmptyGame() {
+	public function testCreateEmptyGame(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER);
 		// Fixtures already have games scheduled for the first 4 weeks
@@ -165,7 +165,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCreateEmptySet() {
+	public function testCreateEmptySet(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER);
 		// Fixtures already have games scheduled for the first 4 weeks
@@ -199,7 +199,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCreateScheduledSet() {
+	public function testCreateScheduledSet(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		// Seed the random number generator with a fixed value, so that random determinations in field selection become fixed.
 		mt_srand(123);
@@ -245,7 +245,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCreateHalfRoundrobinStandings() {
+	public function testCreateHalfRoundrobinStandings(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		// Seed the random number generator with a fixed value, so that random determinations in field selection become fixed.
 		mt_srand(123);
@@ -327,7 +327,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCreateHalfRoundrobinRating() {
+	public function testCreateHalfRoundrobinRating(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		// Seed the random number generator with a fixed value, so that random determinations in field selection become fixed.
 		mt_srand(123);
@@ -407,7 +407,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCreateHalfRoundrobinMix() {
+	public function testCreateHalfRoundrobinMix(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		// Seed the random number generator with a fixed value, so that random determinations in field selection become fixed.
 		mt_srand(123);
@@ -489,7 +489,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCreateFullRoundrobin() {
+	public function testCreateFullRoundrobin(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		// Seed the random number generator with a fixed value, so that random determinations in field selection become fixed.
 		mt_srand(123);

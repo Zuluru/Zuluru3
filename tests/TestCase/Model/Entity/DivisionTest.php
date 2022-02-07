@@ -28,7 +28,7 @@ class DivisionTest extends TestCase {
 	/**
 	 * Test _getLeagueName, _getLongLeagueName(), _getFullLeagueName(),
 	 */
-	public function testGetVirtualLeagueNames() {
+	public function testGetVirtualLeagueNames(): void {
 		$open = (new FrozenDate('next Monday'));
 		$division = DivisionFactory::make(['name' => 'Competitive'])
 			->with('Leagues', [
@@ -47,7 +47,7 @@ class DivisionTest extends TestCase {
 	/**
 	 * Test _getPlayoffDivisions()
 	 */
-	public function testGetPlayoffDivisions() {
+	public function testGetPlayoffDivisions(): void {
 		$league = LeagueFactory::make()
 			->with('Divisions', DivisionFactory::make()->inPlayoff())
 			->with('Divisions')
@@ -68,7 +68,7 @@ class DivisionTest extends TestCase {
 	/**
 	 * Get _getSeasonDivisions
 	 */
-	public function testGetSeasonDivisions() {
+	public function testGetSeasonDivisions(): void {
 		$league = LeagueFactory::make()
 			->with('Divisions', DivisionFactory::make()->inPlayoff())
 			->with('Divisions', 2)
@@ -82,7 +82,7 @@ class DivisionTest extends TestCase {
 	/**
 	 * Test _getSeasonDays()
 	 */
-	public function testGetSeasonDays() {
+	public function testGetSeasonDays(): void {
 		$league = LeagueFactory::make()
 			->with('Divisions',
 				DivisionFactory::make()
@@ -102,7 +102,7 @@ class DivisionTest extends TestCase {
 	/**
 	 * Test _getSisterDivisions()
 	 */
-	public function testGetSisterDivisions() {
+	public function testGetSisterDivisions(): void {
 		$league = LeagueFactory::make()
 			->with('Divisions', DivisionFactory::make()->inPlayoff())
 			->with('Divisions', 2)
@@ -119,7 +119,7 @@ class DivisionTest extends TestCase {
 	/**
 	 * Test _getIsPlayoff()
 	 */
-	public function testGetIsPlayoff() {
+	public function testGetIsPlayoff(): void {
 		$this->assertFalse(DivisionFactory::make()->getEntity()->is_playoff);
 		$this->assertTrue(DivisionFactory::make()->with('Leagues.Divisions')->inPlayoff()->persist()->is_playoff);
 	}
@@ -129,7 +129,7 @@ class DivisionTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testGetRosterDeadline() {
+	public function testGetRosterDeadline(): void {
 		$this->assertEquals(
 			FrozenDate::now(),
 			DivisionFactory::make(['roster_deadline' => FrozenDate::now()])->getEntity()->rosterDeadline(),
@@ -146,7 +146,7 @@ class DivisionTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testGetRosterDeadlinePassed() {
+	public function testGetRosterDeadlinePassed(): void {
 		$division = DivisionFactory::make(['close' => FrozenDate::now()->subDays(5)])->getEntity();
 		$this->assertTrue($division->roster_deadline_passed, 'Deadline should have passed');
 		$division = DivisionFactory::make(['close' => FrozenDate::now()->addDays(5)])->getEntity();
@@ -160,7 +160,7 @@ class DivisionTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddGameResult() {
+	public function testAddGameResult(): void {
 		$this->markTestIncomplete('Not implemented yet. Very complex under the hood.');
 	}
 

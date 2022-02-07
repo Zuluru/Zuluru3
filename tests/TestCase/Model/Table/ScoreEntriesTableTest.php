@@ -46,7 +46,7 @@ class ScoreEntriesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testBeforeMarshal() {
+	public function testBeforeMarshal(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		ConfigurationLoader::loadConfiguration();
 
@@ -112,7 +112,7 @@ class ScoreEntriesTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testBeforeSave() {
+	public function testBeforeSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

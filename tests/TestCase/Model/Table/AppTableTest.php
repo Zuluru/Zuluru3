@@ -45,7 +45,7 @@ class AppTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testField() {
+	public function testField(): void {
 		$this->assertEquals('ratings_ladder', $this->DivisionsTable->field('schedule_type', ['Divisions.id' => DIVISION_ID_MONDAY_LADDER]));
 		$this->assertEquals(DIVISION_ID_MONDAY_PLAYOFF, $this->DivisionsTable->field('id', ['Divisions.current_round' => 'playoff']));
 		try {
@@ -61,7 +61,7 @@ class AppTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDependencies() {
+	public function testDependencies(): void {
 		$dependencies = $this->DivisionsTable->dependencies(DIVISION_ID_MONDAY_LADDER);
 		$this->assertEquals('1 days, 48 game slots, 1 people, 2 events, 14 games, 8 teams', $dependencies);
 		$dependencies = $this->DivisionsTable->dependencies(DIVISION_ID_MONDAY_LADDER, ['Teams']);
@@ -77,7 +77,7 @@ class AppTableTest extends TableTestCase {
 	 *
 	 * @return void
 	 */
-	public function testCloneWithoutIds() {
+	public function testCloneWithoutIds(): void {
 		$new = $this->DivisionsTable->cloneWithoutIds(DIVISION_ID_MONDAY_LADDER, ['contain' => ['Leagues', 'Teams']]);
 
 		// The ID in the new entity is reset

@@ -11,7 +11,7 @@ class PagesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDisplay() {
+	public function testDisplay(): void {
 		// Anyone is allowed to display pages
 		$this->assertGetAsAccessOk(['controller' => 'Pages', 'action' => 'display', 'privacy'], PERSON_ID_ADMIN);
 		$this->assertGetAsAccessOk(['controller' => 'Pages', 'action' => 'display', 'privacy'], PERSON_ID_MANAGER);

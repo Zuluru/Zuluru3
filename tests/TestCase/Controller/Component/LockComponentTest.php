@@ -44,7 +44,7 @@ class LockComponentTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testShutdown() {
+	public function testShutdown(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -53,7 +53,7 @@ class LockComponentTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testLock() {
+	public function testLock(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -62,7 +62,7 @@ class LockComponentTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testUnlock() {
+	public function testUnlock(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

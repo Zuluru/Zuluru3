@@ -11,7 +11,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testView() {
+	public function testView(): void {
 		// Admins are allowed to view task slots, with full edit permissions
 		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING], PERSON_ID_ADMIN);
 		$this->assertResponseContains('/task_slots/edit?slot=' . TASK_SLOT_ID_CAPTAINS_MEETING);
@@ -42,7 +42,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testIcal() {
+	public function testIcal(): void {
 		$this->assertGetAnonymousAccessOk(['controller' => 'TaskSlots', 'action' => 'ical', TASK_SLOT_ID_CAPTAINS_MEETING]);
 	}
 
@@ -51,7 +51,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsAdmin() {
+	public function testAddAsAdmin(): void {
 		// Admins are allowed to add task slots
 		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'add', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -62,7 +62,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsManager() {
+	public function testAddAsManager(): void {
 		// Managers are allowed to add task slots
 		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'add', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -73,7 +73,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAddAsOthers() {
+	public function testAddAsOthers(): void {
 		// Others are not allowed to add task slots
 		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'add', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'add', 'task' => TASK_ID_CAPTAINS_MEETING], PERSON_ID_CAPTAIN);
@@ -87,7 +87,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsAdmin() {
+	public function testEditAsAdmin(): void {
 		// Admins are allowed to edit task slots
 		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'edit', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING], PERSON_ID_ADMIN);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -98,7 +98,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsManager() {
+	public function testEditAsManager(): void {
 		// Managers are allowed to edit task slots
 		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'edit', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING], PERSON_ID_MANAGER);
 		$this->markTestIncomplete('Not implemented yet.');
@@ -109,7 +109,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testEditAsOthers() {
+	public function testEditAsOthers(): void {
 		// Others are not allowed to edit task slots
 		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'edit', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING], PERSON_ID_COORDINATOR);
 		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'edit', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING], PERSON_ID_CAPTAIN);
@@ -123,7 +123,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsAdmin() {
+	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -138,7 +138,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsManager() {
+	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -157,7 +157,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteAsOthers() {
+	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -178,7 +178,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAssignAsAdmin() {
+	public function testAssignAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -193,7 +193,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAssignAsManager() {
+	public function testAssignAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -208,7 +208,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testAssignAsOthers() {
+	public function testAssignAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
@@ -230,7 +230,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testApproveAsAdmin() {
+	public function testApproveAsAdmin(): void {
 		// Admins are allowed to approve task slots
 		$this->assertGetAjaxAsAccessOk(['controller' => 'TaskSlots', 'action' => 'approve', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING_UNAPPROVED],
 			PERSON_ID_ADMIN);
@@ -242,7 +242,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testApproveAsManager() {
+	public function testApproveAsManager(): void {
 		// Managers are allowed to approve task slots
 		$this->assertGetAjaxAsAccessOk(['controller' => 'TaskSlots', 'action' => 'approve', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING_UNAPPROVED],
 			PERSON_ID_MANAGER);
@@ -254,7 +254,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testApproveAsOthers() {
+	public function testApproveAsOthers(): void {
 		// Others are not allowed to approve task slots
 		$this->assertGetAjaxAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'approve', 'slot' => TASK_SLOT_ID_CAPTAINS_MEETING_UNAPPROVED],
 			PERSON_ID_COORDINATOR);
