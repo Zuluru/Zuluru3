@@ -178,7 +178,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 			->persist();
 		$division1 = $league1->divisions[0];
 		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $division1->id])->persist();
-		DivisionsDayFactory::make(['day_id' => DAY_ID_MONDAY, 'division_id' => $division1->id])->persist();
+		DivisionsDayFactory::make(['day_id' => ChronosInterface::MONDAY, 'division_id' => $division1->id])->persist();
 
 		$league2 = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
 			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
@@ -223,7 +223,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$division1a = $league1->divisions[0];
 		$division1b = $league1->divisions[1];
 		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $division1a->id])->persist();
-		DivisionsDayFactory::make(['day_id' => DAY_ID_MONDAY, 'division_id' => $division1a->id])->persist();
+		DivisionsDayFactory::make(['day_id' => ChronosInterface::MONDAY, 'division_id' => $division1a->id])->persist();
 
 		/** @var \App\Model\Entity\League $league2 */
 		$league2 = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])

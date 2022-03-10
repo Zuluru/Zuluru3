@@ -1,4 +1,6 @@
 <?php
+
+use Cake\Chronos\ChronosInterface;
 use Migrations\AbstractSeed;
 
 /**
@@ -13,37 +15,37 @@ class DaysSeed extends AbstractSeed {
 	public function data() {
 		return [
 			[
-				'id' => 1,
+				'id' => ChronosInterface::MONDAY,
 				'name' => __d('seeds', 'Monday'),
 				'short_name' => __d('seeds', 'Mon'),
 			],
 			[
-				'id' => 2,
+				'id' => ChronosInterface::TUESDAY,
 				'name' => __d('seeds', 'Tuesday'),
 				'short_name' => __d('seeds', 'Tue'),
 			],
 			[
-				'id' => 3,
+				'id' => ChronosInterface::WEDNESDAY,
 				'name' => __d('seeds', 'Wednesday'),
 				'short_name' => __d('seeds', 'Wed'),
 			],
 			[
-				'id' => 4,
+				'id' => ChronosInterface::THURSDAY,
 				'name' => __d('seeds', 'Thursday'),
 				'short_name' => __d('seeds', 'Thu'),
 			],
 			[
-				'id' => 5,
+				'id' => ChronosInterface::FRIDAY,
 				'name' => __d('seeds', 'Friday'),
 				'short_name' => __d('seeds', 'Fri'),
 			],
 			[
-				'id' => 6,
+				'id' => ChronosInterface::SATURDAY,
 				'name' => __d('seeds', 'Saturday'),
 				'short_name' => __d('seeds', 'Sat'),
 			],
 			[
-				'id' => 7,
+				'id' => ChronosInterface::SUNDAY,
 				'name' => __d('seeds', 'Sunday'),
 				'short_name' => __d('seeds', 'Sun'),
 			],

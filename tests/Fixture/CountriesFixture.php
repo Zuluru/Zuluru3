@@ -1,12 +1,12 @@
 <?php
-
-
 namespace App\Test\Fixture;
 
-
 use Cake\TestSuite\Fixture\TestFixture;
+use CountriesSeed;
 
 class CountriesFixture extends TestFixture {
+
+	use SeedFixtureTrait;
 
 	/**
 	 * Import
@@ -16,19 +16,8 @@ class CountriesFixture extends TestFixture {
 	public $import = ['table' => 'countries'];
 
 	/**
-	 * Initialize function: Mostly, set up records
+	 * Seed name to use
 	 */
-	public function init() {
-		$this->records = [
-			[
-				'name' => 'Canada',
-			],
-			[
-				'name' => 'United States',
-			],
-		];
-
-		parent::init();
-	}
+	public $seed = CountriesSeed::class;
 
 }

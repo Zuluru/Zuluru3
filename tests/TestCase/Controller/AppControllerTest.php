@@ -9,11 +9,14 @@ use Cake\I18n\FrozenDate;
 use Cake\I18n\I18n;
 use Cake\ORM\TableRegistry;
 use App\Controller\AppController;
+use Cake\TestSuite\EmailTrait;
 
 /**
  * App\Controller\AppController Test Case
  */
 class AppControllerTest extends ControllerTestCase {
+
+	use EmailTrait;
 
 	/**
 	 * Fixtures
@@ -24,6 +27,13 @@ class AppControllerTest extends ControllerTestCase {
 		'app.Groups',
 		'app.Settings',
 	];
+
+	public function tearDown(): void {
+		// Cleanup any emails that were sent
+		$this->cleanupEmailTrait();
+
+		parent::tearDown();
+	}
 
 	/**
 	 * Test initialize method
@@ -139,13 +149,13 @@ class AppControllerTest extends ControllerTestCase {
 		$configurationTable->loadSystem();
 		Application::getLocales();
 
-		$en_sub = h(__('{0} approved your relative request', $players[1]->full_name));
+		$en_sub = __('{0} approved your relative request', $players[1]->full_name);
 		$en_text = __('Your relative request to {0} on the {1} web site has been approved.', $players[1]->full_name, Configure::read('organization.name'));
 		I18n::setLocale('fr');
-		$fr_sub = h(__('{0} approved your relative request', $players[1]->full_name));
+		$fr_sub = __('{0} approved your relative request', $players[1]->full_name);
 		$fr_text = __('Your relative request to {0} on the {1} web site has been approved.', $players[1]->full_name, Configure::read('organization.name'));
 		I18n::setLocale('es');
-		$es_sub = h(__('{0} approved your relative request', $players[1]->full_name));
+		$es_sub = __('{0} approved your relative request', $players[1]->full_name);
 		$es_text = __('Your relative request to {0} on the {1} web site has been approved.', $players[1]->full_name, Configure::read('organization.name'));
 		I18n::setLocale('en');
 		$this->assertTextContains('Your relative request', $en_text);
@@ -160,13 +170,12 @@ class AppControllerTest extends ControllerTestCase {
 			'viewVars' => ['person' => $players[0], 'relative' => $players[1]],
 		]);
 
-		$messages = Configure::consume('test_emails');
-		$this->assertEquals(1, count($messages));
+		$this->assertMailCount(1);
 
-		$this->assertTextContains($en_sub, $messages[0]);
-		$this->assertTextNotContains($fr_sub, $messages[0]);
-		$this->assertTextContains($en_text, $messages[0]);
-		$this->assertTextNotContains($fr_text, $messages[0]);
+		$this->assertMailSentWith($en_sub, 'Subject');
+		$this->assertMailContains($en_text);
+
+		$this->cleanupEmailTrait();
 
 		// Should send in English and French (system language plus sub's preference)
 		AppController::_sendMail([
@@ -177,14 +186,15 @@ class AppControllerTest extends ControllerTestCase {
 			'viewVars' => ['person' => $players[0], 'relative' => $players[1]],
 		]);
 
-		$messages = Configure::consume('test_emails');
-		$this->assertEquals(1, count($messages));
+		$this->assertMailCount(1);
 
 		// TODO: Subject tests don't work, due to UTF encoding and line breaks
-		//$this->assertTextContains($en_sub, $messages[0]);
-		//$this->assertTextContains($fr_sub, $messages[0]);
-		$this->assertTextContains($en_text, $messages[0]);
-		$this->assertTextContains($fr_text, $messages[0]);
+		//$this->assertMailSentWith($en_sub, 'Subject');
+		//$this->assertMailSentWith($fr_sub, 'Subject');
+		$this->assertMailContains($en_text);
+		$this->assertMailContains($fr_text);
+
+		$this->cleanupEmailTrait();
 
 		// Should send in Spanish and French (system language plus sub's preference)
 		Configure::write('App.defaultLocale', 'es');
@@ -196,16 +206,15 @@ class AppControllerTest extends ControllerTestCase {
 			'viewVars' => ['person' => $players[1], 'relative' => $players[1]],
 		]);
 
-		$messages = Configure::consume('test_emails');
-		$this->assertEquals(1, count($messages));
+		$this->assertMailCount(1);
 
 		// TODO: Subject tests don't work, due to UTF encoding and line breaks
-		//$this->assertTextNotContains($en_sub, $messages[0]);
-		//$this->assertTextContains($es_sub, $messages[0]);
-		//$this->assertTextContains($fr_sub, $messages[0]);
-		$this->assertTextNotContains($en_text, $messages[0]);
-		$this->assertTextContains($es_text, $messages[0]);
-		$this->assertTextContains($fr_text, $messages[0]);
+		//$this->assertMailNotSentWith($en_sub, 'Subject');
+		//$this->assertMailSentWith($es_sub, 'Subject');
+		//$this->assertMailSentWith($fr_sub, 'Subject');
+		//$this->assertMailNotContains($en_text);
+		$this->assertMailContains($es_text);
+		$this->assertMailContains($fr_text);
 	}
 
 	/**

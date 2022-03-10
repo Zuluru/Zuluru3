@@ -9,12 +9,12 @@ use App\Test\Factory\ResponseFactory;
 use App\Test\Factory\SettingFactory;
 use App\Test\Factory\TeamFactory;
 use App\Test\Scenario\DiverseUsersScenario;
-use Cake\Core\Configure;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
+use Cake\TestSuite\EmailTrait;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
@@ -22,6 +22,7 @@ use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
  */
 class EventsControllerTest extends ControllerTestCase {
 
+	use EmailTrait;
 	use ScenarioAwareTrait;
 
 	/**
@@ -34,6 +35,13 @@ class EventsControllerTest extends ControllerTestCase {
 		'app.Groups',
 		'app.Settings',
 	];
+
+	public function tearDown(): void {
+		// Cleanup any emails that were sent
+		$this->cleanupEmailTrait();
+
+		parent::tearDown();
+	}
 
 	/**
 	 * Test index method
@@ -645,9 +653,11 @@ class EventsControllerTest extends ControllerTestCase {
 		$this->assertEquals('Other', $refund->payment_method);
 		$this->assertEquals($payment->id, $refund->payment_id);
 
-		$messages = Configure::consume('test_emails');
-		$this->assertCount(1, $messages);
-		$this->assertTextContains('You have been issued a refund of CA$10.00 for your registration for ' . $league_team->name . '.', $messages[0]);
+		$this->assertMailCount(1);
+		$this->assertMailSentFrom('admin@zuluru.org');
+		$this->assertMailSentTo($player->user->email);
+		$this->assertMailSentWith('Test Zuluru Affiliate Registration refunded', 'Subject');
+		$this->assertMailContains('You have been issued a refund of CA$10.00 for your registration for ' . $league_team->name . '.');
 
 		// Try to refund without selecting any registrations
 		unset($refund_data['registrations']);
@@ -714,9 +724,11 @@ class EventsControllerTest extends ControllerTestCase {
 		$this->assertEquals('Other', $refund->payment_method);
 		$this->assertEquals($payment->id, $refund->payment_id);
 
-		$messages = Configure::consume('test_emails');
-		$this->assertCount(1, $messages);
-		$this->assertTextContains('You have been issued a refund of CA$10.00 for your registration for ' . $league_team->name . '.', $messages[0]);
+		$this->assertMailCount(1);
+		$this->assertMailSentFrom('admin@zuluru.org');
+		$this->assertMailSentTo($player->user->email);
+		$this->assertMailSentWith('Test Zuluru Affiliate Registration refunded', 'Subject');
+		$this->assertMailContains('You have been issued a refund of CA$10.00 for your registration for ' . $league_team->name . '.');
 
 		$this->expectException(RecordNotFoundException::class);
 		TableRegistry::getTableLocator()->get('Teams')->get($team->id);
@@ -791,10 +803,12 @@ class EventsControllerTest extends ControllerTestCase {
 		$this->assertEquals($admin->id, $credits[0]->created_person_id);
 		$this->assertEquals($registration->payments[1]->id, $credits[0]->payment_id);
 
-		$messages = Configure::consume('test_emails');
-		$this->assertCount(1, $messages);
-		$this->assertTextContains('You have been issued a credit of CA$10.00 for your registration for ' . $league_team->name . '.', $messages[0]);
-		$this->assertTextContains('This credit can be redeemed towards any future purchase on the Test Zuluru Affiliate site', $messages[0]);
+		$this->assertMailCount(1);
+		$this->assertMailSentFrom('admin@zuluru.org');
+		$this->assertMailSentTo($player->user->email);
+		$this->assertMailSentWith('Test Zuluru Affiliate Registration credited', 'Subject');
+		$this->assertMailContains('You have been issued a credit of CA$10.00 for your registration for ' . $league_team->name . '.');
+		$this->assertMailContains('This credit can be redeemed towards any future purchase on the Test Zuluru Affiliate site');
 	}
 
 	/**

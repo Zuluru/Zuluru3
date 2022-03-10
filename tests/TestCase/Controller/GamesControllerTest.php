@@ -1,15 +1,54 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
-use Cake\Core\Configure;
+use App\Model\Entity\Person;
+use App\Test\Factory\AttendanceFactory;
+use App\Test\Factory\GameFactory;
+use App\Test\Factory\LeaguesStatTypeFactory;
+use App\Test\Factory\NoteFactory;
+use App\Test\Factory\PeoplePersonFactory;
+use App\Test\Factory\PersonFactory;
+use App\Test\Factory\ScoreDetailFactory;
+use App\Test\Factory\ScoreEntryFactory;
+use App\Test\Factory\SpiritEntryFactory;
+use App\Test\Factory\StatFactory;
+use App\Test\Factory\TeamsPersonFactory;
+use App\Test\Scenario\DiverseUsersScenario;
+use App\Test\Scenario\SingleGameScenario;
+use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
-use Cake\ORM\TableRegistry;
+use Cake\TestSuite\EmailTrait;
+use Cake\Utility\Text;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * App\Controller\GamesController Test Case
  */
 class GamesControllerTest extends ControllerTestCase {
+
+	use EmailTrait;
+	use ScenarioAwareTrait;
+
+	/**
+	 * Fixtures
+	 *
+	 * @var array
+	 */
+	public $fixtures = [
+		'app.Days',
+		'app.Groups',
+		'app.RosterRoles',
+		'app.Settings',
+		'app.StatTypes',
+	];
+
+	public function tearDown(): void {
+		// Cleanup any emails that were sent
+		$this->cleanupEmailTrait();
+
+		parent::tearDown();
+	}
 
 	/**
 	 * Test view method
@@ -17,118 +56,234 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testView(): void {
-		// Make sure that we're after the game date
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'coordinator' => $volunteer,
+			// Make sure that we're after the game date
+			'game_date' => FrozenDate::now()->subDay(),
+			'home_score' => 17,
+			'home_captain' => true,
+			'home_player' => $player,
+			'away_score' => 12,
+			// Both teams need captains
+			'away_captain' => true,
+		]);
+
+		$home = $game->home_team;
+		$away = $game->away_team;
+
+		/** @var \App\Model\Entity\Game $other_game */
+		$other_game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[1],
+			'home_captain' => true,
+		]);
 
 		// Admins are allowed to view games, with full edit permissions
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $admin->id);
 		$this->assertResponseContains('currently rated');
 		$this->assertResponseContains('chance to win');
 		$this->assertResponseRegExp('#<dt>Game Status</dt>\s*<dd>Normal</dd>#ms');
 		$this->assertResponseNotContains('<dt>Round</dt>');
 		$this->assertResponseContains('Captain Emails');
 		$this->assertResponseContains('Ratings Table');
-		$this->assertResponseNotContains('/games/attendance?team=' . TEAM_ID_RED . '&amp;game=' . GAME_ID_LADDER_MATCHED_SCORES);
-		$this->assertResponseContains('/games/note?game=' . GAME_ID_LADDER_MATCHED_SCORES);
-		$this->assertResponseContains('/games/edit?game=' . GAME_ID_LADDER_MATCHED_SCORES);
-		$this->assertResponseContains('/games/delete?game=' . GAME_ID_LADDER_MATCHED_SCORES);
-		$this->assertResponseNotContains('/games/stats?game=' . GAME_ID_LADDER_MATCHED_SCORES);
+		$this->assertResponseNotContains('/games/attendance');
+		$this->assertResponseContains('/games/note?game=' . $game->id);
+		$this->assertResponseContains('/games/edit?game=' . $game->id);
+		$this->assertResponseContains('/games/delete?game=' . $game->id);
+		$this->assertResponseNotContains('/games/stats?game=' . $game->id);
 		$this->assertResponseNotContains('<dt>Score Approved By</dt>');
 		$this->assertResponseContains('<p>The score of this game has not yet been finalized.</p>');
 		$this->assertResponseContains('Score as entered');
-		$this->assertResponseRegExp('#<th>Red \(home\)</th>\s*<th>Blue \(away\)</th>#ms');
+		$home_name = Text::truncate($home->name, 23);
+		$away_name = Text::truncate($away->name, 23);
+		$this->assertResponseRegExp("#<th>{$home_name} \(home\)</th>\s*<th>{$away_name} \(away\)</th>#ms");
 		$this->assertResponseRegExp('#<td>Home Score</td>\s*<td>17</td>\s*<td>17</td>#ms');
 		$this->assertResponseRegExp('#<td>Away Score</td>\s*<td>12</td>\s*<td>12</td>#ms');
 		$this->assertResponseRegExp('#<td>Defaulted\?</td>\s*<td>no</td>\s*<td>no</td>#ms');
 
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_SUB], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $other_game->id], $admin->id);
 		$this->assertResponseContains('chance to win');
 		$this->assertResponseContains('Captain Emails');
 		$this->assertResponseContains('Ratings Table');
-		$this->assertResponseContains('/games/edit?game=' . GAME_ID_SUB);
-		$this->assertResponseContains('/games/delete?game=' . GAME_ID_SUB);
-		$this->assertResponseNotContains('/games/stats?game=' . GAME_ID_SUB);
+		$this->assertResponseContains('/games/edit?game=' . $other_game->id);
+		$this->assertResponseContains('/games/delete?game=' . $other_game->id);
+		$this->assertResponseNotContains('/games/stats?game=' . $other_game->id);
 
 		// Managers are allowed to view games; the game view won't include a team ID, so no attendance link
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $manager->id);
 		$this->assertResponseContains('Captain Emails');
 		$this->assertResponseContains('Ratings Table');
-		$this->assertResponseNotContains('/games/attendance?game=' . GAME_ID_LADDER_MATCHED_SCORES);
-		$this->assertResponseContains('/games/note?game=' . GAME_ID_LADDER_MATCHED_SCORES);
-		$this->assertResponseContains('/games/edit?game=' . GAME_ID_LADDER_MATCHED_SCORES);
-		$this->assertResponseContains('/games/delete?game=' . GAME_ID_LADDER_MATCHED_SCORES);
+		$this->assertResponseNotContains('/games/attendance');
+		$this->assertResponseContains('/games/note?game=' . $game->id);
+		$this->assertResponseContains('/games/edit?game=' . $game->id);
+		$this->assertResponseContains('/games/delete?game=' . $game->id);
 
 		// But are not allowed to edit ones in other affiliates
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_SUB], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $other_game->id], $manager->id);
 		$this->assertResponseNotContains('Captain Emails');
 		$this->assertResponseContains('Ratings Table');
-		$this->assertResponseNotContains('/games/edit?game=' . GAME_ID_SUB);
-		$this->assertResponseNotContains('/games/delete?game=' . GAME_ID_SUB);
+		$this->assertResponseNotContains('/games/edit?game=' . $other_game->id);
+		$this->assertResponseNotContains('/games/delete?game=' . $other_game->id);
 
 		// Coordinators are allowed to view games
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $volunteer->id);
 		$this->assertResponseContains('Captain Emails');
-		$this->assertResponseNotContains('/games/attendance?team=' . TEAM_ID_RED . '&amp;game=' . GAME_ID_LADDER_MATCHED_SCORES);
-		$this->assertResponseContains('/games/note?game=' . GAME_ID_LADDER_MATCHED_SCORES);
-		$this->assertResponseContains('/games/edit?game=' . GAME_ID_LADDER_MATCHED_SCORES);
-		$this->assertResponseContains('/games/delete?game=' . GAME_ID_LADDER_MATCHED_SCORES);
-
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_1], PERSON_ID_COORDINATOR);
-		$this->assertResponseContains('<dt>Round</dt>');
-		$this->assertResponseNotContains('Captain Emails');
-		// Round robin games don't have ratings tables
-		$this->assertResponseNotContains('Ratings Table');
-		$this->assertResponseNotContains('/games/edit?game=' . GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_1);
-		$this->assertResponseNotContains('/games/delete?game=' . GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_1);
-
-		// But not unpublished ones in divisions they don't run
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_SUB_UNPUBLISHED], PERSON_ID_COORDINATOR);
+		$this->assertResponseNotContains('/games/attendance');
+		$this->assertResponseContains('/games/note?game=' . $game->id);
+		$this->assertResponseContains('/games/edit?game=' . $game->id);
+		$this->assertResponseContains('/games/delete?game=' . $game->id);
 
 		// Captains are allowed to view games, perhaps with slightly more permission than players
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $home->people[0]->id);
 		$this->assertResponseContains('Captain Emails');
-		$this->assertResponseContains('/games/attendance?team=' . TEAM_ID_RED . '&amp;game=' . GAME_ID_LADDER_MATCHED_SCORES);
-		$this->assertResponseContains('/games/note?game=' . GAME_ID_LADDER_MATCHED_SCORES);
-		$this->assertResponseNotContains('/games/edit?game=' . GAME_ID_LADDER_MATCHED_SCORES);
-		$this->assertResponseNotContains('/games/delete?game=' . GAME_ID_LADDER_MATCHED_SCORES);
+		$this->assertResponseContains('/games/attendance?team=' . $home->id . '&amp;game=' . $game->id);
+		$this->assertResponseContains('/games/note?game=' . $game->id);
+		$this->assertResponseNotContains('/games/edit?game=' . $game->id);
+		$this->assertResponseNotContains('/games/delete?game=' . $game->id);
+
+		// Others are allowed to view games, but have no edit permissions
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $player->id);
+		$this->assertResponseNotContains('Captain Emails');
+		$this->assertResponseContains('/games/attendance?team=' . $home->id . '&amp;game=' . $game->id);
+		$this->assertResponseContains('/games/note?game=' . $game->id);
+		$this->assertResponseNotContains('/games/edit?game=' . $game->id);
+		$this->assertResponseNotContains('/games/delete?game=' . $game->id);
+
+		$this->assertGetAnonymousAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id]);
+
+		// TODO: All the different options for carbon flips, spirit, rating points, approved by.
+		//$this->assertResponseRegExp('#<dt>Carbon Flip</dt>\s*<dd>Red won</dd>#ms');
+		//$this->assertResponseRegExp('#<dt>Rating Points</dt>\s*<dd>.*gain 5 points\s*</dd>#ms');
+		$this->markTestIncomplete('Not implemented yet.');
+	}
+
+	/**
+	 * Test view method for unpublished games
+	 *
+	 * @return void
+	 */
+	public function testViewUnpublished(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'coordinator' => $volunteer,
+			'published' => false,
+			'home_captain' => true,
+			'home_player' => $player,
+			'away_score' => 12,
+			// Both teams need captains
+			'away_captain' => true,
+		]);
+
+		$home = $game->home_team;
+
+		/** @var \App\Model\Entity\Game $other_game */
+		$other_game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'published' => false,
+		]);
+
+		// Admins, managers and coordinators are allowed to view unpublished games, with full edit permissions
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $admin->id);
+		$this->assertResponseContains('/games/edit?game=' . $game->id);
+		$this->assertResponseContains('/games/delete?game=' . $game->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $manager->id);
+		$this->assertResponseContains('/games/edit?game=' . $game->id);
+		$this->assertResponseContains('/games/delete?game=' . $game->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $volunteer->id);
+		$this->assertResponseContains('/games/edit?game=' . $game->id);
+		$this->assertResponseContains('/games/delete?game=' . $game->id);
+
+		// Coordinators can't see unpublished ones in divisions they don't run
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'view', 'game' => $other_game->id], $volunteer->id);
+
+		// No viewing of unpublished games for anyone else
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $home->people[0]->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $player->id);
+		$this->assertGetAnonymousAccessRedirect(['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
+			'/', 'You do not have permission to access that page.');
+	}
+
+	/**
+	 * Test view method for round-robin games
+	 *
+	 * @return void
+	 */
+	public function testViewRoundRobin(): void {
+		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'division_details' => ['schedule_type' => 'roundrobin'],
+			'home_score' => 17,
+			'away_score' => 12,
+		]);
+
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $volunteer->id);
+		$this->assertResponseContains('<dt>Round</dt>');
+
+		// Round-robin games don't have ratings tables
+		$this->assertResponseNotContains('Ratings Table');
+
+		// We didn't add the volunteer as coordinator for this division, so they don't have other permissions either
+		$this->assertResponseNotContains('Captain Emails');
+		$this->assertResponseNotContains('/games/edit?game=' . $game->id);
+		$this->assertResponseNotContains('/games/delete?game=' . $game->id);
 
 		// Confirm different output for finalized games
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN], PERSON_ID_CAPTAIN);
+		/** @var \App\Model\Entity\Game $finalized_game */
+		$finalized_game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'division_details' => ['schedule_type' => 'roundrobin'],
+			'home_score' => 15,
+			'away_score' => 14,
+			'approved_by_id' => APPROVAL_AUTOMATIC,
+		]);
+
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $finalized_game->id], $volunteer->id);
 		$this->assertResponseNotContains('chance to win');
 		$this->assertResponseNotContains('Ratings Table');
-		$this->assertResponseContains('/games/stats?game=' . GAME_ID_THURSDAY_ROUND_ROBIN);
-		$this->assertResponseRegExp('#<dt>Chickadees</dt>\s*<dd>15</dd>#ms');
-		$this->assertResponseRegExp('#<dt>Sparrows</dt>\s*<dd>14</dd>#ms');
+		$home_name = Text::truncate($finalized_game->home_team->name, 23);
+		$away_name = Text::truncate($finalized_game->away_team->name, 23);
+		$this->assertResponseRegExp("#<dt>{$home_name}</dt>\s*<dd>15</dd>#ms");
+		$this->assertResponseRegExp("#<dt>{$away_name}</dt>\s*<dd>14</dd>#ms");
 		$this->assertResponseRegExp('#<dt>Score Approved By</dt>\s*<dd>automatic approval</dd>#ms');
+	}
 
-		// Confirm different output for playoff games
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_PLAYOFFS], PERSON_ID_CAPTAIN);
-		$this->assertResponseRegExp('#<dt>Home Team</dt>\s*<dd>1st seed</dd>#ms');
+	/**
+	 * Test view method for tournament / playoff games
+	 *
+	 * @return void
+	 */
+	public function testViewTournament(): void {
+		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'division_details' => ['schedule_type' => 'tournament'],
+		]);
+
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $volunteer->id);
+		$this->assertResponseRegExp('#<dt>Home Team</dt>\s*<dd>A1 \[1st seed\]</dd>#ms');
+		$this->assertResponseRegExp('#<dt>Away Team</dt>\s*<dd>A4 \[4th seed\]</dd>#ms');
 		$this->assertResponseNotContains('currently rated');
 		$this->assertResponseNotContains('chance to win');
 		$this->assertResponseNotContains('Captain Emails');
 		// Uninitialized playoff games don't have ratings tables
 		$this->assertResponseNotContains('Ratings Table');
-		$this->assertResponseNotContains('/games/edit?game=' . GAME_ID_PLAYOFFS);
-		$this->assertResponseNotContains('/games/delete?game=' . GAME_ID_PLAYOFFS);
-
-		// TODO: All the different options for carbon flips, spirit, rating points, approved by. We need more games, in various states, across all divisions to fully test all of these.
-		//$this->assertResponseRegExp('#<dt>Carbon Flip</dt>\s*<dd>Red won</dd>#ms');
-		//$this->assertResponseRegExp('#<dt>Rating Points</dt>\s*<dd>.*gain 5 points\s*</dd>#ms');
-
-		// Others are allowed to view games, but have no edit permissions
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_PLAYER);
-		$this->assertResponseNotContains('Captain Emails');
-		$this->assertResponseContains('/games/attendance?team=' . TEAM_ID_RED . '&amp;game=' . GAME_ID_LADDER_MATCHED_SCORES);
-		$this->assertResponseContains('/games/note?game=' . GAME_ID_LADDER_MATCHED_SCORES);
-		$this->assertResponseNotContains('/games/edit?game=' . GAME_ID_LADDER_MATCHED_SCORES);
-		$this->assertResponseNotContains('/games/delete?game=' . GAME_ID_LADDER_MATCHED_SCORES);
-
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES]);
-
-		// No viewing of unpublished games, though
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_SUB_UNPUBLISHED], PERSON_ID_PLAYER);
+		$this->assertResponseNotContains('/games/edit?game=' . $game->id);
+		$this->assertResponseNotContains('/games/delete?game=' . $game->id);
 	}
 
 	/**
@@ -137,51 +292,48 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testTooltip(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
+		$facility = $game->game_slot->field->facility;
+
 		// Anyone is allowed to view game tooltips
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Games', 'action' => 'tooltip', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/facilities\\/view?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseContains('/teams\\/view?team=' . TEAM_ID_RED);
-		$this->assertResponseContains('/teams\\/view?team=' . TEAM_ID_BLUE);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Games', 'action' => 'tooltip', 'game' => $game->id], $admin->id);
+		$this->assertResponseContains('/facilities\\/view?facility=' . $facility->id);
+		$this->assertResponseContains('/teams\\/view?team=' . $game->home_team_id);
+		$this->assertResponseContains('/teams\\/view?team=' . $game->away_team_id);
 
 		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Games', 'action' => 'tooltip', 'game' => 0],
-			PERSON_ID_ADMIN, '/',
+			$admin->id, '/',
 			'Invalid game.');
 
 		// Anyone is allowed to view game tooltips
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Games', 'action' => 'tooltip', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
-			PERSON_ID_MANAGER);
-		$this->assertResponseContains('/facilities\\/view?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseContains('/teams\\/view?team=' . TEAM_ID_RED);
-		$this->assertResponseContains('/teams\\/view?team=' . TEAM_ID_BLUE);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Games', 'action' => 'tooltip', 'game' => $game->id],
+			$manager->id);
+		$this->assertResponseContains('/facilities\\/view?facility=' . $facility->id);
+		$this->assertResponseContains('/teams\\/view?team=' . $game->home_team_id);
+		$this->assertResponseContains('/teams\\/view?team=' . $game->away_team_id);
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Games', 'action' => 'tooltip', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
-			PERSON_ID_COORDINATOR);
-		$this->assertResponseContains('/facilities\\/view?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseContains('/teams\\/view?team=' . TEAM_ID_RED);
-		$this->assertResponseContains('/teams\\/view?team=' . TEAM_ID_BLUE);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Games', 'action' => 'tooltip', 'game' => $game->id],
+			$volunteer->id);
+		$this->assertResponseContains('/facilities\\/view?facility=' . $facility->id);
+		$this->assertResponseContains('/teams\\/view?team=' . $game->home_team_id);
+		$this->assertResponseContains('/teams\\/view?team=' . $game->away_team_id);
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Games', 'action' => 'tooltip', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
-			PERSON_ID_CAPTAIN);
-		$this->assertResponseContains('/facilities\\/view?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseContains('/teams\\/view?team=' . TEAM_ID_RED);
-		$this->assertResponseContains('/teams\\/view?team=' . TEAM_ID_BLUE);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Games', 'action' => 'tooltip', 'game' => $game->id],
+			$player->id);
+		$this->assertResponseContains('/facilities\\/view?facility=' . $facility->id);
+		$this->assertResponseContains('/teams\\/view?team=' . $game->home_team_id);
+		$this->assertResponseContains('/teams\\/view?team=' . $game->away_team_id);
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Games', 'action' => 'tooltip', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
-			PERSON_ID_PLAYER);
-		$this->assertResponseContains('/facilities\\/view?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseContains('/teams\\/view?team=' . TEAM_ID_RED);
-		$this->assertResponseContains('/teams\\/view?team=' . TEAM_ID_BLUE);
-
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Games', 'action' => 'tooltip', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
-			PERSON_ID_VISITOR);
-		$this->assertResponseContains('/facilities\\/view?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseContains('/teams\\/view?team=' . TEAM_ID_RED);
-		$this->assertResponseContains('/teams\\/view?team=' . TEAM_ID_BLUE);
-
-		$this->assertGetAjaxAnonymousAccessOk(['controller' => 'Games', 'action' => 'tooltip', 'game' => GAME_ID_LADDER_MATCHED_SCORES]);
-		$this->assertResponseContains('/facilities\/view?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseContains('/teams\\/view?team=' . TEAM_ID_RED);
-		$this->assertResponseContains('/teams\\/view?team=' . TEAM_ID_BLUE);
+		$this->assertGetAjaxAnonymousAccessOk(['controller' => 'Games', 'action' => 'tooltip', 'game' => $game->id]);
+		$this->assertResponseContains('/facilities\/view?facility=' . $facility->id);
+		$this->assertResponseContains('/teams\\/view?team=' . $game->home_team_id);
+		$this->assertResponseContains('/teams\\/view?team=' . $game->away_team_id);
 	}
 
 	/**
@@ -190,16 +342,22 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testRatingsTable(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
+
 		// Anyone logged in is allowed to view ratings tables
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'ratings_table', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_ADMIN);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'ratings_table', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_MANAGER);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'ratings_table', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'ratings_table', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'ratings_table', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'ratings_table', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'ratings_table', 'game' => $game->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'ratings_table', 'game' => $game->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'ratings_table', 'game' => $game->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'ratings_table', 'game' => $game->id], $player->id);
 
 		// Others are not allowed to ratings table
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'ratings_table', 'game' => GAME_ID_LADDER_MATCHED_SCORES]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'ratings_table', 'game' => $game->id]);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -209,12 +367,26 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testIcal(): void {
-		// Can get the ical feed for any game in the future, but not after the division has been closed for a couple weeks
-		FrozenDate::setTestNow(new FrozenDate('June 1'));
-		$this->assertGetAnonymousAccessOk(['controller' => 'Games', 'action' => 'ical', GAME_ID_LADDER_MATCHED_SCORES, TEAM_ID_RED]);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
 
-		FrozenDate::setTestNow(new FrozenDate('October 1'));
-		$this->get(['controller' => 'Games', 'action' => 'ical', GAME_ID_LADDER_MATCHED_SCORES, TEAM_ID_RED]);
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			// Make sure that the game date is in the future
+			'game_date' => FrozenDate::now()->addDay(),
+		]);
+
+		// Can get the ical feed for any game in the future
+		$this->assertGetAnonymousAccessOk(['controller' => 'Games', 'action' => 'ical', $game->id, $game->home_team_id]);
+
+		// Or up to two weeks after the division has been closed
+		FrozenDate::setTestNow($game->division->close->addDays(14));
+		$this->assertGetAnonymousAccessOk(['controller' => 'Games', 'action' => 'ical', $game->id, $game->home_team_id]);
+
+		// But not after the division has been closed for more than two weeks
+		FrozenDate::setTestNow($game->division->close->addDays(15));
+		$this->get(['controller' => 'Games', 'action' => 'ical', $game->id, $game->home_team_id]);
 		$this->assertResponseCode(410);
 	}
 
@@ -224,8 +396,16 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
+
 		// Admins are allowed to edit
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit', 'game' => $game->id], $admin->id);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -235,10 +415,24 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsManager(): void {
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
+
 		// Managers are allowed to edit games
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_MANAGER);
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', 'game' => GAME_ID_SUB], PERSON_ID_MANAGER);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit', 'game' => $game->id], $manager->id);
+
+		/** @var \App\Model\Entity\Game $other_game */
+		$other_game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[1],
+		]);
+
+		// But not ones in other affiliates
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', 'game' => $other_game->id], $manager->id);
 	}
 
 	/**
@@ -247,10 +441,25 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsCoordinator(): void {
+		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'coordinator' => $volunteer,
+		]);
+
 		// Coordinators are allowed to edit games
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', 'game' => GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_1], PERSON_ID_COORDINATOR);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit', 'game' => $game->id], $volunteer->id);
+
+		/** @var \App\Model\Entity\Game $other_game */
+		$other_game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
+
+		// But not ones in divisions they don't run
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', 'game' => $other_game->id], $volunteer->id);
 	}
 
 	/**
@@ -259,12 +468,22 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsOthers(): void {
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'home_captain' => true,
+			'home_player' => $player,
+		]);
+		$captain = $game->home_team->people[0];
+
 		// Others are not allowed to edit games
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', 'game' => GAME_ID_LADDER_MATCHED_SCORES], [PERSON_ID_CAPTAIN, PERSON_ID_ADMIN]);
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'edit', 'game' => GAME_ID_LADDER_MATCHED_SCORES]);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', 'game' => $game->id], $captain->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', 'game' => $game->id], [$captain->id, $admin->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', 'game' => $game->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'edit', 'game' => $game->id]);
 	}
 
 	/**
@@ -273,8 +492,16 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditBoxscoreAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
+
 		// Admins are allowed to edit boxscore
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => $game->id], $admin->id);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -284,8 +511,16 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditBoxscoreAsManager(): void {
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
+
 		// Managers are allowed to edit boxscore
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => $game->id], $manager->id);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -295,8 +530,17 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditBoxscoreAsCoordinator(): void {
+		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'coordinator' => $volunteer,
+		]);
+
 		// Coordinators are allowed to edit boxscore
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => $game->id], $volunteer->id);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -306,11 +550,19 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditBoxscoreAsOthers(): void {
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'home_captain' => true,
+		]);
+
 		// Others are not allowed to edit boxscores
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => GAME_ID_LADDER_MATCHED_SCORES]);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => $game->id], $game->home_team->people[0]->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => $game->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => $game->id]);
 	}
 
 	/**
@@ -322,9 +574,26 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
+
+		/** @var \App\Model\Entity\ScoreDetail $detail */
+		$detail = ScoreDetailFactory::make([
+			'game_id' => $game->id,
+			'team_id' => $game->home_team_id,
+			'created_team_id' => $game->away_team_id,
+		])->persist();
+
 		// Admins are allowed to delete scores
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Games', 'action' => 'delete_score', 'detail' => DETAIL_ID_LADDER_MATCHED_SCORES_START, 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_ADMIN);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Games', 'action' => 'delete_score', 'detail' => $detail->id, 'game' => $game->id], $admin->id);
+
+		$this->expectException(RecordNotFoundException::class);
+		ScoreDetailFactory::get($detail->id);
 	}
 
 	/**
@@ -336,8 +605,23 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
+
+		/** @var \App\Model\Entity\ScoreDetail $detail */
+		$detail = ScoreDetailFactory::make([
+			'game_id' => $game->id,
+			'team_id' => $game->home_team_id,
+			'created_team_id' => $game->away_team_id,
+		])->persist();
+
 		// Managers are allowed to delete scores
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Games', 'action' => 'delete_score', 'detail' => DETAIL_ID_LADDER_MATCHED_SCORES_START, 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_MANAGER);
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Games', 'action' => 'delete_score', 'detail' => $detail->id, 'game' => $game->id], $manager->id);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -350,8 +634,24 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'coordinator' => $volunteer,
+		]);
+
+		/** @var \App\Model\Entity\ScoreDetail $detail */
+		$detail = ScoreDetailFactory::make([
+			'game_id' => $game->id,
+			'team_id' => $game->home_team_id,
+			'created_team_id' => $game->away_team_id,
+		])->persist();
+
 		// Coordinators are allowed to delete scores
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Games', 'action' => 'delete_score', 'detail' => DETAIL_ID_LADDER_MATCHED_SCORES_START, 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_COORDINATOR);
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Games', 'action' => 'delete_score', 'detail' => $detail->id, 'game' => $game->id], $volunteer->id);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -364,14 +664,28 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'home_captain' => true,
+		]);
+
+		/** @var \App\Model\Entity\ScoreDetail $detail */
+		$detail = ScoreDetailFactory::make([
+			'game_id' => $game->id,
+			'team_id' => $game->home_team_id,
+			'created_team_id' => $game->away_team_id,
+		])->persist();
+
 		// Others are not allowed to delete scores
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Games', 'action' => 'delete_score', 'detail' => DETAIL_ID_LADDER_MATCHED_SCORES_START, 'game' => GAME_ID_LADDER_MATCHED_SCORES],
-			PERSON_ID_CAPTAIN);
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Games', 'action' => 'delete_score', 'detail' => DETAIL_ID_LADDER_MATCHED_SCORES_START, 'game' => GAME_ID_LADDER_MATCHED_SCORES],
-			PERSON_ID_PLAYER);
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Games', 'action' => 'delete_score', 'detail' => DETAIL_ID_LADDER_MATCHED_SCORES_START, 'game' => GAME_ID_LADDER_MATCHED_SCORES],
-			PERSON_ID_VISITOR);
-		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Games', 'action' => 'delete_score', 'detail' => DETAIL_ID_LADDER_MATCHED_SCORES_START, 'game' => GAME_ID_LADDER_MATCHED_SCORES]);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Games', 'action' => 'delete_score', 'detail' => $detail->id, 'game' => $game->id],
+			$game->home_team->people[0]->id);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Games', 'action' => 'delete_score', 'detail' => $detail->id, 'game' => $game->id],
+			$player->id);
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Games', 'action' => 'delete_score', 'detail' => $detail->id, 'game' => $game->id]);
 	}
 
 	/**
@@ -382,13 +696,22 @@ class GamesControllerTest extends ControllerTestCase {
 	public function testAddScoreAsAdmin(): void {
 		$this->enableCsrfToken();
 
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
 		// Game date
 		$date = (new FrozenDate('last Monday of May'))->addWeeks(2);
 
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'game_date' => $date,
+		]);
+
 		// Admins are allowed to add scores
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Games', 'action' => 'add_score', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
-			PERSON_ID_ADMIN, ['add_detail' => [
-				'team_id' => TEAM_ID_RED,
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Games', 'action' => 'add_score', 'game' => $game->id],
+			$admin->id, ['add_detail' => [
+				'team_id' => $game->home_team_id,
 				'created' => ['year' => $date->year, 'month' => $date->month, 'day' => $date->day, 'hour' => 19, 'minute' => 10],
 				'play' => 'Timeout',
 			]]);
@@ -403,13 +726,22 @@ class GamesControllerTest extends ControllerTestCase {
 	public function testAddScoreAsManager(): void {
 		$this->enableCsrfToken();
 
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
 		// Game date
 		$date = (new FrozenDate('last Monday of May'))->addWeeks(2);
 
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'game_date' => $date,
+		]);
+
 		// Managers are allowed to add scores
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Games', 'action' => 'add_score', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
-			PERSON_ID_MANAGER, ['add_detail' => [
-				'team_id' => TEAM_ID_RED,
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Games', 'action' => 'add_score', 'game' => $game->id],
+			$manager->id, ['add_detail' => [
+				'team_id' => $game->home_team_id,
 				'created' => ['year' => $date->year, 'month' => $date->month, 'day' => $date->day, 'hour' => 19, 'minute' => 10],
 				'play' => 'Timeout',
 			]]);
@@ -424,13 +756,22 @@ class GamesControllerTest extends ControllerTestCase {
 	public function testAddScoreAsCoordinator(): void {
 		$this->enableCsrfToken();
 
+		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
 		// Game date
 		$date = (new FrozenDate('last Monday of May'))->addWeeks(2);
 
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'coordinator' => $volunteer,
+		]);
+
 		// Coordinators are allowed to add scores
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Games', 'action' => 'add_score', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
-			PERSON_ID_COORDINATOR, ['add_detail' => [
-				'team_id' => TEAM_ID_RED,
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Games', 'action' => 'add_score', 'game' => $game->id],
+			$volunteer->id, ['add_detail' => [
+				'team_id' => $game->home_team_id,
 				'created' => ['year' => $date->year, 'month' => $date->month, 'day' => $date->day, 'hour' => 19, 'minute' => 10],
 				'play' => 'Timeout',
 			]]);
@@ -445,14 +786,21 @@ class GamesControllerTest extends ControllerTestCase {
 	public function testAddScoreAsOthers(): void {
 		$this->enableCsrfToken();
 
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'home_captain' => true,
+		]);
+
 		// Others are not allowed to add scores
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Games', 'action' => 'add_score', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
-			PERSON_ID_CAPTAIN);
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Games', 'action' => 'add_score', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
-			PERSON_ID_PLAYER);
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Games', 'action' => 'add_score', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
-			PERSON_ID_VISITOR);
-		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Games', 'action' => 'add_score', 'game' => GAME_ID_LADDER_MATCHED_SCORES]);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Games', 'action' => 'add_score', 'game' => $game->id],
+			$game->home_team->people[0]->id);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Games', 'action' => 'add_score', 'game' => $game->id],
+			$player->id);
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Games', 'action' => 'add_score', 'game' => $game->id]);
 	}
 
 	/**
@@ -464,48 +812,63 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
+
+		NoteFactory::make([
+			'game_id' => $game->id,
+			'visibility' => VISIBILITY_ADMIN,
+			'note' => 'Admin note from admin about game.',
+			'created_person_id' => $admin->id,
+		])->persist();
+
 		// Admins are allowed to add notes
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'note', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'note', 'game' => $game->id], $admin->id);
 
 		// Empty notes don't get added
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
-			PERSON_ID_ADMIN, [
-				'game_id' => GAME_ID_LADDER_MATCHED_SCORES,
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => $game->id],
+			$admin->id, [
+				'game_id' => $game->id,
 				'visibility' => VISIBILITY_PRIVATE,
 				'note' => '',
-			], ['action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES], 'You entered no text, so no note was added.');
+			], ['action' => 'view', 'game' => $game->id], 'You entered no text, so no note was added.');
 
 		// Add a private note
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
-			PERSON_ID_ADMIN, [
-				'game_id' => GAME_ID_LADDER_MATCHED_SCORES,
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => $game->id],
+			$admin->id, [
+				'game_id' => $game->id,
 				'visibility' => VISIBILITY_PRIVATE,
 				'note' => 'This is a private note.',
-			], ['action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES], 'The note has been saved.');
+			], ['action' => 'view', 'game' => $game->id], 'The note has been saved.');
 
 		// Confirm there was no notification email
-		$this->assertEmpty(Configure::read('test_emails'));
+		$this->assertNoMailSent();
 
 		// Add a note for all admins to see
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
-			PERSON_ID_ADMIN, [
-				'game_id' => GAME_ID_LADDER_MATCHED_SCORES,
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => $game->id],
+			$admin->id, [
+				'game_id' => $game->id,
 				'visibility' => VISIBILITY_ADMIN,
 				'note' => 'This is an admin note.',
-			], ['action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES], 'The note has been saved.');
+			], ['action' => 'view', 'game' => $game->id], 'The note has been saved.');
 
 		// Confirm there was no notification email
-		$this->assertEmpty(Configure::read('test_emails'));
+		$this->assertNoMailSent();
 
 		// Make sure they were added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $admin->id);
 		$this->assertResponseContains('This is a private note.');
 		$this->assertResponseContains('This is an admin note.');
 		// And the old one is still there
 		$this->assertResponseContains('Admin note from admin about game.');
 
 		// Check the manager can also see the admin one
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $manager->id);
 		$this->assertResponseNotContains('This is a private note.');
 		$this->assertResponseContains('This is an admin note.');
 	}
@@ -519,38 +882,46 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
+
 		// Managers are allowed to add notes
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'note', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'note', 'game' => $game->id], $manager->id);
 
 		// Add a private note
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
-			PERSON_ID_MANAGER, [
-				'game_id' => GAME_ID_LADDER_MATCHED_SCORES,
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => $game->id],
+			$manager->id, [
+				'game_id' => $game->id,
 				'visibility' => VISIBILITY_PRIVATE,
 				'note' => 'This is a private note.',
-			], ['action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES], 'The note has been saved.');
+			], ['action' => 'view', 'game' => $game->id], 'The note has been saved.');
 
 		// Confirm there was no notification email
-		$this->assertEmpty(Configure::read('test_emails'));
+		$this->assertNoMailSent();
 
 		// Add a note for all admins to see
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
-			PERSON_ID_MANAGER, [
-				'game_id' => GAME_ID_LADDER_MATCHED_SCORES,
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => $game->id],
+			$manager->id, [
+				'game_id' => $game->id,
 				'visibility' => VISIBILITY_ADMIN,
 				'note' => 'This is an admin note.',
-			], ['action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES], 'The note has been saved.');
+			], ['action' => 'view', 'game' => $game->id], 'The note has been saved.');
 
 		// Confirm there was no notification email
-		$this->assertEmpty(Configure::read('test_emails'));
+		$this->assertNoMailSent();
 
 		// Make sure they were added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $manager->id);
 		$this->assertResponseContains('This is a private note.');
 		$this->assertResponseContains('This is an admin note.');
 
 		// Check the admin can also see the admin one
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $admin->id);
 		$this->assertResponseNotContains('This is a private note.');
 		$this->assertResponseContains('This is an admin note.');
 	}
@@ -564,33 +935,42 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , $volunteer, ] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'coordinator' => $volunteer,
+		]);
+
 		// Coordinators are allowed to add notes
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'note', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'note', 'game' => $game->id], $volunteer->id);
 
 		// Add a private note
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
-			PERSON_ID_COORDINATOR, [
-				'game_id' => GAME_ID_LADDER_MATCHED_SCORES,
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => $game->id],
+			$volunteer->id, [
+				'game_id' => $game->id,
 				'visibility' => VISIBILITY_PRIVATE,
 				'note' => 'This is a private note.',
-			], ['action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES], 'The note has been saved.');
+			], ['action' => 'view', 'game' => $game->id], 'The note has been saved.');
 
 		// Confirm there was no notification email
-		$this->assertEmpty(Configure::read('test_emails'));
+		$this->assertNoMailSent();
 
 		// Add a note for all coordinators to see
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
-			PERSON_ID_COORDINATOR, [
-				'game_id' => GAME_ID_LADDER_MATCHED_SCORES,
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => $game->id],
+			$volunteer->id, [
+				'game_id' => $game->id,
 				'visibility' => VISIBILITY_COORDINATOR,
 				'note' => 'This is a coordinator note.',
-			], ['action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES], 'The note has been saved.');
+			], ['action' => 'view', 'game' => $game->id], 'The note has been saved.');
 
 		// Confirm there was no notification email
-		$this->assertEmpty(Configure::read('test_emails'));
+		$this->assertNoMailSent();
 
 		// Make sure they were added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $volunteer->id);
 		$this->assertResponseContains('This is a private note.');
 		$this->assertResponseContains('This is a coordinator note.');
 	}
@@ -604,60 +984,88 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'home_captain' => true,
+			// Note that the player is intentionally NOT added to the team, so the only way that they get the note emailed to them is via their child
+		]);
+		$captain = $game->home_team->people[0];
+
+		// Add a second captain for this test
+		/** @var Person $captain2 */
+		$captain2 = PersonFactory::makePlayer()
+			->with('TeamsPeople', TeamsPersonFactory::make(['team_id' => $game->home_team_id, 'role' => 'captain']))
+			->persist();
+
+		// Also add a child to the player and the roster
+		/** @var Person $child */
+		$child = PersonFactory::make()
+			->withGroup(GROUP_PLAYER)
+			->with('TeamsPeople', TeamsPersonFactory::make(['team_id' => $game->home_team_id, 'role' => 'player']))
+			->persist();
+		PeoplePersonFactory::make(['person_id' => $player->id, 'relative_id' => $child->id])->persist();
+
 		// Captains are allowed to add notes
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'note', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'note', 'game' => $game->id], $captain->id);
 
 		// Add a note for all captains to see
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => GAME_ID_LADDER_FINALIZED_HOME_WIN],
-			PERSON_ID_CAPTAIN4, [
-				'game_id' => GAME_ID_LADDER_FINALIZED_HOME_WIN,
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => $game->id],
+			$captain->id, [
+				'game_id' => $game->id,
 				'visibility' => VISIBILITY_CAPTAINS,
 				'note' => 'This is a captain note.',
-			], ['action' => 'view', 'game' => GAME_ID_LADDER_FINALIZED_HOME_WIN], 'The note has been saved.');
+			], ['action' => 'view', 'game' => $game->id], 'The note has been saved.');
 
 		// Confirm the notification email
-		$messages = Configure::read('test_emails');
-		$this->assertEquals(1, count($messages));
-
-		$this->assertContains('From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;', $messages[0]);
-		$this->assertContains('Reply-To: &quot;Carl Captain&quot; &lt;carl@zuluru.org&gt;', $messages[0]);
-		$this->assertContains('To: &quot;Carolyn Captain&quot; &lt;carolyn@zuluru.org&gt;', $messages[0]);
-		$this->assertNotContains('CC: ', $messages[0]);
-		$this->assertContains('Subject: Yellow game note', $messages[0]);
-		$this->assertRegExp('#Carl Captain has added a note.*This is a captain note\.#ms', $messages[0]);
+		$this->assertMailCount(1);
+		$this->assertMailSentFrom('admin@zuluru.org');
+		$this->assertMailSentWith([$captain->user->email => $captain->full_name], 'ReplyTo');
+		$this->assertMailSentTo($captain2->user->email);
+		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWith("{$game->home_team->name} game note", 'Subject');
+		$this->assertMailContains("{$captain->full_name} has added a note");
+		$this->assertMailContains('This is a captain note.');
+		$this->cleanupEmailTrait();;
 
 		// Make sure it was added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_FINALIZED_HOME_WIN], PERSON_ID_CAPTAIN4);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $captain->id);
+		$this->assertResponseContains('This is a captain note.');
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $captain2->id);
 		$this->assertResponseContains('This is a captain note.');
 
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_CANCELLED], [PERSON_ID_PLAYER, PERSON_ID_CHILD]);
+		// But players can't see it
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], [$player->id, $child->id]);
 		$this->assertResponseNotContains('This is a captain note.');
 
 		// Add a note for the team to see
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => GAME_ID_LADDER_CANCELLED],
-			PERSON_ID_CAPTAIN2, [
-				'game_id' => GAME_ID_LADDER_CANCELLED,
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => $game->id],
+			$captain->id, [
+				'game_id' => $game->id,
 				'visibility' => VISIBILITY_TEAM,
 				'note' => 'This is a team note.',
-			], ['action' => 'view', 'game' => GAME_ID_LADDER_CANCELLED], 'The note has been saved.');
+			], ['action' => 'view', 'game' => $game->id], 'The note has been saved.');
 
 		// Confirm the notification email
-		$messages = Configure::read('test_emails');
-		$this->assertEquals(1, count($messages));
-
-		$this->assertContains('From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;', $messages[0]);
-		$this->assertContains('Reply-To: &quot;Chuck Captain&quot; &lt;chuck@zuluru.org&gt;', $messages[0]);
-		// Children don't have their own email addresses; the email goes to the parent
-		$this->assertContains('To: &quot;Pam Player&quot; &lt;pam@zuluru.org&gt;', $messages[0]);
-		$this->assertNotContains('CC: ', $messages[0]);
-		$this->assertContains('Subject: Blue game note', $messages[0]);
-		$this->assertRegExp('#Chuck Captain has added a note.*This is a team note\.#ms', $messages[0]);
+		$this->assertMailCount(1);
+		$this->assertMailSentFrom('admin@zuluru.org');
+		$this->assertMailSentWith([$captain->user->email => $captain->full_name], 'ReplyTo');
+		$this->assertMailSentTo($captain2->user->email);
+		// Children don't have their own email addresses; test that the email goes to the parent
+		$this->assertMailSentTo($player->user->email);
+		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWith("{$game->home_team->name} game note", 'Subject');
+		$this->assertMailContains("{$captain->full_name} has added a note");
+		$this->assertMailContains('This is a team note.');
 
 		// Make sure it was added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_CANCELLED], PERSON_ID_CAPTAIN2);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $captain->id);
 		$this->assertResponseContains('This is a team note.');
 
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_CANCELLED], [PERSON_ID_PLAYER, PERSON_ID_CHILD]);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], [$player->id, $child->id]);
 		$this->assertResponseContains('This is a team note.');
 	}
 
@@ -670,62 +1078,77 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'home_captain' => true,
+			'home_player' => $player,
+		]);
+		$captain = $game->home_team->people[0];
+
+		/** @var \App\Model\Entity\Game $other_game */
+		$other_game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
+
 		// Players are only allowed to add notes on games they are playing in
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'note', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => GAME_ID_LADDER_MISMATCHED_SCORES],
-			PERSON_ID_PLAYER, ['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MISMATCHED_SCORES],
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'note', 'game' => $game->id], $player->id);
+		$this->assertGetAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => $other_game->id],
+			$player->id, ['controller' => 'Games', 'action' => 'view', 'game' => $other_game->id],
 			'You are not on the roster of a team playing in this game.');
 
 		// Add a note for all captains to see
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
-			PERSON_ID_PLAYER, [
-				'game_id' => GAME_ID_LADDER_MATCHED_SCORES,
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => $game->id],
+			$player->id, [
+				'game_id' => $game->id,
 				'visibility' => VISIBILITY_CAPTAINS,
 				'note' => 'This is a captain note.',
-			], ['action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES], 'The note has been saved.');
+			], ['action' => 'view', 'game' => $game->id], 'The note has been saved.');
 
 		// Confirm the notification email
-		$messages = Configure::read('test_emails');
-		$this->assertEquals(1, count($messages));
-
-		$this->assertContains('From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;', $messages[0]);
-		$this->assertContains('Reply-To: &quot;Pam Player&quot; &lt;pam@zuluru.org&gt;', $messages[0]);
-		$this->assertContains('To: &quot;Crystal Captain&quot; &lt;crystal@zuluru.org&gt;', $messages[0]);
-		$this->assertNotContains('CC: ', $messages[0]);
-		$this->assertContains('Subject: Red game note', $messages[0]);
-		$this->assertRegExp('#Pam Player has added a note.*This is a captain note\.#ms', $messages[0]);
+		$this->assertMailCount(1);
+		$this->assertMailSentFrom('admin@zuluru.org');
+		$this->assertMailSentWith([$player->user->email => $player->full_name], 'ReplyTo');
+		$this->assertMailSentTo($captain->user->email);
+		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWith("{$game->home_team->name} game note", 'Subject');
+		$this->assertMailContains("{$player->full_name} has added a note");
+		$this->assertMailContains('This is a captain note.');
+		$this->cleanupEmailTrait();
 
 		// Make sure it was added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $player->id);
 		$this->assertResponseContains('This is a captain note.');
 
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $game->home_team->people[0]->id);
 		$this->assertResponseContains('This is a captain note.');
 
 		// Add a note for the team to see
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
-			PERSON_ID_PLAYER, [
-				'game_id' => GAME_ID_LADDER_MATCHED_SCORES,
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => $game->id],
+			$player->id, [
+				'game_id' => $game->id,
 				'visibility' => VISIBILITY_TEAM,
 				'note' => 'This is a team note.',
-			], ['action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES], 'The note has been saved.');
+			], ['action' => 'view', 'game' => $game->id], 'The note has been saved.');
 
 		// Confirm the notification email
-		$messages = Configure::read('test_emails');
-		$this->assertEquals(1, count($messages));
-
-		$this->assertContains('From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;', $messages[0]);
-		$this->assertContains('Reply-To: &quot;Pam Player&quot; &lt;pam@zuluru.org&gt;', $messages[0]);
-		$this->assertContains('To: &quot;Carolyn Captain&quot; &lt;carolyn@zuluru.org&gt;, &quot;Crystal Captain&quot; &lt;crystal@zuluru.org&gt;', $messages[0]);
-		$this->assertNotContains('CC: ', $messages[0]);
-		$this->assertContains('Subject: Red game note', $messages[0]);
-		$this->assertRegExp('#Pam Player has added a note.*This is a team note\.#ms', $messages[0]);
+		$this->assertMailCount(1);
+		$this->assertMailSentFrom('admin@zuluru.org');
+		$this->assertMailSentWith([$player->user->email => $player->full_name], 'ReplyTo');
+		$this->assertMailSentTo($captain->user->email);
+		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWith("{$game->home_team->name} game note", 'Subject');
+		$this->assertMailContains("{$player->full_name} has added a note");
+		$this->assertMailContains('This is a team note.');
 
 		// Make sure it was added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $player->id);
 		$this->assertResponseContains('This is a team note.');
 
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $game->home_team->people[0]->id);
 		$this->assertResponseContains('This is a team note.');
 	}
 
@@ -738,11 +1161,19 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
+
 		// Others are not allowed to add notes
-		$this->assertGetAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
-			PERSON_ID_VISITOR, ['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
+		$this->assertGetAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => $game->id],
+			$player->id, ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
 			'You are not on the roster of a team playing in this game.');
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'note', 'game' => GAME_ID_LADDER_MATCHED_SCORES]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'note', 'game' => $game->id]);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -751,29 +1182,110 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteNoteAsAdmin(): void {
+	public function testDeleteAdminNoteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
+
 		// Admins are allowed to delete admin notes
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_ADMIN],
-			PERSON_ID_ADMIN, [], ['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
+		$note = NoteFactory::make([
+			'game_id' => $game->id,
+			'visibility' => VISIBILITY_ADMIN,
+			'note' => 'Admin note from admin about game.',
+			'created_person_id' => $admin->id,
+		])->persist();
+
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', 'note' => $note->id],
+			$admin->id, [], ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
 			'The note has been deleted.');
+		$this->expectException(RecordNotFoundException::class);
+		NoteFactory::get($note->id);
+	}
 
-		// And coordinator notes
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_COORDINATOR],
-			PERSON_ID_ADMIN, [], ['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
+	/**
+	 * Test delete_note method as an admin
+	 *
+	 * @return void
+	 */
+	public function testDeleteCoordinatorNoteAsAdmin(): void {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
+
+		// Admins are allowed to delete coordinator notes
+		$note = NoteFactory::make([
+			'game_id' => $game->id,
+			'visibility' => VISIBILITY_COORDINATOR,
+			'note' => 'Coordinator note from admin about game.',
+			'created_person_id' => $volunteer->id,
+		])->persist();
+
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', 'note' => $note->id],
+			$admin->id, [], ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
 			'The note has been deleted.');
+		$this->expectException(RecordNotFoundException::class);
+		NoteFactory::get($note->id);
+	}
 
-		// But not other notes
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_CAPTAIN],
-			PERSON_ID_ADMIN);
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_PLAYER],
-			PERSON_ID_ADMIN);
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_VISITOR],
-			PERSON_ID_ADMIN);
+	/**
+	 * Test delete_note method as an admin
+	 *
+	 * @return void
+	 */
+	public function testDeleteOtherNoteAsAdmin(): void {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
-		$this->markTestIncomplete('Not implemented yet.');
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'home_captain' => true,
+		]);
+
+		// Admins are not allowed to delete other notes
+		$captain_note = NoteFactory::make([
+			'game_id' => $game->id,
+			'visibility' => VISIBILITY_TEAM,
+			'note' => 'Team note from captain about game.',
+			'created_person_id' => $game->home_team->people[0]->id,
+		])->persist();
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $captain_note->id],
+			$admin->id);
+
+		$player_note = NoteFactory::make([
+			'game_id' => $game->id,
+			'visibility' => VISIBILITY_TEAM,
+			'note' => 'Team note from player about game.',
+			'created_person_id' => $player->id,
+		])->persist();
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $player_note->id],
+			$admin->id);
+
+		$other_note = NoteFactory::make([
+			'game_id' => $game->id,
+			'visibility' => VISIBILITY_PRIVATE,
+			'note' => 'Private note from volunteer about game.',
+			'created_person_id' => $volunteer->id,
+		])->persist();
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $other_note->id],
+			$admin->id);
 	}
 
 	/**
@@ -781,29 +1293,110 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteNoteAsManager(): void {
+	public function testDeleteAdminNoteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
+
 		// Managers are allowed to delete admin notes
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_ADMIN],
-			PERSON_ID_MANAGER, [], ['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
+		$note = NoteFactory::make([
+			'game_id' => $game->id,
+			'visibility' => VISIBILITY_ADMIN,
+			'note' => 'Admin note from admin about game.',
+			'created_person_id' => $admin->id,
+		])->persist();
+
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', 'note' => $note->id],
+			$manager->id, [], ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
 			'The note has been deleted.');
+		$this->expectException(RecordNotFoundException::class);
+		NoteFactory::get($note->id);
+	}
 
-		// And coordinator notes
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_COORDINATOR],
-			PERSON_ID_MANAGER, [], ['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
+	/**
+	 * Test delete_note method as a manager
+	 *
+	 * @return void
+	 */
+	public function testDeleteCoordinatorNoteAsManager(): void {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
+
+		// Managers are allowed to delete coordinator notes
+		$note = NoteFactory::make([
+			'game_id' => $game->id,
+			'visibility' => VISIBILITY_COORDINATOR,
+			'note' => 'Coordinator note from admin about game.',
+			'created_person_id' => $volunteer->id,
+		])->persist();
+
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', 'note' => $note->id],
+			$manager->id, [], ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
 			'The note has been deleted.');
+		$this->expectException(RecordNotFoundException::class);
+		NoteFactory::get($note->id);
+	}
 
-		// But not other notes
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_CAPTAIN],
-			PERSON_ID_MANAGER);
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_PLAYER],
-			PERSON_ID_MANAGER);
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_VISITOR],
-			PERSON_ID_MANAGER);
+	/**
+	 * Test delete_note method as a manager
+	 *
+	 * @return void
+	 */
+	public function testDeleteOtherNoteAsManager(): void {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
-		$this->markTestIncomplete('Not implemented yet.');
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'home_captain' => true,
+		]);
+
+		// Managers are not allowed to delete other notes
+		$captain_note = NoteFactory::make([
+			'game_id' => $game->id,
+			'visibility' => VISIBILITY_TEAM,
+			'note' => 'Team note from captain about game.',
+			'created_person_id' => $game->home_team->people[0]->id,
+		])->persist();
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $captain_note->id],
+			$manager->id);
+
+		$player_note = NoteFactory::make([
+			'game_id' => $game->id,
+			'visibility' => VISIBILITY_TEAM,
+			'note' => 'Team note from player about game.',
+			'created_person_id' => $player->id,
+		])->persist();
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $player_note->id],
+			$manager->id);
+
+		$other_note = NoteFactory::make([
+			'game_id' => $game->id,
+			'visibility' => VISIBILITY_PRIVATE,
+			'note' => 'Private note from volunteer about game.',
+			'created_person_id' => $volunteer->id,
+		])->persist();
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $other_note->id],
+			$manager->id);
 	}
 
 	/**
@@ -811,26 +1404,60 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testDeleteNoteAsCoordinator(): void {
+	public function testDeleteCoordinatorNoteAsCoordinator(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		// Coordinators are allowed to delete coordinator notes
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_COORDINATOR],
-			PERSON_ID_COORDINATOR, [], ['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'home_captain' => true,
+		]);
+
+		// Coordinators are not allowed to delete other notes
+		$admin_note = NoteFactory::make([
+			'game_id' => $game->id,
+			'visibility' => VISIBILITY_ADMIN,
+			'note' => 'Admin note from admin about game.',
+			'created_person_id' => $admin->id,
+		])->persist();
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $admin_note->id],
+			$volunteer->id);
+
+		$captain_note = NoteFactory::make([
+			'game_id' => $game->id,
+			'visibility' => VISIBILITY_TEAM,
+			'note' => 'Team note from captain about game.',
+			'created_person_id' => $game->home_team->people[0]->id,
+		])->persist();
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $captain_note->id],
+			$volunteer->id);
+
+		$player_note = NoteFactory::make([
+			'game_id' => $game->id,
+			'visibility' => VISIBILITY_PRIVATE,
+			'note' => 'Private note from player about game.',
+			'created_person_id' => $player->id,
+		])->persist();
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $player_note->id],
+			$volunteer->id);
+
+		// But can delete coordinator notes
+		$coordinator_note = NoteFactory::make([
+			'game_id' => $game->id,
+			'visibility' => VISIBILITY_COORDINATOR,
+			'note' => 'Coordinator note from admin about game.',
+			'created_person_id' => $volunteer->id,
+		])->persist();
+
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', 'note' => $coordinator_note->id],
+			$volunteer->id, [], ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
 			'The note has been deleted.');
-
-		// But not other notes
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_ADMIN],
-			PERSON_ID_COORDINATOR);
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_CAPTAIN],
-			PERSON_ID_COORDINATOR);
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_PLAYER],
-			PERSON_ID_COORDINATOR);
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_VISITOR],
-			PERSON_ID_COORDINATOR);
-
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->expectException(RecordNotFoundException::class);
+		NoteFactory::get($coordinator_note->id);
 	}
 
 	/**
@@ -842,22 +1469,57 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		// Captains are only allowed to delete notes they created
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_CAPTAIN],
-			PERSON_ID_CAPTAIN, [], ['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'home_captain' => true,
+		]);
+		$captain = $game->home_team->people[0];
+
+		// Captains are not allowed to delete other notes
+		$admin_note = NoteFactory::make([
+			'game_id' => $game->id,
+			'visibility' => VISIBILITY_ADMIN,
+			'note' => 'Admin note from admin about game.',
+			'created_person_id' => $admin->id,
+		])->persist();
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $admin_note->id],
+			$captain->id);
+
+		$coordinator_note = NoteFactory::make([
+			'game_id' => $game->id,
+			'visibility' => VISIBILITY_COORDINATOR,
+			'note' => 'Coordinator note from admin about game.',
+			'created_person_id' => $volunteer->id,
+		])->persist();
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $coordinator_note->id],
+			$captain->id);
+
+		$player_note = NoteFactory::make([
+			'game_id' => $game->id,
+			'visibility' => VISIBILITY_PRIVATE,
+			'note' => 'Private note from player about game.',
+			'created_person_id' => $player->id,
+		])->persist();
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $player_note->id],
+			$captain->id);
+
+		// But can delete notes they created
+		$captain_note = NoteFactory::make([
+			'game_id' => $game->id,
+			'visibility' => VISIBILITY_TEAM,
+			'note' => 'Team note from captain about game.',
+			'created_person_id' => $captain->id,
+		])->persist();
+
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', 'note' => $captain_note->id],
+			$captain->id, [], ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
 			'The note has been deleted.');
-
-		// But not other notes
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_ADMIN],
-			PERSON_ID_CAPTAIN);
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_COORDINATOR],
-			PERSON_ID_CAPTAIN);
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_PLAYER],
-			PERSON_ID_CAPTAIN);
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_VISITOR],
-			PERSON_ID_CAPTAIN);
-
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->expectException(RecordNotFoundException::class);
+		NoteFactory::get($captain_note->id);
 	}
 
 	/**
@@ -869,63 +1531,56 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		// Players are only allowed to delete notes they created
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_PLAYER],
-			PERSON_ID_PLAYER, [], ['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'home_captain' => true,
+		]);
+
+		// Players are not allowed to delete other notes
+		$admin_note = NoteFactory::make([
+			'game_id' => $game->id,
+			'visibility' => VISIBILITY_ADMIN,
+			'note' => 'Admin note from admin about game.',
+			'created_person_id' => $admin->id,
+		])->persist();
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $admin_note->id],
+			$player->id);
+
+		$coordinator_note = NoteFactory::make([
+			'game_id' => $game->id,
+			'visibility' => VISIBILITY_COORDINATOR,
+			'note' => 'Coordinator note from admin about game.',
+			'created_person_id' => $volunteer->id,
+		])->persist();
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $coordinator_note->id],
+			$player->id);
+
+		$captain_note = NoteFactory::make([
+			'game_id' => $game->id,
+			'visibility' => VISIBILITY_TEAM,
+			'note' => 'Team note from captain about game.',
+			'created_person_id' => $game->home_team->people[0]->id,
+		])->persist();
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $captain_note->id],
+			$player->id);
+
+		// But can delete notes they created
+		$player_note = NoteFactory::make([
+			'game_id' => $game->id,
+			'visibility' => VISIBILITY_PRIVATE,
+			'note' => 'Private note from player about game.',
+			'created_person_id' => $player->id,
+		])->persist();
+
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', 'note' => $player_note->id],
+			$player->id, [], ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
 			'The note has been deleted.');
-
-		// But not other notes
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_ADMIN],
-			PERSON_ID_PLAYER);
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_COORDINATOR],
-			PERSON_ID_PLAYER);
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_CAPTAIN],
-			PERSON_ID_PLAYER);
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_VISITOR],
-			PERSON_ID_PLAYER);
-
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete_note method as someone else
-	 *
-	 * @return void
-	 */
-	public function testDeleteNoteAsVisitor(): void {
-		$this->enableCsrfToken();
-		$this->enableSecurityToken();
-
-		// Visitors are only allowed to delete notes they created
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_VISITOR],
-			PERSON_ID_VISITOR, [], ['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
-			'The note has been deleted.');
-
-		// But not other notes
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_ADMIN],
-			PERSON_ID_VISITOR);
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_COORDINATOR],
-			PERSON_ID_VISITOR);
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_CAPTAIN],
-			PERSON_ID_VISITOR);
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_PLAYER],
-			PERSON_ID_VISITOR);
-
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test delete_note method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testDeleteNoteAsAnonymous(): void {
-		$this->enableCsrfToken();
-		$this->enableSecurityToken();
-
-		// Others are not only allowed to delete notes they created
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => NOTE_ID_GAME_LADDER_MATCHED_SCORES_PLAYER]);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->expectException(RecordNotFoundException::class);
+		NoteFactory::get($player_note->id);
 	}
 
 	/**
@@ -937,27 +1592,41 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
 		// Admins are allowed to delete games
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete', 'game' => GAME_ID_LADDER_NO_SCORES],
-			PERSON_ID_ADMIN, [], ['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER],
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
+
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete', 'game' => $game->id],
+			$admin->id, [], ['controller' => 'Divisions', 'action' => 'schedule', 'division' => $game->division_id],
 			'The game has been deleted.');
 
 		// But not ones with dependencies
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete', 'game' => GAME_ID_LADDER_HOME_SCORE_ONLY],
-			PERSON_ID_ADMIN, [], ['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_HOME_SCORE_ONLY],
+		/** @var \App\Model\Entity\Game $other_game */
+		$other_game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'home_score' => 15,
+			'away_score' => 10,
+		]);
+
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete', 'game' => $other_game->id],
+			$admin->id, [], ['controller' => 'Games', 'action' => 'view', 'game' => $other_game->id],
 			'A score has already been submitted for this game.', 'Flash.flash.0.message.0');
 		$this->assertEquals('If you are absolutely sure that you want to delete it anyway, {0}. <b>This cannot be undone!</b>', $this->_requestSession->read('Flash.flash.0.message.1'));
-		$this->assertEquals(['action' => 'delete', 'game' => GAME_ID_LADDER_HOME_SCORE_ONLY, 'force' => true], $this->_requestSession->read('Flash.flash.0.params.replacements.0.target'));
+		$this->assertEquals(['action' => 'delete', 'game' => $other_game->id, 'force' => true], $this->_requestSession->read('Flash.flash.0.params.replacements.0.target'));
 
 		// Unless we force it
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete', 'game' => GAME_ID_LADDER_HOME_SCORE_ONLY, 'force' => true],
-			PERSON_ID_ADMIN, [], ['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER],
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete', 'game' => $other_game->id, 'force' => true],
+			$admin->id, [], ['controller' => 'Divisions', 'action' => 'schedule', 'division' => $other_game->division_id],
 			'The game has been deleted.');
 
 		// Make sure the score for the game was also deleted
-		$entries = TableRegistry::get('ScoreEntries');
-		$query = $entries->find();
-		$this->assertEquals(8, $query->count());
+		$query = ScoreEntryFactory::find();
+		$this->assertEquals(0, $query->count());
 	}
 
 	/**
@@ -969,14 +1638,27 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
 		// Managers are allowed to delete games in their affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete', 'game' => GAME_ID_LADDER_NO_SCORES],
-			PERSON_ID_MANAGER, [], ['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER],
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
+
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete', 'game' => $game->id],
+			$manager->id, [], ['controller' => 'Divisions', 'action' => 'schedule', 'division' => $game->division_id],
 			'The game has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete', 'game' => GAME_ID_SUB],
-			PERSON_ID_MANAGER);
+		/** @var \App\Model\Entity\Game $other_game */
+		$other_game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[1],
+		]);
+
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete', 'game' => $other_game->id],
+			$manager->id);
 	}
 
 	/**
@@ -988,14 +1670,28 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
 		// Coordinators are allowed to delete their own games
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete', 'game' => GAME_ID_LADDER_NO_SCORES],
-			PERSON_ID_COORDINATOR, [], ['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER],
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'coordinator' => $volunteer,
+		]);
+
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete', 'game' => $game->id],
+			$volunteer->id, [], ['controller' => 'Divisions', 'action' => 'schedule', 'division' => $game->division_id],
 			'The game has been deleted.');
 
 		// But not ones in other divisions
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete', 'game' => GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_1],
-			PERSON_ID_COORDINATOR);
+		/** @var \App\Model\Entity\Game $other_game */
+		$other_game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
+
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete', 'game' => $other_game->id],
+			$volunteer->id);
 	}
 
 	/**
@@ -1007,14 +1703,18 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
 		// Others are not allowed to delete games
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete', 'game' => GAME_ID_LADDER_NO_SCORES],
-			PERSON_ID_CAPTAIN);
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete', 'game' => GAME_ID_LADDER_NO_SCORES],
-			PERSON_ID_PLAYER);
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete', 'game' => GAME_ID_LADDER_NO_SCORES],
-			PERSON_ID_VISITOR);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Games', 'action' => 'delete', 'game' => GAME_ID_LADDER_NO_SCORES]);
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
+
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete', 'game' => $game->id],
+			$player->id);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Games', 'action' => 'delete', 'game' => $game->id]);
 	}
 
 	/**
@@ -1023,28 +1723,36 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAttendance(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'coordinator' => $volunteer,
+			'home_captain' => true,
+			'home_player' => $player,
+		]);
+
 		// Admins are allowed to see attendance
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance', 'game' => GAME_ID_LADDER_MATCHED_SCORES, 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance', 'game' => $game->id, 'team' => $game->home_team_id], $admin->id);
 
 		// Managers are allowed to see attendance
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance', 'game' => GAME_ID_LADDER_MATCHED_SCORES, 'team' => TEAM_ID_RED], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance', 'game' => $game->id, 'team' => $game->home_team_id], $manager->id);
 
 		// Coordinators are not allowed to see attendance
-		$this->assertGetAsAccessRedirect(['controller' => 'Games', 'action' => 'attendance', 'game' => GAME_ID_LADDER_MATCHED_SCORES, 'team' => TEAM_ID_RED],
-			PERSON_ID_COORDINATOR, ['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
+		$this->assertGetAsAccessRedirect(['controller' => 'Games', 'action' => 'attendance', 'game' => $game->id, 'team' => $game->home_team_id],
+			$volunteer->id, ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
 			'You are not on the roster of a team playing in this game.');
 
 		// Captains are allowed to see attendance for their games
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance', 'game' => GAME_ID_LADDER_MATCHED_SCORES, 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance', 'game' => $game->id, 'team' => $game->home_team_id], $game->home_team->people[0]->id);
 
 		// Players are allowed to see attendance for their games
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance', 'game' => GAME_ID_LADDER_MATCHED_SCORES, 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance', 'game' => $game->id, 'team' => $game->home_team_id], $player->id);
 
 		// Others are not allowed to see attendance
-		$this->assertGetAsAccessRedirect(['controller' => 'Games', 'action' => 'attendance', 'game' => GAME_ID_LADDER_MATCHED_SCORES, 'team' => TEAM_ID_RED],
-			PERSON_ID_VISITOR, ['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_MATCHED_SCORES],
-			'You are not on the roster of a team playing in this game.');
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'attendance', 'game' => GAME_ID_LADDER_MATCHED_SCORES, 'team' => TEAM_ID_RED]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'attendance', 'game' => $game->id, 'team' => $game->home_team_id]);
 	}
 
 	/**
@@ -1123,10 +1831,25 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAttendanceChangeAsAdmin(): void {
-		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
 
 		// Admins are allowed to change attendance
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance_change', 'game' => GAME_ID_LADDER_MATCHED_SCORES, 'team' => TEAM_ID_RED, 'person' => PERSON_ID_CAPTAIN], PERSON_ID_ADMIN);
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'home_player' => $player,
+		]);
+
+		AttendanceFactory::make([
+			'team_id' => $game->home_team_id,
+			'game_date' => $game->game_slot->game_date,
+			'game_id' => $game->id,
+			'person_id' => $player->id,
+			'status' => ATTENDANCE_ATTENDING,
+		])->persist();
+
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance_change', 'game' => $game->id, 'team' => $game->home_team_id, 'person' => $player->id], $admin->id);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1136,10 +1859,25 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAttendanceChangeAsManager(): void {
-		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
+		[$admin, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
 
 		// Managers are allowed to change attendance
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance_change', 'game' => GAME_ID_LADDER_MATCHED_SCORES, 'team' => TEAM_ID_RED, 'person' => PERSON_ID_CAPTAIN], PERSON_ID_MANAGER);
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'home_player' => $player,
+		]);
+
+		AttendanceFactory::make([
+			'team_id' => $game->home_team_id,
+			'game_date' => $game->game_slot->game_date,
+			'game_id' => $game->id,
+			'person_id' => $player->id,
+			'status' => ATTENDANCE_ATTENDING,
+		])->persist();
+
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance_change', 'game' => $game->id, 'team' => $game->home_team_id, 'person' => $player->id], $manager->id);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1149,10 +1887,27 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAttendanceChangeAsCoordinator(): void {
-		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
 
 		// Coordinators are allowed to change attendance
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance_change', 'game' => GAME_ID_LADDER_MATCHED_SCORES, 'team' => TEAM_ID_RED, 'person' => PERSON_ID_CAPTAIN], PERSON_ID_COORDINATOR);
+		// TODO: Why, and how, can they change it, if they can't see it?
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'coordinator' => $volunteer,
+			'home_player' => $player,
+		]);
+
+		AttendanceFactory::make([
+			'team_id' => $game->home_team_id,
+			'game_date' => $game->game_slot->game_date,
+			'game_id' => $game->id,
+			'person_id' => $player->id,
+			'status' => ATTENDANCE_ATTENDING,
+		])->persist();
+
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance_change', 'game' => $game->id, 'team' => $game->home_team_id, 'person' => $player->id], $volunteer->id);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1162,10 +1917,27 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAttendanceChangeAsCaptain(): void {
-		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
 
 		// Captains are allowed to change attendance
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance_change', 'game' => GAME_ID_LADDER_MATCHED_SCORES, 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'home_captain' => true,
+			'home_player' => $player,
+		]);
+		$captain = $game->home_team->people[0];
+
+		AttendanceFactory::make([
+			'team_id' => $game->home_team_id,
+			'game_date' => $game->game_slot->game_date,
+			'game_id' => $game->id,
+			'person_id' => $captain->id,
+			'status' => ATTENDANCE_ATTENDING,
+		])->persist();
+
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance_change', 'game' => $game->id, 'team' => $game->home_team_id], $captain->id);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -1175,18 +1947,42 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAttendanceChangeAsPlayer(): void {
-		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
 
 		// Players are allowed to change attendance
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance_change', 'game' => GAME_ID_LADDER_MATCHED_SCORES, 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN3);
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'home_captain' => true,
+			'home_player' => $player,
+		]);
 
-		// But not for teams they're only just invited to, or not on at all
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'attendance_change', 'game' => GAME_ID_LADDER_MATCHED_SCORES, 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'attendance_change', 'game' => GAME_ID_LADDER_MATCHED_SCORES, 'team' => TEAM_ID_BLUE], PERSON_ID_PLAYER);
+		AttendanceFactory::make([
+			'team_id' => $game->home_team_id,
+			'game_date' => $game->game_slot->game_date,
+			'game_id' => $game->id,
+			'person_id' => $player->id,
+			'status' => ATTENDANCE_ATTENDING,
+		])->persist();
 
-		// And not for long after the game. This game is 3 weeks after the first Monday of May, plus 2 weeks when you can update, plus one more day.
-		FrozenTime::setTestNow((new FrozenTime('last Monday of May'))->addDays(36));
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'attendance_change', 'game' => GAME_ID_LADDER_MATCHED_SCORES, 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN3);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance_change', 'game' => $game->id, 'team' => $game->home_team_id], $player->id);
+
+		// But not more than 2 weeks after the game.
+		FrozenTime::setTestNow(FrozenDate::now()->addDays(15));
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'attendance_change', 'game' => $game->id, 'team' => $game->home_team_id], $player->id);
+
+		// And not for teams they're not on at all
+		/** @var \App\Model\Entity\Game $other_game */
+		$other_game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
+
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'attendance_change', 'game' => $other_game->id, 'team' => $other_game->home_team_id], $player->id);
+
+		// Or only just invited to
+		TeamsPersonFactory::make(['team_id' => $game->home_team_id, 'person_id' => $player->id, 'role' => 'player', 'status' => ROSTER_INVITED])->persist();
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'attendance_change', 'game' => $other_game->id, 'team' => $other_game->home_team_id], $player->id);
 
 		$this->markTestIncomplete('Not implemented yet.');
 	}
@@ -1199,9 +1995,17 @@ class GamesControllerTest extends ControllerTestCase {
 	public function testAttendanceChangeAsOthers(): void {
 		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
 
+		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
 		// Others are not allowed to change attendance
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'attendance_change', 'game' => GAME_ID_LADDER_MATCHED_SCORES, 'team' => TEAM_ID_RED], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'attendance_change', 'game' => GAME_ID_LADDER_MATCHED_SCORES, 'team' => TEAM_ID_RED]);
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
+
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'attendance_change', 'game' => $game->id, 'team' => $game->home_team_id], $volunteer->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'attendance_change', 'game' => $game->id, 'team' => $game->home_team_id]);
 	}
 
 	/**
@@ -1210,22 +2014,35 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testStatSheet(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		// Players are allowed to change attendance
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'coordinator' => $volunteer,
+			'league_details' => ['stat_tracking' => 'always'],
+			'home_captain' => true,
+		]);
+
+		LeaguesStatTypeFactory::make(['league_id' => $game->division->league_id, 'stat_type_id' => STAT_TYPE_ID_ULTIMATE_GOALS])->persist();
+
 		// Admins are allowed to see the stat sheet
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stat_sheet', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN, 'team' => TEAM_ID_CHICKADEES], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stat_sheet', 'game' => $game->id, 'team' => $game->home_team_id], $admin->id);
 
 		// Managers are allowed to see the stat sheet
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stat_sheet', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN, 'team' => TEAM_ID_CHICKADEES], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stat_sheet', 'game' => $game->id, 'team' => $game->home_team_id], $manager->id);
 
 		// Coordinators are allowed to see the stat sheet
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stat_sheet', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN, 'team' => TEAM_ID_CHICKADEES], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stat_sheet', 'game' => $game->id, 'team' => $game->home_team_id], $volunteer->id);
 
 		// Captains are allowed to see the stat sheet
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stat_sheet', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN, 'team' => TEAM_ID_CHICKADEES], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stat_sheet', 'game' => $game->id, 'team' => $game->home_team_id], $game->home_team->people[0]->id);
 
 		// Others are not allowed to see the stat sheet
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'stat_sheet', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN, 'team' => TEAM_ID_CHICKADEES], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'stat_sheet', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN, 'team' => TEAM_ID_CHICKADEES], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'stat_sheet', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN, 'team' => TEAM_ID_CHICKADEES]);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'stat_sheet', 'game' => $game->id, 'team' => $game->home_team_id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'stat_sheet', 'game' => $game->id, 'team' => $game->home_team_id]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1656,25 +2473,36 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSubmitScoreAsCaptain(): void {
-		$url = ['controller' => 'Games', 'action' => 'submit_score', 'game' => GAME_ID_LADDER_NO_SCORES, 'team' => TEAM_ID_BLUE];
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'home_captain' => true,
+			'away_captain' => true,
+		]);
+		$captain = $game->home_team->people[0];
+
+		$url = ['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $game->home_team_id];
 
 		// Scores can only be submitted after the game, so we need to set "today" for this test to be reliable
-		FrozenTime::setTestNow((new FrozenTime('last Monday of May'))->addDays(28));
+		FrozenTime::setTestNow($game->game_slot->game_date->subDay());
 		$this->assertGetAsAccessRedirect($url,
-			PERSON_ID_CAPTAIN2, ['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_NO_SCORES],
+			$captain->id, ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
 			'That game has not yet occurred!');
 
-		FrozenTime::setTestNow((new FrozenTime('last Monday of May'))->addDays(29));
-		$this->assertGetAsAccessOk($url, PERSON_ID_CAPTAIN2);
+		FrozenTime::setTestNow($game->game_slot->game_date->addDay());
+		$this->assertGetAsAccessOk($url, $captain->id);
 
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 		$this->assertPostAsAccessRedirect($url,
-			PERSON_ID_CAPTAIN2, [
+			$captain->id, [
 				'score_entries' => [
 					[
-						'team_id' => TEAM_ID_BLUE,
-						'game_id' => GAME_ID_LADDER_NO_SCORES,
+						'team_id' => $game->home_team_id,
+						'game_id' => $game->id,
 						'status' => 'normal',
 						'score_for' => '17',
 						'score_against' => '10',
@@ -1683,8 +2511,8 @@ class GamesControllerTest extends ControllerTestCase {
 				],
 				'spirit_entries' => [
 					[
-						'team_id' => TEAM_ID_YELLOW,
-						'created_team_id' => TEAM_ID_BLUE,
+						'team_id' => $game->away_team_id,
+						'created_team_id' => $game->home_team_id,
 						'q1' => 2,
 						'q2' => 2,
 						'q3' => 2,
@@ -1699,32 +2527,30 @@ class GamesControllerTest extends ControllerTestCase {
 		);
 		$this->assertEquals('a win for your team', $this->_requestSession->read('Flash.flash.0.params.replacements.0.text'));
 
-		$messages = Configure::read('test_emails');
-		$this->assertEquals(1, count($messages));
-		$this->assertContains('From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;', $messages[0]);
-		$this->assertContains('Reply-To: &quot;Chuck Captain&quot; &lt;chuck@zuluru.org&gt;', $messages[0]);
-		$this->assertContains('To: &quot;Carl Captain&quot; &lt;carl@zuluru.org&gt;', $messages[0]);
-		$this->assertNotContains('CC: ', $messages[0]);
-		$this->assertContains('Subject: Opponent score submission', $messages[0]);
-		$date = (new FrozenDate('last Monday of May'))->addWeeks(4);
-		$this->assertContains("Your opponent has indicated that the game between your team Yellow and Blue, starting at 7:00PM on {$date->format('M d, Y')} in {$date->year} Summer Monday Night Ultimate Competitive was a 17-10 loss for your team.", $messages[0]);
+		$this->assertMailCount(1);
+		$this->assertMailSentFrom('admin@zuluru.org');
+		$this->assertMailSentWith([$captain->user->email => $captain->full_name], 'ReplyTo');
+		$this->assertMailSentTo($game->away_team->people[0]->user->email);
+		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWith('Opponent score submission', 'Subject');
+		$this->assertMailContains("Your opponent has indicated that the game between your team {$game->away_team->name} and {$game->home_team->name}, starting at 7:00PM on {$game->game_slot->game_date->format('M j, Y')} in {$game->division->full_league_name} was a 17-10 loss for your team.");
 
-		$game = TableRegistry::get('Games')->get(GAME_ID_LADDER_NO_SCORES, ['contain' => ['ScoreEntries', 'SpiritEntries']]);
+		$game = GameFactory::get($game->id, ['contain' => ['ScoreEntries', 'SpiritEntries']]);
 		$this->assertFalse($game->isFinalized());
 
 		$this->assertEquals(1, count($game->score_entries));
-		$this->assertEquals(PERSON_ID_CAPTAIN2, $game->score_entries[0]->person_id);
-		$this->assertEquals(TEAM_ID_BLUE, $game->score_entries[0]->team_id);
-		$this->assertEquals(GAME_ID_LADDER_NO_SCORES, $game->score_entries[0]->game_id);
+		$this->assertEquals($captain->id, $game->score_entries[0]->person_id);
+		$this->assertEquals($game->home_team_id, $game->score_entries[0]->team_id);
+		$this->assertEquals($game->id, $game->score_entries[0]->game_id);
 		$this->assertEquals('normal', $game->score_entries[0]->status);
 		$this->assertEquals(17, $game->score_entries[0]->score_for);
 		$this->assertEquals(10, $game->score_entries[0]->score_against);
 		$this->assertEquals(1, $game->score_entries[0]->home_carbon_flip);
 
 		$this->assertEquals(1, count($game->spirit_entries));
-		$this->assertEquals(TEAM_ID_YELLOW, $game->spirit_entries[0]->team_id);
-		$this->assertEquals(TEAM_ID_BLUE, $game->spirit_entries[0]->created_team_id);
-		$this->assertEquals(GAME_ID_LADDER_NO_SCORES, $game->spirit_entries[0]->game_id);
+		$this->assertEquals($game->away_team_id, $game->spirit_entries[0]->team_id);
+		$this->assertEquals($game->home_team_id, $game->spirit_entries[0]->created_team_id);
+		$this->assertEquals($game->id, $game->spirit_entries[0]->game_id);
 		$this->assertEquals(2, $game->spirit_entries[0]->q1);
 		$this->assertEquals(2, $game->spirit_entries[0]->q2);
 		$this->assertEquals(2, $game->spirit_entries[0]->q3);
@@ -1738,25 +2564,35 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSubmitScoreActingAsCaptain(): void {
-		$url = ['controller' => 'Games', 'action' => 'submit_score', 'game' => GAME_ID_LADDER_NO_SCORES, 'team' => TEAM_ID_BLUE];
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'home_captain' => true,
+			'away_captain' => true,
+		]);
+		$captain = $game->home_team->people[0];
+
+		$url = ['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $game->home_team_id];
 
 		// Scores can only be submitted after the game, so we need to set "today" for this test to be reliable
-		FrozenTime::setTestNow((new FrozenTime('last Monday of May'))->addDays(28));
+		FrozenTime::setTestNow($game->game_slot->game_date->subDay());
 		$this->assertGetAsAccessRedirect($url,
-			[PERSON_ID_ADMIN, PERSON_ID_CAPTAIN2], ['controller' => 'Games', 'action' => 'view', 'game' => GAME_ID_LADDER_NO_SCORES],
+			[$admin->id, $captain->id], ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
 			'That game has not yet occurred!');
-
-		FrozenTime::setTestNow((new FrozenTime('last Monday of May'))->addDays(29));
-		$this->assertGetAsAccessOk($url, [PERSON_ID_ADMIN, PERSON_ID_CAPTAIN2]);
+		FrozenTime::setTestNow($game->game_slot->game_date->addDay());
+		$this->assertGetAsAccessOk($url, $captain->id);
 
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 		$this->assertPostAsAccessRedirect($url,
-			[PERSON_ID_ADMIN, PERSON_ID_CAPTAIN2], [
+			[$admin->id, $captain->id], [
 				'score_entries' => [
 					[
-						'team_id' => TEAM_ID_BLUE,
-						'game_id' => GAME_ID_LADDER_NO_SCORES,
+						'team_id' => $game->home_team_id,
+						'game_id' => $game->id,
 						'status' => 'normal',
 						'score_for' => '17',
 						'score_against' => '10',
@@ -1765,8 +2601,8 @@ class GamesControllerTest extends ControllerTestCase {
 				],
 				'spirit_entries' => [
 					[
-						'team_id' => TEAM_ID_YELLOW,
-						'created_team_id' => TEAM_ID_BLUE,
+						'team_id' => $game->away_team_id,
+						'created_team_id' => $game->home_team_id,
 						'q1' => 2,
 						'q2' => 2,
 						'q3' => 2,
@@ -1781,32 +2617,30 @@ class GamesControllerTest extends ControllerTestCase {
 		);
 		$this->assertEquals('a win for your team', $this->_requestSession->read('Flash.flash.0.params.replacements.0.text'));
 
-		$messages = Configure::read('test_emails');
-		$this->assertEquals(1, count($messages));
-		$this->assertContains('From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;', $messages[0]);
-		$this->assertContains('Reply-To: &quot;Chuck Captain&quot; &lt;chuck@zuluru.org&gt;', $messages[0]);
-		$this->assertContains('To: &quot;Carl Captain&quot; &lt;carl@zuluru.org&gt;', $messages[0]);
-		$this->assertNotContains('CC: ', $messages[0]);
-		$this->assertContains('Subject: Opponent score submission', $messages[0]);
-		$date = (new FrozenDate('last Monday of May'))->addWeeks(4);
-		$this->assertContains("Your opponent has indicated that the game between your team Yellow and Blue, starting at 7:00PM on {$date->format('M d, Y')} in {$date->year} Summer Monday Night Ultimate Competitive was a 17-10 loss for your team.", $messages[0]);
+		$this->assertMailCount(1);
+		$this->assertMailSentFrom('admin@zuluru.org');
+		$this->assertMailSentWith([$captain->user->email => $captain->full_name], 'ReplyTo');
+		$this->assertMailSentTo($game->away_team->people[0]->user->email);
+		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWith('Opponent score submission', 'Subject');
+		$this->assertMailContains("Your opponent has indicated that the game between your team {$game->away_team->name} and {$game->home_team->name}, starting at 7:00PM on {$game->game_slot->game_date->format('M j, Y')} in {$game->division->full_league_name} was a 17-10 loss for your team.");
 
-		$game = TableRegistry::get('Games')->get(GAME_ID_LADDER_NO_SCORES, ['contain' => ['ScoreEntries', 'SpiritEntries']]);
+		$game = GameFactory::get($game->id, ['contain' => ['ScoreEntries', 'SpiritEntries']]);
 		$this->assertFalse($game->isFinalized());
 
 		$this->assertEquals(1, count($game->score_entries));
-		$this->assertEquals(PERSON_ID_CAPTAIN2, $game->score_entries[0]->person_id);
-		$this->assertEquals(TEAM_ID_BLUE, $game->score_entries[0]->team_id);
-		$this->assertEquals(GAME_ID_LADDER_NO_SCORES, $game->score_entries[0]->game_id);
+		$this->assertEquals($captain->id, $game->score_entries[0]->person_id);
+		$this->assertEquals($game->home_team_id, $game->score_entries[0]->team_id);
+		$this->assertEquals($game->id, $game->score_entries[0]->game_id);
 		$this->assertEquals('normal', $game->score_entries[0]->status);
 		$this->assertEquals(17, $game->score_entries[0]->score_for);
 		$this->assertEquals(10, $game->score_entries[0]->score_against);
 		$this->assertEquals(1, $game->score_entries[0]->home_carbon_flip);
 
 		$this->assertEquals(1, count($game->spirit_entries));
-		$this->assertEquals(TEAM_ID_YELLOW, $game->spirit_entries[0]->team_id);
-		$this->assertEquals(TEAM_ID_BLUE, $game->spirit_entries[0]->created_team_id);
-		$this->assertEquals(GAME_ID_LADDER_NO_SCORES, $game->spirit_entries[0]->game_id);
+		$this->assertEquals($game->away_team_id, $game->spirit_entries[0]->team_id);
+		$this->assertEquals($game->home_team_id, $game->spirit_entries[0]->created_team_id);
+		$this->assertEquals($game->id, $game->spirit_entries[0]->game_id);
 		$this->assertEquals(2, $game->spirit_entries[0]->q1);
 		$this->assertEquals(2, $game->spirit_entries[0]->q2);
 		$this->assertEquals(2, $game->spirit_entries[0]->q3);
@@ -1820,20 +2654,44 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSubmitMatchingScoreAsCaptain(): void {
-		$url = ['controller' => 'Games', 'action' => 'submit_score', 'game' => GAME_ID_LADDER_HOME_SCORE_ONLY, 'team' => TEAM_ID_GREEN];
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'home_captain' => true,
+			'away_captain' => true,
+		]);
+		$home = $game->home_team;
+		$away = $game->away_team;
+		$captain = $home->people[0];
+
+		ScoreEntryFactory::make([
+			'game_id' => $game->id,
+			'team_id' => $away->id,
+			'score_for' => 5,
+			'score_against' => 4,
+			'home_carbon_flip' => 1,
+			'person_id' => $admin->id,
+		])->persist();
+		SpiritEntryFactory::make(['created_team_id' => $away->id, 'team_id' => $home->id, 'game_id' => $game->id])
+			->persist();
+
+		$url = ['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $home->id];
 
 		// Scores can only be submitted after the game, so we need to set "today" for this test to be reliable
-		FrozenTime::setTestNow((new FrozenTime('last Monday of May'))->addDays(29));
-		$this->assertGetAsAccessOk($url, PERSON_ID_CAPTAIN3);
+		FrozenTime::setTestNow($game->game_slot->game_date->addDay());
+		$this->assertGetAsAccessOk($url, $captain->id);
 
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 		$this->assertPostAsAccessRedirect($url,
-			PERSON_ID_CAPTAIN3, [
+			$captain->id, [
 				'score_entries' => [
 					[
-						'team_id' => TEAM_ID_GREEN,
-						'game_id' => GAME_ID_LADDER_HOME_SCORE_ONLY,
+						'team_id' => $home->id,
+						'game_id' => $game->id,
 						'status' => 'normal',
 						'score_for' => '4',
 						'score_against' => '5',
@@ -1842,8 +2700,8 @@ class GamesControllerTest extends ControllerTestCase {
 				],
 				'spirit_entries' => [
 					[
-						'team_id' => TEAM_ID_RED,
-						'created_team_id' => TEAM_ID_GREEN,
+						'team_id' => $away->id,
+						'created_team_id' => $home->id,
 						'q1' => 0,
 						'q2' => 1,
 						'q3' => 2,
@@ -1857,24 +2715,24 @@ class GamesControllerTest extends ControllerTestCase {
 			], '/', 'This score agrees with the score submitted by your opponent. It will now be posted as an official game result.'
 		);
 
-		$this->assertEmpty(Configure::read('test_emails'));
+		$this->assertNoMailSent();
 
-		$game = TableRegistry::get('Games')->get(GAME_ID_LADDER_HOME_SCORE_ONLY, ['contain' => ['SpiritEntries']]);
+		$game = GameFactory::get($game->id, ['contain' => ['SpiritEntries']]);
 		$this->assertTrue($game->isFinalized());
-		$this->assertEquals(5, $game->home_score);
-		$this->assertEquals(4, $game->away_score);
+		$this->assertEquals(4, $game->home_score);
+		$this->assertEquals(5, $game->away_score);
 		$this->assertEquals(2, count($game->spirit_entries));
-		$this->assertEquals(TEAM_ID_GREEN, $game->spirit_entries[0]->team_id);
-		$this->assertEquals(TEAM_ID_RED, $game->spirit_entries[0]->created_team_id);
-		$this->assertEquals(GAME_ID_LADDER_HOME_SCORE_ONLY, $game->spirit_entries[0]->game_id);
+		$this->assertEquals($home->id, $game->spirit_entries[0]->team_id);
+		$this->assertEquals($away->id, $game->spirit_entries[0]->created_team_id);
+		$this->assertEquals($game->id, $game->spirit_entries[0]->game_id);
 		$this->assertEquals(2, $game->spirit_entries[0]->q1);
 		$this->assertEquals(2, $game->spirit_entries[0]->q2);
-		$this->assertEquals(1, $game->spirit_entries[0]->q3);
-		$this->assertEquals(1, $game->spirit_entries[0]->q4);
+		$this->assertEquals(2, $game->spirit_entries[0]->q3);
+		$this->assertEquals(2, $game->spirit_entries[0]->q4);
 		$this->assertEquals(2, $game->spirit_entries[0]->q5);
-		$this->assertEquals(TEAM_ID_RED, $game->spirit_entries[1]->team_id);
-		$this->assertEquals(TEAM_ID_GREEN, $game->spirit_entries[1]->created_team_id);
-		$this->assertEquals(GAME_ID_LADDER_HOME_SCORE_ONLY, $game->spirit_entries[1]->game_id);
+		$this->assertEquals($away->id, $game->spirit_entries[1]->team_id);
+		$this->assertEquals($home->id, $game->spirit_entries[1]->created_team_id);
+		$this->assertEquals($game->id, $game->spirit_entries[1]->game_id);
 		$this->assertEquals(0, $game->spirit_entries[1]->q1);
 		$this->assertEquals(1, $game->spirit_entries[1]->q2);
 		$this->assertEquals(2, $game->spirit_entries[1]->q3);
@@ -1888,20 +2746,45 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSubmitMismatchedScoreAsCaptain(): void {
-		$url = ['controller' => 'Games', 'action' => 'submit_score', 'game' => GAME_ID_LADDER_HOME_SCORE_ONLY, 'team' => TEAM_ID_GREEN];
+		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'coordinator' => $volunteer,
+			'home_captain' => true,
+			'away_captain' => true,
+		]);
+		$home = $game->home_team;
+		$away = $game->away_team;
+		$captain = $home->people[0];
+
+		ScoreEntryFactory::make([
+			'game_id' => $game->id,
+			'team_id' => $away->id,
+			'score_for' => 5,
+			'score_against' => 4,
+			'home_carbon_flip' => 1,
+			'person_id' => $admin->id,
+		])->persist();
+		SpiritEntryFactory::make(['created_team_id' => $away->id, 'team_id' => $home->id, 'game_id' => $game->id])
+			->persist();
+
+		$url = ['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $home->id];
 
 		// Scores can only be submitted after the game, so we need to set "today" for this test to be reliable
-		FrozenTime::setTestNow((new FrozenTime('last Monday of May'))->addDays(29));
-		$this->assertGetAsAccessOk($url, PERSON_ID_CAPTAIN3);
+		FrozenTime::setTestNow($game->game_slot->game_date->addDay());
+		$this->assertGetAsAccessOk($url, $captain->id);
 
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 		$this->assertPostAsAccessRedirect($url,
-			PERSON_ID_CAPTAIN3, [
+			$captain->id, [
 				'score_entries' => [
 					[
-						'team_id' => TEAM_ID_GREEN,
-						'game_id' => GAME_ID_LADDER_HOME_SCORE_ONLY,
+						'team_id' => $home->id,
+						'game_id' => $game->id,
 						'status' => 'normal',
 						'score_for' => '5',
 						'score_against' => '5',
@@ -1910,8 +2793,8 @@ class GamesControllerTest extends ControllerTestCase {
 				],
 				'spirit_entries' => [
 					[
-						'team_id' => TEAM_ID_RED,
-						'created_team_id' => TEAM_ID_GREEN,
+						'team_id' => $away->id,
+						'created_team_id' => $home->id,
 						'q1' => 0,
 						'q2' => 1,
 						'q3' => 2,
@@ -1925,41 +2808,36 @@ class GamesControllerTest extends ControllerTestCase {
 			], '/', 'This score doesn\'t agree with the one your opponent submitted. Because of this, the score will not be posted until your coordinator approves it. Alternately, whichever coach or captain made an error can {0}.'
 		);
 
-		$messages = Configure::read('test_emails');
-		$this->assertEquals(2, count($messages));
+		$this->assertMailCount(2);
+		$this->assertMailSentFromAt(0, 'admin@zuluru.org');
+		$this->assertMailSentToAt(0, $game->away_team->people[0]->user->email);
+		$this->assertMailSentWithAt(0, [], 'CC');
+		$this->assertMailSentWithAt(0, 'Score entry mismatch', 'Subject');
+		$this->assertMailContainsAt(0, "The {$game->game_slot->game_date->format('M j, Y')} game between {$home->name} and {$away->name} in {$game->division->league->name} has score entries which do not match. You can edit the game here:");
 
-		$this->assertContains('From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;', $messages[0]);
-		$this->assertContains('To: &quot;Cindy Coordinator&quot; &lt;cindy@zuluru.org&gt;', $messages[0]);
-		$this->assertNotContains('CC: ', $messages[0]);
-		$this->assertNotContains('Reply-To: ', $messages[0]);
-		$this->assertContains('Subject: Score entry mismatch', $messages[0]);
-		$date = (new FrozenDate('last Monday of May'))->addWeeks(4);
-		$this->assertContains("The {$date->format('M d, Y')} game between Red and Green in Monday Night has score entries which do not match. You can edit the game here:", $messages[0]);
+		$this->assertMailSentFromAt(1, 'admin@zuluru.org');
+		$this->assertMailSentWithAt(1, [$captain->user->email => $captain->full_name], 'ReplyTo');
+		$this->assertMailSentToAt(1, $game->away_team->people[0]->user->email);
+		$this->assertMailSentWithAt(1, [], 'CC');
+		$this->assertMailSentWithAt(1, 'Opponent score submission', 'Subject');
+		$this->assertMailContainsAt(1, "Your opponent has indicated that the game between your team {$away->name} and {$home->name}, starting at 7:00PM on {$game->game_slot->game_date->format('M j, Y')} in {$game->division->full_league_name} was a 5-5 tie.");
 
-		$this->assertContains('From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;', $messages[1]);
-		$this->assertContains('Reply-To: &quot;Carolyn Captain&quot; &lt;carolyn@zuluru.org&gt;', $messages[1]);
-		$this->assertContains('To: &quot;Crystal Captain&quot; &lt;crystal@zuluru.org&gt;', $messages[1]);
-		$this->assertNotContains('CC: ', $messages[1]);
-		$this->assertContains('Subject: Opponent score submission', $messages[1]);
-		$date = (new FrozenDate('last Monday of May'))->addWeeks(4);
-		$this->assertContains("Your opponent has indicated that the game between your team Red and Green, starting at 7:00PM on {$date->format('M d, Y')} in {$date->year} Summer Monday Night Ultimate Competitive was a 5-5 tie.", $messages[1]);
-
-		$game = TableRegistry::get('Games')->get(GAME_ID_LADDER_HOME_SCORE_ONLY, ['contain' => ['SpiritEntries']]);
+		$game = GameFactory::get($game->id, ['contain' => ['SpiritEntries']]);
 		$this->assertFalse($game->isFinalized());
 		$this->assertNull($game->home_score);
 		$this->assertNull($game->away_score);
 		$this->assertEquals(2, count($game->spirit_entries));
-		$this->assertEquals(TEAM_ID_GREEN, $game->spirit_entries[0]->team_id);
-		$this->assertEquals(TEAM_ID_RED, $game->spirit_entries[0]->created_team_id);
-		$this->assertEquals(GAME_ID_LADDER_HOME_SCORE_ONLY, $game->spirit_entries[0]->game_id);
+		$this->assertEquals($home->id, $game->spirit_entries[0]->team_id);
+		$this->assertEquals($away->id, $game->spirit_entries[0]->created_team_id);
+		$this->assertEquals($game->id, $game->spirit_entries[0]->game_id);
 		$this->assertEquals(2, $game->spirit_entries[0]->q1);
 		$this->assertEquals(2, $game->spirit_entries[0]->q2);
-		$this->assertEquals(1, $game->spirit_entries[0]->q3);
-		$this->assertEquals(1, $game->spirit_entries[0]->q4);
+		$this->assertEquals(2, $game->spirit_entries[0]->q3);
+		$this->assertEquals(2, $game->spirit_entries[0]->q4);
 		$this->assertEquals(2, $game->spirit_entries[0]->q5);
-		$this->assertEquals(TEAM_ID_RED, $game->spirit_entries[1]->team_id);
-		$this->assertEquals(TEAM_ID_GREEN, $game->spirit_entries[1]->created_team_id);
-		$this->assertEquals(GAME_ID_LADDER_HOME_SCORE_ONLY, $game->spirit_entries[1]->game_id);
+		$this->assertEquals($away->id, $game->spirit_entries[1]->team_id);
+		$this->assertEquals($home->id, $game->spirit_entries[1]->created_team_id);
+		$this->assertEquals($game->id, $game->spirit_entries[1]->game_id);
 		$this->assertEquals(0, $game->spirit_entries[1]->q1);
 		$this->assertEquals(1, $game->spirit_entries[1]->q2);
 		$this->assertEquals(2, $game->spirit_entries[1]->q3);
@@ -1973,37 +2851,75 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSubmitCorrectScoreAsCaptain(): void {
-		$url = ['controller' => 'Games', 'action' => 'submit_score', 'game' => GAME_ID_LADDER_MISMATCHED_SCORES, 'team' => TEAM_ID_YELLOW];
+		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'coordinator' => $volunteer,
+			'home_captain' => true,
+			'away_captain' => true,
+		]);
+		$home = $game->home_team;
+		$away = $game->away_team;
+		$captain = $home->people[0];
+
+		$scores = ScoreEntryFactory::make([
+			[
+				'game_id' => $game->id,
+				'team_id' => $away->id,
+				'score_for' => 14,
+				'score_against' => 15,
+				'home_carbon_flip' => 1,
+				'person_id' => $admin->id,
+			],
+			[
+				'game_id' => $game->id,
+				'team_id' => $home->id,
+				'score_for' => 15,
+				'score_against' => 13,
+				'home_carbon_flip' => 1,
+				'person_id' => $captain->id,
+			],
+		])->persist();
+		$spirits = SpiritEntryFactory::make([
+			['created_team_id' => $away->id, 'team_id' => $home->id, 'game_id' => $game->id],
+			['created_team_id' => $home->id, 'team_id' => $away->id, 'game_id' => $game->id],
+		])
+			->persist();
+
+		$url = ['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $home->id];
 
 		// Scores can only be submitted after the game, so we need to set "today" for this test to be reliable
-		FrozenTime::setTestNow((new FrozenTime('last Monday of May'))->addDays(22));
-		$this->assertGetAsAccessOk($url, PERSON_ID_CAPTAIN4);
+		FrozenTime::setTestNow($game->game_slot->game_date->addDay());
+		$this->assertGetAsAccessOk($url, $captain->id);
 
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 		$this->assertPostAsAccessRedirect($url,
-			PERSON_ID_CAPTAIN4, [
+			$captain->id, [
 				'score_entries' => [
 					[
-						'id' => SCORE_ID_LADDER_MISMATCHED_SCORES_AWAY,
-						'team_id' => TEAM_ID_YELLOW,
-						'game_id' => GAME_ID_LADDER_MISMATCHED_SCORES,
+						'id' => $scores[1]->id,
+						'team_id' => $home->id,
+						'game_id' => $game->id,
 						'status' => 'normal',
-						'score_for' => '14',
-						'score_against' => '15',
+						'score_for' => '15',
+						'score_against' => '14',
 						'home_carbon_flip' => 1,
 					],
 				],
 				'spirit_entries' => [
 					[
-						'id' => SPIRIT_ID_LADDER_MISMATCHED_SCORES_AWAY,
-						'team_id' => TEAM_ID_GREEN,
-						'created_team_id' => TEAM_ID_YELLOW,
-						'q1' => 2,
-						'q2' => 2,
+						'id' => $spirits[1]->id,
+						'team_id' => $away->id,
+						'created_team_id' => $home->id,
+						'q1' => 0,
+						'q2' => 1,
 						'q3' => 2,
-						'q4' => 2,
-						'q5' => 2,
+						'q4' => 3,
+						'q5' => 4,
 						'comments' => '',
 						'highlights' => '',
 					]
@@ -2012,29 +2928,29 @@ class GamesControllerTest extends ControllerTestCase {
 			], '/', 'This score agrees with the score submitted by your opponent. It will now be posted as an official game result.'
 		);
 
-		$this->assertEmpty(Configure::read('test_emails'));
+		$this->assertNoMailSent();
 
-		$game = TableRegistry::get('Games')->get(GAME_ID_LADDER_MISMATCHED_SCORES, ['contain' => ['SpiritEntries']]);
+		$game = GameFactory::get($game->id, ['contain' => ['SpiritEntries']]);
 		$this->assertTrue($game->isFinalized());
 		$this->assertEquals(15, $game->home_score);
 		$this->assertEquals(14, $game->away_score);
 		$this->assertEquals(2, count($game->spirit_entries));
-		$this->assertEquals(TEAM_ID_YELLOW, $game->spirit_entries[0]->team_id);
-		$this->assertEquals(TEAM_ID_GREEN, $game->spirit_entries[0]->created_team_id);
-		$this->assertEquals(GAME_ID_LADDER_MISMATCHED_SCORES, $game->spirit_entries[0]->game_id);
-		$this->assertEquals(1, $game->spirit_entries[0]->q1);
+		$this->assertEquals($home->id, $game->spirit_entries[0]->team_id);
+		$this->assertEquals($away->id, $game->spirit_entries[0]->created_team_id);
+		$this->assertEquals($game->id, $game->spirit_entries[0]->game_id);
+		$this->assertEquals(2, $game->spirit_entries[0]->q1);
 		$this->assertEquals(2, $game->spirit_entries[0]->q2);
 		$this->assertEquals(2, $game->spirit_entries[0]->q3);
 		$this->assertEquals(2, $game->spirit_entries[0]->q4);
-		$this->assertEquals(1, $game->spirit_entries[0]->q5);
-		$this->assertEquals(TEAM_ID_GREEN, $game->spirit_entries[1]->team_id);
-		$this->assertEquals(TEAM_ID_YELLOW, $game->spirit_entries[1]->created_team_id);
-		$this->assertEquals(GAME_ID_LADDER_MISMATCHED_SCORES, $game->spirit_entries[1]->game_id);
-		$this->assertEquals(2, $game->spirit_entries[1]->q1);
-		$this->assertEquals(2, $game->spirit_entries[1]->q2);
+		$this->assertEquals(2, $game->spirit_entries[0]->q5);
+		$this->assertEquals($away->id, $game->spirit_entries[1]->team_id);
+		$this->assertEquals($home->id, $game->spirit_entries[1]->created_team_id);
+		$this->assertEquals($game->id, $game->spirit_entries[1]->game_id);
+		$this->assertEquals(0, $game->spirit_entries[1]->q1);
+		$this->assertEquals(1, $game->spirit_entries[1]->q2);
 		$this->assertEquals(2, $game->spirit_entries[1]->q3);
-		$this->assertEquals(2, $game->spirit_entries[1]->q4);
-		$this->assertEquals(2, $game->spirit_entries[1]->q5);
+		$this->assertEquals(3, $game->spirit_entries[1]->q4);
+		$this->assertEquals(4, $game->spirit_entries[1]->q5);
 	}
 
 	/**
@@ -2043,13 +2959,27 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSubmitScoreAsOthers(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'coordinator' => $volunteer,
+			'home_captain' => true,
+		]);
+
+		$url = ['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $game->home_team_id];
+
+		// Scores can only be submitted after the game, so we need to set "today" for this test to be reliable
+		FrozenTime::setTestNow($game->game_slot->game_date->addDay());
+
 		// Others are not allowed to submit scores
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_score', 'game' => GAME_ID_LADDER_MATCHED_SCORES, 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_score', 'game' => GAME_ID_LADDER_MATCHED_SCORES, 'team' => TEAM_ID_RED], PERSON_ID_MANAGER);
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_score', 'game' => GAME_ID_LADDER_MATCHED_SCORES, 'team' => TEAM_ID_RED], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_score', 'game' => GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_1], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_score', 'game' => GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_1], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'submit_score', 'game' => GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_1]);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $game->home_team_id], $admin->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $game->home_team_id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $game->home_team_id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $game->home_team_id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $game->home_team_id]);
 	}
 
 	/**
@@ -2058,11 +2988,26 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSubmitStatsAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		// Players are allowed to change attendance
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'league_details' => ['stat_tracking' => 'always'],
+			'home_score' => 15,
+			'away_score' => 14,
+			'approved_by_id' => APPROVAL_AUTOMATIC,
+		]);
+
+		LeaguesStatTypeFactory::make(['league_id' => $game->division->league_id, 'stat_type_id' => STAT_TYPE_ID_ULTIMATE_GOALS])->persist();
+
 		// Make sure that we're after the game date
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
+		FrozenDate::setTestNow($game->game_slot->game_date->addDay());
 
 		// Admins are allowed to submit stats
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN, 'team' => TEAM_ID_CHICKADEES], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->home_team_id], $admin->id);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -2072,11 +3017,26 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSubmitStatsAsManager(): void {
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		// Players are allowed to change attendance
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'league_details' => ['stat_tracking' => 'always'],
+			'home_score' => 15,
+			'away_score' => 14,
+			'approved_by_id' => APPROVAL_AUTOMATIC,
+		]);
+
+		LeaguesStatTypeFactory::make(['league_id' => $game->division->league_id, 'stat_type_id' => STAT_TYPE_ID_ULTIMATE_GOALS])->persist();
+
 		// Make sure that we're after the game date
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
+		FrozenDate::setTestNow($game->game_slot->game_date->addDay());
 
 		// Managers are allowed to submit stats
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN, 'team' => TEAM_ID_CHICKADEES], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->home_team_id], $manager->id);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -2086,11 +3046,27 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSubmitStatsAsCoordinator(): void {
+		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		// Players are allowed to change attendance
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'coordinator' => $volunteer,
+			'league_details' => ['stat_tracking' => 'always'],
+			'home_score' => 15,
+			'away_score' => 14,
+			'approved_by_id' => APPROVAL_AUTOMATIC,
+		]);
+
+		LeaguesStatTypeFactory::make(['league_id' => $game->division->league_id, 'stat_type_id' => STAT_TYPE_ID_ULTIMATE_GOALS])->persist();
+
 		// Make sure that we're after the game date
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
+		FrozenDate::setTestNow($game->game_slot->game_date->addDay());
 
 		// Coordinators are allowed to submit stats
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN, 'team' => TEAM_ID_CHICKADEES], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->home_team_id], $volunteer->id);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -2100,11 +3076,27 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSubmitStatsAsCaptain(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		// Players are allowed to change attendance
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'league_details' => ['stat_tracking' => 'always'],
+			'home_captain' => true,
+			'home_score' => 15,
+			'away_score' => 14,
+			'approved_by_id' => APPROVAL_AUTOMATIC,
+		]);
+
+		LeaguesStatTypeFactory::make(['league_id' => $game->division->league_id, 'stat_type_id' => STAT_TYPE_ID_ULTIMATE_GOALS])->persist();
+
 		// Make sure that we're after the game date
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
+		FrozenDate::setTestNow($game->game_slot->game_date->addDay());
 
 		// Captains are allowed to submit stats
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN, 'team' => TEAM_ID_CHICKADEES], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->home_team_id], $game->home_team->people[0]->id);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -2114,13 +3106,27 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSubmitStatsAsOthers(): void {
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		// Players are allowed to change attendance
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'league_details' => ['stat_tracking' => 'always'],
+			'home_score' => 15,
+			'away_score' => 14,
+			'approved_by_id' => APPROVAL_AUTOMATIC,
+		]);
+
+		LeaguesStatTypeFactory::make(['league_id' => $game->division->league_id, 'stat_type_id' => STAT_TYPE_ID_ULTIMATE_GOALS])->persist();
+
 		// Make sure that we're after the game date
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
+		FrozenDate::setTestNow($game->game_slot->game_date->addDay());
 
 		// Others are not allowed to submit stats
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_stats', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN, 'team' => TEAM_ID_CHICKADEES], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_stats', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN, 'team' => TEAM_ID_CHICKADEES], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'submit_stats', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN, 'team' => TEAM_ID_CHICKADEES]);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->home_team_id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->home_team_id]);
 	}
 
 	/**
@@ -2128,20 +3134,41 @@ class GamesControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testStats(): void {
+	public function testViewStats(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		// Players are allowed to change attendance
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'coordinator' => $volunteer,
+			'league_details' => ['stat_tracking' => 'always'],
+			'home_score' => 15,
+			'away_score' => 14,
+			'approved_by_id' => APPROVAL_AUTOMATIC,
+		]);
+
+		LeaguesStatTypeFactory::make(['league_id' => $game->division->league_id, 'stat_type_id' => STAT_TYPE_ID_ULTIMATE_GOALS])->persist();
+
 		// Make sure that we're after the game date
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
+		FrozenDate::setTestNow($game->game_slot->game_date->addDay());
+
+		// Redirect when there are no stats yet
+		$this->assertGetAsAccessRedirect(['controller' => 'Games', 'action' => 'stats', 'game' => $game->id],
+			$admin->id, ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
+			'No stats have been entered for this game.');
+
+		StatFactory::make(['game_id' => $game->id, 'team_id' => $game->home_team_id, 'person_id' => $player->id, 'stat_type_id' => STAT_TYPE_ID_ULTIMATE_GOALS])->persist();
 
 		// Anyone logged in is allowed to see game stats
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stats', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN], PERSON_ID_ADMIN);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stats', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN], PERSON_ID_MANAGER);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stats', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stats', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stats', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stats', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stats', 'game' => $game->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stats', 'game' => $game->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stats', 'game' => $game->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stats', 'game' => $game->id], $player->id);
 
 		// Others are not allowed to see game stats
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'stats', 'game' => GAME_ID_THURSDAY_ROUND_ROBIN]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'stats', 'game' => $game->id]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -2152,13 +3179,22 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testFuture(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'coordinator' => $volunteer,
+		]);
+
+		// Make sure that we're before the game date
+		FrozenDate::setTestNow($game->game_slot->game_date->subDay());
+
 		// Anyone logged in is allowed to see future games
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'future', '_ext' => 'json'], PERSON_ID_ADMIN);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'future', '_ext' => 'json'], PERSON_ID_MANAGER);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'future', '_ext' => 'json'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'future', '_ext' => 'json'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'future', '_ext' => 'json'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'future', '_ext' => 'json'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'future', '_ext' => 'json'], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'future', '_ext' => 'json'], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'future', '_ext' => 'json'], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'future', '_ext' => 'json'], $player->id);
 
 		// Others are not allowed to see future games
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'future', '_ext' => 'json']);
@@ -2172,13 +3208,25 @@ class GamesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testResults(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $affiliates[0],
+			'coordinator' => $volunteer,
+			'home_score' => 15,
+			'away_score' => 14,
+			'approved_by_id' => APPROVAL_AUTOMATIC,
+		]);
+
+		// Make sure that we're after the game date
+		FrozenDate::setTestNow($game->game_slot->game_date->addDay());
+
 		// Anyone is allowed to see recent results
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'results', '_ext' => 'json'], PERSON_ID_ADMIN);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'results', '_ext' => 'json'], PERSON_ID_MANAGER);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'results', '_ext' => 'json'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'results', '_ext' => 'json'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'results', '_ext' => 'json'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'results', '_ext' => 'json'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'results', '_ext' => 'json'], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'results', '_ext' => 'json'], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'results', '_ext' => 'json'], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'results', '_ext' => 'json'], $player->id);
 		$this->assertGetAnonymousAccessOk(['controller' => 'Games', 'action' => 'results', '_ext' => 'json']);
 
 		$this->markTestIncomplete('More scenarios to test above.');

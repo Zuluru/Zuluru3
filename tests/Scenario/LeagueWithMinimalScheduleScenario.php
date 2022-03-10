@@ -55,7 +55,7 @@ class LeagueWithMinimalScheduleScenario implements FixtureScenarioInterface {
 				['name' => 'Bears', 'shirt_colour' => 'Brown'],
 				['name' => 'Lions', 'shirt_colour' => 'Yellow'],
 			])->with('Divisions', $division)->persist();
-			DivisionsDayFactory::make(['day_id' => DAY_ID_SUNDAY, 'division_id' => $division->id])->persist();
+			DivisionsDayFactory::make(['day_id' => ChronosInterface::SUNDAY, 'division_id' => $division->id])->persist();
 
 			if (array_key_exists('coordinator', $args)) {
 				DivisionsPersonFactory::make(['person_id' => $args['coordinator']->id, 'division_id' => $division->id])->persist();

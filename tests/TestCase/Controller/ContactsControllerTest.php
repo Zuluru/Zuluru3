@@ -6,7 +6,7 @@ use App\Test\Factory\AffiliatesPersonFactory;
 use App\Test\Factory\ContactFactory;
 use App\Test\Factory\PersonFactory;
 use App\Test\Scenario\DiverseUsersScenario;
-use Cake\Core\Configure;
+use Cake\TestSuite\EmailTrait;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
@@ -14,6 +14,7 @@ use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
  */
 class ContactsControllerTest extends ControllerTestCase {
 
+	use EmailTrait;
 	use ScenarioAwareTrait;
 
 	/**
@@ -25,6 +26,13 @@ class ContactsControllerTest extends ControllerTestCase {
 		'app.Groups',
 		'app.Settings',
 	];
+
+	public function tearDown(): void {
+		// Cleanup any emails that were sent
+		$this->cleanupEmailTrait();
+
+		parent::tearDown();
+	}
 
 	/**
 	 * Test index method
@@ -246,14 +254,13 @@ class ContactsControllerTest extends ControllerTestCase {
 				'message' => 'Testing',
 				'cc' => false,
 			], '/', 'Your message has been sent.');
-		$messages = Configure::read('test_emails');
-		$this->assertEquals(1, count($messages));
-		$this->assertContains('From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;', $messages[0]);
-		$this->assertContains("Reply-To: &quot;{$player->full_name}&quot; &lt;{$player->user->email}&gt;", $messages[0]);
-		$this->assertContains("To: &quot;{$contact->name}&quot; &lt;{$contact->email}&gt;", $messages[0]);
-		$this->assertNotContains('CC: ', $messages[0]);
-		$this->assertContains('Subject: Test', $messages[0]);
-		$this->assertRegExp('#<pre>Testing\s*</pre>#ms', $messages[0]);
+		$this->assertMailCount(1);
+		$this->assertMailSentFrom('admin@zuluru.org');
+		$this->assertMailSentWith([$player->user->email => $player->full_name], 'ReplyTo');
+		$this->assertMailSentTo($contact->email);
+		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWith('Test', 'Subject');
+		$this->assertMailContains('Testing');
 	}
 
 	/**
@@ -275,14 +282,13 @@ class ContactsControllerTest extends ControllerTestCase {
 				'message' => 'Testing',
 				'cc' => true,
 			], '/', 'Your message has been sent.');
-		$messages = Configure::read('test_emails');
-		$this->assertEquals(1, count($messages));
-		$this->assertContains('From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;', $messages[0]);
-		$this->assertContains("Reply-To: &quot;{$player->full_name}&quot; &lt;{$player->user->email}&gt;", $messages[0]);
-		$this->assertContains("To: &quot;{$contact->name}&quot; &lt;{$contact->email}&gt;", $messages[0]);
-		$this->assertContains("CC: &quot;{$player->full_name}&quot; &lt;{$player->user->email}&gt;", $messages[0]);
-		$this->assertContains('Subject: Test', $messages[0]);
-		$this->assertRegExp('#<pre>Testing\s*</pre>#ms', $messages[0]);
+		$this->assertMailCount(1);
+		$this->assertMailSentFrom('admin@zuluru.org');
+		$this->assertMailSentWith([$player->user->email => $player->full_name], 'ReplyTo');
+		$this->assertMailSentTo($contact->email);
+		$this->assertMailSentWith([$player->user->email => $player->full_name], 'CC');
+		$this->assertMailSentWith('Test', 'Subject');
+		$this->assertMailContains('Testing');
 	}
 
 }

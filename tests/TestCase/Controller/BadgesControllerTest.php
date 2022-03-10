@@ -9,8 +9,8 @@ use App\Test\Factory\BadgesPersonFactory;
 use App\Test\Factory\PersonFactory;
 use App\Test\Scenario\DiverseUsersScenario;
 use App\Test\Scenario\LeagueWithRostersScenario;
-use Cake\Core\Configure;
 use Cake\ORM\TableRegistry;
+use Cake\TestSuite\EmailTrait;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
@@ -18,6 +18,7 @@ use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
  */
 class BadgesControllerTest extends ControllerTestCase {
 
+	use EmailTrait;
 	use ScenarioAwareTrait;
 
 	/**
@@ -30,6 +31,13 @@ class BadgesControllerTest extends ControllerTestCase {
 		'app.RosterRoles',
 		'app.Settings',
 	];
+
+	public function tearDown(): void {
+		// Cleanup any emails that were sent
+		$this->cleanupEmailTrait();
+
+		parent::tearDown();
+	}
 
 	/**
 	 * Test index method
@@ -244,7 +252,7 @@ class BadgesControllerTest extends ControllerTestCase {
 		// Run the badge initialization task
 		$task = new InitializeBadgeTask();
 		$task->main();
-		$this->assertEmpty(Configure::read('test_emails'));
+		$this->assertNoMailSent();
 
 		// At this point, the refresh_from will be set to one past the last team in the database
 		$badge = BadgeFactory::get($badge->id);
@@ -252,7 +260,7 @@ class BadgesControllerTest extends ControllerTestCase {
 
 		// Run the task again
 		$task->main();
-		$this->assertEmpty(Configure::read('test_emails'));
+		$this->assertNoMailSent();
 
 		// Now, the refresh_from will be back to 0
 		$badge = BadgeFactory::get($badge->id);

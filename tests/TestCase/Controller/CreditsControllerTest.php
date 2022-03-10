@@ -6,7 +6,7 @@ use App\Test\Factory\AffiliatesPersonFactory;
 use App\Test\Factory\CreditFactory;
 use App\Test\Factory\PersonFactory;
 use App\Test\Scenario\DiverseUsersScenario;
-use Cake\Core\Configure;
+use Cake\TestSuite\EmailTrait;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
@@ -14,6 +14,7 @@ use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
  */
 class CreditsControllerTest extends ControllerTestCase {
 
+	use EmailTrait;
 	use ScenarioAwareTrait;
 
 	/**
@@ -25,6 +26,13 @@ class CreditsControllerTest extends ControllerTestCase {
 		'app.Groups',
 		'app.Settings',
 	];
+
+	public function tearDown(): void {
+		// Cleanup any emails that were sent
+		$this->cleanupEmailTrait();
+
+		parent::tearDown();
+	}
 
 	/**
 	 * Test index method
@@ -132,7 +140,7 @@ class CreditsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testTransferAsOwner(): void {
-		[$admin, $manager, $source, $target] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, , $source, $target] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliate = $admin->affiliates[0];
 		$credit = CreditFactory::make(['amount' => 11, 'amount_used' => 10, 'notes' => 'Credit note.'])
 			->with('People', $source)
@@ -150,10 +158,12 @@ class CreditsControllerTest extends ControllerTestCase {
 		$this->assertEquals("Credit note.\nTransferred from {$source->full_name}.", $credit->notes);
 		$this->assertEquals($target->id, $credit->person_id);
 
-		$messages = Configure::consume('test_emails');
-		$this->assertEquals(1, count($messages));
-		$this->assertTextContains('A credit with a balance of CA$1.00 has been transferred to you.', $messages[0]);
-		$this->assertTextContains('This credit can be redeemed towards any future purchase on the Test Zuluru Affiliate site', $messages[0]);
+		$this->assertMailCount(1);
+		$this->assertMailSentFrom('admin@zuluru.org');
+		$this->assertMailSentTo($target->email);
+		$this->assertMailSentWith('Test Zuluru Affiliate Credit transferred', 'Subject');
+		$this->assertMailContains('A credit with a balance of CA$1.00 has been transferred to you.');
+		$this->assertMailContains('This credit can be redeemed towards any future purchase on the Test Zuluru Affiliate site');
 	}
 
 	/**

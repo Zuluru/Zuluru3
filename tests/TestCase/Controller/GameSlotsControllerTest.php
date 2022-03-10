@@ -1,10 +1,27 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use App\Test\Factory\FieldFactory;
+use App\Test\Factory\GameSlotFactory;
+use App\Test\Scenario\DiverseUsersScenario;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
+
 /**
  * App\Controller\GameSlotsController Test Case
  */
 class GameSlotsControllerTest extends ControllerTestCase {
+
+	use ScenarioAwareTrait;
+
+	/**
+	 * Fixtures
+	 *
+	 * @var array
+	 */
+	public $fixtures = [
+		'app.Groups',
+		'app.Settings',
+	];
 
 	/**
 	 * Test view method
@@ -12,29 +29,37 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testView(): void {
-		// Admins are allowed to view game slots, with full edit permissions
-		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'view', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/game_slots/edit?slot=' . GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1);
-		$this->assertResponseContains('/game_slots/delete?slot=' . GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1);
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
 
-		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'view', 'slot' => GAME_SLOT_ID_SUNDAY_CENTRAL_TECH_WEEK_1], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/game_slots/edit?slot=' . GAME_SLOT_ID_SUNDAY_CENTRAL_TECH_WEEK_1);
-		$this->assertResponseContains('/game_slots/delete?slot=' . GAME_SLOT_ID_SUNDAY_CENTRAL_TECH_WEEK_1);
+		$slot = GameSlotFactory::make()
+			->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliates[0]->id])
+			->persist();
+		$other_slot = GameSlotFactory::make()
+			->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliates[1]->id])
+			->persist();
+
+		// Admins are allowed to view game slots, with full edit permissions
+		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'view', 'slot' => $slot->id], $admin->id);
+		$this->assertResponseContains('/game_slots/edit?slot=' . $slot->id);
+		$this->assertResponseContains('/game_slots/delete?slot=' . $slot->id);
+
+		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'view', 'slot' => $other_slot->id], $admin->id);
+		$this->assertResponseContains('/game_slots/edit?slot=' . $other_slot->id);
+		$this->assertResponseContains('/game_slots/delete?slot=' . $other_slot->id);
 
 		// Managers are allowed to view game slots
-		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'view', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_MANAGER);
-		$this->assertResponseContains('/game_slots/edit?slot=' . GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1);
-		$this->assertResponseContains('/game_slots/delete?slot=' . GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1);
+		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'view', 'slot' => $slot->id], $manager->id);
+		$this->assertResponseContains('/game_slots/edit?slot=' . $slot->id);
+		$this->assertResponseContains('/game_slots/delete?slot=' . $slot->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'view', 'slot' => GAME_SLOT_ID_SUNDAY_CENTRAL_TECH_WEEK_1], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'view', 'slot' => $other_slot->id], $manager->id);
 
 		// Others are not allowed to view game slots
-		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'view', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'view', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'view', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'view', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'GameSlots', 'action' => 'view', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1]);
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'view', 'slot' => $slot->id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'view', 'slot' => $slot->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'GameSlots', 'action' => 'view', 'slot' => $slot->id]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -45,9 +70,16 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$field = FieldFactory::make()
+			->with('Facilities.Regions', ['affiliate_id' => $affiliates[0]->id])
+			->persist();
+
 		// Admins are allowed to add
-		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'add', 'field' => FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1], PERSON_ID_ADMIN);
-		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => AFFILIATE_ID_CLUB], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'add', 'field' => $field->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => $affiliates[0]->id], $admin->id);
 		// TODO: Test with affiliates turned off and no affiliate ID in the URL
 		$this->markTestIncomplete('Not implemented yet.');
 	}
@@ -58,9 +90,16 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsManager(): void {
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$field = FieldFactory::make()
+			->with('Facilities.Regions', ['affiliate_id' => $affiliates[0]->id])
+			->persist();
+
 		// Managers are allowed to add
-		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'add', 'field' => FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1], PERSON_ID_MANAGER);
-		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => AFFILIATE_ID_CLUB], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'add', 'field' => $field->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => $affiliates[0]->id], $manager->id);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -70,21 +109,22 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsOthers(): void {
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$field = FieldFactory::make()
+			->with('Facilities.Regions', ['affiliate_id' => $affiliates[0]->id])
+			->persist();
+
 		// Others are not allowed to add
-		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'field' => FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => AFFILIATE_ID_CLUB], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'field' => $field->id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => $affiliates[0]->id], $volunteer->id);
 
-		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'field' => FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => AFFILIATE_ID_CLUB], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'field' => $field->id], $player->id);
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => $affiliates[0]->id], $player->id);
 
-		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'field' => FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => AFFILIATE_ID_CLUB], PERSON_ID_PLAYER);
-
-		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'field' => FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1], PERSON_ID_VISITOR);
-		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => AFFILIATE_ID_CLUB], PERSON_ID_VISITOR);
-
-		$this->assertGetAnonymousAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'field' => FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1]);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => AFFILIATE_ID_CLUB]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'field' => $field->id]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => $affiliates[0]->id]);
 	}
 
 	/**
@@ -93,8 +133,19 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$slot = GameSlotFactory::make()
+			->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliates[0]->id])
+			->persist();
+		$other_slot = GameSlotFactory::make()
+			->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliates[1]->id])
+			->persist();
+
 		// Admins are allowed to edit
-		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => $slot->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => $other_slot->id], $admin->id);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -104,8 +155,22 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsManager(): void {
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$slot = GameSlotFactory::make()
+			->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliates[0]->id])
+			->persist();
+		$other_slot = GameSlotFactory::make()
+			->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliates[1]->id])
+			->persist();
+
 		// Managers are allowed to edit
-		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => $slot->id], $manager->id);
+
+		// But not ones in other affiliates
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => $other_slot->id], $manager->id);
+
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -115,12 +180,17 @@ class GameSlotsControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsOthers(): void {
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$slot = GameSlotFactory::make()
+			->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliates[0]->id])
+			->persist();
+
 		// Others are not allowed to edit
-		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1]);
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => $slot->id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => $slot->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => $slot->id]);
 	}
 
 	/**
@@ -132,14 +202,30 @@ class GameSlotsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$slot = GameSlotFactory::make()
+			->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliates[0]->id])
+			->persist();
+		$other_slot = GameSlotFactory::make()
+			->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliates[1]->id])
+			->persist();
+		$slot_with_game = GameSlotFactory::make(['assigned' => true])
+			->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliates[0]->id])
+			->persist();
+
 		// Admins are allowed to delete game slots
-		$this->assertPostAsAccessRedirect(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_10],
-			PERSON_ID_ADMIN, [], '/',
+		$this->assertPostAsAccessRedirect(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => $slot->id],
+			$admin->id, [], '/',
+			'The game slot has been deleted.');
+		$this->assertPostAsAccessRedirect(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => $other_slot->id],
+			$admin->id, [], '/',
 			'The game slot has been deleted.');
 
 		// But not ones with dependencies
-		$this->assertPostAsAccessRedirect(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1],
-			PERSON_ID_ADMIN, [], '/',
+		$this->assertPostAsAccessRedirect(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => $slot_with_game->id],
+			$admin->id, [], '/',
 			'This game slot has a game assigned to it and cannot be deleted.');
 	}
 
@@ -152,14 +238,24 @@ class GameSlotsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$slot = GameSlotFactory::make()
+			->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliates[0]->id])
+			->persist();
+		$other_slot = GameSlotFactory::make()
+			->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliates[1]->id])
+			->persist();
+
 		// Managers are allowed to delete game slots in their affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_10],
-			PERSON_ID_MANAGER, [], '/',
+		$this->assertPostAsAccessRedirect(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => $slot->id],
+			$manager->id, [], '/',
 			'The game slot has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => GAME_SLOT_ID_SUNDAY_CENTRAL_TECH_WEEK_1],
-			PERSON_ID_MANAGER);
+		$this->assertPostAsAccessDenied(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => $other_slot->id],
+			$manager->id);
 	}
 
 	/**
@@ -171,16 +267,19 @@ class GameSlotsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$slot = GameSlotFactory::make()
+			->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliates[0]->id])
+			->persist();
+
 		// Others are not allowed to delete game slots
-		$this->assertPostAsAccessDenied(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1],
-			PERSON_ID_COORDINATOR);
-		$this->assertPostAsAccessDenied(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1],
-			PERSON_ID_CAPTAIN);
-		$this->assertPostAsAccessDenied(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1],
-			PERSON_ID_PLAYER);
-		$this->assertPostAsAccessDenied(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1],
-			PERSON_ID_VISITOR);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1]);
+		$this->assertPostAsAccessDenied(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => $slot->id],
+			$volunteer->id);
+		$this->assertPostAsAccessDenied(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => $slot->id],
+			$player->id);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => $slot->id]);
 	}
 
 	/**

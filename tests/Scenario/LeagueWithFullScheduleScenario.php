@@ -76,7 +76,7 @@ class LeagueWithFullScheduleScenario implements FixtureScenarioInterface {
 		foreach ($league->divisions as $key => $division) {
 			[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $division->teams = TeamFactory::make($teams)
 				->with('Divisions', $division)->persist();
-			DivisionsDayFactory::make(['day_id' => DAY_ID_MONDAY, 'division_id' => $division->id])->persist();
+			DivisionsDayFactory::make(['day_id' => ChronosInterface::MONDAY, 'division_id' => $division->id])->persist();
 
 			if (array_key_exists('coordinator', $args)) {
 				DivisionsPersonFactory::make(['person_id' => $args['coordinator']->id, 'division_id' => $division->id])->persist();
@@ -262,7 +262,7 @@ class LeagueWithFullScheduleScenario implements FixtureScenarioInterface {
 
 				[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $playoffs->teams = TeamFactory::make($teams)
 					->with('Divisions', $playoffs)->persist();
-				DivisionsDayFactory::make(['day_id' => DAY_ID_MONDAY, 'division_id' => $playoffs->id])->persist();
+				DivisionsDayFactory::make(['day_id' => ChronosInterface::MONDAY, 'division_id' => $playoffs->id])->persist();
 				foreach ($franchises as $fkey => $franchise) {
 					FranchisesTeamFactory::make(['franchise_id' => $franchise->id, 'team_id' => $playoffs->teams[$fkey]->id])->persist();
 				}
