@@ -25,8 +25,9 @@ class DiverseFacilitiesScenario implements FixtureScenarioInterface {
 
 		$open_fields = [
 			['num' => 1],
-			['num' => 2, 'latitude' => null, 'longitude' => null],
-			['num' => 3, 'is_open' => false],
+			['num' => 2],
+			['num' => 3, 'latitude' => null, 'longitude' => null],
+			['num' => 4, 'is_open' => false],
 		];
 		$closed_fields = [
 			['num' => 1, 'is_open' => false],

@@ -147,9 +147,9 @@ class FieldsControllerTest extends ControllerTestCase {
 		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
 
 		// Admins are allowed to open fields
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Fields', 'action' => 'open', 'field' => $region->facilities[0]->fields[2]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Fields', 'action' => 'open', 'field' => $region->facilities[0]->fields[3]->id],
 			$admin->id);
-		$this->assertResponseContains('/fields\\/close?field=' . $region->facilities[0]->fields[2]->id);
+		$this->assertResponseContains('/fields\\/close?field=' . $region->facilities[0]->fields[3]->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -167,12 +167,12 @@ class FieldsControllerTest extends ControllerTestCase {
 		$other_region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[1]]);
 
 		// Managers are allowed to open fields
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Fields', 'action' => 'open', 'field' => $region->facilities[0]->fields[2]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Fields', 'action' => 'open', 'field' => $region->facilities[0]->fields[3]->id],
 			$manager->id);
-		$this->assertResponseContains('/fields\\/close?field=' . $region->facilities[0]->fields[2]->id);
+		$this->assertResponseContains('/fields\\/close?field=' . $region->facilities[0]->fields[3]->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Fields', 'action' => 'open', 'field' => $other_region->facilities[0]->fields[2]->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Fields', 'action' => 'open', 'field' => $other_region->facilities[0]->fields[3]->id],
 			$manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -190,11 +190,11 @@ class FieldsControllerTest extends ControllerTestCase {
 		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
 
 		// Others are not allowed to open fields
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Fields', 'action' => 'open', 'field' => $region->facilities[0]->fields[2]->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Fields', 'action' => 'open', 'field' => $region->facilities[0]->fields[3]->id],
 			$volunteer->id);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Fields', 'action' => 'open', 'field' => $region->facilities[0]->fields[2]->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Fields', 'action' => 'open', 'field' => $region->facilities[0]->fields[3]->id],
 			$player->id);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Fields', 'action' => 'open', 'field' => $region->facilities[0]->fields[2]->id]);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Fields', 'action' => 'open', 'field' => $region->facilities[0]->fields[3]->id]);
 	}
 
 	/**

@@ -53,7 +53,7 @@ class FacilitiesControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/facilities/close?facility=' . $other_region->facilities[0]->id);
 
 		// This field doesn't have a layout defined yet, so no map link
-		$this->assertResponseNotContains('/maps/view?field=' . $region->facilities[0]->fields[1]->id);
+		$this->assertResponseNotContains('/maps/view?field=' . $region->facilities[0]->fields[2]->id);
 
 		// This facility is closed, so no link on the main index
 		$this->assertResponseNotContains('/facilities/view?facility=' . $region->facilities[1]->id);

@@ -699,4 +699,8 @@ class ControllerTestCase extends TestCase {
 		$this->assertEquals(json_encode($error, $this->_jsonOptions), (string)$this->_response->getBody());
 	}
 
+	protected function debugResponse(): void {
+		debug((string)$this->_response->getBody());
+	}
+
 }

@@ -1,10 +1,26 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use App\Test\Factory\HolidayFactory;
+use App\Test\Scenario\DiverseUsersScenario;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
+
 /**
  * App\Controller\HolidaysController Test Case
  */
 class HolidaysControllerTest extends ControllerTestCase {
+
+	use ScenarioAwareTrait;
+
+	/**
+	 * Fixtures
+	 *
+	 * @var array
+	 */
+	public $fixtures = [
+		'app.Groups',
+		'app.Settings',
+	];
 
 	/**
 	 * Test index method
@@ -12,25 +28,29 @@ class HolidaysControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testIndex(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$holiday = HolidayFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
+		$other_holiday = HolidayFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
+
 		// Admins are allowed to see the index
-		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'index'], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/holidays/edit?holiday=' . HOLIDAY_ID_CHRISTMAS);
-		$this->assertResponseContains('/holidays/delete?holiday=' . HOLIDAY_ID_CHRISTMAS);
-		$this->assertResponseContains('/holidays/edit?holiday=' . HOLIDAY_ID_CHRISTMAS_SUB);
-		$this->assertResponseContains('/holidays/delete?holiday=' . HOLIDAY_ID_CHRISTMAS_SUB);
+		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'index'], $admin->id);
+		$this->assertResponseContains('/holidays/edit?holiday=' . $holiday->id);
+		$this->assertResponseContains('/holidays/delete?holiday=' . $holiday->id);
+		$this->assertResponseContains('/holidays/edit?holiday=' . $other_holiday->id);
+		$this->assertResponseContains('/holidays/delete?holiday=' . $other_holiday->id);
 
 		// Managers are allowed to see the index, but don't see holidays in other affiliates
-		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'index'], PERSON_ID_MANAGER);
-		$this->assertResponseContains('/holidays/edit?holiday=' . HOLIDAY_ID_CHRISTMAS);
-		$this->assertResponseContains('/holidays/delete?holiday=' . HOLIDAY_ID_CHRISTMAS);
-		$this->assertResponseNotContains('/holidays/edit?holiday=' . HOLIDAY_ID_CHRISTMAS_SUB);
-		$this->assertResponseNotContains('/holidays/delete?holiday=' . HOLIDAY_ID_CHRISTMAS_SUB);
+		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'index'], $manager->id);
+		$this->assertResponseContains('/holidays/edit?holiday=' . $holiday->id);
+		$this->assertResponseContains('/holidays/delete?holiday=' . $holiday->id);
+		$this->assertResponseNotContains('/holidays/edit?holiday=' . $other_holiday->id);
+		$this->assertResponseNotContains('/holidays/delete?holiday=' . $other_holiday->id);
 
 		// Others are not allowed to see the index
-		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'index'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'index'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'index'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'index'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'index'], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'index'], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Holidays', 'action' => 'index']);
 	}
 
@@ -40,8 +60,10 @@ class HolidaysControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
 		// Admins are allowed to add holidays
-		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'add'], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'add'], $admin->id);
 	}
 
 	/**
@@ -50,8 +72,10 @@ class HolidaysControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsManager(): void {
+		[, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
 		// Managers are allowed to add holidays
-		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'add'], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'add'], $manager->id);
 	}
 
 	/**
@@ -60,11 +84,11 @@ class HolidaysControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsOthers(): void {
+		[, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
 		// Others are not allowed to add holidays
-		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'add'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'add'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'add'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'add'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'add'], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'add'], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Holidays', 'action' => 'add']);
 	}
 
@@ -74,9 +98,15 @@ class HolidaysControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$holiday = HolidayFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
+		$other_holiday = HolidayFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
+
 		// Admins are allowed to edit holidays
-		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS], PERSON_ID_ADMIN);
-		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS_SUB], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => $holiday->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => $other_holiday->id], $admin->id);
 	}
 
 	/**
@@ -85,11 +115,17 @@ class HolidaysControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsManager(): void {
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$holiday = HolidayFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
+		$other_holiday = HolidayFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
+
 		// Managers are allowed to edit holidays
-		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => $holiday->id], $manager->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS_SUB], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => $other_holiday->id], $manager->id);
 	}
 
 	/**
@@ -98,12 +134,16 @@ class HolidaysControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsOthers(): void {
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$holiday = HolidayFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
+		$other_holiday = HolidayFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
+
 		// Others are not allowed to edit holidays
-		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => HOLIDAY_ID_CHRISTMAS]);
+		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => $holiday->id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => $holiday->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => $holiday->id]);
 	}
 
 	/**
@@ -115,9 +155,15 @@ class HolidaysControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$holiday = HolidayFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
+		$other_holiday = HolidayFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
+
 		// Admins are allowed to delete holidays
-		$this->assertPostAsAccessRedirect(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => HOLIDAY_ID_CHRISTMAS],
-			PERSON_ID_ADMIN, [], ['controller' => 'Holidays', 'action' => 'index'],
+		$this->assertPostAsAccessRedirect(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => $holiday->id],
+			$admin->id, [], ['controller' => 'Holidays', 'action' => 'index'],
 			'The holiday has been deleted.');
 	}
 
@@ -130,14 +176,20 @@ class HolidaysControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$holiday = HolidayFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
+		$other_holiday = HolidayFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
+
 		// Managers are allowed to delete holidays in their own affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => HOLIDAY_ID_BOXING_DAY],
-			PERSON_ID_MANAGER, [], ['controller' => 'Holidays', 'action' => 'index'],
+		$this->assertPostAsAccessRedirect(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => $holiday->id],
+			$manager->id, [], ['controller' => 'Holidays', 'action' => 'index'],
 			'The holiday has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => HOLIDAY_ID_CHRISTMAS_SUB],
-			PERSON_ID_MANAGER);
+		$this->assertPostAsAccessDenied(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => $other_holiday->id],
+			$manager->id);
 	}
 
 	/**
@@ -149,16 +201,18 @@ class HolidaysControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$holiday = HolidayFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
+		$other_holiday = HolidayFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
+
 		// Others are not allowed to delete holidays
-		$this->assertPostAsAccessDenied(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => HOLIDAY_ID_CHRISTMAS],
-			PERSON_ID_COORDINATOR);
-		$this->assertPostAsAccessDenied(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => HOLIDAY_ID_CHRISTMAS],
-			PERSON_ID_CAPTAIN);
-		$this->assertPostAsAccessDenied(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => HOLIDAY_ID_CHRISTMAS],
-			PERSON_ID_PLAYER);
-		$this->assertPostAsAccessDenied(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => HOLIDAY_ID_CHRISTMAS],
-			PERSON_ID_VISITOR);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => HOLIDAY_ID_CHRISTMAS]);
+		$this->assertPostAsAccessDenied(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => $holiday->id],
+			$volunteer->id);
+		$this->assertPostAsAccessDenied(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => $holiday->id],
+			$player->id);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => $holiday->id]);
 	}
 
 }
