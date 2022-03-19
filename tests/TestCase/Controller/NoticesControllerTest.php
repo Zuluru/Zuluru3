@@ -1,85 +1,41 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use App\Test\Scenario\DiverseUsersScenario;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
+
 /**
  * App\Controller\NoticesController Test Case
  */
 class NoticesControllerTest extends ControllerTestCase {
 
-	/**
-	 * Test viewed method as an admin
-	 *
-	 * @return void
-	 */
-	public function testViewedAsAdmin(): void {
-		// Admins are allowed to mark a notice as viewed
-		$this->assertGetAsAccessOk(['controller' => 'Notices', 'action' => 'viewed', 1], PERSON_ID_ADMIN);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	use ScenarioAwareTrait;
 
 	/**
-	 * Test viewed method as a manager
+	 * Fixtures
 	 *
-	 * @return void
+	 * @var array
 	 */
-	public function testViewedAsManager(): void {
-		// Managers are allowed to mark a notice as viewed
-		$this->assertGetAsAccessOk(['controller' => 'Notices', 'action' => 'viewed', 1], PERSON_ID_MANAGER);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public $fixtures = [
+		'app.Groups',
+		'app.Settings',
+	];
 
 	/**
-	 * Test viewed method as a coordinator
+	 * Test viewed method
 	 *
 	 * @return void
 	 */
-	public function testViewedAsCoordinator(): void {
-		// Coordinators are allowed to mark a notice as viewed
-		$this->assertGetAsAccessOk(['controller' => 'Notices', 'action' => 'viewed', 1], PERSON_ID_COORDINATOR);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testViewed(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
-	/**
-	 * Test viewed method as a captain
-	 *
-	 * @return void
-	 */
-	public function testViewedAsCaptain(): void {
-		// Captains are allowed to mark a notice as viewed
-		$this->assertGetAsAccessOk(['controller' => 'Notices', 'action' => 'viewed', 1], PERSON_ID_CAPTAIN);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test viewed method as a player
-	 *
-	 * @return void
-	 */
-	public function testViewedAsPlayer(): void {
-		// Players are allowed to mark a notice as viewed
-		$this->assertGetAsAccessOk(['controller' => 'Notices', 'action' => 'viewed', 1], PERSON_ID_PLAYER);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test viewed method as someone else
-	 *
-	 * @return void
-	 */
-	public function testViewedAsVisitor(): void {
-		// Visitors are allowed to mark a notice as viewed
-		$this->assertGetAsAccessOk(['controller' => 'Notices', 'action' => 'viewed', 1], PERSON_ID_VISITOR);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test viewed method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testViewedAsAnonymous(): void {
-		// Others are allowed to mark a notice as viewed
+		// Everyone is allowed to mark a notice as viewed
+		$this->assertGetAsAccessOk(['controller' => 'Notices', 'action' => 'viewed', 1], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Notices', 'action' => 'viewed', 1], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Notices', 'action' => 'viewed', 1], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Notices', 'action' => 'viewed', 1], $player->id);
 		$this->assertGetAnonymousAccessOk(['controller' => 'Notices', 'action' => 'viewed', 1]);
+
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

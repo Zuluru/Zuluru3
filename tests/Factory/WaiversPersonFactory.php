@@ -2,10 +2,11 @@
 namespace App\Test\Factory;
 
 use Cake\I18n\FrozenDate;
+use Cake\I18n\FrozenTime;
 use CakephpFixtureFactories\Factory\BaseFactory;
 use Faker\Generator;
 
-class NewsletterFactory extends BaseFactory
+class WaiversPersonFactory extends BaseFactory
 {
 	/**
 	 * Defines the Table Registry used to generate entities with
@@ -13,7 +14,7 @@ class NewsletterFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return 'Newsletters';
+		return 'WaiversPeople';
 	}
 
 	/**
@@ -27,12 +28,9 @@ class NewsletterFactory extends BaseFactory
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [
-				'name' => $faker->word,
-				'from_email' => $faker->email,
-				'to_email' => $faker->email,
-				'subject' => $faker->word,
-				'reply_to' => $faker->email,
-				'target' => FrozenDate::now(),
+				'created' => FrozenTime::now(),
+				'valid_from' => FrozenDate::now()->startOfYear(),
+				'valid_until' => FrozenDate::now()->endOfYear(),
 			];
 		});
 	}

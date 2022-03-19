@@ -1,10 +1,32 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use App\Test\Factory\DivisionsPersonFactory;
+use App\Test\Factory\GameFactory;
+use App\Test\Factory\LeagueFactory;
+use App\Test\Scenario\DiverseUsersScenario;
+use App\Test\Scenario\LeagueWithFullScheduleScenario;
+use Cake\I18n\FrozenDate;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
+
 /**
  * App\Controller\LeaguesController Test Case
  */
 class LeaguesControllerTest extends ControllerTestCase {
+
+	use ScenarioAwareTrait;
+
+	/**
+	 * Fixtures
+	 *
+	 * @var array
+	 */
+	public $fixtures = [
+		'app.Days',
+		'app.Groups',
+		'app.RosterRoles',
+		'app.Settings',
+	];
 
 	/**
 	 * Test index method
@@ -15,52 +37,61 @@ class LeaguesControllerTest extends ControllerTestCase {
 		$this_year = date('Y');
 		$last_year = $this_year - 1;
 
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Divisions[2]', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Affiliates', $affiliates[0])
+			->persist();
+		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $league->divisions[0]->id])->persist();
+
+		/** @var \App\Model\Entity\League $other_league */
+		$other_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Affiliates', $affiliates[1])
+			->persist();
+
+		LeagueFactory::make(['open' => FrozenDate::now()->subYear()->subMonth(), 'close' => FrozenDate::now()->subYear()->addMonth(), 'is_open' => true])
+			->with('Divisions', ['open' => FrozenDate::now()->subYear()->subMonth(), 'close' => FrozenDate::now()->subYear()->addMonth(), 'is_open' => true])
+			->with('Affiliates', $affiliates[0])
+			->persist();
+
 		// Admins are allowed to see the index
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'index'], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/leagues/edit?league=' . LEAGUE_ID_MONDAY);
-		$this->assertResponseContains('/leagues/delete?league=' . LEAGUE_ID_MONDAY);
-		$this->assertResponseContains('/leagues/edit?league=' . LEAGUE_ID_SUNDAY_SUB);
-		$this->assertResponseContains('/leagues/delete?league=' . LEAGUE_ID_SUNDAY_SUB);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'index'], $admin->id);
+		$this->assertResponseContains('/leagues/edit?league=' . $league->id);
+		$this->assertResponseContains('/leagues/delete?league=' . $league->id);
+		$this->assertResponseContains('/leagues/edit?league=' . $other_league->id);
+		$this->assertResponseContains('/leagues/delete?league=' . $other_league->id);
 		$this->assertResponseContains('/leagues/index?year=' . $this_year);
 		$this->assertResponseContains('/leagues/index?year=' . $last_year);
 
 		// Managers are allowed to see the index
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'index'], PERSON_ID_MANAGER);
-		$this->assertResponseContains('/leagues/edit?league=' . LEAGUE_ID_MONDAY);
-		$this->assertResponseContains('/leagues/delete?league=' . LEAGUE_ID_MONDAY);
-		$this->assertResponseNotContains('/leagues/edit?league=' . LEAGUE_ID_SUNDAY_SUB);
-		$this->assertResponseNotContains('/leagues/delete?league=' . LEAGUE_ID_SUNDAY_SUB);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'index'], $manager->id);
+		$this->assertResponseContains('/leagues/edit?league=' . $league->id);
+		$this->assertResponseContains('/leagues/delete?league=' . $league->id);
+		$this->assertResponseNotContains('/leagues/edit?league=' . $other_league->id);
+		$this->assertResponseNotContains('/leagues/delete?league=' . $other_league->id);
 		$this->assertResponseContains('/leagues/index?year=' . $this_year);
 		$this->assertResponseContains('/leagues/index?year=' . $last_year);
 
 		// Others are allowed to see the index, but not edit anything
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'index'], PERSON_ID_COORDINATOR);
-		$this->assertResponseNotContains('/leagues/edit?league=' . LEAGUE_ID_MONDAY);
-		$this->assertResponseNotContains('/leagues/delete?league=' . LEAGUE_ID_MONDAY);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'index'], $volunteer->id);
+		$this->assertResponseNotContains('/leagues/edit?league=' . $league->id);
+		$this->assertResponseNotContains('/leagues/delete?league=' . $league->id);
 		$this->assertResponseContains('/leagues/index?year=' . $this_year);
 		$this->assertResponseContains('/leagues/index?year=' . $last_year);
 
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'index'], PERSON_ID_CAPTAIN);
-		$this->assertResponseNotContains('/leagues/edit?league=' . LEAGUE_ID_MONDAY);
-		$this->assertResponseNotContains('/leagues/delete?league=' . LEAGUE_ID_MONDAY);
-		$this->assertResponseContains('/leagues/index?year=' . $this_year);
-		$this->assertResponseContains('/leagues/index?year=' . $last_year);
-
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'index'], PERSON_ID_PLAYER);
-		$this->assertResponseNotContains('/leagues/edit?league=' . LEAGUE_ID_MONDAY);
-		$this->assertResponseNotContains('/leagues/delete?league=' . LEAGUE_ID_MONDAY);
-		$this->assertResponseContains('/leagues/index?year=' . $this_year);
-		$this->assertResponseContains('/leagues/index?year=' . $last_year);
-
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'index'], PERSON_ID_VISITOR);
-		$this->assertResponseNotContains('/leagues/edit?league=' . LEAGUE_ID_MONDAY);
-		$this->assertResponseNotContains('/leagues/delete?league=' . LEAGUE_ID_MONDAY);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'index'], $player->id);
+		$this->assertResponseNotContains('/leagues/edit?league=' . $league->id);
+		$this->assertResponseNotContains('/leagues/delete?league=' . $league->id);
 		$this->assertResponseContains('/leagues/index?year=' . $this_year);
 		$this->assertResponseContains('/leagues/index?year=' . $last_year);
 
 		$this->assertGetAnonymousAccessOk(['controller' => 'Leagues', 'action' => 'index']);
-		$this->assertResponseNotContains('/leagues/edit?league=' . LEAGUE_ID_MONDAY);
-		$this->assertResponseNotContains('/leagues/delete?league=' . LEAGUE_ID_MONDAY);
+		$this->assertResponseNotContains('/leagues/edit?league=' . $league->id);
+		$this->assertResponseNotContains('/leagues/delete?league=' . $league->id);
 		$this->assertResponseContains('/leagues/index?year=' . $this_year);
 		$this->assertResponseContains('/leagues/index?year=' . $last_year);
 	}
@@ -71,17 +102,24 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSummary(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
+		/** @var \App\Model\Entity\League $league */
+		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Affiliates', $affiliate)
+			->persist();
+		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $league->divisions[0]->id])->persist();
+
 		// Admins are allowed to view the summary
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'summary'], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'summary'], $admin->id);
 
 		// Managers are allowed to view the summary
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'summary'], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'summary'], $manager->id);
 
 		// Others are not allowed to view the summary
-		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'summary'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'summary'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'summary'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'summary'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'summary'], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'summary'], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Leagues', 'action' => 'summary']);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -93,45 +131,65 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testView(): void {
-		// Admins are allowed to view leagues, with full edit and delete permissions
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'view', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/leagues/edit?league=' . LEAGUE_ID_MONDAY);
-		$this->assertResponseContains('/leagues/delete?league=' . LEAGUE_ID_MONDAY);
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
 
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'view', 'league' => LEAGUE_ID_SUNDAY_SUB], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/leagues/edit?league=' . LEAGUE_ID_SUNDAY_SUB);
-		$this->assertResponseContains('/leagues/delete?league=' . LEAGUE_ID_SUNDAY_SUB);
+		/** @var \App\Model\Entity\League $league */
+		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Divisions[2]', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Affiliates', $affiliates[0])
+			->persist();
+		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $league->divisions[0]->id])->persist();
+
+		/** @var \App\Model\Entity\League $single_league */
+		$single_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Affiliates', $affiliates[0])
+			->persist();
+		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $single_league->divisions[0]->id])->persist();
+
+		/** @var \App\Model\Entity\League $other_league */
+		$other_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Affiliates', $affiliates[1])
+			->persist();
+
+		// Admins are allowed to view leagues, with full edit and delete permissions
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'view', 'league' => $league->id], $admin->id);
+		$this->assertResponseContains('/leagues/edit?league=' . $league->id);
+		$this->assertResponseContains('/leagues/delete?league=' . $league->id);
+
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'view', 'league' => $other_league->id], $admin->id);
+		$this->assertResponseContains('/leagues/edit?league=' . $other_league->id);
+		$this->assertResponseContains('/leagues/delete?league=' . $other_league->id);
 
 		// Managers are allowed to view, edit and delete leagues in their affiliate
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'view', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_MANAGER);
-		$this->assertResponseContains('/leagues/edit?league=' . LEAGUE_ID_MONDAY);
-		$this->assertResponseContains('/leagues/delete?league=' . LEAGUE_ID_MONDAY);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'view', 'league' => $league->id], $manager->id);
+		$this->assertResponseContains('/leagues/edit?league=' . $league->id);
+		$this->assertResponseContains('/leagues/delete?league=' . $league->id);
 
 		// But are not allowed to edit ones in other affiliates
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'view', 'league' => LEAGUE_ID_SUNDAY_SUB], PERSON_ID_MANAGER);
-		$this->assertResponseNotContains('/leagues/edit?league=' . LEAGUE_ID_SUNDAY_SUB);
-		$this->assertResponseNotContains('/leagues/delete?league=' . LEAGUE_ID_SUNDAY_SUB);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'view', 'league' => $other_league->id], $manager->id);
+		$this->assertResponseNotContains('/leagues/edit?league=' . $other_league->id);
+		$this->assertResponseNotContains('/leagues/delete?league=' . $other_league->id);
 
 		// Others are allowed to view leagues, but have no edit permissions
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'view', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_COORDINATOR);
-		$this->assertResponseNotContains('/leagues/edit?league=' . LEAGUE_ID_MONDAY);
-		$this->assertResponseNotContains('/leagues/delete?league=' . LEAGUE_ID_MONDAY);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'view', 'league' => $league->id], $volunteer->id);
+		$this->assertResponseNotContains('/leagues/edit?league=' . $league->id);
+		$this->assertResponseNotContains('/leagues/delete?league=' . $league->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'view', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_CAPTAIN);
-		$this->assertResponseNotContains('/leagues/edit?league=' . LEAGUE_ID_MONDAY);
-		$this->assertResponseNotContains('/leagues/delete?league=' . LEAGUE_ID_MONDAY);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'view', 'league' => $league->id], $player->id);
+		$this->assertResponseNotContains('/leagues/edit?league=' . $league->id);
+		$this->assertResponseNotContains('/leagues/delete?league=' . $league->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'view', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_PLAYER);
-		$this->assertResponseNotContains('/leagues/edit?league=' . LEAGUE_ID_MONDAY);
-		$this->assertResponseNotContains('/leagues/delete?league=' . LEAGUE_ID_MONDAY);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Leagues', 'action' => 'view', 'league' => $league->id]);
+		$this->assertResponseNotContains('/leagues/edit?league=' . $league->id);
+		$this->assertResponseNotContains('/leagues/delete?league=' . $league->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'view', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_VISITOR);
-		$this->assertResponseNotContains('/leagues/edit?league=' . LEAGUE_ID_MONDAY);
-		$this->assertResponseNotContains('/leagues/delete?league=' . LEAGUE_ID_MONDAY);
-
-		$this->assertGetAnonymousAccessOk(['controller' => 'Leagues', 'action' => 'view', 'league' => LEAGUE_ID_MONDAY]);
-		$this->assertResponseNotContains('/leagues/edit?league=' . LEAGUE_ID_MONDAY);
-		$this->assertResponseNotContains('/leagues/delete?league=' . LEAGUE_ID_MONDAY);
+		// Except that coordinators can edit (but still not delete) the league if they coordinate all the divisions in that league
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'view', 'league' => $single_league->id], $volunteer->id);
+		$this->assertResponseContains('/leagues/edit?league=' . $single_league->id);
+		$this->assertResponseNotContains('/leagues/delete?league=' . $single_league->id);
 	}
 
 	/**
@@ -140,57 +198,51 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testTooltip(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
+		/** @var \App\Model\Entity\League $league */
+		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Divisions[2]', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Affiliates', $affiliate)
+			->persist();
+		$divisions = $league->divisions;
+		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $divisions[0]->id])->persist();
+
 		// Anyone is allowed to view league tooltips
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Leagues', 'action' => 'tooltip', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/leagues\\/view?league=' . LEAGUE_ID_MONDAY);
-		$this->assertResponseContains('/divisions\\/view?division=' . DIVISION_ID_MONDAY_LADDER);
-		$this->assertResponseContains('/divisions\\/schedule?division=' . DIVISION_ID_MONDAY_LADDER);
-		$this->assertResponseContains('/divisions\\/standings?division=' . DIVISION_ID_MONDAY_LADDER);
-		$this->assertResponseContains('/divisions\\/view?division=' . DIVISION_ID_MONDAY_LADDER2);
-		$this->assertResponseContains('/divisions\\/schedule?division=' . DIVISION_ID_MONDAY_LADDER2);
-		$this->assertResponseContains('/divisions\\/standings?division=' . DIVISION_ID_MONDAY_LADDER2);
-		$this->assertResponseContains('/divisions\\/view?division=' . DIVISION_ID_MONDAY_PLAYOFF);
-		$this->assertResponseContains('/divisions\\/schedule?division=' . DIVISION_ID_MONDAY_PLAYOFF);
-		$this->assertResponseContains('/divisions\\/standings?division=' . DIVISION_ID_MONDAY_PLAYOFF);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Leagues', 'action' => 'tooltip', 'league' => $league->id], $admin->id);
+		$this->assertResponseContains('/leagues\\/view?league=' . $league->id);
+		$this->assertResponseContains('/divisions\\/view?division=' . $divisions[0]->id);
+		$this->assertResponseContains('/divisions\\/schedule?division=' . $divisions[0]->id);
+		$this->assertResponseContains('/divisions\\/standings?division=' . $divisions[0]->id);
+		$this->assertResponseContains('/divisions\\/view?division=' . $divisions[1]->id);
+		$this->assertResponseContains('/divisions\\/schedule?division=' . $divisions[1]->id);
+		$this->assertResponseContains('/divisions\\/standings?division=' . $divisions[1]->id);
 
 		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Leagues', 'action' => 'tooltip', 'league' => 0],
-			PERSON_ID_ADMIN, ['controller' => 'Leagues', 'action' => 'index'],
+			$admin->id, ['controller' => 'Leagues', 'action' => 'index'],
 			'Invalid league.');
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Leagues', 'action' => 'tooltip', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_MANAGER);
-		$this->assertResponseContains('/leagues\\/view?league=' . LEAGUE_ID_MONDAY);
-		$this->assertResponseContains('/divisions\\/view?division=' . DIVISION_ID_MONDAY_LADDER);
-		$this->assertResponseContains('/divisions\\/schedule?division=' . DIVISION_ID_MONDAY_LADDER);
-		$this->assertResponseContains('/divisions\\/standings?division=' . DIVISION_ID_MONDAY_LADDER);
-		$this->assertResponseContains('/divisions\\/view?division=' . DIVISION_ID_MONDAY_LADDER2);
-		$this->assertResponseContains('/divisions\\/schedule?division=' . DIVISION_ID_MONDAY_LADDER2);
-		$this->assertResponseContains('/divisions\\/standings?division=' . DIVISION_ID_MONDAY_LADDER2);
-		$this->assertResponseContains('/divisions\\/view?division=' . DIVISION_ID_MONDAY_PLAYOFF);
-		$this->assertResponseContains('/divisions\\/schedule?division=' . DIVISION_ID_MONDAY_PLAYOFF);
-		$this->assertResponseContains('/divisions\\/standings?division=' . DIVISION_ID_MONDAY_PLAYOFF);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Leagues', 'action' => 'tooltip', 'league' => $league->id], $manager->id);
+		$this->assertResponseContains('/leagues\\/view?league=' . $league->id);
+		$this->assertResponseContains('/divisions\\/view?division=' . $divisions[0]->id);
+		$this->assertResponseContains('/divisions\\/schedule?division=' . $divisions[0]->id);
+		$this->assertResponseContains('/divisions\\/standings?division=' . $divisions[0]->id);
+		$this->assertResponseContains('/divisions\\/view?division=' . $divisions[1]->id);
+		$this->assertResponseContains('/divisions\\/schedule?division=' . $divisions[1]->id);
+		$this->assertResponseContains('/divisions\\/standings?division=' . $divisions[1]->id);
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Leagues', 'action' => 'tooltip', 'league' => LEAGUE_ID_MONDAY],
-			PERSON_ID_COORDINATOR);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Leagues', 'action' => 'tooltip', 'league' => $league->id], $volunteer->id);
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Leagues', 'action' => 'tooltip', 'league' => LEAGUE_ID_MONDAY],
-			PERSON_ID_CAPTAIN);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Leagues', 'action' => 'tooltip', 'league' => $league->id], $player->id);
+		$this->assertResponseContains('/leagues\\/view?league=' . $league->id);
+		$this->assertResponseContains('/divisions\\/view?division=' . $divisions[0]->id);
+		$this->assertResponseContains('/divisions\\/schedule?division=' . $divisions[0]->id);
+		$this->assertResponseContains('/divisions\\/standings?division=' . $divisions[0]->id);
+		$this->assertResponseContains('/divisions\\/view?division=' . $divisions[1]->id);
+		$this->assertResponseContains('/divisions\\/schedule?division=' . $divisions[1]->id);
+		$this->assertResponseContains('/divisions\\/standings?division=' . $divisions[1]->id);
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Leagues', 'action' => 'tooltip', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_PLAYER);
-		$this->assertResponseContains('/leagues\\/view?league=' . LEAGUE_ID_MONDAY);
-		$this->assertResponseContains('/divisions\\/view?division=' . DIVISION_ID_MONDAY_LADDER);
-		$this->assertResponseContains('/divisions\\/schedule?division=' . DIVISION_ID_MONDAY_LADDER);
-		$this->assertResponseContains('/divisions\\/standings?division=' . DIVISION_ID_MONDAY_LADDER);
-		$this->assertResponseContains('/divisions\\/view?division=' . DIVISION_ID_MONDAY_LADDER2);
-		$this->assertResponseContains('/divisions\\/schedule?division=' . DIVISION_ID_MONDAY_LADDER2);
-		$this->assertResponseContains('/divisions\\/standings?division=' . DIVISION_ID_MONDAY_LADDER2);
-		$this->assertResponseContains('/divisions\\/view?division=' . DIVISION_ID_MONDAY_PLAYOFF);
-		$this->assertResponseContains('/divisions\\/schedule?division=' . DIVISION_ID_MONDAY_PLAYOFF);
-		$this->assertResponseContains('/divisions\\/standings?division=' . DIVISION_ID_MONDAY_PLAYOFF);
-
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Leagues', 'action' => 'tooltip', 'league' => LEAGUE_ID_MONDAY],
-			PERSON_ID_VISITOR);
-
-		$this->assertGetAjaxAnonymousAccessOk(['controller' => 'Leagues', 'action' => 'tooltip', 'league' => LEAGUE_ID_MONDAY]);
+		$this->assertGetAjaxAnonymousAccessOk(['controller' => 'Leagues', 'action' => 'tooltip', 'league' => $league->id]);
 	}
 
 	/**
@@ -199,18 +251,25 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testParticipation(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
+		/** @var \App\Model\Entity\League $league */
+		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Divisions[2]', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Affiliates', $affiliate)
+			->persist();
+		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $league->divisions[0]->id])->persist();
+
 		// Admins are allowed to view the participation report
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'participation', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'participation', 'league' => $league->id], $admin->id);
 
 		// Managers are allowed to view the participation report
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'participation', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'participation', 'league' => $league->id], $manager->id);
 
 		// Others are not allowed to view the participation report
-		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'participation', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'participation', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'participation', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'participation', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Leagues', 'action' => 'participation', 'league' => LEAGUE_ID_MONDAY]);
+		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'participation', 'league' => $league->id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'participation', 'league' => $league->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Leagues', 'action' => 'participation', 'league' => $league->id]);
 	}
 
 	/**
@@ -219,14 +278,26 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+		/** @var \App\Model\Entity\League $league */
+		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Affiliates', $affiliates[0])
+			->persist();
+
 		// Admins are allowed to add new leagues anywhere
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'add'], PERSON_ID_ADMIN);
-		$this->assertResponseContains('<option value="1" selected="selected">Club</option>');
-		$this->assertResponseContains('<option value="2">Sub</option>');
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'add'], $admin->id);
+		// TODO: Database has default value of "1" for event affiliate_id, which auto-selects the primary affiliate in normal use.
+		// Unit tests get some other ID for the affiliates, #1 doesn't exist, so there is no option selected. Either fix the
+		// test or fix the default in the template or get rid of the default in the database. All only applies when there are
+		// multiple affiliates anyway, otherwise the form makes the affiliate_id a hidden input.
+		$this->assertResponseContains('<option value="' . $affiliates[0]->id . '">' . $affiliates[0]->name . '</option>');
+		$this->assertResponseContains('<option value="' . $affiliates[1]->id . '">' . $affiliates[1]->name . '</option>');
 
 		// If a league ID is given, we will clone that league
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'add', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#<input type="text" name="name"[^>]*value="Monday Night"#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'add', 'league' => $league->id], $admin->id);
+		$this->assertResponseRegExp('#<input type="text" name="name"[^>]*value="' . $league->name . '"#ms');
 	}
 
 	/**
@@ -235,12 +306,21 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsManager(): void {
-		// Managers are allowed to add new leagues in their own affiliate, but not others
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'add'], PERSON_ID_MANAGER);
-		$this->assertResponseContains('<input type="hidden" name="affiliate_id" value="1"/>');
-		$this->assertResponseNotContains('<option value="2">Sub</option>');
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
 
-		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'add', 'league' => LEAGUE_ID_SUNDAY_SUB], PERSON_ID_MANAGER);
+		/** @var \App\Model\Entity\League $other_league */
+		$other_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Affiliates', $affiliates[1])
+			->persist();
+
+		// Managers are allowed to add new leagues in their own affiliate, but not others
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'add'], $manager->id);
+		$this->assertResponseContains('<input type="hidden" name="affiliate_id" value="' . $affiliates[0]->id . '"/>');
+		$this->assertResponseNotContains('<option value="' . $affiliates[1]->id . '">' . $affiliates[1]->name . '</option>');
+
+		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'add', 'league' => $other_league->id], $manager->id);
 	}
 
 	/**
@@ -249,11 +329,11 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddAsOthers(): void {
+		[, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
 		// Others are not allowed to add
-		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'add'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'add'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'add'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'add'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'add'], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'add'], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Leagues', 'action' => 'add']);
 	}
 
@@ -263,9 +343,24 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Affiliates', $affiliates[0])
+			->persist();
+
+		/** @var \App\Model\Entity\League $other_league */
+		$other_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Affiliates', $affiliates[1])
+			->persist();
+
 		// Admins are allowed to edit leagues anywhere
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'edit', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_ADMIN);
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'edit', 'league' => LEAGUE_ID_SUNDAY_SUB], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'edit', 'league' => $league->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'edit', 'league' => $other_league->id], $admin->id);
 	}
 
 	/**
@@ -274,9 +369,24 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsManager(): void {
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Affiliates', $affiliates[0])
+			->persist();
+
+		/** @var \App\Model\Entity\League $other_league */
+		$other_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Affiliates', $affiliates[1])
+			->persist();
+
 		// Managers are allowed to edit leagues in their own affiliate, but not others
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'edit', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_MANAGER);
-		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'edit', 'league' => LEAGUE_ID_SUNDAY_SUB], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'edit', 'league' => $league->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'edit', 'league' => $other_league->id], $manager->id);
 	}
 
 	/**
@@ -285,11 +395,28 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsCoordinator(): void {
+		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
+
+		/** @var \App\Model\Entity\League $league */
+		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Divisions[2]', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Affiliates', $affiliate)
+			->persist();
+		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $league->divisions[0]->id])->persist();
+
+		/** @var \App\Model\Entity\League $single_league */
+		$single_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Affiliates', $affiliate)
+			->persist();
+		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $single_league->divisions[0]->id])->persist();
+
 		// Coordinators are allowed to edit leagues where they coordinate all the divisions
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'edit', 'league' => LEAGUE_ID_THURSDAY], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'edit', 'league' => $single_league->id], $volunteer->id);
 
 		// But not leagues where they coordinate only some divisions
-		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'edit', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'edit', 'league' => $league->id], $volunteer->id);
 	}
 
 	/**
@@ -298,11 +425,18 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsOthers(): void {
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
+		/** @var \App\Model\Entity\League $league */
+		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Affiliates', $affiliate)
+			->persist();
+		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $league->divisions[0]->id])->persist();
+
 		// Others are not allowed to edit leagues
-		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'edit', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'edit', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'edit', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Leagues', 'action' => 'edit', 'league' => LEAGUE_ID_MONDAY]);
+		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'edit', 'league' => $league->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Leagues', 'action' => 'edit', 'league' => $league->id]);
 	}
 
 	/**
@@ -311,8 +445,16 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddDivisionAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
+		/** @var \App\Model\Entity\League $league */
+		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Affiliates', $affiliate)
+			->persist();
+
 		// Admins are allowed to add division
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Leagues', 'action' => 'add_division'], PERSON_ID_ADMIN);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Leagues', 'action' => 'add_division', 'league' => $league->id], $admin->id);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -322,8 +464,16 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddDivisionAsManager(): void {
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
+		/** @var \App\Model\Entity\League $league */
+		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Affiliates', $affiliate)
+			->persist();
+
 		// Managers are allowed to add divisions
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Leagues', 'action' => 'add_division'], PERSON_ID_MANAGER);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Leagues', 'action' => 'add_division', 'league' => $league->id], $manager->id);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -333,12 +483,19 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testAddDivisionAsOthers(): void {
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
+		/** @var \App\Model\Entity\League $league */
+		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Affiliates', $affiliate)
+			->persist();
+		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $league->divisions[0]->id])->persist();
+
 		// Coordinators are not allowed to add divisions
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Leagues', 'action' => 'add_division'], PERSON_ID_COORDINATOR);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Leagues', 'action' => 'add_division'], PERSON_ID_CAPTAIN);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Leagues', 'action' => 'add_division'], PERSON_ID_PLAYER);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Leagues', 'action' => 'add_division'], PERSON_ID_VISITOR);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Leagues', 'action' => 'add_division']);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Leagues', 'action' => 'add_division', 'league' => $league->id], $volunteer->id);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Leagues', 'action' => 'add_division', 'league' => $league->id], $player->id);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Leagues', 'action' => 'add_division', 'league' => $league->id]);
 	}
 
 	/**
@@ -350,14 +507,31 @@ class LeaguesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
+
+		/** @var \App\Model\Entity\League $league */
+		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Affiliates', $affiliate)
+			->persist();
+		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $league->divisions[0]->id])->persist();
+
+		/** @var \App\Model\Entity\League $dependent_league */
+		$dependent_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Affiliates', $affiliate)
+			->persist();
+		GameFactory::make(['division_id' => $dependent_league->divisions[0]->id])->persist();
+
 		// Admins are allowed to delete leagues
-		$this->assertPostAsAccessRedirect(['controller' => 'Leagues', 'action' => 'delete', 'league' => LEAGUE_ID_WEDNESDAY],
-			PERSON_ID_ADMIN, [], ['controller' => 'Leagues', 'action' => 'index'],
+		$this->assertPostAsAccessRedirect(['controller' => 'Leagues', 'action' => 'delete', 'league' => $league->id],
+			$admin->id, [], ['controller' => 'Leagues', 'action' => 'index'],
 			'The league has been deleted.');
 
 		// But not ones with dependencies
-		$this->assertPostAsAccessRedirect(['controller' => 'Leagues', 'action' => 'delete', 'league' => LEAGUE_ID_MONDAY],
-			PERSON_ID_ADMIN, [], ['controller' => 'Leagues', 'action' => 'index'],
+		$this->assertPostAsAccessRedirect(['controller' => 'Leagues', 'action' => 'delete', 'league' => $dependent_league->id],
+			$admin->id, [], ['controller' => 'Leagues', 'action' => 'index'],
 			'#The following records reference this league, so it cannot be deleted#');
 	}
 
@@ -370,14 +544,29 @@ class LeaguesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Affiliates', $affiliates[0])
+			->persist();
+
+		/** @var \App\Model\Entity\League $other_league */
+		$other_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Affiliates', $affiliates[1])
+			->persist();
+
 		// Managers are allowed to delete leagues in their affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'Leagues', 'action' => 'delete', 'league' => LEAGUE_ID_WEDNESDAY],
-			PERSON_ID_MANAGER, [], ['controller' => 'Leagues', 'action' => 'index'],
+		$this->assertPostAsAccessRedirect(['controller' => 'Leagues', 'action' => 'delete', 'league' => $league->id],
+			$manager->id, [], ['controller' => 'Leagues', 'action' => 'index'],
 			'The league has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Leagues', 'action' => 'delete', 'league' => LEAGUE_ID_SUNDAY_SUB],
-			PERSON_ID_MANAGER);
+		$this->assertPostAsAccessDenied(['controller' => 'Leagues', 'action' => 'delete', 'league' => $other_league->id],
+			$manager->id);
 	}
 
 	/**
@@ -389,16 +578,21 @@ class LeaguesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
+		/** @var \App\Model\Entity\League $league */
+		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+			->with('Affiliates', $affiliate)
+			->persist();
+		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $league->divisions[0]->id])->persist();
+
 		// Others are not allowed to delete leagues
-		$this->assertPostAsAccessDenied(['controller' => 'Leagues', 'action' => 'delete', 'league' => LEAGUE_ID_WEDNESDAY],
-			PERSON_ID_COORDINATOR);
-		$this->assertPostAsAccessDenied(['controller' => 'Leagues', 'action' => 'delete', 'league' => LEAGUE_ID_WEDNESDAY],
-			PERSON_ID_CAPTAIN);
-		$this->assertPostAsAccessDenied(['controller' => 'Leagues', 'action' => 'delete', 'league' => LEAGUE_ID_WEDNESDAY],
-			PERSON_ID_PLAYER);
-		$this->assertPostAsAccessDenied(['controller' => 'Leagues', 'action' => 'delete', 'league' => LEAGUE_ID_WEDNESDAY],
-			PERSON_ID_VISITOR);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Leagues', 'action' => 'delete', 'league' => LEAGUE_ID_WEDNESDAY]);
+		$this->assertPostAsAccessDenied(['controller' => 'Leagues', 'action' => 'delete', 'league' => $league->id],
+			$volunteer->id);
+		$this->assertPostAsAccessDenied(['controller' => 'Leagues', 'action' => 'delete', 'league' => $league->id],
+			$player->id);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Leagues', 'action' => 'delete', 'league' => $league->id]);
 	}
 
 	/**
@@ -407,14 +601,18 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSchedule(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliate, 'coordinator' => $volunteer]);
+
 		// Anyone is allowed to see the schedule
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'schedule', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_ADMIN);
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'schedule', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_MANAGER);
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'schedule', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'schedule', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'schedule', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'schedule', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessOk(['controller' => 'Leagues', 'action' => 'schedule', 'league' => LEAGUE_ID_MONDAY]);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'schedule', 'league' => $league->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'schedule', 'league' => $league->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'schedule', 'league' => $league->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'schedule', 'league' => $league->id], $player->id);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Leagues', 'action' => 'schedule', 'league' => $league->id]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -425,14 +623,18 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testStandings(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliate, 'coordinator' => $volunteer]);
+
 		// Anyone is allowed to see the standings
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'standings', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_ADMIN);
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'standings', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_MANAGER);
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'standings', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'standings', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'standings', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'standings', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessOk(['controller' => 'Leagues', 'action' => 'standings', 'league' => LEAGUE_ID_MONDAY]);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'standings', 'league' => $league->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'standings', 'league' => $league->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'standings', 'league' => $league->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'standings', 'league' => $league->id], $player->id);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Leagues', 'action' => 'standings', 'league' => $league->id]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -443,18 +645,24 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testSlots(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliate, 'coordinator' => $volunteer]);
+
 		// Admins are allowed to see the slots report
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'slots', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'slots', 'league' => $league->id], $admin->id);
 
 		// Managers are allowed to see the slots report
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'slots', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'slots', 'league' => $league->id], $manager->id);
+
+		// Coordinators are allowed to see the slots report of leagues they coordinate all divisions of
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'slots', 'league' => $league->id], $volunteer->id);
 
 		// Others are not allowed to see the slots report
-		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'slots', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'slots', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'slots', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'slots', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Leagues', 'action' => 'slots', 'league' => LEAGUE_ID_MONDAY]);
+		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'slots', 'league' => $league->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Leagues', 'action' => 'slots', 'league' => $league->id]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}

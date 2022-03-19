@@ -211,7 +211,6 @@ class MailingListsControllerTest extends ControllerTestCase {
 		$affiliates = $admin->affiliates;
 
 		$list = MailingListFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
-		$other_list = MailingListFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
 
 		// Others are not allowed to edit mailing lists
 		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => $list->id], $volunteer->id);

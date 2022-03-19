@@ -1,12 +1,28 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use App\Test\Factory\WaiverFactory;
+use App\Test\Factory\WaiversPersonFactory;
+use App\Test\Scenario\DiverseUsersScenario;
 use Cake\I18n\FrozenDate;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * App\Controller\WaiversController Test Case
  */
 class WaiversControllerTest extends ControllerTestCase {
+
+	use ScenarioAwareTrait;
+
+	/**
+	 * Fixtures
+	 *
+	 * @var array
+	 */
+	public $fixtures = [
+		'app.Groups',
+		'app.Settings',
+	];
 
 	/**
 	 * Test index method
@@ -14,25 +30,31 @@ class WaiversControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testIndex(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$waiver = WaiverFactory::make(['affiliate_id' => $affiliates[0]->id, 'expiry_type' => 'fixed_dates', 'start_month' => 1, 'start_day' => 1, 'end_month' => 12, 'end_day' => 31])
+			->persist();
+		$other_waiver = WaiverFactory::make(['affiliate_id' => $affiliates[1]->id, 'expiry_type' => 'never'])
+			->persist();
+
 		// Admins are allowed to see the index
-		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'index'], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/waivers/edit?waiver=' . WAIVER_ID_ANNUAL);
-		$this->assertResponseContains('/waivers/delete?waiver=' . WAIVER_ID_ANNUAL);
-		$this->assertResponseContains('/waivers/edit?waiver=' . WAIVER_ID_PERPETUAL);
-		$this->assertResponseContains('/waivers/delete?waiver=' . WAIVER_ID_PERPETUAL);
+		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'index'], $admin->id);
+		$this->assertResponseContains('/waivers/edit?waiver=' . $waiver->id);
+		$this->assertResponseContains('/waivers/delete?waiver=' . $waiver->id);
+		$this->assertResponseContains('/waivers/edit?waiver=' . $other_waiver->id);
+		$this->assertResponseContains('/waivers/delete?waiver=' . $other_waiver->id);
 
 		// Managers are allowed to see the index, but don't see waivers in other affiliates
-		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'index'], PERSON_ID_MANAGER);
-		$this->assertResponseContains('/waivers/edit?waiver=' . WAIVER_ID_ANNUAL);
-		$this->assertResponseContains('/waivers/delete?waiver=' . WAIVER_ID_ANNUAL);
-		$this->assertResponseNotContains('/waivers/edit?waiver=' . WAIVER_ID_PERPETUAL);
-		$this->assertResponseNotContains('/waivers/delete?waiver=' . WAIVER_ID_PERPETUAL);
+		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'index'], $manager->id);
+		$this->assertResponseContains('/waivers/edit?waiver=' . $waiver->id);
+		$this->assertResponseContains('/waivers/delete?waiver=' . $waiver->id);
+		$this->assertResponseNotContains('/waivers/edit?waiver=' . $other_waiver->id);
+		$this->assertResponseNotContains('/waivers/delete?waiver=' . $other_waiver->id);
 
 		// Others are not allowed to see the index
-		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'index'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'index'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'index'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'index'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'index'], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'index'], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Waivers', 'action' => 'index']);
 	}
 
@@ -42,62 +64,54 @@ class WaiversControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testView(): void {
-		// Admins are allowed to view waivers
-		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'view', 'waiver' => WAIVER_ID_ANNUAL], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/waivers/edit?waiver=' . WAIVER_ID_ANNUAL);
-		$this->assertResponseContains('/waivers/delete?waiver=' . WAIVER_ID_ANNUAL);
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
 
-		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'view', 'waiver' => WAIVER_ID_PERPETUAL], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/waivers/edit?waiver=' . WAIVER_ID_PERPETUAL);
-		$this->assertResponseContains('/waivers/delete?waiver=' . WAIVER_ID_PERPETUAL);
+		$waiver = WaiverFactory::make(['affiliate_id' => $affiliates[0]->id, 'expiry_type' => 'fixed_dates', 'start_month' => 1, 'start_day' => 1, 'end_month' => 12, 'end_day' => 31])
+			->persist();
+		$other_waiver = WaiverFactory::make(['affiliate_id' => $affiliates[1]->id, 'expiry_type' => 'never'])
+			->persist();
+
+		// Admins are allowed to view waivers
+		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'view', 'waiver' => $waiver->id], $admin->id);
+		$this->assertResponseContains('/waivers/edit?waiver=' . $waiver->id);
+		$this->assertResponseContains('/waivers/delete?waiver=' . $waiver->id);
+
+		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'view', 'waiver' => $other_waiver->id], $admin->id);
+		$this->assertResponseContains('/waivers/edit?waiver=' . $other_waiver->id);
+		$this->assertResponseContains('/waivers/delete?waiver=' . $other_waiver->id);
 
 		// Managers are allowed to view waivers
-		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'view', 'waiver' => WAIVER_ID_ANNUAL], PERSON_ID_MANAGER);
-		$this->assertResponseContains('/waivers/edit?waiver=' . WAIVER_ID_ANNUAL);
-		$this->assertResponseContains('/waivers/delete?waiver=' . WAIVER_ID_ANNUAL);
+		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'view', 'waiver' => $waiver->id], $manager->id);
+		$this->assertResponseContains('/waivers/edit?waiver=' . $waiver->id);
+		$this->assertResponseContains('/waivers/delete?waiver=' . $waiver->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'view', 'waiver' => WAIVER_ID_PERPETUAL], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'view', 'waiver' => $other_waiver->id], $manager->id);
 
 		// Others are not allowed to view waivers
-		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'view', 'waiver' => WAIVER_ID_ANNUAL], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'view', 'waiver' => WAIVER_ID_ANNUAL], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'view', 'waiver' => WAIVER_ID_ANNUAL], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'view', 'waiver' => WAIVER_ID_ANNUAL], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Waivers', 'action' => 'view', 'waiver' => WAIVER_ID_ANNUAL]);
+		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'view', 'waiver' => $waiver->id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'view', 'waiver' => $waiver->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Waivers', 'action' => 'view', 'waiver' => $waiver->id]);
 	}
 
 	/**
-	 * Test add method as an admin
+	 * Test add method
 	 *
 	 * @return void
 	 */
-	public function testAddAsAdmin(): void {
+	public function testAdd(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
 		// Admins are allowed to add waivers
-		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'add'], PERSON_ID_ADMIN);
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'add'], $admin->id);
 
-	/**
-	 * Test add method as a manager
-	 *
-	 * @return void
-	 */
-	public function testAddAsManager(): void {
 		// Managers are allowed to add waivers
-		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'add'], PERSON_ID_MANAGER);
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'add'], $manager->id);
 
-	/**
-	 * Test add method as others
-	 *
-	 * @return void
-	 */
-	public function testAddAsOthers(): void {
 		// Others are not allowed to add waivers
-		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'add'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'add'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'add'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'add'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'add'], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'add'], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Waivers', 'action' => 'add']);
 	}
 
@@ -107,9 +121,17 @@ class WaiversControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$waiver = WaiverFactory::make(['affiliate_id' => $affiliates[0]->id, 'expiry_type' => 'fixed_dates', 'start_month' => 1, 'start_day' => 1, 'end_month' => 12, 'end_day' => 31])
+			->persist();
+		$other_waiver = WaiverFactory::make(['affiliate_id' => $affiliates[1]->id, 'expiry_type' => 'never'])
+			->persist();
+
 		// Admins are allowed to edit waivers
-		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => WAIVER_ID_ANNUAL], PERSON_ID_ADMIN);
-		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => WAIVER_ID_PERPETUAL], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => $waiver->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => $other_waiver->id], $admin->id);
 	}
 
 	/**
@@ -118,11 +140,19 @@ class WaiversControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsManager(): void {
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$waiver = WaiverFactory::make(['affiliate_id' => $affiliates[0]->id, 'expiry_type' => 'fixed_dates', 'start_month' => 1, 'start_day' => 1, 'end_month' => 12, 'end_day' => 31])
+			->persist();
+		$other_waiver = WaiverFactory::make(['affiliate_id' => $affiliates[1]->id, 'expiry_type' => 'never'])
+			->persist();
+
 		// Managers are allowed to edit waivers
-		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => WAIVER_ID_ANNUAL], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => $waiver->id], $manager->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => WAIVER_ID_PERPETUAL], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => $other_waiver->id], $manager->id);
 	}
 
 	/**
@@ -131,12 +161,16 @@ class WaiversControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testEditAsOthers(): void {
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$waiver = WaiverFactory::make(['affiliate_id' => $affiliates[0]->id, 'expiry_type' => 'fixed_dates', 'start_month' => 1, 'start_day' => 1, 'end_month' => 12, 'end_day' => 31])
+			->persist();
+
 		// Others are not allowed to edit waivers
-		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => WAIVER_ID_ANNUAL], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => WAIVER_ID_ANNUAL], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => WAIVER_ID_ANNUAL], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => WAIVER_ID_ANNUAL], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => WAIVER_ID_ANNUAL]);
+		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => $waiver->id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => $waiver->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => $waiver->id]);
 	}
 
 	/**
@@ -148,14 +182,23 @@ class WaiversControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$waiver = WaiverFactory::make(['affiliate_id' => $affiliates[0]->id, 'expiry_type' => 'fixed_dates', 'start_month' => 1, 'start_day' => 1, 'end_month' => 12, 'end_day' => 31])
+			->persist();
+		$dependent_waiver = WaiverFactory::make(['affiliate_id' => $affiliates[1]->id, 'expiry_type' => 'never'])
+			->persist();
+
 		// Admins are allowed to delete waivers
-		$this->assertPostAsAccessRedirect(['controller' => 'Waivers', 'action' => 'delete', 'waiver' => WAIVER_ID_EVENT],
-			PERSON_ID_ADMIN, [], ['controller' => 'Waivers', 'action' => 'index'],
+		$this->assertPostAsAccessRedirect(['controller' => 'Waivers', 'action' => 'delete', 'waiver' => $waiver->id],
+			$admin->id, [], ['controller' => 'Waivers', 'action' => 'index'],
 			'The waiver has been deleted.');
 
 		// But not ones with dependencies
-		$this->assertPostAsAccessRedirect(['controller' => 'Waivers', 'action' => 'delete', 'waiver' => WAIVER_ID_ANNUAL],
-			PERSON_ID_ADMIN, [], ['controller' => 'Waivers', 'action' => 'index'],
+		WaiversPersonFactory::make(['waiver_id' => $dependent_waiver->id, 'person_id' => $admin->id])->persist();
+		$this->assertPostAsAccessRedirect(['controller' => 'Waivers', 'action' => 'delete', 'waiver' => $dependent_waiver->id],
+			$admin->id, [], ['controller' => 'Waivers', 'action' => 'index'],
 			'#The following records reference this waiver, so it cannot be deleted#');
 	}
 
@@ -168,14 +211,22 @@ class WaiversControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$waiver = WaiverFactory::make(['affiliate_id' => $affiliates[0]->id, 'expiry_type' => 'fixed_dates', 'start_month' => 1, 'start_day' => 1, 'end_month' => 12, 'end_day' => 31])
+			->persist();
+		$other_waiver = WaiverFactory::make(['affiliate_id' => $affiliates[1]->id, 'expiry_type' => 'never'])
+			->persist();
+
 		// Managers are allowed to delete waivers in their affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'Waivers', 'action' => 'delete', 'waiver' => WAIVER_ID_EVENT],
-			PERSON_ID_MANAGER, [], ['controller' => 'Waivers', 'action' => 'index'],
+		$this->assertPostAsAccessRedirect(['controller' => 'Waivers', 'action' => 'delete', 'waiver' => $waiver->id],
+			$manager->id, [], ['controller' => 'Waivers', 'action' => 'index'],
 			'The waiver has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Waivers', 'action' => 'delete', 'waiver' => WAIVER_ID_PERPETUAL],
-			PERSON_ID_MANAGER);
+		$this->assertPostAsAccessDenied(['controller' => 'Waivers', 'action' => 'delete', 'waiver' => $other_waiver->id],
+			$manager->id);
 	}
 
 	/**
@@ -187,99 +238,42 @@ class WaiversControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$waiver = WaiverFactory::make(['affiliate_id' => $affiliates[0]->id, 'expiry_type' => 'fixed_dates', 'start_month' => 1, 'start_day' => 1, 'end_month' => 12, 'end_day' => 31])
+			->persist();
+
 		// Others are not allowed to delete waivers
-		$this->assertPostAsAccessDenied(['controller' => 'Waivers', 'action' => 'delete', 'waiver' => WAIVER_ID_EVENT],
-			PERSON_ID_COORDINATOR);
-		$this->assertPostAsAccessDenied(['controller' => 'Waivers', 'action' => 'delete', 'waiver' => WAIVER_ID_EVENT],
-			PERSON_ID_CAPTAIN);
-		$this->assertPostAsAccessDenied(['controller' => 'Waivers', 'action' => 'delete', 'waiver' => WAIVER_ID_EVENT],
-			PERSON_ID_PLAYER);
-		$this->assertPostAsAccessDenied(['controller' => 'Waivers', 'action' => 'delete', 'waiver' => WAIVER_ID_EVENT],
-			PERSON_ID_VISITOR);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Waivers', 'action' => 'delete', 'waiver' => WAIVER_ID_EVENT]);
+		$this->assertPostAsAccessDenied(['controller' => 'Waivers', 'action' => 'delete', 'waiver' => $waiver->id],
+			$volunteer->id);
+		$this->assertPostAsAccessDenied(['controller' => 'Waivers', 'action' => 'delete', 'waiver' => $waiver->id],
+			$player->id);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Waivers', 'action' => 'delete', 'waiver' => $waiver->id]);
 	}
 
 	/**
-	 * Test sign method as an admin
+	 * Test sign method
 	 *
 	 * @return void
 	 */
-	public function testSignAsAdmin(): void {
-		// Admins are allowed to sign
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
-		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'sign', 'waiver' => WAIVER_ID_EVENT, 'date' => FrozenDate::now()->toDateString()], PERSON_ID_ADMIN);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testSign(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
 
-	/**
-	 * Test sign method as a manager
-	 *
-	 * @return void
-	 */
-	public function testSignAsManager(): void {
-		// Managers are allowed to sign
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
-		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'sign', 'waiver' => WAIVER_ID_EVENT, 'date' => FrozenDate::now()->toDateString()], PERSON_ID_MANAGER);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$waiver = WaiverFactory::make(['affiliate_id' => $affiliates[0]->id, 'expiry_type' => 'fixed_dates', 'start_month' => 1, 'start_day' => 1, 'end_month' => 12, 'end_day' => 31])
+			->persist();
 
-	/**
-	 * Test sign method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testSignAsCoordinator(): void {
-		// Coordinators are allowed to sign
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
-		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'sign', 'waiver' => WAIVER_ID_EVENT, 'date' => FrozenDate::now()->toDateString()], PERSON_ID_COORDINATOR);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		// All registered users are allowed to sign
+		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'sign', 'waiver' => $waiver->id, 'date' => FrozenDate::now()->toDateString()], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'sign', 'waiver' => $waiver->id, 'date' => FrozenDate::now()->toDateString()], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'sign', 'waiver' => $waiver->id, 'date' => FrozenDate::now()->toDateString()], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'sign', 'waiver' => $waiver->id, 'date' => FrozenDate::now()->toDateString()], $player->id);
 
-	/**
-	 * Test sign method as a captain
-	 *
-	 * @return void
-	 */
-	public function testSignAsCaptain(): void {
-		// Captains are allowed to sign
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
-		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'sign', 'waiver' => WAIVER_ID_EVENT, 'date' => FrozenDate::now()->toDateString()], PERSON_ID_CAPTAIN);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test sign method as a player
-	 *
-	 * @return void
-	 */
-	public function testSignAsPlayer(): void {
-		// Players are allowed to sign
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
-		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'sign', 'waiver' => WAIVER_ID_EVENT, 'date' => FrozenDate::now()->toDateString()], PERSON_ID_PLAYER);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test sign method as someone else
-	 *
-	 * @return void
-	 */
-	public function testSignAsVisitor(): void {
-		// Visitors are allowed to sign
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
-		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'sign', 'waiver' => WAIVER_ID_EVENT, 'date' => FrozenDate::now()->toDateString()], PERSON_ID_VISITOR);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test sign method without being logged in
-	 *
-	 * @return void
-	 */
-	public function testSignAsAnonymous(): void {
 		// Others are not allowed to sign
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Waivers', 'action' => 'sign', 'waiver' => WAIVER_ID_EVENT, 'date' => FrozenDate::now()->toDateString()]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Waivers', 'action' => 'sign', 'waiver' => $waiver->id, 'date' => FrozenDate::now()->toDateString()]);
+
+		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
@@ -288,26 +282,20 @@ class WaiversControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testReview(): void {
-		// Admins are allowed to review
-		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'review', 'waiver' => WAIVER_ID_EVENT], PERSON_ID_ADMIN);
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
 
-		// Managers are allowed to review
-		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'review', 'waiver' => WAIVER_ID_EVENT], PERSON_ID_MANAGER);
+		$waiver = WaiverFactory::make(['affiliate_id' => $affiliates[0]->id, 'expiry_type' => 'fixed_dates', 'start_month' => 1, 'start_day' => 1, 'end_month' => 12, 'end_day' => 31])
+			->persist();
 
-		// Coordinators are allowed to review
-		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'review', 'waiver' => WAIVER_ID_EVENT], PERSON_ID_COORDINATOR);
-
-		// Captains are allowed to review
-		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'review', 'waiver' => WAIVER_ID_EVENT], PERSON_ID_CAPTAIN);
-
-		// Players are allowed to review
-		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'review', 'waiver' => WAIVER_ID_EVENT], PERSON_ID_PLAYER);
-
-		// Visitors are allowed to review
-		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'review', 'waiver' => WAIVER_ID_EVENT], PERSON_ID_VISITOR);
+		// All registered users are allowed to review
+		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'review', 'waiver' => $waiver->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'review', 'waiver' => $waiver->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'review', 'waiver' => $waiver->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'review', 'waiver' => $waiver->id], $player->id);
 
 		// Others are not allowed to review
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Waivers', 'action' => 'review', 'waiver' => WAIVER_ID_EVENT]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Waivers', 'action' => 'review', 'waiver' => $waiver->id]);
 	}
 
 }
