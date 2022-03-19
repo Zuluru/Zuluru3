@@ -15,10 +15,10 @@ use App\Test\Factory\StatFactory;
 use App\Test\Factory\TeamsPersonFactory;
 use App\Test\Scenario\DiverseUsersScenario;
 use App\Test\Scenario\SingleGameScenario;
+use App\TestSuite\ZuluruEmailTrait;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
-use Cake\TestSuite\EmailTrait;
 use Cake\Utility\Text;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
@@ -27,7 +27,7 @@ use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
  */
 class GamesControllerTest extends ControllerTestCase {
 
-	use EmailTrait;
+	use ZuluruEmailTrait;
 	use ScenarioAwareTrait;
 
 	/**
@@ -1025,6 +1025,7 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertMailSentFrom('admin@zuluru.org');
 		$this->assertMailSentWith([$captain->user->email => $captain->full_name], 'ReplyTo');
 		$this->assertMailSentTo($captain2->user->email);
+		$this->assertMailNotSentTo($player->user->email);
 		$this->assertMailSentWith([], 'CC');
 		$this->assertMailSentWith("{$game->home_team->name} game note", 'Subject');
 		$this->assertMailContains("{$captain->full_name} has added a note");
