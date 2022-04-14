@@ -23,21 +23,17 @@ class LeaguesTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Leagues') ? [] : ['className' => 'App\Model\Table\LeaguesTable'];
-		$this->LeaguesTable = TableRegistry::get('Leagues', $config);
+		$this->LeaguesTable = TableRegistry::getTableLocator()->get('Leagues', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->LeaguesTable);
 
 		parent::tearDown();
@@ -45,8 +41,6 @@ class LeaguesTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeMarshal method
-	 *
-	 * @return void
 	 */
 	public function testBeforeMarshal(): void {
 		$data = new \ArrayObject([
@@ -58,8 +52,6 @@ class LeaguesTableTest extends TableTestCase {
 
 	/**
 	 * Test compareLeagueAndDivision method
-	 *
-	 * @return void
 	 */
 	public function testCompareLeagueAndDivision(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
@@ -99,8 +91,6 @@ class LeaguesTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
 	public function testAffiliate(): void {
 	    $affiliateId = rand();
@@ -110,8 +100,6 @@ class LeaguesTableTest extends TableTestCase {
 
 	/**
 	 * Test divisions method
-	 *
-	 * @return void
 	 */
 	public function testDivisions(): void {
 	    DivisionFactory::make(3)->persist();

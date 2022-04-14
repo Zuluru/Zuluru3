@@ -19,21 +19,17 @@ class PreregistrationsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Preregistrations') ? [] : ['className' => 'App\Model\Table\PreregistrationsTable'];
-		$this->PreregistrationsTable = TableRegistry::get('Preregistrations', $config);
+		$this->PreregistrationsTable = TableRegistry::getTableLocator()->get('Preregistrations', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->PreregistrationsTable);
 
 		parent::tearDown();
@@ -41,8 +37,6 @@ class PreregistrationsTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
 	public function testAffiliate(): void {
         $affiliateId = rand();

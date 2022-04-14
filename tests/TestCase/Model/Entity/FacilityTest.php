@@ -27,13 +27,11 @@ class FacilityTest extends TestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		parent::setUp();
-		$facilities = TableRegistry::get('Facilities');
+		$facilities = TableRegistry::getTableLocator()->get('Facilities');
 		$this->FacilitySunnybrook = $facilities->get(FACILITY_ID_SUNNYBROOK, [
 			'contain' => ['Fields'],
 		]);
@@ -81,10 +79,8 @@ class FacilityTest extends TestCase {
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->FacilitySunnybrook);
 		unset($this->FacilityBroadacres);
 
@@ -98,8 +94,6 @@ class FacilityTest extends TestCase {
 
 	/**
 	 * Test _getPermits method
-	 *
-	 * @return void
 	 */
 	public function testGetPermits(): void {
 		$year = FrozenTime::now()->year;

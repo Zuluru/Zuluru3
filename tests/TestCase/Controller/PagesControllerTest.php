@@ -23,8 +23,6 @@ class PagesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test display method
-	 *
-	 * @return void
 	 */
 	public function testDisplay(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);

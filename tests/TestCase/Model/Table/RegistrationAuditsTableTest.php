@@ -18,21 +18,17 @@ class RegistrationAuditsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('RegistrationAudits') ? [] : ['className' => 'App\Model\Table\RegistrationAuditsTable'];
-		$this->RegistrationAudits = TableRegistry::get('RegistrationAudits', $config);
+		$this->RegistrationAudits = TableRegistry::getTableLocator()->get('RegistrationAudits', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->RegistrationAudits);
 
 		parent::tearDown();
@@ -40,8 +36,6 @@ class RegistrationAuditsTableTest extends TableTestCase {
 
 	/**
 	 * Test initialize method
-	 *
-	 * @return void
 	 */
 	public function testInitialize(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -49,8 +43,6 @@ class RegistrationAuditsTableTest extends TableTestCase {
 
 	/**
 	 * Test validationDefault method
-	 *
-	 * @return void
 	 */
 	public function testValidationDefault(): void {
 		$this->markTestIncomplete('Not implemented yet.');

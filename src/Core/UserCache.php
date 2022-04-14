@@ -206,6 +206,14 @@ class UserCache {
 					}
 					break;
 
+				case 'AcceptedTeamIDs':
+					if ($self->read('Teams', $id, true)) {
+						$self->data[$id][$key] = collection($self->data[$id]['Teams'])->filter(function ($team) {
+							return ($team->_matchingData['TeamsPeople']->status == ROSTER_APPROVED);
+						})->extract('id')->toArray();
+					}
+					break;
+
 				case 'Credits':
 					$self->data[$id][$key] = TableRegistry::getTableLocator()->get('Credits')->find()
 						->where([

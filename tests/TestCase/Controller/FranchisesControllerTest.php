@@ -32,8 +32,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test index method
-	 *
-	 * @return void
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testIndex(): void {
@@ -51,8 +49,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test letter method
-	 *
-	 * @return void
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testLetter(): void {
@@ -70,8 +66,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test view method
-	 *
-	 * @return void
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testView(): void {
@@ -130,8 +124,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as an admin
-	 *
-	 * @return void
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testAddAsAdmin(): void {
@@ -144,8 +136,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as a manager
-	 *
-	 * @return void
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testAddAsManager(): void {
@@ -158,8 +148,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as a coordinator
-	 *
-	 * @return void
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testAddAsCoordinator(): void {
@@ -172,8 +160,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as a player
-	 *
-	 * @return void
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testAddAsPlayer(): void {
@@ -186,8 +172,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method without being logged in
-	 *
-	 * @return void
 	 */
 	public function testAddAsAnonymous(): void {
 		// Others are not allowed to add franchises
@@ -197,8 +181,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as an admin
-	 *
-	 * @return void
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testEditAsAdmin(): void {
@@ -218,8 +200,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as a manager
-	 *
-	 * @return void
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testEditAsManager(): void {
@@ -241,8 +221,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as the owner
-	 *
-	 * @return void
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testEditAsOwner(): void {
@@ -266,8 +244,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as others
-	 *
-	 * @return void
 	 */
 	public function testEditAsOthers(): void {
 		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -284,8 +260,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -318,8 +292,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as a manager
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
@@ -345,8 +317,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as others
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
@@ -373,8 +343,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_team method as franchise owner
-	 *
-	 * @return void
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testAddTeamAsOwner(): void {
@@ -398,7 +366,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 		// Franchise owners are allowed to add teams
 		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add_team', 'franchise' => $franchise->id], $owner->id);
-		$this->assertResponseContains("<option value=\"{$team->id}\">{$team->name} ({$team->division->full_league_name})</option>");
+		$this->assertResponseContains('<option value="' . $team->id . '">' . $team->name . ' (' . $team->division->full_league_name . ')</option>');
 
 		// Post the form
 		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'add_team', 'franchise' => $franchise->id],
@@ -414,8 +382,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_team method as others
-	 *
-	 * @return void
 	 */
 	public function testAddTeamAsOthers(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -434,8 +400,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test remove_team method as an admin
-	 *
-	 * @return void
 	 */
 	public function testRemoveTeamAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -460,8 +424,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test remove_team method as a manager
-	 *
-	 * @return void
 	 */
 	public function testRemoveTeamAsManager(): void {
 		$this->enableCsrfToken();
@@ -486,8 +448,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test remove_team method as franchise owner
-	 *
-	 * @return void
 	 */
 	public function testRemoveTeamAsOwner(): void {
 		$this->enableCsrfToken();
@@ -515,8 +475,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test remove_team method as others
-	 *
-	 * @return void
 	 */
 	public function testRemoveTeamAsOther(): void {
 		$this->enableCsrfToken();
@@ -542,8 +500,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_owner method as an admin
-	 *
-	 * @return void
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testAddOwnerAsAdmin(): void {
@@ -560,8 +516,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_owner method as a manager
-	 *
-	 * @return void
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testAddOwnerAsManager(): void {
@@ -578,8 +532,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_owner method as franchise owner
-	 *
-	 * @return void
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testAddOwnerAsOwner(): void {
@@ -622,8 +574,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_owner method as others
-	 *
-	 * @return void
 	 */
 	public function testAddOwnerAsOthers(): void {
 		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -640,8 +590,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test remove_owner method as an admin
-	 *
-	 * @return void
 	 */
 	public function testRemoveOwnerAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -671,8 +619,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test remove_owner method as a manager
-	 *
-	 * @return void
 	 */
 	public function testRemoveOwnerAsManager(): void {
 		$this->enableCsrfToken();
@@ -696,8 +642,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test remove_owner method as franchise owner
-	 *
-	 * @return void
 	 */
 	public function testRemoveOwnerAsOwner(): void {
 		$this->enableCsrfToken();
@@ -720,8 +664,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test remove_owner method as others
-	 *
-	 * @return void
 	 */
 	public function testRemoveOwnerAsOthers(): void {
 		$this->enableCsrfToken();

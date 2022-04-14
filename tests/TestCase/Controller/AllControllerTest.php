@@ -28,8 +28,6 @@ class AllControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test clear_cache method
-	 *
-	 * @return void
 	 */
 	public function testClearCache(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -50,8 +48,6 @@ class AllControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test language method
-	 *
-	 * @return void
 	 */
 	public function testLanguage(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -90,8 +86,6 @@ class AllControllerTest extends ControllerTestCase {
 	/**
 	 * 1. Unauthenticated access to an obsolete public resource (e.g. a deactivated user profile).
 	 * Should respond with HTTP code 410 GONE.
-	 *
-	 * @return void
 	 */
 	public function testAuth1UnauthenticatedAccessToObsoleteResource(): void {
 		$team = TeamFactory::make()->persist();
@@ -104,8 +98,6 @@ class AllControllerTest extends ControllerTestCase {
 	/**
 	 * 2a. Unauthenticated access to a protected resource (e.g. an edit page or admin-only view), via HTTP.
 	 * Should redirect to login, include URL back to the thing, and set "you must log in" message.
-	 *
-	 * @return void
 	 */
 	public function testAuth2aUnauthenticatedAccessToProtectedResourceHTTPForbiddenException(): void {
 		$team = TeamFactory::make()->persist();
@@ -116,8 +108,6 @@ class AllControllerTest extends ControllerTestCase {
 	/**
 	 * 2b. Unauthenticated access to a protected resource, via Ajax.
 	 * Should redirect to login, include URL back to the thing, and set "you must log in" message, but in JSON.
-	 *
-	 * @return void
 	 */
 	public function testAuth2bUnauthenticatedAccessToProtectedResourceAjax(): void {
 		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Groups', 'action' => 'activate', 'group' => GROUP_OFFICIAL]);
@@ -126,8 +116,6 @@ class AllControllerTest extends ControllerTestCase {
 	/**
 	 * 3a. Unauthenticated access to a protected view of a public resource (e.g. registration wizard).
 	 * Should redirect to somewhere (e.g. a public view).
-	 *
-	 * @return void
 	 */
 	public function testAuth3aUnauthenticatedAccessToProtectedViewOfPublicResource(): void {
 		$this->assertGetAnonymousAccessRedirect(['controller' => 'Events', 'action' => 'wizard'],
@@ -137,8 +125,6 @@ class AllControllerTest extends ControllerTestCase {
 	/**
 	 * 3b. Unauthenticated access to a protected resource, via HTTP.
 	 * Should redirect to somewhere, and set a custom message.
-	 *
-	 * @return void
 	 */
 	public function testAuth3bUnauthenticatedAccessToProtectedResourceHTTPForbiddenRedirectException(): void {
 		$player = PersonFactory::makePlayer()
@@ -159,8 +145,6 @@ class AllControllerTest extends ControllerTestCase {
 	 * 4a. Unauthorized 'get' access (e.g. an edit page or admin-only view)
 	 * Should redirect to home page. Will set a message (typically "you do not have permission").
 	 * Handled via custom authorization handler on the ForbiddenException.
-	 *
-	 * @return void
 	 */
 	public function testAuth4aUnauthorizedAccessToProtectedResourceHTTPForbiddenException(): void {
 		$player = PersonFactory::makePlayer()->with('Teams')->persist();
@@ -173,8 +157,6 @@ class AllControllerTest extends ControllerTestCase {
 	 * 4b. Unauthorized 'get' access (e.g. an edit page or admin-only view) via Ajax
 	 * Should redirect to home page. Will set a message (typically "you do not have permission").
 	 * Handled via custom authorization handler on the ForbiddenException.
-	 *
-	 * @return void
 	 */
 	public function testAuth4bUnauthorizedAccessToProtectedResourceAjaxForbiddenException(): void {
 		$player = PersonFactory::makePlayer()->persist();
@@ -187,8 +169,6 @@ class AllControllerTest extends ControllerTestCase {
 	 * 4c. Unauthorized 'get' access (e.g. an edit page or admin-only view)
 	 * Should redirect to home page. Will set a message (typically "you do not have permission").
 	 * Handled via custom authorization handler on the MissingIdentityException.
-	 *
-	 * @return void
 	 */
 	public function testAuth4cUnauthorizedAccessToProtectedResourceHTTPMissingIdentityException(): void {
 		$player = PersonFactory::makePlayer()->with('Teams')->persist();
@@ -201,8 +181,6 @@ class AllControllerTest extends ControllerTestCase {
 	 * 4d. Unauthorized 'get' access (e.g. an edit page or admin-only view) via Ajax
 	 * Should redirect to home page. Will set a message (typically "you do not have permission").
 	 * Handled via custom authorization handler on the MissingIdentityException.
-	 *
-	 * @return void
 	 */
 	public function testAuth4cUnauthorizedAccessToProtectedResourceAjaxMissingIdentityException(): void {
 		$player = PersonFactory::makePlayer()->with('Teams')->persist();
@@ -214,8 +192,6 @@ class AllControllerTest extends ControllerTestCase {
 	/**
 	 * 5a. Unauthorized access to a missing resource (e.g. a disabled feature)
 	 * Should redirect to somewhere (e.g. a public view). May set a message.
-	 *
-	 * @return void
 	 */
 	public function testAuth5aUnauthorizedAccessToMissingResource(): void {
 		$team = TeamFactory::make()->with('Divisions.Leagues')->persist();
@@ -230,8 +206,6 @@ class AllControllerTest extends ControllerTestCase {
 	 * 5b. Unauthorized 'get' access (e.g. an edit page or admin-only view)
 	 * Should redirect to somewhere (e.g. a public view). Will set a custom message.
 	 * Handled via custom authorization handler on the custom ForbiddenRedirectException.
-	 *
-	 * @return void
 	 */
 	public function testAuth5bUnauthorizedAccessToProtectedResourceHTTPForbiddenRedirectException(): void {
 		$captain = PersonFactory::makePlayer()
@@ -253,8 +227,6 @@ class AllControllerTest extends ControllerTestCase {
 	 * 5c. Unauthorized 'get' access (e.g. an edit page or admin-only view) via Ajax
 	 * Should redirect to somewhere (e.g. a public view). Will set a custom message.
 	 * Handled via custom authorization handler on the custom ForbiddenRedirectException.
-	 *
-	 * @return void
 	 */
 	public function testAuth5cUnauthorizedAccessToProtectedResourceAjaxForbiddenRedirectException(): void {
 		$captain = PersonFactory::makePlayer()

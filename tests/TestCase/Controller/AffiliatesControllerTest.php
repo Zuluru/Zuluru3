@@ -21,14 +21,14 @@ class AffiliatesControllerTest extends ControllerTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
+		'app.Countries',
 		'app.Groups',
+		'app.Provinces',
 		'app.Settings',
 	];
 
 	/**
 	 * Test index method
-	 *
-	 * @return void
 	 */
 	public function testIndex(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -48,8 +48,6 @@ class AffiliatesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test view method
-	 *
-	 * @return void
 	 */
 	public function testView(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -69,8 +67,6 @@ class AffiliatesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method
-	 *
-	 * @return void
 	 */
 	public function testAdd(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -87,8 +83,6 @@ class AffiliatesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method
-	 *
-	 * @return void
 	 */
 	public function testEdit(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -106,8 +100,6 @@ class AffiliatesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -132,8 +124,6 @@ class AffiliatesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as others
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
@@ -151,8 +141,6 @@ class AffiliatesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_manager method as an admin
-	 *
-	 * @return void
 	 */
 	public function testAddManagerAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -206,8 +194,6 @@ class AffiliatesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_manager method as others
-	 *
-	 * @return void
 	 */
 	public function testAddManagerAsOthers(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -222,8 +208,6 @@ class AffiliatesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test remove_manager method as an admin
-	 *
-	 * @return void
 	 */
 	public function testRemoveManagerAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -252,8 +236,6 @@ class AffiliatesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test remove_manager method as others
-	 *
-	 * @return void
 	 */
 	public function testRemoveManagerAsOthers(): void {
 		$this->enableCsrfToken();
@@ -271,8 +253,6 @@ class AffiliatesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test select method
-	 *
-	 * @return void
 	 */
 	public function testSelect(): void {
 		$this->enableCsrfToken();
@@ -286,7 +266,7 @@ class AffiliatesControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessOk(['controller' => 'Affiliates', 'action' => 'select'], $manager->id);
 		$this->assertGetAsAccessOk(['controller' => 'Affiliates', 'action' => 'select'], $volunteer->id);
 		$this->assertGetAsAccessOk(['controller' => 'Affiliates', 'action' => 'select'], $player->id);
-		$this->assertResponseContains("<option value=\"{$affiliates[0]->id}\">{$affiliates[0]->name}</option><option value=\"{$affiliates[1]->id}\">{$affiliates[1]->name}</option>");
+		$this->assertResponseContains('<option value="' . $affiliates[0]->id . '">' . $affiliates[0]->name . '</option><option value="' . $affiliates[1]->id . '">' . $affiliates[1]->name . '</option>');
 		$this->assertPostAsAccessRedirect(['controller' => 'Affiliates', 'action' => 'select'],
 			$player->id, [
 				'affiliate' => $affiliates[0]->id,
@@ -299,8 +279,6 @@ class AffiliatesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test view_all method
-	 *
-	 * @return void
 	 */
 	public function testViewAll(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);

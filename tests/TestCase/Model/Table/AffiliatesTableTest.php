@@ -21,21 +21,17 @@ class AffiliatesTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Affiliates') ? [] : ['className' => 'App\Model\Table\AffiliatesTable'];
-		$this->AffiliatesTable = TableRegistry::get('Affiliates', $config);
+		$this->AffiliatesTable = TableRegistry::getTableLocator()->get('Affiliates', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->AffiliatesTable);
 
 		parent::tearDown();
@@ -43,8 +39,6 @@ class AffiliatesTableTest extends TableTestCase {
 
 	/**
 	 * Test readByPlayerId method
-	 *
-	 * @return void
 	 */
 	public function testReadByPlayerId(): void {
         $player = PersonFactory::make()->with('Affiliates')->persist();
@@ -59,8 +53,6 @@ class AffiliatesTableTest extends TableTestCase {
 
 	/**
 	 * Test mergeList method
-	 *
-	 * @return void
 	 */
 	public function testMergeList(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);

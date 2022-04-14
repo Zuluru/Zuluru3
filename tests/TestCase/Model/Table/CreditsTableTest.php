@@ -18,21 +18,17 @@ class CreditsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Credits') ? [] : ['className' => 'App\Model\Table\CreditsTable'];
-		$this->CreditsTable = TableRegistry::get('Credits', $config);
+		$this->CreditsTable = TableRegistry::getTableLocator()->get('Credits', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->CreditsTable);
 
 		parent::tearDown();

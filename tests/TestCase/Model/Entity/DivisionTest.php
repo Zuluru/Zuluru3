@@ -16,10 +16,8 @@ use Cake\ORM\TableRegistry;
 class DivisionTest extends TestCase {
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		Configure::load('options');
 		Configure::load('sports');
@@ -126,8 +124,6 @@ class DivisionTest extends TestCase {
 
 	/**
 	 * Test _getRosterDeadline method
-	 *
-	 * @return void
 	 */
 	public function testGetRosterDeadline(): void {
 		$this->assertEquals(
@@ -143,8 +139,6 @@ class DivisionTest extends TestCase {
 
 	/**
 	 * Test _getRosterDeadlinePassed method
-	 *
-	 * @return void
 	 */
 	public function testGetRosterDeadlinePassed(): void {
 		$division = DivisionFactory::make(['close' => FrozenDate::now()->subDays(5)])->getEntity();
@@ -157,8 +151,6 @@ class DivisionTest extends TestCase {
 
 	/**
 	 * Test addGameResult method
-	 *
-	 * @return void
 	 */
 	public function testAddGameResult(): void {
 		$this->markTestIncomplete('Not implemented yet. Very complex under the hood.');

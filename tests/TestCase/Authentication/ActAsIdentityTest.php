@@ -16,25 +16,21 @@ class ActAsIdentityTest extends TestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		foreach (Configure::read('App.globalListeners') as $listener) {
 			EventManager::instance()->on($listener);
 		}
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		Cache::clear(false, 'long_term');
 		parent::tearDown();
 	}
 
 	/**
 	 * Test applicableAffiliateIDs method as an admin
-	 *
-	 * @return void
 	 */
 	public function testApplicableAffiliateIDsAsAdmin(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -42,8 +38,6 @@ class ActAsIdentityTest extends TestCase {
 
 	/**
 	 * Test applicableAffiliateIDs method as a manager
-	 *
-	 * @return void
 	 */
 	public function testApplicableAffiliateIDsAsManager(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -51,8 +45,6 @@ class ActAsIdentityTest extends TestCase {
 
 	/**
 	 * Test applicableAffiliateIDs method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testApplicableAffiliateIDsAsCoordinator(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -60,8 +52,6 @@ class ActAsIdentityTest extends TestCase {
 
 	/**
 	 * Test applicableAffiliateIDs method as a captain
-	 *
-	 * @return void
 	 */
 	public function testApplicableAffiliateIDsAsCaptain(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -69,8 +59,6 @@ class ActAsIdentityTest extends TestCase {
 
 	/**
 	 * Test applicableAffiliateIDs method as a player
-	 *
-	 * @return void
 	 */
 	public function testApplicableAffiliateIDsAsPlayer(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -78,8 +66,6 @@ class ActAsIdentityTest extends TestCase {
 
 	/**
 	 * Test applicableAffiliateIDs method as someone else
-	 *
-	 * @return void
 	 */
 	public function testApplicableAffiliateIDsAsVisitor(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -87,8 +73,6 @@ class ActAsIdentityTest extends TestCase {
 
 	/**
 	 * Test applicableAffiliateIDs method without being logged in
-	 *
-	 * @return void
 	 */
 	public function testApplicableAffiliateIDsAsAnonymous(): void {
 		$this->markTestIncomplete('Not implemented yet.');

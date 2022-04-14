@@ -19,20 +19,16 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$this->LeagueType = ModuleRegistry::getInstance()->load('LeagueType:roundrobin');
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->LeagueType);
 
 		parent::tearDown();
@@ -55,13 +51,11 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 			];
 		}
 		$contain[] = 'Leagues';
-		return TableRegistry::get('Divisions')->get($id, ['contain' => $contain]);
+		return TableRegistry::getTableLocator()->get('Divisions')->get($id, ['contain' => $contain]);
 	}
 
 	/**
 	 * Test compareTeams method
-	 *
-	 * @return void
 	 */
 	public function testCompareTeams(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
@@ -103,8 +97,6 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 
 	/**
 	 * Test schedulingFields method
-	 *
-	 * @return void
 	 */
 	public function testSchedulingFields(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -112,8 +104,6 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 
 	/**
 	 * Test schedulingFieldsRules method
-	 *
-	 * @return void
 	 */
 	public function testSchedulingFieldsRules(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -121,8 +111,6 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 
 	/**
 	 * Test scheduleOptions method
-	 *
-	 * @return void
 	 */
 	public function testScheduleOptions(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -130,8 +118,6 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 
 	/**
 	 * Test scheduleRequirements method
-	 *
-	 * @return void
 	 */
 	public function testScheduleRequirements(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -139,8 +125,6 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 
 	/**
 	 * Test createEmptyGame method
-	 *
-	 * @return void
 	 */
 	public function testCreateEmptyGame(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
@@ -162,8 +146,6 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 
 	/**
 	 * Test createEmptySet method
-	 *
-	 * @return void
 	 */
 	public function testCreateEmptySet(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
@@ -196,8 +178,6 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 
 	/**
 	 * Test createScheduledSet method
-	 *
-	 * @return void
 	 */
 	public function testCreateScheduledSet(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
@@ -242,8 +222,6 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 
 	/**
 	 * Test createHalfRoundrobin method, standings split
-	 *
-	 * @return void
 	 */
 	public function testCreateHalfRoundrobinStandings(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
@@ -324,8 +302,6 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 
 	/**
 	 * Test createHalfRoundrobin method, rating split
-	 *
-	 * @return void
 	 */
 	public function testCreateHalfRoundrobinRating(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
@@ -404,8 +380,6 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 
 	/**
 	 * Test createHalfRoundrobin method, mix split
-	 *
-	 * @return void
 	 */
 	public function testCreateHalfRoundrobinMix(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
@@ -486,8 +460,6 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 
 	/**
 	 * Test createFullRoundrobin method
-	 *
-	 * @return void
 	 */
 	public function testCreateFullRoundrobin(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);

@@ -18,21 +18,17 @@ class TeamEventsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('TeamEvents') ? [] : ['className' => 'App\Model\Table\TeamEventsTable'];
-		$this->TeamEventsTable = TableRegistry::get('TeamEvents', $config);
+		$this->TeamEventsTable = TableRegistry::getTableLocator()->get('TeamEvents', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->TeamEventsTable);
 
 		parent::tearDown();
@@ -40,8 +36,6 @@ class TeamEventsTableTest extends TableTestCase {
 
 	/**
 	 * Test readAttendance method
-	 *
-	 * @return void
 	 */
 	public function testReadAttendance(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -49,8 +43,6 @@ class TeamEventsTableTest extends TableTestCase {
 
 	/**
 	 * Test createAttendance method
-	 *
-	 * @return void
 	 */
 	public function testCreateAttendance(): void {
 		$this->markTestIncomplete('Not implemented yet.');

@@ -1,6 +1,10 @@
 <?php
 use Cake\I18n\FrozenTime;
 
+/**
+ * @type int $min
+ */
+
 $this->Html->addCrumb(__('People'));
 $this->Html->addCrumb(__('Membership Retention Statistics'));
 ?>
@@ -9,9 +13,9 @@ $this->Html->addCrumb(__('Membership Retention Statistics'));
 	<h2><?= __('Membership Retention Statistics') ?></h2>
 
 <?php
-echo $this->Form->create(null, ['align' => 'horizontal']);
+echo $this->Form->create(false, ['align' => 'horizontal']);
 $year = FrozenTime::now()->year;
-$years = array_combine(range($year, $min->year), range($year, $min->year));
+$years = array_combine(range($year, $min), range($year, $min));
 echo $this->Form->input('start', [
 	'label' => __('Include details starting in'),
 	'options' => $years,

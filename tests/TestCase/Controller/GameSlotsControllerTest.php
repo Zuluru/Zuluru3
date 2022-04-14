@@ -25,8 +25,6 @@ class GameSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test view method
-	 *
-	 * @return void
 	 */
 	public function testView(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -66,8 +64,6 @@ class GameSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as an admin
-	 *
-	 * @return void
 	 */
 	public function testAddAsAdmin(): void {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -86,8 +82,6 @@ class GameSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as a manager
-	 *
-	 * @return void
 	 */
 	public function testAddAsManager(): void {
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -105,8 +99,6 @@ class GameSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as others
-	 *
-	 * @return void
 	 */
 	public function testAddAsOthers(): void {
 		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -129,8 +121,6 @@ class GameSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as an admin
-	 *
-	 * @return void
 	 */
 	public function testEditAsAdmin(): void {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -151,8 +141,6 @@ class GameSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as a manager
-	 *
-	 * @return void
 	 */
 	public function testEditAsManager(): void {
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -176,8 +164,6 @@ class GameSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as others
-	 *
-	 * @return void
 	 */
 	public function testEditAsOthers(): void {
 		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -195,8 +181,6 @@ class GameSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -231,8 +215,6 @@ class GameSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as a manager
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
@@ -260,8 +242,6 @@ class GameSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as others
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
@@ -284,8 +264,6 @@ class GameSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test submit_score method as an admin
-	 *
-	 * @return void
 	 */
 	public function testSubmitScoreAsAdmin(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
@@ -293,8 +271,6 @@ class GameSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test submit_score method as a manager
-	 *
-	 * @return void
 	 */
 	public function testSubmitScoreAsManager(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
@@ -302,8 +278,6 @@ class GameSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test submit_score method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testSubmitScoreAsCoordinator(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
@@ -311,8 +285,6 @@ class GameSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test submit_score method as a captain
-	 *
-	 * @return void
 	 */
 	public function testSubmitScoreAsCaptain(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
@@ -320,8 +292,6 @@ class GameSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test submit_score method as others
-	 *
-	 * @return void
 	 */
 	public function testSubmitScoreAsOthers(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');

@@ -19,20 +19,16 @@ class LeagueTypeRatingsLadderTest extends ModuleTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$this->LeagueType = ModuleRegistry::getInstance()->load('LeagueType:ratings_ladder');
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->LeagueType);
 
 		parent::tearDown();
@@ -55,13 +51,11 @@ class LeagueTypeRatingsLadderTest extends ModuleTestCase {
 			];
 		}
 		$contain[] = 'Leagues';
-		return TableRegistry::get('Divisions')->get($id, ['contain' => $contain]);
+		return TableRegistry::getTableLocator()->get('Divisions')->get($id, ['contain' => $contain]);
 	}
 
 	/**
 	 * Test links method
-	 *
-	 * @return void
 	 */
 	public function testLinks(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -69,8 +63,6 @@ class LeagueTypeRatingsLadderTest extends ModuleTestCase {
 
 	/**
 	 * Test compareTeams method
-	 *
-	 * @return void
 	 */
 	public function testCompareTeams(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
@@ -99,8 +91,6 @@ class LeagueTypeRatingsLadderTest extends ModuleTestCase {
 
 	/**
 	 * Test schedulingFields method
-	 *
-	 * @return void
 	 */
 	public function testSchedulingFields(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -108,8 +98,6 @@ class LeagueTypeRatingsLadderTest extends ModuleTestCase {
 
 	/**
 	 * Test schedulingFieldsRules method
-	 *
-	 * @return void
 	 */
 	public function testSchedulingFieldsRules(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -117,8 +105,6 @@ class LeagueTypeRatingsLadderTest extends ModuleTestCase {
 
 	/**
 	 * Test scheduleOptions method
-	 *
-	 * @return void
 	 */
 	public function testScheduleOptions(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -126,8 +112,6 @@ class LeagueTypeRatingsLadderTest extends ModuleTestCase {
 
 	/**
 	 * Test scheduleRequirements method
-	 *
-	 * @return void
 	 */
 	public function testScheduleRequirements(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -135,8 +119,6 @@ class LeagueTypeRatingsLadderTest extends ModuleTestCase {
 
 	/**
 	 * Test createScheduledSet method
-	 *
-	 * @return void
 	 */
 	public function testCreateScheduledSet(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);

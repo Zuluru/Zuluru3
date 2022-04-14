@@ -405,9 +405,13 @@ class PeopleController extends AppController {
 
 	public function participation() {
 		$this->Authorization->authorize($this);
+
+		$first_event = TableRegistry::getTableLocator()->get('Events')->find()->order('Events.open')->first();
+		$first_league = TableRegistry::getTableLocator()->get('Leagues')->find()->order('Leagues.open')->first();
+
 		$min = min(
-			TableRegistry::getTableLocator()->get('Events')->field('open', [], 'Events.open')->year,
-			TableRegistry::getTableLocator()->get('Leagues')->field('open', [], 'Leagues.open')->year
+			$first_event ? $first_event->open->year : FrozenDate::now()->year,
+			$first_league ? $first_league->open->year : FrozenDate::now()->year
 		);
 		$this->set(compact('min'));
 
@@ -435,9 +439,13 @@ class PeopleController extends AppController {
 
 	public function retention() {
 		$this->Authorization->authorize($this);
+
+		$first_event = TableRegistry::getTableLocator()->get('Events')->find()->order('Events.open')->first();
+		$first_league = TableRegistry::getTableLocator()->get('Leagues')->find()->order('Leagues.open')->first();
+
 		$min = min(
-			TableRegistry::getTableLocator()->get('Events')->field('open', [], 'Events.open'),
-			TableRegistry::getTableLocator()->get('Leagues')->field('open', [], 'Leagues.open')
+			$first_event ? $first_event->open->year : FrozenDate::now()->year,
+			$first_league ? $first_league->open->year : FrozenDate::now()->year
 		);
 		$this->set(compact('min'));
 
@@ -1387,6 +1395,7 @@ class PeopleController extends AppController {
 			])
 			->first();
 		if (!empty($photo)) {
+			$this->Authorization->authorize($photo);
 			$this->response->file(Configure::read('App.paths.uploads') . DS . $photo->filename);
 			return $this->response;
 		}
@@ -2034,10 +2043,10 @@ class PeopleController extends AppController {
 			$this->Flash->warning(__('Failed to approve the badge.'));
 			return $this->redirect(['action' => 'approve_badges']);
 		} else {
-			if ($link['badge']['visibility'] != BADGE_VISIBILITY_ADMIN) {
+			if ($link->badge->visibility != BADGE_VISIBILITY_ADMIN) {
 				// Inform the nominator
 				if (!$this->_sendMail([
-					'to' => $link['nominated_by'],
+					'to' => $link->nominated_by,
 					'subject' => function() { return __('{0} Notification of Badge Approval', Configure::read('organization.name')); },
 					'template' => 'badge_nomination_approved',
 					'sendAs' => 'both',
@@ -2049,7 +2058,7 @@ class PeopleController extends AppController {
 
 				// Inform the recipient
 				if (!$this->_sendMail([
-					'to' => $link['person'],
+					'to' => $link->person,
 					'subject' => function() { return __('{0} New Badge Awarded', Configure::read('organization.name')); },
 					'template' => 'badge_awarded',
 					'sendAs' => 'both',
@@ -2089,11 +2098,11 @@ class PeopleController extends AppController {
 			$this->Flash->warning(__('The badge could not be deleted. Please, try again.'));
 			return $this->redirect(['action' => 'approve_badges']);
 		} else {
-			if ($link['badge']['visibility'] != BADGE_VISIBILITY_ADMIN) {
-				if ($link['approved']) {
+			if ($link->badge->visibility != BADGE_VISIBILITY_ADMIN) {
+				if ($link->approved) {
 					// Inform the badge holder
 					if (!$this->_sendMail([
-						'to' => $link['person'],
+						'to' => $link->person,
 						'subject' => function() { return __('{0} Notification of Badge Deletion', Configure::read('organization.name')); },
 						'template' => 'badge_deleted',
 						'sendAs' => 'both',
@@ -2105,7 +2114,7 @@ class PeopleController extends AppController {
 				} else {
 					// Inform the nominator
 					if (!$this->_sendMail([
-						'to' => $link['nominated_by'],
+						'to' => $link->nominated_by,
 						'subject' => function() { return __('{0} Notification of Badge Rejection', Configure::read('organization.name')); },
 						'template' => 'badge_nomination_rejected',
 						'sendAs' => 'both',

@@ -19,21 +19,17 @@ class NewslettersTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Newsletters') ? [] : ['className' => 'App\Model\Table\NewslettersTable'];
-		$this->NewslettersTable = TableRegistry::get('Newsletters', $config);
+		$this->NewslettersTable = TableRegistry::getTableLocator()->get('Newsletters', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->NewslettersTable);
 
 		parent::tearDown();
@@ -41,8 +37,6 @@ class NewslettersTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
 	public function testAffiliate(): void {
         $affiliateId = rand();

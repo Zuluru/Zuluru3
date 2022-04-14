@@ -19,21 +19,17 @@ class GamesTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Games') ? [] : ['className' => 'App\Model\Table\GamesTable'];
-		$this->GamesTable = TableRegistry::get('Games', $config);
+		$this->GamesTable = TableRegistry::getTableLocator()->get('Games', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->GamesTable);
 
 		parent::tearDown();
@@ -41,8 +37,6 @@ class GamesTableTest extends TableTestCase {
 
 	/**
 	 * Test validationGameEdit method
-	 *
-	 * @return void
 	 */
 	public function testValidationGameEdit(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -50,8 +44,6 @@ class GamesTableTest extends TableTestCase {
 
 	/**
 	 * Test validationScheduleAdd method
-	 *
-	 * @return void
 	 */
 	public function testValidationScheduleAdd(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -59,8 +51,6 @@ class GamesTableTest extends TableTestCase {
 
 	/**
 	 * Test validationScheduleEdit method
-	 *
-	 * @return void
 	 */
 	public function testValidationScheduleEdit(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -68,8 +58,6 @@ class GamesTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeMarshal method
-	 *
-	 * @return void
 	 */
 	public function testBeforeMarshal(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -77,8 +65,6 @@ class GamesTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeRules method
-	 *
-	 * @return void
 	 */
 	public function testBeforeRules(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -86,8 +72,6 @@ class GamesTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeSave method
-	 *
-	 * @return void
 	 */
 	public function testBeforeSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -95,8 +79,6 @@ class GamesTableTest extends TableTestCase {
 
 	/**
 	 * Test afterSave method
-	 *
-	 * @return void
 	 */
 	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -104,8 +86,6 @@ class GamesTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeDelete method
-	 *
-	 * @return void
 	 */
 	public function testBeforeDelete(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -113,8 +93,6 @@ class GamesTableTest extends TableTestCase {
 
 	/**
 	 * Test afterDelete method
-	 *
-	 * @return void
 	 */
 	public function testAfterDelete(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -122,8 +100,6 @@ class GamesTableTest extends TableTestCase {
 
 	/**
 	 * Test compareSportDateAndField method
-	 *
-	 * @return void
 	 */
 	public function testCompareSportDateAndField(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -131,8 +107,6 @@ class GamesTableTest extends TableTestCase {
 
 	/**
 	 * Test compareDateAndField method
-	 *
-	 * @return void
 	 */
 	public function testCompareDateAndField(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -140,8 +114,6 @@ class GamesTableTest extends TableTestCase {
 
 	/**
 	 * Test adjustEntryIndices method
-	 *
-	 * @return void
 	 */
 	public function testAdjustEntryIndices(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -149,8 +121,6 @@ class GamesTableTest extends TableTestCase {
 
 	/**
 	 * Test readAttendance method
-	 *
-	 * @return void
 	 */
 	public function testReadAttendance(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -158,8 +128,6 @@ class GamesTableTest extends TableTestCase {
 
 	/**
 	 * Test matchDates method
-	 *
-	 * @return void
 	 */
 	public function testMatchDates(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -167,8 +135,6 @@ class GamesTableTest extends TableTestCase {
 
 	/**
 	 * Test attendanceOptions method
-	 *
-	 * @return void
 	 */
 	public function testAttendanceOptions(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -176,8 +142,6 @@ class GamesTableTest extends TableTestCase {
 
 	/**
 	 * Test twitterScore method
-	 *
-	 * @return void
 	 */
 	public function testTwitterScore(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -185,8 +149,6 @@ class GamesTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
 	public function testAffiliate(): void {
         $affiliateId = rand();

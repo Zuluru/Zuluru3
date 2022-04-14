@@ -18,21 +18,17 @@ class PoolsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Pools') ? [] : ['className' => 'App\Model\Table\PoolsTable'];
-		$this->PoolsTable = TableRegistry::get('Pools', $config);
+		$this->PoolsTable = TableRegistry::getTableLocator()->get('Pools', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->PoolsTable);
 
 		parent::tearDown();

@@ -18,21 +18,17 @@ class UsersTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Users') ? [] : ['className' => 'App\Model\Table\UsersTable'];
-		$this->UsersTable = TableRegistry::get('Users', $config);
+		$this->UsersTable = TableRegistry::getTableLocator()->get('Users', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->UsersTable);
 
 		parent::tearDown();
@@ -40,8 +36,6 @@ class UsersTableTest extends TableTestCase {
 
 	/**
 	 * Test validationPassword method
-	 *
-	 * @return void
 	 */
 	public function testValidationPassword(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -49,8 +43,6 @@ class UsersTableTest extends TableTestCase {
 
 	/**
 	 * Test validationCreate method
-	 *
-	 * @return void
 	 */
 	public function testValidationCreate(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -58,8 +50,6 @@ class UsersTableTest extends TableTestCase {
 
 	/**
 	 * Test findAuth method
-	 *
-	 * @return void
 	 */
 	public function testFindAuth(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -67,8 +57,6 @@ class UsersTableTest extends TableTestCase {
 
 	/**
 	 * Test activated method
-	 *
-	 * @return void
 	 */
 	public function testActivated(): void {
 		$this->markTestIncomplete('Not implemented yet.');

@@ -41,8 +41,6 @@ class BadgesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test index method
-	 *
-	 * @return void
 	 */
 	public function testIndex(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -111,8 +109,6 @@ class BadgesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test deactivated method
-	 *
-	 * @return void
 	 */
 	public function testDeactivated(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -146,8 +142,6 @@ class BadgesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test view method
-	 *
-	 * @return void
 	 */
 	public function testView(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -231,8 +225,6 @@ class BadgesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test initialize_awards method as an admin
-	 *
-	 * @return void
 	 */
 	public function testInitializeAwardsAsAdmin(): void {
 		$league = $this->loadFixtureScenario(LeagueWithRostersScenario::class);
@@ -275,8 +267,6 @@ class BadgesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test initialize_awards method as a manager
-	 *
-	 * @return void
 	 */
 	public function testInitializeAwardsAsManager(): void {
 		$affiliate = AffiliateFactory::make()->persist();
@@ -295,8 +285,6 @@ class BadgesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test initialize_awards method as others
-	 *
-	 * @return void
 	 */
 	public function testInitializeAwardsAsOthers(): void {
 		$affiliate = AffiliateFactory::make()->persist();
@@ -310,8 +298,6 @@ class BadgesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test tooltip method
-	 *
-	 * @return void
 	 */
 	public function testTooltip(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -371,8 +357,6 @@ class BadgesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method
-	 *
-	 * @return void
 	 */
 	public function testAdd(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -391,8 +375,6 @@ class BadgesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method
-	 *
-	 * @return void
 	 */
 	public function testEdit(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -423,8 +405,6 @@ class BadgesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test deactivate method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeactivateAsAdmin(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
@@ -445,8 +425,6 @@ class BadgesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test deactivate method as a manager
-	 *
-	 * @return void
 	 */
 	public function testDeactivateAsManager(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
@@ -470,8 +448,6 @@ class BadgesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test deactivate method as others
-	 *
-	 * @return void
 	 */
 	public function testDeactivateAsOthers(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
@@ -492,8 +468,6 @@ class BadgesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test activate method as an admin
-	 *
-	 * @return void
 	 */
 	public function testActivateAsAdmin(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
@@ -514,8 +488,6 @@ class BadgesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test activate method as a manager
-	 *
-	 * @return void
 	 */
 	public function testActivateAsManager(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
@@ -539,8 +511,6 @@ class BadgesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test activate method as others
-	 *
-	 * @return void
 	 */
 	public function testActivateAsOthers(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
@@ -561,8 +531,6 @@ class BadgesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -589,8 +557,6 @@ class BadgesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as a manager
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
@@ -617,8 +583,6 @@ class BadgesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as others
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();

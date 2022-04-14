@@ -24,8 +24,6 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test index method
-	 *
-	 * @return void
 	 */
 	public function testIndex(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -61,8 +59,6 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as an admin
-	 *
-	 * @return void
 	 */
 	public function testAddAsAdmin(): void {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -73,8 +69,6 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as a manager
-	 *
-	 * @return void
 	 */
 	public function testAddAsManager(): void {
 		[, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -85,8 +79,6 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as others
-	 *
-	 * @return void
 	 */
 	public function testAddAsOthers(): void {
 		[, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -99,8 +91,6 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -122,8 +112,6 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as a manager
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
@@ -154,8 +142,6 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as others
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();

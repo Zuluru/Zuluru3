@@ -28,8 +28,6 @@ class AnswersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test activate method as an admin
-	 *
-	 * @return void
 	 */
 	public function testActivateAsAdmin(): void {
 		$affiliate = AffiliateFactory::make()->persist();
@@ -44,8 +42,6 @@ class AnswersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test activate method as a manager
-	 *
-	 * @return void
 	 */
 	public function testActivateAsManager(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
@@ -69,8 +65,6 @@ class AnswersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test activate method as others
-	 *
-	 * @return void
 	 */
 	public function testActivateAsOthers(): void {
 		$affiliate = AffiliateFactory::make()->persist();
@@ -88,8 +82,6 @@ class AnswersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test deactivate method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeactivateAsAdmin(): void {
 		$affiliate = AffiliateFactory::make()->persist();
@@ -104,8 +96,6 @@ class AnswersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test deactivate method as a manager
-	 *
-	 * @return void
 	 */
 	public function testDeactivateAsManager(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
@@ -129,8 +119,6 @@ class AnswersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test deactivate method as others
-	 *
-	 * @return void
 	 */
 	public function testDeactivateAsOthers(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);

@@ -20,22 +20,18 @@ class ConfigurationTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		parent::setUp();
 		$config = TableRegistry::exists('Configuration') ? [] : ['className' => 'App\Model\Table\ConfigurationTable'];
-		$this->ConfigurationTable = TableRegistry::get('Configuration', $config);
+		$this->ConfigurationTable = TableRegistry::getTableLocator()->get('Configuration', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->ConfigurationTable);
 
 		parent::tearDown();
@@ -43,8 +39,6 @@ class ConfigurationTableTest extends TableTestCase {
 
 	/**
 	 * Test loadSystem method
-	 *
-	 * @return void
 	 */
 	public function testLoadSystem(): void {
 		Configure::load('options');
@@ -62,8 +56,6 @@ class ConfigurationTableTest extends TableTestCase {
 
 	/**
 	 * Test loadAffiliate method
-	 *
-	 * @return void
 	 */
 	public function testLoadAffiliate(): void {
 		Configure::load('options');
@@ -76,8 +68,6 @@ class ConfigurationTableTest extends TableTestCase {
 
 	/**
 	 * Test loadUser method
-	 *
-	 * @return void
 	 */
 	public function testLoadUser(): void {
 		$this->assertEmpty(Configure::read('personal'), 'Personal settings should not have been loaded yet');

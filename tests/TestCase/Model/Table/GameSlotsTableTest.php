@@ -19,21 +19,17 @@ class GameSlotsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('GameSlots') ? [] : ['className' => 'App\Model\Table\GameSlotsTable'];
-		$this->GameSlotsTable = TableRegistry::get('GameSlots', $config);
+		$this->GameSlotsTable = TableRegistry::getTableLocator()->get('GameSlots', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->GameSlotsTable);
 
 		parent::tearDown();
@@ -41,8 +37,6 @@ class GameSlotsTableTest extends TableTestCase {
 
 	/**
 	 * Test validationCommon method
-	 *
-	 * @return void
 	 */
 	public function testValidationCommon(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -50,8 +44,6 @@ class GameSlotsTableTest extends TableTestCase {
 
 	/**
 	 * Test validationDefault method
-	 *
-	 * @return void
 	 */
 	public function testValidationDefault(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -59,8 +51,6 @@ class GameSlotsTableTest extends TableTestCase {
 
 	/**
 	 * Test validationBulk method
-	 *
-	 * @return void
 	 */
 	public function testValidationBulk(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -68,8 +58,6 @@ class GameSlotsTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeMarshal method
-	 *
-	 * @return void
 	 */
 	public function testBeforeMarshal(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -77,8 +65,6 @@ class GameSlotsTableTest extends TableTestCase {
 
 	/**
 	 * Test findAvailable method
-	 *
-	 * @return void
 	 */
 	public function testFindAvailable(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -86,8 +72,6 @@ class GameSlotsTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
 	public function testAffiliate(): void {
         $affiliateId = rand();
@@ -99,8 +83,6 @@ class GameSlotsTableTest extends TableTestCase {
 
 	/**
 	 * Test sport method
-	 *
-	 * @return void
 	 */
 	public function testSport(): void {
         $gameSlot1 = GameSlotFactory::make()->with('Fields', ['sport' => 'ultimate'])->persist();
@@ -111,8 +93,6 @@ class GameSlotsTableTest extends TableTestCase {
 
 	/**
 	 * Test compareTimeAndField method
-	 *
-	 * @return void
 	 */
 	public function testCompareTimeAndField(): void {
 		$this->markTestIncomplete('Not implemented yet.');

@@ -18,21 +18,17 @@ class TeamsFacilitiesTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('TeamsFacilities') ? [] : ['className' => 'App\Model\Table\TeamsFacilitiesTable'];
-		$this->TeamsFacilitiesTable = TableRegistry::get('TeamsFacilities', $config);
+		$this->TeamsFacilitiesTable = TableRegistry::getTableLocator()->get('TeamsFacilities', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->TeamsFacilitiesTable);
 
 		parent::tearDown();

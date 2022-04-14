@@ -19,10 +19,8 @@ class UserJoomlaTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		// This needs to be defined or else the table's constructor tries to include library code
 		if (!defined('JPATH_BASE')) {
 			define('JPATH_BASE', TESTS . 'test_app' . DS . 'joomla');
@@ -30,15 +28,13 @@ class UserJoomlaTableTest extends TableTestCase {
 
 		parent::setUp();
 		$config = TableRegistry::exists('UserJoomla') ? [] : ['className' => 'App\Model\Table\UserJoomlaTable'];
-		$this->UserJoomlaTable = TableRegistry::get('UserJoomla', $config);
+		$this->UserJoomlaTable = TableRegistry::getTableLocator()->get('UserJoomla', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->UserJoomlaTable);
 
 		parent::tearDown();
@@ -46,8 +42,6 @@ class UserJoomlaTableTest extends TableTestCase {
 
 	/**
 	 * Test defaultConnectionName method
-	 *
-	 * @return void
 	 */
 	public function testDefaultConnectionName(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -55,8 +49,6 @@ class UserJoomlaTableTest extends TableTestCase {
 
 	/**
 	 * Test comparepassword method
-	 *
-	 * @return void
 	 */
 	public function testComparepassword(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -64,8 +56,6 @@ class UserJoomlaTableTest extends TableTestCase {
 
 	/**
 	 * Test hashPassword method
-	 *
-	 * @return void
 	 */
 	public function testHashPassword(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -73,8 +63,6 @@ class UserJoomlaTableTest extends TableTestCase {
 
 	/**
 	 * Test activated method
-	 *
-	 * @return void
 	 */
 	public function testActivated(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -82,8 +70,6 @@ class UserJoomlaTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeDelete method
-	 *
-	 * @return void
 	 */
 	public function testBeforeDelete(): void {
 		$this->markTestIncomplete('Not implemented yet.');

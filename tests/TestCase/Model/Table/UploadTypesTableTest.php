@@ -19,21 +19,17 @@ class UploadTypesTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('UploadTypes') ? [] : ['className' => 'App\Model\Table\UploadTypesTable'];
-		$this->UploadTypesTable = TableRegistry::get('UploadTypes', $config);
+		$this->UploadTypesTable = TableRegistry::getTableLocator()->get('UploadTypes', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->UploadTypesTable);
 
 		parent::tearDown();
@@ -41,8 +37,6 @@ class UploadTypesTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
 	public function testAffiliate(): void {
         $affiliateId = rand();

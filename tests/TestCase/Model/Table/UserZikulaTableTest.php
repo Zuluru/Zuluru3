@@ -18,21 +18,17 @@ class UserZikulaTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('UserZikula') ? [] : ['className' => 'App\Model\Table\UserZikulaTable'];
-		$this->UserZikulaTable = TableRegistry::get('UserZikula', $config);
+		$this->UserZikulaTable = TableRegistry::getTableLocator()->get('UserZikula', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->UserZikulaTable);
 
 		parent::tearDown();
@@ -40,8 +36,6 @@ class UserZikulaTableTest extends TableTestCase {
 
 	/**
 	 * Test activated method
-	 *
-	 * @return void
 	 */
 	public function testActivated(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -49,8 +43,6 @@ class UserZikulaTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeDelete method
-	 *
-	 * @return void
 	 */
 	public function testBeforeDelete(): void {
 		$this->markTestIncomplete('Not implemented yet.');

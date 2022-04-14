@@ -14,8 +14,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test login method
-	 *
-	 * @return void
 	 */
 	public function testLogin(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -23,8 +21,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test logout method
-	 *
-	 * @return void
 	 */
 	public function testLogout(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -32,8 +28,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test create_account method as an admin
-	 *
-	 * @return void
 	 */
 	public function testCreateAccountAsAdmin(): void {
 		// Admins are allowed to create account
@@ -43,8 +37,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test create_account method as a manager
-	 *
-	 * @return void
 	 */
 	public function testCreateAccountAsManager(): void {
 		// Managers are allowed to create account
@@ -54,8 +46,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test create_account method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testCreateAccountAsCoordinator(): void {
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
@@ -65,8 +55,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test create_account method as a captain
-	 *
-	 * @return void
 	 */
 	public function testCreateAccountAsCaptain(): void {
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
@@ -76,8 +64,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test create_account method as a player
-	 *
-	 * @return void
 	 */
 	public function testCreateAccountAsPlayer(): void {
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
@@ -87,8 +73,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test create_account method as someone else
-	 *
-	 * @return void
 	 */
 	public function testCreateAccountAsVisitor(): void {
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
@@ -98,8 +82,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test create_account method without being logged in
-	 *
-	 * @return void
 	 */
 	public function testCreateAccountAsAnonymous(): void {
 		$this->assertGetAnonymousAccessOk(['controller' => 'Users', 'action' => 'create_account']);
@@ -114,8 +96,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test antispam features of account creation
-	 *
-	 * @return void
 	 */
 	public function testCreateAccountAntiSpam(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -123,8 +103,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test creating a player account
-	 *
-	 * @return void
 	 */
 	public function testCreateAccountForPlayer(): void {
 		$this->enableCsrfToken();
@@ -214,8 +192,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test creating a parent account
-	 *
-	 * @return void
 	 */
 	public function testCreateAccountForParent(): void {
 		$this->enableCsrfToken();
@@ -329,8 +305,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test creating a parent account, with continuation to add another child
-	 *
-	 * @return void
 	 */
 	public function testCreateAccountForParentWithSecondChild(): void {
 		$this->enableCsrfToken();
@@ -398,8 +372,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test import method as an admin
-	 *
-	 * @return void
 	 */
 	public function testImportAsAdmin(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
@@ -410,8 +382,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test import method as a manager
-	 *
-	 * @return void
 	 */
 	public function testImportAsManager(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
@@ -422,8 +392,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test import method as others
-	 *
-	 * @return void
 	 */
 	public function testImportAsOthers(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
@@ -438,8 +406,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test JSON API token generation
-	 *
-	 * @return void
 	 */
 	public function testToken(): void {
 		// Lock the time so that the token has a reliable value.
@@ -466,8 +432,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test change_password method as an admin
-	 *
-	 * @return void
 	 */
 	public function testChangePasswordAsAdmin(): void {
 		// Admins are allowed to change password
@@ -477,8 +441,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test change_password method as a manager
-	 *
-	 * @return void
 	 */
 	public function testChangePasswordAsManager(): void {
 		// Managers are allowed to change password
@@ -488,8 +450,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test change_password method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testChangePasswordAsCoordinator(): void {
 		// Coordinators are allowed to change password
@@ -499,8 +459,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test change_password method as a captain
-	 *
-	 * @return void
 	 */
 	public function testChangePasswordAsCaptain(): void {
 		// Captains are allowed to change password
@@ -510,8 +468,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test change_password method as a player
-	 *
-	 * @return void
 	 */
 	public function testChangePasswordAsPlayer(): void {
 		// Players are allowed to change password
@@ -521,8 +477,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test change_password method as someone else
-	 *
-	 * @return void
 	 */
 	public function testChangePasswordAsVisitor(): void {
 		// Visitors are allowed to change password
@@ -532,8 +486,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test change_password method without being logged in
-	 *
-	 * @return void
 	 */
 	public function testChangePasswordAsAnonymous(): void {
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Users', 'action' => 'change_password']);
@@ -541,8 +493,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test reset_password method as an admin
-	 *
-	 * @return void
 	 */
 	public function testResetPasswordAsAdmin(): void {
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
@@ -552,8 +502,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test reset_password method as a manager
-	 *
-	 * @return void
 	 */
 	public function testResetPasswordAsManager(): void {
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
@@ -563,8 +511,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test reset_password method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testResetPasswordAsCoordinator(): void {
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
@@ -574,8 +520,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test reset_password method as a captain
-	 *
-	 * @return void
 	 */
 	public function testResetPasswordAsCaptain(): void {
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
@@ -585,8 +529,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test reset_password method as a player
-	 *
-	 * @return void
 	 */
 	public function testResetPasswordAsPlayer(): void {
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
@@ -596,8 +538,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test reset_password method as someone else
-	 *
-	 * @return void
 	 */
 	public function testResetPasswordAsVisitor(): void {
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
@@ -607,8 +547,6 @@ class UsersControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test reset_password method without being logged in
-	 *
-	 * @return void
 	 */
 	public function testResetPasswordAsAnonymous(): void {
 		$this->assertGetAnonymousAccessOk(['controller' => 'Users', 'action' => 'reset_password']);

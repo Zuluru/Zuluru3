@@ -23,21 +23,17 @@ class TeamsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Teams') ? [] : ['className' => 'App\Model\Table\TeamsTable'];
-		$this->TeamsTable = TableRegistry::get('Teams', $config);
+		$this->TeamsTable = TableRegistry::getTableLocator()->get('Teams', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->TeamsTable);
 
 		parent::tearDown();
@@ -45,8 +41,6 @@ class TeamsTableTest extends TableTestCase {
 
 	/**
 	 * Test afterSave method
-	 *
-	 * @return void
 	 */
 	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -54,8 +48,6 @@ class TeamsTableTest extends TableTestCase {
 
 	/**
 	 * Test afterDelete method
-	 *
-	 * @return void
 	 */
 	public function testAfterDelete(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -63,8 +55,6 @@ class TeamsTableTest extends TableTestCase {
 
 	/**
 	 * Test readByPlayerId method
-	 *
-	 * @return void
 	 */
 	public function testReadByPlayerId(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
@@ -90,8 +80,6 @@ class TeamsTableTest extends TableTestCase {
 
 	/**
 	 * Test compareRoster method
-	 *
-	 * @return void
 	 */
 	public function testCompareRoster(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
@@ -114,8 +102,6 @@ class TeamsTableTest extends TableTestCase {
 
 	/**
 	 * Test canEditRoster method
-	 *
-	 * @return void
 	 */
 	public function testCanEditRoster(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -123,8 +109,6 @@ class TeamsTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
 	public function testAffiliate(): void {
         $affiliateId = rand();
@@ -138,8 +122,6 @@ class TeamsTableTest extends TableTestCase {
 
 	/**
 	 * Test sport method
-	 *
-	 * @return void
 	 */
 	public function testSport(): void {
 

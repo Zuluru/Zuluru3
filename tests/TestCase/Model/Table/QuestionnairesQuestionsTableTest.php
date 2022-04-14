@@ -18,21 +18,17 @@ class QuestionnairesQuestionsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('QuestionnairesQuestions') ? [] : ['className' => 'App\Model\Table\QuestionnairesQuestionsTable'];
-		$this->QuestionnairesQuestionsTable = TableRegistry::get('QuestionnairesQuestions', $config);
+		$this->QuestionnairesQuestionsTable = TableRegistry::getTableLocator()->get('QuestionnairesQuestions', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->QuestionnairesQuestionsTable);
 
 		parent::tearDown();

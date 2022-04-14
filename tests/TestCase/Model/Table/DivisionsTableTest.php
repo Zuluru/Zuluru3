@@ -23,21 +23,17 @@ class DivisionsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Divisions') ? [] : ['className' => 'App\Model\Table\DivisionsTable'];
-		$this->DivisionsTable = TableRegistry::get('Divisions', $config);
+		$this->DivisionsTable = TableRegistry::getTableLocator()->get('Divisions', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->DivisionsTable);
 
 		parent::tearDown();
@@ -45,8 +41,6 @@ class DivisionsTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeSave method
-	 *
-	 * @return void
 	 */
 	public function testBeforeSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -54,8 +48,6 @@ class DivisionsTableTest extends TableTestCase {
 
 	/**
 	 * Test afterSave method
-	 *
-	 * @return void
 	 */
 	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -63,8 +55,6 @@ class DivisionsTableTest extends TableTestCase {
 
 	/**
 	 * Test findOpen method
-	 *
-	 * @return void
 	 */
 	public function testFindOpen(): void {
 
@@ -81,8 +71,6 @@ class DivisionsTableTest extends TableTestCase {
 
 	/**
 	 * Test findDate method
-	 *
-	 * @return void
 	 */
 	public function testFindDate(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
@@ -97,8 +85,6 @@ class DivisionsTableTest extends TableTestCase {
 
 	/**
 	 * Test readByPlayerId method
-	 *
-	 * @return void
 	 */
 	public function testReadByPlayerId(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
@@ -146,8 +132,6 @@ class DivisionsTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
 	public function testAffiliate(): void {
 	    $affiliateId = rand();
@@ -161,8 +145,6 @@ class DivisionsTableTest extends TableTestCase {
 
 	/**
 	 * Test league method
-	 *
-	 * @return void
 	 */
 	public function testLeague(): void {
         $division = DivisionFactory::make()
@@ -173,8 +155,6 @@ class DivisionsTableTest extends TableTestCase {
 
 	/**
 	 * Test clearCache method
-	 *
-	 * @return void
 	 */
 	public function testClearCache(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -182,8 +162,6 @@ class DivisionsTableTest extends TableTestCase {
 
 	/**
 	 * Test translation behavior
-	 *
-	 * @return void
 	 */
 	public function testTranslation(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);

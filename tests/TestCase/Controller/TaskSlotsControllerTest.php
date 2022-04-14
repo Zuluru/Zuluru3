@@ -8,8 +8,6 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test view method
-	 *
-	 * @return void
 	 */
 	public function testView(): void {
 		// Admins are allowed to view task slots, with full edit permissions
@@ -39,8 +37,6 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test ical method
-	 *
-	 * @return void
 	 */
 	public function testIcal(): void {
 		$this->assertGetAnonymousAccessOk(['controller' => 'TaskSlots', 'action' => 'ical', TASK_SLOT_ID_CAPTAINS_MEETING]);
@@ -48,8 +44,6 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as an admin
-	 *
-	 * @return void
 	 */
 	public function testAddAsAdmin(): void {
 		// Admins are allowed to add task slots
@@ -59,8 +53,6 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as a manager
-	 *
-	 * @return void
 	 */
 	public function testAddAsManager(): void {
 		// Managers are allowed to add task slots
@@ -70,8 +62,6 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as others
-	 *
-	 * @return void
 	 */
 	public function testAddAsOthers(): void {
 		// Others are not allowed to add task slots
@@ -84,8 +74,6 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as an admin
-	 *
-	 * @return void
 	 */
 	public function testEditAsAdmin(): void {
 		// Admins are allowed to edit task slots
@@ -95,8 +83,6 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as a manager
-	 *
-	 * @return void
 	 */
 	public function testEditAsManager(): void {
 		// Managers are allowed to edit task slots
@@ -106,8 +92,6 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as others
-	 *
-	 * @return void
 	 */
 	public function testEditAsOthers(): void {
 		// Others are not allowed to edit task slots
@@ -120,8 +104,6 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -135,8 +117,6 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as a manager
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
@@ -154,8 +134,6 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as others
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
@@ -175,8 +153,6 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test assign method as an admin
-	 *
-	 * @return void
 	 */
 	public function testAssignAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -190,8 +166,6 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test assign method as a manager
-	 *
-	 * @return void
 	 */
 	public function testAssignAsManager(): void {
 		$this->enableCsrfToken();
@@ -205,8 +179,6 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test assign method as a others
-	 *
-	 * @return void
 	 */
 	public function testAssignAsOthers(): void {
 		$this->enableCsrfToken();
@@ -227,8 +199,6 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test approve method as an admin
-	 *
-	 * @return void
 	 */
 	public function testApproveAsAdmin(): void {
 		// Admins are allowed to approve task slots
@@ -239,8 +209,6 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test approve method as a manager
-	 *
-	 * @return void
 	 */
 	public function testApproveAsManager(): void {
 		// Managers are allowed to approve task slots
@@ -251,8 +219,6 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test approve method as others
-	 *
-	 * @return void
 	 */
 	public function testApproveAsOthers(): void {
 		// Others are not allowed to approve task slots

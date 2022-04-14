@@ -19,10 +19,8 @@ class PriceTest extends TestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$this->Price = PriceFactory::make([
             'event_id' => 1,
@@ -43,10 +41,8 @@ class PriceTest extends TestCase {
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->Price);
 
 		parent::tearDown();

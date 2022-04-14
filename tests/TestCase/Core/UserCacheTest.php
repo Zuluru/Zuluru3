@@ -21,10 +21,8 @@ class UserCacheTest extends TestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$this->session(['Auth.id' => 1]);
 		$this->UserCache = UserCache::getInstance();
@@ -32,10 +30,8 @@ class UserCacheTest extends TestCase {
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->UserCache);
 
 		parent::tearDown();
@@ -43,8 +39,6 @@ class UserCacheTest extends TestCase {
 
 	/**
 	 * Test getInstance method
-	 *
-	 * @return void
 	 */
 	public function testGetInstance(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -52,8 +46,6 @@ class UserCacheTest extends TestCase {
 
 	/**
 	 * Test initializeData method
-	 *
-	 * @return void
 	 */
 	public function testInitializeData(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -61,8 +53,6 @@ class UserCacheTest extends TestCase {
 
 	/**
 	 * Test initializeId method
-	 *
-	 * @return void
 	 */
 	public function testInitializeId(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -70,8 +60,6 @@ class UserCacheTest extends TestCase {
 
 	/**
 	 * Test currentId method
-	 *
-	 * @return void
 	 */
 	public function testCurrentId(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -79,8 +67,6 @@ class UserCacheTest extends TestCase {
 
 	/**
 	 * Test realId method
-	 *
-	 * @return void
 	 */
 	public function testRealId(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -88,8 +74,6 @@ class UserCacheTest extends TestCase {
 
 	/**
 	 * Test read method
-	 *
-	 * @return void
 	 */
 	public function testRead(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -97,8 +81,6 @@ class UserCacheTest extends TestCase {
 
 	/**
 	 * Test clear method
-	 *
-	 * @return void
 	 */
 	public function testClear(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -106,8 +88,6 @@ class UserCacheTest extends TestCase {
 
 	/**
 	 * Test allActAs method
-	 *
-	 * @return void
 	 */
 	public function testAllActAs(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -115,8 +95,6 @@ class UserCacheTest extends TestCase {
 
 	/**
 	 * Test _deleteTeamData method
-	 *
-	 * @return void
 	 */
 	public function testDeleteTeamData(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -124,8 +102,6 @@ class UserCacheTest extends TestCase {
 
 	/**
 	 * Test _deleteFranchiseData method
-	 *
-	 * @return void
 	 */
 	public function testDeleteFranchiseData(): void {
 		$this->markTestIncomplete('Not implemented yet.');

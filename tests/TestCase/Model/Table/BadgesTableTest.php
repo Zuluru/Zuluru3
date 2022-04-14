@@ -18,21 +18,17 @@ class BadgesTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Badges') ? [] : ['className' => 'App\Model\Table\BadgesTable'];
-		$this->BadgesTable = TableRegistry::get('Badges', $config);
+		$this->BadgesTable = TableRegistry::getTableLocator()->get('Badges', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->BadgesTable);
 
 		parent::tearDown();
@@ -40,8 +36,6 @@ class BadgesTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
 	public function testAffiliate(): void {
         $affiliateId = rand();

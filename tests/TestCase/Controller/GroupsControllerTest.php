@@ -23,8 +23,6 @@ class GroupsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test index method
-	 *
-	 * @return void
 	 */
 	public function testIndex(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -43,8 +41,6 @@ class GroupsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test activate method as an admin
-	 *
-	 * @return void
 	 */
 	public function testActivateAsAdmin(): void {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -57,8 +53,6 @@ class GroupsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test activate method as others
-	 *
-	 * @return void
 	 */
 	public function testActivateAsOthers(): void {
 		[, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -75,8 +69,6 @@ class GroupsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test deactivate method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeactivateAsAdmin(): void {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -89,8 +81,6 @@ class GroupsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test deactivate method as others
-	 *
-	 * @return void
 	 */
 	public function testDeactivateAsOthers(): void {
 		[, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);

@@ -15,6 +15,10 @@ class UploadPolicy extends AppPolicy {
 		parent::before($identity, $resource, $action);
 	}
 
+	public function canPhoto(IdentityInterface $identity, Upload $upload) {
+		return $upload->approved || $identity->getIdentifier() == $upload->person_id || $identity->isManagerOf($upload);
+	}
+
 	public function canDocument(IdentityInterface $identity, Upload $upload) {
 		return $identity->isManagerOf($upload);
 	}

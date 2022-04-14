@@ -35,16 +35,14 @@ class RegistrationTest extends TestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 
 		ConfigurationLoader::loadConfiguration();
 
-		$registrations = TableRegistry::get('Registrations');
+		$registrations = TableRegistry::getTableLocator()->get('Registrations');
 		$this->Registration2 = $registrations->get(REGISTRATION_ID_CAPTAIN_MEMBERSHIP, ['contain' => ['Prices', 'Payments', 'Events']]);
 		$this->Registration3 = $registrations->get(REGISTRATION_ID_COORDINATOR_MEMBERSHIP, ['contain' => ['Prices', 'Payments', 'Events']]);
 		$this->Registration4 = $registrations->get(REGISTRATION_ID_MANAGER_MEMBERSHIP, ['contain' => ['Prices', 'Payments', 'Events']]);
@@ -52,10 +50,8 @@ class RegistrationTest extends TestCase {
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->Registration2);
 		unset($this->Registration3);
 		unset($this->Registration4);
@@ -65,8 +61,6 @@ class RegistrationTest extends TestCase {
 
 	/**
 	 * Test paymentAmounts method
-	 *
-	 * @return void
 	 */
 	public function testPaymentAmounts(): void {
 		$this->assertEquals([1.31, 0.09, 0.10], $this->Registration2->paymentAmounts()); // $1.50 outstanding

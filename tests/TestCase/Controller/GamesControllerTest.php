@@ -52,8 +52,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test view method
-	 *
-	 * @return void
 	 */
 	public function testView(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -100,7 +98,7 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('Score as entered');
 		$home_name = Text::truncate($home->name, 23);
 		$away_name = Text::truncate($away->name, 23);
-		$this->assertResponseRegExp("#<th>{$home_name} \(home\)</th>\s*<th>{$away_name} \(away\)</th>#ms");
+		$this->assertResponseRegExp('#<th>' . $home_name . ' \(home\)</th>\s*<th>' . $away_name . ' \(away\)</th>#ms');
 		$this->assertResponseRegExp('#<td>Home Score</td>\s*<td>17</td>\s*<td>17</td>#ms');
 		$this->assertResponseRegExp('#<td>Away Score</td>\s*<td>12</td>\s*<td>12</td>#ms');
 		$this->assertResponseRegExp('#<td>Defaulted\?</td>\s*<td>no</td>\s*<td>no</td>#ms');
@@ -163,8 +161,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test view method for unpublished games
-	 *
-	 * @return void
 	 */
 	public function testViewUnpublished(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -213,8 +209,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test view method for round-robin games
-	 *
-	 * @return void
 	 */
 	public function testViewRoundRobin(): void {
 		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -254,15 +248,13 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertResponseNotContains('Ratings Table');
 		$home_name = Text::truncate($finalized_game->home_team->name, 23);
 		$away_name = Text::truncate($finalized_game->away_team->name, 23);
-		$this->assertResponseRegExp("#<dt>{$home_name}</dt>\s*<dd>15</dd>#ms");
-		$this->assertResponseRegExp("#<dt>{$away_name}</dt>\s*<dd>14</dd>#ms");
+		$this->assertResponseRegExp('#<dt>' . $home_name . '</dt>\s*<dd>15</dd>#ms');
+		$this->assertResponseRegExp('#<dt>' . $away_name . '</dt>\s*<dd>14</dd>#ms');
 		$this->assertResponseRegExp('#<dt>Score Approved By</dt>\s*<dd>automatic approval</dd>#ms');
 	}
 
 	/**
 	 * Test view method for tournament / playoff games
-	 *
-	 * @return void
 	 */
 	public function testViewTournament(): void {
 		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -288,8 +280,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test tooltip method
-	 *
-	 * @return void
 	 */
 	public function testTooltip(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -338,8 +328,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test ratings_table method
-	 *
-	 * @return void
 	 */
 	public function testRatingsTable(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -363,8 +351,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test ical method
-	 *
-	 * @return void
 	 */
 	public function testIcal(): void {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -392,8 +378,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as an admin
-	 *
-	 * @return void
 	 */
 	public function testEditAsAdmin(): void {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -411,8 +395,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as a manager
-	 *
-	 * @return void
 	 */
 	public function testEditAsManager(): void {
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -437,8 +419,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testEditAsCoordinator(): void {
 		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -464,8 +444,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as others
-	 *
-	 * @return void
 	 */
 	public function testEditAsOthers(): void {
 		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -488,8 +466,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit_boxscore method as an admin
-	 *
-	 * @return void
 	 */
 	public function testEditBoxscoreAsAdmin(): void {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -507,8 +483,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit_boxscore method as a manager
-	 *
-	 * @return void
 	 */
 	public function testEditBoxscoreAsManager(): void {
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -526,8 +500,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit_boxscore method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testEditBoxscoreAsCoordinator(): void {
 		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -546,8 +518,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit_boxscore method as others
-	 *
-	 * @return void
 	 */
 	public function testEditBoxscoreAsOthers(): void {
 		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -567,8 +537,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_score method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeleteScoreAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -598,8 +566,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_score method as a manager
-	 *
-	 * @return void
 	 */
 	public function testDeleteScoreAsManager(): void {
 		$this->enableCsrfToken();
@@ -627,8 +593,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_score method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testDeleteScoreAsCoordinator(): void {
 		$this->enableCsrfToken();
@@ -657,8 +621,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_score method as others
-	 *
-	 * @return void
 	 */
 	public function testDeleteScoreAsOthers(): void {
 		$this->enableCsrfToken();
@@ -690,8 +652,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_score method as an admin
-	 *
-	 * @return void
 	 */
 	public function testAddScoreAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -720,8 +680,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_score method as a manager
-	 *
-	 * @return void
 	 */
 	public function testAddScoreAsManager(): void {
 		$this->enableCsrfToken();
@@ -750,8 +708,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_score method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testAddScoreAsCoordinator(): void {
 		$this->enableCsrfToken();
@@ -780,8 +736,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_score method as others
-	 *
-	 * @return void
 	 */
 	public function testAddScoreAsOthers(): void {
 		$this->enableCsrfToken();
@@ -805,8 +759,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test note method as an admin
-	 *
-	 * @return void
 	 */
 	public function testNoteAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -875,8 +827,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test note method as a manager
-	 *
-	 * @return void
 	 */
 	public function testNoteAsManager(): void {
 		$this->enableCsrfToken();
@@ -928,8 +878,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test note method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testNoteAsCoordinator(): void {
 		$this->enableCsrfToken();
@@ -977,8 +925,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test note method as a captain
-	 *
-	 * @return void
 	 */
 	public function testNoteAsCaptain(): void {
 		$this->enableCsrfToken();
@@ -1072,8 +1018,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test note method as a player
-	 *
-	 * @return void
 	 */
 	public function testNoteAsPlayer(): void {
 		$this->enableCsrfToken();
@@ -1155,8 +1099,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test note method as others
-	 *
-	 * @return void
 	 */
 	public function testNoteAsOthers(): void {
 		$this->enableCsrfToken();
@@ -1180,8 +1122,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_note method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeleteAdminNoteAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -1212,8 +1152,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_note method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeleteCoordinatorNoteAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -1244,8 +1182,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_note method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeleteOtherNoteAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -1291,8 +1227,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_note method as a manager
-	 *
-	 * @return void
 	 */
 	public function testDeleteAdminNoteAsManager(): void {
 		$this->enableCsrfToken();
@@ -1323,8 +1257,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_note method as a manager
-	 *
-	 * @return void
 	 */
 	public function testDeleteCoordinatorNoteAsManager(): void {
 		$this->enableCsrfToken();
@@ -1355,8 +1287,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_note method as a manager
-	 *
-	 * @return void
 	 */
 	public function testDeleteOtherNoteAsManager(): void {
 		$this->enableCsrfToken();
@@ -1402,8 +1332,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_note method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testDeleteCoordinatorNoteAsCoordinator(): void {
 		$this->enableCsrfToken();
@@ -1463,8 +1391,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_note method as a captain
-	 *
-	 * @return void
 	 */
 	public function testDeleteNoteAsCaptain(): void {
 		$this->enableCsrfToken();
@@ -1525,8 +1451,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_note method as a player
-	 *
-	 * @return void
 	 */
 	public function testDeleteNoteAsPlayer(): void {
 		$this->enableCsrfToken();
@@ -1586,8 +1510,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -1632,8 +1554,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as a manager
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
@@ -1664,8 +1584,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsCoordinator(): void {
 		$this->enableCsrfToken();
@@ -1697,8 +1615,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as others
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
@@ -1720,8 +1636,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test attendance method
-	 *
-	 * @return void
 	 */
 	public function testAttendance(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1758,8 +1672,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_sub method as an admin
-	 *
-	 * @return void
 	 */
 	public function testAddSubAsAdmin(): void {
 		// Admins are allowed to add sub
@@ -1768,8 +1680,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_sub method as a manager
-	 *
-	 * @return void
 	 */
 	public function testAddSubAsManager(): void {
 		// Managers are allowed to add sub
@@ -1778,8 +1688,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_sub method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testAddSubAsCoordinator(): void {
 		// Coordinators are allowed to add sub
@@ -1788,8 +1696,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_sub method as a captain
-	 *
-	 * @return void
 	 */
 	public function testAddSubAsCaptain(): void {
 		// Captains are allowed to add sub
@@ -1798,8 +1704,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_sub method as a player
-	 *
-	 * @return void
 	 */
 	public function testAddSubAsPlayer(): void {
 		// Players are allowed to add sub
@@ -1808,8 +1712,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_sub method as someone else
-	 *
-	 * @return void
 	 */
 	public function testAddSubAsVisitor(): void {
 		// Visitors are allowed to add sub
@@ -1818,8 +1720,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_sub method without being logged in
-	 *
-	 * @return void
 	 */
 	public function testAddSubAsAnonymous(): void {
 		// Others are allowed to add sub
@@ -1828,8 +1728,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test attendance_change method as an admin
-	 *
-	 * @return void
 	 */
 	public function testAttendanceChangeAsAdmin(): void {
 		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1856,8 +1754,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test attendance_change method as a manager
-	 *
-	 * @return void
 	 */
 	public function testAttendanceChangeAsManager(): void {
 		[$admin, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1884,8 +1780,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test attendance_change method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testAttendanceChangeAsCoordinator(): void {
 		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1914,8 +1808,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test attendance_change method as a captain
-	 *
-	 * @return void
 	 */
 	public function testAttendanceChangeAsCaptain(): void {
 		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1944,8 +1836,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test attendance_change method as a player
-	 *
-	 * @return void
 	 */
 	public function testAttendanceChangeAsPlayer(): void {
 		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1990,8 +1880,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test attendance_change method as others
-	 *
-	 * @return void
 	 */
 	public function testAttendanceChangeAsOthers(): void {
 		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
@@ -2011,8 +1899,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test stat_sheet method
-	 *
-	 * @return void
 	 */
 	public function testStatSheet(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -2050,8 +1936,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test live_score method as an admin
-	 *
-	 * @return void
 	 */
 	public function testLiveScoreAsAdmin(): void {
 		// Admins are allowed to live score
@@ -2060,8 +1944,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test live_score method as a manager
-	 *
-	 * @return void
 	 */
 	public function testLiveScoreAsManager(): void {
 		// Managers are allowed to live score
@@ -2070,8 +1952,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test live_score method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testLiveScoreAsCoordinator(): void {
 		// Coordinators are allowed to live score
@@ -2080,8 +1960,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test live_score method as a captain
-	 *
-	 * @return void
 	 */
 	public function testLiveScoreAsCaptain(): void {
 		// Captains are allowed to live score
@@ -2090,8 +1968,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test live_score method as a player
-	 *
-	 * @return void
 	 */
 	public function testLiveScoreAsPlayer(): void {
 		// Players are allowed to live score
@@ -2100,8 +1976,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test live_score method as someone else
-	 *
-	 * @return void
 	 */
 	public function testLiveScoreAsVisitor(): void {
 		// Visitors are allowed to live score
@@ -2110,8 +1984,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test live_score method without being logged in
-	 *
-	 * @return void
 	 */
 	public function testLiveScoreAsAnonymous(): void {
 		// Others are allowed to live score
@@ -2120,8 +1992,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test score_up method as an admin
-	 *
-	 * @return void
 	 */
 	public function testScoreUpAsAdmin(): void {
 		// Admins are allowed to score up
@@ -2130,8 +2000,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test score_up method as a manager
-	 *
-	 * @return void
 	 */
 	public function testScoreUpAsManager(): void {
 		// Managers are allowed to score up
@@ -2140,8 +2008,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test score_up method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testScoreUpAsCoordinator(): void {
 		// Coordinators are allowed to score up
@@ -2150,8 +2016,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test score_up method as a captain
-	 *
-	 * @return void
 	 */
 	public function testScoreUpAsCaptain(): void {
 		// Captains are allowed to score up
@@ -2160,8 +2024,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test score_up method as a player
-	 *
-	 * @return void
 	 */
 	public function testScoreUpAsPlayer(): void {
 		// Players are allowed to score up
@@ -2170,8 +2032,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test score_up method as someone else
-	 *
-	 * @return void
 	 */
 	public function testScoreUpAsVisitor(): void {
 		// Visitors are allowed to score up
@@ -2180,8 +2040,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test score_up method without being logged in
-	 *
-	 * @return void
 	 */
 	public function testScoreUpAsAnonymous(): void {
 		// Others are allowed to score up
@@ -2190,8 +2048,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test score_down method as an admin
-	 *
-	 * @return void
 	 */
 	public function testScoreDownAsAdmin(): void {
 		// Admins are allowed to score down
@@ -2200,8 +2056,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test score_down method as a manager
-	 *
-	 * @return void
 	 */
 	public function testScoreDownAsManager(): void {
 		// Managers are allowed to score down
@@ -2210,8 +2064,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test score_down method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testScoreDownAsCoordinator(): void {
 		// Coordinators are allowed to score down
@@ -2220,8 +2072,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test score_down method as a captain
-	 *
-	 * @return void
 	 */
 	public function testScoreDownAsCaptain(): void {
 		// Captains are allowed to score down
@@ -2230,8 +2080,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test score_down method as a player
-	 *
-	 * @return void
 	 */
 	public function testScoreDownAsPlayer(): void {
 		// Players are allowed to score down
@@ -2240,8 +2088,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test score_down method as someone else
-	 *
-	 * @return void
 	 */
 	public function testScoreDownAsVisitor(): void {
 		// Visitors are allowed to score down
@@ -2250,8 +2096,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test score_down method without being logged in
-	 *
-	 * @return void
 	 */
 	public function testScoreDownAsAnonymous(): void {
 		// Others are allowed to score down
@@ -2260,8 +2104,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test timeout method as an admin
-	 *
-	 * @return void
 	 */
 	public function testTimeoutAsAdmin(): void {
 		// Admins are allowed to timeout
@@ -2270,8 +2112,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test timeout method as a manager
-	 *
-	 * @return void
 	 */
 	public function testTimeoutAsManager(): void {
 		// Managers are allowed to timeout
@@ -2280,8 +2120,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test timeout method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testTimeoutAsCoordinator(): void {
 		// Coordinators are allowed to timeout
@@ -2290,8 +2128,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test timeout method as a captain
-	 *
-	 * @return void
 	 */
 	public function testTimeoutAsCaptain(): void {
 		// Captains are allowed to timeout
@@ -2300,8 +2136,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test timeout method as a player
-	 *
-	 * @return void
 	 */
 	public function testTimeoutAsPlayer(): void {
 		// Players are allowed to timeout
@@ -2310,8 +2144,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test timeout method as someone else
-	 *
-	 * @return void
 	 */
 	public function testTimeoutAsVisitor(): void {
 		// Visitors are allowed to timeout
@@ -2320,8 +2152,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test timeout method without being logged in
-	 *
-	 * @return void
 	 */
 	public function testTimeoutAsAnonymous(): void {
 		// Others are allowed to timeout
@@ -2330,8 +2160,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test play method as an admin
-	 *
-	 * @return void
 	 */
 	public function testPlayAsAdmin(): void {
 		// Admins are allowed to play
@@ -2340,8 +2168,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test play method as a manager
-	 *
-	 * @return void
 	 */
 	public function testPlayAsManager(): void {
 		// Managers are allowed to play
@@ -2350,8 +2176,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test play method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testPlayAsCoordinator(): void {
 		// Coordinators are allowed to play
@@ -2360,8 +2184,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test play method as a captain
-	 *
-	 * @return void
 	 */
 	public function testPlayAsCaptain(): void {
 		// Captains are allowed to play
@@ -2370,8 +2192,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test play method as a player
-	 *
-	 * @return void
 	 */
 	public function testPlayAsPlayer(): void {
 		// Players are allowed to play
@@ -2380,8 +2200,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test play method as someone else
-	 *
-	 * @return void
 	 */
 	public function testPlayAsVisitor(): void {
 		// Visitors are allowed to play
@@ -2390,8 +2208,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test play method without being logged in
-	 *
-	 * @return void
 	 */
 	public function testPlayAsAnonymous(): void {
 		// Others are allowed to play
@@ -2400,8 +2216,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test tweet method as an admin
-	 *
-	 * @return void
 	 */
 	public function testTweetAsAdmin(): void {
 		// Admins are allowed to tweet
@@ -2410,8 +2224,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test tweet method as a manager
-	 *
-	 * @return void
 	 */
 	public function testTweetAsManager(): void {
 		// Managers are allowed to tweet
@@ -2420,8 +2232,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test tweet method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testTweetAsCoordinator(): void {
 		// Coordinators are allowed to tweet
@@ -2430,8 +2240,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test tweet method as a captain
-	 *
-	 * @return void
 	 */
 	public function testTweetAsCaptain(): void {
 		// Captains are allowed to tweet
@@ -2440,8 +2248,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test tweet method as a player
-	 *
-	 * @return void
 	 */
 	public function testTweetAsPlayer(): void {
 		// Players are allowed to tweet
@@ -2450,8 +2256,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test tweet method as someone else
-	 *
-	 * @return void
 	 */
 	public function testTweetAsVisitor(): void {
 		// Visitors are allowed to tweet
@@ -2460,8 +2264,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test tweet method without being logged in
-	 *
-	 * @return void
 	 */
 	public function testTweetAsAnonymous(): void {
 		// Others are allowed to tweet
@@ -2470,8 +2272,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test submit_score method as a captain
-	 *
-	 * @return void
 	 */
 	public function testSubmitScoreAsCaptain(): void {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -2561,8 +2361,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test submit_score method while acting as a captain. All exactly the same assertions as above, just acting as the captain.
-	 *
-	 * @return void
 	 */
 	public function testSubmitScoreActingAsCaptain(): void {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -2651,8 +2449,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test submit_score method as a captain, matching existing score
-	 *
-	 * @return void
 	 */
 	public function testSubmitMatchingScoreAsCaptain(): void {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -2743,8 +2539,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test submit_score method as a captain, not matching existing score
-	 *
-	 * @return void
 	 */
 	public function testSubmitMismatchedScoreAsCaptain(): void {
 		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -2848,8 +2642,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test submit_score method as a captain, correcting an earlier incorrect submission
-	 *
-	 * @return void
 	 */
 	public function testSubmitCorrectScoreAsCaptain(): void {
 		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -2956,8 +2748,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test submit_score method as others
-	 *
-	 * @return void
 	 */
 	public function testSubmitScoreAsOthers(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -2985,8 +2775,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test submit_stats method as an admin
-	 *
-	 * @return void
 	 */
 	public function testSubmitStatsAsAdmin(): void {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -3014,8 +2802,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test submit_stats method as a manager
-	 *
-	 * @return void
 	 */
 	public function testSubmitStatsAsManager(): void {
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -3043,8 +2829,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test submit_stats method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testSubmitStatsAsCoordinator(): void {
 		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -3073,8 +2857,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test submit_stats method as a captain
-	 *
-	 * @return void
 	 */
 	public function testSubmitStatsAsCaptain(): void {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -3103,8 +2885,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test submit_stats method as others
-	 *
-	 * @return void
 	 */
 	public function testSubmitStatsAsOthers(): void {
 		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -3132,8 +2912,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test stats method
-	 *
-	 * @return void
 	 */
 	public function testViewStats(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -3176,8 +2954,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test future method
-	 *
-	 * @return void
 	 */
 	public function testFuture(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -3205,8 +2981,6 @@ class GamesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test results method
-	 *
-	 * @return void
 	 */
 	public function testResults(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);

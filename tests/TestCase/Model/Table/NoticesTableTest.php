@@ -18,21 +18,17 @@ class NoticesTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Notices') ? [] : ['className' => 'App\Model\Table\NoticesTable'];
-		$this->NoticesTable = TableRegistry::get('Notices', $config);
+		$this->NoticesTable = TableRegistry::getTableLocator()->get('Notices', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->NoticesTable);
 
 		parent::tearDown();

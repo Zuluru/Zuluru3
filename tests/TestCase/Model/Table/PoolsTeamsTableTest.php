@@ -18,21 +18,17 @@ class PoolsTeamsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('PoolsTeams') ? [] : ['className' => 'App\Model\Table\PoolsTeamsTable'];
-		$this->PoolsTeamsTable = TableRegistry::get('PoolsTeams', $config);
+		$this->PoolsTeamsTable = TableRegistry::getTableLocator()->get('PoolsTeams', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->PoolsTeamsTable);
 
 		parent::tearDown();
@@ -40,8 +36,6 @@ class PoolsTeamsTableTest extends TableTestCase {
 
 	/**
 	 * Test validationQualifiers method
-	 *
-	 * @return void
 	 */
 	public function testValidationQualifiers(): void {
 		$this->markTestIncomplete('Not implemented yet.');

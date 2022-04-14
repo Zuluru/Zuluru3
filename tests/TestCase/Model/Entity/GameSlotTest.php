@@ -13,8 +13,6 @@ class GameSlotTest extends TestCase {
 
 	/**
 	 * Test _getDisplayGameEnd method
-	 *
-	 * @return void
 	 */
 	public function testGetDisplayGameEnd(): void {
         $gameSlot = GameSlotFactory::make([
@@ -31,8 +29,6 @@ class GameSlotTest extends TestCase {
 
 	/**
 	 * Test _getStartTime method
-	 *
-	 * @return void
 	 */
 	public function testGetStartTime(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
@@ -41,8 +37,6 @@ class GameSlotTest extends TestCase {
 
 	/**
 	 * Test _getEndTime method
-	 *
-	 * @return void
 	 */
 	public function testGetEndTime(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
@@ -51,8 +45,6 @@ class GameSlotTest extends TestCase {
 
 	/**
 	 * Test overlaps method
-	 *
-	 * @return void
 	 */
 	public function testOverlaps(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);

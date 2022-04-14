@@ -18,21 +18,17 @@ class SpiritEntriesTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('SpiritEntries') ? [] : ['className' => 'App\Model\Table\SpiritEntriesTable'];
-		$this->SpiritEntriesTable = TableRegistry::get('SpiritEntries', $config);
+		$this->SpiritEntriesTable = TableRegistry::getTableLocator()->get('SpiritEntries', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->SpiritEntriesTable);
 
 		parent::tearDown();
@@ -40,8 +36,6 @@ class SpiritEntriesTableTest extends TableTestCase {
 
 	/**
 	 * Test addValidation method
-	 *
-	 * @return void
 	 */
 	public function testAddValidation(): void {
 		$this->markTestIncomplete('Not implemented yet.');

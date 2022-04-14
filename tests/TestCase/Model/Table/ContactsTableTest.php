@@ -19,21 +19,17 @@ class ContactsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Contacts') ? [] : ['className' => 'App\Model\Table\ContactsTable'];
-		$this->ContactsTable = TableRegistry::get('Contacts', $config);
+		$this->ContactsTable = TableRegistry::getTableLocator()->get('Contacts', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->ContactsTable);
 
 		parent::tearDown();
@@ -41,8 +37,6 @@ class ContactsTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
 	public function testAffiliate(): void {
         $affiliateId = rand();

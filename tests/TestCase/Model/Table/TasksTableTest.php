@@ -19,21 +19,17 @@ class TasksTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Tasks') ? [] : ['className' => 'App\Model\Table\TasksTable'];
-		$this->TasksTable = TableRegistry::get('Tasks', $config);
+		$this->TasksTable = TableRegistry::getTableLocator()->get('Tasks', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->TasksTable);
 
 		parent::tearDown();
@@ -41,8 +37,6 @@ class TasksTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
 	public function testAffiliate(): void {
         $affiliateId = rand();

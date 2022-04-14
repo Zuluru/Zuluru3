@@ -19,21 +19,17 @@ class SettingsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Settings') ? [] : ['className' => 'App\Model\Table\SettingsTable'];
-		$this->SettingsTable = TableRegistry::get('Settings', $config);
+		$this->SettingsTable = TableRegistry::getTableLocator()->get('Settings', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->SettingsTable);
 
 		parent::tearDown();
@@ -41,8 +37,6 @@ class SettingsTableTest extends TableTestCase {
 
 	/**
 	 * Test mergeList method
-	 *
-	 * @return void
 	 */
 	public function testMergeList(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);

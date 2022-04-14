@@ -16,8 +16,6 @@ class LeagueTest extends TestCase {
 
 	/**
 	 * Test hasSpirit method
-	 *
-	 * @return void
 	 */
 	public function testHasSpirit(): void {
 		// Save to later revert
@@ -43,8 +41,6 @@ class LeagueTest extends TestCase {
 
 	/**
 	 * Test hasCarbonFlip method
-	 *
-	 * @return void
 	 */
 	public function testHasCarbonFlip(): void {
 		// Save to later revert
@@ -67,8 +63,6 @@ class LeagueTest extends TestCase {
 
 	/**
 	 * Test hasStats method
-	 *
-	 * @return void
 	 */
 	public function testHasStats(): void {
 		// Save to later revert

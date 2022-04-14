@@ -19,21 +19,17 @@ class CategoriesTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Categories') ? [] : ['className' => 'App\Model\Table\CategoriesTable'];
-		$this->CategoriesTable = TableRegistry::get('Categories', $config);
+		$this->CategoriesTable = TableRegistry::getTableLocator()->get('Categories', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->CategoriesTable);
 
 		parent::tearDown();
@@ -41,8 +37,6 @@ class CategoriesTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
 	public function testAffiliate(): void {
         $affiliateId = rand();

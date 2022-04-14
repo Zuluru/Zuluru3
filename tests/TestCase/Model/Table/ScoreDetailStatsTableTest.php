@@ -18,21 +18,17 @@ class ScoreDetailStatsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('ScoreDetailStats') ? [] : ['className' => 'App\Model\Table\ScoreDetailStatsTable'];
-		$this->ScoreDetailStatsTable = TableRegistry::get('ScoreDetailStats', $config);
+		$this->ScoreDetailStatsTable = TableRegistry::getTableLocator()->get('ScoreDetailStats', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->ScoreDetailStatsTable);
 
 		parent::tearDown();

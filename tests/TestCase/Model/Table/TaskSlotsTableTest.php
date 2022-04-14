@@ -19,21 +19,17 @@ class TaskSlotsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('TaskSlots') ? [] : ['className' => 'App\Model\Table\TaskSlotsTable'];
-		$this->TaskSlotsTable = TableRegistry::get('TaskSlots', $config);
+		$this->TaskSlotsTable = TableRegistry::getTableLocator()->get('TaskSlots', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->TaskSlotsTable);
 
 		parent::tearDown();
@@ -41,8 +37,6 @@ class TaskSlotsTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
 	public function testAffiliate(): void {
         $affiliateId = rand();

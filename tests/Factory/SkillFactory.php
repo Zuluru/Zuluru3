@@ -2,11 +2,12 @@
 namespace App\Test\Factory;
 
 use Cake\Core\Configure;
+use Cake\Filesystem\Folder;
 use Cake\I18n\FrozenDate;
 use CakephpFixtureFactories\Factory\BaseFactory;
 use Faker\Generator;
 
-class UploadFactory extends BaseFactory
+class SkillFactory extends BaseFactory
 {
 	/**
 	 * Defines the Table Registry used to generate entities with
@@ -14,7 +15,7 @@ class UploadFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return 'Uploads';
+		return 'Skills';
 	}
 
 	/**
@@ -27,24 +28,12 @@ class UploadFactory extends BaseFactory
 	protected function setDefaultTemplate() {
 		$this->setDefaultData(function (Generator $faker) {
 			return [
-				'filename' => $faker->word() . '.png',
-				'approved' => true,
-				'valid_from' => FrozenDate::now(),
-				'valid_until' => FrozenDate::now()->addYear(),
+				'sport' => 'ultimate',
+				'enabled' => true,
+				'skill_level' => 5,
+				'year_started' => FrozenDate::now()->year,
 			];
 		});
 	}
 
-	function persist() {
-		$entity = parent::persist();
-
-		if ($entity->person_id) {
-			// Copy the test upload to the destination
-			$folder = Configure::read('App.paths.uploads');
-			$dummy = TESTS . 'test_app' . DS . 'dummy.png';
-			copy($dummy, $folder . DS . $entity->filename);
-		}
-
-		return $entity;
-	}
 }

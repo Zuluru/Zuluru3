@@ -36,8 +36,6 @@ class ContactsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test index method
-	 *
-	 * @return void
 	 */
 	public function testIndex(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -71,8 +69,6 @@ class ContactsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method
-	 *
-	 * @return void
 	 */
 	public function testAdd(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -91,8 +87,6 @@ class ContactsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method
-	 *
-	 * @return void
 	 */
 	public function testEdit(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -123,8 +117,6 @@ class ContactsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -145,8 +137,6 @@ class ContactsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as a manager
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
@@ -172,8 +162,6 @@ class ContactsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as others
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
@@ -195,8 +183,6 @@ class ContactsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test message method
-	 *
-	 * @return void
 	 */
 	public function testMessage(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -212,8 +198,8 @@ class ContactsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'message'], $volunteer->id);
 
 		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'message'], $player->id);
-		$this->assertResponseContains("<option value=\"{$contacts[0]->id}\">{$contacts[0]->name}</option>");
-		$this->assertResponseContains("<option value=\"{$contacts[1]->id}\">{$contacts[1]->name}</option>");
+		$this->assertResponseContains('<option value="' . $contacts[0]->id . '">' . $contacts[0]->name . '</option>');
+		$this->assertResponseContains('<option value="' . $contacts[1]->id . '">' . $contacts[1]->name . '</option>');
 
 		// Anyone not logged in is not allowed to send messages
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Contacts', 'action' => 'message']);
@@ -223,8 +209,6 @@ class ContactsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test message method as a player with one contact
-	 *
-	 * @return void
 	 */
 	public function testMessageAsPlayerWithOneContact(): void {
 		$player = PersonFactory::makePlayer()->with('Affiliates')->persist();
@@ -232,13 +216,11 @@ class ContactsControllerTest extends ControllerTestCase {
 
 		// Someone logged in on an affiliate that has only one contact doesn't get a drop-down
 		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'message'], $player->id);
-		$this->assertResponseContains("<input type=\"hidden\" name=\"contact_id\" value=\"{$contact->id}\"/>");
+		$this->assertResponseContains('<input type="hidden" name="contact_id" value="' . $contact->id . '"/>');
 	}
 
 	/**
 	 * Test execute method
-	 *
-	 * @return void
 	 */
 	public function testExecute(): void {
 		$this->enableCsrfToken();
@@ -265,8 +247,6 @@ class ContactsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test execute with CC method
-	 *
-	 * @return void
 	 */
 	public function testExecuteWithCC(): void {
 		$this->enableCsrfToken();

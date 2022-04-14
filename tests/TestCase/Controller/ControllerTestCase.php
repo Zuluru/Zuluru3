@@ -20,10 +20,8 @@ class ControllerTestCase extends TestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		// Minimize menu building during most tests, to cut down on required fixtures and speed things along
 		Configure::write('feature.minimal_menus', true);
@@ -33,7 +31,7 @@ class ControllerTestCase extends TestCase {
 		}
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		Cache::clear(false, 'long_term');
 		FrozenTime::setTestNow();
 		FrozenDate::setTestNow();

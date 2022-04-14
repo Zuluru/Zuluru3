@@ -19,21 +19,17 @@ class PeopleTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('People') ? [] : ['className' => 'App\Model\Table\PeopleTable'];
-		$this->PeopleTable = TableRegistry::get('People', $config);
+		$this->PeopleTable = TableRegistry::getTableLocator()->get('People', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->PeopleTable);
 
 		parent::tearDown();
@@ -41,8 +37,6 @@ class PeopleTableTest extends TableTestCase {
 
 	/**
 	 * Test validationCreate method
-	 *
-	 * @return void
 	 */
 	public function testValidationCreate(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -50,8 +44,6 @@ class PeopleTableTest extends TableTestCase {
 
 	/**
 	 * Test validationPlayer method
-	 *
-	 * @return void
 	 */
 	public function testValidationPlayer(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -59,8 +51,6 @@ class PeopleTableTest extends TableTestCase {
 
 	/**
 	 * Test validationContact method
-	 *
-	 * @return void
 	 */
 	public function testValidationContact(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -68,8 +58,6 @@ class PeopleTableTest extends TableTestCase {
 
 	/**
 	 * Test validationCoach method
-	 *
-	 * @return void
 	 */
 	public function testValidationCoach(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -77,8 +65,6 @@ class PeopleTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeRules method
-	 *
-	 * @return void
 	 */
 	public function testBeforeRules(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -86,8 +72,6 @@ class PeopleTableTest extends TableTestCase {
 
 	/**
 	 * Test afterSave method
-	 *
-	 * @return void
 	 */
 	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -95,8 +79,6 @@ class PeopleTableTest extends TableTestCase {
 
 	/**
 	 * Test CreatePersonRecord method
-	 *
-	 * @return void
 	 */
 	public function testCreatePersonRecord(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -104,8 +86,6 @@ class PeopleTableTest extends TableTestCase {
 
 	/**
 	 * Test findDuplicates method
-	 *
-	 * @return void
 	 */
 	public function testFindDuplicates(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
@@ -122,8 +102,6 @@ class PeopleTableTest extends TableTestCase {
 
 	/**
 	 * Test delete method
-	 *
-	 * @return void
 	 */
 	public function testDelete(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -131,8 +109,6 @@ class PeopleTableTest extends TableTestCase {
 
 	/**
 	 * Test mergeList method
-	 *
-	 * @return void
 	 */
 	public function testMergeList(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -140,8 +116,6 @@ class PeopleTableTest extends TableTestCase {
 
 	/**
 	 * Test comparePerson method
-	 *
-	 * @return void
 	 */
 	public function testComparePerson(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);

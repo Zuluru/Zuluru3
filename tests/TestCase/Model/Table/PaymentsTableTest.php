@@ -19,21 +19,17 @@ class PaymentsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Payments') ? [] : ['className' => 'App\Model\Table\PaymentsTable'];
-		$this->PaymentsTable = TableRegistry::get('Payments', $config);
+		$this->PaymentsTable = TableRegistry::getTableLocator()->get('Payments', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->PaymentsTable);
 
 		parent::tearDown();
@@ -41,8 +37,6 @@ class PaymentsTableTest extends TableTestCase {
 
 	/**
 	 * Test validationAmount method
-	 *
-	 * @return void
 	 */
 	public function testValidationAmount(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -50,8 +44,6 @@ class PaymentsTableTest extends TableTestCase {
 
 	/**
 	 * Test validationPayment method
-	 *
-	 * @return void
 	 */
 	public function testValidationPayment(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -59,8 +51,6 @@ class PaymentsTableTest extends TableTestCase {
 
 	/**
 	 * Test validationRefund method
-	 *
-	 * @return void
 	 */
 	public function testValidationRefund(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -68,8 +58,6 @@ class PaymentsTableTest extends TableTestCase {
 
 	/**
 	 * Test validationCredit method
-	 *
-	 * @return void
 	 */
 	public function testValidationCredit(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -77,8 +65,6 @@ class PaymentsTableTest extends TableTestCase {
 
 	/**
 	 * Test validationTransferFrom method
-	 *
-	 * @return void
 	 */
 	public function testValidationTransferFrom(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -86,8 +72,6 @@ class PaymentsTableTest extends TableTestCase {
 
 	/**
 	 * Test validationTransferTo method
-	 *
-	 * @return void
 	 */
 	public function testValidationTransferTo(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -95,8 +79,6 @@ class PaymentsTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeMarshal method
-	 *
-	 * @return void
 	 */
 	public function testBeforeMarshal(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -104,8 +86,6 @@ class PaymentsTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
 	public function testAffiliate(): void {
         $affiliateId = rand();

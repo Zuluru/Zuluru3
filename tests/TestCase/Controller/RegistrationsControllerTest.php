@@ -30,8 +30,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test full_list method
-	 *
-	 * @return void
 	 */
 	public function testFullList(): void {
 		// Admins are allowed to see the full list of registrations
@@ -79,8 +77,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test summary method
-	 *
-	 * @return void
 	 */
 	public function testSummary(): void {
 		// Admins are allowed to see the summary of registrations
@@ -106,8 +102,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test statistics method
-	 *
-	 * @return void
 	 */
 	public function testStatistics(): void {
 		// Admins are allowed to see statistics
@@ -128,8 +122,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test report method
-	 *
-	 * @return void
 	 */
 	public function testReport(): void {
 		// Admins are allowed to report
@@ -150,8 +142,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test accounting method
-	 *
-	 * @return void
 	 */
 	public function testAccounting(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
@@ -172,8 +162,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test view method
-	 *
-	 * @return void
 	 */
 	public function testView(): void {
 		// Admins are allowed to view registrations, with full edit permissions
@@ -208,8 +196,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test register method as an admin
-	 *
-	 * @return void
 	 */
 	public function testRegisterAsAdmin(): void {
 		// Admins are allowed to register, within or somewhat before the date range
@@ -224,8 +210,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test register method as a manager
-	 *
-	 * @return void
 	 */
 	public function testRegisterAsManager(): void {
 		// Managers are allowed to register, within or somewhat before the date range
@@ -240,8 +224,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test register method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testRegisterAsCoordinator(): void {
 		// Coordinators are allowed to register, within the date range
@@ -252,8 +234,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test register method as a captain
-	 *
-	 * @return void
 	 */
 	public function testRegisterAsCaptain(): void {
 		// Captains are allowed to register, within the date range
@@ -264,8 +244,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test register method as a player
-	 *
-	 * @return void
 	 */
 	public function testRegisterAsPlayer(): void {
 		// Players are allowed to register, within the date range
@@ -276,8 +254,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test register method as someone else
-	 *
-	 * @return void
 	 */
 	public function testRegisterAsVisitor(): void {
 		// Visitors are allowed to register, within the date range
@@ -288,8 +264,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test register method without being logged in
-	 *
-	 * @return void
 	 */
 	public function testRegisterAsAnonymous(): void {
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'register', 'event' => EVENT_ID_LEAGUE_TEAM]);
@@ -297,8 +271,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test register_payment_fields method
-	 *
-	 * @return void
 	 */
 	public function testRegisterPaymentFields(): void {
 		$this->enableCsrfToken();
@@ -326,8 +298,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test redeem method for success
-	 *
-	 * @return void
 	 */
 	public function testRedeemSuccess(): void {
 		// People are allowed to redeem their own credits
@@ -338,8 +308,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test redeem method for various failure scenarios
-	 *
-	 * @return void
 	 */
 	public function testRedeemFailure(): void {
 		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'redeem', 'registration' => REGISTRATION_ID_COORDINATOR_MEMBERSHIP],
@@ -352,8 +320,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test redeem method as others
-	 *
-	 * @return void
 	 */
 	public function testRedeemAsOthers(): void {
 		// Even admins are not allowed to redeem credits on behalf of players
@@ -364,8 +330,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test checkout method for success
-	 *
-	 * @return void
 	 */
 	public function testCheckoutSuccess(): void {
 		// Anyone with outstanding registrations is allowed to checkout
@@ -377,8 +341,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test checkout method for various failure scenarios
-	 *
-	 * @return void
 	 */
 	public function testCheckoutFailure(): void {
 		// Anyone without an outstanding registration has no reason to checkout
@@ -394,8 +356,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test unregister method as an admin
-	 *
-	 * @return void
 	 */
 	public function testUnregisterAsAdmin(): void {
 		// Admins are allowed to unregister
@@ -407,8 +367,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test unregister method as a manager
-	 *
-	 * @return void
 	 */
 	public function testUnregisterAsManager(): void {
 		// Managers are allowed to unregister
@@ -420,8 +378,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test unregister method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testUnregisterAsCoordinator(): void {
 		// Coordinators are allowed to unregister
@@ -433,8 +389,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test unregister method as a captain
-	 *
-	 * @return void
 	 */
 	public function testUnregisterAsCaptain(): void {
 		// Captains are allowed to unregister
@@ -446,8 +400,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test unregister method as a player
-	 *
-	 * @return void
 	 */
 	public function testUnregisterAsPlayer(): void {
 		// Players are allowed to unregister
@@ -459,8 +411,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test unregister method as someone else
-	 *
-	 * @return void
 	 */
 	public function testUnregisterAsVisitor(): void {
 		// Visitors are allowed to unregister
@@ -470,8 +420,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test unregister method without being logged in
-	 *
-	 * @return void
 	 */
 	public function testUnregisterAsAnonymous(): void {
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => REGISTRATION_ID_PLAYER_MEMBERSHIP]);
@@ -479,8 +427,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_payment method as an admin
-	 *
-	 * @return void
 	 */
 	public function testAddPaymentAsAdmin(): void {
 		// Admins are allowed to add payments
@@ -490,8 +436,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_payment method as a manager
-	 *
-	 * @return void
 	 */
 	public function testAddPaymentAsManager(): void {
 		// Managers are allowed to add payments
@@ -501,8 +445,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_payment method as others
-	 *
-	 * @return void
 	 */
 	public function testAddPaymentAsOthers(): void {
 		// Others are not allowed to add payments
@@ -515,8 +457,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test refund_payment method as an admin
-	 *
-	 * @return void
 	 */
 	public function testRefundPaymentAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -585,8 +525,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test refunding of team events
-	 *
-	 * @return void
 	 */
 	public function testRefundTeamEvent(): void {
 		$this->enableCsrfToken();
@@ -639,8 +577,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test refund_payment method as a manager
-	 *
-	 * @return void
 	 */
 	public function testRefundPaymentAsManager(): void {
 		// Managers are allowed to refund payments
@@ -650,8 +586,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test refund_payment method as others
-	 *
-	 * @return void
 	 */
 	public function testRefundPaymentAsOthers(): void {
 		// Others are not allowed to refund payments
@@ -664,8 +598,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test credit_payment method as an admin
-	 *
-	 * @return void
 	 */
 	public function testCreditPaymentAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -746,8 +678,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test credit_payment method as a manager
-	 *
-	 * @return void
 	 */
 	public function testCreditPaymentAsManager(): void {
 		// Managers are allowed to credit payments
@@ -757,8 +687,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test credit_payment method as others
-	 *
-	 * @return void
 	 */
 	public function testCreditPaymentAsOthers(): void {
 		// Others are not allowed to credit payments
@@ -771,8 +699,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as an admin
-	 *
-	 * @return void
 	 */
 	public function testEditAsAdmin(): void {
 		// Admins are allowed to edit registrations, with full edit permissions
@@ -783,8 +709,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as a manager
-	 *
-	 * @return void
 	 */
 	public function testEditAsManager(): void {
 		// Managers are allowed to edit registrations
@@ -796,8 +720,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as others
-	 *
-	 * @return void
 	 */
 	public function testEditAsOthers(): void {
 		// Others are allowed to edit, if payments have not been made
@@ -817,8 +739,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test unpaid method
-	 *
-	 * @return void
 	 */
 	public function testUnpaid(): void {
 		// Admins are allowed to list unpaid registrations
@@ -839,8 +759,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test waiting list method
-	 *
-	 * @return void
 	 */
 	public function testWaiting(): void {
 		// Admins are allowed to see the waiting list

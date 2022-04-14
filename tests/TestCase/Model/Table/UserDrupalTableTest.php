@@ -18,10 +18,8 @@ class UserDrupalTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		// This needs to be defined or else the table's constructor tries to include library code
 		if (!defined('DRUPAL_ROOT')) {
 			define('DRUPAL_ROOT', TESTS . 'test_app' . DS . 'drupal');
@@ -29,15 +27,13 @@ class UserDrupalTableTest extends TableTestCase {
 
 		parent::setUp();
 		$config = TableRegistry::exists('UserDrupal') ? [] : ['className' => 'App\Model\Table\UserDrupalTable'];
-		$this->UserDrupalTable = TableRegistry::get('UserDrupal', $config);
+		$this->UserDrupalTable = TableRegistry::getTableLocator()->get('UserDrupal', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->UserDrupalTable);
 
 		parent::tearDown();
@@ -45,8 +41,6 @@ class UserDrupalTableTest extends TableTestCase {
 
 	/**
 	 * Test activated method
-	 *
-	 * @return void
 	 */
 	public function testActivated(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -54,8 +48,6 @@ class UserDrupalTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeDelete method
-	 *
-	 * @return void
 	 */
 	public function testBeforeDelete(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -63,8 +55,6 @@ class UserDrupalTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeSave method
-	 *
-	 * @return void
 	 */
 	public function testBeforeSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');

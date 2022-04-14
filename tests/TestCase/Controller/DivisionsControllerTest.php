@@ -42,8 +42,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test view method
-	 *
-	 * @return void
 	 */
 	public function testView(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -82,8 +80,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test tooltip method
-	 *
-	 * @return void
 	 */
 	public function testTooltip(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -121,8 +117,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test stats method
-	 *
-	 * @return void
 	 */
 	public function testStats(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -165,8 +159,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method
-	 *
-	 * @return void
 	 */
 	public function testAdd(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -191,7 +183,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		// If a division ID is given, we will clone that division
 		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add', 'league' => $league1->id, 'division' => $division1->id], $admin->id);
-		$this->assertResponseRegExp("#<input type=\"text\" name=\"name\"[^>]*value=\"{$division1->name}\"#ms");
+		$this->assertResponseRegExp('#<input type="text" name="name"[^>]*value="' . $division1->name . '"#ms');
 		$this->assertResponseContains('<input type="checkbox" name="days[_ids][]" value="1" checked="checked" id="days-ids-1">Monday');
 		$this->assertResponseNotContains('<input type="checkbox" name="days[_ids][]" value="2" checked="checked" id="days-ids-2">Tuesday');
 		$this->assertResponseNotContains('<input type="checkbox" name="days[_ids][]" value="3" checked="checked" id="days-ids-3">Wednesday');
@@ -209,8 +201,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method
-	 *
-	 * @return void
 	 */
 	public function testEdit(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -258,8 +248,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test scheduling_fields method
-	 *
-	 * @return void
 	 */
 	public function testSchedulingFields(): void {
 		$this->enableCsrfToken();
@@ -297,8 +285,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_coordinator method as an admin
-	 *
-	 * @return void
 	 */
 	public function testAddCoordinatorAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -340,8 +326,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_coordinator method as others
-	 *
-	 * @return void
 	 */
 	public function testAddCoordinatorAsOthers(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -364,8 +348,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test remove_coordinator method as an admin
-	 *
-	 * @return void
 	 */
 	public function testRemoveCoordinatorAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -389,8 +371,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test remove_coordinator method as a manager
-	 *
-	 * @return void
 	 */
 	public function testRemoveCoordinatorAsManager(): void {
 		$this->enableCsrfToken();
@@ -414,8 +394,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test remove_coordinator method as others
-	 *
-	 * @return void
 	 */
 	public function testRemoveCoordinatorAsOthers(): void {
 		$this->enableCsrfToken();
@@ -441,8 +419,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_teams method
-	 *
-	 * @return void
 	 */
 	public function testAddTeams(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -473,8 +449,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test ratings method
-	 *
-	 * @return void
 	 */
 	public function testRatings(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -506,8 +480,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test seeds method
-	 *
-	 * @return void
 	 */
 	public function testSeeds(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -539,8 +511,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -582,8 +552,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as a manager
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
@@ -617,8 +585,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as others
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
@@ -664,8 +630,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test schedule method as an admin
-	 *
-	 * @return void
 	 */
 	public function testScheduleAsAdmin(): void {
 		[$admin, , $volunteer, ] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -737,8 +701,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test schedule method as a manager
-	 *
-	 * @return void
 	 */
 	public function testScheduleAsManager(): void {
 		[$admin, $manager, $volunteer, ] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -811,8 +773,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test schedule method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testScheduleAsCoordinator(): void {
 		[$admin, , $volunteer, ] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -901,8 +861,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test schedule method as a captain
-	 *
-	 * @return void
 	 */
 	public function testScheduleAsCaptain(): void {
 		[$admin, , $volunteer, $captain] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -978,8 +936,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test schedule method as a player
-	 *
-	 * @return void
 	 */
 	public function testScheduleAsPlayer(): void {
 		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1025,8 +981,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test schedule method as someone else
-	 *
-	 * @return void
 	 */
 	public function testScheduleAsVisitor(): void {
 		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1069,8 +1023,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test schedule method without being logged in
-	 *
-	 * @return void
 	 */
 	public function testScheduleAsAnonymous(): void {
 		$affiliate = AffiliateFactory::make()->persist();
@@ -1112,8 +1064,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test standings method
-	 *
-	 * @return void
 	 */
 	public function testStandings(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1139,8 +1089,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test scores method
-	 *
-	 * @return void
 	 */
 	public function testScores(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1166,8 +1114,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test fields method
-	 *
-	 * @return void
 	 */
 	public function testFields(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1195,8 +1141,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test slots method
-	 *
-	 * @return void
 	 */
 	public function testSlots(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1224,8 +1168,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test status method
-	 *
-	 * @return void
 	 */
 	public function testStatus(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1253,8 +1195,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test allstars method
-	 *
-	 * @return void
 	 */
 	public function testAllstars(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1282,8 +1222,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test emails method
-	 *
-	 * @return void
 	 */
 	public function testEmails(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1311,8 +1249,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test spirit method
-	 *
-	 * @return void
 	 */
 	public function testSpirit(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1340,8 +1276,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test approve_scores method
-	 *
-	 * @return void
 	 */
 	public function testApproveScores(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1369,8 +1303,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test initialize_ratings method as an admin
-	 *
-	 * @return void
 	 */
 	public function testInitializeRatingsAsAdmin(): void {
 		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1389,8 +1321,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test initialize_ratings method as a manager
-	 *
-	 * @return void
 	 */
 	public function testInitializeRatingsAsManager(): void {
 		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1409,8 +1339,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test initialize_ratings method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testInitializeRatingsAsCoordinator(): void {
 		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1429,8 +1357,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test initialize_ratings method as others
-	 *
-	 * @return void
 	 */
 	public function testInitializeRatingsAsOthers(): void {
 		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1447,8 +1373,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test initialize_dependencies method as an admin
-	 *
-	 * @return void
 	 */
 	public function testInitializeDependenciesAsAdmin(): void {
 		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1467,8 +1391,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test initialize_dependencies method as a manager
-	 *
-	 * @return void
 	 */
 	public function testInitializeDependenciesAsManager(): void {
 		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1487,8 +1409,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test initialize_dependencies method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testInitializeDependenciesAsCoordinator(): void {
 		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1507,8 +1427,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test initialize_dependencies method as others
-	 *
-	 * @return void
 	 */
 	public function testInitializeDependenciesAsOthers(): void {
 		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1525,8 +1443,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_stage method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeleteStageAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -1548,8 +1464,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_stage method as a manager
-	 *
-	 * @return void
 	 */
 	public function testDeleteStageAsManager(): void {
 		$this->enableCsrfToken();
@@ -1571,8 +1485,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_stage method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testDeleteStageAsCoordinator(): void {
 		$this->enableCsrfToken();
@@ -1594,8 +1506,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_stage method as others
-	 *
-	 * @return void
 	 */
 	public function testDeleteStageAsOthers(): void {
 		$this->enableCsrfToken();
@@ -1615,8 +1525,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test redirect method
-	 *
-	 * @return void
 	 */
 	public function testRedirect(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -1624,8 +1532,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test select method
-	 *
-	 * @return void
 	 */
 	public function testSelect(): void {
 		$this->enableCsrfToken();

@@ -18,21 +18,17 @@ class SubscriptionsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Subscriptions') ? [] : ['className' => 'App\Model\Table\SubscriptionsTable'];
-		$this->SubscriptionsTable = TableRegistry::get('Subscriptions', $config);
+		$this->SubscriptionsTable = TableRegistry::getTableLocator()->get('Subscriptions', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->SubscriptionsTable);
 
 		parent::tearDown();

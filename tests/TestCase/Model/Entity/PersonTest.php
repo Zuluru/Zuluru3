@@ -30,10 +30,8 @@ class PersonTest extends TestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$this->person = PersonFactory::make([
 			'first_name' => 'Amy',
@@ -52,10 +50,8 @@ class PersonTest extends TestCase {
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->person);
 
 		parent::tearDown();

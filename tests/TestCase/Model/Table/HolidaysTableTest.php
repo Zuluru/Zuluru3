@@ -19,21 +19,17 @@ class HolidaysTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Holidays') ? [] : ['className' => 'App\Model\Table\HolidaysTable'];
-		$this->HolidaysTable = TableRegistry::get('Holidays', $config);
+		$this->HolidaysTable = TableRegistry::getTableLocator()->get('Holidays', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->HolidaysTable);
 
 		parent::tearDown();
@@ -41,8 +37,6 @@ class HolidaysTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
 	public function testAffiliate(): void {
 	    $affiliateId = rand();

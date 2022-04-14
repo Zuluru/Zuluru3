@@ -22,20 +22,16 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$this->LeagueType = ModuleRegistry::getInstance()->load('LeagueType:none');
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->LeagueType);
 
 		parent::tearDown();
@@ -58,13 +54,11 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 			];
 		}
 		$contain[] = 'Leagues';
-		return TableRegistry::get('Divisions')->get($id, ['contain' => $contain]);
+		return TableRegistry::getTableLocator()->get('Divisions')->get($id, ['contain' => $contain]);
 	}
 
 	/**
 	 * Test links method
-	 *
-	 * @return void
 	 */
 	public function testLinks(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -72,8 +66,6 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test schedulingFields method
-	 *
-	 * @return void
 	 */
 	public function testSchedulingFields(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -81,8 +73,6 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test schedulingFieldsRules method
-	 *
-	 * @return void
 	 */
 	public function testSchedulingFieldsRules(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -90,8 +80,6 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test newTeam method
-	 *
-	 * @return void
 	 */
 	public function testNewTeam(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -99,8 +87,6 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test addResults method
-	 *
-	 * @return void
 	 */
 	public function testAddResults(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -108,8 +94,6 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test sort method
-	 *
-	 * @return void
 	 */
 	public function testSort(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -117,8 +101,6 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test presort method
-	 *
-	 * @return void
 	 */
 	public function testPresort(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -126,11 +108,8 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test compareTeams method
-	 *
-	 * @return void
 	 */
 	public function testCompareTeams(): void {
-        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER, true);
 
 		$this->assertEquals(8, count($division->teams));
@@ -167,8 +146,6 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test schedulePreview method
-	 *
-	 * @return void
 	 */
 	public function testSchedulePreview(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -176,8 +153,6 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test scheduleOptions method
-	 *
-	 * @return void
 	 */
 	public function testScheduleOptions(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -185,8 +160,6 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test scheduleDescription method
-	 *
-	 * @return void
 	 */
 	public function testScheduleDescription(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -194,8 +167,6 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test scheduleRequirements method
-	 *
-	 * @return void
 	 */
 	public function testScheduleRequirements(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -203,8 +174,6 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test canSchedule method
-	 *
-	 * @return void
 	 */
 	public function testCanSchedule(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -212,8 +181,6 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test startSchedule method
-	 *
-	 * @return void
 	 */
 	public function testStartSchedule(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -221,8 +188,6 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test finishSchedule method
-	 *
-	 * @return void
 	 */
 	public function testFinishSchedule(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -230,8 +195,6 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test createEmptyGame method
-	 *
-	 * @return void
 	 */
 	public function testCreateEmptyGame(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -239,8 +202,6 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test createGamesForTeams method
-	 *
-	 * @return void
 	 */
 	public function testCreateGamesForTeams(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -248,8 +209,6 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test addTeamsBalanced method
-	 *
-	 * @return void
 	 */
 	public function testAddTeamsBalanced(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -257,8 +216,6 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test homeAwayRatio method
-	 *
-	 * @return void
 	 */
 	public function testHomeAwayRatio(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -266,8 +223,6 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test assignFieldsByPreferences method
-	 *
-	 * @return void
 	 */
 	public function testAssignFieldsByPreferences(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -275,8 +230,6 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test hasHomeField method
-	 *
-	 * @return void
 	 */
 	public function testHasHomeField(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -284,8 +237,6 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test preferredFieldRatio method
-	 *
-	 * @return void
 	 */
 	public function testPreferredFieldRatio(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -293,8 +244,6 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test selectRandomGameslot method
-	 *
-	 * @return void
 	 */
 	public function testSelectRandomGameslot(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -302,8 +251,6 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test selectWeightedGameslot method
-	 *
-	 * @return void
 	 */
 	public function testSelectWeightedGameslot(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -311,8 +258,6 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test matchingSlots method
-	 *
-	 * @return void
 	 */
 	public function testMatchingSlots(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -320,8 +265,6 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test removeGameslot method
-	 *
-	 * @return void
 	 */
 	public function testRemoveGameslot(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -329,8 +272,6 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test countAvailableGameslotDays method
-	 *
-	 * @return void
 	 */
 	public function testCountAvailableGameslotDays(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -338,8 +279,6 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
 	 * Test nextGameslotDay method
-	 *
-	 * @return void
 	 */
 	public function testNextGameslotDay(): void {
 		$this->markTestIncomplete('Not implemented yet.');

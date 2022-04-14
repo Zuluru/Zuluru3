@@ -8,8 +8,6 @@ class SettingsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as an admin
-	 *
-	 * @return void
 	 */
 	public function testEditAsAdmin(): void {
 		// Admins are allowed to edit settings
@@ -19,8 +17,6 @@ class SettingsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as a manager
-	 *
-	 * @return void
 	 */
 	public function testEditAsManager(): void {
 		// Managers are allowed to edit settings
@@ -30,8 +26,6 @@ class SettingsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as others
-	 *
-	 * @return void
 	 */
 	public function testEditAsOthers(): void {
 		// Others are not allowed to edit

@@ -18,21 +18,17 @@ class ReportsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Reports') ? [] : ['className' => 'App\Model\Table\ReportsTable'];
-		$this->Reports = TableRegistry::get('Reports', $config);
+		$this->Reports = TableRegistry::getTableLocator()->get('Reports', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->Reports);
 
 		parent::tearDown();
@@ -40,8 +36,6 @@ class ReportsTableTest extends TableTestCase {
 
 	/**
 	 * Test initialize method
-	 *
-	 * @return void
 	 */
 	public function testInitialize(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -49,8 +43,6 @@ class ReportsTableTest extends TableTestCase {
 
 	/**
 	 * Test validationDefault method
-	 *
-	 * @return void
 	 */
 	public function testValidationDefault(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -58,8 +50,6 @@ class ReportsTableTest extends TableTestCase {
 
 	/**
 	 * Test buildRules method
-	 *
-	 * @return void
 	 */
 	public function testBuildRules(): void {
 		$this->markTestIncomplete('Not implemented yet.');

@@ -19,22 +19,18 @@ class AppTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$config = TableRegistry::exists('Divisions') ? [] : ['className' => 'App\Model\Table\DivisionsTable'];
-		$this->DivisionsTable = TableRegistry::get('Divisions', $config);
+		$this->DivisionsTable = TableRegistry::getTableLocator()->get('Divisions', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->DivisionsTable);
 
 		parent::tearDown();
@@ -42,8 +38,6 @@ class AppTableTest extends TableTestCase {
 
 	/**
 	 * Test field method
-	 *
-	 * @return void
 	 */
 	public function testField(): void {
 		$this->assertEquals('ratings_ladder', $this->DivisionsTable->field('schedule_type', ['Divisions.id' => DIVISION_ID_MONDAY_LADDER]));
@@ -58,8 +52,6 @@ class AppTableTest extends TableTestCase {
 
 	/**
 	 * Test dependencies method
-	 *
-	 * @return void
 	 */
 	public function testDependencies(): void {
 		$dependencies = $this->DivisionsTable->dependencies(DIVISION_ID_MONDAY_LADDER);
@@ -74,8 +66,6 @@ class AppTableTest extends TableTestCase {
 
 	/**
 	 * Test cloneWithoutIds method
-	 *
-	 * @return void
 	 */
 	public function testCloneWithoutIds(): void {
 		$new = $this->DivisionsTable->cloneWithoutIds(DIVISION_ID_MONDAY_LADDER, ['contain' => ['Leagues', 'Teams']]);

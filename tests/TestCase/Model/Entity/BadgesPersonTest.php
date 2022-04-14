@@ -22,10 +22,8 @@ class BadgesPersonTest extends TestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
         Configure::write('options.sport', ['ultimate']);
 
@@ -47,10 +45,8 @@ class BadgesPersonTest extends TestCase {
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->BadgesPerson);
 
 		parent::tearDown();
@@ -58,8 +54,6 @@ class BadgesPersonTest extends TestCase {
 
 	/**
 	 * Test __construct method
-	 *
-	 * @return void
 	 */
 	public function testConstruct(): void {
 		$this->assertContains('game', $this->BadgesPerson->virtualProperties());

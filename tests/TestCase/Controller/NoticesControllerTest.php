@@ -23,8 +23,6 @@ class NoticesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test viewed method
-	 *
-	 * @return void
 	 */
 	public function testViewed(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);

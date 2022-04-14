@@ -8,8 +8,6 @@ class RegionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test index method
-	 *
-	 * @return void
 	 */
 	public function testIndex(): void {
 		// Admins are allowed to see the index
@@ -36,8 +34,6 @@ class RegionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test view method
-	 *
-	 * @return void
 	 */
 	public function testView(): void {
 		// Admins are allowed to view regions
@@ -63,8 +59,6 @@ class RegionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as an admin
-	 *
-	 * @return void
 	 */
 	public function testAddAsAdmin(): void {
 		// Admins are allowed to add regions
@@ -73,8 +67,6 @@ class RegionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as a manager
-	 *
-	 * @return void
 	 */
 	public function testAddAsManager(): void {
 		// Managers are allowed to add regions
@@ -83,8 +75,6 @@ class RegionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as others
-	 *
-	 * @return void
 	 */
 	public function testAddAsOthers(): void {
 		// Others are not allowed to add regions
@@ -97,8 +87,6 @@ class RegionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as an admin
-	 *
-	 * @return void
 	 */
 	public function testEditAsAdmin(): void {
 		// Admins are allowed to edit regions
@@ -108,8 +96,6 @@ class RegionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as a manager
-	 *
-	 * @return void
 	 */
 	public function testEditAsManager(): void {
 		// Managers are allowed to edit regions
@@ -121,8 +107,6 @@ class RegionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as others
-	 *
-	 * @return void
 	 */
 	public function testEditAsOthers(): void {
 		// Others are not allowed to edit regions
@@ -135,8 +119,6 @@ class RegionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -155,8 +137,6 @@ class RegionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as a manager
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
@@ -174,8 +154,6 @@ class RegionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as others
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();

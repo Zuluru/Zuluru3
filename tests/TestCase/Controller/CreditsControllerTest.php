@@ -36,8 +36,6 @@ class CreditsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test index method
-	 *
-	 * @return void
 	 */
 	public function testIndex(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -69,8 +67,6 @@ class CreditsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test view method
-	 *
-	 * @return void
 	 */
 	public function testView(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -78,8 +74,6 @@ class CreditsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method
-	 *
-	 * @return void
 	 */
 	public function testAdd(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -87,8 +81,6 @@ class CreditsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method
-	 *
-	 * @return void
 	 */
 	public function testEdit(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -96,8 +88,6 @@ class CreditsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test transfer method as an admin
-	 *
-	 * @return void
 	 */
 	public function testTransferAsAdmin(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
@@ -114,8 +104,6 @@ class CreditsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test transfer method as a manager
-	 *
-	 * @return void
 	 */
 	public function testTransferAsManager(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
@@ -136,8 +124,6 @@ class CreditsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test transfer method as the credit owner
-	 *
-	 * @return void
 	 */
 	public function testTransferAsOwner(): void {
 		[$admin, , $source, $target] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -168,8 +154,6 @@ class CreditsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test transfer method as a relative of the credit owner
-	 *
-	 * @return void
 	 */
 	public function testTransferAsRelative(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -177,8 +161,6 @@ class CreditsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test transfer method as others
-	 *
-	 * @return void
 	 */
 	public function testTransferAsOthers(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
@@ -197,8 +179,6 @@ class CreditsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsAdmin(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -206,8 +186,6 @@ class CreditsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as a manager
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsManager(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -215,8 +193,6 @@ class CreditsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsOthers(): void {
 		$this->markTestIncomplete('Not implemented yet.');

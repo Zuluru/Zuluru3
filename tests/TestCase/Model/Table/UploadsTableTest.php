@@ -19,21 +19,17 @@ class UploadsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Uploads') ? [] : ['className' => 'App\Model\Table\UploadsTable'];
-		$this->UploadsTable = TableRegistry::get('Uploads', $config);
+		$this->UploadsTable = TableRegistry::getTableLocator()->get('Uploads', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->UploadsTable);
 
 		parent::tearDown();
@@ -41,8 +37,6 @@ class UploadsTableTest extends TableTestCase {
 
 	/**
 	 * Test afterSave method
-	 *
-	 * @return void
 	 */
 	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -50,8 +44,6 @@ class UploadsTableTest extends TableTestCase {
 
 	/**
 	 * Test afterDeleteCommit method
-	 *
-	 * @return void
 	 */
 	public function testAfterDeleteCommit(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -59,8 +51,6 @@ class UploadsTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
 	public function testAffiliate(): void {
         $affiliateId = rand();

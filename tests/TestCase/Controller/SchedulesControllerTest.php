@@ -11,8 +11,6 @@ class SchedulesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as an admin
-	 *
-	 * @return void
 	 */
 	public function testAddAsAdmin(): void {
 		// Admins are allowed to add to schedules anywhere
@@ -28,8 +26,6 @@ class SchedulesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as a manager
-	 *
-	 * @return void
 	 */
 	public function testAddAsManager(): void {
 		// Managers are allowed to add to schedules in their own affiliate
@@ -39,8 +35,6 @@ class SchedulesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testAddAsCoordinator(): void {
 		// Coordinators are allowed to add to schedules in their divisions
@@ -50,8 +44,6 @@ class SchedulesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as others
-	 *
-	 * @return void
 	 */
 	public function testAddAsOthers(): void {
 		// Others are not allowed to add to schedules
@@ -63,8 +55,6 @@ class SchedulesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsAdmin(): void {
 		// Admins are allowed to delete schedules for any division
@@ -117,8 +107,6 @@ class SchedulesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as a manager
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsManager(): void {
 		// Managers are allowed to delete schedules for any division
@@ -137,8 +125,6 @@ class SchedulesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsCoordinator(): void {
 		// Coordinators are allowed to delete schedules for any or their divisions
@@ -163,8 +149,6 @@ class SchedulesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as others
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsOthers(): void {
 		// Others are not allowed to delete schedules for any division
@@ -183,8 +167,6 @@ class SchedulesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test reschedule method as an admin
-	 *
-	 * @return void
 	 */
 	public function testRescheduleAsAdmin(): void {
 		$date = (new FrozenDate('last Monday of May'))->addWeeks(3);
@@ -196,8 +178,6 @@ class SchedulesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test reschedule method as a manager
-	 *
-	 * @return void
 	 */
 	public function testRescheduleAsManager(): void {
 		$date = (new FrozenDate('last Monday of May'))->addWeeks(3);
@@ -209,8 +189,6 @@ class SchedulesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test reschedule method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testRescheduleAsCoordinator(): void {
 		$date = (new FrozenDate('last Monday of May'))->addWeeks(3);
@@ -222,8 +200,6 @@ class SchedulesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test reschedule method as others
-	 *
-	 * @return void
 	 */
 	public function testRescheduleAsOthers(): void {
 		$date = (new FrozenDate('last Monday of May'))->addWeeks(3);
@@ -237,8 +213,6 @@ class SchedulesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test publish method as an admin
-	 *
-	 * @return void
 	 */
 	public function testPublishAsAdmin(): void {
 		$game = TableRegistry::get('Games')->get(GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_2);
@@ -261,8 +235,6 @@ class SchedulesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test publish method as a manager
-	 *
-	 * @return void
 	 */
 	public function testPublishAsManager(): void {
 		// Managers are allowed to publish schedules anywhere
@@ -278,8 +250,6 @@ class SchedulesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test publish method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testPublishAsCoordinator(): void {
 		// Coordinators are allowed to publish schedules in their own divisions
@@ -295,8 +265,6 @@ class SchedulesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test publish method as others
-	 *
-	 * @return void
 	 */
 	public function testPublishAsOthers(): void {
 		// Others are not allowed to publish schedules at all
@@ -309,8 +277,6 @@ class SchedulesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test unpublish method as an admin
-	 *
-	 * @return void
 	 */
 	public function testUnpublishAsAdmin(): void {
 		$game = TableRegistry::get('Games')->get(GAME_ID_LADDER_FINALIZED_HOME_WIN);
@@ -333,8 +299,6 @@ class SchedulesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test unpublish method as a manager
-	 *
-	 * @return void
 	 */
 	public function testUnpublishAsManager(): void {
 		// Managers are allowed to unpublish schedules anywhere
@@ -350,8 +314,6 @@ class SchedulesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test unpublish method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testUnpublishAsCoordinator(): void {
 		// Coordinators are allowed to unpublish schedules in their own divisions
@@ -368,8 +330,6 @@ class SchedulesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test unpublish method as others
-	 *
-	 * @return void
 	 */
 	public function testUnpublishAsOthers(): void {
 		// Others are not allowed to unpublish schedules at all
@@ -382,8 +342,6 @@ class SchedulesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test today method
-	 *
-	 * @return void
 	 */
 	public function testToday(): void {
 		// Anyone is allowed to get today's schedule
@@ -400,8 +358,6 @@ class SchedulesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test day method
-	 *
-	 * @return void
 	 */
 	public function testDay(): void {
 		// Anyone is allowed to get a day's schedule

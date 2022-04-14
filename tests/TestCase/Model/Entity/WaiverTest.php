@@ -35,13 +35,11 @@ class WaiverTest extends TestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
-		$waivers = TableRegistry::get('Waivers');
+		$waivers = TableRegistry::getTableLocator()->get('Waivers');
 		$this->WaiverAnnual = $waivers->get(WAIVER_ID_ANNUAL);
 		$this->WaiverAnnual2 = $waivers->get(WAIVER_ID_ANNUAL2);
 		$this->WaiverEvent = $waivers->get(WAIVER_ID_EVENT);
@@ -51,10 +49,8 @@ class WaiverTest extends TestCase {
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->WaiverAnnual);
 		unset($this->WaiverAnnual2);
 		unset($this->WaiverEvent);
@@ -66,8 +62,6 @@ class WaiverTest extends TestCase {
 
 	/**
 	 * Test canSign method
-	 *
-	 * @return void
 	 */
 	public function testCanSign(): void {
 		// Check same day signing
@@ -92,8 +86,6 @@ class WaiverTest extends TestCase {
 
 	/**
 	 * Test validRange method
-	 *
-	 * @return void
 	 */
 	public function testValidRange(): void {
 		// Set the date to something after the April 1 start of the the second annual waiver

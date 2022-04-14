@@ -10,8 +10,6 @@ class FieldTest extends TestCase
 {
     /**
 	 * Test _getLongName and _getLongCode method
-	 *
-	 * @return void
 	 */
 	public function testGetLongName()
     {

@@ -22,21 +22,17 @@ class EventsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Events') ? [] : ['className' => 'App\Model\Table\EventsTable'];
-		$this->EventsTable = TableRegistry::get('Events', $config);
+		$this->EventsTable = TableRegistry::getTableLocator()->get('Events', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->EventsTable);
 
 		parent::tearDown();
@@ -44,8 +40,6 @@ class EventsTableTest extends TableTestCase {
 
 	/**
 	 * Test validationGeneric method
-	 *
-	 * @return void
 	 */
 	public function testValidationGeneric(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -53,8 +47,6 @@ class EventsTableTest extends TableTestCase {
 
 	/**
 	 * Test validationIndividual method
-	 *
-	 * @return void
 	 */
 	public function testValidationIndividual(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -62,8 +54,6 @@ class EventsTableTest extends TableTestCase {
 
 	/**
 	 * Test validationMembership method
-	 *
-	 * @return void
 	 */
 	public function testValidationMembership(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -71,8 +61,6 @@ class EventsTableTest extends TableTestCase {
 
 	/**
 	 * Test validationTeam method
-	 *
-	 * @return void
 	 */
 	public function testValidationTeam(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -80,8 +68,6 @@ class EventsTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeMarshal method
-	 *
-	 * @return void
 	 */
 	public function testBeforeMarshal(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
@@ -120,8 +106,6 @@ class EventsTableTest extends TableTestCase {
 
 	/**
 	 * Test afterSave method
-	 *
-	 * @return void
 	 */
 	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -129,8 +113,6 @@ class EventsTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
 	public function testAffiliate(): void {
         $affiliateId = rand();

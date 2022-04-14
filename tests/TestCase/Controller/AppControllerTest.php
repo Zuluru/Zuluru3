@@ -37,8 +37,6 @@ class AppControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test initialize method
-	 *
-	 * @return void
 	 */
 	public function testInitialize(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -46,8 +44,6 @@ class AppControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test afterIdentify method
-	 *
-	 * @return void
 	 */
 	public function testAfterIdentify(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -55,8 +51,6 @@ class AppControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test beforeFilter method
-	 *
-	 * @return void
 	 */
 	public function testBeforeFilter(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -64,8 +58,6 @@ class AppControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test flashEmail method
-	 *
-	 * @return void
 	 */
 	public function testFlashEmail(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -73,8 +65,6 @@ class AppControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test flash method
-	 *
-	 * @return void
 	 */
 	public function testFlash(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -82,8 +72,6 @@ class AppControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test beforeRender method
-	 *
-	 * @return void
 	 */
 	public function testBeforeRender(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -91,8 +79,6 @@ class AppControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test redirect method
-	 *
-	 * @return void
 	 */
 	public function testRedirect(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -100,8 +86,6 @@ class AppControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test _addTeamMenuItems method
-	 *
-	 * @return void
 	 */
 	public function testAddTeamMenuItems(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -109,8 +93,6 @@ class AppControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test _addFranchiseMenuItems method
-	 *
-	 * @return void
 	 */
 	public function testAddFranchiseMenuItems(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -118,8 +100,6 @@ class AppControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test _addDivisionMenuItems method
-	 *
-	 * @return void
 	 */
 	public function testAddDivisionMenuItems(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -127,8 +107,6 @@ class AppControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test _addMenuItem method
-	 *
-	 * @return void
 	 */
 	public function testAddMenuItem(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -136,8 +114,6 @@ class AppControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test _sendMail method
-	 *
-	 * @return void
 	 */
 	public function testSendMail(): void {
 		$players = PersonFactory::makePlayer(2)->persist();
@@ -219,8 +195,6 @@ class AppControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test _extractEmails method
-	 *
-	 * @return void
 	 */
 	public function testExtractEmails(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -228,8 +202,6 @@ class AppControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test _extractLocales method
-	 *
-	 * @return void
 	 */
 	public function testExtractLocales(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -237,8 +209,6 @@ class AppControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test _isChild method
-	 *
-	 * @return void
 	 */
 	public function testIsChild(): void {
 		$admin = PersonFactory::makeAdmin()->getEntity();

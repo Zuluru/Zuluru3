@@ -42,13 +42,11 @@ class GameTest extends TestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
-		$games = TableRegistry::get('Games');
+		$games = TableRegistry::getTableLocator()->get('Games');
 		$contain = ['HomeTeam', 'AwayTeam', 'ScoreEntries', 'SpiritEntries', 'Divisions' => ['Leagues']];
 		$this->Game1 = $games->get(GAME_ID_LADDER_MATCHED_SCORES, ['contain' => $contain]);
 		$this->Game2 = $games->get(GAME_ID_LADDER_MISMATCHED_SCORES, ['contain' => $contain]);
@@ -58,10 +56,8 @@ class GameTest extends TestCase {
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->Game1);
 		unset($this->Game2);
 		unset($this->Game3);
@@ -72,8 +68,6 @@ class GameTest extends TestCase {
 
 	/**
 	 * Test finalize method
-	 *
-	 * @return void
 	 */
 	public function testFinalize(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -81,8 +75,6 @@ class GameTest extends TestCase {
 
 	/**
 	 * Test updateDependencies method
-	 *
-	 * @return void
 	 */
 	public function testUpdateDependencies(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -90,8 +82,6 @@ class GameTest extends TestCase {
 
 	/**
 	 * Test adjustScoreAndRatings method
-	 *
-	 * @return void
 	 */
 	public function testAdjustScoreAndRatings(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -99,8 +89,6 @@ class GameTest extends TestCase {
 
 	/**
 	 * Test undoRatings method
-	 *
-	 * @return void
 	 */
 	public function testUndoRatings(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -108,8 +96,6 @@ class GameTest extends TestCase {
 
 	/**
 	 * Test modifyTeamRatings method
-	 *
-	 * @return void
 	 */
 	public function testModifyTeamRatings(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -117,8 +103,6 @@ class GameTest extends TestCase {
 
 	/**
 	 * Test getScoreEntry method
-	 *
-	 * @return void
 	 */
 	public function testGetScoreEntry(): void {
 		$entry = $this->Game1->getScoreEntry(TEAM_ID_RED);
@@ -136,8 +120,6 @@ class GameTest extends TestCase {
 
 	/**
 	 * Test getSpiritEntry method
-	 *
-	 * @return void
 	 */
 	public function testGetSpiritEntry(): void {
 		$this->assertNotNull($this->Game1->division);
@@ -166,8 +148,6 @@ class GameTest extends TestCase {
 
 	/**
 	 * Test getBestScoreEntry method
-	 *
-	 * @return void
 	 */
 	public function testGetBestScoreEntry(): void {
 		$entry = $this->Game1->getBestScoreEntry();
@@ -186,8 +166,6 @@ class GameTest extends TestCase {
 
 	/**
 	 * Test getScoreReminderEmail method
-	 *
-	 * @return void
 	 */
 	public function testGetScoreReminderEmail(): void {
 		$entity = $this->Game1->getScoreReminderEmail(TEAM_ID_RED);
@@ -199,8 +177,6 @@ class GameTest extends TestCase {
 
 	/**
 	 * Test isFinalized method
-	 *
-	 * @return void
 	 */
 	public function testIsFinalized(): void {
 		$this->assertFalse($this->Game1->isFinalized());
@@ -213,8 +189,6 @@ class GameTest extends TestCase {
 
 	/**
 	 * Test readDependencies method
-	 *
-	 * @return void
 	 */
 	public function testReadDependencies(): void {
 		$this->markTestIncomplete('Not implemented yet.');

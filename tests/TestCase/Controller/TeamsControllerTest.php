@@ -15,8 +15,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test index method
-	 *
-	 * @return void
 	 */
 	public function testIndex(): void {
 		// Anyone is allowed to see the index
@@ -31,8 +29,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test letter method
-	 *
-	 * @return void
 	 */
 	public function testLetter(): void {
 		// Anyone is allowed to see the list by letter
@@ -47,8 +43,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test join method
-	 *
-	 * @return void
 	 */
 	public function testJoin(): void {
 		// Anyone logged in is allowed to try to find teams to join
@@ -65,8 +59,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test unassigned method
-	 *
-	 * @return void
 	 */
 	public function testUnassigned(): void {
 		// Admins are allowed to see the unassigned teams list
@@ -85,8 +77,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test statistics method
-	 *
-	 * @return void
 	 */
 	public function testStatistics(): void {
 		// Admins are allowed to view statistics
@@ -105,8 +95,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test compareAffiliateAndCount method
-	 *
-	 * @return void
 	 */
 	public function testCompareAffiliateAndCount(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -114,8 +102,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test view method
-	 *
-	 * @return void
 	 */
 	public function testView(): void {
 		// Admins are allowed to view teams, with full edit permissions
@@ -165,8 +151,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test numbers method as an admin
-	 *
-	 * @return void
 	 */
 	public function testNumbersAsAdmin(): void {
 		// Admins are allowed to set numbers
@@ -176,8 +160,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test numbers method as a manager
-	 *
-	 * @return void
 	 */
 	public function testNumbersAsManager(): void {
 		// Managers are allowed to set numbers
@@ -187,8 +169,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test numbers method as a captain
-	 *
-	 * @return void
 	 */
 	public function testNumbersAsCaptain(): void {
 		// Captains are allowed to set numbers before the roster deadline
@@ -206,8 +186,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test numbers method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testNumbersAsCoordinator(): void {
 		// Coordinators are allowed to set numbers
@@ -217,8 +195,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test numbers method as a player
-	 *
-	 * @return void
 	 */
 	public function testNumbersAsPlayer(): void {
 		// Players are allowed to set only their own number
@@ -228,8 +204,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test numbers method as others
-	 *
-	 * @return void
 	 */
 	public function testNumbersAsOthers(): void {
 		// Others are not allowed to set numbers
@@ -240,8 +214,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test stats method
-	 *
-	 * @return void
 	 */
 	public function testStats(): void {
 		// Anyone logged in is allowed to see stats
@@ -258,8 +230,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test stat_sheet method
-	 *
-	 * @return void
 	 */
 	public function testStatSheet(): void {
 		// Admins are allowed to see the stat sheet
@@ -283,8 +253,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test tooltip method
-	 *
-	 * @return void
 	 */
 	public function testTooltip(): void {
 		// Anyone is allowed to view team tooltips
@@ -322,8 +290,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as an admin
-	 *
-	 * @return void
 	 */
 	public function testAddAsAdmin(): void {
 		// Admins are allowed to add teams
@@ -333,8 +299,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as a manager
-	 *
-	 * @return void
 	 */
 	public function testAddAsManager(): void {
 		// Managers are allowed to add teams
@@ -344,8 +308,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as others
-	 *
-	 * @return void
 	 */
 	public function testAddAsOthers(): void {
 		// Others are not allowed to add teams
@@ -366,8 +328,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as an admin
-	 *
-	 * @return void
 	 */
 	public function testEditAsAdmin(): void {
 		// Admins are allowed to  teams
@@ -377,8 +337,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as a manager
-	 *
-	 * @return void
 	 */
 	public function testEditAsManager(): void {
 		// Managers are allowed to edit teams in their affiliate
@@ -392,8 +350,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testEditAsCoordinator(): void {
 		// Coordinators are not allowed to edit teams
@@ -403,8 +359,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as a captain
-	 *
-	 * @return void
 	 */
 	public function testEditAsCaptain(): void {
 		// Captains are allowed to edit their own teams
@@ -419,8 +373,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as others
-	 *
-	 * @return void
 	 */
 	public function testEditAsOthers(): void {
 		// Others are not allowed to edit teams
@@ -431,8 +383,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test note method as an admin
-	 *
-	 * @return void
 	 */
 	public function testNoteAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -524,8 +474,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test note method as a manager
-	 *
-	 * @return void
 	 */
 	public function testNoteAsManager(): void {
 		$this->enableCsrfToken();
@@ -569,8 +517,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test note method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testNoteAsCoordinator(): void {
 		$this->enableCsrfToken();
@@ -609,8 +555,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test note method as a captain
-	 *
-	 * @return void
 	 */
 	public function testNoteAsCaptain(): void {
 		$this->enableCsrfToken();
@@ -658,8 +602,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test note method as a player
-	 *
-	 * @return void
 	 */
 	public function testNoteAsPlayer(): void {
 		$this->enableCsrfToken();
@@ -707,8 +649,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test note method as someone else
-	 *
-	 * @return void
 	 */
 	public function testNoteAsVisitor(): void {
 		$this->enableCsrfToken();
@@ -721,8 +661,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test note method without being logged in
-	 *
-	 * @return void
 	 */
 	public function testNoteAsAnonymous(): void {
 		// Others are not allowed to add notes
@@ -732,8 +670,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_note method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeleteNoteAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -762,8 +698,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_note method as a manager
-	 *
-	 * @return void
 	 */
 	public function testDeleteNoteAsManager(): void {
 		$this->enableCsrfToken();
@@ -792,8 +726,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_note method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testDeleteNoteAsCoordinator(): void {
 		$this->enableCsrfToken();
@@ -819,8 +751,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_note method as a captain
-	 *
-	 * @return void
 	 */
 	public function testDeleteNoteAsCaptain(): void {
 		$this->enableCsrfToken();
@@ -846,8 +776,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_note method as a player
-	 *
-	 * @return void
 	 */
 	public function testDeleteNoteAsPlayer(): void {
 		$this->enableCsrfToken();
@@ -873,8 +801,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_note method as someone else
-	 *
-	 * @return void
 	 */
 	public function testDeleteNoteAsVisitor(): void {
 		$this->enableCsrfToken();
@@ -900,8 +826,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_note method as others
-	 *
-	 * @return void
 	 */
 	public function testDeleteNoteAsOthers(): void {
 		$this->enableCsrfToken();
@@ -913,8 +837,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -933,8 +855,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as a manager
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
@@ -952,8 +872,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsCoordinator(): void {
 		$this->enableCsrfToken();
@@ -968,8 +886,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as a captain
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsCaptain(): void {
 		$this->enableCsrfToken();
@@ -989,8 +905,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as others
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
@@ -1004,8 +918,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test move method as an admin
-	 *
-	 * @return void
 	 */
 	public function testMoveAsAdmin(): void {
 		// Admins are allowed to move teams
@@ -1015,8 +927,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test move method as a manager
-	 *
-	 * @return void
 	 */
 	public function testMoveAsManager(): void {
 		// Managers are allowed to move teams
@@ -1026,8 +936,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test move method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testMoveAsCoordinator(): void {
 		// Coordinators are not allowed to move teams
@@ -1037,8 +945,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test move method as others
-	 *
-	 * @return void
 	 */
 	public function testMoveAsOthers(): void {
 		// Others are not allowed to move teams
@@ -1050,8 +956,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test schedule method
-	 *
-	 * @return void
 	 */
 	public function testSchedule(): void {
 		// Anyone is allowed to see the schedule
@@ -1093,8 +997,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test ical method
-	 *
-	 * @return void
 	 */
 	public function testIcal(): void {
 		// Make sure that we're before the division close date
@@ -1109,8 +1011,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test spirit method
-	 *
-	 * @return void
 	 */
 	public function testSpirit(): void {
 		// Admins are allowed to see the spirit report
@@ -1133,8 +1033,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test attendance method
-	 *
-	 * @return void
 	 */
 	public function testAttendance(): void {
 		// Admins are allowed to see attendance
@@ -1169,8 +1067,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test emails method
-	 *
-	 * @return void
 	 */
 	public function testEmails(): void {
 		// Admins are allowed to see emails
@@ -1193,8 +1089,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_player method as an admin
-	 *
-	 * @return void
 	 */
 	public function testAddPlayerAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -1219,8 +1113,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_player method as a manager
-	 *
-	 * @return void
 	 */
 	public function testAddPlayerAsManager(): void {
 		// Managers are allowed to add players to teams
@@ -1232,8 +1124,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_player method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testAddPlayerAsCoordinator(): void {
 		// Coordinators are allowed to add players to teams in their divisions
@@ -1245,8 +1135,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_player method as a captain
-	 *
-	 * @return void
 	 */
 	public function testAddPlayerAsCaptain(): void {
 		// Make sure that we're before the roster deadline for captains to add players
@@ -1261,8 +1149,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_player method as others
-	 *
-	 * @return void
 	 */
 	public function testAddPlayerAsOthers(): void {
 		// Others are not allowed to add players to teams
@@ -1273,8 +1159,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_from_team method as an admin
-	 *
-	 * @return void
 	 */
 	public function testAddFromTeamAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -1288,8 +1172,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_from_team method as a manager
-	 *
-	 * @return void
 	 */
 	public function testAddFromTeamAsManager(): void {
 		$this->enableCsrfToken();
@@ -1305,8 +1187,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_from_team method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testAddFromTeamAsCoordinator(): void {
 		$this->enableCsrfToken();
@@ -1322,8 +1202,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_from_team method as a captain
-	 *
-	 * @return void
 	 */
 	public function testAddFromTeamAsCaptain(): void {
 		$this->enableCsrfToken();
@@ -1385,8 +1263,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_from_team method as others
-	 *
-	 * @return void
 	 */
 	public function testAddFromTeamAsOthers(): void {
 		$this->enableCsrfToken();
@@ -1402,8 +1278,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_from_event method as an admin
-	 *
-	 * @return void
 	 */
 	public function testAddFromEventAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -1476,8 +1350,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_from_event method as a manager
-	 *
-	 * @return void
 	 */
 	public function testAddFromEventAsManager(): void {
 		$this->enableCsrfToken();
@@ -1498,8 +1370,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_from_event method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testAddFromEventAsCoordinator(): void {
 		$this->enableCsrfToken();
@@ -1520,8 +1390,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_from_event method as others
-	 *
-	 * @return void
 	 */
 	public function testAddFromEventAsOthers(): void {
 		$this->enableCsrfToken();
@@ -1544,8 +1412,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_role method as an admin
-	 *
-	 * @return void
 	 */
 	public function testRosterRoleAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -1559,8 +1425,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_role method as a manager
-	 *
-	 * @return void
 	 */
 	public function testRosterRoleAsManager(): void {
 		$this->enableCsrfToken();
@@ -1574,8 +1438,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_role method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testRosterRoleAsCoordinator(): void {
 		$this->enableCsrfToken();
@@ -1592,8 +1454,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_role method as a captain
-	 *
-	 * @return void
 	 */
 	public function testRosterRoleAsCaptain(): void {
 		$this->enableCsrfToken();
@@ -1624,8 +1484,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_role method as a player
-	 *
-	 * @return void
 	 */
 	public function testRosterRoleAsPlayer(): void {
 		$this->enableCsrfToken();
@@ -1649,8 +1507,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_role method as someone else
-	 *
-	 * @return void
 	 */
 	public function testRosterRoleAsVisitor(): void {
 		// Others are not allowed to change roster roles
@@ -1660,8 +1516,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_position method as an admin
-	 *
-	 * @return void
 	 */
 	public function testRosterPositionAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -1675,8 +1529,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_position method as a manager
-	 *
-	 * @return void
 	 */
 	public function testRosterPositionAsManager(): void {
 		$this->enableCsrfToken();
@@ -1690,8 +1542,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_position method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testRosterPositionAsCoordinator(): void {
 		$this->enableCsrfToken();
@@ -1705,8 +1555,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_position method as a captain
-	 *
-	 * @return void
 	 */
 	public function testRosterPositionAsCaptain(): void {
 		$this->enableCsrfToken();
@@ -1728,8 +1576,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_position method as a player
-	 *
-	 * @return void
 	 */
 	public function testRosterPositionAsPlayer(): void {
 		$this->enableCsrfToken();
@@ -1752,8 +1598,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_position method as others
-	 *
-	 * @return void
 	 */
 	public function testRosterPositionAsOthers(): void {
 		$this->enableCsrfToken();
@@ -1767,8 +1611,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_add method as an admin
-	 *
-	 * @return void
 	 */
 	public function testRosterAddAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -1813,8 +1655,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_add method as a manager
-	 *
-	 * @return void
 	 */
 	public function testRosterAddAsManager(): void {
 		$this->enableCsrfToken();
@@ -1837,8 +1677,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_add method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testRosterAddAsCoordinator(): void {
 		$this->enableCsrfToken();
@@ -1861,8 +1699,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_add method as a captain
-	 *
-	 * @return void
 	 */
 	public function testRosterAddAsCaptain(): void {
 		$this->enableCsrfToken();
@@ -1887,8 +1723,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_add method as others
-	 *
-	 * @return void
 	 */
 	public function testRosterAddAsOthers(): void {
 		// Others are not allowed to add players to teams
@@ -1899,8 +1733,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_request method as a captain
-	 *
-	 * @return void
 	 */
 	public function testRosterRequestAsCaptain(): void {
 		// Make sure that we're before the roster deadline
@@ -1913,8 +1745,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_request method as a player
-	 *
-	 * @return void
 	 */
 	public function testRosterRequestAsPlayer(): void {
 		// Make sure that we're before the roster deadline
@@ -1927,8 +1757,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_request method as someone else
-	 *
-	 * @return void
 	 */
 	public function testRosterRequestAsVisitor(): void {
 		// Make sure that we're before the roster deadline
@@ -1941,8 +1769,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_request method as others
-	 *
-	 * @return void
 	 */
 	public function testRosterRequestAsOthers(): void {
 		// Make sure that we're before the roster deadline
@@ -1957,8 +1783,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_accept method as an admin
-	 *
-	 * @return void
 	 */
 	public function testRosterAcceptAsAdmin(): void {
 		// Admins are allowed to accept roster invitations
@@ -1970,8 +1794,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_accept method as a manager
-	 *
-	 * @return void
 	 */
 	public function testRosterAcceptAsManager(): void {
 		// Managers are allowed to accept roster invitations
@@ -1983,8 +1805,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_accept method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testRosterAcceptAsCoordinator(): void {
 		// Coordinators are allowed to accept roster invitations
@@ -1996,8 +1816,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_accept method as a captain
-	 *
-	 * @return void
 	 */
 	public function testRosterAcceptAsCaptain(): void {
 		// Make sure that we're before the roster deadline
@@ -2012,8 +1830,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_accept method as a player
-	 *
-	 * @return void
 	 */
 	public function testRosterAcceptAsPlayer(): void {
 		// Cannot accept invites after the roster deadline!
@@ -2035,8 +1851,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_accept method with a code
-	 *
-	 * @return void
 	 */
 	public function testRosterAcceptWithCode(): void {
 		// Make sure that we're before the roster deadline
@@ -2051,8 +1865,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_accept method as others
-	 *
-	 * @return void
 	 */
 	public function testRosterAcceptAsOthers(): void {
 		// Others are not allowed to accept roster invitations
@@ -2068,8 +1880,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_decline method as an admin
-	 *
-	 * @return void
 	 */
 	public function testRosterDeclineAsAdmin(): void {
 		// Admins are allowed to decline roster invitations
@@ -2081,8 +1891,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_decline method as a manager
-	 *
-	 * @return void
 	 */
 	public function testRosterDeclineAsManager(): void {
 		// Managers are allowed to decline roster invitations
@@ -2094,8 +1902,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_decline method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testRosterDeclineAsCoordinator(): void {
 		// Coordinators are allowed to decline roster invitations
@@ -2107,8 +1913,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_decline method as a captain
-	 *
-	 * @return void
 	 */
 	public function testRosterDeclineAsCaptain(): void {
 		// Make sure that we're before the roster deadline
@@ -2124,8 +1928,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_decline method as a player
-	 *
-	 * @return void
 	 */
 	public function testRosterDeclineAsPlayer(): void {
 		// Cannot decline invites after the roster deadline!
@@ -2152,8 +1954,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_accept method with a code
-	 *
-	 * @return void
 	 */
 	public function testRosterDeclineWithCode(): void {
 		// Make sure that we're before the roster deadline
@@ -2168,8 +1968,6 @@ class TeamsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test roster_decline method as someone else
-	 *
-	 * @return void
 	 */
 	public function testRosterDeclineAsOthers(): void {
 		// Others are not allowed to decline roster invitations

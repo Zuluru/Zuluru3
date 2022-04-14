@@ -21,21 +21,17 @@ class ScoreEntriesTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('ScoreEntries') ? [] : ['className' => 'App\Model\Table\ScoreEntriesTable'];
-		$this->ScoreEntriesTable = TableRegistry::get('ScoreEntries', $config);
+		$this->ScoreEntriesTable = TableRegistry::getTableLocator()->get('ScoreEntries', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->ScoreEntriesTable);
 
 		parent::tearDown();
@@ -43,8 +39,6 @@ class ScoreEntriesTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeMarshal method
-	 *
-	 * @return void
 	 */
 	public function testBeforeMarshal(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
@@ -109,8 +103,6 @@ class ScoreEntriesTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeSave method
-	 *
-	 * @return void
 	 */
 	public function testBeforeSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');

@@ -18,21 +18,17 @@ class NoticesPeopleTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('NoticesPeople') ? [] : ['className' => 'App\Model\Table\NoticesPeopleTable'];
-		$this->NoticesPeopleTable = TableRegistry::get('NoticesPeople', $config);
+		$this->NoticesPeopleTable = TableRegistry::getTableLocator()->get('NoticesPeople', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->NoticesPeopleTable);
 
 		parent::tearDown();

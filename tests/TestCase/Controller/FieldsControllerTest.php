@@ -28,8 +28,6 @@ class FieldsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test index method
-	 *
-	 * @return void
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testIndex(): void {
@@ -64,8 +62,6 @@ class FieldsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test view method
-	 *
-	 * @return void
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testView(): void {
@@ -103,8 +99,6 @@ class FieldsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test tooltip method
-	 *
-	 * @return void
 	 */
 	public function testTooltip(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -137,8 +131,6 @@ class FieldsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test open method as an admin
-	 *
-	 * @return void
 	 */
 	public function testOpenAsAdmin(): void {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -156,8 +148,6 @@ class FieldsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test open method as a manager
-	 *
-	 * @return void
 	 */
 	public function testOpenAsManager(): void {
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -180,8 +170,6 @@ class FieldsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test open method as others
-	 *
-	 * @return void
 	 */
 	public function testOpenAsOthers(): void {
 		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -199,8 +187,6 @@ class FieldsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test close method as an admin
-	 *
-	 * @return void
 	 */
 	public function testCloseAsAdmin(): void {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -218,8 +204,6 @@ class FieldsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test close method as a manager
-	 *
-	 * @return void
 	 */
 	public function testCloseAsManager(): void {
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -242,8 +226,6 @@ class FieldsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test close method as others
-	 *
-	 * @return void
 	 */
 	public function testCloseAsOthers(): void {
 		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -261,8 +243,6 @@ class FieldsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -294,8 +274,6 @@ class FieldsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as a manager
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
@@ -321,8 +299,6 @@ class FieldsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as others
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
@@ -343,8 +319,6 @@ class FieldsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test bookings method
-	 *
-	 * @return void
 	 */
 	public function testBookings(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);

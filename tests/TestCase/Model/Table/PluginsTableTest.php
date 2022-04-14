@@ -1,35 +1,44 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
-use App\Model\Table\EventTypesTable;
+use App\Model\Table\PluginsTable;
 use Cake\ORM\TableRegistry;
 
 /**
- * App\Model\Table\EventTypesTable Test Case
+ * App\Model\Table\PluginsTable Test Case
  */
-class EventTypesTableTest extends TableTestCase {
+class PluginsTableTest extends TableTestCase {
 
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\EventTypesTable
+	 * @var \App\Model\Table\PluginsTable
 	 */
-	public $EventTypes;
+	public $Plugins;
+
+	/**
+	 * Fixtures
+	 *
+	 * @var array
+	 */
+	public $fixtures = [
+        'app.Plugins'
+    ];
 
 	/**
 	 * setUp method
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('EventTypes') ? [] : ['className' => 'App\Model\Table\EventTypesTable'];
-		$this->EventTypes = TableRegistry::getTableLocator()->get('EventTypes', $config);
+		$config = TableRegistry::exists('Plugins') ? [] : ['className' => 'App\Model\Table\PluginsTable'];
+		$this->Plugins = TableRegistry::getTableLocator()->get('Plugins', $config);
 	}
 
 	/**
 	 * tearDown method
 	 */
 	public function tearDown(): void {
-		unset($this->EventTypes);
+		unset($this->Plugins);
 
 		parent::tearDown();
 	}

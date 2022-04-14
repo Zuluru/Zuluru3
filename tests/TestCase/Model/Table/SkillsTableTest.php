@@ -20,21 +20,17 @@ class SkillsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Skills') ? [] : ['className' => 'App\Model\Table\SkillsTable'];
-		$this->SkillsTable = TableRegistry::get('Skills', $config);
+		$this->SkillsTable = TableRegistry::getTableLocator()->get('Skills', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->SkillsTable);
 
 		parent::tearDown();
@@ -42,8 +38,6 @@ class SkillsTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeMarshal method
-	 *
-	 * @return void
 	 */
 	public function testBeforeMarshal(): void {
 		$data = new \ArrayObject([
@@ -55,8 +49,6 @@ class SkillsTableTest extends TableTestCase {
 
 	/**
 	 * Test mergeList method
-	 *
-	 * @return void
 	 */
 	public function testMergeList(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);

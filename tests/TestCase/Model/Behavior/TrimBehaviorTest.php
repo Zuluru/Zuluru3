@@ -19,10 +19,8 @@ class TrimBehaviorTest extends TestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$table = $this->getMockForModel('People', ['dummy']);
 		$this->TrimBehavior = new TrimBehavior($table);
@@ -30,10 +28,8 @@ class TrimBehaviorTest extends TestCase {
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->TrimBehavior);
 
 		parent::tearDown();
@@ -41,8 +37,6 @@ class TrimBehaviorTest extends TestCase {
 
 	/**
 	 * Test trim method
-	 *
-	 * @return void
 	 */
 	public function testTrim(): void {
 		$entity = new ArrayObject([

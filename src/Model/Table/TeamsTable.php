@@ -93,6 +93,12 @@ class TeamsTable extends AppTable {
 			'dependent' => true,
 		]);
 
+		// TODO: The "TeamsPeople" association is used in some unit tests.
+		$this->hasMany('TeamsPeople', [
+			'foreignKey' => 'team_id',
+			'dependent' => true,
+		]);
+
 		$this->belongsToMany('Franchises', [
 			'foreignKey' => 'team_id',
 			'targetForeignKey' => 'franchise_id',

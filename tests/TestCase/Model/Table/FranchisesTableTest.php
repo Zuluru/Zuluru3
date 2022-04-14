@@ -20,21 +20,17 @@ class FranchisesTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Franchises') ? [] : ['className' => 'App\Model\Table\FranchisesTable'];
-		$this->FranchisesTable = TableRegistry::get('Franchises', $config);
+		$this->FranchisesTable = TableRegistry::getTableLocator()->get('Franchises', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->FranchisesTable);
 
 		parent::tearDown();
@@ -42,8 +38,6 @@ class FranchisesTableTest extends TableTestCase {
 
 	/**
 	 * Test readByPlayerId method
-	 *
-	 * @return void
 	 */
 	public function testReadByPlayerId(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
@@ -64,8 +58,6 @@ class FranchisesTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
 	public function testAffiliate(): void {
 	    $affiliateId = rand();

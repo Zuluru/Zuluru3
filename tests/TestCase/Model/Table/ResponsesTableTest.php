@@ -18,21 +18,17 @@ class ResponsesTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Responses') ? [] : ['className' => 'App\Model\Table\ResponsesTable'];
-		$this->ResponsesTable = TableRegistry::get('Responses', $config);
+		$this->ResponsesTable = TableRegistry::getTableLocator()->get('Responses', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->ResponsesTable);
 
 		parent::tearDown();
@@ -40,8 +36,6 @@ class ResponsesTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeSave method
-	 *
-	 * @return void
 	 */
 	public function testBeforeSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');

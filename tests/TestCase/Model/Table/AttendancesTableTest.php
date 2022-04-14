@@ -18,21 +18,17 @@ class AttendancesTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Attendances') ? [] : ['className' => 'App\Model\Table\AttendancesTable'];
-		$this->AttendancesTable = TableRegistry::get('Attendances', $config);
+		$this->AttendancesTable = TableRegistry::getTableLocator()->get('Attendances', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->AttendancesTable);
 
 		parent::tearDown();

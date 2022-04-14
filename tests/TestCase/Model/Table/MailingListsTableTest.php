@@ -19,21 +19,17 @@ class MailingListsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('MailingLists') ? [] : ['className' => 'App\Model\Table\MailingListsTable'];
-		$this->MailingListsTable = TableRegistry::get('MailingLists', $config);
+		$this->MailingListsTable = TableRegistry::getTableLocator()->get('MailingLists', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->MailingListsTable);
 
 		parent::tearDown();
@@ -41,8 +37,6 @@ class MailingListsTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
 	public function testAffiliate(): void {
 	    $affiliateId = rand();

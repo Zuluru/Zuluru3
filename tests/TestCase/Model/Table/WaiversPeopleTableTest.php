@@ -18,21 +18,17 @@ class WaiversPeopleTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('WaiversPeople') ? [] : ['className' => 'App\Model\Table\WaiversPeopleTable'];
-		$this->WaiversPeopleTable = TableRegistry::get('WaiversPeople', $config);
+		$this->WaiversPeopleTable = TableRegistry::getTableLocator()->get('WaiversPeople', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->WaiversPeopleTable);
 
 		parent::tearDown();

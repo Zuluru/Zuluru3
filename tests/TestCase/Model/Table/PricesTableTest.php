@@ -20,21 +20,17 @@ class PricesTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Prices') ? [] : ['className' => 'App\Model\Table\PricesTable'];
-		$this->PricesTable = TableRegistry::get('Prices', $config);
+		$this->PricesTable = TableRegistry::getTableLocator()->get('Prices', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->PricesTable);
 
 		parent::tearDown();
@@ -42,8 +38,6 @@ class PricesTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeMarshal method
-	 *
-	 * @return void
 	 */
 	public function testBeforeMarshal(): void {
 		$data = new \ArrayObject([
@@ -77,8 +71,6 @@ class PricesTableTest extends TableTestCase {
 
 	/**
 	 * Test afterSave method
-	 *
-	 * @return void
 	 */
 	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -86,8 +78,6 @@ class PricesTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
 	public function testAffiliate(): void {
         $affiliateId = rand();
@@ -97,8 +87,6 @@ class PricesTableTest extends TableTestCase {
 
 	/**
 	 * Test duration method
-	 *
-	 * @return void
 	 */
 	public function testDuration(): void {
 		$this->assertEquals('1 day, 1 hour, 15 minutes', $this->PricesTable->duration(1515));

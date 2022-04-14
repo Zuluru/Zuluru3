@@ -18,21 +18,17 @@ class IncidentsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Incidents') ? [] : ['className' => 'App\Model\Table\IncidentsTable'];
-		$this->IncidentsTable = TableRegistry::get('Incidents', $config);
+		$this->IncidentsTable = TableRegistry::getTableLocator()->get('Incidents', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->IncidentsTable);
 
 		parent::tearDown();

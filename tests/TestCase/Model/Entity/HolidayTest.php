@@ -10,8 +10,6 @@ use Cake\TestSuite\TestCase;
 class HolidayTest extends TestCase {
     /**
 	 * Test _getDate method
-	 *
-	 * @return void
 	 */
 	public function testGetDate(): void {
         $holiday = HolidayFactory::make([

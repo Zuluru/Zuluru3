@@ -19,21 +19,17 @@ class RegionsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Regions') ? [] : ['className' => 'App\Model\Table\RegionsTable'];
-		$this->RegionsTable = TableRegistry::get('Regions', $config);
+		$this->RegionsTable = TableRegistry::getTableLocator()->get('Regions', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->RegionsTable);
 
 		parent::tearDown();
@@ -41,8 +37,6 @@ class RegionsTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
 	public function testAffiliate(): void {
         $affiliateId = rand();

@@ -10,8 +10,6 @@ class GroupTest extends TestCase {
 
 	/**
 	 * Test _getLongName method
-	 *
-	 * @return void
 	 */
 	public function testGetLongName(): void {
 	    $description = 'Foo';

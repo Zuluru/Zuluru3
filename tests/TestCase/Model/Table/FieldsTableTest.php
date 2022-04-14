@@ -19,21 +19,17 @@ class FieldsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Fields') ? [] : ['className' => 'App\Model\Table\FieldsTable'];
-		$this->FieldsTable = TableRegistry::get('Fields', $config);
+		$this->FieldsTable = TableRegistry::getTableLocator()->get('Fields', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->FieldsTable);
 
 		parent::tearDown();
@@ -41,8 +37,6 @@ class FieldsTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
 	public function testAffiliate(): void {
         $affiliateId = rand();
@@ -54,8 +48,6 @@ class FieldsTableTest extends TableTestCase {
 
 	/**
 	 * Test sport method
-	 *
-	 * @return void
 	 */
 	public function testSport(): void {
         $field = FieldFactory::make()->persist();

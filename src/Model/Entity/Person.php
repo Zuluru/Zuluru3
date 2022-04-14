@@ -379,10 +379,10 @@ class Person extends Entity {
 
 			// Pull some lists of team and division IDs for later comparisons
 			$user_cache = UserCache::getInstance();
-			$my_team_ids = $user_cache->read('TeamIDs');
+			$my_team_ids = $user_cache->read('AcceptedTeamIDs');
 			$my_owned_team_ids = $user_cache->read('OwnedTeamIDs');
 			$my_captain_division_ids = collection($user_cache->read('OwnedTeams'))->extract('division_id')->toArray();
-			$their_team_ids = $user_cache->read('TeamIDs', $this->id);
+			$their_team_ids = $user_cache->read('AcceptedTeamIDs', $this->id);
 			$their_owned_team_ids = $user_cache->read('OwnedTeamIDs', $this->id);
 			$their_owned_division_ids = $user_cache->read('DivisionIDs', $this->id);
 			$their_captain_division_ids = collection($user_cache->read('OwnedTeams', $this->id))->extract('division_id')->toArray();

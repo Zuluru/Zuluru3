@@ -19,21 +19,17 @@ class GroupsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Groups') ? [] : ['className' => 'App\Model\Table\GroupsTable'];
-		$this->GroupsTable = TableRegistry::get('Groups', $config);
+		$this->GroupsTable = TableRegistry::getTableLocator()->get('Groups', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->GroupsTable);
 
 		parent::tearDown();
@@ -41,8 +37,6 @@ class GroupsTableTest extends TableTestCase {
 
 	/**
 	 * Test findOptions method
-	 *
-	 * @return void
 	 */
 	public function testFindOptions(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -50,8 +44,6 @@ class GroupsTableTest extends TableTestCase {
 
 	/**
 	 * Test mergeList method
-	 *
-	 * @return void
 	 */
 	public function testMergeList(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);

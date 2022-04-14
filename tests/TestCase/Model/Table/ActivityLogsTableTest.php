@@ -18,21 +18,17 @@ class ActivityLogsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('ActivityLogs') ? [] : ['className' => 'App\Model\Table\ActivityLogsTable'];
-		$this->ActivityLogsTable = TableRegistry::get('ActivityLogs', $config);
+		$this->ActivityLogsTable = TableRegistry::getTableLocator()->get('ActivityLogs', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->ActivityLogsTable);
 
 		parent::tearDown();

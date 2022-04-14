@@ -18,21 +18,17 @@ class GamesAllstarsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('GamesAllstars') ? [] : ['className' => 'App\Model\Table\GamesAllstarsTable'];
-		$this->GamesAllstarsTable = TableRegistry::get('GamesAllstars', $config);
+		$this->GamesAllstarsTable = TableRegistry::getTableLocator()->get('GamesAllstars', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->GamesAllstarsTable);
 
 		parent::tearDown();

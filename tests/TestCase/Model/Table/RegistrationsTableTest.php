@@ -22,23 +22,19 @@ class RegistrationsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Registrations') ? [] : ['className' => 'App\Model\Table\RegistrationsTable'];
-		$this->RegistrationsTable = TableRegistry::get('Registrations', $config);
+		$this->RegistrationsTable = TableRegistry::getTableLocator()->get('Registrations', $config);
 
 		ConfigurationLoader::loadConfiguration();
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->RegistrationsTable);
 
 		parent::tearDown();
@@ -46,8 +42,6 @@ class RegistrationsTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeSave method
-	 *
-	 * @return void
 	 */
 	public function testBeforeSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -55,8 +49,6 @@ class RegistrationsTableTest extends TableTestCase {
 
 	/**
 	 * Test afterSave method
-	 *
-	 * @return void
 	 */
 	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -64,8 +56,6 @@ class RegistrationsTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeDelete method
-	 *
-	 * @return void
 	 */
 	public function testBeforeDelete(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -73,8 +63,6 @@ class RegistrationsTableTest extends TableTestCase {
 
 	/**
 	 * Test afterDelete method
-	 *
-	 * @return void
 	 */
 	public function testAfterDelete(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -82,8 +70,6 @@ class RegistrationsTableTest extends TableTestCase {
 
 	/**
 	 * Test expireReservations method
-	 *
-	 * @return void
 	 */
 	public function testExpireReservations(): void {
 		$this->markTestIncomplete('Not implemented yet.');
@@ -91,8 +77,6 @@ class RegistrationsTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
 	public function testAffiliate(): void {
         $affiliateId = rand();
@@ -102,8 +86,6 @@ class RegistrationsTableTest extends TableTestCase {
 
 	/**
 	 * Test the waiting list when a refund is issued
-	 *
-	 * @return void
 	 * @throws \Exception
 	 */
 	public function testWaitingListWithRefund(): void {
@@ -147,8 +129,6 @@ class RegistrationsTableTest extends TableTestCase {
 
 	/**
 	 * Test the waiting list when the cap is raised
-	 *
-	 * @return void
 	 * @throws \Exception
 	 */
 	public function testWaitingListCapRaised(): void {

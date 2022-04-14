@@ -19,21 +19,17 @@ class FacilitiesTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Facilities') ? [] : ['className' => 'App\Model\Table\FacilitiesTable'];
-		$this->FacilitiesTable = TableRegistry::get('Facilities', $config);
+		$this->FacilitiesTable = TableRegistry::getTableLocator()->get('Facilities', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->FacilitiesTable);
 
 		parent::tearDown();
@@ -41,8 +37,6 @@ class FacilitiesTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
 	public function testAffiliate(): void {
         $affiliateId = rand();

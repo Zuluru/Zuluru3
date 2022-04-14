@@ -18,21 +18,17 @@ class DaysTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Days') ? [] : ['className' => 'App\Model\Table\DaysTable'];
-		$this->DaysTable = TableRegistry::get('Days', $config);
+		$this->DaysTable = TableRegistry::getTableLocator()->get('Days', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->DaysTable);
 
 		parent::tearDown();

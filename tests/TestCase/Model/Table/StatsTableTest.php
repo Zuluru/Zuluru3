@@ -18,21 +18,17 @@ class StatsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Stats') ? [] : ['className' => 'App\Model\Table\StatsTable'];
-		$this->StatsTable = TableRegistry::get('Stats', $config);
+		$this->StatsTable = TableRegistry::getTableLocator()->get('Stats', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->StatsTable);
 
 		parent::tearDown();
@@ -40,8 +36,6 @@ class StatsTableTest extends TableTestCase {
 
 	/**
 	 * Test applicable method
-	 *
-	 * @return void
 	 */
 	public function testApplicable(): void {
 		$this->markTestIncomplete('Not implemented yet.');

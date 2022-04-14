@@ -18,21 +18,17 @@ class DivisionsGameslotsTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('DivisionsGameslots') ? [] : ['className' => 'App\Model\Table\DivisionsGameslotsTable'];
-		$this->DivisionsGameslotsTable = TableRegistry::get('DivisionsGameslots', $config);
+		$this->DivisionsGameslotsTable = TableRegistry::getTableLocator()->get('DivisionsGameslots', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->DivisionsGameslotsTable);
 
 		parent::tearDown();

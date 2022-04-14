@@ -38,10 +38,8 @@ class TeamTest extends TestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		EventManager::instance()->setEventList(new EventList());
@@ -50,7 +48,7 @@ class TeamTest extends TestCase {
 		}
 		ConfigurationLoader::loadConfiguration();
 
-		$teams = TableRegistry::get('Teams');
+		$teams = TableRegistry::getTableLocator()->get('Teams');
 		$this->Team1 = $teams->get(TEAM_ID_RED, ['contain' => ['People' => ['Skills'], 'Divisions']]);
 		$this->Team2 = $teams->get(TEAM_ID_BLUE, ['contain' => ['People' => ['Skills'], 'Divisions']]);
 		$this->Team3 = $teams->get(TEAM_ID_RED_PLAYOFF, ['contain' => ['People' => ['Skills'], 'Divisions']]);
@@ -58,10 +56,8 @@ class TeamTest extends TestCase {
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->Team1);
 		unset($this->Team2);
 		unset($this->Team3);
@@ -71,8 +67,6 @@ class TeamTest extends TestCase {
 
 	/**
 	 * Test consolidateRoster method
-	 *
-	 * @return void
 	 */
 	public function testConsolidateRoster(): void {
 		$this->assertEquals(0, $this->Team1->roster_count);
@@ -94,8 +88,6 @@ class TeamTest extends TestCase {
 
 	/**
 	 * Test twitterName method
-	 *
-	 * @return void
 	 */
 	public function testTwitterName(): void {
 		$this->assertEquals('Red @redteam', $this->Team1->twitterName());
@@ -104,8 +96,6 @@ class TeamTest extends TestCase {
 
 	/**
 	 * Test addGameResult method
-	 *
-	 * @return void
 	 */
 	public function testAddGameResult(): void {
 		$this->markTestIncomplete('Not implemented yet. Pretty complex.');

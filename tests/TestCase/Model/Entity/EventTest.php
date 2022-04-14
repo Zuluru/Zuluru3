@@ -19,18 +19,14 @@ use App\Model\Entity\Event;
 class EventTest extends TestCase {
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
         Configure::write('options.gender_binary', []);
 	}
 
 	/**
 	 * Test __construct method
-	 *
-	 * @return void
 	 */
 	public function testConstruct(): void {
 		// Check the virtual fields show up from the serialized custom field
@@ -47,8 +43,6 @@ class EventTest extends TestCase {
 
 	/**
 	 * Test count method
-	 *
-	 * @return void
 	 */
 	public function testCount(): void {
 	    $nWoman = 3;
@@ -82,8 +76,6 @@ class EventTest extends TestCase {
 
 	/**
 	 * Test cap method
-	 *
-	 * @return void
 	 */
 	public function testCap(): void {
 	    $openCap = rand();

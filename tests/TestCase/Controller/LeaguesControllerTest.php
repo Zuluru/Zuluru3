@@ -30,8 +30,6 @@ class LeaguesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test index method
-	 *
-	 * @return void
 	 */
 	public function testIndex(): void {
 		$this_year = date('Y');
@@ -98,8 +96,6 @@ class LeaguesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test summary method
-	 *
-	 * @return void
 	 */
 	public function testSummary(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -127,8 +123,6 @@ class LeaguesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test view method
-	 *
-	 * @return void
 	 */
 	public function testView(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -194,8 +188,6 @@ class LeaguesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test tooltip method
-	 *
-	 * @return void
 	 */
 	public function testTooltip(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -247,8 +239,6 @@ class LeaguesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test participation method
-	 *
-	 * @return void
 	 */
 	public function testParticipation(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -274,8 +264,6 @@ class LeaguesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as an admin
-	 *
-	 * @return void
 	 */
 	public function testAddAsAdmin(): void {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -302,8 +290,6 @@ class LeaguesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as a manager
-	 *
-	 * @return void
 	 */
 	public function testAddAsManager(): void {
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -325,8 +311,6 @@ class LeaguesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as others
-	 *
-	 * @return void
 	 */
 	public function testAddAsOthers(): void {
 		[, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -339,8 +323,6 @@ class LeaguesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as an admin
-	 *
-	 * @return void
 	 */
 	public function testEditAsAdmin(): void {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -365,8 +347,6 @@ class LeaguesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as a manager
-	 *
-	 * @return void
 	 */
 	public function testEditAsManager(): void {
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -391,8 +371,6 @@ class LeaguesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testEditAsCoordinator(): void {
 		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -421,8 +399,6 @@ class LeaguesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as others
-	 *
-	 * @return void
 	 */
 	public function testEditAsOthers(): void {
 		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -441,8 +417,6 @@ class LeaguesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_division method as an admin
-	 *
-	 * @return void
 	 */
 	public function testAddDivisionAsAdmin(): void {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -460,8 +434,6 @@ class LeaguesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_division method as a manager
-	 *
-	 * @return void
 	 */
 	public function testAddDivisionAsManager(): void {
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -479,8 +451,6 @@ class LeaguesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_division method as others
-	 *
-	 * @return void
 	 */
 	public function testAddDivisionAsOthers(): void {
 		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -500,8 +470,6 @@ class LeaguesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -537,8 +505,6 @@ class LeaguesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as a manager
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
@@ -571,8 +537,6 @@ class LeaguesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as others
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
@@ -597,8 +561,6 @@ class LeaguesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test schedule method
-	 *
-	 * @return void
 	 */
 	public function testSchedule(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -619,8 +581,6 @@ class LeaguesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test standings method
-	 *
-	 * @return void
 	 */
 	public function testStandings(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -641,8 +601,6 @@ class LeaguesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test slots method
-	 *
-	 * @return void
 	 */
 	public function testSlots(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);

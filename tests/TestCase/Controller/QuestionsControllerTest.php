@@ -10,8 +10,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test index method
-	 *
-	 * @return void
 	 */
 	public function testIndex(): void {
 		// Admins are allowed to see the index
@@ -48,8 +46,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test deactivated method
-	 *
-	 * @return void
 	 */
 	public function testDeactivated(): void {
 		// Admins are allowed to see the deactivated list
@@ -80,8 +76,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test view method
-	 *
-	 * @return void
 	 */
 	public function testView(): void {
 		// Admins are allowed to view questions
@@ -111,8 +105,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as an admin
-	 *
-	 * @return void
 	 */
 	public function testAddAsAdmin(): void {
 		// Admins are allowed to add questions
@@ -121,8 +113,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as a manager
-	 *
-	 * @return void
 	 */
 	public function testAddAsManager(): void {
 		// Managers are allowed to add questions
@@ -131,8 +121,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as others
-	 *
-	 * @return void
 	 */
 	public function testAddAsOthers(): void {
 		// Others are not allowed to add questions
@@ -145,8 +133,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as an admin
-	 *
-	 * @return void
 	 */
 	public function testEditAsAdmin(): void {
 		// Admins are allowed to edit questions
@@ -156,8 +142,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as a manager
-	 *
-	 * @return void
 	 */
 	public function testEditAsManager(): void {
 		// Managers are allowed to edit questions
@@ -169,8 +153,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as others
-	 *
-	 * @return void
 	 */
 	public function testEditAsOthers(): void {
 		// Others are not allowed to edit questions
@@ -183,8 +165,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test activate method as an admin
-	 *
-	 * @return void
 	 */
 	public function testActivateAsAdmin(): void {
 		// Admins are allowed to activate questions
@@ -194,8 +174,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test activate method as a manager
-	 *
-	 * @return void
 	 */
 	public function testActivateAsManager(): void {
 		// Managers are allowed to activate questions
@@ -208,8 +186,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test activate method as others
-	 *
-	 * @return void
 	 */
 	public function testActivateAsOthers(): void {
 		// Others are not allowed to activate questions
@@ -226,8 +202,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test deactivate method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeactivateAsAdmin(): void {
 		// Admins are allowed to deactivate questions
@@ -237,8 +211,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test deactivate method as a manager
-	 *
-	 * @return void
 	 */
 	public function testDeactivateAsManager(): void {
 		// Managers are allowed to deactivate questions
@@ -251,8 +223,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test deactivate method as others
-	 *
-	 * @return void
 	 */
 	public function testDeactivateAsOthers(): void {
 		// Others are not allowed to deactivate questions
@@ -269,8 +239,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -289,8 +257,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as a manager
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
@@ -308,8 +274,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as others
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
@@ -329,8 +293,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_answer method as an admin
-	 *
-	 * @return void
 	 */
 	public function testAddAnswerAsAdmin(): void {
 		// Admins are allowed to add answers
@@ -341,8 +303,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_answer method as a manager
-	 *
-	 * @return void
 	 */
 	public function testAddAnswerAsManager(): void {
 		// Managers are allowed to add answers
@@ -353,8 +313,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add_answer method as others
-	 *
-	 * @return void
 	 */
 	public function testAddAnswerAsOthers(): void {
 		// Others are not allowed to add answers
@@ -371,8 +329,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_answer method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeleteAnswerAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -386,8 +342,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_answer method as a manager
-	 *
-	 * @return void
 	 */
 	public function testDeleteAnswerAsManager(): void {
 		$this->enableCsrfToken();
@@ -401,8 +355,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete_answer method as others
-	 *
-	 * @return void
 	 */
 	public function testDeleteAnswerAsOthers(): void {
 		$this->enableCsrfToken();
@@ -422,8 +374,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test autocomplete method
-	 *
-	 * @return void
 	 */
 	public function testAutocomplete(): void {
 		// Admins are allowed to autocomplete
@@ -448,8 +398,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test consolidate method as an admin
-	 *
-	 * @return void
 	 */
 	public function testConsolidateAsAdmin(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
@@ -460,8 +408,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test consolidate method as a manager
-	 *
-	 * @return void
 	 */
 	public function testConsolidateAsManager(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
@@ -472,8 +418,6 @@ class QuestionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test consolidate method as others
-	 *
-	 * @return void
 	 */
 	public function testConsolidateAsOthers(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');

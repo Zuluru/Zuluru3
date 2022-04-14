@@ -10,8 +10,6 @@ class TeamEventsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test view method
-	 *
-	 * @return void
 	 */
 	public function testView(): void {
 		// Admins are allowed to view
@@ -41,8 +39,6 @@ class TeamEventsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as an admin
-	 *
-	 * @return void
 	 */
 	public function testAddAsAdmin(): void {
 		// Admins are allowed to add events
@@ -52,8 +48,6 @@ class TeamEventsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as a manager
-	 *
-	 * @return void
 	 */
 	public function testAddAsManager(): void {
 		// Managers are allowed to add events
@@ -63,8 +57,6 @@ class TeamEventsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as a captain
-	 *
-	 * @return void
 	 */
 	public function testAddAsCaptain(): void {
 		// Captains are allowed to add events to their own teams
@@ -75,8 +67,6 @@ class TeamEventsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test add method as others
-	 *
-	 * @return void
 	 */
 	public function testAddAsOthers(): void {
 		// Others are not allowed to add events
@@ -88,8 +78,6 @@ class TeamEventsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as an admin
-	 *
-	 * @return void
 	 */
 	public function testEditAsAdmin(): void {
 		// Admins are allowed to edit team events
@@ -99,8 +87,6 @@ class TeamEventsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as a manager
-	 *
-	 * @return void
 	 */
 	public function testEditAsManager(): void {
 		// Managers are allowed to edit team events in their affiliate
@@ -114,8 +100,6 @@ class TeamEventsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as a captain
-	 *
-	 * @return void
 	 */
 	public function testEditAsCaptain(): void {
 		// Captains are allowed to edit their own team's events
@@ -125,8 +109,6 @@ class TeamEventsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test edit method as others
-	 *
-	 * @return void
 	 */
 	public function testEditAsOthers(): void {
 		// Others are not allowed to edit
@@ -138,8 +120,6 @@ class TeamEventsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as an admin
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
@@ -153,8 +133,6 @@ class TeamEventsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as a manager
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
@@ -172,8 +150,6 @@ class TeamEventsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as a captain
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsCaptain(): void {
 		$this->enableCsrfToken();
@@ -188,8 +164,6 @@ class TeamEventsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test delete method as others
-	 *
-	 * @return void
 	 */
 	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
@@ -207,8 +181,6 @@ class TeamEventsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test attendance_change method as an admin
-	 *
-	 * @return void
 	 */
 	public function testAttendanceChangeAsAdmin(): void {
 		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
@@ -220,8 +192,6 @@ class TeamEventsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test attendance_change method as a manager
-	 *
-	 * @return void
 	 */
 	public function testAttendanceChangeAsManager(): void {
 		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
@@ -233,8 +203,6 @@ class TeamEventsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test attendance_change method as a coordinator
-	 *
-	 * @return void
 	 */
 	public function testAttendanceChangeAsCoordinator(): void {
 		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
@@ -246,8 +214,6 @@ class TeamEventsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test attendance_change method as a captain
-	 *
-	 * @return void
 	 */
 	public function testAttendanceChangeAsCaptain(): void {
 		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
@@ -259,8 +225,6 @@ class TeamEventsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test attendance_change method as a player
-	 *
-	 * @return void
 	 */
 	public function testAttendanceChangeAsPlayer(): void {
 		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
@@ -281,8 +245,6 @@ class TeamEventsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test attendance_change method as others
-	 *
-	 * @return void
 	 */
 	public function testAttendanceChangeAsOthers(): void {
 		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));

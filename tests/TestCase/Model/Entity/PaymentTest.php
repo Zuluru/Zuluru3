@@ -10,8 +10,6 @@ class PaymentTest extends TestCase {
 
 	/**
 	 * Test _getPaid() method
-	 *
-	 * @return void
 	 */
 	public function testGetPaid(): void {
 	    $payment = PaymentFactory::make([

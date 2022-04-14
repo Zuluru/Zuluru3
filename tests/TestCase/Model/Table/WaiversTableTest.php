@@ -22,21 +22,17 @@ class WaiversTableTest extends TableTestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$config = TableRegistry::exists('Waivers') ? [] : ['className' => 'App\Model\Table\WaiversTable'];
-		$this->WaiversTable = TableRegistry::get('Waivers', $config);
+		$this->WaiversTable = TableRegistry::getTableLocator()->get('Waivers', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->WaiversTable);
 
 		parent::tearDown();
@@ -44,8 +40,6 @@ class WaiversTableTest extends TableTestCase {
 
 	/**
 	 * Test signed method
-	 *
-	 * @return void
 	 */
 	public function testSigned(): void {
         $this->markTestSkipped(GameFactory::TODO_FACTORIES);
@@ -66,8 +60,6 @@ class WaiversTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
 	public function testAffiliate(): void {
         $affiliateId = rand();
