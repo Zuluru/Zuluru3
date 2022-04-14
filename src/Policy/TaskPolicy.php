@@ -21,7 +21,7 @@ class TaskPolicy extends AppPolicy {
 	}
 
 	public function canView(IdentityInterface $identity, Task $task) {
-		if ($task->allow_signup || $identity->isManagerOf($task) || $identity->isOfficial() || $identity->isVolunteer()) {
+		if ($identity->isManagerOf($task) || $identity->isOfficial() || ($identity->isVolunteer() && $task->allow_signup)) {
 			return true;
 		}
 

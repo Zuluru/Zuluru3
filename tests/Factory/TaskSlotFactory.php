@@ -1,6 +1,8 @@
 <?php
 namespace App\Test\Factory;
 
+use Cake\I18n\FrozenDate;
+use Cake\I18n\FrozenTime;
 use CakephpFixtureFactories\Factory\BaseFactory;
 use Faker\Generator;
 
@@ -26,7 +28,10 @@ class TaskSlotFactory extends BaseFactory
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [
-				'name' => $faker->word,
+				'task_date' => FrozenDate::now()->addDay(),
+				'task_start' => '17:00:00',
+				'task_end' => '19:00:00',
+				'modified' => FrozenTime::now(),
 			];
 		});
 	}
