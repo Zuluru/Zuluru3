@@ -28,7 +28,7 @@ class QuestionFactory extends BaseFactory
 			return [
 				'name' => $faker->word,
 				'question' => $faker->text,
-				'type' => $faker->text(20),
+				'type' => 'text',
 			];
 		});
 	}

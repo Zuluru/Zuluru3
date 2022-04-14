@@ -1,46 +1,74 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
-use Cake\Core\Configure;
+use App\Test\Factory\QuestionFactory;
+use App\Test\Scenario\DiverseUsersScenario;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * App\Controller\QuestionsController Test Case
  */
 class QuestionsControllerTest extends ControllerTestCase {
 
+	use ScenarioAwareTrait;
+
+	/**
+	 * Fixtures
+	 *
+	 * @var array
+	 */
+	public $fixtures = [
+		'app.Groups',
+		'app.Settings',
+	];
+
 	/**
 	 * Test index method
 	 */
 	public function testIndex(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$questions = QuestionFactory::make([
+			[
+				'affiliate_id' => $affiliates[0]->id,
+			],
+			[
+				'affiliate_id' => $affiliates[1]->id,
+			],
+			[
+				'affiliate_id' => $affiliates[0]->id,
+				'active' => false,
+			],
+		])->persist();
+
 		// Admins are allowed to see the index
-		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'index'], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/questions/edit?question=' . QUESTION_ID_TEAM_RETURNING);
-		$this->assertResponseContains('/questions/delete?question=' . QUESTION_ID_TEAM_RETURNING);
-		$this->assertResponseContains('/questions/deactivate?question=' . QUESTION_ID_TEAM_RETURNING);
-		$this->assertResponseNotContains('/questions/edit?question=' . QUESTION_ID_TEAM_OBSOLETE);
-		$this->assertResponseNotContains('/questions/delete?question=' . QUESTION_ID_TEAM_OBSOLETE);
-		$this->assertResponseNotContains('/questions/activate?question=' . QUESTION_ID_TEAM_OBSOLETE);
-		$this->assertResponseContains('/questions/edit?question=' . QUESTION_ID_TEAM_RETURNING_SUB);
-		$this->assertResponseContains('/questions/delete?question=' . QUESTION_ID_TEAM_RETURNING_SUB);
-		$this->assertResponseContains('/questions/deactivate?question=' . QUESTION_ID_TEAM_RETURNING_SUB);
+		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'index'], $admin->id);
+		$this->assertResponseContains('/questions/edit?question=' . $questions[0]->id);
+		$this->assertResponseContains('/questions/delete?question=' . $questions[0]->id);
+		$this->assertResponseContains('/questions/deactivate?question=' . $questions[0]->id);
+		$this->assertResponseContains('/questions/edit?question=' . $questions[1]->id);
+		$this->assertResponseContains('/questions/delete?question=' . $questions[1]->id);
+		$this->assertResponseContains('/questions/deactivate?question=' . $questions[1]->id);
+		$this->assertResponseNotContains('/questions/edit?question=' . $questions[2]->id);
+		$this->assertResponseNotContains('/questions/delete?question=' . $questions[2]->id);
+		$this->assertResponseNotContains('/questions/activate?question=' . $questions[2]->id);
 
 		// Managers are allowed to see the index, but don't see questions in other affiliates
-		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'index'], PERSON_ID_MANAGER);
-		$this->assertResponseContains('/questions/edit?question=' . QUESTION_ID_TEAM_RETURNING);
-		$this->assertResponseContains('/questions/delete?question=' . QUESTION_ID_TEAM_RETURNING);
-		$this->assertResponseContains('/questions/deactivate?question=' . QUESTION_ID_TEAM_RETURNING);
-		$this->assertResponseNotContains('/questions/edit?question=' . QUESTION_ID_TEAM_OBSOLETE);
-		$this->assertResponseNotContains('/questions/delete?question=' . QUESTION_ID_TEAM_OBSOLETE);
-		$this->assertResponseNotContains('/questions/activate?question=' . QUESTION_ID_TEAM_OBSOLETE);
-		$this->assertResponseNotContains('/questions/edit?question=' . QUESTION_ID_TEAM_RETURNING_SUB);
-		$this->assertResponseNotContains('/questions/delete?question=' . QUESTION_ID_TEAM_RETURNING_SUB);
-		$this->assertResponseNotContains('/questions/deactivate?question=' . QUESTION_ID_TEAM_RETURNING_SUB);
+		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'index'], $manager->id);
+		$this->assertResponseContains('/questions/edit?question=' . $questions[0]->id);
+		$this->assertResponseContains('/questions/delete?question=' . $questions[0]->id);
+		$this->assertResponseContains('/questions/deactivate?question=' . $questions[0]->id);
+		$this->assertResponseNotContains('/questions/edit?question=' . $questions[1]->id);
+		$this->assertResponseNotContains('/questions/delete?question=' . $questions[1]->id);
+		$this->assertResponseNotContains('/questions/deactivate?question=' . $questions[1]->id);
+		$this->assertResponseNotContains('/questions/edit?question=' . $questions[2]->id);
+		$this->assertResponseNotContains('/questions/delete?question=' . $questions[2]->id);
+		$this->assertResponseNotContains('/questions/activate?question=' . $questions[2]->id);
 
 		// Others are not allowed to see the index
-		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'index'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'index'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'index'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'index'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'index'], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'index'], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Questions', 'action' => 'index']);
 	}
 
@@ -48,29 +76,40 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 * Test deactivated method
 	 */
 	public function testDeactivated(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$questions = QuestionFactory::make([
+			[
+				'affiliate_id' => $affiliates[0]->id,
+			],
+			[
+				'affiliate_id' => $affiliates[0]->id,
+				'active' => false,
+			],
+		])->persist();
+
 		// Admins are allowed to see the deactivated list
-		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'deactivated'], PERSON_ID_ADMIN);
-		$this->assertResponseNotContains('/questions/edit?question=' . QUESTION_ID_TEAM_RETURNING);
-		$this->assertResponseNotContains('/questions/delete?question=' . QUESTION_ID_TEAM_RETURNING);
-		$this->assertResponseNotContains('/questions/deactivate?question=' . QUESTION_ID_TEAM_RETURNING);
-		$this->assertResponseContains('/questions/edit?question=' . QUESTION_ID_TEAM_OBSOLETE);
-		$this->assertResponseContains('/questions/delete?question=' . QUESTION_ID_TEAM_OBSOLETE);
-		$this->assertResponseContains('/questions/activate?question=' . QUESTION_ID_TEAM_OBSOLETE);
+		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'deactivated'], $admin->id);
+		$this->assertResponseNotContains('/questions/edit?question=' . $questions[0]->id);
+		$this->assertResponseNotContains('/questions/delete?question=' . $questions[0]->id);
+		$this->assertResponseNotContains('/questions/deactivate?question=' . $questions[0]->id);
+		$this->assertResponseContains('/questions/edit?question=' . $questions[1]->id);
+		$this->assertResponseContains('/questions/delete?question=' . $questions[1]->id);
+		$this->assertResponseContains('/questions/activate?question=' . $questions[1]->id);
 
 		// Managers are allowed to see the deactivated list
-		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'deactivated'], PERSON_ID_MANAGER);
-		$this->assertResponseNotContains('/questions/edit?question=' . QUESTION_ID_TEAM_RETURNING);
-		$this->assertResponseNotContains('/questions/delete?question=' . QUESTION_ID_TEAM_RETURNING);
-		$this->assertResponseNotContains('/questions/deactivate?question=' . QUESTION_ID_TEAM_RETURNING);
-		$this->assertResponseContains('/questions/edit?question=' . QUESTION_ID_TEAM_OBSOLETE);
-		$this->assertResponseContains('/questions/delete?question=' . QUESTION_ID_TEAM_OBSOLETE);
-		$this->assertResponseContains('/questions/activate?question=' . QUESTION_ID_TEAM_OBSOLETE);
+		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'deactivated'], $manager->id);
+		$this->assertResponseNotContains('/questions/edit?question=' . $questions[0]->id);
+		$this->assertResponseNotContains('/questions/delete?question=' . $questions[0]->id);
+		$this->assertResponseNotContains('/questions/deactivate?question=' . $questions[0]->id);
+		$this->assertResponseContains('/questions/edit?question=' . $questions[1]->id);
+		$this->assertResponseContains('/questions/delete?question=' . $questions[1]->id);
+		$this->assertResponseContains('/questions/activate?question=' . $questions[1]->id);
 
 		// Others are not allowed to see the deactivated list
-		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'deactivated'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'deactivated'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'deactivated'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'deactivated'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'deactivated'], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'deactivated'], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Questions', 'action' => 'deactivated']);
 	}
 
@@ -78,56 +117,82 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 * Test view method
 	 */
 	public function testView(): void {
-		// Admins are allowed to view questions
-		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'view', 'question' => QUESTION_ID_TEAM_RETURNING], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/questions/edit?question=' . QUESTION_ID_TEAM_RETURNING);
-		$this->assertResponseContains('/questions/delete?question=' . QUESTION_ID_TEAM_RETURNING);
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
 
-		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'view', 'question' => QUESTION_ID_TEAM_RETURNING_SUB], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/questions/edit?question=' . QUESTION_ID_TEAM_RETURNING_SUB);
-		$this->assertResponseContains('/questions/delete?question=' . QUESTION_ID_TEAM_RETURNING_SUB);
+		$questions = QuestionFactory::make([
+			[
+				'affiliate_id' => $affiliates[0]->id,
+			],
+			[
+				'affiliate_id' => $affiliates[1]->id,
+			],
+			[
+				'affiliate_id' => $affiliates[0]->id,
+				'active' => false,
+			],
+		])->persist();
+
+		// Admins are allowed to view questions
+		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'view', 'question' => $questions[0]->id], $admin->id);
+		$this->assertResponseContains('/questions/edit?question=' . $questions[0]->id);
+		$this->assertResponseContains('/questions/delete?question=' . $questions[0]->id);
+
+		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'view', 'question' => $questions[1]->id], $admin->id);
+		$this->assertResponseContains('/questions/edit?question=' . $questions[1]->id);
+		$this->assertResponseContains('/questions/delete?question=' . $questions[1]->id);
+
+		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'view', 'question' => $questions[2]->id], $admin->id);
+		$this->assertResponseContains('/questions/edit?question=' . $questions[2]->id);
+		$this->assertResponseContains('/questions/delete?question=' . $questions[2]->id);
 
 		// Managers are allowed to view questions
-		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'view', 'question' => QUESTION_ID_TEAM_RETURNING], PERSON_ID_MANAGER);
-		$this->assertResponseContains('/questions/edit?question=' . QUESTION_ID_TEAM_RETURNING);
-		$this->assertResponseContains('/questions/delete?question=' . QUESTION_ID_TEAM_RETURNING);
+		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'view', 'question' => $questions[0]->id], $manager->id);
+		$this->assertResponseContains('/questions/edit?question=' . $questions[0]->id);
+		$this->assertResponseContains('/questions/delete?question=' . $questions[0]->id);
+
+		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'view', 'question' => $questions[2]->id], $manager->id);
+		$this->assertResponseContains('/questions/edit?question=' . $questions[2]->id);
+		$this->assertResponseContains('/questions/delete?question=' . $questions[2]->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'view', 'question' => QUESTION_ID_TEAM_RETURNING_SUB], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'view', 'question' => $questions[1]->id], $manager->id);
 
 		// Others are not allowed to view questions
-		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'view', 'question' => QUESTION_ID_TEAM_RETURNING], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'view', 'question' => QUESTION_ID_TEAM_RETURNING], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'view', 'question' => QUESTION_ID_TEAM_RETURNING], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'view', 'question' => QUESTION_ID_TEAM_RETURNING], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Questions', 'action' => 'view', 'question' => QUESTION_ID_TEAM_RETURNING]);
+		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'view', 'question' => $questions[0]->id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'view', 'question' => $questions[0]->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Questions', 'action' => 'view', 'question' => $questions[0]->id]);
 	}
 
 	/**
 	 * Test add method as an admin
 	 */
 	public function testAddAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
 		// Admins are allowed to add questions
-		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'add'], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'add'], $admin->id);
 	}
 
 	/**
 	 * Test add method as a manager
 	 */
 	public function testAddAsManager(): void {
+		[, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
 		// Managers are allowed to add questions
-		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'add'], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'add'], $manager->id);
 	}
 
 	/**
 	 * Test add method as others
 	 */
 	public function testAddAsOthers(): void {
+		[, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
 		// Others are not allowed to add questions
-		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'add'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'add'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'add'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'add'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'add'], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'add'], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Questions', 'action' => 'add']);
 	}
 
@@ -135,106 +200,185 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 * Test edit method as an admin
 	 */
 	public function testEditAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$questions = QuestionFactory::make([
+			[
+				'affiliate_id' => $affiliates[0]->id,
+			],
+			[
+				'affiliate_id' => $affiliates[1]->id,
+			],
+			[
+				'affiliate_id' => $affiliates[0]->id,
+				'active' => false,
+			],
+		])->persist();
+
 		// Admins are allowed to edit questions
-		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'edit', 'question' => QUESTION_ID_TEAM_RETURNING], PERSON_ID_ADMIN);
-		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'edit', 'question' => QUESTION_ID_TEAM_RETURNING_SUB], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'edit', 'question' => $questions[0]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'edit', 'question' => $questions[1]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'edit', 'question' => $questions[2]->id], $admin->id);
 	}
 
 	/**
 	 * Test edit method as a manager
 	 */
 	public function testEditAsManager(): void {
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$questions = QuestionFactory::make([
+			[
+				'affiliate_id' => $affiliates[0]->id,
+			],
+			[
+				'affiliate_id' => $affiliates[1]->id,
+			],
+			[
+				'affiliate_id' => $affiliates[0]->id,
+				'active' => false,
+			],
+		])->persist();
+
 		// Managers are allowed to edit questions
-		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'edit', 'question' => QUESTION_ID_TEAM_RETURNING], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'edit', 'question' => $questions[0]->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'edit', 'question' => $questions[2]->id], $manager->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'edit', 'question' => QUESTION_ID_TEAM_RETURNING_SUB], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'edit', 'question' => $questions[1]->id], $manager->id);
 	}
 
 	/**
 	 * Test edit method as others
 	 */
 	public function testEditAsOthers(): void {
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		$question = QuestionFactory::make([
+			'affiliate_id' => $admin->affiliates[0]->id,
+		])->persist();
+
 		// Others are not allowed to edit questions
-		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'edit', 'question' => QUESTION_ID_TEAM_RETURNING], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'edit', 'question' => QUESTION_ID_TEAM_RETURNING], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'edit', 'question' => QUESTION_ID_TEAM_RETURNING], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'edit', 'question' => QUESTION_ID_TEAM_RETURNING], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Questions', 'action' => 'edit', 'question' => QUESTION_ID_TEAM_RETURNING]);
+		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'edit', 'question' => $question->id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'edit', 'question' => $question->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Questions', 'action' => 'edit', 'question' => $question->id]);
 	}
 
 	/**
 	 * Test activate method as an admin
 	 */
 	public function testActivateAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		$question = QuestionFactory::make([
+			'affiliate_id' => $admin->affiliates[0]->id,
+			'active' => false,
+		])->persist();
+
 		// Admins are allowed to activate questions
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'activate', 'question' => QUESTION_ID_TEAM_OBSOLETE], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/questions\\/deactivate?question=' . QUESTION_ID_TEAM_OBSOLETE);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'activate', 'question' => $question->id], $admin->id);
+		$this->assertResponseContains('/questions\\/deactivate?question=' . $question->id);
 	}
 
 	/**
 	 * Test activate method as a manager
 	 */
 	public function testActivateAsManager(): void {
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$questions = QuestionFactory::make([
+			[
+				'affiliate_id' => $affiliates[0]->id,
+				'active' => false,
+			],
+			[
+				'affiliate_id' => $affiliates[1]->id,
+				'active' => false,
+			],
+		])->persist();
+
 		// Managers are allowed to activate questions
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'activate', 'question' => QUESTION_ID_TEAM_OBSOLETE], PERSON_ID_MANAGER);
-		$this->assertResponseContains('/questions\\/deactivate?question=' . QUESTION_ID_TEAM_OBSOLETE);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'activate', 'question' => $questions[0]->id], $manager->id);
+		$this->assertResponseContains('/questions\\/deactivate?question=' . $questions[0]->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'activate', 'question' => QUESTION_ID_TEAM_NIGHT_SUB], PERSON_ID_MANAGER);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'activate', 'question' => $questions[1]->id], $manager->id);
 	}
 
 	/**
 	 * Test activate method as others
 	 */
 	public function testActivateAsOthers(): void {
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$question = QuestionFactory::make([
+			'affiliate_id' => $admin->affiliates[0]->id,
+			'active' => false,
+		])->persist();
+
 		// Others are not allowed to activate questions
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'activate', 'question' => QUESTION_ID_TEAM_OBSOLETE],
-			PERSON_ID_COORDINATOR);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'activate', 'question' => QUESTION_ID_TEAM_OBSOLETE],
-			PERSON_ID_CAPTAIN);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'activate', 'question' => QUESTION_ID_TEAM_OBSOLETE],
-			PERSON_ID_PLAYER);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'activate', 'question' => QUESTION_ID_TEAM_OBSOLETE],
-			PERSON_ID_VISITOR);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Questions', 'action' => 'activate', 'question' => QUESTION_ID_TEAM_OBSOLETE]);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'activate', 'question' => $question->id],
+			$volunteer->id);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'activate', 'question' => $question->id],
+			$player->id);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Questions', 'action' => 'activate', 'question' => $question->id]);
 	}
 
 	/**
 	 * Test deactivate method as an admin
 	 */
 	public function testDeactivateAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$question = QuestionFactory::make([
+			'affiliate_id' => $admin->affiliates[0]->id,
+		])->persist();
+
 		// Admins are allowed to deactivate questions
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'deactivate', 'question' => QUESTION_ID_TEAM_NIGHT], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/questions\\/activate?question=' . QUESTION_ID_TEAM_NIGHT);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'deactivate', 'question' => $question->id], $admin->id);
+		$this->assertResponseContains('/questions\\/activate?question=' . $question->id);
 	}
 
 	/**
 	 * Test deactivate method as a manager
 	 */
 	public function testDeactivateAsManager(): void {
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$questions = QuestionFactory::make([
+			[
+				'affiliate_id' => $affiliates[0]->id,
+			],
+			[
+				'affiliate_id' => $affiliates[1]->id,
+			],
+		])->persist();
+
 		// Managers are allowed to deactivate questions
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'deactivate', 'question' => QUESTION_ID_TEAM_NIGHT], PERSON_ID_MANAGER);
-		$this->assertResponseContains('/questions\\/activate?question=' . QUESTION_ID_TEAM_NIGHT);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'deactivate', 'question' => $questions[0]->id], $manager->id);
+		$this->assertResponseContains('/questions\\/activate?question=' . $questions[0]->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'deactivate', 'question' => QUESTION_ID_TEAM_NIGHT_SUB], PERSON_ID_MANAGER);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'deactivate', 'question' => $questions[1]->id], $manager->id);
 	}
 
 	/**
 	 * Test deactivate method as others
 	 */
 	public function testDeactivateAsOthers(): void {
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$question = QuestionFactory::make([
+			'affiliate_id' => $admin->affiliates[0]->id,
+		])->persist();
+
 		// Others are not allowed to deactivate questions
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'deactivate', 'question' => QUESTION_ID_TEAM_NIGHT],
-			PERSON_ID_COORDINATOR);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'deactivate', 'question' => QUESTION_ID_TEAM_NIGHT],
-			PERSON_ID_CAPTAIN);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'deactivate', 'question' => QUESTION_ID_TEAM_NIGHT],
-			PERSON_ID_PLAYER);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'deactivate', 'question' => QUESTION_ID_TEAM_NIGHT],
-			PERSON_ID_VISITOR);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Questions', 'action' => 'deactivate', 'question' => QUESTION_ID_TEAM_NIGHT]);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'deactivate', 'question' => $question->id],
+			$volunteer->id);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'deactivate', 'question' => $question->id],
+			$player->id);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Questions', 'action' => 'deactivate', 'question' => $question->id]);
 	}
 
 	/**
@@ -244,14 +388,28 @@ class QuestionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$question = QuestionFactory::make([
+			'affiliate_id' => $affiliates[0]->id,
+		])->persist();
+
+		// A question with a questionnaire that references it
+		$dependent_question = QuestionFactory::make([
+			'affiliate_id' => $affiliates[0]->id,
+		])
+			->with('Questionnaires', ['affiliate_id' => $affiliates[0]->id])
+			->persist();
+
 		// Admins are allowed to delete questions
-		$this->assertPostAsAccessRedirect(['controller' => 'Questions', 'action' => 'delete', 'question' => QUESTION_ID_TEAM_PREVIOUS],
-			PERSON_ID_ADMIN, [], ['controller' => 'Questions', 'action' => 'index'],
+		$this->assertPostAsAccessRedirect(['controller' => 'Questions', 'action' => 'delete', 'question' => $question->id],
+			$admin->id, [], ['controller' => 'Questions', 'action' => 'index'],
 			'The question has been deleted.');
 
 		// But not ones with dependencies
-		$this->assertPostAsAccessRedirect(['controller' => 'Questions', 'action' => 'delete', 'question' => QUESTION_ID_TEAM_RETURNING],
-			PERSON_ID_ADMIN, [], ['controller' => 'Questions', 'action' => 'index'],
+		$this->assertPostAsAccessRedirect(['controller' => 'Questions', 'action' => 'delete', 'question' => $dependent_question->id],
+			$admin->id, [], ['controller' => 'Questions', 'action' => 'index'],
 			'#The following records reference this question, so it cannot be deleted#');
 	}
 
@@ -262,14 +420,26 @@ class QuestionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$questions = QuestionFactory::make([
+			[
+				'affiliate_id' => $affiliates[0]->id,
+			],
+			[
+				'affiliate_id' => $affiliates[1]->id,
+			],
+		])->persist();
+
 		// Managers are allowed to delete questions in their affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'Questions', 'action' => 'delete', 'question' => QUESTION_ID_TEAM_PREVIOUS],
-			PERSON_ID_MANAGER, [], ['controller' => 'Questions', 'action' => 'index'],
+		$this->assertPostAsAccessRedirect(['controller' => 'Questions', 'action' => 'delete', 'question' => $questions[0]->id],
+			$manager->id, [], ['controller' => 'Questions', 'action' => 'index'],
 			'The question has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Questions', 'action' => 'delete', 'question' => QUESTION_ID_TEAM_RETURNING_SUB],
-			PERSON_ID_MANAGER);
+		$this->assertPostAsAccessDenied(['controller' => 'Questions', 'action' => 'delete', 'question' => $questions[1]->id],
+			$manager->id);
 	}
 
 	/**
@@ -279,25 +449,33 @@ class QuestionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		$question = QuestionFactory::make([
+			'affiliate_id' => $admin->affiliates[0]->id,
+		])->persist();
+
 		// Others are not allowed to delete questions
-		$this->assertPostAsAccessDenied(['controller' => 'Questions', 'action' => 'delete', 'question' => QUESTION_ID_TEAM_PREVIOUS],
-			PERSON_ID_COORDINATOR);
-		$this->assertPostAsAccessDenied(['controller' => 'Questions', 'action' => 'delete', 'question' => QUESTION_ID_TEAM_PREVIOUS],
-			PERSON_ID_CAPTAIN);
-		$this->assertPostAsAccessDenied(['controller' => 'Questions', 'action' => 'delete', 'question' => QUESTION_ID_TEAM_PREVIOUS],
-			PERSON_ID_PLAYER);
-		$this->assertPostAsAccessDenied(['controller' => 'Questions', 'action' => 'delete', 'question' => QUESTION_ID_TEAM_PREVIOUS],
-			PERSON_ID_VISITOR);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Questions', 'action' => 'delete', 'question' => QUESTION_ID_TEAM_PREVIOUS]);
+		$this->assertPostAsAccessDenied(['controller' => 'Questions', 'action' => 'delete', 'question' => $question->id],
+			$volunteer->id);
+		$this->assertPostAsAccessDenied(['controller' => 'Questions', 'action' => 'delete', 'question' => $question->id],
+			$player->id);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Questions', 'action' => 'delete', 'question' => $question->id]);
 	}
 
 	/**
 	 * Test add_answer method as an admin
 	 */
 	public function testAddAnswerAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		$question = QuestionFactory::make([
+			'affiliate_id' => $admin->affiliates[0]->id,
+		])->persist();
+
 		// Admins are allowed to add answers
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'add_answer', 'question' => QUESTION_ID_TEAM_PREVIOUS],
-			PERSON_ID_ADMIN);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'add_answer', 'question' => $question->id],
+			$admin->id);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -305,9 +483,26 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 * Test add_answer method as a manager
 	 */
 	public function testAddAnswerAsManager(): void {
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$questions = QuestionFactory::make([
+			[
+				'affiliate_id' => $affiliates[0]->id,
+			],
+			[
+				'affiliate_id' => $affiliates[1]->id,
+			],
+		])->persist();
+
 		// Managers are allowed to add answers
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'add_answer', 'question' => QUESTION_ID_TEAM_PREVIOUS],
-			PERSON_ID_MANAGER);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'add_answer', 'question' => $questions[0]->id],
+			$manager->id);
+
+		// But not ones in other affiliates
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'add_answer', 'question' => $questions[1]->id],
+			$manager->id);
+
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -315,16 +510,18 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 * Test add_answer method as others
 	 */
 	public function testAddAnswerAsOthers(): void {
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		$question = QuestionFactory::make([
+			'affiliate_id' => $admin->affiliates[0]->id,
+		])->persist();
+
 		// Others are not allowed to add answers
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'add_answer', 'question' => QUESTION_ID_TEAM_PREVIOUS],
-			PERSON_ID_COORDINATOR);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'add_answer', 'question' => QUESTION_ID_TEAM_PREVIOUS],
-			PERSON_ID_CAPTAIN);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'add_answer', 'question' => QUESTION_ID_TEAM_PREVIOUS],
-			PERSON_ID_PLAYER);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'add_answer', 'question' => QUESTION_ID_TEAM_PREVIOUS],
-			PERSON_ID_VISITOR);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Questions', 'action' => 'add_answer', 'question' => QUESTION_ID_TEAM_PREVIOUS]);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'add_answer', 'question' => $question->id],
+			$volunteer->id);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'add_answer', 'question' => $question->id],
+			$player->id);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Questions', 'action' => 'add_answer', 'question' => $question->id]);
 	}
 
 	/**
@@ -334,9 +531,18 @@ class QuestionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		$question = QuestionFactory::make([
+			'affiliate_id' => $admin->affiliates[0]->id,
+		])
+			->with('Answers')
+			->persist();
+		$answer = $question->answers[0];
+
 		// Admins are allowed to delete answers
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'delete_answer', 'answer' => ANSWER_ID_TEAM_NIGHT_THURSDAY],
-			PERSON_ID_ADMIN);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'delete_answer', 'answer' => $answer->id],
+			$admin->id);
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -347,9 +553,28 @@ class QuestionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$questions = QuestionFactory::make([
+			[
+				'affiliate_id' => $affiliates[0]->id,
+			],
+			[
+				'affiliate_id' => $affiliates[1]->id,
+			],
+		])
+			->with('Answers')
+			->persist();
+
 		// Managers are allowed to delete answers
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'delete_answer', 'answer' => ANSWER_ID_TEAM_NIGHT_THURSDAY],
-			PERSON_ID_MANAGER);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'delete_answer', 'answer' => $questions[0]->answers[0]->id],
+			$manager->id);
+
+		// But not ones in other affiliates
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'delete_answer', 'answer' => $questions[1]->answers[0]->id],
+			$manager->id);
+
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
@@ -360,40 +585,49 @@ class QuestionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		$question = QuestionFactory::make([
+			'affiliate_id' => $admin->affiliates[0]->id,
+		])
+			->with('Answers')
+			->persist();
+		$answer = $question->answers[0];
+
 		// Others are not allowed to delete answers
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'delete_answer', 'answer' => ANSWER_ID_TEAM_NIGHT_THURSDAY],
-			PERSON_ID_COORDINATOR);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'delete_answer', 'answer' => ANSWER_ID_TEAM_NIGHT_THURSDAY],
-			PERSON_ID_CAPTAIN);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'delete_answer', 'answer' => ANSWER_ID_TEAM_NIGHT_THURSDAY],
-			PERSON_ID_PLAYER);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'delete_answer', 'answer' => ANSWER_ID_TEAM_NIGHT_THURSDAY],
-			PERSON_ID_VISITOR);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Questions', 'action' => 'delete_answer', 'answer' => ANSWER_ID_TEAM_NIGHT_THURSDAY]);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'delete_answer', 'answer' => $answer->id],
+			$volunteer->id);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'delete_answer', 'answer' => $answer->id],
+			$player->id);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Questions', 'action' => 'delete_answer', 'answer' => $answer->id]);
 	}
 
 	/**
 	 * Test autocomplete method
 	 */
 	public function testAutocomplete(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
+
+		QuestionFactory::make([
+			'affiliate_id' => $affiliate->id,
+			'question' => 'autocomplete test',
+		])->persist();
+
 		// Admins are allowed to autocomplete
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'autocomplete', 'affiliate' => AFFILIATE_ID_CLUB, 'term' => 'night'],
-			PERSON_ID_ADMIN);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'autocomplete', 'affiliate' => $affiliate->id, 'term' => 'test'],
+			$admin->id);
 
 		// Managers are allowed to autocomplete
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'autocomplete', 'affiliate' => AFFILIATE_ID_CLUB, 'term' => 'night'],
-			PERSON_ID_MANAGER);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'autocomplete', 'affiliate' => $affiliate->id, 'term' => 'test'],
+			$manager->id);
 
 		// Others are not allowed to autocomplete
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'autocomplete', 'affiliate' => AFFILIATE_ID_CLUB, 'term' => 'night'],
-			PERSON_ID_COORDINATOR);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'autocomplete', 'affiliate' => AFFILIATE_ID_CLUB, 'term' => 'night'],
-			PERSON_ID_CAPTAIN);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'autocomplete', 'affiliate' => AFFILIATE_ID_CLUB, 'term' => 'night'],
-			PERSON_ID_PLAYER);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'autocomplete', 'affiliate' => AFFILIATE_ID_CLUB, 'term' => 'night'],
-			PERSON_ID_VISITOR);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Questions', 'action' => 'autocomplete', 'affiliate' => AFFILIATE_ID_CLUB, 'term' => 'night']);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'autocomplete', 'affiliate' => $affiliate->id, 'term' => 'test'],
+			$volunteer->id);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'autocomplete', 'affiliate' => $affiliate->id, 'term' => 'test'],
+			$player->id);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Questions', 'action' => 'autocomplete', 'affiliate' => $affiliate->id, 'term' => 'test']);
 	}
 
 	/**
@@ -402,8 +636,10 @@ class QuestionsControllerTest extends ControllerTestCase {
 	public function testConsolidateAsAdmin(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
 
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
 		// Admins are allowed to consolidate
-		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'consolidate'], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'consolidate'], $admin->id);
 	}
 
 	/**
@@ -412,8 +648,10 @@ class QuestionsControllerTest extends ControllerTestCase {
 	public function testConsolidateAsManager(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
 
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
 		// Managers are allowed to consolidate
-		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'consolidate'], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'consolidate'], $manager->id);
 	}
 
 	/**
@@ -422,11 +660,11 @@ class QuestionsControllerTest extends ControllerTestCase {
 	public function testConsolidateAsOthers(): void {
 		$this->markTestIncomplete('Operation not implemented yet.');
 
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
 		// Others are now allowed to consolidate
-		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'consolidate'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'consolidate'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'consolidate'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'consolidate'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'consolidate'], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'consolidate'], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Questions', 'action' => 'consolidate']);
 	}
 
