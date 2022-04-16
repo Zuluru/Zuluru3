@@ -11,6 +11,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Routing\Router;
 use Cake\TestSuite\IntegrationTestTrait;
 use Cake\TestSuite\TestCase;
+use Cake\TestSuite\TestEmailTransport;
 
 class ControllerTestCase extends TestCase {
 
@@ -699,6 +700,12 @@ class ControllerTestCase extends TestCase {
 
 	protected function debugResponse(): void {
 		debug((string)$this->_response->getBody());
+	}
+
+	protected function debugEmails(): void {
+		foreach (TestEmailTransport::getEmails() as $email) {
+			debug($email->message());
+		}
 	}
 
 }

@@ -1035,6 +1035,7 @@ class RegistrationsController extends AppController {
 						'Prices',
 						'Payments',
 					],
+					'Divisions' => ['Leagues'],
 				]
 			]);
 		} catch (RecordNotFoundException $ex) {

@@ -55,7 +55,7 @@ class EventsControllerTest extends ControllerTestCase {
 			->with('Prices')
 			->persist();
 
-		/** @var \App\Model\Entity\Event $league_team */
+		/** @var \App\Model\Entity\Event $other_league_team */
 		$other_league_team = EventFactory::make(['affiliate_id' => $affiliates[1]->id, 'event_type_id' => EVENT_TYPE_ID_TEAMS_FOR_LEAGUES])
 			->with('Prices')
 			->persist();
@@ -181,7 +181,7 @@ class EventsControllerTest extends ControllerTestCase {
 			->with('Prices')
 			->persist();
 
-		/** @var \App\Model\Entity\Event $league_team */
+		/** @var \App\Model\Entity\Event $other_league_team */
 		$other_league_team = EventFactory::make(['affiliate_id' => $affiliates[1]->id, 'event_type_id' => EVENT_TYPE_ID_TEAMS_FOR_LEAGUES])
 			->with('Prices')
 			->persist();
@@ -289,7 +289,7 @@ class EventsControllerTest extends ControllerTestCase {
 			->with('Prices')
 			->persist();
 
-		/** @var \App\Model\Entity\Event $league_team */
+		/** @var \App\Model\Entity\Event $other_league_team */
 		$other_league_team = EventFactory::make(['affiliate_id' => $affiliates[1]->id, 'event_type_id' => EVENT_TYPE_ID_TEAMS_FOR_LEAGUES])
 			->with('Prices')
 			->persist();
@@ -311,7 +311,7 @@ class EventsControllerTest extends ControllerTestCase {
 			->with('Prices')
 			->persist();
 
-		/** @var \App\Model\Entity\Event $league_team */
+		/** @var \App\Model\Entity\Event $other_league_team */
 		$other_league_team = EventFactory::make(['affiliate_id' => $affiliates[1]->id, 'event_type_id' => EVENT_TYPE_ID_TEAMS_FOR_LEAGUES])
 			->with('Prices')
 			->persist();
@@ -442,7 +442,7 @@ class EventsControllerTest extends ControllerTestCase {
 			->with('Prices')
 			->persist();
 
-		/** @var \App\Model\Entity\Event $league_team */
+		/** @var \App\Model\Entity\Event $other_league_team */
 		$other_league_team = EventFactory::make(['affiliate_id' => $affiliates[1]->id, 'event_type_id' => EVENT_TYPE_ID_TEAMS_FOR_LEAGUES])
 			->with('Prices')
 			->persist();

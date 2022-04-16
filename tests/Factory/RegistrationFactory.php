@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\Factory;
 
+use Cake\I18n\FrozenTime;
 use CakephpFixtureFactories\Factory\BaseFactory;
 use Faker\Generator;
 
@@ -26,7 +27,8 @@ class RegistrationFactory extends BaseFactory
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [
-
+				// When we run tests with refunds, we need the registration to have been some time in the past
+				'created' => FrozenTime::now()->subDay(),
 			];
 		});
 	}

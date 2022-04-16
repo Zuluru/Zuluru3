@@ -27,7 +27,7 @@ class EventFactory extends BaseFactory
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [
-				'name' => $faker->word,
+				'name' => $faker->words(2, true),
 				'open' => FrozenTime::now()->startOfYear(),
 				'close' => FrozenTime::now()->endOfYear(),
 				'open_cap' => -1,
