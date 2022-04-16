@@ -476,7 +476,8 @@ class QuestionsControllerTest extends ControllerTestCase {
 		// Admins are allowed to add answers
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'add_answer', 'question' => $question->id],
 			$admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -503,7 +504,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'add_answer', 'question' => $questions[1]->id],
 			$manager->id);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -543,7 +544,8 @@ class QuestionsControllerTest extends ControllerTestCase {
 		// Admins are allowed to delete answers
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Questions', 'action' => 'delete_answer', 'answer' => $answer->id],
 			$admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -575,7 +577,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 		$this->assertGetAjaxAsAccessDenied(['controller' => 'Questions', 'action' => 'delete_answer', 'answer' => $questions[1]->answers[0]->id],
 			$manager->id);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**

@@ -34,7 +34,7 @@ class NoticesControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessOk(['controller' => 'Notices', 'action' => 'viewed', 1], $player->id);
 		$this->assertGetAnonymousAccessOk(['controller' => 'Notices', 'action' => 'viewed', 1]);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 }

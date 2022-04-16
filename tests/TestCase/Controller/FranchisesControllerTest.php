@@ -131,7 +131,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 		// Admins are allowed to add franchises
 		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add'], $admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -143,7 +144,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 		// Managers are allowed to add franchises
 		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add'], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -155,7 +157,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 		// Coordinators are allowed to add franchises
 		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add'], $volunteer->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -167,7 +170,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 		// Players are allowed to add franchises
 		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add'], $player->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -176,7 +180,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 	public function testAddAsAnonymous(): void {
 		// Others are not allowed to add franchises
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Franchises', 'action' => 'add']);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -195,7 +200,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 		// Admins are allowed to edit franchises
 		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => $franchise->id], $admin->id);
 		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => $other_franchise->id], $admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -216,7 +222,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 		// But not ones in other affiliates
 		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => $other_franchise->id], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -239,7 +246,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 		// Captains are allowed to edit their own franchises only
 		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => $franchise->id], $owner->id);
 		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => $other_franchise->id], $owner->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -419,7 +427,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_team', 'franchise' => $franchise->id, 'team' => $franchise->teams[0]->id],
 			$admin->id, [], ['controller' => 'Franchises', 'action' => 'view', 'franchise' => $franchise->id],
 			'The selected team has been removed from this franchise.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -443,7 +452,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_team', 'franchise' => $franchise->id, 'team' => $franchise->teams[0]->id],
 			$manager->id, [], ['controller' => 'Franchises', 'action' => 'view', 'franchise' => $franchise->id],
 			'The selected team has been removed from this franchise.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -511,7 +521,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 		// Admins are allowed to add owner
 		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add_owner', 'franchise' => $franchise->id], $admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -527,7 +538,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 		// Managers are allowed to add owner
 		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add_owner', 'franchise' => $franchise->id], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -614,7 +626,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 			$admin->id, [], ['controller' => 'Franchises', 'action' => 'view', 'franchise' => $franchise->id],
 			'You cannot remove the only owner of a franchise!');
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -637,7 +649,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'remove_owner', 'franchise' => $franchise->id, 'person' => $owner->id],
 			$manager->id, [], ['controller' => 'Franchises', 'action' => 'view', 'franchise' => $franchise->id],
 			'Successfully removed owner.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**

@@ -304,7 +304,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		FrozenDate::setTestNow($now->subDays(45));
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id], $admin->id);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -334,7 +334,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		FrozenDate::setTestNow($now->subDays(90));
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id], $manager->id);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -359,7 +359,8 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 		// Coordinators are allowed to register, within the date range
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id], $volunteer->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -384,7 +385,8 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 		// Players are allowed to register, within the date range
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id], $player->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -462,7 +464,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		// People are allowed to redeem their own credits
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'redeem', 'registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id], $player->id);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -524,7 +526,8 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'checkout'], $manager->id);
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'checkout'], $volunteer->id);
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'checkout'], $player->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -577,7 +580,8 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => $registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id],
 			$admin->id, '/',
 			'Successfully unregistered from this event.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -602,7 +606,8 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => $registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id],
 			$manager->id, '/',
 			'Successfully unregistered from this event.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -625,7 +630,8 @@ class RegistrationsControllerTest extends ControllerTestCase {
 			$volunteer->id);
 		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => $registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id],
 			$volunteer->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -648,7 +654,8 @@ class RegistrationsControllerTest extends ControllerTestCase {
 			$player->id);
 		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => $registrations[DiverseRegistrationsScenario::$TEAM]->id],
 			$player->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -667,7 +674,8 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id], $admin->id);
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => $registrations[DiverseRegistrationsScenario::$TEAM]->id], $admin->id);
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => $registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id], $admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -686,7 +694,8 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id], $manager->id);
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => $registrations[DiverseRegistrationsScenario::$TEAM]->id], $manager->id);
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => $registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -866,7 +875,8 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 		// Managers are allowed to refund payments
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'refund_payment', 'payment' => $payment->id], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -996,7 +1006,8 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 		// Managers are allowed to credit payments
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'credit_payment', 'payment' => $payment->id], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**

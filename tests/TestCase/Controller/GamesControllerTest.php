@@ -156,7 +156,8 @@ class GamesControllerTest extends ControllerTestCase {
 		// TODO: All the different options for carbon flips, spirit, rating points, approved by.
 		//$this->assertResponseRegExp('#<dt>Carbon Flip</dt>\s*<dd>Red won</dd>#ms');
 		//$this->assertResponseRegExp('#<dt>Rating Points</dt>\s*<dd>.*gain 5 points\s*</dd>#ms');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -346,7 +347,8 @@ class GamesControllerTest extends ControllerTestCase {
 
 		// Others are not allowed to ratings table
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'ratings_table', 'game' => $game->id]);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -390,7 +392,8 @@ class GamesControllerTest extends ControllerTestCase {
 
 		// Admins are allowed to edit
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit', 'game' => $game->id], $admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -478,7 +481,8 @@ class GamesControllerTest extends ControllerTestCase {
 
 		// Admins are allowed to edit boxscore
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => $game->id], $admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -495,7 +499,8 @@ class GamesControllerTest extends ControllerTestCase {
 
 		// Managers are allowed to edit boxscore
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => $game->id], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -513,7 +518,8 @@ class GamesControllerTest extends ControllerTestCase {
 
 		// Coordinators are allowed to edit boxscore
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => $game->id], $volunteer->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -588,7 +594,8 @@ class GamesControllerTest extends ControllerTestCase {
 
 		// Managers are allowed to delete scores
 		$this->assertPostAjaxAsAccessOk(['controller' => 'Games', 'action' => 'delete_score', 'detail' => $detail->id, 'game' => $game->id], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -616,7 +623,8 @@ class GamesControllerTest extends ControllerTestCase {
 
 		// Coordinators are allowed to delete scores
 		$this->assertPostAjaxAsAccessOk(['controller' => 'Games', 'action' => 'delete_score', 'detail' => $detail->id, 'game' => $game->id], $volunteer->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -675,7 +683,8 @@ class GamesControllerTest extends ControllerTestCase {
 				'created' => ['year' => $date->year, 'month' => $date->month, 'day' => $date->day, 'hour' => 19, 'minute' => 10],
 				'play' => 'Timeout',
 			]]);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -703,7 +712,8 @@ class GamesControllerTest extends ControllerTestCase {
 				'created' => ['year' => $date->year, 'month' => $date->month, 'day' => $date->day, 'hour' => 19, 'minute' => 10],
 				'play' => 'Timeout',
 			]]);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -731,7 +741,8 @@ class GamesControllerTest extends ControllerTestCase {
 				'created' => ['year' => $date->year, 'month' => $date->month, 'day' => $date->day, 'hour' => 19, 'minute' => 10],
 				'play' => 'Timeout',
 			]]);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1117,7 +1128,8 @@ class GamesControllerTest extends ControllerTestCase {
 			$player->id, ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
 			'You are not on the roster of a team playing in this game.');
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'note', 'game' => $game->id]);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1749,7 +1761,8 @@ class GamesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance_change', 'game' => $game->id, 'team' => $game->home_team_id, 'person' => $player->id], $admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1775,7 +1788,8 @@ class GamesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance_change', 'game' => $game->id, 'team' => $game->home_team_id, 'person' => $player->id], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1803,7 +1817,8 @@ class GamesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance_change', 'game' => $game->id, 'team' => $game->home_team_id, 'person' => $player->id], $volunteer->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1831,7 +1846,8 @@ class GamesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance_change', 'game' => $game->id, 'team' => $game->home_team_id], $captain->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1875,7 +1891,7 @@ class GamesControllerTest extends ControllerTestCase {
 		TeamsPersonFactory::make(['team_id' => $game->home_team_id, 'person_id' => $player->id, 'role' => 'player', 'status' => ROSTER_INVITED])->persist();
 		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'attendance_change', 'game' => $other_game->id, 'team' => $other_game->home_team_id], $player->id);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -2797,7 +2813,8 @@ class GamesControllerTest extends ControllerTestCase {
 
 		// Admins are allowed to submit stats
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->home_team_id], $admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -2824,7 +2841,8 @@ class GamesControllerTest extends ControllerTestCase {
 
 		// Managers are allowed to submit stats
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->home_team_id], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -2852,7 +2870,8 @@ class GamesControllerTest extends ControllerTestCase {
 
 		// Coordinators are allowed to submit stats
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->home_team_id], $volunteer->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -2880,7 +2899,8 @@ class GamesControllerTest extends ControllerTestCase {
 
 		// Captains are allowed to submit stats
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->home_team_id], $game->home_team->people[0]->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**

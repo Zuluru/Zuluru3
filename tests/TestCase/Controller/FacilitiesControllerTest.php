@@ -241,7 +241,8 @@ class FacilitiesControllerTest extends ControllerTestCase {
 
 		// Admins are allowed to add facilities
 		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'add'], $admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -256,7 +257,8 @@ class FacilitiesControllerTest extends ControllerTestCase {
 
 		// Managers are allowed to add facilities
 		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'add'], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -288,7 +290,8 @@ class FacilitiesControllerTest extends ControllerTestCase {
 		// Admins are allowed to edit facilities
 		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'edit', 'facility' => $region->facilities[0]->id], $admin->id);
 		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'edit', 'facility' => $other_region->facilities[0]->id], $admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -307,7 +310,7 @@ class FacilitiesControllerTest extends ControllerTestCase {
 		// But not ones in other affiliates
 		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'edit', 'facility' => $other_region->facilities[0]->id], $manager->id);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -334,7 +337,8 @@ class FacilitiesControllerTest extends ControllerTestCase {
 		// Admins are allowed to add field
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Facilities', 'action' => 'add_field'],
 			$admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -346,7 +350,8 @@ class FacilitiesControllerTest extends ControllerTestCase {
 		// Managers are allowed to add field
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Facilities', 'action' => 'add_field'],
 			$manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**

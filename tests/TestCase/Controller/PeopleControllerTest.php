@@ -109,7 +109,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'statistics'], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'statistics']);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -129,7 +129,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'participation'], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'participation']);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -149,7 +149,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'retention'], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'retention']);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -268,7 +268,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertResponseNotContains('Email Address');
 		$this->assertResponseNotContains('Birthdate');
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -417,7 +417,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Admins are allowed to edit
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit'], $admin->id);
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit', 'person' => $player->id], $admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -429,7 +430,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Managers are allowed to edit
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit'], $manager->id);
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit', 'person' => $player->id], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -441,7 +443,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Coordinators are allowed to edit themselves only
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit'], $volunteer->id);
 		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'edit', 'person' => $player->id], $volunteer->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -468,7 +471,8 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit', 'person' => $relative->id], $player->id);
 		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'edit', 'person' => $volunteer->id], $player->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -480,7 +484,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Others are not allowed to edit people
 		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'edit']);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'edit', 'person' => $player->id]);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -497,7 +502,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'deactivate'],
 			$admin->id, [], '/', 'Your profile has been deactivated; sorry to see you go. If you ever change your mind, you can just return to the site and reactivate your profile; we\'ll be happy to have you back!');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -509,7 +515,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Managers are allowed to deactivate people
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'deactivate', 'person' => $player->id], $manager->id);
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'deactivate'], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -528,7 +535,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'deactivate'],
 			$volunteer->id, '/',
 			'You cannot deactivate your account while you are coordinating an active division.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -547,7 +555,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessRedirect(['controller' => 'People', 'action' => 'deactivate'],
 			$player->id, '/',
 			'You cannot deactivate your account while you are on an active team.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -559,7 +568,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Others are not allowed to deactivate people
 		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'deactivate']);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'deactivate', 'person' => $player->id]);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -574,7 +584,8 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Admins are allowed to reactivate
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'reactivate', 'person' => $inactive->id], $admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -589,7 +600,8 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Managers are allowed to reactivate
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'reactivate', 'person' => $inactive->id], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -614,7 +626,8 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Inactive accounts are allowed to reactivate themselves
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'reactivate', 'person' => $inactive->id], $inactive->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -637,7 +650,8 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Others are not allowed to confirm
 		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'confirm']);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -813,7 +827,8 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Players are allowed to add notes
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'note', 'person' => $volunteer->id], $player->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -824,7 +839,8 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Others are not allowed to add notes
 		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'note', 'person' => $player->id]);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -876,7 +892,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => $notes[3]->id],
 			$admin->id);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -931,7 +947,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => $notes[3]->id],
 			$manager->id);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -983,7 +999,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => $notes[2]->id],
 			$player->id);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1004,7 +1020,8 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Others are not allowed to delete notes
 		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'People', 'action' => 'delete_note', 'note' => $note->id]);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1066,7 +1083,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Others are allowed to edit their preferences
 		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'preferences']);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1189,7 +1206,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	public function testLinkRelativeAsAnonymous(): void {
 		// Others are not allowed to link relatives
 		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'link_relative']);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1439,7 +1457,8 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Others are not allowed to upload photos
 		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'photo_upload']);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1475,7 +1494,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Admins are allowed to approve photo
 		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'approve_photo', 'person' => $player->id],
 			$admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1489,7 +1509,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Managers are allowed to approve photos
 		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'approve_photo', 'person' => $player->id],
 			$manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1519,7 +1540,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Admins are allowed to delete photos
 		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'delete_photo', 'person' => $player->id],
 			$admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1533,7 +1555,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Managers are allowed to delete photos
 		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'delete_photo', 'person' => $player->id],
 			$manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1583,7 +1606,8 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Admins are allowed to upload documents
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'document_upload'], $admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1594,7 +1618,8 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Managers are allowed to upload documents
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'document_upload'], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1605,7 +1630,8 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Players are allowed to upload documents
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'document_upload'], $player->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1614,7 +1640,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	public function testDocumentUploadAsAnonymous(): void {
 		// Others are not allowed to upload documents
 		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'document_upload']);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1655,7 +1682,8 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Admins are allowed to approve documents
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'approve_document', 'document' => $upload->id], $admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1671,7 +1699,8 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Managers are allowed to approve documents
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'approve_document', 'document' => $upload->id], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1704,7 +1733,8 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Admins are allowed to edit documents
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit_document', 'document' => $upload->id], $admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1720,7 +1750,8 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Managers are allowed to edit documents
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit_document', 'document' => $upload->id], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1754,7 +1785,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Admins are allowed to delete documents
 		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'delete_document', 'document' => $upload->id],
 			$admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1771,7 +1803,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Managers are allowed to delete documents
 		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'delete_document', 'document' => $upload->id],
 			$manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1807,7 +1840,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate'], $admin->id);
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge', 'badge' => $badge->id], $admin->id);
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge_reason', 'badge' => $badge->id, 'person' => $player->id], $admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1824,7 +1858,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate'], $manager->id);
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge', 'badge' => $badge->id], $manager->id);
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge_reason', 'badge' => $badge->id, 'person' => $player->id], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1841,7 +1876,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate'], $player->id);
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge', 'badge' => $badge->id], $player->id);
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'nominate_badge_reason', 'badge' => $badge->id, 'person' => $player->id], $player->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1858,7 +1894,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'nominate']);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'nominate_badge', 'badge' => $badge->id]);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'nominate_badge_reason', 'badge' => $badge->id, 'person' => $player->id]);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1900,7 +1937,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Admins are allowed to approve badges
 		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'approve_badge', 'badge' => $badge->id],
 			$admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1917,7 +1955,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Managers are allowed to approve badges
 		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'approve_badge', 'badge' => $badge->id],
 			$manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1955,7 +1994,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Admins are allowed to delete badges
 		$this->assertPostAjaxAsAccessOk(['controller' => 'People', 'action' => 'delete_badge', 'badge' => $badge->id],
 			$admin->id, ['comment' => 'No badge for you.']);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1974,7 +2014,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Managers are allowed to delete badges
 		$this->assertPostAjaxAsAccessOk(['controller' => 'People', 'action' => 'delete_badge', 'badge' => $badge->id],
 			$manager->id, ['comment' => 'No badge for you.']);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -2012,7 +2053,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'delete', 'person' => $player->id],
 			$admin->id, [], '/',
 			'The person has been deleted.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -2028,7 +2070,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'delete', 'person' => $player->id],
 			$manager->id, [], '/',
 			'The person has been deleted.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -2345,7 +2388,8 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Admins are allowed to approve
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'approve', 'person' => $new->id], $admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -2527,7 +2571,8 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Managers are allowed to approve
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'approve', 'person' => $new->id], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -2616,7 +2661,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->get(['controller' => 'People', 'action' => 'ical', $admin->id]);
 		$this->assertResponseCode(410);
 		$this->assertGetAnonymousAccessOk(['controller' => 'People', 'action' => 'ical', $player->id]);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**

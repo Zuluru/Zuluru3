@@ -43,7 +43,7 @@ class AllControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessDenied(['controller' => 'All', 'action' => 'clear_cache'], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'All', 'action' => 'clear_cache']);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**

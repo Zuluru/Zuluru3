@@ -94,7 +94,8 @@ class GameSlotsControllerTest extends ControllerTestCase {
 		// Managers are allowed to add
 		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'add', 'field' => $field->id], $manager->id);
 		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'add', 'affiliate' => $affiliates[0]->id], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -136,7 +137,8 @@ class GameSlotsControllerTest extends ControllerTestCase {
 		// Admins are allowed to edit
 		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => $slot->id], $admin->id);
 		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => $other_slot->id], $admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -159,7 +161,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 		// But not ones in other affiliates
 		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => $other_slot->id], $manager->id);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**

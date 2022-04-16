@@ -429,7 +429,8 @@ class LeaguesControllerTest extends ControllerTestCase {
 
 		// Admins are allowed to add division
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Leagues', 'action' => 'add_division', 'league' => $league->id], $admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -446,7 +447,8 @@ class LeaguesControllerTest extends ControllerTestCase {
 
 		// Managers are allowed to add divisions
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Leagues', 'action' => 'add_division', 'league' => $league->id], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**

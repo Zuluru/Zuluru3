@@ -54,7 +54,7 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessDenied(['controller' => 'Preregistrations', 'action' => 'index'], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Preregistrations', 'action' => 'index']);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**

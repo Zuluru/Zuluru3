@@ -99,7 +99,8 @@ class CreditsControllerTest extends ControllerTestCase {
 
 		// Admins are allowed to transfer credits
 		$this->assertGetAsAccessOk(['controller' => 'Credits', 'action' => 'transfer', 'credit' => $credits[0]->id], $admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**

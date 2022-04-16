@@ -399,7 +399,8 @@ class NewslettersControllerTest extends ControllerTestCase {
 		// Admins are allowed to send
 		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'send', 'newsletter' => $list->newsletters[0]->id], $admin->id);
 		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'send', 'newsletter' => $list->newsletters[0]->id, 'execute' => true, 'test' => true], $admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -416,7 +417,8 @@ class NewslettersControllerTest extends ControllerTestCase {
 
 		// Managers are allowed to send
 		$this->assertGetAsAccessOk(['controller' => 'Newsletters', 'action' => 'send', 'newsletter' => $list->newsletters[0]->id], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**

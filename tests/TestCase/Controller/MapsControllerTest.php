@@ -92,7 +92,8 @@ class MapsControllerTest extends ControllerTestCase {
 
 		// Admins are allowed to edit maps
 		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'edit', 'field' => $fields[0]->id], $admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -107,7 +108,8 @@ class MapsControllerTest extends ControllerTestCase {
 
 		// Managers are allowed to edit maps
 		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'edit', 'field' => $fields[0]->id], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**

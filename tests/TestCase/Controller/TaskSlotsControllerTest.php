@@ -101,7 +101,8 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 
 		// Admins are allowed to add task slots
 		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'add', 'task' => $task->id], $admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -119,7 +120,8 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 
 		// Managers are allowed to add task slots
 		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'add', 'task' => $task->id], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -157,7 +159,8 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 
 		// Admins are allowed to edit task slots
 		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'edit', 'slot' => $slot->id], $admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -176,7 +179,8 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 
 		// Managers are allowed to edit task slots
 		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'edit', 'slot' => $slot->id], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -303,7 +307,8 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 		// Admins are allowed to assign task slots
 		$this->assertPostAjaxAsAccessOk(['controller' => 'TaskSlots', 'action' => 'assign', 'slot' => $slot->id],
 			$admin->id, ['person' => $player->id]);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -326,7 +331,8 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 		// Managers are allowed to assign task slots
 		$this->assertPostAjaxAsAccessOk(['controller' => 'TaskSlots', 'action' => 'assign', 'slot' => $slot->id],
 			$manager->id, ['person' => $player->id]);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -372,7 +378,8 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 		// Admins are allowed to approve task slots
 		$this->assertGetAjaxAsAccessOk(['controller' => 'TaskSlots', 'action' => 'approve', 'slot' => $slot->id],
 			$admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -392,7 +399,8 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 		// Managers are allowed to approve task slots
 		$this->assertGetAjaxAsAccessOk(['controller' => 'TaskSlots', 'action' => 'approve', 'slot' => $slot->id],
 			$manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**

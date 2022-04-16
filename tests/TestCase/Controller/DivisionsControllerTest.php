@@ -280,7 +280,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'scheduling_fields'],
 			['schedule_type' => 'ratings_ladder']);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -444,7 +444,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add_teams', 'division' => $division->id], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'add_teams', 'division' => $division->id]);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -475,7 +475,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'ratings', 'division' => $division->id], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'ratings', 'division' => $division->id]);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -506,7 +506,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'seeds', 'division' => $division->id], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'seeds', 'division' => $division->id]);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1316,7 +1316,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => $playoffs->id],
 			$admin->id, ['controller' => 'Divisions', 'action' => 'view', 'division' => $playoffs->id],
 			'Team ratings have been initialized.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1334,7 +1335,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => $playoffs->id],
 			$manager->id, ['controller' => 'Divisions', 'action' => 'view', 'division' => $playoffs->id],
 			'Team ratings have been initialized.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1352,7 +1354,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => $playoffs->id],
 			$volunteer->id, ['controller' => 'Divisions', 'action' => 'view', 'division' => $playoffs->id],
 			'Team ratings have been initialized.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1386,7 +1389,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => $playoffs->id],
 			$admin->id, ['controller' => 'Divisions', 'action' => 'schedule', 'division' => $playoffs->id],
 			'Dependencies have been resolved.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1404,7 +1408,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => $playoffs->id],
 			$manager->id, ['controller' => 'Divisions', 'action' => 'schedule', 'division' => $playoffs->id],
 			'Dependencies have been resolved.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1422,7 +1427,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => $playoffs->id],
 			$volunteer->id, ['controller' => 'Divisions', 'action' => 'schedule', 'division' => $playoffs->id],
 			'Dependencies have been resolved.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1459,7 +1465,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => $playoffs->id, 'stage' => 2],
 			$admin->id, ['controller' => 'Schedules', 'action' => 'add', 'division' => $playoffs->id],
 			'The pools in this stage have been deleted.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1480,7 +1487,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => $playoffs->id, 'stage' => 2],
 			$manager->id, ['controller' => 'Schedules', 'action' => 'add', 'division' => $playoffs->id],
 			'The pools in this stage have been deleted.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1501,7 +1509,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => $playoffs->id, 'stage' => 2],
 			$volunteer->id, ['controller' => 'Schedules', 'action' => 'add', 'division' => $playoffs->id],
 			'The pools in this stage have been deleted.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**

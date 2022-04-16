@@ -253,7 +253,7 @@ class WaiversControllerTest extends ControllerTestCase {
 		// Others are not allowed to sign
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Waivers', 'action' => 'sign', 'waiver' => $waiver->id, 'date' => FrozenDate::now()->toDateString()]);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**

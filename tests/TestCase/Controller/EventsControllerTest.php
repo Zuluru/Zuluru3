@@ -495,7 +495,8 @@ class EventsControllerTest extends ControllerTestCase {
 
 		// Admins are allowed to edit event connections
 		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'connections', 'event' => $league_teams[0]->id], $admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -513,7 +514,8 @@ class EventsControllerTest extends ControllerTestCase {
 
 		// Managers are allowed to edit event connections
 		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'connections', 'event' => $league_teams[0]->id], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**

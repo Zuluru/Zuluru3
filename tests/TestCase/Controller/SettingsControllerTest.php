@@ -29,7 +29,8 @@ class SettingsControllerTest extends ControllerTestCase {
 
 		// Admins are allowed to edit settings
 		$this->assertGetAsAccessOk(['controller' => 'Settings', 'action' => 'edit', 'organization'], $admin->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -40,7 +41,8 @@ class SettingsControllerTest extends ControllerTestCase {
 
 		// Managers are allowed to edit settings
 		$this->assertGetAsAccessOk(['controller' => 'Settings', 'action' => 'edit', 'organization'], $manager->id);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
