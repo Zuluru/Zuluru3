@@ -290,7 +290,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, ] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliate = $admin->affiliates[0];
 		/** @var \App\Model\Entity\League $league */
 		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
@@ -353,7 +353,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, ] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliate = $admin->affiliates[0];
 		/** @var \App\Model\Entity\League $league */
 		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
@@ -376,7 +376,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager, $volunteer, ] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliate = $admin->affiliates[0];
 		/** @var \App\Model\Entity\League $league */
 		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
@@ -557,7 +557,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager, , ] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
 		/** @var \App\Model\Entity\League $league1 */
 		$league1 = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
@@ -632,14 +632,14 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test schedule method as an admin
 	 */
 	public function testScheduleAsAdmin(): void {
-		[$admin, , $volunteer, ] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true, 'playoffs' => true]);
 		[$season, $playoffs] = $league->divisions;
-		$games = GameFactory::find()->contain(['GameSlots.Fields.Facilities'])->order(['GameSlots.game_date', 'GameSlots.game_start', 'Facilities.name', 'Fields.num'])->toArray();
-		$facility = $games[0]->game_slot->field->facility;
+		$games = $season->games;
+		$facility = $games[0]->game_slot->field->facility_record;
 		[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $season->teams;
 
 		// Admins get the schedule with edit links
@@ -690,11 +690,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $affiliates[1], 'coordinator' => $volunteer]);
 		$season = $league->divisions[0];
 		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $admin->id);
-		$games = GameFactory::find()->contain(['GameSlots.Fields.Facilities'])
-			->where(['Games.division_id' => $season->id])
-			->order(['GameSlots.game_date', 'GameSlots.game_start', 'Facilities.name', 'Fields.num'])
-			->toArray();
-		$facility = $games[0]->game_slot->field->facility;
+		$games = $season->games;
+		$facility = $games[0]->game_slot->field->facility_record;
 		[$bears, $lions] = $season->teams;
 		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $bears, $lions, 'not entered', true));
 	}
@@ -703,14 +700,14 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test schedule method as a manager
 	 */
 	public function testScheduleAsManager(): void {
-		[$admin, $manager, $volunteer, ] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true, 'playoffs' => true]);
 		[$season, $playoffs] = $league->divisions;
-		$games = GameFactory::find()->contain(['GameSlots.Fields.Facilities'])->order(['GameSlots.game_date', 'GameSlots.game_start', 'Facilities.name', 'Fields.num'])->toArray();
-		$facility = $games[0]->game_slot->field->facility;
+		$games = $season->games;
+		$facility = $games[0]->game_slot->field->facility_record;
 		[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $season->teams;
 
 		// Managers get the schedule with edit links
@@ -761,11 +758,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $affiliates[1], 'coordinator' => $volunteer]);
 		$season = $league->divisions[0];
 		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $manager->id);
-		$games = GameFactory::find()->contain(['GameSlots.Fields.Facilities'])
-			->where(['Games.division_id' => $season->id])
-			->order(['GameSlots.game_date', 'GameSlots.game_start', 'Facilities.name', 'Fields.num'])
-			->toArray();
-		$facility = $games[0]->game_slot->field->facility;
+		$games = $season->games;
+		$facility = $games[0]->game_slot->field->facility_record;
 		[$bears, $lions] = $season->teams;
 		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $bears, $lions, 'not entered', false));
 		$this->assertResponseNotContains('/games/edit');
@@ -775,14 +769,14 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test schedule method as a coordinator
 	 */
 	public function testScheduleAsCoordinator(): void {
-		[$admin, , $volunteer, ] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true, 'playoffs' => true]);
 		[$season, $playoffs] = $league->divisions;
-		$games = GameFactory::find()->contain(['GameSlots.Fields.Facilities'])->order(['GameSlots.game_date', 'GameSlots.game_start', 'Facilities.name', 'Fields.num'])->toArray();
-		$facility = $games[0]->game_slot->field->facility;
+		$games = $season->games;
+		$facility = $games[0]->game_slot->field->facility_record;
 		[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $season->teams;
 
 		// Coordinators get the schedule with edit links
@@ -833,12 +827,9 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0]]);
 		$season = $league->divisions[0];
 		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $volunteer->id);
-		$games = GameFactory::find()->contain(['GameSlots.Fields.Facilities'])
-			->where(['Games.division_id' => $season->id])
-			->order(['GameSlots.game_date', 'GameSlots.game_start', 'Facilities.name', 'Fields.num'])
-			->toArray();
-		$facility = $games[0]->game_slot->field->facility;
-		[$red, $yellow, ] = $season->teams;
+		$games = $season->games;
+		$facility = $games[0]->game_slot->field->facility_record;
+		[$red, $yellow] = $season->teams;
 		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $red, $yellow, '17 - 5', false));
 		$this->assertResponseNotContains('/games/edit');
 		$this->assertResponseNotContains("/games/view?game={$games[12]->id}");
@@ -849,11 +840,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $affiliates[1]]);
 		$season = $league->divisions[0];
 		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $volunteer->id);
-		$games = GameFactory::find()->contain(['GameSlots.Fields.Facilities'])
-			->where(['Games.division_id' => $season->id])
-			->order(['GameSlots.game_date', 'GameSlots.game_start', 'Facilities.name', 'Fields.num'])
-			->toArray();
-		$facility = $games[0]->game_slot->field->facility;
+		$games = $season->games;
+		$facility = $games[0]->game_slot->field->facility_record;
 		[$bears, $lions] = $season->teams;
 		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $bears, $lions, 'not entered', false));
 		$this->assertResponseNotContains('/games/edit');
@@ -869,8 +857,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true, 'playoffs' => true]);
 		$season = $league->divisions[0];
-		$games = GameFactory::find()->contain(['GameSlots.Fields.Facilities'])->order(['GameSlots.game_date', 'GameSlots.game_start', 'Facilities.name', 'Fields.num'])->toArray();
-		$facility = $games[0]->game_slot->field->facility;
+		$games = $season->games;
+		$facility = $games[0]->game_slot->field->facility_record;
 		[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $season->teams;
 
 		TeamsPersonFactory::make(['person_id' => $captain->id, 'team_id' => $red->id, 'role' => 'captain'])
@@ -910,12 +898,9 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0]]);
 		$season = $league->divisions[0];
 		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $captain->id);
-		$games = GameFactory::find()->contain(['GameSlots.Fields.Facilities'])
-			->where(['Games.division_id' => $season->id])
-			->order(['GameSlots.game_date', 'GameSlots.game_start', 'Facilities.name', 'Fields.num'])
-			->toArray();
-		$facility = $games[0]->game_slot->field->facility;
-		[$red, $yellow, ] = $season->teams;
+		$games = $season->games;
+		$facility = $games[0]->game_slot->field->facility_record;
+		[$red, $yellow] = $season->teams;
 		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $red, $yellow, '17 - 5', false));
 		$this->assertResponseNotContains('/games/submit_score');
 
@@ -924,11 +909,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $affiliates[1]]);
 		$season = $league->divisions[0];
 		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $captain->id);
-		$games = GameFactory::find()->contain(['GameSlots.Fields.Facilities'])
-			->where(['Games.division_id' => $season->id])
-			->order(['GameSlots.game_date', 'GameSlots.game_start', 'Facilities.name', 'Fields.num'])
-			->toArray();
-		$facility = $games[0]->game_slot->field->facility;
+		$games = $season->games;
+		$facility = $games[0]->game_slot->field->facility_record;
 		[$bears, $lions] = $season->teams;
 		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $bears, $lions, 'not entered', false));
 		$this->assertResponseNotContains('/games/submit_score');
@@ -944,8 +926,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true, 'playoffs' => true]);
 		$season = $league->divisions[0];
-		$games = GameFactory::find()->contain(['GameSlots.Fields.Facilities'])->order(['GameSlots.game_date', 'GameSlots.game_start', 'Facilities.name', 'Fields.num'])->toArray();
-		$facility = $games[0]->game_slot->field->facility;
+		$games = $season->games;
+		$facility = $games[0]->game_slot->field->facility_record;
 		[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $season->teams;
 
 		TeamsPersonFactory::make(['person_id' => $player->id, 'team_id' => $red->id])
@@ -990,8 +972,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'scores' => true, 'playoffs' => true]);
 		$season = $league->divisions[0];
-		$games = GameFactory::find()->contain(['GameSlots.Fields.Facilities'])->order(['GameSlots.game_date', 'GameSlots.game_start', 'Facilities.name', 'Fields.num'])->toArray();
-		$facility = $games[0]->game_slot->field->facility;
+		$games = $season->games;
+		$facility = $games[0]->game_slot->field->facility_record;
 		[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $season->teams;
 
 		// Visitors get the schedule with minimal links
@@ -1031,8 +1013,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliate, 'scores' => true, 'playoffs' => true]);
 		$season = $league->divisions[0];
-		$games = GameFactory::find()->contain(['GameSlots.Fields.Facilities'])->order(['GameSlots.game_date', 'GameSlots.game_start', 'Facilities.name', 'Fields.num'])->toArray();
-		$facility = $games[0]->game_slot->field->facility;
+		$games = $season->games;
+		$facility = $games[0]->game_slot->field->facility_record;
 		[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $season->teams;
 
 		// Anonymous browsers get the schedule with minimal links
@@ -1072,7 +1054,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer]);
 		$division = $league->divisions[0];
-		[$red, ] = $division->teams;
+		[$red] = $division->teams;
 
 		TeamsPersonFactory::make(['person_id' => $player->id, 'team_id' => $red->id])
 			->persist();
@@ -1097,7 +1079,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true]);
 		$division = $league->divisions[0];
-		[$red, ] = $division->teams;
+		[$red] = $division->teams;
 
 		TeamsPersonFactory::make(['person_id' => $player->id, 'team_id' => $red->id])
 			->persist();

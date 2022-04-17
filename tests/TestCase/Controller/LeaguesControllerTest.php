@@ -45,8 +45,8 @@ class LeaguesControllerTest extends ControllerTestCase {
 			->persist();
 		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $league->divisions[0]->id])->persist();
 
-		/** @var \App\Model\Entity\League $other_league */
-		$other_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+		/** @var \App\Model\Entity\League $affiliate_league */
+		$affiliate_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
 			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
 			->with('Affiliates', $affiliates[1])
 			->persist();
@@ -60,8 +60,8 @@ class LeaguesControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'index'], $admin->id);
 		$this->assertResponseContains('/leagues/edit?league=' . $league->id);
 		$this->assertResponseContains('/leagues/delete?league=' . $league->id);
-		$this->assertResponseContains('/leagues/edit?league=' . $other_league->id);
-		$this->assertResponseContains('/leagues/delete?league=' . $other_league->id);
+		$this->assertResponseContains('/leagues/edit?league=' . $affiliate_league->id);
+		$this->assertResponseContains('/leagues/delete?league=' . $affiliate_league->id);
 		$this->assertResponseContains('/leagues/index?year=' . $this_year);
 		$this->assertResponseContains('/leagues/index?year=' . $last_year);
 
@@ -69,8 +69,8 @@ class LeaguesControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'index'], $manager->id);
 		$this->assertResponseContains('/leagues/edit?league=' . $league->id);
 		$this->assertResponseContains('/leagues/delete?league=' . $league->id);
-		$this->assertResponseNotContains('/leagues/edit?league=' . $other_league->id);
-		$this->assertResponseNotContains('/leagues/delete?league=' . $other_league->id);
+		$this->assertResponseNotContains('/leagues/edit?league=' . $affiliate_league->id);
+		$this->assertResponseNotContains('/leagues/delete?league=' . $affiliate_league->id);
 		$this->assertResponseContains('/leagues/index?year=' . $this_year);
 		$this->assertResponseContains('/leagues/index?year=' . $last_year);
 
@@ -142,8 +142,8 @@ class LeaguesControllerTest extends ControllerTestCase {
 			->persist();
 		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $single_league->divisions[0]->id])->persist();
 
-		/** @var \App\Model\Entity\League $other_league */
-		$other_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+		/** @var \App\Model\Entity\League $affiliate_league */
+		$affiliate_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
 			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
 			->with('Affiliates', $affiliates[1])
 			->persist();
@@ -153,9 +153,9 @@ class LeaguesControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/leagues/edit?league=' . $league->id);
 		$this->assertResponseContains('/leagues/delete?league=' . $league->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'view', 'league' => $other_league->id], $admin->id);
-		$this->assertResponseContains('/leagues/edit?league=' . $other_league->id);
-		$this->assertResponseContains('/leagues/delete?league=' . $other_league->id);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'view', 'league' => $affiliate_league->id], $admin->id);
+		$this->assertResponseContains('/leagues/edit?league=' . $affiliate_league->id);
+		$this->assertResponseContains('/leagues/delete?league=' . $affiliate_league->id);
 
 		// Managers are allowed to view, edit and delete leagues in their affiliate
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'view', 'league' => $league->id], $manager->id);
@@ -163,9 +163,9 @@ class LeaguesControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/leagues/delete?league=' . $league->id);
 
 		// But are not allowed to edit ones in other affiliates
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'view', 'league' => $other_league->id], $manager->id);
-		$this->assertResponseNotContains('/leagues/edit?league=' . $other_league->id);
-		$this->assertResponseNotContains('/leagues/delete?league=' . $other_league->id);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'view', 'league' => $affiliate_league->id], $manager->id);
+		$this->assertResponseNotContains('/leagues/edit?league=' . $affiliate_league->id);
+		$this->assertResponseNotContains('/leagues/delete?league=' . $affiliate_league->id);
 
 		// Others are allowed to view leagues, but have no edit permissions
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'view', 'league' => $league->id], $volunteer->id);
@@ -295,8 +295,8 @@ class LeaguesControllerTest extends ControllerTestCase {
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
 
-		/** @var \App\Model\Entity\League $other_league */
-		$other_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+		/** @var \App\Model\Entity\League $affiliate_league */
+		$affiliate_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
 			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
 			->with('Affiliates', $affiliates[1])
 			->persist();
@@ -306,7 +306,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('<input type="hidden" name="affiliate_id" value="' . $affiliates[0]->id . '"/>');
 		$this->assertResponseNotContains('<option value="' . $affiliates[1]->id . '">' . $affiliates[1]->name . '</option>');
 
-		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'add', 'league' => $other_league->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'add', 'league' => $affiliate_league->id], $manager->id);
 	}
 
 	/**
@@ -334,15 +334,15 @@ class LeaguesControllerTest extends ControllerTestCase {
 			->with('Affiliates', $affiliates[0])
 			->persist();
 
-		/** @var \App\Model\Entity\League $other_league */
-		$other_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+		/** @var \App\Model\Entity\League $affiliate_league */
+		$affiliate_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
 			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
 			->with('Affiliates', $affiliates[1])
 			->persist();
 
 		// Admins are allowed to edit leagues anywhere
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'edit', 'league' => $league->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'edit', 'league' => $other_league->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'edit', 'league' => $affiliate_league->id], $admin->id);
 	}
 
 	/**
@@ -358,15 +358,15 @@ class LeaguesControllerTest extends ControllerTestCase {
 			->with('Affiliates', $affiliates[0])
 			->persist();
 
-		/** @var \App\Model\Entity\League $other_league */
-		$other_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+		/** @var \App\Model\Entity\League $affiliate_league */
+		$affiliate_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
 			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
 			->with('Affiliates', $affiliates[1])
 			->persist();
 
 		// Managers are allowed to edit leagues in their own affiliate, but not others
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'edit', 'league' => $league->id], $manager->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'edit', 'league' => $other_league->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'edit', 'league' => $affiliate_league->id], $manager->id);
 	}
 
 	/**
@@ -521,8 +521,8 @@ class LeaguesControllerTest extends ControllerTestCase {
 			->with('Affiliates', $affiliates[0])
 			->persist();
 
-		/** @var \App\Model\Entity\League $other_league */
-		$other_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
+		/** @var \App\Model\Entity\League $affiliate_league */
+		$affiliate_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
 			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
 			->with('Affiliates', $affiliates[1])
 			->persist();
@@ -533,7 +533,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 			'The league has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Leagues', 'action' => 'delete', 'league' => $other_league->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Leagues', 'action' => 'delete', 'league' => $affiliate_league->id],
 			$manager->id);
 	}
 

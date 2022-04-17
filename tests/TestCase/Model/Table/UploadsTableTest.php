@@ -53,8 +53,8 @@ class UploadsTableTest extends TableTestCase {
 	 * Test affiliate method
 	 */
 	public function testAffiliate(): void {
-        $affiliateId = rand();
-        $entity = UploadFactory::make()->with('UploadTypes', ['affiliate_id' => $affiliateId])->persist();
+		$affiliateId = rand();
+		$entity = UploadFactory::make()->with('UploadTypes', ['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->UploadsTable->affiliate($entity->id));
 	}
 

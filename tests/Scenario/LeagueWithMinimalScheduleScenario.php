@@ -6,6 +6,7 @@ namespace App\Test\Scenario;
 use App\Model\Entity\League;
 use App\Test\Factory\DivisionsDayFactory;
 use App\Test\Factory\DivisionsPersonFactory;
+use App\Test\Factory\GameFactory;
 use App\Test\Factory\GameSlotFactory;
 use App\Test\Factory\LeagueFactory;
 use App\Test\Factory\RegionFactory;
@@ -16,6 +17,12 @@ use CakephpFixtureFactories\Scenario\FixtureScenarioInterface;
 
 class LeagueWithMinimalScheduleScenario implements FixtureScenarioInterface {
 
+	/**
+	 * Possible arguments are:
+	 * - affiliate Affiliate
+	 * - coordinator Person
+	 * - divisions int
+	 */
 	public function load(...$args): League {
 		switch (count($args)) {
 			case 0:
@@ -48,7 +55,8 @@ class LeagueWithMinimalScheduleScenario implements FixtureScenarioInterface {
 		$region = RegionFactory::make(['affiliate_id' => isset($args['affiliate']) ? $args['affiliate']->id : 1])
 			->with('Facilities.Fields', $fields)
 			->persist();
-		$fields = $region->facilities[0]->fields;
+		$facility = $region->facilities[0];
+		$fields = $facility->fields;
 
 		foreach ($league->divisions as $key => $division) {
 			[$bears, $lions] = $division->teams = TeamFactory::make([
@@ -61,20 +69,24 @@ class LeagueWithMinimalScheduleScenario implements FixtureScenarioInterface {
 				DivisionsPersonFactory::make(['person_id' => $args['coordinator']->id, 'division_id' => $division->id])->persist();
 			}
 
+			$division->games = [];
+
 			// Week 1
-			GameSlotFactory::make(['game_date' => $open, 'assigned' => true])
-				->with('Fields', $fields[$key * 2])
-				->with('Games', [
-					'division_id' => $division->id, 'home_team_id' => $bears->id, 'away_team_id' => $lions->id,
-				])
+			$division->games[] = GameFactory::make([
+				'division_id' => $division->id, 'home_team_id' => $bears->id, 'away_team_id' => $lions->id,
+			])
+				->with('GameSlots', GameSlotFactory::make(['game_date' => $open, 'assigned' => true])
+					->with('Fields', $fields[$key * 2])
+				)
 				->persist();
 
 			// Week 2
-			GameSlotFactory::make(['game_date' => $open->addWeek(), 'assigned' => true])
-				->with('Fields', $fields[$key * 2])
-				->with('Games', [
-					'division_id' => $division->id, 'home_team_id' => $bears->id, 'away_team_id' => $lions->id,
-				])
+			$division->games[] = GameFactory::make([
+				'division_id' => $division->id, 'home_team_id' => $bears->id, 'away_team_id' => $lions->id,
+			])
+				->with('GameSlots', GameSlotFactory::make(['game_date' => $open->addWeek(), 'assigned' => true])
+					->with('Fields', $fields[$key * 2])
+				)
 				->persist();
 		}
 

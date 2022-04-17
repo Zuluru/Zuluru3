@@ -79,8 +79,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 			->persist();
 		$owner = $franchise->people[0];
 
-		/** @var \App\Model\Entity\Franchise $other_franchise */
-		$other_franchise = FranchiseFactory::make(['affiliate_id' => $affiliates[1]->id])
+		/** @var \App\Model\Entity\Franchise $affiliate_franchise */
+		$affiliate_franchise = FranchiseFactory::make(['affiliate_id' => $affiliates[1]->id])
 			->with('Teams')
 			->persist();
 
@@ -89,9 +89,9 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/franchises/edit?franchise=' . $franchise->id);
 		$this->assertResponseContains('/franchises/delete?franchise=' . $franchise->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => $other_franchise->id], $admin->id);
-		$this->assertResponseContains('/franchises/edit?franchise=' . $other_franchise->id);
-		$this->assertResponseContains('/franchises/delete?franchise=' . $other_franchise->id);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => $affiliate_franchise->id], $admin->id);
+		$this->assertResponseContains('/franchises/edit?franchise=' . $affiliate_franchise->id);
+		$this->assertResponseContains('/franchises/delete?franchise=' . $affiliate_franchise->id);
 
 		// Managers are allowed to view franchises
 		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => $franchise->id], $manager->id);
@@ -99,9 +99,9 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/franchises/delete?franchise=' . $franchise->id);
 
 		// But are not allowed to edit ones in other affiliates
-		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => $other_franchise->id], $manager->id);
-		$this->assertResponseNotContains('/franchises/edit?franchise=' . $other_franchise->id);
-		$this->assertResponseNotContains('/franchises/delete?franchise=' . $other_franchise->id);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => $affiliate_franchise->id], $manager->id);
+		$this->assertResponseNotContains('/franchises/edit?franchise=' . $affiliate_franchise->id);
+		$this->assertResponseNotContains('/franchises/delete?franchise=' . $affiliate_franchise->id);
 
 		// Owners are allowed to view and edit their franchises, but not delete; that happens automatically if the last team is removed
 		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'view', 'franchise' => $franchise->id], $owner->id);
@@ -194,12 +194,12 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 		/** @var \App\Model\Entity\Franchise $franchise */
 		$franchise = FranchiseFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
-		/** @var \App\Model\Entity\Franchise $other_franchise */
-		$other_franchise = FranchiseFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
+		/** @var \App\Model\Entity\Franchise $affiliate_franchise */
+		$affiliate_franchise = FranchiseFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
 
 		// Admins are allowed to edit franchises
 		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => $franchise->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => $other_franchise->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => $affiliate_franchise->id], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -214,14 +214,14 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 		/** @var \App\Model\Entity\Franchise $franchise */
 		$franchise = FranchiseFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
-		/** @var \App\Model\Entity\Franchise $other_franchise */
-		$other_franchise = FranchiseFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
+		/** @var \App\Model\Entity\Franchise $affiliate_franchise */
+		$affiliate_franchise = FranchiseFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
 
 		// Managers are allowed to edit franchises
 		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => $franchise->id], $manager->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => $other_franchise->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Franchises', 'action' => 'edit', 'franchise' => $affiliate_franchise->id], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -281,8 +281,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 			->with('People.Users')
 			->persist();
 
-		/** @var \App\Model\Entity\Franchise $other_franchise */
-		$other_franchise = FranchiseFactory::make(['affiliate_id' => $affiliates[1]->id])
+		/** @var \App\Model\Entity\Franchise $affiliate_franchise */
+		$affiliate_franchise = FranchiseFactory::make(['affiliate_id' => $affiliates[1]->id])
 			->with('People')
 			->with('Teams')
 			->persist();
@@ -293,7 +293,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 			'The franchise has been deleted.');
 
 		// But not ones with dependencies
-		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => $other_franchise->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => $affiliate_franchise->id],
 			$admin->id, [], ['controller' => 'Franchises', 'action' => 'index'],
 			'#The following records reference this franchise, so it cannot be deleted#');
 	}
@@ -310,8 +310,8 @@ class FranchisesControllerTest extends ControllerTestCase {
 
 		/** @var \App\Model\Entity\Franchise $franchise */
 		$franchise = FranchiseFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
-		/** @var \App\Model\Entity\Franchise $other_franchise */
-		$other_franchise = FranchiseFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
+		/** @var \App\Model\Entity\Franchise $affiliate_franchise */
+		$affiliate_franchise = FranchiseFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
 
 		// Managers are allowed to delete franchises in their affiliate
 		$this->assertPostAsAccessRedirect(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => $franchise->id],
@@ -319,7 +319,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 			'The franchise has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => $other_franchise->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Franchises', 'action' => 'delete', 'franchise' => $affiliate_franchise->id],
 			$manager->id);
 	}
 

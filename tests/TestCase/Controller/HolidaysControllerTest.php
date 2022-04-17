@@ -30,21 +30,21 @@ class HolidaysControllerTest extends ControllerTestCase {
 		$affiliates = $admin->affiliates;
 
 		$holiday = HolidayFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
-		$other_holiday = HolidayFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
+		$affiliate_holiday = HolidayFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
 
 		// Admins are allowed to see the index
 		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'index'], $admin->id);
 		$this->assertResponseContains('/holidays/edit?holiday=' . $holiday->id);
 		$this->assertResponseContains('/holidays/delete?holiday=' . $holiday->id);
-		$this->assertResponseContains('/holidays/edit?holiday=' . $other_holiday->id);
-		$this->assertResponseContains('/holidays/delete?holiday=' . $other_holiday->id);
+		$this->assertResponseContains('/holidays/edit?holiday=' . $affiliate_holiday->id);
+		$this->assertResponseContains('/holidays/delete?holiday=' . $affiliate_holiday->id);
 
 		// Managers are allowed to see the index, but don't see holidays in other affiliates
 		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'index'], $manager->id);
 		$this->assertResponseContains('/holidays/edit?holiday=' . $holiday->id);
 		$this->assertResponseContains('/holidays/delete?holiday=' . $holiday->id);
-		$this->assertResponseNotContains('/holidays/edit?holiday=' . $other_holiday->id);
-		$this->assertResponseNotContains('/holidays/delete?holiday=' . $other_holiday->id);
+		$this->assertResponseNotContains('/holidays/edit?holiday=' . $affiliate_holiday->id);
+		$this->assertResponseNotContains('/holidays/delete?holiday=' . $affiliate_holiday->id);
 
 		// Others are not allowed to see the index
 		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'index'], $volunteer->id);
@@ -92,11 +92,11 @@ class HolidaysControllerTest extends ControllerTestCase {
 		$affiliates = $admin->affiliates;
 
 		$holiday = HolidayFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
-		$other_holiday = HolidayFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
+		$affiliate_holiday = HolidayFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
 
 		// Admins are allowed to edit holidays
 		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => $holiday->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => $other_holiday->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => $affiliate_holiday->id], $admin->id);
 	}
 
 	/**
@@ -107,13 +107,13 @@ class HolidaysControllerTest extends ControllerTestCase {
 		$affiliates = $admin->affiliates;
 
 		$holiday = HolidayFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
-		$other_holiday = HolidayFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
+		$affiliate_holiday = HolidayFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
 
 		// Managers are allowed to edit holidays
 		$this->assertGetAsAccessOk(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => $holiday->id], $manager->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => $other_holiday->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => $affiliate_holiday->id], $manager->id);
 	}
 
 	/**
@@ -124,7 +124,6 @@ class HolidaysControllerTest extends ControllerTestCase {
 		$affiliates = $admin->affiliates;
 
 		$holiday = HolidayFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
-		$other_holiday = HolidayFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
 
 		// Others are not allowed to edit holidays
 		$this->assertGetAsAccessDenied(['controller' => 'Holidays', 'action' => 'edit', 'holiday' => $holiday->id], $volunteer->id);
@@ -143,7 +142,6 @@ class HolidaysControllerTest extends ControllerTestCase {
 		$affiliates = $admin->affiliates;
 
 		$holiday = HolidayFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
-		$other_holiday = HolidayFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
 
 		// Admins are allowed to delete holidays
 		$this->assertPostAsAccessRedirect(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => $holiday->id],
@@ -162,7 +160,7 @@ class HolidaysControllerTest extends ControllerTestCase {
 		$affiliates = $admin->affiliates;
 
 		$holiday = HolidayFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
-		$other_holiday = HolidayFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
+		$affiliate_holiday = HolidayFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
 
 		// Managers are allowed to delete holidays in their own affiliate
 		$this->assertPostAsAccessRedirect(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => $holiday->id],
@@ -170,7 +168,7 @@ class HolidaysControllerTest extends ControllerTestCase {
 			'The holiday has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => $other_holiday->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => $affiliate_holiday->id],
 			$manager->id);
 	}
 
@@ -185,7 +183,6 @@ class HolidaysControllerTest extends ControllerTestCase {
 		$affiliates = $admin->affiliates;
 
 		$holiday = HolidayFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
-		$other_holiday = HolidayFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
 
 		// Others are not allowed to delete holidays
 		$this->assertPostAsAccessDenied(['controller' => 'Holidays', 'action' => 'delete', 'holiday' => $holiday->id],

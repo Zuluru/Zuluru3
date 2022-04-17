@@ -33,7 +33,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 		$slot = GameSlotFactory::make()
 			->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliates[0]->id])
 			->persist();
-		$other_slot = GameSlotFactory::make()
+		$affiliate_slot = GameSlotFactory::make()
 			->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliates[1]->id])
 			->persist();
 
@@ -42,9 +42,9 @@ class GameSlotsControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/game_slots/edit?slot=' . $slot->id);
 		$this->assertResponseContains('/game_slots/delete?slot=' . $slot->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'view', 'slot' => $other_slot->id], $admin->id);
-		$this->assertResponseContains('/game_slots/edit?slot=' . $other_slot->id);
-		$this->assertResponseContains('/game_slots/delete?slot=' . $other_slot->id);
+		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'view', 'slot' => $affiliate_slot->id], $admin->id);
+		$this->assertResponseContains('/game_slots/edit?slot=' . $affiliate_slot->id);
+		$this->assertResponseContains('/game_slots/delete?slot=' . $affiliate_slot->id);
 
 		// Managers are allowed to view game slots
 		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'view', 'slot' => $slot->id], $manager->id);
@@ -52,7 +52,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/game_slots/delete?slot=' . $slot->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'view', 'slot' => $other_slot->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'view', 'slot' => $affiliate_slot->id], $manager->id);
 
 		// Others are not allowed to view game slots
 		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'view', 'slot' => $slot->id], $volunteer->id);
@@ -130,13 +130,13 @@ class GameSlotsControllerTest extends ControllerTestCase {
 		$slot = GameSlotFactory::make()
 			->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliates[0]->id])
 			->persist();
-		$other_slot = GameSlotFactory::make()
+		$affiliate_slot = GameSlotFactory::make()
 			->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliates[1]->id])
 			->persist();
 
 		// Admins are allowed to edit
 		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => $slot->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => $other_slot->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => $affiliate_slot->id], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -151,7 +151,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 		$slot = GameSlotFactory::make()
 			->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliates[0]->id])
 			->persist();
-		$other_slot = GameSlotFactory::make()
+		$affiliate_slot = GameSlotFactory::make()
 			->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliates[1]->id])
 			->persist();
 
@@ -159,7 +159,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessOk(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => $slot->id], $manager->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => $other_slot->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'GameSlots', 'action' => 'edit', 'slot' => $affiliate_slot->id], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -194,7 +194,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 		$slot = GameSlotFactory::make()
 			->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliates[0]->id])
 			->persist();
-		$other_slot = GameSlotFactory::make()
+		$affiliate_slot = GameSlotFactory::make()
 			->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliates[1]->id])
 			->persist();
 		$slot_with_game = GameSlotFactory::make(['assigned' => true])
@@ -205,7 +205,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 		$this->assertPostAsAccessRedirect(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => $slot->id],
 			$admin->id, [], '/',
 			'The game slot has been deleted.');
-		$this->assertPostAsAccessRedirect(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => $other_slot->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => $affiliate_slot->id],
 			$admin->id, [], '/',
 			'The game slot has been deleted.');
 
@@ -228,7 +228,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 		$slot = GameSlotFactory::make()
 			->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliates[0]->id])
 			->persist();
-		$other_slot = GameSlotFactory::make()
+		$affiliate_slot = GameSlotFactory::make()
 			->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliates[1]->id])
 			->persist();
 
@@ -238,7 +238,7 @@ class GameSlotsControllerTest extends ControllerTestCase {
 			'The game slot has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => $other_slot->id],
+		$this->assertPostAsAccessDenied(['controller' => 'GameSlots', 'action' => 'delete', 'slot' => $affiliate_slot->id],
 			$manager->id);
 	}
 

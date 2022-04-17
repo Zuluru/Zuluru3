@@ -55,8 +55,8 @@ class EventsControllerTest extends ControllerTestCase {
 			->with('Prices')
 			->persist();
 
-		/** @var \App\Model\Entity\Event $other_league_team */
-		$other_league_team = EventFactory::make(['affiliate_id' => $affiliates[1]->id, 'event_type_id' => EVENT_TYPE_ID_TEAMS_FOR_LEAGUES])
+		/** @var \App\Model\Entity\Event $affiliate_league_team */
+		$affiliate_league_team = EventFactory::make(['affiliate_id' => $affiliates[1]->id, 'event_type_id' => EVENT_TYPE_ID_TEAMS_FOR_LEAGUES])
 			->with('Prices')
 			->persist();
 
@@ -65,9 +65,9 @@ class EventsControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/events/view?event=' . $league_team->id);
 		$this->assertResponseContains('/events/edit?event=' . $league_team->id);
 		$this->assertResponseContains('/events/delete?event=' . $league_team->id);
-		$this->assertResponseContains('/events/view?event=' . $other_league_team->id);
-		$this->assertResponseContains('/events/edit?event=' . $other_league_team->id);
-		$this->assertResponseContains('/events/delete?event=' . $other_league_team->id);
+		$this->assertResponseContains('/events/view?event=' . $affiliate_league_team->id);
+		$this->assertResponseContains('/events/edit?event=' . $affiliate_league_team->id);
+		$this->assertResponseContains('/events/delete?event=' . $affiliate_league_team->id);
 
 		// Managers are allowed to view the index
 		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'index'], $manager->id);
@@ -78,9 +78,9 @@ class EventsControllerTest extends ControllerTestCase {
 		// But are not allowed to edit ones in other affiliates
 		$this->session(['Zuluru.CurrentAffiliate' => $affiliates[1]->id]);
 		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'index'], $manager->id);
-		$this->assertResponseContains('/events/view?event=' . $other_league_team->id);
-		$this->assertResponseNotContains('/events/edit?event=' . $other_league_team->id);
-		$this->assertResponseNotContains('/events/delete?event=' . $other_league_team->id);
+		$this->assertResponseContains('/events/view?event=' . $affiliate_league_team->id);
+		$this->assertResponseNotContains('/events/edit?event=' . $affiliate_league_team->id);
+		$this->assertResponseNotContains('/events/delete?event=' . $affiliate_league_team->id);
 		$this->logout(); // clear that session setting
 
 		// Others are allowed to view the index, but have no edit permissions
@@ -181,8 +181,8 @@ class EventsControllerTest extends ControllerTestCase {
 			->with('Prices')
 			->persist();
 
-		/** @var \App\Model\Entity\Event $other_league_team */
-		$other_league_team = EventFactory::make(['affiliate_id' => $affiliates[1]->id, 'event_type_id' => EVENT_TYPE_ID_TEAMS_FOR_LEAGUES])
+		/** @var \App\Model\Entity\Event $affiliate_league_team */
+		$affiliate_league_team = EventFactory::make(['affiliate_id' => $affiliates[1]->id, 'event_type_id' => EVENT_TYPE_ID_TEAMS_FOR_LEAGUES])
 			->with('Prices')
 			->persist();
 
@@ -191,9 +191,9 @@ class EventsControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/events/edit?event=' . $league_team->id);
 		$this->assertResponseContains('/events/delete?event=' . $league_team->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => $other_league_team->id], $admin->id);
-		$this->assertResponseContains('/events/edit?event=' . $other_league_team->id);
-		$this->assertResponseContains('/events/delete?event=' . $other_league_team->id);
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => $affiliate_league_team->id], $admin->id);
+		$this->assertResponseContains('/events/edit?event=' . $affiliate_league_team->id);
+		$this->assertResponseContains('/events/delete?event=' . $affiliate_league_team->id);
 
 		// Managers are allowed to view events
 		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => $league_team->id], $manager->id);
@@ -201,9 +201,9 @@ class EventsControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/events/delete?event=' . $league_team->id);
 
 		// But are not allowed to edit ones in other affiliates
-		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => $other_league_team->id], $manager->id);
-		$this->assertResponseNotContains('/events/edit?event=' . $other_league_team->id);
-		$this->assertResponseNotContains('/events/delete?event=' . $other_league_team->id);
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => $affiliate_league_team->id], $manager->id);
+		$this->assertResponseNotContains('/events/edit?event=' . $affiliate_league_team->id);
+		$this->assertResponseNotContains('/events/delete?event=' . $affiliate_league_team->id);
 
 		// Coordinators are allowed to view
 		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => $league_team->id], $volunteer->id);
@@ -289,14 +289,14 @@ class EventsControllerTest extends ControllerTestCase {
 			->with('Prices')
 			->persist();
 
-		/** @var \App\Model\Entity\Event $other_league_team */
-		$other_league_team = EventFactory::make(['affiliate_id' => $affiliates[1]->id, 'event_type_id' => EVENT_TYPE_ID_TEAMS_FOR_LEAGUES])
+		/** @var \App\Model\Entity\Event $affiliate_league_team */
+		$affiliate_league_team = EventFactory::make(['affiliate_id' => $affiliates[1]->id, 'event_type_id' => EVENT_TYPE_ID_TEAMS_FOR_LEAGUES])
 			->with('Prices')
 			->persist();
 
 		// Admins are allowed to edit events anywhere
 		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'edit', 'event' => $league_team->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'edit', 'event' => $other_league_team->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'edit', 'event' => $affiliate_league_team->id], $admin->id);
 	}
 
 	/**
@@ -311,14 +311,14 @@ class EventsControllerTest extends ControllerTestCase {
 			->with('Prices')
 			->persist();
 
-		/** @var \App\Model\Entity\Event $other_league_team */
-		$other_league_team = EventFactory::make(['affiliate_id' => $affiliates[1]->id, 'event_type_id' => EVENT_TYPE_ID_TEAMS_FOR_LEAGUES])
+		/** @var \App\Model\Entity\Event $affiliate_league_team */
+		$affiliate_league_team = EventFactory::make(['affiliate_id' => $affiliates[1]->id, 'event_type_id' => EVENT_TYPE_ID_TEAMS_FOR_LEAGUES])
 			->with('Prices')
 			->persist();
 
 		// Managers are allowed to edit events in their own affiliate, but not others
 		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'edit', 'event' => $league_team->id], $manager->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'edit', 'event' => $other_league_team->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'edit', 'event' => $affiliate_league_team->id], $manager->id);
 	}
 
 	/**
@@ -442,8 +442,8 @@ class EventsControllerTest extends ControllerTestCase {
 			->with('Prices')
 			->persist();
 
-		/** @var \App\Model\Entity\Event $other_league_team */
-		$other_league_team = EventFactory::make(['affiliate_id' => $affiliates[1]->id, 'event_type_id' => EVENT_TYPE_ID_TEAMS_FOR_LEAGUES])
+		/** @var \App\Model\Entity\Event $affiliate_league_team */
+		$affiliate_league_team = EventFactory::make(['affiliate_id' => $affiliates[1]->id, 'event_type_id' => EVENT_TYPE_ID_TEAMS_FOR_LEAGUES])
 			->with('Prices')
 			->persist();
 
@@ -453,7 +453,7 @@ class EventsControllerTest extends ControllerTestCase {
 			'The event has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Events', 'action' => 'delete', 'event' => $other_league_team->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Events', 'action' => 'delete', 'event' => $affiliate_league_team->id],
 			$manager->id);
 	}
 

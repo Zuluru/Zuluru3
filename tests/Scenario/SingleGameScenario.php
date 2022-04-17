@@ -22,7 +22,6 @@ use CakephpFixtureFactories\Scenario\FixtureScenarioInterface;
 class SingleGameScenario implements FixtureScenarioInterface {
 
 	/**
-	 * @param ...$args
 	 * Possible arguments are:
 	 * - affiliate Affiliate
 	 * - game_date FrozenDate
@@ -41,7 +40,6 @@ class SingleGameScenario implements FixtureScenarioInterface {
 	 * - away_player bool|Person
 	 * - home_sub bool|Person
 	 * - away_sub bool|Person
-	 * @return \App\Model\Entity\Game
 	 */
 	public function load(...$args): Game {
 		switch (count($args)) {
@@ -105,7 +103,7 @@ class SingleGameScenario implements FixtureScenarioInterface {
 		} else {
 			$game = $gameFactory
 				->with('HomeTeam', ['division_id' => $division->id, 'track_attendance' => true])
-				->with('AwayTeam', ['division_id' => $division->id])
+				->with('AwayTeam', ['division_id' => $division->id, 'track_attendance' => true])
 				->persist();
 
 			$home = $game->home_team;

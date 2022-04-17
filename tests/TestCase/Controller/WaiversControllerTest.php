@@ -33,22 +33,22 @@ class WaiversControllerTest extends ControllerTestCase {
 
 		$waiver = WaiverFactory::make(['affiliate_id' => $affiliates[0]->id, 'expiry_type' => 'fixed_dates', 'start_month' => 1, 'start_day' => 1, 'end_month' => 12, 'end_day' => 31])
 			->persist();
-		$other_waiver = WaiverFactory::make(['affiliate_id' => $affiliates[1]->id, 'expiry_type' => 'never'])
+		$affiliate_waiver = WaiverFactory::make(['affiliate_id' => $affiliates[1]->id, 'expiry_type' => 'never'])
 			->persist();
 
 		// Admins are allowed to see the index
 		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'index'], $admin->id);
 		$this->assertResponseContains('/waivers/edit?waiver=' . $waiver->id);
 		$this->assertResponseContains('/waivers/delete?waiver=' . $waiver->id);
-		$this->assertResponseContains('/waivers/edit?waiver=' . $other_waiver->id);
-		$this->assertResponseContains('/waivers/delete?waiver=' . $other_waiver->id);
+		$this->assertResponseContains('/waivers/edit?waiver=' . $affiliate_waiver->id);
+		$this->assertResponseContains('/waivers/delete?waiver=' . $affiliate_waiver->id);
 
 		// Managers are allowed to see the index, but don't see waivers in other affiliates
 		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'index'], $manager->id);
 		$this->assertResponseContains('/waivers/edit?waiver=' . $waiver->id);
 		$this->assertResponseContains('/waivers/delete?waiver=' . $waiver->id);
-		$this->assertResponseNotContains('/waivers/edit?waiver=' . $other_waiver->id);
-		$this->assertResponseNotContains('/waivers/delete?waiver=' . $other_waiver->id);
+		$this->assertResponseNotContains('/waivers/edit?waiver=' . $affiliate_waiver->id);
+		$this->assertResponseNotContains('/waivers/delete?waiver=' . $affiliate_waiver->id);
 
 		// Others are not allowed to see the index
 		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'index'], $volunteer->id);
@@ -65,7 +65,7 @@ class WaiversControllerTest extends ControllerTestCase {
 
 		$waiver = WaiverFactory::make(['affiliate_id' => $affiliates[0]->id, 'expiry_type' => 'fixed_dates', 'start_month' => 1, 'start_day' => 1, 'end_month' => 12, 'end_day' => 31])
 			->persist();
-		$other_waiver = WaiverFactory::make(['affiliate_id' => $affiliates[1]->id, 'expiry_type' => 'never'])
+		$affiliate_waiver = WaiverFactory::make(['affiliate_id' => $affiliates[1]->id, 'expiry_type' => 'never'])
 			->persist();
 
 		// Admins are allowed to view waivers
@@ -73,9 +73,9 @@ class WaiversControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/waivers/edit?waiver=' . $waiver->id);
 		$this->assertResponseContains('/waivers/delete?waiver=' . $waiver->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'view', 'waiver' => $other_waiver->id], $admin->id);
-		$this->assertResponseContains('/waivers/edit?waiver=' . $other_waiver->id);
-		$this->assertResponseContains('/waivers/delete?waiver=' . $other_waiver->id);
+		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'view', 'waiver' => $affiliate_waiver->id], $admin->id);
+		$this->assertResponseContains('/waivers/edit?waiver=' . $affiliate_waiver->id);
+		$this->assertResponseContains('/waivers/delete?waiver=' . $affiliate_waiver->id);
 
 		// Managers are allowed to view waivers
 		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'view', 'waiver' => $waiver->id], $manager->id);
@@ -83,7 +83,7 @@ class WaiversControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/waivers/delete?waiver=' . $waiver->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'view', 'waiver' => $other_waiver->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'view', 'waiver' => $affiliate_waiver->id], $manager->id);
 
 		// Others are not allowed to view waivers
 		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'view', 'waiver' => $waiver->id], $volunteer->id);
@@ -118,12 +118,12 @@ class WaiversControllerTest extends ControllerTestCase {
 
 		$waiver = WaiverFactory::make(['affiliate_id' => $affiliates[0]->id, 'expiry_type' => 'fixed_dates', 'start_month' => 1, 'start_day' => 1, 'end_month' => 12, 'end_day' => 31])
 			->persist();
-		$other_waiver = WaiverFactory::make(['affiliate_id' => $affiliates[1]->id, 'expiry_type' => 'never'])
+		$affiliate_waiver = WaiverFactory::make(['affiliate_id' => $affiliates[1]->id, 'expiry_type' => 'never'])
 			->persist();
 
 		// Admins are allowed to edit waivers
 		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => $waiver->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => $other_waiver->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => $affiliate_waiver->id], $admin->id);
 	}
 
 	/**
@@ -135,14 +135,14 @@ class WaiversControllerTest extends ControllerTestCase {
 
 		$waiver = WaiverFactory::make(['affiliate_id' => $affiliates[0]->id, 'expiry_type' => 'fixed_dates', 'start_month' => 1, 'start_day' => 1, 'end_month' => 12, 'end_day' => 31])
 			->persist();
-		$other_waiver = WaiverFactory::make(['affiliate_id' => $affiliates[1]->id, 'expiry_type' => 'never'])
+		$affiliate_waiver = WaiverFactory::make(['affiliate_id' => $affiliates[1]->id, 'expiry_type' => 'never'])
 			->persist();
 
 		// Managers are allowed to edit waivers
 		$this->assertGetAsAccessOk(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => $waiver->id], $manager->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => $other_waiver->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Waivers', 'action' => 'edit', 'waiver' => $affiliate_waiver->id], $manager->id);
 	}
 
 	/**
@@ -200,7 +200,7 @@ class WaiversControllerTest extends ControllerTestCase {
 
 		$waiver = WaiverFactory::make(['affiliate_id' => $affiliates[0]->id, 'expiry_type' => 'fixed_dates', 'start_month' => 1, 'start_day' => 1, 'end_month' => 12, 'end_day' => 31])
 			->persist();
-		$other_waiver = WaiverFactory::make(['affiliate_id' => $affiliates[1]->id, 'expiry_type' => 'never'])
+		$affiliate_waiver = WaiverFactory::make(['affiliate_id' => $affiliates[1]->id, 'expiry_type' => 'never'])
 			->persist();
 
 		// Managers are allowed to delete waivers in their affiliate
@@ -209,7 +209,7 @@ class WaiversControllerTest extends ControllerTestCase {
 			'The waiver has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Waivers', 'action' => 'delete', 'waiver' => $other_waiver->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Waivers', 'action' => 'delete', 'waiver' => $affiliate_waiver->id],
 			$manager->id);
 	}
 

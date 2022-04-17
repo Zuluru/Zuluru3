@@ -21,6 +21,13 @@ class LeagueWithRostersScenario implements FixtureScenarioInterface {
 	public static $SUB = 3;
 	public static $INVITED = 4;
 
+	/**
+	 * Possible arguments are:
+	 * - affiliate Affiliate
+	 * - coordinator Person
+	 * - divisions int
+	 * - teams int
+	 */
 	public function load(...$args): League {
 		switch (count($args)) {
 			case 0:

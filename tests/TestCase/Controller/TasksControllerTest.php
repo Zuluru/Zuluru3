@@ -42,7 +42,7 @@ class TasksControllerTest extends ControllerTestCase {
 			->with('Categories', ['affiliate_id' => $affiliates[0]->id])
 			->persist();
 
-		$other_task = TaskFactory::make([
+		$affiliate_task = TaskFactory::make([
 			'person_id' => $admin->id
 		])
 			->with('Categories', ['affiliate_id' => $affiliates[1]->id])
@@ -56,9 +56,9 @@ class TasksControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/tasks/view?task=' . $assigned_task->id);
 		$this->assertResponseContains('/tasks/edit?task=' . $assigned_task->id);
 		$this->assertResponseContains('/tasks/delete?task=' . $assigned_task->id);
-		$this->assertResponseContains('/tasks/view?task=' . $other_task->id);
-		$this->assertResponseContains('/tasks/edit?task=' . $other_task->id);
-		$this->assertResponseContains('/tasks/delete?task=' . $other_task->id);
+		$this->assertResponseContains('/tasks/view?task=' . $affiliate_task->id);
+		$this->assertResponseContains('/tasks/edit?task=' . $affiliate_task->id);
+		$this->assertResponseContains('/tasks/delete?task=' . $affiliate_task->id);
 
 		// Managers are allowed to see the index
 		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'index'], $manager->id);
@@ -68,9 +68,9 @@ class TasksControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/tasks/view?task=' . $assigned_task->id);
 		$this->assertResponseContains('/tasks/edit?task=' . $assigned_task->id);
 		$this->assertResponseContains('/tasks/delete?task=' . $assigned_task->id);
-		$this->assertResponseNotContains('/tasks/view?task=' . $other_task->id);
-		$this->assertResponseNotContains('/tasks/edit?task=' . $other_task->id);
-		$this->assertResponseNotContains('/tasks/delete?task=' . $other_task->id);
+		$this->assertResponseNotContains('/tasks/view?task=' . $affiliate_task->id);
+		$this->assertResponseNotContains('/tasks/edit?task=' . $affiliate_task->id);
+		$this->assertResponseNotContains('/tasks/delete?task=' . $affiliate_task->id);
 
 		// Volunteers are allowed to see the index, but only view options, and only signup tasks
 		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'index'], $volunteer->id);
@@ -80,9 +80,9 @@ class TasksControllerTest extends ControllerTestCase {
 		$this->assertResponseNotContains('/tasks/view?task=' . $assigned_task->id);
 		$this->assertResponseNotContains('/tasks/edit?task=' . $assigned_task->id);
 		$this->assertResponseNotContains('/tasks/delete?task=' . $assigned_task->id);
-		$this->assertResponseNotContains('/tasks/view?task=' . $other_task->id);
-		$this->assertResponseNotContains('/tasks/edit?task=' . $other_task->id);
-		$this->assertResponseNotContains('/tasks/delete?task=' . $other_task->id);
+		$this->assertResponseNotContains('/tasks/view?task=' . $affiliate_task->id);
+		$this->assertResponseNotContains('/tasks/edit?task=' . $affiliate_task->id);
+		$this->assertResponseNotContains('/tasks/delete?task=' . $affiliate_task->id);
 
 		// Others are not allowed to see the index
 		$this->assertGetAsAccessDenied(['controller' => 'Tasks', 'action' => 'index'], $player->id);
@@ -109,7 +109,7 @@ class TasksControllerTest extends ControllerTestCase {
 			->with('Categories', ['affiliate_id' => $affiliates[0]->id])
 			->persist();
 
-		$other_task = TaskFactory::make([
+		$affiliate_task = TaskFactory::make([
 			'person_id' => $admin->id
 		])
 			->with('Categories', ['affiliate_id' => $affiliates[1]->id])
@@ -124,9 +124,9 @@ class TasksControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/tasks/edit?task=' . $assigned_task->id);
 		$this->assertResponseContains('/tasks/delete?task=' . $assigned_task->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'view', 'task' => $other_task->id], $admin->id);
-		$this->assertResponseContains('/tasks/edit?task=' . $other_task->id);
-		$this->assertResponseContains('/tasks/delete?task=' . $other_task->id);
+		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'view', 'task' => $affiliate_task->id], $admin->id);
+		$this->assertResponseContains('/tasks/edit?task=' . $affiliate_task->id);
+		$this->assertResponseContains('/tasks/delete?task=' . $affiliate_task->id);
 
 		// Managers are allowed to view tasks
 		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'view', 'task' => $task->id], $manager->id);
@@ -138,7 +138,7 @@ class TasksControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/tasks/delete?task=' . $assigned_task->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessRedirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $other_task->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $affiliate_task->id],
 			$manager->id, ['controller' => 'Tasks', 'action' => 'index'],
 			'Invalid task.');
 
@@ -208,7 +208,7 @@ class TasksControllerTest extends ControllerTestCase {
 			->with('Categories', ['affiliate_id' => $affiliates[0]->id])
 			->persist();
 
-		$other_task = TaskFactory::make([
+		$affiliate_task = TaskFactory::make([
 			'person_id' => $admin->id
 		])
 			->with('Categories', ['affiliate_id' => $affiliates[1]->id])
@@ -216,7 +216,7 @@ class TasksControllerTest extends ControllerTestCase {
 
 		// Admins are allowed to edit tasks
 		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'edit', 'task' => $task->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'edit', 'task' => $other_task->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'edit', 'task' => $affiliate_task->id], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -234,7 +234,7 @@ class TasksControllerTest extends ControllerTestCase {
 			->with('Categories', ['affiliate_id' => $affiliates[0]->id])
 			->persist();
 
-		$other_task = TaskFactory::make([
+		$affiliate_task = TaskFactory::make([
 			'person_id' => $admin->id
 		])
 			->with('Categories', ['affiliate_id' => $affiliates[1]->id])
@@ -244,7 +244,7 @@ class TasksControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessOk(['controller' => 'Tasks', 'action' => 'edit', 'task' => $task->id], $manager->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Tasks', 'action' => 'edit', 'task' => $other_task->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Tasks', 'action' => 'edit', 'task' => $affiliate_task->id], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -318,7 +318,7 @@ class TasksControllerTest extends ControllerTestCase {
 			->with('Categories', ['affiliate_id' => $affiliates[0]->id])
 			->persist();
 
-		$other_task = TaskFactory::make([
+		$affiliate_task = TaskFactory::make([
 			'person_id' => $admin->id
 		])
 			->with('Categories', ['affiliate_id' => $affiliates[1]->id])
@@ -330,7 +330,7 @@ class TasksControllerTest extends ControllerTestCase {
 			'The task has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Tasks', 'action' => 'delete', 'task' => $other_task->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Tasks', 'action' => 'delete', 'task' => $affiliate_task->id],
 			$manager->id);
 	}
 

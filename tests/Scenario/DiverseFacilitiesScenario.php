@@ -10,6 +10,10 @@ use CakephpFixtureFactories\Scenario\FixtureScenarioInterface;
 
 class DiverseFacilitiesScenario implements FixtureScenarioInterface {
 
+	/**
+	 * Possible arguments are:
+	 * - affiliate Affiliate
+	 */
 	public function load(...$args): Region {
 		switch (count($args)) {
 			case 0:

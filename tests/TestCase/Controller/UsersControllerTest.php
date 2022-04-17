@@ -1,16 +1,35 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use App\Model\Entity\User;
+use App\Test\Factory\AffiliateFactory;
+use App\Test\Factory\PersonFactory;
+use App\Test\Scenario\DiverseUsersScenario;
 use Cake\Auth\DefaultPasswordHasher;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 use Firebase\JWT\JWT;
 
 /**
  * App\Controller\UsersController Test Case
  */
 class UsersControllerTest extends ControllerTestCase {
+
+	use ScenarioAwareTrait;
+
+	/**
+	 * Fixtures
+	 *
+	 * @var array
+	 */
+	public $fixtures = [
+		'app.Countries',
+		'app.Groups',
+		'app.Provinces',
+		'app.Settings',
+	];
 
 	/**
 	 * Test login method
@@ -30,35 +49,34 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test create_account method as an admin
 	 */
 	public function testCreateAccountAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
 		// Admins are allowed to create account
-		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'create_account'], PERSON_ID_ADMIN);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'create_account'], $admin->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test create_account method as a manager
 	 */
 	public function testCreateAccountAsManager(): void {
+		[, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
 		// Managers are allowed to create account
-		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'create_account'], PERSON_ID_MANAGER);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'create_account'], $manager->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test create_account method as a coordinator
 	 */
 	public function testCreateAccountAsCoordinator(): void {
-		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
-			PERSON_ID_COORDINATOR, '/',
-			'You are already logged in!');
-	}
+		[, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
-	/**
-	 * Test create_account method as a captain
-	 */
-	public function testCreateAccountAsCaptain(): void {
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
-			PERSON_ID_CAPTAIN, '/',
+			$volunteer->id, '/',
 			'You are already logged in!');
 	}
 
@@ -66,17 +84,10 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test create_account method as a player
 	 */
 	public function testCreateAccountAsPlayer(): void {
-		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
-			PERSON_ID_PLAYER, '/',
-			'You are already logged in!');
-	}
+		[, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
-	/**
-	 * Test create_account method as someone else
-	 */
-	public function testCreateAccountAsVisitor(): void {
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
-			PERSON_ID_VISITOR, '/',
+			$player->id, '/',
 			'You are already logged in!');
 	}
 
@@ -108,6 +119,8 @@ class UsersControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		$affiliate = AffiliateFactory::make()->persist();
+
 		$this->assertPostAnonymousAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
 			[
 				'user_name' => 'test',
@@ -117,7 +130,7 @@ class UsersControllerTest extends ControllerTestCase {
 				'timestamp' => FrozenTime::now()->subMinute()->toUnixString(),
 				'person' => [
 					'groups' => ['_ids' => [GROUP_PLAYER]],
-					'affiliates' => [['id' => AFFILIATE_ID_CLUB]],
+					'affiliates' => [['id' => $affiliate->id]],
 					'first_name' => 'Test',
 					'last_name' => 'Test',
 					'publish_email' => true,
@@ -159,9 +172,10 @@ class UsersControllerTest extends ControllerTestCase {
 			],
 			'/', 'Flash/account_created', 'Flash.flash.0.element'
 		);
-		$this->assertEquals(USER_ID_NEW, $this->_requestSession->read('Auth.id'));
+		$this->assertNotNull($this->_requestSession->read('Auth.id'));
 
-		$user = TableRegistry::get('Users')->get(USER_ID_NEW, ['contain' => [
+		/** @var User $user */
+		$user = TableRegistry::getTableLocator()->get('Users')->get($this->_requestSession->read('Auth.id'), ['contain' => [
 			'People' => [
 				'Affiliates',
 				'Groups',
@@ -172,16 +186,15 @@ class UsersControllerTest extends ControllerTestCase {
 		$this->assertEquals('test', $user->user_name);
 		$this->assertEquals('test@example.com', $user->email);
 		$this->assertNotNull($user->person);
-		$this->assertEquals(PERSON_ID_NEW, $user->person->id);
 		$this->assertEquals('Test', $user->person->first_name);
 		$this->assertEquals('new', $user->person->status);
 		$this->assertEquals(true, $user->person->complete);
 		$this->assertEquals(FrozenDate::now(), $user->person->modified);
-		$this->assertEquals(1, count($user->person->affiliates));
-		$this->assertEquals(AFFILIATE_ID_CLUB, $user->person->affiliates[0]->id);
-		$this->assertEquals(1, count($user->person->groups));
+		$this->assertCount(1, $user->person->affiliates);
+		$this->assertEquals($affiliate->id, $user->person->affiliates[0]->id);
+		$this->assertCount(1, $user->person->groups);
 		$this->assertEquals(GROUP_PLAYER, $user->person->groups[0]->id);
-		$this->assertEquals(2, count($user->person->skills));
+		$this->assertCount(2, $user->person->skills);
 		$this->assertEquals('baseball', $user->person->skills[0]->sport);
 		$this->assertFalse($user->person->skills[0]->enabled);
 		$this->assertEquals('ultimate', $user->person->skills[1]->sport);
@@ -197,6 +210,8 @@ class UsersControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		$affiliate = AffiliateFactory::make()->persist();
+
 		$this->assertPostAnonymousAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
 			[
 				'user_name' => 'test',
@@ -206,7 +221,7 @@ class UsersControllerTest extends ControllerTestCase {
 				'timestamp' => FrozenTime::now()->subMinute()->toUnixString(),
 				'person' => [
 					'groups' => ['_ids' => [GROUP_PARENT]],
-					'affiliates' => [['id' => AFFILIATE_ID_CLUB]],
+					'affiliates' => [['id' => $affiliate->id]],
 					'first_name' => 'Test',
 					'last_name' => 'Test',
 					'publish_email' => true,
@@ -254,9 +269,10 @@ class UsersControllerTest extends ControllerTestCase {
 			],
 			'/', 'Flash/account_created', 'Flash.flash.0.element'
 		);
-		$this->assertEquals(USER_ID_NEW, $this->_requestSession->read('Auth.id'));
+		$this->assertNotNull($this->_requestSession->read('Auth.id'));
 
-		$user = TableRegistry::get('Users')->get(USER_ID_NEW, ['contain' => [
+		/** @var User $user */
+		$user = TableRegistry::getTableLocator()->get('Users')->get($this->_requestSession->read('Auth.id'), ['contain' => [
 			'People' => [
 				'Affiliates',
 				'Groups',
@@ -272,26 +288,25 @@ class UsersControllerTest extends ControllerTestCase {
 		$this->assertEquals('test', $user->user_name);
 		$this->assertEquals('test@example.com', $user->email);
 		$this->assertNotNull($user->person);
-		$this->assertEquals(PERSON_ID_NEW, $user->person->id);
 		$this->assertEquals('Test', $user->person->first_name);
 		$this->assertEquals('new', $user->person->status);
 		$this->assertEquals(true, $user->person->complete);
 		$this->assertEquals(FrozenDate::now(), $user->person->modified);
 		$this->assertEquals(1, count($user->person->affiliates));
-		$this->assertEquals(AFFILIATE_ID_CLUB, $user->person->affiliates[0]->id);
+		$this->assertEquals($affiliate->id, $user->person->affiliates[0]->id);
 		$this->assertEquals(1, count($user->person->groups));
 		$this->assertEquals(GROUP_PARENT, $user->person->groups[0]->id);
 		$this->assertEmpty(count($user->person->skills));
 
 		$this->assertEquals(1, count($user->person->relatives));
-		$this->assertEquals(PERSON_ID_NEW + 1, $user->person->relatives[0]->id);
+		$this->assertEquals($user->person->id + 1, $user->person->relatives[0]->id);
 		$this->assertTrue($user->person->relatives[0]->_joinData->approved);
 		$this->assertEquals('Young', $user->person->relatives[0]->first_name);
 		$this->assertEquals('new', $user->person->relatives[0]->status);
 		$this->assertEquals(true, $user->person->relatives[0]->complete);
 		$this->assertEquals(FrozenDate::now(), $user->person->relatives[0]->modified);
 		$this->assertEquals(1, count($user->person->relatives[0]->affiliates));
-		$this->assertEquals(AFFILIATE_ID_CLUB, $user->person->relatives[0]->affiliates[0]->id);
+		$this->assertEquals($affiliate->id, $user->person->relatives[0]->affiliates[0]->id);
 		$this->assertEquals(1, count($user->person->relatives[0]->groups));
 		$this->assertEquals(GROUP_PLAYER, $user->person->relatives[0]->groups[0]->id);
 		$this->assertEquals(2, count($user->person->relatives[0]->skills));
@@ -310,6 +325,8 @@ class UsersControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		$affiliate = AffiliateFactory::make()->persist();
+
 		$this->assertPostAnonymousAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
 			[
 				'user_name' => 'test',
@@ -319,7 +336,7 @@ class UsersControllerTest extends ControllerTestCase {
 				'timestamp' => FrozenTime::now()->subMinute()->toUnixString(),
 				'person' => [
 					'groups' => ['_ids' => [GROUP_PARENT]],
-					'affiliates' => [['id' => AFFILIATE_ID_CLUB]],
+					'affiliates' => [['id' => $affiliate->id]],
 					'first_name' => 'Test',
 					'last_name' => 'Test',
 					'publish_email' => true,
@@ -367,7 +384,7 @@ class UsersControllerTest extends ControllerTestCase {
 			],
 			['controller' => 'People', 'action' => 'add_relative'], 'Flash/account_created', 'Flash.flash.0.element'
 		);
-		$this->assertEquals(USER_ID_NEW, $this->_requestSession->read('Auth.id'));
+		$this->assertNotNull($this->_requestSession->read('Auth.id'));
 	}
 
 	/**
@@ -377,7 +394,7 @@ class UsersControllerTest extends ControllerTestCase {
 		$this->markTestIncomplete('Operation not implemented yet.');
 
 		// Admins are allowed to import
-		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'import'], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'import'], $admin->id);
 	}
 
 	/**
@@ -387,7 +404,7 @@ class UsersControllerTest extends ControllerTestCase {
 		$this->markTestIncomplete('Operation not implemented yet.');
 
 		// Managers are allowed to import
-		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'import'], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'import'], $manager->id);
 	}
 
 	/**
@@ -397,10 +414,8 @@ class UsersControllerTest extends ControllerTestCase {
 		$this->markTestIncomplete('Operation not implemented yet.');
 
 		// Others are not allowed to import
-		$this->assertGetAsAccessDenied(['controller' => 'Users', 'action' => 'import'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Users', 'action' => 'import'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Users', 'action' => 'import'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Users', 'action' => 'import'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Users', 'action' => 'import'], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Users', 'action' => 'import'], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Users', 'action' => 'import']);
 	}
 
@@ -408,6 +423,12 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test JSON API token generation
 	 */
 	public function testToken(): void {
+		$affiliate = AffiliateFactory::make()->persist();
+		$admin = PersonFactory::make()
+			->withGroup(GROUP_ADMIN)
+			->with('Users', ['password' => 'tetspassword'])
+			->with('Affiliates', [$affiliate])->persist();
+
 		// Lock the time so that the token has a reliable value.
 		// We have to use a time around now, because the underlying JWT library
 		// uses time(), not Cake's special classes.
@@ -415,7 +436,7 @@ class UsersControllerTest extends ControllerTestCase {
 
 		$this->configRequest(['headers' => ['CONTENT_TYPE' => 'application/json', 'ACCEPT' => 'application/json']]);
 		$this->assertPostAnonymousAccessOk(['controller' => 'Users', 'action' => 'token', '_ext' => 'json'],
-			json_encode(['user_name' => 'amy', 'password' => 'amypassword'])
+			json_encode(['user_name' => $admin->user->user_name, 'password' => 'tetspassword'])
 		);
 		$this->assertJson((string)$this->_response->getBody());
 		$response = json_decode((string)$this->_response->getBody(), true);
@@ -425,7 +446,7 @@ class UsersControllerTest extends ControllerTestCase {
 		$this->assertArrayHasKey('token', $response['data']);
 		$token_data = JWT::decode($response['data']['token'], \Cake\Utility\Security::getSalt(), ['HS256']);
 		$this->assertObjectHasAttribute('sub', $token_data);
-		$this->assertEquals(USER_ID_ADMIN, $token_data->sub);
+		$this->assertEquals($admin->user_id, $token_data->sub);
 		$this->assertObjectHasAttribute('exp', $token_data);
 		$this->assertEquals(FrozenTime::now()->addWeek()->toUnixString(), $token_data->exp);
 	}
@@ -434,54 +455,48 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test change_password method as an admin
 	 */
 	public function testChangePasswordAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
 		// Admins are allowed to change password
-		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'change_password'], PERSON_ID_ADMIN);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'change_password'], $admin->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test change_password method as a manager
 	 */
 	public function testChangePasswordAsManager(): void {
+		[, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
 		// Managers are allowed to change password
-		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'change_password'], PERSON_ID_MANAGER);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'change_password'], $manager->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test change_password method as a coordinator
 	 */
 	public function testChangePasswordAsCoordinator(): void {
-		// Coordinators are allowed to change password
-		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'change_password'], PERSON_ID_COORDINATOR);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		[, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
-	/**
-	 * Test change_password method as a captain
-	 */
-	public function testChangePasswordAsCaptain(): void {
-		// Captains are allowed to change password
-		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'change_password'], PERSON_ID_CAPTAIN);
-		$this->markTestIncomplete('Not implemented yet.');
+		// Coordinators are allowed to change password
+		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'change_password'], $volunteer->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test change_password method as a player
 	 */
 	public function testChangePasswordAsPlayer(): void {
-		// Players are allowed to change password
-		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'change_password'], PERSON_ID_PLAYER);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		[, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
-	/**
-	 * Test change_password method as someone else
-	 */
-	public function testChangePasswordAsVisitor(): void {
-		// Visitors are allowed to change password
-		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'change_password'], PERSON_ID_VISITOR);
-		$this->markTestIncomplete('Not implemented yet.');
+		// Players are allowed to change password
+		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'change_password'], $player->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -495,8 +510,10 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test reset_password method as an admin
 	 */
 	public function testResetPasswordAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
-			PERSON_ID_ADMIN, ['controller' => 'Users', 'action' => 'change_password'],
+			$admin->id, ['controller' => 'Users', 'action' => 'change_password'],
 			'You are already logged in. Use the change password form instead.');
 	}
 
@@ -504,8 +521,10 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test reset_password method as a manager
 	 */
 	public function testResetPasswordAsManager(): void {
+		[, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
-			PERSON_ID_MANAGER, ['controller' => 'Users', 'action' => 'change_password'],
+			$manager->id, ['controller' => 'Users', 'action' => 'change_password'],
 			'You are already logged in. Use the change password form instead.');
 	}
 
@@ -513,17 +532,10 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test reset_password method as a coordinator
 	 */
 	public function testResetPasswordAsCoordinator(): void {
-		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
-			PERSON_ID_COORDINATOR, ['controller' => 'Users', 'action' => 'change_password'],
-			'You are already logged in. Use the change password form instead.');
-	}
+		[, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
-	/**
-	 * Test reset_password method as a captain
-	 */
-	public function testResetPasswordAsCaptain(): void {
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
-			PERSON_ID_CAPTAIN, ['controller' => 'Users', 'action' => 'change_password'],
+			$volunteer->id, ['controller' => 'Users', 'action' => 'change_password'],
 			'You are already logged in. Use the change password form instead.');
 	}
 
@@ -531,17 +543,10 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test reset_password method as a player
 	 */
 	public function testResetPasswordAsPlayer(): void {
-		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
-			PERSON_ID_PLAYER, ['controller' => 'Users', 'action' => 'change_password'],
-			'You are already logged in. Use the change password form instead.');
-	}
+		[, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
-	/**
-	 * Test reset_password method as someone else
-	 */
-	public function testResetPasswordAsVisitor(): void {
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
-			PERSON_ID_VISITOR, ['controller' => 'Users', 'action' => 'change_password'],
+			$player->id, ['controller' => 'Users', 'action' => 'change_password'],
 			'You are already logged in. Use the change password form instead.');
 	}
 
@@ -550,7 +555,8 @@ class UsersControllerTest extends ControllerTestCase {
 	 */
 	public function testResetPasswordAsAnonymous(): void {
 		$this->assertGetAnonymousAccessOk(['controller' => 'Users', 'action' => 'reset_password']);
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 }

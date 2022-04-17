@@ -2099,7 +2099,6 @@ class PeopleControllerTest extends ControllerTestCase {
 		$affiliates = $admin->affiliates;
 
 		// Put the player on a team
-		/** @var \App\Model\Entity\Game $other_game */
 		$this->loadFixtureScenario(SingleGameScenario::class, [
 			'affiliate' => $affiliates[0],
 			'home_player' => $player,
@@ -2143,7 +2142,6 @@ class PeopleControllerTest extends ControllerTestCase {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
 		// Put the player on a team
-		/** @var \App\Model\Entity\Game $other_game */
 		$this->loadFixtureScenario(SingleGameScenario::class, [
 			'affiliate' => $admin->affiliates[0],
 			'coordinator' => $volunteer,

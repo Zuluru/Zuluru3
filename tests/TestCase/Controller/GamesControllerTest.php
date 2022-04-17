@@ -74,8 +74,8 @@ class GamesControllerTest extends ControllerTestCase {
 		$home = $game->home_team;
 		$away = $game->away_team;
 
-		/** @var \App\Model\Entity\Game $other_game */
-		$other_game = $this->loadFixtureScenario(SingleGameScenario::class, [
+		/** @var \App\Model\Entity\Game $affiliate_game */
+		$affiliate_game = $this->loadFixtureScenario(SingleGameScenario::class, [
 			'affiliate' => $affiliates[1],
 			'home_captain' => true,
 		]);
@@ -103,13 +103,13 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertResponseRegExp('#<td>Away Score</td>\s*<td>12</td>\s*<td>12</td>#ms');
 		$this->assertResponseRegExp('#<td>Defaulted\?</td>\s*<td>no</td>\s*<td>no</td>#ms');
 
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $other_game->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $affiliate_game->id], $admin->id);
 		$this->assertResponseContains('chance to win');
 		$this->assertResponseContains('Captain Emails');
 		$this->assertResponseContains('Ratings Table');
-		$this->assertResponseContains('/games/edit?game=' . $other_game->id);
-		$this->assertResponseContains('/games/delete?game=' . $other_game->id);
-		$this->assertResponseNotContains('/games/stats?game=' . $other_game->id);
+		$this->assertResponseContains('/games/edit?game=' . $affiliate_game->id);
+		$this->assertResponseContains('/games/delete?game=' . $affiliate_game->id);
+		$this->assertResponseNotContains('/games/stats?game=' . $affiliate_game->id);
 
 		// Managers are allowed to view games; the game view won't include a team ID, so no attendance link
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $manager->id);
@@ -121,11 +121,11 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/games/delete?game=' . $game->id);
 
 		// But are not allowed to edit ones in other affiliates
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $other_game->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $affiliate_game->id], $manager->id);
 		$this->assertResponseNotContains('Captain Emails');
 		$this->assertResponseContains('Ratings Table');
-		$this->assertResponseNotContains('/games/edit?game=' . $other_game->id);
-		$this->assertResponseNotContains('/games/delete?game=' . $other_game->id);
+		$this->assertResponseNotContains('/games/edit?game=' . $affiliate_game->id);
+		$this->assertResponseNotContains('/games/delete?game=' . $affiliate_game->id);
 
 		// Coordinators are allowed to view games
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $volunteer->id);
@@ -411,13 +411,13 @@ class GamesControllerTest extends ControllerTestCase {
 		// Managers are allowed to edit games
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit', 'game' => $game->id], $manager->id);
 
-		/** @var \App\Model\Entity\Game $other_game */
-		$other_game = $this->loadFixtureScenario(SingleGameScenario::class, [
+		/** @var \App\Model\Entity\Game $affiliate_game */
+		$affiliate_game = $this->loadFixtureScenario(SingleGameScenario::class, [
 			'affiliate' => $affiliates[1],
 		]);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', 'game' => $other_game->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', 'game' => $affiliate_game->id], $manager->id);
 	}
 
 	/**
@@ -1585,12 +1585,12 @@ class GamesControllerTest extends ControllerTestCase {
 			'The game has been deleted.');
 
 		// But not ones in other affiliates
-		/** @var \App\Model\Entity\Game $other_game */
-		$other_game = $this->loadFixtureScenario(SingleGameScenario::class, [
+		/** @var \App\Model\Entity\Game $affiliate_game */
+		$affiliate_game = $this->loadFixtureScenario(SingleGameScenario::class, [
 			'affiliate' => $affiliates[1],
 		]);
 
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete', 'game' => $other_game->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete', 'game' => $affiliate_game->id],
 			$manager->id);
 	}
 

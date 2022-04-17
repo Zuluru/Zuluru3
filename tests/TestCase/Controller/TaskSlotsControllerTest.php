@@ -38,7 +38,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 			)
 			->persist();
 
-		$other_slot = TaskSlotFactory::make()
+		$affiliate_slot = TaskSlotFactory::make()
 			->with('Tasks',
 				TaskFactory::make([
 					'person_id' => $admin->id
@@ -51,9 +51,9 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/task_slots/edit?slot=' . $slot->id);
 		$this->assertResponseContains('/task_slots/delete?slot=' . $slot->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => $other_slot->id], $admin->id);
-		$this->assertResponseContains('/task_slots/edit?slot=' . $other_slot->id);
-		$this->assertResponseContains('/task_slots/delete?slot=' . $other_slot->id);
+		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => $affiliate_slot->id], $admin->id);
+		$this->assertResponseContains('/task_slots/edit?slot=' . $affiliate_slot->id);
+		$this->assertResponseContains('/task_slots/delete?slot=' . $affiliate_slot->id);
 
 		// Managers are allowed to view task slots
 		$this->assertGetAsAccessOk(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => $slot->id], $manager->id);
@@ -61,7 +61,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/task_slots/delete?slot=' . $slot->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => $other_slot->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => $affiliate_slot->id], $manager->id);
 
 		// Others are not allowed to view task slots
 		$this->assertGetAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'view', 'slot' => $slot->id], $volunteer->id);
@@ -244,7 +244,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 			)
 			->persist();
 
-		$other_slot = TaskSlotFactory::make()
+		$affiliate_slot = TaskSlotFactory::make()
 			->with('Tasks',
 				TaskFactory::make([
 					'person_id' => $admin->id
@@ -258,7 +258,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 			'The task slot has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'delete', 'slot' => $other_slot->id],
+		$this->assertPostAsAccessDenied(['controller' => 'TaskSlots', 'action' => 'delete', 'slot' => $affiliate_slot->id],
 			$manager->id);
 	}
 

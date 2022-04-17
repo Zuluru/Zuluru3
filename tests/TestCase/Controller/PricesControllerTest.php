@@ -82,8 +82,8 @@ class PricesControllerTest extends ControllerTestCase {
 			->with('Prices[2]')
 			->persist();
 
-		/** @var Event $other_event */
-		$other_event = EventFactory::make(['affiliate_id' => $affiliates[1]->id])
+		/** @var Event $affiliate_event */
+		$affiliate_event = EventFactory::make(['affiliate_id' => $affiliates[1]->id])
 			->with('Prices[2]')
 			->persist();
 
@@ -93,7 +93,7 @@ class PricesControllerTest extends ControllerTestCase {
 			'The price point has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Prices', 'action' => 'delete', 'price' => $other_event->prices[0]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Prices', 'action' => 'delete', 'price' => $affiliate_event->prices[0]->id],
 			$manager->id);
 	}
 

@@ -243,11 +243,11 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$membership = $registrations[DiverseRegistrationsScenario::$MEMBERSHIP];
 		$individual = $registrations[DiverseRegistrationsScenario::$INDIVIDUAL];
 
-		$other_registrations = $this->loadFixtureScenario(DiverseRegistrationsScenario::class, [
+		$affiliate_registrations = $this->loadFixtureScenario(DiverseRegistrationsScenario::class, [
 			'affiliate' => $admin->affiliates[1],
 			'captain' => $player,
 		]);
-		$other_team = $other_registrations[DiverseRegistrationsScenario::$TEAM];
+		$affiliate_team = $affiliate_registrations[DiverseRegistrationsScenario::$TEAM];
 
 		// Admins are allowed to view registrations, with full edit permissions
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'view', 'registration' => $membership->id], $admin->id);
@@ -259,9 +259,9 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/registrations/edit?registration=' . $individual->id);
 		$this->assertResponseContains('/registrations/unregister?registration=' . $individual->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'view', 'registration' => $other_team->id], $admin->id);
-		$this->assertResponseContains('/registrations/edit?registration=' . $other_team->id);
-		$this->assertResponseContains('/registrations/unregister?registration=' . $other_team->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'view', 'registration' => $affiliate_team->id], $admin->id);
+		$this->assertResponseContains('/registrations/edit?registration=' . $affiliate_team->id);
+		$this->assertResponseContains('/registrations/unregister?registration=' . $affiliate_team->id);
 
 		// Managers are allowed to view registrations
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'view', 'registration' => $membership->id], $manager->id);
@@ -269,7 +269,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$this->assertResponseNotContains('/registrations/unregister?registration=' . $membership->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'view', 'registration' => $other_team->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'view', 'registration' => $affiliate_team->id], $manager->id);
 
 		// Others are not allowed to view registrations
 		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'view', 'registration' => $individual->id], $volunteer->id);
@@ -1041,7 +1041,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 			'captain' => $player,
 		]);
 
-		$other_registrations = $this->loadFixtureScenario(DiverseRegistrationsScenario::class, [
+		$affiliate_registrations = $this->loadFixtureScenario(DiverseRegistrationsScenario::class, [
 			'affiliate' => $admin->affiliates[1],
 			'player' => $player,
 		]);
@@ -1049,7 +1049,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		// Admins are allowed to edit registrations, with full edit permissions
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'edit', 'registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id], $admin->id);
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'edit', 'registration' => $registrations[DiverseRegistrationsScenario::$TEAM]->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'edit', 'registration' => $other_registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'edit', 'registration' => $affiliate_registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id], $admin->id);
 	}
 
 	/**
@@ -1063,7 +1063,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 			'captain' => $player,
 		]);
 
-		$other_registrations = $this->loadFixtureScenario(DiverseRegistrationsScenario::class, [
+		$affiliate_registrations = $this->loadFixtureScenario(DiverseRegistrationsScenario::class, [
 			'affiliate' => $admin->affiliates[1],
 			'player' => $player,
 		]);
@@ -1073,7 +1073,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'edit', 'registration' => $registrations[DiverseRegistrationsScenario::$TEAM]->id], $manager->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'edit', 'registration' => $other_registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'edit', 'registration' => $affiliate_registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id], $manager->id);
 	}
 
 	/**

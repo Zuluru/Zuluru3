@@ -154,7 +154,7 @@ class FieldsControllerTest extends ControllerTestCase {
 		$affiliates = $admin->affiliates;
 
 		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
-		$other_region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[1]]);
+		$affiliate_region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[1]]);
 
 		// Managers are allowed to open fields
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Fields', 'action' => 'open', 'field' => $region->facilities[0]->fields[3]->id],
@@ -162,7 +162,7 @@ class FieldsControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/fields\\/close?field=' . $region->facilities[0]->fields[3]->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Fields', 'action' => 'open', 'field' => $other_region->facilities[0]->fields[3]->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Fields', 'action' => 'open', 'field' => $affiliate_region->facilities[0]->fields[3]->id],
 			$manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -210,7 +210,7 @@ class FieldsControllerTest extends ControllerTestCase {
 		$affiliates = $admin->affiliates;
 
 		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
-		$other_region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[1]]);
+		$affiliate_region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[1]]);
 
 		// Managers are allowed to close fields
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Fields', 'action' => 'close', 'field' => $region->facilities[0]->fields[0]->id],
@@ -218,7 +218,7 @@ class FieldsControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/fields\\/open?field=' . $region->facilities[0]->fields[0]->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Fields', 'action' => 'close', 'field' => $other_region->facilities[0]->fields[0]->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Fields', 'action' => 'close', 'field' => $affiliate_region->facilities[0]->fields[0]->id],
 			$manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -283,7 +283,7 @@ class FieldsControllerTest extends ControllerTestCase {
 		$affiliates = $admin->affiliates;
 
 		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
-		$other_region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[1]]);
+		$affiliate_region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[1]]);
 
 		// Managers are allowed to delete fields in their affiliate
 		$this->assertPostAsAccessRedirect(['controller' => 'Fields', 'action' => 'delete', 'field' => $region->facilities[1]->fields[0]->id],
@@ -291,7 +291,7 @@ class FieldsControllerTest extends ControllerTestCase {
 			'The field has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Fields', 'action' => 'delete', 'field' => $other_region->facilities[1]->fields[0]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Fields', 'action' => 'delete', 'field' => $affiliate_region->facilities[1]->fields[0]->id],
 			$manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');

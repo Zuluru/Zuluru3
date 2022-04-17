@@ -9,6 +9,7 @@ use App\Test\Factory\DivisionsDayFactory;
 use App\Test\Factory\DivisionsPersonFactory;
 use App\Test\Factory\FranchiseFactory;
 use App\Test\Factory\FranchisesTeamFactory;
+use App\Test\Factory\GameFactory;
 use App\Test\Factory\GameSlotFactory;
 use App\Test\Factory\LeagueFactory;
 use App\Test\Factory\PoolFactory;
@@ -23,6 +24,15 @@ use CakephpFixtureFactories\Scenario\FixtureScenarioInterface;
 
 class LeagueWithFullScheduleScenario implements FixtureScenarioInterface {
 
+	/**
+	 * Possible arguments are:
+	 * - affiliate Affiliate
+	 * - coordinator Person
+	 * - divisions int
+	 * - scores bool
+	 * - spirit bool
+	 * - playoffs bool
+	 */
 	public function load(...$args): League {
 		switch (count($args)) {
 			case 0:
@@ -82,164 +92,181 @@ class LeagueWithFullScheduleScenario implements FixtureScenarioInterface {
 				DivisionsPersonFactory::make(['person_id' => $args['coordinator']->id, 'division_id' => $division->id])->persist();
 			}
 
+			$division->games = [];
+
 			// Week 1
-			$game_slot = GameSlotFactory::make(['game_date' => $open, 'assigned' => true])
-				->with('Fields', $fields[$key * 2])
-				->with('Games', [
-					'division_id' => $division->id, 'home_team_id' => $red->id, 'away_team_id' => $yellow->id,
-					'home_score' => 17, 'away_score' => 5, 'rating_points' => 13, 'approved_by_id' => APPROVAL_AUTOMATIC,
-				])
+			$game = $division->games[] = GameFactory::make([
+				'division_id' => $division->id, 'home_team_id' => $red->id, 'away_team_id' => $yellow->id,
+				'home_score' => 17, 'away_score' => 5, 'rating_points' => 13, 'approved_by_id' => APPROVAL_AUTOMATIC,
+			])
+				->with('GameSlots', GameSlotFactory::make(['game_date' => $open, 'assigned' => true])
+					->with('Fields', $fields[$key * 2])
+				)
 				->persist();
+
 			if ($args['spirit']) {
 				SpiritEntryFactory::make([
-					['created_team_id' => $red->id, 'team_id' => $yellow->id, 'game_id' => $game_slot->games[0]->id],
-					['created_team_id' => $yellow->id, 'team_id' => $red->id, 'game_id' => $game_slot->games[0]->id, 'q3' => 3, 'q5' => 3],
+					['created_team_id' => $red->id, 'team_id' => $yellow->id, 'game_id' => $game->id],
+					['created_team_id' => $yellow->id, 'team_id' => $red->id, 'game_id' => $game->id, 'q3' => 3, 'q5' => 3],
 				])->persist();
 			}
 
-			GameSlotFactory::make(['game_date' => $open, 'assigned' => true])
-				->with('Fields', $fields[$key * 2 + 1])
-				->with('Games', [
-					'division_id' => $division->id, 'home_team_id' => $green->id, 'away_team_id' => $blue->id,
-					'status' => 'cancelled',
-				])
+			$division->games[] = GameFactory::make([
+				'division_id' => $division->id, 'home_team_id' => $green->id, 'away_team_id' => $blue->id,
+				'status' => 'cancelled',
+			])
+				->with('GameSlots', GameSlotFactory::make(['game_date' => $open, 'assigned' => true])
+					->with('Fields', $fields[$key * 2 + 1])
+				)
 				->persist();
-			GameSlotFactory::make(['game_date' => $open, 'game_start' => $late_start, 'game_end' => $late_end, 'assigned' => true])
-				->with('Fields', $fields[$key * 2])
-				->with('Games', [
-					'division_id' => $division->id, 'home_team_id' => $orange->id, 'away_team_id' => $purple->id,
-					'home_score' => 12, 'away_score' => 17, 'rating_points' => 10, 'approved_by_id' => APPROVAL_AUTOMATIC,
-				])
+
+			$division->games[] = GameFactory::make([
+				'division_id' => $division->id, 'home_team_id' => $orange->id, 'away_team_id' => $purple->id,
+				'home_score' => 12, 'away_score' => 17, 'rating_points' => 10, 'approved_by_id' => APPROVAL_AUTOMATIC,
+			])
+				->with('GameSlots', GameSlotFactory::make(['game_date' => $open, 'game_start' => $late_start, 'game_end' => $late_end, 'assigned' => true])
+					->with('Fields', $fields[$key * 2])
+				)
 				->persist();
-			GameSlotFactory::make(['game_date' => $open, 'game_start' => $late_start, 'game_end' => $late_end, 'assigned' => true])
-				->with('Fields', $fields[$key * 2 + 1])
-				->with('Games', [
-					'division_id' => $division->id, 'home_team_id' => $black->id, 'away_team_id' => $white->id,
-					'home_score' => 15, 'away_score' => 15, 'rating_points' => 0, 'approved_by_id' => APPROVAL_AUTOMATIC,
-				])
+
+			$division->games[] = GameFactory::make([
+				'division_id' => $division->id, 'home_team_id' => $black->id, 'away_team_id' => $white->id,
+				'home_score' => 15, 'away_score' => 15, 'rating_points' => 0, 'approved_by_id' => APPROVAL_AUTOMATIC,
+			])
+				->with('GameSlots', GameSlotFactory::make(['game_date' => $open, 'game_start' => $late_start, 'game_end' => $late_end, 'assigned' => true])
+					->with('Fields', $fields[$key * 2 + 1])
+				)
 				->persist();
 
 			// Week 2
-			GameSlotFactory::make(['game_date' => $open->addWeek(), 'assigned' => true])
-				->with('Fields', $fields[$key * 2])
-				->with('Games', [
-					'division_id' => $division->id, 'home_team_id' => $red->id, 'away_team_id' => $green->id,
-					'status' => 'home_default', 'home_score' => 0, 'away_score' => 6, 'approved_by_id' => APPROVAL_AUTOMATIC_HOME,
-				])
+			$division->games[] = GameFactory::make([
+				'division_id' => $division->id, 'home_team_id' => $red->id, 'away_team_id' => $green->id,
+				'status' => 'home_default', 'home_score' => 0, 'away_score' => 6, 'approved_by_id' => APPROVAL_AUTOMATIC_HOME,
+			])
+				->with('GameSlots', GameSlotFactory::make(['game_date' => $open->addWeek(), 'assigned' => true])
+					->with('Fields', $fields[$key * 2])
+				)
 				->persist();
-			GameSlotFactory::make(['game_date' => $open->addWeek(), 'assigned' => true])
-				->with('Fields', $fields[$key * 2 + 1])
-				->with('Games', [
-					'division_id' => $division->id, 'home_team_id' => $yellow->id, 'away_team_id' => $blue->id,
-					'status' => 'away_default', 'home_score' => 6, 'away_score' => 0, 'approved_by_id' => APPROVAL_AUTOMATIC_AWAY,
-				])
+
+			$division->games[] = GameFactory::make([
+				'division_id' => $division->id, 'home_team_id' => $yellow->id, 'away_team_id' => $blue->id,
+				'status' => 'away_default', 'home_score' => 6, 'away_score' => 0, 'approved_by_id' => APPROVAL_AUTOMATIC_AWAY,
+			])
+				->with('GameSlots', GameSlotFactory::make(['game_date' => $open->addWeek(), 'assigned' => true])
+					->with('Fields', $fields[$key * 2 + 1])
+				)
 				->persist();
-			GameSlotFactory::make(['game_date' => $open->addWeek(), 'game_start' => $late_start, 'game_end' => $late_end, 'assigned' => true])
-				->with('Fields', $fields[$key * 2])
-				->with('Games', [
-					'division_id' => $division->id, 'home_team_id' => $orange->id, 'away_team_id' => $white->id,
-					'home_score' => 17, 'away_score' => 12, 'rating_points' => 10, 'approved_by_id' => APPROVAL_AUTOMATIC,
-				])
+
+			$division->games[] = GameFactory::make([
+				'division_id' => $division->id, 'home_team_id' => $orange->id, 'away_team_id' => $white->id,
+				'home_score' => 17, 'away_score' => 12, 'rating_points' => 10, 'approved_by_id' => APPROVAL_AUTOMATIC,
+			])
+				->with('GameSlots', GameSlotFactory::make(['game_date' => $open->addWeek(), 'game_start' => $late_start, 'game_end' => $late_end, 'assigned' => true])
+					->with('Fields', $fields[$key * 2])
+				)
 				->persist();
-			GameSlotFactory::make(['game_date' => $open->addWeek(), 'game_start' => $late_start, 'game_end' => $late_end, 'assigned' => true])
-				->with('Fields', $fields[$key * 2 + 1])
-				->with('Games', [
-					'division_id' => $division->id, 'home_team_id' => $black->id, 'away_team_id' => $purple->id,
-					'home_score' => 15, 'away_score' => 15, 'rating_points' => 0, 'approved_by_id' => APPROVAL_AUTOMATIC,
-				])
+
+			$division->games[] = GameFactory::make([
+				'division_id' => $division->id, 'home_team_id' => $black->id, 'away_team_id' => $purple->id,
+				'home_score' => 15, 'away_score' => 15, 'rating_points' => 0, 'approved_by_id' => APPROVAL_AUTOMATIC,
+			])
+				->with('GameSlots', GameSlotFactory::make(['game_date' => $open->addWeek(), 'game_start' => $late_start, 'game_end' => $late_end, 'assigned' => true])
+					->with('Fields', $fields[$key * 2 + 1])
+				)
 				->persist();
 
 			// Week 3
-			/** @var \App\Model\Entity\GameSlot $game_slot */
-			$game_slot = GameSlotFactory::make(['game_date' => $open->addWeeks(2), 'assigned' => true])
-				->with('Fields', $fields[$key * 2])
-				->with('Games', [
-					'division_id' => $division->id, 'home_team_id' => $red->id, 'away_team_id' => $blue->id,
-				])
+			$game = $division->games[] = GameFactory::make([
+				'division_id' => $division->id, 'home_team_id' => $red->id, 'away_team_id' => $blue->id,
+			])
+				->with('GameSlots', GameSlotFactory::make(['game_date' => $open->addWeeks(2), 'assigned' => true])
+					->with('Fields', $fields[$key * 2])
+				)
 				->persist();
+
 			if ($args['scores']) {
 				ScoreEntryFactory::make([
-					['team_id' => $red->id, 'game_id' => $game_slot->games[0]->id, 'score_for' => 17, 'score_against' => 12],
-					['team_id' => $blue->id, 'game_id' => $game_slot->games[0]->id, 'score_for' => 12, 'score_against' => 17],
+					['team_id' => $red->id, 'game_id' => $game->id, 'score_for' => 17, 'score_against' => 12],
+					['team_id' => $blue->id, 'game_id' => $game->id, 'score_for' => 12, 'score_against' => 17],
 				])->persist();
 			}
 			if ($args['spirit']) {
 				SpiritEntryFactory::make([
-					['created_team_id' => $red->id, 'team_id' => $blue->id, 'game_id' => $game_slot->games[0]->id],
-					['created_team_id' => $blue->id, 'team_id' => $red->id, 'game_id' => $game_slot->games[0]->id, 'q3' => 3, 'q5' => 3],
+					['created_team_id' => $red->id, 'team_id' => $blue->id, 'game_id' => $game->id],
+					['created_team_id' => $blue->id, 'team_id' => $red->id, 'game_id' => $game->id, 'q3' => 3, 'q5' => 3],
 				])->persist();
 			}
 
-			/** @var \App\Model\Entity\GameSlot $game_slot */
-			$game_slot = GameSlotFactory::make(['game_date' => $open->addWeeks(2), 'assigned' => true])
-				->with('Fields', $fields[$key * 2 + 1])
-				->with('Games', [
-					'division_id' => $division->id, 'home_team_id' => $green->id, 'away_team_id' => $yellow->id,
-				])
+			$game = $division->games[] = GameFactory::make([
+				'division_id' => $division->id, 'home_team_id' => $green->id, 'away_team_id' => $yellow->id,
+			])
+				->with('GameSlots', GameSlotFactory::make(['game_date' => $open->addWeeks(2), 'assigned' => true])
+					->with('Fields', $fields[$key * 2 + 1])
+				)
 				->persist();
+
 			if ($args['scores']) {
 				ScoreEntryFactory::make([
-					['team_id' => $green->id, 'game_id' => $game_slot->games[0]->id, 'score_for' => 15, 'score_against' => 14],
-					['team_id' => $yellow->id, 'game_id' => $game_slot->games[0]->id, 'score_for' => 13, 'score_against' => 15],
+					['team_id' => $green->id, 'game_id' => $game->id, 'score_for' => 15, 'score_against' => 14],
+					['team_id' => $yellow->id, 'game_id' => $game->id, 'score_for' => 13, 'score_against' => 15],
 				])->persist();
 			}
 			if ($args['spirit']) {
 				SpiritEntryFactory::make([
-					['created_team_id' => $green->id, 'team_id' => $yellow->id, 'game_id' => $game_slot->games[0]->id, 'q1' => 1, 'q5' => 1],
-					['created_team_id' => $yellow->id, 'team_id' => $green->id, 'game_id' => $game_slot->games[0]->id, 'q3' => 1, 'q4' => 1],
+					['created_team_id' => $green->id, 'team_id' => $yellow->id, 'game_id' => $game->id, 'q1' => 1, 'q5' => 1],
+					['created_team_id' => $yellow->id, 'team_id' => $green->id, 'game_id' => $game->id, 'q3' => 1, 'q4' => 1],
 				])->persist();
 			}
 
-			GameSlotFactory::make(['game_date' => $open->addWeeks(2), 'game_start' => $late_start, 'game_end' => $late_end, 'assigned' => true])
-				->with('Fields', $fields[$key * 2])
-				->with('Games', [
-					'division_id' => $division->id, 'home_team_id' => $white->id, 'away_team_id' => $purple->id,
-				])
+			$division->games[] = GameFactory::make([
+				'division_id' => $division->id, 'home_team_id' => $white->id, 'away_team_id' => $purple->id,
+			])
+				->with('GameSlots', GameSlotFactory::make(['game_date' => $open->addWeeks(2), 'game_start' => $late_start, 'game_end' => $late_end, 'assigned' => true])
+					->with('Fields', $fields[$key * 2])
+				)
 				->persist();
-			GameSlotFactory::make(['game_date' => $open->addWeeks(2), 'game_start' => $late_start, 'game_end' => $late_end, 'assigned' => true])
-				->with('Fields', $fields[$key * 2 + 1])
-				->with('Games', [
-					'division_id' => $division->id, 'home_team_id' => $black->id, 'away_team_id' => $orange->id,
-				])
+
+			$division->games[] = GameFactory::make([
+				'division_id' => $division->id, 'home_team_id' => $black->id, 'away_team_id' => $orange->id,
+			])
+				->with('GameSlots', GameSlotFactory::make(['game_date' => $open->addWeeks(2), 'game_start' => $late_start, 'game_end' => $late_end, 'assigned' => true])
+					->with('Fields', $fields[$key * 2 + 1])
+				)
 				->persist();
 
 			// Week 4
-			/** @var \App\Model\Entity\GameSlot $game_slot */
-			GameSlotFactory::make(['game_date' => $open->addWeeks(3), 'assigned' => true])
-				->with('Fields', $fields[$key * 2])
-				->with('Games', [
-					'division_id' => $division->id, 'home_team_id' => $red->id, 'away_team_id' => $green->id, 'published' => false,
-				])
+			$division->games[] = GameFactory::make([
+				'division_id' => $division->id, 'home_team_id' => $red->id, 'away_team_id' => $green->id, 'published' => false,
+			])
+				->with('GameSlots', GameSlotFactory::make(['game_date' => $open->addWeeks(3), 'assigned' => true])
+					->with('Fields', $fields[$key * 2])
+				)
 				->persist();
-			if ($args['scores']) {
-				ScoreEntryFactory::make([
-					['team_id' => $red->id, 'game_id' => $game_slot->games[0]->id, 'score_for' => 5, 'score_against' => 4],
-				])->persist();
-			}
-			if ($args['spirit']) {
-				SpiritEntryFactory::make([
-					['created_team_id' => $red->id, 'team_id' => $green->id, 'game_id' => $game_slot->games[0]->id, 'q3' => 1, 'q4' => 1],
-				])->persist();
-			}
-			GameSlotFactory::make(['game_date' => $open->addWeeks(3), 'assigned' => true])
-				->with('Fields', $fields[$key * 2 + 1])
-				->with('Games', [
-					'division_id' => $division->id, 'home_team_id' => $yellow->id, 'away_team_id' => $blue->id, 'published' => false,
-				])
+
+			$division->games[] = GameFactory::make([
+				'division_id' => $division->id, 'home_team_id' => $yellow->id, 'away_team_id' => $blue->id, 'published' => false,
+			])
+				->with('GameSlots', GameSlotFactory::make(['game_date' => $open->addWeeks(3), 'assigned' => true])
+					->with('Fields', $fields[$key * 2 + 1])
+				)
 				->persist();
+
 			// Note: Adding more Monday games will likely break all the scheduling tests due to changes in standings and home/away ratios
 			/*
-			GameSlotFactory::make(['game_date' => $open->addWeeks(3), 'game_start' => $late_start, 'game_end' => $late_end, 'assigned' => true])
-				->with('Fields', $fields[$key * 2])
-				->with('Games', [
-					'division_id' => $division->id, 'home_team_id' => $white->id, 'away_team_id' => $black->id,
-				])
+			$division->games[] = GameFactory::make([
+				'division_id' => $division->id, 'home_team_id' => $white->id, 'away_team_id' => $black->id,
+			])
+				->with('GameSlots', GameSlotFactory::make(['game_date' => $open->addWeeks(3), 'game_start' => $late_start, 'game_end' => $late_end, 'assigned' => true])
+					->with('Fields', $fields[$key * 2])
+				)
 				->persist();
-			GameSlotFactory::make(['game_date' => $open->addWeeks(3), 'game_start' => $late_start, 'game_end' => $late_end, 'assigned' => true])
-				->with('Fields', $fields[$key * 2 + 1])
-				->with('Games', [
-					'division_id' => $division->id, 'home_team_id' => $purple->id, 'away_team_id' => $orange->id,
-				])
+
+			$division->games[] = GameFactory::make([
+				'division_id' => $division->id, 'home_team_id' => $purple->id, 'away_team_id' => $orange->id,
+			])
+				->with('GameSlots', GameSlotFactory::make(['game_date' => $open->addWeeks(3), 'game_start' => $late_start, 'game_end' => $late_end, 'assigned' => true])
+					->with('Fields', $fields[$key * 2 + 1])
+				)
 				->persist();
 			*/
 
@@ -284,17 +311,18 @@ class LeagueWithFullScheduleScenario implements FixtureScenarioInterface {
 					])
 					->persist();
 
-				GameSlotFactory::make(['game_date' => $open->addWeeks(9), 'assigned' => true])
-					->with('Fields', $fields[$key * 2])
-					->with('Games', [
-						// TODO: Fix some of these fields so they better reflect an actual playoff; add more games so there's a bracket to test with
-						'division_id' => $playoffs->id, 'name' => 'A-1', 'type' => BRACKET_GAME,
-						'home_dependency_type' => 'seed', 'home_dependency_id' => 1, 'away_dependency_type' => 'seed', 'away_dependency_id' => 2,
-						'pool_id' => $pool->id, 'home_pool_team_id' => $pool->pools_teams[0]->id, 'away_pool_team_id' => $pool->pools_teams[7]->id,
-					])
+				$division->games[] = GameFactory::make([
+					// TODO: Fix some of these fields so they better reflect an actual playoff; add more games so there's a bracket to test with
+					'division_id' => $playoffs->id, 'name' => 'A-1', 'type' => BRACKET_GAME,
+					'home_dependency_type' => 'seed', 'home_dependency_id' => 1, 'away_dependency_type' => 'seed', 'away_dependency_id' => 2,
+					'pool_id' => $pool->id, 'home_pool_team_id' => $pool->pools_teams[0]->id, 'away_pool_team_id' => $pool->pools_teams[7]->id,
+				])
+					->with('GameSlots', GameSlotFactory::make(['game_date' => $open->addWeeks(9), 'assigned' => true])
+						->with('Fields', $fields[$key * 2])
+					)
 					->persist();
 
-				$pool = PoolFactory::make(['division_id' => $playoffs->id, 'stage' => 2, 'name' => 'X', 'type' => 'crossover'])
+				PoolFactory::make(['division_id' => $playoffs->id, 'stage' => 2, 'name' => 'X', 'type' => 'crossover'])
 					->persist();
 			}
 		}

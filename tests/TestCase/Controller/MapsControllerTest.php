@@ -48,8 +48,8 @@ class MapsControllerTest extends ControllerTestCase {
 		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
 		$fields = $region->facilities[0]->fields;
 
-		$other_region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[1]]);
-		$other_fields = $other_region->facilities[0]->fields;
+		$affiliate_region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[1]]);
+		$affiliate_fields = $affiliate_region->facilities[0]->fields;
 
 		// Anyone is allowed to view maps
 		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'view', 'field' => $fields[0]->id], $admin->id);
@@ -63,7 +63,7 @@ class MapsControllerTest extends ControllerTestCase {
 		$this->assertResponseNotContains('fields[' . $fields[3]->id . '] = {');
 
 		// From any affiliate
-		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'view', 'field' => $other_fields[0]->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'view', 'field' => $affiliate_fields[0]->id], $player->id);
 
 		// But not maps that haven't been created yet
 		$this->assertGetAsAccessRedirect(['controller' => 'Maps', 'action' => 'view', 'field' => $fields[2]->id],

@@ -34,7 +34,7 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 			->with('People', $player)
 			->persist();
 
-		$other_prereg = PreregistrationFactory::make()
+		$affiliate_prereg = PreregistrationFactory::make()
 			->with('Events', ['affiliate_id' => $affiliates[1]->id])
 			->with('People', $player)
 			->persist();
@@ -42,12 +42,12 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 		// Admins are allowed to see the index
 		$this->assertGetAsAccessOk(['controller' => 'Preregistrations', 'action' => 'index'], $admin->id);
 		$this->assertResponseContains('/preregistrations/delete?preregistration=' . $prereg->id);
-		$this->assertResponseContains('/preregistrations/delete?preregistration=' . $other_prereg->id);
+		$this->assertResponseContains('/preregistrations/delete?preregistration=' . $affiliate_prereg->id);
 
 		// Managers are allowed to see the index, but don't see preregistrations in other affiliates
 		$this->assertGetAsAccessOk(['controller' => 'Preregistrations', 'action' => 'index'], $manager->id);
 		$this->assertResponseContains('/preregistrations/delete?preregistration=' . $prereg->id);
-		$this->assertResponseNotContains('/preregistrations/delete?preregistration=' . $other_prereg->id);
+		$this->assertResponseNotContains('/preregistrations/delete?preregistration=' . $affiliate_prereg->id);
 
 		// Others are not allowed to see the index
 		$this->assertGetAsAccessDenied(['controller' => 'Preregistrations', 'action' => 'index'], $volunteer->id);
@@ -125,7 +125,7 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 			->with('People', $player)
 			->persist();
 
-		$other_prereg = PreregistrationFactory::make()
+		$affiliate_prereg = PreregistrationFactory::make()
 			->with('Events', ['affiliate_id' => $affiliates[1]->id])
 			->with('People', $player)
 			->persist();
@@ -136,7 +136,7 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 			'The preregistration has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Preregistrations', 'action' => 'delete', 'preregistration' => $other_prereg->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Preregistrations', 'action' => 'delete', 'preregistration' => $affiliate_prereg->id],
 			$manager->id);
 	}
 
@@ -163,12 +163,12 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 		$this->assertPostAnonymousAccessDenied(['controller' => 'Preregistrations', 'action' => 'delete', 'preregistration' => $prereg->id]);
 
 		// Except for their own
-		$other_prereg = PreregistrationFactory::make()
+		$affiliate_prereg = PreregistrationFactory::make()
 			->with('Events', ['affiliate_id' => $affiliates[1]->id])
 			->with('People', $player)
 			->persist();
 
-		$this->assertPostAsAccessRedirect(['controller' => 'Preregistrations', 'action' => 'delete', 'preregistration' => $other_prereg->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Preregistrations', 'action' => 'delete', 'preregistration' => $affiliate_prereg->id],
 			$player->id, [], ['controller' => 'Preregistrations', 'action' => 'index'],
 			'The preregistration has been deleted.');
 	}
