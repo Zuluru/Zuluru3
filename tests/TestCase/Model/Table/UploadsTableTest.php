@@ -2,6 +2,8 @@
 namespace App\Test\TestCase\Model\Table;
 
 use App\Test\Factory\UploadFactory;
+use Cake\Core\Configure;
+use Cake\Filesystem\Folder;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\UploadsTable;
 
@@ -22,8 +24,12 @@ class UploadsTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
+
 		$config = TableRegistry::exists('Uploads') ? [] : ['className' => 'App\Model\Table\UploadsTable'];
 		$this->UploadsTable = TableRegistry::getTableLocator()->get('Uploads', $config);
+
+		$folder = new Folder(TESTS . 'test_app' . DS . 'upload', true);
+		Configure::write('App.paths.uploads', $folder->path);
 	}
 
 	/**
@@ -31,7 +37,11 @@ class UploadsTableTest extends TableTestCase {
 	 */
 	public function tearDown(): void {
 		unset($this->UploadsTable);
-		UploadFactory::cleanup();
+
+		// Delete the temporary uploads
+		$upload_path = Configure::read('App.paths.uploads');
+		$folder = new Folder($upload_path);
+		$folder->delete();
 
 		parent::tearDown();
 	}

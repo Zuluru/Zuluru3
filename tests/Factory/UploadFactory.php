@@ -8,8 +8,6 @@ use Faker\Generator;
 
 class UploadFactory extends BaseFactory
 {
-	static private $files = [];
-
 	/**
 	 * Defines the Table Registry used to generate entities with
 	 * @return string
@@ -45,16 +43,8 @@ class UploadFactory extends BaseFactory
 			$folder = Configure::read('App.paths.uploads');
 			$dummy = TESTS . 'test_app' . DS . 'dummy.png';
 			copy($dummy, $folder . DS . $entity->filename);
-			self::$files[] = $folder . DS . $entity->filename;
 		}
 
 		return $entity;
-	}
-
-	public static function cleanup(): void {
-		foreach (self::$files as $file) {
-			unlink($file);
-		}
-		self::$files = [];
 	}
 }
