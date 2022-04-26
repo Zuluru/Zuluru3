@@ -4,15 +4,15 @@ declare(strict_types=1);
 namespace App\Test\Scenario;
 
 use App\Model\Entity\League;
-use App\Test\Factory\DivisionsPersonFactory;
-use App\Test\Factory\LeagueFactory;
 use App\Test\Factory\PersonFactory;
 use App\Test\Factory\TeamFactory;
 use App\Test\Factory\TeamsPersonFactory;
-use Cake\I18n\FrozenDate;
 use CakephpFixtureFactories\Scenario\FixtureScenarioInterface;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 class LeagueWithRostersScenario implements FixtureScenarioInterface {
+
+	use ScenarioAwareTrait;
 
 	// Constants to make finding the relevant players on rosters reliable
 	public static $CAPTAIN = 0;
@@ -23,10 +23,8 @@ class LeagueWithRostersScenario implements FixtureScenarioInterface {
 
 	/**
 	 * Possible arguments are:
-	 * - affiliate Affiliate
-	 * - coordinator Person
-	 * - divisions int
-	 * - teams int
+	 * - anything that LeagueScenario accepts
+	 * - teams: int
 	 */
 	public function load(...$args): League {
 		switch (count($args)) {
@@ -41,11 +39,8 @@ class LeagueWithRostersScenario implements FixtureScenarioInterface {
 				throw new \BadMethodCallException('Scenario only accepts an array of named parameters.');
 		}
 
-		if (array_key_exists('divisions', $args)) {
-			$divisions = "[{$args['divisions']}]";
-		} else {
-			$divisions = '';
-		}
+		/** @var League $league */
+		$league = $this->loadFixtureScenario(LeagueScenario::class, $args);
 
 		if (array_key_exists('teams', $args)) {
 			$teams = $args['teams'];
@@ -53,21 +48,11 @@ class LeagueWithRostersScenario implements FixtureScenarioInterface {
 			$teams = 4;
 		}
 
-		/** @var League $league */
-		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with("Divisions{$divisions}", ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $args['affiliate'] ?? [])
-			->persist();
-
 		foreach ($league->divisions as $division) {
 			$division->teams = TeamFactory::make($teams)->with('Divisions', $division)->persist();
 			if ($teams === 1) {
 				// If there's only one team, it's just an entity right now, not an array.
 				$division->teams = [$division->teams];
-			}
-
-			if (array_key_exists('coordinator', $args)) {
-				DivisionsPersonFactory::make(['person_id' => $args['coordinator']->id, 'division_id' => $division->id])->persist();
 			}
 
 			foreach ($division->teams as $team) {

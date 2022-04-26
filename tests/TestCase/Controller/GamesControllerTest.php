@@ -247,8 +247,8 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $finalized_game->id], $volunteer->id);
 		$this->assertResponseNotContains('chance to win');
 		$this->assertResponseNotContains('Ratings Table');
-		$home_name = Text::truncate($finalized_game->home_team->name, 23);
-		$away_name = Text::truncate($finalized_game->away_team->name, 23);
+		$home_name = Text::truncate($finalized_game->home_team->name, 28);
+		$away_name = Text::truncate($finalized_game->away_team->name, 28);
 		$this->assertResponseRegExp('#<dt>' . $home_name . '</dt>\s*<dd>15</dd>#ms');
 		$this->assertResponseRegExp('#<dt>' . $away_name . '</dt>\s*<dd>14</dd>#ms');
 		$this->assertResponseRegExp('#<dt>Score Approved By</dt>\s*<dd>automatic approval</dd>#ms');

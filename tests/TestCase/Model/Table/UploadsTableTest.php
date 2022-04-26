@@ -31,6 +31,7 @@ class UploadsTableTest extends TableTestCase {
 	 */
 	public function tearDown(): void {
 		unset($this->UploadsTable);
+		UploadFactory::cleanup();
 
 		parent::tearDown();
 	}
@@ -53,8 +54,8 @@ class UploadsTableTest extends TableTestCase {
 	 * Test affiliate method
 	 */
 	public function testAffiliate(): void {
-		$affiliateId = rand();
-		$entity = UploadFactory::make()->with('UploadTypes', ['affiliate_id' => $affiliateId])->persist();
+		$affiliateId = mt_rand();
+		$entity = UploadFactory::make(['person_id' => 1])->with('UploadTypes', ['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->UploadsTable->affiliate($entity->id));
 	}
 

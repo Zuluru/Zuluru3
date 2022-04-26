@@ -79,7 +79,8 @@ $header_cells[] = '';
 $statuses = Configure::read('attendance');
 $count = array_fill_keys(array_keys($statuses), array_fill_keys(array_keys($all_items), [Configure::read('gender.woman') => 0, Configure::read('gender.man') => 0]));
 $column = Configure::read('gender.column');
-foreach ($attendance->people as $person):
+$people = $attendance->people ?? [];
+foreach ($people as $person):
 ?>
 				<tr>
 					<td><?= $this->element('People/block', compact('person')) ?></td>

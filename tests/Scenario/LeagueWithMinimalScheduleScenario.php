@@ -4,24 +4,20 @@ declare(strict_types=1);
 namespace App\Test\Scenario;
 
 use App\Model\Entity\League;
-use App\Test\Factory\DivisionsDayFactory;
-use App\Test\Factory\DivisionsPersonFactory;
 use App\Test\Factory\GameFactory;
 use App\Test\Factory\GameSlotFactory;
-use App\Test\Factory\LeagueFactory;
 use App\Test\Factory\RegionFactory;
 use App\Test\Factory\TeamFactory;
-use Cake\Chronos\ChronosInterface;
-use Cake\I18n\FrozenDate;
 use CakephpFixtureFactories\Scenario\FixtureScenarioInterface;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 class LeagueWithMinimalScheduleScenario implements FixtureScenarioInterface {
 
+	use ScenarioAwareTrait;
+
 	/**
 	 * Possible arguments are:
-	 * - affiliate Affiliate
-	 * - coordinator Person
-	 * - divisions int
+	 * - anything that LeagueScenario accepts
 	 */
 	public function load(...$args): League {
 		switch (count($args)) {
@@ -36,18 +32,8 @@ class LeagueWithMinimalScheduleScenario implements FixtureScenarioInterface {
 				throw new \BadMethodCallException('Scenario only accepts an array of named parameters.');
 		}
 
-		if (array_key_exists('divisions', $args)) {
-			$divisions = "[{$args['divisions']}]";
-		} else {
-			$divisions = '';
-		}
-
-		$open = FrozenDate::now()->next(ChronosInterface::SUNDAY)->subWeeks(3);
 		/** @var League $league */
-		$league = LeagueFactory::make(['open' => $open, 'close' => $open->addWeeks(8), 'is_open' => true])
-			->with("Divisions{$divisions}", ['open' => $open, 'close' => $open->addWeeks(8), 'is_open' => true, 'schedule_type' => 'ratings_ladder'])
-			->with('Affiliates', $args['affiliate'] ?? [])
-			->persist();
+		$league = $this->loadFixtureScenario(LeagueScenario::class, $args);
 
 		// Where will the games be played?
 		$fields = array_map(static function ($k) { return ['num' => $k]; }, range(1, count($league->divisions) * 2));
@@ -63,13 +49,7 @@ class LeagueWithMinimalScheduleScenario implements FixtureScenarioInterface {
 				['name' => 'Bears', 'shirt_colour' => 'Brown'],
 				['name' => 'Lions', 'shirt_colour' => 'Yellow'],
 			])->with('Divisions', $division)->persist();
-			DivisionsDayFactory::make(['day_id' => ChronosInterface::SUNDAY, 'division_id' => $division->id])->persist();
-
-			if (array_key_exists('coordinator', $args)) {
-				DivisionsPersonFactory::make(['person_id' => $args['coordinator']->id, 'division_id' => $division->id])->persist();
-			}
-
-			$division->games = [];
+			$open = $division->open;
 
 			// Week 1
 			$division->games[] = GameFactory::make([

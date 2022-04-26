@@ -12,7 +12,7 @@ class DiverseFacilitiesScenario implements FixtureScenarioInterface {
 
 	/**
 	 * Possible arguments are:
-	 * - affiliate Affiliate
+	 * - affiliate: Affiliate
 	 */
 	public function load(...$args): Region {
 		switch (count($args)) {

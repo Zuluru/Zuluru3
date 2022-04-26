@@ -148,7 +148,7 @@ class PersonTest extends TestCase {
 		$this->loadFixtures();
 
 		$user1 = PersonFactory::makePlayer(['gender' => 'Woman'])->persist();
-		$user2 = PersonFactory::make(['gender' => 'Man'])->withGroup(GROUP_PLAYER)->persist();
+		$user2 = PersonFactory::makeChild(['gender' => 'Man'])->persist();
 		$user_id = $user1->user_id;
 		$address = $user1->addr_street;
 

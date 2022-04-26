@@ -1,77 +1,175 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use App\Model\Entity\Event;
+use App\Model\Entity\League;
+use App\Model\Entity\Person;
+use App\Model\Entity\Team;
+use App\Model\Entity\TeamsPerson;
 use App\PasswordHasher\HasherTrait;
+use App\Test\Factory\EventFactory;
+use App\Test\Factory\LeagueFactory;
+use App\Test\Factory\LeaguesStatTypeFactory;
+use App\Test\Factory\NoteFactory;
+use App\Test\Factory\PeoplePersonFactory;
+use App\Test\Factory\PersonFactory;
+use App\Test\Factory\RegistrationFactory;
+use App\Test\Factory\TeamEventFactory;
+use App\Test\Factory\TeamFactory;
+use App\Test\Factory\TeamsPersonFactory;
+use App\Test\Scenario\DiverseUsersScenario;
+use App\Test\Scenario\LeagueScenario;
+use App\Test\Scenario\LeagueWithMinimalScheduleScenario;
+use App\Test\Scenario\TeamScenario;
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\TableRegistry;
+use Cake\TestSuite\EmailTrait;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
+
+use function App\Lib\base64_url_encode;
 
 /**
  * App\Controller\TeamsController Test Case
  */
 class TeamsControllerTest extends ControllerTestCase {
 
+	use EmailTrait;
 	use HasherTrait;
+	use ScenarioAwareTrait;
 
+	/**
+	 * Fixtures
+	 *
+	 * @var array
+	 */
+	public $fixtures = [
+		'app.EventTypes',
+		'app.Groups',
+		'app.RosterRoles',
+		'app.Settings',
+		'app.StatTypes',
+	];
+
+	public function tearDown(): void {
+		// Cleanup any emails that were sent
+		$this->cleanupEmailTrait();
+
+		parent::tearDown();
+	}
+
+	private function createRegistrations(Event $event, array $details): void {
+		foreach ($details as $detail) {
+			RegistrationFactory::make([
+				'payment' => $detail[1],
+			])
+				->with('People', $detail[0])
+				->with('Events', $event)
+				->with('Prices', $event->prices[0])
+				->persist();
+		}
+	}
 	/**
 	 * Test index method
 	 */
 	public function testIndex(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		LeagueFactory::make(['affiliate_id' => $admin->affiliates[0]->id])
+			->with('Divisions.Teams[4]')
+			->persist();
+
 		// Anyone is allowed to see the index
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'index'], PERSON_ID_ADMIN);
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'index'], PERSON_ID_MANAGER);
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'index'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'index'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'index'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'index'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'index'], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'index'], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'index'], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'index'], $player->id);
 		$this->assertGetAnonymousAccessOk(['controller' => 'Teams', 'action' => 'index']);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test letter method
 	 */
 	public function testLetter(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var League $league */
+		$league = LeagueFactory::make(['affiliate_id' => $admin->affiliates[0]->id])
+			->with('Divisions.Teams[2]')
+			->persist();
+		$letter = $league->divisions[0]->teams[0]->name[0];
+
 		// Anyone is allowed to see the list by letter
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'letter', 'letter' => 'R'], PERSON_ID_ADMIN);
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'letter', 'letter' => 'R'], PERSON_ID_MANAGER);
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'letter', 'letter' => 'R'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'letter', 'letter' => 'R'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'letter', 'letter' => 'R'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'letter', 'letter' => 'R'], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessOk(['controller' => 'Teams', 'action' => 'letter', 'letter' => 'R']);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'letter', 'letter' => $letter], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'letter', 'letter' => $letter], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'letter', 'letter' => $letter], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'letter', 'letter' => $letter], $player->id);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Teams', 'action' => 'letter', 'letter' => $letter]);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test join method
 	 */
 	public function testJoin(): void {
-		// Anyone logged in is allowed to try to find teams to join
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'join', 'team' => TEAM_ID_BLACK], PERSON_ID_ADMIN);
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'join', 'team' => TEAM_ID_BLACK], PERSON_ID_MANAGER);
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'join', 'team' => TEAM_ID_BLACK], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'join', 'team' => TEAM_ID_BLACK], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'join', 'team' => TEAM_ID_BLACK], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'join', 'team' => TEAM_ID_BLACK], PERSON_ID_VISITOR);
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
-		// Others are not allowed to join teams
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'join', 'team' => TEAM_ID_BLACK]);
+		/** @var League $league */
+		$league = LeagueFactory::make(['affiliate_id' => $admin->affiliates[0]->id])
+			->with('Divisions.Teams', [
+				['open_roster' => true],
+				['open_roster' => false],
+			])
+			->persist();
+		[$open_team, $closed_team] = $league->divisions[0]->teams;
+
+		// Anyone logged in is allowed to try to find teams to join
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'join'], $admin->id);
+		$this->assertResponseContains('/teams/roster_request?team=' . $open_team->id);
+		$this->assertResponseNotContains('/teams/roster_request?team=' . $closed_team->id);
+
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'join'], $manager->id);
+		$this->assertResponseContains('/teams/roster_request?team=' . $open_team->id);
+		$this->assertResponseNotContains('/teams/roster_request?team=' . $closed_team->id);
+
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'join'], $volunteer->id);
+		$this->assertResponseContains('/teams/roster_request?team=' . $open_team->id);
+		$this->assertResponseNotContains('/teams/roster_request?team=' . $closed_team->id);
+
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'join'], $player->id);
+		$this->assertResponseContains('/teams/roster_request?team=' . $open_team->id);
+		$this->assertResponseNotContains('/teams/roster_request?team=' . $closed_team->id);
+
+		// Others are not allowed to join any teams
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'join']);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'join']);
 	}
 
 	/**
 	 * Test unassigned method
 	 */
 	public function testUnassigned(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $assigned_team */
+		$assigned_team = $this->loadFixtureScenario(TeamScenario::class, ['affiliate' => $admin->affiliates[0]]);
+		/** @var Team $unassigned_team */
+		$unassigned_team = $this->loadFixtureScenario(TeamScenario::class, ['affiliate' => $admin->affiliates[0], 'division' => null]);
+
 		// Admins are allowed to see the unassigned teams list
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'unassigned'], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'unassigned'], $admin->id);
+		$this->assertResponseContains('/teams/view?team=' . $unassigned_team->id);
+		$this->assertResponseNotContains('/teams/view?team=' . $assigned_team->id);
 
 		// Managers are allowed to see the unassigned teams list
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'unassigned'], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'unassigned'], $manager->id);
 
 		// Others are not allowed to see the unassigned teams list
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'unassigned'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'unassigned'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'unassigned'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'unassigned'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'unassigned'], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'unassigned'], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'unassigned']);
 	}
 
@@ -79,18 +177,24 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test statistics method
 	 */
 	public function testStatistics(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		LeagueFactory::make(['affiliate_id' => $admin->affiliates[0]->id])
+			->with('Divisions.Teams[2]')
+			->persist();
+
 		// Admins are allowed to view statistics
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'statistics'], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'statistics'], $admin->id);
 
 		// Managers are allowed to view statistics
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'statistics'], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'statistics'], $manager->id);
 
 		// Others are not allowed to view statistics
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'statistics'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'statistics'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'statistics'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'statistics'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'statistics'], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'statistics'], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'statistics']);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -104,224 +208,341 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test view method
 	 */
 	public function testView(): void {
-		// Admins are allowed to view teams, with full edit permissions
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
-		// The strings for edit are all longer here than other places, because there can be simple edit links in help text.
-		$this->assertResponseContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . TEAM_ID_RED);
-		$this->assertResponseContains('/teams/delete?team=' . TEAM_ID_RED);
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_BEARS], PERSON_ID_ADMIN);
-		$this->assertResponseContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . TEAM_ID_BEARS);
-		$this->assertResponseContains('/teams/delete?team=' . TEAM_ID_BEARS);
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'captain' => true,
+				'player' => $player,
+			],
+		]);
+
+		/** @var Team $affiliate_team */
+		$affiliate_team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[1],
+		]);
+
+		// Admins are allowed to view teams, with full edit permissions
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $admin->id);
+		// The strings for edit are all longer here than other places, because there can be simple edit links in help text.
+		$this->assertResponseContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . $team->id);
+		$this->assertResponseContains('/teams/delete?team=' . $team->id);
+
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => $affiliate_team->id], $admin->id);
+		$this->assertResponseContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . $affiliate_team->id);
+		$this->assertResponseContains('/teams/delete?team=' . $affiliate_team->id);
 
 		// Managers are allowed to view teams
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED], PERSON_ID_MANAGER);
-		$this->assertResponseContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . TEAM_ID_RED);
-		$this->assertResponseContains('/teams/delete?team=' . TEAM_ID_RED);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $manager->id);
+		$this->assertResponseContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . $team->id);
+		$this->assertResponseContains('/teams/delete?team=' . $team->id);
 
 		// But are not allowed to edit ones in other affiliates
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_BEARS], PERSON_ID_MANAGER);
-		$this->assertResponseNotContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . TEAM_ID_BEARS);
-		$this->assertResponseNotContains('/teams/delete?team=' . TEAM_ID_BEARS);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => $affiliate_team->id], $manager->id);
+		$this->assertResponseNotContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . $affiliate_team->id);
+		$this->assertResponseNotContains('/teams/delete?team=' . $affiliate_team->id);
 
 		// Coordinators are allowed to view teams but cannot edit
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED], PERSON_ID_COORDINATOR);
-		$this->assertResponseNotContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . TEAM_ID_RED);
-		$this->assertResponseNotContains('/teams/delete?team=' . TEAM_ID_RED);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $volunteer->id);
+		$this->assertResponseNotContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . $team->id);
+		$this->assertResponseNotContains('/teams/delete?team=' . $team->id);
 
 		// Captains are allowed to view and edit their teams
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
-		$this->assertResponseContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . TEAM_ID_RED);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $team->people[0]->id);
+		$this->assertResponseContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . $team->id);
 		// TODO: Test that captains can delete their own teams when the registration module is turned off
-		$this->assertResponseNotContains('/teams/delete?team=' . TEAM_ID_RED);
+		$this->assertResponseNotContains('/teams/delete?team=' . $team->id);
 
 		// Others are allowed to view teams, but have no edit permissions
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
-		$this->assertResponseNotContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . TEAM_ID_RED);
-		$this->assertResponseNotContains('/teams/delete?team=' . TEAM_ID_RED);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $player->id);
+		$this->assertResponseNotContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . $team->id);
+		$this->assertResponseNotContains('/teams/delete?team=' . $team->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED], PERSON_ID_VISITOR);
-		$this->assertResponseNotContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . TEAM_ID_RED);
-		$this->assertResponseNotContains('/teams/delete?team=' . TEAM_ID_RED);
-
-		$this->assertGetAnonymousAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED]);
-		$this->assertResponseNotContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . TEAM_ID_RED);
-		$this->assertResponseNotContains('/teams/delete?team=' . TEAM_ID_RED);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id]);
+		$this->assertResponseNotContains('<div><a href="' . Configure::read('App.base') . '/teams/edit?team=' . $team->id);
+		$this->assertResponseNotContains('/teams/delete?team=' . $team->id);
 	}
 
 	/**
 	 * Test numbers method as an admin
 	 */
 	public function testNumbersAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
 		// Admins are allowed to set numbers
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'numbers', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'numbers', 'team' => $team->id], $admin->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test numbers method as a manager
 	 */
 	public function testNumbersAsManager(): void {
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
+		/** @var Team $affiliate_team */
+		$affiliate_team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[1],
+		]);
+
 		// Managers are allowed to set numbers
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'numbers', 'team' => TEAM_ID_RED], PERSON_ID_MANAGER);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'numbers', 'team' => $team->id], $manager->id);
+
+		// But not ones in other affiliates
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'numbers', 'team' => $affiliate_team->id], $manager->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test numbers method as a captain
 	 */
 	public function testNumbersAsCaptain(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'captain' => true,
+			],
+			'division_details' => ['is_open' => true],
+		]);
+		$captain = $team->people[0];
+
 		// Captains are allowed to set numbers before the roster deadline
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'numbers', 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
+		FrozenDate::setTestNow($team->division->rosterDeadline());
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'numbers', 'team' => $team->id], $captain->id);
 
 		// But not after
-		FrozenDate::setTestNow(new FrozenDate('November 1'));
-		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'numbers', 'team' => TEAM_ID_RED],
-			PERSON_ID_CAPTAIN, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		FrozenDate::setTestNow($team->division->rosterDeadline()->addDay());
+		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'numbers', 'team' => $team->id],
+			$captain->id, ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'The roster deadline for this division has already passed.');
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test numbers method as a coordinator
 	 */
 	public function testNumbersAsCoordinator(): void {
+		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'coordinator' => $volunteer,
+		]);
+
 		// Coordinators are allowed to set numbers
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'numbers', 'team' => TEAM_ID_RED], PERSON_ID_COORDINATOR);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'numbers', 'team' => $team->id], $volunteer->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test numbers method as a player
 	 */
 	public function testNumbersAsPlayer(): void {
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'captain' => true,
+				'player' => $player,
+			],
+			'division_details' => ['is_open' => true],
+		]);
+		$captain = $team->people[0];
+
 		// Players are allowed to set only their own number
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'numbers', 'team' => TEAM_ID_RED, 'person' => PERSON_ID_PLAYER], PERSON_ID_PLAYER);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'numbers', 'team' => $team->id, 'person' => $player->id], $player->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'numbers', 'team' => $team->id], $player->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'numbers', 'team' => $team->id, 'person' => $captain->id], $player->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test numbers method as others
 	 */
 	public function testNumbersAsOthers(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
 		// Others are not allowed to set numbers
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'numbers', 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'numbers', 'team' => TEAM_ID_RED], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'numbers', 'team' => TEAM_ID_RED]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'numbers', 'team' => $team->id]);
 	}
 
 	/**
 	 * Test stats method
 	 */
 	public function testStats(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'coordinator' => $volunteer,
+			'roles' => [
+				'captain' => true,
+				'player' => $player,
+			],
+			'division_details' => ['is_open' => true],
+			'league_details' => ['stat_tracking' => 'always'],
+		]);
+		$captain = $team->people[0];
+
 		// Anyone logged in is allowed to see stats
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'stats', 'team' => TEAM_ID_CHICKADEES], PERSON_ID_ADMIN);
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'stats', 'team' => TEAM_ID_CHICKADEES], PERSON_ID_MANAGER);
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'stats', 'team' => TEAM_ID_CHICKADEES], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'stats', 'team' => TEAM_ID_CHICKADEES], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'stats', 'team' => TEAM_ID_CHICKADEES], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'stats', 'team' => TEAM_ID_CHICKADEES], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'stats', 'team' => $team->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'stats', 'team' => $team->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'stats', 'team' => $team->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'stats', 'team' => $team->id], $captain->id);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'stats', 'team' => $team->id], $player->id);
 
 		// Others are not allowed to see stats
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'stats', 'team' => TEAM_ID_CHICKADEES]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'stats', 'team' => $team->id]);
 	}
 
 	/**
 	 * Test stat_sheet method
 	 */
 	public function testStatSheet(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'coordinator' => $volunteer,
+			'roles' => [
+				'captain' => true,
+				'player' => $player,
+			],
+			'division_details' => ['is_open' => true],
+			'league_details' => ['stat_tracking' => 'always'],
+		]);
+		$captain = $team->people[0];
+
+		LeaguesStatTypeFactory::make(['league_id' => $team->division->league_id, 'stat_type_id' => STAT_TYPE_ID_ULTIMATE_GOALS])->persist();
+
 		// Admins are allowed to see the stat sheet
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'stat_sheet', 'team' => TEAM_ID_CHICKADEES], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'stat_sheet', 'team' => $team->id], $admin->id);
 
 		// Managers are allowed to see the stat sheet
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'stat_sheet', 'team' => TEAM_ID_CHICKADEES], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'stat_sheet', 'team' => $team->id], $manager->id);
 
 		// Coordinators are allowed to see the stat sheet
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'stat_sheet', 'team' => TEAM_ID_CHICKADEES], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'stat_sheet', 'team' => $team->id], $volunteer->id);
 
 		// Captains are allowed to see the stat sheet for their teams
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'stat_sheet', 'team' => TEAM_ID_CHICKADEES], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'stat_sheet', 'team' => TEAM_ID_SPARROWS], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'stat_sheet', 'team' => $team->id], $captain->id);
 
 		// Others are not allowed to see the stat sheet
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'stat_sheet', 'team' => TEAM_ID_CHICKADEES], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'stat_sheet', 'team' => TEAM_ID_CHICKADEES], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'stat_sheet', 'team' => TEAM_ID_CHICKADEES]);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'stat_sheet', 'team' => $team->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'stat_sheet', 'team' => $team->id]);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test tooltip method
 	 */
 	public function testTooltip(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'coordinator' => $volunteer,
+		]);
+
 		// Anyone is allowed to view team tooltips
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'tooltip', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/teams\\/view?team=' . TEAM_ID_RED);
-		$this->assertResponseContains('/teams\\/schedule?team=' . TEAM_ID_RED);
-		$this->assertResponseContains('/divisions\\/standings?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;team=' . TEAM_ID_RED);
-		$this->assertResponseContains('/divisions\\/view?division=' . DIVISION_ID_MONDAY_LADDER);
-		$this->assertResponseContains('/divisions\\/schedule?division=' . DIVISION_ID_MONDAY_LADDER);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'tooltip', 'team' => $team->id], $admin->id);
+		$this->assertResponseContains('/teams\\/view?team=' . $team->id);
+		$this->assertResponseContains('/teams\\/schedule?team=' . $team->id);
+		$this->assertResponseContains('/divisions\\/standings?division=' . $team->division_id . '&amp;team=' . $team->id);
+		$this->assertResponseContains('/divisions\\/view?division=' . $team->division_id);
+		$this->assertResponseContains('/divisions\\/schedule?division=' . $team->division_id);
 
 		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'tooltip', 'team' => 0],
-			PERSON_ID_ADMIN, ['controller' => 'Teams', 'action' => 'index'],
+			$admin->id, ['controller' => 'Teams', 'action' => 'index'],
 			'Invalid team.');
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'tooltip', 'team' => TEAM_ID_RED], PERSON_ID_MANAGER);
-		$this->assertResponseContains('/teams\\/view?team=' . TEAM_ID_RED);
-		$this->assertResponseContains('/teams\\/schedule?team=' . TEAM_ID_RED);
-		$this->assertResponseContains('/divisions\\/standings?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;team=' . TEAM_ID_RED);
-		$this->assertResponseContains('/divisions\\/view?division=' . DIVISION_ID_MONDAY_LADDER);
-		$this->assertResponseContains('/divisions\\/schedule?division=' . DIVISION_ID_MONDAY_LADDER);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'tooltip', 'team' => $team->id], $manager->id);
+		$this->assertResponseContains('/teams\\/view?team=' . $team->id);
+		$this->assertResponseContains('/teams\\/schedule?team=' . $team->id);
+		$this->assertResponseContains('/divisions\\/standings?division=' . $team->division_id . '&amp;team=' . $team->id);
+		$this->assertResponseContains('/divisions\\/view?division=' . $team->division_id);
+		$this->assertResponseContains('/divisions\\/schedule?division=' . $team->division_id);
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'tooltip', 'team' => TEAM_ID_RED], PERSON_ID_COORDINATOR);
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'tooltip', 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'tooltip', 'team' => $team->id], $volunteer->id);
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'tooltip', 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
-		$this->assertResponseContains('/teams\\/view?team=' . TEAM_ID_RED);
-		$this->assertResponseContains('/teams\\/schedule?team=' . TEAM_ID_RED);
-		$this->assertResponseContains('/divisions\\/standings?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;team=' . TEAM_ID_RED);
-		$this->assertResponseContains('/divisions\\/view?division=' . DIVISION_ID_MONDAY_LADDER);
-		$this->assertResponseContains('/divisions\\/schedule?division=' . DIVISION_ID_MONDAY_LADDER);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'tooltip', 'team' => $team->id], $player->id);
+		$this->assertResponseContains('/teams\\/view?team=' . $team->id);
+		$this->assertResponseContains('/teams\\/schedule?team=' . $team->id);
+		$this->assertResponseContains('/divisions\\/standings?division=' . $team->division_id . '&amp;team=' . $team->id);
+		$this->assertResponseContains('/divisions\\/view?division=' . $team->division_id);
+		$this->assertResponseContains('/divisions\\/schedule?division=' . $team->division_id);
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'tooltip', 'team' => TEAM_ID_RED], PERSON_ID_VISITOR);
-		$this->assertGetAjaxAnonymousAccessOk(['controller' => 'Teams', 'action' => 'tooltip', 'team' => TEAM_ID_RED]);
+		$this->assertGetAjaxAnonymousAccessOk(['controller' => 'Teams', 'action' => 'tooltip', 'team' => $team->id]);
 	}
 
 	/**
 	 * Test add method as an admin
 	 */
 	public function testAddAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
 		// Admins are allowed to add teams
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'add'], PERSON_ID_ADMIN);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'add'], $admin->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test add method as a manager
 	 */
 	public function testAddAsManager(): void {
+		[, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
 		// Managers are allowed to add teams
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'add'], PERSON_ID_MANAGER);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'add'], $manager->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test add method as others
 	 */
 	public function testAddAsOthers(): void {
+		[, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
 		// Others are not allowed to add teams
 		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'add'],
-			PERSON_ID_COORDINATOR, '/',
+			$volunteer->id, '/',
 			'This system creates teams through the registration process. Team creation through Zuluru is disabled. If you need a team created for some other reason (e.g. a touring team), please email admin@zuluru.org with the details, or call the office.');
 		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'add'],
-			PERSON_ID_CAPTAIN, '/',
-			'This system creates teams through the registration process. Team creation through Zuluru is disabled. If you need a team created for some other reason (e.g. a touring team), please email admin@zuluru.org with the details, or call the office.');
-		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'add'],
-			PERSON_ID_PLAYER, '/',
-			'This system creates teams through the registration process. Team creation through Zuluru is disabled. If you need a team created for some other reason (e.g. a touring team), please email admin@zuluru.org with the details, or call the office.');
-		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'add'],
-			PERSON_ID_VISITOR, '/',
+			$player->id, '/',
 			'This system creates teams through the registration process. Team creation through Zuluru is disabled. If you need a team created for some other reason (e.g. a touring team), please email admin@zuluru.org with the details, or call the office.');
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'add']);
 	}
@@ -330,55 +551,107 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test edit method as an admin
 	 */
 	public function testEditAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
 		// Admins are allowed to  teams
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'edit', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'edit', 'team' => $team->id], $admin->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test edit method as a manager
 	 */
 	public function testEditAsManager(): void {
+		[$admin, $manager, , ] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
+		/** @var Team $affiliate_team */
+		$affiliate_team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[1],
+		]);
+
 		// Managers are allowed to edit teams in their affiliate
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'edit', 'team' => TEAM_ID_RED], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'edit', 'team' => $team->id], $manager->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'edit', 'team' => TEAM_ID_BEARS], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'edit', 'team' => $affiliate_team->id], $manager->id);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test edit method as a coordinator
 	 */
 	public function testEditAsCoordinator(): void {
+		[$admin, , $volunteer, ] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'coordinator' => $volunteer,
+		]);
+
 		// Coordinators are not allowed to edit teams
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'edit', 'team' => TEAM_ID_RED], PERSON_ID_COORDINATOR);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'edit', 'team' => $team->id], $volunteer->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test edit method as a captain
 	 */
 	public function testEditAsCaptain(): void {
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'captain' => $player,
+			],
+		]);
+
+		/** @var Team $other_team */
+		$other_team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
 		// Captains are allowed to edit their own teams
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'edit', 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'edit', 'team' => TEAM_ID_CHICKADEES], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'edit', 'team' => $team->id], $player->id);
 
 		// But not others
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'edit', 'team' => TEAM_ID_SPARROWS], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'edit', 'team' => $other_team->id], $player->id);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test edit method as others
 	 */
 	public function testEditAsOthers(): void {
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'player' => $player,
+			],
+		]);
+
 		// Others are not allowed to edit teams
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'edit', 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'edit', 'team' => TEAM_ID_RED], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'edit', 'team' => TEAM_ID_RED]);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'edit', 'team' => $team->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'edit', 'team' => $team->id]);
 	}
 
 	/**
@@ -388,86 +661,93 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
 		// Admins are allowed to add notes
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'note', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'note', 'team' => $team->id], $admin->id);
 
 		// Empty notes don't get added
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => TEAM_ID_RED],
-			PERSON_ID_ADMIN, [
-				'team_id' => TEAM_ID_RED,
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => $team->id],
+			$admin->id, [
+				'team_id' => $team->id,
 				'visibility' => VISIBILITY_PRIVATE,
 				'note' => '',
-			], ['action' => 'view', 'team' => TEAM_ID_RED], 'You entered no text, so no note was added.');
+			], ['action' => 'view', 'team' => $team->id], 'You entered no text, so no note was added.');
 
 		// Add a private note
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => TEAM_ID_RED],
-			PERSON_ID_ADMIN, [
-				'team_id' => TEAM_ID_RED,
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => $team->id],
+			$admin->id, [
+				'team_id' => $team->id,
 				'visibility' => VISIBILITY_PRIVATE,
 				'note' => 'This is a private note.',
-			], ['action' => 'view', 'team' => TEAM_ID_RED], 'The note has been saved.');
+			], ['action' => 'view', 'team' => $team->id], 'The note has been saved.');
 
 		// Confirm there was no notification email
-		$this->assertEmpty(Configure::read('test_emails'));
+		$this->assertNoMailSent();
 
 		// Add a note for all admins to see
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => TEAM_ID_RED],
-			PERSON_ID_ADMIN, [
-				'team_id' => TEAM_ID_RED,
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => $team->id],
+			$admin->id, [
+				'team_id' => $team->id,
 				'visibility' => VISIBILITY_ADMIN,
 				'note' => 'This is an admin note.',
-			], ['action' => 'view', 'team' => TEAM_ID_RED], 'The note has been saved.');
+			], ['action' => 'view', 'team' => $team->id], 'The note has been saved.');
 
 		// Confirm there was no notification email
-		$this->assertEmpty(Configure::read('test_emails'));
+		$this->assertNoMailSent();
 
 		// Make sure they were added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $admin->id);
 		$this->assertResponseContains('This is a private note.');
 		$this->assertResponseContains('This is an admin note.');
 
 		// Check the manager can also see the admin one
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $manager->id);
 		$this->assertResponseNotContains('This is a private note.');
 		$this->assertResponseContains('This is an admin note.');
 
 		// Empty notes don't get added
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => TEAM_ID_RED],
-			PERSON_ID_ADMIN, [
-				'team_id' => TEAM_ID_RED,
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => $team->id],
+			$admin->id, [
+				'team_id' => $team->id,
 				'visibility' => VISIBILITY_PRIVATE,
 				'note' => '',
-			], ['action' => 'view', 'team' => TEAM_ID_RED], 'You entered no text, so no note was added.');
+			], ['action' => 'view', 'team' => $team->id], 'You entered no text, so no note was added.');
 
 		// Add a private note
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => TEAM_ID_RED],
-			PERSON_ID_ADMIN, [
-				'team_id' => TEAM_ID_RED,
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => $team->id],
+			$admin->id, [
+				'team_id' => $team->id,
 				'visibility' => VISIBILITY_PRIVATE,
 				'note' => 'This is a private note.',
-			], ['action' => 'view', 'team' => TEAM_ID_RED], 'The note has been saved.');
+			], ['action' => 'view', 'team' => $team->id], 'The note has been saved.');
 
 		// Confirm there was no notification email
-		$this->assertEmpty(Configure::read('test_emails'));
+		$this->assertNoMailSent();
 
 		// Add a note for all admins to see
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => TEAM_ID_RED],
-			PERSON_ID_ADMIN, [
-				'team_id' => TEAM_ID_RED,
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => $team->id],
+			$admin->id, [
+				'team_id' => $team->id,
 				'visibility' => VISIBILITY_ADMIN,
 				'note' => 'This is an admin note.',
-			], ['action' => 'view', 'team' => TEAM_ID_RED], 'The note has been saved.');
+			], ['action' => 'view', 'team' => $team->id], 'The note has been saved.');
 
 		// Confirm there was no notification email
-		$this->assertEmpty(Configure::read('test_emails'));
+		$this->assertNoMailSent();
 
 		// Make sure they were added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $admin->id);
 		$this->assertResponseContains('This is a private note.');
 		$this->assertResponseContains('This is an admin note.');
 
 		// Check the manager can also see the admin one
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $manager->id);
 		$this->assertResponseNotContains('This is a private note.');
 		$this->assertResponseContains('This is an admin note.');
 	}
@@ -479,38 +759,45 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
 		// Managers are allowed to add notes
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'note', 'team' => TEAM_ID_RED], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'note', 'team' => $team->id], $manager->id);
 
 		// Add a private note
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => TEAM_ID_RED],
-			PERSON_ID_MANAGER, [
-				'team_id' => TEAM_ID_RED,
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => $team->id],
+			$manager->id, [
+				'team_id' => $team->id,
 				'visibility' => VISIBILITY_PRIVATE,
 				'note' => 'This is a private note.',
-			], ['action' => 'view', 'team' => TEAM_ID_RED], 'The note has been saved.');
+			], ['action' => 'view', 'team' => $team->id], 'The note has been saved.');
 
 		// Confirm there was no notification email
-		$this->assertEmpty(Configure::read('test_emails'));
+		$this->assertNoMailSent();
 
 		// Add a note for all admins to see
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => TEAM_ID_RED],
-			PERSON_ID_MANAGER, [
-				'team_id' => TEAM_ID_RED,
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => $team->id],
+			$manager->id, [
+				'team_id' => $team->id,
 				'visibility' => VISIBILITY_ADMIN,
 				'note' => 'This is an admin note.',
-			], ['action' => 'view', 'team' => TEAM_ID_RED], 'The note has been saved.');
+			], ['action' => 'view', 'team' => $team->id], 'The note has been saved.');
 
 		// Confirm there was no notification email
-		$this->assertEmpty(Configure::read('test_emails'));
+		$this->assertNoMailSent();
 
 		// Make sure they were added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $manager->id);
 		$this->assertResponseContains('This is a private note.');
 		$this->assertResponseContains('This is an admin note.');
 
 		// Check the admin can also see the admin one
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $admin->id);
 		$this->assertResponseNotContains('This is a private note.');
 		$this->assertResponseContains('This is an admin note.');
 	}
@@ -522,33 +809,41 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , $volunteer, ] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'coordinator' => $volunteer,
+		]);
+
 		// Coordinators are allowed to add notes
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'note', 'team' => TEAM_ID_RED], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'note', 'team' => $team->id], $volunteer->id);
 
 		// Add a private note
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => TEAM_ID_RED],
-			PERSON_ID_COORDINATOR, [
-				'team_id' => TEAM_ID_RED,
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => $team->id],
+			$volunteer->id, [
+				'team_id' => $team->id,
 				'visibility' => VISIBILITY_PRIVATE,
 				'note' => 'This is a private note.',
-			], ['action' => 'view', 'team' => TEAM_ID_RED], 'The note has been saved.');
+			], ['action' => 'view', 'team' => $team->id], 'The note has been saved.');
 
 		// Confirm there was no notification email
-		$this->assertEmpty(Configure::read('test_emails'));
+		$this->assertNoMailSent();
 
 		// Add a note for all coordinators to see
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => TEAM_ID_RED],
-			PERSON_ID_COORDINATOR, [
-				'team_id' => TEAM_ID_RED,
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => $team->id],
+			$volunteer->id, [
+				'team_id' => $team->id,
 				'visibility' => VISIBILITY_COORDINATOR,
 				'note' => 'This is a coordinator note.',
-			], ['action' => 'view', 'team' => TEAM_ID_RED], 'The note has been saved.');
+			], ['action' => 'view', 'team' => $team->id], 'The note has been saved.');
 
 		// Confirm there was no notification email
-		$this->assertEmpty(Configure::read('test_emails'));
+		$this->assertNoMailSent();
 
 		// Make sure they were added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $volunteer->id);
 		$this->assertResponseContains('This is a private note.');
 		$this->assertResponseContains('This is a coordinator note.');
 	}
@@ -560,43 +855,55 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'captain' => 2,
+				'player' => $player,
+			],
+		]);
+		[$captain1, $captain2] = $team->people;
+
 		// Captains are allowed to add notes
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'note', 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'note', 'team' => $team->id], $captain1->id);
 
 		// Add a note for all captains to see
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => TEAM_ID_YELLOW],
-			PERSON_ID_CAPTAIN4, [
-				'team_id' => TEAM_ID_YELLOW,
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => $team->id],
+			$captain2->id, [
+				'team_id' => $team->id,
 				'visibility' => VISIBILITY_CAPTAINS,
 				'note' => 'This is a captain note.',
-			], ['action' => 'view', 'team' => TEAM_ID_YELLOW], 'The note has been saved.');
+			], ['action' => 'view', 'team' => $team->id], 'The note has been saved.');
 
 		// Confirm there was no notification email
-		$this->assertEmpty(Configure::read('test_emails'));
+		$this->assertNoMailSent();
 
 		// Make sure it was added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_YELLOW], PERSON_ID_CAPTAIN4);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $captain2->id);
 		$this->assertResponseContains('This is a captain note.');
 
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_YELLOW], [PERSON_ID_PLAYER, PERSON_ID_CHILD]);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $player->id);
 		$this->assertResponseNotContains('This is a captain note.');
 
 		// Add a note for the team to see
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => TEAM_ID_BLUE],
-			PERSON_ID_CAPTAIN2, [
-				'team_id' => TEAM_ID_BLUE,
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => $team->id],
+			$captain1->id, [
+				'team_id' => $team->id,
 				'visibility' => VISIBILITY_TEAM,
 				'note' => 'This is a team note.',
-			], ['action' => 'view', 'team' => TEAM_ID_BLUE], 'The note has been saved.');
+			], ['action' => 'view', 'team' => $team->id], 'The note has been saved.');
 
 		// Confirm there was no notification email
-		$this->assertEmpty(Configure::read('test_emails'));
+		$this->assertNoMailSent();
 
 		// Make sure it was added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_BLUE], PERSON_ID_CAPTAIN2);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $captain2->id);
 		$this->assertResponseContains('This is a team note.');
 
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_BLUE], [PERSON_ID_PLAYER, PERSON_ID_CHILD]);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], [$player->id, $player->id]);
 		$this->assertResponseContains('This is a team note.');
 	}
 
@@ -607,43 +914,55 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'captain' => true,
+				'player' => $player,
+			],
+		]);
+		$captain = $team->people[0];
+
 		// Players are allowed to add notes
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'note', 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'note', 'team' => $team->id], $player->id);
 
 		// Add a note for all captains to see
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => TEAM_ID_RED],
-			PERSON_ID_PLAYER, [
-				'team_id' => TEAM_ID_RED,
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => $team->id],
+			$player->id, [
+				'team_id' => $team->id,
 				'visibility' => VISIBILITY_CAPTAINS,
 				'note' => 'This is a captain note.',
-			], ['action' => 'view', 'team' => TEAM_ID_RED], 'The note has been saved.');
+			], ['action' => 'view', 'team' => $team->id], 'The note has been saved.');
 
 		// Confirm there was no notification email
-		$this->assertEmpty(Configure::read('test_emails'));
+		$this->assertNoMailSent();
 
 		// Make sure it was added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $player->id);
 		$this->assertResponseContains('This is a captain note.');
 
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $captain->id);
 		$this->assertResponseContains('This is a captain note.');
 
 		// Add a note for the team to see
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => TEAM_ID_RED],
-			PERSON_ID_PLAYER, [
-				'team_id' => TEAM_ID_RED,
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'note', 'team' => $team->id],
+			$player->id, [
+				'team_id' => $team->id,
 				'visibility' => VISIBILITY_TEAM,
 				'note' => 'This is a team note.',
-			], ['action' => 'view', 'team' => TEAM_ID_RED], 'The note has been saved.');
+			], ['action' => 'view', 'team' => $team->id], 'The note has been saved.');
 
 		// Confirm there was no notification email
-		$this->assertEmpty(Configure::read('test_emails'));
+		$this->assertNoMailSent();
 
 		// Make sure it was added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $player->id);
 		$this->assertResponseContains('This is a team note.');
 
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $captain->id);
 		$this->assertResponseContains('This is a team note.');
 	}
 
@@ -654,18 +973,34 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		// Visitors are allowed to add notes
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'note', 'team' => TEAM_ID_RED], PERSON_ID_VISITOR);
-		$this->markTestIncomplete('Not implemented yet.');
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
+		// People not on the team are allowed to add notes
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'note', 'team' => $team->id], $player->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test note method without being logged in
 	 */
 	public function testNoteAsAnonymous(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
 		// Others are not allowed to add notes
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'note', 'team' => TEAM_ID_RED]);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'note', 'team' => $team->id]);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -675,25 +1010,37 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
+		$notes = NoteFactory::make([
+			['team_id' => $team->id, 'created_person_id' => $manager->id, 'visibility' => VISIBILITY_ADMIN],
+			['team_id' => $team->id, 'created_person_id' => $volunteer->id, 'visibility' => VISIBILITY_COORDINATOR],
+			['team_id' => $team->id, 'created_person_id' => $player->id, 'visibility' => VISIBILITY_TEAM],
+			['team_id' => $team->id, 'created_person_id' => $player->id, 'visibility' => VISIBILITY_PRIVATE],
+		])->persist();
+
 		// Admins are allowed to delete admin notes
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_ADMIN],
-			PERSON_ID_ADMIN, [], ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[0]->id],
+			$admin->id, [], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'The note has been deleted.');
 
 		// And coordinator notes
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_COORDINATOR],
-			PERSON_ID_ADMIN, [], ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[1]->id],
+			$admin->id, [], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'The note has been deleted.');
 
 		// But not other notes
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_CAPTAIN],
-			PERSON_ID_ADMIN);
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_PLAYER],
-			PERSON_ID_ADMIN);
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_VISITOR],
-			PERSON_ID_ADMIN);
+		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[2]->id],
+			$admin->id);
+		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[3]->id],
+			$admin->id);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -703,25 +1050,37 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
+		$notes = NoteFactory::make([
+			['team_id' => $team->id, 'created_person_id' => $manager->id, 'visibility' => VISIBILITY_ADMIN],
+			['team_id' => $team->id, 'created_person_id' => $volunteer->id, 'visibility' => VISIBILITY_COORDINATOR],
+			['team_id' => $team->id, 'created_person_id' => $player->id, 'visibility' => VISIBILITY_TEAM],
+			['team_id' => $team->id, 'created_person_id' => $player->id, 'visibility' => VISIBILITY_PRIVATE],
+		])->persist();
+
 		// Managers are allowed to delete admin notes
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_ADMIN],
-			PERSON_ID_MANAGER, [], ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[0]->id],
+			$manager->id, [], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'The note has been deleted.');
 
 		// And coordinator notes
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_COORDINATOR],
-			PERSON_ID_MANAGER, [], ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[1]->id],
+			$manager->id, [], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'The note has been deleted.');
 
 		// But not other notes
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_CAPTAIN],
-			PERSON_ID_MANAGER);
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_PLAYER],
-			PERSON_ID_MANAGER);
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_VISITOR],
-			PERSON_ID_MANAGER);
+		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[2]->id],
+			$manager->id);
+		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[3]->id],
+			$manager->id);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -731,22 +1090,35 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'coordinator' => $volunteer,
+		]);
+
+		$notes = NoteFactory::make([
+			['team_id' => $team->id, 'created_person_id' => $manager->id, 'visibility' => VISIBILITY_ADMIN],
+			['team_id' => $team->id, 'created_person_id' => $admin->id, 'visibility' => VISIBILITY_COORDINATOR],
+			['team_id' => $team->id, 'created_person_id' => $player->id, 'visibility' => VISIBILITY_TEAM],
+			['team_id' => $team->id, 'created_person_id' => $player->id, 'visibility' => VISIBILITY_PRIVATE],
+		])->persist();
+
 		// Coordinators are allowed to delete coordinator notes
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_COORDINATOR],
-			PERSON_ID_COORDINATOR, [], ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[1]->id],
+			$volunteer->id, [], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'The note has been deleted.');
 
 		// But not other notes
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_ADMIN],
-			PERSON_ID_COORDINATOR);
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_CAPTAIN],
-			PERSON_ID_COORDINATOR);
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_PLAYER],
-			PERSON_ID_COORDINATOR);
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_VISITOR],
-			PERSON_ID_COORDINATOR);
+		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[0]->id],
+			$volunteer->id);
+		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[2]->id],
+			$volunteer->id);
+		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[3]->id],
+			$volunteer->id);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -756,22 +1128,37 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'captain' => $player,
+			],
+		]);
+
+		$notes = NoteFactory::make([
+			['team_id' => $team->id, 'created_person_id' => $manager->id, 'visibility' => VISIBILITY_ADMIN],
+			['team_id' => $team->id, 'created_person_id' => $volunteer->id, 'visibility' => VISIBILITY_COORDINATOR],
+			['team_id' => $team->id, 'created_person_id' => $player->id, 'visibility' => VISIBILITY_TEAM],
+			['team_id' => $team->id, 'created_person_id' => $volunteer->id, 'visibility' => VISIBILITY_PRIVATE],
+		])->persist();
+
 		// Captains are only allowed to delete notes they created
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_CAPTAIN],
-			PERSON_ID_CAPTAIN, [], ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[2]->id],
+			$player->id, [], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'The note has been deleted.');
 
 		// But not other notes
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_ADMIN],
-			PERSON_ID_CAPTAIN);
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_COORDINATOR],
-			PERSON_ID_CAPTAIN);
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_PLAYER],
-			PERSON_ID_CAPTAIN);
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_VISITOR],
-			PERSON_ID_CAPTAIN);
+		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[0]->id],
+			$player->id);
+		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[1]->id],
+			$player->id);
+		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[3]->id],
+			$player->id);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -781,22 +1168,34 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
+		$notes = NoteFactory::make([
+			['team_id' => $team->id, 'created_person_id' => $manager->id, 'visibility' => VISIBILITY_ADMIN],
+			['team_id' => $team->id, 'created_person_id' => $volunteer->id, 'visibility' => VISIBILITY_COORDINATOR],
+			['team_id' => $team->id, 'created_person_id' => $player->id, 'visibility' => VISIBILITY_TEAM],
+			['team_id' => $team->id, 'created_person_id' => $volunteer->id, 'visibility' => VISIBILITY_PRIVATE],
+		])->persist();
+
 		// Players are only allowed to delete notes they created
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_PLAYER],
-			PERSON_ID_PLAYER, [], ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[2]->id],
+			$player->id, [], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'The note has been deleted.');
 
 		// But not other notes
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_ADMIN],
-			PERSON_ID_PLAYER);
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_COORDINATOR],
-			PERSON_ID_PLAYER);
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_CAPTAIN],
-			PERSON_ID_PLAYER);
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_VISITOR],
-			PERSON_ID_PLAYER);
+		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[0]->id],
+			$player->id);
+		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[1]->id],
+			$player->id);
+		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[3]->id],
+			$player->id);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -806,22 +1205,36 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		/** @var Person $other */
+		$other = PersonFactory::makePlayer()->with('Affiliates', $admin->affiliates[0])->persist();
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
+		$notes = NoteFactory::make([
+			['team_id' => $team->id, 'created_person_id' => $manager->id, 'visibility' => VISIBILITY_ADMIN],
+			['team_id' => $team->id, 'created_person_id' => $volunteer->id, 'visibility' => VISIBILITY_COORDINATOR],
+			['team_id' => $team->id, 'created_person_id' => $player->id, 'visibility' => VISIBILITY_TEAM],
+			['team_id' => $team->id, 'created_person_id' => $other->id, 'visibility' => VISIBILITY_PRIVATE],
+		])->persist();
+
 		// Visitors are only allowed to delete notes they created
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_VISITOR],
-			PERSON_ID_VISITOR, [], ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[3]->id],
+			$other->id, [], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'The note has been deleted.');
 
 		// But not other notes
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_ADMIN],
-			PERSON_ID_VISITOR);
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_COORDINATOR],
-			PERSON_ID_VISITOR);
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_CAPTAIN],
-			PERSON_ID_VISITOR);
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_PLAYER],
-			PERSON_ID_VISITOR);
+		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[0]->id],
+			$other->id);
+		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[1]->id],
+			$other->id);
+		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[2]->id],
+			$other->id);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -831,8 +1244,25 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
+		$notes = NoteFactory::make([
+			['team_id' => $team->id, 'created_person_id' => $manager->id, 'visibility' => VISIBILITY_ADMIN],
+			['team_id' => $team->id, 'created_person_id' => $volunteer->id, 'visibility' => VISIBILITY_COORDINATOR],
+			['team_id' => $team->id, 'created_person_id' => $player->id, 'visibility' => VISIBILITY_TEAM],
+			['team_id' => $team->id, 'created_person_id' => $volunteer->id, 'visibility' => VISIBILITY_PRIVATE],
+		])->persist();
+
 		// Others are not allowed to delete notes
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => NOTE_ID_TEAM_RED_PLAYER]);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[0]->id]);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[1]->id]);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[2]->id]);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'delete_note', 'note' => $notes[3]->id]);
 	}
 
 	/**
@@ -842,14 +1272,29 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
+		/** @var Team $dependent_team */
+		$dependent_team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'player' => $player,
+			]
+		]);
+
 		// Admins are allowed to delete teams
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'delete', 'team' => TEAM_ID_OAKS],
-			PERSON_ID_ADMIN, [], ['controller' => 'Teams', 'action' => 'index'],
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'delete', 'team' => $team->id],
+			$admin->id, [], ['controller' => 'Teams', 'action' => 'index'],
 			'The team has been deleted.');
 
 		// But not ones with dependencies
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'delete', 'team' => TEAM_ID_RED],
-			PERSON_ID_ADMIN, [], ['controller' => 'Teams', 'action' => 'index'],
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'delete', 'team' => $dependent_team->id],
+			$admin->id, [], ['controller' => 'Teams', 'action' => 'index'],
 			'#The following records reference this team, so it cannot be deleted#');
 	}
 
@@ -860,14 +1305,26 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
+		/** @var Team $affiliate_team */
+		$affiliate_team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[1],
+		]);
+
 		// Managers are allowed to delete teams in their affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'delete', 'team' => TEAM_ID_OAKS],
-			PERSON_ID_MANAGER, [], ['controller' => 'Teams', 'action' => 'index'],
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'delete', 'team' => $team->id],
+			$manager->id, [], ['controller' => 'Teams', 'action' => 'index'],
 			'The team has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete', 'team' => TEAM_ID_BEARS],
-			PERSON_ID_MANAGER);
+		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete', 'team' => $affiliate_team->id],
+			$manager->id);
 	}
 
 	/**
@@ -877,11 +1334,19 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		// Coordinators are not allowed to delete teams
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete', 'team' => TEAM_ID_ORANGE],
-			PERSON_ID_COORDINATOR);
+		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'coordinator' => $volunteer,
+		]);
+
+		// Coordinators are not allowed to delete teams
+		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete', 'team' => $team->id],
+			$volunteer->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -891,16 +1356,26 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'captain' => $player,
+			],
+		]);
+
 		// Team owners are allowed to delete their own teams
 		/* TODO: Not at this time
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'delete', 'team' => TEAM_ID_RED],
-			PERSON_ID_CAPTAIN, [], ['controller' => 'Teams', 'action' => 'index'],
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'delete', 'team' => $team->id],
+			$player->id, [], ['controller' => 'Teams', 'action' => 'index'],
 			'The team has been deleted.');
 		*/
 
 		// But not others
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete', 'team' => TEAM_ID_BLUE],
-			PERSON_ID_CAPTAIN);
+		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'delete', 'team' => $team->id],
+			$player->id);
 	}
 
 	/**
@@ -910,102 +1385,171 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'player' => $player,
+			],
+		]);
+
 		// Others are not allowed to delete teams
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Teams', 'action' => 'delete', 'team' => TEAM_ID_OAKS], PERSON_ID_PLAYER);
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Teams', 'action' => 'delete', 'team' => TEAM_ID_OAKS], PERSON_ID_VISITOR);
-		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'delete', 'team' => TEAM_ID_OAKS]);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Teams', 'action' => 'delete', 'team' => $team->id], $player->id);
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'delete', 'team' => $team->id]);
 	}
 
 	/**
 	 * Test move method as an admin
 	 */
 	public function testMoveAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $admin->affiliates[0], 'divisions' => 2,
+		]);
+		$team = TeamFactory::make()->with('Divisions', $league->divisions[0])->persist();
+
 		// Admins are allowed to move teams
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'move', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'move', 'team' => $team->id], $admin->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test move method as a manager
 	 */
 	public function testMoveAsManager(): void {
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $admin->affiliates[0], 'divisions' => 2,
+		]);
+		$team = TeamFactory::make()->with('Divisions', $league->divisions[0])->persist();
+
 		// Managers are allowed to move teams
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'move', 'team' => TEAM_ID_RED], PERSON_ID_MANAGER);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'move', 'team' => $team->id], $manager->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test move method as a coordinator
 	 */
 	public function testMoveAsCoordinator(): void {
+		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $admin->affiliates[0], 'divisions' => 2, 'coordinator' => $volunteer,
+		]);
+		$team = TeamFactory::make()->with('Divisions', $league->divisions[0])->persist();
+
 		// Coordinators are not allowed to move teams
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'move', 'team' => TEAM_ID_RED], PERSON_ID_COORDINATOR);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'move', 'team' => $team->id], $volunteer->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test move method as others
 	 */
 	public function testMoveAsOthers(): void {
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $admin->affiliates[0], 'divisions' => 2,
+		]);
+		$team = TeamFactory::make()->with('Divisions', $league->divisions[0])->persist();
+
 		// Others are not allowed to move teams
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'move', 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'move', 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'move', 'team' => TEAM_ID_RED], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'move', 'team' => TEAM_ID_RED]);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'move', 'team' => $team->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'move', 'team' => $team->id]);
+	}
+
+	/**
+	 * Test move method without destination
+	 */
+	public function testMoveWithoutDestination(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
+		// Can't move teams if there's nowhere to move them to
+		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'move', 'team' => $team->id],
+			$admin->id, ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
+			'No similar division found to move this team to!');
 	}
 
 	/**
 	 * Test schedule method
 	 */
 	public function testSchedule(): void {
+		[$admin, $manager, $volunteer, $captain] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $admin->affiliates[0], 'coordinator' => $volunteer]);
+		$division = $league->divisions[0];
+		$game = $division->games[0];
+		$bears = $division->teams[0];
+
+		TeamsPersonFactory::make(['person_id' => $captain->id, 'team_id' => $bears->id, 'role' => 'captain'])
+			->persist();
+
+		$event = TeamEventFactory::make(['team_id' => $bears->id])->persist();
+
 		// Anyone is allowed to see the schedule
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'schedule', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/games/edit?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
-		$this->assertResponseContains('/games/view?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
-		$this->assertResponseNotContains('/team_events/view?event=' . TEAM_EVENT_ID_RED_PRACTICE);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'schedule', 'team' => $bears->id], $admin->id);
+		$this->assertResponseContains('/games/edit?game=' . $game->id);
+		$this->assertResponseContains('/games/view?game=' . $game->id);
+		$this->assertResponseNotContains('/team_events/view?event=' . $event->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'schedule', 'team' => TEAM_ID_RED], PERSON_ID_MANAGER);
-		$this->assertResponseContains('/games/edit?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
-		$this->assertResponseContains('/games/view?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
-		$this->assertResponseNotContains('/team_events/view?event=' . TEAM_EVENT_ID_RED_PRACTICE);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'schedule', 'team' => $bears->id], $manager->id);
+		$this->assertResponseContains('/games/edit?game=' . $game->id);
+		$this->assertResponseContains('/games/view?game=' . $game->id);
+		$this->assertResponseNotContains('/team_events/view?event=' . $event->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'schedule', 'team' => TEAM_ID_RED], PERSON_ID_COORDINATOR);
-		$this->assertResponseContains('/games/edit?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
-		$this->assertResponseContains('/games/view?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
-		$this->assertResponseNotContains('/team_events/view?event=' . TEAM_EVENT_ID_RED_PRACTICE);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'schedule', 'team' => $bears->id], $volunteer->id);
+		$this->assertResponseContains('/games/edit?game=' . $game->id);
+		$this->assertResponseContains('/games/view?game=' . $game->id);
+		$this->assertResponseNotContains('/team_events/view?event=' . $event->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'schedule', 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
-		$this->assertResponseNotContains('/games/edit?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
-		$this->assertResponseContains('/games/view?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
-		$this->assertResponseContains('/team_events/view?event=' . TEAM_EVENT_ID_RED_PRACTICE);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'schedule', 'team' => $bears->id], $captain->id);
+		$this->assertResponseNotContains('/games/edit?game=' . $game->id);
+		$this->assertResponseContains('/games/view?game=' . $game->id);
+		$this->assertResponseContains('/team_events/view?event=' . $event->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'schedule', 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
-		$this->assertResponseNotContains('/games/edit?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
-		$this->assertResponseContains('/games/view?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
-		$this->assertResponseContains('/team_events/view?event=' . TEAM_EVENT_ID_RED_PRACTICE);
-
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'schedule', 'team' => TEAM_ID_RED], PERSON_ID_VISITOR);
-		$this->assertResponseNotContains('/games/edit?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
-		$this->assertResponseContains('/games/view?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
-		$this->assertResponseNotContains('/team_events/view?event=' . TEAM_EVENT_ID_RED_PRACTICE);
-
-		$this->assertGetAnonymousAccessOk(['controller' => 'Teams', 'action' => 'schedule', 'team' => TEAM_ID_RED]);
-		$this->assertResponseNotContains('/games/edit?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
-		$this->assertResponseContains('/games/view?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN);
-		$this->assertResponseNotContains('/team_events/view?event=' . TEAM_EVENT_ID_RED_PRACTICE);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Teams', 'action' => 'schedule', 'team' => $bears->id]);
+		$this->assertResponseNotContains('/games/edit?game=' . $game->id);
+		$this->assertResponseContains('/games/view?game=' . $game->id);
+		$this->assertResponseNotContains('/team_events/view?event=' . $event->id);
 	}
 
 	/**
 	 * Test ical method
 	 */
 	public function testIcal(): void {
-		// Make sure that we're before the division close date
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
-		// Can get the ical feed for any team in an active or upcoming league, but not in the past
-		$this->assertGetAnonymousAccessOk(['controller' => 'Teams', 'action' => 'ical', TEAM_ID_RED]);
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
 
-		$this->get(['controller' => 'Teams', 'action' => 'ical', TEAM_ID_RED_PAST]);
+		// Can get the ical feed for any team in an active or upcoming league
+		FrozenDate::setTestNow($team->division->close->subWeek());
+		$this->assertGetAnonymousAccessOk(['controller' => 'Teams', 'action' => 'ical', $team->id]);
+
+		// But not in the past
+		FrozenDate::setTestNow($team->division->close->addWeeks(3));
+		$this->get(['controller' => 'Teams', 'action' => 'ical', $team->id]);
 		$this->assertResponseCode(410);
 	}
 
@@ -1013,78 +1557,133 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test spirit method
 	 */
 	public function testSpirit(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $admin->affiliates[0], 'coordinator' => $volunteer]);
+		$bears = $league->divisions[0]->teams[0];
+
+		/** @var \App\Model\Entity\League $affiliate_league */
+		$affiliate_league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $admin->affiliates[1]]);
+		$affiliate_bears = $affiliate_league->divisions[0]->teams[0];
+
+		/** @var \App\Model\Entity\League $other_league */
+		$other_league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $admin->affiliates[0]]);
+		$other_bears = $other_league->divisions[0]->teams[0];
+
 		// Admins are allowed to see the spirit report
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'spirit', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'spirit', 'team' => $bears->id], $admin->id);
 
 		// Managers are allowed to see the spirit report for teams in their affiliate
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'spirit', 'team' => TEAM_ID_RED], PERSON_ID_MANAGER);
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'spirit', 'team' => TEAM_ID_BEARS], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'spirit', 'team' => $bears->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'spirit', 'team' => $affiliate_bears->id], $manager->id);
 
 		// Coordinators are allowed to see the spirit report for teams in their divisions
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'spirit', 'team' => TEAM_ID_RED], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'spirit', 'team' => TEAM_ID_OAKS], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'spirit', 'team' => $bears->id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'spirit', 'team' => $other_bears->id], $volunteer->id);
 
 		// Others are not allowed to see the spirit report
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'spirit', 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'spirit', 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'spirit', 'team' => TEAM_ID_RED], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'spirit', 'team' => TEAM_ID_RED]);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'spirit', 'team' => $bears->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'spirit', 'team' => $bears->id]);
 	}
 
 	/**
 	 * Test attendance method
 	 */
 	public function testAttendance(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $admin->affiliates[0], 'coordinator' => $volunteer]);
+		[$bears, $lions] = $league->divisions[0]->teams;
+
+		/** @var Person $captain */
+		$captain = PersonFactory::makePlayer()
+			->with('TeamsPeople', TeamsPersonFactory::make(['team_id' => $bears->id, 'role' => 'captain']))
+			->persist();
+
+		TeamsPersonFactory::make(['person_id' => $player->id, 'team_id' => $bears->id, 'role' => 'player'])
+			->persist();
+
+		/** @var \App\Model\Entity\League $affiliate_league */
+		$affiliate_league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $admin->affiliates[1]]);
+		$affiliate_bears = $affiliate_league->divisions[0]->teams[0];
+
+		// Also add a relative to the player on the affiliate Bears
+		/** @var Person $relative */
+		$relative = PersonFactory::make()
+			->withGroup(GROUP_PLAYER)
+			->with('Affiliates', $admin->affiliates[1])
+			->persist();
+		PeoplePersonFactory::make(['person_id' => $player->id, 'relative_id' => $relative->id])->persist();
+
+		TeamsPersonFactory::make(['person_id' => $relative->id, 'team_id' => $affiliate_bears->id, 'role' => 'player'])
+			->persist();
+
 		// Admins are allowed to see attendance
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'attendance', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'attendance', 'team' => $bears->id], $admin->id);
 
 		// Managers are allowed to see attendance for teams in their affiliate
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'attendance', 'team' => TEAM_ID_RED], PERSON_ID_MANAGER);
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'attendance', 'team' => TEAM_ID_BEARS], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'attendance', 'team' => $bears->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'attendance', 'team' => $affiliate_bears->id], $manager->id);
 
 		// Coordinators are not allowed to see attendance, even for teams in their divisions
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'attendance', 'team' => TEAM_ID_RED], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'attendance', 'team' => TEAM_ID_OAKS], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'attendance', 'team' => $bears->id], $volunteer->id);
 
 		// Captains are allowed to see attendance for their teams
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'attendance', 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
-		// And attendance for teams of people they're related to
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'attendance', 'team' => TEAM_ID_BLUE], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'attendance', 'team' => $bears->id], $captain->id);
 		// But not other teams
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'attendance', 'team' => TEAM_ID_SPARROWS], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'attendance', 'team' => $lions->id], $captain->id);
 
 		// Players are allowed to see attendance for their teams
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'attendance', 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'attendance', 'team' => $bears->id], $player->id);
 		// And attendance for teams of people they're related to
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'attendance', 'team' => TEAM_ID_BLUE], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'attendance', 'team' => $affiliate_bears->id], $player->id);
 		// But not other teams
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'attendance', 'team' => TEAM_ID_CHICKADEES], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'attendance', 'team' => $lions->id], $player->id);
 
 		// Others are not allowed to see attendance
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'attendance', 'team' => TEAM_ID_RED], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'attendance', 'team' => TEAM_ID_RED]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'attendance', 'team' => $bears->id]);
 	}
 
 	/**
 	 * Test emails method
 	 */
 	public function testEmails(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'coordinator' => $volunteer,
+			'roles' => [
+				'captain' => true,
+				'player' => $player,
+			],
+		]);
+
+		$captain = $team->people[0];
+
+		/** @var Team $affiliate_team */
+		$affiliate_team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[1],
+		]);
+
 		// Admins are allowed to see emails
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'emails', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'emails', 'team' => $team->id], $admin->id);
 
 		// Managers are allowed to see emails for teams in their affiliate
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'emails', 'team' => TEAM_ID_RED], PERSON_ID_MANAGER);
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'emails', 'team' => TEAM_ID_BEARS], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'emails', 'team' => $team->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'emails', 'team' => $affiliate_team->id], $manager->id);
 
 		// Captains are allowed to see emails for their teams
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'emails', 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'emails', 'team' => TEAM_ID_BLUE], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'emails', 'team' => $team->id], $captain->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'emails', 'team' => $affiliate_team->id], $captain->id);
 
 		// Others are not allowed to see emails
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'emails', 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'emails', 'team' => TEAM_ID_RED], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'emails', 'team' => TEAM_ID_RED], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'emails', 'team' => TEAM_ID_RED]);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'emails', 'team' => $team->id], $player->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'emails', 'team' => $team->id], $volunteer->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'emails', 'team' => $team->id]);
 	}
 
 	/**
@@ -1094,67 +1693,123 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
 		// Admins are allowed to add players to teams
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'add_player', 'team' => TEAM_ID_OAKS], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'add_player', 'team' => $team->id], $admin->id);
 
 		// Try the search page
-		$this->assertPostAsAccessOk(['controller' => 'Teams', 'action' => 'add_player', 'team' => TEAM_ID_OAKS],
-			PERSON_ID_ADMIN, [
-				'affiliate_id' => '1',
+		$this->assertPostAsAccessOk(['controller' => 'Teams', 'action' => 'add_player', 'team' => $team->id],
+			$admin->id, [
+				'affiliate_id' => $admin->affiliates[0]->id,
 				'first_name' => '',
-				'last_name' => 'player',
+				'last_name' => $player->last_name,
 				'sort' => 'last_name',
 				'direction' => 'asc',
 			]
 		);
-		$return = urlencode(\App\Lib\base64_url_encode(Configure::read('App.base') . '/teams/add_player?team=' . TEAM_ID_OAKS));
-		$this->assertResponseContains('/teams/roster_add?person=' . PERSON_ID_PLAYER . '&amp;return=' . $return . '&amp;team=' . TEAM_ID_OAKS);
+		$return = urlencode(base64_url_encode(Configure::read('App.base') . '/teams/add_player?team=' . $team->id));
+		$this->assertResponseContains('/teams/roster_add?person=' . $player->id . '&amp;return=' . $return . '&amp;team=' . $team->id);
 	}
 
 	/**
 	 * Test add_player method as a manager
 	 */
 	public function testAddPlayerAsManager(): void {
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
+		/** @var Team $affiliate_team */
+		$affiliate_team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[1],
+		]);
+
 		// Managers are allowed to add players to teams
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'add_player', 'team' => TEAM_ID_OAKS], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'add_player', 'team' => $team->id], $manager->id);
 
 		// But not teams in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'add_player', 'team' => TEAM_ID_LIONS], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'add_player', 'team' => $affiliate_team->id], $manager->id);
 	}
 
 	/**
 	 * Test add_player method as a coordinator
 	 */
 	public function testAddPlayerAsCoordinator(): void {
+		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'coordinator' => $volunteer,
+		]);
+
+		/** @var Team $other_team */
+		$other_team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
 		// Coordinators are allowed to add players to teams in their divisions
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'add_player', 'team' => TEAM_ID_RED], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'add_player', 'team' => $team->id], $volunteer->id);
 
 		// But not other divisions
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'add_player', 'team' => TEAM_ID_MAPLES], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'add_player', 'team' => $other_team->id], $volunteer->id);
 	}
 
 	/**
 	 * Test add_player method as a captain
 	 */
 	public function testAddPlayerAsCaptain(): void {
+		[$admin, , , $captain] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'captain' => $captain,
+			],
+		]);
+
+		/** @var Team $other_team */
+		$other_team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
 		// Make sure that we're before the roster deadline for captains to add players
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
 
 		// Captains are allowed to add players to their own teams
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'add_player', 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'add_player', 'team' => $team->id], $captain->id);
 
 		// But not other teams
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'add_player', 'team' => TEAM_ID_MAPLES], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'add_player', 'team' => $other_team->id], $captain->id);
 	}
 
 	/**
 	 * Test add_player method as others
 	 */
 	public function testAddPlayerAsOthers(): void {
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'player' => $player,
+			],
+		]);
+
 		// Others are not allowed to add players to teams
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'add_player', 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'add_player', 'team' => TEAM_ID_RED], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'add_player', 'team' => TEAM_ID_RED]);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'add_player', 'team' => $team->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'add_player', 'team' => $team->id]);
 	}
 
 	/**
@@ -1164,9 +1819,22 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
+		/** @var Team $other_team */
+		$other_team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
 		// Admins are allowed to add from team
-		$this->assertPostAsAccessOk(['controller' => 'Teams', 'action' => 'add_from_team', 'team' => TEAM_ID_RED],
-			PERSON_ID_ADMIN, ['team' => TEAM_ID_RED_PAST]);
+		$this->assertPostAsAccessOk(['controller' => 'Teams', 'action' => 'add_from_team', 'team' => $team->id],
+			$admin->id, ['team' => $other_team->id]);
+
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
@@ -1177,12 +1845,30 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
+		/** @var Team $other_team */
+		$other_team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
+		/** @var Team $affiliate_team */
+		$affiliate_team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[1],
+		]);
+
 		// Managers are allowed to add from team to teams in their affiliate
-		$this->assertPostAsAccessOk(['controller' => 'Teams', 'action' => 'add_from_team', 'team' => TEAM_ID_RED],
-			PERSON_ID_MANAGER, ['team' => TEAM_ID_RED_PAST]);
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'add_from_team', 'team' => TEAM_ID_BEARS],
-			PERSON_ID_MANAGER);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertPostAsAccessOk(['controller' => 'Teams', 'action' => 'add_from_team', 'team' => $team->id],
+			$manager->id, ['team' => $other_team->id]);
+		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'add_from_team', 'team' => $affiliate_team->id],
+			$manager->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1192,12 +1878,26 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'coordinator' => $volunteer,
+		]);
+
+		/** @var Team $other_team */
+		$other_team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
 		// Coordinators are allowed to add from team to teams in their divisions
-		$this->assertPostAsAccessOk(['controller' => 'Teams', 'action' => 'add_from_team', 'team' => TEAM_ID_RED],
-			PERSON_ID_COORDINATOR, ['team' => TEAM_ID_RED_PAST]);
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'add_from_team', 'team' => TEAM_ID_OAKS],
-			PERSON_ID_COORDINATOR);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertPostAsAccessOk(['controller' => 'Teams', 'action' => 'add_from_team', 'team' => $team->id],
+			$volunteer->id, ['team' => $other_team->id]);
+		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'add_from_team', 'team' => $other_team->id],
+			$volunteer->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1207,58 +1907,78 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager, , $captain] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'captain' => $captain,
+			],
+		]);
+
+		/** @var Team $other_team */
+		$other_team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'captain' => $captain,
+				'assistant' => true,
+				'player' => $manager,
+			],
+		]);
+		$invitee = $other_team->people[1];
+
 		// Make sure that we're before the roster deadline for captains to add players
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
 
 		// Captains are allowed to add players from their past teams
-		$this->assertPostAsAccessOk(['controller' => 'Teams', 'action' => 'add_from_team', 'team' => TEAM_ID_RED],
-			PERSON_ID_CAPTAIN, ['team' => TEAM_ID_RED_PAST]);
-		$this->assertResponseContains('<span id="people_person_' .  PERSON_ID_CHILD . '" class="trigger">Carla Child</span>');
-		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  PERSON_ID_CHILD . '\]\[role\]" value="captain" id="player-' .  PERSON_ID_CHILD . '-role-captain">\s*Captain#ms');
-		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  PERSON_ID_CHILD . '\]\[position\]" value="unspecified" id="player-' .  PERSON_ID_CHILD . '-position-unspecified" checked="checked">\s*Unspecified#ms');
-		$this->assertResponseContains('<span id="people_person_' .  PERSON_ID_MANAGER . '" class="trigger">Mary Manager</span>');
+		$this->assertPostAsAccessOk(['controller' => 'Teams', 'action' => 'add_from_team', 'team' => $team->id],
+			$captain->id, ['team' => $other_team->id]);
+		$this->assertResponseContains('<span id="people_person_' .  $invitee->id . '" class="trigger">' . $invitee->full_name . '</span>');
+		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  $invitee->id . '\]\[role\]" value="captain" id="player-' .  $invitee->id . '-role-captain">\s*Captain#ms');
+		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  $invitee->id . '\]\[position\]" value="unspecified" id="player-' .  $invitee->id . '-position-unspecified" checked="checked">\s*Unspecified#ms');
+		$this->assertResponseContains('<span id="people_person_' .  $manager->id . '" class="trigger">' . $manager->full_name . '</span>');
 		// The manager is not a player, so doesn't get player options, just coach and none
-		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  PERSON_ID_MANAGER . '\]\[role\]" value="coach" id="player-' .  PERSON_ID_MANAGER . '-role-coach">\s*Non-playing coach#ms');
-		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  PERSON_ID_MANAGER . '\]\[position\]" value="unspecified" id="player-' .  PERSON_ID_MANAGER . '-position-unspecified" checked="checked">\s*Unspecified#ms');
+		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  $manager->id . '\]\[role\]" value="coach" id="player-' .  $manager->id . '-role-coach">\s*Non-playing coach#ms');
+		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  $manager->id . '\]\[position\]" value="unspecified" id="player-' .  $manager->id . '-position-unspecified" checked="checked">\s*Unspecified#ms');
 
 		// Submit the add form
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'add_from_team', 'team' => TEAM_ID_RED],
-			PERSON_ID_CAPTAIN, [
-				'team' => TEAM_ID_RED_PAST,
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'add_from_team', 'team' => $team->id],
+			$captain->id, [
+				'team' => $other_team->id,
 				'player' => [
-					PERSON_ID_CHILD => [
+					$invitee->id => [
 						'role' => 'player',
 						'position' => 'unspecified',
 					],
-					PERSON_ID_MANAGER => [
+					$manager->id => [
 						'role' => 'none',
 						'position' => 'unspecified',
 					],
 				],
-			], ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
-			'Invitation has been sent to Carla Child.');
+			], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
+			'Invitation has been sent to ' . $invitee->full_name . '.');
 
 		// Confirm the roster email
-		$messages = Configure::read('test_emails');
-		$this->assertEquals(1, count($messages));
-
-		$this->assertContains('From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;', $messages[0]);
-		$this->assertContains('Reply-To: &quot;Crystal Captain&quot; &lt;crystal@zuluru.org&gt;', $messages[0]);
-		$this->assertContains('To: &quot;Pam Player&quot; &lt;pam@zuluru.org&gt;', $messages[0]);
-		$this->assertNotContains('CC: ', $messages[0]);
-		$this->assertContains('Subject: Invitation to join Red', $messages[0]);
-		$this->assertContains('Crystal Captain has invited you to join the roster of the Test Zuluru Affiliate team Red as a Regular player.', $messages[0]);
-		$this->assertContains('Red plays in the Competitive division of the Monday Night league, which operates on Monday.', $messages[0]);
-		$this->assertRegExp('#More details about Red may be found at\s*' . Configure::read('App.fullBaseUrl') . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '#ms', $messages[0]);
+		$this->assertMailCount(1);
+		$this->assertMailSentFrom('admin@zuluru.org');
+		$this->assertMailSentWith([$captain->user->email => $captain->full_name], 'ReplyTo');
+		$this->assertMailSentTo($invitee->user->email);
+		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWith('Invitation to join ' . $team->name, 'Subject');
+		$this->assertMailContains($captain->full_name . ' has invited you to join the roster of the Test Zuluru Affiliate team ' . $team->name . ' as a Regular player.');
+		$this->assertMailContains($team->name . ' plays in the ' . $team->division->name . ' division of the ' . $team->division->league->name . ' league');
+		$this->assertMailContains('More details about ' . $team->name . ' may be found at');
+		$this->assertMailContains(Configure::read('App.fullBaseUrl') . Configure::read('App.base') . '/teams/view?team=' . $team->id);
 
 		// Make sure they were added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $captain->id);
 		$this->assertResponseContains('Regular player [invited:');
 		// There is no accept link, because the membership is not yet paid for
-		$this->assertResponseNotContains('/teams/roster_accept?team=' . TEAM_ID_RED . '&amp;person=' . PERSON_ID_CHILD);
-		$this->assertResponseContains('/teams/roster_decline?team=' . TEAM_ID_RED . '&amp;person=' . PERSON_ID_CHILD);
-		$this->assertResponseNotContains('/teams/roster_accept?team=' . TEAM_ID_RED . '&amp;person=' . PERSON_ID_MANAGER);
-		$this->assertResponseNotContains('/teams/roster_decline?team=' . TEAM_ID_RED . '&amp;person=' . PERSON_ID_MANAGER);
+		$this->assertResponseNotContains('/teams/roster_accept?team=' . $team->id . '&amp;person=' . $invitee->id);
+		$this->assertResponseContains('/teams/roster_decline?team=' . $team->id . '&amp;person=' . $invitee->id);
+		$this->assertResponseNotContains('/teams/roster_accept?team=' . $team->id . '&amp;person=' . $manager->id);
+		$this->assertResponseNotContains('/teams/roster_decline?team=' . $team->id . '&amp;person=' . $manager->id);
 	}
 
 	/**
@@ -1268,12 +1988,20 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'player' => $player,
+			],
+		]);
+
 		// Others are not allowed to add from team
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'add_from_team', 'team' => TEAM_ID_RED],
-			PERSON_ID_PLAYER);
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'add_from_team', 'team' => TEAM_ID_RED],
-			PERSON_ID_VISITOR);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'add_from_team', 'team' => TEAM_ID_RED]);
+		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'add_from_team', 'team' => $team->id],
+			$player->id);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'add_from_team', 'team' => $team->id]);
 	}
 
 	/**
@@ -1283,69 +2011,90 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		/** @var Person $other */
+		$other = PersonFactory::makePlayer()->with('Affiliates', $admin->affiliates[0])->persist();
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
+		// Create an individual event and registrations
+		/** @var Event $event */
+		$event = EventFactory::make(['event_type_id' => EVENT_TYPE_ID_INDIVIDUALS_FOR_LEAGUES, 'affiliate_id' => $admin->affiliates[0]->id, 'division_id' => $team->division_id])
+			->with('Prices')
+			->persist();
+
+		$this->createRegistrations($event, [
+			[$manager, 'Paid'],
+			[$volunteer, 'Unpaid'],
+			[$player, 'Paid'],
+			[$other, 'Paid'],
+		]);
+
 		// Admins are allowed to add players from events
-		$this->assertPostAsAccessOk(['controller' => 'Teams', 'action' => 'add_from_event', 'team' => TEAM_ID_OAKS],
-			PERSON_ID_ADMIN, ['event' => EVENT_ID_MEMBERSHIP]);
-		$this->assertResponseContains('<span id="people_person_' .  PERSON_ID_PLAYER . '" class="trigger">Pam Player</span>');
-		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  PERSON_ID_PLAYER . '\]\[role\]" value="captain" id="player-' .  PERSON_ID_PLAYER . '-role-captain">\s*Captain#ms');
+		$this->assertPostAsAccessOk(['controller' => 'Teams', 'action' => 'add_from_event', 'team' => $team->id],
+			$admin->id, ['event' => $event->id]);
+		$this->assertResponseContains('<span id="people_person_' .  $player->id . '" class="trigger">' . $player->full_name . '</span>');
+		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  $player->id . '\]\[role\]" value="captain" id="player-' .  $player->id . '-role-captain">\s*Captain#ms');
 
 		// Submit the add form
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'add_from_event', 'team' => TEAM_ID_OAKS],
-			PERSON_ID_ADMIN, [
-				'event' => EVENT_ID_MEMBERSHIP,
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'add_from_event', 'team' => $team->id],
+			$admin->id, [
+				'event' => $event->id,
 				'player' => [
-					PERSON_ID_PLAYER => [
+					$player->id => [
 						'role' => 'player',
 						'position' => 'unspecified',
 					],
 					// Coordinator will not be added; the registration is not paid
-					PERSON_ID_COORDINATOR => [
+					$volunteer->id => [
 						'role' => 'player',
 						'position' => 'unspecified',
 					],
-					PERSON_ID_CHILD => [
+					$other->id => [
 						'role' => 'player',
 						'position' => 'unspecified',
 					],
-					// Captain2 will not be added; the role is "none"
-					PERSON_ID_CAPTAIN2 => [
+					// Manager will not be added; the role is "none"
+					$manager->id => [
 						'role' => 'none',
 						'position' => 'unspecified',
 					],
 				],
-			], ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_OAKS],
-			'Pam Player and Carla Child have been added to the roster.');
+			], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
+			$player->full_name . ' and ' . $other->full_name . ' have been added to the roster.');
 
 		// Confirm the roster email
-		$messages = Configure::read('test_emails');
-		$this->assertEquals(2, count($messages));
+		$this->assertMailCount(2);
+		$this->assertMailSentFromAt(0, 'admin@zuluru.org');
+		$this->assertMailSentWithAt(0, [$admin->user->email => $admin->full_name], 'ReplyTo');
+		$this->assertMailSentToAt(0, $player->user->email);
+		$this->assertMailSentWithAt(0, [], 'CC');
+		$this->assertMailSentWithAt(0, 'You have been added to ' . $team->name, 'Subject');
+		$this->assertMailContainsAt(0, 'You have been added to the roster of the Test Zuluru Affiliate team ' . $team->name . ' as a Regular player.');
+		$this->assertMailContainsAt(0, $team->name . ' plays in the ' . $team->division->name . ' division of the ' . $team->division->league->name . ' league');
+		$this->assertMailContainsAt(0, 'More details about ' . $team->name . ' may be found at');
+		$this->assertMailContainsAt(0, Configure::read('App.fullBaseUrl') . Configure::read('App.base') . '/teams/view?team=' . $team->id);
 
-		$this->assertContains('From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;', $messages[0]);
-		$this->assertContains('Reply-To: &quot;Amy Administrator&quot; &lt;amy@zuluru.org&gt;', $messages[0]);
-		$this->assertContains('To: &quot;Pam Player&quot; &lt;pam@zuluru.org&gt;', $messages[0]);
-		$this->assertNotContains('CC: ', $messages[0]);
-		$this->assertContains('Subject: You have been added to Oaks', $messages[0]);
-		$this->assertContains('You have been added to the roster of the Test Zuluru Affiliate team Oaks as a Regular player.', $messages[0]);
-		$this->assertContains('Oaks plays in the Intermediate division of the Tuesday Night league, which operates on Tuesday.', $messages[0]);
-		$this->assertRegExp('#More details about Oaks may be found at\s*' . Configure::read('App.fullBaseUrl') . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_OAKS . '#ms', $messages[0]);
-
-		$this->assertContains('From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;', $messages[1]);
-		$this->assertContains('Reply-To: &quot;Amy Administrator&quot; &lt;amy@zuluru.org&gt;', $messages[1]);
-		// To line still says Pam, because the child has no email address listed
-		$this->assertContains('To: &quot;Pam Player&quot; &lt;pam@zuluru.org&gt;', $messages[1]);
-		$this->assertNotContains('CC: ', $messages[1]);
-		$this->assertContains('Subject: You have been added to Oaks', $messages[1]);
-		$this->assertContains('You have been added to the roster of the Test Zuluru Affiliate team Oaks as a Regular player.', $messages[1]);
-		$this->assertContains('Oaks plays in the Intermediate division of the Tuesday Night league, which operates on Tuesday.', $messages[1]);
-		$this->assertRegExp('#More details about Oaks may be found at\s*' . Configure::read('App.fullBaseUrl') . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_OAKS . '#ms', $messages[1]);
+		$this->assertMailSentFromAt(1, 'admin@zuluru.org');
+		$this->assertMailSentWithAt(1, [$admin->user->email => $admin->full_name], 'ReplyTo');
+		$this->assertMailSentToAt(1, $other->user->email);
+		$this->assertMailSentWithAt(1, [], 'CC');
+		$this->assertMailSentWithAt(1, 'You have been added to ' . $team->name, 'Subject');
+		$this->assertMailContainsAt(1, 'You have been added to the roster of the Test Zuluru Affiliate team ' . $team->name . ' as a Regular player.');
+		$this->assertMailContainsAt(1, $team->name . ' plays in the ' . $team->division->name . ' division of the ' . $team->division->league->name . ' league');
+		$this->assertMailContainsAt(1, 'More details about ' . $team->name . ' may be found at');
+		$this->assertMailContainsAt(1, Configure::read('App.fullBaseUrl') . Configure::read('App.base') . '/teams/view?team=' . $team->id);
 
 		// Make sure they were added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_OAKS], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $admin->id);
 		$this->assertResponseContains('Regular player');
-		$this->assertResponseContains('/teams/roster_role?team=' . TEAM_ID_OAKS . '&amp;person=' . PERSON_ID_PLAYER);
-		$this->assertResponseContains('/teams/roster_role?team=' . TEAM_ID_OAKS . '&amp;person=' . PERSON_ID_CHILD);
-		$this->assertResponseNotContains('/teams/roster_role?team=' . TEAM_ID_OAKS . '&amp;person=' . PERSON_ID_COORDINATOR);
-		$this->assertResponseNotContains('/teams/roster_role?team=' . TEAM_ID_OAKS . '&amp;person=' . PERSON_ID_CAPTAIN2);
+		$this->assertResponseContains('/teams/roster_role?team=' . $team->id . '&amp;person=' . $player->id);
+		$this->assertResponseContains('/teams/roster_role?team=' . $team->id . '&amp;person=' . $other->id);
+		$this->assertResponseNotContains('/teams/roster_role?team=' . $team->id . '&amp;person=' . $volunteer->id);
+		$this->assertResponseNotContains('/teams/roster_role?team=' . $team->id . '&amp;person=' . $manager->id);
 	}
 
 	/**
@@ -1355,16 +2104,43 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
+		// Create an individual event and registrations
+		/** @var Event $event */
+		$event = EventFactory::make(['event_type_id' => EVENT_TYPE_ID_INDIVIDUALS_FOR_LEAGUES, 'affiliate_id' => $admin->affiliates[0]->id, 'division_id' => $team->division_id])
+			->with('Prices')
+			->persist();
+
+		$this->createRegistrations($event, [
+			[$player, 'Paid'],
+		]);
+
+		/** @var Team $affiliate_team */
+		$affiliate_team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[1],
+		]);
+
+		/** @var Event $affiliate_event */
+		$affiliate_event = EventFactory::make(['event_type_id' => EVENT_TYPE_ID_INDIVIDUALS_FOR_LEAGUES, 'affiliate_id' => $admin->affiliates[1]->id, 'division_id' => $affiliate_team->division_id])
+			->with('Prices')
+			->persist();
+
 		// Managers are allowed to add players from events
-		$this->assertPostAsAccessOk(['controller' => 'Teams', 'action' => 'add_from_event', 'team' => TEAM_ID_OAKS],
-			PERSON_ID_MANAGER, ['event' => EVENT_ID_MEMBERSHIP]);
-		$this->assertResponseContains('<span id="people_person_' .  PERSON_ID_PLAYER . '" class="trigger">Pam Player</span>');
-		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  PERSON_ID_PLAYER . '\]\[role\]" value="captain" id="player-' .  PERSON_ID_PLAYER . '-role-captain">\s*Captain#ms');
+		$this->assertPostAsAccessOk(['controller' => 'Teams', 'action' => 'add_from_event', 'team' => $team->id],
+			$manager->id, ['event' => $event->id]);
+		$this->assertResponseContains('<span id="people_person_' .  $player->id . '" class="trigger">' . $player->full_name . '</span>');
+		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  $player->id . '\]\[role\]" value="captain" id="player-' .  $player->id . '-role-captain">\s*Captain#ms');
 
 		// But not to teams in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'add_from_event', 'team' => TEAM_ID_BEARS],
-			PERSON_ID_MANAGER, [
-				'event' => EVENT_ID_LEAGUE_INDIVIDUAL_SUB,
+		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'add_from_event', 'team' => $affiliate_team->id],
+			$manager->id, [
+				'event' => $affiliate_event->id,
 			]);
 	}
 
@@ -1375,16 +2151,39 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'coordinator' => $volunteer,
+		]);
+
+		// Create an individual event and registrations
+		/** @var Event $event */
+		$event = EventFactory::make(['event_type_id' => EVENT_TYPE_ID_INDIVIDUALS_FOR_LEAGUES, 'affiliate_id' => $admin->affiliates[0]->id, 'division_id' => $team->division_id])
+			->with('Prices')
+			->persist();
+
+		$this->createRegistrations($event, [
+			[$player, 'Paid'],
+		]);
+
+		/** @var Team $other_team */
+		$other_team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
 		// Coordinators are allowed to add players from events to teams in their divisions
-		$this->assertPostAsAccessOk(['controller' => 'Teams', 'action' => 'add_from_event', 'team' => TEAM_ID_CHICKADEES],
-			PERSON_ID_COORDINATOR, ['event' => EVENT_ID_MEMBERSHIP]);
-		$this->assertResponseContains('<span id="people_person_' .  PERSON_ID_PLAYER . '" class="trigger">Pam Player</span>');
-		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  PERSON_ID_PLAYER . '\]\[role\]" value="captain" id="player-' .  PERSON_ID_PLAYER . '-role-captain">\s*Captain#ms');
+		$this->assertPostAsAccessOk(['controller' => 'Teams', 'action' => 'add_from_event', 'team' => $team->id],
+			$volunteer->id, ['event' => $event->id]);
+		$this->assertResponseContains('<span id="people_person_' .  $player->id . '" class="trigger">' . $player->full_name . '</span>');
+		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  $player->id . '\]\[role\]" value="captain" id="player-' .  $player->id . '-role-captain">\s*Captain#ms');
 
 		// But not other divisions
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'add_from_event', 'team' => TEAM_ID_OAKS],
-			PERSON_ID_COORDINATOR, [
-				'event' => EVENT_ID_MEMBERSHIP,
+		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'add_from_event', 'team' => $other_team->id],
+			$volunteer->id, [
+				'event' => $event->id,
 			]);
 	}
 
@@ -1395,19 +2194,33 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'captain' => $player,
+		]);
+
+		// Create an individual event and registrations
+		/** @var Event $event */
+		$event = EventFactory::make(['event_type_id' => EVENT_TYPE_ID_INDIVIDUALS_FOR_LEAGUES, 'affiliate_id' => $admin->affiliates[0]->id, 'division_id' => $team->division_id])
+			->with('Prices')
+			->persist();
+
+		$this->createRegistrations($event, [
+			[$player, 'Paid'],
+		]);
+
 		// Make sure that we're before the roster deadline for adding players
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
 
 		// Others are not allowed to add players from events
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'add_from_event', 'team' => TEAM_ID_RED],
-			PERSON_ID_CAPTAIN, [
-				'event' => EVENT_ID_MEMBERSHIP,
+		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'add_from_event', 'team' => $team->id],
+			$player->id, [
+				'event' => $event->id,
 			]);
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'add_from_event', 'team' => TEAM_ID_RED],
-			PERSON_ID_PLAYER);
-		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'add_from_event', 'team' => TEAM_ID_RED],
-			PERSON_ID_VISITOR);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'add_from_event', 'team' => TEAM_ID_RED]);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'add_from_event', 'team' => $team->id]);
 	}
 
 	/**
@@ -1417,10 +2230,21 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'player' => $player,
+			],
+		]);
+
 		// Admins are allowed to change roster roles
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_role', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_BLUE],
-			PERSON_ID_ADMIN, ['role' => 'captain']);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_role', 'person' => $player->id, 'team' => $team->id],
+			$admin->id, ['role' => 'captain']);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1430,10 +2254,21 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'player' => $player,
+			],
+		]);
+
 		// Managers are allowed to change roster roles for teams in their affiliate
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_role', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_BLUE],
-			PERSON_ID_MANAGER, ['role' => 'captain']);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_role', 'person' => $player->id, 'team' => $team->id],
+			$manager->id, ['role' => 'captain']);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1443,13 +2278,25 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'coordinator' => $volunteer,
+			'roles' => [
+				'player' => $player,
+			],
+		]);
+
 		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
 
 		// Coordinators are allowed to change roster roles for teams in their divisions
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_role', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_BLUE],
-			PERSON_ID_COORDINATOR, ['role' => 'captain']);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_role', 'person' => $player->id, 'team' => $team->id],
+			$volunteer->id, ['role' => 'captain']);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1459,27 +2306,36 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'captain' => true,
+				'player' => [$player, ['status' => ROSTER_INVITED]],
+			],
+		]);
+		[$captain, , $invited] = $team->people;
+
 		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
 
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Teams', 'action' => 'roster_role', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_RED_PAST],
-			PERSON_ID_CAPTAIN, ['role' => 'substitute']);
-
-		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_role', 'person' => PERSON_ID_COORDINATOR, 'team' => TEAM_ID_RED],
-			PERSON_ID_CAPTAIN, ['role' => 'substitute'], ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_role', 'person' => $volunteer->id, 'team' => $team->id],
+			$captain->id, ['role' => 'substitute'], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'This person is not on this team.');
 
-		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_role', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
-			PERSON_ID_CAPTAIN, ['role' => 'substitute'], ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_role', 'person' => $invited->id, 'team' => $team->id],
+			$captain->id, ['role' => 'substitute'], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'A player\'s role on a team cannot be changed until they have been approved on the roster.');
 
-		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_role', 'person' => PERSON_ID_CAPTAIN, 'team' => TEAM_ID_RED],
-			PERSON_ID_CAPTAIN, ['role' => 'substitute'], ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_role', 'person' => $captain->id, 'team' => $team->id],
+			$captain->id, ['role' => 'substitute'], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'All teams must have at least one player as coach or captain.');
 
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_role', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_BLUE],
-			PERSON_ID_CAPTAIN2, ['role' => 'substitute']);
-		$this->assertResponseRegExp('#\\\\/teams\\\\/roster_role\?team=' . TEAM_ID_BLUE . '&amp;person=' . PERSON_ID_CHILD . '.*Substitute player#ms');
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_role', 'person' => $player->id, 'team' => $team->id],
+			$captain->id, ['role' => 'substitute']);
+		$this->assertResponseRegExp('#\\\\/teams\\\\/roster_role\?team=' . $team->id . '&amp;person=' . $player->id . '.*Substitute player#ms');
 	}
 
 	/**
@@ -1489,29 +2345,53 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
-		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_role', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_RED_PAST],
-			[PERSON_ID_PLAYER, PERSON_ID_CHILD], ['role' => 'substitute'], ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED_PAST],
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'player' => $player,
+			],
+		]);
+
+		// Cannot make changes after the roster deadline!
+		FrozenDate::setTestNow($team->division->rosterDeadline()->addDay());
+
+		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_role', 'person' => $player->id, 'team' => $team->id],
+			$player->id, ['role' => 'substitute'], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'The roster deadline for this division has already passed.');
 
-		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_role', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_BLUE],
-			[PERSON_ID_PLAYER, PERSON_ID_CHILD], ['role' => 'captain'], ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_BLUE],
+		// Make sure that we're before the roster deadline
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
+
+		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_role', 'person' => $player->id, 'team' => $team->id],
+			$player->id, ['role' => 'captain'], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'You do not have permission to set that role.');
 
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_role', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_BLUE],
-			[PERSON_ID_PLAYER, PERSON_ID_CHILD], ['role' => 'substitute']);
-		$this->assertResponseRegExp('#\\\\/teams\\\\/roster_role\?team=' . TEAM_ID_BLUE . '&amp;person=' . PERSON_ID_CHILD . '.*Substitute player#ms');
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_role', 'person' => $player->id, 'team' => $team->id],
+			$player->id, ['role' => 'substitute']);
+		$this->assertResponseRegExp('#\\\\/teams\\\\/roster_role\?team=' . $team->id . '&amp;person=' . $player->id . '.*Substitute player#ms');
 	}
 
 	/**
 	 * Test roster_role method as someone else
 	 */
 	public function testRosterRoleAsVisitor(): void {
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'player' => [$player, true],
+			],
+		]);
+		$other = $team->people[1];
+
 		// Others are not allowed to change roster roles
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'roster_role', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_BLUE], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'roster_role', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_BLUE]);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'roster_role', 'person' => $player->id, 'team' => $team->id], $other->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'roster_role', 'person' => $player->id, 'team' => $team->id]);
 	}
 
 	/**
@@ -1519,12 +2399,24 @@ class TeamsControllerTest extends ControllerTestCase {
 	 */
 	public function testRosterPositionAsAdmin(): void {
 		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'player' => $player,
+			],
+		]);
 
 		// Admins are allowed to change roster positions
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_position', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_BLUE],
-			PERSON_ID_ADMIN, ['position' => 'handler']);
-		$this->assertResponseRegExp('#\\\\/teams\\\\/roster_position\?team=' . TEAM_ID_BLUE . '&amp;person=' . PERSON_ID_CHILD . '.*Handler#ms');
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_position', 'person' => $player->id, 'team' => $team->id],
+			$admin->id, ['position' => 'handler']);
+		$this->assertResponseRegExp('#\\\\/teams\\\\/roster_position\?team=' . $team->id . '&amp;person=' . $player->id . '.*Handler#ms');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1532,12 +2424,24 @@ class TeamsControllerTest extends ControllerTestCase {
 	 */
 	public function testRosterPositionAsManager(): void {
 		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		[$admin, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'player' => $player,
+			],
+		]);
 
 		// Managers are allowed to change roster positions
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_position', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_BLUE],
-			PERSON_ID_MANAGER, ['position' => 'handler']);
-		$this->assertResponseRegExp('#\\\\/teams\\\\/roster_position\?team=' . TEAM_ID_BLUE . '&amp;person=' . PERSON_ID_CHILD . '.*Handler#ms');
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_position', 'person' => $player->id, 'team' => $team->id],
+			$manager->id, ['position' => 'handler']);
+		$this->assertResponseRegExp('#\\\\/teams\\\\/roster_position\?team=' . $team->id . '&amp;person=' . $player->id . '.*Handler#ms');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1545,12 +2449,25 @@ class TeamsControllerTest extends ControllerTestCase {
 	 */
 	public function testRosterPositionAsCoordinator(): void {
 		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'coordinator' => $volunteer,
+			'roles' => [
+				'player' => $player,
+			],
+		]);
 
 		// Coordinators are allowed to change roster positions
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_position', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_BLUE],
-			PERSON_ID_COORDINATOR, ['position' => 'handler']);
-		$this->assertResponseRegExp('#\\\\/teams\\\\/roster_position\?team=' . TEAM_ID_BLUE . '&amp;person=' . PERSON_ID_CHILD . '.*Handler#ms');
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_position', 'person' => $player->id, 'team' => $team->id],
+			$volunteer->id, ['position' => 'handler']);
+		$this->assertResponseRegExp('#\\\\/teams\\\\/roster_position\?team=' . $team->id . '&amp;person=' . $player->id . '.*Handler#ms');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
@@ -1558,20 +2475,37 @@ class TeamsControllerTest extends ControllerTestCase {
 	 */
 	public function testRosterPositionAsCaptain(): void {
 		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'captain' => true,
+				'player' => $player,
+			],
+		]);
+		$captain = $team->people[0];
+
+		// Cannot make changes after the roster deadline!
+		FrozenDate::setTestNow($team->division->rosterDeadline()->addDay());
+
+		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_position', 'person' => $player->id, 'team' => $team->id],
+			$captain->id, ['position' => 'handler'], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
+			'The roster deadline for this division has already passed.');
 
 		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
 
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Teams', 'action' => 'roster_position', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_RED_PAST],
-			PERSON_ID_CAPTAIN, ['position' => 'handler']);
-
-		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_position', 'person' => PERSON_ID_COORDINATOR, 'team' => TEAM_ID_RED],
-			PERSON_ID_CAPTAIN, ['position' => 'handler'], ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_position', 'person' => $volunteer->id, 'team' => $team->id],
+			$captain->id, ['position' => 'handler'], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'This person is not on this team.');
 
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_position', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_BLUE],
-			PERSON_ID_CAPTAIN2, ['position' => 'handler']);
-		$this->assertResponseRegExp('#\\\\/teams\\\\/roster_position\?team=' . TEAM_ID_BLUE . '&amp;person=' . PERSON_ID_CHILD . '.*Handler#ms');
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_position', 'person' => $player->id, 'team' => $team->id],
+			$captain->id, ['position' => 'handler']);
+		$this->assertResponseRegExp('#\\\\/teams\\\\/roster_position\?team=' . $team->id . '&amp;person=' . $player->id . '.*Handler#ms');
 	}
 
 	/**
@@ -1579,21 +2513,35 @@ class TeamsControllerTest extends ControllerTestCase {
 	 */
 	public function testRosterPositionAsPlayer(): void {
 		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
-		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
-		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_position', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_RED_PAST],
-			[PERSON_ID_PLAYER, PERSON_ID_CHILD], ['position' => 'handler'], ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED_PAST],
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'player' => $player,
+			],
+		]);
+
+		// Cannot make changes after the roster deadline!
+		FrozenDate::setTestNow($team->division->rosterDeadline()->addDay());
+
+		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_position', 'person' => $player->id, 'team' => $team->id],
+			$player->id, ['position' => 'handler'], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'The roster deadline for this division has already passed.');
 
-		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_position', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_BLUE],
-			[PERSON_ID_PLAYER, PERSON_ID_CHILD], ['position' => 'xyz'], ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_BLUE],
+		// Make sure that we're before the roster deadline
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
+
+		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_position', 'person' => $player->id, 'team' => $team->id],
+			$player->id, ['position' => 'xyz'], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'That is not a valid position.');
 
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_position', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_BLUE],
-			[PERSON_ID_PLAYER, PERSON_ID_CHILD], ['position' => 'handler']);
-		$this->assertResponseRegExp('#\\\\/teams\\\\/roster_position\?team=' . TEAM_ID_BLUE . '&amp;person=' . PERSON_ID_CHILD . '.*Handler#ms');
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_position', 'person' => $player->id, 'team' => $team->id],
+			$player->id, ['position' => 'handler']);
+		$this->assertResponseRegExp('#\\\\/teams\\\\/roster_position\?team=' . $team->id . '&amp;person=' . $player->id . '.*Handler#ms');
 	}
 
 	/**
@@ -1601,11 +2549,23 @@ class TeamsControllerTest extends ControllerTestCase {
 	 */
 	public function testRosterPositionAsOthers(): void {
 		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'player' => [$player, true],
+			],
+		]);
+		$other = $team->people[1];
 
 		// Others are not allowed to change roster positions
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Teams', 'action' => 'roster_position', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_BLUE],
-			PERSON_ID_VISITOR, ['position' => 'handler']);
-		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'roster_position', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_BLUE],
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Teams', 'action' => 'roster_position', 'person' => $player->id, 'team' => $team->id],
+			$other->id, ['position' => 'handler']);
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'roster_position', 'person' => $player->id, 'team' => $team->id],
 			['position' => 'handler']);
 	}
 
@@ -1616,39 +2576,46 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
 		// Admins are allowed to add players to teams
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'roster_add', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_OAKS], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/teams/roster_add?person=' . PERSON_ID_PLAYER . '&amp;team=' . TEAM_ID_OAKS);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'roster_add', 'person' => $player->id, 'team' => $team->id], $admin->id);
+		$this->assertResponseContains('/teams/roster_add?person=' . $player->id . '&amp;team=' . $team->id);
 
 		// Submit an empty add form
-		$this->assertPostAsAccessOk(['controller' => 'Teams', 'action' => 'roster_add', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_OAKS], PERSON_ID_ADMIN, []);
+		$this->assertPostAsAccessOk(['controller' => 'Teams', 'action' => 'roster_add', 'person' => $player->id, 'team' => $team->id], $admin->id, []);
 		$this->assertResponseContains('You must select a role for this person.');
 
 		// Submit the add form
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_add', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_OAKS],
-			PERSON_ID_ADMIN, [
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_add', 'person' => $player->id, 'team' => $team->id],
+			$admin->id, [
 				'role' => 'player',
 				'position' => 'unspecified',
-			], ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_OAKS]);
+			], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id]);
 
 		// Confirm the roster email
-		$messages = Configure::read('test_emails');
-		$this->assertEquals(1, count($messages));
-		$this->assertContains('From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;', $messages[0]);
-		$this->assertContains('Reply-To: &quot;Amy Administrator&quot; &lt;amy@zuluru.org&gt;', $messages[0]);
-		$this->assertContains('To: &quot;Pam Player&quot; &lt;pam@zuluru.org&gt;', $messages[0]);
-		$this->assertNotContains('CC: ', $messages[0]);
+		$this->assertMailCount(1);
+		$this->assertMailSentFrom('admin@zuluru.org');
+		$this->assertMailSentWith([$admin->user->email => $admin->full_name], 'ReplyTo');
+		$this->assertMailSentTo($player->user->email);
+		$this->assertMailSentWith([], 'CC');
 		// TODO: Why is this an invitation, when add_from_event is a direct add?
-		$this->assertContains('Subject: Invitation to join Oaks', $messages[0]);
-		$this->assertContains('Amy Administrator has invited you to join the roster of the Test Zuluru Affiliate team Oaks as a Regular player.', $messages[0]);
-		$this->assertContains('Oaks plays in the Intermediate division of the Tuesday Night league, which operates on Tuesday.', $messages[0]);
-		$this->assertRegExp('#More details about Oaks may be found at\s*' . Configure::read('App.fullBaseUrl') . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_OAKS . '#ms', $messages[0]);
+		$this->assertMailSentWith('Invitation to join ' . $team->name, 'Subject');
+		$this->assertMailContains($admin->full_name . ' has invited you to join the roster of the Test Zuluru Affiliate team ' . $team->name . ' as a Regular player.');
+		$this->assertMailContains($team->name . ' plays in the ' . $team->division->name . ' division of the ' . $team->division->league->name . ' league');
+		$this->assertMailContains('More details about ' . $team->name . ' may be found at');
+		$this->assertMailContains(Configure::read('App.fullBaseUrl') . Configure::read('App.base') . '/teams/view?team=' . $team->id);
 
 		// Make sure they were added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_OAKS], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], $admin->id);
 		$this->assertResponseContains('Regular player [invited:');
-		$this->assertResponseContains('/teams/roster_accept?team=' . TEAM_ID_OAKS . '&amp;person=' . PERSON_ID_PLAYER);
-		$this->assertResponseContains('/teams/roster_decline?team=' . TEAM_ID_OAKS . '&amp;person=' . PERSON_ID_PLAYER);
+		$this->assertResponseContains('/teams/roster_accept?team=' . $team->id . '&amp;person=' . $player->id);
+		$this->assertResponseContains('/teams/roster_decline?team=' . $team->id . '&amp;person=' . $player->id);
 
 		// TODO: Check all the potential emails and different states that can be generated in other situations: add vs invite, admin vs captain, etc.
 	}
@@ -1660,19 +2627,31 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
+		/** @var Team $affiliate_team */
+		$affiliate_team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[1],
+		]);
+
 		// Managers are allowed to add players to teams
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'roster_add', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_OAKS], PERSON_ID_MANAGER);
-		$this->assertResponseContains('/teams/roster_add?person=' . PERSON_ID_CHILD . '&amp;team=' . TEAM_ID_OAKS);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'roster_add', 'person' => $player->id, 'team' => $team->id], $manager->id);
+		$this->assertResponseContains('/teams/roster_add?person=' . $player->id . '&amp;team=' . $team->id);
 
 		// Submit the add form
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_add', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_OAKS],
-			PERSON_ID_MANAGER, [
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_add', 'person' => $player->id, 'team' => $team->id],
+			$manager->id, [
 				'role' => 'player',
 				'position' => 'unspecified',
-			], ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_OAKS]);
+			], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id]);
 
 		// But not teams in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'roster_add', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_LIONS], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'roster_add', 'person' => $player->id, 'team' => $affiliate_team->id], $manager->id);
 	}
 
 	/**
@@ -1682,19 +2661,32 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'coordinator' => $volunteer,
+		]);
+
+		/** @var Team $other_team */
+		$other_team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
 		// Coordinators are allowed to add players to teams in their divisions
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'roster_add', 'person' => PERSON_ID_MANAGER, 'team' => TEAM_ID_RED], PERSON_ID_COORDINATOR);
-		$this->assertResponseContains('/teams/roster_add?person=' . PERSON_ID_MANAGER . '&amp;team=' . TEAM_ID_RED);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'roster_add', 'person' => $player->id, 'team' => $team->id], $volunteer->id);
+		$this->assertResponseContains('/teams/roster_add?person=' . $player->id . '&amp;team=' . $team->id);
 
 		// Submit the add form
-		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_add', 'person' => PERSON_ID_MANAGER, 'team' => TEAM_ID_RED],
-			PERSON_ID_COORDINATOR, [
+		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_add', 'person' => $player->id, 'team' => $team->id],
+			$volunteer->id, [
 				'role' => 'player',
 				'position' => 'unspecified',
-			], ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED]);
+			], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id]);
 
 		// But not other divisions
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'roster_add', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_MAPLES], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'roster_add', 'person' => $player->id, 'team' => $other_team->id], $volunteer->id);
 	}
 
 	/**
@@ -1704,148 +2696,230 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'captain' => true,
+			],
+		]);
+		$captain = $team->people[0];
+
+		/** @var Team $other_team */
+		$other_team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
 		// Make sure that we're before the roster deadline for captains to add players
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
 
 		// Captains are allowed to add players to their own teams
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'roster_add', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
-		$this->assertResponseContains('/teams/roster_add?person=' . PERSON_ID_CHILD . '&amp;team=' . TEAM_ID_RED);
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'roster_add', 'person' => $player->id, 'team' => $team->id], $captain->id);
+		$this->assertResponseContains('/teams/roster_add?person=' . $player->id . '&amp;team=' . $team->id);
 
 		// Submit the add form
-		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_add', 'person' => PERSON_ID_CHILD, 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN, [
+		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_add', 'person' => $player->id, 'team' => $team->id], $captain->id, [
 			'role' => 'player',
 			'position' => 'unspecified',
-		], ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED]);
+		], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id]);
 
 		// But not other teams
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'roster_add', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_MAPLES], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'roster_add', 'person' => $player->id, 'team' => $other_team->id], $captain->id);
 	}
 
 	/**
 	 * Test roster_add method as others
 	 */
 	public function testRosterAddAsOthers(): void {
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
 		// Others are not allowed to add players to teams
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'roster_add', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'roster_add', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'roster_add', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED]);
-	}
-
-	/**
-	 * Test roster_request method as a captain
-	 */
-	public function testRosterRequestAsCaptain(): void {
-		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
-
-		// Captains are allowed to request to join a team
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'roster_request', 'team' => TEAM_ID_BLACK], PERSON_ID_CAPTAIN);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'roster_add', 'person' => $player->id, 'team' => $team->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'roster_add', 'person' => $player->id, 'team' => $team->id]);
 	}
 
 	/**
 	 * Test roster_request method as a player
 	 */
 	public function testRosterRequestAsPlayer(): void {
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'team_details' => ['open_roster' => true],
+		]);
+
 		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
 
 		// Players are allowed to request to join a team
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'roster_request', 'team' => TEAM_ID_BLACK], PERSON_ID_PLAYER);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'roster_request', 'team' => $team->id], $player->id);
 
-	/**
-	 * Test roster_request method as someone else
-	 */
-	public function testRosterRequestAsVisitor(): void {
-		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
-
-		// Visitors are allowed to request to join a team
-		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'roster_request', 'team' => TEAM_ID_BLACK], PERSON_ID_VISITOR);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test roster_request method as others
 	 */
 	public function testRosterRequestAsOthers(): void {
+		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'team_details' => ['open_roster' => true],
+		]);
+
 		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
 
 		// Others (any non-players) are not allowed to request to join a team
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'roster_request', 'team' => TEAM_ID_BLACK], PERSON_ID_ADMIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'roster_request', 'team' => TEAM_ID_BLACK], PERSON_ID_MANAGER);
-		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'roster_request', 'team' => TEAM_ID_BLACK], PERSON_ID_COORDINATOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'roster_request', 'team' => TEAM_ID_BLACK]);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'roster_request', 'team' => $team->id], $admin->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'roster_request', 'team' => $team->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'roster_request', 'team' => $team->id], $volunteer->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'roster_request', 'team' => $team->id]);
 	}
 
 	/**
 	 * Test roster_accept method as an admin
 	 */
 	public function testRosterAcceptAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'captain' => true,
+				'player' => ['status' => ROSTER_INVITED],
+			],
+		]);
+		$invitee = $team->people[1];
+
 		// Admins are allowed to accept roster invitations
-		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
-			PERSON_ID_ADMIN, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => $invitee->id, 'team' => $team->id],
+			$admin->id, ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'You have accepted this roster invitation.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test roster_accept method as a manager
 	 */
 	public function testRosterAcceptAsManager(): void {
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'captain' => true,
+				'player' => ['status' => ROSTER_INVITED],
+			],
+		]);
+		$invitee = $team->people[1];
+
 		// Managers are allowed to accept roster invitations
-		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
-			PERSON_ID_MANAGER, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => $invitee->id, 'team' => $team->id],
+			$manager->id, ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'You have accepted this roster invitation.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test roster_accept method as a coordinator
 	 */
 	public function testRosterAcceptAsCoordinator(): void {
+		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'coordinator' => $volunteer,
+			'roles' => [
+				'captain' => true,
+				'player' => ['status' => ROSTER_INVITED],
+			],
+		]);
+		$invitee = $team->people[1];
+
 		// Coordinators are allowed to accept roster invitations
-		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
-			PERSON_ID_COORDINATOR, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => $invitee->id, 'team' => $team->id],
+			$volunteer->id, ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'You have accepted this roster invitation.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test roster_accept method as a captain
 	 */
 	public function testRosterAcceptAsCaptain(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'captain' => true,
+				'player' => ['status' => ROSTER_INVITED],
+			],
+		]);
+		[$captain, $invitee] = $team->people;
+
 		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
 
 		// Captains are not allowed to accept roster invitations to their players
-		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
-			PERSON_ID_CAPTAIN, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => $invitee->id, 'team' => $team->id],
+			$captain->id, ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'You are not allowed to accept this roster invitation.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test roster_accept method as a player
 	 */
 	public function testRosterAcceptAsPlayer(): void {
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'captain' => true,
+				'player' => [['status' => ROSTER_INVITED], $player],
+			],
+		]);
+		$invitee = $team->people[1];
+
 		// Cannot accept invites after the roster deadline!
-		FrozenDate::setTestNow(new FrozenDate('November 1'));
-		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
-			PERSON_ID_PLAYER, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		FrozenDate::setTestNow($team->division->rosterDeadline()->addDay());
+
+		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => $invitee->id, 'team' => $team->id],
+			$invitee->id, ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'The roster deadline for this division has already passed.');
 
 		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
-			PERSON_ID_PLAYER);
-		$this->assertResponseRegExp('#\\\\/teams\\\\/roster_role\?team=' . TEAM_ID_RED . '&amp;person=' . PERSON_ID_PLAYER . '.*Regular player#ms');
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
 
-		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED_PAST],
-			PERSON_ID_PLAYER, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED_PAST],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => $invitee->id, 'team' => $team->id],
+			$invitee->id);
+		$this->assertResponseRegExp('#\\\\/teams\\\\/roster_role\?team=' . $team->id . '&amp;person=' . $invitee->id . '.*Regular player#ms');
+
+		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => $player->id, 'team' => $team->id],
+			$player->id, ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'This person has already been added to the roster.');
 	}
 
@@ -1853,13 +2927,26 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test roster_accept method with a code
 	 */
 	public function testRosterAcceptWithCode(): void {
-		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
-		$roster = TableRegistry::get('TeamsPeople')->find()->where(['person_id' => PERSON_ID_PLAYER, 'team_id' => TEAM_ID_RED])->firstOrFail();
-		$this->assertGetAnonymousAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED,
-			'code' => $this->_makeHash([$roster->id, TEAM_ID_RED, PERSON_ID_PLAYER, $roster->role, $roster->created])],
-			['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'captain' => true,
+				'player' => ['status' => ROSTER_INVITED],
+			],
+		]);
+		$invitee = $team->people[1];
+
+		// Make sure that we're before the roster deadline
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
+
+		/** @var TeamsPerson $roster */
+		$roster = TableRegistry::getTableLocator()->get('TeamsPeople')->find()->where(['person_id' => $invitee->id, 'team_id' => $team->id])->firstOrFail();
+		$this->assertGetAnonymousAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => $invitee->id, 'team' => $team->id,
+			'code' => $this->_makeHash([$roster->id, $team->id, $invitee->id, $roster->role, $roster->created])],
+			['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'You have accepted this roster invitation.');
 	}
 
@@ -1867,114 +2954,203 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test roster_accept method as others
 	 */
 	public function testRosterAcceptAsOthers(): void {
-		// Others are not allowed to accept roster invitations
-		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
-			PERSON_ID_VISITOR, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
-			'You are not allowed to accept this roster invitation.');
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
-		$this->assertGetAnonymousAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED, 'code' => 'wrong'],
-			['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'captain' => true,
+				'player' => ['status' => ROSTER_INVITED],
+			],
+		]);
+		$invitee = $team->people[1];
+
+		// Others are not allowed to accept roster invitations
+		$this->assertGetAnonymousAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => $invitee->id, 'team' => $team->id, 'code' => 'wrong'],
+			['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'The authorization code is invalid.');
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => $invitee->id, 'team' => $team->id]);
 	}
 
 	/**
 	 * Test roster_decline method as an admin
 	 */
 	public function testRosterDeclineAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'captain' => true,
+				'player' => ['status' => ROSTER_INVITED],
+			],
+		]);
+		$invitee = $team->people[1];
+
 		// Admins are allowed to decline roster invitations
-		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
-			PERSON_ID_ADMIN, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => $invitee->id, 'team' => $team->id],
+			$admin->id, ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'You have declined this roster invitation.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test roster_decline method as a manager
 	 */
 	public function testRosterDeclineAsManager(): void {
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'captain' => true,
+				'player' => ['status' => ROSTER_INVITED],
+			],
+		]);
+		$invitee = $team->people[1];
+
 		// Managers are allowed to decline roster invitations
-		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
-			PERSON_ID_MANAGER, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => $invitee->id, 'team' => $team->id],
+			$manager->id, ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'You have declined this roster invitation.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test roster_decline method as a coordinator
 	 */
 	public function testRosterDeclineAsCoordinator(): void {
+		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'coordinator' => $volunteer,
+			'roles' => [
+				'captain' => true,
+				'player' => ['status' => ROSTER_INVITED],
+			],
+		]);
+		$invitee = $team->people[1];
+
 		// Coordinators are allowed to decline roster invitations
-		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
-			PERSON_ID_COORDINATOR, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => $invitee->id, 'team' => $team->id],
+			$volunteer->id, ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'You have declined this roster invitation.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test roster_decline method as a captain
 	 */
 	public function testRosterDeclineAsCaptain(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'captain' => true,
+				'player' => ['status' => ROSTER_INVITED],
+			],
+		]);
+		[$captain, $invitee] = $team->people;
+
 		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
 
 		// Captains are allowed to remove roster invitations to their players
-		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
-			PERSON_ID_CAPTAIN, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => $invitee->id, 'team' => $team->id],
+			$captain->id, ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'You have declined this roster invitation.');
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test roster_decline method as a player
 	 */
 	public function testRosterDeclineAsPlayer(): void {
+		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'captain' => true,
+				'player' => [['status' => ROSTER_INVITED], $player],
+			],
+		]);
+		$invitee = $team->people[1];
+
 		// Cannot decline invites after the roster deadline!
-		FrozenDate::setTestNow(new FrozenDate('November 1'));
-		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
-			PERSON_ID_PLAYER, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		FrozenDate::setTestNow($team->division->rosterDeadline()->addDay());
+
+		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => $invitee->id, 'team' => $team->id],
+			$invitee->id, ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'The roster deadline for this division has already passed.');
 
 		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
-			PERSON_ID_PLAYER);
-		$error = [
-			'error' => null,
-			'content' => '',
-			'_message' => null,
-		];
-		$this->assertEquals(json_encode($error), (string)$this->_response->getBody());
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
 
-		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED_PAST],
-			PERSON_ID_PLAYER, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED_PAST],
-			'This person has already been added to the roster.');
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => $invitee->id, 'team' => $team->id],
+			$invitee->id);
 	}
 
 	/**
-	 * Test roster_accept method with a code
+	 * Test roster_decline method with a code
 	 */
 	public function testRosterDeclineWithCode(): void {
-		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
-		$roster = TableRegistry::get('TeamsPeople')->find()->where(['person_id' => PERSON_ID_PLAYER, 'team_id' => TEAM_ID_RED])->firstOrFail();
-		$this->assertGetAnonymousAccessRedirect(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED,
-			'code' => $this->_makeHash([$roster->id, TEAM_ID_RED, PERSON_ID_PLAYER, $roster->role, $roster->created])],
-			['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'captain' => true,
+				'player' => ['status' => ROSTER_INVITED],
+			],
+		]);
+		$invitee = $team->people[1];
+
+		// Make sure that we're before the roster deadline
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
+
+		/** @var TeamsPerson $roster */
+		$roster = TableRegistry::getTableLocator()->get('TeamsPeople')->find()->where(['person_id' => $invitee->id, 'team_id' => $team->id])->firstOrFail();
+		$this->assertGetAnonymousAccessRedirect(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => $invitee->id, 'team' => $team->id,
+			'code' => $this->_makeHash([$roster->id, $team->id, $invitee->id, $roster->role, $roster->created])],
+			['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'You have declined this roster invitation.');
 	}
 
 	/**
-	 * Test roster_decline method as someone else
+	 * Test roster_decline method as others
 	 */
 	public function testRosterDeclineAsOthers(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'roles' => [
+				'captain' => true,
+				'player' => ['status' => ROSTER_INVITED],
+			],
+		]);
+		$invitee = $team->people[1];
+
 		// Others are not allowed to decline roster invitations
-		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED],
-			PERSON_ID_VISITOR, ['controller' => 'Teams', 'action' => 'view', 'team' => TEAM_ID_RED],
-			'You are not allowed to decline this roster invitation.', 'warning');
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => PERSON_ID_PLAYER, 'team' => TEAM_ID_RED]);
+		$this->assertGetAnonymousAccessRedirect(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => $invitee->id, 'team' => $team->id, 'code' => 'wrong'],
+			['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
+			'The authorization code is invalid.');
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => $invitee->id, 'team' => $team->id]);
 	}
 
 }

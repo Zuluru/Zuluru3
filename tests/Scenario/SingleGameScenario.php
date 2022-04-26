@@ -18,28 +18,28 @@ use App\Test\Factory\TeamsPersonFactory;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\TableRegistry;
 use CakephpFixtureFactories\Scenario\FixtureScenarioInterface;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 class SingleGameScenario implements FixtureScenarioInterface {
 
+	use ScenarioAwareTrait;
+
 	/**
 	 * Possible arguments are:
-	 * - affiliate Affiliate
-	 * - game_date FrozenDate
-	 * - coordinator Person
-	 * - published bool
-	 * - status string
-	 * - approved_by_id int
-	 * - league_details array
-	 * - division_details array
+	 * - anything that LeagueScenario accepts
+	 * - game_date: FrozenDate
+	 * - published: bool
+	 * - status: string
+	 * - approved_by_id: int
 	 * The following arguments are currently not supported for tournament games:
-	 * - home_score int
-	 * - away_score int
-	 * - home_captain bool|Person
-	 * - away_captain bool|Person
-	 * - home_player bool|Person
-	 * - away_player bool|Person
-	 * - home_sub bool|Person
-	 * - away_sub bool|Person
+	 * - home_score: int
+	 * - away_score: int
+	 * - home_captain: bool|Person
+	 * - away_captain: bool|Person
+	 * - home_player: bool|Person
+	 * - away_player: bool|Person
+	 * - home_sub: bool|Person
+	 * - away_sub: bool|Person
 	 */
 	public function load(...$args): Game {
 		switch (count($args)) {
@@ -54,25 +54,12 @@ class SingleGameScenario implements FixtureScenarioInterface {
 				throw new \BadMethodCallException('Scenario only accepts an array of named parameters.');
 		}
 
-		$args += [
-			'league_details' => [],
-			'division_details' => [],
-		];
-		$args['league_details'] += ['affiliate_id' => isset($args['affiliate']) ? $args['affiliate']->id : 1];
-		$args['division_details'] += ['schedule_type' => 'ratings_ladder', 'rating_calculator' => 'wager'];
+		$args += ['day_id' => FrozenDate::now()->dayOfWeek];
 
 		/** @var League $league */
-		$league = LeagueFactory::make($args['league_details'])
-			->with('Divisions',
-				DivisionFactory::make($args['division_details'])
-			)
-			->persist();
+		$league = $this->loadFixtureScenario(LeagueScenario::class, $args);
 		$division = $league->divisions[0];
 		$division->league = $league;
-
-		if (array_key_exists('coordinator', $args)) {
-			DivisionsPersonFactory::make(['person_id' => $args['coordinator']->id, 'division_id' => $division->id])->persist();
-		}
 
 		/** @var Game $game */
 		$gameFactory = GameFactory::make([
@@ -89,7 +76,7 @@ class SingleGameScenario implements FixtureScenarioInterface {
 			);
 
 		/** @var Game $game */
-		if ($args['division_details']['schedule_type'] === 'tournament') {
+		if ($division->schedule_type === 'tournament') {
 			$pool = PoolFactory::make(['division_id' => $division->id])->persist();
 
 			$game = $gameFactory
@@ -102,8 +89,8 @@ class SingleGameScenario implements FixtureScenarioInterface {
 				->persist();
 		} else {
 			$game = $gameFactory
-				->with('HomeTeam', ['division_id' => $division->id, 'track_attendance' => true])
-				->with('AwayTeam', ['division_id' => $division->id, 'track_attendance' => true])
+				->with('HomeTeam', ['division_id' => $division->id])
+				->with('AwayTeam', ['division_id' => $division->id])
 				->persist();
 
 			$home = $game->home_team;
@@ -112,7 +99,6 @@ class SingleGameScenario implements FixtureScenarioInterface {
 			$away->people = [];
 		}
 
-		DivisionsDayFactory::make(['day_id' => $game->game_slot->game_date->dayOfWeek, 'division_id' => $division->id])->persist();
 		TableRegistry::getTableLocator()->get('Divisions')->loadInto($division, ['Days']);
 		$game->division = $division;
 

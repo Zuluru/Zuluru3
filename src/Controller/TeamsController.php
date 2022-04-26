@@ -405,6 +405,9 @@ class TeamsController extends AppController {
 				$game->division = $divisions[$game->division_id];
 			}
 			usort($no_scores, [$this, 'compareAffiliateAndCount']);
+
+			$this->set(compact('shorts', 'top_rating', 'lowest_rating',
+				'defaulting', 'no_scores', 'top_spirit', 'lowest_spirit'));
 		}
 
 		$years = $this->Teams->Divisions->find()
@@ -413,9 +416,7 @@ class TeamsController extends AppController {
 			->order(['year'])
 			->toArray();
 
-		$this->set(compact('shorts', 'top_rating', 'lowest_rating',
-			'defaulting', 'no_scores', 'top_spirit', 'lowest_spirit',
-			'year', 'years', 'divisions'));
+		$this->set(compact('year', 'years', 'divisions'));
 	}
 
 	public static function compareAffiliateAndCount($a, $b) {
@@ -997,25 +998,28 @@ class TeamsController extends AppController {
 			'conditions' => ['affiliate_id IN' => array_keys($affiliates)],
 		])->toArray();
 
-		$facilities = TableRegistry::getTableLocator()->get('Facilities')->find()
-			->contain([
-				'Fields' => [
-					'queryBuilder' => function (Query $q) {
-						return $q->where(['Fields.is_open' => true])->order(['Fields.num']);
-					},
-				],
-			])
-			->where([
-				'Facilities.region_id IN' => array_keys($regions),
-				'Facilities.is_open' => true,
-			])
-			->order(['Facilities.name'])
-			->toArray();
+		$facilities = [];
+		if (!empty($regions)) {
+			$facilities = TableRegistry::getTableLocator()->get('Facilities')->find()
+				->contain([
+					'Fields' => [
+						'queryBuilder' => function (Query $q) {
+							return $q->where(['Fields.is_open' => true])->order(['Fields.num']);
+						},
+					],
+				])
+				->where([
+					'Facilities.region_id IN' => array_keys($regions),
+					'Facilities.is_open' => true,
+				])
+				->order(['Facilities.name'])
+				->toArray();
 
-		// Eliminate any facilities that have no matching fields
-		foreach ($facilities as $key => $facility) {
-			if (empty($facility->fields)) {
-				unset($facilities[$key]);
+			// Eliminate any facilities that have no matching fields
+			foreach ($facilities as $key => $facility) {
+				if (empty($facility->fields)) {
+					unset($facilities[$key]);
+				}
 			}
 		}
 
@@ -1100,25 +1104,28 @@ class TeamsController extends AppController {
 			'conditions' => $region_conditions,
 		])->toArray();
 
-		$facilities = TableRegistry::getTableLocator()->get('Facilities')->find()
-			->contain([
-				'Fields' => [
-					'queryBuilder' => function (Query $q) use ($field_conditions) {
-						return $q->where($field_conditions)->order(['Fields.num']);
-					},
-				],
-			])
-			->where([
-				'Facilities.region_id IN' => array_keys($regions),
-				'Facilities.is_open' => true,
-			])
-			->order(['Facilities.name'])
-			->toArray();
+		$facilities = [];
+		if (!empty($regions)) {
+			$facilities = TableRegistry::getTableLocator()->get('Facilities')->find()
+				->contain([
+					'Fields' => [
+						'queryBuilder' => function (Query $q) use ($field_conditions) {
+							return $q->where($field_conditions)->order(['Fields.num']);
+						},
+					],
+				])
+				->where([
+					'Facilities.region_id IN' => array_keys($regions),
+					'Facilities.is_open' => true,
+				])
+				->order(['Facilities.name'])
+				->toArray();
 
-		// Eliminate any facilities that have no matching fields
-		foreach ($facilities as $key => $facility) {
-			if (empty($facility->fields)) {
-				unset($facilities[$key]);
+			// Eliminate any facilities that have no matching fields
+			foreach ($facilities as $key => $facility) {
+				if (empty($facility->fields)) {
+					unset($facilities[$key]);
+				}
 			}
 		}
 
@@ -1965,7 +1972,7 @@ class TeamsController extends AppController {
 		$person_id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
 
 		try {
-			list($team, $person) = $this->_initTeamForRosterChange($person_id);
+			[$team, $person] = $this->_initTeamForRosterChange($person_id);
 		} catch (Exception $ex) {
 			$this->Flash->info($ex->getMessage());
 			return $this->redirect('/');
@@ -2023,7 +2030,7 @@ class TeamsController extends AppController {
 		$person_id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
 
 		try {
-			list($team, $person) = $this->_initTeamForRosterChange($person_id);
+			[$team, $person] = $this->_initTeamForRosterChange($person_id);
 		} catch (Exception $ex) {
 			$this->Flash->info($ex->getMessage());
 			return $this->redirect('/');
@@ -2071,7 +2078,7 @@ class TeamsController extends AppController {
 		$person_id = $this->request->getQuery('person');
 
 		try {
-			list($team, $person) = $this->_initTeamForRosterChange($person_id);
+			[$team, $person] = $this->_initTeamForRosterChange($person_id);
 		} catch (Exception $ex) {
 			$this->Flash->info($ex->getMessage());
 			return $this->redirect('/');
@@ -2129,7 +2136,7 @@ class TeamsController extends AppController {
 
 	public function roster_request() {
 		try {
-			list($team, $person) = $this->_initTeamForRosterChange($this->UserCache->currentId());
+			[$team, $person] = $this->_initTeamForRosterChange($this->UserCache->currentId());
 		} catch (Exception $ex) {
 			$this->Flash->info($ex->getMessage());
 			return $this->redirect('/');
@@ -2182,7 +2189,7 @@ class TeamsController extends AppController {
 		$person_id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
 
 		try {
-			list($team, $person) = $this->_initTeamForRosterChange($person_id);
+			[$team, $person] = $this->_initTeamForRosterChange($person_id);
 		} catch (Exception $ex) {
 			$this->Flash->info($ex->getMessage());
 			return $this->redirect('/');
@@ -2240,7 +2247,7 @@ class TeamsController extends AppController {
 		$person_id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
 
 		try {
-			list($team, $person) = $this->_initTeamForRosterChange($person_id);
+			[$team, $person] = $this->_initTeamForRosterChange($person_id);
 		} catch (Exception $ex) {
 			$this->Flash->info($ex->getMessage());
 			return $this->redirect('/');
@@ -2628,7 +2635,7 @@ class TeamsController extends AppController {
 	}
 
 	protected function _sendRequest($person, $team, $role) {
-		list($captains, $captain_names) = $this->_initRosterCaptains($team);
+		[$captains, $captain_names] = $this->_initRosterCaptains($team);
 
 		if (!$this->_sendMail([
 			'to' => $captains,
@@ -2652,7 +2659,7 @@ class TeamsController extends AppController {
 	protected function _sendAccept($person, $team, $role, $status) {
 		if ($status == ROSTER_INVITED) {
 			// A player has accepted an invitation
-			list($captains, $captain_names) = $this->_initRosterCaptains($team);
+			[$captains, $captain_names] = $this->_initRosterCaptains($team);
 
 			if (!$this->_sendMail([
 				'to' => $captains,
@@ -2698,7 +2705,7 @@ class TeamsController extends AppController {
 
 			if (!$is_captain) {
 				// A player or admin has declined an invitation
-				list($captains, $captain_names) = $this->_initRosterCaptains($team);
+				[$captains, $captain_names] = $this->_initRosterCaptains($team);
 
 				if (!$this->_sendMail([
 					'to' => $captains,
@@ -2764,7 +2771,7 @@ class TeamsController extends AppController {
 			(in_array($person->id, $this->UserCache->read('RelativeIDs')) && !in_array($team->id, $this->UserCache->read('OwnedTeamIDs'))))
 		{
 			// A player has changed themselves, or a relative who is not a captain of the team did it for them
-			list($captains, $captain_names) = $this->_initRosterCaptains($team);
+			[$captains, $captain_names] = $this->_initRosterCaptains($team);
 
 			if (!$this->_sendMail([
 				'to' => $captains,
@@ -2807,7 +2814,7 @@ class TeamsController extends AppController {
 	protected function _sendRemove($person, $team, $old_role) {
 		if ($person->id == $this->UserCache->currentId()) {
 			// A player has removed themselves
-			list($captains, $captain_names) = $this->_initRosterCaptains($team);
+			[$captains, $captain_names] = $this->_initRosterCaptains($team);
 
 			if (!$this->_sendMail([
 				'to' => $captains,

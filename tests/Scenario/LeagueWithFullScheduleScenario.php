@@ -11,27 +11,26 @@ use App\Test\Factory\FranchiseFactory;
 use App\Test\Factory\FranchisesTeamFactory;
 use App\Test\Factory\GameFactory;
 use App\Test\Factory\GameSlotFactory;
-use App\Test\Factory\LeagueFactory;
 use App\Test\Factory\PoolFactory;
 use App\Test\Factory\RegionFactory;
 use App\Test\Factory\ScoreEntryFactory;
 use App\Test\Factory\SpiritEntryFactory;
 use App\Test\Factory\TeamFactory;
 use Cake\Chronos\ChronosInterface;
-use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
 use CakephpFixtureFactories\Scenario\FixtureScenarioInterface;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 class LeagueWithFullScheduleScenario implements FixtureScenarioInterface {
 
+	use ScenarioAwareTrait;
+
 	/**
 	 * Possible arguments are:
-	 * - affiliate Affiliate
-	 * - coordinator Person
-	 * - divisions int
-	 * - scores bool
-	 * - spirit bool
-	 * - playoffs bool
+	 * - anything that LeagueScenario accepts
+	 * - scores: bool
+	 * - spirit: bool
+	 * - playoffs: bool
 	 */
 	public function load(...$args): League {
 		switch (count($args)) {
@@ -50,24 +49,11 @@ class LeagueWithFullScheduleScenario implements FixtureScenarioInterface {
 			'scores' => false,
 			'spirit' => false,
 			'playoffs' => false,
+			'day_id' => ChronosInterface::MONDAY,
 		];
 
-		if (array_key_exists('divisions', $args)) {
-			$divisions = "[{$args['divisions']}]";
-		} else {
-			$divisions = '';
-		}
-
-		$open = FrozenDate::now()->next(ChronosInterface::MONDAY)->subWeeks(3);
 		/** @var League $league */
-		$league = LeagueFactory::make(['open' => $open, 'close' => $open->addWeeks(8), 'is_open' => true])
-			->with("Divisions{$divisions}", [
-				'open' => $open, 'close' => $open->addWeeks(8), 'is_open' => true,
-				'schedule_type' => 'ratings_ladder',
-				'allstars' => 'optional', 'allstars_from' => 'opponent',
-			])
-			->with('Affiliates', $args['affiliate'] ?? [])
-			->persist();
+		$league = $this->loadFixtureScenario(LeagueScenario::class, $args);
 
 		// Where will the games be played?
 		$fields = array_map(static function ($k) { return ['num' => $k]; }, range(1, count($league->divisions) * 2));
@@ -80,19 +66,13 @@ class LeagueWithFullScheduleScenario implements FixtureScenarioInterface {
 		$late_end = FrozenTime::createFromTime(23);
 
 		$team_names = ['Red', 'Yellow', 'Green', 'Blue', 'Orange', 'Purple', 'Black', 'White'];
-		$teams = array_map(function ($name, $seed) {
+		$teams = array_map(static function ($name, $seed) {
 			return ['name' => $name, 'shirt_colour' => $name, 'initial_seed' => $seed];
 		}, $team_names, range(1, count($team_names)));
 		foreach ($league->divisions as $key => $division) {
 			[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $division->teams = TeamFactory::make($teams)
 				->with('Divisions', $division)->persist();
-			DivisionsDayFactory::make(['day_id' => ChronosInterface::MONDAY, 'division_id' => $division->id])->persist();
-
-			if (array_key_exists('coordinator', $args)) {
-				DivisionsPersonFactory::make(['person_id' => $args['coordinator']->id, 'division_id' => $division->id])->persist();
-			}
-
-			$division->games = [];
+			$open = $division->open;
 
 			// Week 1
 			$game = $division->games[] = GameFactory::make([
@@ -289,11 +269,11 @@ class LeagueWithFullScheduleScenario implements FixtureScenarioInterface {
 
 				[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $playoffs->teams = TeamFactory::make($teams)
 					->with('Divisions', $playoffs)->persist();
-				DivisionsDayFactory::make(['day_id' => ChronosInterface::MONDAY, 'division_id' => $playoffs->id])->persist();
 				foreach ($franchises as $fkey => $franchise) {
 					FranchisesTeamFactory::make(['franchise_id' => $franchise->id, 'team_id' => $playoffs->teams[$fkey]->id])->persist();
 				}
 
+				DivisionsDayFactory::make(['day_id' => ChronosInterface::MONDAY, 'division_id' => $playoffs->id])->persist();
 				if (array_key_exists('coordinator', $args)) {
 					DivisionsPersonFactory::make(['person_id' => $args['coordinator']->id, 'division_id' => $playoffs->id])->persist();
 				}

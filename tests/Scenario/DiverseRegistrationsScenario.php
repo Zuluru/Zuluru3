@@ -24,14 +24,14 @@ class DiverseRegistrationsScenario implements FixtureScenarioInterface {
 	/**
 	 * @param ...$args
 	 * Possible arguments are:
-	 * - affiliate Affiliate
-	 * - coordinator Person
-	 * - member Person
-	 * - captain Person
-	 * - player Person
-	 * - membershipPayment string
-	 * - teamPayment string
-	 * - individualPayment string
+	 * - affiliate: Affiliate
+	 * - coordinator: Person
+	 * - member: Person
+	 * - captain: Person
+	 * - player: Person
+	 * - membershipPayment: string
+	 * - teamPayment: string
+	 * - individualPayment: string
 	 * @return \App\Model\Entity\Registration[]
 	 */
 	public function load(...$args) {

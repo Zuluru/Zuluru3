@@ -44,7 +44,7 @@ class PersonFactory extends BaseFactory
 				'home_phone' => $faker->numerify($faker->parse($phoneFormat)),
 				'work_phone' => $faker->boolean() ? $faker->numerify($faker->parse($phoneFormat)) : null,
 				'mobile_phone' => $faker->boolean() ? $faker->numerify($faker->parse($phoneFormat)) : null,
-				'addr_street' =>$faker->streetAddress,
+				'addr_street' => $faker->streetAddress,
 				'addr_city' => $faker->city,
 				'addr_prov' => 'Ontario',
 				'addr_postalcode' => $faker->postcode,
@@ -123,6 +123,27 @@ class PersonFactory extends BaseFactory
 		return self::make($makeParameter, $times)
 			->withGroup(GROUP_PARENT)
 			->with('Users');
+	}
+
+	/**
+	 * @param array|callable|null|int|\Cake\Datasource\EntityInterface|\Cake\Datasource\EntityInterface[] $makeParameter Injected data
+	 * @param int $times Number of entities created
+	 * @return static
+	 */
+	public static function makeChild($makeParameter = [], int $times = 1): self {
+		// Child records don't have contact details
+		$makeParameter = array_merge($makeParameter, [
+			'home_phone' => '',
+			'work_phone' => '',
+			'mobile_phone' => '',
+			'addr_street' => '',
+			'addr_city' => '',
+			'addr_prov' => '',
+			'addr_postalcode' => '',
+			'addr_country' => '',
+		]);
+		return self::make($makeParameter, $times)
+			->withGroup(GROUP_PLAYER);
 	}
 
 	/**

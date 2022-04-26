@@ -321,8 +321,8 @@ class Person extends Entity {
 			'birthdate', 'height', 'shirt_size', 'user',
 		];
 
-		if (empty($this->user_id)) {
-			$preserve_if_new_is_empty += ['home_phone', 'work_phone', 'mobile_phone', 'addr_street', 'addr_city', 'addr_prov', 'addr_country', 'addr_postalcode'];
+		if (empty($new->user_id)) {
+			$preserve_if_new_is_empty = array_merge($preserve_if_new_is_empty, ['home_phone', 'work_phone', 'mobile_phone', 'addr_street', 'addr_city', 'addr_prov', 'addr_country', 'addr_postalcode']);
 		}
 		foreach (array_keys($new->_properties) as $prop) {
 			if ($this->isAccessible($prop) && !in_array($prop, $preserve)) {

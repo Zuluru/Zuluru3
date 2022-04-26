@@ -1,10 +1,9 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
-use App\Test\Factory\DivisionsPersonFactory;
 use App\Test\Factory\GameFactory;
-use App\Test\Factory\LeagueFactory;
 use App\Test\Scenario\DiverseUsersScenario;
+use App\Test\Scenario\LeagueScenario;
 use App\Test\Scenario\LeagueWithFullScheduleScenario;
 use Cake\I18n\FrozenDate;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
@@ -39,22 +38,21 @@ class LeaguesControllerTest extends ControllerTestCase {
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
-		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Divisions[2]', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $affiliates[0])
-			->persist();
-		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $league->divisions[0]->id])->persist();
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliates[0], 'coordinator' => [$volunteer], 'divisions' => 2,
+		]);
 
 		/** @var \App\Model\Entity\League $affiliate_league */
-		$affiliate_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $affiliates[1])
-			->persist();
+		$affiliate_league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliates[1],
+		]);
 
-		LeagueFactory::make(['open' => FrozenDate::now()->subYear()->subMonth(), 'close' => FrozenDate::now()->subYear()->addMonth(), 'is_open' => true])
-			->with('Divisions', ['open' => FrozenDate::now()->subYear()->subMonth(), 'close' => FrozenDate::now()->subYear()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $affiliates[0])
-			->persist();
+		$dates = ['open' => FrozenDate::now()->subYear()->subMonth(), 'close' => FrozenDate::now()->subYear()->addMonth(), 'is_open' => false];
+		$this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliates[0],
+			'league_details' => $dates,
+			'division_details' => $dates,
+		]);
 
 		// Admins are allowed to see the index
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'index'], $admin->id);
@@ -99,13 +97,10 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 */
 	public function testSummary(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
-		$affiliate = $admin->affiliates[0];
 		/** @var \App\Model\Entity\League $league */
-		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $affiliate)
-			->persist();
-		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $league->divisions[0]->id])->persist();
+		$this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $admin->affiliates[0], 'coordinator' => $volunteer,
+		]);
 
 		// Admins are allowed to view the summary
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'summary'], $admin->id);
@@ -129,24 +124,19 @@ class LeaguesControllerTest extends ControllerTestCase {
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
-		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Divisions[2]', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $affiliates[0])
-			->persist();
-		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $league->divisions[0]->id])->persist();
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliates[0], 'coordinator' => [$volunteer], 'divisions' => 2,
+		]);
 
 		/** @var \App\Model\Entity\League $single_league */
-		$single_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $affiliates[0])
-			->persist();
-		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $single_league->divisions[0]->id])->persist();
+		$single_league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliates[0], 'coordinator' => $volunteer,
+		]);
 
 		/** @var \App\Model\Entity\League $affiliate_league */
-		$affiliate_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $affiliates[1])
-			->persist();
+		$affiliate_league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliates[1],
+		]);
 
 		// Admins are allowed to view leagues, with full edit and delete permissions
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'view', 'league' => $league->id], $admin->id);
@@ -191,14 +181,11 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 */
 	public function testTooltip(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
-		$affiliate = $admin->affiliates[0];
 		/** @var \App\Model\Entity\League $league */
-		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Divisions[2]', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $affiliate)
-			->persist();
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $admin->affiliates[0], 'coordinator' => $volunteer, 'divisions' => 2,
+		]);
 		$divisions = $league->divisions;
-		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $divisions[0]->id])->persist();
 
 		// Anyone is allowed to view league tooltips
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Leagues', 'action' => 'tooltip', 'league' => $league->id], $admin->id);
@@ -242,13 +229,10 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 */
 	public function testParticipation(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
-		$affiliate = $admin->affiliates[0];
 		/** @var \App\Model\Entity\League $league */
-		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Divisions[2]', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $affiliate)
-			->persist();
-		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $league->divisions[0]->id])->persist();
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $admin->affiliates[0], 'coordinator' => [$volunteer], 'divisions' => 2,
+		]);
 
 		// Admins are allowed to view the participation report
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'participation', 'league' => $league->id], $admin->id);
@@ -269,10 +253,9 @@ class LeaguesControllerTest extends ControllerTestCase {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;
 		/** @var \App\Model\Entity\League $league */
-		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $affiliates[0])
-			->persist();
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
 
 		// Admins are allowed to add new leagues anywhere
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'add'], $admin->id);
@@ -296,10 +279,9 @@ class LeaguesControllerTest extends ControllerTestCase {
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $affiliate_league */
-		$affiliate_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $affiliates[1])
-			->persist();
+		$affiliate_league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliates[1],
+		]);
 
 		// Managers are allowed to add new leagues in their own affiliate, but not others
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'add'], $manager->id);
@@ -329,16 +311,14 @@ class LeaguesControllerTest extends ControllerTestCase {
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
-		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $affiliates[0])
-			->persist();
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
 
 		/** @var \App\Model\Entity\League $affiliate_league */
-		$affiliate_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $affiliates[1])
-			->persist();
+		$affiliate_league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliates[1],
+		]);
 
 		// Admins are allowed to edit leagues anywhere
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'edit', 'league' => $league->id], $admin->id);
@@ -353,16 +333,14 @@ class LeaguesControllerTest extends ControllerTestCase {
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
-		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $affiliates[0])
-			->persist();
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
 
 		/** @var \App\Model\Entity\League $affiliate_league */
-		$affiliate_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $affiliates[1])
-			->persist();
+		$affiliate_league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliates[1],
+		]);
 
 		// Managers are allowed to edit leagues in their own affiliate, but not others
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'edit', 'league' => $league->id], $manager->id);
@@ -377,18 +355,14 @@ class LeaguesControllerTest extends ControllerTestCase {
 		$affiliate = $admin->affiliates[0];
 
 		/** @var \App\Model\Entity\League $league */
-		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Divisions[2]', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $affiliate)
-			->persist();
-		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $league->divisions[0]->id])->persist();
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliate, 'coordinator' => [$volunteer], 'divisions' => 2,
+		]);
 
 		/** @var \App\Model\Entity\League $single_league */
-		$single_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $affiliate)
-			->persist();
-		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $single_league->divisions[0]->id])->persist();
+		$single_league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliate, 'coordinator' => $volunteer,
+		]);
 
 		// Coordinators are allowed to edit leagues where they coordinate all the divisions
 		$this->assertGetAsAccessOk(['controller' => 'Leagues', 'action' => 'edit', 'league' => $single_league->id], $volunteer->id);
@@ -402,13 +376,10 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 */
 	public function testEditAsOthers(): void {
 		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
-		$affiliate = $admin->affiliates[0];
 		/** @var \App\Model\Entity\League $league */
-		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $affiliate)
-			->persist();
-		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $league->divisions[0]->id])->persist();
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $admin->affiliates[0], 'coordinator' => $volunteer,
+		]);
 
 		// Others are not allowed to edit leagues
 		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'edit', 'league' => $league->id], $player->id);
@@ -420,12 +391,10 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 */
 	public function testAddDivisionAsAdmin(): void {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
-		$affiliate = $admin->affiliates[0];
 		/** @var \App\Model\Entity\League $league */
-		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $affiliate)
-			->persist();
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
 
 		// Admins are allowed to add division
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Leagues', 'action' => 'add_division', 'league' => $league->id], $admin->id);
@@ -438,12 +407,10 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 */
 	public function testAddDivisionAsManager(): void {
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
-		$affiliate = $admin->affiliates[0];
 		/** @var \App\Model\Entity\League $league */
-		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $affiliate)
-			->persist();
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
 
 		// Managers are allowed to add divisions
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Leagues', 'action' => 'add_division', 'league' => $league->id], $manager->id);
@@ -456,13 +423,10 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 */
 	public function testAddDivisionAsOthers(): void {
 		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
-		$affiliate = $admin->affiliates[0];
 		/** @var \App\Model\Entity\League $league */
-		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $affiliate)
-			->persist();
-		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $league->divisions[0]->id])->persist();
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $admin->affiliates[0], 'coordinator' => $volunteer,
+		]);
 
 		// Coordinators are not allowed to add divisions
 		$this->assertGetAjaxAsAccessDenied(['controller' => 'Leagues', 'action' => 'add_division', 'league' => $league->id], $volunteer->id);
@@ -481,17 +445,14 @@ class LeaguesControllerTest extends ControllerTestCase {
 		$affiliate = $admin->affiliates[0];
 
 		/** @var \App\Model\Entity\League $league */
-		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $affiliate)
-			->persist();
-		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $league->divisions[0]->id])->persist();
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliate, 'coordinator' => $volunteer,
+		]);
 
 		/** @var \App\Model\Entity\League $dependent_league */
-		$dependent_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $affiliate)
-			->persist();
+		$dependent_league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliate,
+		]);
 		GameFactory::make(['division_id' => $dependent_league->divisions[0]->id])->persist();
 
 		// Admins are allowed to delete leagues
@@ -516,16 +477,14 @@ class LeaguesControllerTest extends ControllerTestCase {
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
-		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $affiliates[0])
-			->persist();
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliates[0],
+		]);
 
 		/** @var \App\Model\Entity\League $affiliate_league */
-		$affiliate_league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $affiliates[1])
-			->persist();
+		$affiliate_league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliates[1],
+		]);
 
 		// Managers are allowed to delete leagues in their affiliate
 		$this->assertPostAsAccessRedirect(['controller' => 'Leagues', 'action' => 'delete', 'league' => $league->id],
@@ -547,11 +506,9 @@ class LeaguesControllerTest extends ControllerTestCase {
 		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliate = $admin->affiliates[0];
 		/** @var \App\Model\Entity\League $league */
-		$league = LeagueFactory::make(['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Divisions', ['open' => FrozenDate::now()->subMonth(), 'close' => FrozenDate::now()->addMonth(), 'is_open' => true])
-			->with('Affiliates', $affiliate)
-			->persist();
-		DivisionsPersonFactory::make(['person_id' => $volunteer->id, 'division_id' => $league->divisions[0]->id])->persist();
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliate, 'coordinator' => $volunteer,
+		]);
 
 		// Others are not allowed to delete leagues
 		$this->assertPostAsAccessDenied(['controller' => 'Leagues', 'action' => 'delete', 'league' => $league->id],

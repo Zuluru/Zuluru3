@@ -3,6 +3,8 @@ namespace App\Test\TestCase\Controller;
 
 use App\Model\Entity\Game;
 use App\Model\Entity\GameSlot;
+use App\Test\Factory\DivisionsGameslotFactory;
+use App\Test\Factory\GameSlotFactory;
 use App\Test\Scenario\DiverseUsersScenario;
 use App\Test\Scenario\LeagueWithMinimalScheduleScenario;
 use App\Test\Scenario\SingleGameScenario;
@@ -259,6 +261,11 @@ class SchedulesControllerTest extends ControllerTestCase {
 		$game = $season->games[0];
 		$date = $game->game_slot->game_date;
 
+		$slot = GameSlotFactory::make(['date' => $date->addWeeks(2)])
+			->persist();
+		DivisionsGameslotFactory::make(['division_id' => $season->id, 'game_slot_id' => $slot->id])
+			->persist();
+
 		// Admins are allowed to reschedule
 		$this->assertGetAsAccessOk(['controller' => 'Schedules', 'action' => 'reschedule', 'division' => $season->id, 'date' => $date->toDateString()], $admin->id);
 
@@ -275,6 +282,11 @@ class SchedulesControllerTest extends ControllerTestCase {
 		$season = $league->divisions[0];
 		$game = $season->games[0];
 		$date = $game->game_slot->game_date;
+
+		$slot = GameSlotFactory::make(['date' => $date->addWeeks(2)])
+			->persist();
+		DivisionsGameslotFactory::make(['division_id' => $season->id, 'game_slot_id' => $slot->id])
+			->persist();
 
 		// Managers are allowed to reschedule
 		$this->assertGetAsAccessOk(['controller' => 'Schedules', 'action' => 'reschedule', 'division' => $season->id, 'date' => $date->toDateString()], $manager->id);
@@ -293,6 +305,11 @@ class SchedulesControllerTest extends ControllerTestCase {
 		$game = $season->games[0];
 		$date = $game->game_slot->game_date;
 
+		$slot = GameSlotFactory::make(['date' => $date->addWeeks(2)])
+			->persist();
+		DivisionsGameslotFactory::make(['division_id' => $season->id, 'game_slot_id' => $slot->id])
+			->persist();
+
 		// Coordinators are allowed to reschedule
 		$this->assertGetAsAccessOk(['controller' => 'Schedules', 'action' => 'reschedule', 'division' => $season->id, 'date' => $date->toDateString()], $volunteer->id);
 
@@ -309,6 +326,11 @@ class SchedulesControllerTest extends ControllerTestCase {
 		$season = $league->divisions[0];
 		$game = $season->games[0];
 		$date = $game->game_slot->game_date;
+
+		$slot = GameSlotFactory::make(['date' => $date->addWeeks(2)])
+			->persist();
+		DivisionsGameslotFactory::make(['division_id' => $season->id, 'game_slot_id' => $slot->id])
+			->persist();
 
 		// Others are not allowed to reschedule
 		$this->assertGetAsAccessDenied(['controller' => 'Schedules', 'action' => 'reschedule', 'division' => $season->id, 'date' => $date->toDateString()], $player->id);
