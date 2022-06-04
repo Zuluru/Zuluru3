@@ -9,9 +9,9 @@ use App\Controller\AppController;
 
 $fp = fopen('php://output','w+');
 
-$people = collection($team->people);
-$has_numbers = Configure::read('feature.shirt_numbers') && $team->has('people') && $people->some(function ($person) {
-	return $person->_joinData->number != null;
+$roster = collection($team->teams_people ?? []);
+$has_numbers = Configure::read('feature.shirt_numbers') && $roster->some(function (\App\Model\Entity\TeamsPerson $roster_entry) {
+	return $roster_entry->number != null;
 });
 $positions = $team->division_id ? Configure::read("sports.{$team->division->league->sport}.positions") : [];
 
@@ -41,7 +41,7 @@ $fields = [
 ];
 
 $identity = $this->Authorize->getIdentity();
-list($header1, $header2, $player_fields, $contact_fields) = \App\Lib\csvFields($people, $fields, $identity->isManagerOf($team->division->league));
+list($header1, $header2, $player_fields, $contact_fields) = \App\Lib\csvFields($roster->extract('person'), $fields, $identity->isManagerOf($team->division->league));
 if (!empty($header1)) {
 	fputcsv($fp, $header1);
 }
@@ -53,20 +53,22 @@ unset($player_fields['last_name']);
 
 $column = Configure::read('gender.column');
 
-foreach ($team->people as $person) {
+foreach ($team->teams_people as $roster_entry) {
+	$person = $roster_entry->person;
+
 	$row = [
 		$person->first_name,
 		$person->last_name,
-		$person->_joinData->role,
+		$roster_entry->role,
 	];
 	if ($has_numbers) {
-		array_unshift($row, $person->_joinData->number);
+		array_unshift($row, $roster_entry->number);
 	}
 	if (!empty($positions)) {
-		$row[] = $person->_joinData->position;
+		$row[] = $roster_entry->position;
 	}
 	$row[] = $person->$column;
-	$row[] = $this->Time->date($person->_joinData->created);
+	$row[] = $this->Time->date($roster_entry->created);
 
 	foreach ($player_fields as $field => $name) {
 		if ($person->has($field)) {

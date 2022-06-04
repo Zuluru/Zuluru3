@@ -14,7 +14,7 @@ class PricesTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\PricesTable
+	 * @var PricesTable
 	 */
 	public $PricesTable;
 
@@ -23,7 +23,7 @@ class PricesTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Prices') ? [] : ['className' => 'App\Model\Table\PricesTable'];
+		$config = TableRegistry::getTableLocator()->exists('Prices') ? [] : ['className' => PricesTable::class];
 		$this->PricesTable = TableRegistry::getTableLocator()->get('Prices', $config);
 	}
 
@@ -80,7 +80,7 @@ class PricesTableTest extends TableTestCase {
 	 * Test affiliate method
 	 */
 	public function testAffiliate(): void {
-        $affiliateId = rand();
+        $affiliateId = mt_rand();
         $entity = PriceFactory::make()->with('Events', ['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->PricesTable->affiliate($entity->id));
 	}

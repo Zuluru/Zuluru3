@@ -21,9 +21,8 @@ class LeagueFactory extends BaseFactory
 	 * not nullable fields.
 	 * Use the patchData method to set the field values.
 	 * You may use methods of the factory here
-	 * @return void
 	 */
-	protected function setDefaultTemplate()
+	protected function setDefaultTemplate(): void
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			$seasons = ['Spring', 'Summer', 'Fall', 'Winter'];
@@ -31,8 +30,8 @@ class LeagueFactory extends BaseFactory
 				'name' => $faker->word,
 				'sport' => 'ultimate',
 				'season' => $faker->randomElement($seasons),
-				'open' => (new FrozenDate('first Monday of June'))->subWeeks(52),
-				'close' => (new FrozenDate('first Monday of September'))->subWeeks(52),
+				'open' => (new FrozenDate('first Monday of June')),
+				'close' => (new FrozenDate('first Monday of September')),
 				'expected_max_score' => 17,
 				'tie_breaker' => 'win,hth,hthpm,pm,gf,loss',
 				'sotg_questions' => 'wfdf2',

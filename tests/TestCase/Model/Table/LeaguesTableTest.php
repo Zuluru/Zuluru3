@@ -3,7 +3,6 @@ namespace App\Test\TestCase\Model\Table;
 
 use App\Middleware\ConfigurationLoader;
 use App\Test\Factory\DivisionFactory;
-use App\Test\Factory\GameFactory;
 use App\Test\Factory\LeagueFactory;
 use Cake\Event\Event as CakeEvent;
 use Cake\ORM\TableRegistry;
@@ -17,7 +16,7 @@ class LeaguesTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\LeaguesTable
+	 * @var LeaguesTable
 	 */
 	public $LeaguesTable;
 
@@ -26,7 +25,7 @@ class LeaguesTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Leagues') ? [] : ['className' => 'App\Model\Table\LeaguesTable'];
+		$config = TableRegistry::getTableLocator()->exists('Leagues') ? [] : ['className' => LeaguesTable::class];
 		$this->LeaguesTable = TableRegistry::getTableLocator()->get('Leagues', $config);
 	}
 
@@ -54,7 +53,6 @@ class LeaguesTableTest extends TableTestCase {
 	 * Test compareLeagueAndDivision method
 	 */
 	public function testCompareLeagueAndDivision(): void {
-        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		ConfigurationLoader::loadConfiguration();
 
 		// TODO: Add more league records, to more completely test the sort options
@@ -93,7 +91,7 @@ class LeaguesTableTest extends TableTestCase {
 	 * Test affiliate method
 	 */
 	public function testAffiliate(): void {
-	    $affiliateId = rand();
+	    $affiliateId = mt_rand();
 	    $league = LeagueFactory::make(['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->LeaguesTable->affiliate($league->id));
 	}

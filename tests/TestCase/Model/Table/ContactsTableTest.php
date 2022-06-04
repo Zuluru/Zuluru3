@@ -13,7 +13,7 @@ class ContactsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\ContactsTable
+	 * @var ContactsTable
 	 */
 	public $ContactsTable;
 
@@ -22,7 +22,7 @@ class ContactsTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Contacts') ? [] : ['className' => 'App\Model\Table\ContactsTable'];
+		$config = TableRegistry::getTableLocator()->exists('Contacts') ? [] : ['className' => ContactsTable::class];
 		$this->ContactsTable = TableRegistry::getTableLocator()->get('Contacts', $config);
 	}
 
@@ -39,7 +39,7 @@ class ContactsTableTest extends TableTestCase {
 	 * Test affiliate method
 	 */
 	public function testAffiliate(): void {
-        $affiliateId = rand();
+        $affiliateId = mt_rand();
         $contact = ContactFactory::make(['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->ContactsTable->affiliate($contact->id));
 	}

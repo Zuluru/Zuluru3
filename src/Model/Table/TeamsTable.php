@@ -2,6 +2,8 @@
 namespace App\Model\Table;
 
 use App\Authorization\ContextResource;
+use App\Model\Entity\Team;
+use App\Model\Entity\TeamsPerson;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
@@ -338,42 +340,49 @@ class TeamsTable extends AppTable {
 	}
 
 	public static function compareRoster($a, $b, $options = []) {
+		if (is_a($a, TeamsPerson::class)) {
+			$roster_a = $a;
+			$person_a = $a->person;
+			$roster_b = $b;
+			$person_b = $b->person;
+		} else {
+			$roster_a = $a->_joinData;
+			$person_a = $a;
+			$roster_b = $b->_joinData;
+			$person_b = $b;
+		}
+
 		static $rosterMap = null;
 		if ($rosterMap == null) {
 			$rosterMap = array_flip(array_keys(Configure::read('options.roster_role')));
 		}
 
-		// If there is no request, we're running in CLI mode (i.e. a shell task), and nothing we do there cares about gender sorting
-		if (array_key_exists('include_gender', $options)) {
-			$include_gender = $options['include_gender'];
-		} else {
-			$include_gender = false;
-		}
+		$include_gender = $options['include_gender'] ?? false;
 
 		// Sort eligible from non-eligible
-		if ($a->has('can_add') && $b->has('can_add')) {
-			if ($a->can_add === true && $b->can_add !== true) {
+		if ($person_a->has('can_add') && $person_b->has('can_add')) {
+			if ($person_a->can_add === true && $person_b->can_add !== true) {
 				return -1;
-			} else if ($a->can_add !== true && $b->can_add === true) {
+			} else if ($person_a->can_add !== true && $person_b->can_add === true) {
 				return 1;
 			}
 		}
 
-		if ($a->_joinData->status == ROSTER_APPROVED && $b->_joinData->status != ROSTER_APPROVED) {
+		if ($roster_a->status == ROSTER_APPROVED && $roster_b->status != ROSTER_APPROVED) {
 			return -1;
-		} else if ($a->_joinData->status != ROSTER_APPROVED && $b->_joinData->status == ROSTER_APPROVED) {
+		} else if ($roster_a->status != ROSTER_APPROVED && $roster_b->status == ROSTER_APPROVED) {
 			return 1;
-		} else if ($rosterMap[$a->_joinData->role] > $rosterMap[$b->_joinData->role]) {
+		} else if ($rosterMap[$roster_a->role] > $rosterMap[$roster_b->role]) {
 			return 1;
-		} else if ($rosterMap[$a->_joinData->role] < $rosterMap[$b->_joinData->role]) {
+		} else if ($rosterMap[$roster_a->role] < $rosterMap[$roster_b->role]) {
 			return -1;
-		} else if ($include_gender && $a->roster_designation < $b->roster_designation) {
+		} else if ($include_gender && $person_a->roster_designation < $person_b->roster_designation) {
 			return 1;
-		} else if ($include_gender && $a->roster_designation > $b->roster_designation) {
+		} else if ($include_gender && $person_a->roster_designation > $person_b->roster_designation) {
 			return -1;
 		}
 
-		return PeopleTable::comparePerson($a, $b);
+		return PeopleTable::comparePerson($person_a, $person_b);
 	}
 
 	public function affiliate($id) {

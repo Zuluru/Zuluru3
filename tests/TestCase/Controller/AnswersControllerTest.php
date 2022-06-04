@@ -31,7 +31,7 @@ class AnswersControllerTest extends ControllerTestCase {
 	 */
 	public function testActivateAsAdmin(): void {
 		$affiliate = AffiliateFactory::make()->persist();
-		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliate)->persist();
+		$admin = PersonFactory::make()->admin()->with('Affiliates', $affiliate)->persist();
 		$answer = AnswerFactory::make(['active' => false])->with('Questions', ['affiliate_id' => $affiliate->id])->persist();
 
 		// Admins are allowed to activate answers
@@ -45,7 +45,7 @@ class AnswersControllerTest extends ControllerTestCase {
 	 */
 	public function testActivateAsManager(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
-		$manager = PersonFactory::makeManager()
+		$manager = PersonFactory::make()->manager()
 			->with('AffiliatesPeople', AffiliatesPersonFactory::make(['position' => 'manager', 'affiliate_id' => $affiliates[0]->id]))
 			->persist();
 		$questions = QuestionFactory::make([
@@ -68,8 +68,8 @@ class AnswersControllerTest extends ControllerTestCase {
 	 */
 	public function testActivateAsOthers(): void {
 		$affiliate = AffiliateFactory::make()->persist();
-		$volunteer = PersonFactory::makeVolunteer()->with('Affiliates', $affiliate)->persist();
-		$player = PersonFactory::makePlayer()->with('Affiliates', $affiliate)->persist();
+		$volunteer = PersonFactory::make()->volunteer()->with('Affiliates', $affiliate)->persist();
+		$player = PersonFactory::make()->player()->with('Affiliates', $affiliate)->persist();
 		$answer = AnswerFactory::make(['active' => false])->with('Questions', ['affiliate_id' => $affiliate->id])->persist();
 
 		// Others are not allowed to activate answers
@@ -85,7 +85,7 @@ class AnswersControllerTest extends ControllerTestCase {
 	 */
 	public function testDeactivateAsAdmin(): void {
 		$affiliate = AffiliateFactory::make()->persist();
-		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliate)->persist();
+		$admin = PersonFactory::make()->admin()->with('Affiliates', $affiliate)->persist();
 		$answer = AnswerFactory::make()->with('Questions', ['affiliate_id' => $affiliate->id])->persist();
 
 		// Admins are allowed to deactivate answers
@@ -99,7 +99,7 @@ class AnswersControllerTest extends ControllerTestCase {
 	 */
 	public function testDeactivateAsManager(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
-		$manager = PersonFactory::makeManager()
+		$manager = PersonFactory::make()->manager()
 			->with('AffiliatesPeople', AffiliatesPersonFactory::make(['position' => 'manager', 'affiliate_id' => $affiliates[0]->id]))
 			->persist();
 		$questions = QuestionFactory::make([

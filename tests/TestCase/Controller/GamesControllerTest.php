@@ -954,7 +954,7 @@ class GamesControllerTest extends ControllerTestCase {
 
 		// Add a second captain for this test
 		/** @var Person $captain2 */
-		$captain2 = PersonFactory::makePlayer()
+		$captain2 = PersonFactory::make()->player()
 			->with('TeamsPeople', TeamsPersonFactory::make(['team_id' => $game->home_team_id, 'role' => 'captain']))
 			->persist();
 

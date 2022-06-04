@@ -12,7 +12,7 @@ class PluginsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\PluginsTable
+	 * @var PluginsTable
 	 */
 	public $Plugins;
 
@@ -30,7 +30,7 @@ class PluginsTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Plugins') ? [] : ['className' => 'App\Model\Table\PluginsTable'];
+		$config = TableRegistry::getTableLocator()->exists('Plugins') ? [] : ['className' => PluginsTable::class];
 		$this->Plugins = TableRegistry::getTableLocator()->get('Plugins', $config);
 	}
 

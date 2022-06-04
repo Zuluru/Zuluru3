@@ -12,7 +12,7 @@ class DaysTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\DaysTable
+	 * @var DaysTable
 	 */
 	public $DaysTable;
 
@@ -21,7 +21,7 @@ class DaysTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Days') ? [] : ['className' => 'App\Model\Table\DaysTable'];
+		$config = TableRegistry::getTableLocator()->exists('Days') ? [] : ['className' => DaysTable::class];
 		$this->DaysTable = TableRegistry::getTableLocator()->get('Days', $config);
 	}
 

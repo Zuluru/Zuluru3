@@ -1,7 +1,11 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
-use App\Test\Factory\GameFactory;
+use App\Model\Entity\Affiliate;
+use App\Model\Entity\Person;
+use App\Test\Factory\AffiliateFactory;
+use App\Test\Factory\PersonFactory;
+use Cake\Core\Configure;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\PeopleTable;
 
@@ -13,7 +17,7 @@ class PeopleTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\PeopleTable
+	 * @var PeopleTable
 	 */
 	public $PeopleTable;
 
@@ -22,7 +26,7 @@ class PeopleTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('People') ? [] : ['className' => 'App\Model\Table\PeopleTable'];
+		$config = TableRegistry::getTableLocator()->exists('People') ? [] : ['className' => PeopleTable::class];
 		$this->PeopleTable = TableRegistry::getTableLocator()->get('People', $config);
 	}
 
@@ -88,16 +92,50 @@ class PeopleTableTest extends TableTestCase {
 	 * Test findDuplicates method
 	 */
 	public function testFindDuplicates(): void {
-        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
-		$person = $this->PeopleTable->get(PERSON_ID_MANAGER, ['contain' => ['Affiliates']]);
-		$duplicates = $this->PeopleTable->find('duplicates', compact('person'))->toArray();
-		$this->assertEquals(1, count($duplicates));
-		$this->assertArrayHasKey(0, $duplicates);
-		$this->assertEquals(PERSON_ID_DUPLICATE, $duplicates[0]->id);
+		// TODO: Use this, or extract into some central function, instead of the settings fixture
+		Configure::write([
+			'Security' => ['authModel' => 'Users'],
+			'profile' => [
+				'home_phone' => true,
+				'work_phone' => true,
+				'mobile_phone' => true,
+				'addr_street' => true,
+			]
+		]);
 
-		$person = $this->PeopleTable->get(PERSON_ID_PLAYER, ['contain' => ['Affiliates']]);
-		$duplicates = $this->PeopleTable->find('duplicates', compact('person'))->toArray();
+		/** @var Person[] $people */
+		$people = PersonFactory::make([
+			['first_name' => 'Aaron', 'last_name' => 'Allen'],
+			['first_name' => 'Aaron', 'last_name' => 'Allen'],
+			['first_name' => 'Carla', 'last_name' => 'Booth'],
+			['first_name' => 'Brenda', 'last_name' => 'Booth'],
+			['addr_street' => '123 Main St'],
+			['addr_street' => '123 Main St'],
+			['home_phone' => '(416)555-5555'],
+			['home_phone' => '(416)555-5555'],
+		])
+			->with('Affiliates', AffiliateFactory::make()->persist())
+			->persist();
+
+		$duplicates = $this->PeopleTable->find('duplicates', ['person' => $people[0]])->toArray();
+		$this->assertCount(1, $duplicates);
+		$this->assertArrayHasKey(0, $duplicates);
+		$this->assertEquals($people[1]->id, $duplicates[0]->id);
+
+		$duplicates = $this->PeopleTable->find('duplicates', ['person' => $people[2]])->toArray();
 		$this->assertEmpty($duplicates);
+
+		$duplicates = $this->PeopleTable->find('duplicates', ['person' => $people[4]])->toArray();
+		$this->assertCount(1, $duplicates);
+		$this->assertArrayHasKey(0, $duplicates);
+		$this->assertEquals($people[5]->id, $duplicates[0]->id);
+
+		$duplicates = $this->PeopleTable->find('duplicates', ['person' => $people[6]])->toArray();
+		$this->assertCount(1, $duplicates);
+		$this->assertArrayHasKey(0, $duplicates);
+		$this->assertEquals($people[7]->id, $duplicates[0]->id);
+
+		$this->markTestIncomplete('Test duplicate match on email addresses.');
 	}
 
 	/**
@@ -118,63 +156,24 @@ class PeopleTableTest extends TableTestCase {
 	 * Test comparePerson method
 	 */
 	public function testComparePerson(): void {
-        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
-		// TODO: Add more person records, to more completely test the sort options
-		$people = $this->PeopleTable->find()->toArray();
-		$this->assertEquals(13, count($people));
-		usort($people, ['App\Model\Table\PeopleTable', 'comparePerson']);
+		/** @var Person[] $people */
+		$people = PersonFactory::make([
+			['first_name' => 'Aaron', 'last_name' => 'Allen'],
+			['first_name' => 'Amy', 'last_name' => 'Adamson'],
+			['first_name' => 'Carla', 'last_name' => 'Booth'],
+			['first_name' => 'Brenda', 'last_name' => 'Booth'],
+		])
+			->getEntities();
 
-		// Amy Administrator will be first
+		$this->assertCount(4, $people);
+		usort($people, [PeopleTable::class, 'comparePerson']);
 		$this->assertArrayHasKey(0, $people);
-		$this->assertEquals(PERSON_ID_ADMIN, $people[0]->id);
-
-		// Then Andy Affiliate
-		$this->assertArrayHasKey(1, $people);
-		$this->assertEquals(PERSON_ID_ANDY_SUB, $people[1]->id);
-
-		// Then Carl Captain
-		$this->assertArrayHasKey(2, $people);
-		$this->assertEquals(PERSON_ID_CAPTAIN4, $people[2]->id);
-
-		// Then Carolyn Captain
 		$this->assertArrayHasKey(3, $people);
-		$this->assertEquals(PERSON_ID_CAPTAIN3, $people[3]->id);
 
-		// Then Chuck Captain
-		$this->assertArrayHasKey(4, $people);
-		$this->assertEquals(PERSON_ID_CAPTAIN2, $people[4]->id);
-
-		// Then Crystal Captain
-		$this->assertArrayHasKey(5, $people);
-		$this->assertEquals(PERSON_ID_CAPTAIN, $people[5]->id);
-
-		// Then Carla Child
-		$this->assertArrayHasKey(6, $people);
-		$this->assertEquals(PERSON_ID_CHILD, $people[6]->id);
-
-		// Then Cindy Coordinator
-		$this->assertArrayHasKey(7, $people);
-		$this->assertEquals(PERSON_ID_COORDINATOR, $people[7]->id);
-
-		// Then Mary Duplicate
-		$this->assertArrayHasKey(8, $people);
-		$this->assertEquals(PERSON_ID_DUPLICATE, $people[8]->id);
-
-		// Then Irene Inactive
-		$this->assertArrayHasKey(9, $people);
-		$this->assertEquals(PERSON_ID_INACTIVE, $people[9]->id);
-
-		// Then Mary Manager
-		$this->assertArrayHasKey(10, $people);
-		$this->assertEquals(PERSON_ID_MANAGER, $people[10]->id);
-
-		// Then Pam Player
-		$this->assertArrayHasKey(11, $people);
-		$this->assertEquals(PERSON_ID_PLAYER, $people[11]->id);
-
-		// Finally Veronica Visitor
-		$this->assertArrayHasKey(12, $people);
-		$this->assertEquals(PERSON_ID_VISITOR, $people[12]->id);
+		$this->assertEquals('Amy', $people[0]->first_name);
+		$this->assertEquals('Aaron', $people[1]->first_name);
+		$this->assertEquals('Brenda', $people[2]->first_name);
+		$this->assertEquals('Carla', $people[3]->first_name);
 	}
 
 }

@@ -58,7 +58,6 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 * Test compareTeams method
 	 */
 	public function testCompareTeams(): void {
-        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER, true);
 
 		$this->assertEquals(8, count($division->teams));
@@ -127,7 +126,6 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 * Test createEmptyGame method
 	 */
 	public function testCreateEmptyGame(): void {
-        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER);
 		// Fixtures already have games scheduled for the first 4 weeks
 		$division->_options = new Entity(['start_date' => (new FrozenDate('first Monday of June'))->addWeeks(4)]);
@@ -148,7 +146,6 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 * Test createEmptySet method
 	 */
 	public function testCreateEmptySet(): void {
-        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER);
 		// Fixtures already have games scheduled for the first 4 weeks
 		$division->_options = new Entity(['start_date' => (new FrozenDate('first Monday of June'))->addWeeks(4)]);
@@ -180,7 +177,6 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 * Test createScheduledSet method
 	 */
 	public function testCreateScheduledSet(): void {
-        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		// Seed the random number generator with a fixed value, so that random determinations in field selection become fixed.
 		mt_srand(123);
 
@@ -224,7 +220,6 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 * Test createHalfRoundrobin method, standings split
 	 */
 	public function testCreateHalfRoundrobinStandings(): void {
-        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		// Seed the random number generator with a fixed value, so that random determinations in field selection become fixed.
 		mt_srand(123);
 
@@ -304,7 +299,6 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 * Test createHalfRoundrobin method, rating split
 	 */
 	public function testCreateHalfRoundrobinRating(): void {
-        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		// Seed the random number generator with a fixed value, so that random determinations in field selection become fixed.
 		mt_srand(123);
 
@@ -382,7 +376,6 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 * Test createHalfRoundrobin method, mix split
 	 */
 	public function testCreateHalfRoundrobinMix(): void {
-        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		// Seed the random number generator with a fixed value, so that random determinations in field selection become fixed.
 		mt_srand(123);
 
@@ -462,7 +455,6 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 * Test createFullRoundrobin method
 	 */
 	public function testCreateFullRoundrobin(): void {
-        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		// Seed the random number generator with a fixed value, so that random determinations in field selection become fixed.
 		mt_srand(123);
 

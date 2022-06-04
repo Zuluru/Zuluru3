@@ -59,13 +59,13 @@ class LeagueWithRostersScenario implements FixtureScenarioInterface {
 				$team->people = [];
 
 				// Add a captain
-				$team->people[] = PersonFactory::makePlayer()
+				$team->people[] = PersonFactory::make()->player()
 					->with('TeamsPeople', TeamsPersonFactory::make(['team_id' => $team->id, 'role' => 'captain']))
 					->with('Affiliates', $league->affiliate)
 					->persist();
 
 				// Add two players
-				$players = PersonFactory::makePlayer(2)
+				$players = PersonFactory::make(2)->player()
 					->with('TeamsPeople', TeamsPersonFactory::make(['team_id' => $team->id, 'role' => 'player']))
 					->with('Affiliates', $league->affiliate)
 					->persist();
@@ -73,13 +73,13 @@ class LeagueWithRostersScenario implements FixtureScenarioInterface {
 				$team->people[] = $players[1];
 
 				// Add a sub
-				$team->people[] = PersonFactory::makePlayer()
+				$team->people[] = PersonFactory::make()->player()
 					->with('TeamsPeople', TeamsPersonFactory::make(['team_id' => $team->id, 'role' => 'substitute']))
 					->with('Affiliates', $league->affiliate)
 					->persist();
 
 				// Add someone that's invited
-				$team->people[] = PersonFactory::makePlayer()
+				$team->people[] = PersonFactory::make()->player()
 					->with('TeamsPeople', TeamsPersonFactory::make(['team_id' => $team->id, 'role' => 'player', 'status' => ROSTER_INVITED]))
 					->with('Affiliates', $league->affiliate)
 					->persist();

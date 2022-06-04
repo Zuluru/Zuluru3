@@ -12,7 +12,7 @@ class SpiritEntriesTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\SpiritEntriesTable
+	 * @var SpiritEntriesTable
 	 */
 	public $SpiritEntriesTable;
 
@@ -21,7 +21,7 @@ class SpiritEntriesTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('SpiritEntries') ? [] : ['className' => 'App\Model\Table\SpiritEntriesTable'];
+		$config = TableRegistry::getTableLocator()->exists('SpiritEntries') ? [] : ['className' => SpiritEntriesTable::class];
 		$this->SpiritEntriesTable = TableRegistry::getTableLocator()->get('SpiritEntries', $config);
 	}
 

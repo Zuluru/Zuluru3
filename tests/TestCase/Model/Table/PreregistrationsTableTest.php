@@ -13,7 +13,7 @@ class PreregistrationsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\PreregistrationsTable
+	 * @var PreregistrationsTable
 	 */
 	public $PreregistrationsTable;
 
@@ -22,7 +22,7 @@ class PreregistrationsTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Preregistrations') ? [] : ['className' => 'App\Model\Table\PreregistrationsTable'];
+		$config = TableRegistry::getTableLocator()->exists('Preregistrations') ? [] : ['className' => PreregistrationsTable::class];
 		$this->PreregistrationsTable = TableRegistry::getTableLocator()->get('Preregistrations', $config);
 	}
 
@@ -39,7 +39,7 @@ class PreregistrationsTableTest extends TableTestCase {
 	 * Test affiliate method
 	 */
 	public function testAffiliate(): void {
-        $affiliateId = rand();
+        $affiliateId = mt_rand();
         $entity = PreregistrationFactory::make()->with('Events', ['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->PreregistrationsTable->affiliate($entity->id));
 	}

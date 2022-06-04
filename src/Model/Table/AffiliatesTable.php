@@ -94,6 +94,10 @@ class AffiliatesTable extends AppTable {
 			'foreignKey' => 'affiliate_id',
 		]);
 
+		$this->hasMany('AffiliatesPeople', [
+			'foreignKey' => 'affiliate_id',
+		]);
+
 		$this->belongsToMany('People', [
 			'foreignKey' => 'affiliate_id',
 			'targetForeignKey' => 'person_id',
@@ -147,31 +151,6 @@ class AffiliatesTable extends AppTable {
 			->toArray();
 
 		return $affiliates;
-	}
-
-	public function mergeList(Array $old, Array $new) {
-		// Clear ids from the join data in all the new affiliates
-		foreach ($new as $affiliate) {
-			unset($affiliate->_joinData->id);
-			unset($affiliate->_joinData->person_id);
-			$affiliate->_joinData->isNew(true);
-		}
-
-		// Find any old affiliates that aren't present in the new list, and copy them over
-		foreach ($old as $affiliate) {
-			$existing = collection($new)->firstMatch(['id' => $affiliate->id]);
-			// TODO: If we ever add more than just "player" and "manager" positions, this will need to change.
-			if ($affiliate->_joinData->position != 'player') {
-				$existing->_joinData->position = $affiliate->_joinData->position;
-			} else if (!$existing) {
-				// Here, we have to clear the id, but the person_id can stay
-				unset($affiliate->_joinData->id);
-				$affiliate->_joinData->isNew(true);
-				$new[] = $affiliate;
-			}
-		}
-
-		return $new;
 	}
 
 }

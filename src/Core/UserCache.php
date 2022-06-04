@@ -27,7 +27,7 @@ class UserCache {
 	private $other_id = null;
 	private $data = [];
 
-	public static function &getInstance($reset = false) {
+	public static function &getInstance($reset = false): UserCache {
 		if ($reset || !self::$instance) {
 			self::$instance = new UserCache();
 		}

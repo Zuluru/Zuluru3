@@ -478,7 +478,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		$affiliates = AffiliateFactory::make(2)->persist();
-		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliates)->persist();
+		$admin = PersonFactory::make()->admin()->with('Affiliates', $affiliates)->persist();
 		/** @var \App\Model\Entity\League $league1 */
 		$league1 = $this->loadFixtureScenario(LeagueScenario::class, [
 			'affiliate' => $affiliates[0], 'divisions' => 2,

@@ -6,8 +6,6 @@ use Faker\Generator;
 
 class GameFactory extends BaseFactory
 {
-	const TODO_FACTORIES = 'TESTS LEFT BEHIND TO BE FIXED';
-
 	/**
 	 * Defines the Table Registry used to generate entities with
 	 * @return string
@@ -22,9 +20,8 @@ class GameFactory extends BaseFactory
 	 * not nullable fields.
 	 * Use the patchData method to set the field values.
 	 * You may use methods of the factory here
-	 * @return void
 	 */
-	protected function setDefaultTemplate()
+	protected function setDefaultTemplate(): void
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [

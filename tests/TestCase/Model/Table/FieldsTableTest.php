@@ -13,7 +13,7 @@ class FieldsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\FieldsTable
+	 * @var FieldsTable
 	 */
 	public $FieldsTable;
 
@@ -22,7 +22,7 @@ class FieldsTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Fields') ? [] : ['className' => 'App\Model\Table\FieldsTable'];
+		$config = TableRegistry::getTableLocator()->exists('Fields') ? [] : ['className' => FieldsTable::class];
 		$this->FieldsTable = TableRegistry::getTableLocator()->get('Fields', $config);
 	}
 
@@ -39,7 +39,7 @@ class FieldsTableTest extends TableTestCase {
 	 * Test affiliate method
 	 */
 	public function testAffiliate(): void {
-        $affiliateId = rand();
+        $affiliateId = mt_rand();
         $field = FieldFactory::make()
             ->with('Facilities.Regions', ['affiliate_id' => $affiliateId])
             ->persist();

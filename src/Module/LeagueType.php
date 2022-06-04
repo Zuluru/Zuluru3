@@ -95,7 +95,7 @@ abstract class LeagueType {
 							->where(['Teams.division_id' => $division->id])
 							->order(['Teams.seed']);
 					},
-					'People' => ['Skills'],
+					'TeamsPeople' => ['People' => ['Skills']],
 				],
 			]);
 

@@ -229,7 +229,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	public function testInitializeAwardsAsAdmin(): void {
 		$league = $this->loadFixtureScenario(LeagueWithRostersScenario::class);
 		$affiliate = $league->affiliate;
-		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliate)->persist();
+		$admin = PersonFactory::make()->admin()->with('Affiliates', $affiliate)->persist();
 		$badge = BadgeFactory::make(['category' => 'team', 'handler' => 'player_active', 'affiliate_id' => $affiliate->id])->persist();
 		$this->assertEquals(0, $badge->refresh_from);
 
@@ -270,7 +270,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 */
 	public function testInitializeAwardsAsManager(): void {
 		$affiliate = AffiliateFactory::make()->persist();
-		$manager = PersonFactory::makeManager()
+		$manager = PersonFactory::make()->manager()
 			->with('AffiliatesPeople', AffiliatesPersonFactory::make(['position' => 'manager', 'affiliate_id' => $affiliate->id]))
 			->persist();
 		$badge = BadgeFactory::make(['category' => 'team', 'handler' => 'player_active', 'affiliate_id' => $affiliate->id])->persist();
@@ -288,7 +288,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 */
 	public function testInitializeAwardsAsOthers(): void {
 		$affiliate = AffiliateFactory::make()->persist();
-		$player = PersonFactory::makePlayer()->with('Affiliates', $affiliate)->persist();
+		$player = PersonFactory::make()->player()->with('Affiliates', $affiliate)->persist();
 		$badge = BadgeFactory::make(['category' => 'team', 'handler' => 'player_active', 'affiliate_id' => $affiliate->id])->persist();
 
 		// Others are not allowed to initialize awards
@@ -408,7 +408,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 */
 	public function testDeactivateAsAdmin(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
-		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliates)->persist();
+		$admin = PersonFactory::make()->admin()->with('Affiliates', $affiliates)->persist();
 		$badges = BadgeFactory::make([
 			['affiliate_id' => $affiliates[0]->id],
 			['affiliate_id' => $affiliates[1]->id],
@@ -428,7 +428,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 */
 	public function testDeactivateAsManager(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
-		$manager = PersonFactory::makeManager()
+		$manager = PersonFactory::make()->manager()
 			->with('AffiliatesPeople', AffiliatesPersonFactory::make(['position' => 'manager', 'affiliate_id' => $affiliates[0]->id]))
 			->persist();
 		$badges = BadgeFactory::make([
@@ -451,7 +451,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 */
 	public function testDeactivateAsOthers(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
-		$player = PersonFactory::makePlayer()->with('Affiliates', $affiliates[0])->persist();
+		$player = PersonFactory::make()->player()->with('Affiliates', $affiliates[0])->persist();
 		$badges = BadgeFactory::make([
 			['affiliate_id' => $affiliates[0]->id],
 			['affiliate_id' => $affiliates[1]->id],
@@ -471,7 +471,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 */
 	public function testActivateAsAdmin(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
-		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliates)->persist();
+		$admin = PersonFactory::make()->admin()->with('Affiliates', $affiliates)->persist();
 		$badges = BadgeFactory::make([
 			['affiliate_id' => $affiliates[0]->id, 'active' => false],
 			['affiliate_id' => $affiliates[1]->id, 'active' => false],
@@ -491,7 +491,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 */
 	public function testActivateAsManager(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
-		$manager = PersonFactory::makeManager()
+		$manager = PersonFactory::make()->manager()
 			->with('AffiliatesPeople', AffiliatesPersonFactory::make(['position' => 'manager', 'affiliate_id' => $affiliates[0]->id]))
 			->persist();
 		$badges = BadgeFactory::make([
@@ -514,7 +514,7 @@ class BadgesControllerTest extends ControllerTestCase {
 	 */
 	public function testActivateAsOthers(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
-		$player = PersonFactory::makePlayer()->with('Affiliates', $affiliates[0])->persist();
+		$player = PersonFactory::make()->player()->with('Affiliates', $affiliates[0])->persist();
 		$badges = BadgeFactory::make([
 			['affiliate_id' => $affiliates[0]->id, 'active' => false],
 			['affiliate_id' => $affiliates[1]->id, 'active' => false],
@@ -537,7 +537,7 @@ class BadgesControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		$affiliates = AffiliateFactory::make(2)->persist();
-		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliates)->persist();
+		$admin = PersonFactory::make()->admin()->with('Affiliates', $affiliates)->persist();
 		$badges = BadgeFactory::make([
 			['visibility' => BADGE_VISIBILITY_HIGH, 'affiliate_id' => $affiliates[0]->id],
 			['visibility' => BADGE_VISIBILITY_HIGH, 'affiliate_id' => $affiliates[1]->id],
@@ -563,7 +563,7 @@ class BadgesControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		$affiliates = AffiliateFactory::make(2)->persist();
-		$manager = PersonFactory::makeManager()
+		$manager = PersonFactory::make()->manager()
 			->with('AffiliatesPeople', AffiliatesPersonFactory::make(['position' => 'manager', 'affiliate_id' => $affiliates[0]->id]))
 			->persist();
 		$badges = BadgeFactory::make([
@@ -589,7 +589,7 @@ class BadgesControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		$affiliates = AffiliateFactory::make(2)->persist();
-		$player = PersonFactory::makePlayer()->with('Affiliates', $affiliates[0])->persist();
+		$player = PersonFactory::make()->player()->with('Affiliates', $affiliates[0])->persist();
 		$badges = BadgeFactory::make([
 			['visibility' => BADGE_VISIBILITY_HIGH, 'affiliate_id' => $affiliates[0]->id],
 			['visibility' => BADGE_VISIBILITY_HIGH, 'affiliate_id' => $affiliates[1]->id],

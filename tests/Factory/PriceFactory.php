@@ -21,15 +21,20 @@ class PriceFactory extends BaseFactory
 	 * not nullable fields.
 	 * Use the patchData method to set the field values.
 	 * You may use methods of the factory here
-	 * @return void
 	 */
-	protected function setDefaultTemplate()
+	protected function setDefaultTemplate(): void
 	{
 		$this->setDefaultData(function(Generator $faker) {
+			$cost = $faker->randomFloat(2, 10, 100);
+
 			return [
 				'name' => $faker->word,
 				'open' => FrozenTime::now()->startOfYear(),
 				'close' => FrozenTime::now()->endOfYear(),
+				'online_payment_option' => ONLINE_MINIMUM_DEPOSIT,
+				'cost' => $cost,
+				'tax1' => round($cost * 0.08, 2),
+				'tax2' => round($cost * 0.07, 2),
 			];
 		});
 	}

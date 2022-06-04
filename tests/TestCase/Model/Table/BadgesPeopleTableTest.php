@@ -13,7 +13,7 @@ class BadgesPeopleTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\BadgesPeopleTable
+	 * @var BadgesPeopleTable
 	 */
 	public $BadgesPeopleTable;
 
@@ -22,7 +22,7 @@ class BadgesPeopleTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('BadgesPeople') ? [] : ['className' => 'App\Model\Table\BadgesPeopleTable'];
+		$config = TableRegistry::getTableLocator()->exists('BadgesPeople') ? [] : ['className' => BadgesPeopleTable::class];
 		$this->BadgesPeopleTable = TableRegistry::getTableLocator()->get('BadgesPeople', $config);
 	}
 
@@ -39,7 +39,7 @@ class BadgesPeopleTableTest extends TableTestCase {
 	 * Test affiliate method
 	 */
 	public function testAffiliate(): void {
-	    $affiliateId = rand();
+	    $affiliateId = mt_rand();
 	    $badgesPeople = BadgesPersonFactory::make()->with('Badges', ['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->BadgesPeopleTable->affiliate($badgesPeople->id));
 	}

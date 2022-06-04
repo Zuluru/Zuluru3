@@ -12,7 +12,7 @@ class LocksTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\LocksTable
+	 * @var LocksTable
 	 */
 	public $LocksTable;
 
@@ -21,7 +21,7 @@ class LocksTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Locks') ? [] : ['className' => 'App\Model\Table\LocksTable'];
+		$config = TableRegistry::getTableLocator()->exists('Locks') ? [] : ['className' => LocksTable::class];
 		$this->LocksTable = TableRegistry::getTableLocator()->get('Locks', $config);
 	}
 

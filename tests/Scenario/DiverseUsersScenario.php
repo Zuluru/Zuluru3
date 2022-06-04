@@ -16,12 +16,12 @@ class DiverseUsersScenario implements FixtureScenarioInterface {
 	 */
 	public function load(...$args) {
 		$affiliates = AffiliateFactory::make(2)->persist();
-		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliates)->persist();
-		$manager = PersonFactory::makeManager()
+		$admin = PersonFactory::make()->admin()->with('Affiliates', $affiliates)->persist();
+		$manager = PersonFactory::make()->manager()
 			->with('AffiliatesPeople', AffiliatesPersonFactory::make(['position' => 'manager', 'affiliate_id' => $affiliates[0]->id]))
 			->persist();
-		$volunteer = PersonFactory::makeVolunteer()->with('Affiliates', $affiliates[0])->persist();
-		$player = PersonFactory::makePlayer()->with('Affiliates', $affiliates[0])->persist();
+		$volunteer = PersonFactory::make()->volunteer()->with('Affiliates', $affiliates[0])->persist();
+		$player = PersonFactory::make()->player()->with('Affiliates', $affiliates[0])->persist();
 
 		return [$admin, $manager, $volunteer, $player];
 	}

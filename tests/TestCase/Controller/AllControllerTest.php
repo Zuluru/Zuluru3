@@ -127,7 +127,7 @@ class AllControllerTest extends ControllerTestCase {
 	 * Should redirect to somewhere, and set a custom message.
 	 */
 	public function testAuth3bUnauthenticatedAccessToProtectedResourceHTTPForbiddenRedirectException(): void {
-		$player = PersonFactory::makePlayer()
+		$player = PersonFactory::make()->player()
 			->with('TeamsPeople', TeamsPersonFactory::make(['status' => ROSTER_INVITED])->with('Teams'))
 			->persist();
 
@@ -147,7 +147,7 @@ class AllControllerTest extends ControllerTestCase {
 	 * Handled via custom authorization handler on the ForbiddenException.
 	 */
 	public function testAuth4aUnauthorizedAccessToProtectedResourceHTTPForbiddenException(): void {
-		$player = PersonFactory::makePlayer()->with('Teams')->persist();
+		$player = PersonFactory::make()->player()->with('Teams')->persist();
 
 		$team = $player->teams[0];
 		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'edit', 'team' => $team->id], $player->id);
@@ -159,7 +159,7 @@ class AllControllerTest extends ControllerTestCase {
 	 * Handled via custom authorization handler on the ForbiddenException.
 	 */
 	public function testAuth4bUnauthorizedAccessToProtectedResourceAjaxForbiddenException(): void {
-		$player = PersonFactory::makePlayer()->persist();
+		$player = PersonFactory::make()->player()->persist();
 
 		$this->assertGetAjaxAsAccessDenied(['controller' => 'Groups', 'action' => 'activate', 'group' => GROUP_OFFICIAL],
 			$player->id);
@@ -171,7 +171,7 @@ class AllControllerTest extends ControllerTestCase {
 	 * Handled via custom authorization handler on the MissingIdentityException.
 	 */
 	public function testAuth4cUnauthorizedAccessToProtectedResourceHTTPMissingIdentityException(): void {
-		$player = PersonFactory::makePlayer()->with('Teams')->persist();
+		$player = PersonFactory::make()->player()->with('Teams')->persist();
 
 		$team = $player->teams[0];
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => $player->id, 'team' => $team->id]);
@@ -183,7 +183,7 @@ class AllControllerTest extends ControllerTestCase {
 	 * Handled via custom authorization handler on the MissingIdentityException.
 	 */
 	public function testAuth4cUnauthorizedAccessToProtectedResourceAjaxMissingIdentityException(): void {
-		$player = PersonFactory::makePlayer()->with('Teams')->persist();
+		$player = PersonFactory::make()->player()->with('Teams')->persist();
 
 		$team = $player->teams[0];
 		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => $player->id, 'team' => $team->id]);
@@ -195,7 +195,7 @@ class AllControllerTest extends ControllerTestCase {
 	 */
 	public function testAuth5aUnauthorizedAccessToMissingResource(): void {
 		$team = TeamFactory::make()->with('Divisions.Leagues')->persist();
-		$manager = PersonFactory::makeManager()->persist();
+		$manager = PersonFactory::make()->manager()->persist();
 
 		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'stats', 'team' => $team->id],
 			$manager->id, ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
@@ -208,13 +208,13 @@ class AllControllerTest extends ControllerTestCase {
 	 * Handled via custom authorization handler on the custom ForbiddenRedirectException.
 	 */
 	public function testAuth5bUnauthorizedAccessToProtectedResourceHTTPForbiddenRedirectException(): void {
-		$captain = PersonFactory::makePlayer()
+		$captain = PersonFactory::make()->player()
 			->with('TeamsPeople', TeamsPersonFactory::make(['role' => 'captain'])->with('Teams'))
 			->persist();
 
 		$team = $captain->teams_people[0]->team;
 
-		$player = PersonFactory::makePlayer()
+		$player = PersonFactory::make()->player()
 			->with('TeamsPeople', TeamsPersonFactory::make(['team_id' => $team->id, 'status' => ROSTER_INVITED]))
 			->persist();
 
@@ -229,13 +229,13 @@ class AllControllerTest extends ControllerTestCase {
 	 * Handled via custom authorization handler on the custom ForbiddenRedirectException.
 	 */
 	public function testAuth5cUnauthorizedAccessToProtectedResourceAjaxForbiddenRedirectException(): void {
-		$captain = PersonFactory::makePlayer()
+		$captain = PersonFactory::make()->player()
 			->with('TeamsPeople', TeamsPersonFactory::make(['role' => 'captain'])->with('Teams'))
 			->persist();
 
 		$team = $captain->teams_people[0]->team;
 
-		$player = PersonFactory::makePlayer()
+		$player = PersonFactory::make()->player()
 			->with('TeamsPeople', TeamsPersonFactory::make(['team_id' => $team->id, 'status' => ROSTER_INVITED]))
 			->persist();
 

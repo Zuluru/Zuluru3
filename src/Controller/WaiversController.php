@@ -202,9 +202,9 @@ class WaiversController extends AppController {
 			$person = $this->Waivers->People->get($person_id, [
 				'contain' => [
 					'Groups',
-					'Waivers' => [
+					'WaiversPeople' => [
 						'queryBuilder' => function (Query $q) use ($id) {
-							return $q->where(['Waivers.id' => $id]);
+							return $q->where(['WaiversPeople.waiver_id' => $id]);
 						},
 					],
 				],
@@ -221,7 +221,7 @@ class WaiversController extends AppController {
 		$this->Configuration->loadAffiliate($waiver->affiliate_id);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			if ($this->request->getData('signed') == 'yes') {
+			if ($this->request->getData('signed') === 'yes') {
 				$person->_joinData = new WaiversPerson(compact('valid_from', 'valid_until'));
 				if ($this->Waivers->People->link($waiver, [$person])) {
 					$this->UserCache->clear('Waivers', $person_id);

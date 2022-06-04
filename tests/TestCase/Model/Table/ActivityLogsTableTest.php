@@ -12,7 +12,7 @@ class ActivityLogsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\ActivityLogsTable
+	 * @var ActivityLogsTable
 	 */
 	public $ActivityLogsTable;
 
@@ -21,7 +21,7 @@ class ActivityLogsTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('ActivityLogs') ? [] : ['className' => 'App\Model\Table\ActivityLogsTable'];
+		$config = TableRegistry::getTableLocator()->exists('ActivityLogs') ? [] : ['className' => ActivityLogsTable::class];
 		$this->ActivityLogsTable = TableRegistry::getTableLocator()->get('ActivityLogs', $config);
 	}
 

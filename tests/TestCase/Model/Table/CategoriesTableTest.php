@@ -13,7 +13,7 @@ class CategoriesTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\CategoriesTable
+	 * @var CategoriesTable
 	 */
 	public $CategoriesTable;
 
@@ -22,7 +22,7 @@ class CategoriesTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Categories') ? [] : ['className' => 'App\Model\Table\CategoriesTable'];
+		$config = TableRegistry::getTableLocator()->exists('Categories') ? [] : ['className' => CategoriesTable::class];
 		$this->CategoriesTable = TableRegistry::getTableLocator()->get('Categories', $config);
 	}
 
@@ -39,7 +39,7 @@ class CategoriesTableTest extends TableTestCase {
 	 * Test affiliate method
 	 */
 	public function testAffiliate(): void {
-        $affiliateId = rand();
+        $affiliateId = mt_rand();
         $category = CategoryFactory::make(['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->CategoriesTable->affiliate($category->id));
 	}

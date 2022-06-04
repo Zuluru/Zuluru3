@@ -1207,7 +1207,7 @@ class TeamsControllerTest extends ControllerTestCase {
 
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		/** @var Person $other */
-		$other = PersonFactory::makePlayer()->with('Affiliates', $admin->affiliates[0])->persist();
+		$other = PersonFactory::make()->player()->with('Affiliates', $admin->affiliates[0])->persist();
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -1598,7 +1598,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		[$bears, $lions] = $league->divisions[0]->teams;
 
 		/** @var Person $captain */
-		$captain = PersonFactory::makePlayer()
+		$captain = PersonFactory::make()->player()
 			->with('TeamsPeople', TeamsPersonFactory::make(['team_id' => $bears->id, 'role' => 'captain']))
 			->persist();
 
@@ -2013,7 +2013,7 @@ class TeamsControllerTest extends ControllerTestCase {
 
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		/** @var Person $other */
-		$other = PersonFactory::makePlayer()->with('Affiliates', $admin->affiliates[0])->persist();
+		$other = PersonFactory::make()->player()->with('Affiliates', $admin->affiliates[0])->persist();
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [

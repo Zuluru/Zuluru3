@@ -13,7 +13,7 @@ class HolidaysTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\HolidaysTable
+	 * @var HolidaysTable
 	 */
 	public $HolidaysTable;
 
@@ -22,7 +22,7 @@ class HolidaysTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Holidays') ? [] : ['className' => 'App\Model\Table\HolidaysTable'];
+		$config = TableRegistry::getTableLocator()->exists('Holidays') ? [] : ['className' => HolidaysTable::class];
 		$this->HolidaysTable = TableRegistry::getTableLocator()->get('Holidays', $config);
 	}
 
@@ -39,7 +39,7 @@ class HolidaysTableTest extends TableTestCase {
 	 * Test affiliate method
 	 */
 	public function testAffiliate(): void {
-	    $affiliateId = rand();
+	    $affiliateId = mt_rand();
 	    $holiday = HolidayFactory::make(['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->HolidaysTable->affiliate($holiday->id));
 	}

@@ -13,7 +13,7 @@ class RegionsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\RegionsTable
+	 * @var RegionsTable
 	 */
 	public $RegionsTable;
 
@@ -22,7 +22,7 @@ class RegionsTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Regions') ? [] : ['className' => 'App\Model\Table\RegionsTable'];
+		$config = TableRegistry::getTableLocator()->exists('Regions') ? [] : ['className' => RegionsTable::class];
 		$this->RegionsTable = TableRegistry::getTableLocator()->get('Regions', $config);
 	}
 
@@ -39,7 +39,7 @@ class RegionsTableTest extends TableTestCase {
 	 * Test affiliate method
 	 */
 	public function testAffiliate(): void {
-        $affiliateId = rand();
+        $affiliateId = mt_rand();
         $entity = RegionFactory::make(['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->RegionsTable->affiliate($entity->id));
 	}

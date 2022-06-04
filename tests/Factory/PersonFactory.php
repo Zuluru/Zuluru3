@@ -1,7 +1,7 @@
 <?php
 namespace App\Test\Factory;
 
-use Cake\Chronos\Date;
+use Cake\I18n\FrozenDate;
 use CakephpFixtureFactories\Factory\BaseFactory;
 use Faker\Generator;
 
@@ -27,9 +27,8 @@ class PersonFactory extends BaseFactory
 	 * not nullable fields.
 	 * Use the patchData method to set the field values.
 	 * You may use methods of the factory here
-	 * @return void
 	 */
-	protected function setDefaultTemplate()
+	protected function setDefaultTemplate(): void
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			$gender = $faker->boolean();
@@ -55,7 +54,7 @@ class PersonFactory extends BaseFactory
 				'status' => 'active',
 
 				// The modified field is not nullable and required in the DB
-				'modified' => Date::now(),
+				'modified' => FrozenDate::now(),
 			];
 		});
 	}
@@ -81,58 +80,37 @@ class PersonFactory extends BaseFactory
 		return $this->with('Groups', $groups);
 	}
 
-	/**
-	 * @param array|callable|null|int|\Cake\Datasource\EntityInterface|\Cake\Datasource\EntityInterface[] $makeParameter Injected data
-	 * @param int $times Number of entities created
-	 * @return static
-	 */
-	public static function makeAdmin($makeParameter = [], int $times = 1): self {
-		return self::make($makeParameter, $times)
+	public function admin(array $data = []): self {
+		return $this
+			->patchData($data)
 			->withGroup(GROUP_ADMIN)
 			->with('Users');
 	}
 
-	/**
-	 * @param array|callable|null|int|\Cake\Datasource\EntityInterface|\Cake\Datasource\EntityInterface[] $makeParameter Injected data
-	 * @param int $times Number of entities created
-	 * @return static
-	 */
-	public static function makeManager($makeParameter = [], int $times = 1): self {
-		return self::make($makeParameter, $times)
+	public function manager(array $data = []): self {
+		return $this
+			->patchData($data)
 			->withGroup(GROUP_MANAGER)
 			->with('Users');
 	}
 
-	/**
-	 * @param array|callable|null|int|\Cake\Datasource\EntityInterface|\Cake\Datasource\EntityInterface[] $makeParameter Injected data
-	 * @param int $times Number of entities created
-	 * @return static
-	 */
-	public static function makePlayer($makeParameter = [], int $times = 1): self {
-		return self::make($makeParameter, $times)
+	public function player(array $data = []): self {
+		return $this
+			->patchData($data)
 			->withGroup(GROUP_PLAYER)
 			->with('Users');
 	}
 
-	/**
-	 * @param array|callable|null|int|\Cake\Datasource\EntityInterface|\Cake\Datasource\EntityInterface[] $makeParameter Injected data
-	 * @param int $times Number of entities created
-	 * @return static
-	 */
-	public static function makeParent($makeParameter = [], int $times = 1): self {
-		return self::make($makeParameter, $times)
+	public function parent(array $data = []): self {
+		return $this
+			->patchData($data)
 			->withGroup(GROUP_PARENT)
 			->with('Users');
 	}
 
-	/**
-	 * @param array|callable|null|int|\Cake\Datasource\EntityInterface|\Cake\Datasource\EntityInterface[] $makeParameter Injected data
-	 * @param int $times Number of entities created
-	 * @return static
-	 */
-	public static function makeChild($makeParameter = [], int $times = 1): self {
+	public function child(array $data = []): self {
 		// Child records don't have contact details
-		$makeParameter = array_merge($makeParameter, [
+		$data = array_merge($data, [
 			'home_phone' => '',
 			'work_phone' => '',
 			'mobile_phone' => '',
@@ -142,17 +120,14 @@ class PersonFactory extends BaseFactory
 			'addr_postalcode' => '',
 			'addr_country' => '',
 		]);
-		return self::make($makeParameter, $times)
+		return $this
+			->patchData($data)
 			->withGroup(GROUP_PLAYER);
 	}
 
-	/**
-	 * @param array|callable|null|int|\Cake\Datasource\EntityInterface|\Cake\Datasource\EntityInterface[] $makeParameter Injected data
-	 * @param int $times Number of entities created
-	 * @return static
-	 */
-	public static function makeVolunteer($makeParameter = [], int $times = 1): self {
-		return self::make($makeParameter, $times)
+	public function volunteer(array $data = []): self {
+		return $this
+			->patchData($data)
 			->withGroup(GROUP_VOLUNTEER)
 			->with('Users');
 	}

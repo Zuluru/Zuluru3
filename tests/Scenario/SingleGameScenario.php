@@ -14,6 +14,7 @@ use App\Test\Factory\LeagueFactory;
 use App\Test\Factory\PersonFactory;
 use App\Test\Factory\PoolFactory;
 use App\Test\Factory\ScoreEntryFactory;
+use App\Test\Factory\SpiritEntryFactory;
 use App\Test\Factory\TeamsPersonFactory;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\TableRegistry;
@@ -29,11 +30,12 @@ class SingleGameScenario implements FixtureScenarioInterface {
 	 * - anything that LeagueScenario accepts
 	 * - game_date: FrozenDate
 	 * - published: bool
-	 * - status: string
-	 * - approved_by_id: int
-	 * The following arguments are currently not supported for tournament games:
 	 * - home_score: int
 	 * - away_score: int
+	 * - home_score_only: bool
+	 * - spirit: bool
+	 * - status: string
+	 * - approved_by_id: int
 	 * - home_captain: bool|Person
 	 * - away_captain: bool|Person
 	 * - home_player: bool|Person
@@ -102,48 +104,33 @@ class SingleGameScenario implements FixtureScenarioInterface {
 		TableRegistry::getTableLocator()->get('Divisions')->loadInto($division, ['Days']);
 		$game->division = $division;
 
-		if (array_key_exists('home_score', $args)) {
-			ScoreEntryFactory::make([
-				[
-					'game_id' => $game->id,
-					'team_id' => $home->id,
-					'score_for' => $args['home_score'],
-					'score_against' => $args['away_score'],
-				],
-				[
-					'game_id' => $game->id,
-					'team_id' => $away->id,
-					'score_for' => $args['away_score'],
-					'score_against' => $args['home_score'],
-				],
-			])->persist();
-		}
-
+		$home_captain = null;
 		if (array_key_exists('home_captain', $args)) {
 			if ($args['home_captain'] === true) {
-				$home->people[] = PersonFactory::makePlayer()
+				$home_captain = $home->people[] = PersonFactory::make()->player()
 					->with('TeamsPeople', TeamsPersonFactory::make(['team_id' => $home->id, 'role' => 'captain']))
 					->persist();
 			} else {
-				$home->people[] = $args['home_captain'];
+				$home_captain = $home->people[] = $args['home_captain'];
 				TeamsPersonFactory::make(['team_id' => $home->id, 'person_id' => $args['home_captain']->id, 'role' => 'captain'])->persist();
 			}
 		}
 
+		$away_captain = null;
 		if (array_key_exists('away_captain', $args)) {
 			if ($args['away_captain'] === true) {
-				$away->people[] = PersonFactory::makePlayer()
+				$away_captain = $away->people[] = PersonFactory::make()->player()
 					->with('TeamsPeople', TeamsPersonFactory::make(['team_id' => $away->id, 'role' => 'captain']))
 					->persist();
 			} else {
-				$away->people[] = $args['away_captain'];
+				$away_captain = $away->people[] = $args['away_captain'];
 				TeamsPersonFactory::make(['team_id' => $away->id, 'person_id' => $args['away_captain']->id, 'role' => 'captain'])->persist();
 			}
 		}
 
 		if (array_key_exists('home_player', $args)) {
 			if ($args['home_player'] === true) {
-				$home->people[] = PersonFactory::makePlayer()
+				$home->people[] = PersonFactory::make()->player()
 					->with('TeamsPeople', TeamsPersonFactory::make(['team_id' => $home->id, 'role' => 'player']))
 					->persist();
 			} else {
@@ -154,7 +141,7 @@ class SingleGameScenario implements FixtureScenarioInterface {
 
 		if (array_key_exists('away_player', $args)) {
 			if ($args['away_player'] === true) {
-				$away->people[] = PersonFactory::makePlayer()
+				$away->people[] = PersonFactory::make()->player()
 					->with('TeamsPeople', TeamsPersonFactory::make(['team_id' => $away->id, 'role' => 'player']))
 					->persist();
 			} else {
@@ -165,7 +152,7 @@ class SingleGameScenario implements FixtureScenarioInterface {
 
 		if (array_key_exists('home_sub', $args)) {
 			if ($args['home_sub'] === true) {
-				$home->people[] = PersonFactory::makePlayer()
+				$home->people[] = PersonFactory::make()->player()
 					->with('TeamsPeople', TeamsPersonFactory::make(['team_id' => $home->id, 'role' => 'substitute']))
 					->persist();
 			} else {
@@ -176,13 +163,47 @@ class SingleGameScenario implements FixtureScenarioInterface {
 
 		if (array_key_exists('away_sub', $args)) {
 			if ($args['away_sub'] === true) {
-				$away->people[] = PersonFactory::makePlayer()
+				$away->people[] = PersonFactory::make()->player()
 					->with('TeamsPeople', TeamsPersonFactory::make(['team_id' => $away->id, 'role' => 'substitute']))
 					->persist();
 			} else {
 				$away->people[] = $args['away_sub'];
 				TeamsPersonFactory::make(['team_id' => $away->id, 'person_id' => $args['away_sub']->id, 'role' => 'substitute'])->persist();
 			}
+		}
+
+		if (array_key_exists('home_score', $args)) {
+			$scores = [[
+				'game_id' => $game->id,
+				'team_id' => $home->id,
+				'score_for' => $args['home_score'],
+				'score_against' => $args['away_score'],
+				'person_id' => $home_captain ? $home_captain->id : null,
+			]];
+			if (empty($args['home_score_only'])) {
+				$scores[] = [
+					'game_id' => $game->id,
+					'team_id' => $away->id,
+					'score_for' => $args['away_score'],
+					'score_against' => $args['home_score'],
+					'person_id' => $away_captain ? $away_captain->id : null,
+				];
+			}
+
+			$game->score_entries = ScoreEntryFactory::make($scores)->persist();
+
+			if (!empty($args['home_score_only'])) {
+				$game->score_entries = [$game->score_entries];
+			}
+		}
+
+		if (!empty($args['spirit'])) {
+			$spirits = [['created_team_id' => $home->id, 'team_id' => $away->id, 'game_id' => $game->id]];
+			if (empty($args['home_score_only'])) {
+				$spirits[] = ['created_team_id' => $away->id, 'team_id' => $home->id, 'game_id' => $game->id, 'q3' => 3, 'q5' => 3];
+			}
+
+			$game->spirit_entries = SpiritEntryFactory::make($spirits)->persist();
 		}
 
 		return $game;

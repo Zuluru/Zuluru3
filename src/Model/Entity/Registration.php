@@ -95,7 +95,7 @@ class Registration extends Entity {
 	}
 
 	protected function _getTotalPayment() {
-		return round(array_sum(collection($this->payments)->extract('payment_amount')->toArray()), 2);
+		return round(array_sum(collection($this->payments ?? [])->extract('payment_amount')->toArray()), 2);
 	}
 
 	protected function _getBalance() {

@@ -15,7 +15,7 @@ class UploadsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\UploadsTable
+	 * @var UploadsTable
 	 */
 	public $UploadsTable;
 
@@ -25,7 +25,7 @@ class UploadsTableTest extends TableTestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		$config = TableRegistry::exists('Uploads') ? [] : ['className' => 'App\Model\Table\UploadsTable'];
+		$config = TableRegistry::getTableLocator()->exists('Uploads') ? [] : ['className' => UploadsTable::class];
 		$this->UploadsTable = TableRegistry::getTableLocator()->get('Uploads', $config);
 
 		$folder = new Folder(TESTS . 'test_app' . DS . 'upload', true);

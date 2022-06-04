@@ -12,7 +12,7 @@ class CreditsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\CreditsTable
+	 * @var CreditsTable
 	 */
 	public $CreditsTable;
 
@@ -21,7 +21,7 @@ class CreditsTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Credits') ? [] : ['className' => 'App\Model\Table\CreditsTable'];
+		$config = TableRegistry::getTableLocator()->exists('Credits') ? [] : ['className' => CreditsTable::class];
 		$this->CreditsTable = TableRegistry::getTableLocator()->get('Credits', $config);
 	}
 

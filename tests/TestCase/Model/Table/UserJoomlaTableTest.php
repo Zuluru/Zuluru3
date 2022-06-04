@@ -13,7 +13,7 @@ class UserJoomlaTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\UserJoomlaTable
+	 * @var UserJoomlaTable
 	 */
 	public $UserJoomlaTable;
 
@@ -27,7 +27,7 @@ class UserJoomlaTableTest extends TableTestCase {
 		}
 
 		parent::setUp();
-		$config = TableRegistry::exists('UserJoomla') ? [] : ['className' => 'App\Model\Table\UserJoomlaTable'];
+		$config = TableRegistry::getTableLocator()->exists('UserJoomla') ? [] : ['className' => UserJoomlaTable::class];
 		$this->UserJoomlaTable = TableRegistry::getTableLocator()->get('UserJoomla', $config);
 	}
 

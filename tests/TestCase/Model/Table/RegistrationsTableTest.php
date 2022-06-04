@@ -3,7 +3,6 @@ namespace App\Test\TestCase\Model\Table;
 
 use App\Core\UserCache;
 use App\Middleware\ConfigurationLoader;
-use App\Test\Factory\GameFactory;
 use App\Test\Factory\RegistrationFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\RegistrationsTable;
@@ -16,7 +15,7 @@ class RegistrationsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\RegistrationsTable
+	 * @var RegistrationsTable
 	 */
 	public $RegistrationsTable;
 
@@ -25,7 +24,7 @@ class RegistrationsTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Registrations') ? [] : ['className' => 'App\Model\Table\RegistrationsTable'];
+		$config = TableRegistry::getTableLocator()->exists('Registrations') ? [] : ['className' => RegistrationsTable::class];
 		$this->RegistrationsTable = TableRegistry::getTableLocator()->get('Registrations', $config);
 
 		ConfigurationLoader::loadConfiguration();
@@ -79,7 +78,7 @@ class RegistrationsTableTest extends TableTestCase {
 	 * Test affiliate method
 	 */
 	public function testAffiliate(): void {
-        $affiliateId = rand();
+        $affiliateId = mt_rand();
         $event = RegistrationFactory::make()->with('Events', ['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->RegistrationsTable->affiliate($event->id));
 	}
@@ -89,7 +88,6 @@ class RegistrationsTableTest extends TableTestCase {
 	 * @throws \Exception
 	 */
 	public function testWaitingListWithRefund(): void {
-        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		// First, we add a new registration to a full event, it should go on the waiting list
 		UserCache::getInstance()->initializeIdForTests(PERSON_ID_CAPTAIN);
 		$registration = $this->RegistrationsTable->newEntity([
@@ -132,7 +130,6 @@ class RegistrationsTableTest extends TableTestCase {
 	 * @throws \Exception
 	 */
 	public function testWaitingListCapRaised(): void {
-        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		// First, we add a new registration to a full event, it should go on the waiting list
 		UserCache::getInstance()->initializeIdForTests(PERSON_ID_CAPTAIN);
 		$registration = $this->RegistrationsTable->newEntity([

@@ -2,7 +2,6 @@
 namespace App\Test\TestCase\Model\Table;
 
 use App\Test\Factory\EventFactory;
-use App\Test\Factory\GameFactory;
 use Cake\Event\Event;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\TableRegistry;
@@ -16,16 +15,25 @@ class EventsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\EventsTable
+	 * @var EventsTable
 	 */
 	public $EventsTable;
+
+	/**
+	 * Fixtures
+	 *
+	 * @var array
+	 */
+	public $fixtures = [
+		'app.EventTypes',
+	];
 
 	/**
 	 * setUp method
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Events') ? [] : ['className' => 'App\Model\Table\EventsTable'];
+		$config = TableRegistry::getTableLocator()->exists('Events') ? [] : ['className' => EventsTable::class];
 		$this->EventsTable = TableRegistry::getTableLocator()->get('Events', $config);
 	}
 
@@ -70,7 +78,6 @@ class EventsTableTest extends TableTestCase {
 	 * Test beforeMarshal method
 	 */
 	public function testBeforeMarshal(): void {
-        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$date = FrozenDate::now();
 		$custom_membership = [
 			'membership_begins' => $date,
@@ -115,7 +122,7 @@ class EventsTableTest extends TableTestCase {
 	 * Test affiliate method
 	 */
 	public function testAffiliate(): void {
-        $affiliateId = rand();
+        $affiliateId = mt_rand();
         $event = EventFactory::make(['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->EventsTable->affiliate($event->id));
 	}

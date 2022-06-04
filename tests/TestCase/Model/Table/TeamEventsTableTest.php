@@ -12,7 +12,7 @@ class TeamEventsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\TeamEventsTable
+	 * @var TeamEventsTable
 	 */
 	public $TeamEventsTable;
 
@@ -21,7 +21,7 @@ class TeamEventsTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('TeamEvents') ? [] : ['className' => 'App\Model\Table\TeamEventsTable'];
+		$config = TableRegistry::getTableLocator()->exists('TeamEvents') ? [] : ['className' => TeamEventsTable::class];
 		$this->TeamEventsTable = TableRegistry::getTableLocator()->get('TeamEvents', $config);
 	}
 

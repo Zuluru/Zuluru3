@@ -13,7 +13,7 @@ class GamesTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\GamesTable
+	 * @var GamesTable
 	 */
 	public $GamesTable;
 
@@ -22,7 +22,7 @@ class GamesTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Games') ? [] : ['className' => 'App\Model\Table\GamesTable'];
+		$config = TableRegistry::getTableLocator()->exists('Games') ? [] : ['className' => GamesTable::class];
 		$this->GamesTable = TableRegistry::getTableLocator()->get('Games', $config);
 	}
 
@@ -151,7 +151,7 @@ class GamesTableTest extends TableTestCase {
 	 * Test affiliate method
 	 */
 	public function testAffiliate(): void {
-        $affiliateId = rand();
+        $affiliateId = mt_rand();
         $game = GameFactory::make()
             ->with('Divisions.Leagues', [
                 'affiliate_id' => $affiliateId,

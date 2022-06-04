@@ -12,7 +12,7 @@ class UsersTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\UsersTable
+	 * @var UsersTable
 	 */
 	public $UsersTable;
 
@@ -21,7 +21,7 @@ class UsersTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Users') ? [] : ['className' => 'App\Model\Table\UsersTable'];
+		$config = TableRegistry::getTableLocator()->exists('Users') ? [] : ['className' => UsersTable::class];
 		$this->UsersTable = TableRegistry::getTableLocator()->get('Users', $config);
 	}
 

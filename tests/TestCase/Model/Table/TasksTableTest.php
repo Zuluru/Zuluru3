@@ -13,7 +13,7 @@ class TasksTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\TasksTable
+	 * @var TasksTable
 	 */
 	public $TasksTable;
 
@@ -22,7 +22,7 @@ class TasksTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Tasks') ? [] : ['className' => 'App\Model\Table\TasksTable'];
+		$config = TableRegistry::getTableLocator()->exists('Tasks') ? [] : ['className' => TasksTable::class];
 		$this->TasksTable = TableRegistry::getTableLocator()->get('Tasks', $config);
 	}
 
@@ -39,7 +39,7 @@ class TasksTableTest extends TableTestCase {
 	 * Test affiliate method
 	 */
 	public function testAffiliate(): void {
-        $affiliateId = rand();
+        $affiliateId = mt_rand();
         $entity = TaskFactory::make()->with('Categories', ['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->TasksTable->affiliate($entity->id));
 	}

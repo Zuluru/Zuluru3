@@ -1,7 +1,10 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
-use App\Test\Factory\GameFactory;
+use App\Model\Entity\Group;
+use App\Model\Entity\Person;
+use App\Test\Factory\GroupFactory;
+use App\Test\Factory\PersonFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\GroupsTable;
 
@@ -13,7 +16,7 @@ class GroupsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\GroupsTable
+	 * @var GroupsTable
 	 */
 	public $GroupsTable;
 
@@ -22,7 +25,7 @@ class GroupsTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Groups') ? [] : ['className' => 'App\Model\Table\GroupsTable'];
+		$config = TableRegistry::getTableLocator()->exists('Groups') ? [] : ['className' => GroupsTable::class];
 		$this->GroupsTable = TableRegistry::getTableLocator()->get('Groups', $config);
 	}
 
@@ -46,11 +49,16 @@ class GroupsTableTest extends TableTestCase {
 	 * Test mergeList method
 	 */
 	public function testMergeList(): void {
-        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
-		$original = $this->GroupsTable->People->get(PERSON_ID_MANAGER, ['contain' => ['Groups']]);
-		$duplicate = $this->GroupsTable->People->get(PERSON_ID_DUPLICATE, ['contain' => ['Groups']]);
-		$groups = $this->GroupsTable->mergeList($original->groups, $duplicate->groups);
-		$this->assertEquals(2, count($groups));
+		/** @var Person $original */
+		$original = PersonFactory::make()->with('Groups', ['id' => GROUP_MANAGER])->getEntity();
+		$this->assertCount(1, $original->groups);
+
+		/** @var Group[] $new */
+		$new = GroupFactory::make(['id' => GROUP_PLAYER])->getEntities();
+		$this->assertCount(1, $new);
+
+		$groups = $this->GroupsTable->mergeList($original->groups, $new);
+		$this->assertCount(2, $groups);
 
 		$this->assertArrayHasKey(0, $groups);
 		$this->assertEquals(GROUP_PLAYER, $groups[0]->id);

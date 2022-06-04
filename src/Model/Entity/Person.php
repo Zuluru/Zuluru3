@@ -58,6 +58,7 @@ use Cake\Routing\Router;
  *
  * @property \App\Model\Entity\User $user
  * @property \App\Model\Entity\ActivityLog[] $activity_logs
+ * @property \App\Model\Entity\AffiliatesPerson[] $affiliates_people
  * @property \App\Model\Entity\Allstar[] $allstars
  * @property \App\Model\Entity\Attendance[] $attendances
  * @property \App\Model\Entity\Credit[] $credits
@@ -296,12 +297,12 @@ class Person extends Entity {
 			return '';
 		}
 
-		if ($this->gender == 'Prefer to specify') {
+		if ($this->gender === 'Prefer to specify') {
 			$display = h($this->gender_description);
 		} else {
 			$display = __($this->gender);
 		}
-		if (Configure::read('gender.column') == 'roster_designation') {
+		if (Configure::read('gender.column') === 'roster_designation') {
 			$display .= __(' ({0}: {1})', __('Roster Designation'), __($this->roster_designation));
 		}
 
@@ -334,7 +335,7 @@ class Person extends Entity {
 				} else if (!empty($new->$prop) || !in_array($prop, $preserve_if_new_is_empty)) {
 					if (!is_object($new->$prop) || is_a($new->$prop, 'Cake\Chronos\ChronosInterface')) {
 						$this->$prop = $new->$prop;
-					} else if (is_a($new->$prop, 'App\Model\Entity\User')) {
+					} else if ($new->$prop instanceof \App\Model\Entity\User) {
 						if ($this->has($prop)) {
 							$this->$prop->merge($new->$prop);
 							$this->setDirty($prop, true);
@@ -356,7 +357,7 @@ class Person extends Entity {
 	 * Update the list of hidden fields, based on permissions and connections of the person viewing the record.
 	 */
 	public function updateHidden(IdentityInterface $identity = null) {
-		if ($this->status == 'inactive') {
+		if ($this->status === 'inactive') {
 			$visible = ['first_name', 'last_name'];
 		} else {
 			if ($identity) {

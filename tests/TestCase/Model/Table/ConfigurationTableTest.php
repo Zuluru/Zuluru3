@@ -1,7 +1,8 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
-use App\Test\Factory\GameFactory;
+use App\Test\Factory\AffiliateFactory;
+use App\Test\Factory\PersonFactory;
 use Cake\Core\Configure;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\ConfigurationTable;
@@ -14,17 +15,27 @@ class ConfigurationTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\ConfigurationTable
+	 * @var ConfigurationTable
 	 */
 	public $ConfigurationTable;
+
+	/**
+	 * Fixtures
+	 *
+	 * @var array
+	 */
+	public $fixtures = [
+		'app.Countries',
+		'app.Provinces',
+		'app.Settings',
+	];
 
 	/**
 	 * setUp method
 	 */
 	public function setUp(): void {
-        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		parent::setUp();
-		$config = TableRegistry::exists('Configuration') ? [] : ['className' => 'App\Model\Table\ConfigurationTable'];
+		$config = TableRegistry::getTableLocator()->exists('Configuration') ? [] : ['className' => ConfigurationTable::class];
 		$this->ConfigurationTable = TableRegistry::getTableLocator()->get('Configuration', $config);
 	}
 
@@ -62,7 +73,13 @@ class ConfigurationTableTest extends TableTestCase {
 
 		$this->ConfigurationTable->loadSystem();
 		$this->assertEquals('Test Zuluru Affiliate', Configure::read('organization.name'));
-		$this->ConfigurationTable->loadAffiliate(AFFILIATE_ID_SUB);
+
+		$affiliate = AffiliateFactory::make()->with('Settings', [
+			'category' => 'organization',
+			'name' => 'name',
+			'value' => 'Test Sub Affiliate',
+		])->persist();
+		$this->ConfigurationTable->loadAffiliate($affiliate->id);
 		$this->assertEquals('Test Sub Affiliate', Configure::read('organization.name'));
 	}
 
@@ -71,7 +88,12 @@ class ConfigurationTableTest extends TableTestCase {
 	 */
 	public function testLoadUser(): void {
 		$this->assertEmpty(Configure::read('personal'), 'Personal settings should not have been loaded yet');
-		$this->ConfigurationTable->loadUser(PERSON_ID_MANAGER);
+
+		$person = PersonFactory::make()->with('Settings', [
+			'category' => 'personal',
+			'name' => 'test',
+		])->persist();
+		$this->ConfigurationTable->loadUser($person->id);
 		$this->assertNotEmpty(Configure::read('personal'), 'Personal settings should have been loaded');
 	}
 

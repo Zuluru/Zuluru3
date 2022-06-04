@@ -13,7 +13,7 @@ class GameSlotsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\GameSlotsTable
+	 * @var GameSlotsTable
 	 */
 	public $GameSlotsTable;
 
@@ -22,7 +22,7 @@ class GameSlotsTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('GameSlots') ? [] : ['className' => 'App\Model\Table\GameSlotsTable'];
+		$config = TableRegistry::getTableLocator()->exists('GameSlots') ? [] : ['className' => GameSlotsTable::class];
 		$this->GameSlotsTable = TableRegistry::getTableLocator()->get('GameSlots', $config);
 	}
 
@@ -74,7 +74,7 @@ class GameSlotsTableTest extends TableTestCase {
 	 * Test affiliate method
 	 */
 	public function testAffiliate(): void {
-        $affiliateId = rand();
+        $affiliateId = mt_rand();
         $gameSlot = GameSlotFactory::make()
             ->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliateId])
             ->persist();

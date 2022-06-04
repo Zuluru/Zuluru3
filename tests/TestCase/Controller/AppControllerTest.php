@@ -2,6 +2,7 @@
 namespace App\Test\TestCase\Controller;
 
 use App\Application;
+use App\Model\Entity\Person;
 use App\Test\Factory\PersonFactory;
 use App\Test\Factory\SettingFactory;
 use Cake\Core\Configure;
@@ -116,7 +117,7 @@ class AppControllerTest extends ControllerTestCase {
 	 * Test _sendMail method
 	 */
 	public function testSendMail(): void {
-		$players = PersonFactory::makePlayer(2)->persist();
+		$players = PersonFactory::make(2)->player()->persist();
 		SettingFactory::make(['person_id' => $players[1]->id, 'category' => 'personal', 'name' => 'language', 'value' => 'fr'])->persist();
 
 		Configure::load('options');
@@ -211,12 +212,16 @@ class AppControllerTest extends ControllerTestCase {
 	 * Test _isChild method
 	 */
 	public function testIsChild(): void {
-		$admin = PersonFactory::makeAdmin()->getEntity();
-		$adult = PersonFactory::makePlayer(['birthdate' => FrozenDate::now()->subYears(19)])->getEntity();
-		$child = PersonFactory::makePlayer(['birthdate' => FrozenDate::now()->subYears(17)])->getEntity();
-
+		/** @var Person $admin */
+		$admin = PersonFactory::make()->admin()->getEntity();
 		$this->assertFalse(AppController::_isChild($admin));
+
+		/** @var Person $adult */
+		$adult = PersonFactory::make(['birthdate' => FrozenDate::now()->subYears(19)])->player()->getEntity();
 		$this->assertFalse(AppController::_isChild($adult));
+
+		/** @var Person $child */
+		$child = PersonFactory::make(['birthdate' => FrozenDate::now()->subYears(17)])->player()->getEntity();
 		$this->assertTrue(AppController::_isChild($child));
 	}
 

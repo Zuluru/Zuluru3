@@ -65,7 +65,6 @@ class LeagueTypeRatingsLadderTest extends ModuleTestCase {
 	 * Test compareTeams method
 	 */
 	public function testCompareTeams(): void {
-        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER, true);
 
 		$this->assertEquals(8, count($division->teams));
@@ -121,7 +120,6 @@ class LeagueTypeRatingsLadderTest extends ModuleTestCase {
 	 * Test createScheduledSet method
 	 */
 	public function testCreateScheduledSet(): void {
-        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		// Seed the random number generator with a fixed value, so that random determinations in field selection become fixed.
 		mt_srand(123);
 

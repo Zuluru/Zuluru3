@@ -12,7 +12,7 @@ class SubscriptionsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\SubscriptionsTable
+	 * @var SubscriptionsTable
 	 */
 	public $SubscriptionsTable;
 
@@ -21,7 +21,7 @@ class SubscriptionsTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Subscriptions') ? [] : ['className' => 'App\Model\Table\SubscriptionsTable'];
+		$config = TableRegistry::getTableLocator()->exists('Subscriptions') ? [] : ['className' => SubscriptionsTable::class];
 		$this->SubscriptionsTable = TableRegistry::getTableLocator()->get('Subscriptions', $config);
 	}
 

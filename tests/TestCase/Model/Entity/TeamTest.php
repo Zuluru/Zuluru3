@@ -3,95 +3,80 @@ namespace App\Test\TestCase\Model\Entity;
 
 use App\Middleware\ConfigurationLoader;
 use App\Model\Entity\Team;
-use App\Test\Factory\GameFactory;
+use App\Test\Factory\TeamFactory;
+use App\Test\Factory\TeamsPersonFactory;
+use App\Test\Scenario\TeamScenario;
 use Cake\Core\Configure;
 use Cake\Event\EventList;
 use Cake\Event\EventManager;
-use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * App\Model\Entity\Team Test Case
  */
 class TeamTest extends TestCase {
 
-	/**
-	 * Test subject 1
-	 *
-	 * @var \App\Model\Entity\Team
-	 */
-	public $Team1;
+	use ScenarioAwareTrait;
 
 	/**
-	 * Test subject 2
+	 * Fixtures
 	 *
-	 * @var \App\Model\Entity\Team
+	 * @var array
 	 */
-
-	public $Team2;
-	/**
-	 * Test subject 2
-	 *
-	 * @var \App\Model\Entity\Team
-	 */
-	public $Team3;
+	public $fixtures = [
+		'app.Groups',
+		'app.RosterRoles',
+	];
 
 	/**
 	 * setUp method
 	 */
 	public function setUp(): void {
 		parent::setUp();
-        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
 		EventManager::instance()->setEventList(new EventList());
 		foreach (Configure::read('App.globalListeners') as $listener) {
 			EventManager::instance()->on($listener);
 		}
 		ConfigurationLoader::loadConfiguration();
-
-		$teams = TableRegistry::getTableLocator()->get('Teams');
-		$this->Team1 = $teams->get(TEAM_ID_RED, ['contain' => ['People' => ['Skills'], 'Divisions']]);
-		$this->Team2 = $teams->get(TEAM_ID_BLUE, ['contain' => ['People' => ['Skills'], 'Divisions']]);
-		$this->Team3 = $teams->get(TEAM_ID_RED_PLAYOFF, ['contain' => ['People' => ['Skills'], 'Divisions']]);
-	}
-
-	/**
-	 * tearDown method
-	 */
-	public function tearDown(): void {
-		unset($this->Team1);
-		unset($this->Team2);
-		unset($this->Team3);
-
-		parent::tearDown();
 	}
 
 	/**
 	 * Test consolidateRoster method
 	 */
 	public function testConsolidateRoster(): void {
-		$this->assertEquals(0, $this->Team1->roster_count);
-		$this->assertEquals(0, $this->Team1->skill_count);
-		$this->assertEquals(0, $this->Team1->skill_total);
-		$this->Team1->consolidateRoster('ultimate');
-		$this->assertEquals(2, $this->Team1->roster_count);
-		$this->assertEquals(2, $this->Team1->skill_count);
-		$this->assertEquals(14, $this->Team1->skill_total);
+		/** @var Team $team */
+		$team = TeamFactory::make()
+			->with('TeamsPeople', TeamsPersonFactory::make(['role' => 'captain'])
+				->with('People.Skills', ['skill_level' => 8])
+			)
+			->with('TeamsPeople', TeamsPersonFactory::make(['role' => 'player'])
+				->with('People.Skills', ['skill_level' => 6])
+			)
+			->with('TeamsPeople', TeamsPersonFactory::make(['role' => 'substitute'])
+				->with('People.Skills', ['skill_level' => 9])
+			)
+			->with('TeamsPeople', TeamsPersonFactory::make(['role' => 'player', 'status' => ROSTER_INVITED])
+				->with('People.Skills', ['skill_level' => 3])
+			)
+			->getEntity();
 
-		$this->assertEquals(0, $this->Team2->roster_count);
-		$this->assertEquals(0, $this->Team2->skill_count);
-		$this->assertEquals(0, $this->Team2->skill_total);
-		$this->Team2->consolidateRoster('ultimate');
-		$this->assertEquals(2, $this->Team2->roster_count);
-		$this->assertEquals(2, $this->Team2->skill_count);
-		$this->assertEquals(7, $this->Team2->skill_total);
+		$this->assertEquals(0, $team->roster_count);
+		$this->assertEquals(0, $team->skill_count);
+		$this->assertEquals(0, $team->skill_total);
+		$team->consolidateRoster('ultimate');
+		$this->assertEquals(2, $team->roster_count);
+		$this->assertEquals(2, $team->skill_count);
+		$this->assertEquals(14, $team->skill_total);
 	}
 
 	/**
 	 * Test twitterName method
 	 */
 	public function testTwitterName(): void {
-		$this->assertEquals('Red @redteam', $this->Team1->twitterName());
-		$this->assertEquals('Blue @blueteam', $this->Team2->twitterName());
+		/** @var Team $team */
+		$team = TeamFactory::make(['name' => 'Red', 'twitter_user' => 'redteam'])->getEntity();
+		$this->assertEquals('Red @redteam', $team->twitterName());
 	}
 
 	/**
@@ -100,41 +85,62 @@ class TeamTest extends TestCase {
 	public function testAddGameResult(): void {
 		$this->markTestIncomplete('Not implemented yet. Pretty complex.');
 	}
+
 	/**
 	 * Test _getRoster();
 	 */
 	public function testGetRoster(): void {
-		$people = $this->Team1->roster;
+		$team = $this->loadFixtureScenario(TeamScenario::class, ['division' => null, 'roles' => [
+			'captain' => true,
+			'player' => [true, ['status' => ROSTER_INVITED]],
+			'substitute' => true,
+		]]);
+
+		$people = $team->roster;
 		$ids = [];
 		foreach ($people as $person) {
-			array_push($ids, $person->id);
+			$ids[] = $person->id;
 		}
-		$this->assertNotFalse(array_search(PERSON_ID_CAPTAIN, $ids), 'Missing Crystal on roster');
-		$this->assertNotFalse(array_search(PERSON_ID_CAPTAIN3, $ids), 'Missing Carolyn on roster');
-		$this->assertEquals(2, count($ids), 'Too many people on roster');
+		$this->assertNotFalse(array_search($team->people[0]->id, $ids, true), 'Missing captain on roster');
+		$this->assertNotFalse(array_search($team->people[1]->id, $ids, true), 'Missing player on roster');
+		$this->assertCount(2, $ids, 'Too many people on roster');
 	}
 
 	/**
 	 * Test _getFullRoster();
 	 */
 	public function testGetFullRoster(): void {
-		$people = $this->Team1->full_roster;
+		$team = $this->loadFixtureScenario(TeamScenario::class, ['division' => null, 'roles' => [
+			'captain' => true,
+			'player' => [true, ['status' => ROSTER_INVITED]],
+			'substitute' => true,
+		]]);
+
+		$people = $team->full_roster;
 		$ids = [];
 		foreach ($people as $person) {
-			array_push($ids, $person->id);
+			$ids[] = $person->id;
 		}
-		$this->assertNotFalse(array_search(PERSON_ID_CAPTAIN, $ids), 'Missing Crystal on roster');
-		$this->assertNotFalse(array_search(PERSON_ID_CAPTAIN3, $ids), 'Missing Carolyn on roster');
-		$this->assertNotFalse(array_search(PERSON_ID_PLAYER, $ids), 'Missing Pam on roster');
-		$this->assertEquals(3, count($ids), 'Too many people on roster');
+
+		$this->assertNotFalse(array_search($team->people[0]->id, $ids, true), 'Missing captain on roster');
+		$this->assertNotFalse(array_search($team->people[1]->id, $ids, true), 'Missing player on roster');
+		$this->assertNotFalse(array_search($team->people[2]->id, $ids, true), 'Missing invited player on roster');
+		$this->assertNotFalse(array_search($team->people[3]->id, $ids, true), 'Missing sub on roster');
+		$this->assertCount(4, $ids, 'Too many people on roster');
 	}
 
 	/**
 	 * Test _getAffiliateTeam();
 	 */
 	public function testGetAffiliatedTeam(): void {
-		$this->assertEquals(null, $this->Team1->affiliated_team);
-		$this->assertEquals(TEAM_ID_RED, $this->Team3->affiliated_team->id);
+		/** @var Team $team */
+		$team = TeamFactory::make()->with('Divisions.Leagues')->persist();
+		$this->assertNull($team->affiliated_team);
+
+		/** @var Team $playoff_team */
+		$playoff_team = TeamFactory::make(['name' => $team->name])->with('Divisions', ['current_round' => 'playoff', 'league_id' => $team->division->league_id])->persist();
+		$this->assertNotNull($playoff_team->affiliated_team);
+		$this->assertEquals($team->id, $playoff_team->affiliated_team->id);
 	}
 
 }

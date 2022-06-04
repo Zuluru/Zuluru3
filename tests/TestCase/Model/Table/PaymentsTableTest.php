@@ -13,7 +13,7 @@ class PaymentsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\PaymentsTable
+	 * @var PaymentsTable
 	 */
 	public $PaymentsTable;
 
@@ -22,7 +22,7 @@ class PaymentsTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Payments') ? [] : ['className' => 'App\Model\Table\PaymentsTable'];
+		$config = TableRegistry::getTableLocator()->exists('Payments') ? [] : ['className' => PaymentsTable::class];
 		$this->PaymentsTable = TableRegistry::getTableLocator()->get('Payments', $config);
 	}
 
@@ -88,7 +88,7 @@ class PaymentsTableTest extends TableTestCase {
 	 * Test affiliate method
 	 */
 	public function testAffiliate(): void {
-        $affiliateId = rand();
+        $affiliateId = mt_rand();
         $payment = PaymentFactory::make()->with('Registrations.Events', ['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->PaymentsTable->affiliate($payment->id));
 	}

@@ -1094,7 +1094,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		/** @var Person $parent */
-		$parent = PersonFactory::makeParent()
+		$parent = PersonFactory::make()->parent()
 			->with('Affiliates')
 			->persist();
 
@@ -2105,7 +2105,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		]);
 
 		// Create a new account to approve
-		PersonFactory::makePlayer(['status' => 'new'])
+		PersonFactory::make(['status' => 'new'])->player()
 			->with('Affiliates', $affiliates[0])
 			->persist();
 
@@ -2355,7 +2355,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
 		// Create a new account to approve
-		PersonFactory::makePlayer(['status' => 'new'])
+		PersonFactory::make(['status' => 'new'])->player()
 			->with('Affiliates', $admin->affiliates[0])
 			->persist();
 
@@ -2380,7 +2380,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
 		// Create a new account to approve
-		$new = PersonFactory::makePlayer(['status' => 'new'])
+		$new = PersonFactory::make(['status' => 'new'])->player()
 			->with('Affiliates', $admin->affiliates[0])
 			->persist();
 
@@ -2726,12 +2726,13 @@ class PeopleControllerTest extends ControllerTestCase {
 	}
 
 	private function createDuplicate(Person $player, Affiliate $affiliate): Person {
-		return PersonFactory::makePlayer([
+		return PersonFactory::make([
 			'first_name' => $player->first_name,
 			'last_name' => $player->last_name,
 			'shirt_size' => 'Womens Large', // required field to save
 			'status' => 'new',
 		])
+			->player()
 			->with('Affiliates', $affiliate)
 			->with('Skills[2]')
 			->with('Settings[2]')

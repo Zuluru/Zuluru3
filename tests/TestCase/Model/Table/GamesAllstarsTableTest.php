@@ -12,7 +12,7 @@ class GamesAllstarsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\GamesAllstarsTable
+	 * @var GamesAllstarsTable
 	 */
 	public $GamesAllstarsTable;
 
@@ -21,7 +21,7 @@ class GamesAllstarsTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('GamesAllstars') ? [] : ['className' => 'App\Model\Table\GamesAllstarsTable'];
+		$config = TableRegistry::getTableLocator()->exists('GamesAllstars') ? [] : ['className' => GamesAllstarsTable::class];
 		$this->GamesAllstarsTable = TableRegistry::getTableLocator()->get('GamesAllstars', $config);
 	}
 

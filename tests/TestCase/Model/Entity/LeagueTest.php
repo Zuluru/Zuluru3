@@ -1,12 +1,10 @@
 <?php
 namespace App\Test\TestCase\Model\Entity;
 
-use App\Model\Entity\League;
 use App\Test\Factory\LeagueFactory;
-use Cake\Chronos\Date;
 use Cake\Core\Configure;
+use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
-use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 
 /**
@@ -110,8 +108,8 @@ class LeagueTest extends TestCase {
 	public function testGetFullName(): void {
 		$year = FrozenTime::now()->year;
         $leagues = LeagueFactory::make([
-            ['name' => 'Monday Night', 'season' => 'Summer', 'open' => Date::now()],
-            ['name' => $year . ' Monday Night', 'season' => 'Summer', 'open' => Date::now()],
+            ['name' => 'Monday Night', 'season' => 'Summer', 'open' => FrozenDate::now()],
+            ['name' => $year . ' Monday Night', 'season' => 'Summer', 'open' => FrozenDate::now()],
             ['name' => 'Tuesday Night', 'season' => 'Summer', 'open' => '0000-00-00'],
         ])->getEntities();
 
@@ -127,8 +125,8 @@ class LeagueTest extends TestCase {
 	public function testGetLongSeason(): void {
 		$year = FrozenTime::now()->year;
         $leagues = LeagueFactory::make([
-            ['season' => 'Summer', 'open' => Date::now()],
-            ['season' => 'None', 'open' => Date::now()],
+            ['season' => 'Summer', 'open' => FrozenDate::now()],
+            ['season' => 'None', 'open' => FrozenDate::now()],
             ['season' => 'Summer', 'open' => '0000-00-00'],
             ['season' => null, 'open' => '0000-00-00'],
         ])->getEntities();

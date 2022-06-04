@@ -123,7 +123,7 @@ class ContactsControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		$affiliates = AffiliateFactory::make(2)->persist();
-		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliates)->persist();
+		$admin = PersonFactory::make()->admin()->with('Affiliates', $affiliates)->persist();
 		$contacts = ContactFactory::make([
 			['affiliate_id' => $affiliates[0]->id],
 			['affiliate_id' => $affiliates[1]->id],
@@ -143,7 +143,7 @@ class ContactsControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		$affiliates = AffiliateFactory::make(2)->persist();
-		$manager = PersonFactory::makeManager()
+		$manager = PersonFactory::make()->manager()
 			->with('AffiliatesPeople', AffiliatesPersonFactory::make(['position' => 'manager', 'affiliate_id' => $affiliates[0]->id]))
 			->persist();
 		$contacts = ContactFactory::make([
@@ -168,7 +168,7 @@ class ContactsControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		$affiliates = AffiliateFactory::make(2)->persist();
-		$player = PersonFactory::makePlayer()->with('Affiliates', $affiliates[0])->persist();
+		$player = PersonFactory::make()->player()->with('Affiliates', $affiliates[0])->persist();
 		$contacts = ContactFactory::make([
 			['affiliate_id' => $affiliates[0]->id],
 			['affiliate_id' => $affiliates[1]->id],
@@ -211,7 +211,7 @@ class ContactsControllerTest extends ControllerTestCase {
 	 * Test message method as a player with one contact
 	 */
 	public function testMessageAsPlayerWithOneContact(): void {
-		$player = PersonFactory::makePlayer()->with('Affiliates')->persist();
+		$player = PersonFactory::make()->player()->with('Affiliates')->persist();
 		$contact = ContactFactory::make(['affiliate_id' => $player->affiliates[0]->id])->persist();
 
 		// Someone logged in on an affiliate that has only one contact doesn't get a drop-down
@@ -226,7 +226,7 @@ class ContactsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		$player = PersonFactory::makePlayer()->with('Affiliates')->persist();
+		$player = PersonFactory::make()->player()->with('Affiliates')->persist();
 		$contact = ContactFactory::make(['affiliate_id' => $player->affiliates[0]->id])->persist();
 
 		$this->assertPostAsAccessRedirect(['controller' => 'Contacts', 'action' => 'message'],
@@ -252,7 +252,7 @@ class ContactsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		$player = PersonFactory::makePlayer()->with('Affiliates')->persist();
+		$player = PersonFactory::make()->player()->with('Affiliates')->persist();
 		$contact = ContactFactory::make(['affiliate_id' => $player->affiliates[0]->id])->persist();
 
 		$this->assertPostAsAccessRedirect(['controller' => 'Contacts', 'action' => 'message'],

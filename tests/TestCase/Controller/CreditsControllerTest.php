@@ -91,7 +91,7 @@ class CreditsControllerTest extends ControllerTestCase {
 	 */
 	public function testTransferAsAdmin(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
-		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliates)->persist();
+		$admin = PersonFactory::make()->admin()->with('Affiliates', $affiliates)->persist();
 		$credits = CreditFactory::make([
 			['affiliate_id' => $affiliates[0]->id],
 			['affiliate_id' => $affiliates[1]->id],
@@ -108,7 +108,7 @@ class CreditsControllerTest extends ControllerTestCase {
 	 */
 	public function testTransferAsManager(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
-		$manager = PersonFactory::makeManager()
+		$manager = PersonFactory::make()->manager()
 			->with('AffiliatesPeople', AffiliatesPersonFactory::make(['position' => 'manager', 'affiliate_id' => $affiliates[0]->id]))
 			->persist();
 		$credits = CreditFactory::make([
@@ -165,7 +165,7 @@ class CreditsControllerTest extends ControllerTestCase {
 	 */
 	public function testTransferAsOthers(): void {
 		$affiliates = AffiliateFactory::make(2)->persist();
-		$player = PersonFactory::makePlayer()->with('Affiliates', $affiliates[0])->persist();
+		$player = PersonFactory::make()->player()->with('Affiliates', $affiliates[0])->persist();
 		$credits = CreditFactory::make([
 			['affiliate_id' => $affiliates[0]->id],
 			['affiliate_id' => $affiliates[1]->id],

@@ -13,7 +13,7 @@ class NewslettersTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\NewslettersTable
+	 * @var NewslettersTable
 	 */
 	public $NewslettersTable;
 
@@ -22,7 +22,7 @@ class NewslettersTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Newsletters') ? [] : ['className' => 'App\Model\Table\NewslettersTable'];
+		$config = TableRegistry::getTableLocator()->exists('Newsletters') ? [] : ['className' => NewslettersTable::class];
 		$this->NewslettersTable = TableRegistry::getTableLocator()->get('Newsletters', $config);
 	}
 
@@ -39,7 +39,7 @@ class NewslettersTableTest extends TableTestCase {
 	 * Test affiliate method
 	 */
 	public function testAffiliate(): void {
-        $affiliateId = rand();
+        $affiliateId = mt_rand();
         $newsletter = NewsletterFactory::make()->with('MailingLists', ['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->NewslettersTable->affiliate($newsletter->id));
 	}

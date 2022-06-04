@@ -260,8 +260,8 @@ if ($team->division_id && $this->Authorize->can('stat_sheet', $context)) {
 	];
 }
 
-$has_numbers = Configure::read('feature.shirt_numbers') && $team->has('people') && collection($team->people)->some(function ($person) {
-	return $person->_joinData->number != null;
+$has_numbers = Configure::read('feature.shirt_numbers') && $team->has('teams_people') && collection($team->teams_people)->some(function (\App\Model\Entity\TeamsPerson $roster_entry) {
+	return $roster_entry->number != null;
 });
 if (Configure::read('feature.shirt_numbers') && !$has_numbers &&
 	$this->Authorize->can('numbers', $context)
@@ -288,7 +288,7 @@ if (isset($warning_message)):
 <?php
 endif;
 
-if (!empty($team->people) && $this->Authorize->can('view_roster', \App\Controller\TeamsController::class)):
+if (!empty($team->teams_people) && $this->Authorize->can('view_roster', \App\Controller\TeamsController::class)):
 ?>
 <div class="related row">
 	<div class="column">
@@ -354,7 +354,9 @@ if (!empty($team->people) && $this->Authorize->can('view_roster', \App\Controlle
 	} else {
 		$roster_required = 0;
 	}
-	foreach ($team->people as $person):
+	foreach ($team->teams_people as $roster_entry):
+		$person = $roster_entry->person;
+
 		// Maybe add a warning
 		if ($this->Identity->isLoggedIn() && $person->can_add !== true && !$warning):
 			$warning = true;
@@ -385,8 +387,8 @@ if (!empty($team->people) && $this->Authorize->can('view_roster', \App\Controlle
 		} else {
 			$skill = null;
 		}
-		if (in_array($person->_joinData->role, Configure::read('playing_roster_roles')) &&
-			$person->_joinData->status == ROSTER_APPROVED)
+		if (in_array($roster_entry->role, Configure::read('playing_roster_roles')) &&
+			$roster_entry->status == ROSTER_APPROVED)
 		{
 			++ $roster_count;
 			if (!empty($skill)) {
@@ -394,7 +396,7 @@ if (!empty($team->people) && $this->Authorize->can('view_roster', \App\Controlle
 				$skill_total += $skill->skill_level;
 			}
 		}
-		if ($person->roster_designation && in_array($person->_joinData->role, Configure::read('required_roster_roles'))) {
+		if ($person->roster_designation && in_array($roster_entry->role, Configure::read('required_roster_roles'))) {
 			++$captains[$person->roster_designation];
 		}
 
@@ -417,7 +419,7 @@ if (!empty($team->people) && $this->Authorize->can('view_roster', \App\Controlle
 <?php
 		if ($has_numbers):
 ?>
-						<td><?= $this->element('People/number', ['person' => $person, 'roster' => $person->_joinData, 'division' => $team->division]) ?></td>
+						<td><?= $this->element('People/number', ['person' => $person, 'roster' => $roster_entry, 'division' => $team->division]) ?></td>
 <?php
 		endif;
 ?>
@@ -430,7 +432,7 @@ if (!empty($team->people) && $this->Authorize->can('view_roster', \App\Controlle
 							}
 						?></td>
 						<td<?= $warning ? ' class="warning-message"' : '' ?>><?php
-							echo $this->element('People/roster_role', ['roster' => $person->_joinData, 'division' => $team->division]);
+							echo $this->element('People/roster_role', ['roster' => $roster_entry, 'division' => $team->division]);
 							if ($this->Identity->isLoggedIn() && $person->can_add !== true) {
 								echo ' ' . $this->Html->iconImg('help_16.png', ['title' => $this->Html->formatMessage($person->can_add, null, true), 'alt' => '?']);
 							}
@@ -438,7 +440,7 @@ if (!empty($team->people) && $this->Authorize->can('view_roster', \App\Controlle
 <?php
 		if (!empty($positions)):
 ?>
-						<td><?= $this->element('People/roster_position', ['roster' => $person->_joinData, 'division' => $team->division]) ?></td>
+						<td><?= $this->element('People/roster_position', ['roster' => $roster_entry, 'division' => $team->division]) ?></td>
 <?php
 		endif;
 
@@ -467,7 +469,7 @@ if (!empty($team->people) && $this->Authorize->can('view_roster', \App\Controlle
 <?php
 		endif;
 ?>
-						<td><?= $this->Time->date($person->_joinData->created) ?></td>
+						<td><?= $this->Time->date($roster_entry->created) ?></td>
 					</tr>
 
 <?php

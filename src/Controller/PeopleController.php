@@ -2616,11 +2616,12 @@ class PeopleController extends AppController {
 	public function approve() {
 		$id = $this->request->getQuery('person');
 
+		// We don't need to contain Relatives here; those will be handled in the updateAll calls
+		$contain = [Configure::read('Security.authModel'), 'AffiliatesPeople', 'Skills', 'Groups', 'Related', 'Settings'];
+
 		try {
-			$person = $this->People->get($id, [
-				// We don't need to contain Relatives here; those will be handled in the updateAll calls
-				'contain' => [Configure::read('Security.authModel'), 'Affiliates', 'Skills', 'Groups', 'Related', 'Settings']
-			]);
+			/** @var Person $person */
+			$person = $this->People->get($id, ['contain' => $contain]);
 		} catch (RecordNotFoundException $ex) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect(['action' => 'list_new']);
@@ -2632,7 +2633,7 @@ class PeopleController extends AppController {
 		$this->Authorization->authorize($person);
 
 		$duplicates = $this->People->find('duplicates', compact('person'))
-			->contain([Configure::read('Security.authModel'), 'Affiliates', 'Skills', 'Groups', 'Related', 'Settings']);
+			->contain($contain);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			if (empty($this->request->getData('disposition'))) {
@@ -2647,7 +2648,7 @@ class PeopleController extends AppController {
 						}
 						// If this fails, we've messed up the duplicate record. Re-read the duplicates to reset it.
 						$duplicates = $this->People->find('duplicates', compact('person'))
-							->contain(['Affiliates', 'Skills', 'Groups', 'Related', 'Settings']);
+							->contain($contain);
 					} else {
 						$this->Flash->info(__('You have selected an invalid user!'));
 					}
@@ -2701,7 +2702,7 @@ class PeopleController extends AppController {
 				$delete = $person;
 				break;
 
-			// This is basically the same as the delete duplicate, except
+			// This is basically the same as delete duplicate, except
 			// that some old information (e.g. user ID) is preserved
 			case 'merge_duplicate':
 				$duplicate->merge($person);
@@ -2718,9 +2719,9 @@ class PeopleController extends AppController {
 
 		if (!$this->People->getConnection()->transactional(function () use ($disposition, $save, $delete, $fail_message) {
 			// If we are merging, we want to migrate all records that aren't part of the in-memory record.
-			if ($disposition == 'merge_duplicate') {
+			if ($disposition === 'merge_duplicate') {
 				// For anything that we have in memory, we must skip doing a direct query
-				$ignore = [];
+				$ignore = ['Affiliates'];
 				$save->setHidden([]);
 				foreach ($save->getVisible() as $prop) {
 					if ($save->isAccessible($prop) && (is_array($delete->$prop))) {
@@ -2990,8 +2991,8 @@ class PeopleController extends AppController {
 
 		$this->Authorization->authorize($person);
 
+		$waivers = [];
 		if ($id == $this->UserCache->currentId()) {
-			$waivers = [];
 			foreach ($affiliates as $affiliate) {
 				$signed_names = array_unique(
 					collection($this->UserCache->read('WaiversCurrent'))

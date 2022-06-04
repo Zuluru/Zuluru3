@@ -128,10 +128,10 @@ class PersonTest extends TestCase {
 	public function testMergeUserWithUser(): void {
 		$this->loadFixtures();
 
-		[$user1, $user2] = PersonFactory::makePlayer([
+		[$user1, $user2] = PersonFactory::make([
 			['gender' => 'Woman'],
 			['gender' => 'Man'],
-		])->persist();
+		])->player()->persist();
 		$user_id = $user1->user_id;
 
 		$user1->merge($user2);
@@ -147,8 +147,8 @@ class PersonTest extends TestCase {
 	public function testMergeUserWithProfile(): void {
 		$this->loadFixtures();
 
-		$user1 = PersonFactory::makePlayer(['gender' => 'Woman'])->persist();
-		$user2 = PersonFactory::makeChild(['gender' => 'Man'])->persist();
+		$user1 = PersonFactory::make(['gender' => 'Woman'])->player()->persist();
+		$user2 = PersonFactory::make(['gender' => 'Man'])->child()->persist();
 		$user_id = $user1->user_id;
 		$address = $user1->addr_street;
 
@@ -165,8 +165,10 @@ class PersonTest extends TestCase {
 	public function testMergeProfileWithUser(): void {
 		$this->loadFixtures();
 
+		/** @var Person $user1 */
 		$user1 = PersonFactory::make(['gender' => 'Man'])->withGroup(GROUP_PLAYER)->persist();
-		$user2 = PersonFactory::makePlayer(['gender' => 'Woman'])->persist();
+		/** @var Person $user2 */
+		$user2 = PersonFactory::make(['gender' => 'Woman'])->player()->persist();
 		$user_id = $user2->user_id;
 
 		$user1->merge($user2);

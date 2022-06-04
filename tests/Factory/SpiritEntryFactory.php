@@ -20,9 +20,8 @@ class SpiritEntryFactory extends BaseFactory
 	 * not nullable fields.
 	 * Use the patchData method to set the field values.
 	 * You may use methods of the factory here
-	 * @return void
 	 */
-	protected function setDefaultTemplate()
+	protected function setDefaultTemplate(): void
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [

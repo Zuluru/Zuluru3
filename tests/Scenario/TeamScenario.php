@@ -87,12 +87,12 @@ class TeamScenario implements FixtureScenarioInterface {
 		$roster_details = ['team_id' => $team->id, 'role' => $role];
 
 		if ($details === true) {
-			$team->people[] = PersonFactory::makePlayer()
+			$team->people[] = PersonFactory::make()->player()
 				->with('TeamsPeople', TeamsPersonFactory::make($roster_details))
 				->with('Affiliates', $affiliate)
 				->persist();
 		} else if (is_numeric($details)) {
-			$team->people += PersonFactory::makePlayer($details)
+			$team->people += PersonFactory::make($details)->player()
 				->with('TeamsPeople', TeamsPersonFactory::make($roster_details))
 				->with('Affiliates', $affiliate)
 				->persist();
@@ -106,7 +106,7 @@ class TeamScenario implements FixtureScenarioInterface {
 					$this->addPlayer($team, $affiliate, $role, $detail);
 				}
 			} else {
-				$team->people[] = PersonFactory::makePlayer()
+				$team->people[] = PersonFactory::make()->player()
 					->with('TeamsPeople', TeamsPersonFactory::make(array_merge($roster_details, $details)))
 					->with('Affiliates', $affiliate)
 					->persist();

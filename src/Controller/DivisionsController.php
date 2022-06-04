@@ -484,7 +484,7 @@ class DivisionsController extends AppController {
 						'queryBuilder' => function (Query $q) {
 							return $q->order(['rating' => 'DESC']);
 						},
-						'People' => ['Skills'],
+						'TeamsPeople' => ['People' => ['Skills']],
 					],
 					'Leagues',
 				],
@@ -541,7 +541,7 @@ class DivisionsController extends AppController {
 						'queryBuilder' => function (Query $q) {
 							return $q->order(['initial_seed', 'seed', 'name']);
 						},
-						'People' => ['Skills'],
+						'TeamsPeople' => ['People' => ['Skills']],
 					],
 					'Leagues',
 				],

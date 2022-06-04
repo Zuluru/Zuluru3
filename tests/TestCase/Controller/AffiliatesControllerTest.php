@@ -106,7 +106,7 @@ class AffiliatesControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		$affiliate = AffiliateFactory::make()->persist();
-		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliate)->persist();
+		$admin = PersonFactory::make()->admin()->with('Affiliates', $affiliate)->persist();
 		$this->assertGetAsAccessOk(['controller' => 'Affiliates', 'action' => 'edit', 'affiliate' => $affiliate->id], $admin->id);
 
 		// Admins are allowed to delete affiliates
@@ -148,10 +148,10 @@ class AffiliatesControllerTest extends ControllerTestCase {
 
 		// We don't use the DiverseUsersScenario here, as that creates the manager user already managing the affiliate
 		$affiliate = AffiliateFactory::make()->persist();
-		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliate)->persist();
+		$admin = PersonFactory::make()->admin()->with('Affiliates', $affiliate)->persist();
 		// TODOLATER: Shouldn't need gender fields to be specified for non-players
-		$manager = PersonFactory::makeManager(['gender' => 'Woman', 'roster_designation' => 'Woman'])->with('Affiliates', $affiliate)->persist();
-		$volunteer = PersonFactory::makeVolunteer()->with('Affiliates', $affiliate)->persist();
+		$manager = PersonFactory::make()->manager(['gender' => 'Woman', 'roster_designation' => 'Woman'])->with('Affiliates', $affiliate)->persist();
+		$volunteer = PersonFactory::make()->volunteer()->with('Affiliates', $affiliate)->persist();
 
 		// Admins are allowed to add managers
 		$this->assertGetAsAccessOk(['controller' => 'Affiliates', 'action' => 'add_manager', 'affiliate' => $affiliate->id], $admin->id);
@@ -214,8 +214,8 @@ class AffiliatesControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		$affiliate = AffiliateFactory::make()->persist();
-		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliate)->persist();
-		$manager = PersonFactory::makeManager()
+		$admin = PersonFactory::make()->admin()->with('Affiliates', $affiliate)->persist();
+		$manager = PersonFactory::make()->manager()
 			->with('Affiliates', $affiliate)
 			->with('AffiliatesPeople', AffiliatesPersonFactory::make(['position' => 'manager', 'affiliate_id' => $affiliate->id]))
 			->persist();

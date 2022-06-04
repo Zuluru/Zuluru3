@@ -12,7 +12,7 @@ class UserDrupalTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\UserDrupalTable
+	 * @var UserDrupalTable
 	 */
 	public $UserDrupalTable;
 
@@ -26,7 +26,7 @@ class UserDrupalTableTest extends TableTestCase {
 		}
 
 		parent::setUp();
-		$config = TableRegistry::exists('UserDrupal') ? [] : ['className' => 'App\Model\Table\UserDrupalTable'];
+		$config = TableRegistry::getTableLocator()->exists('UserDrupal') ? [] : ['className' => UserDrupalTable::class];
 		$this->UserDrupalTable = TableRegistry::getTableLocator()->get('UserDrupal', $config);
 	}
 

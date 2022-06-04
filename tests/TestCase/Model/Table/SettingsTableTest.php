@@ -1,7 +1,10 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
-use App\Test\Factory\GameFactory;
+use App\Model\Entity\Person;
+use App\Model\Entity\Setting;
+use App\Test\Factory\PersonFactory;
+use App\Test\Factory\SettingFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\SettingsTable;
 
@@ -13,7 +16,7 @@ class SettingsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\SettingsTable
+	 * @var SettingsTable
 	 */
 	public $SettingsTable;
 
@@ -22,7 +25,7 @@ class SettingsTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Settings') ? [] : ['className' => 'App\Model\Table\SettingsTable'];
+		$config = TableRegistry::getTableLocator()->exists('Settings') ? [] : ['className' => SettingsTable::class];
 		$this->SettingsTable = TableRegistry::getTableLocator()->get('Settings', $config);
 	}
 
@@ -39,13 +42,38 @@ class SettingsTableTest extends TableTestCase {
 	 * Test mergeList method
 	 */
 	public function testMergeList(): void {
-        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
-		$original = $this->SettingsTable->People->get(PERSON_ID_MANAGER, ['contain' => ['Settings']]);
-		$this->assertEquals(2, count($original->settings));
-		$duplicate = $this->SettingsTable->People->get(PERSON_ID_DUPLICATE, ['contain' => ['Settings']]);
-		$this->assertEquals(2, count($duplicate->settings));
-		$settings = $this->SettingsTable->mergeList($original->settings, $duplicate->settings);
-		$this->assertEquals(3, count($settings));
+		/** @var Person $original */
+		$original = PersonFactory::make()->with('Settings', SettingFactory::make([
+			[
+				'category' => 'personal',
+				'name' => 'enable_ical',
+				'value' => 0,
+			],
+			[
+				'category' => 'personal',
+				'name' => 'date_format',
+				'value' => 'M j, Y',
+			],
+		]))->getEntity();
+		$this->assertCount(2, $original->settings);
+
+		/** @var Setting[] $new */
+		$new = SettingFactory::make([
+			[
+				'category' => 'personal',
+				'name' => 'enable_ical',
+				'value' => 1,
+			],
+			[
+				'category' => 'personal',
+				'name' => 'attendance_emails',
+				'value' => 1,
+			],
+		])->getEntities();
+		$this->assertCount(2, $new);
+
+		$settings = $this->SettingsTable->mergeList($original->settings, $new);
+		$this->assertCount(3, $settings);
 
 		$this->assertArrayHasKey(0, $settings);
 		$this->assertEquals('enable_ical', $settings[0]->name);

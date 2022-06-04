@@ -12,7 +12,7 @@ class WaiversPeopleTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\WaiversPeopleTable
+	 * @var WaiversPeopleTable
 	 */
 	public $WaiversPeopleTable;
 
@@ -21,7 +21,7 @@ class WaiversPeopleTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('WaiversPeople') ? [] : ['className' => 'App\Model\Table\WaiversPeopleTable'];
+		$config = TableRegistry::getTableLocator()->exists('WaiversPeople') ? [] : ['className' => WaiversPeopleTable::class];
 		$this->WaiversPeopleTable = TableRegistry::getTableLocator()->get('WaiversPeople', $config);
 	}
 

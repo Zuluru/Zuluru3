@@ -189,9 +189,9 @@ class AffiliatesController extends AppController {
 			try {
 				$person = $this->Affiliates->People->get($person_id, [
 					'contain' => [
-						'Affiliates' => [
+						'AffiliatesPeople' => [
 							'queryBuilder' => function (Query $q) use ($id) {
-								return $q->where(['Affiliates.id' => $id]);
+								return $q->where(['AffiliatesPeople.id' => $id]);
 							},
 						],
 					],
@@ -204,18 +204,18 @@ class AffiliatesController extends AppController {
 				return $this->redirect(['action' => 'index']);
 			}
 
-			if (!empty($person->affiliates) && $person->affiliates[0]->_joinData->position == 'manager') {
+			if (!empty($person->affiliates_people) && $person->affiliates_people[0]->position === 'manager') {
 				$this->Flash->info(__('{0} is already a manager of this affiliate.', $person->full_name));
 				return $this->redirect(['action' => 'view', 'affiliate' => $id]);
 			} else {
-				if (!empty($person->affiliates)) {
-					$person->affiliates[0]->_joinData->position = 'manager';
-					$person->setDirty('affiliates', true);
-					$success = $this->Affiliates->People->save($person);
+				if (!empty($person->affiliates_people)) {
+					$person->affiliates_people[0]->position = 'manager';
 				} else {
-					$person->_joinData = new AffiliatesPerson(['position' => 'manager']);
-					$success = $this->Affiliates->People->link($affiliate, [$person]);
+					$person->affiliates_people = [new AffiliatesPerson(['affiliate_id' => $id, 'position' => 'manager'])];
 				}
+				$person->setDirty('affiliates_people', true);
+				$success = $this->Affiliates->People->save($person);
+
 				if ($success) {
 					$this->Flash->success(__('Added {0} as manager.', $person->full_name));
 					return $this->redirect(['action' => 'view', 'affiliate' => $id]);
@@ -241,10 +241,10 @@ class AffiliatesController extends AppController {
 		try {
 			$affiliate = $this->Affiliates->get($id, [
 				'contain' => [
-					'People' => [
+					'AffiliatesPeople' => [
 						'queryBuilder' => function (Query $q) use ($person_id) {
 							return $q->where([
-								'People.id' => $person_id,
+								'AffiliatesPeople.person_id' => $person_id,
 								'AffiliatesPeople.position' => 'manager',
 							]);
 						},
@@ -261,13 +261,13 @@ class AffiliatesController extends AppController {
 
 		$this->Authorization->authorize($affiliate);
 
-		if (empty($affiliate->people)) {
+		if (empty($affiliate->affiliates_people)) {
 			$this->Flash->warning(__('That person is not a manager of this affiliate!'));
 			return $this->redirect(['action' => 'view', 'affiliate' => $id]);
 		}
 
-		$affiliate->people[0]->_joinData->position = 'player';
-		$affiliate->setDirty('people', true);
+		$affiliate->affiliates_people[0]->position = 'player';
+		$affiliate->setDirty('affiliates_people', true);
 		if ($this->Affiliates->save($affiliate)) {
 			$this->Flash->success(__('Successfully removed manager.'));
 			$this->Flash->success(__('If this person is no longer going to be managing anything, you should also edit their profile and deselect the "Manager" option.'));

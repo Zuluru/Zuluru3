@@ -12,7 +12,7 @@ class PoolsTeamsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\PoolsTeamsTable
+	 * @var PoolsTeamsTable
 	 */
 	public $PoolsTeamsTable;
 
@@ -21,7 +21,7 @@ class PoolsTeamsTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('PoolsTeams') ? [] : ['className' => 'App\Model\Table\PoolsTeamsTable'];
+		$config = TableRegistry::getTableLocator()->exists('PoolsTeams') ? [] : ['className' => PoolsTeamsTable::class];
 		$this->PoolsTeamsTable = TableRegistry::getTableLocator()->get('PoolsTeams', $config);
 	}
 

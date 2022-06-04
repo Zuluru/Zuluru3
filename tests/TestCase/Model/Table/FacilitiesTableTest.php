@@ -13,7 +13,7 @@ class FacilitiesTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\FacilitiesTable
+	 * @var FacilitiesTable
 	 */
 	public $FacilitiesTable;
 
@@ -22,7 +22,7 @@ class FacilitiesTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Facilities') ? [] : ['className' => 'App\Model\Table\FacilitiesTable'];
+		$config = TableRegistry::getTableLocator()->exists('Facilities') ? [] : ['className' => FacilitiesTable::class];
 		$this->FacilitiesTable = TableRegistry::getTableLocator()->get('Facilities', $config);
 	}
 
@@ -39,7 +39,7 @@ class FacilitiesTableTest extends TableTestCase {
 	 * Test affiliate method
 	 */
 	public function testAffiliate(): void {
-        $affiliateId = rand();
+        $affiliateId = mt_rand();
         $facility = FacilityFactory::make()
             ->with('Regions', ['affiliate_id' => $affiliateId])
             ->persist();

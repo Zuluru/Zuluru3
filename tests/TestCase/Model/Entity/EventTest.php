@@ -4,7 +4,6 @@ namespace App\Test\TestCase\Model\Entity;
 use App\Module\EventTypeIndividual;
 use App\Module\EventTypeTeam;
 use App\Test\Factory\EventFactory;
-use App\Test\Factory\GameFactory;
 use App\Test\Factory\RegistrationFactory;
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
@@ -44,21 +43,21 @@ class EventTest extends TestCase {
 	 * Test count method
 	 */
 	public function testCount(): void {
-		$nWoman = 3;
-		$nOpen = 1;
-
 		/** @var Event $event */
 		$event = EventFactory::make()
 			->with('Registrations',
-				RegistrationFactory::make($nWoman)
+				RegistrationFactory::make([
+					['payment' => 'Paid'],
+					['payment' => 'Unpaid'],
+					['payment' => 'Paid'],
+				])
 					->with('People', [
 						'roster_designation' => 'Woman',
 						'addr_city' => 'Toronto',
 					])
-					->paid()
 			)
 			->with('Registrations',
-				RegistrationFactory::make($nOpen)
+				RegistrationFactory::make(1)
 					->with('People', [
 						'roster_designation' => 'Open',
 					])
@@ -66,14 +65,12 @@ class EventTest extends TestCase {
 			)
 			->persist();
 
-		$this->assertEquals($nWoman, $event->count('Woman'));
-		$this->assertEquals($nOpen, $event->count('Open'));
-		$this->assertEquals($nWoman, $event->count('Woman', ['People.addr_city' => 'Toronto']));
+		$this->assertEquals(2, $event->count('Woman'));
+		$this->assertEquals(1, $event->count('Open'));
+		$this->assertEquals(2, $event->count('Woman', ['People.addr_city' => 'Toronto']));
 		$this->assertEquals(0, $event->count('Woman', ['People.addr_city' => 'Ottawa']));
-		$this->assertEquals($nWoman, $event->count('Woman', [], ['Paid', 'Unpaid']));
-
-		$this->markTestSkipped(GameFactory::TODO_FACTORIES);
-		$this->assertEquals(2, $event->count('Woman', [], ['Unpaid']));
+		$this->assertEquals(3, $event->count('Woman', [], ['Paid', 'Unpaid']));
+		$this->assertEquals(1, $event->count('Woman', [], ['Unpaid']));
 	}
 
 	/**

@@ -1,10 +1,11 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
-use App\Test\Factory\GameFactory;
+use App\Model\Entity\Person;
+use App\Test\Factory\PersonFactory;
 use App\Test\Factory\WaiverFactory;
 use Cake\I18n\FrozenDate;
-use Cake\ORM\Query;
+use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\WaiversTable;
 
@@ -16,7 +17,7 @@ class WaiversTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\WaiversTable
+	 * @var WaiversTable
 	 */
 	public $WaiversTable;
 
@@ -25,7 +26,7 @@ class WaiversTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Waivers') ? [] : ['className' => 'App\Model\Table\WaiversTable'];
+		$config = TableRegistry::getTableLocator()->exists('Waivers') ? [] : ['className' => WaiversTable::class];
 		$this->WaiversTable = TableRegistry::getTableLocator()->get('Waivers', $config);
 	}
 
@@ -42,19 +43,20 @@ class WaiversTableTest extends TableTestCase {
 	 * Test signed method
 	 */
 	public function testSigned(): void {
-        $this->markTestSkipped(GameFactory::TODO_FACTORIES);
-		$person = $this->WaiversTable->People->get(PERSON_ID_ADMIN, [
-			'contain' => ['Waivers' => [
-				'queryBuilder' => function (Query $q) {
-					return $q->where(['Waivers.id' => WAIVER_ID_ANNUAL]);
-				},
-			]],
-		]);
-		$signed = $this->WaiversTable->signed($person->waivers, FrozenDate::now());
+		/** @var Person $person */
+		$person = PersonFactory::make()
+			->with('WaiversPeople', [
+				'created' => FrozenDate::now(),
+				'valid_from' => FrozenTime::now()->startOfYear(),
+				'valid_until' => FrozenTime::now()->endOfYear(),
+			])
+			->persist();
+
+		$signed = $this->WaiversTable::signed($person->waivers_people, FrozenDate::now());
 		$this->assertEquals(true, $signed);
-		$signed = $this->WaiversTable->signed($person->waivers, FrozenDate::now()->subYear());
+		$signed = $this->WaiversTable::signed($person->waivers_people, FrozenDate::now()->subYear());
 		$this->assertEquals(false, $signed);
-		$signed = $this->WaiversTable->signed($person->waivers, FrozenDate::now()->addYear());
+		$signed = $this->WaiversTable::signed($person->waivers_people, FrozenDate::now()->addYear());
 		$this->assertEquals(false, $signed);
 	}
 
@@ -62,7 +64,7 @@ class WaiversTableTest extends TableTestCase {
 	 * Test affiliate method
 	 */
 	public function testAffiliate(): void {
-        $affiliateId = rand();
+        $affiliateId = mt_rand();
         $entity = WaiverFactory::make(['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->WaiversTable->affiliate($entity->id));
 	}

@@ -537,6 +537,7 @@ class TeamsController extends AppController {
 		}
 
 		if (Configure::read('feature.badges')) {
+			/** @var \App\Module\Badge $badge_obj */
 			$badge_obj = $this->moduleRegistry->load('Badge');
 			$badge_obj->visibility($identity, BADGE_VISIBILITY_HIGH);
 			if (!empty($badge_obj->visibility)) {
@@ -551,7 +552,7 @@ class TeamsController extends AppController {
 			}
 		}
 
-		$this->Teams->loadInto($team, ['People' => $people_contain]);
+		$this->Teams->loadInto($team, ['TeamsPeople' => ['People' => $people_contain]]);
 
 		if (empty($team->division_id)) {
 			$this->Configuration->loadAffiliate($team->affiliate_id);
@@ -560,8 +561,8 @@ class TeamsController extends AppController {
 		}
 
 		if (isset($badge_obj)) {
-			foreach (array_keys($team->people) as $key) {
-				$badge_obj->prepForDisplay($team->people[$key]);
+			foreach ($team->teams_people as $roster_entry) {
+				$badge_obj->prepForDisplay($roster_entry->person);
 			}
 		}
 
@@ -589,7 +590,8 @@ class TeamsController extends AppController {
 				}
 			}
 
-			foreach ($team->people as $person) {
+			foreach ($team->teams_people as $roster_entry) {
+				$person = $roster_entry->person;
 				// Get everything from the user record that the rule might need
 				try {
 					$full_person = $this->Teams->People->get($person->id, [
@@ -614,10 +616,10 @@ class TeamsController extends AppController {
 						]
 					]);
 
-					if ($person->_joinData->status == ROSTER_APPROVED) {
+					if ($roster_entry->status == ROSTER_APPROVED) {
 						$person->can_add = true;
 					} else {
-						$person->can_add = $this->_canAdd($full_person, $team, $person->_joinData->role, $person->_joinData->status, true, true);
+						$person->can_add = $this->_canAdd($full_person, $team, $roster_entry->role, $roster_entry->status, true, true);
 					}
 
 					// Check if the player is a member, so we can highlight any that aren't
@@ -632,7 +634,7 @@ class TeamsController extends AppController {
 					$person->roster_conflict = $person->schedule_conflict = false;
 					$playing_roster_roles = Configure::read('playing_roster_roles');
 					foreach ($full_person->teams as $other_team) {
-						if (in_array($person->_joinData->role, $playing_roster_roles)) {
+						if (in_array($roster_entry->role, $playing_roster_roles)) {
 							// If this player is on a roster of another team in the same league...
 							if ($other_team->division_id && $team->division_id &&
 								$team->division->league_id == $other_team->division->league_id &&
@@ -685,7 +687,7 @@ class TeamsController extends AppController {
 			}
 
 			$include_gender = $this->Authorization->can(new ContextResource($team, ['division' => $team->division]), 'display_gender');
-			\App\lib\context_usort($team->people, ['App\Model\Table\TeamsTable', 'compareRoster'], ['include_gender' => $include_gender]);
+			\App\lib\context_usort($team->teams_people, ['App\Model\Table\TeamsTable', 'compareRoster'], ['include_gender' => $include_gender]);
 		}
 
 		if ($team->division_id && $team->division->is_playoff) {

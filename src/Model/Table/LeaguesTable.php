@@ -217,19 +217,19 @@ class LeaguesTable extends AppTable {
 	}
 
 	public static function compareLeagueAndDivision($a, $b) {
-		if (is_a($a, 'App\Model\Entity\League')) {
+		if ($a instanceof \App\Model\Entity\League) {
 			// Might be sorting leagues
 			$a_league = $a;
 			$a_divisions = $a->divisions;
 			$b_league = $b;
 			$b_divisions = $b->divisions;
-		} else if (is_a($a, 'App\Model\Entity\Division')) {
+		} else if ($a instanceof \App\Model\Entity\Division) {
 			// Might be sorting divisions
 			$a_league = $a->league;
 			$a_divisions = [$a];
 			$b_league = $b->league;
 			$b_divisions = [$b];
-		} else if (is_a($a, 'App\Model\Entity\Team')) {
+		} else if ($a instanceof \App\Model\Entity\Team) {
 			// Might be sorting teams
 			$a_league = $a->division->league;
 			$a_divisions = [$a->division];
@@ -292,7 +292,7 @@ class LeaguesTable extends AppTable {
 		}
 
 		// For tournaments, use the league open date
-		if ($a_schedule_type == SCHEDULE_TYPE_TOURNAMENT) {
+		if ($a_schedule_type === SCHEDULE_TYPE_TOURNAMENT) {
 			if ($a_league->open > $b_league->open) {
 				return 1;
 			} else if ($a_league->open < $b_league->open) {

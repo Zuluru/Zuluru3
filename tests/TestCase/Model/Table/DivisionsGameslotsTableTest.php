@@ -12,7 +12,7 @@ class DivisionsGameslotsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\DivisionsGameslotsTable
+	 * @var DivisionsGameslotsTable
 	 */
 	public $DivisionsGameslotsTable;
 
@@ -21,7 +21,7 @@ class DivisionsGameslotsTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('DivisionsGameslots') ? [] : ['className' => 'App\Model\Table\DivisionsGameslotsTable'];
+		$config = TableRegistry::getTableLocator()->exists('DivisionsGameslots') ? [] : ['className' => DivisionsGameslotsTable::class];
 		$this->DivisionsGameslotsTable = TableRegistry::getTableLocator()->get('DivisionsGameslots', $config);
 	}
 

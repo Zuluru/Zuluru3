@@ -13,7 +13,7 @@ class UploadTypesTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\UploadTypesTable
+	 * @var UploadTypesTable
 	 */
 	public $UploadTypesTable;
 
@@ -22,7 +22,7 @@ class UploadTypesTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('UploadTypes') ? [] : ['className' => 'App\Model\Table\UploadTypesTable'];
+		$config = TableRegistry::getTableLocator()->exists('UploadTypes') ? [] : ['className' => UploadTypesTable::class];
 		$this->UploadTypesTable = TableRegistry::getTableLocator()->get('UploadTypes', $config);
 	}
 
@@ -39,7 +39,7 @@ class UploadTypesTableTest extends TableTestCase {
 	 * Test affiliate method
 	 */
 	public function testAffiliate(): void {
-        $affiliateId = rand();
+        $affiliateId = mt_rand();
         $entity = UploadTypeFactory::make(['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->UploadTypesTable->affiliate($entity->id));
 	}

@@ -147,7 +147,7 @@ class CategoriesControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		$affiliates = AffiliateFactory::make(2)->persist();
-		$admin = PersonFactory::makeAdmin()->with('Affiliates', $affiliates)->persist();
+		$admin = PersonFactory::make()->admin()->with('Affiliates', $affiliates)->persist();
 		$categories = CategoryFactory::make([
 			['affiliate_id' => $affiliates[0]->id],
 			['affiliate_id' => $affiliates[1]->id],
@@ -173,7 +173,7 @@ class CategoriesControllerTest extends ControllerTestCase {
 		$this->enableSecurityToken();
 
 		$affiliates = AffiliateFactory::make(2)->persist();
-		$manager = PersonFactory::makeManager()
+		$manager = PersonFactory::make()->manager()
 			->with('AffiliatesPeople', AffiliatesPersonFactory::make(['position' => 'manager', 'affiliate_id' => $affiliates[0]->id]))
 			->persist();
 		$categories = CategoryFactory::make([

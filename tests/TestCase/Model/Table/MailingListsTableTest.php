@@ -13,7 +13,7 @@ class MailingListsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\MailingListsTable
+	 * @var MailingListsTable
 	 */
 	public $MailingListsTable;
 
@@ -22,7 +22,7 @@ class MailingListsTableTest extends TableTestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('MailingLists') ? [] : ['className' => 'App\Model\Table\MailingListsTable'];
+		$config = TableRegistry::getTableLocator()->exists('MailingLists') ? [] : ['className' => MailingListsTable::class];
 		$this->MailingListsTable = TableRegistry::getTableLocator()->get('MailingLists', $config);
 	}
 
@@ -39,7 +39,7 @@ class MailingListsTableTest extends TableTestCase {
 	 * Test affiliate method
 	 */
 	public function testAffiliate(): void {
-	    $affiliateId = rand();
+	    $affiliateId = mt_rand();
 	    $mailingList = MailingListFactory::make(['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->MailingListsTable->affiliate($mailingList->id));
 	}

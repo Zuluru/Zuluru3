@@ -5,7 +5,6 @@ use App\Model\Entity\BadgesPerson;
 use App\Test\Factory\BadgesPersonFactory;
 use App\Test\Factory\GameFactory;
 use Cake\Core\Configure;
-use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 
 /**
