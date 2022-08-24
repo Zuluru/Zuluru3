@@ -26,6 +26,7 @@ use App\Exception\RuleException;
 use App\Model\Entity\BadgesPerson;
 use App\Model\Entity\Person;
 use App\Model\Entity\PeoplePerson;
+use App\Model\Table\GamesTable;
 
 /**
  * People Controller
@@ -2368,7 +2369,7 @@ class PeopleController extends AppController {
 			}
 		}
 
-		usort($items, ['App\Model\Table\GamesTable', 'compareDateAndField']);
+		usort($items, [GamesTable::class, 'compareDateAndField']);
 		return $items;
 	}
 
@@ -2378,7 +2379,7 @@ class PeopleController extends AppController {
 
 		// We need to read attendance for all relatives, as shared games might not
 		// be on everyone's list, but we still want to accurately show attendance
-		if ($this->UserCache->read('Person.status') != 'locked') {
+		if ($this->UserCache->read('Person.status') !== 'locked') {
 			$people = $this->UserCache->read('RelativeIDs');
 			$relatives = collection($this->UserCache->read('Relatives'))->match(['_joinData.approved' => 1])->toList();
 		} else {

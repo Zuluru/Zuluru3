@@ -7,6 +7,7 @@ namespace App\Module;
 use Cake\Core\Configure;
 use Cake\ORM\TableRegistry;
 use App\Model\Entity\Division;
+use App\Model\Table\GamesTable;
 
 abstract class Ratings {
 	/**
@@ -164,7 +165,7 @@ abstract class Ratings {
 		}
 
 		// Sort games by date, time and field
-		usort($this->games, ['App\Model\Table\GamesTable', 'compareDateAndField']);
+		usort($this->games, [GamesTable::class, 'compareDateAndField']);
 
 		return true;
 	}

@@ -2,13 +2,19 @@
 namespace App\Test\TestCase\Module;
 
 use App\Core\ModuleRegistry;
+use App\Model\Entity\League;
+use App\Test\Factory\DivisionFactory;
+use App\Test\Factory\DivisionsGameslotFactory;
 use App\Test\Factory\GameFactory;
-use Cake\I18n\FrozenDate;
+use App\Test\Factory\GameSlotFactory;
+use App\Test\Factory\LeagueFactory;
+use App\Test\Scenario\LeagueWithFullScheduleScenario;
 use Cake\ORM\Entity;
-use Cake\ORM\Query;
-use Cake\ORM\TableRegistry;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 class LeagueTypeRoundrobinTest extends ModuleTestCase {
+
+	use ScenarioAwareTrait;
 
 	/**
 	 * Test subject
@@ -35,55 +41,72 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	}
 
 	/**
-	 * loadDivision method
-	 *
-	 * We usually don't need to do any containment, because startSchedule does that for us.
-	 */
-	public function loadDivision($id, $contain = []) {
-		if ($contain === true) {
-			$contain = [
-				'Teams' => [
-					'queryBuilder' => function (Query $q) {
-						return $q->order(['initial_seed']);
-					},
-				],
-				'Games',
-			];
-		}
-		$contain[] = 'Leagues';
-		return TableRegistry::getTableLocator()->get('Divisions')->get($id, ['contain' => $contain]);
-	}
-
-	/**
 	 * Test compareTeams method
 	 */
 	public function testCompareTeams(): void {
-		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER, true);
+		/** @var League $league */
+		$league = LeagueFactory::make()
+			->with('Divisions', DivisionFactory::make()
+				->with('Teams', [
+					['name' => 'Red', 'initial_seed' => 3, 'rating' => 1500],
+					['name' => 'Blue', 'initial_seed' => 2, 'rating' => 1500],
+					['name' => 'Green', 'initial_seed' => 1, 'rating' => 1450],
+					['name' => 'Yellow', 'initial_seed' => 4, 'rating' => 1450],
+				])
+			)
+			->persist();
 
-		$this->assertEquals(8, count($division->teams));
+		$division = $league->divisions[0];
+		[$red, $blue, $green, $yellow] = $division->teams;
 
-		$green = $division->teams[0];
-		$this->assertEquals(TEAM_ID_GREEN, $green->id);
-		$blue = $division->teams[1];
-		$this->assertEquals(TEAM_ID_BLUE, $blue->id);
-		$red = $division->teams[2];
-		$this->assertEquals(TEAM_ID_RED, $red->id);
-		$yellow = $division->teams[3];
-		$this->assertEquals(TEAM_ID_YELLOW, $yellow->id);
-		$orange = $division->teams[4];
-		$this->assertEquals(TEAM_ID_ORANGE, $orange->id);
-		$purple = $division->teams[5];
-		$this->assertEquals(TEAM_ID_PURPLE, $purple->id);
-		$black = $division->teams[6];
-		$this->assertEquals(TEAM_ID_BLACK, $black->id);
-		$white = $division->teams[7];
-		$this->assertEquals(TEAM_ID_WHITE, $white->id);
+		$division->games = GameFactory::make([
+			[
+				'home_team_id' => $red->id,
+				'away_team_id' => $yellow->id,
+				'home_score' => 17,
+				'away_score' => 5,
+				'approved_by_id' => APPROVAL_AUTOMATIC,
+				'status' => 'normal',
+			],
+			[
+				'home_team_id' => $green->id,
+				'away_team_id' => $blue->id,
+				'home_score' => null,
+				'away_score' => null,
+				'approved_by_id' => null,
+				'status' => 'cancelled',
+			],
+			[
+				'home_team_id' => $red->id,
+				'away_team_id' => $green->id,
+				'home_score' => 0,
+				'away_score' => 6,
+				'approved_by_id' => APPROVAL_AUTOMATIC_HOME,
+				'status' => 'home_default',
+			],
+			[
+				'home_team_id' => $yellow->id,
+				'away_team_id' => $blue->id,
+				'home_score' => 6,
+				'away_score' => 0,
+				'approved_by_id' => APPROVAL_AUTOMATIC,
+				'status' => 'away_default',
+			],
+			[
+				'home_team_id' => $red->id,
+				'away_team_id' => $blue->id,
+				'home_score' => null,
+				'away_score' => null,
+				'approved_by_id' => null,
+				'status' => 'normal',
+			],
+		])->persist();
 
 		$sort_context = ['tie_breaker' => ['hth']];
 
 		// Sort the league and confirm standings
 		// Points are Green: 2 (1-0), Yellow: 2 (1-1), Red: 1 (1-1 with a default), Blue: -1 (0-1 with a default)
-		$this->LeagueType->sort($division, $division->league, $division->games);
+		$this->LeagueType->sort($division, $league, $division->games);
 
 		// Do some team-vs-team comparisons
 		$this->assertEquals(-1, $this->LeagueType->compareTeams($yellow, $red, $sort_context));
@@ -126,16 +149,31 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 * Test createEmptyGame method
 	 */
 	public function testCreateEmptyGame(): void {
-		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER);
-		// Fixtures already have games scheduled for the first 4 weeks
-		$division->_options = new Entity(['start_date' => (new FrozenDate('first Monday of June'))->addWeeks(4)]);
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['additional_slots' => 1]);
+		$division = $league->divisions[0];
+
+		// Games already scheduled for the first 4 weeks
+		$date = $division->open->addWeeks(4);
+		$slot = GameSlotFactory::make(['game_date' => $date])
+			->with('Fields', $field)
+			->persist();
+		DivisionsGameslotFactory::make(['division_id' => $division->id, 'game_slot_id' => $slot->id])->persist();
+		/* Why doesn't this work? Not a big deah here, but worse below where there's multiple game slots to be created.
+		$slot = GameSlotFactory::make(['game_date' => $date])
+			->with('Fields', $field)
+			->with('Divisions', $division)
+			->persist();
+		*/
+
+		$division->_options = new Entity(['start_date' => $date]);
 		$this->LeagueType->startSchedule($division, $division->_options->start_date);
 		$game = $this->LeagueType->createEmptyGame($division, $division->_options->start_date);
 
 		$this->assertEquals(SEASON_GAME, $game->type);
 		$this->assertEquals('normal', $game->status);
 		$this->assertEquals($division->current_round, $game->round);
-		$this->assertEquals(DIVISION_ID_MONDAY_LADDER, $game->division_id);
+		$this->assertEquals($division->id, $game->division_id);
 		$this->assertNotNull($game->game_slot);
 		$this->assertEquals($division->_options->start_date, $game->game_slot->game_date);
 		$this->assertNull($game->home_team_id);
@@ -146,31 +184,33 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 	 * Test createEmptySet method
 	 */
 	public function testCreateEmptySet(): void {
-		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER);
-		// Fixtures already have games scheduled for the first 4 weeks
-		$division->_options = new Entity(['start_date' => (new FrozenDate('first Monday of June'))->addWeeks(4)]);
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['additional_slots' => 4]);
+		$division = $league->divisions[0];
+
+		// Games already scheduled for the first 4 weeks
+		$date = $division->open->addWeeks(4);
+		$division->_options = new Entity(['start_date' => $date]);
 		$this->LeagueType->startSchedule($division, $division->_options->start_date);
 		$games = $this->LeagueType->createEmptySet($division, $division->_options->start_date);
 
-		$this->assertEquals(4, count($games));
+		$this->assertCount(4, $games);
 
 		$i = 0;
-		for ($week = 0; $week < 1; ++ $week) {
-			for ($game = 0; $game < 4; ++ $game) {
-				$this->assertEquals(SEASON_GAME, $games[$i]->type);
-				$this->assertEquals('normal', $games[$i]->status);
-				$this->assertEquals($division->current_round, $games[$i]->round);
-				$this->assertEquals(DIVISION_ID_MONDAY_LADDER, $games[$i]->division_id);
-				$this->assertNotNull($games[$i]->game_slot);
-				$this->assertEquals($division->_options->start_date->addWeeks($week), $games[$i]->game_slot->game_date);
-				$this->assertNull($games[$i]->home_team_id);
-				$this->assertNull($games[$i]->away_team_id);
-				++ $i;
-			}
+		for ($game = 0; $game < 4; ++ $game) {
+			$this->assertEquals(SEASON_GAME, $games[$i]->type);
+			$this->assertEquals('normal', $games[$i]->status);
+			$this->assertEquals($division->current_round, $games[$i]->round);
+			$this->assertEquals($division->id, $games[$i]->division_id);
+			$this->assertNotNull($games[$i]->game_slot);
+			$this->assertEquals($division->_options->start_date, $games[$i]->game_slot->game_date);
+			$this->assertNull($games[$i]->home_team_id);
+			$this->assertNull($games[$i]->away_team_id);
+			++ $i;
 		}
 
 		// Ensure that different game slots were chosen for each game
-		$this->assertEquals(4, count(array_unique(collection($games)->extract('game_slot_id')->toArray())));
+		$this->assertCount(4, array_unique(collection($games)->extract('game_slot_id')->toArray()));
 	}
 
 	/**
@@ -180,31 +220,33 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 		// Seed the random number generator with a fixed value, so that random determinations in field selection become fixed.
 		mt_srand(123);
 
-		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER);
-		// Fixtures already have games scheduled for the first 4 weeks
-		$division->_options = new Entity(['start_date' => (new FrozenDate('first Monday of June'))->addWeeks(4)]);
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['additional_slots' => 4]);
+		$division = $league->divisions[0];
+
+		// Games already scheduled for the first 4 weeks
+		$date = $division->open->addWeeks(4);
+		$division->_options = new Entity(['start_date' => $date]);
 		$this->LeagueType->startSchedule($division, $division->_options->start_date);
 		$games = $this->LeagueType->createScheduledSet($division, $division->_options->start_date);
 
-		$this->assertEquals(4, count($games));
+		$this->assertCount(4, $games);
 
 		$i = 0;
-		for ($week = 0; $week < 1; ++ $week) {
-			for ($game = 0; $game < 4; ++ $game) {
-				$this->assertEquals(SEASON_GAME, $games[$i]->type);
-				$this->assertEquals('normal', $games[$i]->status);
-				$this->assertEquals($division->current_round, $games[$i]->round);
-				$this->assertEquals(DIVISION_ID_MONDAY_LADDER, $games[$i]->division_id);
-				$this->assertNotNull($games[$i]->game_slot);
-				$this->assertEquals($division->_options->start_date->addWeeks($week), $games[$i]->game_slot->game_date);
-				$this->assertNotNull($games[$i]->home_team_id);
-				$this->assertNotNull($games[$i]->away_team_id);
-				++ $i;
-			}
+		for ($game = 0; $game < 4; ++ $game) {
+			$this->assertEquals(SEASON_GAME, $games[$i]->type);
+			$this->assertEquals('normal', $games[$i]->status);
+			$this->assertEquals($division->current_round, $games[$i]->round);
+			$this->assertEquals($division->id, $games[$i]->division_id);
+			$this->assertNotNull($games[$i]->game_slot);
+			$this->assertEquals($division->_options->start_date, $games[$i]->game_slot->game_date);
+			$this->assertNotNull($games[$i]->home_team_id);
+			$this->assertNotNull($games[$i]->away_team_id);
+			++ $i;
 		}
 
 		// Ensure that different game slots were chosen for each game
-		$this->assertEquals(4, count(array_unique(collection($games)->extract('game_slot_id')->toArray())));
+		$this->assertCount(4, array_unique(collection($games)->extract('game_slot_id')->toArray()));
 
 		// Blue has not yet had a home game, make sure they have one now, and it's at their designated home field
 		$blue_game = collection($games)->firstMatch(['home_team_id' => TEAM_ID_BLUE]);
@@ -223,13 +265,17 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 		// Seed the random number generator with a fixed value, so that random determinations in field selection become fixed.
 		mt_srand(123);
 
-		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER);
-		// Fixtures already have games scheduled for the first 4 weeks
-		$division->_options = new Entity(['start_date' => (new FrozenDate('first Monday of June'))->addWeeks(4)]);
-		$this->LeagueType->startSchedule($division, $division->_options->start_date);
-		$games = $this->LeagueType->createHalfRoundrobin($division, $division->_options->start_date, 'standings');
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['additional_slots' => 4, 'additional_weeks' => 3]);
+		$division = $league->divisions[0];
 
-		$this->assertEquals(12, count($games));
+		// Games already scheduled for the first 4 weeks
+		$date = $division->open->addWeeks(4);
+		$division->_options = new Entity(['start_date' => $date]);
+		$this->LeagueType->startSchedule($division, $division->_options->start_date);
+		$games = $this->LeagueType->createHalfRoundrobin($division, $division->_options->start_date);
+
+		$this->assertCount(12, $games);
 
 		$i = 0;
 		for ($half = 0; $half < 2; ++ $half) {
@@ -238,7 +284,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 					$this->assertEquals(SEASON_GAME, $games[$i]->type);
 					$this->assertEquals('normal', $games[$i]->status);
 					$this->assertEquals($division->current_round, $games[$i]->round);
-					$this->assertEquals(DIVISION_ID_MONDAY_LADDER, $games[$i]->division_id);
+					$this->assertEquals($division->id, $games[$i]->division_id);
 					$this->assertNotNull($games[$i]->game_slot);
 					$this->assertEquals($division->_options->start_date->addWeeks($week), $games[$i]->game_slot->game_date);
 					$this->assertNotNull($games[$i]->home_team_id);
@@ -249,7 +295,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 		}
 
 		// Ensure that different game slots were chosen for each game
-		$this->assertEquals(12, count(array_unique(collection($games)->extract('game_slot_id')->toArray())));
+		$this->assertCount(12, array_unique(collection($games)->extract('game_slot_id')->toArray()));
 
 		// Standings coming into this are Purple, Green, Orange, Yellow, Black, Red, White, Blue
 		// Purple, Green, Blue and White have less home games, so will be the home teams in week 1.
@@ -302,13 +348,17 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 		// Seed the random number generator with a fixed value, so that random determinations in field selection become fixed.
 		mt_srand(123);
 
-		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER);
-		// Fixtures already have games scheduled for the first 4 weeks
-		$division->_options = new Entity(['start_date' => (new FrozenDate('first Monday of June'))->addWeeks(4)]);
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['additional_slots' => 4, 'additional_weeks' => 3]);
+		$division = $league->divisions[0];
+
+		// Games already scheduled for the first 4 weeks
+		$date = $division->open->addWeeks(4);
+		$division->_options = new Entity(['start_date' => $date]);
 		$this->LeagueType->startSchedule($division, $division->_options->start_date);
 		$games = $this->LeagueType->createHalfRoundrobin($division, $division->_options->start_date, 'rating');
 
-		$this->assertEquals(12, count($games));
+		$this->assertCount(12, $games);
 
 		$i = 0;
 		for ($half = 0; $half < 2; ++ $half) {
@@ -317,7 +367,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 					$this->assertEquals(SEASON_GAME, $games[$i]->type);
 					$this->assertEquals('normal', $games[$i]->status);
 					$this->assertEquals($division->current_round, $games[$i]->round);
-					$this->assertEquals(DIVISION_ID_MONDAY_LADDER, $games[$i]->division_id);
+					$this->assertEquals($division->id, $games[$i]->division_id);
 					$this->assertNotNull($games[$i]->game_slot);
 					$this->assertEquals($division->_options->start_date->addWeeks($week), $games[$i]->game_slot->game_date);
 					$this->assertNotNull($games[$i]->home_team_id);
@@ -328,7 +378,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 		}
 
 		// Ensure that different game slots were chosen for each game
-		$this->assertEquals(12, count(array_unique(collection($games)->extract('game_slot_id')->toArray())));
+		$this->assertCount(12, array_unique(collection($games)->extract('game_slot_id')->toArray()));
 
 		// Standings coming into this are Blue, Red, Green, Yellow, Orange, Purple, Black, White
 		// Blue, Yellow, Purple and Orange have less home games, so will be the home teams in week 1.
@@ -379,13 +429,17 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 		// Seed the random number generator with a fixed value, so that random determinations in field selection become fixed.
 		mt_srand(123);
 
-		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER);
-		// Fixtures already have games scheduled for the first 4 weeks
-		$division->_options = new Entity(['start_date' => (new FrozenDate('first Monday of June'))->addWeeks(4)]);
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['additional_slots' => 4, 'additional_weeks' => 3]);
+		$division = $league->divisions[0];
+
+		// Games already scheduled for the first 4 weeks
+		$date = $division->open->addWeeks(4);
+		$division->_options = new Entity(['start_date' => $date]);
 		$this->LeagueType->startSchedule($division, $division->_options->start_date);
 		$games = $this->LeagueType->createHalfRoundrobin($division, $division->_options->start_date, 'mix');
 
-		$this->assertEquals(12, count($games));
+		$this->assertCount(12, $games);
 
 		$i = 0;
 		for ($half = 0; $half < 2; ++ $half) {
@@ -394,7 +448,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 					$this->assertEquals(SEASON_GAME, $games[$i]->type);
 					$this->assertEquals('normal', $games[$i]->status);
 					$this->assertEquals($division->current_round, $games[$i]->round);
-					$this->assertEquals(DIVISION_ID_MONDAY_LADDER, $games[$i]->division_id);
+					$this->assertEquals($division->id, $games[$i]->division_id);
 					$this->assertNotNull($games[$i]->game_slot);
 					$this->assertEquals($division->_options->start_date->addWeeks($week), $games[$i]->game_slot->game_date);
 					$this->assertNotNull($games[$i]->home_team_id);
@@ -405,7 +459,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 		}
 
 		// Ensure that different game slots were chosen for each game
-		$this->assertEquals(12, count(array_unique(collection($games)->extract('game_slot_id')->toArray())));
+		$this->assertCount(12, array_unique(collection($games)->extract('game_slot_id')->toArray()));
 
 		// Standings coming into this are Purple, Green, Orange, Yellow, Black, Red, White, Blue
 		// so the pools will be Purple/Yellow/Black/Blue and Green/Orange/Red/White
@@ -458,13 +512,17 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 		// Seed the random number generator with a fixed value, so that random determinations in field selection become fixed.
 		mt_srand(123);
 
-		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER);
-		// Fixtures already have games scheduled for the first 4 weeks
-		$division->_options = new Entity(['start_date' => (new FrozenDate('first Monday of June'))->addWeeks(4)]);
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['additional_slots' => 4, 'additional_weeks' => 7]);
+		$division = $league->divisions[0];
+
+		// Games already scheduled for the first 4 weeks
+		$date = $division->open->addWeeks(4);
+		$division->_options = new Entity(['start_date' => $date]);
 		$this->LeagueType->startSchedule($division, $division->_options->start_date);
 		$games = $this->LeagueType->createFullRoundrobin($division, $division->_options->start_date);
 
-		$this->assertEquals(28, count($games));
+		$this->assertCount(28, $games);
 
 		$i = 0;
 		for ($week = 0; $week < 7; ++ $week) {
@@ -472,7 +530,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 				$this->assertEquals(SEASON_GAME, $games[$i]->type);
 				$this->assertEquals('normal', $games[$i]->status);
 				$this->assertEquals($division->current_round, $games[$i]->round);
-				$this->assertEquals(DIVISION_ID_MONDAY_LADDER, $games[$i]->division_id);
+				$this->assertEquals($division->id, $games[$i]->division_id);
 				$this->assertNotNull($games[$i]->game_slot);
 				$this->assertEquals($division->_options->start_date->addWeeks($week), $games[$i]->game_slot->game_date);
 				$this->assertNotNull($games[$i]->home_team_id);
@@ -482,7 +540,7 @@ class LeagueTypeRoundrobinTest extends ModuleTestCase {
 		}
 
 		// Ensure that different game slots were chosen for each game
-		$this->assertEquals(28, count(array_unique(collection($games)->extract('game_slot_id')->toArray())));
+		$this->assertCount(28, array_unique(collection($games)->extract('game_slot_id')->toArray()));
 
 		// Standings coming into this are Purple, Green, Orange, Yellow, Black, Red, White, Blue
 		// Note that these tests will fail on any PHP version 7.1 or lower due to changes in the RNG as of 7.2.

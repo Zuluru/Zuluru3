@@ -1,4 +1,7 @@
 <?php
+
+use App\Model\Table\GameSlotsTable;
+
 /**
  * @type \App\Model\Entity\Division $division
  * @type \App\Model\Entity\League $league
@@ -14,7 +17,7 @@ use Cake\Utility\Text;
 
 if (isset($division)) {
 	$games = $division->games;
-	$competition = ($division->schedule_type == 'competition');
+	$competition = ($division->schedule_type === 'competition');
 	$double_booking = $division->double_booking;
 	$id = $division->id;
 	$id_field = 'division';
@@ -23,7 +26,7 @@ if (isset($division)) {
 	$only_some_divisions = false;
 } else {
 	$games = $league->games;
-	$competition = collection($league->divisions)->every(function ($division) { return $division->schedule_type == 'competition'; });
+	$competition = collection($league->divisions)->every(function ($division) { return $division->schedule_type === 'competition'; });
 	$double_booking = collection($league->divisions)->some(function ($division) { return $division->double_booking; });
 	$id = $league->id;
 	$id_field = 'league';
@@ -40,15 +43,15 @@ if (isset($division)) {
 			}
 		}
 	}
-	$only_some_divisions = (count($league->divisions) != count($teams));
-	if (count($teams) == 1) {
+	$only_some_divisions = (count($league->divisions) !== count($teams));
+	if (count($teams) === 1) {
 		$teams = reset($teams);
 	}
 }
 
 // Put the slots into a more useful form for us
 $slots = [];
-usort($game_slots, ['App\Model\Table\GameSlotsTable', 'compareTimeAndField']);
+usort($game_slots, [GameSlotsTable::class, 'compareTimeAndField']);
 foreach ($game_slots as $slot) {
 	if ($is_tournament || $multi_day) {
 		$slots[$slot->id] = $this->Time->day($slot->game_date) . ' ' . $this->Time->time($slot->game_start) . ' ' . $slot->field->long_name;
@@ -75,7 +78,7 @@ $season_divisions = [];
 foreach ($games as $game) {
 	if ($game->game_slot->game_date->between($week[0], $week[1])) {
 		$can_edit = $this->Authorize->can('edit', $game);
-		if ($game->type != SEASON_GAME) {
+		if ($game->type !== SEASON_GAME) {
 			$is_tournament = true;
 			if ($can_edit) {
 				$editing_tournament = true;
@@ -137,9 +140,9 @@ foreach ($games as $game):
 	<td><?php
 		echo $this->Form->hidden("games.{$game->id}.id", ['value' => $game->id]);
 		echo $this->Form->hidden("games.{$game->id}.type", ['value' => $game->type]);
-		if ($game->type != SEASON_GAME) {
+		if ($game->type !== SEASON_GAME) {
 			if ($game->placement) {
-				echo $this->Form->hidden("games.{$game->id}.placement", ['valie' => $game->placement]);
+				echo $this->Form->hidden("games.{$game->id}.placement", ['value' => $game->placement]);
 				echo Number::ordinal($game->placement);
 			} else {
 				echo $this->Form->input("games.{$game->id}.name", [
@@ -159,12 +162,13 @@ foreach ($games as $game):
 		]);
 	?></td>
 	<td><?php
-		if ($game->type != SEASON_GAME) {
-			if ($game->home_dependency_type == 'pool') {
+		if ($game->type !== SEASON_GAME) {
+			$ids = [];
+
+			if ($game->home_dependency_type === 'pool') {
 				// Get the list of seeds in the pool
-				$ids = [];
 				foreach ($games as $other_game) {
-					if ($other_game->division_id == $game->division_id && $other_game->type != SEASON_GAME && $other_game->round == $game->round && $other_game->pool_id == $game->pool_id) {
+					if ($other_game->division_id === $game->division_id && $other_game->type !== SEASON_GAME && $other_game->round === $game->round && $other_game->pool_id === $game->pool_id) {
 						if (!empty($other_game->home_pool_team) && !in_array($other_game->home_pool_team->id, $ids)) {
 							$dependency = $other_game->home_pool_team->dependency();
 							$alias = $other_game->home_pool_team->alias;
@@ -193,9 +197,8 @@ foreach ($games as $game):
 				]);
 			} else {
 				// Get the list of games in earlier rounds
-				$ids = [];
 				foreach ($games as $other_game) {
-					if ($other_game->division_id == $game->division_id && $other_game->type != SEASON_GAME && $other_game->type != POOL_PLAY_GAME && $other_game->round < $game->round) {
+					if ($other_game->division_id === $game->division_id && $other_game->type !== SEASON_GAME && $other_game->type !== POOL_PLAY_GAME && $other_game->round < $game->round) {
 						$ids[$other_game->id] = $other_game->display_name;
 					}
 				}
@@ -228,12 +231,13 @@ foreach ($games as $game):
 	if (!$competition):
 ?>
 	<td><?php
-		if ($game->type != SEASON_GAME) {
-			if ($game->away_dependency_type == 'pool') {
+		if ($game->type !== SEASON_GAME) {
+			$ids = [];
+
+			if ($game->away_dependency_type === 'pool') {
 				// Get the list of seeds in the pool
-				$ids = [];
 				foreach ($games as $other_game) {
-					if ($other_game->division_id == $game->division_id && $other_game->type != SEASON_GAME && $other_game->round == $game->round && $other_game->pool_id == $game->pool_id) {
+					if ($other_game->division_id === $game->division_id && $other_game->type !== SEASON_GAME && $other_game->round === $game->round && $other_game->pool_id === $game->pool_id) {
 						if (!in_array($other_game->home_pool_team->id, $ids)) {
 							$dependency = $other_game->home_pool_team->dependency();
 							$alias = $other_game->home_pool_team->alias;
@@ -262,9 +266,8 @@ foreach ($games as $game):
 				]);
 			} else {
 				// Get the list of games in earlier rounds
-				$ids = [];
 				foreach ($games as $other_game) {
-					if ($other_game->division_id == $game->division_id && $other_game->type != SEASON_GAME && $other_game->type != POOL_PLAY_GAME && $other_game->round < $game->round) {
+					if ($other_game->division_id === $game->division_id && $other_game->type !== SEASON_GAME && $other_game->type !== POOL_PLAY_GAME && $other_game->round < $game->round) {
 						$ids[$other_game->id] = $other_game->display_name;
 					}
 				}

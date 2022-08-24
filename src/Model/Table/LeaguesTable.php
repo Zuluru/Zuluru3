@@ -300,7 +300,7 @@ class LeaguesTable extends AppTable {
 			}
 		}
 
-		if (count($a_divisions) == 1) {
+		if (count($a_divisions) === 1) {
 			if (!empty($a_divisions[0]->season_days)) {
 				$a_days = $a_divisions[0]->season_days;
 			} else if (!empty($a_divisions[0]->days)) {
@@ -308,11 +308,11 @@ class LeaguesTable extends AppTable {
 			}
 		} else {
 			$a_days = array_unique(collection($a_divisions)->filter(function ($division) {
-				return Configure::read("schedule_type.{$division->schedule_type}") == SCHEDULE_TYPE_LEAGUE;
+				return Configure::read("schedule_type.{$division->schedule_type}") === SCHEDULE_TYPE_LEAGUE;
 			})->extract('days.{*}.id')->toList());
 		}
 
-		if (count($b_divisions) == 1) {
+		if (count($b_divisions) === 1) {
 			if (!empty($b_divisions[0]->season_days)) {
 				$b_days = $b_divisions[0]->season_days;
 			} else if (!empty($b_divisions[0]->days)) {
@@ -320,7 +320,7 @@ class LeaguesTable extends AppTable {
 			}
 		} else {
 			$b_days = array_unique(collection($b_divisions)->filter(function ($division) {
-				return Configure::read("schedule_type.{$division->schedule_type}") == SCHEDULE_TYPE_LEAGUE;
+				return Configure::read("schedule_type.{$division->schedule_type}") === SCHEDULE_TYPE_LEAGUE;
 			})->extract('days.{*}.id')->toList());
 		}
 

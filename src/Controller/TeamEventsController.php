@@ -9,6 +9,7 @@ use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\Query;
 use App\PasswordHasher\HasherTrait;
 use App\Model\Table\GamesTable;
+use App\Model\Table\TeamsTable;
 
 /**
  * TeamEvents Controller
@@ -57,7 +58,7 @@ class TeamEventsController extends AppController {
 		$this->Configuration->loadAffiliate($team_event->team->division->league->affiliate_id);
 
 		$include_gender = $this->Authorization->can(new ContextResource($team_event->team, ['division' => $team_event->team->division]), 'display_gender');
-		\App\lib\context_usort($team_event->team->people, ['App\Model\Table\TeamsTable', 'compareRoster'], ['include_gender' => $include_gender]);
+		\App\lib\context_usort($team_event->team->people, [TeamsTable::class, 'compareRoster'], ['include_gender' => $include_gender]);
 
 		$attendance = $this->TeamEvents->readAttendance($team_event->team, $id)->attendances;
 		$this->set(compact('team_event', 'attendance'));

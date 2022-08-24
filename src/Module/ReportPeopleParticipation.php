@@ -8,6 +8,7 @@ use Cake\Database\Expression\QueryExpression;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
+use App\Model\Table\PeopleTable;
 
 class ReportPeopleParticipation extends Report {
 	public function run($params, Person $recipient) {
@@ -146,7 +147,7 @@ class ReportPeopleParticipation extends Report {
 			unset($events);
 		}
 
-		usort($participation, ['App\Model\Table\PeopleTable', 'comparePerson']);
+		usort($participation, [PeopleTable::class, 'comparePerson']);
 
 		$fp = fopen('php://temp', 'r+');
 

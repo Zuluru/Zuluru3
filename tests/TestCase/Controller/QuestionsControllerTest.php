@@ -168,7 +168,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 * Test add method as an admin
 	 */
 	public function testAddAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		// Admins are allowed to add questions
 		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'add'], $admin->id);
@@ -178,7 +178,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 * Test add method as a manager
 	 */
 	public function testAddAsManager(): void {
-		[, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['manager']);
 
 		// Managers are allowed to add questions
 		$this->assertGetAsAccessOk(['controller' => 'Questions', 'action' => 'add'], $manager->id);
@@ -188,7 +188,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 * Test add method as others
 	 */
 	public function testAddAsOthers(): void {
-		[, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer', 'player']);
 
 		// Others are not allowed to add questions
 		$this->assertGetAsAccessDenied(['controller' => 'Questions', 'action' => 'add'], $volunteer->id);
@@ -200,7 +200,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 * Test edit method as an admin
 	 */
 	public function testEditAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 		$affiliates = $admin->affiliates;
 
 		$questions = QuestionFactory::make([
@@ -226,7 +226,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 * Test edit method as a manager
 	 */
 	public function testEditAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		$affiliates = $admin->affiliates;
 
 		$questions = QuestionFactory::make([
@@ -254,7 +254,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 * Test edit method as others
 	 */
 	public function testEditAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		$question = QuestionFactory::make([
 			'affiliate_id' => $admin->affiliates[0]->id,
@@ -270,7 +270,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 * Test activate method as an admin
 	 */
 	public function testActivateAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		$question = QuestionFactory::make([
 			'affiliate_id' => $admin->affiliates[0]->id,
@@ -286,7 +286,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 * Test activate method as a manager
 	 */
 	public function testActivateAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		$affiliates = $admin->affiliates;
 
 		$questions = QuestionFactory::make([
@@ -312,7 +312,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 * Test activate method as others
 	 */
 	public function testActivateAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$question = QuestionFactory::make([
 			'affiliate_id' => $admin->affiliates[0]->id,
 			'active' => false,
@@ -330,7 +330,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 * Test deactivate method as an admin
 	 */
 	public function testDeactivateAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 		$question = QuestionFactory::make([
 			'affiliate_id' => $admin->affiliates[0]->id,
 		])->persist();
@@ -344,7 +344,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 * Test deactivate method as a manager
 	 */
 	public function testDeactivateAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		$affiliates = $admin->affiliates;
 
 		$questions = QuestionFactory::make([
@@ -368,7 +368,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 * Test deactivate method as others
 	 */
 	public function testDeactivateAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$question = QuestionFactory::make([
 			'affiliate_id' => $admin->affiliates[0]->id,
 		])->persist();
@@ -388,7 +388,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 		$affiliates = $admin->affiliates;
 
 		$question = QuestionFactory::make([
@@ -420,7 +420,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		$affiliates = $admin->affiliates;
 
 		$questions = QuestionFactory::make([
@@ -449,7 +449,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		$question = QuestionFactory::make([
 			'affiliate_id' => $admin->affiliates[0]->id,
@@ -467,7 +467,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 * Test add_answer method as an admin
 	 */
 	public function testAddAnswerAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		$question = QuestionFactory::make([
 			'affiliate_id' => $admin->affiliates[0]->id,
@@ -484,7 +484,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 * Test add_answer method as a manager
 	 */
 	public function testAddAnswerAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		$affiliates = $admin->affiliates;
 
 		$questions = QuestionFactory::make([
@@ -511,7 +511,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 	 * Test add_answer method as others
 	 */
 	public function testAddAnswerAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		$question = QuestionFactory::make([
 			'affiliate_id' => $admin->affiliates[0]->id,
@@ -532,7 +532,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		$question = QuestionFactory::make([
 			'affiliate_id' => $admin->affiliates[0]->id,
@@ -555,7 +555,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		$affiliates = $admin->affiliates;
 
 		$questions = QuestionFactory::make([
@@ -587,7 +587,7 @@ class QuestionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		$question = QuestionFactory::make([
 			'affiliate_id' => $admin->affiliates[0]->id,

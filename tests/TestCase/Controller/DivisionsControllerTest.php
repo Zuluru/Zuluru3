@@ -265,7 +265,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 		$affiliate = $admin->affiliates[0];
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueScenario::class, [
@@ -326,7 +326,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 		$affiliate = $admin->affiliates[0];
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueScenario::class, [
@@ -347,7 +347,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'volunteer']);
 		$affiliate = $admin->affiliates[0];
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueScenario::class, [
@@ -368,7 +368,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$affiliate = $admin->affiliates[0];
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueScenario::class, [
@@ -515,7 +515,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		$affiliates = $admin->affiliates;
 		/** @var \App\Model\Entity\League $league1 */
 		$league1 = $this->loadFixtureScenario(LeagueScenario::class, [
@@ -546,7 +546,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$affiliates = $admin->affiliates;
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueScenario::class, [
@@ -586,7 +586,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test schedule method as an admin
 	 */
 	public function testScheduleAsAdmin(): void {
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
@@ -654,7 +654,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test schedule method as a manager
 	 */
 	public function testScheduleAsManager(): void {
-		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'volunteer']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
@@ -723,7 +723,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test schedule method as a coordinator
 	 */
 	public function testScheduleAsCoordinator(): void {
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
@@ -805,7 +805,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test schedule method as a captain
 	 */
 	public function testScheduleAsCaptain(): void {
-		[$admin, , $volunteer, $captain] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $captain] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
@@ -874,7 +874,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test schedule method as a player
 	 */
 	public function testScheduleAsPlayer(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
@@ -919,7 +919,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test schedule method as someone else
 	 */
 	public function testScheduleAsVisitor(): void {
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 		$affiliates = $admin->affiliates;
 
 		// Intentionally not adding the volunteer on this league, so that they have zero extra permissions
@@ -1241,7 +1241,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test initialize_ratings method as an admin
 	 */
 	public function testInitializeRatingsAsAdmin(): void {
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
@@ -1260,7 +1260,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test initialize_ratings method as a manager
 	 */
 	public function testInitializeRatingsAsManager(): void {
-		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'volunteer']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
@@ -1279,7 +1279,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test initialize_ratings method as a coordinator
 	 */
 	public function testInitializeRatingsAsCoordinator(): void {
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
@@ -1298,7 +1298,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test initialize_ratings method as others
 	 */
 	public function testInitializeRatingsAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
@@ -1314,7 +1314,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test initialize_dependencies method as an admin
 	 */
 	public function testInitializeDependenciesAsAdmin(): void {
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
@@ -1333,7 +1333,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test initialize_dependencies method as a manager
 	 */
 	public function testInitializeDependenciesAsManager(): void {
-		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'volunteer']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
@@ -1352,7 +1352,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test initialize_dependencies method as a coordinator
 	 */
 	public function testInitializeDependenciesAsCoordinator(): void {
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
@@ -1371,7 +1371,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test initialize_dependencies method as others
 	 */
 	public function testInitializeDependenciesAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
@@ -1390,7 +1390,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
@@ -1412,7 +1412,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'volunteer']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
@@ -1434,7 +1434,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
@@ -1456,7 +1456,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */

@@ -25,7 +25,7 @@ class SettingsControllerTest extends ControllerTestCase {
 	 * Test edit method as an admin
 	 */
 	public function testEditAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		// Admins are allowed to edit settings
 		$this->assertGetAsAccessOk(['controller' => 'Settings', 'action' => 'edit', 'organization'], $admin->id);
@@ -37,7 +37,7 @@ class SettingsControllerTest extends ControllerTestCase {
 	 * Test edit method as a manager
 	 */
 	public function testEditAsManager(): void {
-		[, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['manager']);
 
 		// Managers are allowed to edit settings
 		$this->assertGetAsAccessOk(['controller' => 'Settings', 'action' => 'edit', 'organization'], $manager->id);
@@ -49,7 +49,7 @@ class SettingsControllerTest extends ControllerTestCase {
 	 * Test edit method as others
 	 */
 	public function testEditAsOthers(): void {
-		[, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer', 'player']);
 
 		// Others are not allowed to edit
 		$this->assertGetAsAccessDenied(['controller' => 'Settings', 'action' => 'edit', 'organization'], $volunteer->id);

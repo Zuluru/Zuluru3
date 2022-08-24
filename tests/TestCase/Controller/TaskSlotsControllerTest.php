@@ -73,7 +73,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 * Test ical method
 	 */
 	public function testIcal(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		$slot = TaskSlotFactory::make(['approved' => true])
 			->with('Tasks',
@@ -90,7 +90,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 * Test add method as an admin
 	 */
 	public function testAddAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		$task = TaskFactory::make([
 			'person_id' => $admin->id,
@@ -109,7 +109,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 * Test add method as a manager
 	 */
 	public function testAddAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 
 		$task = TaskFactory::make([
 			'person_id' => $admin->id,
@@ -128,7 +128,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 * Test add method as others
 	 */
 	public function testAddAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		$task = TaskFactory::make([
 			'person_id' => $admin->id,
@@ -147,7 +147,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 * Test edit method as an admin
 	 */
 	public function testEditAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		$slot = TaskSlotFactory::make()
 			->with('Tasks',
@@ -167,7 +167,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 * Test edit method as a manager
 	 */
 	public function testEditAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 
 		$slot = TaskSlotFactory::make()
 			->with('Tasks',
@@ -187,7 +187,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 * Test edit method as others
 	 */
 	public function testEditAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		$slot = TaskSlotFactory::make()
 			->with('Tasks',
@@ -210,7 +210,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		$slot = TaskSlotFactory::make()
 			->with('Tasks',
@@ -233,7 +233,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		$affiliates = $admin->affiliates;
 
 		$slot = TaskSlotFactory::make()
@@ -269,7 +269,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		$slot = TaskSlotFactory::make()
 			->with('Tasks',
@@ -294,7 +294,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		$slot = TaskSlotFactory::make()
 			->with('Tasks',
@@ -318,7 +318,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'player']);
 
 		$slot = TaskSlotFactory::make()
 			->with('Tasks',
@@ -342,7 +342,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		$slot = TaskSlotFactory::make()
 			->with('Tasks',
@@ -365,7 +365,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 * Test approve method as an admin
 	 */
 	public function testApproveAsAdmin(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		$slot = TaskSlotFactory::make(['person_id' => $player->id])
 			->with('Tasks',
@@ -386,7 +386,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 * Test approve method as a manager
 	 */
 	public function testApproveAsManager(): void {
-		[$admin, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'player']);
 
 		$slot = TaskSlotFactory::make(['person_id' => $player->id])
 			->with('Tasks',
@@ -407,7 +407,7 @@ class TaskSlotsControllerTest extends ControllerTestCase {
 	 * Test approve method as others
 	 */
 	public function testApproveAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		$slot = TaskSlotFactory::make(['person_id' => $player->id])
 			->with('Tasks',

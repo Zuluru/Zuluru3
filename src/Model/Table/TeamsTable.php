@@ -15,6 +15,7 @@ use Cake\ORM\RulesChecker;
 use Cake\Routing\Router;
 use Cake\Validation\Validator;
 use App\Core\UserCache;
+use App\Model\Table\LeaguesTable;
 
 /**
  * Teams Model
@@ -334,7 +335,7 @@ class TeamsTable extends AppTable {
 			->where($conditions)
 			->toArray();
 
-		usort($teams, ['App\Model\Table\LeaguesTable', 'compareLeagueAndDivision']);
+		usort($teams, [LeaguesTable::class, 'compareLeagueAndDivision']);
 
 		return $teams;
 	}

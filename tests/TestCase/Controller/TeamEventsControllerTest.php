@@ -77,7 +77,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * Test add method as an admin
 	 */
 	public function testAddAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
@@ -94,7 +94,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * Test add method as a manager
 	 */
 	public function testAddAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
@@ -111,7 +111,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * Test add method as a captain
 	 */
 	public function testAddAsCaptain(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
@@ -131,7 +131,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * Test add method as others
 	 */
 	public function testAddAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
@@ -149,7 +149,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * Test edit method as an admin
 	 */
 	public function testEditAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
@@ -173,7 +173,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * Test edit method as a manager
 	 */
 	public function testEditAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
@@ -204,7 +204,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * Test edit method as a captain
 	 */
 	public function testEditAsCaptain(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
@@ -230,7 +230,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * Test edit method as others
 	 */
 	public function testEditAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
@@ -254,7 +254,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
@@ -277,7 +277,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
@@ -312,7 +312,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
@@ -344,7 +344,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
@@ -368,7 +368,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * Test attendance_change method as an admin
 	 */
 	public function testAttendanceChangeAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
@@ -393,7 +393,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * Test attendance_change method as a manager
 	 */
 	public function testAttendanceChangeAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
@@ -419,7 +419,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * TODO: Why can coordinnators change attendance when they can't even see the event? Work to do here on practices for youth leagues?
 	 */
 	public function testAttendanceChangeAsCoordinator(): void {
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
@@ -445,7 +445,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * Test attendance_change method as a captain
 	 */
 	public function testAttendanceChangeAsCaptain(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
@@ -475,7 +475,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * Test attendance_change method as a player
 	 */
 	public function testAttendanceChangeAsPlayer(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
@@ -512,7 +512,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * Test attendance_change method as others
 	 */
 	public function testAttendanceChangeAsOthers(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [

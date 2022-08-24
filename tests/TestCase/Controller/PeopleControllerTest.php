@@ -156,7 +156,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test view method
 	 */
 	public function testView(): void {
-		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'volunteer']);
 		$affiliates = $admin->affiliates;
 
 		$league = $this->loadFixtureScenario(LeagueWithRostersScenario::class, [
@@ -275,7 +275,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test tooltip method
 	 */
 	public function testTooltip(): void {
-		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'volunteer']);
 		$affiliates = $admin->affiliates;
 
 		$league = $this->loadFixtureScenario(LeagueWithRostersScenario::class, [
@@ -412,7 +412,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test edit method as an admin
 	 */
 	public function testEditAsAdmin(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		// Admins are allowed to edit
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit'], $admin->id);
@@ -425,7 +425,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test edit method as a manager
 	 */
 	public function testEditAsManager(): void {
-		[, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['manager', 'player']);
 
 		// Managers are allowed to edit
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit'], $manager->id);
@@ -438,7 +438,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test edit method as a coordinator
 	 */
 	public function testEditAsCoordinator(): void {
-		[, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer', 'player']);
 
 		// Coordinators are allowed to edit themselves only
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'edit'], $volunteer->id);
@@ -454,7 +454,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		// Also add a relative to the player
 		/** @var Person $relative */
@@ -479,7 +479,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test edit method without being logged in
 	 */
 	public function testEditAsAnonymous(): void {
-		[, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['player']);
 
 		// Others are not allowed to edit people
 		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'edit']);
@@ -492,7 +492,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test deactivate method as an admin
 	 */
 	public function testDeactivateAsAdmin(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		// Admins are allowed to deactivate people
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'deactivate', 'person' => $player->id], $admin->id);
@@ -510,7 +510,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test deactivate method as a manager
 	 */
 	public function testDeactivateAsManager(): void {
-		[, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['manager', 'player']);
 
 		// Managers are allowed to deactivate people
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'deactivate', 'person' => $player->id], $manager->id);
@@ -523,7 +523,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test deactivate method as a coordinator
 	 */
 	public function testDeactivateAsCoordinator(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$this->loadFixtureScenario(LeagueWithRostersScenario::class, [
 			'affiliate' => $admin->affiliates[0],
 			'coordinator' => $volunteer,
@@ -563,7 +563,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test deactivate method without being logged in
 	 */
 	public function testDeactivateAsAnonymous(): void {
-		[, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['player']);
 
 		// Others are not allowed to deactivate people
 		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'deactivate']);
@@ -576,7 +576,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test reactivate method as an admin
 	 */
 	public function testReactivateAsAdmin(): void {
-		[$admin, , , ] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		$inactive = PersonFactory::make(['status' => 'inactive'])
 			->with('Affiliates', $admin->affiliates[0])
@@ -592,7 +592,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test reactivate method as a manager
 	 */
 	public function testReactivateAsManager(): void {
-		[$admin, $manager, , ] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 
 		$inactive = PersonFactory::make(['status' => 'inactive'])
 			->with('Affiliates', $admin->affiliates[0])
@@ -608,7 +608,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test reactivate method as others
 	 */
 	public function testReactivateAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		$inactive = PersonFactory::make(['status' => 'inactive'])
 			->with('Affiliates', $admin->affiliates[0])
@@ -661,7 +661,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'player']);
 
 		// Admins are allowed to add notes
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'note', 'person' => $player->id], $admin->id);
@@ -754,7 +754,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'player']);
 
 		// Managers are allowed to add notes
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'note', 'person' => $player->id], $manager->id);
@@ -798,7 +798,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer', 'player']);
 
 		// Coordinators are allowed to add notes
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'note', 'person' => $player->id], $volunteer->id);
@@ -823,7 +823,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test note method as a player
 	 */
 	public function testNoteAsPlayer(): void {
-		[, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer', 'player']);
 
 		// Players are allowed to add notes
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'note', 'person' => $volunteer->id], $player->id);
@@ -835,7 +835,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test note method without being logged in
 	 */
 	public function testNoteAsAnonymous(): void {
-		[, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['player']);
 
 		// Others are not allowed to add notes
 		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'note', 'person' => $player->id]);
@@ -1009,7 +1009,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		$note = NoteFactory::make([
 			'person_id' => $admin->id,
@@ -1161,7 +1161,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$affiliate = $admin->affiliates[0];
 
 		// Anyone is allowed to link relatives
@@ -1214,7 +1214,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test approve_relative method
 	 */
 	public function testApproveRelative(): void {
-		[, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer', 'player']);
 
 		// Add an unapproved relative to the player
 		PeoplePersonFactory::make(['person_id' => $player->id, 'relative_id' => $volunteer->id, 'approved' => false])->persist();
@@ -1249,7 +1249,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test remove_relative method as the person
 	 */
 	public function testRemoveRelativeAsPerson(): void {
-		[, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer', 'player']);
 
 		// Add an approved relative to the player
 		PeoplePersonFactory::make(['person_id' => $player->id, 'relative_id' => $volunteer->id])->persist();
@@ -1277,7 +1277,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test remove_relative method as the relative
 	 */
 	public function testRemoveRelativeAsRelative(): void {
-		[, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer', 'player']);
 
 		// Add an approved relative to the player
 		PeoplePersonFactory::make(['person_id' => $player->id, 'relative_id' => $volunteer->id])->persist();
@@ -1305,7 +1305,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test remove_relative method as someone else
 	 */
 	public function testRemoveRelativeAsOthers(): void {
-		[, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['manager', 'volunteer', 'player']);
 
 		// Add an approved relative to the player
 		PeoplePersonFactory::make(['person_id' => $player->id, 'relative_id' => $manager->id])->persist();
@@ -1487,7 +1487,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test approve_photo method as an admin
 	 */
 	public function testApprovePhotoAsAdmin(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		UploadFactory::make(['person_id' => $player->id, 'approved' => false])->persist();
 
@@ -1502,7 +1502,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test approve_photo method as a manager
 	 */
 	public function testApprovePhotoAsManager(): void {
-		[, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['manager', 'player']);
 
 		UploadFactory::make(['person_id' => $player->id, 'approved' => false])->persist();
 
@@ -1517,7 +1517,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test approve_photo method as others
 	 */
 	public function testApprovePhotoAsOthers(): void {
-		[, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer', 'player']);
 
 		UploadFactory::make(['person_id' => $player->id, 'approved' => false])->persist();
 
@@ -1533,7 +1533,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test delete_photo method as an admin
 	 */
 	public function testDeletePhotoAsAdmin(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		UploadFactory::make(['person_id' => $player->id, 'approved' => false])->persist();
 
@@ -1548,7 +1548,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test delete_photo method as a manager
 	 */
 	public function testDeletePhotoAsManager(): void {
-		[, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['manager', 'player']);
 
 		UploadFactory::make(['person_id' => $player->id, 'approved' => false])->persist();
 
@@ -1563,7 +1563,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test delete_photo method as others
 	 */
 	public function testDeletePhotoAsOthers(): void {
-		[, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer', 'player']);
 
 		UploadFactory::make(['person_id' => $player->id, 'approved' => false])->persist();
 
@@ -1602,7 +1602,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test document_upload method as an admin
 	 */
 	public function testDocumentUploadAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		// Admins are allowed to upload documents
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'document_upload'], $admin->id);
@@ -1614,7 +1614,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test document_upload method as a manager
 	 */
 	public function testDocumentUploadAsManager(): void {
-		[, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['manager']);
 
 		// Managers are allowed to upload documents
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'document_upload'], $manager->id);
@@ -1626,7 +1626,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test document_upload method as a player
 	 */
 	public function testDocumentUploadAsPlayer(): void {
-		[, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['player']);
 
 		// Players are allowed to upload documents
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'document_upload'], $player->id);
@@ -1673,7 +1673,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test approve_document method as an admin
 	 */
 	public function testApproveDocumentAsAdmin(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Upload $upload */
 		$upload = UploadFactory::make(['person_id' => $player->id, 'approved' => false])
@@ -1690,7 +1690,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test approve_document method as a manager
 	 */
 	public function testApproveDocumentAsManager(): void {
-		[$admin, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'player']);
 
 		/** @var Upload $upload */
 		$upload = UploadFactory::make(['person_id' => $player->id, 'approved' => false])
@@ -1707,7 +1707,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test approve_document method as others
 	 */
 	public function testApproveDocumentAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		/** @var Upload $upload */
 		$upload = UploadFactory::make(['person_id' => $player->id, 'approved' => false])
@@ -1724,7 +1724,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test edit_document method as an admin
 	 */
 	public function testEditDocumentAsAdmin(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Upload $upload */
 		$upload = UploadFactory::make(['person_id' => $player->id])
@@ -1741,7 +1741,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test edit_document method as a manager
 	 */
 	public function testEditDocumentAsManager(): void {
-		[$admin, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'player']);
 
 		/** @var Upload $upload */
 		$upload = UploadFactory::make(['person_id' => $player->id])
@@ -1758,7 +1758,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test edit_document method as others
 	 */
 	public function testEditDocumentAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		/** @var Upload $upload */
 		$upload = UploadFactory::make(['person_id' => $player->id])
@@ -1775,7 +1775,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test delete_document method as an admin
 	 */
 	public function testDeleteDocumentAsAdmin(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Upload $upload */
 		$upload = UploadFactory::make(['person_id' => $player->id])
@@ -1793,7 +1793,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test delete_document method as a manager
 	 */
 	public function testDeleteDocumentAsManager(): void {
-		[$admin, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'player']);
 
 		/** @var Upload $upload */
 		$upload = UploadFactory::make(['person_id' => $player->id])
@@ -1811,7 +1811,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test delete_document method as others
 	 */
 	public function testDeleteDocumentAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		/** @var Upload $upload */
 		$upload = UploadFactory::make(['person_id' => $player->id])
@@ -1830,7 +1830,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test nominate method as an admin
 	 */
 	public function testNominateAsAdmin(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Badge $badge */
 		$badge = BadgeFactory::make(['affiliate_id' => $admin->affiliates[0]->id, 'category' => 'nominated'])
@@ -1848,7 +1848,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test nominate method as a manager
 	 */
 	public function testNominateAsManager(): void {
-		[$admin, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'player']);
 
 		/** @var Badge $badge */
 		$badge = BadgeFactory::make(['affiliate_id' => $admin->affiliates[0]->id, 'category' => 'nominated'])
@@ -1866,7 +1866,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test nominate method as a player
 	 */
 	public function testNominateAsPlayer(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Badge $badge */
 		$badge = BadgeFactory::make(['affiliate_id' => $admin->affiliates[0]->id, 'category' => 'nominated'])
@@ -1884,7 +1884,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test nominate method without being logged in
 	 */
 	public function testNominateAsAnonymous(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Badge $badge */
 		$badge = BadgeFactory::make(['affiliate_id' => $admin->affiliates[0]->id, 'category' => 'nominated'])
@@ -1927,7 +1927,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test approve_badge method as an admin
 	 */
 	public function testApproveBadgeAsAdmin(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		/** @var Badge $badge */
 		$badge = BadgesPersonFactory::make(['person_id' => $player->id, 'nominated_by_id' => $volunteer->id])
@@ -1963,7 +1963,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test approve_badge method as others
 	 */
 	public function testApproveBadgeAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		/** @var Badge $badge */
 		$badge = BadgesPersonFactory::make(['person_id' => $player->id, 'nominated_by_id' => $volunteer->id])
@@ -1984,7 +1984,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	public function testDeleteBadgeAsAdmin(): void {
 		$this->enableCsrfToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		/** @var Badge $badge */
 		$badge = BadgesPersonFactory::make(['person_id' => $player->id, 'nominated_by_id' => $volunteer->id])
@@ -2024,7 +2024,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	public function testDeleteBadgeAsOthers(): void {
 		$this->enableCsrfToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		/** @var Badge $badge */
 		$badge = BadgesPersonFactory::make(['person_id' => $player->id, 'nominated_by_id' => $volunteer->id])
@@ -2047,7 +2047,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		// Admins are allowed to delete people
 		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'delete', 'person' => $player->id],
@@ -2064,7 +2064,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['manager', 'player']);
 
 		// Managers are allowed to delete people
 		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'delete', 'person' => $player->id],
@@ -2081,7 +2081,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer', 'player']);
 
 		// Others are not allowed to delete people
 		$this->assertPostAsAccessDenied(['controller' => 'People', 'action' => 'delete', 'person' => $player->id],
@@ -2377,7 +2377,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test approve method as an admin
 	 */
 	public function testApproveAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		// Create a new account to approve
 		$new = PersonFactory::make(['status' => 'new'])->player()
@@ -2397,7 +2397,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		// Create a duplicate account to approve
 		$new = $this->createDuplicate($player, $admin->affiliates[0]);
@@ -2436,7 +2436,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		// Create a duplicate account to delete
 		$new = $this->createDuplicate($player, $admin->affiliates[0]);
@@ -2466,7 +2466,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		// Create a duplicate account to delete
 		$new = $this->createDuplicate($player, $admin->affiliates[0]);
@@ -2504,7 +2504,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		// Create a duplicate account to delete
 		$new = $this->createDuplicate($player, $admin->affiliates[0]);
@@ -2562,7 +2562,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test approve method as a manager
 	 */
 	public function testApproveAsManager(): void {
-		[$admin, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'player']);
 
 		// Create a duplicate account to delete
 		$new = $this->createDuplicate($player, $admin->affiliates[0]);
@@ -2577,7 +2577,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test approve method as others
 	 */
 	public function testApproveAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		// Create a duplicate account to delete
 		$new = $this->createDuplicate($player, $admin->affiliates[0]);
@@ -2645,7 +2645,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test ical method
 	 */
 	public function testIcal(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		SettingFactory::make([
 			'person_id' => $player->id,

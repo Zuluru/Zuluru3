@@ -115,7 +115,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 * Test add method as an admin
 	 */
 	public function testAddAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 		$affiliates = $admin->affiliates;
 
 		// Admins are allowed to add mailing lists
@@ -132,7 +132,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 * Test add method as a manager
 	 */
 	public function testAddAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		$affiliates = $admin->affiliates;
 
 		// Managers are allowed to add mailing lists
@@ -145,7 +145,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 * Test add method as others
 	 */
 	public function testAddAsOthers(): void {
-		[, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer', 'player']);
 
 		// Others are not allowed to add mailing lists
 		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'add'], $volunteer->id);
@@ -157,7 +157,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 * Test edit method as an admin
 	 */
 	public function testEditAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 		$affiliates = $admin->affiliates;
 
 		$list = MailingListFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
@@ -172,7 +172,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 * Test edit method as a manager
 	 */
 	public function testEditAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		$affiliates = $admin->affiliates;
 
 		$list = MailingListFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
@@ -189,7 +189,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 * Test edit method as others
 	 */
 	public function testEditAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$affiliates = $admin->affiliates;
 
 		$list = MailingListFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
@@ -207,7 +207,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 		$affiliates = $admin->affiliates;
 
 		$list = MailingListFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
@@ -233,7 +233,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		$affiliates = $admin->affiliates;
 
 		$list = MailingListFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
@@ -256,7 +256,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$affiliates = $admin->affiliates;
 
 		$list = MailingListFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
@@ -273,7 +273,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 * Test unsubscribe method as an admin
 	 */
 	public function testUnsubscribeAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 		$affiliates = $admin->affiliates;
 
 		$list = MailingListFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
@@ -296,7 +296,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 * Test unsubscribe method as a manager
 	 */
 	public function testUnsubscribeAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		$affiliates = $admin->affiliates;
 
 		$list = MailingListFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
@@ -313,7 +313,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 * Test unsubscribe method as a coordinator
 	 */
 	public function testUnsubscribeAsCoordinator(): void {
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 		$affiliates = $admin->affiliates;
 
 		$list = MailingListFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
@@ -330,7 +330,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 * Test unsubscribe method as a player
 	 */
 	public function testUnsubscribeAsPlayer(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 		$affiliates = $admin->affiliates;
 
 		$list = MailingListFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
@@ -347,7 +347,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 	 * Test unsubscribe method without being logged in
 	 */
 	public function testUnsubscribeAsAnonymous(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 		$affiliates = $admin->affiliates;
 
 		$list = MailingListFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();

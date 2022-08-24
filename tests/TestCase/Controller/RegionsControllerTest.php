@@ -97,7 +97,7 @@ class RegionsControllerTest extends ControllerTestCase {
 	 * Test add method as an admin
 	 */
 	public function testAddAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		// Admins are allowed to add regions
 		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'add'], $admin->id);
@@ -107,7 +107,7 @@ class RegionsControllerTest extends ControllerTestCase {
 	 * Test add method as a manager
 	 */
 	public function testAddAsManager(): void {
-		[, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['manager']);
 
 		// Managers are allowed to add regions
 		$this->assertGetAsAccessOk(['controller' => 'Regions', 'action' => 'add'], $manager->id);
@@ -117,7 +117,7 @@ class RegionsControllerTest extends ControllerTestCase {
 	 * Test add method as others
 	 */
 	public function testAddAsOthers(): void {
-		[, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer']);
 
 		// Others are not allowed to add regions
 		$this->assertGetAsAccessDenied(['controller' => 'Regions', 'action' => 'add'], $volunteer->id);
@@ -129,7 +129,7 @@ class RegionsControllerTest extends ControllerTestCase {
 	 * Test edit method as an admin
 	 */
 	public function testEditAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 		$affiliates = $admin->affiliates;
 
 		$regions = RegionFactory::make([
@@ -150,7 +150,7 @@ class RegionsControllerTest extends ControllerTestCase {
 	 * Test edit method as a manager
 	 */
 	public function testEditAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		$affiliates = $admin->affiliates;
 
 		$regions = RegionFactory::make([
@@ -173,7 +173,7 @@ class RegionsControllerTest extends ControllerTestCase {
 	 * Test edit method as others
 	 */
 	public function testEditAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		$region = RegionFactory::make([
 			'affiliate_id' => $admin->affiliates[0]->id,
@@ -192,7 +192,7 @@ class RegionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 		$affiliates = $admin->affiliates;
 
 		$region = RegionFactory::make([
@@ -223,7 +223,7 @@ class RegionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		$affiliates = $admin->affiliates;
 
 		$regions = RegionFactory::make([
@@ -252,7 +252,7 @@ class RegionsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		$region = RegionFactory::make([
 			'affiliate_id' => $admin->affiliates[0]->id,

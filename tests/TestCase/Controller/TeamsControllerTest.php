@@ -269,7 +269,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test numbers method as an admin
 	 */
 	public function testNumbersAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -286,7 +286,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test numbers method as a manager
 	 */
 	public function testNumbersAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -311,7 +311,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test numbers method as a captain
 	 */
 	public function testNumbersAsCaptain(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -340,7 +340,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test numbers method as a coordinator
 	 */
 	public function testNumbersAsCoordinator(): void {
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -358,7 +358,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test numbers method as a player
 	 */
 	public function testNumbersAsPlayer(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -383,7 +383,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test numbers method as others
 	 */
 	public function testNumbersAsOthers(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -511,7 +511,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test add method as an admin
 	 */
 	public function testAddAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		// Admins are allowed to add teams
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'add'], $admin->id);
@@ -523,7 +523,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test add method as a manager
 	 */
 	public function testAddAsManager(): void {
-		[, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['manager']);
 
 		// Managers are allowed to add teams
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'add'], $manager->id);
@@ -535,7 +535,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test add method as others
 	 */
 	public function testAddAsOthers(): void {
-		[, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer', 'player']);
 
 		// Others are not allowed to add teams
 		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'add'],
@@ -551,7 +551,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test edit method as an admin
 	 */
 	public function testEditAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -568,7 +568,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test edit method as a manager
 	 */
 	public function testEditAsManager(): void {
-		[$admin, $manager, , ] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -593,7 +593,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test edit method as a coordinator
 	 */
 	public function testEditAsCoordinator(): void {
-		[$admin, , $volunteer, ] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -611,7 +611,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test edit method as a captain
 	 */
 	public function testEditAsCaptain(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -639,7 +639,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test edit method as others
 	 */
 	public function testEditAsOthers(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -661,7 +661,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -759,7 +759,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -809,7 +809,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, ] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -855,7 +855,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -914,7 +914,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -973,7 +973,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -990,7 +990,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test note method without being logged in
 	 */
 	public function testNoteAsAnonymous(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -1272,7 +1272,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -1305,7 +1305,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -1334,7 +1334,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -1356,7 +1356,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -1385,7 +1385,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -1404,7 +1404,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test move method as an admin
 	 */
 	public function testMoveAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueScenario::class, [
@@ -1422,7 +1422,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test move method as a manager
 	 */
 	public function testMoveAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueScenario::class, [
@@ -1440,7 +1440,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test move method as a coordinator
 	 */
 	public function testMoveAsCoordinator(): void {
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueScenario::class, [
@@ -1458,7 +1458,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test move method as others
 	 */
 	public function testMoveAsOthers(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueScenario::class, [
@@ -1475,7 +1475,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test move method without destination
 	 */
 	public function testMoveWithoutDestination(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -1536,7 +1536,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test ical method
 	 */
 	public function testIcal(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -1693,7 +1693,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -1721,7 +1721,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test add_player method as a manager
 	 */
 	public function testAddPlayerAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -1744,7 +1744,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test add_player method as a coordinator
 	 */
 	public function testAddPlayerAsCoordinator(): void {
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -1768,7 +1768,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test add_player method as a captain
 	 */
 	public function testAddPlayerAsCaptain(): void {
-		[$admin, , , $captain] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $captain] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -1797,7 +1797,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test add_player method as others
 	 */
 	public function testAddPlayerAsOthers(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -1819,7 +1819,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -1845,7 +1845,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -1878,7 +1878,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -1907,7 +1907,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager, , $captain] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $captain] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -1988,7 +1988,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2104,7 +2104,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2151,7 +2151,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2194,7 +2194,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2230,7 +2230,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2254,7 +2254,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2278,7 +2278,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2306,7 +2306,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2345,7 +2345,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2378,7 +2378,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test roster_role method as someone else
 	 */
 	public function testRosterRoleAsVisitor(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2401,7 +2401,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2426,7 +2426,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2451,7 +2451,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2477,7 +2477,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2515,7 +2515,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2551,7 +2551,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2576,7 +2576,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2627,7 +2627,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2661,7 +2661,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2696,7 +2696,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2733,7 +2733,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test roster_add method as others
 	 */
 	public function testRosterAddAsOthers(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2749,7 +2749,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test roster_request method as a player
 	 */
 	public function testRosterRequestAsPlayer(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2770,7 +2770,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test roster_request method as others
 	 */
 	public function testRosterRequestAsOthers(): void {
-		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'volunteer']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2792,7 +2792,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test roster_accept method as an admin
 	 */
 	public function testRosterAcceptAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2816,7 +2816,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test roster_accept method as a manager
 	 */
 	public function testRosterAcceptAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2840,7 +2840,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test roster_accept method as a coordinator
 	 */
 	public function testRosterAcceptAsCoordinator(): void {
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2865,7 +2865,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test roster_accept method as a captain
 	 */
 	public function testRosterAcceptAsCaptain(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2892,7 +2892,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test roster_accept method as a player
 	 */
 	public function testRosterAcceptAsPlayer(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2927,7 +2927,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test roster_accept method with a code
 	 */
 	public function testRosterAcceptWithCode(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2954,7 +2954,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test roster_accept method as others
 	 */
 	public function testRosterAcceptAsOthers(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -2977,7 +2977,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test roster_decline method as an admin
 	 */
 	public function testRosterDeclineAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -3001,7 +3001,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test roster_decline method as a manager
 	 */
 	public function testRosterDeclineAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -3025,7 +3025,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test roster_decline method as a coordinator
 	 */
 	public function testRosterDeclineAsCoordinator(): void {
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -3050,7 +3050,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test roster_decline method as a captain
 	 */
 	public function testRosterDeclineAsCaptain(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -3077,7 +3077,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test roster_decline method as a player
 	 */
 	public function testRosterDeclineAsPlayer(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -3107,7 +3107,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test roster_decline method with a code
 	 */
 	public function testRosterDeclineWithCode(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [
@@ -3134,7 +3134,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 * Test roster_decline method as others
 	 */
 	public function testRosterDeclineAsOthers(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var Team $team */
 		$team = $this->loadFixtureScenario(TeamScenario::class, [

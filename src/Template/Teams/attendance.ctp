@@ -49,7 +49,7 @@ foreach ($dates as $date) {
 	}
 }
 
-usort($all_items, ['App\Model\Table\GamesTable', 'compareDateAndField']);
+usort($all_items, [GamesTable::class, 'compareDateAndField']);
 
 $header_cells = [''];
 foreach ($all_items as $item) {

@@ -2,7 +2,7 @@
 namespace App\Test\TestCase\Module;
 
 use App\Core\ModuleRegistry;
-use App\Test\Factory\GameFactory;
+use App\Test\Factory\TeamFactory;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 
@@ -110,26 +110,17 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 	 * Test compareTeams method
 	 */
 	public function testCompareTeams(): void {
-		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER, true);
+		$teams = TeamFactory::make([
+			['name' => 'Red', 'initial_seed' => 3],
+			['name' => 'Blue', 'initial_seed' => 2],
+			['name' => 'Green', 'initial_seed' => 1],
+			['name' => 'Yellow', 'initial_seed' => 4],
+		])->getEntities();
 
-		$this->assertEquals(8, count($division->teams));
-
-		$green = $division->teams[0];
-		$this->assertEquals(TEAM_ID_GREEN, $green->id);
-		$blue = $division->teams[1];
-		$this->assertEquals(TEAM_ID_BLUE, $blue->id);
-		$red = $division->teams[2];
-		$this->assertEquals(TEAM_ID_RED, $red->id);
-		$yellow = $division->teams[3];
-		$this->assertEquals(TEAM_ID_YELLOW, $yellow->id);
-		$orange = $division->teams[4];
-		$this->assertEquals(TEAM_ID_ORANGE, $orange->id);
-		$purple = $division->teams[5];
-		$this->assertEquals(TEAM_ID_PURPLE, $purple->id);
-		$black = $division->teams[6];
-		$this->assertEquals(TEAM_ID_BLACK, $black->id);
-		$white = $division->teams[7];
-		$this->assertEquals(TEAM_ID_WHITE, $white->id);
+		$red = $teams[0];
+		$blue = $teams[1];
+		$green = $teams[2];
+		$yellow = $teams[3];
 
 		$sort_context = [];
 

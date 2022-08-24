@@ -127,7 +127,7 @@ class CreditsControllerTest extends ControllerTestCase {
 	 * Test transfer method as the credit owner
 	 */
 	public function testTransferAsOwner(): void {
-		[$admin, , $source, $target] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $source, $target] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player' => 2]);
 		$affiliate = $admin->affiliates[0];
 		$credit = CreditFactory::make(['amount' => 11, 'amount_used' => 10, 'notes' => 'Credit note.'])
 			->with('People', $source)

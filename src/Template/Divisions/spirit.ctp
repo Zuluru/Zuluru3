@@ -1,4 +1,6 @@
 <?php
+
+use App\Model\Table\SpiritEntriesTable;
 use Cake\Core\Configure;
 
 /**
@@ -84,7 +86,7 @@ if (!empty($team_ids)) {
 			if ($division->league->numeric_sotg) {
 				$team_records[$id]['summary']['entered_sotg'] /= $team['games'];
 			}
-			if ($division->league->sotg_questions != 'none') {
+			if ($division->league->sotg_questions !== 'none') {
 				$team_records[$id]['summary']['assigned_sotg'] /= $team['games'];
 			}
 			if (Configure::read('scoring.missing_score_spirit_penalty')) {
@@ -93,7 +95,7 @@ if (!empty($team_ids)) {
 		}
 	}
 
-	usort($team_records, ['App\Model\Table\SpiritEntriesTable', 'compareSpirit']);
+	usort($team_records, [SpiritEntriesTable::class, 'compareSpirit']);
 ?>
 
 <h3><?= __('Team Spirit Summary') ?></h3>
@@ -103,7 +105,7 @@ if (!empty($team_ids)) {
 	if ($division->league->numeric_sotg) {
 		$header[] = __('Average Spirit');
 	}
-	if ($division->league->sotg_questions != 'none') {
+	if ($division->league->sotg_questions !== 'none') {
 		$header[] = __('Assigned Spirit');
 	}
 	foreach ($spirit_obj->questions as $question => $detail) {

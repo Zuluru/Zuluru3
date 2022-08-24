@@ -87,7 +87,7 @@ class UploadTypesControllerTest extends ControllerTestCase {
 	 * Test add method as an admin
 	 */
 	public function testAddAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		// Admins are allowed to add upload_types
 		$this->assertGetAsAccessOk(['controller' => 'UploadTypes', 'action' => 'add'], $admin->id);
@@ -97,7 +97,7 @@ class UploadTypesControllerTest extends ControllerTestCase {
 	 * Test add method as a manager
 	 */
 	public function testAddAsManager(): void {
-		[, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['manager']);
 
 		// Managers are allowed to add upload_types
 		$this->assertGetAsAccessOk(['controller' => 'UploadTypes', 'action' => 'add'], $manager->id);
@@ -107,7 +107,7 @@ class UploadTypesControllerTest extends ControllerTestCase {
 	 * Test add method as others
 	 */
 	public function testAddAsOthers(): void {
-		[, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer', 'player']);
 
 		// Others are not allowed to add upload_types
 		$this->assertGetAsAccessDenied(['controller' => 'UploadTypes', 'action' => 'add'], $volunteer->id);
@@ -119,7 +119,7 @@ class UploadTypesControllerTest extends ControllerTestCase {
 	 * Test edit method as an admin
 	 */
 	public function testEditAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		$type = UploadTypeFactory::make(['affiliate_id' => $admin->affiliates[0]->id])->persist();
 		$affiliate_type = UploadTypeFactory::make(['affiliate_id' => $admin->affiliates[1]->id])->persist();
@@ -133,7 +133,7 @@ class UploadTypesControllerTest extends ControllerTestCase {
 	 * Test edit method as a manager
 	 */
 	public function testEditAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 
 		$type = UploadTypeFactory::make(['affiliate_id' => $admin->affiliates[0]->id])->persist();
 		$affiliate_type = UploadTypeFactory::make(['affiliate_id' => $admin->affiliates[1]->id])->persist();
@@ -149,7 +149,7 @@ class UploadTypesControllerTest extends ControllerTestCase {
 	 * Test edit method as others
 	 */
 	public function testEditAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		$type = UploadTypeFactory::make(['affiliate_id' => $admin->affiliates[0]->id])->persist();
 
@@ -166,7 +166,7 @@ class UploadTypesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		$type = UploadTypeFactory::make(['affiliate_id' => $admin->affiliates[0]->id])->persist();
 		$other_type = UploadTypeFactory::make(['affiliate_id' => $admin->affiliates[0]->id])
@@ -191,7 +191,7 @@ class UploadTypesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 
 		$type = UploadTypeFactory::make(['affiliate_id' => $admin->affiliates[0]->id])->persist();
 		$affiliate_type = UploadTypeFactory::make(['affiliate_id' => $admin->affiliates[1]->id])->persist();
@@ -213,7 +213,7 @@ class UploadTypesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
 		$type = UploadTypeFactory::make(['affiliate_id' => $admin->affiliates[0]->id])->persist();
 

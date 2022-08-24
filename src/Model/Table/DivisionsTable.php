@@ -455,7 +455,7 @@ class DivisionsTable extends AppTable {
 		return $query;
 	}
 
-	public function findDate(Query $query, Array $options) {
+	public function findDay(Query $query, Array $options) {
 		$day = $options['date']->format('N');
 		$query->matching('Days', function (Query $q) use ($day) {
 			return $q->where(['Days.id' => $day]);

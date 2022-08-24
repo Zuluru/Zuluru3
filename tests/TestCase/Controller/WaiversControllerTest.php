@@ -113,7 +113,7 @@ class WaiversControllerTest extends ControllerTestCase {
 	 * Test edit method as an admin
 	 */
 	public function testEditAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 		$affiliates = $admin->affiliates;
 
 		$waiver = WaiverFactory::make(['affiliate_id' => $affiliates[0]->id, 'expiry_type' => 'fixed_dates', 'start_month' => 1, 'start_day' => 1, 'end_month' => 12, 'end_day' => 31])
@@ -130,7 +130,7 @@ class WaiversControllerTest extends ControllerTestCase {
 	 * Test edit method as a manager
 	 */
 	public function testEditAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		$affiliates = $admin->affiliates;
 
 		$waiver = WaiverFactory::make(['affiliate_id' => $affiliates[0]->id, 'expiry_type' => 'fixed_dates', 'start_month' => 1, 'start_day' => 1, 'end_month' => 12, 'end_day' => 31])
@@ -149,7 +149,7 @@ class WaiversControllerTest extends ControllerTestCase {
 	 * Test edit method as others
 	 */
 	public function testEditAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$affiliates = $admin->affiliates;
 
 		$waiver = WaiverFactory::make(['affiliate_id' => $affiliates[0]->id, 'expiry_type' => 'fixed_dates', 'start_month' => 1, 'start_day' => 1, 'end_month' => 12, 'end_day' => 31])
@@ -168,7 +168,7 @@ class WaiversControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 		$affiliates = $admin->affiliates;
 
 		$waiver = WaiverFactory::make(['affiliate_id' => $affiliates[0]->id, 'expiry_type' => 'fixed_dates', 'start_month' => 1, 'start_day' => 1, 'end_month' => 12, 'end_day' => 31])
@@ -195,7 +195,7 @@ class WaiversControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		$affiliates = $admin->affiliates;
 
 		$waiver = WaiverFactory::make(['affiliate_id' => $affiliates[0]->id, 'expiry_type' => 'fixed_dates', 'start_month' => 1, 'start_day' => 1, 'end_month' => 12, 'end_day' => 31])
@@ -220,7 +220,7 @@ class WaiversControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$affiliates = $admin->affiliates;
 
 		$waiver = WaiverFactory::make(['affiliate_id' => $affiliates[0]->id, 'expiry_type' => 'fixed_dates', 'start_month' => 1, 'start_day' => 1, 'end_month' => 12, 'end_day' => 31])

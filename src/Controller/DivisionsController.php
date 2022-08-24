@@ -716,7 +716,7 @@ class DivisionsController extends AppController {
 			}
 
 			// Sort games by date, time and field
-			usort($division->games, ['App\Model\Table\GamesTable', 'compareDateAndField']);
+			usort($division->games, [GamesTable::class, 'compareDateAndField']);
 
 			return $division;
 		}, 'long_term');
@@ -768,7 +768,7 @@ class DivisionsController extends AppController {
 						return in_array($game->id, $edit_ids);
 					})->toArray();
 					$division->games = array_merge($edit_games, $other_games);
-					usort($division->games, ['App\Model\Table\GamesTable', 'compareDateAndField']);
+					usort($division->games, [GamesTable::class, 'compareDateAndField']);
 
 					if ($this->Divisions->Games->getConnection()->transactional(function () use ($division, $edit_games, $game_slots) {
 						$success = true;
@@ -933,7 +933,7 @@ class DivisionsController extends AppController {
 		}
 
 		// Sort games by date, time and field
-		usort($division->games, ['App\Model\Table\GamesTable', 'compareDateAndField']);
+		usort($division->games, [GamesTable::class, 'compareDateAndField']);
 		GamesTable::adjustEntryIndices($division->games);
 		$league_obj = $this->moduleRegistry->load("LeagueType:{$division->schedule_type}");
 		$spirit_obj = $division->league->hasSpirit() ? $this->moduleRegistry->load("Spirit:{$division->league->sotg_questions}") : null;
@@ -1393,7 +1393,7 @@ class DivisionsController extends AppController {
 
 		$spirit_obj = $this->moduleRegistry->load("Spirit:{$division->league->sotg_questions}");
 
-		usort($division->games, ['App\Model\Table\GamesTable', 'compareDateAndField']);
+		usort($division->games, [GamesTable::class, 'compareDateAndField']);
 		$this->set(compact('division', 'spirit_obj'));
 
 		if ($this->request->is('csv')) {
@@ -1709,8 +1709,8 @@ class DivisionsController extends AppController {
 										$pool->teams[] = $division->teams[$team_id];
 									}
 									$sort_context = ['results' => 'pool', 'stage' => $stage_id, 'pool' => $pool_id, 'tie_breaker' => $division->league->tie_breakers];
-									\App\Lib\context_usort($pool->teams, ['App\Model\Results\Comparison', 'compareTeamsResults'], $sort_context);
-									Comparison::detectAndResolveTies($pool->teams, ['App\Model\Results\Comparison', 'compareTeamsResults'], $sort_context);
+									\App\Lib\context_usort($pool->teams, [Comparison::class, 'compareTeamsResults'], $sort_context);
+									Comparison::detectAndResolveTies($pool->teams, [Comparison::class, 'compareTeamsResults'], $sort_context);
 								}
 								$team_id = $pool->teams[$seed - 1]->id;
 								break;
@@ -1735,13 +1735,13 @@ class DivisionsController extends AppController {
 											$pool->teams[] = $division->teams[$team_id];
 										}
 										$sort_context = ['results' => 'pool', 'stage' => $stage_id, 'pool' => $pool_id];
-										\App\Lib\context_usort($pool->teams, ['App\Model\Results\Comparison', 'compareTeamsTournamentResults'], $sort_context);
-										Comparison::detectAndResolveTies($pool->teams, ['App\Model\Results\Comparison', 'compareTeamsTournamentResults'], $sort_context);
+										\App\Lib\context_usort($pool->teams, [Comparison::class, 'compareTeamsTournamentResults'], $sort_context);
+										Comparison::detectAndResolveTies($pool->teams, [Comparison::class, 'compareTeamsTournamentResults'], $sort_context);
 									}
 									$teams[] = $pool->teams[$ordinal - 1];
 								}
 								$sort_context = ['results' => 'stage', 'stage' => $stage_id];
-								\App\Lib\context_usort($teams, ['App\Model\Results\Comparison', 'compareTeamsResultsCrossPool'], $sort_context);
+								\App\Lib\context_usort($teams, [Comparison::class, 'compareTeamsResultsCrossPool'], $sort_context);
 								$seed = $game->$pool_team->dependency_id;
 								$team_id = $teams[$seed - 1]->id;
 								break;
@@ -1877,7 +1877,7 @@ class DivisionsController extends AppController {
 		$date = $date->marshal($this->request->getData('game_date'));
 
 		$query = $this->Divisions->find('open')
-			->find('date', ['date' => $date])
+			->find('day', ['date' => $date])
 			->contain(['Leagues'])
 			->where(['Leagues.affiliate_id' => $this->request->getQuery('affiliate')]);
 

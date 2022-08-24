@@ -6,6 +6,7 @@ use App\Test\Factory\DivisionFactory;
 use App\Test\Factory\TeamFactory;
 use App\Test\Scenario\DiverseUsersScenario;
 use App\Test\Scenario\LeagueScenario;
+use Cake\Chronos\ChronosInterface;
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\I18n;
@@ -72,7 +73,6 @@ class DivisionsTableTest extends TableTestCase {
 	 * Test findOpen method
 	 */
 	public function testFindOpen(): void {
-
 		DivisionFactory::make([
 			['is_open' => true, 'open' => FrozenDate::yesterday(),], // Is open
 			['is_open' => false, 'open' => FrozenDate::tomorrow(),], // Is open
@@ -85,23 +85,23 @@ class DivisionsTableTest extends TableTestCase {
 	}
 
 	/**
-	 * Test findDate method
+	 * Test findDay method
 	 */
-	public function testFindDate(): void {
-		$divisions = $this->DivisionsTable->find('date', ['date' => new FrozenDate('Monday')]);
+	public function testFindDay(): void {
+		DivisionFactory::make(3)->with('Days', ['id' => ChronosInterface::MONDAY, 'name' => 'Monday'])->persist();
+		DivisionFactory::make()->with('Days', ['id' => ChronosInterface::TUESDAY, 'name' => 'Tuesday'])->persist();
+
+		$divisions = $this->DivisionsTable->find('day', ['date' => new FrozenDate('Monday')]);
 		$this->assertEquals(3, $divisions->count());
-		$divisions = $this->DivisionsTable->find('date', ['date' => new FrozenDate('Tuesday')]);
+		$divisions = $this->DivisionsTable->find('day', ['date' => new FrozenDate('Tuesday')]);
 		$this->assertEquals(1, $divisions->count());
-		// Monday playoffs happen on Sunday
-		$divisions = $this->DivisionsTable->find('date', ['date' => new FrozenDate('Sunday')]);
-		$this->assertEquals(2, $divisions->count());
 	}
 
 	/**
 	 * Test readByPlayerId method
 	 */
 	public function testReadByPlayerId(): void {
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueScenario::class, [
@@ -183,6 +183,8 @@ class DivisionsTableTest extends TableTestCase {
 	 * Test translation behavior
 	 */
 	public function testTranslation(): void {
+		$this->markTestIncomplete('Re-implement this after converting i18n.');
+
 		Configure::load('options');
 		Configure::load('sports');
 

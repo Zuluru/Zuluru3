@@ -14,6 +14,7 @@ use Cake\ORM\Entity;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
+use App\Model\Table\GamesTable;
 
 /**
  * Schedules Controller
@@ -1294,7 +1295,7 @@ class SchedulesController extends AppController {
 				$games = $query->toArray();
 
 				// Sort games by sport, time and field
-				usort($games, ['App\Model\Table\GamesTable', 'compareSportDateAndField']);
+				usort($games, [GamesTable::class, 'compareSportDateAndField']);
 			}
 
 			// TODOSECOND: If we cache this, we need to also clear that cache when games are updated.

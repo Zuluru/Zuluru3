@@ -43,7 +43,7 @@ class GroupsControllerTest extends ControllerTestCase {
 	 * Test activate method as an admin
 	 */
 	public function testActivateAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		// Admins are allowed to activate groups
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Groups', 'action' => 'activate', 'group' => GROUP_OFFICIAL],
@@ -55,7 +55,7 @@ class GroupsControllerTest extends ControllerTestCase {
 	 * Test activate method as others
 	 */
 	public function testActivateAsOthers(): void {
-		[, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['manager', 'volunteer', 'player']);
 
 		// Others are not allowed to activate groups
 		$this->assertGetAjaxAsAccessDenied(['controller' => 'Groups', 'action' => 'activate', 'group' => GROUP_OFFICIAL],
@@ -71,7 +71,7 @@ class GroupsControllerTest extends ControllerTestCase {
 	 * Test deactivate method as an admin
 	 */
 	public function testDeactivateAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		// Admins are allowed to deactivate groups
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Groups', 'action' => 'deactivate', 'group' => GROUP_VOLUNTEER],
@@ -83,7 +83,7 @@ class GroupsControllerTest extends ControllerTestCase {
 	 * Test deactivate method as others
 	 */
 	public function testDeactivateAsOthers(): void {
-		[, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['manager', 'volunteer', 'player']);
 
 		// Others are not allowed to deactivate groups
 		$this->assertGetAjaxAsAccessDenied(['controller' => 'Groups', 'action' => 'deactivate', 'group' => GROUP_VOLUNTEER],

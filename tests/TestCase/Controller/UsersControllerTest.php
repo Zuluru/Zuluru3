@@ -49,7 +49,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test create_account method as an admin
 	 */
 	public function testCreateAccountAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		// Admins are allowed to create account
 		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'create_account'], $admin->id);
@@ -61,7 +61,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test create_account method as a manager
 	 */
 	public function testCreateAccountAsManager(): void {
-		[, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['manager']);
 
 		// Managers are allowed to create account
 		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'create_account'], $manager->id);
@@ -73,7 +73,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test create_account method as a coordinator
 	 */
 	public function testCreateAccountAsCoordinator(): void {
-		[, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer']);
 
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
 			$volunteer->id, '/',
@@ -84,7 +84,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test create_account method as a player
 	 */
 	public function testCreateAccountAsPlayer(): void {
-		[, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['player']);
 
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'create_account'],
 			$player->id, '/',
@@ -455,7 +455,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test change_password method as an admin
 	 */
 	public function testChangePasswordAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		// Admins are allowed to change password
 		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'change_password'], $admin->id);
@@ -467,7 +467,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test change_password method as a manager
 	 */
 	public function testChangePasswordAsManager(): void {
-		[, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['manager']);
 
 		// Managers are allowed to change password
 		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'change_password'], $manager->id);
@@ -479,7 +479,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test change_password method as a coordinator
 	 */
 	public function testChangePasswordAsCoordinator(): void {
-		[, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer']);
 
 		// Coordinators are allowed to change password
 		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'change_password'], $volunteer->id);
@@ -491,7 +491,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test change_password method as a player
 	 */
 	public function testChangePasswordAsPlayer(): void {
-		[, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['player']);
 
 		// Players are allowed to change password
 		$this->assertGetAsAccessOk(['controller' => 'Users', 'action' => 'change_password'], $player->id);
@@ -510,7 +510,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test reset_password method as an admin
 	 */
 	public function testResetPasswordAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
 			$admin->id, ['controller' => 'Users', 'action' => 'change_password'],
@@ -521,7 +521,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test reset_password method as a manager
 	 */
 	public function testResetPasswordAsManager(): void {
-		[, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['manager']);
 
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
 			$manager->id, ['controller' => 'Users', 'action' => 'change_password'],
@@ -532,7 +532,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test reset_password method as a coordinator
 	 */
 	public function testResetPasswordAsCoordinator(): void {
-		[, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer']);
 
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
 			$volunteer->id, ['controller' => 'Users', 'action' => 'change_password'],
@@ -543,7 +543,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test reset_password method as a player
 	 */
 	public function testResetPasswordAsPlayer(): void {
-		[, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['player']);
 
 		$this->assertGetAsAccessRedirect(['controller' => 'Users', 'action' => 'reset_password'],
 			$player->id, ['controller' => 'Users', 'action' => 'change_password'],

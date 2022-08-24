@@ -250,7 +250,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * Test add method as an admin
 	 */
 	public function testAddAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 		$affiliates = $admin->affiliates;
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueScenario::class, [
@@ -275,7 +275,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * Test add method as a manager
 	 */
 	public function testAddAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $affiliate_league */
@@ -295,7 +295,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * Test add method as others
 	 */
 	public function testAddAsOthers(): void {
-		[, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer', 'player']);
 
 		// Others are not allowed to add
 		$this->assertGetAsAccessDenied(['controller' => 'Leagues', 'action' => 'add'], $volunteer->id);
@@ -307,7 +307,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * Test edit method as an admin
 	 */
 	public function testEditAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
@@ -329,7 +329,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * Test edit method as a manager
 	 */
 	public function testEditAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
@@ -351,7 +351,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * Test edit method as a coordinator
 	 */
 	public function testEditAsCoordinator(): void {
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 		$affiliate = $admin->affiliates[0];
 
 		/** @var \App\Model\Entity\League $league */
@@ -375,7 +375,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * Test edit method as others
 	 */
 	public function testEditAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueScenario::class, [
 			'affiliate' => $admin->affiliates[0], 'coordinator' => $volunteer,
@@ -390,7 +390,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * Test add_division method as an admin
 	 */
 	public function testAddDivisionAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueScenario::class, [
 			'affiliate' => $admin->affiliates[0],
@@ -406,7 +406,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * Test add_division method as a manager
 	 */
 	public function testAddDivisionAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueScenario::class, [
 			'affiliate' => $admin->affiliates[0],
@@ -422,7 +422,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 	 * Test add_division method as others
 	 */
 	public function testAddDivisionAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueScenario::class, [
 			'affiliate' => $admin->affiliates[0], 'coordinator' => $volunteer,
@@ -441,7 +441,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 		$affiliate = $admin->affiliates[0];
 
 		/** @var \App\Model\Entity\League $league */
@@ -473,7 +473,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\League $league */
@@ -503,7 +503,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$affiliate = $admin->affiliates[0];
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueScenario::class, [

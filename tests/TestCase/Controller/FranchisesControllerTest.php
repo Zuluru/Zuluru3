@@ -127,7 +127,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testAddAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		// Admins are allowed to add franchises
 		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add'], $admin->id);
@@ -140,7 +140,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testAddAsManager(): void {
-		[, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['manager']);
 
 		// Managers are allowed to add franchises
 		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add'], $manager->id);
@@ -153,7 +153,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testAddAsCoordinator(): void {
-		[, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer']);
 
 		// Coordinators are allowed to add franchises
 		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add'], $volunteer->id);
@@ -166,7 +166,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testAddAsPlayer(): void {
-		[, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['player']);
 
 		// Players are allowed to add franchises
 		$this->assertGetAsAccessOk(['controller' => 'Franchises', 'action' => 'add'], $player->id);
@@ -189,7 +189,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testEditAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\Franchise $franchise */
@@ -209,7 +209,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testEditAsManager(): void {
-		[$admin, $manager,] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\Franchise $franchise */
@@ -231,7 +231,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testEditAsOwner(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\Franchise $franchise */
@@ -254,7 +254,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * Test edit method as others
 	 */
 	public function testEditAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\Franchise $franchise */
@@ -273,7 +273,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\Franchise $franchise */
@@ -305,7 +305,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\Franchise $franchise */
@@ -330,7 +330,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\Franchise $franchise */
@@ -357,7 +357,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\Franchise $franchise */
@@ -413,7 +413,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\Franchise $franchise */
@@ -438,7 +438,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\Franchise $franchise */
@@ -463,7 +463,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\Franchise $franchise */
@@ -490,7 +490,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\Franchise $franchise */
@@ -513,7 +513,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testAddOwnerAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\Franchise $franchise */
@@ -530,7 +530,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testAddOwnerAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\Franchise $franchise */
@@ -550,7 +550,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\Franchise $franchise */
@@ -588,7 +588,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * Test add_owner method as others
 	 */
 	public function testAddOwnerAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\Franchise $franchise */
@@ -607,7 +607,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\Franchise $franchise */
@@ -636,7 +636,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\Franchise $franchise */
@@ -660,7 +660,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\Franchise $franchise */
@@ -682,7 +682,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$affiliates = $admin->affiliates;
 
 		/** @var \App\Model\Entity\Franchise $franchise */

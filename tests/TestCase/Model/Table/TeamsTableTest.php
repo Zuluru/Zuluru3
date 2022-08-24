@@ -9,15 +9,19 @@ use App\Test\Factory\LeagueFactory;
 use App\Test\Factory\PersonFactory;
 use App\Test\Factory\TeamFactory;
 use App\Test\Factory\TeamsPersonFactory;
+use App\Test\Scenario\TeamScenario;
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\TeamsTable;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * App\Model\Table\TeamsTable Test Case
  */
 class TeamsTableTest extends TableTestCase {
+
+	use ScenarioAwareTrait;
 
 	/**
 	 * Test subject
@@ -25,6 +29,16 @@ class TeamsTableTest extends TableTestCase {
 	 * @var TeamsTable
 	 */
 	public $TeamsTable;
+
+	/**
+	 * Fixtures
+	 *
+	 * @var array
+	 */
+	public $fixtures = [
+		'app.Groups',
+		'app.RosterRoles',
+	];
 
 	/**
 	 * setUp method
@@ -99,21 +113,35 @@ class TeamsTableTest extends TableTestCase {
 	 * Test compareRoster method
 	 */
 	public function testCompareRoster(): void {
-		UserCache::getInstance()->initializeIdForTests(PERSON_ID_CAPTAIN);
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'roles' => [
+				'captain' => ['first_name' => 'Darlene', 'last_name' => 'Allen', 'gender' => 'Woman'],
+				'coach' => ['first_name' => 'Aaron', 'last_name' => 'Allen', 'gender' => 'Man'],
+				'player' => ['first_name' => 'Carla', 'last_name' => 'Booth', 'gender' => 'Woman'],
+				'substitute' => ['first_name' => 'Brenda', 'last_name' => 'Booth', 'gender' => 'Woman'],
+			],
+		]);
+		[$captain, $coach, $player, $sub] = $team->people;
+
+		UserCache::getInstance()->initializeIdForTests($captain->id);
 
 		ConfigurationLoader::loadConfiguration();
 
-		$team = $this->TeamsTable->get(TEAM_ID_RED, ['contain' => ['People' => ['Skills']]]);
-		\App\lib\context_usort($team->people, ['App\Model\Table\TeamsTable', 'compareRoster'], ['include_gender' => true]);
+		/** @var Team $team */
+		$team = $this->TeamsTable->get($team->id, ['contain' => ['People' => ['Skills']]]);
+		\App\lib\context_usort($team->people, [TeamsTable::class, 'compareRoster'], ['include_gender' => true]);
 
 		// TODO: Add more people on the roster for more thorough testing
-		$this->assertEquals(3, count($team->people));
+		$this->assertCount(4, $team->people);
 		$this->assertArrayHasKey(0, $team->people);
-		$this->assertEquals(PERSON_ID_CAPTAIN, $team->people[0]->id);
+		$this->assertEquals($captain->id, $team->people[0]->id);
 		$this->assertArrayHasKey(1, $team->people);
-		$this->assertEquals(PERSON_ID_CAPTAIN3, $team->people[1]->id);
+		$this->assertEquals($coach->id, $team->people[1]->id);
 		$this->assertArrayHasKey(2, $team->people);
-		$this->assertEquals(PERSON_ID_PLAYER, $team->people[2]->id);
+		$this->assertEquals($player->id, $team->people[2]->id);
+		$this->assertArrayHasKey(3, $team->people);
+		$this->assertEquals($sub->id, $team->people[3]->id);
 	}
 
 	/**

@@ -20,6 +20,8 @@ use Cake\ORM\TableRegistry;
 use App\PasswordHasher\HasherTrait;
 use App\Model\Entity\TeamsPerson;
 use Cake\Utility\Text;
+use App\Model\Table\TeamsTable;
+use App\Model\Table\GamesTable;
 
 /**
  * Teams Controller
@@ -494,7 +496,7 @@ class TeamsController extends AppController {
 			$this->Authorization->authorize($team, 'download');
 			$this->response->download("{$team->name}.csv");
 			$include_gender = $this->Authorization->can(new ContextResource($team, ['division' => $team->division]), 'display_gender');
-			\App\lib\context_usort($team->people, ['App\Model\Table\TeamsTable', 'compareRoster'], ['include_gender' => $include_gender]);
+			\App\lib\context_usort($team->people, [TeamsTable::class, 'compareRoster'], ['include_gender' => $include_gender]);
 			$this->set(compact('team'));
 			return;
 		}
@@ -687,7 +689,7 @@ class TeamsController extends AppController {
 			}
 
 			$include_gender = $this->Authorization->can(new ContextResource($team, ['division' => $team->division]), 'display_gender');
-			\App\lib\context_usort($team->teams_people, ['App\Model\Table\TeamsTable', 'compareRoster'], ['include_gender' => $include_gender]);
+			\App\lib\context_usort($team->teams_people, [TeamsTable::class, 'compareRoster'], ['include_gender' => $include_gender]);
 		}
 
 		if ($team->division_id && $team->division->is_playoff) {
@@ -741,7 +743,7 @@ class TeamsController extends AppController {
 
 		$this->Authorization->authorize(new ContextResource($team, ['division' => $team->division, 'roster' => $roster]));
 
-		usort($team->people, ['App\Model\Table\TeamsTable', 'compareRoster']);
+		usort($team->people, [TeamsTable::class, 'compareRoster']);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			if ($person_id) {
@@ -858,7 +860,7 @@ class TeamsController extends AppController {
 		$team->stats = $stats['stats'];
 		$team->calculated_stats = $stats['calculated_stats'];
 
-		usort($team->people, ['App\Model\Table\TeamsTable', 'compareRoster']);
+		usort($team->people, [TeamsTable::class, 'compareRoster']);
 
 		$this->set(compact('team', 'sport_obj'));
 
@@ -1405,7 +1407,7 @@ class TeamsController extends AppController {
 		}
 
 		// Sort games by date, time and field
-		usort($team->games, ['App\Model\Table\GamesTable', 'compareDateAndField']);
+		usort($team->games, [GamesTable::class, 'compareDateAndField']);
 
 		// Imported databases may have teams that are not properly associated with divisions,
 		// but nevertheless have games which are.
@@ -1471,8 +1473,8 @@ class TeamsController extends AppController {
 			->toArray();
 
 		// Sort items by date, time and field
-		usort($games, ['App\Model\Table\GamesTable', 'compareDateAndField']);
-		usort($events, ['App\Model\Table\GamesTable', 'compareDateAndField']);
+		usort($games, [GamesTable::class, 'compareDateAndField']);
+		usort($events, [GamesTable::class, 'compareDateAndField']);
 		// Outlook only accepts the first event in a file, so we put the last game first
 		$games = array_reverse($games);
 
@@ -1529,7 +1531,7 @@ class TeamsController extends AppController {
 		}
 
 		// Sort games by date, time and field
-		usort($team['games'], ['App\Model\Table\GamesTable', 'compareDateAndField']);
+		usort($team['games'], [GamesTable::class, 'compareDateAndField']);
 
 		$this->set(compact('team'));
 		$this->set('spirit_obj', $this->moduleRegistry->load("Spirit:{$team->division->league->sotg_questions}"));

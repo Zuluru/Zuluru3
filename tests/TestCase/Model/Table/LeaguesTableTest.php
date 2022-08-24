@@ -2,9 +2,13 @@
 namespace App\Test\TestCase\Model\Table;
 
 use App\Middleware\ConfigurationLoader;
+use App\Model\Entity\League;
+use App\Test\Factory\AffiliateFactory;
 use App\Test\Factory\DivisionFactory;
 use App\Test\Factory\LeagueFactory;
+use Cake\Chronos\ChronosInterface;
 use Cake\Event\Event as CakeEvent;
+use Cake\I18n\FrozenDate;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\LeaguesTable;
 
@@ -55,36 +59,64 @@ class LeaguesTableTest extends TableTestCase {
 	public function testCompareLeagueAndDivision(): void {
 		ConfigurationLoader::loadConfiguration();
 
-		// TODO: Add more league records, to more completely test the sort options
+		$affiliates = AffiliateFactory::make([
+			['name' => 'A'],
+			['name' => 'B'],
+		])->persist();
+
+		// Make a variety of leagues
+		$ultimate_closed = LeagueFactory::make(['season' => 'Summer', 'open' => FrozenDate::now()->subYear()])
+			->with('Divisions.Days', ['id' => ChronosInterface::FRIDAY, 'name' => 'Friday'])
+			->with('Affiliates', $affiliates[0])
+			->persist();
+		$ultimate_monday = LeagueFactory::make(['season' => 'Summer', 'sport' => 'ultimate'])
+			->with('Divisions.Days', ['id' => ChronosInterface::MONDAY, 'name' => 'Monday'])
+			->with('Affiliates', $affiliates[0])
+			->persist();
+		$ultimate_saturday = LeagueFactory::make(['season' => 'Summer', 'sport' => 'ultimate'])
+			->with('Divisions.Days', ['id' => ChronosInterface::SATURDAY, 'name' => 'Saturday'])
+			->with('Affiliates', $affiliates[0])
+			->persist();
+		$ultimate_affiliate = LeagueFactory::make(['season' => 'Summer', 'sport' => 'ultimate'])
+			->with('Divisions.Days', ['id' => ChronosInterface::THURSDAY, 'name' => 'Thursday'])
+			->with('Affiliates', $affiliates[1])
+			->persist();
+		$baseball_tuesday = LeagueFactory::make(['season' => 'Summer', 'sport' => 'baseball'])
+			->with('Divisions.Days', ['id' => ChronosInterface::TUESDAY, 'name' => 'Tuesday'])
+			->with('Affiliates', $affiliates[0])
+			->persist();
+		$baseball_wednesday = LeagueFactory::make(['season' => 'Summer', 'sport' => 'baseball'])
+			->with('Divisions.Days', ['id' => ChronosInterface::WEDNESDAY, 'name' => 'Wednesday'])
+			->with('Affiliates', $affiliates[0])
+			->persist();
+		$baseball_spring = LeagueFactory::make(['season' => 'Spring', 'sport' => 'baseball'])
+			->with('Divisions.Days', ['id' => ChronosInterface::WEDNESDAY, 'name' => 'Wednesday'])
+			->with('Affiliates', $affiliates[0])
+			->persist();
+
 		$leagues = $this->LeaguesTable->find()
 			->contain(['Affiliates', 'Divisions' => ['Days']])
 			->toArray();
-		$this->assertEquals(7, count($leagues));
-		usort($leagues, ['App\Model\Table\LeaguesTable', 'compareLeagueAndDivision']);
+		$this->assertCount(7, $leagues);
+		usort($leagues, [LeaguesTable::class, 'compareLeagueAndDivision']);
 
-		// Baseball comes before ultimate
-		$this->assertArrayHasKey(0, $leagues);
-		$this->assertEquals(LEAGUE_ID_TUESDAY, $leagues[0]->id);
+		$expected = [
+			// Baseball comes before ultimate, with Spring before Summer and Tuesday before Wednesday
+			$baseball_spring->id, $baseball_tuesday->id, $baseball_wednesday->id,
 
-		$this->assertArrayHasKey(1, $leagues);
-		$this->assertEquals(LEAGUE_ID_WEDNESDAY, $leagues[1]->id);
+			// The closed league is from last year
+			$ultimate_closed->id,
 
-		// The closed league is from last year
-		$this->assertArrayHasKey(2, $leagues);
-		$this->assertEquals(LEAGUE_ID_MONDAY_PAST, $leagues[2]->id);
+			// Monday comes before Saturday
+			$ultimate_monday->id, $ultimate_saturday->id,
 
-		// Monday comes before Thursday
-		$this->assertArrayHasKey(3, $leagues);
-		$this->assertEquals(LEAGUE_ID_MONDAY, $leagues[3]->id);
+			// Other affiliate comes last
+			$ultimate_affiliate->id,
+		];
 
-		$this->assertArrayHasKey(4, $leagues);
-		$this->assertEquals(LEAGUE_ID_THURSDAY, $leagues[4]->id);
+		$this->assertEquals($expected, collection($leagues)->extract('id')->toArray());
 
-		$this->assertArrayHasKey(5, $leagues);
-		$this->assertEquals(LEAGUE_ID_FRIDAY, $leagues[5]->id);
-
-		$this->assertArrayHasKey(6, $leagues);
-		$this->assertEquals(LEAGUE_ID_SUNDAY_SUB, $leagues[6]->id);
+		$this->markTestIncomplete('Add more league records, to more completely test the sort options: regular leagues before tournaments, tournaments by date. Leagues fall back to names, divisions to ID.');
 	}
 
 	/**
@@ -100,12 +132,13 @@ class LeaguesTableTest extends TableTestCase {
 	 * Test divisions method
 	 */
 	public function testDivisions(): void {
-	    DivisionFactory::make(3)->persist();
-	    $league = LeagueFactory::make()
-            ->with('Divisions', 2)
-            ->persist();
+		DivisionFactory::make(3)->persist();
+		/** @var League $league */
+		$league = LeagueFactory::make()
+			->with('Divisions', 2)
+			->persist();
 
-	    $expected = [
+		$expected = [
 			$league->divisions[0]->id => $league->divisions[0]->id,
 			$league->divisions[1]->id => $league->divisions[1]->id,
 		];

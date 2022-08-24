@@ -4,11 +4,13 @@ declare(strict_types=1);
 namespace App\Test\Scenario;
 
 use App\Model\Entity\League;
+use App\Test\Factory\DivisionFactory;
 use App\Test\Factory\DivisionsDayFactory;
 use App\Test\Factory\DivisionsPersonFactory;
 use App\Test\Factory\LeagueFactory;
 use Cake\Chronos\ChronosInterface;
 use Cake\I18n\FrozenDate;
+use Cake\ORM\TableRegistry;
 use CakephpFixtureFactories\Scenario\FixtureScenarioInterface;
 
 class LeagueScenario implements FixtureScenarioInterface {
@@ -60,13 +62,11 @@ class LeagueScenario implements FixtureScenarioInterface {
 
 		/** @var League $league */
 		$league = LeagueFactory::make($args['league_details'])
-			->with("Divisions{$divisions}", $args['division_details'])
+			->with("Divisions{$divisions}", DivisionFactory::make($args['division_details'])->with('Days', ['id' => $args['day_id'], 'name' => 'Testday']))
 			->with('Affiliates', $args['affiliate'] ?? [])
 			->persist();
 
 		foreach ($league->divisions as $key => $division) {
-			DivisionsDayFactory::make(['day_id' => $args['day_id'], 'division_id' => $division->id])->persist();
-
 			if (array_key_exists('coordinator', $args)) {
 				$coordinator = null;
 

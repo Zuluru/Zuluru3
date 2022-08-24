@@ -2,7 +2,7 @@
 namespace App\Test\TestCase\Module;
 
 use App\Core\ModuleRegistry;
-use App\Test\Factory\GameFactory;
+use App\Test\Factory\TeamFactory;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\Entity;
 use Cake\ORM\Query;
@@ -65,18 +65,17 @@ class LeagueTypeRatingsLadderTest extends ModuleTestCase {
 	 * Test compareTeams method
 	 */
 	public function testCompareTeams(): void {
-		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER, true);
+		$teams = TeamFactory::make([
+			['name' => 'Red', 'initial_seed' => 3, 'rating' => 1500],
+			['name' => 'Blue', 'initial_seed' => 2, 'rating' => 1500],
+			['name' => 'Green', 'initial_seed' => 1, 'rating' => 1450],
+			['name' => 'Yellow', 'initial_seed' => 4, 'rating' => 1450],
+		])->getEntities();
 
-		$this->assertEquals(8, count($division->teams));
-
-		$green = $division->teams[0];
-		$this->assertEquals(TEAM_ID_GREEN, $green->id);
-		$blue = $division->teams[1];
-		$this->assertEquals(TEAM_ID_BLUE, $blue->id);
-		$red = $division->teams[2];
-		$this->assertEquals(TEAM_ID_RED, $red->id);
-		$yellow = $division->teams[3];
-		$this->assertEquals(TEAM_ID_YELLOW, $yellow->id);
+		$red = $teams[0];
+		$blue = $teams[1];
+		$green = $teams[2];
+		$yellow = $teams[3];
 
 		$sort_context = [];
 

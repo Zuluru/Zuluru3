@@ -36,7 +36,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 * Test add method as an admin
 	 */
 	public function testAddAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $admin->affiliates[0]]);
@@ -61,7 +61,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 * Test add method as a manager
 	 */
 	public function testAddAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $admin->affiliates[0]]);
@@ -80,7 +80,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 * Test add method as a coordinator
 	 */
 	public function testAddAsCoordinator(): void {
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $admin->affiliates[0], 'coordinator' => $volunteer]);
@@ -99,7 +99,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 * Test add method as others
 	 */
 	public function testAddAsOthers(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $admin->affiliates[0]]);
@@ -114,7 +114,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 * Test delete method as an admin
 	 */
 	public function testDeleteAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $admin->affiliates[0]]);
@@ -173,7 +173,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 * Test delete method as a manager
 	 */
 	public function testDeleteAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $admin->affiliates[0]]);
@@ -201,7 +201,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 * Test delete method as a coordinator
 	 */
 	public function testDeleteAsCoordinator(): void {
-		[$admin, , $volunteer, ] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $admin->affiliates[0], 'coordinator' => $volunteer, 'divisions' => 2]);
@@ -234,7 +234,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 * Test delete method as others
 	 */
 	public function testDeleteAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $admin->affiliates[0], 'coordinator' => $volunteer]);
 		$season = $league->divisions[0];
@@ -254,7 +254,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 * Test reschedule method as an admin
 	 */
 	public function testRescheduleAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $admin->affiliates[0]]);
 		$season = $league->divisions[0];
@@ -276,7 +276,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 * Test reschedule method as a manager
 	 */
 	public function testRescheduleAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $admin->affiliates[0]]);
 		$season = $league->divisions[0];
@@ -298,7 +298,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 * Test reschedule method as a coordinator
 	 */
 	public function testRescheduleAsCoordinator(): void {
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $admin->affiliates[0], 'coordinator' => $volunteer]);
 		$season = $league->divisions[0];
@@ -320,7 +320,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 * Test reschedule method as others
 	 */
 	public function testRescheduleAsOthers(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $admin->affiliates[0]]);
 		$season = $league->divisions[0];
@@ -341,7 +341,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 * Test publish method as an admin
 	 */
 	public function testPublishAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
@@ -378,7 +378,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 * Test publish method as a manager
 	 */
 	public function testPublishAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
@@ -408,7 +408,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 * Test publish method as a coordinator
 	 */
 	public function testPublishAsCoordinator(): void {
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
@@ -439,7 +439,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 * Test publish method as others
 	 */
 	public function testPublishAsOthers(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
 			'affiliate' => $admin->affiliates[0],
@@ -457,7 +457,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 * Test unpublish method as an admin
 	 */
 	public function testUnpublishAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
@@ -492,7 +492,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 * Test unpublish method as a manager
 	 */
 	public function testUnpublishAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
@@ -520,7 +520,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 * Test unpublish method as a coordinator
 	 */
 	public function testUnpublishAsCoordinator(): void {
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
@@ -549,7 +549,7 @@ class SchedulesControllerTest extends ControllerTestCase {
 	 * Test unpublish method as others
 	 */
 	public function testUnpublishAsOthers(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 		/** @var \App\Model\Entity\Game $game */
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
 			'affiliate' => $admin->affiliates[0],

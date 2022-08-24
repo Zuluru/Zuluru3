@@ -281,7 +281,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * Test register method as an admin
 	 */
 	public function testRegisterAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 		$now = FrozenDate::now();
 
 		/** @var \App\Model\Entity\Event $event */
@@ -311,7 +311,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * Test register method as a manager
 	 */
 	public function testRegisterAsManager(): void {
-		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
 		$now = FrozenDate::now();
 
 		/** @var \App\Model\Entity\Event $event */
@@ -341,7 +341,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * Test register method as a coordinator
 	 */
 	public function testRegisterAsCoordinator(): void {
-		[$admin, , $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 		$now = FrozenDate::now();
 
 		/** @var \App\Model\Entity\Event $event */
@@ -367,7 +367,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * Test register method as a player
 	 */
 	public function testRegisterAsPlayer(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 		$now = FrozenDate::now();
 
 		/** @var \App\Model\Entity\Event $event */
@@ -453,7 +453,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * Test redeem method for success
 	 */
 	public function testRedeemSuccess(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 		$registrations = $this->loadFixtureScenario(DiverseRegistrationsScenario::class, [
 			'affiliate' => $admin->affiliates[0],
 			'member' => $player,
@@ -471,7 +471,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * Test redeem method for various failure scenarios
 	 */
 	public function testRedeemFailure(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 		$registrations = $this->loadFixtureScenario(DiverseRegistrationsScenario::class, [
 			'affiliate' => $admin->affiliates[0],
 			'member' => $player,
@@ -494,7 +494,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * Test redeem method as others
 	 */
 	public function testRedeemAsOthers(): void {
-		[$admin, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'player']);
 		$registrations = $this->loadFixtureScenario(DiverseRegistrationsScenario::class, [
 			'affiliate' => $admin->affiliates[0],
 			'member' => $player,
@@ -723,7 +723,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 		$registrations = $this->loadFixtureScenario(DiverseRegistrationsScenario::class, [
 			'affiliate' => $admin->affiliates[0],
 			'member' => $player,
@@ -802,7 +802,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 		$registrations = $this->loadFixtureScenario(DiverseRegistrationsScenario::class, [
 			'affiliate' => $admin->affiliates[0],
 			'captain' => $player,
@@ -863,7 +863,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * Test refund_payment method as a manager
 	 */
 	public function testRefundPaymentAsManager(): void {
-		[$admin, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'player']);
 		$registrations = $this->loadFixtureScenario(DiverseRegistrationsScenario::class, [
 			'affiliate' => $admin->affiliates[0],
 			'member' => $player,
@@ -883,7 +883,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * Test refund_payment method as others
 	 */
 	public function testRefundPaymentAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$registrations = $this->loadFixtureScenario(DiverseRegistrationsScenario::class, [
 			'affiliate' => $admin->affiliates[0],
 			'member' => $player,
@@ -906,7 +906,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 		$registrations = $this->loadFixtureScenario(DiverseRegistrationsScenario::class, [
 			'affiliate' => $admin->affiliates[0],
 			'member' => $player,
@@ -994,7 +994,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * Test credit_payment method as a manager
 	 */
 	public function testCreditPaymentAsManager(): void {
-		[$admin, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'player']);
 		$registrations = $this->loadFixtureScenario(DiverseRegistrationsScenario::class, [
 			'affiliate' => $admin->affiliates[0],
 			'member' => $player,
@@ -1014,7 +1014,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * Test credit_payment method as others
 	 */
 	public function testCreditPaymentAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$registrations = $this->loadFixtureScenario(DiverseRegistrationsScenario::class, [
 			'affiliate' => $admin->affiliates[0],
 			'member' => $player,
@@ -1034,7 +1034,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * Test edit method as an admin
 	 */
 	public function testEditAsAdmin(): void {
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 		$registrations = $this->loadFixtureScenario(DiverseRegistrationsScenario::class, [
 			'affiliate' => $admin->affiliates[0],
 			'member' => $player,
@@ -1056,7 +1056,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * Test edit method as a manager
 	 */
 	public function testEditAsManager(): void {
-		[$admin, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'player']);
 		$registrations = $this->loadFixtureScenario(DiverseRegistrationsScenario::class, [
 			'affiliate' => $admin->affiliates[0],
 			'member' => $player,
@@ -1080,7 +1080,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * Test edit method as others
 	 */
 	public function testEditAsOthers(): void {
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$registrations = $this->loadFixtureScenario(DiverseRegistrationsScenario::class, [
 			'affiliate' => $admin->affiliates[0],
 			'member' => $player,

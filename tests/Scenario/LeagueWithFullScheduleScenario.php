@@ -6,6 +6,7 @@ namespace App\Test\Scenario;
 use App\Model\Entity\League;
 use App\Test\Factory\DivisionFactory;
 use App\Test\Factory\DivisionsDayFactory;
+use App\Test\Factory\DivisionsGameslotFactory;
 use App\Test\Factory\DivisionsPersonFactory;
 use App\Test\Factory\FranchiseFactory;
 use App\Test\Factory\FranchisesTeamFactory;
@@ -31,6 +32,8 @@ class LeagueWithFullScheduleScenario implements FixtureScenarioInterface {
 	 * - scores: bool
 	 * - spirit: bool
 	 * - playoffs: bool
+	 * - additional_slots: int number of extra slots per week to create after the games already schedule
+	 * - additional_weeks: int number of extra weeks to create that many slots for, defaults to 1 if not specified
 	 */
 	public function load(...$args): League {
 		switch (count($args)) {
@@ -50,6 +53,8 @@ class LeagueWithFullScheduleScenario implements FixtureScenarioInterface {
 			'spirit' => false,
 			'playoffs' => false,
 			'day_id' => ChronosInterface::MONDAY,
+			'additional_slots' => 0,
+			'additional_weeks' => 1,
 		];
 
 		/** @var League $league */
@@ -304,6 +309,19 @@ class LeagueWithFullScheduleScenario implements FixtureScenarioInterface {
 
 				PoolFactory::make(['division_id' => $playoffs->id, 'stage' => 2, 'name' => 'X', 'type' => 'crossover'])
 					->persist();
+			}
+
+			for ($week = 0; $week < $args['additional_weeks']; ++ $week) {
+				for ($i = 0; $i < $args['additional_slots']; ++ $i) {
+					$slot = GameSlotFactory::make([
+						'game_date' => $open->addweeks(4 + $week),
+						'game_start' => FrozenTime::createFromTime($i),
+						'game_end' => FrozenTime::createFromTime($i + 1),
+					])
+						->with('Fields', $fields[$key * 2])
+						->persist();
+					DivisionsGameslotFactory::make(['division_id' => $division->id, 'game_slot_id' => $slot->id])->persist();
+				}
 			}
 		}
 

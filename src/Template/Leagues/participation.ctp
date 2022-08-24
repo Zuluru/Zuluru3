@@ -1,4 +1,6 @@
 <?php
+
+use App\Model\Table\TeamsTable;
 use App\Model\Entity\Division;
 
 $tournaments = collection($league->divisions)->every(function (Division $division) {
@@ -35,7 +37,7 @@ foreach ($league->divisions as $division):
 
 	foreach ($division->teams as $team):
 		$team_name = $this->element('Teams/block', compact('team'));
-		usort($team->people, ['App\Model\Table\TeamsTable', 'compareRoster']);
+		usort($team->people, [TeamsTable::class, 'compareRoster']);
 		foreach ($team->people as $person):
 ?>
 					<tr>

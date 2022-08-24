@@ -61,7 +61,7 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 	 * Test add method as an admin
 	 */
 	public function testAddAsAdmin(): void {
-		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		// Admins are allowed to add preregistrations
 		$this->assertGetAsAccessOk(['controller' => 'Preregistrations', 'action' => 'add'], $admin->id);
@@ -71,7 +71,7 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 	 * Test add method as a manager
 	 */
 	public function testAddAsManager(): void {
-		[, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['manager']);
 
 		// Managers are allowed to add preregistrations
 		$this->assertGetAsAccessOk(['controller' => 'Preregistrations', 'action' => 'add'], $manager->id);
@@ -81,7 +81,7 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 	 * Test add method as others
 	 */
 	public function testAddAsOthers(): void {
-		[, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer', 'player']);
 
 		// Others are not allowed to add preregistrations
 		$this->assertGetAsAccessDenied(['controller' => 'Preregistrations', 'action' => 'add'], $volunteer->id);
@@ -96,7 +96,7 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 		$affiliates = $admin->affiliates;
 
 		$prereg = PreregistrationFactory::make()
@@ -117,7 +117,7 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, $manager, , $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'player']);
 		$affiliates = $admin->affiliates;
 
 		$prereg = PreregistrationFactory::make()
@@ -147,7 +147,7 @@ class PreregistrationsControllerTest extends ControllerTestCase {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		[$admin, , $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 		$affiliates = $admin->affiliates;
 
 		$prereg = PreregistrationFactory::make()

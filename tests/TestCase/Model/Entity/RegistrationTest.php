@@ -5,6 +5,7 @@ use App\Middleware\ConfigurationLoader;
 use App\Model\Entity\Event;
 use App\Test\Factory\EventFactory;
 use App\Test\Factory\RegistrationFactory;
+use Cake\Cache\Cache;
 use Cake\TestSuite\TestCase;
 
 /**
@@ -27,6 +28,11 @@ class RegistrationTest extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 		ConfigurationLoader::loadConfiguration();
+	}
+
+	public function tearDown(): void {
+		parent::tearDown();
+		Cache::clear(false, 'long_term');
 	}
 
 	private function createRegistrations() {

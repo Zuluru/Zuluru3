@@ -6,6 +6,7 @@ use App\Model\Entity\Team;
 use App\Test\Factory\TeamFactory;
 use App\Test\Factory\TeamsPersonFactory;
 use App\Test\Scenario\TeamScenario;
+use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Event\EventList;
 use Cake\Event\EventManager;
@@ -39,6 +40,11 @@ class TeamTest extends TestCase {
 			EventManager::instance()->on($listener);
 		}
 		ConfigurationLoader::loadConfiguration();
+	}
+
+	public function tearDown(): void {
+		parent::tearDown();
+		Cache::clear(false, 'long_term');
 	}
 
 	/**
