@@ -18,7 +18,7 @@ echo $this->Form->create(false, ['align' => 'horizontal']);
 			'Administration', 'Account Settings', 'Order Settings')
 	?></p>
 	<ol>
-		<li><?= __('Set both "{0}" and {1} to {2}',
+		<li><?= __('Set both "{0}" and "{1}" to {2}',
 			'Approval Redirect',
 				'Decline Redirect',
 			// TODO: Add links here to copy values to the clipboard
@@ -69,7 +69,7 @@ echo $this->element('Settings/input', [
 	'options' => [
 		'label' => __('Test merchant ID'),
 		'help' => __('Required only if you are testing payments. You will need to create a {0} with Bambora to do this.',
-			$this->Html->link(__('test account', 'https://dev.na.bambora.com/docs/forms/create_test_merchant_account'))
+			$this->Html->link(__('test account'), 'https://dev.na.bambora.com/docs/forms/create_test_merchant_account')
 		),
 	],
 ]);
@@ -79,7 +79,7 @@ echo $this->element('Settings/input', [
 	'options' => [
 		'label' => __('Test hash key'),
 		'help' => __('Required only if you are testing payments. You will need to create a {0} with Bambora to do this.',
-			$this->Html->link(__('test account', 'https://dev.na.bambora.com/docs/forms/create_test_merchant_account'))
+			$this->Html->link(__('test account'), 'https://dev.na.bambora.com/docs/forms/create_test_merchant_account')
 		),
 	],
 ]);

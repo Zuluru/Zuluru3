@@ -58,7 +58,7 @@ if (!$affiliate) {
 			'label' => __('Online Payments'),
 			'type' => 'radio',
 			'options' => Configure::read('options.enable'),
-			'help' => __('Do we handle online payments?'),
+			'help' => __('Do we handle online payments? When enabled, an additional "Payment" option will appear in the Configuration -> Settings menu.'),
 		],
 	]);
 }
