@@ -66,7 +66,7 @@ foreach ($registrations as $registration) {
 	[$cost, $tax1, $tax2] = $registration->paymentAmounts();
 
 	$fields["L_PAYMENTREQUEST_0_NAME$m"] = $registration->event->name;
-	$fields["L_PAYMENTREQUEST_0_DESC$m"] = $registration->event->payment_desc;
+	$fields["L_PAYMENTREQUEST_0_DESC$m"] = substr($registration->event->payment_desc, 0, 127);
 	$fields["L_PAYMENTREQUEST_0_AMT$m"] = sprintf('%.2f', $cost);
 	$fields["L_PAYMENTREQUEST_0_TAXAMT$m"] = sprintf('%.2f', $tax1 + $tax2);
 	$fields["L_PAYMENTREQUEST_0_NUMBER$m"] = sprintf(Configure::read('payment.reg_id_format'), $registration->event->id);
@@ -94,7 +94,7 @@ if (is_array($response)) {
 	}
 	$url = "{$paypal_url}webscr?cmd=_express-checkout&token=" . urlencode($response['TOKEN']);
 	$form_options = ['url' => $url, 'name' => 'paypal_form', 'escape' => false];
-	$submit_options = ['div' => false, 'alt' => 'Pay'];
+	$submit_options = ['div' => false, 'alt' => 'Pay now'];
 	if (Configure::read('payment.popup')) {
 		$form_options['target'] = 'payment_window_paypal';
 		$submit_options['onClick'] = 'open_payment_window_paypal();';

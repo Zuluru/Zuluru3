@@ -1,0 +1,4 @@
+plugin:
+    description: Accept payments through Elavon. Officially supported by Zuluru.
+    url: https://www.elavon.com/
+    settings: true
