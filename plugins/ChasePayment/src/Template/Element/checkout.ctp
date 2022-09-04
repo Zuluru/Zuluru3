@@ -154,6 +154,6 @@ echo quick_hidden($this, 'x_zip', $person->addr_postalcode);
 echo quick_hidden($this, 'x_country', $person->addr_country);
 echo quick_hidden($this, 'x_phone', $person->home_phone);
 
-echo $this->Form->submit(__n('Pay', 'Pay with Chase', $number_of_providers), $submit_options);
+echo $this->Form->submit(__n('Pay now', 'Pay with Chase', $number_of_providers), $submit_options);
 
 echo $this->Form->end();

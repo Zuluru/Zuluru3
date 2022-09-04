@@ -457,6 +457,13 @@ class SettingsFixture extends TestFixture {
 				'value' => '12345678-ABCD-EFGH-1234-12345678',
 				'affiliate_id' => null,
 			],
+			[
+				'person_id' => null,
+				'category' => 'payment',
+				'name' => 'elavon_test_hash_key',
+				'value' => '',
+				'affiliate_id' => null,
+			],
 
 			// Some affiliate settings
 			[

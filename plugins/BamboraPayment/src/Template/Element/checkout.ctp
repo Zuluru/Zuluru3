@@ -83,6 +83,6 @@ if (Configure::read('payment.popup')) {
 }
 
 echo $this->Html->tag('div',
-	$this->Html->link(__n('Pay', 'Pay with Bambora', $number_of_providers), $url, $link_options),
+	$this->Html->link(__n('Pay now', 'Pay with Bambora', $number_of_providers), $url, $link_options),
 	['class' => 'btn btn-default']
 );
