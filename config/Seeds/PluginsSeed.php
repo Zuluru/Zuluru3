@@ -41,6 +41,13 @@ class PluginsSeed extends AbstractSeed {
 				'enabled' => false,
 			],
 			[
+				'name' => 'Elavon',
+				'load_name' => 'ElavonPayment',
+				'path' => 'plugins/ElavonPayment',
+				'advertise' => true,
+				'enabled' => false,
+			],
+			[
 				'name' => 'Javelin',
 				'load_name' => 'Javelin',
 				'path' => 'plugins/Javelin',

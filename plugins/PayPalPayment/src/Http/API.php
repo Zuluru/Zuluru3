@@ -94,7 +94,7 @@ class API extends \App\Http\API {
 			CURLOPT_VERBOSE => 0,
 			CURLOPT_SSL_VERIFYPEER => true,
 			CURLOPT_SSL_VERIFYHOST => 2,
-			CURLOPT_SSLVERSION => 6,
+			CURLOPT_SSLVERSION => CURL_SSLVERSION_TLSv1_2,
 			CURLOPT_RETURNTRANSFER => 1,
 			CURLOPT_POST => 1,
 			// If we just use the fields array here, it seems to use the wrong post method
