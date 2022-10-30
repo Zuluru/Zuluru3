@@ -5,7 +5,7 @@ use App\Core\UserCache;
 use App\Middleware\ConfigurationLoader;
 use App\Model\Entity\Person;
 use App\Model\Entity\Team;
-use App\Test\Factory\LeagueFactory;
+use App\Test\Factory\AffiliateFactory;
 use App\Test\Factory\PersonFactory;
 use App\Test\Factory\TeamFactory;
 use App\Test\Factory\TeamsPersonFactory;
@@ -79,11 +79,13 @@ class TeamsTableTest extends TableTestCase {
 		// We need this for sorting leagues by season
 		Configure::load('options');
 
-		$leagues = LeagueFactory::make([
-			['name' => 'a'],
-			['name' => 'b'],
-			['name' => 'c'],
-		])->with('Affiliates')->persist();
+		$affiliate = AffiliateFactory::make()
+			->with('Leagues', [
+			['name' => 'a', 'season' => 'Spring'],
+			['name' => 'b', 'season' => 'Spring'],
+			['name' => 'c', 'season' => 'Spring'],
+		])->persist();
+		$leagues = $affiliate->leagues;
 
 		/** @var Person $player */
 		$player = PersonFactory::make()

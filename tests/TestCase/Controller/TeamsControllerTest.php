@@ -7,6 +7,7 @@ use App\Model\Entity\Person;
 use App\Model\Entity\Team;
 use App\Model\Entity\TeamsPerson;
 use App\PasswordHasher\HasherTrait;
+use App\Test\Factory\DivisionFactory;
 use App\Test\Factory\EventFactory;
 use App\Test\Factory\LeagueFactory;
 use App\Test\Factory\LeaguesStatTypeFactory;
@@ -118,11 +119,13 @@ class TeamsControllerTest extends ControllerTestCase {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
 		/** @var League $league */
-		$league = LeagueFactory::make(['affiliate_id' => $admin->affiliates[0]->id])
-			->with('Divisions.Teams', [
-				['open_roster' => true],
-				['open_roster' => false],
-			])
+		$league = LeagueFactory::make(['affiliate_id' => $admin->affiliates[0]->id, 'is_open' => true])
+			->with('Divisions', DivisionFactory::make(['is_open' => true])
+				->with('Teams', [
+					['open_roster' => true],
+					['open_roster' => false],
+				])
+			)
 			->persist();
 		[$open_team, $closed_team] = $league->divisions[0]->teams;
 

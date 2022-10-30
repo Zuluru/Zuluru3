@@ -3,10 +3,10 @@ use Cake\Core\Configure;
 use Cake\Routing\Router;
 
 /**
- * @type \App\Model\Entity\Team $team
- * @type \App\Model\Entity\Team $opponent
- * @type \App\Model\Entity\Game $game
- * @type string[][][] $summary
+ * @type $team \App\Model\Entity\Team
+ * @type $opponent \App\Model\Entity\Team
+ * @type $game \App\Model\Entity\Game
+ * @type $summary string[][][]
  */
 
 if ($opponent) {

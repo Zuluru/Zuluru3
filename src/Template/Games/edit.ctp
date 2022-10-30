@@ -1,7 +1,7 @@
 <?php
 /**
- * @type \App\Model\Entity\Game $game
- * @type \App\Module\Spirit $spirit_obj
+ * @type $game \App\Model\Entity\Game
+ * @type $spirit_obj \App\Module\Spirit
  */
 
 use Cake\Core\Configure;
@@ -15,18 +15,20 @@ $this->Html->addCrumb(__('Game') . ' ' . $game->id);
 $this->Html->addCrumb(__('Edit'));
 
 $preliminary = ($game->home_team_id === null || ($game->division->schedule_type != 'competition' && $game->away_team_id === null));
-if ($preliminary) {
-	$carbon_flip_options = [
-		2 => __('{0} won', __('Home Team')),
-		0 => __('{0} won', __('Away Team')),
-		1 => __('tie'),
-	];
-} else {
-	$carbon_flip_options = [
-		2 => __('{0} won', $game->home_team->name),
-		0 => __('{0} won', $game->away_team->name),
-		1 => __('tie'),
-	];
+if ($game->division->league->hasCarbonFlip()) {
+	if ($preliminary) {
+		$carbon_flip_options = [
+			2 => __('{0} won', __('Home Team')),
+			0 => __('{0} won', __('Away Team')),
+			1 => __('tie'),
+		];
+	} else {
+		$carbon_flip_options = [
+			2 => __('{0} won', $game->home_team->name),
+			0 => __('{0} won', $game->away_team->name),
+			1 => __('tie'),
+		];
+	}
 }
 ?>
 
@@ -59,11 +61,14 @@ endif;
 				if ($game->has('home_dependency')) {
 					echo " ({$game->home_dependency})";
 				}
-				if ($game->division->schedule_type != 'tournament') {
+				if ($game->division->schedule_type !== 'tournament') {
 					echo __(' ({0})', __('currently rated: {0}', $game->home_team->rating));
 				}
 			}
 		?></dd>
+<?php
+if ($game->division->schedule_type !== 'competition'):
+?>
 		<dt><?= __('Away Team') ?></dt>
 		<dd><?php
 			if ($game->away_team_id === null) {
@@ -79,11 +84,14 @@ endif;
 				if ($game->has('away_dependency')) {
 					echo " ({$game->away_dependency})";
 				}
-				if ($game->division->schedule_type != 'tournament') {
-					echo ' (' . __('currently rated', $game->away_team->rating);
+				if ($game->division->schedule_type !== 'tournament') {
+					echo __(' ({0})', __('currently rated: {0}', $game->away_team->rating));
 				}
 			}
 		?></dd>
+<?php
+endif;
+?>
 		<dt><?= __('Date and Time') ?></dt>
 		<dd><?= $this->Time->dateTimeRange($game->game_slot) ?></dd>
 		<dt><?= __('Location') ?></dt>
@@ -105,14 +113,22 @@ endif;
 		]);
 		?></dd>
 <?php
-if ($game->division->schedule_type == 'roundrobin' && $game->round):
+if ($game->division->schedule_type === 'roundrobin' && $game->round):
 ?>
 		<dt><?= __('Round') ?></dt>
 		<dd><?= $game->round ?></dd>
 <?php
 endif;
 
-$captains = collection(array_merge($game->home_team->people, $game->away_team->people))->filter(function ($player) {
+if ($game->home_team) {
+	$captains = $game->home_team->people;
+} else {
+	$captains = [];
+}
+if ($game->away_team) {
+	$captains = array_merge($captains, $game->away_team->people);
+}
+$captains = collection($captains)->filter(function ($player) {
 	return in_array($player->_joinData->role, Configure::read('privileged_roster_roles')) && $player->_joinData->status == ROSTER_APPROVED;
 })->toArray();
 if (!empty($captains)):
@@ -200,15 +216,30 @@ if (!empty($game->score_entries)):
 				<tr>
 					<th></th>
 					<th><?= $this->Text->truncate($game->home_team->name, 23) . __(' ({0})', __('home')) ?></th>
+<?php
+	if ($game->division->schedule_type !== 'competition'):
+?>
 					<th><?= $this->Text->truncate($game->away_team->name, 23) . __(' ({0})', __('away')) ?></th>
+<?php
+	endif;
+?>
 				</tr>
 			</thead>
 			<tbody>
 				<tr>
 					<td><?= __('Home Score') ?></td>
 					<td><?= $homeScoreEntry->person_id ? $homeScoreEntry->score_for : __('not entered') ?></td>
+<?php
+	if ($game->division->schedule_type !== 'competition'):
+?>
 					<td><?= $awayScoreEntry->person_id ? $awayScoreEntry->score_against : __('not entered') ?></td>
+<?php
+	endif;
+?>
 				</tr>
+<?php
+	if ($game->division->schedule_type !== 'competition'):
+?>
 				<tr>
 					<td><?= __('Away Score') ?></td>
 					<td><?= $homeScoreEntry->person_id ? $homeScoreEntry->score_against : __('not entered') ?></td>
@@ -220,13 +251,15 @@ if (!empty($game->score_entries)):
 					<td><?= $awayScoreEntry->person_id ? ($awayScoreEntry->status == 'away_default' ? __('us') : ($awayScoreEntry->status == 'home_default' ? __('them') : __('no'))) : '' ?></td>
 				</tr>
 <?php
+	endif;
+
 	if ($game->division->league->hasCarbonFlip()):
 ?>
 				<tr>
 					<td><?= __('Carbon Flip') ?></td>
 					<td><?php
 					if ($homeScoreEntry->person_id) {
-						if ($homeScoreEntry->status == 'normal') {
+						if ($homeScoreEntry->status === 'normal') {
 							echo $carbon_flip_options[$homeScoreEntry->home_carbon_flip];
 						} else {
 							echo __('N/A');
@@ -235,7 +268,7 @@ if (!empty($game->score_entries)):
 					?></td>
 					<td><?php
 					if ($awayScoreEntry->person_id) {
-						if ($awayScoreEntry->status == 'normal') {
+						if ($awayScoreEntry->status === 'normal') {
 							echo $carbon_flip_options[$awayScoreEntry->home_carbon_flip];
 						} else {
 							echo __('N/A');
@@ -262,12 +295,12 @@ if (!empty($game->score_entries)):
 				<tr>
 					<td><?= __('Entry Time') ?></td>
 					<td><?php
-					if ($homeScoreEntry->person_id) {
+					if ($homeScoreEntry->person_id && $homeScoreEntry->modified) {
 						echo $this->Time->datetime($homeScoreEntry->modified);
 					}
 					?></td>
 					<td><?php
-					if ($awayScoreEntry->person_id) {
+					if ($awayScoreEntry->person_id && $awayScoreEntry->modified) {
 						echo $this->Time->datetime($awayScoreEntry->modified);
 					}
 					?></td>
@@ -320,6 +353,9 @@ if (!$preliminary):
 				'default' => (array_key_exists(null, $game->score_entries) ? $game->score_entries[null]->score_for : null),
 				'secure' => false,
 			]) ?></dd>
+<?php
+	if ($game->division->schedule_type !== 'competition'):
+?>
 			<dt class="normal default"><?= $this->Text->truncate($game->away_team->name, 28) ?></dt>
 			<dd class="normal default"><?= $this->Form->input('away_score', [
 				'id' => 'ScoreAway',
@@ -329,6 +365,13 @@ if (!$preliminary):
 				'secure' => false,
 			]) ?></dd>
 <?php
+	else:
+		// TODO: Instead, make it accept no score for competition games
+		echo $this->Form->hidden('away_score', [
+			'value' => 0,
+		]);
+	endif;
+
 	if ($game->division->league->hasCarbonFlip()):
 ?>
 			<dt class="normal"><?= __('Carbon Flip') ?></dt>

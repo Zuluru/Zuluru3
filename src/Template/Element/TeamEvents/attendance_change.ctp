@@ -1,11 +1,11 @@
 <?php
 /**
- * @type \App\Model\Entity\Team $team
- * @type \App\Model\Entity\Attendance $attendance
- * @type \App\Model\Entity\TeamEvent $event
- * @type string $role
- * @type int $person_id
- * @type bool $future_only
+ * @type $team \App\Model\Entity\Team
+ * @type $attendance \App\Model\Entity\Attendance
+ * @type $event \App\Model\Entity\TeamEvent
+ * @type $role string
+ * @type $person_id int
+ * @type $future_only bool
  */
 
 use App\Authorization\ContextResource;

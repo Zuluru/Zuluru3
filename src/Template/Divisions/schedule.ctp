@@ -1,8 +1,10 @@
 <?php
 /**
- * @type \App\Model\Entity\Division $division
- * @type boolean $multi_day
- * @type \Cake\I18n\FrozenDate $edit_date
+ * @type $division \App\Model\Entity\Division
+ * @type $multi_day boolean
+ * @type $edit_date \Cake\I18n\FrozenDate
+ * @type $game_slots \App\Model\Entity\GameSlot[]
+ * @type $is_tournament bool
  */
 
 use Cake\Core\Configure;
@@ -21,7 +23,7 @@ endif;
 	<div class="divisions schedule">
 		<h2><?= __('Division Schedule') . ': ' . $division->full_league_name ?></h2>
 <?php
-if ($division->schedule_type == 'tournament') {
+if ($division->schedule_type === 'tournament') {
 	echo $this->element('Leagues/schedule/tournament/notice');
 }
 
@@ -64,7 +66,7 @@ if (!empty($division->games)):
 			<table class="table table-striped table-hover table-condensed">
 				<thead>
 <?php
-	$competition = ($division->schedule_type == 'competition');
+	$competition = ($division->schedule_type === 'competition');
 ?>
 					<tr>
 						<th><?= $is_tournament ? __('Game') : '' ?></th>
@@ -92,7 +94,7 @@ if (!empty($division->games)):
 <?php
 	foreach ($weeks as $week) {
 		if ($edit_date >= $week[0] && $edit_date <= $week[1]) {
-			echo $this->element('Leagues/schedule/week_edit', array_merge(['league' => $division->league], compact('week', 'multi_day', 'slots', 'is_tournament')));
+			echo $this->element('Leagues/schedule/week_edit', array_merge(['league' => $division->league], compact('week', 'multi_day', 'game_slots', 'is_tournament')));
 		} else {
 			echo $this->element('Leagues/schedule/week_view', array_merge(['league' => $division->league], compact('week', 'multi_day')));
 		}

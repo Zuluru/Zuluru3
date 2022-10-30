@@ -1,10 +1,10 @@
 <?php
 /**
- * @type string $category
- * @type string $name
- * @type string[] $options
- * @type string[] $settings
- * @type string[] $defaults
+ * @type $category string
+ * @type $name string
+ * @type $options string[]
+ * @type $settings string[]
+ * @type $defaults string[]
  */
 
 if (!isset($options)) {

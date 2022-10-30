@@ -1,6 +1,6 @@
 <?php
 /**
- * @type \App\Model\Entity\Team $team
+ * @type $team \App\Model\Entity\Team
  */
 
 use App\Model\Entity\Person;

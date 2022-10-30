@@ -3,10 +3,10 @@ use Cake\Core\Configure;
 use Cake\Routing\Router;
 
 /**
- * @type \App\Model\Entity\Person $person
- * @type \App\Model\Entity\Team $team
- * @type string $role
- * @type string $reply
+ * @type $person \App\Model\Entity\Person
+ * @type $team \App\Model\Entity\Team
+ * @type $role string
+ * @type $reply string
  */
 ?>
 

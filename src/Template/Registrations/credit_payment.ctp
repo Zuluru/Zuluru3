@@ -1,8 +1,8 @@
 <?php
 /**
- * @type \App\Model\Entity\Registration $registration
- * @type \App\Model\Entity\Payment $payment
- * @type \App\Model\Entity\Payment $refund
+ * @type $registration \App\Model\Entity\Registration
+ * @type $payment \App\Model\Entity\Payment
+ * @type $refund \App\Model\Entity\Payment
  */
 
 use Cake\Core\Configure;

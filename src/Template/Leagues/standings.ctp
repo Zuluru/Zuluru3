@@ -1,6 +1,6 @@
 <?php
 /**
- * @type \App\Model\Entity\League $league
+ * @type $league \App\Model\Entity\League
  */
 
 use App\Authorization\ContextResource;

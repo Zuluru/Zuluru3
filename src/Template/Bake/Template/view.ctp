@@ -34,7 +34,7 @@ $pk = "\$$singularVar->{$primaryKey[0]}";
 %>
 <?php
 /**
- * @type \App\Model\Entity\<%= $singularHumanName %> $<%= $singularVar %>
+ * @type $<%= $singularVar %> \App\Model\Entity\<%= $singularHumanName %>
  */
 
 $this->Html->addCrumb(__('<%= $singularHumanName %>'));

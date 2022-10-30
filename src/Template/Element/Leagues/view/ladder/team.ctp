@@ -1,10 +1,10 @@
 <?php
 /**
- * @type \App\Model\Entity\Division $division
- * @type \App\Model\Entity\League $league
- * @type \App\Model\Entity\Team $team
- * @type string[] $classes
- * @type int $seed
+ * @type $division \App\Model\Entity\Division
+ * @type $league \App\Model\Entity\League
+ * @type $team \App\Model\Entity\Team
+ * @type $classes string[]
+ * @type $seed int
  */
 
 use App\Authorization\ContextResource;

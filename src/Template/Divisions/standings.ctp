@@ -1,11 +1,11 @@
 <?php
 /**
- * @type \App\Model\Entity\Division $division
- * @type \App\Model\Entity\Team[] $show_teams
- * @type \App\Module\LeagueType $league_obj
- * @type int $team_id
- * @type boolean $more_before
- * @type boolean $more_after
+ * @type $division \App\Model\Entity\Division
+ * @type $show_teams \App\Model\Entity\Team[]
+ * @type $league_obj \App\Module\LeagueType
+ * @type $team_id int
+ * @type $more_before boolean
+ * @type $more_after boolean
  */
 
 use App\Authorization\ContextResource;

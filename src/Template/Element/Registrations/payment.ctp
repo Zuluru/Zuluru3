@@ -1,8 +1,8 @@
 <?php
 /**
- * @type bool $result
- * @type string[] $errors
- * @type \App\Model\Entity\RegistrationAudit $audit
+ * @type $result bool
+ * @type $errors string[]
+ * @type $audit \App\Model\Entity\RegistrationAudit
  */
 
 use Cake\Core\Configure;

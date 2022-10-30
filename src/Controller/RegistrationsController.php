@@ -5,6 +5,7 @@ use App\Authorization\ContextResource;
 use App\Core\UserCache;
 use App\Model\Entity\Event;
 use App\Model\Entity\Registration;
+use Authorization\Exception\ForbiddenException;
 use Cake\Core\Configure;
 use Cake\Database\Expression\QueryExpression;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
@@ -335,7 +336,17 @@ class RegistrationsController extends AppController {
 			return $this->redirect(['controller' => 'Events', 'action' => 'index']);
 		}
 
-		$this->Authorization->authorize($registration);
+		try {
+			$this->Authorization->authorize($registration);
+		} catch (ForbiddenException $ex) {
+			// Try the invoice; if authorized, redirect there. Otherwise, throw the original exception.
+			try {
+				$this->Authorization->authorize($registration, 'invoice');
+				return $this->redirect(['action' => 'invoice', 'registration' => $id]);
+			} catch (ForbiddenException $ex2) {
+				throw $ex;
+			}
+		}
 		$this->Configuration->loadAffiliate($registration->event->affiliate_id);
 
 		$event_obj = $this->moduleRegistry->load("EventType:{$registration->event->event_type->type}");
@@ -850,6 +861,42 @@ class RegistrationsController extends AppController {
 		}
 
 		$this->set(compact('registration', 'payment', 'refund'));
+	}
+
+	/**
+	 * Invoice method
+	 *
+	 * @return void|\Cake\Network\Response
+	 */
+	public function invoice() {
+		$id = $this->request->getQuery('registration');
+		try {
+			$registration = $this->Registrations->get($id, [
+				'contain' => [
+					'People',
+					'Events',
+					'Payments',
+					'Prices',
+				]
+			]);
+		} catch (RecordNotFoundException $ex) {
+			$this->Flash->info(__('Invalid registration.'));
+			return $this->redirect('/');
+		} catch (InvalidPrimaryKeyException $ex) {
+			$this->Flash->info(__('Invalid registration.'));
+			return $this->redirect('/');
+		}
+
+		$this->Authorization->authorize($registration);
+
+		if ($registration->balance) {
+			$this->Flash->info(__('This registration is not fully paid for yet.'));
+			return $this->redirect('/');
+		}
+
+		$this->Configuration->loadAffiliate($registration->event->affiliate_id);
+
+		$this->set(compact('registration'));
 	}
 
 	public function credit_payment() {

@@ -1,7 +1,7 @@
 <?php
 /**
- * @type \App\Model\Entity\Team $team
- * @type \App\Model\Entity\Event $event
+ * @type $team \App\Model\Entity\Team
+ * @type $event \App\Model\Entity\Event
  */
 
 use Cake\Core\Configure;

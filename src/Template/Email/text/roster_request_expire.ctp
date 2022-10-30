@@ -2,9 +2,9 @@
 use Cake\Core\Configure;
 
 /**
- * @type \App\Model\Entity\Person $person
- * @type \App\Model\Entity\Team $team
- * @type \App\Model\Entity\TeamsPerson $roster
+ * @type $person \App\Model\Entity\Person
+ * @type $team \App\Model\Entity\Team
+ * @type $roster \App\Model\Entity\TeamsPerson
  */
 ?>
 

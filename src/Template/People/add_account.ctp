@@ -2,10 +2,11 @@
 /**
  * @type $this \App\View\AppView
  * @type $person \App\Model\Entity\Person
- * @type string $user_field
- * @type string $email_field
- * @type string[] $provinces
- * @type string[] $countries
+ * @type $user_model string
+ * @type $user_field string
+ * @type $email_field string
+ * @type $provinces string[]
+ * @type $countries string[]
  */
 
 use Cake\Core\Configure;
@@ -28,11 +29,11 @@ echo $this->Form->create($person, ['align' => 'horizontal']);
 	<fieldset>
 		<legend><?= __('Username and Password') ?></legend>
 <?php
-echo $this->Form->input("user.{$user_field}", [
+echo $this->Form->input("{$user_model}.{$user_field}", [
 	'label' => __('Username'),
 ]);
-echo $this->Form->input('user.new_password', ['type' => 'password', 'label' => __('Password')]);
-echo $this->Form->input('user.confirm_password', ['type' => 'password', 'label' => __('Confirm Password')]);
+echo $this->Form->input("{$user_model}.new_password", ['type' => 'password', 'label' => __('Password')]);
+echo $this->Form->input("{$user_model}.confirm_password", ['type' => 'password', 'label' => __('Confirm Password')]);
 ?>
 	</fieldset>
 	<fieldset>
@@ -76,7 +77,7 @@ if (Configure::read('profile.mobile_phone')) {
 		'label' => __('Allow registered users to view mobile number'),
 	]);
 }
-echo $this->Form->input("user.{$email_field}", [
+echo $this->Form->input("{$user_model}.{$email_field}", [
 	'label' => __('Email'),
 ]);
 echo $this->Form->input('publish_email', [

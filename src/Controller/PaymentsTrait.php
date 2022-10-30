@@ -12,6 +12,7 @@ trait PaymentsTrait {
 					'Events' => [
 						'EventTypes',
 						'Divisions' => ['Leagues'],
+						'Questionnaires' => ['Questions'],
 					],
 					'Prices',
 					'Payments',

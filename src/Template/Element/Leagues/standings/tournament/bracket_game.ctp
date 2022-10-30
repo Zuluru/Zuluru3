@@ -1,7 +1,7 @@
 <?php
 /**
- * @type \App\Model\Entity\Game $game
- * @type boolean $can_edit
+ * @type $game \App\Model\Entity\Game
+ * @type $can_edit boolean
  */
 
 ?>

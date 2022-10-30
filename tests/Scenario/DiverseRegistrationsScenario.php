@@ -69,8 +69,8 @@ class DiverseRegistrationsScenario implements FixtureScenarioInterface {
 
 		if (!empty($args['captain']) || !empty($args['player'])) {
 			// Make a division to connect to the team and individual events
-			$division = DivisionFactory::make([])
-				->with('Leagues', ['affiliate_id' => $affiliate_id])
+			$division = DivisionFactory::make(['is_open' => true])
+				->with('Leagues', ['affiliate_id' => $affiliate_id, 'is_open' => true])
 				->persist();
 			if (array_key_exists('coordinator', $args)) {
 				DivisionsPersonFactory::make(['person_id' => $args['coordinator']->id, 'division_id' => $division->id])->persist();

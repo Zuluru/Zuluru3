@@ -1,6 +1,6 @@
 <?php
 /**
- * @type \App\Model\Entity\Division $division
+ * @type $division \App\Model\Entity\Division
  */
 
 use Cake\ORM\TableRegistry;

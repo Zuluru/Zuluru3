@@ -1,8 +1,8 @@
 <?php
 /**
- * @type \App\Model\Entity\Credit $credit
- * @type \App\Model\Entity\Person[] $relatives
- * @type \App\Model\Entity\Person[] $captains
+ * @type $credit \App\Model\Entity\Credit
+ * @type $relatives \App\Model\Entity\Person[]
+ * @type $captains \App\Model\Entity\Person[]
  */
 
 $this->Html->addCrumb(__('Credit'));

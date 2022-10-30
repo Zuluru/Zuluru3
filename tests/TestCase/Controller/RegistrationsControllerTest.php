@@ -271,9 +271,12 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		// But not ones in other affiliates
 		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'view', 'registration' => $affiliate_team->id], $manager->id);
 
+		// People who try to view their own registrations, if they are paid, get redirected to the invoice
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'view', 'registration' => $membership->id],
+			$player->id, ['controller' => 'Registrations', 'action' => 'invoice', 'registration' => $membership->id]);
+
 		// Others are not allowed to view registrations
 		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'view', 'registration' => $individual->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'view', 'registration' => $membership->id], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'view', 'registration' => $membership->id]);
 	}
 

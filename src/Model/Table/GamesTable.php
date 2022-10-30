@@ -1121,8 +1121,13 @@ class GamesTable extends AppTable {
 		if (!empty($a->game_slot->field_id) && !empty($b->game_slot->field_id)) {
 			if ($a->game_slot->field_id < $b->game_slot->field_id) {
 				return -1;
-			} else {
+			} else if ($a->game_slot->field_id > $b->game_slot->field_id) {
 				return 1;
+			}
+
+			if ($a->home_team && $b->home_team) {
+				// Must both be games. Could be where there's multiple games in the same slot.
+				return $a->home_team->name <=> $b->home_team->name;
 			}
 		}
 

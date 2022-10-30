@@ -1,8 +1,8 @@
 <?php
 /**
- * @type \App\Model\Entity\League $league
- * @type \App\Module\LeagueType $league_obj
- * @type int[] $affiliates
+ * @type $league \App\Model\Entity\League
+ * @type $league_obj \App\Module\LeagueType
+ * @type $affiliates int[]
  */
 
 use App\Model\Entity\Division;

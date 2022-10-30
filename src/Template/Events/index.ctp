@@ -1,9 +1,9 @@
 <?php
 /**
- * @type \App\Model\Entity\Event[] $events
- * @type string $year
- * @type string[][] $years
- * @type int[] $affiliates
+ * @type $events \App\Model\Entity\Event[]
+ * @type $year string
+ * @type $years string[][]
+ * @type $affiliates int[]
  */
 
 use App\Controller\AppController;

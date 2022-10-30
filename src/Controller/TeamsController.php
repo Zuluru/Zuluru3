@@ -1593,11 +1593,23 @@ class TeamsController extends AppController {
 		$dates = [];
 		if (empty($team->division_id)) {
 			$this->Configuration->loadAffiliate($team->affiliate_id);
+			$days = [];
+
+			$attendance = $this->Teams->get($team->id, [
+				'contain' => [
+					'People' => [
+						'queryBuilder' => function (Query $q) {
+							return $q->where(['TeamsPeople.status' => ROSTER_APPROVED]);
+						},
+						Configure::read('Security.authModel'),
+					],
+				]
+			]);
 		} else {
 			$this->Configuration->loadAffiliate($team->division->league->affiliate_id);
 
 			$days = array_unique(collection($team->division->days)->extract('id')->toArray());
-			if (!empty($days) && $team->division->schedule_type != 'none') {
+			if (!empty($days) && $team->division->schedule_type !== 'none') {
 				$play_day = min($days);
 				for ($date = $team->division->open; $date <= $team->division->close; $date = $date->addDay()) {
 					$day = $date->format('N');
@@ -1615,9 +1627,10 @@ class TeamsController extends AppController {
 				// TODOLATER: Still true?
 				$dates = array_unique($dates);
 			}
+
+			$attendance = $this->Teams->Divisions->Games->readAttendance($team, $days, null, $dates);
 		}
 
-		$attendance = $this->Teams->Divisions->Games->readAttendance($team, $days, null, $dates);
 		$event_attendance = $this->Teams->TeamEvents->readAttendance($team);
 
 		$this->set(compact('team', 'attendance', 'event_attendance', 'dates', 'days', 'games'));

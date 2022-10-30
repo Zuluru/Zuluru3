@@ -1,6 +1,6 @@
 <td class="actions"><?php
 /**
- * @type \App\View\AppView $this
+ * @type $this \App\View\AppView
  * @type $plugin \App\Model\Entity\Plugin
  */
 

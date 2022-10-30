@@ -349,6 +349,7 @@ class GamesController extends AppController {
 		if ($game->division->league->hasSpirit()) {
 			$spirit_obj = $game->division->league->hasSpirit() ? $this->moduleRegistry->load("Spirit:{$game->division->league->sotg_questions}") : null;
 			$this->Games->SpiritEntries->addValidation($spirit_obj, $game->division->league);
+			$this->set(compact('spirit_obj'));
 		}
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
@@ -406,7 +407,7 @@ class GamesController extends AppController {
 			}
 		}
 
-		$this->set(compact(['game', 'spirit_obj']));
+		$this->set(compact(['game']));
 	}
 
 	public function edit_boxscore() {

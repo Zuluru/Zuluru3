@@ -55,14 +55,14 @@ class LeagueScenario implements FixtureScenarioInterface {
 		];
 
 		if (array_key_exists('divisions', $args)) {
-			$divisions = "[{$args['divisions']}]";
+			$divisions = $args['divisions'];
 		} else {
-			$divisions = '';
+			$divisions = 1;
 		}
 
 		/** @var League $league */
 		$league = LeagueFactory::make($args['league_details'])
-			->with("Divisions{$divisions}", DivisionFactory::make($args['division_details'])->with('Days', ['id' => $args['day_id'], 'name' => 'Testday']))
+			->with("Divisions", DivisionFactory::make($args['division_details'], $divisions)->with('Days', ['id' => $args['day_id'], 'name' => 'Testday']))
 			->with('Affiliates', $args['affiliate'] ?? [])
 			->persist();
 

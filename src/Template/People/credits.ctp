@@ -1,7 +1,7 @@
 <?php
 /**
- * @type \App\Model\Entity\Person $person
- * @type int[] $affiliates
+ * @type $person \App\Model\Entity\Person
+ * @type $affiliates int[]
  */
 
 $this->Html->addCrumb(__('People'));

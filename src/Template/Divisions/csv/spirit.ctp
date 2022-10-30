@@ -2,8 +2,8 @@
 use Cake\Core\Configure;
 
 /**
- * @type \App\Model\Entity\Division $division
- * @type \App\Module\Spirit $spirit_obj
+ * @type $division \App\Model\Entity\Division
+ * @type $spirit_obj \App\Module\Spirit
  */
 
 $fp = fopen('php://output','w+');

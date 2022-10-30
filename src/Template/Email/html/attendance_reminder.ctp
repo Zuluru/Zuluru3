@@ -3,11 +3,11 @@ use Cake\Core\Configure;
 use Cake\Routing\Router;
 
 /**
- * @type \App\Model\Entity\Team $team
- * @type \App\Model\Entity\Team $opponent
- * @type \App\Model\Entity\Game $game
- * @type \App\Model\Entity\Person $person
- * @type int $status
+ * @type $team \App\Model\Entity\Team
+ * @type $opponent \App\Model\Entity\Team
+ * @type $game \App\Model\Entity\Game
+ * @type $person \App\Model\Entity\Person
+ * @type $status int
  */
 
 if ($opponent) {

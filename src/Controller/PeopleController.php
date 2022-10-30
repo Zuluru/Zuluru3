@@ -792,21 +792,24 @@ class PeopleController extends AppController {
 
 		$this->_loadAddressOptions();
 		$this->_loadAffiliateOptions();
+		$user_model = Inflector::underscore(Inflector::singularize(Configure::read('Security.authModel')));
 		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'));
 
 		$this->set([
+			'user_model' => $user_model,
 			'user_field' => $users_table->userField,
 			'email_field' => $users_table->emailField,
 		]);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$this->request = $this->request->withData("user.{$users_table->pwdField}", $this->request->getData('new_password'));
+			$this->request = $this->request->withData("{$user_model}.{$users_table->pwdField}", $this->request->getData("{$user_model}.new_password"));
 			$person = $this->People->patchEntity($person, $this->request->getData(), [
 				'Associated' => [
-					'Users' => ['validate' => 'create'],
+					Configure::read('Security.authModel') => ['validate' => 'create'],
 				],
 			]);
 
+			// TODO: Need to fix the new user_id being set in the person record
 			if ($this->People->save($person)) {
 				$this->Flash->success(__('Your account has been created.'));
 				Cache::delete("person/{$id}", 'long_term');

@@ -1,6 +1,7 @@
 <?php
 /**
- * @type \App\Model\Entity\Affiliate $affiliate
+ * @type $this \App\View\AppView
+ * @type $affiliate \App\Model\Entity\Affiliate
  */
 
 use Cake\Core\Configure;
@@ -128,7 +129,35 @@ echo $this->element('Settings/input', [
 		'size' => 6,
 	],
 ]);
+?>
+	</fieldset>
+	<fieldset>
+		<legend><?= __('Notifications') ?></legend>
+<?php
+echo $this->element('Settings/input', [
+	'category' => 'registration',
+	'name' => 'notify_admin',
+	'options' => [
+		'label' => __('Notify Admin?'),
+		'type' => 'radio',
+		'options' => Configure::read('options.enable'),
+		'help' => __('If this is enabled, an email will be sent to the admin email address whenever online payments are received.'),
+	],
+]);
 
+echo $this->element('Settings/input', [
+	'category' => 'registration',
+	'name' => 'notify_registrant',
+	'options' => [
+		'label' => __('Notify Registrant?'),
+		'type' => 'radio',
+		'options' => Configure::read('options.enable'),
+		'help' => __('If this is enabled, an email will be sent to the registrant\'s email address whenever payments are recorded.'),
+	],
+]);
+?>
+	</fieldset>
+<?php
 echo $this->Form->button(__('Submit'), ['class' => 'btn-success']);
 echo $this->Form->end();
 ?>
