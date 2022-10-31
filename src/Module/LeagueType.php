@@ -553,7 +553,7 @@ abstract class LeagueType {
 		});
 
 		$return = [];
-		while($game = array_shift($games)) {
+		while ($game = array_shift($games)) {
 			$game->game_slot = $this->selectWeightedGameslot($division, $date, $game, count($games) + 1 + $remaining);
 			$game->game_slot_id = $game->game_slot->id;
 			$return[] = $game;

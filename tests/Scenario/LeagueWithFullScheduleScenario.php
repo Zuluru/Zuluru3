@@ -32,7 +32,7 @@ class LeagueWithFullScheduleScenario implements FixtureScenarioInterface {
 	 * - scores: bool
 	 * - spirit: bool
 	 * - playoffs: bool
-	 * - additional_slots: int number of extra slots per week to create after the games already schedule
+	 * - additional_slots: int number of extra slots per week to create after the games already scheduled
 	 * - additional_weeks: int number of extra weeks to create that many slots for, defaults to 1 if not specified
 	 */
 	public function load(...$args): League {
@@ -71,9 +71,10 @@ class LeagueWithFullScheduleScenario implements FixtureScenarioInterface {
 		$late_end = FrozenTime::createFromTime(23);
 
 		$team_names = ['Red', 'Yellow', 'Green', 'Blue', 'Orange', 'Purple', 'Black', 'White'];
-		$teams = array_map(static function ($name, $seed) {
-			return ['name' => $name, 'shirt_colour' => $name, 'initial_seed' => $seed];
-		}, $team_names, range(1, count($team_names)));
+		$ratings = [1513, 1487, 1500, 1500, 1500, 1510, 1500, 1490];
+		$teams = array_map(static function ($name, $rating, $seed) {
+			return ['name' => $name, 'shirt_colour' => $name, 'rating' => $rating, 'initial_seed' => $seed];
+		}, $team_names, $ratings, range(1, count($team_names)));
 		foreach ($league->divisions as $key => $division) {
 			[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $division->teams = TeamFactory::make($teams)
 				->with('Divisions', $division)->persist();

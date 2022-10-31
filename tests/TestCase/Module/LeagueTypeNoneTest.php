@@ -2,6 +2,8 @@
 namespace App\Test\TestCase\Module;
 
 use App\Core\ModuleRegistry;
+use App\Model\Entity\Team;
+use App\Module\LeagueTypeNone;
 use App\Test\Factory\TeamFactory;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
@@ -16,7 +18,7 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Module\LeagueType
+	 * @var \App\Module\LeagueTypeNone
 	 */
 	public $LeagueType;
 
@@ -110,6 +112,7 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 	 * Test compareTeams method
 	 */
 	public function testCompareTeams(): void {
+		/** @var Team[] $teams */
 		$teams = TeamFactory::make([
 			['name' => 'Red', 'initial_seed' => 3],
 			['name' => 'Blue', 'initial_seed' => 2],
@@ -117,22 +120,18 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 			['name' => 'Yellow', 'initial_seed' => 4],
 		])->getEntities();
 
-		$red = $teams[0];
-		$blue = $teams[1];
-		$green = $teams[2];
-		$yellow = $teams[3];
-
+		[$red, $blue, $green, $yellow] = $teams;
 		$sort_context = [];
 
 		// Initial seeding is Green, Blue, Red, Yellow
-		$this->assertEquals(-1, $this->LeagueType->compareTeams($green, $blue, $sort_context));
-		$this->assertEquals(-1, $this->LeagueType->compareTeams($red, $yellow, $sort_context));
-		$this->assertEquals(1, $this->LeagueType->compareTeams($red, $blue, $sort_context));
-		$this->assertEquals(-1, $this->LeagueType->compareTeams($green, $yellow, $sort_context));
+		$this->assertEquals(-1, LeagueTypeNone::compareTeams($green, $blue, $sort_context));
+		$this->assertEquals(-1, LeagueTypeNone::compareTeams($red, $yellow, $sort_context));
+		$this->assertEquals(1, LeagueTypeNone::compareTeams($red, $blue, $sort_context));
+		$this->assertEquals(-1, LeagueTypeNone::compareTeams($green, $yellow, $sort_context));
 
 		// If Blue had the same initial seeding as Green, they'd be ahead based on name comparison
 		$blue->initial_seed = 1;
-		$this->assertEquals(1, $this->LeagueType->compareTeams($green, $blue, $sort_context));
+		$this->assertEquals(1, LeagueTypeNone::compareTeams($green, $blue, $sort_context));
 	}
 
 	/**
