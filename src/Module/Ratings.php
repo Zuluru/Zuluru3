@@ -183,7 +183,7 @@ abstract class Ratings {
 			} else if (strpos($game->status, 'default') !== false && !Configure::read('scoring.default_transfer_ratings')) {
 				// Defaulted games might not adjust ratings
 				$change = $home_change = 0;
-			} else if ($this->scheduleType == 'competition') {
+			} else if ($this->scheduleType === 'competition') {
 				$change = $home_change = $this->calculateRatingsChange($game->home_score, 0, 0);
 			} else {
 				if (!array_key_exists($game->away_team_id, $this->teams) || !array_key_exists($game->home_team_id, $this->teams)) {
@@ -201,7 +201,7 @@ abstract class Ratings {
 
 			if ($home_change != 0) {
 				$this->teams[$game->home_team_id]->current_rating += $home_change;
-				if ($this->scheduleType != 'competition') {
+				if ($this->scheduleType !== 'competition') {
 					$this->teams[$game->away_team_id]->current_rating -= $home_change;
 				}
 			}
@@ -221,8 +221,6 @@ abstract class Ratings {
 	 * Copy any ratings changes into the team and game records and saves them.
 	 */
 	protected function saveRatings(Division $division) {
-		$team_count = 0;
-
 		// When editing the division, we don't load the team list.
 		if (!$division->has('teams')) {
 			$division->teams = collection($this->teams)->match(['division_id' => $division->id])->toArray();
@@ -232,7 +230,6 @@ abstract class Ratings {
 			if ($this->teams[$team->id]->has('current_rating') && $this->teams[$team->id]->current_rating != $team->rating) {
 				$team->rating = $this->teams[$team->id]->current_rating;
 				$division->setDirty('teams', true);
-				++$team_count;
 			}
 		}
 
@@ -255,7 +252,7 @@ abstract class Ratings {
 		// If nothing is dirty, no need to save or clear cache
 		if ($division->isDirty()) {
 			$divisions_table = TableRegistry::getTableLocator()->get('Divisions');
-			if (!$divisions_table->save($division, ['update_badges' => false])) {
+			if (!$divisions_table->save($division, ['checkRules' => false, 'update_badges' => false])) {
 				return false;
 			}
 		}

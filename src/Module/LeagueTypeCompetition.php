@@ -28,9 +28,9 @@ class LeagueTypeCompetition extends LeagueType {
 	 * which are meaningless here.
 	 */
 	public static function compareTeams(Team $a, Team $b, array $context) {
-		if ($a->rating > $b->rating) {
+		if ($a->rating < $b->rating) {
 			return 1;
-		} else if ($a->rating < $b->rating) {
+		} else if ($a->rating > $b->rating) {
 			return -1;
 		}
 
