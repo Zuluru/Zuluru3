@@ -1,10 +1,10 @@
 <?php
 /**
- * @type \App\Model\Entity\Game $game
- * @type boolean $is_tournament
- * @type boolean $multi_day
- * @type boolean $same_date
- * @type boolean $same_slot
+ * @type $game \App\Model\Entity\Game
+ * @type $is_tournament boolean
+ * @type $multi_day boolean
+ * @type $same_date boolean
+ * @type $same_slot boolean
  */
 
 ?>

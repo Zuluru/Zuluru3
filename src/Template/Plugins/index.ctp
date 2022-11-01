@@ -1,7 +1,7 @@
 <?php
 /**
- * @type \App\View\AppView $this
- * @type \App\Model\Entity\Plugin[] $plugins
+ * @type $this \App\View\AppView
+ * @type $plugins \App\Model\Entity\Plugin[]
  */
 
 $this->Html->addCrumb(__('Plugins'));

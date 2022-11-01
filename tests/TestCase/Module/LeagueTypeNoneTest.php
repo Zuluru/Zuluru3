@@ -2,6 +2,9 @@
 namespace App\Test\TestCase\Module;
 
 use App\Core\ModuleRegistry;
+use App\Model\Entity\Team;
+use App\Module\LeagueTypeNone;
+use App\Test\Factory\TeamFactory;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 
@@ -13,54 +16,24 @@ use Cake\ORM\TableRegistry;
 class LeagueTypeNoneTest extends ModuleTestCase {
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-					'app.DivisionsDays',
-					'app.GameSlots',
-						'app.DivisionsGameslots',
-					'app.Pools',
-						'app.PoolsTeams',
-					'app.Games',
-						'app.SpiritEntries',
-		'app.Settings',
-		'app.I18n',
-	];
-
-	/**
 	 * Test subject
 	 *
-	 * @var \App\Module\LeagueType
+	 * @var \App\Module\LeagueTypeNone
 	 */
 	public $LeagueType;
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$this->LeagueType = ModuleRegistry::getInstance()->load('LeagueType:none');
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->LeagueType);
 
 		parent::tearDown();
@@ -83,289 +56,221 @@ class LeagueTypeNoneTest extends ModuleTestCase {
 			];
 		}
 		$contain[] = 'Leagues';
-		return TableRegistry::get('Divisions')->get($id, ['contain' => $contain]);
+		return TableRegistry::getTableLocator()->get('Divisions')->get($id, ['contain' => $contain]);
 	}
 
 	/**
 	 * Test links method
-	 *
-	 * @return void
 	 */
-	public function testLinks() {
+	public function testLinks(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test schedulingFields method
-	 *
-	 * @return void
 	 */
-	public function testSchedulingFields() {
+	public function testSchedulingFields(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test schedulingFieldsRules method
-	 *
-	 * @return void
 	 */
-	public function testSchedulingFieldsRules() {
+	public function testSchedulingFieldsRules(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test newTeam method
-	 *
-	 * @return void
 	 */
-	public function testNewTeam() {
+	public function testNewTeam(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test addResults method
-	 *
-	 * @return void
 	 */
-	public function testAddResults() {
+	public function testAddResults(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test sort method
-	 *
-	 * @return void
 	 */
-	public function testSort() {
+	public function testSort(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test presort method
-	 *
-	 * @return void
 	 */
-	public function testPresort() {
+	public function testPresort(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test compareTeams method
-	 *
-	 * @return void
 	 */
-	public function testCompareTeams() {
-		$division = $this->loadDivision(DIVISION_ID_MONDAY_LADDER, true);
+	public function testCompareTeams(): void {
+		/** @var Team[] $teams */
+		$teams = TeamFactory::make([
+			['name' => 'Red', 'initial_seed' => 3],
+			['name' => 'Blue', 'initial_seed' => 2],
+			['name' => 'Green', 'initial_seed' => 1],
+			['name' => 'Yellow', 'initial_seed' => 4],
+		])->getEntities();
 
-		$this->assertEquals(8, count($division->teams));
-
-		$green = $division->teams[0];
-		$this->assertEquals(TEAM_ID_GREEN, $green->id);
-		$blue = $division->teams[1];
-		$this->assertEquals(TEAM_ID_BLUE, $blue->id);
-		$red = $division->teams[2];
-		$this->assertEquals(TEAM_ID_RED, $red->id);
-		$yellow = $division->teams[3];
-		$this->assertEquals(TEAM_ID_YELLOW, $yellow->id);
-		$orange = $division->teams[4];
-		$this->assertEquals(TEAM_ID_ORANGE, $orange->id);
-		$purple = $division->teams[5];
-		$this->assertEquals(TEAM_ID_PURPLE, $purple->id);
-		$black = $division->teams[6];
-		$this->assertEquals(TEAM_ID_BLACK, $black->id);
-		$white = $division->teams[7];
-		$this->assertEquals(TEAM_ID_WHITE, $white->id);
-
+		[$red, $blue, $green, $yellow] = $teams;
 		$sort_context = [];
 
 		// Initial seeding is Green, Blue, Red, Yellow
-		$this->assertEquals(-1, $this->LeagueType->compareTeams($green, $blue, $sort_context));
-		$this->assertEquals(-1, $this->LeagueType->compareTeams($red, $yellow, $sort_context));
-		$this->assertEquals(1, $this->LeagueType->compareTeams($red, $blue, $sort_context));
-		$this->assertEquals(-1, $this->LeagueType->compareTeams($green, $yellow, $sort_context));
+		$this->assertEquals(-1, LeagueTypeNone::compareTeams($green, $blue, $sort_context));
+		$this->assertEquals(-1, LeagueTypeNone::compareTeams($red, $yellow, $sort_context));
+		$this->assertEquals(1, LeagueTypeNone::compareTeams($red, $blue, $sort_context));
+		$this->assertEquals(-1, LeagueTypeNone::compareTeams($green, $yellow, $sort_context));
 
 		// If Blue had the same initial seeding as Green, they'd be ahead based on name comparison
 		$blue->initial_seed = 1;
-		$this->assertEquals(1, $this->LeagueType->compareTeams($green, $blue, $sort_context));
+		$this->assertEquals(1, LeagueTypeNone::compareTeams($green, $blue, $sort_context));
 	}
 
 	/**
 	 * Test schedulePreview method
-	 *
-	 * @return void
 	 */
-	public function testSchedulePreview() {
+	public function testSchedulePreview(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test scheduleOptions method
-	 *
-	 * @return void
 	 */
-	public function testScheduleOptions() {
+	public function testScheduleOptions(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test scheduleDescription method
-	 *
-	 * @return void
 	 */
-	public function testScheduleDescription() {
+	public function testScheduleDescription(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test scheduleRequirements method
-	 *
-	 * @return void
 	 */
-	public function testScheduleRequirements() {
+	public function testScheduleRequirements(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test canSchedule method
-	 *
-	 * @return void
 	 */
-	public function testCanSchedule() {
+	public function testCanSchedule(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test startSchedule method
-	 *
-	 * @return void
 	 */
-	public function testStartSchedule() {
+	public function testStartSchedule(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test finishSchedule method
-	 *
-	 * @return void
 	 */
-	public function testFinishSchedule() {
+	public function testFinishSchedule(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test createEmptyGame method
-	 *
-	 * @return void
 	 */
-	public function testCreateEmptyGame() {
+	public function testCreateEmptyGame(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test createGamesForTeams method
-	 *
-	 * @return void
 	 */
-	public function testCreateGamesForTeams() {
+	public function testCreateGamesForTeams(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test addTeamsBalanced method
-	 *
-	 * @return void
 	 */
-	public function testAddTeamsBalanced() {
+	public function testAddTeamsBalanced(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test homeAwayRatio method
-	 *
-	 * @return void
 	 */
-	public function testHomeAwayRatio() {
+	public function testHomeAwayRatio(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test assignFieldsByPreferences method
-	 *
-	 * @return void
 	 */
-	public function testAssignFieldsByPreferences() {
+	public function testAssignFieldsByPreferences(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test hasHomeField method
-	 *
-	 * @return void
 	 */
-	public function testHasHomeField() {
+	public function testHasHomeField(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test preferredFieldRatio method
-	 *
-	 * @return void
 	 */
-	public function testPreferredFieldRatio() {
+	public function testPreferredFieldRatio(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test selectRandomGameslot method
-	 *
-	 * @return void
 	 */
-	public function testSelectRandomGameslot() {
+	public function testSelectRandomGameslot(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test selectWeightedGameslot method
-	 *
-	 * @return void
 	 */
-	public function testSelectWeightedGameslot() {
+	public function testSelectWeightedGameslot(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test matchingSlots method
-	 *
-	 * @return void
 	 */
-	public function testMatchingSlots() {
+	public function testMatchingSlots(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test removeGameslot method
-	 *
-	 * @return void
 	 */
-	public function testRemoveGameslot() {
+	public function testRemoveGameslot(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test countAvailableGameslotDays method
-	 *
-	 * @return void
 	 */
-	public function testCountAvailableGameslotDays() {
+	public function testCountAvailableGameslotDays(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test nextGameslotDay method
-	 *
-	 * @return void
 	 */
-	public function testNextGameslotDay() {
+	public function testNextGameslotDay(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

@@ -12,50 +12,23 @@ class ScoreDetailStatsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\ScoreDetailStatsTable
+	 * @var ScoreDetailStatsTable
 	 */
 	public $ScoreDetailStatsTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-					'app.Pools',
-						'app.PoolsTeams',
-					'app.Games',
-						'app.ScoreDetails',
-							'app.ScoreDetailStats',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('ScoreDetailStats') ? [] : ['className' => 'App\Model\Table\ScoreDetailStatsTable'];
-		$this->ScoreDetailStatsTable = TableRegistry::get('ScoreDetailStats', $config);
+		$config = TableRegistry::getTableLocator()->exists('ScoreDetailStats') ? [] : ['className' => ScoreDetailStatsTable::class];
+		$this->ScoreDetailStatsTable = TableRegistry::getTableLocator()->get('ScoreDetailStats', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->ScoreDetailStatsTable);
 
 		parent::tearDown();

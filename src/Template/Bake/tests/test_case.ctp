@@ -78,10 +78,8 @@ class <%= $className %>Test extends TestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 	<%- if ($preConstruct): %>
 		<%= $preConstruct %>
@@ -94,10 +92,8 @@ class <%= $className %>Test extends TestCase {
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this-><%= $subject %>);
 
 		parent::tearDown();
@@ -109,10 +105,8 @@ class <%= $className %>Test extends TestCase {
 
 	/**
 	 * Test <%= $method %> method<%= $desc %>
-	 *
-	 * @return void
 	 */
-	public function test<%= Inflector::camelize($method) %><%= $role %>() {
+	public function test<%= Inflector::camelize($method) %><%= $role %>(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 <% endforeach; %>
@@ -122,10 +116,8 @@ class <%= $className %>Test extends TestCase {
 
 	/**
 	 * Test initial setup
-	 *
-	 * @return void
 	 */
-	public function testInitialization() {
+	public function testInitialization(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 <% endif; %>

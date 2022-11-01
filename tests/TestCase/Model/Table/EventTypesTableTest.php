@@ -12,37 +12,23 @@ class EventTypesTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\EventTypesTable
+	 * @var EventTypesTable
 	 */
 	public $EventTypes;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.I18n',
-		// TODO
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('EventTypes') ? [] : ['className' => 'App\Model\Table\EventTypesTable'];
-		$this->EventTypes = TableRegistry::get('EventTypes', $config);
+		$config = TableRegistry::getTableLocator()->exists('EventTypes') ? [] : ['className' => EventTypesTable::class];
+		$this->EventTypes = TableRegistry::getTableLocator()->get('EventTypes', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->EventTypes);
 
 		parent::tearDown();
@@ -50,19 +36,15 @@ class EventTypesTableTest extends TableTestCase {
 
 	/**
 	 * Test initialize method
-	 *
-	 * @return void
 	 */
-	public function testInitialize() {
+	public function testInitialize(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test validationDefault method
-	 *
-	 * @return void
 	 */
-	public function testValidationDefault() {
+	public function testValidationDefault(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

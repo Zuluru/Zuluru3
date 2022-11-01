@@ -71,7 +71,7 @@ class Team extends Entity {
 	];
 
 	/**
-	 * @return array of approved non-sub players on the team
+	 * @return \Cake\ORM\Query with approved non-sub players on the team
 	 */
 	protected function _getRoster() {
 		return TableRegistry::getTableLocator()->get('People')->find()
@@ -114,21 +114,28 @@ class Team extends Entity {
 
 		$teams_table = TableRegistry::getTableLocator()->get('Teams');
 
-		$franchises = $teams_table->Franchises->find()
-			->select('id')
-			->matching('Teams', function (Query $q) {
-				return $q->where([
-					'Teams.id' => $this->id,
-				]);
-			});
-		$affiliated_teams = $teams_table->find()
-			->contain($contain)
-			->matching('Franchises', function (Query $q) use ($franchises) {
-				return $q->where([
-					'Franchises.id IN' => $franchises,
-				]);
-			})
-			->where(['Teams.division_id IN' => $season_divisions]);
+		if (Configure::read('feature.franchises')) {
+			$franchises = $teams_table->Franchises->find()
+				->select('id')
+				->matching('Teams', function (Query $q) {
+					return $q->where([
+						'Teams.id' => $this->id,
+					]);
+				});
+			$affiliated_teams = $teams_table->find()
+				->contain($contain)
+				->matching('Franchises', function (Query $q) use ($franchises) {
+					return $q->where([
+						'Franchises.id IN' => $franchises,
+					]);
+				})
+				->where(['Teams.division_id IN' => $season_divisions]);
+		} else {
+			$affiliated_teams = $teams_table->find()
+				->contain($contain)
+				->where(['Teams.division_id IN' => $season_divisions, 'Teams.name' => $this->name]);
+		}
+
 		if ($affiliated_teams->count() != 1) {
 			return null;
 		}
@@ -136,18 +143,18 @@ class Team extends Entity {
 	}
 
 	public function consolidateRoster($sport) {
-		if ($this->has('people')) {
+		if ($this->has('teams_people')) {
 			$this->roster_count = $this->skill_count = $this->skill_total = 0;
-			foreach ($this->people as $person) {
-				if (in_array($person->_joinData->role, Configure::read('playing_roster_roles')) &&
-					$person->_joinData->status == ROSTER_APPROVED)
+			foreach ($this->teams_people as $roster_entry) {
+				if (in_array($roster_entry->role, Configure::read('playing_roster_roles')) &&
+					$roster_entry->status == ROSTER_APPROVED)
 				{
 					++$this->roster_count;
-					if ($person->skills) {
-						$skill = collection($person->skills)->firstMatch(['enabled' => true, 'sport' => $sport]);
+					if ($roster_entry->person->skills) {
+						$skill = collection($roster_entry->person->skills)->firstMatch(['enabled' => true, 'sport' => $sport]);
 					} else {
 						$skill = TableRegistry::getTableLocator()->get('Skills')->find()
-							->where(['person_id' => $person->id, 'enabled' => true, 'sport' => $sport])
+							->where(['person_id' => $roster_entry->person->id, 'enabled' => true, 'sport' => $sport])
 							->first();
 					}
 					if (!empty($skill)) {

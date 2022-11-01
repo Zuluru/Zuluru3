@@ -4,106 +4,77 @@ namespace App\Test\TestCase\Authentication;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Event\EventManager;
-use Cake\TestSuite\IntegrationTestCase;
+use Cake\TestSuite\IntegrationTestTrait;
+use Cake\TestSuite\TestCase;
 
 /**
  * App\Authentication\ActAsIdentity Test Case
  */
-class ActAsIdentityTest extends IntegrationTestCase {
+class ActAsIdentityTest extends TestCase {
 
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.Settings',
-		'app.I18n',
-	];
+	use IntegrationTestTrait;
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		foreach (Configure::read('App.globalListeners') as $listener) {
 			EventManager::instance()->on($listener);
 		}
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		Cache::clear(false, 'long_term');
 		parent::tearDown();
 	}
 
 	/**
 	 * Test applicableAffiliateIDs method as an admin
-	 *
-	 * @return void
 	 */
-	public function testApplicableAffiliateIDsAsAdmin() {
+	public function testApplicableAffiliateIDsAsAdmin(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test applicableAffiliateIDs method as a manager
-	 *
-	 * @return void
 	 */
-	public function testApplicableAffiliateIDsAsManager() {
+	public function testApplicableAffiliateIDsAsManager(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test applicableAffiliateIDs method as a coordinator
-	 *
-	 * @return void
 	 */
-	public function testApplicableAffiliateIDsAsCoordinator() {
+	public function testApplicableAffiliateIDsAsCoordinator(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test applicableAffiliateIDs method as a captain
-	 *
-	 * @return void
 	 */
-	public function testApplicableAffiliateIDsAsCaptain() {
+	public function testApplicableAffiliateIDsAsCaptain(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test applicableAffiliateIDs method as a player
-	 *
-	 * @return void
 	 */
-	public function testApplicableAffiliateIDsAsPlayer() {
+	public function testApplicableAffiliateIDsAsPlayer(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test applicableAffiliateIDs method as someone else
-	 *
-	 * @return void
 	 */
-	public function testApplicableAffiliateIDsAsVisitor() {
+	public function testApplicableAffiliateIDsAsVisitor(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test applicableAffiliateIDs method without being logged in
-	 *
-	 * @return void
 	 */
-	public function testApplicableAffiliateIDsAsAnonymous() {
+	public function testApplicableAffiliateIDsAsAnonymous(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

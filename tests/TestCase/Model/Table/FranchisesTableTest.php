@@ -1,6 +1,9 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Model\Entity\Person;
+use App\Test\Factory\FranchiseFactory;
+use App\Test\Factory\PersonFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\FranchisesTable;
 
@@ -12,41 +15,23 @@ class FranchisesTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\FranchisesTable
+	 * @var FranchisesTable
 	 */
 	public $FranchisesTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-			'app.Franchises',
-				'app.FranchisesPeople',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Franchises') ? [] : ['className' => 'App\Model\Table\FranchisesTable'];
-		$this->FranchisesTable = TableRegistry::get('Franchises', $config);
+		$config = TableRegistry::getTableLocator()->exists('Franchises') ? [] : ['className' => FranchisesTable::class];
+		$this->FranchisesTable = TableRegistry::getTableLocator()->get('Franchises', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->FranchisesTable);
 
 		parent::tearDown();
@@ -54,32 +39,33 @@ class FranchisesTableTest extends TableTestCase {
 
 	/**
 	 * Test readByPlayerId method
-	 *
-	 * @return void
 	 */
-	public function testReadByPlayerId() {
-		$franchises = $this->FranchisesTable->readByPlayerId(PERSON_ID_CAPTAIN);
-		$this->assertEquals(2, count($franchises));
-		$this->assertArrayHasKey(0, $franchises);
-		$this->assertEquals(FRANCHISE_ID_RED, $franchises[0]->id);
-		$this->assertEquals(FRANCHISE_ID_RED2, $franchises[1]->id);
+	public function testReadByPlayerId(): void {
+		/** @var Person $captain */
+		$captain = PersonFactory::make()->with('Franchises[2]')->persist();
 
-		$franchises = $this->FranchisesTable->readByPlayerId(PERSON_ID_CAPTAIN, ['Franchises.id IN' => [FRANCHISE_ID_RED]]);
-		$this->assertEquals(1, count($franchises));
+		$franchises = $this->FranchisesTable->readByPlayerId($captain->id);
+		$this->assertCount(2, $franchises);
 		$this->assertArrayHasKey(0, $franchises);
-		$this->assertEquals(FRANCHISE_ID_RED, $franchises[0]->id);
+		$this->assertEquals($captain->franchises[0]->id, $franchises[0]->id);
+		$this->assertEquals($captain->franchises[1]->id, $franchises[1]->id);
 
-		$franchises = $this->FranchisesTable->readByPlayerId(PERSON_ID_CAPTAIN, ['Franchises.id IN' => [FRANCHISE_ID_BLUE]]);
+		$franchises = $this->FranchisesTable->readByPlayerId($captain->id, ['Franchises.id IN' => [$captain->franchises[0]->id]]);
+		$this->assertCount(1, $franchises);
+		$this->assertArrayHasKey(0, $franchises);
+		$this->assertEquals($captain->franchises[0]->id, $franchises[0]->id);
+
+		$franchises = $this->FranchisesTable->readByPlayerId($captain->id, ['Franchises.id IN' => [1]]);
 		$this->assertEmpty($franchises);
 	}
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
-	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->FranchisesTable->affiliate(FRANCHISE_ID_RED));
+	public function testAffiliate(): void {
+	    $affiliateId = mt_rand();
+	    $franchise = FranchiseFactory::make(['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->FranchisesTable->affiliate($franchise->id));
 	}
 
 }

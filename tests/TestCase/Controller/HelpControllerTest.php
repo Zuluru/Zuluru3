@@ -1,10 +1,15 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use App\Test\Scenario\DiverseUsersScenario;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
+
 /**
  * App\Controller\HelpController Test Case
  */
 class HelpControllerTest extends ControllerTestCase {
+
+	use ScenarioAwareTrait;
 
 	/**
 	 * Fixtures
@@ -12,30 +17,21 @@ class HelpControllerTest extends ControllerTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.Settings',
-		'app.I18n',
-		'app.Plugins',
+		'app.Groups',
+		'app.Settings',
 	];
 
 	/**
 	 * Test view method
-	 *
-	 * @return void
 	 */
-	public function testView() {
+	public function testView(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
 		// Anyone is allowed to view
-		$this->assertGetAsAccessOk(['controller' => 'Help', 'action' => 'view'], PERSON_ID_ADMIN);
-		$this->assertGetAsAccessOk(['controller' => 'Help', 'action' => 'view'], PERSON_ID_MANAGER);
-		$this->assertGetAsAccessOk(['controller' => 'Help', 'action' => 'view'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessOk(['controller' => 'Help', 'action' => 'view'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessOk(['controller' => 'Help', 'action' => 'view'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessOk(['controller' => 'Help', 'action' => 'view'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessOk(['controller' => 'Help', 'action' => 'view'], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Help', 'action' => 'view'], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Help', 'action' => 'view'], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Help', 'action' => 'view'], $player->id);
 		$this->assertGetAnonymousAccessOk(['controller' => 'Help', 'action' => 'view']);
 	}
 

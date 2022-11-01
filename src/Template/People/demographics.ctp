@@ -1,11 +1,11 @@
 <?php
 /**
- * @type \App\View\AppView $this
- * @type \App\Model\Entity\Affiliate[] $affiliates
- * @type \App\Model\Entity\Person[][][][] $demographics
- * @type \Cake\I18n\FrozenDate $reportDate
- * @type string[] $eventNames
- * @type string[] $leagueNames
+ * @type $this \App\View\AppView
+ * @type $affiliates \App\Model\Entity\Affiliate[]
+ * @type $demographics \App\Model\Entity\Person[][][][]
+ * @type $reportDate \Cake\I18n\FrozenDate
+ * @type $eventNames string[]
+ * @type $leagueNames string[]
  */
 
 use Cake\Core\Configure;

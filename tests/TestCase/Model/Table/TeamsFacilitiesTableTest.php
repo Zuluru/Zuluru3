@@ -12,44 +12,23 @@ class TeamsFacilitiesTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\TeamsFacilitiesTable
+	 * @var TeamsFacilitiesTable
 	 */
 	public $TeamsFacilitiesTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-						'app.TeamsFacilities',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('TeamsFacilities') ? [] : ['className' => 'App\Model\Table\TeamsFacilitiesTable'];
-		$this->TeamsFacilitiesTable = TableRegistry::get('TeamsFacilities', $config);
+		$config = TableRegistry::getTableLocator()->exists('TeamsFacilities') ? [] : ['className' => TeamsFacilitiesTable::class];
+		$this->TeamsFacilitiesTable = TableRegistry::getTableLocator()->get('TeamsFacilities', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->TeamsFacilitiesTable);
 
 		parent::tearDown();

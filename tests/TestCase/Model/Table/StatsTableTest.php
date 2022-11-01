@@ -12,52 +12,23 @@ class StatsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\StatsTable
+	 * @var StatsTable
 	 */
 	public $StatsTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-					'app.Pools',
-						'app.PoolsTeams',
-					'app.Games',
-						'app.Stats',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Stats') ? [] : ['className' => 'App\Model\Table\StatsTable'];
-		$this->StatsTable = TableRegistry::get('Stats', $config);
+		$config = TableRegistry::getTableLocator()->exists('Stats') ? [] : ['className' => StatsTable::class];
+		$this->StatsTable = TableRegistry::getTableLocator()->get('Stats', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->StatsTable);
 
 		parent::tearDown();
@@ -65,10 +36,8 @@ class StatsTableTest extends TableTestCase {
 
 	/**
 	 * Test applicable method
-	 *
-	 * @return void
 	 */
-	public function testApplicable() {
+	public function testApplicable(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

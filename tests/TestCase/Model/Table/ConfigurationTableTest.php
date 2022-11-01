@@ -1,6 +1,8 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\AffiliateFactory;
+use App\Test\Factory\PersonFactory;
 use Cake\Core\Configure;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\ConfigurationTable;
@@ -13,7 +15,7 @@ class ConfigurationTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\ConfigurationTable
+	 * @var ConfigurationTable
 	 */
 	public $ConfigurationTable;
 
@@ -23,30 +25,24 @@ class ConfigurationTableTest extends TableTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-			'app.Settings',
-		'app.I18n',
+		'app.Countries',
+		'app.Provinces',
+		'app.Settings',
 	];
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Configuration') ? [] : ['className' => 'App\Model\Table\ConfigurationTable'];
-		$this->ConfigurationTable = TableRegistry::get('Configuration', $config);
+		$config = TableRegistry::getTableLocator()->exists('Configuration') ? [] : ['className' => ConfigurationTable::class];
+		$this->ConfigurationTable = TableRegistry::getTableLocator()->get('Configuration', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->ConfigurationTable);
 
 		parent::tearDown();
@@ -54,10 +50,8 @@ class ConfigurationTableTest extends TableTestCase {
 
 	/**
 	 * Test loadSystem method
-	 *
-	 * @return void
 	 */
-	public function testLoadSystem() {
+	public function testLoadSystem(): void {
 		Configure::load('options');
 
 		$this->assertEmpty(Configure::read('provinces'), 'Province list should not have been loaded yet');
@@ -73,26 +67,33 @@ class ConfigurationTableTest extends TableTestCase {
 
 	/**
 	 * Test loadAffiliate method
-	 *
-	 * @return void
 	 */
-	public function testLoadAffiliate() {
+	public function testLoadAffiliate(): void {
 		Configure::load('options');
 
 		$this->ConfigurationTable->loadSystem();
 		$this->assertEquals('Test Zuluru Affiliate', Configure::read('organization.name'));
-		$this->ConfigurationTable->loadAffiliate(AFFILIATE_ID_SUB);
+
+		$affiliate = AffiliateFactory::make()->with('Settings', [
+			'category' => 'organization',
+			'name' => 'name',
+			'value' => 'Test Sub Affiliate',
+		])->persist();
+		$this->ConfigurationTable->loadAffiliate($affiliate->id);
 		$this->assertEquals('Test Sub Affiliate', Configure::read('organization.name'));
 	}
 
 	/**
 	 * Test loadUser method
-	 *
-	 * @return void
 	 */
-	public function testLoadUser() {
+	public function testLoadUser(): void {
 		$this->assertEmpty(Configure::read('personal'), 'Personal settings should not have been loaded yet');
-		$this->ConfigurationTable->loadUser(PERSON_ID_MANAGER);
+
+		$person = PersonFactory::make()->with('Settings', [
+			'category' => 'personal',
+			'name' => 'test',
+		])->persist();
+		$this->ConfigurationTable->loadUser($person->id);
 		$this->assertNotEmpty(Configure::read('personal'), 'Personal settings should have been loaded');
 	}
 

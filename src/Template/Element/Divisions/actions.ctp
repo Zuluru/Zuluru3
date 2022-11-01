@@ -1,13 +1,13 @@
 <?php
 /**
- * @type \App\Model\Entity\Division $division
- * @type \App\Model\Entity\League $league
- * @type string $format
- * @type string[] $league_actions
- * @type string[] $league_more
- * @type int $size
- * @type boolean $collapse
- * @type boolean $return
+ * @type $division \App\Model\Entity\Division
+ * @type $league \App\Model\Entity\League
+ * @type $format string
+ * @type $league_actions string[]
+ * @type $league_more string[]
+ * @type $size int
+ * @type $collapse boolean
+ * @type $return boolean
  */
 
 use App\Authorization\ContextResource;

@@ -1,13 +1,13 @@
 <?php
 /**
- * @type \App\Model\Entity\Team $team
- * @type \App\Model\Entity\Person $person
- * @type \App\Model\Entity\Attendance $attendance
- * @type \App\Model\Entity\TeamEvent $event
- * @type \Cake\I18n\FrozenDate $date
- * @type boolean $is_me
- * @type boolean $is_captain
- * @type mixed[] $attendance_options
+ * @type $team \App\Model\Entity\Team
+ * @type $person \App\Model\Entity\Person
+ * @type $attendance \App\Model\Entity\Attendance
+ * @type $event \App\Model\Entity\TeamEvent
+ * @type $date \Cake\I18n\FrozenDate
+ * @type $is_me boolean
+ * @type $is_captain boolean
+ * @type $attendance_options mixed[]
  */
 
 use Cake\Core\Configure;

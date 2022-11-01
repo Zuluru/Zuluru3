@@ -1,9 +1,9 @@
 <?php
 /**
- * @type \App\Model\Entity\Division $division
- * @type \App\Model\Entity\Pool[][] $games
- * @type \App\Model\Entity\Team[] $teams
- * @type boolean $can_edit
+ * @type $division \App\Model\Entity\Division
+ * @type $games \App\Model\Entity\Pool[][]
+ * @type $teams \App\Model\Entity\Team[]
+ * @type $can_edit boolean
  */
 
 use App\Controller\AppController;
@@ -47,8 +47,8 @@ foreach ($games as $stage_id => $stage):
 			}
 		}
 		$sort_context = ['results' => 'pool', 'stage' => $stage_id, 'pool' => $pool_id];
-		\App\Lib\context_usort($pool_teams, ['App\Model\Results\Comparison', 'compareTeamsTournamentResults'], $sort_context);
-		Comparison::detectAndResolveTies($pool_teams, ['App\Model\Results\Comparison', 'compareTeamsTournamentResults'], $sort_context);
+		\App\Lib\context_usort($pool_teams, [Comparison::class, 'compareTeamsTournamentResults'], $sort_context);
+		Comparison::detectAndResolveTies($pool_teams, [Comparison::class, 'compareTeamsTournamentResults'], $sort_context);
 		$seeds = array_flip(collection($pool_teams)->extract('id')->toArray());
 
 		$pool_aliases = collection($pool->games)->combine('home_pool_team.alias', 'home_pool_team')->toArray() + collection($pool->games)->combine('away_pool_team.alias', 'away_pool_team')->toArray();

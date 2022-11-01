@@ -1,6 +1,6 @@
 <?php
 /**
- * @type \App\Model\Entity\Credit $credit
+ * @type $credit \App\Model\Entity\Credit
  */
 ?>
 <?= $this->element('People/search_results', [

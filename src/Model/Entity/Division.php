@@ -152,7 +152,7 @@ class Division extends Entity {
 				->toArray();
 		}
 
-		if ($this->current_round == 'playoff') {
+		if ($this->current_round === 'playoff') {
 			return [];
 		} else {
 			return $this->_playoff_divisions;
@@ -170,7 +170,7 @@ class Division extends Entity {
 				->toArray();
 		}
 
-		if ($this->current_round == 'playoff') {
+		if ($this->current_round === 'playoff') {
 			return collection($this->_season_divisions)->extract('id')->toArray();
 		} else {
 			return [];
@@ -178,7 +178,7 @@ class Division extends Entity {
 	}
 
 	protected function _getSeasonDays() {
-		if ($this->current_round == 'playoff') {
+		if ($this->current_round === 'playoff') {
 			$this->_getSeasonDivisions();
 			return array_unique(collection($this->_season_divisions)->extract('days.{*}.id')->toList());
 		} else {
@@ -187,7 +187,7 @@ class Division extends Entity {
 	}
 
 	protected function _getSisterDivisions() {
-		if ($this->current_round == 'playoff') {
+		if ($this->current_round === 'playoff') {
 			$this->_getPlayoffDivisions();
 			return $this->_playoff_divisions;
 		} else {
@@ -197,7 +197,7 @@ class Division extends Entity {
 	}
 
 	protected function _getIsPlayoff() {
-		if ($this->current_round == 'playoff') {
+		if ($this->current_round === 'playoff') {
 			$this->_getSeasonDivisions();
 			return !empty($this->_season_divisions);
 		} else {

@@ -27,7 +27,7 @@ class UserCache {
 	private $other_id = null;
 	private $data = [];
 
-	public static function &getInstance($reset = false) {
+	public static function &getInstance($reset = false): UserCache {
 		if ($reset || !self::$instance) {
 			self::$instance = new UserCache();
 		}
@@ -203,6 +203,14 @@ class UserCache {
 				case 'AllTeamIDs':
 					if ($self->read('AllTeams', $id, true)) {
 						$self->data[$id][$key] = collection($self->data[$id]['AllTeams'])->extract('id')->toArray();
+					}
+					break;
+
+				case 'AcceptedTeamIDs':
+					if ($self->read('Teams', $id, true)) {
+						$self->data[$id][$key] = collection($self->data[$id]['Teams'])->filter(function ($team) {
+							return ($team->_matchingData['TeamsPeople']->status == ROSTER_APPROVED);
+						})->extract('id')->toArray();
 					}
 					break;
 

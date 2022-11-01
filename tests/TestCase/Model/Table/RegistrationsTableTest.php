@@ -3,18 +3,24 @@ namespace App\Test\TestCase\Model\Table;
 
 use App\Core\UserCache;
 use App\Middleware\ConfigurationLoader;
+use App\Test\Factory\EventFactory;
+use App\Test\Factory\RegistrationFactory;
+use App\Test\Scenario\DiverseUsersScenario;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\RegistrationsTable;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * App\Model\Table\RegistrationsTable Test Case
  */
 class RegistrationsTableTest extends TableTestCase {
 
+	use ScenarioAwareTrait;
+
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\RegistrationsTable
+	 * @var RegistrationsTable
 	 */
 	public $RegistrationsTable;
 
@@ -25,50 +31,25 @@ class RegistrationsTableTest extends TableTestCase {
 	 */
 	public $fixtures = [
 		'app.EventTypes',
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-					'app.Credits',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.Leagues',
-				'app.Divisions',
-			'app.Questions',
-				'app.Answers',
-			'app.Questionnaires',
-				'app.QuestionnairesQuestions',
-			'app.Events',
-				'app.Prices',
-					'app.Registrations',
-						'app.Payments',
-							'app.RegistrationAudits',
-						'app.Responses',
-				'app.Preregistrations',
-			'app.Badges',
-			'app.Settings',
-		'app.I18n',
+		'app.Groups',
+		'app.Settings',
 	];
+
+	public $autoFixtures = false;
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Registrations') ? [] : ['className' => 'App\Model\Table\RegistrationsTable'];
-		$this->RegistrationsTable = TableRegistry::get('Registrations', $config);
-
-		ConfigurationLoader::loadConfiguration();
+		$config = TableRegistry::getTableLocator()->exists('Registrations') ? [] : ['className' => RegistrationsTable::class];
+		$this->RegistrationsTable = TableRegistry::getTableLocator()->get('Registrations', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->RegistrationsTable);
 
 		parent::tearDown();
@@ -76,82 +57,87 @@ class RegistrationsTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeSave method
-	 *
-	 * @return void
 	 */
-	public function testBeforeSave() {
+	public function testBeforeSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test afterSave method
-	 *
-	 * @return void
 	 */
-	public function testAfterSave() {
+	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test beforeDelete method
-	 *
-	 * @return void
 	 */
-	public function testBeforeDelete() {
+	public function testBeforeDelete(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test afterDelete method
-	 *
-	 * @return void
 	 */
-	public function testAfterDelete() {
+	public function testAfterDelete(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test expireReservations method
-	 *
-	 * @return void
 	 */
-	public function testExpireReservations() {
+	public function testExpireReservations(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
-	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->RegistrationsTable->affiliate(1));
+	public function testAffiliate(): void {
+        $affiliateId = mt_rand();
+        $event = RegistrationFactory::make()->with('Events', ['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->RegistrationsTable->affiliate($event->id));
 	}
 
 	/**
 	 * Test the waiting list when a refund is issued
-	 *
-	 * @return void
 	 * @throws \Exception
 	 */
-	public function testWaitingListWithRefund() {
+	public function testWaitingListWithRefund(): void {
+		$this->loadFixtures();
+		ConfigurationLoader::loadConfiguration();
+
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, [
+			'admin',
+			'player' => ['roster_designation' => 'Woman'],
+		]);
+		$this->assertEquals('Woman', $player->roster_designation);
+
+		$event = EventFactory::make(['event_type_id' => EVENT_TYPE_ID_CLINICS, 'open_cap' => 0, 'women_cap' => 1])
+			->with('Affiliates')
+			->with('Prices', ['cost' => 10, 'tax1' => 1.50, 'tax2' => 0])
+			->persist();
+		$price = $event->prices[0];
+
+		$registration = RegistrationFactory::make(['event_id' => $event->id, 'price_id' => $price->id, 'total_amount' => 11.50, 'payment' => 'Paid'])
+			->with('People', ['roster_designation' => 'Woman'])
+			->persist();
+		$this->RegistrationsTable->Events->loadInto($event, ['EventTypes']);
+
 		// First, we add a new registration to a full event, it should go on the waiting list
-		UserCache::getInstance()->initializeIdForTests(PERSON_ID_CAPTAIN);
-		$registration = $this->RegistrationsTable->newEntity([
-			'person_id' => PERSON_ID_CAPTAIN,
-			'event_id' => EVENT_ID_LEAGUE_INDIVIDUAL_THURSDAY,
-			'price_id' => PRICE_ID_MEMBERSHIP,
+		UserCache::getInstance()->initializeIdForTests($player->id);
+		$new_registration = $this->RegistrationsTable->newEntity([
+			'person_id' => $player->id,
+			'event_id' => $event->id,
+			'price_id' => $price->id,
 		]);
-		$event = $this->RegistrationsTable->Events->get(EVENT_ID_LEAGUE_INDIVIDUAL_THURSDAY, [
-			'contain' => ['EventTypes']
-		]);
-		$this->assertNotFalse($this->RegistrationsTable->save($registration, compact('registration', 'event')));
-		$this->assertEquals('Waiting', $registration->payment);
-		$this->assertEquals(11.50, $registration->total_amount);
+		$this->assertNotFalse($this->RegistrationsTable->save($new_registration, compact('registration', 'event')));
+		$this->assertEquals('Waiting', $new_registration->payment);
+		$this->assertEquals(11.50, $new_registration->total_amount);
 
 		// Now, mark the original registration as unpaid, it should bump the new one to reserved
-		UserCache::getInstance()->initializeIdForTests(PERSON_ID_ADMIN);
-		$registration = $this->RegistrationsTable->get(REGISTRATION_ID_PLAYER_INDIVIDUAL_THURSDAY, [
+		UserCache::getInstance()->initializeIdForTests($admin->id);
+		$registration = $this->RegistrationsTable->get($registration->id, [
 			'contain' => ['Events' => ['EventTypes'], 'Prices', 'Payments']
 		]);
 		$this->assertEquals('Paid', $registration->payment);
@@ -160,7 +146,7 @@ class RegistrationsTableTest extends TableTestCase {
 			'payment_amount' => $registration->total_amount,
 			'payment_method' => 'Online',
 		]);
-		$registration->dirty('payments', true);
+		$registration->setDirty('payments', true);
 		$registration->mark_refunded = true;
 		$this->assertNotFalse($this->RegistrationsTable->save($registration, compact('registration', 'event')));
 		$this->assertEquals('Cancelled', $registration->payment);
@@ -168,40 +154,52 @@ class RegistrationsTableTest extends TableTestCase {
 
 		// Make sure the new registration got reserved
 		$this->assertEventFired('Model.Registration.registrationOpened');
-		$registration = $this->RegistrationsTable->get(REGISTRATION_ID_NEW);
-		$this->assertEquals('Reserved', $registration->payment);
+		$new_registration = $this->RegistrationsTable->get($new_registration->id);
+		$this->assertEquals('Reserved', $new_registration->payment);
 	}
 
 	/**
 	 * Test the waiting list when the cap is raised
-	 *
-	 * @return void
 	 * @throws \Exception
 	 */
-	public function testWaitingListCapRaised() {
+	public function testWaitingListCapRaised(): void {
+		$this->loadFixtures();
+		ConfigurationLoader::loadConfiguration();
+
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
+		$this->assertEquals('Woman', $player->roster_designation);
+
+		$event = EventFactory::make(['event_type_id' => EVENT_TYPE_ID_CLINICS, 'open_cap' => 0, 'women_cap' => 1])
+			->with('Affiliates')
+			->with('Prices', ['cost' => 10, 'tax1' => 1.50, 'tax2' => 0])
+			->persist();
+		$price = $event->prices[0];
+
+		$registration = RegistrationFactory::make(['event_id' => $event->id, 'price_id' => $price->id, 'total_amount' => 11.50, 'payment' => 'Paid'])
+			->with('People', ['roster_designation' => 'Woman'])
+			->persist();
+		$this->RegistrationsTable->Events->loadInto($event, ['EventTypes']);
+
 		// First, we add a new registration to a full event, it should go on the waiting list
-		UserCache::getInstance()->initializeIdForTests(PERSON_ID_CAPTAIN);
-		$registration = $this->RegistrationsTable->newEntity([
-			'person_id' => PERSON_ID_CAPTAIN,
-			'event_id' => EVENT_ID_LEAGUE_INDIVIDUAL_THURSDAY,
-			'price_id' => PRICE_ID_MEMBERSHIP,
+		UserCache::getInstance()->initializeIdForTests($player->id);
+		$new_registration = $this->RegistrationsTable->newEntity([
+			'person_id' => $player->id,
+			'event_id' => $event->id,
+			'price_id' => $price->id,
 		]);
-		$event = $this->RegistrationsTable->Events->get(EVENT_ID_LEAGUE_INDIVIDUAL_THURSDAY, [
-			'contain' => ['EventTypes']
-		]);
-		$this->assertNotFalse($this->RegistrationsTable->save($registration, compact('registration', 'event')));
-		$this->assertEquals('Waiting', $registration->payment);
-		$this->assertEquals(11.50, $registration->total_amount);
+		$this->assertNotFalse($this->RegistrationsTable->save($new_registration, compact('registration', 'event')));
+		$this->assertEquals('Waiting', $new_registration->payment);
+		$this->assertEquals(11.50, $new_registration->total_amount);
 
 		// Now, update the cap on the event, it should bump the new one to reserved
-		UserCache::getInstance()->initializeIdForTests(PERSON_ID_ADMIN);
+		UserCache::getInstance()->initializeIdForTests($admin->id);
 		$event->women_cap += 1;
 		$this->assertNotFalse($this->RegistrationsTable->Events->save($event));
 
 		// Make sure the new registration got reserved
 		$this->assertEventFired('Model.Registration.registrationOpened');
-		$registration = $this->RegistrationsTable->get(REGISTRATION_ID_NEW);
-		$this->assertEquals('Reserved', $registration->payment);
+		$new_registration = $this->RegistrationsTable->get($new_registration->id);
+		$this->assertEquals('Reserved', $new_registration->payment);
 	}
 
 }

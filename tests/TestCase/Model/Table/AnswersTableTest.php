@@ -12,39 +12,23 @@ class AnswersTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\AnswersTable
+	 * @var AnswersTable
 	 */
 	public $AnswersTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Questions',
-				'app.Answers',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Answers') ? [] : ['className' => 'App\Model\Table\AnswersTable'];
-		$this->AnswersTable = TableRegistry::get('Answers', $config);
+		$config = TableRegistry::getTableLocator()->exists('Answers') ? [] : ['className' => AnswersTable::class];
+		$this->AnswersTable = TableRegistry::getTableLocator()->get('Answers', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->AnswersTable);
 
 		parent::tearDown();

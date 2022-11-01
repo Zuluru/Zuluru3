@@ -1,8 +1,8 @@
 <?php
 /**
- * @type \App\Model\Entity\League $league
- * @type boolean $multi_day
- * @type \Cake\I18n\FrozenDate $edit_date
+ * @type $league \App\Model\Entity\League
+ * @type $multi_day boolean
+ * @type $edit_date \Cake\I18n\FrozenDate
  */
 
 use App\Model\Entity\Division;

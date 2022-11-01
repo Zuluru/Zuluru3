@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\RegionFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\RegionsTable;
 
@@ -12,38 +13,23 @@ class RegionsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\RegionsTable
+	 * @var RegionsTable
 	 */
 	public $RegionsTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Regions',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Regions') ? [] : ['className' => 'App\Model\Table\RegionsTable'];
-		$this->RegionsTable = TableRegistry::get('Regions', $config);
+		$config = TableRegistry::getTableLocator()->exists('Regions') ? [] : ['className' => RegionsTable::class];
+		$this->RegionsTable = TableRegistry::getTableLocator()->get('Regions', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->RegionsTable);
 
 		parent::tearDown();
@@ -51,11 +37,11 @@ class RegionsTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
-	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->RegionsTable->affiliate(1));
+	public function testAffiliate(): void {
+        $affiliateId = mt_rand();
+        $entity = RegionFactory::make(['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->RegionsTable->affiliate($entity->id));
 	}
 
 }

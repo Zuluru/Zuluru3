@@ -348,7 +348,10 @@ class QuestionsController extends AppController {
 
 		$this->set('questions', $this->Questions->find()
 			->where([
-				'Questions_question_translation.content LIKE' => '%' . $this->request->getQuery('term') . '%',
+				'OR' => [
+					'Questions.question LIKE' => '%' . $this->request->getQuery('term') . '%',
+					'Questions_question_translation.content LIKE' => '%' . $this->request->getQuery('term') . '%',
+				],
 				'Questions.active' => true,
 				'Questions.affiliate_id' => $affiliate->id,
 			])

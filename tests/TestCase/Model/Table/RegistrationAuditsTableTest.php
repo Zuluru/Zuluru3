@@ -12,37 +12,23 @@ class RegistrationAuditsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\RegistrationAuditsTable
+	 * @var RegistrationAuditsTable
 	 */
 	public $RegistrationAudits;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.I18n',
-		// TODO
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('RegistrationAudits') ? [] : ['className' => 'App\Model\Table\RegistrationAuditsTable'];
-		$this->RegistrationAudits = TableRegistry::get('RegistrationAudits', $config);
+		$config = TableRegistry::getTableLocator()->exists('RegistrationAudits') ? [] : ['className' => RegistrationAuditsTable::class];
+		$this->RegistrationAudits = TableRegistry::getTableLocator()->get('RegistrationAudits', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->RegistrationAudits);
 
 		parent::tearDown();
@@ -50,19 +36,15 @@ class RegistrationAuditsTableTest extends TableTestCase {
 
 	/**
 	 * Test initialize method
-	 *
-	 * @return void
 	 */
-	public function testInitialize() {
+	public function testInitialize(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test validationDefault method
-	 *
-	 * @return void
 	 */
-	public function testValidationDefault() {
+	public function testValidationDefault(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

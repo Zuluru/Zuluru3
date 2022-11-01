@@ -12,40 +12,23 @@ class CreditsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\CreditsTable
+	 * @var CreditsTable
 	 */
 	public $CreditsTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.Credits',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Credits') ? [] : ['className' => 'App\Model\Table\CreditsTable'];
-		$this->CreditsTable = TableRegistry::get('Credits', $config);
+		$config = TableRegistry::getTableLocator()->exists('Credits') ? [] : ['className' => CreditsTable::class];
+		$this->CreditsTable = TableRegistry::getTableLocator()->get('Credits', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->CreditsTable);
 
 		parent::tearDown();

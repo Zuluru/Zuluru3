@@ -1,4 +1,11 @@
 <?php
+/**
+ * @type $division \App\Model\Entity\Division
+ * @type $date string
+ * @type $slots \App\Model\Entity\GameSlot[]
+ * @type $is_tournament bool
+ */
+
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
 ?>
@@ -21,9 +28,9 @@ if ($is_tournament):
 <?php
 endif;
 ?>
-				<th><?= __($division->schedule_type == 'competition' ? __('Team') : __('Home')) ?></th>
+				<th><?= __($division->schedule_type === 'competition' ? __('Team') : __('Home')) ?></th>
 <?php
-if ($division->schedule_type != 'competition'):
+if ($division->schedule_type !== 'competition'):
 ?>
 				<th><?= __('Away') ?></th>
 <?php
@@ -41,7 +48,7 @@ endif;
 $unused = 0;
 foreach ($slots as $slot):
 	$rows = max(count($slot->games), 1);
-	$cols = 3 + $is_tournament + ($division->schedule_type != 'competition') + Configure::read('feature.region_preference');
+	$cols = 3 + $is_tournament + ($division->schedule_type !== 'competition') + Configure::read('feature.region_preference');
 ?>
 		<tbody>
 			<tr>
@@ -71,8 +78,8 @@ foreach ($slots as $slot):
 			if ($is_tournament):
 ?>
 				<td><?php
-					echo $game->pool->name;
-					if ($game->pool->type != 'crossover') {
+					echo $game->pool ? $game->pool->name : '';
+					if ($game->pool && $game->pool->type !== 'crossover') {
 						echo __(' (round&nbsp;{0})', $game->round);
 					}
 				?></td>
@@ -91,7 +98,7 @@ foreach ($slots as $slot):
 					}
 				?></td>
 <?php
-			if ($division->schedule_type != 'competition'):
+			if ($division->schedule_type !== 'competition'):
 ?>
 				<td><?php
 					if (empty($game->away_team_id)) {

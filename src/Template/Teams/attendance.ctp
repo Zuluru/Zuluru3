@@ -1,4 +1,13 @@
 <?php
+/**
+ * @type $this \App\View\AppView
+ * @type $team \App\Model\Entity\Team
+ * @type $games \App\Model\Entity\Game[]
+ * @type $attendance \App\Model\Entity\Game[]
+ * @type $event_attendance \App\Model\Entity\TeamEvent[]
+ * @type $days int[]
+ * @type $dates \Cake\I18n\FrozenDate[]
+ */
 
 use App\Authorization\ContextResource;
 use Cake\Core\Configure;
@@ -28,7 +37,7 @@ foreach ($dates as $date) {
 	$games_on_date = [];
 	$match_dates = GamesTable::matchDates($date, $days);
 	foreach ($match_dates as $match_date) {
-		$games_on_date = array_merge($games_on_date, collection($games)->filter(function ($game) use ($match_date) {
+		$games_on_date = array_merge($games_on_date, collection($games)->filter(function (Game $game) use ($match_date) {
 			return $game->game_slot->game_date == $match_date;
 		})->toArray());
 	}
@@ -49,7 +58,7 @@ foreach ($dates as $date) {
 	}
 }
 
-usort($all_items, ['App\Model\Table\GamesTable', 'compareDateAndField']);
+usort($all_items, [GamesTable::class, 'compareDateAndField']);
 
 $header_cells = [''];
 foreach ($all_items as $item) {
@@ -79,7 +88,8 @@ $header_cells[] = '';
 $statuses = Configure::read('attendance');
 $count = array_fill_keys(array_keys($statuses), array_fill_keys(array_keys($all_items), [Configure::read('gender.woman') => 0, Configure::read('gender.man') => 0]));
 $column = Configure::read('gender.column');
-foreach ($attendance->people as $person):
+$people = $attendance->people ?? [];
+foreach ($people as $person):
 ?>
 				<tr>
 					<td><?= $this->element('People/block', compact('person')) ?></td>
@@ -190,6 +200,12 @@ endif;
 </div>
 
 <div class="actions columns">
-	<?= $this->element('Teams/actions', ['team' => $team, 'division' => $team->division, 'league' => $team->division->league, 'format' => 'list']) ?>
+<?php
+	if ($team->division) {
+		echo $this->element('Teams/actions', ['team' => $team, 'division' => $team->division, 'league' => $team->division->league, 'format' => 'list']);
+	} else {
+		echo $this->element('Teams/actions', ['team' => $team, 'format' => 'list']);
+	}
+?>
 </div>
 <?= $this->element('Games/attendance_div');

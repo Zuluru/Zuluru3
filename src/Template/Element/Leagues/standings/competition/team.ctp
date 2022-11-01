@@ -1,10 +1,10 @@
 <?php
 /**
- * @type \App\Model\Entity\Division $division
- * @type \App\Model\Entity\League $league
- * @type \App\Model\Entity\Team $team
- * @type \App\Module\Spirit $spirit_obj
- * @type string[] $classes
+ * @type $division \App\Model\Entity\Division
+ * @type $league \App\Model\Entity\League
+ * @type $team \App\Model\Entity\Team
+ * @type $spirit_obj \App\Module\Spirit
+ * @type $classes string[]
  */
 
 $class = null;

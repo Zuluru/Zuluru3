@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\TaskFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\TasksTable;
 
@@ -12,42 +13,23 @@ class TasksTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\TasksTable
+	 * @var TasksTable
 	 */
 	public $TasksTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Categories',
-				'app.Tasks',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Tasks') ? [] : ['className' => 'App\Model\Table\TasksTable'];
-		$this->TasksTable = TableRegistry::get('Tasks', $config);
+		$config = TableRegistry::getTableLocator()->exists('Tasks') ? [] : ['className' => TasksTable::class];
+		$this->TasksTable = TableRegistry::getTableLocator()->get('Tasks', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->TasksTable);
 
 		parent::tearDown();
@@ -55,11 +37,11 @@ class TasksTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
-	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->TasksTable->affiliate(1));
+	public function testAffiliate(): void {
+        $affiliateId = mt_rand();
+        $entity = TaskFactory::make()->with('Categories', ['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->TasksTable->affiliate($entity->id));
 	}
 
 }

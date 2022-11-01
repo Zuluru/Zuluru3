@@ -455,7 +455,7 @@ class DivisionsTable extends AppTable {
 		return $query;
 	}
 
-	public function findDate(Query $query, Array $options) {
+	public function findDay(Query $query, Array $options) {
 		$day = $options['date']->format('N');
 		$query->matching('Days', function (Query $q) use ($day) {
 			return $q->where(['Days.id' => $day]);
@@ -475,6 +475,16 @@ class DivisionsTable extends AppTable {
 			return [];
 		}
 
+		$conditions = [
+			'DivisionsPeople.person_id' => $id,
+		];
+		if ($open) {
+			$conditions['OR'] = [
+				'Divisions.is_open' => $open,
+				'Divisions.open >' => FrozenDate::now(),
+			];
+		}
+
 		$contain = [
 			'Leagues' => [
 				'queryBuilder' => function (Query $q) {
@@ -488,13 +498,7 @@ class DivisionsTable extends AppTable {
 
 		$divisions = $this->find('translations')
 			->contain($contain)
-			->where([
-				'DivisionsPeople.person_id' => $id,
-				'OR' => [
-					'Divisions.is_open' => $open,
-					'Divisions.open >' => FrozenDate::now(),
-				],
-			])
+			->where($conditions)
 			->matching('People', function (Query $q) use ($id) {
 				return $q->where(['People.id' => $id]);
 			})
@@ -517,7 +521,7 @@ class DivisionsTable extends AppTable {
 	}
 
 	public function clearCache($division, $keys = ['schedule', 'standings', 'stats']) {
-		if (is_a($division, 'App\Model\Entity\Division')) {
+		if ($division instanceof \App\Model\Entity\Division) {
 			$division_id = $division->id;
 			$league_id = $division->league_id;
 		} else if (is_int($division) || (is_string($division) && !empty($division))) {

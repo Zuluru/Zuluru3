@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\CategoryFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\CategoriesTable;
 
@@ -12,38 +13,23 @@ class CategoriesTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\CategoriesTable
+	 * @var CategoriesTable
 	 */
 	public $CategoriesTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Categories',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Categories') ? [] : ['className' => 'App\Model\Table\CategoriesTable'];
-		$this->CategoriesTable = TableRegistry::get('Categories', $config);
+		$config = TableRegistry::getTableLocator()->exists('Categories') ? [] : ['className' => CategoriesTable::class];
+		$this->CategoriesTable = TableRegistry::getTableLocator()->get('Categories', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->CategoriesTable);
 
 		parent::tearDown();
@@ -51,11 +37,11 @@ class CategoriesTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
-	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->CategoriesTable->affiliate(1));
+	public function testAffiliate(): void {
+        $affiliateId = mt_rand();
+        $category = CategoryFactory::make(['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->CategoriesTable->affiliate($category->id));
 	}
 
 }

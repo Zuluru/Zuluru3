@@ -69,9 +69,9 @@ if (Configure::read('feature.twitter')) {
 	echo $this->Form->end();
 
 	$this->Html->scriptBlock("
-        jQuery(document).ready(function() {
-            jQuery('#TwitterLiveScoreForm').ajaxForm({target: '#temp_update'});
-        });
+		jQuery(document).ready(function() {
+			jQuery('#TwitterLiveScoreForm').ajaxForm({target: '#temp_update'});
+		});
 	", ['buffer' => true]);
 }
 ?>

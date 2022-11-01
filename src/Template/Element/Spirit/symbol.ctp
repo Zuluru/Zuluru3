@@ -1,11 +1,11 @@
 <?php
 /**
- * @type \App\Model\Entity\League $league
- * @type \App\Module\Spirit $spirit_obj
- * @type \App\Model\Entity\SpiritEntry $entry
- * @type int $value
- * @type string $question
- * @type bool $show_spirit_scores
+ * @type $league \App\Model\Entity\League
+ * @type $spirit_obj \App\Module\Spirit
+ * @type $entry \App\Model\Entity\SpiritEntry
+ * @type $value int
+ * @type $question string
+ * @type $show_spirit_scores bool
  */
 
 if ((!isset($entry) || $entry === false) && (!isset($value) || $value === null)) {

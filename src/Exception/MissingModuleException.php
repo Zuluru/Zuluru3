@@ -9,5 +9,5 @@ use Cake\Core\Exception\Exception;
  */
 class MissingModuleException extends Exception {
 
-    protected $_messageTemplate = 'Module class %s could not be found.';
+	protected $_messageTemplate = 'Module class %s could not be found.';
 }

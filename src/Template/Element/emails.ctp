@@ -1,7 +1,7 @@
 <?php
 /**
- * @type \App\Model\Entity\Person[] $people
- * @type \App\Model\Entity\Person[] $cc
+ * @type $people \App\Model\Entity\Person[]
+ * @type $cc \App\Model\Entity\Person[]
  */
 
 use App\Controller\AppController;

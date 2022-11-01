@@ -324,6 +324,12 @@ class EventsTable extends AppTable {
 			'keyField' => 'id',
 			'valueField' => 'id',
 		])->toArray();
+
+		if (empty($membership_types)) {
+			// A query that will never return anything
+			return $query->andWhere([0 => 1]);
+		}
+
 		return $query->andWhere(['event_type_id IN' => $membership_types]);
 	}
 
@@ -333,6 +339,11 @@ class EventsTable extends AppTable {
 			'keyField' => 'id',
 			'valueField' => 'id',
 		])->toArray();
+
+		if (empty($membership_types)) {
+			return $query;
+		}
+
 		return $query->andWhere(['NOT' => ['event_type_id IN' => $membership_types]]);
 	}
 

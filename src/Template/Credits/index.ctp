@@ -1,8 +1,8 @@
 <?php
 /**
- * @type \App\Model\Entity\Credit[] $credits
- * @type \App\Model\Entity\Affiliate[] $affiliates
- * @type boolean $all
+ * @type $credits \App\Model\Entity\Credit[]
+ * @type $affiliates \App\Model\Entity\Affiliate[]
+ * @type $all boolean
  */
 
 $title = ($all ? __('Credits') : __('Unused Credits'));

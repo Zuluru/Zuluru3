@@ -4,7 +4,7 @@
 
 function ultimateMaxLength() { return 110; }
 function ultimateDefaultLength() { return ultimateMaxLength(); }
-function ultimateMinLength() { return 50; }
+function ultimateMinLength() { return 30; }
 function ultimateMaxWidth() { return 40; }
 function ultimateDefaultWidth() { return ultimateMaxWidth(); }
 function ultimateMinWidth() { return 20; }

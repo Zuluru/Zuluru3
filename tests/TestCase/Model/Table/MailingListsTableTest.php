@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\MailingListFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\MailingListsTable;
 
@@ -12,42 +13,23 @@ class MailingListsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\MailingListsTable
+	 * @var MailingListsTable
 	 */
 	public $MailingListsTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.MailingLists',
-				'app.Subscriptions',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('MailingLists') ? [] : ['className' => 'App\Model\Table\MailingListsTable'];
-		$this->MailingListsTable = TableRegistry::get('MailingLists', $config);
+		$config = TableRegistry::getTableLocator()->exists('MailingLists') ? [] : ['className' => MailingListsTable::class];
+		$this->MailingListsTable = TableRegistry::getTableLocator()->get('MailingLists', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->MailingListsTable);
 
 		parent::tearDown();
@@ -55,11 +37,11 @@ class MailingListsTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
-	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->MailingListsTable->affiliate(1));
+	public function testAffiliate(): void {
+	    $affiliateId = mt_rand();
+	    $mailingList = MailingListFactory::make(['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->MailingListsTable->affiliate($mailingList->id));
 	}
 
 }

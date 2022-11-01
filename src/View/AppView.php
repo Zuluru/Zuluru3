@@ -11,15 +11,15 @@ use Cake\View\View;
  */
 class AppView extends View {
 
-    /**
-     * Initialization hook method.
-     *
-     * For e.g. use this method to load a helper for all views:
-     * `$this->loadHelper('Html');`
-     *
-     * @return void
-     */
-    public function initialize() {
+	/**
+	 * Initialization hook method.
+	 *
+	 * For e.g. use this method to load a helper for all views:
+	 * `$this->loadHelper('Html');`
+	 *
+	 * @return void
+	 */
+	public function initialize() {
 		$this->loadHelper('Authentication.Identity');
 		$this->loadHelper('Authorize');
 		$this->loadHelper('UserCache');
@@ -34,6 +34,6 @@ class AppView extends View {
 		$this->loadHelper('ZuluruBootstrap.Accordion');
 		$this->loadHelper('ZuluruJquery.Jquery');
 		//$this->loadHelper('Less.Less'); // required for parsing less files
-    }
+	}
 
 }

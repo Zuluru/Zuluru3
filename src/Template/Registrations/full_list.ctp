@@ -1,6 +1,6 @@
 <?php
 /**
- * @type \App\Model\Entity\Event $event
+ * @type $event \App\Model\Entity\Event
  */
 
 $this->Html->addCrumb(__('Registrations'));

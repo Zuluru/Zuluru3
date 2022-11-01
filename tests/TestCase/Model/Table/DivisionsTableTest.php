@@ -1,21 +1,30 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Model\Entity\Division;
+use App\Test\Factory\DivisionFactory;
+use App\Test\Factory\TeamFactory;
+use App\Test\Scenario\DiverseUsersScenario;
+use App\Test\Scenario\LeagueScenario;
+use Cake\Chronos\ChronosInterface;
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\I18n;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\DivisionsTable;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * App\Model\Table\DivisionsTable Test Case
  */
 class DivisionsTableTest extends TableTestCase {
 
+	use ScenarioAwareTrait;
+
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\DivisionsTable
+	 * @var DivisionsTable
 	 */
 	public $DivisionsTable;
 
@@ -25,35 +34,22 @@ class DivisionsTableTest extends TableTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-					'app.DivisionsDays',
-					'app.DivisionsPeople',
-		'app.I18n',
+		'app.Groups',
 	];
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Divisions') ? [] : ['className' => 'App\Model\Table\DivisionsTable'];
-		$this->DivisionsTable = TableRegistry::get('Divisions', $config);
+		$config = TableRegistry::getTableLocator()->exists('Divisions') ? [] : ['className' => DivisionsTable::class];
+		$this->DivisionsTable = TableRegistry::getTableLocator()->get('Divisions', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->DivisionsTable);
 
 		parent::tearDown();
@@ -61,131 +57,134 @@ class DivisionsTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeSave method
-	 *
-	 * @return void
 	 */
-	public function testBeforeSave() {
+	public function testBeforeSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test afterSave method
-	 *
-	 * @return void
 	 */
-	public function testAfterSave() {
+	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test findOpen method
-	 *
-	 * @return void
 	 */
-	public function testFindOpen() {
-		$divisions = $this->DivisionsTable->find('open');
-		$this->assertEquals(7, $divisions->count());
-	}
+	public function testFindOpen(): void {
+		DivisionFactory::make([
+			['is_open' => true, 'open' => FrozenDate::yesterday(),], // Is open
+			['is_open' => false, 'open' => FrozenDate::tomorrow(),], // Is open
+			['is_open' => false, 'open' => FrozenDate::today(),], // Is not open
+			['is_open' => false, 'open' => FrozenDate::today(),], // Is not open
+		])->persist();
 
-	/**
-	 * Test findDate method
-	 *
-	 * @return void
-	 */
-	public function testFindDate() {
-		$divisions = $this->DivisionsTable->find('date', ['date' => new FrozenDate('Monday')]);
-		$this->assertEquals(3, $divisions->count());
-		$divisions = $this->DivisionsTable->find('date', ['date' => new FrozenDate('Tuesday')]);
-		$this->assertEquals(1, $divisions->count());
-		// Monday playoffs happen on Sunday
-		$divisions = $this->DivisionsTable->find('date', ['date' => new FrozenDate('Sunday')]);
+		$divisions = $this->DivisionsTable->find('open');
 		$this->assertEquals(2, $divisions->count());
 	}
 
 	/**
-	 * Test readByPlayerId method
-	 *
-	 * @return void
+	 * Test findDay method
 	 */
-	public function testReadByPlayerId() {
-		// readByPlayerId compares the open date to today, so we need to set "today" for this test to be reliable
-		FrozenDate::setTestNow(new FrozenDate('May 31'));
+	public function testFindDay(): void {
+		DivisionFactory::make(3)->with('Days', ['id' => ChronosInterface::MONDAY, 'name' => 'Monday'])->persist();
+		DivisionFactory::make()->with('Days', ['id' => ChronosInterface::TUESDAY, 'name' => 'Tuesday'])->persist();
 
-		$divisions = $this->DivisionsTable->readByPlayerId(PERSON_ID_COORDINATOR);
-		$this->assertEquals(3, count($divisions));
+		$divisions = $this->DivisionsTable->find('day', ['date' => new FrozenDate('Monday')]);
+		$this->assertEquals(3, $divisions->count());
+		$divisions = $this->DivisionsTable->find('day', ['date' => new FrozenDate('Tuesday')]);
+		$this->assertEquals(1, $divisions->count());
+	}
+
+	/**
+	 * Test readByPlayerId method
+	 */
+	public function testReadByPlayerId(): void {
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $admin->affiliates[0], 'coordinator' => $volunteer, 'divisions' => 2,
+		]);
+
+		/** @var \App\Model\Entity\League $old_league */
+		$old_league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $admin->affiliates[0], 'coordinator' => $volunteer, 'division_details' => ['is_open' => false, 'open' => FrozenDate::now()->subMonth()]
+		]);
+
+		$divisions = $this->DivisionsTable->readByPlayerId($volunteer->id);
+		$this->assertCount(2, $divisions);
 		$this->assertArrayHasKey(0, $divisions);
-		$this->assertEquals(DIVISION_ID_MONDAY_LADDER, $divisions[0]->id);
+		$this->assertEquals($league->divisions[0]->id, $divisions[0]->id);
 		$this->assertEmpty($divisions[0]->teams);
 		$this->assertArrayHasKey(1, $divisions);
-		$this->assertEquals(DIVISION_ID_MONDAY_PLAYOFF, $divisions[1]->id);
+		$this->assertEquals($league->divisions[1]->id, $divisions[1]->id);
+		$this->assertEmpty($divisions[1]->teams);
+
+		$divisions = $this->DivisionsTable->readByPlayerId($volunteer->id, false);
+		$this->assertCount(3, $divisions);
+		$this->assertArrayHasKey(0, $divisions);
+		$this->assertEquals($old_league->divisions[0]->id, $divisions[0]->id);
+		$this->assertEmpty($divisions[0]->teams);
+		$this->assertArrayHasKey(1, $divisions);
+		$this->assertEquals($league->divisions[0]->id, $divisions[1]->id);
 		$this->assertEmpty($divisions[1]->teams);
 		$this->assertArrayHasKey(2, $divisions);
-		$this->assertEquals(DIVISION_ID_THURSDAY_ROUND_ROBIN, $divisions[2]->id);
+		$this->assertEquals($league->divisions[1]->id, $divisions[2]->id);
 		$this->assertEmpty($divisions[2]->teams);
 
-		$divisions = $this->DivisionsTable->readByPlayerId(PERSON_ID_COORDINATOR, false);
-		$this->assertEquals(4, count($divisions));
-		$this->assertArrayHasKey(0, $divisions);
-		$this->assertEquals(DIVISION_ID_MONDAY_LADDER_PAST, $divisions[0]->id);
-		$this->assertArrayHasKey(1, $divisions);
-		$this->assertEquals(DIVISION_ID_MONDAY_LADDER, $divisions[1]->id);
-		$this->assertEmpty($divisions[1]->teams);
-		$this->assertArrayHasKey(2, $divisions);
-		$this->assertEquals(DIVISION_ID_MONDAY_PLAYOFF, $divisions[2]->id);
-		$this->assertEmpty($divisions[2]->teams);
-		$this->assertArrayHasKey(3, $divisions);
-		$this->assertEquals(DIVISION_ID_THURSDAY_ROUND_ROBIN, $divisions[3]->id);
-		$this->assertEmpty($divisions[3]->teams);
+		TeamFactory::make(4)->with('Divisions', $league->divisions[0])->persist();
+		TeamFactory::make(2)->with('Divisions', $league->divisions[1])->persist();
 
-		$divisions = $this->DivisionsTable->readByPlayerId(PERSON_ID_COORDINATOR, true, true);
-		$this->assertEquals(3, count($divisions));
+		$divisions = $this->DivisionsTable->readByPlayerId($volunteer->id, true, true);
+		$this->assertCount(2, $divisions);
 		$this->assertArrayHasKey(0, $divisions);
-		$this->assertEquals(DIVISION_ID_MONDAY_LADDER, $divisions[0]->id);
-		$this->assertEquals(8, count($divisions[0]->teams));
+		$this->assertEquals($league->divisions[0]->id, $divisions[0]->id);
+		$this->assertCount(4, $divisions[0]->teams);
 		$this->assertArrayHasKey(1, $divisions);
-		$this->assertEquals(DIVISION_ID_MONDAY_PLAYOFF, $divisions[1]->id);
-		$this->assertEquals(1, count($divisions[1]->teams));
-		$this->assertArrayHasKey(2, $divisions);
-		$this->assertEquals(DIVISION_ID_THURSDAY_ROUND_ROBIN, $divisions[2]->id);
-		$this->assertEquals(2, count($divisions[2]->teams));
+		$this->assertEquals($league->divisions[1]->id, $divisions[1]->id);
+		$this->assertCount(2, $divisions[1]->teams);
 	}
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
-	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->DivisionsTable->affiliate(DIVISION_ID_MONDAY_LADDER));
+	public function testAffiliate(): void {
+		$affiliateId = mt_rand();
+		/** @var Division $division */
+		$division = DivisionFactory::make()
+			->with('Leagues', [
+				'affiliate_id' => $affiliateId,
+			])
+			->persist();
+		$this->assertEquals($affiliateId, $this->DivisionsTable->affiliate($division->id));
 	}
 
 	/**
 	 * Test league method
-	 *
-	 * @return void
 	 */
-	public function testLeague() {
-		$this->assertEquals(LEAGUE_ID_MONDAY_PAST, $this->DivisionsTable->league(DIVISION_ID_MONDAY_LADDER_PAST));
-		$this->assertEquals(LEAGUE_ID_MONDAY, $this->DivisionsTable->league(DIVISION_ID_MONDAY_LADDER));
-		$this->assertEquals(LEAGUE_ID_MONDAY, $this->DivisionsTable->league(DIVISION_ID_MONDAY_PLAYOFF));
-		$this->assertEquals(LEAGUE_ID_TUESDAY, $this->DivisionsTable->league(DIVISION_ID_TUESDAY_ROUND_ROBIN));
+	public function testLeague(): void {
+		/** @var Division $division */
+		$division = DivisionFactory::make()
+			->with('Leagues')
+			->persist();
+		$this->assertEquals($division->league_id, $this->DivisionsTable->league($division->id));
 	}
 
 	/**
 	 * Test clearCache method
-	 *
-	 * @return void
 	 */
-	public function testClearCache() {
+	public function testClearCache(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test translation behavior
-	 *
-	 * @return void
 	 */
-	public function testTranslation() {
+	public function testTranslation(): void {
+		$this->markTestIncomplete('Re-implement this after converting i18n.');
+
 		Configure::load('options');
 		Configure::load('sports');
 

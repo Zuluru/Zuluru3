@@ -12,38 +12,23 @@ class UserZikulaTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\UserZikulaTable
+	 * @var UserZikulaTable
 	 */
 	public $UserZikulaTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('UserZikula') ? [] : ['className' => 'App\Model\Table\UserZikulaTable'];
-		$this->UserZikulaTable = TableRegistry::get('UserZikula', $config);
+		$config = TableRegistry::getTableLocator()->exists('UserZikula') ? [] : ['className' => UserZikulaTable::class];
+		$this->UserZikulaTable = TableRegistry::getTableLocator()->get('UserZikula', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->UserZikulaTable);
 
 		parent::tearDown();
@@ -51,19 +36,15 @@ class UserZikulaTableTest extends TableTestCase {
 
 	/**
 	 * Test activated method
-	 *
-	 * @return void
 	 */
-	public function testActivated() {
+	public function testActivated(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test beforeDelete method
-	 *
-	 * @return void
 	 */
-	public function testBeforeDelete() {
+	public function testBeforeDelete(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

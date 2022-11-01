@@ -21,7 +21,7 @@ class ZuluruGameHelper extends Helper {
 			if (in_array($game->status, Configure::read('unplayed_status'))) {
 				echo __($game->status) . "\n";
 			} else {
-				if ($division->schedule_type == 'competition') {
+				if ($division->schedule_type === 'competition') {
 					echo $game->home_score . "\n";
 				} else {
 					// If scores are being shown from a particular team's perspective,
@@ -51,7 +51,7 @@ class ZuluruGameHelper extends Helper {
 					}
 
 					try {
-						if (($this->request->getParam('controller') != 'Games' || $this->request->getParam('action') != 'stats') && $identity->can('stats', $league)) {
+						if (($this->request->getParam('controller') !== 'Games' || $this->request->getParam('action') !== 'stats') && $identity->can('stats', $league)) {
 							$links[] = $this->ZuluruHtml->iconLink('stats_24.png',
 								['controller' => 'Games', 'action' => 'stats', 'game' => $game->id, 'team' => $show_score_for_team],
 								['alt' => __('Game Stats'), 'title' => __('Game Stats')]);
@@ -67,7 +67,7 @@ class ZuluruGameHelper extends Helper {
 				if (in_array($score_entry->status, Configure::read('unplayed_status'))) {
 					echo __($score_entry->status) . "\n";
 				} else {
-					if ($division->schedule_type == 'competition') {
+					if ($division->schedule_type === 'competition') {
 						echo $score_entry->score_for . "\n";
 					} else {
 						// If scores are being shown from a particular team's perspective,
@@ -86,7 +86,7 @@ class ZuluruGameHelper extends Helper {
 				}
 
 				if ($team_id) {
-					if ($score_entry->status == 'in_progress') {
+					if ($score_entry->status === 'in_progress') {
 						$links[] = $this->Html->link(
 							__('Live Score'),
 							['controller' => 'Games', 'action' => 'live_score', 'game' => $game->id, 'team' => $team_id]);
@@ -119,7 +119,7 @@ class ZuluruGameHelper extends Helper {
 				*/
 				}
 
-				if ($score_entry->status == 'in_progress') {
+				if ($score_entry->status === 'in_progress') {
 					echo __(' ({0})', __('in progress')) . "\n";
 				} else {
 					echo __(' ({0})', __('unofficial')) . "\n";
@@ -128,7 +128,7 @@ class ZuluruGameHelper extends Helper {
 				echo __('score mismatch') . "\n";
 
 				if ($team_id) {
-					if ($score_entry->status == 'in_progress') {
+					if ($score_entry->status === 'in_progress') {
 						$links[] = $this->Html->link(
 							__('Live Score'),
 							['controller' => 'Games', 'action' => 'live_score', 'game' => $game->id, 'team' => $team_id]);
@@ -139,7 +139,7 @@ class ZuluruGameHelper extends Helper {
 					}
 				}
 			} else if ($game->game_slot->end_time->subHour()->isPast()) {
-				if ($division->schedule_type != 'competition') {
+				if ($division->schedule_type !== 'competition') {
 					// Allow score submissions any time after an hour before the scheduled end time.
 					// Some people like to submit via mobile phone immediately, and games can end early.
 					if ($team_id && $identity->can('submit_score', $game)) {

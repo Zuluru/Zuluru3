@@ -16,6 +16,7 @@ use App\PasswordHasher\HasherTrait;
 use App\Model\Entity\Allstar;
 use App\Model\Entity\Game;
 use App\Model\Entity\Team;
+use App\Model\Table\PeopleTable;
 
 /**
  * Games Controller
@@ -348,6 +349,7 @@ class GamesController extends AppController {
 		if ($game->division->league->hasSpirit()) {
 			$spirit_obj = $game->division->league->hasSpirit() ? $this->moduleRegistry->load("Spirit:{$game->division->league->sotg_questions}") : null;
 			$this->Games->SpiritEntries->addValidation($spirit_obj, $game->division->league);
+			$this->set(compact('spirit_obj'));
 		}
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
@@ -405,7 +407,7 @@ class GamesController extends AppController {
 			}
 		}
 
-		$this->set(compact(['game', 'spirit_obj']));
+		$this->set(compact(['game']));
 	}
 
 	public function edit_boxscore() {
@@ -2202,13 +2204,13 @@ class GamesController extends AppController {
 		$days = collection($game->division->days)->extract('id')->toArray();
 		if ($team_id) {
 			$attendance = $this->Games->readAttendance($team_id, $days, $id, null, true);
-			usort($attendance->people, ['App\Model\Table\PeopleTable', 'comparePerson']);
+			usort($attendance->people, [PeopleTable::class, 'comparePerson']);
 			$home_attendance = $away_attendance = null;
 		} else {
 			$home_attendance = $this->Games->readAttendance($game->home_team_id, $days, $id, null, true);
-			usort($home_attendance->people, ['App\Model\Table\PeopleTable', 'comparePerson']);
+			usort($home_attendance->people, [PeopleTable::class, 'comparePerson']);
 			$away_attendance = $this->Games->readAttendance($game->away_team_id, $days, $id, null, true);
-			usort($away_attendance->people, ['App\Model\Table\PeopleTable', 'comparePerson']);
+			usort($away_attendance->people, [PeopleTable::class, 'comparePerson']);
 			$attendance = null;
 		}
 
@@ -2264,7 +2266,7 @@ class GamesController extends AppController {
 				$game->$key->people = $this->Games->HomeTeam->People->find()
 					->where(['People.id IN' => $people])
 					->toArray();
-				usort($game->$key->people, ['App\Model\Table\PeopleTable', 'comparePerson']);
+				usort($game->$key->people, [PeopleTable::class, 'comparePerson']);
 			} else {
 				$game->$key->people = [];
 			}

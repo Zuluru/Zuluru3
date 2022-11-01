@@ -73,8 +73,8 @@ class Waiver extends Entity {
 
 		switch ($this->expiry_type) {
 			case 'fixed_dates':
-				$start = $date->month($this->start_month)->day($this->start_day);
-				$end = $date->month($this->end_month)->day($this->end_day);
+				$start = FrozenDate::createFromDate($date->year, $this->start_month, $this->start_day);
+				$end = FrozenDate::createFromDate($date->year, $this->end_month, $this->end_day);
 				while ($end < $date) {
 					$end = $end->addYear();
 				}

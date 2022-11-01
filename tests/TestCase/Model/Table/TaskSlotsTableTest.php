@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\TaskSlotFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\TaskSlotsTable;
 
@@ -12,43 +13,23 @@ class TaskSlotsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\TaskSlotsTable
+	 * @var TaskSlotsTable
 	 */
 	public $TaskSlotsTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Categories',
-				'app.Tasks',
-					'app.TaskSlots',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('TaskSlots') ? [] : ['className' => 'App\Model\Table\TaskSlotsTable'];
-		$this->TaskSlotsTable = TableRegistry::get('TaskSlots', $config);
+		$config = TableRegistry::getTableLocator()->exists('TaskSlots') ? [] : ['className' => TaskSlotsTable::class];
+		$this->TaskSlotsTable = TableRegistry::getTableLocator()->get('TaskSlots', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->TaskSlotsTable);
 
 		parent::tearDown();
@@ -56,11 +37,11 @@ class TaskSlotsTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
-	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->TaskSlotsTable->affiliate(1));
+	public function testAffiliate(): void {
+        $affiliateId = mt_rand();
+        $entity = TaskSlotFactory::make()->with('Tasks.Categories', ['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->TaskSlotsTable->affiliate($entity->id));
 	}
 
 }

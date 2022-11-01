@@ -1,9 +1,11 @@
 <?php
+
+use App\Model\Table\SpiritEntriesTable;
 use Cake\Core\Configure;
 
 /**
- * @type \App\Model\Entity\Division $division
- * @type \App\Module\Spirit $spirit_obj
+ * @type $division \App\Model\Entity\Division
+ * @type $spirit_obj \App\Module\Spirit
  */
 
 $this->Html->addCrumb(__('Divisions'));
@@ -66,12 +68,12 @@ if (!empty($team_ids)) {
 				if ($division->women_present) {
 					$score_entry = $game->getScoreEntry($id);
 					if ($score_entry && !empty($score_entry->women_present)) {
-					    if (!array_key_exists($score_entry->women_present, $team_records[$id]['gender'])) {
+						if (!array_key_exists($score_entry->women_present, $team_records[$id]['gender'])) {
 							$team_records[$id]['gender'][$score_entry->women_present] = 0;
-                        }
+						}
 						++ $team_records[$id]['gender'][$score_entry->women_present];
-					    $min_women = min($min_women, $score_entry->women_present);
-					    $max_women = max($max_women, $score_entry->women_present);
+						$min_women = min($min_women, $score_entry->women_present);
+						$max_women = max($max_women, $score_entry->women_present);
 					}
 				}
 			}
@@ -84,7 +86,7 @@ if (!empty($team_ids)) {
 			if ($division->league->numeric_sotg) {
 				$team_records[$id]['summary']['entered_sotg'] /= $team['games'];
 			}
-			if ($division->league->sotg_questions != 'none') {
+			if ($division->league->sotg_questions !== 'none') {
 				$team_records[$id]['summary']['assigned_sotg'] /= $team['games'];
 			}
 			if (Configure::read('scoring.missing_score_spirit_penalty')) {
@@ -93,7 +95,7 @@ if (!empty($team_ids)) {
 		}
 	}
 
-	usort($team_records, ['App\Model\Table\SpiritEntriesTable', 'compareSpirit']);
+	usort($team_records, [SpiritEntriesTable::class, 'compareSpirit']);
 ?>
 
 <h3><?= __('Team Spirit Summary') ?></h3>
@@ -103,7 +105,7 @@ if (!empty($team_ids)) {
 	if ($division->league->numeric_sotg) {
 		$header[] = __('Average Spirit');
 	}
-	if ($division->league->sotg_questions != 'none') {
+	if ($division->league->sotg_questions !== 'none') {
 		$header[] = __('Assigned Spirit');
 	}
 	foreach ($spirit_obj->questions as $question => $detail) {
@@ -369,12 +371,12 @@ if ($division->women_present && $min_women <= $max_women):
 	foreach ($team_records as $team) {
 		$row = [$this->element('Teams/block', ['team' => $team['details'], 'show_shirt' => false])];
 		for ($i = $min_women; $i <= $max_women; ++ $i) {
-		    if (array_key_exists($i, $team['gender'])) {
+			if (array_key_exists($i, $team['gender'])) {
 				$row[] = $overall[$i][] = $team['gender'][$i];
 			} else {
-		        $row[] = $overall[$i][] = 0;
-            }
-        }
+				$row[] = $overall[$i][] = 0;
+			}
+		}
 		$rows[] = $row;
 	}
 

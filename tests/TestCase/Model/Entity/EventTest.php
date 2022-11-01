@@ -3,9 +3,10 @@ namespace App\Test\TestCase\Model\Entity;
 
 use App\Module\EventTypeIndividual;
 use App\Module\EventTypeTeam;
+use App\Test\Factory\EventFactory;
+use App\Test\Factory\RegistrationFactory;
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
-use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use App\Model\Entity\Event;
 
@@ -13,197 +14,164 @@ use App\Model\Entity\Event;
  * App\Model\Entity\Event Test Case
  */
 class EventTest extends TestCase {
-
-	/**
-	 * Test subject 1
-	 *
-	 * @var \App\Model\Entity\Event
-	 */
-	public $Event1;
-
-	/**
-	 * Test subject 2
-	 *
-	 * @var \App\Model\Entity\Event
-	 */
-	public $Event2;
-
-	/**
-	 * Test subject 3
-	 *
-	 * @var \App\Model\Entity\Event
-	 */
-	public $Event3;
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.EventTypes',
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.Leagues',
-				'app.Divisions',
-			'app.Events',
-				'app.Prices',
-					'app.Registrations',
-			'app.Settings',
-		'app.I18n',
-	];
-
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$events = TableRegistry::get('Events');
-		$this->Event1 = $events->get(EVENT_ID_MEMBERSHIP);
-		$this->Event2 = $events->get(EVENT_ID_LEAGUE_TEAM);
-		$this->Event3 = $events->get(EVENT_ID_LEAGUE_INDIVIDUAL_MONDAY);
-	}
-
-	/**
-	 * tearDown method
-	 *
-	 * @return void
-	 */
-	public function tearDown() {
-		unset($this->Event1);
-		unset($this->Event2);
-		unset($this->Event3);
-
-		parent::tearDown();
+		Configure::write('options.gender_binary', []);
 	}
 
 	/**
 	 * Test __construct method
-	 *
-	 * @return void
 	 */
-	public function testConstruct() {
+	public function testConstruct(): void {
 		// Check the virtual fields show up from the serialized custom field
-		$this->assertEquals($this->Event1->membership_begins, FrozenDate::now()->startOfYear());
-		$this->assertEquals($this->Event1->membership_ends, FrozenDate::now()->endOfYear());
-		$this->assertEquals($this->Event1->membership_type, 'full');
+		/** @var Event $event */
+		$event = EventFactory::make()->setCustom([
+			'membership_begins' => FrozenDate::now()->startOfYear(),
+			'membership_ends' => FrozenDate::now()->endOfYear(),
+			'membership_type' => 'full',
+		])->getEntity();
+
+		$this->assertEquals(FrozenDate::now()->startOfYear(), $event->membership_begins);
+		$this->assertEquals(FrozenDate::now()->endOfYear(), $event->membership_ends);
+		$this->assertEquals('full', $event->membership_type);
 	}
 
 	/**
 	 * Test count method
-	 *
-	 * @return void
 	 */
-	public function testCount() {
-		$this->assertEquals(3, $this->Event1->count('Woman'));
-		$this->assertEquals(1, $this->Event1->count('Open'));
-		$this->assertEquals(3, $this->Event1->count('Woman', ['People.addr_city' => 'Toronto']));
-		$this->assertEquals(0, $this->Event1->count('Woman', ['People.addr_city' => 'Ottawa']));
-		$this->assertEquals(3, $this->Event1->count('Woman', [], ['Paid', 'Unpaid']));
-		$this->assertEquals(2, $this->Event1->count('Woman', [], ['Unpaid']));
+	public function testCount(): void {
+		/** @var Event $event */
+		$event = EventFactory::make()
+			->with('Registrations',
+				RegistrationFactory::make([
+					['payment' => 'Paid'],
+					['payment' => 'Unpaid'],
+					['payment' => 'Paid'],
+				])
+					->with('People', [
+						'roster_designation' => 'Woman',
+						'addr_city' => 'Toronto',
+					])
+			)
+			->with('Registrations',
+				RegistrationFactory::make(1)
+					->with('People', [
+						'roster_designation' => 'Open',
+					])
+					->paid()
+			)
+			->persist();
+
+		$this->assertEquals(2, $event->count('Woman'));
+		$this->assertEquals(1, $event->count('Open'));
+		$this->assertEquals(2, $event->count('Woman', ['People.addr_city' => 'Toronto']));
+		$this->assertEquals(0, $event->count('Woman', ['People.addr_city' => 'Ottawa']));
+		$this->assertEquals(3, $event->count('Woman', [], ['Paid', 'Unpaid']));
+		$this->assertEquals(1, $event->count('Woman', [], ['Unpaid']));
 	}
 
 	/**
 	 * Test cap method
-	 *
-	 * @return void
 	 */
-	public function testCap() {
-		$this->assertEquals(-1, $this->Event1->cap('Open'));
-		$this->assertEquals(-1, $this->Event1->cap('Woman'));
-		$this->assertEquals(2, $this->Event2->cap('Open'));
-		$this->assertEquals(2, $this->Event2->cap('Woman'));
-		$this->assertEquals(1, $this->Event3->cap('Open'));
-		$this->assertEquals(1, $this->Event3->cap('Woman'));
+	public function testCap(): void {
+		$openCap = mt_rand();
+		/** @var Event $event */
+		$event = EventFactory::make(['women_cap' => CAP_COMBINED, 'open_cap' => $openCap])->getEntity();
+		$this->assertEquals($openCap, $event->cap(''));
+
+		$womenCap = mt_rand();
+		/** @var Event $event */
+		$event = EventFactory::make(['women_cap' => $womenCap, 'open_cap' => $openCap])->getEntity();
+		$this->assertEquals($openCap, $event->cap('Open'));
+		$this->assertEquals($womenCap, $event->cap(''));
 	}
 
 	/**
-	 * Test _getMembershipBegins()
+	 * Test _getMembershipBegins(), _getMembershipEnds(), _getMembershipType(),
+	 * _getLevelOfPlay(), _testGetAskStatus(), _getAskAttendance()
 	 */
-	public function testGetMembershipBegins() {
-		$this->assertEquals(FrozenDate::now()->startOfYear(), $this->Event1->membershipBegins);
-	}
-
-	/**
-	 * Test _getMembershipEnds()
-	 */
-	public function testGetMembershipEnds() {
-		$this->assertEquals(FrozenDate::now()->endOfYear(), $this->Event1->membershipEnds);
-	}
-
-	/**
-	 * Test _getMembershipType()
-	 */
-	public function testGetMembershipType() {
-		$this->assertEquals('full', $this->Event1->membershipType);
-	}
-
-	/**
-	 * Test _getLevelOfPlay()
-	 */
-	public function testGetLevelOfPlay() {
-		$this->assertEquals('Competitive', $this->Event2->levelOfPlay);
-	}
-
-	/**
-	 * Test _getAskStatus()
-	 */
-	public function testGetAskStatus() {
-		$this->assertTrue($this->Event2->askStatus);
-	}
-
-	/**
-	 * Test _getAskAttendance()
-	 */
-	public function testGetAskAttendance() {
-		$this->assertTrue($this->Event2->askAttendance);
+	public function testGetMembershipParameters(): void {
+		/** @var Event $event */
+		$event = EventFactory::make()->setCustom([
+			'membership_begins' => FrozenDate::now()->startOfYear(),
+			'membership_ends' => FrozenDate::now()->endOfYear(),
+			'membership_type' => 'full',
+			'level_of_play' => 'Competitive',
+			'ask_status' => true,
+			'ask_attendance' => true,
+		])->getEntity();
+		$this->assertEquals(FrozenDate::now()->startOfYear(), $event->membership_begins);
+		$this->assertEquals(FrozenDate::now()->endOfYear(), $event->membership_ends);
+		$this->assertEquals('full', $event->membership_type);
+		$this->assertEquals('Competitive', $event->level_of_play);
+		$this->assertTrue($event->ask_status);
+		$this->assertTrue($event->ask_attendance);
 	}
 
 	/**
 	 * test _getPeople()
 	 */
-	public function testGetPeople() {
-		$people1 = $this->Event1->people->toArray();
-		// Only four people have made some payment
-		$this->assertEquals(4, count($people1));
-		$this->assertEquals(PERSON_ID_PLAYER, $people1[0]->id);
-		$this->assertEquals(PERSON_ID_CAPTAIN, $people1[1]->id);
-		$this->assertEquals(PERSON_ID_CAPTAIN2, $people1[2]->id);
-		$this->assertEquals(PERSON_ID_CHILD, $people1[3]->id);
+	public function testGetPeople(): void {
+		$nPaid = 4;
+		/** @var Event $event */
+		$event = EventFactory::make()
+			->with('Registrations',
+				RegistrationFactory::make($nPaid)
+					->with('People')
+					->paid()
+			)->persist();
 
-		$this->assertEmpty($this->Event3->people->toArray());
+
+		$peopleWhoPaid = $event->people->toArray();
+
+		// Only four people have made some payment
+		$this->assertCount($nPaid, $peopleWhoPaid);
+		$this->assertEquals($event->registrations[0]->person->id, $peopleWhoPaid[0]->id);
+		$this->assertEquals($event->registrations[1]->person->id, $peopleWhoPaid[1]->id);
+		$this->assertEquals($event->registrations[2]->person->id, $peopleWhoPaid[2]->id);
+		$this->assertEquals($event->registrations[3]->person->id, $peopleWhoPaid[3]->id);
+
+		/** @var Event $event */
+		$event = EventFactory::make()
+			->with('Registrations',
+				RegistrationFactory::make(3)
+					->with('People')
+					->unpaid()
+			)->persist();
+		$this->assertEmpty($event->people->toArray());
 	}
 
-	public function testMergeAutoQuestions() {
+	public function testMergeAutoQuestions(): void {
+		/** @var Event $event */
+		$event = EventFactory::make()->getEntity();
 		// Make sure we have no questions
-		$this->assertNull($this->Event1->questionnaire);
+		$this->assertNull($event->questionnaire);
 
 		// Add questions in for different types
 		$teamEvent = new EventTypeTeam();
 		Configure::write('profile.shirt_size', PROFILE_REGISTRATION);
 		$individualEvent = new EventTypeIndividual();
-		$this->Event1->mergeAutoQuestions($teamEvent, 5);
-		$this->Event1->mergeAutoQuestions($individualEvent, 5);
+		$event->mergeAutoQuestions($teamEvent, 5);
+		$event->mergeAutoQuestions($individualEvent, 5);
 
 		// Check that the merge worked:
-		$this->assertNotNull($this->Event1->questionnaire);
-		$questionsThatShouldBeThere = array_merge($teamEvent->registrationFields($this->Event1, 5), $individualEvent->registrationFields($this->Event1, 5));
-		$this->assertEquals(count($this->Event1->questionnaire->questions), count($questionsThatShouldBeThere), 'Not all questions were merged');
-		for ($i = 0; $i < count($questionsThatShouldBeThere); $i++) {
-			$this->assertEquals($questionsThatShouldBeThere[$i], $this->Event1->questionnaire->questions[$i]);
+		$this->assertNotNull($event->questionnaire);
+		$questionsThatShouldBeThere = array_merge($teamEvent->registrationFields($event, 5), $individualEvent->registrationFields($event, 5));
+		$count = count($questionsThatShouldBeThere);
+		$this->assertCount($count, $event->questionnaire->questions, 'Not all questions were merged');
+		for ($i = 0; $i < $count; $i++) {
+			$this->assertEquals($questionsThatShouldBeThere[$i], $event->questionnaire->questions[$i]);
 		}
 	}
 
 	/**
 	 * Test processWaitingList();
 	 */
-	public function testProcessWaitingList() {
+	public function testProcessWaitingList(): void {
+		//TODO
 		$this->markTestIncomplete('Not implemented yet. Need to discuss with Greg, I don\'t think the method does what I think it should be or that could just be some complexity I don\t understand.');
 	}
 

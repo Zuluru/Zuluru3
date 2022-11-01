@@ -12,44 +12,23 @@ class IncidentsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\IncidentsTable
+	 * @var IncidentsTable
 	 */
 	public $IncidentsTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-					'app.Pools',
-						'app.PoolsTeams',
-					'app.Games',
-						'app.Incidents',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Incidents') ? [] : ['className' => 'App\Model\Table\IncidentsTable'];
-		$this->IncidentsTable = TableRegistry::get('Incidents', $config);
+		$config = TableRegistry::getTableLocator()->exists('Incidents') ? [] : ['className' => IncidentsTable::class];
+		$this->IncidentsTable = TableRegistry::getTableLocator()->get('Incidents', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->IncidentsTable);
 
 		parent::tearDown();

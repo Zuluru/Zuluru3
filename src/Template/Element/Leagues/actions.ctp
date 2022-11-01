@@ -1,12 +1,12 @@
 <?php
 /**
- * @type \App\Model\Entity\League $league
- * @type string $format
- * @type string[] $division_actions
- * @type string[] $division_more
- * @type int $size
- * @type boolean $collapse
- * @type boolean $return
+ * @type $league \App\Model\Entity\League
+ * @type $format string
+ * @type $division_actions string[]
+ * @type $division_more string[]
+ * @type $size int
+ * @type $collapse boolean
+ * @type $return boolean
  */
 
 use App\Controller\AppController;

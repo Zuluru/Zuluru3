@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\PriceFactory;
 use Cake\Event\Event;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\PricesTable;
@@ -13,45 +14,23 @@ class PricesTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\PricesTable
+	 * @var PricesTable
 	 */
 	public $PricesTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.EventTypes',
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Leagues',
-				'app.Divisions',
-			'app.Events',
-				'app.Prices',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Prices') ? [] : ['className' => 'App\Model\Table\PricesTable'];
-		$this->PricesTable = TableRegistry::get('Prices', $config);
+		$config = TableRegistry::getTableLocator()->exists('Prices') ? [] : ['className' => PricesTable::class];
+		$this->PricesTable = TableRegistry::getTableLocator()->get('Prices', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->PricesTable);
 
 		parent::tearDown();
@@ -59,10 +38,8 @@ class PricesTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeMarshal method
-	 *
-	 * @return void
 	 */
-	public function testBeforeMarshal() {
+	public function testBeforeMarshal(): void {
 		$data = new \ArrayObject([
 			'online_payment_option' => ONLINE_FULL_PAYMENT,
 			'minimum_deposit' => 100,
@@ -94,30 +71,25 @@ class PricesTableTest extends TableTestCase {
 
 	/**
 	 * Test afterSave method
-	 *
-	 * @return void
 	 */
-	public function testAfterSave() {
+	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
-	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->PricesTable->affiliate(PRICE_ID_MEMBERSHIP));
+	public function testAffiliate(): void {
+        $affiliateId = mt_rand();
+        $entity = PriceFactory::make()->with('Events', ['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->PricesTable->affiliate($entity->id));
 	}
 
 	/**
 	 * Test duration method
-	 *
-	 * @return void
 	 */
-	public function testDuration() {
-		$price = $this->PricesTable->get(PRICE_ID_LEAGUE_TEAM);
-		$this->assertEquals('1 day, 1 hour, 15 minutes', $this->PricesTable->duration($price->reservation_duration));
+	public function testDuration(): void {
+		$this->assertEquals('1 day, 1 hour, 15 minutes', $this->PricesTable->duration(1515));
 	}
 
 }

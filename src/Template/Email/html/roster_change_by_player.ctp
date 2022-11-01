@@ -3,12 +3,12 @@ use Cake\Core\Configure;
 use Cake\Routing\Router;
 
 /**
- * @type \App\Model\Entity\Person $person
- * @type \App\Model\Entity\Team $team
- * @type string $captains
- * @type string $old_role
- * @type string $role
- * @type string $reply
+ * @type $person \App\Model\Entity\Person
+ * @type $team \App\Model\Entity\Team
+ * @type $captains string
+ * @type $old_role string
+ * @type $role string
+ * @type $reply string
  */
 ?>
 

@@ -1,9 +1,9 @@
 <?php
 /**
- * @type \App\Model\Entity\Person $person
- * @type \App\Model\Entity\Registration $registration
- * @type \App\Model\Entity\Event $event
- * @type \App\Model\Entity\Payment $refund
+ * @type $person \App\Model\Entity\Person
+ * @type $registration \App\Model\Entity\Registration
+ * @type $event \App\Model\Entity\Event
+ * @type $refund \App\Model\Entity\Payment
  */
 use Cake\Core\Configure;
 ?>

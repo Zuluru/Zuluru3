@@ -1,8 +1,8 @@
 <?php
 /**
- * @type \App\Model\Entity\Registration $registration
- * @type string $format
- * @type string $size
+ * @type $registration \App\Model\Entity\Registration
+ * @type $format string
+ * @type $size string
  */
 
 use App\Controller\AppController;

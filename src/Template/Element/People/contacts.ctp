@@ -1,6 +1,6 @@
 <?php
 /**
- * @type \App\Model\Entity\Person $person
+ * @type $person \App\Model\Entity\Person
  */
 
 $lines = [];

@@ -1246,7 +1246,7 @@ class AppController extends Controller {
 		}
 
 		if (!$this->request->is('post')) {
-			$this->request->data = $params;
+			$this->setRequest($this->getRequest()->withParsedBody($params));
 		}
 		return [$params, $url];
 	}

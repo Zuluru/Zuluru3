@@ -1,6 +1,8 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\AffiliatesPersonFactory;
+use App\Test\Factory\PersonFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\AffiliatesTable;
 
@@ -12,80 +14,44 @@ class AffiliatesTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\AffiliatesTable
+	 * @var AffiliatesTable
 	 */
 	public $AffiliatesTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-		'app.I18n',
-	];
-
-	/**
-	 * setUp method
-	 *
-	 * @return void
-	 */
-	public function setUp() {
-		parent::setUp();
-		$config = TableRegistry::exists('Affiliates') ? [] : ['className' => 'App\Model\Table\AffiliatesTable'];
-		$this->AffiliatesTable = TableRegistry::get('Affiliates', $config);
-	}
-
-	/**
-	 * tearDown method
-	 *
-	 * @return void
-	 */
-	public function tearDown() {
-		unset($this->AffiliatesTable);
-
-		parent::tearDown();
-	}
-
-	/**
 	 * Test readByPlayerId method
-	 *
-	 * @return void
 	 */
-	public function testReadByPlayerId() {
-		$affiliates = $this->AffiliatesTable->readByPlayerId(PERSON_ID_PLAYER);
+	public function testReadByPlayerId(): void {
+        $player = PersonFactory::make()->with('Affiliates')->persist();
+		$affiliates = TableRegistry::getTableLocator()->get('Affiliates')->readByPlayerId($player->id);
 		$this->assertEquals(1, count($affiliates));
 		$this->assertArrayHasKey(0, $affiliates);
 		$this->assertTrue($affiliates[0]->has('id'));
 		$this->assertArrayHasKey('People', $affiliates[0]->_matchingData);
 		$this->assertTrue($affiliates[0]->_matchingData['People']->has('id'));
-		$this->assertEquals(PERSON_ID_PLAYER, $affiliates[0]->_matchingData['People']->id);
+		$this->assertEquals($player->id, $affiliates[0]->_matchingData['People']->id);
 	}
 
 	/**
 	 * Test mergeList method
-	 *
-	 * @return void
 	 */
-	public function testMergeList() {
-		$original = $this->AffiliatesTable->People->get(PERSON_ID_MANAGER, ['contain' => ['Affiliates']]);
-		$duplicate = $this->AffiliatesTable->People->get(PERSON_ID_DUPLICATE, ['contain' => ['Affiliates']]);
-		$affiliates = $this->AffiliatesTable->mergeList($original->affiliates, $duplicate->affiliates);
+	public function testMergeList(): void {
+		$original = PersonFactory::make()->with('AffiliatesPeople', AffiliatesPersonFactory::make(['position' => 'manager'])->with('Affiliates'))->persist();
+		$original_affiliate = $original->affiliates_people[0]->affiliate_id;
+		$new = AffiliatesPersonFactory::make(['person_id' => $original->id])->with('Affiliates')->persist();
+		$new_affiliate = $new->affiliate_id;
+
+		$affiliates = TableRegistry::getTableLocator()->get('AffiliatesPeople')->mergeList($original->affiliates_people, [$new]);
+
 		$this->assertEquals(2, count($affiliates));
 
 		$this->assertArrayHasKey(0, $affiliates);
-		$this->assertEquals(AFFILIATE_ID_CLUB, $affiliates[0]->id);
-		$this->assertNotNull($affiliates[0]->_joinData);
-		$this->assertEquals('manager', $affiliates[0]->_joinData->position);
+		$this->assertEquals($new_affiliate, $affiliates[0]->affiliate_id);
+		$this->assertEquals('player', $affiliates[0]->position);
 
 		$this->assertArrayHasKey(1, $affiliates);
-		$this->assertEquals(AFFILIATE_ID_SUB, $affiliates[1]->id);
-		$this->assertNotNull($affiliates[1]->_joinData);
-		$this->assertEquals('player', $affiliates[1]->_joinData->position);
+		$this->assertEquals($original_affiliate, $affiliates[1]->affiliate_id);
+		$this->assertEquals('manager', $affiliates[1]->position);
 	}
 
 }

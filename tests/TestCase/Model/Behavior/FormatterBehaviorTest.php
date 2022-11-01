@@ -19,10 +19,8 @@ class FormatterBehaviorTest extends TestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$table = $this->createMock('Cake\ORM\Table');
 		$this->FormatterBehavior = new FormatterBehavior($table, [
@@ -36,10 +34,8 @@ class FormatterBehaviorTest extends TestCase {
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->FormatterBehavior);
 
 		parent::tearDown();
@@ -47,10 +43,8 @@ class FormatterBehaviorTest extends TestCase {
 
 	/**
 	 * Test format method
-	 *
-	 * @return void
 	 */
-	public function testFormat() {
+	public function testFormat(): void {
 		$entity = new Entity([
 			'name' => 'amy administrator',
 			'postalcode' => 'm1a1a1',
@@ -65,10 +59,8 @@ class FormatterBehaviorTest extends TestCase {
 
 	/**
 	 * Test postal_format method
-	 *
-	 * @return void
 	 */
-	public function testPostalFormat() {
+	public function testPostalFormat(): void {
 		$this->assertEquals('90210-1234', $this->FormatterBehavior->postal_format('902101234', 'US'));
 		$this->assertEquals('SW1W 0NY', $this->FormatterBehavior->postal_format('SW1W0NY', 'GB'));
 		$this->assertEquals('L1 8JQ', $this->FormatterBehavior->postal_format('L18JQ', 'GB'));
@@ -76,20 +68,16 @@ class FormatterBehaviorTest extends TestCase {
 
 	/**
 	 * Test phone_format method
-	 *
-	 * @return void
 	 */
-	public function testPhoneFormat() {
+	public function testPhoneFormat(): void {
 		$this->assertEquals('(03) 1234 5678', $this->FormatterBehavior->phone_format('312345678', 'AU'));
 		$this->assertEquals('0412 345 678', $this->FormatterBehavior->phone_format('0412345678', 'AU'));
 	}
 
 	/**
 	 * Test proper_case_format method
-	 *
-	 * @return void
 	 */
-	public function testProperCaseFormat() {
+	public function testProperCaseFormat(): void {
 		$this->assertEquals('O\'Reilly', $this->FormatterBehavior->proper_case_format('O\'REILLY', null));
 		$this->assertEquals('de Vries', $this->FormatterBehavior->proper_case_format('de Vries', null));
 		$this->assertEquals('MacDonald', $this->FormatterBehavior->proper_case_format('macdonald', null));

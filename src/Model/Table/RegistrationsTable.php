@@ -457,6 +457,11 @@ class RegistrationsTable extends AppTable {
 				return $this->refundPayment($event, $registration, $payment, $refund, $data['mark_refunded'], $credit_notes);
 			}
 
+			if ($refund_amount > round(collection($registration->payments)->sumOf('paid'), 2)) {
+				$this->Flash('warning', __('This would refund more than the amount paid.'));
+				return false;
+			}
+
 			// Go through all the payments, refunding them one at a time, until the requested amount has been covered
 			foreach ($registration->payments as $payment) {
 				$amount = min($refund_amount, $payment->paid);
@@ -493,10 +498,6 @@ class RegistrationsTable extends AppTable {
 					return true;
 				}
 			}
-
-			// There's still some amount left to refund?
-			$this->Flash('warning', __('This would refund more than the amount paid.'));
-			return false;
 		});
 	}
 

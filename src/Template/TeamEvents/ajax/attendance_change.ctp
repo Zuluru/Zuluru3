@@ -1,9 +1,9 @@
 <?php
 /**
- * @type \App\Model\Entity\Team $team
- * @type \App\Model\Entity\Person $person
- * @type \App\Model\Entity\Attendance $attendance
- * @type \App\Model\Entity\TeamEvent $event
+ * @type $team \App\Model\Entity\Team
+ * @type $person \App\Model\Entity\Person
+ * @type $attendance \App\Model\Entity\Attendance
+ * @type $event \App\Model\Entity\TeamEvent
  */
 
 $args = [

@@ -14,7 +14,7 @@ if (!isset($fields)) {
 	]);
 } else {
 	echo $this->Html->para(null, 'Looks like everything checks out. Click submit below to process the payment as it should have been. Registration will be marked as paid, teams created as required, etc.');
-	echo $this->Form->create(false, ['url' => ['plugin' => 'Chase', 'controller' => 'Payment', 'action' => 'from_email_confirmation']]);
+	echo $this->Form->create(false, ['url' => ['plugin' => 'ChasePayment', 'controller' => 'Payment', 'action' => 'from_email_confirmation']]);
 	echo $this->element('hidden', compact('fields'));
 }
 

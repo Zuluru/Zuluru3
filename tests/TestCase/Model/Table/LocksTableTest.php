@@ -12,37 +12,23 @@ class LocksTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\LocksTable
+	 * @var LocksTable
 	 */
 	public $LocksTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Locks',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Locks') ? [] : ['className' => 'App\Model\Table\LocksTable'];
-		$this->LocksTable = TableRegistry::get('Locks', $config);
+		$config = TableRegistry::getTableLocator()->exists('Locks') ? [] : ['className' => LocksTable::class];
+		$this->LocksTable = TableRegistry::getTableLocator()->get('Locks', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->LocksTable);
 
 		parent::tearDown();

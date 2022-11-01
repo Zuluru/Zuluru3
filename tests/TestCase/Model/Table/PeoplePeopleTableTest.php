@@ -12,41 +12,23 @@ class PeoplePeopleTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\PeoplePeopleTable
+	 * @var PeoplePeopleTable
 	 */
 	public $PeoplePeopleTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-					'app.PeoplePeople',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('PeoplePeople') ? [] : ['className' => 'App\Model\Table\PeoplePeopleTable'];
-		$this->PeoplePeopleTable = TableRegistry::get('PeoplePeople', $config);
+		$config = TableRegistry::getTableLocator()->exists('PeoplePeople') ? [] : ['className' => PeoplePeopleTable::class];
+		$this->PeoplePeopleTable = TableRegistry::getTableLocator()->get('PeoplePeople', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->PeoplePeopleTable);
 
 		parent::tearDown();
@@ -54,10 +36,8 @@ class PeoplePeopleTableTest extends TableTestCase {
 
 	/**
 	 * Test afterSave method
-	 *
-	 * @return void
 	 */
-	public function testAfterSave() {
+	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

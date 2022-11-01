@@ -24,7 +24,7 @@ class LeagueTypeRatingsLadder extends LeagueType {
 
 	public function links(Division $division, IdentityInterface $identity = null, $controller, $action) {
 		$links = parent::links($division, $identity, $controller, $action);
-		if (($controller != 'Divisions' || $action != 'ratings') && $identity && $identity->can('edit_schedule', $division)) {
+		if (($controller !== 'Divisions' || $action !== 'ratings') && $identity && $identity->can('edit_schedule', $division)) {
 			$links[__('Adjust Ratings')] = [
 				'url' => ['controller' => 'Divisions', 'action' => 'ratings', 'division' => $division->id],
 			];
@@ -173,7 +173,7 @@ class LeagueTypeRatingsLadder extends LeagueType {
 				$ratings_closeness = $ratings_closeness_try;
 			}
 
-			if (array_sum($seed_closeness) == sizeof($teams)/2) {
+			if (array_sum($seed_closeness) == count($teams)/2) {
 				// that's enough - don't bother getting any more, you have a perfect schedule (ie: 1 vs 2, 3 vs 4, etc).
 				break;
 			}
@@ -232,7 +232,7 @@ class LeagueTypeRatingsLadder extends LeagueType {
 		$workingteams = $teams;
 
 		// main loop - go through all of the teams
-		while(sizeof($workingteams) > 0) {
+		while (count($workingteams) > 0) {
 			// start with the first team (remove from array)
 			$current_team = array_shift($workingteams);
 
@@ -248,7 +248,7 @@ class LeagueTypeRatingsLadder extends LeagueType {
 			}
 
 			// if at this point there are no possible opponents, then you have to relax one of the restrictions:
-			if (sizeof($possible_opponents) == 0 ) {
+			if (count($possible_opponents) == 0 ) {
 				if ($NUM_TIMES_TO_TRY_CURRENT > 0) {
 					$NUM_TIMES_TO_TRY_CURRENT--;
 				} else if ($CURRENT_STANDINGS_DIFF < $MAX_STANDINGS_DIFF) {

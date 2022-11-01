@@ -117,14 +117,14 @@ class TeamResults {
 	}
 
 	static private function _addRoundPlaceholder($container, $team_id, $opp, $round) {
-		if (!$opp) {
-			return;
-		}
-
 		// Make sure a record exists for the round in the results
 		// Some league types don't use rounds, but there's no real harm in calculating this
 		if (!array_key_exists($round, $container->rounds)) {
 			$container->rounds[$round] = new RoundRobinRecord($team_id);
+		}
+
+		if (!$opp) {
+			return;
 		}
 
 		// Make sure a record exists for the opponent in the vs arrays

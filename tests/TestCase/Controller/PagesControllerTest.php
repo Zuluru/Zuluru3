@@ -1,10 +1,15 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use App\Test\Scenario\DiverseUsersScenario;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
+
 /**
  * App\Controller\PagesController Test Case
  */
 class PagesControllerTest extends ControllerTestCase {
+
+	use ScenarioAwareTrait;
 
 	/**
 	 * Fixtures
@@ -12,35 +17,21 @@ class PagesControllerTest extends ControllerTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-					'app.PeoplePeople',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-					'app.DivisionsPeople',
-			'app.Settings',
-		'app.I18n',
-		'app.Plugins',
+		'app.Groups',
+		'app.Settings',
 	];
 
 	/**
 	 * Test display method
-	 *
-	 * @return void
 	 */
-	public function testDisplay() {
+	public function testDisplay(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
 		// Anyone is allowed to display pages
-		$this->assertGetAsAccessOk(['controller' => 'Pages', 'action' => 'display', 'privacy'], PERSON_ID_ADMIN);
-		$this->assertGetAsAccessOk(['controller' => 'Pages', 'action' => 'display', 'privacy'], PERSON_ID_MANAGER);
-		$this->assertGetAsAccessOk(['controller' => 'Pages', 'action' => 'display', 'privacy'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessOk(['controller' => 'Pages', 'action' => 'display', 'privacy'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessOk(['controller' => 'Pages', 'action' => 'display', 'privacy'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessOk(['controller' => 'Pages', 'action' => 'display', 'privacy'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessOk(['controller' => 'Pages', 'action' => 'display', 'privacy'], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Pages', 'action' => 'display', 'privacy'], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Pages', 'action' => 'display', 'privacy'], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Pages', 'action' => 'display', 'privacy'], $player->id);
 		$this->assertGetAnonymousAccessOk(['controller' => 'Pages', 'action' => 'display', 'privacy']);
 	}
 

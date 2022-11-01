@@ -1,12 +1,19 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use App\Test\Factory\RegionFactory;
+use App\Test\Factory\TeamsFacilityFactory;
+use App\Test\Scenario\DiverseFacilitiesScenario;
+use App\Test\Scenario\DiverseUsersScenario;
 use Cake\ORM\TableRegistry;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * App\Controller\FacilitiesController Test Case
  */
 class FacilitiesControllerTest extends ControllerTestCase {
+
+	use ScenarioAwareTrait;
 
 	/**
 	 * Fixtures
@@ -14,83 +21,69 @@ class FacilitiesControllerTest extends ControllerTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-					'app.PeoplePeople',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-						'app.TeamsFacilities',
-					'app.GameSlots',
-					'app.DivisionsPeople',
-					'app.Pools',
-						'app.PoolsTeams',
-					'app.Games',
-			'app.Notes',
-			'app.Settings',
-		'app.I18n',
-		'app.Plugins',
+		'app.Countries',
+		'app.Groups',
+		'app.Provinces',
+		'app.Settings',
 	];
 
 	/**
 	 * Test index method
-	 *
-	 * @return void
 	 */
-	public function testIndex() {
+	public function testIndex(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
+		$affiliate_region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[1]]);
+
 		// Admins are allowed to see the index
-		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'index'], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/facilities/view?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseContains('/facilities/edit?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseContains('/facilities/delete?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseContains('/facilities/close?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseContains('/facilities/view?facility=' . FACILITY_ID_CENTRAL_TECH);
-		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_CENTRAL_TECH);
-		$this->assertResponseContains('/facilities/edit?facility=' . FACILITY_ID_CENTRAL_TECH);
-		$this->assertResponseContains('/facilities/delete?facility=' . FACILITY_ID_CENTRAL_TECH);
-		$this->assertResponseContains('/facilities/close?facility=' . FACILITY_ID_CENTRAL_TECH);
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'index'], $admin->id);
+		$this->assertResponseContains('/facilities/view?facility=' . $region->facilities[0]->id);
+		$this->assertResponseContains('/maps/view?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseContains('/facilities/edit?facility=' . $region->facilities[0]->id);
+		$this->assertResponseContains('/facilities/delete?facility=' . $region->facilities[0]->id);
+		$this->assertResponseContains('/facilities/close?facility=' . $region->facilities[0]->id);
+		$this->assertResponseContains('/facilities/view?facility=' . $affiliate_region->facilities[0]->id);
+		$this->assertResponseContains('/maps/view?field=' . $affiliate_region->facilities[0]->fields[0]->id);
+		$this->assertResponseContains('/facilities/edit?facility=' . $affiliate_region->facilities[0]->id);
+		$this->assertResponseContains('/facilities/delete?facility=' . $affiliate_region->facilities[0]->id);
+		$this->assertResponseContains('/facilities/close?facility=' . $affiliate_region->facilities[0]->id);
+
+		// This field doesn't have a layout defined yet, so no map link
+		$this->assertResponseNotContains('/maps/view?field=' . $region->facilities[0]->fields[2]->id);
+
+		// This facility is closed, so no link on the main index
+		$this->assertResponseNotContains('/facilities/view?facility=' . $region->facilities[1]->id);
 
 		// Managers are allowed to see the index, but don't see facilities in other affiliates
-		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'index'], PERSON_ID_MANAGER);
-		$this->assertResponseContains('/facilities/view?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseContains('/facilities/edit?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseContains('/facilities/delete?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseContains('/facilities/close?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseNotContains('/facilities/view?facility=' . FACILITY_ID_CENTRAL_TECH);
-		$this->assertResponseNotContains('/maps/view?field=' . FIELD_ID_CENTRAL_TECH);
-		$this->assertResponseNotContains('/facilities/edit?facility=' . FACILITY_ID_CENTRAL_TECH);
-		$this->assertResponseNotContains('/facilities/delete?facility=' . FACILITY_ID_CENTRAL_TECH);
-		$this->assertResponseNotContains('/facilities/close?facility=' . FACILITY_ID_CENTRAL_TECH);
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'index'], $manager->id);
+		$this->assertResponseContains('/facilities/view?facility=' . $region->facilities[0]->id);
+		$this->assertResponseContains('/maps/view?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseContains('/facilities/edit?facility=' . $region->facilities[0]->id);
+		$this->assertResponseContains('/facilities/delete?facility=' . $region->facilities[0]->id);
+		$this->assertResponseContains('/facilities/close?facility=' . $region->facilities[0]->id);
+		$this->assertResponseNotContains('/facilities/view?facility=' . $affiliate_region->facilities[0]->id);
+		$this->assertResponseNotContains('/maps/view?field=' . $affiliate_region->facilities[0]->fields[0]->id);
+		$this->assertResponseNotContains('/facilities/edit?facility=' . $affiliate_region->facilities[0]->id);
+		$this->assertResponseNotContains('/facilities/delete?facility=' . $affiliate_region->facilities[0]->id);
+		$this->assertResponseNotContains('/facilities/close?facility=' . $affiliate_region->facilities[0]->id);
 
 		// Coordinators are allowed to see the index, but no edit options
-		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'index'], PERSON_ID_COORDINATOR);
-		$this->assertResponseContains('/facilities/view?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseNotContains('/facilities/edit?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseNotContains('/facilities/delete?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseNotContains('/facilities/close?facility=' . FACILITY_ID_SUNNYBROOK);
-
-		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'index'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'index'], $volunteer->id);
+		$this->assertResponseContains('/facilities/view?facility=' . $region->facilities[0]->id);
+		$this->assertResponseContains('/maps/view?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseNotContains('/facilities/edit?facility=');
+		$this->assertResponseNotContains('/facilities/delete?facility=');
+		$this->assertResponseNotContains('/facilities/close?facility=');
 
 		// Players are allowed to see the index, but no edit options
-		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'index'], PERSON_ID_DUPLICATE);
-		$this->assertResponseContains('/facilities/view?facility=' . FACILITY_ID_CENTRAL_TECH);
-		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_CENTRAL_TECH);
-		$this->assertResponseNotContains('/facilities/edit?facility=' . FACILITY_ID_CENTRAL_TECH);
-		$this->assertResponseNotContains('/facilities/delete?facility=' . FACILITY_ID_CENTRAL_TECH);
-		$this->assertResponseNotContains('/facilities/close?facility=' . FACILITY_ID_CENTRAL_TECH);
-
-		// Visitors are allowed to see the index
-		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'index'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'index'], $player->id);
+		$this->assertResponseContains('/facilities/view?facility=' . $region->facilities[0]->id);
+		$this->assertResponseContains('/maps/view?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseNotContains('/facilities/edit?facility=');
+		$this->assertResponseNotContains('/facilities/delete?facility=');
+		$this->assertResponseNotContains('/facilities/close?facility=');
 
 		// Others are allowed to see the index
 		$this->assertGetAnonymousAccessOk(['controller' => 'Facilities', 'action' => 'index']);
@@ -100,438 +93,462 @@ class FacilitiesControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test closed method
-	 *
-	 * @return void
 	 */
-	public function testClosed() {
+	public function testClosed(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
+
 		// Admins are allowed to see the closed index
-		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'closed'], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/facilities/view?facility=' . FACILITY_ID_MARILYN_BELL);
-		// This field doesn't have a layout defined yet, so no map link
-		$this->assertResponseNotContains('/maps/view?field=' . FIELD_ID_MARILYN_BELL);
-		$this->assertResponseContains('/facilities/edit?facility=' . FACILITY_ID_MARILYN_BELL);
-		$this->assertResponseContains('/facilities/delete?facility=' . FACILITY_ID_MARILYN_BELL);
-		$this->assertResponseContains('/facilities/open?facility=' . FACILITY_ID_MARILYN_BELL);
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'closed'], $admin->id);
+		$this->assertResponseContains('/facilities/view?facility=' . $region->facilities[1]->id);
+		$this->assertResponseContains('/maps/view?field=' . $region->facilities[1]->fields[0]->id);
+		$this->assertResponseContains('/facilities/edit?facility=' . $region->facilities[1]->id);
+		$this->assertResponseContains('/facilities/delete?facility=' . $region->facilities[1]->id);
+		$this->assertResponseContains('/facilities/open?facility=' . $region->facilities[1]->id);
 
 		// Managers are allowed to see the closed index
-		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'closed'], PERSON_ID_MANAGER);
-		$this->assertResponseContains('/facilities/view?facility=' . FACILITY_ID_MARILYN_BELL);
-		// This field doesn't have a layout defined yet, so no map link
-		$this->assertResponseNotContains('/maps/view?field=' . FIELD_ID_MARILYN_BELL);
-		$this->assertResponseContains('/facilities/edit?facility=' . FACILITY_ID_MARILYN_BELL);
-		$this->assertResponseContains('/facilities/delete?facility=' . FACILITY_ID_MARILYN_BELL);
-		$this->assertResponseContains('/facilities/open?facility=' . FACILITY_ID_MARILYN_BELL);
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'closed'], $manager->id);
+		$this->assertResponseContains('/facilities/view?facility=' . $region->facilities[1]->id);
+		$this->assertResponseContains('/maps/view?field=' . $region->facilities[1]->fields[0]->id);
+		$this->assertResponseContains('/facilities/edit?facility=' . $region->facilities[1]->id);
+		$this->assertResponseContains('/facilities/delete?facility=' . $region->facilities[1]->id);
+		$this->assertResponseContains('/facilities/open?facility=' . $region->facilities[1]->id);
 
 		// Others are not allowed to see the closed index
-		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'closed'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'closed'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'closed'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'closed'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'closed'], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'closed'], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Facilities', 'action' => 'closed']);
 	}
 
 	/**
 	 * Test view method
-	 *
-	 * @return void
 	 */
-	public function testView() {
-		// Admins are allowed to view facilities
-		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/facilities/edit?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseContains('/facilities/delete?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseContains('/maps/edit?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseContains('/fields/delete?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseContains('/fields/close?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseContains('/fields/bookings?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseContains('/game_slots/add?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+	public function testView(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
 
-		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_CENTRAL_TECH], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/facilities/edit?facility=' . FACILITY_ID_CENTRAL_TECH);
-		$this->assertResponseContains('/facilities/delete?facility=' . FACILITY_ID_CENTRAL_TECH);
-		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_CENTRAL_TECH);
-		$this->assertResponseContains('/maps/edit?field=' . FIELD_ID_CENTRAL_TECH);
-		$this->assertResponseContains('/fields/delete?field=' . FIELD_ID_CENTRAL_TECH);
-		$this->assertResponseContains('/fields/close?field=' . FIELD_ID_CENTRAL_TECH);
-		$this->assertResponseContains('/fields/bookings?field=' . FIELD_ID_CENTRAL_TECH);
-		$this->assertResponseContains('/game_slots/add?field=' . FIELD_ID_CENTRAL_TECH);
+		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
+		$affiliate_region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[1]]);
+
+		// Admins are allowed to view facilities
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => $region->facilities[0]->id], $admin->id);
+		$this->assertResponseContains('/facilities/edit?facility=' . $region->facilities[0]->id);
+		$this->assertResponseContains('/facilities/delete?facility=' . $region->facilities[0]->id);
+		$this->assertResponseContains('/maps/view?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseContains('/maps/edit?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseContains('/fields/delete?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseContains('/fields/close?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseContains('/fields/bookings?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseContains('/game_slots/add?field=' . $region->facilities[0]->fields[0]->id);
+
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => $affiliate_region->facilities[0]->id], $admin->id);
+		$this->assertResponseContains('/facilities/edit?facility=' . $affiliate_region->facilities[0]->id);
+		$this->assertResponseContains('/facilities/delete?facility=' . $affiliate_region->facilities[0]->id);
+		$this->assertResponseContains('/maps/view?field=' . $affiliate_region->facilities[0]->fields[0]->id);
+		$this->assertResponseContains('/maps/edit?field=' . $affiliate_region->facilities[0]->fields[0]->id);
+		$this->assertResponseContains('/fields/delete?field=' . $affiliate_region->facilities[0]->fields[0]->id);
+		$this->assertResponseContains('/fields/close?field=' . $affiliate_region->facilities[0]->fields[0]->id);
+		$this->assertResponseContains('/fields/bookings?field=' . $affiliate_region->facilities[0]->fields[0]->id);
+		$this->assertResponseContains('/game_slots/add?field=' . $affiliate_region->facilities[0]->fields[0]->id);
 
 		// Admins are allowed to view closed facilities
-		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_MARILYN_BELL], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/facilities/edit?facility=' . FACILITY_ID_MARILYN_BELL);
-		$this->assertResponseContains('/facilities/delete?facility=' . FACILITY_ID_MARILYN_BELL);
-		// This field doesn't have a layout defined yet, so no map link
-		$this->assertResponseNotContains('/maps/view?field=' . FIELD_ID_MARILYN_BELL);
-		$this->assertResponseContains('/maps/edit?field=' . FIELD_ID_MARILYN_BELL);
-		$this->assertResponseContains('/fields/delete?field=' . FIELD_ID_MARILYN_BELL);
-		$this->assertResponseContains('/fields/open?field=' . FIELD_ID_MARILYN_BELL);
-		$this->assertResponseContains('/fields/bookings?field=' . FIELD_ID_MARILYN_BELL);
-		$this->assertResponseContains('/game_slots/add?field=' . FIELD_ID_MARILYN_BELL);
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => $region->facilities[1]->id], $admin->id);
+		$this->assertResponseContains('/facilities/edit?facility=' . $region->facilities[1]->id);
+		$this->assertResponseContains('/facilities/delete?facility=' . $region->facilities[1]->id);
+		$this->assertResponseContains('/maps/view?field=' . $region->facilities[1]->fields[0]->id);
+		$this->assertResponseContains('/maps/edit?field=' . $region->facilities[1]->fields[0]->id);
+		$this->assertResponseContains('/fields/delete?field=' . $region->facilities[1]->fields[0]->id);
+		$this->assertResponseContains('/fields/open?field=' . $region->facilities[1]->fields[0]->id);
+		$this->assertResponseContains('/fields/bookings?field=' . $region->facilities[1]->fields[0]->id);
+		$this->assertResponseContains('/game_slots/add?field=' . $region->facilities[1]->fields[0]->id);
 
 		// Managers are allowed to view facilities
-		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_MANAGER);
-		$this->assertResponseContains('/facilities/edit?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseContains('/facilities/delete?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseContains('/maps/edit?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseContains('/fields/delete?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseContains('/fields/close?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseContains('/fields/bookings?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseContains('/game_slots/add?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => $region->facilities[0]->id], $manager->id);
+		$this->assertResponseContains('/facilities/edit?facility=' . $region->facilities[0]->id);
+		$this->assertResponseContains('/facilities/delete?facility=' . $region->facilities[0]->id);
+		$this->assertResponseContains('/maps/view?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseContains('/maps/edit?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseContains('/fields/delete?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseContains('/fields/close?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseContains('/fields/bookings?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseContains('/game_slots/add?field=' . $region->facilities[0]->fields[0]->id);
 
 		// Managers are allowed to view facilities from other affiliates, but have no edit options
-		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_CENTRAL_TECH], PERSON_ID_MANAGER);
-		$this->assertResponseNotContains('/facilities/edit?facility=' . FACILITY_ID_CENTRAL_TECH);
-		$this->assertResponseNotContains('/facilities/delete?facility=' . FACILITY_ID_CENTRAL_TECH);
-		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_CENTRAL_TECH);
-		$this->assertResponseNotContains('/maps/edit?field=' . FIELD_ID_CENTRAL_TECH);
-		$this->assertResponseNotContains('/fields/delete?field=' . FIELD_ID_CENTRAL_TECH);
-		$this->assertResponseNotContains('/fields/close?field=' . FIELD_ID_CENTRAL_TECH);
-		$this->assertResponseContains('/fields/bookings?field=' . FIELD_ID_CENTRAL_TECH);
-		$this->assertResponseNotContains('/game_slots/add?field=' . FIELD_ID_CENTRAL_TECH);
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => $affiliate_region->facilities[0]->id], $manager->id);
+		$this->assertResponseNotContains('/facilities/edit?facility=' . $affiliate_region->facilities[0]->id);
+		$this->assertResponseNotContains('/facilities/delete?facility=' . $affiliate_region->facilities[0]->id);
+		$this->assertResponseContains('/maps/view?field=' . $affiliate_region->facilities[0]->fields[0]->id);
+		$this->assertResponseNotContains('/maps/edit?field=' . $affiliate_region->facilities[0]->fields[0]->id);
+		$this->assertResponseNotContains('/fields/delete?field=' . $affiliate_region->facilities[0]->fields[0]->id);
+		$this->assertResponseNotContains('/fields/close?field=' . $affiliate_region->facilities[0]->fields[0]->id);
+		$this->assertResponseContains('/fields/bookings?field=' . $affiliate_region->facilities[0]->fields[0]->id);
+		$this->assertResponseNotContains('/game_slots/add?field=' . $affiliate_region->facilities[0]->fields[0]->id);
 
 		// Managers are allowed to view closed facilities
-		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_MARILYN_BELL], PERSON_ID_MANAGER);
-		$this->assertResponseContains('/facilities/edit?facility=' . FACILITY_ID_MARILYN_BELL);
-		$this->assertResponseContains('/facilities/delete?facility=' . FACILITY_ID_MARILYN_BELL);
-		// This field doesn't have a layout defined yet, so no map link
-		$this->assertResponseNotContains('/maps/view?field=' . FIELD_ID_MARILYN_BELL);
-		$this->assertResponseContains('/maps/edit?field=' . FIELD_ID_MARILYN_BELL);
-		$this->assertResponseContains('/fields/delete?field=' . FIELD_ID_MARILYN_BELL);
-		$this->assertResponseContains('/fields/open?field=' . FIELD_ID_MARILYN_BELL);
-		$this->assertResponseContains('/fields/bookings?field=' . FIELD_ID_MARILYN_BELL);
-		$this->assertResponseContains('/game_slots/add?field=' . FIELD_ID_MARILYN_BELL);
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => $region->facilities[1]->id], $manager->id);
+		$this->assertResponseContains('/facilities/edit?facility=' . $region->facilities[1]->id);
+		$this->assertResponseContains('/facilities/delete?facility=' . $region->facilities[1]->id);
+		$this->assertResponseContains('/maps/view?field=' . $region->facilities[1]->fields[0]->id);
+		$this->assertResponseContains('/maps/edit?field=' . $region->facilities[1]->fields[0]->id);
+		$this->assertResponseContains('/fields/delete?field=' . $region->facilities[1]->fields[0]->id);
+		$this->assertResponseContains('/fields/open?field=' . $region->facilities[1]->fields[0]->id);
+		$this->assertResponseContains('/fields/bookings?field=' . $region->facilities[1]->fields[0]->id);
+		$this->assertResponseContains('/game_slots/add?field=' . $region->facilities[1]->fields[0]->id);
 
 		// Others are allowed to view facilities, but no edit options
-		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_COORDINATOR);
-		$this->assertResponseNotContains('/facilities/edit?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseNotContains('/facilities/delete?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseNotContains('/maps/edit?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseNotContains('/fields/delete?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseNotContains('/fields/close?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseContains('/fields/bookings?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseNotContains('/game_slots/add?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => $region->facilities[0]->id], $volunteer->id);
+		$this->assertResponseNotContains('/facilities/edit?facility=' . $region->facilities[0]->id);
+		$this->assertResponseNotContains('/facilities/delete?facility=' . $region->facilities[0]->id);
+		$this->assertResponseContains('/maps/view?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseNotContains('/maps/edit?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseNotContains('/fields/delete?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseNotContains('/fields/close?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseContains('/fields/bookings?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseNotContains('/game_slots/add?field=' . $region->facilities[0]->fields[0]->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_CAPTAIN);
-		$this->assertResponseNotContains('/facilities/edit?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseNotContains('/facilities/delete?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseNotContains('/maps/edit?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseNotContains('/fields/delete?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseNotContains('/fields/close?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseContains('/fields/bookings?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseNotContains('/game_slots/add?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => $region->facilities[0]->id], $player->id);
+		$this->assertResponseNotContains('/facilities/edit?facility=' . $region->facilities[0]->id);
+		$this->assertResponseNotContains('/facilities/delete?facility=' . $region->facilities[0]->id);
+		$this->assertResponseContains('/maps/view?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseNotContains('/maps/edit?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseNotContains('/fields/delete?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseNotContains('/fields/close?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseContains('/fields/bookings?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseNotContains('/game_slots/add?field=' . $region->facilities[0]->fields[0]->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_PLAYER);
-		$this->assertResponseNotContains('/facilities/edit?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseNotContains('/facilities/delete?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseNotContains('/maps/edit?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseNotContains('/fields/delete?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseNotContains('/fields/close?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseContains('/fields/bookings?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseNotContains('/game_slots/add?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-
-		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_VISITOR);
-		$this->assertResponseNotContains('/facilities/edit?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseNotContains('/facilities/delete?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseNotContains('/maps/edit?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseNotContains('/fields/delete?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseNotContains('/fields/close?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseContains('/fields/bookings?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseNotContains('/game_slots/add?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-
-		$this->assertGetAnonymousAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => FACILITY_ID_SUNNYBROOK]);
-		$this->assertResponseNotContains('/facilities/edit?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseNotContains('/facilities/delete?facility=' . FACILITY_ID_SUNNYBROOK);
-		$this->assertResponseContains('/maps/view?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseNotContains('/maps/edit?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseNotContains('/fields/delete?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseNotContains('/fields/close?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseContains('/fields/bookings?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-		$this->assertResponseNotContains('/game_slots/add?field=' . FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Facilities', 'action' => 'view', 'facility' => $region->facilities[0]->id]);
+		$this->assertResponseNotContains('/facilities/edit?facility=' . $region->facilities[0]->id);
+		$this->assertResponseNotContains('/facilities/delete?facility=' . $region->facilities[0]->id);
+		$this->assertResponseContains('/maps/view?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseNotContains('/maps/edit?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseNotContains('/fields/delete?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseNotContains('/fields/close?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseContains('/fields/bookings?field=' . $region->facilities[0]->fields[0]->id);
+		$this->assertResponseNotContains('/game_slots/add?field=' . $region->facilities[0]->fields[0]->id);
 	}
 
 	/**
 	 * Test add method as an admin
-	 *
-	 * @return void
 	 */
-	public function testAddAsAdmin() {
+	public function testAddAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
+		$affiliates = $admin->affiliates;
+
+		RegionFactory::make(['affiliate_id' => $affiliates[0]->id], 2)
+			->persist();
+
 		// Admins are allowed to add facilities
-		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'add'], PERSON_ID_ADMIN);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'add'], $admin->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test add method as a manager
-	 *
-	 * @return void
 	 */
-	public function testAddAsManager() {
+	public function testAddAsManager(): void {
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
+		$affiliates = $admin->affiliates;
+
+		RegionFactory::make(['affiliate_id' => $affiliates[0]->id], 2)
+			->persist();
+
 		// Managers are allowed to add facilities
-		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'add'], PERSON_ID_MANAGER);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'add'], $manager->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test add method as others
-	 *
-	 * @return void
 	 */
-	public function testAddAsOthers() {
+	public function testAddAsOthers(): void {
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
+		$affiliates = $admin->affiliates;
+
+		RegionFactory::make(['affiliate_id' => $affiliates[0]->id], 2)
+			->persist();
+
 		// Others are not allowed to add facilities
-		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'add'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'add'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'add'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'add'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'add'], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'add'], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Facilities', 'action' => 'add']);
 	}
 
 	/**
 	 * Test edit method as an admin
-	 *
-	 * @return void
 	 */
-	public function testEditAsAdmin() {
+	public function testEditAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
+		$affiliates = $admin->affiliates;
+
+		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
+		$affiliate_region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[1]]);
+
 		// Admins are allowed to edit facilities
-		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'edit', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_ADMIN);
-		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'edit', 'facility' => FACILITY_ID_CENTRAL_TECH], PERSON_ID_ADMIN);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'edit', 'facility' => $region->facilities[0]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'edit', 'facility' => $affiliate_region->facilities[0]->id], $admin->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test edit method as a manager
-	 *
-	 * @return void
 	 */
-	public function testEditAsManager() {
+	public function testEditAsManager(): void {
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
+		$affiliates = $admin->affiliates;
+
+		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
+		$affiliate_region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[1]]);
+
 		// Managers are allowed to edit facilities
-		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'edit', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Facilities', 'action' => 'edit', 'facility' => $region->facilities[0]->id], $manager->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'edit', 'facility' => FACILITY_ID_CENTRAL_TECH], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'edit', 'facility' => $affiliate_region->facilities[0]->id], $manager->id);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test edit method as others
-	 *
-	 * @return void
 	 */
-	public function testEditAsOthers() {
+	public function testEditAsOthers(): void {
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
+		$affiliates = $admin->affiliates;
+
+		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
+
 		// Others are not allowed to edit facilities
-		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'edit', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'edit', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'edit', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'edit', 'facility' => FACILITY_ID_SUNNYBROOK], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Facilities', 'action' => 'edit', 'facility' => FACILITY_ID_SUNNYBROOK]);
+		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'edit', 'facility' => $region->facilities[0]->id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'edit', 'facility' => $region->facilities[0]->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Facilities', 'action' => 'edit', 'facility' => $region->facilities[0]->id]);
 	}
 
 	/**
 	 * Test add_field method as an admin
-	 *
-	 * @return void
 	 */
-	public function testAddFieldAsAdmin() {
+	public function testAddFieldAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
+
 		// Admins are allowed to add field
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Facilities', 'action' => 'add_field'],
-			PERSON_ID_ADMIN);
-		$this->markTestIncomplete('Not implemented yet.');
+			$admin->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test add_field method as a manager
-	 *
-	 * @return void
 	 */
-	public function testAddFieldAsManager() {
+	public function testAddFieldAsManager(): void {
+		[$manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['manager']);
+
 		// Managers are allowed to add field
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Facilities', 'action' => 'add_field'],
-			PERSON_ID_MANAGER);
-		$this->markTestIncomplete('Not implemented yet.');
+			$manager->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test add_field method as others
-	 *
-	 * @return void
 	 */
-	public function testAddFieldAsOthers() {
+	public function testAddFieldAsOthers(): void {
+		[$volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer', 'player']);
+
 		// Others are not allowed to add fields
 		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'add_field'],
-			PERSON_ID_COORDINATOR);
+			$volunteer->id);
 		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'add_field'],
-			PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'add_field'],
-			PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Facilities', 'action' => 'add_field'],
-			PERSON_ID_VISITOR);
+			$player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Facilities', 'action' => 'add_field']);
 	}
 
 	/**
 	 * Test open method as an admin
-	 *
-	 * @return void
 	 */
-	public function testOpenAsAdmin() {
+	public function testOpenAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
+		$affiliates = $admin->affiliates;
+
+		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
+
 		// Admins are allowed to open facilities
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Facilities', 'action' => 'open', 'facility' => FACILITY_ID_MARILYN_BELL],
-			PERSON_ID_ADMIN);
-		$this->assertResponseContains('/facilities\\/close?facility=' . FACILITY_ID_MARILYN_BELL);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Facilities', 'action' => 'open', 'facility' => $region->facilities[1]->id],
+			$admin->id);
+		$this->assertResponseContains('/facilities\\/close?facility=' . $region->facilities[1]->id);
 		// Confirm that all related fields remain closed
-		$fields = TableRegistry::get('Fields');
-		$query = $fields->find()->where(['facility_id' => FACILITY_ID_MARILYN_BELL, 'is_open' => true]);
+		$fields = TableRegistry::getTableLocator()->get('Fields');
+		$query = $fields->find()->where(['facility_id' => $region->facilities[1]->id, 'is_open' => true]);
 		$this->assertEquals(0, $query->count());
 	}
 
 	/**
 	 * Test open method as a manager
-	 *
-	 * @return void
 	 */
-	public function testOpenAsManager() {
+	public function testOpenAsManager(): void {
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
+		$affiliates = $admin->affiliates;
+
+		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
+		$affiliate_region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[1]]);
+
 		// Managers are allowed to open facilities
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Facilities', 'action' => 'open', 'facility' => FACILITY_ID_MARILYN_BELL],
-			PERSON_ID_MANAGER);
-		$this->assertResponseContains('/facilities\\/close?facility=' . FACILITY_ID_MARILYN_BELL);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Facilities', 'action' => 'open', 'facility' => $region->facilities[1]->id],
+			$manager->id);
+		$this->assertResponseContains('/facilities\\/close?facility=' . $region->facilities[1]->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Facilities', 'action' => 'open', 'facility' => FACILITY_ID_CENTRAL_TECH],
-			PERSON_ID_MANAGER);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Facilities', 'action' => 'open', 'facility' => $affiliate_region->facilities[0]->id],
+			$manager->id);
 	}
 
 	/**
 	 * Test open method as others
-	 *
-	 * @return void
 	 */
-	public function testOpenAsOthers() {
+	public function testOpenAsOthers(): void {
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
+		$affiliates = $admin->affiliates;
+
+		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
+
 		// Others are not allowed to open facilities
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Facilities', 'action' => 'open', 'facility' => FACILITY_ID_MARILYN_BELL],
-			PERSON_ID_COORDINATOR);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Facilities', 'action' => 'open', 'facility' => FACILITY_ID_MARILYN_BELL],
-			PERSON_ID_CAPTAIN);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Facilities', 'action' => 'open', 'facility' => FACILITY_ID_MARILYN_BELL],
-			PERSON_ID_PLAYER);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Facilities', 'action' => 'open', 'facility' => FACILITY_ID_MARILYN_BELL],
-			PERSON_ID_VISITOR);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Facilities', 'action' => 'open', 'facility' => FACILITY_ID_MARILYN_BELL]);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Facilities', 'action' => 'open', 'facility' => $region->facilities[1]->id],
+			$volunteer->id);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Facilities', 'action' => 'open', 'facility' => $region->facilities[1]->id],
+			$player->id);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Facilities', 'action' => 'open', 'facility' => $region->facilities[1]->id]);
 	}
 
 	/**
 	 * Test close method as an admin
-	 *
-	 * @return void
 	 */
-	public function testCloseAsAdmin() {
+	public function testCloseAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
+		$affiliates = $admin->affiliates;
+
+		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
+
 		// Admins are allowed to close facilities
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Facilities', 'action' => 'close', 'facility' => FACILITY_ID_SUNNYBROOK],
-			PERSON_ID_ADMIN);
-		$this->assertResponseContains('/facilities\\/open?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Facilities', 'action' => 'close', 'facility' => $region->facilities[0]->id],
+			$admin->id);
+		$this->assertResponseContains('/facilities\\/open?facility=' . $region->facilities[0]->id);
 		// Confirm that all related fields were also closed
-		$fields = TableRegistry::get('Fields');
-		$query = $fields->find()->where(['facility_id' => FACILITY_ID_SUNNYBROOK, 'is_open' => true]);
+		$fields = TableRegistry::getTableLocator()->get('Fields');
+		$query = $fields->find()->where(['facility_id' => $region->facilities[0]->id, 'is_open' => true]);
 		$this->assertEquals(0, $query->count());
 	}
 
 	/**
 	 * Test close method as a manager
-	 *
-	 * @return void
 	 */
-	public function testCloseAsManager() {
+	public function testCloseAsManager(): void {
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
+		$affiliates = $admin->affiliates;
+
+		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
+		$affiliate_region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[1]]);
+
 		// Managers are allowed to close facilities
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Facilities', 'action' => 'close', 'facility' => FACILITY_ID_SUNNYBROOK],
-			PERSON_ID_MANAGER);
-		$this->assertResponseContains('/facilities\\/open?facility=' . FACILITY_ID_SUNNYBROOK);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Facilities', 'action' => 'close', 'facility' => $region->facilities[0]->id],
+			$manager->id);
+		$this->assertResponseContains('/facilities\\/open?facility=' . $region->facilities[0]->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Facilities', 'action' => 'close', 'facility' => FACILITY_ID_CENTRAL_TECH],
-			PERSON_ID_MANAGER);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Facilities', 'action' => 'close', 'facility' => $affiliate_region->facilities[0]->id],
+			$manager->id);
 	}
 
 	/**
 	 * Test close method as others
-	 *
-	 * @return void
 	 */
-	public function testCloseAsOthers() {
+	public function testCloseAsOthers(): void {
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
+		$affiliates = $admin->affiliates;
+
+		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
+
 		// Others are not allowed to close facilities
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Facilities', 'action' => 'close', 'facility' => FACILITY_ID_SUNNYBROOK],
-			PERSON_ID_COORDINATOR);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Facilities', 'action' => 'close', 'facility' => FACILITY_ID_SUNNYBROOK],
-			PERSON_ID_CAPTAIN);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Facilities', 'action' => 'close', 'facility' => FACILITY_ID_SUNNYBROOK],
-			PERSON_ID_PLAYER);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Facilities', 'action' => 'close', 'facility' => FACILITY_ID_SUNNYBROOK],
-			PERSON_ID_VISITOR);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Facilities', 'action' => 'close', 'facility' => FACILITY_ID_SUNNYBROOK]);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Facilities', 'action' => 'close', 'facility' => $region->facilities[0]->id],
+			$volunteer->id);
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Facilities', 'action' => 'close', 'facility' => $region->facilities[0]->id],
+			$player->id);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Facilities', 'action' => 'close', 'facility' => $region->facilities[0]->id]);
 	}
 
 	/**
 	 * Test delete method as an admin
-	 *
-	 * @return void
 	 */
-	public function testDeleteAsAdmin() {
+	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
+		$affiliates = $admin->affiliates;
+
+		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
+		$affiliate_region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[1]]);
+
 		// Admins are allowed to delete facilities
-		$this->assertPostAsAccessRedirect(['controller' => 'Facilities', 'action' => 'delete', 'facility' => FACILITY_ID_BLOOR],
-			PERSON_ID_ADMIN, [], ['controller' => 'Facilities', 'action' => 'index'],
+		$this->assertPostAsAccessRedirect(['controller' => 'Facilities', 'action' => 'delete', 'facility' => $region->facilities[1]->id],
+			$admin->id, [], ['controller' => 'Facilities', 'action' => 'index'],
+			'The facility has been deleted.');
+		$this->assertPostAsAccessRedirect(['controller' => 'Facilities', 'action' => 'delete', 'facility' => $affiliate_region->facilities[1]->id],
+			$admin->id, [], ['controller' => 'Facilities', 'action' => 'index'],
 			'The facility has been deleted.');
 
 		// But not ones with dependencies
-		$this->assertPostAsAccessRedirect(['controller' => 'Facilities', 'action' => 'delete', 'facility' => FACILITY_ID_SUNNYBROOK],
-			PERSON_ID_ADMIN, [], ['controller' => 'Facilities', 'action' => 'index'],
+		TeamsFacilityFactory::make(['facility_id' => $region->facilities[0]->id, 'team_id' => 1])->persist();
+		$this->assertPostAsAccessRedirect(['controller' => 'Facilities', 'action' => 'delete', 'facility' => $region->facilities[0]->id],
+			$admin->id, [], ['controller' => 'Facilities', 'action' => 'index'],
 			'#The following records reference this facility, so it cannot be deleted#');
 	}
 
 	/**
 	 * Test delete method as a manager
-	 *
-	 * @return void
 	 */
-	public function testDeleteAsManager() {
+	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
+		$affiliates = $admin->affiliates;
+
+		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
+		$affiliate_region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[1]]);
+
 		// Managers are allowed to delete facilities in their affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'Facilities', 'action' => 'delete', 'facility' => FACILITY_ID_BLOOR],
-			PERSON_ID_MANAGER, [], ['controller' => 'Facilities', 'action' => 'index'],
+		$this->assertPostAsAccessRedirect(['controller' => 'Facilities', 'action' => 'delete', 'facility' => $region->facilities[1]->id],
+			$manager->id, [], ['controller' => 'Facilities', 'action' => 'index'],
 			'The facility has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Facilities', 'action' => 'delete', 'facility' => FACILITY_ID_CENTRAL_TECH],
-			PERSON_ID_MANAGER);
+		$this->assertPostAsAccessDenied(['controller' => 'Facilities', 'action' => 'delete', 'facility' => $affiliate_region->facilities[0]->id],
+			$manager->id);
 	}
 
 	/**
 	 * Test delete method as others
-	 *
-	 * @return void
 	 */
-	public function testDeleteAsOthers() {
+	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
+		$affiliates = $admin->affiliates;
+
+		$region = $this->loadFixtureScenario(DiverseFacilitiesScenario::class, ['affiliate' => $affiliates[0]]);
+
 		// Others are not allowed to delete facilities
-		$this->assertPostAsAccessDenied(['controller' => 'Facilities', 'action' => 'delete', 'facility' => FACILITY_ID_BLOOR],
-			PERSON_ID_COORDINATOR);
-		$this->assertPostAsAccessDenied(['controller' => 'Facilities', 'action' => 'delete', 'facility' => FACILITY_ID_BLOOR],
-			PERSON_ID_CAPTAIN);
-		$this->assertPostAsAccessDenied(['controller' => 'Facilities', 'action' => 'delete', 'facility' => FACILITY_ID_BLOOR],
-			PERSON_ID_PLAYER);
-		$this->assertPostAsAccessDenied(['controller' => 'Facilities', 'action' => 'delete', 'facility' => FACILITY_ID_BLOOR],
-			PERSON_ID_VISITOR);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Facilities', 'action' => 'delete', 'facility' => FACILITY_ID_BLOOR]);
+		$this->assertPostAsAccessDenied(['controller' => 'Facilities', 'action' => 'delete', 'facility' => $region->facilities[1]->id],
+			$volunteer->id);
+		$this->assertPostAsAccessDenied(['controller' => 'Facilities', 'action' => 'delete', 'facility' => $region->facilities[1]->id],
+			$player->id);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Facilities', 'action' => 'delete', 'facility' => $region->facilities[1]->id]);
 	}
 
 }

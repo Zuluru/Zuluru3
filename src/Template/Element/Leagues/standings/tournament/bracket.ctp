@@ -1,10 +1,10 @@
 <?php
 /**
- * @type \App\Model\Entity\Division $division
- * @type \App\Model\Entity\League $league
- * @type \App\Model\Entity\Team[] $teams
- * @type mixed[][] $games
- * @type boolean $can_edit
+ * @type $division \App\Model\Entity\Division
+ * @type $league \App\Model\Entity\League
+ * @type $teams \App\Model\Entity\Team[]
+ * @type $games mixed[][]
+ * @type $can_edit boolean
  */
 
 use App\Controller\AppController;

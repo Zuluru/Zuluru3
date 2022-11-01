@@ -1,9 +1,8 @@
 <?php
 namespace App\Test\TestCase\Model\Entity;
 
-use App\Model\Entity\Waiver;
+use App\Test\Factory\WaiverFactory;
 use Cake\I18n\FrozenDate;
-use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 
 /**
@@ -11,134 +10,132 @@ use Cake\TestSuite\TestCase;
  */
 class WaiverTest extends TestCase {
 
-	/**
-	 * @var \App\Model\Entity\Waiver
-	 */
-	public $WaiverAnnual;
-	/**
-	 * @var \App\Model\Entity\Waiver
-	 */
-	public $WaiverAnnual2;
-	/**
-	 * @var \App\Model\Entity\Waiver
-	 */
-	public $WaiverEvent;
-	/**
-	 * @var \App\Model\Entity\Waiver
-	 */
-	public $WaiverElapsed;
-	/**
-	 * @var \App\Model\Entity\Waiver
-	 */
-	public $WaiverPerpetual;
-
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Waivers',
-		'app.I18n',
-	];
-
-	/**
-	 * setUp method
-	 *
-	 * @return void
-	 */
-	public function setUp() {
-		parent::setUp();
-		$waivers = TableRegistry::get('Waivers');
-		$this->WaiverAnnual = $waivers->get(WAIVER_ID_ANNUAL);
-		$this->WaiverAnnual2 = $waivers->get(WAIVER_ID_ANNUAL2);
-		$this->WaiverEvent = $waivers->get(WAIVER_ID_EVENT);
-		$this->WaiverElapsed = $waivers->get(WAIVER_ID_ELAPSED);
-		$this->WaiverPerpetual = $waivers->get(WAIVER_ID_PERPETUAL);
-	}
-
-	/**
-	 * tearDown method
-	 *
-	 * @return void
-	 */
-	public function tearDown() {
-		unset($this->WaiverAnnual);
-		unset($this->WaiverAnnual2);
-		unset($this->WaiverEvent);
-		unset($this->WaiverElapsed);
-		unset($this->WaiverPerpetual);
-
+	public function tearDown(): void {
+		FrozenDate::setTestNow();
 		parent::tearDown();
 	}
 
 	/**
-	 * Test canSign method
-	 *
-	 * @return void
+	 * Test canSign method for annual waivers
 	 */
-	public function testCanSign() {
-		// Check same day signing
+	public function testCanSignAnnual(): void {
+		$waiver = WaiverFactory::make([
+			'expiry_type' => 'fixed_dates',
+			'start_month' => 1,
+			'start_day' => 1,
+			'end_month' => 12,
+			'end_day' => 31,
+		])->getEntity();
+
 		$now = FrozenDate::now();
-		$this->assertTrue($this->WaiverElapsed->canSign());
-
-		// Last day signing
-		$this->assertTrue($this->WaiverElapsed->canSign($now->addDays(5)));
-
-		// Signing before start date
-		$this->assertFalse($this->WaiverElapsed->canSign($now->subDay()));
-
-		// Signing after end date but we're allowed to
-		$this->assertTrue($this->WaiverElapsed->canSign($now->addDays(6)));
 
 		// Signing just within the year
-		$this->assertTrue($this->WaiverAnnual->canSign($now->addYear()));
+		$this->assertTrue($waiver->canSign($now->addYear()));
 
-		// Signing just outside of the year
-		$this->assertFalse($this->WaiverAnnual->canSign($now->addYear()->addDay()));
+		// Signing just outside the year
+		$this->assertFalse($waiver->canSign($now->addYear()->addDay()));
 	}
 
 	/**
-	 * Test validRange method
-	 *
-	 * @return void
+	 * Test canSign method for elapsed time waivers
 	 */
-	public function testValidRange() {
-		// Set the date to something after the April 1 start of the the second annual waiver
+	public function testCanSignElapsed(): void {
+		$waiver = WaiverFactory::make([
+			'expiry_type' => 'elapsed_time',
+			'duration' => 5,
+		])->getEntity();
+
+		// Check same day signing
+		$now = FrozenDate::now();
+		$this->assertTrue($waiver->canSign());
+
+		// Last day signing
+		$this->assertTrue($waiver->canSign($now->addDays(5)));
+
+		// Signing before start date
+		$this->assertFalse($waiver->canSign($now->subDay()));
+
+		// Signing after end date but we're allowed to
+		$this->assertTrue($waiver->canSign($now->addDays(6)));
+	}
+
+	/**
+	 * Test validRange method for annual waivers
+	 */
+	public function testValidRangeAnnual(): void {
+		$waiver = WaiverFactory::make([
+			'expiry_type' => 'fixed_dates',
+			'start_month' => 1,
+			'start_day' => 1,
+			'end_month' => 12,
+			'end_day' => 31,
+		])->getEntity();
+
+		$waiver_april = WaiverFactory::make([
+			'expiry_type' => 'fixed_dates',
+			'start_month' => 4,
+			'start_day' => 1,
+			'end_month' => 3,
+			'end_day' => 31,
+		])->getEntity();
+
+		// Set the date to something after the April 1 start of the second annual waiver
 		FrozenDate::setTestNow(new FrozenDate('May 31'));
 		$now = FrozenDate::now();
 
-		// Annual waivers are good for the entire year surrounding the date
-		$this->assertEquals([$now->startOfYear(), $now->endOfYear()], $this->WaiverAnnual->validRange());
-		$this->assertEquals([$now->startOfYear()->addYear(), $now->endOfYear()->addYear()], $this->WaiverAnnual->validRange($now->addYear()));
-		$this->assertEquals([$now->month(4)->day(1), $now->addYear()->month(3)->day(31)], $this->WaiverAnnual2->validRange());
-		$this->assertEquals([$now->addYear()->month(4)->day(1), $now->addYears(2)->month(3)->day(31)], $this->WaiverAnnual2->validRange($now->addYear()));
-
-		// Event waivers are good only for the day of the event
-		$this->assertEquals([$now, $now], $this->WaiverEvent->validRange());
-		$this->assertEquals([$now->addDays(50), $now->addDays(50)], $this->WaiverEvent->validRange($now->addDays(50)));
-
-		// Elapsed time waivers are good for a certain number of days from today, regardless of signing date
-		$this->assertEquals([$now, $now->addDays(5)], $this->WaiverElapsed->validRange());
-		$this->assertEquals([$now, $now->addDays(5)], $this->WaiverElapsed->validRange($now->addDays(50)));
-
-		// Perpetual waivers are good from signing date until the end of time
-		$this->assertEquals([$now, new FrozenDate('9999-12-31')], $this->WaiverPerpetual->validRange());
-		$this->assertEquals([$now->addDays(50), new FrozenDate('9999-12-31')], $this->WaiverPerpetual->validRange($now->addDays(50)));
-
-		// Try a date before the April 1 start of the the second annual waiver
-		FrozenDate::setTestNow(new FrozenDate('January 1'));
-		$now = FrozenDate::now();
+		$apr1 = new FrozenDate('Apr 1');
+		$mar31 = (new FrozenDate('Mar 31'))->addYear();
 
 		// Annual waivers are good for the entire year surrounding the date
-		$this->assertEquals([$now->startOfYear(), $now->endOfYear()], $this->WaiverAnnual->validRange());
-		$this->assertEquals([$now->startOfYear()->addYear(), $now->endOfYear()->addYear()], $this->WaiverAnnual->validRange($now->addYear()));
-		$this->assertEquals([$now->subYear()->month(4)->day(1), $now->month(3)->day(31)], $this->WaiverAnnual2->validRange());
-		$this->assertEquals([$now->month(4)->day(1), $now->addYear()->month(3)->day(31)], $this->WaiverAnnual2->validRange($now->addYear()));
-
-		FrozenDate::setTestNow();
+		$this->assertEquals([$now->startOfYear(), $now->endOfYear()], $waiver->validRange());
+		$this->assertEquals([$now->startOfYear()->addYear(), $now->endOfYear()->addYear()], $waiver->validRange($now->addYear()));
+		$this->assertEquals([$apr1, $mar31], $waiver_april->validRange());
+		$this->assertEquals([$apr1->addYear(), $mar31->addYear()], $waiver_april->validRange($now->addYear()));
 	}
 
+	/**
+	 * Test validRange method for elapsed time waivers
+	 */
+	public function testValidRangeElapsed(): void {
+		$waiver = WaiverFactory::make([
+			'expiry_type' => 'elapsed_time',
+			'duration' => 5,
+		])->getEntity();
+
+		$now = FrozenDate::now();
+
+		// Elapsed time waivers are good for a certain number of days from today, regardless of signing date
+		$this->assertEquals([$now, $now->addDays(5)], $waiver->validRange());
+		$this->assertEquals([$now, $now->addDays(5)], $waiver->validRange($now->addDays(50)));
+	}
+
+	/**
+	 * Test validRange method for event waivers
+	 */
+	public function testValidRangeEvent(): void {
+		$waiver = WaiverFactory::make([
+			'expiry_type' => 'event',
+		])->getEntity();
+
+		$now = FrozenDate::now();
+
+		// Event waivers are good only for the day of the event
+		$this->assertEquals([$now, $now], $waiver->validRange());
+		$this->assertEquals([$now->addDays(50), $now->addDays(50)], $waiver->validRange($now->addDays(50)));
+	}
+
+	/**
+	 * Test validRange method for perpetual waivers
+	 */
+	public function testValidRangePerpetual(): void {
+		$waiver = WaiverFactory::make([
+			'expiry_type' => 'never',
+		])->getEntity();
+
+		$now = FrozenDate::now();
+
+		// Perpetual waivers are good from signing date until the end of time
+		$this->assertEquals([$now, new FrozenDate('9999-12-31')], $waiver->validRange());
+		$this->assertEquals([$now->addDays(50), new FrozenDate('9999-12-31')], $waiver->validRange($now->addDays(50)));
+	}
 }

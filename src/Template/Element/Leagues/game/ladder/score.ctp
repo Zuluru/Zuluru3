@@ -1,6 +1,6 @@
 <?php
 /**
-* @type \App\Model\Entity\Game $game
+* @type $game \App\Model\Entity\Game
 */
 ?>
 			<dt><?= __('Rating Points') ?></dt>

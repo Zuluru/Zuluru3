@@ -44,7 +44,7 @@ class WaiverPolicy extends AppPolicy {
 
 		// Check if they have already signed this waiver
 		$person = $resource->person;
-		if (WaiversTable::signed($person->waivers, $date)) {
+		if (WaiversTable::signed($person->waivers_people, $date)) {
 			throw new ForbiddenRedirectException(__('You have already accepted this waiver.'));
 		}
 

@@ -32,6 +32,7 @@ require CORE_PATH . 'config' . DS . 'bootstrap.php';
 use App\Core\ModuleRegistry;
 use App\Event\GameListener;
 use App\Event\InitializationListener;
+use App\Event\PaymentListener;
 use App\Event\RegistrationListener;
 use Cake\Cache\Cache;
 use Cake\Console\ConsoleErrorHandler;
@@ -216,6 +217,7 @@ $globalListeners = [
 	new InitializationListener(),
 	new RegistrationListener(),
 	new GameListener(),
+	new PaymentListener(),
 ];
 $callbacks = Configure::read('App.callbacks');
 foreach ($callbacks as $name => $config) {

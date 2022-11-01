@@ -12,51 +12,23 @@ class TeamEventsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\TeamEventsTable
+	 * @var TeamEventsTable
 	 */
 	public $TeamEventsTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-						'app.TeamEvents',
-					'app.Pools',
-						'app.PoolsTeams',
-					'app.Games',
-			'app.Attendances',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('TeamEvents') ? [] : ['className' => 'App\Model\Table\TeamEventsTable'];
-		$this->TeamEventsTable = TableRegistry::get('TeamEvents', $config);
+		$config = TableRegistry::getTableLocator()->exists('TeamEvents') ? [] : ['className' => TeamEventsTable::class];
+		$this->TeamEventsTable = TableRegistry::getTableLocator()->get('TeamEvents', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->TeamEventsTable);
 
 		parent::tearDown();
@@ -64,19 +36,15 @@ class TeamEventsTableTest extends TableTestCase {
 
 	/**
 	 * Test readAttendance method
-	 *
-	 * @return void
 	 */
-	public function testReadAttendance() {
+	public function testReadAttendance(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test createAttendance method
-	 *
-	 * @return void
 	 */
-	public function testCreateAttendance() {
+	public function testCreateAttendance(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

@@ -208,7 +208,7 @@ class ScoreEntriesTable extends AppTable {
 			return;
 		}
 
-		if ($data['status'] == 'home_default') {
+		if ($data['status'] === 'home_default') {
 			$home_team = TableRegistry::getTableLocator()->get('Games')->field('home_team_id', ['Games.id' => $data['game_id']]);
 			if ($home_team == $data['team_id']) {
 				$data['score_for'] = Configure::read('scoring.default_losing_score');
@@ -217,7 +217,7 @@ class ScoreEntriesTable extends AppTable {
 				$data['score_for'] = Configure::read('scoring.default_winning_score');
 				$data['score_against'] = Configure::read('scoring.default_losing_score');
 			}
-		} else if ($data['status'] == 'away_default') {
+		} else if ($data['status'] === 'away_default') {
 			$home_team = TableRegistry::getTableLocator()->get('Games')->field('home_team_id', ['Games.id' => $data['game_id']]);
 			if ($home_team == $data['team_id']) {
 				$data['score_for'] = Configure::read('scoring.default_winning_score');

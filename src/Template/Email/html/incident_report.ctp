@@ -3,13 +3,13 @@ use Cake\Core\Configure;
 use Cake\Routing\Router;
 
 /**
- * @type \App\Model\Entity\Incident $incident
- * @type \App\Model\Entity\Game $game
- * @type \App\Model\Entity\Division $division
- * @type \App\Model\Entity\GameSlot $slot
- * @type \App\Model\Entity\Field $field
- * @type \App\Model\Entity\Team $home_team
- * @type \App\Model\Entity\Team $away_team
+ * @type $incident \App\Model\Entity\Incident
+ * @type $game \App\Model\Entity\Game
+ * @type $division \App\Model\Entity\Division
+ * @type $slot \App\Model\Entity\GameSlot
+ * @type $field \App\Model\Entity\Field
+ * @type $home_team \App\Model\Entity\Team
+ * @type $away_team \App\Model\Entity\Team
  */
 ?>
 

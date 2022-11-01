@@ -1,8 +1,8 @@
 <?php
 /**
- * @type \App\Model\Entity\Division $division
- * @type \App\Model\Entity\Person $people
- * @type \App\Module\LeagueType $league_obj
+ * @type $division \App\Model\Entity\Division
+ * @type $people \App\Model\Entity\Person
+ * @type $league_obj \App\Module\LeagueType
  */
 
 use App\Controller\DivisionsController;

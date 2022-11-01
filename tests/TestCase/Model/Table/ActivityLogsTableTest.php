@@ -12,43 +12,23 @@ class ActivityLogsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\ActivityLogsTable
+	 * @var ActivityLogsTable
 	 */
 	public $ActivityLogsTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-			'app.MailingLists',
-				'app.Newsletters',
-			'app.ActivityLogs',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('ActivityLogs') ? [] : ['className' => 'App\Model\Table\ActivityLogsTable'];
-		$this->ActivityLogsTable = TableRegistry::get('ActivityLogs', $config);
+		$config = TableRegistry::getTableLocator()->exists('ActivityLogs') ? [] : ['className' => ActivityLogsTable::class];
+		$this->ActivityLogsTable = TableRegistry::getTableLocator()->get('ActivityLogs', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->ActivityLogsTable);
 
 		parent::tearDown();

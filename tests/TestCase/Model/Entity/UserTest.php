@@ -18,30 +18,17 @@ class UserTest extends TestCase {
 	public $User;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$this->User = new User();
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->User);
 
 		parent::tearDown();
@@ -50,7 +37,7 @@ class UserTest extends TestCase {
 	/**
 	 * Test _setPassword($value);
 	 */
-	public function testSetPassword() {
+	public function testSetPassword(): void {
 		$testPassword = 'insecure';
 		$this->User->password = $testPassword;
 		$this->assertNotEquals($testPassword, $this->User->password, 'Password stored in plain-text');
@@ -61,7 +48,7 @@ class UserTest extends TestCase {
 	/**
 	 * Test merge method
 	 */
-	public function testMerge() {
+	public function testMerge(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

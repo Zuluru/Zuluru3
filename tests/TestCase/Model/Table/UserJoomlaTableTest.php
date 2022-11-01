@@ -13,43 +13,28 @@ class UserJoomlaTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\UserJoomlaTable
+	 * @var UserJoomlaTable
 	 */
 	public $UserJoomlaTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		// This needs to be defined or else the table's constructor tries to include library code
 		if (!defined('JPATH_BASE')) {
 			define('JPATH_BASE', TESTS . 'test_app' . DS . 'joomla');
 		}
 
 		parent::setUp();
-		$config = TableRegistry::exists('UserJoomla') ? [] : ['className' => 'App\Model\Table\UserJoomlaTable'];
-		$this->UserJoomlaTable = TableRegistry::get('UserJoomla', $config);
+		$config = TableRegistry::getTableLocator()->exists('UserJoomla') ? [] : ['className' => UserJoomlaTable::class];
+		$this->UserJoomlaTable = TableRegistry::getTableLocator()->get('UserJoomla', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->UserJoomlaTable);
 
 		parent::tearDown();
@@ -57,46 +42,36 @@ class UserJoomlaTableTest extends TableTestCase {
 
 	/**
 	 * Test defaultConnectionName method
-	 *
-	 * @return void
 	 */
-	public function testDefaultConnectionName() {
+	public function testDefaultConnectionName(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test comparepassword method
-	 *
-	 * @return void
 	 */
-	public function testComparepassword() {
+	public function testComparepassword(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test hashPassword method
-	 *
-	 * @return void
 	 */
-	public function testHashPassword() {
+	public function testHashPassword(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test activated method
-	 *
-	 * @return void
 	 */
-	public function testActivated() {
+	public function testActivated(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test beforeDelete method
-	 *
-	 * @return void
 	 */
-	public function testBeforeDelete() {
+	public function testBeforeDelete(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

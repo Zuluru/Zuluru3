@@ -36,7 +36,7 @@ class Badge {
 
 			foreach ($badges as $badge) {
 				if (!empty($badge->handler)) {
-					if ($category == 'aggregate') {
+					if ($category === 'aggregate') {
 						list($id,$reps) = explode('x', $badge->handler);
 						$this->aggregate($badge, $person, null, $id, $reps);
 					} else {

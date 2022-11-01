@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\EventFactory;
 use Cake\Event\Event;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\TableRegistry;
@@ -14,7 +15,7 @@ class EventsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\EventsTable
+	 * @var EventsTable
 	 */
 	public $EventsTable;
 
@@ -25,30 +26,21 @@ class EventsTableTest extends TableTestCase {
 	 */
 	public $fixtures = [
 		'app.EventTypes',
-		'app.Affiliates',
-			'app.Leagues',
-				'app.Divisions',
-			'app.Events',
-		'app.I18n',
 	];
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Events') ? [] : ['className' => 'App\Model\Table\EventsTable'];
-		$this->EventsTable = TableRegistry::get('Events', $config);
+		$config = TableRegistry::getTableLocator()->exists('Events') ? [] : ['className' => EventsTable::class];
+		$this->EventsTable = TableRegistry::getTableLocator()->get('Events', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->EventsTable);
 
 		parent::tearDown();
@@ -56,46 +48,36 @@ class EventsTableTest extends TableTestCase {
 
 	/**
 	 * Test validationGeneric method
-	 *
-	 * @return void
 	 */
-	public function testValidationGeneric() {
+	public function testValidationGeneric(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test validationIndividual method
-	 *
-	 * @return void
 	 */
-	public function testValidationIndividual() {
+	public function testValidationIndividual(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test validationMembership method
-	 *
-	 * @return void
 	 */
-	public function testValidationMembership() {
+	public function testValidationMembership(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test validationTeam method
-	 *
-	 * @return void
 	 */
-	public function testValidationTeam() {
+	public function testValidationTeam(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test beforeMarshal method
-	 *
-	 * @return void
 	 */
-	public function testBeforeMarshal() {
+	public function testBeforeMarshal(): void {
 		$date = FrozenDate::now();
 		$custom_membership = [
 			'membership_begins' => $date,
@@ -131,20 +113,18 @@ class EventsTableTest extends TableTestCase {
 
 	/**
 	 * Test afterSave method
-	 *
-	 * @return void
 	 */
-	public function testAfterSave() {
+	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
-	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->EventsTable->affiliate(1));
+	public function testAffiliate(): void {
+        $affiliateId = mt_rand();
+        $event = EventFactory::make(['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->EventsTable->affiliate($event->id));
 	}
 
 }

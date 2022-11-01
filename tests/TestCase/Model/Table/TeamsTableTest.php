@@ -3,19 +3,30 @@ namespace App\Test\TestCase\Model\Table;
 
 use App\Core\UserCache;
 use App\Middleware\ConfigurationLoader;
+use App\Model\Entity\Person;
+use App\Model\Entity\Team;
+use App\Test\Factory\AffiliateFactory;
+use App\Test\Factory\PersonFactory;
+use App\Test\Factory\TeamFactory;
+use App\Test\Factory\TeamsPersonFactory;
+use App\Test\Scenario\TeamScenario;
 use Cake\Core\Configure;
+use Cake\I18n\FrozenDate;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\TeamsTable;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * App\Model\Table\TeamsTable Test Case
  */
 class TeamsTableTest extends TableTestCase {
 
+	use ScenarioAwareTrait;
+
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\TeamsTable
+	 * @var TeamsTable
 	 */
 	public $TeamsTable;
 
@@ -25,39 +36,23 @@ class TeamsTableTest extends TableTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-					'app.Skills',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-						'app.TeamsPeople',
-					'app.DivisionsDays',
-			'app.Franchises',
-				'app.FranchisesTeams',
-			'app.Settings',
-		'app.I18n',
+		'app.Groups',
+		'app.RosterRoles',
 	];
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Teams') ? [] : ['className' => 'App\Model\Table\TeamsTable'];
-		$this->TeamsTable = TableRegistry::get('Teams', $config);
+		$config = TableRegistry::getTableLocator()->exists('Teams') ? [] : ['className' => TeamsTable::class];
+		$this->TeamsTable = TableRegistry::getTableLocator()->get('Teams', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->TeamsTable);
 
 		parent::tearDown();
@@ -65,96 +60,119 @@ class TeamsTableTest extends TableTestCase {
 
 	/**
 	 * Test afterSave method
-	 *
-	 * @return void
 	 */
-	public function testAfterSave() {
+	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test afterDelete method
-	 *
-	 * @return void
 	 */
-	public function testAfterDelete() {
+	public function testAfterDelete(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test readByPlayerId method
-	 *
-	 * @return void
 	 */
-	public function testReadByPlayerId() {
+	public function testReadByPlayerId(): void {
 		// We need this for sorting leagues by season
 		Configure::load('options');
 
-		$teams = $this->TeamsTable->readByPlayerId(PERSON_ID_CAPTAIN);
-		$this->assertEquals(2, count($teams));
-		$this->assertArrayHasKey(0, $teams);
-		$this->assertEquals(TEAM_ID_RED, $teams[0]->id);
-		$this->assertArrayHasKey(1, $teams);
-		$this->assertEquals(TEAM_ID_CHICKADEES, $teams[1]->id);
+		$affiliate = AffiliateFactory::make()
+			->with('Leagues', [
+			['name' => 'a', 'season' => 'Spring'],
+			['name' => 'b', 'season' => 'Spring'],
+			['name' => 'c', 'season' => 'Spring'],
+		])->persist();
+		$leagues = $affiliate->leagues;
 
-		$teams = $this->TeamsTable->readByPlayerId(PERSON_ID_CAPTAIN, false);
-		$this->assertEquals(3, count($teams));
+		/** @var Person $player */
+		$player = PersonFactory::make()
+			->with('TeamsPeople', TeamsPersonFactory::make()->with('Teams.Divisions', ['league_id' => $leagues[0]->id, 'is_open' => false, 'open' => FrozenDate::now()->subMonth()]))
+			->with('TeamsPeople', TeamsPersonFactory::make()->with('Teams.Divisions', ['league_id' => $leagues[1]->id, 'is_open' => true]))
+			->with('TeamsPeople', TeamsPersonFactory::make()->with('Teams.Divisions', ['league_id' => $leagues[2]->id, 'is_open' => true]))
+			->persist();
+
+		$teams = $this->TeamsTable->readByPlayerId($player->id);
+		$this->assertCount(2, $teams);
 		$this->assertArrayHasKey(0, $teams);
-		$this->assertEquals(TEAM_ID_RED_PAST, $teams[0]->id);
+		$this->assertEquals($player->teams_people[1]->team_id, $teams[0]->id);
 		$this->assertArrayHasKey(1, $teams);
-		$this->assertEquals(TEAM_ID_RED, $teams[1]->id);
+		$this->assertEquals($player->teams_people[2]->team_id, $teams[1]->id);
+
+		$teams = $this->TeamsTable->readByPlayerId($player->id, false);
+		$this->assertCount(3, $teams);
+		$this->assertArrayHasKey(0, $teams);
+		$this->assertEquals($player->teams_people[0]->team_id, $teams[0]->id);
+		$this->assertArrayHasKey(1, $teams);
+		$this->assertEquals($player->teams_people[1]->team_id, $teams[1]->id);
 		$this->assertArrayHasKey(2, $teams);
-		$this->assertEquals(TEAM_ID_CHICKADEES, $teams[2]->id);
+		$this->assertEquals($player->teams_people[2]->team_id, $teams[2]->id);
 	}
 
 	/**
 	 * Test compareRoster method
-	 *
-	 * @return void
 	 */
-	public function testCompareRoster() {
-		UserCache::getInstance()->initializeIdForTests(PERSON_ID_CAPTAIN);
+	public function testCompareRoster(): void {
+		/** @var Team $team */
+		$team = $this->loadFixtureScenario(TeamScenario::class, [
+			'roles' => [
+				'captain' => ['first_name' => 'Darlene', 'last_name' => 'Allen', 'gender' => 'Woman'],
+				'coach' => ['first_name' => 'Aaron', 'last_name' => 'Allen', 'gender' => 'Man'],
+				'player' => ['first_name' => 'Carla', 'last_name' => 'Booth', 'gender' => 'Woman'],
+				'substitute' => ['first_name' => 'Brenda', 'last_name' => 'Booth', 'gender' => 'Woman'],
+			],
+		]);
+		[$captain, $coach, $player, $sub] = $team->people;
+
+		UserCache::getInstance()->initializeIdForTests($captain->id);
 
 		ConfigurationLoader::loadConfiguration();
 
-		$team = $this->TeamsTable->get(TEAM_ID_RED, ['contain' => ['People' => ['Skills']]]);
-		\App\lib\context_usort($team->people, ['App\Model\Table\TeamsTable', 'compareRoster'], ['include_gender' => true]);
+		/** @var Team $team */
+		$team = $this->TeamsTable->get($team->id, ['contain' => ['People' => ['Skills']]]);
+		\App\lib\context_usort($team->people, [TeamsTable::class, 'compareRoster'], ['include_gender' => true]);
 
 		// TODO: Add more people on the roster for more thorough testing
-		$this->assertEquals(3, count($team->people));
+		$this->assertCount(4, $team->people);
 		$this->assertArrayHasKey(0, $team->people);
-		$this->assertEquals(PERSON_ID_CAPTAIN, $team->people[0]->id);
+		$this->assertEquals($captain->id, $team->people[0]->id);
 		$this->assertArrayHasKey(1, $team->people);
-		$this->assertEquals(PERSON_ID_CAPTAIN3, $team->people[1]->id);
+		$this->assertEquals($coach->id, $team->people[1]->id);
 		$this->assertArrayHasKey(2, $team->people);
-		$this->assertEquals(PERSON_ID_PLAYER, $team->people[2]->id);
+		$this->assertEquals($player->id, $team->people[2]->id);
+		$this->assertArrayHasKey(3, $team->people);
+		$this->assertEquals($sub->id, $team->people[3]->id);
 	}
 
 	/**
 	 * Test canEditRoster method
-	 *
-	 * @return void
 	 */
-	public function testCanEditRoster() {
+	public function testCanEditRoster(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
-	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->TeamsTable->affiliate(TEAM_ID_RED));
-	}
+	public function testAffiliate(): void {
+        $affiliateId = mt_rand();
+        $entity = TeamFactory::make(['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->TeamsTable->affiliate($entity->id));
+
+        $entity = TeamFactory::make()->with('Divisions.Leagues', ['affiliate_id' => $affiliateId])->persist();
+        $this->assertEquals($affiliateId, $this->TeamsTable->affiliate($entity->id));
+
+    }
 
 	/**
 	 * Test sport method
-	 *
-	 * @return void
 	 */
-	public function testSport() {
-		$this->assertEquals('ultimate', $this->TeamsTable->sport(TEAM_ID_RED));
+	public function testSport(): void {
+		/** @var Team $team */
+		$team = TeamFactory::make()->with('Divisions.Leagues')->persist();
+		$this->assertEquals($team->division->league->sport, $this->TeamsTable->sport($team->id));
 	}
 
 }

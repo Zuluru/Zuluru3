@@ -12,37 +12,23 @@ class NotesTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\NotesTable
+	 * @var NotesTable
 	 */
 	public $Notes;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.I18n',
-		// TODO
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Notes') ? [] : ['className' => 'App\Model\Table\NotesTable'];
-		$this->Notes = TableRegistry::get('Notes', $config);
+		$config = TableRegistry::getTableLocator()->exists('Notes') ? [] : ['className' => NotesTable::class];
+		$this->Notes = TableRegistry::getTableLocator()->get('Notes', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->Notes);
 
 		parent::tearDown();
@@ -50,19 +36,15 @@ class NotesTableTest extends TableTestCase {
 
 	/**
 	 * Test initialize method
-	 *
-	 * @return void
 	 */
-	public function testInitialize() {
+	public function testInitialize(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test validationDefault method
-	 *
-	 * @return void
 	 */
-	public function testValidationDefault() {
+	public function testValidationDefault(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

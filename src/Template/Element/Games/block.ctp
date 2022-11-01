@@ -1,9 +1,9 @@
 <?php
 /**
- * @type \App\Model\Entity\Game $game
- * @type \App\Model\Entity\GameSlot $game_slot
- * @type string $field
- * @type mixed[] $options
+ * @type $game \App\Model\Entity\Game
+ * @type $game_slot \App\Model\Entity\GameSlot
+ * @type $field string
+ * @type $options mixed[]
  */
 
 $id = "games_game_{$game->id}";

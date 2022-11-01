@@ -2,6 +2,7 @@
 namespace App\Test\TestCase\Model\Entity;
 
 use App\Model\Entity\PoolsTeam;
+use App\Test\Factory\PoolsTeamFactory;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 
@@ -10,43 +11,46 @@ use Cake\TestSuite\TestCase;
  */
 class PoolsTeamTest extends TestCase {
 
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-					'app.Pools',
-						'app.PoolsTeams',
-		'app.I18n',
-	];
+    public function dataForDependencyTest()
+    {
+        return [ [
+                PoolsTeamFactory::make()
+                    ->with('DependencyPool', [
+                        'name' => 'B',
+                        'type' => 'crossover',
+                    ]),
+                'winner of B',
+            ], [
+                PoolsTeamFactory::make(['dependency_id' => 2,])
+                    ->with('DependencyPool', [
+                        'name' => 'B',
+                        'type' => 'crossover',
+                    ]),
+                'loser of B',
+            ], [
+                PoolsTeamFactory::make(['dependency_id' => 1,])
+                    ->with('DependencyPool', [
+                        'name' => 'A',
+                    ]),
+                '1st in pool A',
+            ], [
+                PoolsTeamFactory::make([ 'dependency_id' => 1, 'dependency_ordinal' => 50]),
+                '1st among 50th place teams',
+            ], [
+                PoolsTeamFactory::make(['dependency_id' => 1,]),
+                '1st seed',
+            ],
+        ];
+    }
 
 	/**
 	 * Test dependency method
 	 *
+     * @dataProvider dataForDependencyTest
 	 * @return void
 	 */
-	public function testDependency() {
-		$poolsTeams = TableRegistry::get('PoolsTeams');
-
-		$poolsTeam2 = $poolsTeams->get(POOL_TEAM_ID_MONDAY_SEEDED_1, ['contain' => ['DependencyPool']]);
-		$this->assertEquals('winner of B', $poolsTeam2->dependency());
-
-		$poolsTeam3 = $poolsTeams->get(POOL_TEAM_ID_MONDAY_SEEDED_2, ['contain' => ['DependencyPool']]);
-		$this->assertEquals('loser of B', $poolsTeam3->dependency());
-
-		$poolsTeam1 = $poolsTeams->get(POOL_TEAM_ID_MONDAY_SEEDED_TODO, ['contain' => ['DependencyPool']]);
-		$this->assertEquals('1st in pool A', $poolsTeam1->dependency());
-
-		$poolsTeam4 = $poolsTeams->get(POOL_TEAM_ID_MONDAY_SEEDED_3, ['contain' => ['DependencyPool']]);
-		$this->assertEquals('1st among 50th place teams', $poolsTeam4->dependency());
-
-		$poolsTeam5 = $poolsTeams->get(POOL_TEAM_ID_MONDAY_SEEDED_4, ['contain' => ['DependencyPool']]);
-		$this->assertEquals('1st seed', $poolsTeam5->dependency());
+	public function testDependency(PoolsTeamFactory $factory, $expectedDependency) {
+		$this->assertEquals($expectedDependency, $factory->persist()->dependency());
 	}
 
 }

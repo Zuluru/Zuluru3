@@ -1,6 +1,9 @@
 <?php
 namespace TestCase\Model\Entity;
 
+use App\Model\Entity\Person;
+use App\Test\Factory\PersonFactory;
+use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
@@ -8,42 +11,48 @@ use Cake\TestSuite\TestCase;
 class PersonTest extends TestCase {
 
 	/**
-	 * The Entity we'll be using in the test
-	 *
-	 * @var \App\Model\Entity\Person
-	 */
-	public $Person1;
-
-	/**
 	 * Fixtures
 	 *
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-		'app.I18n',
+		'app.Groups',
 	];
+
+	public $autoFixtures = false;
+
+	/**
+	 * The Entity we'll be using in the test
+	 *
+	 * @var \App\Model\Entity\Person
+	 */
+	public $person;
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$people = TableRegistry::get('People');
-		$this->Person1 = $people->get(PERSON_ID_ADMIN);
+		$this->person = PersonFactory::make([
+			'first_name' => 'Amy',
+			'last_name' => 'Administrator',
+			'roster_designation' => 'Woman',
+			'status' => 'active',
+			'alternate_first_name' => 'Buford',
+			'alternate_last_name' => 'Tannen',
+			'alternate_email' => 'Buford.Tannen@HillValley.com',
+		])->with('Users', [
+			'user_name' => 'amy',
+			'password' => 'amypassword',
+			'email' => 'amy@zuluru.org',
+		])->getEntity();
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
-		unset($this->Person1);
+	public function tearDown(): void {
+		unset($this->person);
 
 		parent::tearDown();
 	}
@@ -51,112 +60,128 @@ class PersonTest extends TestCase {
 	/**
 	 * Test _getUserName()
 	 */
-	public function testGetUserName() {
-		$this->assertEquals('amy', $this->Person1->user_name);
+	public function testGetUserName(): void {
+		$this->assertEquals('amy', $this->person->user_name);
 	}
 
 	/**
 	 * Test _getPassword()
 	 */
-	public function testGetPassword() {
-		$this->assertTrue(password_verify('amypassword', $this->Person1->password));
+	public function testGetPassword(): void {
+		$this->assertTrue(password_verify('amypassword', $this->person->password));
 	}
 
 	/**
 	 * Test _getLastLogin()
 	 */
-	public function testLastLogin() {
-		$this->assertEquals(new FrozenTime('yesterday'), $this->Person1->last_login);
+	public function testLastLogin(): void {
+		$this->assertEquals(new FrozenTime('yesterday'), $this->person->last_login);
 	}
 
 	/**
 	 * Test _getClientIp()
 	 */
-	public function testGetClientIp() {
-		$this->assertEquals('127.0.0.1', $this->Person1->client_ip);
+	public function testGetClientIp(): void {
+		$this->assertEquals('127.0.0.1', $this->person->client_ip);
 	}
 
 	/**
 	 * Test _getFullName()
 	 */
-	public function testGetFullName() {
-		$this->assertEquals('Amy Administrator', $this->Person1->full_name);
+	public function testGetFullName(): void {
+		$this->assertEquals('Amy Administrator', $this->person->full_name);
 	}
 
 	/**
 	 * Test _getAlternateFullName()
 	 */
-	public function testGetAlternateFullName() {
-		$this->assertEquals('Buford Tannen', $this->Person1->alternate_full_name);
+	public function testGetAlternateFullName(): void {
+		$this->assertEquals('Buford Tannen', $this->person->alternate_full_name);
 	}
 
 	/**
 	 * Test _getEmail()
 	 */
-	public function testGetEmail() {
-		$this->assertEquals('amy@zuluru.org', $this->Person1->email);
+	public function testGetEmail(): void {
+		$this->assertEquals('amy@zuluru.org', $this->person->email);
 
 	}
 
 	/**
 	 * Test _getEmailFormatted()
 	 */
-	public function testGetEmailFormatted() {
-		$this->assertEquals('"Amy Administrator" <amy@zuluru.org>', $this->Person1->email_formatted);
+	public function testGetEmailFormatted(): void {
+		$this->assertEquals('"Amy Administrator" <amy@zuluru.org>', $this->person->email_formatted);
 
 	}
 
 	/**
 	 * Test _getAlternateEmailFormatted()
 	 */
-	public function testGetAlternateEmailFormatted() {
-		$this->assertEquals('"Amy Administrator (alternate)" <Buford.Tannen@HillValley.com>', $this->Person1->alternate_email_formatted);
+	public function testGetAlternateEmailFormatted(): void {
+		$this->assertEquals('"Amy Administrator (alternate)" <Buford.Tannen@HillValley.com>', $this->person->alternate_email_formatted);
 	}
 
 	/**
 	 * Test merge method for two users
 	 */
-	public function testMergeUserWithUser() {
-		$user1 = TableRegistry::getTableLocator()->get('People')->get(PERSON_ID_CAPTAIN);
-		$user2 = TableRegistry::getTableLocator()->get('People')->get(PERSON_ID_CAPTAIN2);
+	public function testMergeUserWithUser(): void {
+		$this->loadFixtures();
+
+		[$user1, $user2] = PersonFactory::make([
+			['gender' => 'Woman'],
+			['gender' => 'Man'],
+		])->player()->persist();
+		$user_id = $user1->user_id;
+
 		$user1->merge($user2);
 		$this->assertEquals($user2->first_name, $user1->first_name);
 		$this->assertEquals($user2->gender, $user1->gender);
-		$this->assertEquals(USER_ID_CAPTAIN, $user1->user_id);
+		$this->assertEquals($user2->addr_street, $user1->addr_street);
+		$this->assertEquals($user_id, $user1->user_id);
 	}
 
 	/**
 	 * Test merge method for a user and a profile
 	 */
-	public function testMergeUserWithProfile() {
-		$user1 = TableRegistry::getTableLocator()->get('People')->get(PERSON_ID_CAPTAIN);
-		$user2 = TableRegistry::getTableLocator()->get('People')->get(PERSON_ID_CHILD);
+	public function testMergeUserWithProfile(): void {
+		$this->loadFixtures();
+
+		$user1 = PersonFactory::make(['gender' => 'Woman'])->player()->persist();
+		$user2 = PersonFactory::make(['gender' => 'Man'])->child()->persist();
+		$user_id = $user1->user_id;
+		$address = $user1->addr_street;
+
 		$user1->merge($user2);
 		$this->assertEquals($user2->first_name, $user1->first_name);
 		$this->assertEquals($user2->gender, $user1->gender);
-		$this->assertEquals(USER_ID_CAPTAIN, $user1->user_id);
+		$this->assertEquals($address, $user1->addr_street);
+		$this->assertEquals($user_id, $user1->user_id);
 	}
 
 	/**
 	 * Test merge method for a profile and a user
 	 */
-	public function testMergeProfileWithUser() {
-		$user1 = TableRegistry::getTableLocator()->get('People')->get(PERSON_ID_CHILD, [
-			'contain' => ['Users']
-		]);
-		$user2 = TableRegistry::getTableLocator()->get('People')->get(PERSON_ID_CAPTAIN, [
-			'contain' => ['Users']
-		]);
+	public function testMergeProfileWithUser(): void {
+		$this->loadFixtures();
+
+		/** @var Person $user1 */
+		$user1 = PersonFactory::make(['gender' => 'Man'])->withGroup(GROUP_PLAYER)->persist();
+		/** @var Person $user2 */
+		$user2 = PersonFactory::make(['gender' => 'Woman'])->player()->persist();
+		$user_id = $user2->user_id;
+
 		$user1->merge($user2);
 		$this->assertEquals($user2->first_name, $user1->first_name);
 		$this->assertEquals($user2->gender, $user1->gender);
-		$this->assertEquals(USER_ID_CAPTAIN, $user1->user_id);
+		$this->assertEquals($user2->addr_street, $user1->addr_street);
+		$this->assertEquals($user_id, $user1->user_id);
 	}
 
 	/**
 	 * Test merge method for two profiles
 	 */
-	public function testMergeProfileWithProfile() {
+	public function testMergeProfileWithProfile(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

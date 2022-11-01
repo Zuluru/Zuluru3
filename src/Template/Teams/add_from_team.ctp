@@ -1,7 +1,7 @@
 <?php
 /**
- * @type \App\Model\Entity\Team $team
- * @type \App\Model\Entity\Team $old_team
+ * @type $team \App\Model\Entity\Team
+ * @type $old_team \App\Model\Entity\Team
  */
 
 use Cake\Core\Configure;

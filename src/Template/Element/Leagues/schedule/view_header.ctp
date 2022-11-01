@@ -1,12 +1,12 @@
 <?php
 /**
- * @type \App\Model\Entity\Division $division
- * @type \App\Model\Entity\League $league
- * @type boolean $competition
- * @type boolean $multi_day
- * @type string $id_field
- * @type int $id
- * @type \Cake\I18n\FrozenDate[] $week
+ * @type $division \App\Model\Entity\Division
+ * @type $league \App\Model\Entity\League
+ * @type $competition boolean
+ * @type $multi_day boolean
+ * @type $id_field string
+ * @type $id int
+ * @type $week \Cake\I18n\FrozenDate[]
  */
 
 use Cake\Core\Configure;
