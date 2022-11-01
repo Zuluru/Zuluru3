@@ -46,7 +46,7 @@ class RegistrationPolicy extends AppPolicy {
 
 		// Check whether we can even add a payment to this
 		$unpaid = in_array($registration->payment, Configure::read('registration_unpaid')) && $registration->total_amount - $registration->total_payment > 0;
-		$unaccounted = $registration->payment == 'Paid' && $registration->total_payment != $registration->total_amount;
+		$unaccounted = $registration->payment === 'Paid' && $registration->total_payment != $registration->total_amount;
 		if (!$unpaid && !$unaccounted) {
 			throw new ForbiddenRedirectException(__('This registration is marked as {0}.', __($registration->payment)),
 				['action' => 'checkout']);
@@ -77,7 +77,7 @@ class RegistrationPolicy extends AppPolicy {
 		$cap = $event->cap($person->roster_designation);
 		if ($cap != CAP_UNLIMITED) {
 			$paid = $event->count($person->roster_designation, ['Registrations.id !=' => $registration->id]);
-			if ($cap <= $paid || $registration->payment == 'Waiting') {
+			if ($cap <= $paid || $registration->payment === 'Waiting') {
 				throw new ForbiddenRedirectException(__('You are on the waiting list for this event.'),
 					['action' => 'checkout']);
 			}
@@ -112,14 +112,6 @@ class RegistrationPolicy extends AppPolicy {
 		return true;
 	}
 
-	public function canPayment_from_email(IdentityInterface $identity, $controller) {
-		return $identity->isManager();
-	}
-
-	public function canPayment_from_email_confirmation(IdentityInterface $identity, $controller) {
-		return $identity->isManager();
-	}
-
 	public function canAdd_payment(IdentityInterface $identity, Registration $registration) {
 		if (!$identity->isManagerOf($registration)) {
 			return false;
@@ -127,7 +119,7 @@ class RegistrationPolicy extends AppPolicy {
 
 		// Check whether we can even add a payment to this
 		$unpaid = in_array($registration->payment, Configure::read('registration_unpaid')) && $registration->total_amount - $registration->total_payment > 0;
-		$unaccounted = $registration->payment == 'Paid' && $registration->total_payment != $registration->total_amount;
+		$unaccounted = $registration->payment === 'Paid' && $registration->total_payment != $registration->total_amount;
 		if (!$unpaid && !$unaccounted) {
 			throw new ForbiddenRedirectException(__('This registration is marked as {0}.', __($registration->payment)),
 				['action' => 'view', 'registration' => $registration->id]);
@@ -136,12 +128,16 @@ class RegistrationPolicy extends AppPolicy {
 			throw new ForbiddenRedirectException(__('This registration is already paid in full; you may need to edit it manually to mark it as paid.'),
 				['action' => 'view', 'registration' => $registration->id]);
 		}
-		if ($registration->payment == 'Waiting') {
+		if ($registration->payment === 'Waiting') {
 			throw new ForbiddenRedirectException(__('Payments cannot be added for registrations on the waiting list.'),
 				['action' => 'view', 'registration' => $registration->id]);
 		}
 
 		return true;
+	}
+
+	public function canInvoice(IdentityInterface $identity, Registration $registration) {
+		return $identity->isManagerOf($registration) || $identity->isMe($registration) || $identity->isRelative($registration);
 	}
 
 	public function canEdit(IdentityInterface $identity, Registration $registration) {

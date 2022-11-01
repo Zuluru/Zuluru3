@@ -164,8 +164,8 @@ class EventPolicy extends AppPolicy {
 		}
 
 		// Check whether this user is considered new or inactive for the purposes of registration
-		$is_new = ($this->_person->status == 'new');
-		$is_inactive = ($this->_person->status == 'inactive');
+		$is_new = ($this->_person->status === 'new');
+		$is_inactive = ($this->_person->status === 'inactive');
 		// If the user is not yet approved, we may let them register but not pay
 		if ($is_new && Configure::read('registration.allow_tentative')) {
 			if ($this->_person_duplicates === null) {

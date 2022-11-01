@@ -1,7 +1,9 @@
 <?php
 namespace App\Model\Table;
 
+use App\Model\Entity\WaiversPerson;
 use ArrayObject;
+use Cake\Chronos\ChronosInterface;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Event\Event as CakeEvent;
 use Cake\ORM\Query;
@@ -136,9 +138,10 @@ class WaiversTable extends AppTable {
 		return $query;
 	}
 
-	public static function signed($waivers, $date) {
-		return collection($waivers)->some(function ($waiver) use ($date) {
-			return $waiver->_joinData->valid_from <= $date && $waiver->_joinData->valid_until >= $date;
+	public static function signed(array $waivers, ChronosInterface $date) {
+		// TODO: Assumption here is that only the relevant waiver is loaded. That's probably not ideal.
+		return collection($waivers)->some(function (WaiversPerson $waiver) use ($date) {
+			return $waiver->valid_from <= $date && $waiver->valid_until >= $date;
 		});
 	}
 

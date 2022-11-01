@@ -2,8 +2,10 @@
 namespace App\Test\TestCase\Model\Entity;
 
 use App\Middleware\ConfigurationLoader;
-use App\Model\Entity\Registration;
-use Cake\ORM\TableRegistry;
+use App\Model\Entity\Event;
+use App\Test\Factory\EventFactory;
+use App\Test\Factory\RegistrationFactory;
+use Cake\Cache\Cache;
 use Cake\TestSuite\TestCase;
 
 /**
@@ -12,110 +14,98 @@ use Cake\TestSuite\TestCase;
 class RegistrationTest extends TestCase {
 
 	/**
-	 * Test subject 2
-	 *
-	 * @var \App\Model\Entity\Registration
-	 */
-	public $Registration2;
-
-	/**
-	 * Test subject 3
-	 *
-	 * @var \App\Model\Entity\Registration
-	 */
-	public $Registration3;
-
-	/**
-	 * Test subject 3
-	 *
-	 * @var \App\Model\Entity\Registration
-	 */
-	public $Registration4;
-
-	/**
 	 * Fixtures
 	 *
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.EventTypes',
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-			'app.Leagues',
-				'app.Divisions',
-			'app.Events',
-				'app.Prices',
-					'app.Registrations',
-						'app.Payments',
-			'app.Settings',
-		'app.I18n',
+		'app.Settings',
 	];
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-
 		ConfigurationLoader::loadConfiguration();
-
-		$registrations = TableRegistry::get('Registrations');
-		$this->Registration2 = $registrations->get(REGISTRATION_ID_CAPTAIN_MEMBERSHIP, ['contain' => ['Prices', 'Payments', 'Events']]);
-		$this->Registration3 = $registrations->get(REGISTRATION_ID_COORDINATOR_MEMBERSHIP, ['contain' => ['Prices', 'Payments', 'Events']]);
-		$this->Registration4 = $registrations->get(REGISTRATION_ID_MANAGER_MEMBERSHIP, ['contain' => ['Prices', 'Payments', 'Events']]);
 	}
 
-	/**
-	 * tearDown method
-	 *
-	 * @return void
-	 */
-	public function tearDown() {
-		unset($this->Registration2);
-		unset($this->Registration3);
-		unset($this->Registration4);
-
+	public function tearDown(): void {
 		parent::tearDown();
+		Cache::clear(false, 'long_term');
+	}
+
+	private function createRegistrations() {
+		/** @var Event $event */
+		$event = EventFactory::make(['name' => 'Membership'])->with('Prices', [
+			['name' => '', 'cost' => 10, 'tax1' => 0.70, 'tax2' => 0.80],
+			['name' => 'price2', 'cost' => 50, 'tax1' => 3.50, 'tax2' => 4.00, 'online_payment_option' => ONLINE_NO_PAYMENT],
+		])->persist();
+
+		$registration1 = RegistrationFactory::make(['total_amount' => 11.50, 'payment' => 'Partial'])
+			->with('Events', $event)
+			->with('Prices', $event->prices[0])
+			->with('Payments', [
+				['payment_amount' => 5, 'payment_type' => 'Deposit'],
+				['payment_amount' => 5, 'payment_type' => 'Installment'],
+			])
+			->persist();
+
+		$registration2 = RegistrationFactory::make(['total_amount' => 57.50, 'payment' => 'Unpaid'])
+			->with('Events', $event)
+			->with('Prices', $event->prices[1])
+			->persist();
+
+		$registration3 = RegistrationFactory::make(['total_amount' => 11.50, 'payment' => 'Unpaid', 'deposit_amount' => 2])
+			->with('Events', $event)
+			->with('Prices', $event->prices[0])
+			->with('Payments', ['payment_amount' => 10])
+			->persist();
+
+		return [$registration1, $registration2, $registration3];
 	}
 
 	/**
 	 * Test paymentAmounts method
-	 *
-	 * @return void
 	 */
-	public function testPaymentAmounts() {
-		$this->assertEquals([1.31, 0.09, 0.10], $this->Registration2->paymentAmounts()); // $1.50 outstanding
-		$this->assertEquals([0, 0, 0], $this->Registration3->paymentAmounts()); // online payments not allowed
-		$this->assertEquals([1.74, 0.12, 0.14], $this->Registration4->paymentAmounts()); // $2 deposit
+	public function testPaymentAmounts(): void {
+		[$registration1, $registration2, $registration3] = $this->createRegistrations();
+
+		$this->assertEquals([1.31, 0.09, 0.10], $registration1->paymentAmounts()); // $1.50 outstanding
+		$this->assertEquals([0, 0, 0], $registration2->paymentAmounts()); // online payments not allowed
+		$this->assertEquals([1.74, 0.12, 0.14], $registration3->paymentAmounts()); // $2 deposit
 	}
 
 	/**
 	 * Test _getLongDescription();
 	 */
-	public function testGetLongDescription() {
-		$this->assertEquals('Membership', $this->Registration2->long_description);
-		$this->assertEquals('Membership (price2)', $this->Registration3->long_description);
-		$this->assertEquals('Membership (Deposit)', $this->Registration4->long_description);
+	public function testGetLongDescription(): void {
+		[$registration1, $registration2, $registration3] = $this->createRegistrations();
+
+		$this->assertEquals('Membership', $registration1->long_description);
+		$this->assertEquals('Membership (price2)', $registration2->long_description);
+		$this->assertEquals('Membership (Deposit)', $registration3->long_description);
 
 	}
 
 	/**
 	 * Test _getTotalPayment()
 	 */
-	public function testGetTotalPayment() {
-		$this->assertEquals(10.0, $this->Registration2->total_payment);
-		$this->assertEquals(0.0, $this->Registration3->total_payment);
+	public function testGetTotalPayment(): void {
+		[$registration1, $registration2, $registration3] = $this->createRegistrations();
+
+		$this->assertEquals(10.0, $registration1->total_payment);
+		$this->assertEquals(0.0, $registration2->total_payment);
 	}
 
 	/**
 	 * Test _getBalance();
 	 */
-	public function testGetBalance() {
-		$this->assertEquals(1.50, $this->Registration2->balance);
-		$this->assertEquals(57.50, $this->Registration3->balance);
+	public function testGetBalance(): void {
+		[$registration1, $registration2, $registration3] = $this->createRegistrations();
+
+		$this->assertEquals(1.50, $registration1->balance);
+		$this->assertEquals(57.50, $registration2->balance);
 	}
 
 }

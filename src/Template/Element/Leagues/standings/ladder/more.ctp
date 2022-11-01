@@ -1,9 +1,9 @@
 <?php
 /**
- * @type \App\Model\Entity\Division $division
- * @type \App\Model\Entity\League $league
- * @type int $team_id
- * @type string[] $classes
+ * @type $division \App\Model\Entity\Division
+ * @type $league \App\Model\Entity\League
+ * @type $team_id int
+ * @type $classes string[]
  */
 
 $classes[] = 'center';

@@ -19,10 +19,8 @@ class ZuluruTimeHelperTest extends TestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$view = new View();
 		$this->ZuluruTimeHelper = new ZuluruTimeHelper($view);
@@ -30,10 +28,8 @@ class ZuluruTimeHelperTest extends TestCase {
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->ZuluruTimeHelper);
 
 		parent::tearDown();
@@ -41,100 +37,78 @@ class ZuluruTimeHelperTest extends TestCase {
 
 	/**
 	 * Test time method
-	 *
-	 * @return void
 	 */
-	public function testTime() {
+	public function testTime(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test date method
-	 *
-	 * @return void
 	 */
-	public function testDate() {
+	public function testDate(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test datetime method
-	 *
-	 * @return void
 	 */
-	public function testDatetime() {
+	public function testDatetime(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test day method
-	 *
-	 * @return void
 	 */
-	public function testDay() {
+	public function testDay(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test fulldate method
-	 *
-	 * @return void
 	 */
-	public function testFulldate() {
+	public function testFulldate(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test fulldatetime method
-	 *
-	 * @return void
 	 */
-	public function testFulldatetime() {
+	public function testFulldatetime(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test dateRange method
-	 *
-	 * @return void
 	 */
-	public function testDateRange() {
+	public function testDateRange(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test timeRange method
-	 *
-	 * @return void
 	 */
-	public function testTimeRange() {
+	public function testTimeRange(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test dateTimeRange method
-	 *
-	 * @return void
 	 */
-	public function testDateTimeRange() {
+	public function testDateTimeRange(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test iCal method
-	 *
-	 * @return void
 	 */
-	public function testICal() {
+	public function testICal(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test iCalDateTimeRange method
-	 *
-	 * @return void
 	 */
-	public function testICalDateTimeRange() {
+	public function testICalDateTimeRange(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

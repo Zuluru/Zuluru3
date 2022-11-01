@@ -3,10 +3,10 @@ use Cake\Core\Configure;
 use Cake\Routing\Router;
 
 /**
- * @type \App\Model\Entity\Team $team
- * @type \App\Model\Entity\TeamEvent $team_event
- * @type \App\Model\Entity\Person $person
- * @type int $status
+ * @type $team \App\Model\Entity\Team
+ * @type $team_event \App\Model\Entity\TeamEvent
+ * @type $person \App\Model\Entity\Person
+ * @type $status int
  */
 
 $address = "{$team_event->location_street}, {$team_event->location_city}, {$team_event->location_province}";

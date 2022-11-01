@@ -2,6 +2,7 @@
 namespace App\Test\TestCase\Model\Table;
 
 use App\Middleware\ConfigurationLoader;
+use App\Test\Factory\GameFactory;
 use Cake\Event\Event as CakeEvent;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\ScoreEntriesTable;
@@ -14,7 +15,7 @@ class ScoreEntriesTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\ScoreEntriesTable
+	 * @var ScoreEntriesTable
 	 */
 	public $ScoreEntriesTable;
 
@@ -24,43 +25,22 @@ class ScoreEntriesTableTest extends TableTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-					'app.Pools',
-						'app.PoolsTeams',
-					'app.Games',
-						'app.ScoreEntries',
-			'app.Settings',
-		'app.I18n',
+		'app.Settings',
 	];
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('ScoreEntries') ? [] : ['className' => 'App\Model\Table\ScoreEntriesTable'];
-		$this->ScoreEntriesTable = TableRegistry::get('ScoreEntries', $config);
+		$config = TableRegistry::getTableLocator()->exists('ScoreEntries') ? [] : ['className' => ScoreEntriesTable::class];
+		$this->ScoreEntriesTable = TableRegistry::getTableLocator()->get('ScoreEntries', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->ScoreEntriesTable);
 
 		parent::tearDown();
@@ -68,16 +48,19 @@ class ScoreEntriesTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeMarshal method
-	 *
-	 * @return void
 	 */
-	public function testBeforeMarshal() {
+	public function testBeforeMarshal(): void {
 		ConfigurationLoader::loadConfiguration();
+
+		$game = GameFactory::make()
+			->with('HomeTeam')
+			->with('AwayTeam')
+			->persist();
 
 		$data = new \ArrayObject([
 			'status' => 'normal',
-			'team_id' => TEAM_ID_RED,
-			'game_id' => GAME_ID_LADDER_MATCHED_SCORES,
+			'team_id' => $game->home_team_id,
+			'game_id' => $game->id,
 			'score_for' => 15,
 			'score_against' => 10,
 		]);
@@ -87,8 +70,8 @@ class ScoreEntriesTableTest extends TableTestCase {
 
 		$data = new \ArrayObject([
 			'status' => 'home_default',
-			'team_id' => TEAM_ID_RED,
-			'game_id' => GAME_ID_LADDER_MATCHED_SCORES,
+			'team_id' => $game->home_team_id,
+			'game_id' => $game->id,
 		]);
 		$this->ScoreEntriesTable->beforeMarshal(new CakeEvent('testing'), $data, new \ArrayObject());
 		$this->assertEquals(0, $data['score_for']);
@@ -96,8 +79,8 @@ class ScoreEntriesTableTest extends TableTestCase {
 
 		$data = new \ArrayObject([
 			'status' => 'away_default',
-			'team_id' => TEAM_ID_RED,
-			'game_id' => GAME_ID_LADDER_MATCHED_SCORES,
+			'team_id' => $game->home_team_id,
+			'game_id' => $game->id,
 		]);
 		$this->ScoreEntriesTable->beforeMarshal(new CakeEvent('testing'), $data, new \ArrayObject());
 		$this->assertEquals(6, $data['score_for']);
@@ -105,8 +88,8 @@ class ScoreEntriesTableTest extends TableTestCase {
 
 		$data = new \ArrayObject([
 			'status' => 'home_default',
-			'team_id' => TEAM_ID_BLUE,
-			'game_id' => GAME_ID_LADDER_MATCHED_SCORES,
+			'team_id' => $game->away_team_id,
+			'game_id' => $game->id,
 		]);
 		$this->ScoreEntriesTable->beforeMarshal(new CakeEvent('testing'), $data, new \ArrayObject());
 		$this->assertEquals(6, $data['score_for']);
@@ -114,8 +97,8 @@ class ScoreEntriesTableTest extends TableTestCase {
 
 		$data = new \ArrayObject([
 			'status' => 'away_default',
-			'team_id' => TEAM_ID_BLUE,
-			'game_id' => GAME_ID_LADDER_MATCHED_SCORES,
+			'team_id' => $game->away_team_id,
+			'game_id' => $game->id,
 		]);
 		$this->ScoreEntriesTable->beforeMarshal(new CakeEvent('testing'), $data, new \ArrayObject());
 		$this->assertEquals(0, $data['score_for']);
@@ -123,8 +106,8 @@ class ScoreEntriesTableTest extends TableTestCase {
 
 		$data = new \ArrayObject([
 			'status' => 'cancelled',
-			'team_id' => TEAM_ID_BLUE,
-			'game_id' => GAME_ID_LADDER_MATCHED_SCORES,
+			'team_id' => $game->away_team_id,
+			'game_id' => $game->id,
 		]);
 		$this->ScoreEntriesTable->beforeMarshal(new CakeEvent('testing'), $data, new \ArrayObject());
 		$this->assertNull($data['score_for']);
@@ -133,10 +116,8 @@ class ScoreEntriesTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeSave method
-	 *
-	 * @return void
 	 */
-	public function testBeforeSave() {
+	public function testBeforeSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

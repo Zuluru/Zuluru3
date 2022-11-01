@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\BadgeFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\BadgesTable;
 
@@ -12,42 +13,23 @@ class BadgesTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\BadgesTable
+	 * @var BadgesTable
 	 */
 	public $BadgesTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-			'app.Badges',
-				'app.BadgesPeople',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Badges') ? [] : ['className' => 'App\Model\Table\BadgesTable'];
-		$this->BadgesTable = TableRegistry::get('Badges', $config);
+		$config = TableRegistry::getTableLocator()->exists('Badges') ? [] : ['className' => BadgesTable::class];
+		$this->BadgesTable = TableRegistry::getTableLocator()->get('Badges', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->BadgesTable);
 
 		parent::tearDown();
@@ -55,11 +37,11 @@ class BadgesTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
-	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->BadgesTable->affiliate(1));
+	public function testAffiliate(): void {
+        $affiliateId = mt_rand();
+        $badge = BadgeFactory::make(['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->BadgesTable->affiliate($badge->id));
 	}
 
 }

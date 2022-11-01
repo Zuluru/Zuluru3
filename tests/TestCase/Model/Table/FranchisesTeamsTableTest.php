@@ -12,39 +12,23 @@ class FranchisesTeamsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\FranchisesTeamsTable
+	 * @var FranchisesTeamsTable
 	 */
 	public $FranchisesTeamsTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Franchises',
-				'app.FranchisesTeams',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('FranchisesTeams') ? [] : ['className' => 'App\Model\Table\FranchisesTeamsTable'];
-		$this->FranchisesTeamsTable = TableRegistry::get('FranchisesTeams', $config);
+		$config = TableRegistry::getTableLocator()->exists('FranchisesTeams') ? [] : ['className' => FranchisesTeamsTable::class];
+		$this->FranchisesTeamsTable = TableRegistry::getTableLocator()->get('FranchisesTeams', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->FranchisesTeamsTable);
 
 		parent::tearDown();

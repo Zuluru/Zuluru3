@@ -14,6 +14,7 @@ use Cake\ORM\Entity;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
+use App\Model\Table\GamesTable;
 
 /**
  * Schedules Controller
@@ -127,7 +128,7 @@ class SchedulesController extends AppController {
 			// What's the default first step?
 			if (isset($this->pool)) {
 				$division->_options->step = 'type';
-			} else if ($this->request->getQuery('playoff') || $division->schedule_type == 'tournament') {
+			} else if ($this->request->getQuery('playoff') || $division->schedule_type === 'tournament') {
 				$division->_options->step = 'pools';
 			} else if ($division->exclude_teams) {
 				$division->_options->step = 'exclude';
@@ -143,7 +144,8 @@ class SchedulesController extends AppController {
 
 		// Non-tournament divisions must currently have even # of teams for scheduling unless the exclude_teams flag is set
 		if ($this->_numTeams($division) % 2 && !$division->exclude_teams &&
-			$division->schedule_type != 'tournament' && !$this->request->getQuery('playoff') && !$this->pool)
+			$division->schedule_type !== 'tournament' && $division->schedule_type !== 'competition' &&
+			!$this->request->getQuery('playoff') && !$this->pool)
 		{
 			$this->Flash->html(__('Must currently have an even number of teams in your division. If you need a bye, please create a team named Bye and add it to your division. Otherwise, {0} and set the "exclude teams" flag.'), [
 				'params' => [
@@ -1294,7 +1296,7 @@ class SchedulesController extends AppController {
 				$games = $query->toArray();
 
 				// Sort games by sport, time and field
-				usort($games, ['App\Model\Table\GamesTable', 'compareSportDateAndField']);
+				usort($games, [GamesTable::class, 'compareSportDateAndField']);
 			}
 
 			// TODOSECOND: If we cache this, we need to also clear that cache when games are updated.

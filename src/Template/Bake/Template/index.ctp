@@ -22,7 +22,7 @@ $fields = collection($fields)
 %>
 <?php
 /**
- * @type \App\Model\Entity\<%= $singularHumanName %>[] $<%= $pluralVar %>
+ * @type $<%= $pluralVar %> \App\Model\Entity\<%= $singularHumanName %>[]
  */
 
 $this->Html->addCrumb(__('<%= $pluralHumanName %>'));

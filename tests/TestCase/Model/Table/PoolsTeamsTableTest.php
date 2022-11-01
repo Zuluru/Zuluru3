@@ -12,45 +12,23 @@ class PoolsTeamsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\PoolsTeamsTable
+	 * @var PoolsTeamsTable
 	 */
 	public $PoolsTeamsTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-					'app.Pools',
-						'app.PoolsTeams',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('PoolsTeams') ? [] : ['className' => 'App\Model\Table\PoolsTeamsTable'];
-		$this->PoolsTeamsTable = TableRegistry::get('PoolsTeams', $config);
+		$config = TableRegistry::getTableLocator()->exists('PoolsTeams') ? [] : ['className' => PoolsTeamsTable::class];
+		$this->PoolsTeamsTable = TableRegistry::getTableLocator()->get('PoolsTeams', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->PoolsTeamsTable);
 
 		parent::tearDown();
@@ -58,10 +36,8 @@ class PoolsTeamsTableTest extends TableTestCase {
 
 	/**
 	 * Test validationQualifiers method
-	 *
-	 * @return void
 	 */
-	public function testValidationQualifiers() {
+	public function testValidationQualifiers(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

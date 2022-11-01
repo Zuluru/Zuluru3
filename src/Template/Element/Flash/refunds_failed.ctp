@@ -1,6 +1,6 @@
 <?php
 /**
- * @type mixed[] $params
+ * @type $params mixed[]
  */
 ?>
 <?= $this->element('BootstrapUI.Flash/default', [

@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\GameSlotFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\GameSlotsTable;
 
@@ -12,44 +13,23 @@ class GameSlotsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\GameSlotsTable
+	 * @var GameSlotsTable
 	 */
 	public $GameSlotsTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-			'app.Leagues',
-				'app.Divisions',
-					'app.GameSlots',
-						'app.DivisionsGameslots',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('GameSlots') ? [] : ['className' => 'App\Model\Table\GameSlotsTable'];
-		$this->GameSlotsTable = TableRegistry::get('GameSlots', $config);
+		$config = TableRegistry::getTableLocator()->exists('GameSlots') ? [] : ['className' => GameSlotsTable::class];
+		$this->GameSlotsTable = TableRegistry::getTableLocator()->get('GameSlots', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->GameSlotsTable);
 
 		parent::tearDown();
@@ -57,74 +37,64 @@ class GameSlotsTableTest extends TableTestCase {
 
 	/**
 	 * Test validationCommon method
-	 *
-	 * @return void
 	 */
-	public function testValidationCommon() {
+	public function testValidationCommon(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test validationDefault method
-	 *
-	 * @return void
 	 */
-	public function testValidationDefault() {
+	public function testValidationDefault(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test validationBulk method
-	 *
-	 * @return void
 	 */
-	public function testValidationBulk() {
+	public function testValidationBulk(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test beforeMarshal method
-	 *
-	 * @return void
 	 */
-	public function testBeforeMarshal() {
+	public function testBeforeMarshal(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test findAvailable method
-	 *
-	 * @return void
 	 */
-	public function testFindAvailable() {
+	public function testFindAvailable(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
-	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->GameSlotsTable->affiliate(1));
+	public function testAffiliate(): void {
+        $affiliateId = mt_rand();
+        $gameSlot = GameSlotFactory::make()
+            ->with('Fields.Facilities.Regions', ['affiliate_id' => $affiliateId])
+            ->persist();
+		$this->assertEquals($affiliateId, $this->GameSlotsTable->affiliate($gameSlot->id));
 	}
 
 	/**
 	 * Test sport method
-	 *
-	 * @return void
 	 */
-	public function testSport() {
-		$this->assertEquals('ultimate', $this->GameSlotsTable->sport(GAME_SLOT_ID_MONDAY_SUNNYBROOK_1_WEEK_1));
-		$this->assertEquals('soccer', $this->GameSlotsTable->sport(GAME_SLOT_ID_MONDAY_BROADACRES_WEEK_1));
+	public function testSport(): void {
+        $gameSlot1 = GameSlotFactory::make()->with('Fields', ['sport' => 'ultimate'])->persist();
+        $gameSlot2 = GameSlotFactory::make()->with('Fields', ['sport' => 'soccer'])->persist();
+		$this->assertEquals('ultimate', $this->GameSlotsTable->sport($gameSlot1->id));
+		$this->assertEquals('soccer', $this->GameSlotsTable->sport($gameSlot2->id));
 	}
 
 	/**
 	 * Test compareTimeAndField method
-	 *
-	 * @return void
 	 */
-	public function testCompareTimeAndField() {
+	public function testCompareTimeAndField(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

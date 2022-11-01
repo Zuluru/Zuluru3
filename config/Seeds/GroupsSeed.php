@@ -38,7 +38,7 @@ class GroupsSeed extends AbstractSeed {
 			],
 			[
 				'name' => __d('seeds', 'Official'),
-				'active' => '1',
+				'active' => '0',
 				'level' => 3,
 				'description' => __d('seeds', 'You will be acting as an in-game official.'),
 			],

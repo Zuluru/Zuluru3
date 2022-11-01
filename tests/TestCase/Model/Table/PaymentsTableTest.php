@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\PaymentFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\PaymentsTable;
 
@@ -12,44 +13,23 @@ class PaymentsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\PaymentsTable
+	 * @var PaymentsTable
 	 */
 	public $PaymentsTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.EventTypes',
-		'app.Affiliates',
-			'app.Leagues',
-				'app.Divisions',
-			'app.Events',
-				'app.Prices',
-					'app.Registrations',
-						'app.Payments',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Payments') ? [] : ['className' => 'App\Model\Table\PaymentsTable'];
-		$this->PaymentsTable = TableRegistry::get('Payments', $config);
+		$config = TableRegistry::getTableLocator()->exists('Payments') ? [] : ['className' => PaymentsTable::class];
+		$this->PaymentsTable = TableRegistry::getTableLocator()->get('Payments', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->PaymentsTable);
 
 		parent::tearDown();
@@ -57,74 +37,60 @@ class PaymentsTableTest extends TableTestCase {
 
 	/**
 	 * Test validationAmount method
-	 *
-	 * @return void
 	 */
-	public function testValidationAmount() {
+	public function testValidationAmount(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test validationPayment method
-	 *
-	 * @return void
 	 */
-	public function testValidationPayment() {
+	public function testValidationPayment(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test validationRefund method
-	 *
-	 * @return void
 	 */
-	public function testValidationRefund() {
+	public function testValidationRefund(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test validationCredit method
-	 *
-	 * @return void
 	 */
-	public function testValidationCredit() {
+	public function testValidationCredit(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test validationTransferFrom method
-	 *
-	 * @return void
 	 */
-	public function testValidationTransferFrom() {
+	public function testValidationTransferFrom(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test validationTransferTo method
-	 *
-	 * @return void
 	 */
-	public function testValidationTransferTo() {
+	public function testValidationTransferTo(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test beforeMarshal method
-	 *
-	 * @return void
 	 */
-	public function testBeforeMarshal() {
+	public function testBeforeMarshal(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
-	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->PaymentsTable->affiliate(1));
+	public function testAffiliate(): void {
+        $affiliateId = mt_rand();
+        $payment = PaymentFactory::make()->with('Registrations.Events', ['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->PaymentsTable->affiliate($payment->id));
 	}
 
 }

@@ -1,8 +1,11 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Model\Entity\Person;
+use App\Test\Factory\PersonFactory;
+use App\Test\Factory\WaiverFactory;
 use Cake\I18n\FrozenDate;
-use Cake\ORM\Query;
+use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\WaiversTable;
 
@@ -14,42 +17,23 @@ class WaiversTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\WaiversTable
+	 * @var WaiversTable
 	 */
 	public $WaiversTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Waivers',
-				'app.WaiversPeople',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Waivers') ? [] : ['className' => 'App\Model\Table\WaiversTable'];
-		$this->WaiversTable = TableRegistry::get('Waivers', $config);
+		$config = TableRegistry::getTableLocator()->exists('Waivers') ? [] : ['className' => WaiversTable::class];
+		$this->WaiversTable = TableRegistry::getTableLocator()->get('Waivers', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->WaiversTable);
 
 		parent::tearDown();
@@ -57,32 +41,32 @@ class WaiversTableTest extends TableTestCase {
 
 	/**
 	 * Test signed method
-	 *
-	 * @return void
 	 */
-	public function testSigned() {
-		$person = $this->WaiversTable->People->get(PERSON_ID_ADMIN, [
-			'contain' => ['Waivers' => [
-				'queryBuilder' => function (Query $q) {
-					return $q->where(['Waivers.id' => WAIVER_ID_ANNUAL]);
-				},
-			]],
-		]);
-		$signed = $this->WaiversTable->signed($person->waivers, FrozenDate::now());
+	public function testSigned(): void {
+		/** @var Person $person */
+		$person = PersonFactory::make()
+			->with('WaiversPeople', [
+				'created' => FrozenDate::now(),
+				'valid_from' => FrozenTime::now()->startOfYear(),
+				'valid_until' => FrozenTime::now()->endOfYear(),
+			])
+			->persist();
+
+		$signed = $this->WaiversTable::signed($person->waivers_people, FrozenDate::now());
 		$this->assertEquals(true, $signed);
-		$signed = $this->WaiversTable->signed($person->waivers, FrozenDate::now()->subYear());
+		$signed = $this->WaiversTable::signed($person->waivers_people, FrozenDate::now()->subYear());
 		$this->assertEquals(false, $signed);
-		$signed = $this->WaiversTable->signed($person->waivers, FrozenDate::now()->addYear());
+		$signed = $this->WaiversTable::signed($person->waivers_people, FrozenDate::now()->addYear());
 		$this->assertEquals(false, $signed);
 	}
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
-	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->WaiversTable->affiliate(1));
+	public function testAffiliate(): void {
+        $affiliateId = mt_rand();
+        $entity = WaiverFactory::make(['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->WaiversTable->affiliate($entity->id));
 	}
 
 }

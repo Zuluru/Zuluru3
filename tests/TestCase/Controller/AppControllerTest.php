@@ -2,15 +2,22 @@
 namespace App\Test\TestCase\Controller;
 
 use App\Application;
+use App\Model\Entity\Person;
+use App\Test\Factory\PersonFactory;
+use App\Test\Factory\SettingFactory;
 use Cake\Core\Configure;
+use Cake\I18n\FrozenDate;
 use Cake\I18n\I18n;
 use Cake\ORM\TableRegistry;
 use App\Controller\AppController;
+use Cake\TestSuite\EmailTrait;
 
 /**
  * App\Controller\AppController Test Case
  */
 class AppControllerTest extends ControllerTestCase {
+
+	use EmailTrait;
 
 	/**
 	 * Fixtures
@@ -18,124 +25,100 @@ class AppControllerTest extends ControllerTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.Settings',
-		'app.I18n',
-		'app.Plugins',
+		'app.Groups',
+		'app.Settings',
 	];
+
+	public function tearDown(): void {
+		// Cleanup any emails that were sent
+		$this->cleanupEmailTrait();
+
+		parent::tearDown();
+	}
 
 	/**
 	 * Test initialize method
-	 *
-	 * @return void
 	 */
-	public function testInitialize() {
+	public function testInitialize(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test afterIdentify method
-	 *
-	 * @return void
 	 */
-	public function testAfterIdentify() {
+	public function testAfterIdentify(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test beforeFilter method
-	 *
-	 * @return void
 	 */
-	public function testBeforeFilter() {
+	public function testBeforeFilter(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test flashEmail method
-	 *
-	 * @return void
 	 */
-	public function testFlashEmail() {
+	public function testFlashEmail(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test flash method
-	 *
-	 * @return void
 	 */
-	public function testFlash() {
+	public function testFlash(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test beforeRender method
-	 *
-	 * @return void
 	 */
-	public function testBeforeRender() {
+	public function testBeforeRender(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test redirect method
-	 *
-	 * @return void
 	 */
-	public function testRedirect() {
+	public function testRedirect(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test _addTeamMenuItems method
-	 *
-	 * @return void
 	 */
-	public function testAddTeamMenuItems() {
+	public function testAddTeamMenuItems(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test _addFranchiseMenuItems method
-	 *
-	 * @return void
 	 */
-	public function testAddFranchiseMenuItems() {
+	public function testAddFranchiseMenuItems(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test _addDivisionMenuItems method
-	 *
-	 * @return void
 	 */
-	public function testAddDivisionMenuItems() {
+	public function testAddDivisionMenuItems(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test _addMenuItem method
-	 *
-	 * @return void
 	 */
-	public function testAddMenuItem() {
+	public function testAddMenuItem(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test _sendMail method
-	 *
-	 * @return void
 	 */
-	public function testSendMail() {
-		$captain = TableRegistry::getTableLocator()->get('People')->get(PERSON_ID_CAPTAIN);
-		$sub = TableRegistry::getTableLocator()->get('People')->get(PERSON_ID_ANDY_SUB);
+	public function testSendMail(): void {
+		$players = PersonFactory::make(2)->player()->persist();
+		SettingFactory::make(['person_id' => $players[1]->id, 'category' => 'personal', 'name' => 'language', 'value' => 'fr'])->persist();
 
 		Configure::load('options');
 		$config = TableRegistry::getTableLocator()->exists('Configuration') ? [] : ['className' => 'App\Model\Table\ConfigurationTable'];
@@ -143,107 +126,103 @@ class AppControllerTest extends ControllerTestCase {
 		$configurationTable->loadSystem();
 		Application::getLocales();
 
-		$en_sub = __('{0} approved your relative request', $sub->full_name);
-		$en_text = __('Your relative request to {0} on the {1} web site has been approved.', $sub->full_name, Configure::read('organization.name'));
+		$en_sub = __('{0} approved your relative request', $players[1]->full_name);
+		$en_text = __('Your relative request to {0} on the {1} web site has been approved.', $players[1]->full_name, Configure::read('organization.name'));
 		I18n::setLocale('fr');
-		$fr_sub = __('{0} approved your relative request', $sub->full_name);
-		$fr_text = __('Your relative request to {0} on the {1} web site has been approved.', $sub->full_name, Configure::read('organization.name'));
+		$fr_sub = __('{0} approved your relative request', $players[1]->full_name);
+		$fr_text = __('Your relative request to {0} on the {1} web site has been approved.', $players[1]->full_name, Configure::read('organization.name'));
 		I18n::setLocale('es');
-		$es_sub = __('{0} approved your relative request', $sub->full_name);
-		$es_text = __('Your relative request to {0} on the {1} web site has been approved.', $sub->full_name, Configure::read('organization.name'));
+		$es_sub = __('{0} approved your relative request', $players[1]->full_name);
+		$es_text = __('Your relative request to {0} on the {1} web site has been approved.', $players[1]->full_name, Configure::read('organization.name'));
 		I18n::setLocale('en');
 		$this->assertTextContains('Your relative request', $en_text);
 		$this->assertTextNotContains('Your relative request', $fr_text);
 
 		// Should send in English only (system language; captain has no preference)
 		AppController::_sendMail([
-			'to' => $captain,
-			'subject' => function() use ($sub) { return __('{0} approved your relative request', $sub->full_name); },
+			'to' => $players[0],
+			'subject' => function() use ($players) { return __('{0} approved your relative request', $players[1]->full_name); },
 			'template' => 'relative_approve',
 			'sendAs' => 'both',
-			'viewVars' => ['person' => $captain, 'relative' => $sub],
+			'viewVars' => ['person' => $players[0], 'relative' => $players[1]],
 		]);
 
-		$messages = Configure::consume('test_emails');
-		$this->assertEquals(1, count($messages));
+		$this->assertMailCount(1);
 
-		$this->assertTextContains($en_sub, $messages[0]);
-		$this->assertTextNotContains($fr_sub, $messages[0]);
-		$this->assertTextContains($en_text, $messages[0]);
-		$this->assertTextNotContains($fr_text, $messages[0]);
+		$this->assertMailSentWith($en_sub, 'Subject');
+		$this->assertMailContains($en_text);
+
+		$this->cleanupEmailTrait();
 
 		// Should send in English and French (system language plus sub's preference)
 		AppController::_sendMail([
-			'to' => $sub,
-			'subject' => function() use ($sub) { return __('{0} approved your relative request', $sub->full_name); },
+			'to' => $players[1],
+			'subject' => function() use ($players) { return __('{0} approved your relative request', $players[1]->full_name); },
 			'template' => 'relative_approve',
 			'sendAs' => 'both',
-			'viewVars' => ['person' => $captain, 'relative' => $sub],
+			'viewVars' => ['person' => $players[0], 'relative' => $players[1]],
 		]);
 
-		$messages = Configure::consume('test_emails');
-		$this->assertEquals(1, count($messages));
+		$this->assertMailCount(1);
 
 		// TODO: Subject tests don't work, due to UTF encoding and line breaks
-		//$this->assertTextContains($en_sub, $messages[0]);
-		//$this->assertTextContains($fr_sub, $messages[0]);
-		$this->assertTextContains($en_text, $messages[0]);
-		$this->assertTextContains($fr_text, $messages[0]);
+		//$this->assertMailSentWith($en_sub, 'Subject');
+		//$this->assertMailSentWith($fr_sub, 'Subject');
+		$this->assertMailContains($en_text);
+		$this->assertMailContains($fr_text);
+
+		$this->cleanupEmailTrait();
 
 		// Should send in Spanish and French (system language plus sub's preference)
 		Configure::write('App.defaultLocale', 'es');
 		AppController::_sendMail([
-			'to' => $sub,
-			'subject' => function() use ($sub) { return __('{0} approved your relative request', $sub->full_name); },
+			'to' => $players[1],
+			'subject' => function() use ($players) { return __('{0} approved your relative request', $players[1]->full_name); },
 			'template' => 'relative_approve',
 			'sendAs' => 'both',
-			'viewVars' => ['person' => $sub, 'relative' => $sub],
+			'viewVars' => ['person' => $players[1], 'relative' => $players[1]],
 		]);
 
-		$messages = Configure::consume('test_emails');
-		$this->assertEquals(1, count($messages));
+		$this->assertMailCount(1);
 
 		// TODO: Subject tests don't work, due to UTF encoding and line breaks
-		//$this->assertTextNotContains($en_sub, $messages[0]);
-		//$this->assertTextContains($es_sub, $messages[0]);
-		//$this->assertTextContains($fr_sub, $messages[0]);
-		$this->assertTextNotContains($en_text, $messages[0]);
-		$this->assertTextContains($es_text, $messages[0]);
-		$this->assertTextContains($fr_text, $messages[0]);
+		//$this->assertMailNotSentWith($en_sub, 'Subject');
+		//$this->assertMailSentWith($es_sub, 'Subject');
+		//$this->assertMailSentWith($fr_sub, 'Subject');
+		//$this->assertMailNotContains($en_text);
+		$this->assertMailContains($es_text);
+		$this->assertMailContains($fr_text);
 	}
 
 	/**
 	 * Test _extractEmails method
-	 *
-	 * @return void
 	 */
-	public function testExtractEmails() {
+	public function testExtractEmails(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test _extractLocales method
-	 *
-	 * @return void
 	 */
-	public function testExtractLocales() {
+	public function testExtractLocales(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test _isChild method
-	 *
-	 * @return void
 	 */
-	public function testIsChild() {
-		$person = TableRegistry::get('People')->get(PERSON_ID_PLAYER, [
-			'contain' => ['Groups']
-		]);
-		$this->assertFalse(AppController::_isChild($person));
-		$person = TableRegistry::get('People')->get(PERSON_ID_CHILD, [
-			'contain' => ['Groups']
-		]);
-		$this->assertTrue(AppController::_isChild($person));
+	public function testIsChild(): void {
+		/** @var Person $admin */
+		$admin = PersonFactory::make()->admin()->getEntity();
+		$this->assertFalse(AppController::_isChild($admin));
+
+		/** @var Person $adult */
+		$adult = PersonFactory::make(['birthdate' => FrozenDate::now()->subYears(19)])->player()->getEntity();
+		$this->assertFalse(AppController::_isChild($adult));
+
+		/** @var Person $child */
+		$child = PersonFactory::make(['birthdate' => FrozenDate::now()->subYears(17)])->player()->getEntity();
+		$this->assertTrue(AppController::_isChild($child));
 	}
 
 }

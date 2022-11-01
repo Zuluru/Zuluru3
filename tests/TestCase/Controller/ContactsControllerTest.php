@@ -1,12 +1,21 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
-use Cake\Core\Configure;
+use App\Test\Factory\AffiliateFactory;
+use App\Test\Factory\AffiliatesPersonFactory;
+use App\Test\Factory\ContactFactory;
+use App\Test\Factory\PersonFactory;
+use App\Test\Scenario\DiverseUsersScenario;
+use Cake\TestSuite\EmailTrait;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * App\Controller\ContactsController Test Case
  */
 class ContactsControllerTest extends ControllerTestCase {
+
+	use EmailTrait;
+	use ScenarioAwareTrait;
 
 	/**
 	 * Fixtures
@@ -14,192 +23,183 @@ class ContactsControllerTest extends ControllerTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-					'app.PeoplePeople',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-					'app.DivisionsPeople',
-			'app.Contacts',
-			'app.Settings',
-		'app.I18n',
-		'app.Plugins',
+		'app.Groups',
+		'app.Settings',
 	];
+
+	public function tearDown(): void {
+		// Cleanup any emails that were sent
+		$this->cleanupEmailTrait();
+
+		parent::tearDown();
+	}
 
 	/**
 	 * Test index method
-	 *
-	 * @return void
 	 */
-	public function testIndex() {
+	public function testIndex(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+		$contacts = ContactFactory::make([
+			['affiliate_id' => $affiliates[0]->id],
+			['affiliate_id' => $affiliates[1]->id],
+		])->persist();
+
 		// Admins are allowed to see the index
-		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'index'], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/contacts/edit?contact=' . CONTACT_ID_LEAGUES);
-		$this->assertResponseContains('/contacts/delete?contact=' . CONTACT_ID_LEAGUES);
-		$this->assertResponseContains('/contacts/edit?contact=' . CONTACT_ID_LEAGUES_SUB);
-		$this->assertResponseContains('/contacts/delete?contact=' . CONTACT_ID_LEAGUES_SUB);
+		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'index'], $admin->id);
+		$this->assertResponseContains('/contacts/edit?contact=' . $contacts[0]->id);
+		$this->assertResponseContains('/contacts/delete?contact=' . $contacts[0]->id);
+		$this->assertResponseContains('/contacts/edit?contact=' . $contacts[1]->id);
+		$this->assertResponseContains('/contacts/delete?contact=' . $contacts[1]->id);
 
 		// Managers are allowed to see the index, but don't see contacts in other affiliates
-		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'index'], PERSON_ID_MANAGER);
-		$this->assertResponseContains('/contacts/edit?contact=' . CONTACT_ID_LEAGUES);
-		$this->assertResponseContains('/contacts/delete?contact=' . CONTACT_ID_LEAGUES);
-		$this->assertResponseNotContains('/contacts/edit?contact=' . CONTACT_ID_LEAGUES_SUB);
-		$this->assertResponseNotContains('/contacts/delete?contact=' . CONTACT_ID_LEAGUES_SUB);
+		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'index'], $manager->id);
+		$this->assertResponseContains('/contacts/edit?contact=' . $contacts[0]->id);
+		$this->assertResponseContains('/contacts/delete?contact=' . $contacts[0]->id);
+		$this->assertResponseNotContains('/contacts/edit?contact=' . $contacts[1]->id);
+		$this->assertResponseNotContains('/contacts/delete?contact=' . $contacts[1]->id);
 
 		// Others are not allowed to see the index
-		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'index'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'index'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'index'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'index'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'index'], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'index'], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Contacts', 'action' => 'index']);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test add method as an admin
-	 *
-	 * @return void
+	 * Test add method
 	 */
-	public function testAddAsAdmin() {
+	public function testAdd(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
 		// Admins are allowed to add contacts
-		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'add'], PERSON_ID_ADMIN);
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'add'], $admin->id);
 
-	/**
-	 * Test add method as a manager
-	 *
-	 * @return void
-	 */
-	public function testAddAsManager() {
 		// Managers are allowed to add contacts
-		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'add'], PERSON_ID_MANAGER);
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'add'], $manager->id);
 
-	/**
-	 * Test add method as others
-	 *
-	 * @return void
-	 */
-	public function testAddAsOthers() {
 		// Others are not allowed to add contacts
-		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'add'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'add'], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'add'], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'add'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'add'], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'add'], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Contacts', 'action' => 'add']);
 	}
 
 	/**
-	 * Test edit method as an admin
-	 *
-	 * @return void
+	 * Test edit method
 	 */
-	public function testEditAsAdmin() {
-		// Admins are allowed to edit contacts
-		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'edit', 'contact' => CONTACT_ID_LEAGUES], PERSON_ID_ADMIN);
-		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'edit', 'contact' => CONTACT_ID_LEAGUES_SUB], PERSON_ID_ADMIN);
-	}
+	public function testEdit(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+		$contacts = ContactFactory::make([
+			['affiliate_id' => $affiliates[0]->id],
+			['affiliate_id' => $affiliates[1]->id],
+		])->persist();
 
-	/**
-	 * Test edit method as a manager
-	 *
-	 * @return void
-	 */
-	public function testEditAsManager() {
+		// Admins are allowed to edit contacts
+		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'edit', 'contact' => $contacts[0]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'edit', 'contact' => $contacts[1]->id], $admin->id);
+
 		// Managers are allowed to edit contacts
-		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'edit', 'contact' => CONTACT_ID_LEAGUES], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'edit', 'contact' => $contacts[0]->id], $manager->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'edit', 'contact' => CONTACT_ID_LEAGUES_SUB], PERSON_ID_MANAGER);
-	}
+		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'edit', 'contact' => $contacts[1]->id], $manager->id);
 
-	/**
-	 * Test edit method as others
-	 *
-	 * @return void
-	 */
-	public function testEditAsOthers() {
 		// Others are not allowed to edit contacts
-		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'edit', 'contact' => CONTACT_ID_LEAGUES], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'edit', 'contact' => CONTACT_ID_LEAGUES], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'edit', 'contact' => CONTACT_ID_LEAGUES], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'edit', 'contact' => CONTACT_ID_LEAGUES], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Contacts', 'action' => 'edit', 'contact' => CONTACT_ID_LEAGUES]);
+		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'edit', 'contact' => $contacts[0]->id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'edit', 'contact' => $contacts[1]->id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'edit', 'contact' => $contacts[0]->id], $player->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'edit', 'contact' => $contacts[1]->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Contacts', 'action' => 'edit', 'contact' => $contacts[0]->id]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Contacts', 'action' => 'edit', 'contact' => $contacts[1]->id]);
 	}
 
 	/**
 	 * Test delete method as an admin
-	 *
-	 * @return void
 	 */
-	public function testDeleteAsAdmin() {
+	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		$affiliates = AffiliateFactory::make(2)->persist();
+		$admin = PersonFactory::make()->admin()->with('Affiliates', $affiliates)->persist();
+		$contacts = ContactFactory::make([
+			['affiliate_id' => $affiliates[0]->id],
+			['affiliate_id' => $affiliates[1]->id],
+		])->persist();
+
 		// Admins are allowed to delete contacts
-		$this->assertPostAsAccessRedirect(['controller' => 'Contacts', 'action' => 'delete', 'contact' => CONTACT_ID_LEAGUES],
-			PERSON_ID_ADMIN, [], ['controller' => 'Contacts', 'action' => 'index'],
+		$this->assertPostAsAccessRedirect(['controller' => 'Contacts', 'action' => 'delete', 'contact' => $contacts[0]->id],
+			$admin->id, [], ['controller' => 'Contacts', 'action' => 'index'],
 			'The contact has been deleted.');
 	}
 
 	/**
 	 * Test delete method as a manager
-	 *
-	 * @return void
 	 */
-	public function testDeleteAsManager() {
+	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		$affiliates = AffiliateFactory::make(2)->persist();
+		$manager = PersonFactory::make()->manager()
+			->with('AffiliatesPeople', AffiliatesPersonFactory::make(['position' => 'manager', 'affiliate_id' => $affiliates[0]->id]))
+			->persist();
+		$contacts = ContactFactory::make([
+			['affiliate_id' => $affiliates[0]->id],
+			['affiliate_id' => $affiliates[1]->id],
+		])->persist();
+
 		// Managers are allowed to delete contacts in their affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'Contacts', 'action' => 'delete', 'contact' => CONTACT_ID_LEAGUES],
-			PERSON_ID_MANAGER, [], ['controller' => 'Contacts', 'action' => 'index'],
+		$this->assertPostAsAccessRedirect(['controller' => 'Contacts', 'action' => 'delete', 'contact' => $contacts[0]->id],
+			$manager->id, [], ['controller' => 'Contacts', 'action' => 'index'],
 			'The contact has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Contacts', 'action' => 'delete', 'contact' => CONTACT_ID_LEAGUES_SUB], PERSON_ID_MANAGER);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Contacts', 'action' => 'delete', 'contact' => $contacts[1]->id], $manager->id);
 	}
 
 	/**
 	 * Test delete method as others
-	 *
-	 * @return void
 	 */
-	public function testDeleteAsOthers() {
+	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		$affiliates = AffiliateFactory::make(2)->persist();
+		$player = PersonFactory::make()->player()->with('Affiliates', $affiliates[0])->persist();
+		$contacts = ContactFactory::make([
+			['affiliate_id' => $affiliates[0]->id],
+			['affiliate_id' => $affiliates[1]->id],
+		])->persist();
+
 		// Others are not allowed to delete contacts
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Contacts', 'action' => 'delete', 'contact' => CONTACT_ID_LEAGUES], PERSON_ID_COORDINATOR);
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Contacts', 'action' => 'delete', 'contact' => CONTACT_ID_LEAGUES], PERSON_ID_CAPTAIN);
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Contacts', 'action' => 'delete', 'contact' => CONTACT_ID_LEAGUES], PERSON_ID_PLAYER);
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Contacts', 'action' => 'delete', 'contact' => CONTACT_ID_LEAGUES], PERSON_ID_VISITOR);
-		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Contacts', 'action' => 'delete', 'contact' => CONTACT_ID_LEAGUES]);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Contacts', 'action' => 'delete', 'contact' => $contacts[0]->id], $player->id);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Contacts', 'action' => 'delete', 'contact' => $contacts[1]->id], $player->id);
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Contacts', 'action' => 'delete', 'contact' => $contacts[0]->id]);
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Contacts', 'action' => 'delete', 'contact' => $contacts[1]->id]);
 	}
 
 	/**
 	 * Test message method
-	 *
-	 * @return void
 	 */
-	public function testMessage() {
+	public function testMessage(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+		$contacts = ContactFactory::make([
+			['affiliate_id' => $affiliates[0]->id],
+			['affiliate_id' => $affiliates[0]->id],
+		])->persist();
+
 		// Anyone logged in is allowed to see the message page
-		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'message'], PERSON_ID_ADMIN);
-		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'message'], PERSON_ID_MANAGER);
-		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'message'], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'message'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'message'], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'message'], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'message'], $volunteer->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'message'], PERSON_ID_PLAYER);
-		$this->assertResponseContains('<option value="' . CONTACT_ID_LEAGUES . '">Leagues</option>');
-		$this->assertResponseContains('<option value="' . CONTACT_ID_EVENTS . '">Events</option>');
-
-		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'message'], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'message'], $player->id);
+		$this->assertResponseContains('<option value="' . $contacts[0]->id . '">' . $contacts[0]->name . '</option>');
+		$this->assertResponseContains('<option value="' . $contacts[1]->id . '">' . $contacts[1]->name . '</option>');
 
 		// Anyone not logged in is not allowed to send messages
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Contacts', 'action' => 'message']);
@@ -209,65 +209,66 @@ class ContactsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test message method as a player with one contact
-	 *
-	 * @return void
 	 */
-	public function testMessageAsPlayerWithOneContact() {
+	public function testMessageAsPlayerWithOneContact(): void {
+		$player = PersonFactory::make()->player()->with('Affiliates')->persist();
+		$contact = ContactFactory::make(['affiliate_id' => $player->affiliates[0]->id])->persist();
+
 		// Someone logged in on an affiliate that has only one contact doesn't get a drop-down
-		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'message'], PERSON_ID_ANDY_SUB);
-		$this->assertResponseContains('<input type="hidden" name="contact_id" value="' . CONTACT_ID_LEAGUES_SUB . '"/>');
+		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'message'], $player->id);
+		$this->assertResponseContains('<input type="hidden" name="contact_id" value="' . $contact->id . '"/>');
 	}
 
 	/**
 	 * Test execute method
-	 *
-	 * @return void
 	 */
-	public function testExecute() {
+	public function testExecute(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		$player = PersonFactory::make()->player()->with('Affiliates')->persist();
+		$contact = ContactFactory::make(['affiliate_id' => $player->affiliates[0]->id])->persist();
+
 		$this->assertPostAsAccessRedirect(['controller' => 'Contacts', 'action' => 'message'],
-			PERSON_ID_PLAYER, [
-				'contact_id' => CONTACT_ID_LEAGUES,
+			$player->id, [
+				'contact_id' => $contact->id,
 				'subject' => 'Test',
 				'message' => 'Testing',
 				'cc' => false,
 			], '/', 'Your message has been sent.');
-		$messages = Configure::read('test_emails');
-		$this->assertEquals(1, count($messages));
-		$this->assertContains('From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;', $messages[0]);
-		$this->assertContains('Reply-To: &quot;Pam Player&quot; &lt;pam@zuluru.org&gt;', $messages[0]);
-		$this->assertContains('To: &quot;Leagues&quot; &lt;leagues@zuluru.net&gt;', $messages[0]);
-		$this->assertNotContains('CC: ', $messages[0]);
-		$this->assertContains('Subject: Test', $messages[0]);
-		$this->assertRegExp('#<pre>Testing\s*</pre>#ms', $messages[0]);
+		$this->assertMailCount(1);
+		$this->assertMailSentFrom('admin@zuluru.org');
+		$this->assertMailSentWith([$player->user->email => $player->full_name], 'ReplyTo');
+		$this->assertMailSentTo($contact->email);
+		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWith('Test', 'Subject');
+		$this->assertMailContains('Testing');
 	}
 
 	/**
 	 * Test execute with CC method
-	 *
-	 * @return void
 	 */
-	public function testExecuteWithCC() {
+	public function testExecuteWithCC(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		$player = PersonFactory::make()->player()->with('Affiliates')->persist();
+		$contact = ContactFactory::make(['affiliate_id' => $player->affiliates[0]->id])->persist();
+
 		$this->assertPostAsAccessRedirect(['controller' => 'Contacts', 'action' => 'message'],
-			PERSON_ID_PLAYER, [
-				'contact_id' => CONTACT_ID_LEAGUES,
+			$player->id, [
+				'contact_id' => $contact->id,
 				'subject' => 'Test',
 				'message' => 'Testing',
 				'cc' => true,
 			], '/', 'Your message has been sent.');
-		$messages = Configure::read('test_emails');
-		$this->assertEquals(1, count($messages));
-		$this->assertContains('From: &quot;Admin&quot; &lt;admin@zuluru.org&gt;', $messages[0]);
-		$this->assertContains('Reply-To: &quot;Pam Player&quot; &lt;pam@zuluru.org&gt;', $messages[0]);
-		$this->assertContains('To: &quot;Leagues&quot; &lt;leagues@zuluru.net&gt;', $messages[0]);
-		$this->assertContains('CC: &quot;Pam Player&quot; &lt;pam@zuluru.org&gt;', $messages[0]);
-		$this->assertContains('Subject: Test', $messages[0]);
-		$this->assertRegExp('#<pre>Testing\s*</pre>#ms', $messages[0]);
+		$this->assertMailCount(1);
+		$this->assertMailSentFrom('admin@zuluru.org');
+		$this->assertMailSentWith([$player->user->email => $player->full_name], 'ReplyTo');
+		$this->assertMailSentTo($contact->email);
+		$this->assertMailSentWith([$player->user->email => $player->full_name], 'CC');
+		$this->assertMailSentWith('Test', 'Subject');
+		$this->assertMailContains('Testing');
 	}
 
 }

@@ -3886,15 +3886,17 @@ class Install extends AbstractMigration {
 			)
 			->create();
 
-		$migrations = new Migrations();
-		$seeds = [
-			'Affiliates', 'Notices', 'Settings', 'Waivers',
-			'Countries', 'Provinces', 'Regions', 'Days',
-			'Badges', 'EventTypes', 'MembershipTypes', 'StatTypes', 'RosterRoles',
-			'Users', 'People', 'AffiliatesPeople', 'Groups', 'GroupsPeople',
-		];
-		foreach ($seeds as $seed) {
-			$migrations->seed(['seed' => "{$seed}Seed"]);
+		if (!defined('PHPUNIT_TESTSUITE') || !PHPUNIT_TESTSUITE) {
+			$migrations = new Migrations();
+			$seeds = [
+				'Affiliates', 'Notices', 'Settings', 'Waivers',
+				'Countries', 'Provinces', 'Regions', 'Days',
+				'Badges', 'EventTypes', 'MembershipTypes', 'StatTypes', 'RosterRoles',
+				'Users', 'People', 'AffiliatesPeople', 'Groups', 'GroupsPeople',
+			];
+			foreach ($seeds as $seed) {
+				$migrations->seed(['seed' => "{$seed}Seed"]);
+			}
 		}
 	}
 

@@ -2,69 +2,24 @@
 namespace App\Test\TestCase\Model\Entity;
 
 use App\Model\Entity\Field;
+use App\Test\Factory\FieldFactory;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 
-class FieldTest extends TestCase {
-
-	/**
-	 * Test Entity to use
-	 *
-	 * @var \App\Model\Entity\Field
+class FieldTest extends TestCase
+{
+    /**
+	 * Test _getLongName and _getLongCode method
 	 */
-	public $Field;
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-		'app.I18n',
-	];
-
-	/**
-	 * setUp method
-	 *
-	 * @return void
-	 */
-	public function setUp() {
-		parent::setUp();
-		// Read in the Field setup in the fixture and use that for these tests
-		$fields = TableRegistry::get('Fields');
-		$this->Field = $fields->get(FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1);
-	}
-
-	/**
-	 * tearDown method
-	 *
-	 * @return void
-	 */
-	public function tearDown() {
-		unset($this->Field);
-
-		parent::tearDown();
-	}
-
-	/**
-	 * Test _getLongName method
-	 *
-	 * @return void
-	 */
-	public function testGetLongName() {
-		$this->assertEquals('Sunnybrook Field Hockey 1', $this->Field->long_name);
-	}
-	/**
-	 * Test _getLongCode method
-	 *
-	 * @return void
-	 */
-	public function testGetLongCode() {
-		$this->assertEquals('SUN Field Hockey 1', $this->Field->long_code);
-	}
-
+	public function testGetLongName()
+    {
+        $field = FieldFactory::make(['num' => 'Field Hockey 1'])
+            ->with('Facilities', [
+                'name' => 'Sunnybrook',
+                'code' => 'SUN'
+            ])
+            ->persist();
+        $this->assertEquals('Sunnybrook Field Hockey 1', $field->long_name);
+        $this->assertEquals('SUN Field Hockey 1', $field->long_code);
+    }
 }

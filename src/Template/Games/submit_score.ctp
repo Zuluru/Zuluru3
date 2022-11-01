@@ -1,4 +1,11 @@
 <?php
+/**
+ * @type $game \App\Model\Entity\Game
+ * @type $team_id int
+ * @type $opponent_score \App\Model\Entity\ScoreEntry
+ * @type $spirit_obj \App\Module\Spirit
+ */
+
 use Cake\Core\Configure;
 
 $this->Html->addCrumb(__('Games'));
@@ -194,26 +201,26 @@ if (Configure::read('scoring.incident_reports')):
 <?php
 endif;
 
-if (Configure::read('scoring.allstars') && $game->division->allstars != 'never'):
+if (Configure::read('scoring.allstars') && $game->division->allstars !== 'never'):
 ?>
 	<div class="normal">
 <?php
-	if ($game->division->allstars == 'optional') {
-		echo $this->Jquery->toggleInput('has_allstars', [
+	if ($game->division->allstars === 'optional') {
+		echo $this->Html->tag('div', $this->Jquery->toggleInput('has_allstars', [
 			'type' => 'checkbox',
 			'value' => '1',
 			'label' => __('I want to nominate an all-star'),
 			'secure' => false,
 		], [
 			'selector' => '#AllstarDetails',
-		]);
+		]), ['class' => 'no-labels', 'style' => 'margin-top: 15px']);
 	}
 ?>
 		<fieldset id="AllstarDetails">
 			<legend><?= __('Allstar Nominations') ?></legend>
 			<p><?php
 				echo __('You may select up to two all-stars from the list below');
-				if ($game->division->allstars == 'always') {
+				if ($game->division->allstars === 'always') {
 					echo ', ' . __('if you think they deserve to be nominated as an all-star');
 				}
 			?>.</p>
@@ -223,7 +230,7 @@ if (Configure::read('scoring.allstars') && $game->division->allstars != 'never')
 	$players = [];
 	$player_roles = Configure::read('playing_roster_roles');
 
-	if ($game->division->allstars_from == 'submitter') {
+	if ($game->division->allstars_from === 'submitter') {
 		$roster = $this_team->people;
 	} else {
 		$roster = $opponent->people;
@@ -265,12 +272,12 @@ if ($game->division->league->hasStats()):
 ?>
 	<div class="normal">
 <?php
-	echo $this->Form->input('collect_stats', [
+	echo $this->Html->tag('div', $this->Form->input('collect_stats', [
 		'type' => 'checkbox',
 		'value' => '1',
 		'label' => __('I want to enter stats for this game (if you don\'t do it now, you can do it later)'),
 		'secure' => false,
-	]);
+	]), ['class' => 'no-labels', 'style' => 'margin-top: 15px']);
 ?>
 	</div>
 <?php

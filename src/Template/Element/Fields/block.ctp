@@ -1,8 +1,8 @@
 <?php
 /**
- * @type \App\Model\Entity\Field $field
- * @type mixed[] $options
- * @type string $display_field
+ * @type $field \App\Model\Entity\Field
+ * @type $options mixed[]
+ * @type $display_field string
  */
 
 $id = "fields_field_{$field->id}";

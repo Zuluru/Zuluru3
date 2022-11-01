@@ -12,54 +12,23 @@ class ResponsesTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\ResponsesTable
+	 * @var ResponsesTable
 	 */
 	public $ResponsesTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.EventTypes',
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-					'app.Credits',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.Leagues',
-				'app.Divisions',
-			'app.Questions',
-				'app.Answers',
-			'app.Questionnaires',
-				'app.QuestionnairesQuestions',
-			'app.Events',
-				'app.Prices',
-					'app.Registrations',
-						'app.Responses',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Responses') ? [] : ['className' => 'App\Model\Table\ResponsesTable'];
-		$this->ResponsesTable = TableRegistry::get('Responses', $config);
+		$config = TableRegistry::getTableLocator()->exists('Responses') ? [] : ['className' => ResponsesTable::class];
+		$this->ResponsesTable = TableRegistry::getTableLocator()->get('Responses', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->ResponsesTable);
 
 		parent::tearDown();
@@ -67,10 +36,8 @@ class ResponsesTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeSave method
-	 *
-	 * @return void
 	 */
-	public function testBeforeSave() {
+	public function testBeforeSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

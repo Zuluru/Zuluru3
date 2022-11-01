@@ -199,6 +199,20 @@ class PaymentsTable extends AppTable {
 		}
 	}
 
+	/**
+	 * Perform additional operations after it is saved.
+	 *
+	 * @param \Cake\Event\Event $cakeEvent The afterSave event that was fired
+	 * @param \Cake\Datasource\EntityInterface $entity The entity that was saved
+	 * @param \ArrayObject $options The options passed to the save method
+	 * @return void
+	 */
+	public function afterSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+		// Send an event to any callback listeners
+		$event = new CakeEvent('Model.Payment.afterSave', $this, [$entity, $options['registration'], $options['event']]);
+		$this->eventManager()->dispatch($event);
+	}
+
 	public function affiliate($id) {
 		try {
 			return $this->Registrations->affiliate($this->field('registration_id', ['Payments.id' => $id]));

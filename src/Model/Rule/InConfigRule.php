@@ -53,7 +53,7 @@ class InConfigRule {
 		}
 
 		$values = Configure::read($this->_configKey);
-		if (!is_array($values)) {
+		if (!is_array($values) || empty($values)) {
 			trigger_error("Configuration '{$this->_configKey}' does not have an array of options.", E_USER_ERROR);
 		}
 

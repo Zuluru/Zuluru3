@@ -2,6 +2,9 @@
 namespace App\Test\TestCase\Model\Entity;
 
 use App\Model\Entity\BadgesPerson;
+use App\Test\Factory\BadgesPersonFactory;
+use App\Test\Factory\GameFactory;
+use Cake\Core\Configure;
 use Cake\TestSuite\TestCase;
 
 /**
@@ -17,55 +20,32 @@ class BadgesPersonTest extends TestCase {
 	public $BadgesPerson;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.EventTypes',
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-					'app.GameSlots',
-					'app.Pools',
-						'app.PoolsTeams',
-					'app.Games',
-			'app.Events',
-				'app.Prices',
-					'app.Registrations',
-			'app.Settings',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$this->BadgesPerson = new BadgesPerson([
-			'game_id' => GAME_ID_LADDER_MATCHED_SCORES,
-			'registration_id' => 1,
-			'team_id' => TEAM_ID_RED,
-		]);
+        Configure::write('options.sport', ['ultimate']);
+
+		// Create a BadgesPerson entity associated to a game, a registration
+        // and a team
+		$badgePerson = BadgesPersonFactory::make()
+            ->with('Games',
+                GameFactory::make()
+                    ->with('Divisions.Leagues')
+                    ->with('GameSlots')
+            )
+            ->with('Registrations.Events')
+            ->with('Teams.Divisions.Leagues')
+            ->persist()
+            ->toArray();
+
+        $this->BadgesPerson = new BadgesPerson($badgePerson);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->BadgesPerson);
 
 		parent::tearDown();
@@ -73,10 +53,8 @@ class BadgesPersonTest extends TestCase {
 
 	/**
 	 * Test __construct method
-	 *
-	 * @return void
 	 */
-	public function testConstruct() {
+	public function testConstruct(): void {
 		$this->assertContains('game', $this->BadgesPerson->virtualProperties());
 		$this->assertContains('registration', $this->BadgesPerson->virtualProperties());
 		$this->assertContains('team', $this->BadgesPerson->virtualProperties());

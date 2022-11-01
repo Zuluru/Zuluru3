@@ -1,13 +1,23 @@
 <?php
+/**
+ * @type $registrations \App\Model\Entity\Registration[]
+ * @type $audit \App\Model\Entity\RegistrationAudit|null
+ */
 use Cake\Core\Configure;
 
 $reg_id_format = Configure::read('payment.reg_id_format');
 // TODOBOOTSTRAP: Fix the formatting of this whole ugly page
 ?>
 <table border=0 width=700>
+<?php
+if (isset($audit)):
+?>
 	<tr><td colspan="4" class="center"><span class="warning-message"><?= __('Your Transaction has been Approved') ?></span></td></tr>
 	<tr><td colspan="4" class="center"><span class="warning-message"><?= __('Print this receipt for your records') ?></span></td></tr>
 	<tr><td colspan="4" bgcolor="#EEEEEE">&nbsp;</td></tr>
+<?php
+endif;
+?>
 	<tr><td align="center" colspan="4"><h2 class="center"><?= Configure::read('organization.name') ?></h2></td></tr>
 	<tr><td align="center" colspan="4"><?= Configure::read('organization.address') ?></td></tr>
 	<tr><td align="center" colspan="4"><?= Configure::read('organization.address2') ?></td></tr>
@@ -19,83 +29,85 @@ $reg_id_format = Configure::read('payment.reg_id_format');
 	<tr><td align="center" colspan="4"><a href="<?= $_SERVER['REQUEST_SCHEME'] ?>://<?= $_SERVER['HTTP_HOST'] ?>/"><?= $_SERVER['HTTP_HOST'] ?></a></td></tr>
 	<tr><td>&nbsp;</td></tr>
 
+<?php
+if (isset($audit)):
+?>
 	<tr bgcolor="#EEEEEE"><td colspan="4"><b><?= __('Transaction Type') ?>:
 <?php
-switch ($audit->transaction_name)
-{
-	case 'purchase':
-	case 'cavv_purchase':
-		echo __('Purchase');
-		break;
+	switch ($audit->transaction_name) {
+		case 'purchase':
+		case 'cavv_purchase':
+			echo __('Purchase');
+			break;
 
-	case 'idebit_purchase':
-		echo __('Debit Purchase');
-		break;
+		case 'idebit_purchase':
+			echo __('Debit Purchase');
+			break;
 
-	case 'preauth':
-	case 'cavv_preauth':
-		echo __('Pre-authorization');
-		break;
+		case 'preauth':
+		case 'cavv_preauth':
+			echo __('Pre-authorization');
+			break;
 
-	default:
-		echo __($audit->transaction_name);
-}
+		default:
+			echo __($audit->transaction_name);
+	}
 ?>
 	</b></td></tr>
 	<tr><td><?= __('Order ID') ?>:</td><td><?= $audit->order_id ?></td></tr>
 	<tr>
 		<td><?= __('Date / Time') ?>:</td><td><?= "{$audit->date}  {$audit->time}" ?></td>
 <?php
-if (array_key_exists('approval_code', $audit)):
+	if (array_key_exists('approval_code', $audit)):
 ?>
 		<td><?= __('Approval Code') ?>:</td><td><?= $audit->approval_code ?></td>
 <?php
-else:
+	else:
 ?>
 		<td></td><td></td>
 <?php
-endif;
+	endif;
 ?>
 	</tr>
 	<tr>
 		<td nowrap><?= __('Sequence Number') ?>:</td><td><?= $audit->transaction_id ?></td>
 <?php
-if (array_key_exists('iso_code', $audit)):
+	if (array_key_exists('iso_code', $audit)):
 ?>
 		<td><?= __('Response&nbsp;/&nbsp;ISO Code') ?>:</td><td nowrap><?= "{$audit->response_code}/{$audit->iso_code}" ?></td>
 <?php
-else:
+	else:
 ?>
 		<td><?= __('Response Code') ?>:</td><td><?= $audit->response_code ?></td>
 <?php
-endif;
+	endif;
 ?>
 	</tr>
 	<tr>
 		<td><?= __('Amount') ?>:</td><td><?= $this->Number->Currency($audit->charge_total) ?></td>
 <?php
-if (array_key_exists('f4l4', $audit)):
+	if (array_key_exists('f4l4', $audit)):
 ?>
 		<td><?= __('Card #') ?>:</td><td><?= $audit->f4l4 ?></td>
 <?php
-else:
+	else:
 ?>
 		<td></td><td></td>
 <?php
-endif;
+	endif;
 ?>
 	</tr>
 <?php
-if (array_key_exists('message', $audit)):
+	if (array_key_exists('message', $audit)):
 ?>
 	<tr><td colspan="4" nowrap><?= __('Message') ?>: <?= $audit->message ?></td></tr>
 <?php
-endif;
+	endif;
 ?>
 	<tr><td>&nbsp;</td></tr>
 
 <?php
-if ($audit->transaction_name == 'idebit_purchase'):
+	if ($audit->transaction_name === 'idebit_purchase'):
 ?>
 	<tr bgcolor="#EEEEEE"><td colspan="4"><b><?= __('INTERAC&reg; Online Information') ?></b></td></tr>
 	<tr>
@@ -109,6 +121,7 @@ if ($audit->transaction_name == 'idebit_purchase'):
 	</tr>
 	<tr><td>&nbsp;</td></tr>
 <?php
+	endif;
 endif;
 ?>
 
@@ -125,7 +138,11 @@ endif;
 	</tr>
 <?php
 foreach ($registrations as $registration):
-	list($cost, $tax1, $tax2) = $registration->paymentAmounts();
+	if (isset($audit)) {
+		[$cost, $tax1, $tax2] = $registration->paymentAmounts();
+	} else {
+		[$cost, $tax1, $tax2] = [$registration->price->cost, $registration->price->tax1, $registration->price->tax2];
+	}
 ?>
 	<tr>
 		<td valign="top"><?= sprintf($reg_id_format, $registration->event->id) ?></td>
@@ -144,10 +161,6 @@ foreach ($registrations as $registration):
 		<td align="right"><?= $this->Number->currency($tax1) ?></td>
 	</tr>
 <?php
-	else:
-?>
-	<tr><td>&nbsp;</td></tr>
-<?php
 	endif;
 
 	if ($tax2 > 0):
@@ -164,11 +177,17 @@ foreach ($registrations as $registration):
 <?php
 	endif;
 endforeach;
+
+if (isset($audit)) {
+	$total = $audit->charge_total;
+} else {
+	$total = $cost + $tax1 + $tax1;
+}
 ?>
 
 	<tr>
 		<td></td><td></td><td></td><td align="right"><?= __('Total') ?>:</td>
-		<td align="right"><?= $this->Number->currency($audit->charge_total) ?></td>
+		<td align="right"><?= $this->Number->currency($total) ?></td>
 	</tr>
 </table>
 

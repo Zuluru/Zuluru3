@@ -12,45 +12,23 @@ class PoolsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\PoolsTable
+	 * @var PoolsTable
 	 */
 	public $PoolsTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-					'app.Pools',
-						'app.PoolsTeams',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Pools') ? [] : ['className' => 'App\Model\Table\PoolsTable'];
-		$this->PoolsTable = TableRegistry::get('Pools', $config);
+		$config = TableRegistry::getTableLocator()->exists('Pools') ? [] : ['className' => PoolsTable::class];
+		$this->PoolsTable = TableRegistry::getTableLocator()->get('Pools', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->PoolsTable);
 
 		parent::tearDown();

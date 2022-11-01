@@ -1,12 +1,20 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use App\Model\Entity\TeamEvent;
+use App\Test\Factory\AttendanceFactory;
+use App\Test\Factory\TeamEventFactory;
+use App\Test\Scenario\DiverseUsersScenario;
+use App\Test\Scenario\SingleGameScenario;
 use Cake\I18n\FrozenTime;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * App\Controller\TeamEventsController Test Case
  */
 class TeamEventsControllerTest extends ControllerTestCase {
+
+	use ScenarioAwareTrait;
 
 	/**
 	 * Fixtures
@@ -14,324 +22,508 @@ class TeamEventsControllerTest extends ControllerTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.EventTypes',
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-					'app.PeoplePeople',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-						'app.TeamsPeople',
-						'app.TeamEvents',
-					'app.DivisionsDays',
-					'app.DivisionsPeople',
-					'app.Pools',
-						'app.PoolsTeams',
-					'app.Games',
-			'app.Attendances',
-			'app.Franchises',
-				'app.FranchisesPeople',
-				'app.FranchisesTeams',
-			'app.Events',
-				'app.Prices',
-					'app.Registrations',
-			'app.MailingLists',
-				'app.Newsletters',
-			'app.ActivityLogs',
-			'app.Settings',
-		'app.I18n',
-		'app.Plugins',
+		'app.Groups',
+		'app.RosterRoles',
+		'app.Settings',
 	];
 
 	/**
 	 * Test view method
-	 *
-	 * @return void
 	 */
-	public function testView() {
+	public function testView(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		// Easy way to set up a whole team structure
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'coordinator' => $volunteer,
+			'home_captain' => true,
+			'home_player' => $player,
+		]);
+		$captain = $game->home_team->people[0];
+
+		$events = TeamEventFactory::make([
+			['team_id' => $game->home_team_id],
+			['team_id' => $game->away_team_id],
+		])
+			->persist();
+
 		// Admins are allowed to view
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'view', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'view', 'event' => $events[0]->id], $admin->id);
 
 		// Managers are allowed to view
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'view', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'view', 'event' => $events[0]->id], $manager->id);
 
 		// Captains from the team in question are allowed to view their team's events, with full edit permissions
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'view', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_CAPTAIN);
-		$this->assertResponseContains('/team_events/edit?event=' . TEAM_EVENT_ID_RED_PRACTICE);
-		$this->assertResponseContains('/team_events/delete?event=' . TEAM_EVENT_ID_RED_PRACTICE);
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'view', 'event' => $events[0]->id], $captain->id);
+		$this->assertResponseContains('/team_events/edit?event=' . $events[0]->id);
+		$this->assertResponseContains('/team_events/delete?event=' . $events[0]->id);
 
 		// But not other team's events
-		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'view', 'event' => TEAM_EVENT_ID_BEARS_PRACTICE], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'view', 'event' => $events[1]->id], $captain->id);
 
 		// Players are allowed to view their team's events, but have no edit permissions
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'view', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_PLAYER);
-		$this->assertResponseNotContains('/team_events/edit?event=' . TEAM_EVENT_ID_RED_PRACTICE);
-		$this->assertResponseNotContains('/team_events/delete?event=' . TEAM_EVENT_ID_RED_PRACTICE);
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'view', 'event' => $events[0]->id], $player->id);
+		$this->assertResponseNotContains('/team_events/edit?event=' . $events[0]->id);
+		$this->assertResponseNotContains('/team_events/delete?event=' . $events[0]->id);
 
 		// Others are not allowed to view
-		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'view', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'view', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'TeamEvents', 'action' => 'view', 'event' => TEAM_EVENT_ID_RED_PRACTICE]);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'view', 'event' => $events[0]->id], $volunteer->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'TeamEvents', 'action' => 'view', 'event' => $events[0]->id]);
 	}
 
 	/**
 	 * Test add method as an admin
-	 *
-	 * @return void
 	 */
-	public function testAddAsAdmin() {
+	public function testAddAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
 		// Admins are allowed to add events
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'add', 'team' => TEAM_ID_RED], PERSON_ID_ADMIN);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'add', 'team' => $game->home_team_id], $admin->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test add method as a manager
-	 *
-	 * @return void
 	 */
-	public function testAddAsManager() {
+	public function testAddAsManager(): void {
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
 		// Managers are allowed to add events
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'add', 'team' => TEAM_ID_RED], PERSON_ID_MANAGER);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'add', 'team' => $game->home_team_id], $manager->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test add method as a captain
-	 *
-	 * @return void
 	 */
-	public function testAddAsCaptain() {
+	public function testAddAsCaptain(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'home_captain' => true,
+		]);
+		$captain = $game->home_team->people[0];
+
 		// Captains are allowed to add events to their own teams
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'add', 'team' => TEAM_ID_RED], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'add', 'team' => TEAM_ID_BLUE], PERSON_ID_CAPTAIN);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'add', 'team' => $game->home_team_id], $captain->id);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'add', 'team' => $game->away_team_id], $captain->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test add method as others
-	 *
-	 * @return void
 	 */
-	public function testAddAsOthers() {
+	public function testAddAsOthers(): void {
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'coordinator' => $volunteer,
+		]);
+
 		// Others are not allowed to add events
-		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'add', 'team' => TEAM_ID_RED], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'add', 'team' => TEAM_ID_RED], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'add', 'team' => TEAM_ID_RED], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'TeamEvents', 'action' => 'add', 'team' => TEAM_ID_RED]);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'add', 'team' => $game->home_team_id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'add', 'team' => $game->home_team_id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'TeamEvents', 'action' => 'add', 'team' => $game->home_team_id]);
 	}
 
 	/**
 	 * Test edit method as an admin
-	 *
-	 * @return void
 	 */
-	public function testEditAsAdmin() {
+	public function testEditAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
+		$events = TeamEventFactory::make([
+			['team_id' => $game->home_team_id],
+			['team_id' => $game->away_team_id],
+		])
+			->persist();
+
 		// Admins are allowed to edit team events
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_ADMIN);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => $events[0]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => $events[1]->id], $admin->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test edit method as a manager
-	 *
-	 * @return void
 	 */
-	public function testEditAsManager() {
+	public function testEditAsManager(): void {
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
+		$event = TeamEventFactory::make(['team_id' => $game->home_team_id])
+			->persist();
+
+		/** @var \App\Model\Entity\Game $affiliate_game */
+		$affiliate_game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $admin->affiliates[1],
+		]);
+
+		$affiliate_event = TeamEventFactory::make(['team_id' => $affiliate_game->home_team_id])
+			->persist();
+
 		// Managers are allowed to edit team events in their affiliate
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => $event->id], $manager->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => TEAM_EVENT_ID_BEARS_PRACTICE], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => $affiliate_event->id], $manager->id);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test edit method as a captain
-	 *
-	 * @return void
 	 */
-	public function testEditAsCaptain() {
+	public function testEditAsCaptain(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'home_captain' => true,
+		]);
+		$captain = $game->home_team->people[0];
+
+		$events = TeamEventFactory::make([
+			['team_id' => $game->home_team_id],
+			['team_id' => $game->away_team_id],
+		])
+			->persist();
+
 		// Captains are allowed to edit their own team's events
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_CAPTAIN);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => $events[0]->id], $captain->id);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => $events[1]->id], $captain->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test edit method as others
-	 *
-	 * @return void
 	 */
-	public function testEditAsOthers() {
+	public function testEditAsOthers(): void {
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'home_player' => $player,
+		]);
+
+		$event = TeamEventFactory::make(['team_id' => $game->home_team_id])
+			->persist();
+
 		// Others are not allowed to edit
-		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => TEAM_EVENT_ID_RED_PRACTICE]);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => $event->id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => $event->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => $event->id]);
 	}
 
 	/**
 	 * Test delete method as an admin
-	 *
-	 * @return void
 	 */
-	public function testDeleteAsAdmin() {
+	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
+		$event = TeamEventFactory::make(['team_id' => $game->home_team_id])
+			->persist();
+
 		// Admins are allowed to delete team events
-		$this->assertPostAsAccessRedirect(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => TEAM_EVENT_ID_RED_PRACTICE],
-			PERSON_ID_ADMIN, [], '/',
+		$this->assertPostAsAccessRedirect(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => $event->id],
+			$admin->id, [], '/',
 			'The team event has been deleted.');
 	}
 
 	/**
 	 * Test delete method as a manager
-	 *
-	 * @return void
 	 */
-	public function testDeleteAsManager() {
+	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
+		$event = TeamEventFactory::make(['team_id' => $game->home_team_id])
+			->persist();
+
+		/** @var \App\Model\Entity\Game $affiliate_game */
+		$affiliate_game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $admin->affiliates[1],
+		]);
+
+		$affiliate_event = TeamEventFactory::make(['team_id' => $affiliate_game->home_team_id])
+			->persist();
+
 		// Managers are allowed to delete team events in their affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => TEAM_EVENT_ID_RED_PRACTICE],
-			PERSON_ID_MANAGER, [], '/',
+		$this->assertPostAsAccessRedirect(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => $event->id],
+			$manager->id, [], '/',
 			'The team event has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => TEAM_EVENT_ID_BEARS_PRACTICE],
-			PERSON_ID_MANAGER);
+		$this->assertPostAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => $affiliate_event->id],
+			$manager->id);
 	}
 
 	/**
 	 * Test delete method as a captain
-	 *
-	 * @return void
 	 */
-	public function testDeleteAsCaptain() {
+	public function testDeleteAsCaptain(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'home_captain' => true,
+		]);
+		$captain = $game->home_team->people[0];
+
+		$events = TeamEventFactory::make([
+			['team_id' => $game->home_team_id],
+			['team_id' => $game->away_team_id],
+		])
+			->persist();
+
 		// Captains are allowed to delete their team's events
-		$this->assertPostAsAccessRedirect(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => TEAM_EVENT_ID_RED_PRACTICE],
-			PERSON_ID_CAPTAIN, [], '/',
+		$this->assertPostAsAccessRedirect(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => $events[0]->id],
+			$captain->id, [], '/',
 			'The team event has been deleted.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->assertPostAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => $events[1]->id], $captain->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test delete method as others
-	 *
-	 * @return void
 	 */
-	public function testDeleteAsOthers() {
+	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'coordinator' => $volunteer,
+			'home_player' => $player,
+		]);
+
+		$event = TeamEventFactory::make(['team_id' => $game->home_team_id])
+			->persist();
+
 		// Others are not allowed to delete team events
-		$this->assertPostAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => TEAM_EVENT_ID_RED_PRACTICE],
-			PERSON_ID_COORDINATOR);
-		$this->assertPostAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => TEAM_EVENT_ID_RED_PRACTICE],
-			PERSON_ID_PLAYER);
-		$this->assertPostAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => TEAM_EVENT_ID_RED_PRACTICE],
-			PERSON_ID_VISITOR);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => TEAM_EVENT_ID_RED_PRACTICE]);
+		$this->assertPostAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => $event->id],
+			$volunteer->id);
+		$this->assertPostAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => $event->id],
+			$player->id);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => $event->id]);
 	}
 
 	/**
 	 * Test attendance_change method as an admin
-	 *
-	 * @return void
 	 */
-	public function testAttendanceChangeAsAdmin() {
-		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
+	public function testAttendanceChangeAsAdmin(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'home_captain' => true,
+		]);
+		$captain = $game->home_team->people[0];
+
+		/** @var TeamEvent $event */
+		$event = TeamEventFactory::make(['team_id' => $game->home_team_id])
+			->persist();
+		AttendanceFactory::make(['team_id' => $event->team_id, 'team_event_id' => $event->id, 'person_id' => $captain->id, 'status' => ATTENDANCE_ATTENDING])
+			->persist();
 
 		// Admins are allowed to change attendance
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => TEAM_EVENT_ID_RED_PRACTICE, 'person' => PERSON_ID_CAPTAIN], PERSON_ID_ADMIN);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => $event->id, 'person' => $captain->id], $admin->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test attendance_change method as a manager
-	 *
-	 * @return void
 	 */
-	public function testAttendanceChangeAsManager() {
-		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
+	public function testAttendanceChangeAsManager(): void {
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'home_captain' => true,
+		]);
+		$captain = $game->home_team->people[0];
+
+		/** @var TeamEvent $event */
+		$event = TeamEventFactory::make(['team_id' => $game->home_team_id])
+			->persist();
+		AttendanceFactory::make(['team_id' => $event->team_id, 'team_event_id' => $event->id, 'person_id' => $captain->id, 'status' => ATTENDANCE_ATTENDING])
+			->persist();
 
 		// Managers are allowed to change attendance
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => TEAM_EVENT_ID_RED_PRACTICE, 'person' => PERSON_ID_CAPTAIN], PERSON_ID_MANAGER);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => $event->id, 'person' => $captain->id], $manager->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test attendance_change method as a coordinator
-	 *
-	 * @return void
+	 * TODO: Why can coordinnators change attendance when they can't even see the event? Work to do here on practices for youth leagues?
 	 */
-	public function testAttendanceChangeAsCoordinator() {
-		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
+	public function testAttendanceChangeAsCoordinator(): void {
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'coordinator' => $volunteer,
+			'home_captain' => true,
+		]);
+		$captain = $game->home_team->people[0];
+
+		/** @var TeamEvent $event */
+		$event = TeamEventFactory::make(['team_id' => $game->home_team_id])
+			->persist();
+		AttendanceFactory::make(['team_id' => $event->team_id, 'team_event_id' => $event->id, 'person_id' => $captain->id, 'status' => ATTENDANCE_ATTENDING])
+			->persist();
 
 		// Coordinators are allowed to change attendance
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => TEAM_EVENT_ID_RED_PRACTICE, 'person' => PERSON_ID_CAPTAIN], PERSON_ID_COORDINATOR);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => $event->id, 'person' => $captain->id], $volunteer->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test attendance_change method as a captain
-	 *
-	 * @return void
 	 */
-	public function testAttendanceChangeAsCaptain() {
-		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
+	public function testAttendanceChangeAsCaptain(): void {
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'home_captain' => true,
+			'home_player' => $player,
+		]);
+		$captain = $game->home_team->people[0];
+
+		/** @var TeamEvent $event */
+		$event = TeamEventFactory::make(['team_id' => $game->home_team_id])
+			->persist();
+		AttendanceFactory::make([
+			['team_id' => $event->team_id, 'team_event_id' => $event->id, 'person_id' => $captain->id, 'status' => ATTENDANCE_ATTENDING],
+			['team_id' => $event->team_id, 'team_event_id' => $event->id, 'person_id' => $player->id, 'status' => ATTENDANCE_ATTENDING],
+		])
+			->persist();
 
 		// Captains are allowed to change attendance
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_CAPTAIN);
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => $event->id], $captain->id);
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => $event->id, 'person' => $player->id], $captain->id);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test attendance_change method as a player
-	 *
-	 * @return void
 	 */
-	public function testAttendanceChangeAsPlayer() {
-		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
+	public function testAttendanceChangeAsPlayer(): void {
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'coordinator' => $volunteer,
+			'home_player' => $player,
+		]);
+
+		/** @var TeamEvent[] $events */
+		$events = TeamEventFactory::make([
+			['team_id' => $game->home_team_id],
+			['team_id' => $game->away_team_id],
+		])
+			->persist();
+		AttendanceFactory::make(['team_id' => $events[0]->team_id, 'team_event_id' => $events[0]->id, 'person_id' => $player->id, 'status' => ATTENDANCE_ATTENDING])
+			->persist();
 
 		// Players are allowed to change attendance
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_CAPTAIN3);
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => $events[0]->id], $player->id);
 
-		// But not for teams they're only just invited to, or not on at all
-		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_PLAYER);
+		// But not for teams they're not on at all
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => $events[1]->id], $player->id);
+
+		// TODO: or only just invited to
 
 		// And not for long after the event
-		FrozenTime::setTestNow((new FrozenTime('last Friday of July'))->addDays(15));
-		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_CAPTAIN3);
+		FrozenTime::setTestNow($events[0]->date->addDays(15));
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => $events[0]->id], $player->id);
 
-		$this->markTestIncomplete('Not implemented yet.');
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test attendance_change method as others
-	 *
-	 * @return void
 	 */
-	public function testAttendanceChangeAsOthers() {
-		FrozenTime::setTestNow(new FrozenTime('last Monday of May'));
+	public function testAttendanceChangeAsOthers(): void {
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
+
+		/** @var \App\Model\Entity\Game $game */
+		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+		]);
+
+		$event = TeamEventFactory::make(['team_id' => $game->home_team_id])
+			->persist();
 
 		// Others are not allowed to change attendance
-		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => TEAM_EVENT_ID_RED_PRACTICE], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => TEAM_EVENT_ID_RED_PRACTICE]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => $event->id]);
 	}
 
 }

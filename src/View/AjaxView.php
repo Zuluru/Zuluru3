@@ -8,15 +8,15 @@ use Ajax\View\AjaxView as View;
  */
 class AjaxView extends View {
 
-    /**
-     * Initialization hook method.
-     *
-     * For e.g. use this method to load a helper for all views:
-     * `$this->loadHelper('Html');`
-     *
-     * @return void
-     */
-    public function initialize() {
+	/**
+	 * Initialization hook method.
+	 *
+	 * For e.g. use this method to load a helper for all views:
+	 * `$this->loadHelper('Html');`
+	 *
+	 * @return void
+	 */
+	public function initialize() {
 		$this->loadHelper('Authentication.Identity');
 		$this->loadHelper('Authorize');
 		$this->loadHelper('Number');
@@ -28,6 +28,6 @@ class AjaxView extends View {
 		$this->loadHelper('BootstrapUI.Flash');
 		$this->loadHelper('BootstrapUI.Paginator', ['templates' => 'paginator-templates']);
 		$this->loadHelper('ZuluruJquery.Jquery');
-    }
+	}
 
 }

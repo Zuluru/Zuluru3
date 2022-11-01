@@ -1,5 +1,9 @@
 <?php
-use Cake\Core\Configure;
+/**
+ * @type $game \App\Model\Entity\Game
+ * @type $team_id int
+ * @type $sport_obj \App\Module\Sport
+ */
 
 $this->Html->addCrumb(__('Games'));
 $this->Html->addCrumb(__('Submit Game Stats'));

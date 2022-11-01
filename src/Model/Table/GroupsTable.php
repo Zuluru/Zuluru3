@@ -112,13 +112,11 @@ class GroupsTable extends AppTable {
 				}
 			}
 		} else {
-			// Find any old groups that convey elevated privileges and aren't present in the new list, and copy them over
+			// Find any old groups that aren't present in the new list, and copy them over
 			foreach ($old as $group) {
-				if ($group->level > 1) {
-					if (!collection($new)->firstMatch(['id' => $group->id])) {
-						unset($group->_joinData);
-						$new[] = $group;
-					}
+				if (!collection($new)->firstMatch(['id' => $group->id])) {
+					unset($group->_joinData);
+					$new[] = $group;
 				}
 			}
 		}

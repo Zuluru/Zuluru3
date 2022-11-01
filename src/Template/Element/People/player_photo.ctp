@@ -1,7 +1,7 @@
 <?php
 /**
- * @type \App\Model\Entity\Person $person
- * @type \App\Model\Entity\Upload $photo
+ * @type $person \App\Model\Entity\Person
+ * @type $photo \App\Model\Entity\Upload
  */
 
 if ($this->Authorize->can('photo', $person)) {

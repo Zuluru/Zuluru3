@@ -1,4 +1,6 @@
 <?php
+
+use App\Model\Table\TeamsTable;
 use Cake\Core\Configure;
 use App\Controller\AppController;
 
@@ -35,7 +37,7 @@ $fields = [
 	__('Added') => true,
 ];
 
-list($header1, $header2, $player_fields, $contact_fields) = \App\Lib\csvFields(collection($league->divisions)->extract("teams.{*}.people.{*}"), $fields, true);
+[$header1, $header2, $player_fields, $contact_fields] = \App\Lib\csvFields(collection($league->divisions)->extract("teams.{*}.people.{*}"), $fields, true);
 if (!empty($header1)) {
 	fputcsv($fp, $header1);
 }
@@ -43,7 +45,7 @@ fputcsv($fp, $header2);
 
 foreach ($league->divisions as $division) {
 	foreach ($division->teams as $team) {
-		usort($team->people, ['App\Model\Table\TeamsTable', 'compareRoster']);
+		usort($team->people, [TeamsTable::class, 'compareRoster']);
 		foreach ($team->people as $person) {
 			$role = Configure::read("options.roster_role.{$person->_joinData->role}");
 			switch ($person->_joinData->status) {

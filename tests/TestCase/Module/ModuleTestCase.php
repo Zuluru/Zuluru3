@@ -13,10 +13,8 @@ class ModuleTestCase extends TestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		foreach (Configure::read('App.globalListeners') as $listener) {
@@ -26,7 +24,7 @@ class ModuleTestCase extends TestCase {
 		ConfigurationLoader::loadConfiguration();
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 		Cache::clear(false, 'long_term');
 		FrozenTime::setTestNow();

@@ -12,36 +12,23 @@ class DaysTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\DaysTable
+	 * @var DaysTable
 	 */
 	public $DaysTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Days') ? [] : ['className' => 'App\Model\Table\DaysTable'];
-		$this->DaysTable = TableRegistry::get('Days', $config);
+		$config = TableRegistry::getTableLocator()->exists('Days') ? [] : ['className' => DaysTable::class];
+		$this->DaysTable = TableRegistry::getTableLocator()->get('Days', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->DaysTable);
 
 		parent::tearDown();

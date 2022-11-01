@@ -19,10 +19,8 @@ class ZuluruHtmlHelperTest extends TestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$view = new View();
 		$this->ZuluruHtmlHelper = new ZuluruHtmlHelper($view);
@@ -30,10 +28,8 @@ class ZuluruHtmlHelperTest extends TestCase {
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->ZuluruHtmlHelper);
 
 		parent::tearDown();
@@ -41,64 +37,50 @@ class ZuluruHtmlHelperTest extends TestCase {
 
 	/**
 	 * Test link method
-	 *
-	 * @return void
 	 */
-	public function testLink() {
+	public function testLink(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test scriptBlock method
-	 *
-	 * @return void
 	 */
-	public function testScriptBlock() {
+	public function testScriptBlock(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test imageLink method
-	 *
-	 * @return void
 	 */
-	public function testImageLink() {
+	public function testImageLink(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test iconImg method
-	 *
-	 * @return void
 	 */
-	public function testIconImg() {
+	public function testIconImg(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test iconLink method
-	 *
-	 * @return void
 	 */
-	public function testIconLink() {
+	public function testIconLink(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test help method
-	 *
-	 * @return void
 	 */
-	public function testHelp() {
+	public function testHelp(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test formatMessage method
-	 *
-	 * @return void
 	 */
-	public function testFormatMessage() {
+	public function testFormatMessage(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

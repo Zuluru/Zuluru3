@@ -158,7 +158,7 @@ class FieldsController extends AppController {
 		}
 		$this->Authorization->authorize($field);
 
-		$dependencies = $this->Fields->dependencies($id);
+		$dependencies = $this->Fields->dependencies($id, ['Notes']);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this {0}, so it cannot be deleted.', Configure::read('UI.field')) . '<br>' . $dependencies, ['params' => ['escape' => false]]);
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);

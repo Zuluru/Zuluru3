@@ -2,6 +2,7 @@
 namespace App\Model\Table;
 
 use App\Model\Entity\Group;
+use App\Model\Entity\Person;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
@@ -14,7 +15,6 @@ use Cake\Utility\Inflector;
 use Cake\Validation\Validation;
 use Cake\Validation\Validator;
 use App\Core\UserCache;
-use App\Model\Entity\Person;
 use App\Model\Rule\InConfigRule;
 use App\Model\Rule\InDateConfigRule;
 
@@ -150,6 +150,15 @@ class PeopleTable extends AppTable {
 			'foreignKey' => 'person_id',
 			'dependent' => true,
 		]);
+		$this->hasMany('AffiliatesPeople', [
+			'foreignKey' => 'person_id',
+			'dependent' => true,
+			'saveStrategy' => 'replace',
+		]);
+		$this->hasMany('WaiversPeople', [
+			'foreignKey' => 'person_id',
+			'dependent' => true,
+		]);
 
 		// Some associations here mainly to automate the profile merge process
 		$this->hasMany('CreatedCredits', [
@@ -187,6 +196,7 @@ class PeopleTable extends AppTable {
 
 		$this->belongsToMany('Affiliates', [
 			'joinTable' => 'affiliates_people',
+			'through' => 'AffiliatesPeople',
 			'foreignKey' => 'person_id',
 			'targetForeignKey' => 'affiliate_id',
 			'saveStrategy' => 'replace',
@@ -207,6 +217,7 @@ class PeopleTable extends AppTable {
 		]);
 		$this->belongsToMany('Franchises', [
 			'joinTable' => 'franchises_people',
+			'through' => 'FranchisesPeople',
 			'foreignKey' => 'person_id',
 			'targetForeignKey' => 'franchise_id',
 			'saveStrategy' => 'replace',
@@ -873,8 +884,14 @@ class PeopleTable extends AppTable {
 
 	public function findDuplicates(Query $query, Array $options) {
 		// $options parameter must be an array. So we'll pass the entity in the array...
+		/** @var Person $person */
 		$person = $options['person'];
-		$affiliates = collection($person->affiliates)->extract('id')->toArray();
+		// TODO: This is ugly. Fix it.
+		if (!empty($person->affiliates)) {
+			$affiliates = collection($person->affiliates)->extract('id')->toArray();
+		} else {
+			$affiliates = collection($person->affiliates_people)->extract('affiliate_id')->toArray();
+		}
 
 		$user_model = Configure::read('Security.authModel');
 		$email_field = $this->$user_model->emailField;

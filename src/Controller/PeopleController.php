@@ -26,6 +26,7 @@ use App\Exception\RuleException;
 use App\Model\Entity\BadgesPerson;
 use App\Model\Entity\Person;
 use App\Model\Entity\PeoplePerson;
+use App\Model\Table\GamesTable;
 
 /**
  * People Controller
@@ -405,9 +406,13 @@ class PeopleController extends AppController {
 
 	public function participation() {
 		$this->Authorization->authorize($this);
+
+		$first_event = TableRegistry::getTableLocator()->get('Events')->find()->order('Events.open')->first();
+		$first_league = TableRegistry::getTableLocator()->get('Leagues')->find()->order('Leagues.open')->first();
+
 		$min = min(
-			TableRegistry::getTableLocator()->get('Events')->field('open', [], 'Events.open')->year,
-			TableRegistry::getTableLocator()->get('Leagues')->field('open', [], 'Leagues.open')->year
+			$first_event ? $first_event->open->year : FrozenDate::now()->year,
+			$first_league ? $first_league->open->year : FrozenDate::now()->year
 		);
 		$this->set(compact('min'));
 
@@ -435,9 +440,13 @@ class PeopleController extends AppController {
 
 	public function retention() {
 		$this->Authorization->authorize($this);
+
+		$first_event = TableRegistry::getTableLocator()->get('Events')->find()->order('Events.open')->first();
+		$first_league = TableRegistry::getTableLocator()->get('Leagues')->find()->order('Leagues.open')->first();
+
 		$min = min(
-			TableRegistry::getTableLocator()->get('Events')->field('open', [], 'Events.open'),
-			TableRegistry::getTableLocator()->get('Leagues')->field('open', [], 'Leagues.open')
+			$first_event ? $first_event->open->year : FrozenDate::now()->year,
+			$first_league ? $first_league->open->year : FrozenDate::now()->year
 		);
 		$this->set(compact('min'));
 
@@ -783,21 +792,24 @@ class PeopleController extends AppController {
 
 		$this->_loadAddressOptions();
 		$this->_loadAffiliateOptions();
+		$user_model = Inflector::underscore(Inflector::singularize(Configure::read('Security.authModel')));
 		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'));
 
 		$this->set([
+			'user_model' => $user_model,
 			'user_field' => $users_table->userField,
 			'email_field' => $users_table->emailField,
 		]);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
-			$this->request = $this->request->withData("user.{$users_table->pwdField}", $this->request->getData('new_password'));
+			$this->request = $this->request->withData("{$user_model}.{$users_table->pwdField}", $this->request->getData("{$user_model}.new_password"));
 			$person = $this->People->patchEntity($person, $this->request->getData(), [
 				'Associated' => [
-					'Users' => ['validate' => 'create'],
+					Configure::read('Security.authModel') => ['validate' => 'create'],
 				],
 			]);
 
+			// TODO: Need to fix the new user_id being set in the person record
 			if ($this->People->save($person)) {
 				$this->Flash->success(__('Your account has been created.'));
 				Cache::delete("person/{$id}", 'long_term');
@@ -1387,6 +1399,7 @@ class PeopleController extends AppController {
 			])
 			->first();
 		if (!empty($photo)) {
+			$this->Authorization->authorize($photo);
 			$this->response->file(Configure::read('App.paths.uploads') . DS . $photo->filename);
 			return $this->response;
 		}
@@ -2034,10 +2047,10 @@ class PeopleController extends AppController {
 			$this->Flash->warning(__('Failed to approve the badge.'));
 			return $this->redirect(['action' => 'approve_badges']);
 		} else {
-			if ($link['badge']['visibility'] != BADGE_VISIBILITY_ADMIN) {
+			if ($link->badge->visibility != BADGE_VISIBILITY_ADMIN) {
 				// Inform the nominator
 				if (!$this->_sendMail([
-					'to' => $link['nominated_by'],
+					'to' => $link->nominated_by,
 					'subject' => function() { return __('{0} Notification of Badge Approval', Configure::read('organization.name')); },
 					'template' => 'badge_nomination_approved',
 					'sendAs' => 'both',
@@ -2049,7 +2062,7 @@ class PeopleController extends AppController {
 
 				// Inform the recipient
 				if (!$this->_sendMail([
-					'to' => $link['person'],
+					'to' => $link->person,
 					'subject' => function() { return __('{0} New Badge Awarded', Configure::read('organization.name')); },
 					'template' => 'badge_awarded',
 					'sendAs' => 'both',
@@ -2089,11 +2102,11 @@ class PeopleController extends AppController {
 			$this->Flash->warning(__('The badge could not be deleted. Please, try again.'));
 			return $this->redirect(['action' => 'approve_badges']);
 		} else {
-			if ($link['badge']['visibility'] != BADGE_VISIBILITY_ADMIN) {
-				if ($link['approved']) {
+			if ($link->badge->visibility != BADGE_VISIBILITY_ADMIN) {
+				if ($link->approved) {
 					// Inform the badge holder
 					if (!$this->_sendMail([
-						'to' => $link['person'],
+						'to' => $link->person,
 						'subject' => function() { return __('{0} Notification of Badge Deletion', Configure::read('organization.name')); },
 						'template' => 'badge_deleted',
 						'sendAs' => 'both',
@@ -2105,7 +2118,7 @@ class PeopleController extends AppController {
 				} else {
 					// Inform the nominator
 					if (!$this->_sendMail([
-						'to' => $link['nominated_by'],
+						'to' => $link->nominated_by,
 						'subject' => function() { return __('{0} Notification of Badge Rejection', Configure::read('organization.name')); },
 						'template' => 'badge_nomination_rejected',
 						'sendAs' => 'both',
@@ -2359,7 +2372,7 @@ class PeopleController extends AppController {
 			}
 		}
 
-		usort($items, ['App\Model\Table\GamesTable', 'compareDateAndField']);
+		usort($items, [GamesTable::class, 'compareDateAndField']);
 		return $items;
 	}
 
@@ -2369,7 +2382,7 @@ class PeopleController extends AppController {
 
 		// We need to read attendance for all relatives, as shared games might not
 		// be on everyone's list, but we still want to accurately show attendance
-		if ($this->UserCache->read('Person.status') != 'locked') {
+		if ($this->UserCache->read('Person.status') !== 'locked') {
 			$people = $this->UserCache->read('RelativeIDs');
 			$relatives = collection($this->UserCache->read('Relatives'))->match(['_joinData.approved' => 1])->toList();
 		} else {
@@ -2607,11 +2620,12 @@ class PeopleController extends AppController {
 	public function approve() {
 		$id = $this->request->getQuery('person');
 
+		// We don't need to contain Relatives here; those will be handled in the updateAll calls
+		$contain = [Configure::read('Security.authModel'), 'AffiliatesPeople', 'Skills', 'Groups', 'Related', 'Settings'];
+
 		try {
-			$person = $this->People->get($id, [
-				// We don't need to contain Relatives here; those will be handled in the updateAll calls
-				'contain' => [Configure::read('Security.authModel'), 'Affiliates', 'Skills', 'Groups', 'Related', 'Settings']
-			]);
+			/** @var Person $person */
+			$person = $this->People->get($id, ['contain' => $contain]);
 		} catch (RecordNotFoundException $ex) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect(['action' => 'list_new']);
@@ -2623,7 +2637,7 @@ class PeopleController extends AppController {
 		$this->Authorization->authorize($person);
 
 		$duplicates = $this->People->find('duplicates', compact('person'))
-			->contain([Configure::read('Security.authModel'), 'Affiliates', 'Skills', 'Groups', 'Related', 'Settings']);
+			->contain($contain);
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			if (empty($this->request->getData('disposition'))) {
@@ -2638,7 +2652,7 @@ class PeopleController extends AppController {
 						}
 						// If this fails, we've messed up the duplicate record. Re-read the duplicates to reset it.
 						$duplicates = $this->People->find('duplicates', compact('person'))
-							->contain(['Affiliates', 'Skills', 'Groups', 'Related', 'Settings']);
+							->contain($contain);
 					} else {
 						$this->Flash->info(__('You have selected an invalid user!'));
 					}
@@ -2692,7 +2706,7 @@ class PeopleController extends AppController {
 				$delete = $person;
 				break;
 
-			// This is basically the same as the delete duplicate, except
+			// This is basically the same as delete duplicate, except
 			// that some old information (e.g. user ID) is preserved
 			case 'merge_duplicate':
 				$duplicate->merge($person);
@@ -2709,9 +2723,9 @@ class PeopleController extends AppController {
 
 		if (!$this->People->getConnection()->transactional(function () use ($disposition, $save, $delete, $fail_message) {
 			// If we are merging, we want to migrate all records that aren't part of the in-memory record.
-			if ($disposition == 'merge_duplicate') {
+			if ($disposition === 'merge_duplicate') {
 				// For anything that we have in memory, we must skip doing a direct query
-				$ignore = [];
+				$ignore = ['Affiliates'];
 				$save->setHidden([]);
 				foreach ($save->getVisible() as $prop) {
 					if ($save->isAccessible($prop) && (is_array($delete->$prop))) {
@@ -2981,8 +2995,8 @@ class PeopleController extends AppController {
 
 		$this->Authorization->authorize($person);
 
+		$waivers = [];
 		if ($id == $this->UserCache->currentId()) {
-			$waivers = [];
 			foreach ($affiliates as $affiliate) {
 				$signed_names = array_unique(
 					collection($this->UserCache->read('WaiversCurrent'))

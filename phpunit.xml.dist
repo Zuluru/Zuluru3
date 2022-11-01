@@ -29,14 +29,12 @@
 	</testsuites>
 
 	<!-- Setup a listener for fixtures -->
-	<listeners>
-		<listener
-		class="\Cake\TestSuite\Fixture\FixtureInjector"
-		file="./vendor/cakephp/cakephp/src/TestSuite/Fixture/FixtureInjector.php">
-			<arguments>
-				<object class="\Cake\TestSuite\Fixture\FixtureManager" />
-			</arguments>
-		</listener>
-	</listeners>
+    <listeners>
+        <listener class="CakephpTestSuiteLight\FixtureInjector">
+            <arguments>
+                <object class="CakephpTestSuiteLight\FixtureManager" />
+            </arguments>
+        </listener>
+    </listeners>
 
 </phpunit>

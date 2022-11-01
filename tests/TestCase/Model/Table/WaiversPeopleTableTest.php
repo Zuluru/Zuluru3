@@ -12,42 +12,23 @@ class WaiversPeopleTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\WaiversPeopleTable
+	 * @var WaiversPeopleTable
 	 */
 	public $WaiversPeopleTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Waivers',
-				'app.WaiversPeople',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('WaiversPeople') ? [] : ['className' => 'App\Model\Table\WaiversPeopleTable'];
-		$this->WaiversPeopleTable = TableRegistry::get('WaiversPeople', $config);
+		$config = TableRegistry::getTableLocator()->exists('WaiversPeople') ? [] : ['className' => WaiversPeopleTable::class];
+		$this->WaiversPeopleTable = TableRegistry::getTableLocator()->get('WaiversPeople', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->WaiversPeopleTable);
 
 		parent::tearDown();

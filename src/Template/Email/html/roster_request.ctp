@@ -3,13 +3,13 @@ use Cake\Core\Configure;
 use Cake\Routing\Router;
 
 /**
- * @type \App\Model\Entity\Person $person
- * @type \App\Model\Entity\Division $division
- * @type \App\Model\Entity\Team $team
- * @type \App\Model\Entity\TeamsPerson $roster
- * @type string $captains
- * @type string $role
- * @type string $sport
+ * @type $person \App\Model\Entity\Person
+ * @type $division \App\Model\Entity\Division
+ * @type $team \App\Model\Entity\Team
+ * @type $roster \App\Model\Entity\TeamsPerson
+ * @type $captains string
+ * @type $role string
+ * @type $sport string
  */
 
 $min = Configure::read("sports.{$sport}.roster_requirements.{$division->ratio_rule}");

@@ -20,7 +20,7 @@ class PluginsTable extends AppTable {
 	 * @return void
 	 */
 	public function initialize(array $config) {
-        parent::initialize($config);
+		parent::initialize($config);
 
 		$this->setTable('plugins');
 		$this->setDisplayField('name');

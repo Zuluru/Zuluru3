@@ -1,11 +1,12 @@
 <?php
-
-
 namespace App\Test\Fixture;
 
 use Cake\TestSuite\Fixture\TestFixture;
+use EventTypesSeed;
 
 class EventTypesFixture extends TestFixture {
+
+	use SeedFixtureTrait;
 
 	/**
 	 * Import
@@ -15,39 +16,12 @@ class EventTypesFixture extends TestFixture {
 	public $import = ['table' => 'event_types'];
 
 	/**
-	 * Initialize function: Mostly, set up records
+	 * Seed name to use
 	 */
-	public function init() {
-		$this->records = [
-			[
-				'name' => 'Membership',
-				'type' => 'membership'
-			],
-			[
-				'name' => 'Teams for Leagues',
-				'type' => 'team'
-			],
-			[
-				'name' => 'Individuals for Leagues',
-				'type' => 'individual'
-			],
-			[
-				'name' => 'Teams for Events',
-				'type' => 'team'
-			],
-			[
-				'name' => 'Individuals for Events',
-				'type' => 'individual'
-			],
-			[
-				'name' => 'Clinics',
-				'type' => 'generic'
-			],
-			[
-				'name' => 'Social Events',
-				'type' => 'generic'
-			]
-		];
+	public $seed = EventTypesSeed::class;
+
+	public function __construct() {
+		parent::__construct();
 
 		if (!defined('EVENT_TYPE_ID_MEMBERSHIP')) {
 			$i = 0;
@@ -59,8 +33,6 @@ class EventTypesFixture extends TestFixture {
 			define('EVENT_TYPE_ID_CLINICS', ++$i);
 			define('EVENT_TYPE_ID_SOCIAL_EVENTS', ++$i);
 		}
-
-		parent::init();
 	}
 
 }

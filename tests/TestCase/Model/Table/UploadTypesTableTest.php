@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\UploadTypeFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\UploadTypesTable;
 
@@ -12,41 +13,23 @@ class UploadTypesTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\UploadTypesTable
+	 * @var UploadTypesTable
 	 */
 	public $UploadTypesTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.UploadTypes',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('UploadTypes') ? [] : ['className' => 'App\Model\Table\UploadTypesTable'];
-		$this->UploadTypesTable = TableRegistry::get('UploadTypes', $config);
+		$config = TableRegistry::getTableLocator()->exists('UploadTypes') ? [] : ['className' => UploadTypesTable::class];
+		$this->UploadTypesTable = TableRegistry::getTableLocator()->get('UploadTypes', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->UploadTypesTable);
 
 		parent::tearDown();
@@ -54,11 +37,11 @@ class UploadTypesTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
-	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->UploadTypesTable->affiliate(1));
+	public function testAffiliate(): void {
+        $affiliateId = mt_rand();
+        $entity = UploadTypeFactory::make(['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->UploadTypesTable->affiliate($entity->id));
 	}
 
 }

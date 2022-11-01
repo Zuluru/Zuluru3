@@ -8,6 +8,7 @@ namespace App\Module;
 
 use App\Model\Entity\Division;
 use App\Model\Entity\Game;
+use App\Model\Entity\GameSlot;
 use App\Model\Entity\League;
 use App\Model\Entity\Pool;
 use Authorization\IdentityInterface;
@@ -95,7 +96,7 @@ abstract class LeagueType {
 							->where(['Teams.division_id' => $division->id])
 							->order(['Teams.seed']);
 					},
-					'People' => ['Skills'],
+					'TeamsPeople' => ['People' => ['Skills']],
 				],
 			]);
 
@@ -119,7 +120,7 @@ abstract class LeagueType {
 				$division->_results = [];
 			} else {
 				// Sort games by date, time and field. Field makes no difference to these results, but whatever.
-				usort($games, ['App\Model\Table\GamesTable', 'compareDateAndField']);
+				usort($games, [GamesTable::class, 'compareDateAndField']);
 				GamesTable::adjustEntryIndices($games);
 			}
 
@@ -158,7 +159,7 @@ abstract class LeagueType {
 		// If all teams have seeds set, we trust them
 		if (!collection($division->teams)->some(function ($team) { return $team->seed == 0; })) {
 			$division->teams = collection($division->teams)->sortBy('seed', SORT_ASC)->toArray();
-		} else if ($division->schedule_type == 'tournament' || $include_tournament) {
+		} else if ($division->schedule_type === 'tournament' || $include_tournament) {
 			\App\Lib\context_uasort($division->teams, ['App\Model\Results\Comparison', 'compareTeamsTournament'], ['league_obj' => $this]);
 		} else {
 			$sort_context = ['results' => 'season', 'current_round' => $division->current_round, 'tie_breaker' => $league->tie_breakers];
@@ -245,7 +246,7 @@ abstract class LeagueType {
 	 *
 	 */
 	public function scheduleDescription($type, $num_teams, $stage, $sport) {
-		if ($type == 'crossover') {
+		if ($type === 'crossover') {
 			return __('crossover game');
 		}
 		$types = $this->scheduleOptions($num_teams, $stage, $sport);
@@ -392,7 +393,7 @@ abstract class LeagueType {
 	/**
 	 * Create a single game in this division
 	 */
-	public function createEmptyGame(Division $division, $date = null) {
+	public function createEmptyGame(Division $division, $date = null): Game {
 		$num_teams = count($division->teams);
 
 		if ($num_teams < 2) {
@@ -421,7 +422,7 @@ abstract class LeagueType {
 	 * @param mixed $date The date of the games
 	 * @param mixed $teams List of teams, sorted into pairs by matchup
 	 * @param mixed $remaining The number of other games still to be scheduled after this set
-	 * @return array of games created
+	 * @return Game[] games created
 	 *
 	 */
 	protected function createGamesForTeams(Division $division, $date, $teams, $remaining = 0) {
@@ -429,7 +430,8 @@ abstract class LeagueType {
 		$games = [];
 
 		// Iterate over teams array pairwise and create games with balanced home/away
-		for($team_idx = 0; $team_idx < count($teams); $team_idx += 2) {
+		$count = count($teams);
+		for($team_idx = 0; $team_idx < $count; $team_idx += 2) {
 			$games[] = $this->addTeamsBalanced($division, $teams[$team_idx], $teams[$team_idx + 1]);
 		}
 
@@ -489,7 +491,7 @@ abstract class LeagueType {
 		return $game;
 	}
 
-	protected function homeAwayRatio(Division $division, $id) {
+	protected function homeAwayRatio(Division $division, $id): float {
 		if (array_key_exists($id, $division->home_games)) {
 			$home_games = $division->home_games[$id];
 		} else {
@@ -524,7 +526,7 @@ abstract class LeagueType {
 	 * Once sorted, we simply loop over all games and call selectWeightedGameslot(),
 	 * which takes region preference into account.
 	 *
-	 * @return array of games created
+	 * @return Game[] games created
 	 */
 	public function assignFieldsByPreferences(Division $division, $date, $games, $remaining = 0) {
 		/*
@@ -551,7 +553,7 @@ abstract class LeagueType {
 		});
 
 		$return = [];
-		while($game = array_shift($games)) {
+		while ($game = array_shift($games)) {
 			$game->game_slot = $this->selectWeightedGameslot($division, $date, $game, count($games) + 1 + $remaining);
 			$game->game_slot_id = $game->game_slot->id;
 			$return[] = $game;
@@ -559,14 +561,14 @@ abstract class LeagueType {
 		return $return;
 	}
 
-	protected function hasHomeField(Division $division, Game $game) {
+	protected function hasHomeField(Division $division, Game $game): bool {
 		return (Configure::read('feature.home_field') && (
 			($game->home_team_id && $division->teams[$game->home_team_id]->home_field_id) ||
 			($game->away_team_id && $division->teams[$game->away_team_id]->home_field_id)
 		));
 	}
 
-	protected function preferredFieldRatio(Division $division, Game $game) {
+	protected function preferredFieldRatio(Division $division, Game $game): float {
 		// If we're not using team preferences, that's like everyone
 		// has 100% of their games in a preferred region.
 		if (!Configure::read('feature.region_preference') && !Configure::read('feature.facility_preference')) {
@@ -617,10 +619,9 @@ abstract class LeagueType {
 	 * @param \App\Model\Entity\Division $division Entity containing the division data
 	 * @param \Cake\I18n\FrozenDate[] $dates The possible dates of the game
 	 * @param int $remaining The number of games still to be scheduled, including this one
-	 * @return int The id of the selected slot
 	 *
 	 */
-	protected function selectRandomGameslot(Division $division, $dates, $remaining = 1, $recursive = false) {
+	protected function selectRandomGameslot(Division $division, $dates, $remaining = 1, $recursive = false): GameSlot {
 		$slots = [];
 		foreach ($dates as $date) {
 			$slots = array_merge($slots, collection($division->game_slots)->match(['game_date' => $date])->toList());
@@ -672,9 +673,8 @@ abstract class LeagueType {
 	 * @param mixed $date The date of the game
 	 * @param mixed $game Entity with game details (e.g. home_team_id, away_team_id)
 	 * @param mixed $remaining The number of games still to be scheduled, including this one
-	 * @return mixed The id of the selected slot
 	 */
-	protected function selectWeightedGameslot(Division $division, $date, $game, $remaining) {
+	protected function selectWeightedGameslot(Division $division, $date, $game, $remaining): GameSlot {
 		$slots = [];
 
 		if (!empty($game->home_team_id)) {

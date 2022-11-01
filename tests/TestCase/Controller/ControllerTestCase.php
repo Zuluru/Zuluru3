@@ -11,6 +11,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Routing\Router;
 use Cake\TestSuite\IntegrationTestTrait;
 use Cake\TestSuite\TestCase;
+use Cake\TestSuite\TestEmailTransport;
 
 class ControllerTestCase extends TestCase {
 
@@ -20,10 +21,8 @@ class ControllerTestCase extends TestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		// Minimize menu building during most tests, to cut down on required fixtures and speed things along
 		Configure::write('feature.minimal_menus', true);
@@ -33,30 +32,34 @@ class ControllerTestCase extends TestCase {
 		}
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		Cache::clear(false, 'long_term');
 		FrozenTime::setTestNow();
 		FrozenDate::setTestNow();
 		parent::tearDown();
 	}
 
+	/**
+	 * @param $personId int|int[]
+	 * @return void
+	 */
 	protected function login($personId) {
 		// Clear the request stack: they pile up when running multiple requests from a single test
 		while (Router::popRequest()) {};
 
 		if (is_array($personId)) {
 			[$personId, $actAs] = $personId;
-			$actAs = TableRegistry::get('People')->get($actAs);
+			$actAs = TableRegistry::getTableLocator()->get('People')->get($actAs);
 		} else {
 			$actAs = null;
 		}
 
-		$person = TableRegistry::get('People')->get($personId);
+		$person = TableRegistry::getTableLocator()->get('People')->get($personId);
 		if (!$person->user_id) {
 			$this->fail('Cannot log in as a profile without a user record.');
 		}
 
-		$user_table = TableRegistry::get(Configure::read('Security.authModel', 'Users'));
+		$user_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authModel', 'Users'));
 		$user = $user_table->get($person->user_id);
 		if ($actAs) {
 			$user->person = $actAs;
@@ -65,7 +68,6 @@ class ControllerTestCase extends TestCase {
 			$user->person = $person;
 		}
 
-		Configure::write('test_emails', []);
 		$this->session(['Auth' => $user]);
 		UserCache::setIdentity(null);
 	}
@@ -78,7 +80,6 @@ class ControllerTestCase extends TestCase {
 		$this->_session = [];
 		$this->_cookie = [];
 		$this->_requestSession = null;
-		Configure::write('test_emails', []);
 		UserCache::setIdentity(null);
 	}
 
@@ -86,7 +87,8 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is GET access allowed for the given user to the given URL
 	 *
 	 * @param $url array
-	 * @param null $user User ID
+	 * @param $user int|int[] User ID
+	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertGetAsAccessOk($url, $user) {
 		$this->login($user);
@@ -99,7 +101,8 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is AJAX GET access allowed for the given user to the given URL
 	 *
 	 * @param $url array
-	 * @param null $user User ID
+	 * @param $user int|int[] User ID
+	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertGetAjaxAsAccessOk($url, $user) {
 		$this->login($user);
@@ -117,6 +120,7 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is GET access allowed for anonymous users to the given URL
 	 *
 	 * @param $url array
+	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertGetAnonymousAccessOk($url) {
 		$this->logout();
@@ -128,6 +132,7 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is AJAX GET access allowed for anonymous users to the given URL
 	 *
 	 * @param $url array
+	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertGetAjaxAnonymousAccessOk($url) {
 		$this->logout();
@@ -142,8 +147,9 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is POST access allowed for the given user to the given URL
 	 *
 	 * @param $url array
-	 * @param null $user User ID
+	 * @param $user int|int[] User ID
 	 * @param $data string|mixed[]
+	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertPostAsAccessOk($url, $user, $data) {
 		$this->login($user);
@@ -156,8 +162,9 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is AJAX POST access allowed for the given user to the given URL
 	 *
 	 * @param $url array
-	 * @param null $user User ID
+	 * @param $user int|int[] User ID
 	 * @param $data string|mixed[]
+	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertPostAjaxAsAccessOk($url, $user, $data = []) {
 		$this->login($user);
@@ -174,6 +181,7 @@ class ControllerTestCase extends TestCase {
 	 *
 	 * @param $url array
 	 * @param $data string|mixed[]
+	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertPostAnonymousAccessOk($url, $data) {
 		$this->logout();
@@ -186,6 +194,7 @@ class ControllerTestCase extends TestCase {
 	 *
 	 * @param $url array
 	 * @param $data string|mixed[]
+	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertPostAjaxAnonymousAccessOk($url, $data) {
 		$this->logout();
@@ -200,10 +209,11 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is no GET access allowed for the given user to the given URL
 	 *
 	 * @param $url array
-	 * @param null $user User ID
+	 * @param $user int|int[] User ID
 	 * @param $redirect string|array
 	 * @param $message string|boolean
 	 * @param $key string
+	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertGetAsAccessRedirect($url, $user, $redirect, $message = false, $key = 'Flash.flash.0.message') {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
@@ -215,7 +225,7 @@ class ControllerTestCase extends TestCase {
 		$this->assertRedirectEquals($redirect);
 
 		if ($message) {
-			if ($message[0] == '#') {
+			if ($message[0] === '#') {
 				$this->assertRegExp($message, $this->_requestSession->read($key));
 			} else {
 				$this->assertEquals($message, $this->_requestSession->read($key));
@@ -229,10 +239,11 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is no AJAX GET access allowed for the given user to the given URL
 	 *
 	 * @param $url array
-	 * @param null $user User ID
+	 * @param $user int|int[] User ID
 	 * @param $redirect string|array
 	 * @param $message string
 	 * @param $class string
+	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertGetAjaxAsAccessRedirect($url, $user, $redirect, $message = false, $class = 'info') {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
@@ -275,6 +286,7 @@ class ControllerTestCase extends TestCase {
 	 * @param $redirect string|array
 	 * @param $message string|boolean
 	 * @param $key string
+	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertGetAnonymousAccessRedirect($url, $redirect, $message = false, $key = 'Flash.flash.0.message') {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
@@ -286,7 +298,7 @@ class ControllerTestCase extends TestCase {
 		$this->assertRedirectEquals($redirect);
 
 		if ($message) {
-			if ($message[0] == '#') {
+			if ($message[0] === '#') {
 				$this->assertRegExp($message, $this->_requestSession->read($key));
 			} else {
 				$this->assertEquals($message, $this->_requestSession->read($key));
@@ -302,6 +314,7 @@ class ControllerTestCase extends TestCase {
 	 * @param $url array
 	 * @param $redirect string|array
 	 * @param $message string
+	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertGetAjaxAnonymousAccessRedirect($url, $redirect, $message = false, $class = 'info') {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
@@ -341,11 +354,12 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is no POST access allowed for the given user to the given URL
 	 *
 	 * @param $url array
-	 * @param null $user User ID
+	 * @param $user int|int[] User ID
 	 * @param $data string|mixed[]
 	 * @param $redirect string|array
 	 * @param $message string|boolean
 	 * @param $key string
+	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertPostAsAccessRedirect($url, $user, $data = [], $redirect, $message = false, $key = 'Flash.flash.0.message') {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
@@ -357,7 +371,7 @@ class ControllerTestCase extends TestCase {
 		$this->assertRedirectEquals($redirect);
 
 		if ($message) {
-			if ($message[0] == '#') {
+			if ($message[0] === '#') {
 				$this->assertRegExp($message, $this->_requestSession->read($key));
 			} else {
 				$this->assertEquals($message, $this->_requestSession->read($key));
@@ -371,10 +385,11 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is no AJAX POST access allowed for the given user to the given URL
 	 *
 	 * @param $url array
-	 * @param null $user User ID
+	 * @param $user int|int[] User ID
 	 * @param $data string|mixed[]
 	 * @param $redirect string|array
 	 * @param $message string
+	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertPostAjaxAsAccessRedirect($url, $user, $data = [], $redirect, $message = false, $class = 'info') {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
@@ -418,6 +433,7 @@ class ControllerTestCase extends TestCase {
 	 * @param $redirect string|array
 	 * @param $message string|boolean
 	 * @param $key string
+	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertPostAnonymousAccessRedirect($url, $data = [], $redirect, $message = false, $key = 'Flash.flash.0.message') {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
@@ -429,7 +445,7 @@ class ControllerTestCase extends TestCase {
 		$this->assertRedirectEquals($redirect);
 
 		if ($message) {
-			if ($message[0] == '#') {
+			if ($message[0] === '#') {
 				$this->assertRegExp($message, $this->_requestSession->read($key));
 			} else {
 				$this->assertEquals($message, $this->_requestSession->read($key));
@@ -446,6 +462,7 @@ class ControllerTestCase extends TestCase {
 	 * @param $data string|mixed[]
 	 * @param $redirect string|array
 	 * @param $message string
+	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertPostAjaxAnonymousAccessRedirect($url, $data = [], $redirect, $message = false, $class = 'info') {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
@@ -485,7 +502,8 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is no GET access allowed for the given user to the given URL
 	 *
 	 * @param $url array
-	 * @param null $user User ID
+	 * @param $user int|int[] User ID
+	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertGetAsAccessDenied($url, $user) {
 		$this->login($user);
@@ -501,7 +519,8 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is no AJAX GET access allowed for the given user to the given URL
 	 *
 	 * @param $url array
-	 * @param null $user User ID
+	 * @param $user int|int[] User ID
+	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertGetAjaxAsAccessDenied($url, $user) {
 		$this->login($user);
@@ -533,6 +552,7 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is no GET access allowed for anonymous users to the given URL
 	 *
 	 * @param $url array
+	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertGetAnonymousAccessDenied($url) {
 		$this->logout();
@@ -548,6 +568,7 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is no AJAX GET access allowed for anonymous users to the given URL
 	 *
 	 * @param $url array
+	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertGetAjaxAnonymousAccessDenied($url) {
 		$this->logout();
@@ -579,8 +600,9 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is no POST access allowed for the given user to the given URL
 	 *
 	 * @param $url array
-	 * @param null $user User ID
+	 * @param $user int|int[] User ID
 	 * @param $data string|mixed[]
+	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertPostAsAccessDenied($url, $user, $data = []) {
 		$this->login($user);
@@ -596,8 +618,9 @@ class ControllerTestCase extends TestCase {
 	 * Common helper to confirm that there is no AJAX POST access allowed for the given user to the given URL
 	 *
 	 * @param $url array
-	 * @param null $user User ID
+	 * @param $user int|int[] User ID
 	 * @param $data string|mixed[]
+	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertPostAjaxAsAccessDenied($url, $user, $data = []) {
 		$this->login($user);
@@ -630,6 +653,7 @@ class ControllerTestCase extends TestCase {
 	 *
 	 * @param $url array
 	 * @param $data string|mixed[]
+	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertPostAnonymousAccessDenied($url, $data = []) {
 		$this->logout();
@@ -646,6 +670,7 @@ class ControllerTestCase extends TestCase {
 	 *
 	 * @param $url array
 	 * @param $data string|mixed[]
+	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertPostAjaxAnonymousAccessDenied($url, $data = []) {
 		$this->logout();
@@ -671,6 +696,16 @@ class ControllerTestCase extends TestCase {
 		];
 		$this->assertResponseOk();
 		$this->assertEquals(json_encode($error, $this->_jsonOptions), (string)$this->_response->getBody());
+	}
+
+	protected function debugResponse(): void {
+		debug((string)$this->_response->getBody());
+	}
+
+	protected function debugEmails(): void {
+		foreach (TestEmailTransport::getEmails() as $email) {
+			debug($email->message());
+		}
 	}
 
 }

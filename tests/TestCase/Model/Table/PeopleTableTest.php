@@ -1,6 +1,11 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Model\Entity\Affiliate;
+use App\Model\Entity\Person;
+use App\Test\Factory\AffiliateFactory;
+use App\Test\Factory\PersonFactory;
+use Cake\Core\Configure;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\PeopleTable;
 
@@ -12,41 +17,23 @@ class PeopleTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\PeopleTable
+	 * @var PeopleTable
 	 */
 	public $PeopleTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-					'app.PeoplePeople',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('People') ? [] : ['className' => 'App\Model\Table\PeopleTable'];
-		$this->PeopleTable = TableRegistry::get('People', $config);
+		$config = TableRegistry::getTableLocator()->exists('People') ? [] : ['className' => PeopleTable::class];
+		$this->PeopleTable = TableRegistry::getTableLocator()->get('People', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->PeopleTable);
 
 		parent::tearDown();
@@ -54,164 +41,139 @@ class PeopleTableTest extends TableTestCase {
 
 	/**
 	 * Test validationCreate method
-	 *
-	 * @return void
 	 */
-	public function testValidationCreate() {
+	public function testValidationCreate(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test validationPlayer method
-	 *
-	 * @return void
 	 */
-	public function testValidationPlayer() {
+	public function testValidationPlayer(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test validationContact method
-	 *
-	 * @return void
 	 */
-	public function testValidationContact() {
+	public function testValidationContact(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test validationCoach method
-	 *
-	 * @return void
 	 */
-	public function testValidationCoach() {
+	public function testValidationCoach(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test beforeRules method
-	 *
-	 * @return void
 	 */
-	public function testBeforeRules() {
+	public function testBeforeRules(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test afterSave method
-	 *
-	 * @return void
 	 */
-	public function testAfterSave() {
+	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test CreatePersonRecord method
-	 *
-	 * @return void
 	 */
-	public function testCreatePersonRecord() {
+	public function testCreatePersonRecord(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test findDuplicates method
-	 *
-	 * @return void
 	 */
-	public function testFindDuplicates() {
-		$person = $this->PeopleTable->get(PERSON_ID_MANAGER, ['contain' => ['Affiliates']]);
-		$duplicates = $this->PeopleTable->find('duplicates', compact('person'))->toArray();
-		$this->assertEquals(1, count($duplicates));
-		$this->assertArrayHasKey(0, $duplicates);
-		$this->assertEquals(PERSON_ID_DUPLICATE, $duplicates[0]->id);
+	public function testFindDuplicates(): void {
+		// TODO: Use this, or extract into some central function, instead of the settings fixture
+		Configure::write([
+			'Security' => ['authModel' => 'Users'],
+			'profile' => [
+				'home_phone' => true,
+				'work_phone' => true,
+				'mobile_phone' => true,
+				'addr_street' => true,
+			]
+		]);
 
-		$person = $this->PeopleTable->get(PERSON_ID_PLAYER, ['contain' => ['Affiliates']]);
-		$duplicates = $this->PeopleTable->find('duplicates', compact('person'))->toArray();
+		/** @var Person[] $people */
+		$people = PersonFactory::make([
+			['first_name' => 'Aaron', 'last_name' => 'Allen'],
+			['first_name' => 'Aaron', 'last_name' => 'Allen'],
+			['first_name' => 'Carla', 'last_name' => 'Booth'],
+			['first_name' => 'Brenda', 'last_name' => 'Booth'],
+			['addr_street' => '123 Main St'],
+			['addr_street' => '123 Main St'],
+			['home_phone' => '(416)555-5555'],
+			['home_phone' => '(416)555-5555'],
+		])
+			->with('Affiliates', AffiliateFactory::make()->persist())
+			->persist();
+
+		$duplicates = $this->PeopleTable->find('duplicates', ['person' => $people[0]])->toArray();
+		$this->assertCount(1, $duplicates);
+		$this->assertArrayHasKey(0, $duplicates);
+		$this->assertEquals($people[1]->id, $duplicates[0]->id);
+
+		$duplicates = $this->PeopleTable->find('duplicates', ['person' => $people[2]])->toArray();
 		$this->assertEmpty($duplicates);
+
+		$duplicates = $this->PeopleTable->find('duplicates', ['person' => $people[4]])->toArray();
+		$this->assertCount(1, $duplicates);
+		$this->assertArrayHasKey(0, $duplicates);
+		$this->assertEquals($people[5]->id, $duplicates[0]->id);
+
+		$duplicates = $this->PeopleTable->find('duplicates', ['person' => $people[6]])->toArray();
+		$this->assertCount(1, $duplicates);
+		$this->assertArrayHasKey(0, $duplicates);
+		$this->assertEquals($people[7]->id, $duplicates[0]->id);
+
+		$this->markTestIncomplete('Test duplicate match on email addresses.');
 	}
 
 	/**
 	 * Test delete method
-	 *
-	 * @return void
 	 */
-	public function testDelete() {
+	public function testDelete(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test mergeList method
-	 *
-	 * @return void
 	 */
-	public function testMergeList() {
+	public function testMergeList(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test comparePerson method
-	 *
-	 * @return void
 	 */
-	public function testComparePerson() {
-		// TODO: Add more person records, to more completely test the sort options
-		$people = $this->PeopleTable->find()->toArray();
-		$this->assertEquals(13, count($people));
-		usort($people, ['App\Model\Table\PeopleTable', 'comparePerson']);
+	public function testComparePerson(): void {
+		/** @var Person[] $people */
+		$people = PersonFactory::make([
+			['first_name' => 'Aaron', 'last_name' => 'Allen'],
+			['first_name' => 'Amy', 'last_name' => 'Adamson'],
+			['first_name' => 'Carla', 'last_name' => 'Booth'],
+			['first_name' => 'Brenda', 'last_name' => 'Booth'],
+		])
+			->getEntities();
 
-		// Amy Administrator will be first
+		$this->assertCount(4, $people);
+		usort($people, [PeopleTable::class, 'comparePerson']);
 		$this->assertArrayHasKey(0, $people);
-		$this->assertEquals(PERSON_ID_ADMIN, $people[0]->id);
-
-		// Then Andy Affiliate
-		$this->assertArrayHasKey(1, $people);
-		$this->assertEquals(PERSON_ID_ANDY_SUB, $people[1]->id);
-
-		// Then Carl Captain
-		$this->assertArrayHasKey(2, $people);
-		$this->assertEquals(PERSON_ID_CAPTAIN4, $people[2]->id);
-
-		// Then Carolyn Captain
 		$this->assertArrayHasKey(3, $people);
-		$this->assertEquals(PERSON_ID_CAPTAIN3, $people[3]->id);
 
-		// Then Chuck Captain
-		$this->assertArrayHasKey(4, $people);
-		$this->assertEquals(PERSON_ID_CAPTAIN2, $people[4]->id);
-
-		// Then Crystal Captain
-		$this->assertArrayHasKey(5, $people);
-		$this->assertEquals(PERSON_ID_CAPTAIN, $people[5]->id);
-
-		// Then Carla Child
-		$this->assertArrayHasKey(6, $people);
-		$this->assertEquals(PERSON_ID_CHILD, $people[6]->id);
-
-		// Then Cindy Coordinator
-		$this->assertArrayHasKey(7, $people);
-		$this->assertEquals(PERSON_ID_COORDINATOR, $people[7]->id);
-
-		// Then Mary Duplicate
-		$this->assertArrayHasKey(8, $people);
-		$this->assertEquals(PERSON_ID_DUPLICATE, $people[8]->id);
-
-		// Then Irene Inactive
-		$this->assertArrayHasKey(9, $people);
-		$this->assertEquals(PERSON_ID_INACTIVE, $people[9]->id);
-
-		// Then Mary Manager
-		$this->assertArrayHasKey(10, $people);
-		$this->assertEquals(PERSON_ID_MANAGER, $people[10]->id);
-
-		// Then Pam Player
-		$this->assertArrayHasKey(11, $people);
-		$this->assertEquals(PERSON_ID_PLAYER, $people[11]->id);
-
-		// Finally Veronica Visitor
-		$this->assertArrayHasKey(12, $people);
-		$this->assertEquals(PERSON_ID_VISITOR, $people[12]->id);
+		$this->assertEquals('Amy', $people[0]->first_name);
+		$this->assertEquals('Aaron', $people[1]->first_name);
+		$this->assertEquals('Brenda', $people[2]->first_name);
+		$this->assertEquals('Carla', $people[3]->first_name);
 	}
 
 }

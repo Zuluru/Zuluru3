@@ -1,7 +1,12 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Model\Entity\Person;
+use App\Model\Entity\Skill;
+use App\Test\Factory\PersonFactory;
+use App\Test\Factory\SkillFactory;
 use Cake\Event\Event;
+use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\SkillsTable;
 
@@ -13,41 +18,23 @@ class SkillsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\SkillsTable
+	 * @var SkillsTable
 	 */
 	public $SkillsTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-					'app.Skills',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Skills') ? [] : ['className' => 'App\Model\Table\SkillsTable'];
-		$this->SkillsTable = TableRegistry::get('Skills', $config);
+		$config = TableRegistry::getTableLocator()->exists('Skills') ? [] : ['className' => SkillsTable::class];
+		$this->SkillsTable = TableRegistry::getTableLocator()->get('Skills', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->SkillsTable);
 
 		parent::tearDown();
@@ -55,10 +42,8 @@ class SkillsTableTest extends TableTestCase {
 
 	/**
 	 * Test beforeMarshal method
-	 *
-	 * @return void
 	 */
-	public function testBeforeMarshal() {
+	public function testBeforeMarshal(): void {
 		$data = new \ArrayObject([
 			'year_started' => ['year' => 2000, 'month' => 1, 'day' => 1],
 		]);
@@ -68,16 +53,36 @@ class SkillsTableTest extends TableTestCase {
 
 	/**
 	 * Test mergeList method
-	 *
-	 * @return void
 	 */
-	public function testMergeList() {
-		$original = $this->SkillsTable->People->get(PERSON_ID_MANAGER, ['contain' => ['Skills']]);
-		$this->assertEquals(1, count($original->skills));
-		$duplicate = $this->SkillsTable->People->get(PERSON_ID_DUPLICATE, ['contain' => ['Skills']]);
-		$this->assertEquals(2, count($duplicate->skills));
-		$skills = $this->SkillsTable->mergeList($original->skills, $duplicate->skills);
-		$this->assertEquals(2, count($skills));
+	public function testMergeList(): void {
+		/** @var Person $original */
+		$original = PersonFactory::make()->with('Skills', SkillFactory::make([
+			'sport' => 'ultimate',
+			'enabled' => 1,
+			'skill_level' => 6,
+			'year_started' => FrozenTime::now()->year - 3,
+		]))->getEntity();
+		$this->assertCount(1, $original->skills);
+
+		/** @var Skill[] $new */
+		$new = SkillFactory::make([
+			[
+				'sport' => 'ultimate',
+				'enabled' => 1,
+				'skill_level' => 7,
+				'year_started' => FrozenTime::now()->year - 3,
+			],
+			[
+				'sport' => 'baseball',
+				'enabled' => 1,
+				'skill_level' => 4,
+				'year_started' => FrozenTime::now()->year,
+			],
+		])->getEntities();
+		$this->assertCount(2, $new);
+
+		$skills = $this->SkillsTable->mergeList($original->skills, $new);
+		$this->assertCount(2, $skills);
 
 		$this->assertArrayHasKey(0, $skills);
 		$this->assertEquals('ultimate', $skills[0]->sport);

@@ -35,8 +35,10 @@ class AddPluginsTable extends AbstractMigration {
 			])
 			->create();
 
-		$migrations = new Migrations();
-		$migrations->seed(['seed' => 'PluginsSeed']);
+		if (!defined('PHPUNIT_TESTSUITE') || !PHPUNIT_TESTSUITE) {
+			$migrations = new Migrations();
+			$migrations->seed(['seed' => 'PluginsSeed']);
+		}
 
 		$settings = \Cake\ORM\TableRegistry::getTableLocator()->get('Settings');
 

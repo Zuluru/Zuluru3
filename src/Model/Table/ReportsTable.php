@@ -22,17 +22,16 @@ class ReportsTable extends AppTable {
 	 * @return void
 	 */
 	public function initialize(array $config) {
-        parent::initialize($config);
+		parent::initialize($config);
 
 		$this->setTable('reports');
 		$this->setDisplayField('id');
 		$this->setPrimaryKey('id');
 
-
 		$this->belongsTo('People', [
-            'foreignKey' => 'person_id',
-            'joinType' => 'INNER'
-        ]);
+			'foreignKey' => 'person_id',
+			'joinType' => 'INNER'
+		]);
 	}
 
 	/**

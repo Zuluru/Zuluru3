@@ -12,8 +12,8 @@ class ScheduleException extends Exception {
 	 */
 	protected $_messages = [];
 
-    public function __construct($message, $params = null) {
-        if (!$params) {
+	public function __construct($message, $params = null) {
+		if (!$params) {
 			$params = ['class' => 'info'];
 		}
 		if (is_array($message)) {
@@ -22,8 +22,8 @@ class ScheduleException extends Exception {
 		} else {
 			parent::__construct($message);
 		}
-        $this->_attributes = $params;
-    }
+		$this->_attributes = $params;
+	}
 
 	public function getMessages() {
 		if (!empty($this->_messages)) {

@@ -1,16 +1,29 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use App\Model\Entity\Facility;
+use App\Model\Entity\Team;
+use App\Test\Factory\AffiliateFactory;
+use App\Test\Factory\PersonFactory;
+use App\Test\Factory\TeamFactory;
+use App\Test\Factory\TeamsPersonFactory;
+use App\Test\Scenario\DiverseUsersScenario;
+use App\Test\Scenario\LeagueScenario;
+use App\Test\Scenario\LeagueWithFullScheduleScenario;
+use App\Test\Scenario\LeagueWithMinimalScheduleScenario;
 use Cake\Cache\Cache;
+use Cake\Chronos\ChronosInterface;
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
-use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * App\Controller\DivisionsController Test Case
  */
 class DivisionsControllerTest extends ControllerTestCase {
+
+	use ScenarioAwareTrait;
 
 	/**
 	 * Fixtures
@@ -18,921 +31,886 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.EventTypes',
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-					'app.PeoplePeople',
-					'app.Skills',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.UploadTypes',
-				'app.Uploads',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-						'app.TeamsPeople',
-					'app.DivisionsDays',
-					'app.GameSlots',
-						'app.DivisionsGameslots',
-					'app.DivisionsPeople',
-					'app.Pools',
-						'app.PoolsTeams',
-					'app.Games',
-						'app.GamesAllstars',
-						'app.ScoreEntries',
-						'app.SpiritEntries',
-						'app.Incidents',
-						'app.Stats',
-				'app.LeaguesStatTypes',
-			'app.Franchises',
-				'app.FranchisesTeams',
-			'app.Events',
-				'app.Prices',
-					'app.Registrations',
-						'app.Payments',
-				'app.Preregistrations',
-			'app.Badges',
-			'app.Settings',
-			'app.Waivers',
-				'app.WaiversPeople',
-		'app.I18n',
-		'app.Plugins',
+		'app.Days',
+		'app.Groups',
+		'app.RosterRoles',
+		'app.Settings',
 	];
 
 	/**
 	 * Test view method
-	 *
-	 * @return void
 	 */
-	public function testView() {
-		// readByPlayerId compares the open date to today, so we need to set "today" for this test to be reliable
-		FrozenDate::setTestNow(new FrozenDate('May 31'));
+	public function testView(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueScenario::class, ['affiliate' => $affiliate, 'coordinator' => $volunteer]);
+		$division = $league->divisions[0];
 
 		// Anyone is allowed to view the index; admins, managers and coordinators have extra options
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/divisions/edit?division=' . DIVISION_ID_MONDAY_LADDER);
-		$this->assertResponseContains('/divisions/delete?division=' . DIVISION_ID_MONDAY_LADDER);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => $division->id], $admin->id);
+		$this->assertResponseContains('/divisions/edit?division=' . $division->id);
+		$this->assertResponseContains('/divisions/delete?division=' . $division->id);
 
-		// readByPlayerId compares the open date to today, so we need to set "today" for this test to be reliable
-		FrozenDate::setTestNow(new FrozenDate('May 31'));
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => $division->id], $manager->id);
+		$this->assertResponseContains('/divisions/edit?division=' . $division->id);
+		$this->assertResponseContains('/divisions/delete?division=' . $division->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
-		$this->assertResponseContains('/divisions/edit?division=' . DIVISION_ID_MONDAY_LADDER);
-		$this->assertResponseContains('/divisions/delete?division=' . DIVISION_ID_MONDAY_LADDER);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => $division->id], $volunteer->id);
+		$this->assertResponseContains('/divisions/edit?division=' . $division->id);
+		$this->assertResponseNotContains('/divisions/delete?division=' . $division->id);
 
-		// readByPlayerId compares the open date to today, so we need to set "today" for this test to be reliable
-		FrozenDate::setTestNow(new FrozenDate('May 31'));
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => $division->id], $player->id);
+		$this->assertResponseNotContains('/divisions/edit?division=' . $division->id);
+		$this->assertResponseNotContains('/divisions/delete?division=' . $division->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
-		$this->assertResponseContains('/divisions/edit?division=' . DIVISION_ID_MONDAY_LADDER);
-		$this->assertResponseNotContains('/divisions/delete?division=' . DIVISION_ID_MONDAY_LADDER);
-
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
-		$this->assertResponseNotContains('/divisions/edit?division=' . DIVISION_ID_MONDAY_LADDER);
-		$this->assertResponseNotContains('/divisions/delete?division=' . DIVISION_ID_MONDAY_LADDER);
-
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
-		$this->assertResponseNotContains('/divisions/edit?division=' . DIVISION_ID_MONDAY_LADDER);
-		$this->assertResponseNotContains('/divisions/delete?division=' . DIVISION_ID_MONDAY_LADDER);
-		$this->assertGetAnonymousAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER]);
-		$this->assertResponseNotContains('/divisions/edit?division=' . DIVISION_ID_MONDAY_LADDER);
-		$this->assertResponseNotContains('/divisions/delete?division=' . DIVISION_ID_MONDAY_LADDER);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => $division->id]);
+		$this->assertResponseNotContains('/divisions/edit?division=' . $division->id);
+		$this->assertResponseNotContains('/divisions/delete?division=' . $division->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test tooltip method
-	 *
-	 * @return void
 	 */
-	public function testTooltip() {
+	public function testTooltip(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliate, 'coordinator' => $volunteer,
+		]);
+		$division = $league->divisions[0];
+
 		// Anyone is allowed to view division tooltips
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/divisions\\/view?division=' . DIVISION_ID_MONDAY_LADDER);
-		$this->assertResponseContains('/divisions\\/standings?division=' . DIVISION_ID_MONDAY_LADDER);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => $division->id], $admin->id);
+		$this->assertResponseContains('/divisions\\/standings?division=' . $division->id);
 
 		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => 0],
-			PERSON_ID_ADMIN, ['controller' => 'Leagues', 'action' => 'index'],
+			$admin->id, ['controller' => 'Leagues', 'action' => 'index'],
 			'Invalid division.');
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
-		$this->assertResponseContains('/divisions\\/view?division=' . DIVISION_ID_MONDAY_LADDER);
-		$this->assertResponseContains('/divisions\\/standings?division=' . DIVISION_ID_MONDAY_LADDER);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => $division->id], $manager->id);
+		$this->assertResponseContains('/divisions\\/standings?division=' . $division->id);
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
-		$this->assertResponseContains('/divisions\\/view?division=' . DIVISION_ID_MONDAY_LADDER);
-		$this->assertResponseContains('/divisions\\/standings?division=' . DIVISION_ID_MONDAY_LADDER);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => $division->id], $volunteer->id);
+		$this->assertResponseContains('/divisions\\/standings?division=' . $division->id);
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
-		$this->assertResponseContains('/divisions\\/view?division=' . DIVISION_ID_MONDAY_LADDER);
-		$this->assertResponseContains('/divisions\\/standings?division=' . DIVISION_ID_MONDAY_LADDER);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => $division->id], $player->id);
+		$this->assertResponseContains('/divisions\\/standings?division=' . $division->id);
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
-		$this->assertResponseContains('/divisions\\/view?division=' . DIVISION_ID_MONDAY_LADDER);
-		$this->assertResponseContains('/divisions\\/standings?division=' . DIVISION_ID_MONDAY_LADDER);
-
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
-		$this->assertResponseContains('/divisions\\/view?division=' . DIVISION_ID_MONDAY_LADDER);
-		$this->assertResponseContains('/divisions\\/standings?division=' . DIVISION_ID_MONDAY_LADDER);
-
-		$this->assertGetAjaxAnonymousAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => DIVISION_ID_MONDAY_LADDER]);
-		$this->assertResponseContains('/divisions\\/view?division=' . DIVISION_ID_MONDAY_LADDER);
-		$this->assertResponseContains('/divisions\\/standings?division=' . DIVISION_ID_MONDAY_LADDER);
+		$this->assertGetAjaxAnonymousAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => $division->id]);
+		$this->assertResponseContains('/divisions\\/standings?division=' . $division->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test stats method
-	 *
-	 * @return void
 	 */
-	public function testStats() {
-		// readByPlayerId compares the open date to today, so we need to set "today" for this test to be reliable
-		FrozenDate::setTestNow(new FrozenDate('May 31'));
+	public function testStats(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliate, 'coordinator' => $volunteer, 'league_details' => ['stat_tracking' => 'always'],
+		]);
+		$division = $league->divisions[0];
 
 		// Anyone is allowed to view the stats; admins, managers and coordinators have extra options
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/divisions/edit?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
-		$this->assertResponseContains('/divisions/delete?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => $division->id], $admin->id);
+		$this->assertResponseContains('/divisions/edit?division=' . $division->id);
+		$this->assertResponseContains('/divisions/delete?division=' . $division->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN], PERSON_ID_MANAGER);
-		$this->assertResponseContains('/divisions/edit?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
-		$this->assertResponseContains('/divisions/delete?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => $division->id], $manager->id);
+		$this->assertResponseContains('/divisions/edit?division=' . $division->id);
+		$this->assertResponseContains('/divisions/delete?division=' . $division->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN], PERSON_ID_COORDINATOR);
-		$this->assertResponseContains('/divisions/edit?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
-		$this->assertResponseNotContains('/divisions/delete?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => $division->id], $volunteer->id);
+		$this->assertResponseContains('/divisions/edit?division=' . $division->id);
+		$this->assertResponseNotContains('/divisions/delete?division=' . $division->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN], PERSON_ID_CAPTAIN);
-		$this->assertResponseNotContains('/divisions/edit?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
-		$this->assertResponseNotContains('/divisions/delete?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
-
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN], PERSON_ID_PLAYER);
-		$this->assertResponseNotContains('/divisions/edit?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
-		$this->assertResponseNotContains('/divisions/delete?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
-
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN], PERSON_ID_VISITOR);
-		$this->assertResponseNotContains('/divisions/edit?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
-		$this->assertResponseNotContains('/divisions/delete?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => $division->id], $player->id);
+		$this->assertResponseNotContains('/divisions/edit?division=' . $division->id);
+		$this->assertResponseNotContains('/divisions/delete?division=' . $division->id);
 
 		// Non-public sites, stats are not available unless logged in
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'stats', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'stats', 'division' => $division->id]);
 
 		// With public sites, anyone is allowed to view the stats
 		Cache::clear(false, 'long_term');
-		TableRegistry::get('Settings')->updateAll(['value' => true], ['category' => 'feature', 'name' => 'public']);
-		$this->assertGetAnonymousAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN]);
-		$this->assertResponseNotContains('/divisions/edit?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
-		$this->assertResponseNotContains('/divisions/delete?division=' . DIVISION_ID_THURSDAY_ROUND_ROBIN);
+		TableRegistry::getTableLocator()->get('Settings')->updateAll(['value' => true], ['category' => 'feature', 'name' => 'public']);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => $division->id]);
+		$this->assertResponseNotContains('/divisions/edit?division=' . $division->id);
+		$this->assertResponseNotContains('/divisions/delete?division=' . $division->id);
 	}
 
 	/**
-	 * Test add method as an admin
-	 *
-	 * @return void
+	 * Test add method
 	 */
-	public function testAddAsAdmin() {
+	public function testAdd(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+		/** @var \App\Model\Entity\League $league1 */
+		$league1 = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'day_id' => ChronosInterface::MONDAY,
+		]);
+		$division1 = $league1->divisions[0];
+
+		$league2 = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliates[1],
+		]);
+
 		// Admins are allowed to add new divisions anywhere
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_ADMIN);
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add', 'league' => LEAGUE_ID_SUNDAY_SUB], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add', 'league' => $league1->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add', 'league' => $league2->id], $admin->id);
 
 		// If a division ID is given, we will clone that division
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add', 'league' => LEAGUE_ID_MONDAY, 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#<input type="text" name="name"[^>]*value="Competitive"#ms');
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add', 'league' => $league1->id, 'division' => $division1->id], $admin->id);
+		$this->assertResponseRegExp('#<input type="text" name="name"[^>]*value="' . $division1->name . '"#ms');
 		$this->assertResponseContains('<input type="checkbox" name="days[_ids][]" value="1" checked="checked" id="days-ids-1">Monday');
 		$this->assertResponseNotContains('<input type="checkbox" name="days[_ids][]" value="2" checked="checked" id="days-ids-2">Tuesday');
 		$this->assertResponseNotContains('<input type="checkbox" name="days[_ids][]" value="3" checked="checked" id="days-ids-3">Wednesday');
 		$this->assertResponseNotContains('<input type="checkbox" name="days[_ids][]" value="4" checked="checked" id="days-ids-4">Thursday');
-	}
 
-	/**
-	 * Test add method as a manager
-	 *
-	 * @return void
-	 */
-	public function testAddAsManager() {
 		// Managers are allowed to add new divisions in their own affiliate, but not others
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_MANAGER);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add', 'league' => LEAGUE_ID_SUNDAY_SUB], PERSON_ID_MANAGER);
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add', 'league' => $league1->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add', 'league' => $league2->id], $manager->id);
 
-	/**
-	 * Test add method as others
-	 *
-	 * @return void
-	 */
-	public function testAddAsOthers() {
 		// Others are not allowed to add new divisions
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add', 'league' => LEAGUE_ID_MONDAY], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'add', 'league' => LEAGUE_ID_MONDAY]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add', 'league' => $league1->id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add', 'league' => $league1->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'add', 'league' => $league1->id]);
 	}
 
 	/**
-	 * Test edit method as an admin
-	 *
-	 * @return void
+	 * Test edit method
 	 */
-	public function testEditAsAdmin() {
+	public function testEdit(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+		/** @var \App\Model\Entity\League $league1 */
+		$league1 = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliates[0], 'coordinator' => [$volunteer], 'day_id' => ChronosInterface::MONDAY, 'divisions' => 2,
+		]);
+		[$division1a, $division1b] = $league1->divisions;
+
+		/** @var \App\Model\Entity\League $league2 */
+		$league2 = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliates[1],
+		]);
+		$division2 = $league2->divisions[0];
+
 		// Admins are allowed to edit divisions anywhere
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_SUNDAY_SUB], PERSON_ID_ADMIN);
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division1a->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division1b->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division2->id], $admin->id);
 
-	/**
-	 * Test edit method as a manager
-	 *
-	 * @return void
-	 */
-	public function testEditAsManager() {
 		// Managers are allowed to edit divisions in their own affiliate, but not others
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_SUNDAY_SUB], PERSON_ID_MANAGER);
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division1a->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division1b->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division2->id], $manager->id);
 
-	/**
-	 * Test edit method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testEditAsCoordinator() {
 		// Coordinators are allowed to edit their own divisions, but not others
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN], PERSON_ID_COORDINATOR);
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division1a->id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division1b->id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division2->id], $volunteer->id);
 
-	/**
-	 * Test edit method as others
-	 *
-	 * @return void
-	 */
-	public function testEditAsOthers() {
 		// Others are not allowed to edit divisions
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => DIVISION_ID_MONDAY_LADDER]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division1a->id], $player->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division1b->id], $player->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division2->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division1a->id]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division1b->id]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division2->id]);
 	}
 
 	/**
-	 * Test scheduling_fields method as an admin
-	 *
-	 * @return void
+	 * Test scheduling_fields method
 	 */
-	public function testSchedulingFieldsAsAdmin() {
+	public function testSchedulingFields(): void {
 		$this->enableCsrfToken();
+
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $admin->affiliates[0], 'coordinator' => $volunteer,
+		]);
 
 		// Admins are allowed to get the scheduling fields
 		$this->assertPostAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'scheduling_fields'],
-			PERSON_ID_ADMIN, ['schedule_type' => 'ratings_ladder']);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test scheduling_fields method as a manager
-	 *
-	 * @return void
-	 */
-	public function testSchedulingFieldsAsManager() {
-		$this->enableCsrfToken();
+			$admin->id, ['schedule_type' => 'ratings_ladder']);
 
 		// Managers are allowed to get the scheduling fields
 		$this->assertPostAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'scheduling_fields'],
-			PERSON_ID_MANAGER, ['schedule_type' => 'ratings_ladder']);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test scheduling_fields method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testSchedulingFieldsAsCoordinator() {
-		$this->enableCsrfToken();
+			$manager->id, ['schedule_type' => 'ratings_ladder']);
 
 		// Coordinators are allowed to get the scheduling fields
 		$this->assertPostAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'scheduling_fields'],
-			PERSON_ID_COORDINATOR, ['schedule_type' => 'ratings_ladder']);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test scheduling_fields method as others
-	 *
-	 * @return void
-	 */
-	public function testSchedulingFieldsAsOthers() {
-		$this->enableCsrfToken();
+			$volunteer->id, ['schedule_type' => 'ratings_ladder']);
 
 		// Others are not allowed to get the scheduling fields
 		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'scheduling_fields'],
-			PERSON_ID_CAPTAIN, ['schedule_type' => 'ratings_ladder']);
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'scheduling_fields'],
-			PERSON_ID_PLAYER, ['schedule_type' => 'ratings_ladder']);
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'scheduling_fields'],
-			PERSON_ID_VISITOR, ['schedule_type' => 'ratings_ladder']);
+			$player->id, ['schedule_type' => 'ratings_ladder']);
 		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'scheduling_fields'],
 			['schedule_type' => 'ratings_ladder']);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test add_coordinator method as an admin
-	 *
-	 * @return void
 	 */
-	public function testAddCoordinatorAsAdmin() {
+	public function testAddCoordinatorAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
+		$affiliate = $admin->affiliates[0];
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliate,
+		]);
+		$division = $league->divisions[0];
+
 		// Admins are allowed to add coordinators
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER2], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => $division->id], $admin->id);
 
 		// Try the search page
-		$this->assertPostAsAccessOk(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER2],
-			PERSON_ID_ADMIN, [
-				'affiliate_id' => '1',
+		$this->assertPostAsAccessOk(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => $division->id],
+			$admin->id, [
+				'affiliate_id' => $affiliate->id,
 				'first_name' => '',
-				'last_name' => 'coordinator',
+				'last_name' => $volunteer->last_name,
 				'sort' => 'last_name',
 				'direction' => 'asc',
 			]
 		);
-		$this->assertResponseContains('/divisions/add_coordinator?person=' . PERSON_ID_COORDINATOR . '&amp;division=' . DIVISION_ID_MONDAY_LADDER2);
+		$this->assertResponseContains('/divisions/add_coordinator?person=' . $volunteer->id . '&amp;division=' . $division->id);
 
 		// Try to add the coordinator
-		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'add_coordinator', 'person' => PERSON_ID_COORDINATOR, 'division' => DIVISION_ID_MONDAY_LADDER2],
-			PERSON_ID_ADMIN, [], ['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER2],
-			'Added Cindy Coordinator as coordinator.');
+		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'add_coordinator', 'person' => $volunteer->id, 'division' => $division->id],
+			$admin->id, [], ['controller' => 'Leagues', 'action' => 'view', 'league' => $league->id],
+			"Added {$volunteer->full_name} as coordinator.");
 
 		// Make sure they were added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER2], PERSON_ID_ADMIN);
-		$this->assertResponseContains('/divisions/remove_coordinator?division=' . DIVISION_ID_MONDAY_LADDER2 . '&amp;person=' . PERSON_ID_COORDINATOR);
-	}
-
-	/**
-	 * Test add_coordinator method as a manager
-	 *
-	 * @return void
-	 */
-	public function testAddCoordinatorAsManager() {
-		// Managers are allowed to add coordinators
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER2], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => $division->id], $admin->id);
+		$this->assertResponseContains('/divisions/remove_coordinator?division=' . $division->id . '&amp;person=' . $volunteer->id);
 	}
 
 	/**
 	 * Test add_coordinator method as others
-	 *
-	 * @return void
 	 */
-	public function testAddCoordinatorAsOthers() {
+	public function testAddCoordinatorAsOthers(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliate,
+		]);
+		$division = $league->divisions[0];
+
+		// Managers are allowed to add coordinators
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => $division->id], $manager->id);
+
 		// Others are not allowed to add coordinators
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => $division->id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => $division->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => $division->id]);
 	}
 
 	/**
 	 * Test remove_coordinator method as an admin
-	 *
-	 * @return void
 	 */
-	public function testRemoveCoordinatorAsAdmin() {
+	public function testRemoveCoordinatorAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
+		$affiliate = $admin->affiliates[0];
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliate, 'coordinator' => $volunteer,
+		]);
+		$division = $league->divisions[0];
+
 		// Admins are allowed to remove coordinators
-		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER, 'person' => PERSON_ID_COORDINATOR],
-			PERSON_ID_ADMIN, [], ['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER],
+		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => $division->id, 'person' => $volunteer->id],
+			$admin->id, [], ['controller' => 'Leagues', 'action' => 'view', 'league' => $league->id],
 			'Successfully removed coordinator.');
 	}
 
 	/**
 	 * Test remove_coordinator method as a manager
-	 *
-	 * @return void
 	 */
-	public function testRemoveCoordinatorAsManager() {
+	public function testRemoveCoordinatorAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'volunteer']);
+		$affiliate = $admin->affiliates[0];
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliate, 'coordinator' => $volunteer,
+		]);
+		$division = $league->divisions[0];
+
 		// Managers are allowed to remove coordinators
-		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER, 'person' => PERSON_ID_COORDINATOR],
-			PERSON_ID_MANAGER, [], ['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_LADDER],
+		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => $division->id, 'person' => $volunteer->id],
+			$manager->id, [], ['controller' => 'Leagues', 'action' => 'view', 'league' => $league->id],
 			'Successfully removed coordinator.');
 	}
 
 	/**
 	 * Test remove_coordinator method as others
-	 *
-	 * @return void
 	 */
-	public function testRemoveCoordinatorAsOthers() {
+	public function testRemoveCoordinatorAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
+		$affiliate = $admin->affiliates[0];
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliate, 'coordinator' => $volunteer,
+		]);
+		$division = $league->divisions[0];
+
 		// Others are not allowed to remove coordinators
-		$this->assertPostAsAccessDenied(['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER, 'person' => PERSON_ID_COORDINATOR],
-			PERSON_ID_COORDINATOR);
-		$this->assertPostAsAccessDenied(['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER, 'person' => PERSON_ID_COORDINATOR],
-			PERSON_ID_CAPTAIN);
-		$this->assertPostAsAccessDenied(['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER, 'person' => PERSON_ID_COORDINATOR],
-			PERSON_ID_PLAYER);
-		$this->assertPostAsAccessDenied(['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER, 'person' => PERSON_ID_COORDINATOR],
-			PERSON_ID_VISITOR);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => DIVISION_ID_MONDAY_LADDER, 'person' => PERSON_ID_COORDINATOR]);
+		$this->assertPostAsAccessDenied(['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => $division->id, 'person' => $volunteer->id],
+			$volunteer->id);
+		$this->assertPostAsAccessDenied(['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => $division->id, 'person' => $volunteer->id],
+			$player->id);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => $division->id, 'person' => $volunteer->id]);
 	}
 
 	/**
-	 * Test add_teams method as an admin
-	 *
-	 * @return void
+	 * Test add_teams method
 	 */
-	public function testAddTeamsAsAdmin() {
+	public function testAddTeams(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliate, 'coordinator' => $volunteer,
+		]);
+		$division = $league->divisions[0];
+
 		// Admins are allowed to add teams
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add_teams', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add_teams', 'division' => $division->id], $admin->id);
 
-	/**
-	 * Test add_teams method as a manager
-	 *
-	 * @return void
-	 */
-	public function testAddTeamsAsManager() {
 		// Managers are allowed to add teams
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add_teams', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add_teams', 'division' => $division->id], $manager->id);
 
-	/**
-	 * Test add_teams method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testAddTeamsAsCoordinator() {
 		// Coordinators are allowed to add teams
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add_teams', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add_teams', 'division' => $division->id], $volunteer->id);
 
-	/**
-	 * Test add_teams method as others
-	 *
-	 * @return void
-	 */
-	public function testAddTeamsAsOthers() {
 		// Captains are not allowed to add teams
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add_teams', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add_teams', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add_teams', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'add_teams', 'division' => DIVISION_ID_MONDAY_LADDER]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add_teams', 'division' => $division->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'add_teams', 'division' => $division->id]);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test ratings method as an admin
-	 *
-	 * @return void
+	 * Test ratings method
 	 */
-	public function testRatingsAsAdmin() {
-		// Admins are allowed to ratings
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'ratings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
-		$this->markTestIncomplete('Not implemented yet.');
+	public function testRatings(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliate, 'coordinator' => $volunteer,
+		]);
+		$division = $league->divisions[0];
+		TeamFactory::make()->with('Divisions', $division)->persist();
+
+		// Admins are allowed to change ratings
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'ratings', 'division' => $division->id], $admin->id);
+
+		// Managers are allowed to change ratings
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'ratings', 'division' => $division->id], $manager->id);
+
+		// Coordinators are allowed to change ratings
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'ratings', 'division' => $division->id], $volunteer->id);
+
+		// Others are not allowed to change ratings
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'ratings', 'division' => $division->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'ratings', 'division' => $division->id]);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
-	 * Test ratings method as a manager
-	 *
-	 * @return void
+	 * Test seeds method
 	 */
-	public function testRatingsAsManager() {
-		// Managers are allowed to ratings
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'ratings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+	public function testSeeds(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliate = $admin->affiliates[0];
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliate, 'coordinator' => $volunteer,
+		]);
+		$division = $league->divisions[0];
+		TeamFactory::make()->with('Divisions', $division)->persist();
 
-	/**
-	 * Test ratings method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testRatingsAsCoordinator() {
-		// Coordinators are allowed to ratings
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'ratings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
-
-	/**
-	 * Test ratings method as others
-	 *
-	 * @return void
-	 */
-	public function testRatingsAsOthers() {
-		// Others are not allowed to ratings
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'ratings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'ratings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'ratings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'ratings', 'division' => DIVISION_ID_MONDAY_LADDER]);
-	}
-
-	/**
-	 * Test seeds method as an admin
-	 *
-	 * @return void
-	 */
-	public function testSeedsAsAdmin() {
 		// Admins are allowed to update seeds
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'seeds', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'seeds', 'division' => $division->id], $admin->id);
 
-	/**
-	 * Test seeds method as a manager
-	 *
-	 * @return void
-	 */
-	public function testSeedsAsManager() {
 		// Managers are allowed to update seeds
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'seeds', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'seeds', 'division' => $division->id], $manager->id);
 
-	/**
-	 * Test seeds method as a coordinator
-	 *
-	 * @return void
-	 */
-	public function testSeedsAsCoordinator() {
 		// Coordinators are allowed to update seeds
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'seeds', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
-		$this->markTestIncomplete('Not implemented yet.');
-	}
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'seeds', 'division' => $division->id], $volunteer->id);
 
-	/**
-	 * Test seeds method as others
-	 *
-	 * @return void
-	 */
-	public function testSeedsAsOthers() {
 		// Others are not allowed to update seeds
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'seeds', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'seeds', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'seeds', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'seeds', 'division' => DIVISION_ID_MONDAY_LADDER]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'seeds', 'division' => $division->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'seeds', 'division' => $division->id]);
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test delete method as an admin
-	 *
-	 * @return void
 	 */
-	public function testDeleteAsAdmin() {
+	public function testDeleteAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		// Admins are allowed to delete divisions
-		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete', 'division' => DIVISION_ID_MONDAY_LADDER2],
-			PERSON_ID_ADMIN, [], ['controller' => 'Leagues', 'action' => 'index'],
-			'The division has been deleted.');
+		$affiliates = AffiliateFactory::make(2)->persist();
+		$admin = PersonFactory::make()->admin()->with('Affiliates', $affiliates)->persist();
+		/** @var \App\Model\Entity\League $league1 */
+		$league1 = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliates[0], 'divisions' => 2,
+		]);
+		[$division1a, $division1b] = $league1->divisions;
+		TeamFactory::make()->with('Divisions', $division1a)->persist();
 
-		// But not the last division in a league
-		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete', 'division' => DIVISION_ID_FRIDAY],
-			PERSON_ID_ADMIN, [], ['controller' => 'Leagues', 'action' => 'index'],
+		/** @var \App\Model\Entity\League $league2 */
+		$league2 = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliates[1],
+		]);
+		$division2 = $league2->divisions[0];
+
+		// Cannot delete divisions with dependencies
+		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete', 'division' => $division1a->id],
+			$admin->id, [], ['controller' => 'Leagues', 'action' => 'index'],
+			'#The following records reference this division, so it cannot be deleted#');
+
+		// Or the last division in a league
+		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete', 'division' => $division2->id],
+			$admin->id, [], ['controller' => 'Leagues', 'action' => 'index'],
 			'You cannot delete the only division in a league.');
 
-		// And not ones with dependencies
-		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete', 'division' => DIVISION_ID_MONDAY_LADDER],
-			PERSON_ID_ADMIN, [], ['controller' => 'Leagues', 'action' => 'index'],
-			'#The following records reference this division, so it cannot be deleted#');
+		// But admins are allowed to delete divisions otherwise
+		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete', 'division' => $division1b->id],
+			$admin->id, [], ['controller' => 'Leagues', 'action' => 'index'],
+			'The division has been deleted.');
 	}
 
 	/**
 	 * Test delete method as a manager
-	 *
-	 * @return void
 	 */
-	public function testDeleteAsManager() {
+	public function testDeleteAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
+		$affiliates = $admin->affiliates;
+		/** @var \App\Model\Entity\League $league1 */
+		$league1 = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliates[0], 'divisions' => 2,
+		]);
+		$division1 = $league1->divisions[0];
+
+		/** @var \App\Model\Entity\League $league2 */
+		$league2 = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliates[1],
+		]);
+		$division2 = $league2->divisions[0];
+
 		// Managers are allowed to delete divisions in their affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete', 'division' => DIVISION_ID_MONDAY_LADDER2],
-			PERSON_ID_MANAGER, [], ['controller' => 'Leagues', 'action' => 'index'],
+		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete', 'division' => $division1->id],
+			$manager->id, [], ['controller' => 'Leagues', 'action' => 'index'],
 			'The division has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete', 'division' => DIVISION_ID_SUNDAY_SUB],
-			PERSON_ID_MANAGER);
+		$this->assertPostAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete', 'division' => $division2->id],
+			$manager->id);
 	}
 
 	/**
 	 * Test delete method as others
-	 *
-	 * @return void
 	 */
-	public function testDeleteAsOthers() {
+	public function testDeleteAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
+		$affiliates = $admin->affiliates;
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueScenario::class, [
+			'affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'divisions' => 2,
+		]);
+		$division = $league->divisions[0];
+
 		// Others are not allowed to delete divisions
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
-		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'delete', 'division' => DIVISION_ID_MONDAY_LADDER]);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete', 'division' => $division->id], $volunteer->id);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete', 'division' => $division->id], $player->id);
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'delete', 'division' => $division->id]);
+	}
+
+	private function gameRegex(int $game_id, string $time, Facility $facility, int $field, Team $home, Team $away, string $status, bool $edit, bool $submit = false): string {
+		static $base = null;
+		if (!$base) {
+			$base = Configure::read('App.base');
+		}
+		$home_icon = strtolower($home->shirt_colour);
+		$away_icon = strtolower($away->shirt_colour);
+
+		$game_str = "<td><a[^>]*href=\"$base/games/view\?game={$game_id}\"[^>]*>{$time}</a></td>";
+		$facility_str = "<td><a[^>]*href=\"$base/facilities/view\?facility={$facility->id}\"[^>]*>{$facility->code} {$field}</a></td>";
+		$home_str = "<td><a[^>]*href=\"$base/teams/view\?team={$home->id}\"[^>]*>{$home->name}</a> <span[^>]*title=\"Shirt Colour: {$home->shirt_colour}\"[^>]*><img src=\"$base/img/shirts/{$home_icon}.png\?\d+\"[^>]*></span></td>";
+		$away_str = "<td><a[^>]*href=\"$base/teams/view\?team={$away->id}\"[^>]*>{$away->name}</a> <span[^>]*title=\"Shirt Colour: {$away->shirt_colour}\"[^>]*><img src=\"$base/img/shirts/{$away_icon}.png\?\d+\"[^>]*></span></td>";
+		$actions_str = '';
+		if ($edit) {
+			$actions_str = "<td class=\"actions\">{$status}\s*<span class=\"actions\"><a href=\"$base/games/edit\?game={$game_id}[^>]*\"";
+		} else if ($submit) {
+			$actions_str = "<td class=\"actions\">{$status}\s*<span class=\"actions\"><a href=\"$base/games/submit_score\?game={$game_id}[^>]*\"";
+		}
+
+		return "#$game_str\s*$facility_str\s*$home_str\s*$away_str\s*$actions_str#ms";
 	}
 
 	/**
 	 * Test schedule method as an admin
-	 *
-	 * @return void
 	 */
-	public function testScheduleAsAdmin() {
-		// Submit and attendance links will depend on the date, so we need to set "today" for this test to be reliable
-		FrozenDate::setTestNow((new FrozenDate('first Monday of June'))->addDays(22));
-		FrozenTime::setTestNow((new FrozenTime('first Monday of June'))->addDays(22));
+	public function testScheduleAsAdmin(): void {
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
+		$affiliates = $admin->affiliates;
+
+		// Some schedule-based things will return different results if run before game time on the current date than
+		// after game time. This will ensure we get a day number that's not the current day of the week, but matches
+		// the possible values for ChronosInterface.
+		$day = date('w') + 1;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true, 'playoffs' => true, 'day_id' => $day]);
+		[$season, $playoffs] = $league->divisions;
+		$games = $season->games;
+		$facility = $games[0]->game_slot->field->facility_record;
+		[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $season->teams;
 
 		// Admins get the schedule with edit links
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $admin->id);
 
-		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '"[^>]*>7:00PM-9:00PM</a></td>';
-		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt Colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt Colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
-		$actions = '<td class="actions">17 - 5\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/edit\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '[^>]*"';
-		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
+		// First week of games
+		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $red, $yellow, '17 - 5', true));
+		$this->assertResponseRegExp($this->gameRegex($games[1]->id, '7:00PM-9:00PM', $facility, 2, $green, $blue, 'cancelled', true));
+		$this->assertResponseRegExp($this->gameRegex($games[2]->id, '9:00PM-11:00PM', $facility, 1, $orange, $purple, '12 - 17', true));
+		$this->assertResponseRegExp($this->gameRegex($games[3]->id, '9:00PM-11:00PM', $facility, 2, $black, $white, '15 - 15', true));
 
-		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_CANCELLED . '"[^>]*>7:00PM-9:00PM</a></td>';
-		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 2</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_GREEN . '"[^>]*>Green</a> <span[^>]*title="Shirt Colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BLUE . '"[^>]*>Blue</a> <span[^>]*title="Shirt Colour: Blue"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/blue.png\?\d+"[^>]*></span></td>';
-		$actions = '<td class="actions">cancelled\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/edit\?game=' . GAME_ID_LADDER_CANCELLED . '[^>]*"';
-		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
+		// Second week
+		$this->assertResponseRegExp($this->gameRegex($games[4]->id, '7:00PM-9:00PM', $facility, 1, $red, $green, '0 - 6\s*\(default\)', true));
+		$this->assertResponseRegExp($this->gameRegex($games[5]->id, '7:00PM-9:00PM', $facility, 2, $yellow, $blue, '6 - 0\s*\(default\)', true));
+		$this->assertResponseRegExp($this->gameRegex($games[6]->id, '9:00PM-11:00PM', $facility, 1, $orange, $white, '17 - 12', true));
+		$this->assertResponseRegExp($this->gameRegex($games[7]->id, '9:00PM-11:00PM', $facility, 2, $black, $purple, '15 - 15', true));
 
-		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_HOME_DEFAULT . '"[^>]*>7:00PM-9:00PM</a></td>';
-		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt Colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_GREEN . '"[^>]*>Green</a> <span[^>]*title="Shirt Colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
-		$actions = '<td class="actions">0 - 6\s*\(default\)\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/edit\?game=' . GAME_ID_LADDER_HOME_DEFAULT . '[^>]*"';
-		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
+		// Third week
+		$this->assertResponseRegExp($this->gameRegex($games[8]->id, '7:00PM-9:00PM', $facility, 1, $red, $blue, '17 - 12\s*\(unofficial\)', true));
+		$this->assertResponseRegExp($this->gameRegex($games[9]->id, '7:00PM-9:00PM', $facility, 2, $green, $yellow, 'score mismatch', true));
+		$this->assertResponseRegExp($this->gameRegex($games[10]->id, '9:00PM-11:00PM', $facility, 1, $white, $purple, 'not entered', true));
+		$this->assertResponseRegExp($this->gameRegex($games[11]->id, '9:00PM-11:00PM', $facility, 2, $black, $orange, 'not entered', true));
 
-		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_AWAY_DEFAULT . '"[^>]*>7:00PM-9:00PM</a></td>';
-		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 2</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt Colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BLUE . '"[^>]*>Blue</a> <span[^>]*title="Shirt Colour: Blue"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/blue.png\?\d+"[^>]*></span></td>';
-		$actions = '<td class="actions">6 - 0\s*\(default\)\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/edit\?game=' . GAME_ID_LADDER_AWAY_DEFAULT . '[^>]*"';
-		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
+		// Week 4 games aren't published, but admins can see them
+		$this->assertResponseRegExp($this->gameRegex($games[12]->id, '7:00PM-9:00PM', $facility, 1, $red, $green, '', true));
+		$this->assertResponseRegExp($this->gameRegex($games[13]->id, '7:00PM-9:00PM', $facility, 2, $yellow, $blue, '', true));
 
-		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_MATCHED_SCORES . '"[^>]*>7:00PM-9:00PM</a></td>';
-		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt Colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BLUE . '"[^>]*>Blue</a> <span[^>]*title="Shirt Colour: Blue"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/blue.png\?\d+"[^>]*></span></td>';
-		$actions = '<td class="actions">17 - 12\s*\(unofficial\)\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/edit\?game=' . GAME_ID_LADDER_MATCHED_SCORES . '[^>]*"';
-		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
-
-		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_MISMATCHED_SCORES . '"[^>]*>7:00PM-9:00PM</a></td>';
-		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 2</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_GREEN . '"[^>]*>Green</a> <span[^>]*title="Shirt Colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt Colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
-		$actions = '<td class="actions">score mismatch\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/edit\?game=' . GAME_ID_LADDER_MISMATCHED_SCORES . '[^>]*"';
-		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
-
-		// Confirm that there are appropriate links for unfinalized weeks
-		$date = (new FrozenDate('third Monday of June'))->toDateString();
-		$this->assertResponseContains('/divisions/schedule?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;edit_date=' . $date);
-		$this->assertResponseContains('/divisions/slots?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date);
-		$this->assertResponseContains('/schedules/delete?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date);
-		$this->assertResponseContains('/schedules/reschedule?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date);
-		$this->assertResponseContains('/schedules/unpublish?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date);
+		// Confirm that there are appropriate links for weeks with games that aren't yet finalized
+		$date = FrozenDate::now()->next($day)->subWeeks(1)->toDateString();
+		$this->assertResponseContains('/divisions/schedule?division=' . $season->id . '&amp;edit_date=' . $date);
+		$this->assertResponseContains('/divisions/slots?division=' . $season->id . '&amp;date=' . $date);
+		$this->assertResponseContains('/schedules/delete?division=' . $season->id . '&amp;date=' . $date);
+		$this->assertResponseContains('/schedules/reschedule?division=' . $season->id . '&amp;date=' . $date);
+		$this->assertResponseContains('/schedules/unpublish?division=' . $season->id . '&amp;date=' . $date);
 
 		// Admins don't get to submit scores or do attendance
 		$this->assertResponseNotContains('/games/submit_score');
 		$this->assertResponseNotContains('/games/attendance');
 
 		// Check for initialize dependencies link where appropriate
-		$date = (new FrozenDate('first Monday of September'))->toDateString();
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_PLAYOFF], PERSON_ID_ADMIN);
-		$this->assertResponseRegExp('#/divisions/initialize_dependencies\?division=' . DIVISION_ID_MONDAY_PLAYOFF . '&amp;date=' . $date . '[^>]*\"#ms');
-		$this->assertResponseRegExp('#/divisions/initialize_dependencies\?division=' . DIVISION_ID_MONDAY_PLAYOFF . '&amp;date=' . $date . '&amp;reset=1[^>]*\"#ms');
+		$date = FrozenDate::now()->next($day)->subWeeks(3)->addWeeks(9);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $playoffs->id], $admin->id);
+		$this->assertResponseRegExp('#/divisions/initialize_dependencies\?division=' . $playoffs->id . '&amp;date=' . $date . '[^>]*\"#ms');
+		$this->assertResponseRegExp('#/divisions/initialize_dependencies\?division=' . $playoffs->id . '&amp;date=' . $date . '&amp;reset=1[^>]*\"#ms');
 
 		// Admins are allowed to see schedules from any affiliate
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_SUNDAY_SUB], PERSON_ID_ADMIN);
-
-		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_SUB . '"[^>]*>7:00PM-8:30PM</a></td>';
-		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_CENTRAL_TECH . '"[^>]*>CTS 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BEARS . '"[^>]*>Bears</a> <span[^>]*title="Shirt Colour: Brown"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/brown.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_LIONS . '"[^>]*>Lions</a> <span[^>]*title="Shirt Colour: Gold"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/default.png\?\d+"[^>]*></span></td>';
-		$actions = '<td class="actions">not entered\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/edit\?game=' . GAME_ID_SUB . '[^>]*"';
-		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
-
-		// Tuesday week 2 game isn't published, but admins can see it
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN], PERSON_ID_ADMIN);
-		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_1 . '"[^>]*>7:00PM-9:00PM</a></td>';
-		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_MAPLES . '"[^>]*>Maples</a> <span[^>]*title="Shirt Colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_OAKS . '"[^>]*>Oaks</a> <span[^>]*title="Shirt Colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
-		$actions = '<td class="actions">not entered\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/edit\?game=' . GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_1 . '[^>]*"';
-		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
-
-		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_2 . '"[^>]*>7:00PM-9:00PM</a></td>';
-		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_OAKS . '"[^>]*>Oaks</a> <span[^>]*title="Shirt Colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_MAPLES . '"[^>]*>Maples</a> <span[^>]*title="Shirt Colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
-		$actions = '<td class="actions">not entered\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/edit\?game=' . GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_2 . '[^>]*"';
-		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $affiliates[1], 'coordinator' => $volunteer]);
+		$season = $league->divisions[0];
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $admin->id);
+		$games = $season->games;
+		$facility = $games[0]->game_slot->field->facility_record;
+		[$bears, $lions] = $season->teams;
+		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $bears, $lions, 'not entered', true));
 	}
 
 	/**
 	 * Test schedule method as a manager
-	 *
-	 * @return void
 	 */
-	public function testScheduleAsManager() {
-		// Submit and attendance links will depend on the date, so we need to set "today" for this test to be reliable
-		FrozenDate::setTestNow((new FrozenDate('first Monday of June'))->addDays(22));
-		FrozenTime::setTestNow((new FrozenTime('first Monday of June'))->addDays(22));
+	public function testScheduleAsManager(): void {
+		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'volunteer']);
+		$affiliates = $admin->affiliates;
+
+		$day = date('w') + 1;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true, 'playoffs' => true, 'day_id' => $day]);
+		[$season, $playoffs] = $league->divisions;
+		$games = $season->games;
+		$facility = $games[0]->game_slot->field->facility_record;
+		[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $season->teams;
 
 		// Managers get the schedule with edit links
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $manager->id);
 
-		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '"[^>]*>7:00PM-9:00PM</a></td>';
-		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt Colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt Colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
-		$actions = '<td class="actions">17 - 5\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/edit\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '[^>]*"';
-		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
+		// First week of games
+		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $red, $yellow, '17 - 5', true));
+		$this->assertResponseRegExp($this->gameRegex($games[1]->id, '7:00PM-9:00PM', $facility, 2, $green, $blue, 'cancelled', true));
+		$this->assertResponseRegExp($this->gameRegex($games[2]->id, '9:00PM-11:00PM', $facility, 1, $orange, $purple, '12 - 17', true));
+		$this->assertResponseRegExp($this->gameRegex($games[3]->id, '9:00PM-11:00PM', $facility, 2, $black, $white, '15 - 15', true));
 
-		// Confirm that there are appropriate links for unfinalized weeks
-		$date = (new FrozenDate('third Monday of June'))->toDateString();
-		$this->assertResponseContains('/divisions/schedule?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;edit_date=' . $date);
-		$this->assertResponseContains('/divisions/slots?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date);
-		$this->assertResponseContains('/schedules/delete?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date);
-		$this->assertResponseContains('/schedules/reschedule?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date);
-		$this->assertResponseContains('/schedules/unpublish?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date);
+		// Second week
+		$this->assertResponseRegExp($this->gameRegex($games[4]->id, '7:00PM-9:00PM', $facility, 1, $red, $green, '0 - 6\s*\(default\)', true));
+		$this->assertResponseRegExp($this->gameRegex($games[5]->id, '7:00PM-9:00PM', $facility, 2, $yellow, $blue, '6 - 0\s*\(default\)', true));
+		$this->assertResponseRegExp($this->gameRegex($games[6]->id, '9:00PM-11:00PM', $facility, 1, $orange, $white, '17 - 12', true));
+		$this->assertResponseRegExp($this->gameRegex($games[7]->id, '9:00PM-11:00PM', $facility, 2, $black, $purple, '15 - 15', true));
+
+		// Third week
+		$this->assertResponseRegExp($this->gameRegex($games[8]->id, '7:00PM-9:00PM', $facility, 1, $red, $blue, '17 - 12\s*\(unofficial\)', true));
+		$this->assertResponseRegExp($this->gameRegex($games[9]->id, '7:00PM-9:00PM', $facility, 2, $green, $yellow, 'score mismatch', true));
+		$this->assertResponseRegExp($this->gameRegex($games[10]->id, '9:00PM-11:00PM', $facility, 1, $white, $purple, 'not entered', true));
+		$this->assertResponseRegExp($this->gameRegex($games[11]->id, '9:00PM-11:00PM', $facility, 2, $black, $orange, 'not entered', true));
+
+		// Week 4 games aren't published, but managers can see them
+		$this->assertResponseRegExp($this->gameRegex($games[12]->id, '7:00PM-9:00PM', $facility, 1, $red, $green, '', true));
+		$this->assertResponseRegExp($this->gameRegex($games[13]->id, '7:00PM-9:00PM', $facility, 2, $yellow, $blue, '', true));
+
+		// Confirm that there are appropriate links for weeks with games that aren't yet finalized
+		$date = FrozenDate::now()->next($day)->subWeeks(1)->toDateString();
+		$this->assertResponseContains('/divisions/schedule?division=' . $season->id . '&amp;edit_date=' . $date);
+		$this->assertResponseContains('/divisions/slots?division=' . $season->id . '&amp;date=' . $date);
+		$this->assertResponseContains('/schedules/delete?division=' . $season->id . '&amp;date=' . $date);
+		$this->assertResponseContains('/schedules/reschedule?division=' . $season->id . '&amp;date=' . $date);
+		$this->assertResponseContains('/schedules/unpublish?division=' . $season->id . '&amp;date=' . $date);
 
 		// Managers don't get to submit scores or do attendance
 		$this->assertResponseNotContains('/games/submit_score');
 		$this->assertResponseNotContains('/games/attendance');
 
+		// Check for initialize dependencies link where appropriate
+		$date = FrozenDate::now()->next($day)->subWeeks(3)->addWeeks(9);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $playoffs->id], $manager->id);
+		$this->assertResponseRegExp('#/divisions/initialize_dependencies\?division=' . $playoffs->id . '&amp;date=' . $date . '[^>]*\"#ms');
+		$this->assertResponseRegExp('#/divisions/initialize_dependencies\?division=' . $playoffs->id . '&amp;date=' . $date . '&amp;reset=1[^>]*\"#ms');
+
 		// Managers are allowed to see schedules from any affiliate, but no edit links
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_SUNDAY_SUB], PERSON_ID_MANAGER);
-
-		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_SUB . '"[^>]*>7:00PM-8:30PM</a></td>';
-		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_CENTRAL_TECH . '"[^>]*>CTS 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BEARS . '"[^>]*>Bears</a> <span[^>]*title="Shirt Colour: Brown"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/brown.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_LIONS . '"[^>]*>Lions</a> <span[^>]*title="Shirt Colour: Gold"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/default.png\?\d+"[^>]*></span></td>';
-		$actions = '<td class="actions">not entered\s*<span class="actions"></span></td>';
-		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $affiliates[1], 'coordinator' => $volunteer]);
+		$season = $league->divisions[0];
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $manager->id);
+		$games = $season->games;
+		$facility = $games[0]->game_slot->field->facility_record;
+		[$bears, $lions] = $season->teams;
+		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $bears, $lions, 'not entered', false));
 		$this->assertResponseNotContains('/games/edit');
-
-		// Tuesday week 2 game isn't published, but Managers are allowed to see it
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN], PERSON_ID_MANAGER);
-		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_1 . '"[^>]*>7:00PM-9:00PM</a></td>';
-		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_MAPLES . '"[^>]*>Maples</a> <span[^>]*title="Shirt Colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_OAKS . '"[^>]*>Oaks</a> <span[^>]*title="Shirt Colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
-		$actions = '<td class="actions">not entered\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/edit\?game=' . GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_1 . '[^>]*"';
-		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
-
-		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_2 . '"[^>]*>7:00PM-9:00PM</a></td>';
-		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_OAKS . '"[^>]*>Oaks</a> <span[^>]*title="Shirt Colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_MAPLES . '"[^>]*>Maples</a> <span[^>]*title="Shirt Colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
-		$actions = '<td class="actions">not entered\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/edit\?game=' . GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_2 . '[^>]*"';
-		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
 	}
 
 	/**
 	 * Test schedule method as a coordinator
-	 *
-	 * @return void
 	 */
-	public function testScheduleAsCoordinator() {
-		// Submit and attendance links will depend on the date, so we need to set "today" for this test to be reliable
-		FrozenDate::setTestNow((new FrozenDate('first Monday of June'))->addDays(22));
-		FrozenTime::setTestNow((new FrozenTime('first Monday of June'))->addDays(22));
+	public function testScheduleAsCoordinator(): void {
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
+		$affiliates = $admin->affiliates;
+
+		$day = date('w') + 1;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true, 'playoffs' => true, 'day_id' => $day]);
+		[$season, $playoffs] = $league->divisions;
+		$games = $season->games;
+		$facility = $games[0]->game_slot->field->facility_record;
+		[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $season->teams;
 
 		// Coordinators get the schedule with edit links
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $volunteer->id);
 
-		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '"[^>]*>7:00PM-9:00PM</a></td>';
-		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt Colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt Colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
-		$actions = '<td class="actions">17 - 5\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/edit\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '[^>]*"';
-		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
+		// First week of games
+		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $red, $yellow, '17 - 5', true));
+		$this->assertResponseRegExp($this->gameRegex($games[1]->id, '7:00PM-9:00PM', $facility, 2, $green, $blue, 'cancelled', true));
+		$this->assertResponseRegExp($this->gameRegex($games[2]->id, '9:00PM-11:00PM', $facility, 1, $orange, $purple, '12 - 17', true));
+		$this->assertResponseRegExp($this->gameRegex($games[3]->id, '9:00PM-11:00PM', $facility, 2, $black, $white, '15 - 15', true));
 
-		// Confirm that there are appropriate links for unfinalized weeks
-		$date = (new FrozenDate('third Monday of June'))->toDateString();
-		$this->assertResponseContains('/divisions/schedule?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;edit_date=' . $date);
-		$this->assertResponseContains('/divisions/slots?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date);
-		$this->assertResponseContains('/schedules/delete?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date);
-		$this->assertResponseContains('/schedules/reschedule?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date);
-		$this->assertResponseContains('/schedules/unpublish?division=' . DIVISION_ID_MONDAY_LADDER . '&amp;date=' . $date);
+		// Second week
+		$this->assertResponseRegExp($this->gameRegex($games[4]->id, '7:00PM-9:00PM', $facility, 1, $red, $green, '0 - 6\s*\(default\)', true));
+		$this->assertResponseRegExp($this->gameRegex($games[5]->id, '7:00PM-9:00PM', $facility, 2, $yellow, $blue, '6 - 0\s*\(default\)', true));
+		$this->assertResponseRegExp($this->gameRegex($games[6]->id, '9:00PM-11:00PM', $facility, 1, $orange, $white, '17 - 12', true));
+		$this->assertResponseRegExp($this->gameRegex($games[7]->id, '9:00PM-11:00PM', $facility, 2, $black, $purple, '15 - 15', true));
+
+		// Third week
+		$this->assertResponseRegExp($this->gameRegex($games[8]->id, '7:00PM-9:00PM', $facility, 1, $red, $blue, '17 - 12\s*\(unofficial\)', true));
+		$this->assertResponseRegExp($this->gameRegex($games[9]->id, '7:00PM-9:00PM', $facility, 2, $green, $yellow, 'score mismatch', true));
+		$this->assertResponseRegExp($this->gameRegex($games[10]->id, '9:00PM-11:00PM', $facility, 1, $white, $purple, 'not entered', true));
+		$this->assertResponseRegExp($this->gameRegex($games[11]->id, '9:00PM-11:00PM', $facility, 2, $black, $orange, 'not entered', true));
+
+		// Week 4 games aren't published, but coordinators can see them
+		$this->assertResponseRegExp($this->gameRegex($games[12]->id, '7:00PM-9:00PM', $facility, 1, $red, $green, '', true));
+		$this->assertResponseRegExp($this->gameRegex($games[13]->id, '7:00PM-9:00PM', $facility, 2, $yellow, $blue, '', true));
+
+		// Confirm that there are appropriate links for weeks with games that aren't yet finalized
+		$date = FrozenDate::now()->next($day)->subWeeks(1)->toDateString();
+		$this->assertResponseContains('/divisions/schedule?division=' . $season->id . '&amp;edit_date=' . $date);
+		$this->assertResponseContains('/divisions/slots?division=' . $season->id . '&amp;date=' . $date);
+		$this->assertResponseContains('/schedules/delete?division=' . $season->id . '&amp;date=' . $date);
+		$this->assertResponseContains('/schedules/reschedule?division=' . $season->id . '&amp;date=' . $date);
+		$this->assertResponseContains('/schedules/unpublish?division=' . $season->id . '&amp;date=' . $date);
 
 		// Coordinators don't get to submit scores or do attendance
 		$this->assertResponseNotContains('/games/submit_score');
 		$this->assertResponseNotContains('/games/attendance');
 
+		// Check for initialize dependencies link where appropriate
+		$date = FrozenDate::now()->next($day)->subWeeks(3)->addWeeks(9);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $playoffs->id], $volunteer->id);
+		$this->assertResponseRegExp('#/divisions/initialize_dependencies\?division=' . $playoffs->id . '&amp;date=' . $date . '[^>]*\"#ms');
+		$this->assertResponseRegExp('#/divisions/initialize_dependencies\?division=' . $playoffs->id . '&amp;date=' . $date . '&amp;reset=1[^>]*\"#ms');
+
 		// Coordinators are allowed to see schedules from any division, but no edit links, and can't see unpublished games there
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_TUESDAY_ROUND_ROBIN], PERSON_ID_COORDINATOR);
-		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_1 . '"[^>]*>7:00PM-9:00PM</a></td>';
-		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_MAPLES . '"[^>]*>Maples</a> <span[^>]*title="Shirt Colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_OAKS . '"[^>]*>Oaks</a> <span[^>]*title="Shirt Colour: Green"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/green.png\?\d+"[^>]*></span></td>';
-		$actions = '<td class="actions">not entered\s*<span class="actions"></span></td>';
-		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0]]);
+		$season = $league->divisions[0];
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $volunteer->id);
+		$games = $season->games;
+		$facility = $games[0]->game_slot->field->facility_record;
+		[$red, $yellow] = $season->teams;
+		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $red, $yellow, '17 - 5', false));
 		$this->assertResponseNotContains('/games/edit');
-		$this->assertResponseNotContains('/games/view?game=' . GAME_ID_TUESDAY_ROUND_ROBIN_WEEK_2);
+		$this->assertResponseNotContains("/games/view?game={$games[12]->id}");
+		$this->assertResponseNotContains("/games/view?game={$games[13]->id}");
+
+		// Coordinators are allowed to see schedules from any affiliate, but no edit links
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $affiliates[1]]);
+		$season = $league->divisions[0];
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $volunteer->id);
+		$games = $season->games;
+		$facility = $games[0]->game_slot->field->facility_record;
+		[$bears, $lions] = $season->teams;
+		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $bears, $lions, 'not entered', false));
+		$this->assertResponseNotContains('/games/edit');
 	}
 
 	/**
 	 * Test schedule method as a captain
-	 *
-	 * @return void
 	 */
-	public function testScheduleAsCaptain() {
-		// Submit and attendance links will depend on the date, so we need to set "today" for this test to be reliable
-		FrozenDate::setTestNow((new FrozenDate('first Monday of June'))->addDays(22));
+	public function testScheduleAsCaptain(): void {
+		[$admin, $volunteer, $captain] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true, 'playoffs' => true]);
+		$season = $league->divisions[0];
+		$games = $season->games;
+		$facility = $games[0]->game_slot->field->facility_record;
+		[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $season->teams;
+
+		TeamsPersonFactory::make(['person_id' => $captain->id, 'team_id' => $red->id, 'role' => 'captain'])
+			->persist();
 
 		// Captains get the schedule with score submission, attendance and game note links where appropriate
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $captain->id);
 
-		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '"[^>]*>7:00PM-9:00PM</a></td>';
-		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt Colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt Colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
-		$actions = '<td class="actions">17 - 5\s*<span class="actions">';
-		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
-		$this->assertResponseNotRegExp('#<a href="' . Configure::read('App.base') . '/games/submit_score\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '[^>0-9]*"#ms');
+		// First week of games
+		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $red, $yellow, '17 - 5', false));
+		$this->assertResponseNotRegExp('#<a href="' . Configure::read('App.base') . '/games/submit_score\?game={$games[0]->id}[^>0-9]*"#ms');
 		$this->assertResponseNotContains('stats');
+		$this->assertResponseRegExp($this->gameRegex($games[1]->id, '7:00PM-9:00PM', $facility, 2, $green, $blue, 'cancelled', false));
+		$this->assertResponseRegExp($this->gameRegex($games[2]->id, '9:00PM-11:00PM', $facility, 1, $orange, $purple, '12 - 17', false));
+		$this->assertResponseRegExp($this->gameRegex($games[3]->id, '9:00PM-11:00PM', $facility, 2, $black, $white, '15 - 15', false));
 
-		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_MATCHED_SCORES . '"[^>]*>7:00PM-9:00PM</a></td>';
-		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt Colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BLUE . '"[^>]*>Blue</a> <span[^>]*title="Shirt Colour: Blue"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/blue.png\?\d+"[^>]*></span></td>';
-		$actions = '<td class="actions">17 - 12\s*\(unofficial\)\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/submit_score\?game=' . GAME_ID_LADDER_MATCHED_SCORES . '[^>]*"';
-		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
+		// TODO: Check attendance and note links
+
+		// Third week, can submit the score
+		$this->assertResponseRegExp($this->gameRegex($games[8]->id, '7:00PM-9:00PM', $facility, 1, $red, $blue, '17 - 12\s*\(unofficial\)', false, true));
+
+		// Week 4 games aren't published, so captains can't see them
+		$this->assertResponseNotContains("/games/view?game={$games[12]->id}");
+		$this->assertResponseNotContains("/games/view?game={$games[13]->id}");
 
 		// Captains don't get to edit games or do anything with schedules
 		$this->assertResponseNotContains('/games/edit');
 		$this->assertResponseNotRegExp('#/divisions/schedule\?division=\d+&amp;edit_date=#ms');
 		$this->assertResponseNotContains('/divisions/slots');
+		$this->assertResponseNotContains('/divisions/initialize_dependencies');
 		$this->assertResponseNotContains('/schedules/delete');
 		$this->assertResponseNotContains('/schedules/reschedule');
 		$this->assertResponseNotContains('/schedules/unpublish');
 
-		// Captains are allowed to see schedules from any division, but no edit or submit links
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_THURSDAY_ROUND_ROBIN], PERSON_ID_CAPTAIN);
+		// Captains are allowed to see schedules from any division
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0]]);
+		$season = $league->divisions[0];
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $captain->id);
+		$games = $season->games;
+		$facility = $games[0]->game_slot->field->facility_record;
+		[$red, $yellow] = $season->teams;
+		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $red, $yellow, '17 - 5', false));
+		$this->assertResponseNotContains('/games/submit_score');
 
-		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_THURSDAY_ROUND_ROBIN . '"[^>]*>7:00PM-9:00PM</a></td>';
-		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_CHICKADEES . '"[^>]*>Chickadees</a> <span[^>]*title="Shirt Colour: White"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/white.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_SPARROWS . '"[^>]*>Sparrows</a> <span[^>]*title="Shirt Colour: Brown"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/brown.png\?\d+"[^>]*></span></td>';
-		$actions = '<td class="actions">15 - 14\s*<span class="actions"><a href="' . Configure::read('App.base') . '/games/submit_stats\?game=' . GAME_ID_THURSDAY_ROUND_ROBIN . '&amp;team=' . TEAM_ID_CHICKADEES . '">';
-		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
-		$this->assertResponseNotContains('/games/edit');
+		// Captains are allowed to see schedules from any affiliate
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $affiliates[1]]);
+		$season = $league->divisions[0];
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $captain->id);
+		$games = $season->games;
+		$facility = $games[0]->game_slot->field->facility_record;
+		[$bears, $lions] = $season->teams;
+		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $bears, $lions, 'not entered', false));
 		$this->assertResponseNotContains('/games/submit_score');
 	}
 
 	/**
 	 * Test schedule method as a player
-	 *
-	 * @return void
 	 */
-	public function testScheduleAsPlayer() {
-		// Submit and attendance links will depend on the date, so we need to set "today" for this test to be reliable
-		FrozenDate::setTestNow((new FrozenDate('first Monday of June'))->addDays(22));
-		FrozenTime::setTestNow((new FrozenTime('first Monday of June'))->addDays(22));
+	public function testScheduleAsPlayer(): void {
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true, 'playoffs' => true]);
+		$season = $league->divisions[0];
+		$games = $season->games;
+		$facility = $games[0]->game_slot->field->facility_record;
+		[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $season->teams;
+
+		TeamsPersonFactory::make(['person_id' => $player->id, 'team_id' => $red->id])
+			->persist();
 
 		// Players get the schedule with attendance and game note links where appropriate
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $player->id);
 
-		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '"[^>]*>7:00PM-9:00PM</a></td>';
-		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt Colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt Colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
-		$actions = '<td class="actions">17 - 5\s*<span class="actions">';
-		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
+		// First week of games
+		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $red, $yellow, '17 - 5', false));
+		$this->assertResponseNotRegExp('#<a href="' . Configure::read('App.base') . '/games/submit_score\?game={$games[0]->id}[^>0-9]*"#ms');
+		$this->assertResponseRegExp($this->gameRegex($games[1]->id, '7:00PM-9:00PM', $facility, 2, $green, $blue, 'cancelled', false));
+		$this->assertResponseRegExp($this->gameRegex($games[2]->id, '9:00PM-11:00PM', $facility, 1, $orange, $purple, '12 - 17', false));
+		$this->assertResponseRegExp($this->gameRegex($games[3]->id, '9:00PM-11:00PM', $facility, 2, $black, $white, '15 - 15', false));
 
-		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_MATCHED_SCORES . '"[^>]*>7:00PM-9:00PM</a></td>';
-		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt Colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BLUE . '"[^>]*>Blue</a> <span[^>]*title="Shirt Colour: Blue"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/blue.png\?\d+"[^>]*></span></td>';
-		$actions = '<td class="actions">17 - 12\s*\(unofficial\)\s*<span class="actions">';
-		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
+		// TODO: Check attendance and note links
 
-		// TODO: Check a future game
+		// Week 4 games aren't published, so players can't see them
+		$this->assertResponseNotContains("/games/view?game={$games[12]->id}");
+		$this->assertResponseNotContains("/games/view?game={$games[13]->id}");
 
 		// Players don't get to edit games, submit scores or do anything with schedules
 		$this->assertResponseNotContains('/games/edit');
@@ -940,6 +918,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertResponseNotContains('/games/submit_stats');
 		$this->assertResponseNotRegExp('#/divisions/schedule\?division=\d+&amp;edit_date=#ms');
 		$this->assertResponseNotContains('/divisions/slots');
+		$this->assertResponseNotContains('/divisions/initialize_dependencies');
 		$this->assertResponseNotContains('/schedules/delete');
 		$this->assertResponseNotContains('/schedules/reschedule');
 		$this->assertResponseNotContains('/schedules/unpublish');
@@ -947,37 +926,41 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test schedule method as someone else
-	 *
-	 * @return void
 	 */
-	public function testScheduleAsVisitor() {
-		// Submit and attendance links will depend on the date, so we need to set "today" for this test to be reliable
-		FrozenDate::setTestNow((new FrozenDate('first Monday of June'))->addDays(22));
-		FrozenTime::setTestNow((new FrozenTime('first Monday of June'))->addDays(22));
+	public function testScheduleAsVisitor(): void {
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
+		$affiliates = $admin->affiliates;
+
+		// Intentionally not adding the volunteer on this league, so that they have zero extra permissions
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'scores' => true, 'playoffs' => true]);
+		$season = $league->divisions[0];
+		$games = $season->games;
+		$facility = $games[0]->game_slot->field->facility_record;
+		[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $season->teams;
 
 		// Visitors get the schedule with minimal links
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $volunteer->id);
 
-		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '"[^>]*>7:00PM-9:00PM</a></td>';
-		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt Colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt Colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
-		$actions = '<td class="actions">17 - 5\s*<span class="actions">';
-		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
+		// First week of games
+		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $red, $yellow, '17 - 5', false));
+		$this->assertResponseNotRegExp('#<a href="' . Configure::read('App.base') . '/games/submit_score\?game={$games[0]->id}[^>0-9]*"#ms');
+		$this->assertResponseRegExp($this->gameRegex($games[1]->id, '7:00PM-9:00PM', $facility, 2, $green, $blue, 'cancelled', false));
+		$this->assertResponseRegExp($this->gameRegex($games[2]->id, '9:00PM-11:00PM', $facility, 1, $orange, $purple, '12 - 17', false));
+		$this->assertResponseRegExp($this->gameRegex($games[3]->id, '9:00PM-11:00PM', $facility, 2, $black, $white, '15 - 15', false));
 
-		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_MATCHED_SCORES . '"[^>]*>7:00PM-9:00PM</a></td>';
-		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt Colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BLUE . '"[^>]*>Blue</a> <span[^>]*title="Shirt Colour: Blue"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/blue.png\?\d+"[^>]*></span></td>';
-		$actions = '<td class="actions">17 - 12\s*\(unofficial\)\s*<span class="actions">';
-		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
+		// Week 4 games aren't published, so visitors can't see them
+		$this->assertResponseNotContains("/games/view?game={$games[12]->id}");
+		$this->assertResponseNotContains("/games/view?game={$games[13]->id}");
 
 		// Visitors don't get to edit games, submit scores, do attendance, or anything with schedules
 		$this->assertResponseNotContains('/games/edit');
 		$this->assertResponseNotContains('/games/submit_score');
+		$this->assertResponseNotContains('/games/submit_stats');
 		$this->assertResponseNotContains('/games/attendance');
 		$this->assertResponseNotRegExp('#/divisions/schedule\?division=\d+&amp;edit_date=#ms');
 		$this->assertResponseNotContains('/divisions/slots');
+		$this->assertResponseNotContains('/divisions/initialize_dependencies');
 		$this->assertResponseNotContains('/schedules/delete');
 		$this->assertResponseNotContains('/schedules/reschedule');
 		$this->assertResponseNotContains('/schedules/unpublish');
@@ -985,37 +968,40 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test schedule method without being logged in
-	 *
-	 * @return void
 	 */
-	public function testScheduleAsAnonymous() {
-		// Submit and attendance links will depend on the date, so we need to set "today" for this test to be reliable
-		FrozenDate::setTestNow((new FrozenDate('first Monday of June'))->addDays(22));
-		FrozenTime::setTestNow((new FrozenTime('first Monday of June'))->addDays(22));
+	public function testScheduleAsAnonymous(): void {
+		$affiliate = AffiliateFactory::make()->persist();
+
+		// Intentionally not adding the volunteer on this league, so that they have zero extra permissions
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliate, 'scores' => true, 'playoffs' => true]);
+		$season = $league->divisions[0];
+		$games = $season->games;
+		$facility = $games[0]->game_slot->field->facility_record;
+		[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $season->teams;
 
 		// Anonymous browsers get the schedule with minimal links
-		$this->assertGetAnonymousAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_LADDER]);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id]);
 
-		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_FINALIZED_HOME_WIN . '"[^>]*>7:00PM-9:00PM</a></td>';
-		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt Colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_YELLOW . '"[^>]*>Yellow</a> <span[^>]*title="Shirt Colour: Yellow"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/yellow.png\?\d+"[^>]*></span></td>';
-		$actions = '<td class="actions">17 - 5\s*<span class="actions">';
-		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
+		// First week of games
+		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $red, $yellow, '17 - 5', false));
+		$this->assertResponseNotRegExp('#<a href="' . Configure::read('App.base') . '/games/submit_score\?game={$games[0]->id}[^>0-9]*"#ms');
+		$this->assertResponseRegExp($this->gameRegex($games[1]->id, '7:00PM-9:00PM', $facility, 2, $green, $blue, 'cancelled', false));
+		$this->assertResponseRegExp($this->gameRegex($games[2]->id, '9:00PM-11:00PM', $facility, 1, $orange, $purple, '12 - 17', false));
+		$this->assertResponseRegExp($this->gameRegex($games[3]->id, '9:00PM-11:00PM', $facility, 2, $black, $white, '15 - 15', false));
 
-		$game = '<td><a[^>]*href="' . Configure::read('App.base') . '/games/view\?game=' . GAME_ID_LADDER_MATCHED_SCORES . '"[^>]*>7:00PM-9:00PM</a></td>';
-		$field = '<td><a[^>]*href="' . Configure::read('App.base') . '/facilities/view\?facility=' . FACILITY_ID_SUNNYBROOK . '"[^>]*>SUN Field Hockey 1</a></td>';
-		$home = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_RED . '"[^>]*>Red</a> <span[^>]*title="Shirt Colour: Red"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/red.png\?\d+"[^>]*></span></td>';
-		$away = '<td><a[^>]*href="' . Configure::read('App.base') . '/teams/view\?team=' . TEAM_ID_BLUE . '"[^>]*>Blue</a> <span[^>]*title="Shirt Colour: Blue"[^>]*><img src="' . Configure::read('App.base') . '/img/shirts/blue.png\?\d+"[^>]*></span></td>';
-		$actions = '<td class="actions">17 - 12\s*\(unofficial\)\s*<span class="actions">';
-		$this->assertResponseRegExp("#$game\s*$field\s*$home\s*$away\s*$actions#ms");
+		// Week 4 games aren't published, so anonymous users can't see them
+		$this->assertResponseNotContains("/games/view?game={$games[12]->id}");
+		$this->assertResponseNotContains("/games/view?game={$games[13]->id}");
 
 		// Anonymous browsers don't get any actions
 		$this->assertResponseNotContains('/games/edit');
 		$this->assertResponseNotContains('/games/submit_score');
+		$this->assertResponseNotContains('/games/submit_stats');
 		$this->assertResponseNotContains('/games/attendance');
 		$this->assertResponseNotRegExp('#/divisions/schedule\?division=\d+&amp;edit_date=#ms');
 		$this->assertResponseNotContains('/divisions/slots');
+		$this->assertResponseNotContains('/divisions/initialize_dependencies');
 		$this->assertResponseNotContains('/schedules/delete');
 		$this->assertResponseNotContains('/schedules/reschedule');
 		$this->assertResponseNotContains('/schedules/unpublish');
@@ -1023,418 +1009,512 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 	/**
 	 * Test standings method
-	 *
-	 * @return void
 	 */
-	public function testStandings() {
+	public function testStandings(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer]);
+		$division = $league->divisions[0];
+		[$red] = $division->teams;
+
+		TeamsPersonFactory::make(['person_id' => $player->id, 'team_id' => $red->id])
+			->persist();
+
 		// Anyone logged in is allowed to view standings
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'standings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'standings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'standings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'standings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'standings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'standings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessOk(['controller' => 'Divisions', 'action' => 'standings', 'division' => DIVISION_ID_MONDAY_LADDER]);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'standings', 'division' => $division->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'standings', 'division' => $division->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'standings', 'division' => $division->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'standings', 'division' => $division->id], $player->id);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Divisions', 'action' => 'standings', 'division' => $division->id]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test scores method
-	 *
-	 * @return void
 	 */
-	public function testScores() {
+	public function testScores(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true]);
+		$division = $league->divisions[0];
+		[$red] = $division->teams;
+
+		TeamsPersonFactory::make(['person_id' => $player->id, 'team_id' => $red->id])
+			->persist();
+
 		// Anyone logged in is allowed to view scores
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'scores', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'scores', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'scores', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'scores', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'scores', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'scores', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'scores', 'division' => DIVISION_ID_MONDAY_LADDER]);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'scores', 'division' => $division->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'scores', 'division' => $division->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'scores', 'division' => $division->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'scores', 'division' => $division->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'scores', 'division' => $division->id]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test fields method
-	 *
-	 * @return void
 	 */
-	public function testFields() {
+	public function testFields(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer]);
+		$division = $league->divisions[0];
+
 		// Admins are allowed to view the fields report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'fields', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'fields', 'division' => $division->id], $admin->id);
 
 		// Managers are allowed to view the fields report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'fields', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'fields', 'division' => $division->id], $manager->id);
 
 		// Coordinators are allowed to view the fields report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'fields', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'fields', 'division' => $division->id], $volunteer->id);
 
 		// Others are not allowed to view the fields report
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'fields', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'fields', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'fields', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'fields', 'division' => DIVISION_ID_MONDAY_LADDER]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'fields', 'division' => $division->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'fields', 'division' => $division->id]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test slots method
-	 *
-	 * @return void
 	 */
-	public function testSlots() {
+	public function testSlots(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer]);
+		$division = $league->divisions[0];
+
 		// Admins are allowed to view the slots report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'slots', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'slots', 'division' => $division->id], $admin->id);
 
 		// Managers are allowed to view the slots report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'slots', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'slots', 'division' => $division->id], $manager->id);
 
 		// Coordinators are allowed to view the slots report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'slots', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'slots', 'division' => $division->id], $volunteer->id);
 
 		// Others are not allowed to view the slots report
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'slots', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'slots', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'slots', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'slots', 'division' => DIVISION_ID_MONDAY_LADDER]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'slots', 'division' => $division->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'slots', 'division' => $division->id]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test status method
-	 *
-	 * @return void
 	 */
-	public function testStatus() {
+	public function testStatus(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer]);
+		$division = $league->divisions[0];
+
 		// Admins are allowed to view the status report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'status', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'status', 'division' => $division->id], $admin->id);
 
 		// Managers are allowed to view the status report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'status', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'status', 'division' => $division->id], $manager->id);
 
 		// Coordinators are allowed to view the status report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'status', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'status', 'division' => $division->id], $volunteer->id);
 
 		// Others are not allowed to view the status report
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'status', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'status', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'status', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'status', 'division' => DIVISION_ID_MONDAY_LADDER]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'status', 'division' => $division->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'status', 'division' => $division->id]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test allstars method
-	 *
-	 * @return void
 	 */
-	public function testAllstars() {
+	public function testAllstars(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer]);
+		$division = $league->divisions[0];
+
 		// Admins are allowed to view the allstars report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'allstars', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'allstars', 'division' => $division->id], $admin->id);
 
 		// Managers are allowed to view the allstars report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'allstars', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'allstars', 'division' => $division->id], $manager->id);
 
 		// Coordinators are allowed to view the allstars report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'allstars', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'allstars', 'division' => $division->id], $volunteer->id);
 
 		// Others are not allowed to view the allstars report
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'allstars', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'allstars', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'allstars', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'allstars', 'division' => DIVISION_ID_MONDAY_LADDER]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'allstars', 'division' => $division->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'allstars', 'division' => $division->id]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test emails method
-	 *
-	 * @return void
 	 */
-	public function testEmails() {
+	public function testEmails(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer]);
+		$division = $league->divisions[0];
+
 		// Admins are allowed to view emails
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'emails', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'emails', 'division' => $division->id], $admin->id);
 
 		// Managers are allowed to view emails
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'emails', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'emails', 'division' => $division->id], $manager->id);
 
 		// Coordinators are allowed to view emails
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'emails', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'emails', 'division' => $division->id], $volunteer->id);
 
 		// Others are not allowed to view emails
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'emails', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'emails', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'emails', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'emails', 'division' => DIVISION_ID_MONDAY_LADDER]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'emails', 'division' => $division->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'emails', 'division' => $division->id]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test spirit method
-	 *
-	 * @return void
 	 */
-	public function testSpirit() {
+	public function testSpirit(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'spirit' => true]);
+		$division = $league->divisions[0];
+
 		// Admins are allowed to view the spirit report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'spirit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'spirit', 'division' => $division->id], $admin->id);
 
 		// Managers are allowed to view the spirit report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'spirit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'spirit', 'division' => $division->id], $manager->id);
 
 		// Coordinators are allowed to view the spirit report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'spirit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'spirit', 'division' => $division->id], $volunteer->id);
 
 		// Others are not allowed to view the spirit report
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'spirit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'spirit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'spirit', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'spirit', 'division' => DIVISION_ID_MONDAY_LADDER]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'spirit', 'division' => $division->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'spirit', 'division' => $division->id]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test approve_scores method
-	 *
-	 * @return void
 	 */
-	public function testApproveScores() {
-		// Make sure that we're after the game date
-		FrozenDate::setTestNow(new FrozenDate('July 1'));
-		FrozenTime::setTestNow(new FrozenTime('July 1'));
+	public function testApproveScores(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true]);
+		$division = $league->divisions[0];
 
 		// Admins are allowed to approve scores
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_ADMIN);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => $division->id], $admin->id);
 
 		// Managers are allowed to approve scores
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_MANAGER);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => $division->id], $manager->id);
 
 		// Coordinators are allowed to approve scores
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_COORDINATOR);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => $division->id], $volunteer->id);
 
 		// Others are not allowed to approve scores
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => DIVISION_ID_MONDAY_LADDER]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => $division->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => $division->id]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test initialize_ratings method as an admin
-	 *
-	 * @return void
 	 */
-	public function testInitializeRatingsAsAdmin() {
+	public function testInitializeRatingsAsAdmin(): void {
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'playoffs' => true]);
+		$playoffs = $league->divisions[1];
+
 		// Admins are allowed to initialize ratings
-		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
-			PERSON_ID_ADMIN, ['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => $playoffs->id],
+			$admin->id, ['controller' => 'Divisions', 'action' => 'view', 'division' => $playoffs->id],
 			'Team ratings have been initialized.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test initialize_ratings method as a manager
-	 *
-	 * @return void
 	 */
-	public function testInitializeRatingsAsManager() {
+	public function testInitializeRatingsAsManager(): void {
+		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'volunteer']);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'playoffs' => true]);
+		$playoffs = $league->divisions[1];
+
 		// Managers are allowed to initialize ratings
-		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
-			PERSON_ID_MANAGER, ['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => $playoffs->id],
+			$manager->id, ['controller' => 'Divisions', 'action' => 'view', 'division' => $playoffs->id],
 			'Team ratings have been initialized.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test initialize_ratings method as a coordinator
-	 *
-	 * @return void
 	 */
-	public function testInitializeRatingsAsCoordinator() {
+	public function testInitializeRatingsAsCoordinator(): void {
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'playoffs' => true]);
+		$playoffs = $league->divisions[1];
+
 		// Coordinators are allowed to initialize ratings
-		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
-			PERSON_ID_COORDINATOR, ['controller' => 'Divisions', 'action' => 'view', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => $playoffs->id],
+			$volunteer->id, ['controller' => 'Divisions', 'action' => 'view', 'division' => $playoffs->id],
 			'Team ratings have been initialized.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test initialize_ratings method as others
-	 *
-	 * @return void
 	 */
-	public function testInitializeRatingsAsOthers() {
+	public function testInitializeRatingsAsOthers(): void {
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'playoffs' => true]);
+		$playoffs = $league->divisions[1];
+
 		// Others are not allowed to initialize ratings
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => DIVISION_ID_MONDAY_LADDER]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => $playoffs->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => $playoffs->id]);
 	}
 
 	/**
 	 * Test initialize_dependencies method as an admin
-	 *
-	 * @return void
 	 */
-	public function testInitializeDependenciesAsAdmin() {
+	public function testInitializeDependenciesAsAdmin(): void {
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'playoffs' => true]);
+		$playoffs = $league->divisions[1];
+
 		// Admins are allowed to initialize dependencies
-		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
-			PERSON_ID_ADMIN, ['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => $playoffs->id],
+			$admin->id, ['controller' => 'Divisions', 'action' => 'schedule', 'division' => $playoffs->id],
 			'Dependencies have been resolved.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test initialize_dependencies method as a manager
-	 *
-	 * @return void
 	 */
-	public function testInitializeDependenciesAsManager() {
+	public function testInitializeDependenciesAsManager(): void {
+		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'volunteer']);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'playoffs' => true]);
+		$playoffs = $league->divisions[1];
+
 		// Managers are allowed to initialize dependencies
-		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
-			PERSON_ID_MANAGER, ['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => $playoffs->id],
+			$manager->id, ['controller' => 'Divisions', 'action' => 'schedule', 'division' => $playoffs->id],
 			'Dependencies have been resolved.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test initialize_dependencies method as a coordinator
-	 *
-	 * @return void
 	 */
-	public function testInitializeDependenciesAsCoordinator() {
+	public function testInitializeDependenciesAsCoordinator(): void {
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'playoffs' => true]);
+		$playoffs = $league->divisions[1];
+
 		// Coordinators are allowed to initialize dependencies
-		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
-			PERSON_ID_COORDINATOR, ['controller' => 'Divisions', 'action' => 'schedule', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => $playoffs->id],
+			$volunteer->id, ['controller' => 'Divisions', 'action' => 'schedule', 'division' => $playoffs->id],
 			'Dependencies have been resolved.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test initialize_dependencies method as others
-	 *
-	 * @return void
 	 */
-	public function testInitializeDependenciesAsOthers() {
+	public function testInitializeDependenciesAsOthers(): void {
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'playoffs' => true]);
+		$playoffs = $league->divisions[1];
+
 		// Others are not allowed to initialize dependencies
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => DIVISION_ID_MONDAY_LADDER], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => DIVISION_ID_MONDAY_LADDER]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => $playoffs->id], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => $playoffs->id]);
 	}
 
 	/**
 	 * Test delete_stage method as an admin
-	 *
-	 * @return void
 	 */
-	public function testDeleteStageAsAdmin() {
+	public function testDeleteStageAsAdmin(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'playoffs' => true]);
+		$playoffs = $league->divisions[1];
+
 		// Admins are allowed to delete stages
-		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => DIVISION_ID_MONDAY_PLAYOFF, 'stage' => 2],
-			PERSON_ID_ADMIN, ['controller' => 'Schedules', 'action' => 'add', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => $playoffs->id, 'stage' => 2],
+			$admin->id, ['controller' => 'Schedules', 'action' => 'add', 'division' => $playoffs->id],
 			'The pools in this stage have been deleted.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test delete_stage method as a manager
-	 *
-	 * @return void
 	 */
-	public function testDeleteStageAsManager() {
+	public function testDeleteStageAsManager(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'volunteer']);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'playoffs' => true]);
+		$playoffs = $league->divisions[1];
+
 		// Managers are allowed to delete stages
-		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => DIVISION_ID_MONDAY_PLAYOFF, 'stage' => 2],
-			PERSON_ID_MANAGER, ['controller' => 'Schedules', 'action' => 'add', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => $playoffs->id, 'stage' => 2],
+			$manager->id, ['controller' => 'Schedules', 'action' => 'add', 'division' => $playoffs->id],
 			'The pools in this stage have been deleted.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test delete_stage method as a coordinator
-	 *
-	 * @return void
 	 */
-	public function testDeleteStageAsCoordinator() {
+	public function testDeleteStageAsCoordinator(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
+		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'playoffs' => true]);
+		$playoffs = $league->divisions[1];
+
 		// Coordinators are allowed to delete stages
-		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => DIVISION_ID_MONDAY_PLAYOFF, 'stage' => 2],
-			PERSON_ID_COORDINATOR, ['controller' => 'Schedules', 'action' => 'add', 'division' => DIVISION_ID_MONDAY_PLAYOFF],
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => $playoffs->id, 'stage' => 2],
+			$volunteer->id, ['controller' => 'Schedules', 'action' => 'add', 'division' => $playoffs->id],
 			'The pools in this stage have been deleted.');
-		$this->markTestIncomplete('Not implemented yet.');
+
+		$this->markTestIncomplete('More scenarios to test above.');
 	}
 
 	/**
 	 * Test delete_stage method as others
-	 *
-	 * @return void
 	 */
-	public function testDeleteStageAsOthers() {
+	public function testDeleteStageAsOthers(): void {
 		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
-		// Captains are not allowed to delete stages
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => DIVISION_ID_MONDAY_PLAYOFF, 'stage' => 2], PERSON_ID_CAPTAIN);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => DIVISION_ID_MONDAY_PLAYOFF, 'stage' => 2], PERSON_ID_PLAYER);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => DIVISION_ID_MONDAY_PLAYOFF, 'stage' => 2], PERSON_ID_VISITOR);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => DIVISION_ID_MONDAY_PLAYOFF, 'stage' => 2]);
+		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'playoffs' => true]);
+		$playoffs = $league->divisions[1];
+
+		// Others are not allowed to delete stages
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => $playoffs->id, 'stage' => 2], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => $playoffs->id, 'stage' => 2]);
 	}
 
 	/**
 	 * Test redirect method
-	 *
-	 * @return void
 	 */
-	public function testRedirect() {
+	public function testRedirect(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test select method
-	 *
-	 * @return void
 	 */
-	public function testSelect() {
+	public function testSelect(): void {
 		$this->enableCsrfToken();
+
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+		$affiliates = $admin->affiliates;
+
+		/** @var \App\Model\Entity\League $league */
+		$this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer]);
 
 		// Admins are allowed to select
 		$now = FrozenDate::now();
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'select', 'affiliate' => AFFILIATE_ID_CLUB],
-			PERSON_ID_ADMIN, ['game_date' => ['year' => $now->year, 'month' => $now->month, 'day' => $now->day], 'sport' => 'ultimate']);
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'select', 'affiliate' => $affiliates[0]->id],
+			$admin->id, ['game_date' => ['year' => $now->year, 'month' => $now->month, 'day' => $now->day], 'sport' => 'ultimate']);
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'select', 'affiliate' => $affiliates[1]->id],
+			$admin->id, ['game_date' => ['year' => $now->year, 'month' => $now->month, 'day' => $now->day], 'sport' => 'ultimate']);
 
 		// Managers are allowed to select
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'select', 'affiliate' => AFFILIATE_ID_CLUB],
-			PERSON_ID_MANAGER, ['game_date' => ['year' => $now->year, 'month' => $now->month, 'day' => $now->day], 'sport' => 'ultimate']);
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'select', 'affiliate' => $affiliates[0]->id],
+			$manager->id, ['game_date' => ['year' => $now->year, 'month' => $now->month, 'day' => $now->day], 'sport' => 'ultimate']);
 
 		// Coordinators are allowed to select
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'select', 'affiliate' => AFFILIATE_ID_CLUB],
-			PERSON_ID_COORDINATOR, ['game_date' => ['year' => $now->year, 'month' => $now->month, 'day' => $now->day], 'sport' => 'ultimate']);
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'select', 'affiliate' => $affiliates[0]->id],
+			$volunteer->id, ['game_date' => ['year' => $now->year, 'month' => $now->month, 'day' => $now->day], 'sport' => 'ultimate']);
 
 		// Others are not allowed to select
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'select', 'affiliate' => AFFILIATE_ID_CLUB],
-			PERSON_ID_CAPTAIN, ['game_date' => ['year' => $now->year, 'month' => $now->month, 'day' => $now->day], 'sport' => 'ultimate']);
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'select', 'affiliate' => AFFILIATE_ID_CLUB],
-			PERSON_ID_PLAYER, ['game_date' => ['year' => $now->year, 'month' => $now->month, 'day' => $now->day], 'sport' => 'ultimate']);
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'select', 'affiliate' => AFFILIATE_ID_CLUB],
-			PERSON_ID_VISITOR, ['game_date' => ['year' => $now->year, 'month' => $now->month, 'day' => $now->day], 'sport' => 'ultimate']);
-		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'select', 'affiliate' => AFFILIATE_ID_CLUB],
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'select', 'affiliate' => $affiliates[0]->id],
+			$player->id, ['game_date' => ['year' => $now->year, 'month' => $now->month, 'day' => $now->day], 'sport' => 'ultimate']);
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'select', 'affiliate' => $affiliates[0]->id],
 			['game_date' => ['year' => $now->year, 'month' => $now->month, 'day' => $now->day], 'sport' => 'ultimate']);
 	}
 

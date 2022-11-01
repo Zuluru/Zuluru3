@@ -12,44 +12,23 @@ class TeamsPeopleTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\TeamsPeopleTable
+	 * @var TeamsPeopleTable
 	 */
 	public $TeamsPeopleTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-						'app.TeamsPeople',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('TeamsPeople') ? [] : ['className' => 'App\Model\Table\TeamsPeopleTable'];
-		$this->TeamsPeopleTable = TableRegistry::get('TeamsPeople', $config);
+		$config = TableRegistry::getTableLocator()->exists('TeamsPeople') ? [] : ['className' => TeamsPeopleTable::class];
+		$this->TeamsPeopleTable = TableRegistry::getTableLocator()->get('TeamsPeople', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->TeamsPeopleTable);
 
 		parent::tearDown();
@@ -57,19 +36,15 @@ class TeamsPeopleTableTest extends TableTestCase {
 
 	/**
 	 * Test afterSave method
-	 *
-	 * @return void
 	 */
-	public function testAfterSave() {
+	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test beforeDelete method
-	 *
-	 * @return void
 	 */
-	public function testBeforeDelete() {
+	public function testBeforeDelete(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

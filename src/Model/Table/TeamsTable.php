@@ -2,6 +2,8 @@
 namespace App\Model\Table;
 
 use App\Authorization\ContextResource;
+use App\Model\Entity\Team;
+use App\Model\Entity\TeamsPerson;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
@@ -13,6 +15,7 @@ use Cake\ORM\RulesChecker;
 use Cake\Routing\Router;
 use Cake\Validation\Validator;
 use App\Core\UserCache;
+use App\Model\Table\LeaguesTable;
 
 /**
  * Teams Model
@@ -89,6 +92,12 @@ class TeamsTable extends AppTable {
 			'dependent' => true,
 		]);
 		$this->hasMany('TeamEvents', [
+			'foreignKey' => 'team_id',
+			'dependent' => true,
+		]);
+
+		// TODO: The "TeamsPeople" association is used in some unit tests.
+		$this->hasMany('TeamsPeople', [
 			'foreignKey' => 'team_id',
 			'dependent' => true,
 		]);
@@ -326,48 +335,55 @@ class TeamsTable extends AppTable {
 			->where($conditions)
 			->toArray();
 
-		usort($teams, ['App\Model\Table\LeaguesTable', 'compareLeagueAndDivision']);
+		usort($teams, [LeaguesTable::class, 'compareLeagueAndDivision']);
 
 		return $teams;
 	}
 
 	public static function compareRoster($a, $b, $options = []) {
+		if (is_a($a, TeamsPerson::class)) {
+			$roster_a = $a;
+			$person_a = $a->person;
+			$roster_b = $b;
+			$person_b = $b->person;
+		} else {
+			$roster_a = $a->_joinData;
+			$person_a = $a;
+			$roster_b = $b->_joinData;
+			$person_b = $b;
+		}
+
 		static $rosterMap = null;
 		if ($rosterMap == null) {
 			$rosterMap = array_flip(array_keys(Configure::read('options.roster_role')));
 		}
 
-		// If there is no request, we're running in CLI mode (i.e. a shell task), and nothing we do there cares about gender sorting
-		if (array_key_exists('include_gender', $options)) {
-			$include_gender = $options['include_gender'];
-		} else {
-			$include_gender = false;
-		}
+		$include_gender = $options['include_gender'] ?? false;
 
 		// Sort eligible from non-eligible
-		if ($a->has('can_add') && $b->has('can_add')) {
-			if ($a->can_add === true && $b->can_add !== true) {
+		if ($person_a->has('can_add') && $person_b->has('can_add')) {
+			if ($person_a->can_add === true && $person_b->can_add !== true) {
 				return -1;
-			} else if ($a->can_add !== true && $b->can_add === true) {
+			} else if ($person_a->can_add !== true && $person_b->can_add === true) {
 				return 1;
 			}
 		}
 
-		if ($a->_joinData->status == ROSTER_APPROVED && $b->_joinData->status != ROSTER_APPROVED) {
+		if ($roster_a->status == ROSTER_APPROVED && $roster_b->status != ROSTER_APPROVED) {
 			return -1;
-		} else if ($a->_joinData->status != ROSTER_APPROVED && $b->_joinData->status == ROSTER_APPROVED) {
+		} else if ($roster_a->status != ROSTER_APPROVED && $roster_b->status == ROSTER_APPROVED) {
 			return 1;
-		} else if ($rosterMap[$a->_joinData->role] > $rosterMap[$b->_joinData->role]) {
+		} else if ($rosterMap[$roster_a->role] > $rosterMap[$roster_b->role]) {
 			return 1;
-		} else if ($rosterMap[$a->_joinData->role] < $rosterMap[$b->_joinData->role]) {
+		} else if ($rosterMap[$roster_a->role] < $rosterMap[$roster_b->role]) {
 			return -1;
-		} else if ($include_gender && $a->roster_designation < $b->roster_designation) {
+		} else if ($include_gender && $person_a->roster_designation < $person_b->roster_designation) {
 			return 1;
-		} else if ($include_gender && $a->roster_designation > $b->roster_designation) {
+		} else if ($include_gender && $person_a->roster_designation > $person_b->roster_designation) {
 			return -1;
 		}
 
-		return PeopleTable::comparePerson($a, $b);
+		return PeopleTable::comparePerson($person_a, $person_b);
 	}
 
 	public function affiliate($id) {
@@ -377,7 +393,7 @@ class TeamsTable extends AppTable {
 			if ($division) {
 				return $this->Divisions->affiliate($division);
 			} else {
-				return $this->field('affiliate_id', [$this->getAlias() . '.id' => $id]);
+				return $this->field('affiliate_id', [$this->aliasField('id') => $id]);
 			}
 		} catch (RecordNotFoundException $ex) {
 			return null;
@@ -386,7 +402,7 @@ class TeamsTable extends AppTable {
 
 	public function division($id) {
 		try {
-			return $this->field('division_id', [$this->getAlias() . '.id' => $id]);
+			return $this->field('division_id', [$this->aliasField('id') => $id]);
 		} catch (RecordNotFoundException $ex) {
 			return null;
 		}
@@ -395,7 +411,7 @@ class TeamsTable extends AppTable {
 	public function sport($id) {
 		// Teams may be unassigned
 		try {
-			$division = $this->field('division_id', [$this->getAlias() . '.id' => $id]);
+			$division = $this->field('division_id', [$this->aliasField('id') => $id]);
 			if ($division) {
 				$league = $this->Divisions->field('league_id', ['Divisions.id' => $division]);
 				return $this->Divisions->Leagues->field('sport', ['Leagues.id' => $league]);

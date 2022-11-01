@@ -1,6 +1,6 @@
 <?php
 /**
- * @type $this \App\View\AppView
+ * @type \App\View\AppView $this
  * @type $register \Javelin\Form\RegisterForm
  */
 

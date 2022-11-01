@@ -1,4 +1,11 @@
 <?php
+/**
+ * @type $league \App\Model\Entity\League
+ * @type $date string
+ * @type $slots \App\Model\Entity\GameSlot[]
+ * @type $is_tournament bool
+ */
+
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
 ?>
@@ -8,7 +15,7 @@ use Cake\I18n\FrozenDate;
 	<table class="table table-striped table-hover table-condensed">
 		<thead>
 <?php
-$competition = collection($league->divisions)->every(function ($division) { return $division->schedule_type == 'competition'; });
+$competition = collection($league->divisions)->every(function ($division) { return $division->schedule_type === 'competition'; });
 ?>
 			<tr>
 				<th><?= __('ID') ?></th>
@@ -74,7 +81,7 @@ foreach ($slots as $slot):
 ?>
 				<td><?php
 					echo $game->pool->name;
-					if ($game->pool->type != 'crossover') {
+					if ($game->pool->type !== 'crossover') {
 						echo __(' (round&nbsp;{0})', $game->round);
 					}
 				?></td>

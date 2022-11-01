@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\PreregistrationFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\PreregistrationsTable;
 
@@ -12,50 +13,23 @@ class PreregistrationsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\PreregistrationsTable
+	 * @var PreregistrationsTable
 	 */
 	public $PreregistrationsTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.EventTypes',
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.Leagues',
-				'app.Divisions',
-			'app.Events',
-				'app.Prices',
-					'app.Registrations',
-						'app.Payments',
-							'app.RegistrationAudits',
-						'app.Responses',
-				'app.Preregistrations',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Preregistrations') ? [] : ['className' => 'App\Model\Table\PreregistrationsTable'];
-		$this->PreregistrationsTable = TableRegistry::get('Preregistrations', $config);
+		$config = TableRegistry::getTableLocator()->exists('Preregistrations') ? [] : ['className' => PreregistrationsTable::class];
+		$this->PreregistrationsTable = TableRegistry::getTableLocator()->get('Preregistrations', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->PreregistrationsTable);
 
 		parent::tearDown();
@@ -63,11 +37,11 @@ class PreregistrationsTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
-	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->PreregistrationsTable->affiliate(1));
+	public function testAffiliate(): void {
+        $affiliateId = mt_rand();
+        $entity = PreregistrationFactory::make()->with('Events', ['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->PreregistrationsTable->affiliate($entity->id));
 	}
 
 }

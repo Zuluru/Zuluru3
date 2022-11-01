@@ -2,10 +2,10 @@
 use Cake\Core\Configure;
 
 /**
- * @type \App\Model\Entity\Person $person
- * @type \App\Model\Entity\Team $team
- * @type string $captain
- * @type string $role
+ * @type $person \App\Model\Entity\Person
+ * @type $team \App\Model\Entity\Team
+ * @type $captain string
+ * @type $role string
  */
 ?>
 

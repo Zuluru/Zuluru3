@@ -267,7 +267,7 @@ class GameSlotsController extends AppController {
 
 		$divisions_table = TableRegistry::getTableLocator()->get('Divisions');
 		$divisions = $divisions_table->find('open')
-			->find('date', ['date' => $game_slot->game_date])
+			->find('day', ['date' => $game_slot->game_date])
 			->contain(['Leagues'])
 			->where(['Leagues.affiliate_id' => $affiliate])
 			->where(['Leagues.sport' => ($field ? $field->sport : $game_slot->sport)])
@@ -317,7 +317,7 @@ class GameSlotsController extends AppController {
 		}
 
 		$divisions = $this->GameSlots->Games->Divisions->find('open')
-			->find('date', ['date' => $game_slot->game_date])
+			->find('day', ['date' => $game_slot->game_date])
 			->contain(['Leagues'])
 			->where(['Leagues.affiliate_id' => $affiliate])
 			->where(['Leagues.sport' => $this->GameSlots->sport($id)])

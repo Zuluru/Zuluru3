@@ -92,4 +92,29 @@ class AffiliatesPeopleTable extends AppTable {
 		$cache->clear('ManagedAffiliateIDs', $entity->person_id);
 	}
 
+	public function mergeList(Array $old, Array $new) {
+		// Clear ids from the join data in all the new affiliates
+		foreach ($new as $affiliate_person) {
+			unset($affiliate_person->id);
+			unset($affiliate_person->person_id);
+			$affiliate_person->isNew(true);
+		}
+
+		// Find any old affiliates that aren't present in the new list, and copy them over
+		foreach ($old as $affiliate_person) {
+			$existing = collection($new)->firstMatch(['affiliate_id' => $affiliate_person->affiliate_id]);
+			if (!$existing) {
+				// Here, we have to clear the id, but the person_id can stay
+				unset($affiliate_person->id);
+				$affiliate_person->isNew(true);
+				$new[] = $affiliate_person;
+			} else if ($affiliate_person->position !== 'player') {
+				// TODO: If we ever add more than just "player" and "manager" positions, this will need to change.
+				$existing->position = $affiliate_person->position;
+			}
+		}
+
+		return $new;
+	}
+
 }

@@ -1,85 +1,45 @@
 <?php
 namespace App\Test\TestCase\Model\Entity;
 
-use App\Model\Entity\Facility;
+use App\Test\Factory\FacilityFactory;
+use App\Test\Factory\LeagueFactory;
 use Cake\Core\Configure;
 use Cake\Filesystem\Folder;
 use Cake\I18n\FrozenTime;
-use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use Cake\Utility\Inflector;
 
 class FacilityTest extends TestCase {
 
 	/**
-	 * Test subject 1
-	 *
-	 * @var \App\Model\Entity\Facility
-	 */
-	public $FacilitySunnybrook;
-	/**
-	 * Test subject 2
-	 *
-	 * @var \App\Model\Entity\Facility
-	 */
-	public $FacilityBroadacres;
-
-	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-			'app.Leagues',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$facilities = TableRegistry::get('Facilities');
-		$this->FacilitySunnybrook = $facilities->get(FACILITY_ID_SUNNYBROOK, [
-			'contain' => ['Fields'],
-		]);
-		$this->FacilityBroadacres = $facilities->get(FACILITY_ID_BROADACRES, [
-			'contain' => ['Fields'],
-		]);
 
-		// Configuration for organization DNE so we fake it out:
-		// TODO: Handle by loading the settings fixtures?
-		Configure::write('organization.winter_start', 'something-01-01');
-		Configure::write('organization.winter_end', 'something-04-01');
-
-		Configure::write('organization.winter_indoor_start', 'something-01-01');
-		Configure::write('organization.winter_indoor_end', 'something-04-01');
-
-		Configure::write('organization.spring_start', 'something-04-01');
-		Configure::write('organization.spring_end', 'something-07-01');
-
-		Configure::write('organization.spring_indoor_start', 'something-04-01');
-		Configure::write('organization.spring_indoor_end', 'something-07-01');
-
-		Configure::write('organization.summer_start', 'something-07-01');
-		Configure::write('organization.summer_end', 'something-10-01');
-
-		Configure::write('organization.summer_indoor_start', 'something-07-01');
-		Configure::write('organization.summer_indoor_end', 'something-10-01');
 		// No matter what, we make fall a current season for testing purposes
 		$startMonthDay = FrozenTime::yesterday()->format('m-d');
 		$endMonthDay = FrozenTime::tomorrow()->format('m-d');
-		Configure::write('organization.fall_start', 'something-'.$startMonthDay);
-		Configure::write('organization.fall_end', 'something-'.$endMonthDay);
 
-		Configure::write('organization.fall_indoor_start', 'something-'.$startMonthDay);
-		Configure::write('organization.fall_indoor_end', 'something-'.$endMonthDay);
+		// Configuration for organization DNE so we fake it out:
+		Configure::write(['organization' => [
+			'winter_start' => 'something-01-01',
+			'winter_end' => 'something-04-01',
+			'winter_indoor_start' => 'something-01-01',
+			'winter_indoor_end' => 'something-04-01',
+			'spring_start' => 'something-04-01',
+			'spring_end' => 'something-07-01',
+			'spring_indoor_start' => 'something-04-01',
+			'spring_indoor_end' => 'something-07-01',
+			'summer_start' => 'something-07-01',
+			'summer_end' => 'something-10-01',
+			'summer_indoor_start' => 'something-07-01',
+			'summer_indoor_end' => 'something-10-01',
+			'fall_start' => 'something-'.$startMonthDay,
+			'fall_end' => 'something-'.$endMonthDay,
+			'fall_indoor_start' => 'something-'.$startMonthDay,
+			'fall_indoor_end' => 'something-'.$endMonthDay,
+		]]);
 
 		// Facilities use the file system for locating permits; point to a local test folder
 		// TODO: Handle in the bootstrap?
@@ -93,13 +53,8 @@ class FacilityTest extends TestCase {
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
-		unset($this->FacilitySunnybrook);
-		unset($this->FacilityBroadacres);
-
+	public function tearDown(): void {
 		// Delete the temporary permit copy
 		$permit_path = Configure::read('App.paths.files') . DS . 'permits';
 		$folder = new Folder($permit_path . DS . FrozenTime::now()->year);
@@ -110,18 +65,22 @@ class FacilityTest extends TestCase {
 
 	/**
 	 * Test _getPermits method
-	 *
-	 * @return void
 	 */
-	public function testGetPermits() {
+	public function testGetPermits(): void {
 		$year = FrozenTime::now()->year;
 
-		$resultSunnybrook = $this->FacilitySunnybrook->permits;
-		$resultBroadcres = $this->FacilityBroadacres->permits;
-		$this->assertGreaterThan(0, count($resultSunnybrook), 'No Folder info provided from Sunnybrook');
+		[$abc, $xyz] = FacilityFactory::make([
+			['code' => 'ABC'],
+			['code' => 'XYZ'],
+		])
+			->persist();
 
-		// All of Sunnybrook's should be empty and just give me dir info
-		foreach ($resultSunnybrook as $seasonName => $fileDetails) {
+		LeagueFactory::make(['season' => 'Fall', 'is_open' => true])->persist();
+
+		$this->assertGreaterThan(0, count($xyz->permits), 'No Folder info provided from XYZ');
+
+		// All of XYZ's should be empty and just give me dir info
+		foreach ($xyz->permits as $seasonName => $fileDetails) {
 			$this->assertEquals(1, count($fileDetails), 'Empty season file details or too many elements ');
 			if (array_key_exists('dir', $fileDetails)) {
 				// Validate the end of the dir name
@@ -134,9 +93,9 @@ class FacilityTest extends TestCase {
 			}
 		}
 
-		// All of Broadacres's should be empty and just give me dir info except for fall
+		// All of ABC's should be empty and just give me dir info except for fall
 		$foundFall = false;
-		foreach ($resultBroadcres as $seasonName => $fileDetails) {
+		foreach ($abc->permits as $seasonName => $fileDetails) {
 			$this->assertGreaterThan(0, count($fileDetails), 'Empty season file details');
 			if (array_key_exists('dir', $fileDetails)) {
 				// Validate the end of the dir name
@@ -147,15 +106,15 @@ class FacilityTest extends TestCase {
 			} else if (strcmp('Fall', $seasonName) === 0) {// Validate the file is in there
 				$this->assertNotFalse(array_key_exists('file', $fileDetails), 'File name not provided');
 				$this->assertNotFalse(array_key_exists('url', $fileDetails), 'URL not provided');
-				$this->assertEquals(0, strcmp($fileDetails['file'], 'BRO.png'), 'Wrong file name provided');
-				$this->assertEquals(0, strcmp($fileDetails['url'], "files/permits/$year/fall/BRO.png"), 'Wrong URL provided');
+				$this->assertEquals(0, strcmp($fileDetails['file'], 'ABC.png'), 'Wrong file name provided');
+				$this->assertEquals(0, strcmp($fileDetails['url'], "files/permits/$year/fall/ABC.png"), 'Wrong URL provided');
 				$foundFall = true;
 			} else {
 				$this->fail('dir key not in file details and not Fall season as expected');
 			}
 		}
-		// Make sure we actually found the Fall season for Broadacres
-		$this->assertTrue($foundFall, 'No Fall Season found in Broadacres');
+		// Make sure we actually found the Fall season for ABC
+		$this->assertTrue($foundFall, 'No Fall Season found in ABC');
 	}
 
 }

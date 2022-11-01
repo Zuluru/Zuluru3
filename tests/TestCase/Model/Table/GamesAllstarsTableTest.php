@@ -12,44 +12,23 @@ class GamesAllstarsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\GamesAllstarsTable
+	 * @var GamesAllstarsTable
 	 */
 	public $GamesAllstarsTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-					'app.Pools',
-						'app.PoolsTeams',
-					'app.Games',
-						'app.GamesAllstars',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('GamesAllstars') ? [] : ['className' => 'App\Model\Table\GamesAllstarsTable'];
-		$this->GamesAllstarsTable = TableRegistry::get('GamesAllstars', $config);
+		$config = TableRegistry::getTableLocator()->exists('GamesAllstars') ? [] : ['className' => GamesAllstarsTable::class];
+		$this->GamesAllstarsTable = TableRegistry::getTableLocator()->get('GamesAllstars', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->GamesAllstarsTable);
 
 		parent::tearDown();

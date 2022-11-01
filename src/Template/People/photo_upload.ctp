@@ -1,7 +1,7 @@
 <?php
 /**
- * @type \App\Model\Entity\Person $person
- * @type \App\Model\Entity\Upload $upload
+ * @type $person \App\Model\Entity\Person
+ * @type $upload \App\Model\Entity\Upload
  */
 
 $this->Html->addCrumb(__('People'));
@@ -54,7 +54,7 @@ $this->Html->scriptBlock('
 			width: 150,
 			height: 150
 		},
-	    enableOrientation: true,
+		enableOrientation: true,
 		enableExif: true
 	});
 

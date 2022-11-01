@@ -91,8 +91,10 @@ class RoundRobinRecord {
 			}
 		}
 
-		$this->vs[$opp_id] += $points;
-		$this->vspm[$opp_id] += $score_for - $score_against;
+		if ($opp_id) {
+			$this->vs[$opp_id] += $points;
+			$this->vspm[$opp_id] += $score_for - $score_against;
+		}
 
 		// Add to the current streak, or reset it
 		if ($streak_type == $this->streak_type) {

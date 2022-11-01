@@ -19,6 +19,7 @@ use App\Core\ModuleRegistry;
 use App\Model\Entity\TeamsPerson;
 use App\Model\Rule\InConfigRule;
 use App\Model\Rule\ValidScoreRule;
+use App\Model\Table\TeamsTable;
 
 /**
  * Games Model
@@ -462,7 +463,7 @@ class GamesTable extends AppTable {
 						$entity->division_id = $entity->pool->division_id;
 					} else if ($entity->away_team && collection($game_slot->divisions)->firstMatch(['id' => $entity->away_team->division_id])) {
 						// Game is happening on a field only available to the away team, so make them the home team instead
-						list($entity->home_team_id, $entity->home_team, $entity->away_team_id, $entity->away_team) =
+						[$entity->home_team_id, $entity->home_team, $entity->away_team_id, $entity->away_team] =
 							[$entity->away_team_id, $entity->away_team, $entity->home_team_id, $entity->home_team];
 						// No check to prevent dirtying here; it's already going to be dirty from the team swap.
 						$entity->division_id = $entity->away_team->division_id;
@@ -1099,12 +1100,12 @@ class GamesTable extends AppTable {
 		// Handle named playoff games (and team events have names too)
 		if (array_key_exists('name', $a) && !empty($a->name)) {
 			if (strpos($a->name, '-') !== false) {
-				list(, $a_name) = explode('-', $a->name);
+				[, $a_name] = explode('-', $a->name);
 			} else {
 				$a_name = $a->name;
 			}
 			if (strpos($b->name, '-') !== false) {
-				list(, $b_name) = explode('-', $b->name);
+				[, $b_name] = explode('-', $b->name);
 			} else {
 				$b_name = $b->name;
 			}
@@ -1120,8 +1121,13 @@ class GamesTable extends AppTable {
 		if (!empty($a->game_slot->field_id) && !empty($b->game_slot->field_id)) {
 			if ($a->game_slot->field_id < $b->game_slot->field_id) {
 				return -1;
-			} else {
+			} else if ($a->game_slot->field_id > $b->game_slot->field_id) {
 				return 1;
+			}
+
+			if ($a->home_team && $b->home_team) {
+				// Must both be games. Could be where there's multiple games in the same slot.
+				return $a->home_team->name <=> $b->home_team->name;
 			}
 		}
 
@@ -1219,7 +1225,7 @@ class GamesTable extends AppTable {
 			($game->home_field_rank === null || $game->home_field_rank > $game->away_field_rank)
 		)
 		{
-			list($game->home_team_id, $game->home_field_rank, $game->away_team_id, $game->away_field_rank) =
+			[$game->home_team_id, $game->home_field_rank, $game->away_team_id, $game->away_field_rank] =
 				[$game->away_team_id, $game->away_field_rank, $game->home_team_id, $game->home_field_rank];
 		}
 	}
@@ -1374,7 +1380,7 @@ class GamesTable extends AppTable {
 
 		$identity = Router::getRequest() ? Router::getRequest()->getAttribute('identity') : null;
 		$include_gender = $identity && $identity->can('display_gender', new ContextResource($team, ['division' => $team->division]));
-		\App\lib\context_usort($attendance->people, ['App\Model\Table\TeamsTable', 'compareRoster'], ['include_gender' => $include_gender]);
+		\App\lib\context_usort($attendance->people, [TeamsTable::class, 'compareRoster'], ['include_gender' => $include_gender]);
 		return $attendance;
 	}
 
@@ -1602,7 +1608,7 @@ class GamesTable extends AppTable {
 
 		$identity = Router::getRequest() ? Router::getRequest()->getAttribute('identity') : null;
 		$include_gender = $identity && $identity->can('display_gender', new ContextResource($team, ['division' => $team->division]));
-		\App\lib\context_usort($team->people, ['App\Model\Table\TeamsTable', 'compareRoster'], ['include_gender' => $include_gender]);
+		\App\lib\context_usort($team->people, [TeamsTable::class, 'compareRoster'], ['include_gender' => $include_gender]);
 		return $team;
 	}
 

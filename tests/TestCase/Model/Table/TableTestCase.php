@@ -7,19 +7,20 @@ use Cake\Event\EventList;
 use Cake\Event\EventManager;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
-use Cake\TestSuite\IntegrationTestCase;
+use Cake\TestSuite\IntegrationTestTrait;
+use Cake\TestSuite\TestCase;
 
 /**
  * Base class for all table tests
  */
-class TableTestCase extends IntegrationTestCase {
+class TableTestCase extends TestCase {
+
+	use IntegrationTestTrait;
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		EventManager::instance()->setEventList(new EventList());
 		foreach (Configure::read('App.globalListeners') as $listener) {
@@ -29,10 +30,8 @@ class TableTestCase extends IntegrationTestCase {
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		Cache::clear(false, 'long_term');
 		FrozenTime::setTestNow();
 		FrozenDate::setTestNow();

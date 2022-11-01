@@ -12,42 +12,23 @@ class NoticesTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\NoticesTable
+	 * @var NoticesTable
 	 */
 	public $NoticesTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			//'app.Notices',
-				'app.NoticesPeople',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Notices') ? [] : ['className' => 'App\Model\Table\NoticesTable'];
-		$this->NoticesTable = TableRegistry::get('Notices', $config);
+		$config = TableRegistry::getTableLocator()->exists('Notices') ? [] : ['className' => NoticesTable::class];
+		$this->NoticesTable = TableRegistry::getTableLocator()->get('Notices', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->NoticesTable);
 
 		parent::tearDown();

@@ -12,38 +12,23 @@ class UsersTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\UsersTable
+	 * @var UsersTable
 	 */
 	public $UsersTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Users') ? [] : ['className' => 'App\Model\Table\UsersTable'];
-		$this->UsersTable = TableRegistry::get('Users', $config);
+		$config = TableRegistry::getTableLocator()->exists('Users') ? [] : ['className' => UsersTable::class];
+		$this->UsersTable = TableRegistry::getTableLocator()->get('Users', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->UsersTable);
 
 		parent::tearDown();
@@ -51,37 +36,29 @@ class UsersTableTest extends TableTestCase {
 
 	/**
 	 * Test validationPassword method
-	 *
-	 * @return void
 	 */
-	public function testValidationPassword() {
+	public function testValidationPassword(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test validationCreate method
-	 *
-	 * @return void
 	 */
-	public function testValidationCreate() {
+	public function testValidationCreate(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test findAuth method
-	 *
-	 * @return void
 	 */
-	public function testFindAuth() {
+	public function testFindAuth(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test activated method
-	 *
-	 * @return void
 	 */
-	public function testActivated() {
+	public function testActivated(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

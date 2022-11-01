@@ -1,10 +1,10 @@
 <?php
 /**
- * @type \App\Model\Entity\Division $division
- * @type \App\Model\Entity\League $league
- * @type \App\Model\Entity\Team $team
- * @type int $seed
- * @type string[] $classes
+ * @type $division \App\Model\Entity\Division
+ * @type $league \App\Model\Entity\League
+ * @type $team \App\Model\Entity\Team
+ * @type $seed int
+ * @type $classes string[]
  */
 
 use App\Controller\TeamsController;

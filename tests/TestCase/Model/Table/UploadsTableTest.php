@@ -1,6 +1,9 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\UploadFactory;
+use Cake\Core\Configure;
+use Cake\Filesystem\Folder;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\UploadsTable;
 
@@ -12,72 +15,58 @@ class UploadsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\UploadsTable
+	 * @var UploadsTable
 	 */
 	public $UploadsTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-			'app.UploadTypes',
-				'app.Uploads',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Uploads') ? [] : ['className' => 'App\Model\Table\UploadsTable'];
-		$this->UploadsTable = TableRegistry::get('Uploads', $config);
+
+		$config = TableRegistry::getTableLocator()->exists('Uploads') ? [] : ['className' => UploadsTable::class];
+		$this->UploadsTable = TableRegistry::getTableLocator()->get('Uploads', $config);
+
+		$folder = new Folder(TESTS . 'test_app' . DS . 'upload', true);
+		Configure::write('App.paths.uploads', $folder->path);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->UploadsTable);
+
+		// Delete the temporary uploads
+		$upload_path = Configure::read('App.paths.uploads');
+		$folder = new Folder($upload_path);
+		$folder->delete();
 
 		parent::tearDown();
 	}
 
 	/**
 	 * Test afterSave method
-	 *
-	 * @return void
 	 */
-	public function testAfterSave() {
+	public function testAfterSave(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test afterDeleteCommit method
-	 *
-	 * @return void
 	 */
-	public function testAfterDeleteCommit() {
+	public function testAfterDeleteCommit(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
-	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->UploadsTable->affiliate(UPLOAD_ID_CHILD_WAIVER));
+	public function testAffiliate(): void {
+		$affiliateId = mt_rand();
+		$entity = UploadFactory::make(['person_id' => 1])->with('UploadTypes', ['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->UploadsTable->affiliate($entity->id));
 	}
 
 }

@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\FieldFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\FieldsTable;
 
@@ -12,40 +13,23 @@ class FieldsTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\FieldsTable
+	 * @var FieldsTable
 	 */
 	public $FieldsTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Regions',
-				'app.Facilities',
-					'app.Fields',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Fields') ? [] : ['className' => 'App\Model\Table\FieldsTable'];
-		$this->FieldsTable = TableRegistry::get('Fields', $config);
+		$config = TableRegistry::getTableLocator()->exists('Fields') ? [] : ['className' => FieldsTable::class];
+		$this->FieldsTable = TableRegistry::getTableLocator()->get('Fields', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->FieldsTable);
 
 		parent::tearDown();
@@ -53,20 +37,21 @@ class FieldsTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
-	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->FieldsTable->affiliate(FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1));
+	public function testAffiliate(): void {
+        $affiliateId = mt_rand();
+        $field = FieldFactory::make()
+            ->with('Facilities.Regions', ['affiliate_id' => $affiliateId])
+            ->persist();
+		$this->assertEquals($affiliateId, $this->FieldsTable->affiliate($field->id));
 	}
 
 	/**
 	 * Test sport method
-	 *
-	 * @return void
 	 */
-	public function testSport() {
-		$this->assertEquals('ultimate', $this->FieldsTable->sport(FIELD_ID_SUNNYBROOK_FIELD_HOCKEY_1));
+	public function testSport(): void {
+        $field = FieldFactory::make()->persist();
+		$this->assertEquals($field->get('sport'), $this->FieldsTable->sport($field->id));
 	}
 
 }

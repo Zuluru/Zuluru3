@@ -1,10 +1,10 @@
 <?php
 /**
- * @type \App\Model\Entity\Team $team
- * @type \App\Model\Entity\Person $person
- * @type boolean $adding
- * @type boolean|string $can_add
- * @type string[] $roster_role_options
+ * @type $team \App\Model\Entity\Team
+ * @type $person \App\Model\Entity\Person
+ * @type $adding boolean
+ * @type $can_add boolean|string
+ * @type $roster_role_options string[]
  */
 
 use Cake\Core\Configure;

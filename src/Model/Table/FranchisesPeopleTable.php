@@ -26,21 +26,20 @@ class FranchisesPeopleTable extends AppTable {
 	 * @return void
 	 */
 	public function initialize(array $config) {
-        parent::initialize($config);
+		parent::initialize($config);
 
 		$this->setTable('franchises_people');
 		$this->setDisplayField('id');
 		$this->setPrimaryKey('id');
 
-
 		$this->belongsTo('Franchises', [
-            'foreignKey' => 'franchise_id',
-            'joinType' => 'INNER'
-        ]);
+			'foreignKey' => 'franchise_id',
+			'joinType' => 'INNER'
+		]);
 		$this->belongsTo('People', [
-            'foreignKey' => 'person_id',
-            'joinType' => 'INNER'
-        ]);
+			'foreignKey' => 'person_id',
+			'joinType' => 'INNER'
+		]);
 	}
 
 	/**

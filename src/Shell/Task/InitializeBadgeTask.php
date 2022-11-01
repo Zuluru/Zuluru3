@@ -50,6 +50,7 @@ class InitializeBadgeTask extends Shell {
 				// Try to keep this from running for more than about a minute
 				$abort_time = time() + 45;
 
+				// TODO: All these finders should obey affiliates
 				switch ($badge->category) {
 					case 'team':
 						// We don't contain People here, because that would read the roster for all teams all at once,

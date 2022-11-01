@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Test\Factory\HolidayFactory;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\HolidaysTable;
 
@@ -12,38 +13,23 @@ class HolidaysTableTest extends TableTestCase {
 	/**
 	 * Test subject
 	 *
-	 * @var \App\Model\Table\HolidaysTable
+	 * @var HolidaysTable
 	 */
 	public $HolidaysTable;
 
 	/**
-	 * Fixtures
-	 *
-	 * @var array
-	 */
-	public $fixtures = [
-		'app.Affiliates',
-			'app.Holidays',
-		'app.I18n',
-	];
-
-	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
-		$config = TableRegistry::exists('Holidays') ? [] : ['className' => 'App\Model\Table\HolidaysTable'];
-		$this->HolidaysTable = TableRegistry::get('Holidays', $config);
+		$config = TableRegistry::getTableLocator()->exists('Holidays') ? [] : ['className' => HolidaysTable::class];
+		$this->HolidaysTable = TableRegistry::getTableLocator()->get('Holidays', $config);
 	}
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->HolidaysTable);
 
 		parent::tearDown();
@@ -51,11 +37,11 @@ class HolidaysTableTest extends TableTestCase {
 
 	/**
 	 * Test affiliate method
-	 *
-	 * @return void
 	 */
-	public function testAffiliate() {
-		$this->assertEquals(AFFILIATE_ID_CLUB, $this->HolidaysTable->affiliate(1));
+	public function testAffiliate(): void {
+	    $affiliateId = mt_rand();
+	    $holiday = HolidayFactory::make(['affiliate_id' => $affiliateId])->persist();
+		$this->assertEquals($affiliateId, $this->HolidaysTable->affiliate($holiday->id));
 	}
 
 }

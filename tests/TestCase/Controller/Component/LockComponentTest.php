@@ -19,10 +19,8 @@ class LockComponentTest extends TestCase {
 
 	/**
 	 * setUp method
-	 *
-	 * @return void
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 		$registry = new ComponentRegistry();
 		$this->LockComponent = new LockComponent($registry);
@@ -30,10 +28,8 @@ class LockComponentTest extends TestCase {
 
 	/**
 	 * tearDown method
-	 *
-	 * @return void
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		unset($this->LockComponent);
 
 		parent::tearDown();
@@ -41,28 +37,22 @@ class LockComponentTest extends TestCase {
 
 	/**
 	 * Test shutdown method
-	 *
-	 * @return void
 	 */
-	public function testShutdown() {
+	public function testShutdown(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test lock method
-	 *
-	 * @return void
 	 */
-	public function testLock() {
+	public function testLock(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 
 	/**
 	 * Test unlock method
-	 *
-	 * @return void
 	 */
-	public function testUnlock() {
+	public function testUnlock(): void {
 		$this->markTestIncomplete('Not implemented yet.');
 	}
 

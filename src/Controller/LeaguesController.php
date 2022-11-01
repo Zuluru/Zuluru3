@@ -11,6 +11,7 @@ use Cake\I18n\FrozenDate;
 use Cake\ORM\Query;
 use App\Exception\ScheduleException;
 use App\Model\Table\GamesTable;
+use App\Model\Table\LeaguesTable;
 
 /**
  * Leagues Controller
@@ -101,7 +102,7 @@ class LeaguesController extends AppController {
 			})
 			->toArray();
 
-		usort($leagues, ['App\Model\Table\LeaguesTable', 'compareLeagueAndDivision']);
+		usort($leagues, [LeaguesTable::class, 'compareLeagueAndDivision']);
 		$this->set(compact('leagues', 'affiliate', 'affiliates', 'sport', 'tournaments'));
 
 		$this->set(['years' => $this->Leagues->find()
@@ -136,7 +137,7 @@ class LeaguesController extends AppController {
 		}
 
 		$this->Authorization->authorize(current($divisions)->league);
-		usort($divisions, ['App\Model\Table\LeaguesTable', 'compareLeagueAndDivision']);
+		usort($divisions, [LeaguesTable::class, 'compareLeagueAndDivision']);
 		$this->set(compact('divisions', 'affiliates'));
 	}
 
@@ -519,7 +520,7 @@ class LeaguesController extends AppController {
 			}
 
 			// Sort games by date, time and field
-			usort($league->games, ['App\Model\Table\GamesTable', 'compareDateAndField']);
+			usort($league->games, [GamesTable::class, 'compareDateAndField']);
 
 			return $league;
 		}, 'long_term');
@@ -582,7 +583,7 @@ class LeaguesController extends AppController {
 						return in_array($game->id, $edit_ids);
 					})->toArray();
 					$league->games = array_merge($edit_games, $other_games);
-					usort($league->games, ['App\Model\Table\GamesTable', 'compareDateAndField']);
+					usort($league->games, [GamesTable::class, 'compareDateAndField']);
 
 					if ($this->Leagues->Divisions->Games->getConnection()->transactional(function () use ($edit_games, $game_slots) {
 						$success = true;
@@ -713,7 +714,7 @@ class LeaguesController extends AppController {
 
 				if (!empty($division->games)) {
 					// Sort games by date, time and field
-					usort($division->games, ['App\Model\Table\GamesTable', 'compareDateAndField']);
+					usort($division->games, [GamesTable::class, 'compareDateAndField']);
 					GamesTable::adjustEntryIndices($division->games);
 					$division->setDirty('games', false);
 				}

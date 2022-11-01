@@ -1,7 +1,6 @@
 <?php
 namespace App\Model\Rule;
 
-use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\TableRegistry;

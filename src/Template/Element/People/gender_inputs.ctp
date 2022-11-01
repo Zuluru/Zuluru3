@@ -1,9 +1,9 @@
 <?php
 /**
- * @type string $prefix
- * @type \App\Model\Entity\Person $person
- * @type boolean $secure
- * @type boolean $edit
+ * @type $prefix string
+ * @type $person \App\Model\Entity\Person
+ * @type $secure boolean
+ * @type $edit boolean
  */
 
 use Cake\Core\Configure;

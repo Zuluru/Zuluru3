@@ -273,7 +273,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 			$intersection = array_intersect($this->_managedAffiliateIds, $affiliates);
 			return !empty($intersection);
 		} else if (is_a($entity, 'App\Model\Entity\Note') && $entity->person_id) {
-			$affiliates = UserCache::getInstance()->read('AffiliateIDs', $entity->id);
+			$affiliates = UserCache::getInstance()->read('AffiliateIDs', $entity->person_id);
 			$intersection = array_intersect($this->_managedAffiliateIds, $affiliates);
 			return !empty($intersection);
 		} else if (is_a($entity, 'App\Model\Entity\User')) {
@@ -425,7 +425,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 
 	public function isPlayerOn($entity) {
 		if ($this->_teamIds === null) {
-			$this->_teamIds = UserCache::getInstance()->read('TeamIDs');
+			$this->_teamIds = UserCache::getInstance()->read('AcceptedTeamIDs');
 		}
 
 		if (empty($this->_teamIds)) {

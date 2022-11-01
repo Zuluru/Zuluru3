@@ -17,7 +17,7 @@ return [
 	 */
 	'EmailTransport' => [
 		'debug' => [
-			'className' => 'Cli',
+			'className' => \Cake\Mailer\Transport\DebugTransport::class,
 			'url' => env('EMAIL_TRANSPORT_CLI_URL', null),
 		],
 	],
