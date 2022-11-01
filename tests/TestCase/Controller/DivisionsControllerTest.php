@@ -589,8 +589,13 @@ class DivisionsControllerTest extends ControllerTestCase {
 		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 		$affiliates = $admin->affiliates;
 
+		// Some schedule-based things will return different results if run before game time on the current date than
+		// after game time. This will ensure we get a day number that's not the current day of the week, but matches
+		// the possible values for ChronosInterface.
+		$day = date('w') + 1;
+
 		/** @var \App\Model\Entity\League $league */
-		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true, 'playoffs' => true]);
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true, 'playoffs' => true, 'day_id' => $day]);
 		[$season, $playoffs] = $league->divisions;
 		$games = $season->games;
 		$facility = $games[0]->game_slot->field->facility_record;
@@ -622,7 +627,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertResponseRegExp($this->gameRegex($games[13]->id, '7:00PM-9:00PM', $facility, 2, $yellow, $blue, '', true));
 
 		// Confirm that there are appropriate links for weeks with games that aren't yet finalized
-		$date = FrozenDate::now()->next(ChronosInterface::MONDAY)->subWeeks(1)->toDateString();
+		$date = FrozenDate::now()->next($day)->subWeeks(1)->toDateString();
 		$this->assertResponseContains('/divisions/schedule?division=' . $season->id . '&amp;edit_date=' . $date);
 		$this->assertResponseContains('/divisions/slots?division=' . $season->id . '&amp;date=' . $date);
 		$this->assertResponseContains('/schedules/delete?division=' . $season->id . '&amp;date=' . $date);
@@ -634,7 +639,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertResponseNotContains('/games/attendance');
 
 		// Check for initialize dependencies link where appropriate
-		$date = FrozenDate::now()->next(ChronosInterface::MONDAY)->subWeeks(3)->addWeeks(9);
+		$date = FrozenDate::now()->next($day)->subWeeks(3)->addWeeks(9);
 		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $playoffs->id], $admin->id);
 		$this->assertResponseRegExp('#/divisions/initialize_dependencies\?division=' . $playoffs->id . '&amp;date=' . $date . '[^>]*\"#ms');
 		$this->assertResponseRegExp('#/divisions/initialize_dependencies\?division=' . $playoffs->id . '&amp;date=' . $date . '&amp;reset=1[^>]*\"#ms');
@@ -657,8 +662,10 @@ class DivisionsControllerTest extends ControllerTestCase {
 		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'volunteer']);
 		$affiliates = $admin->affiliates;
 
+		$day = date('w') + 1;
+
 		/** @var \App\Model\Entity\League $league */
-		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true, 'playoffs' => true]);
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true, 'playoffs' => true, 'day_id' => $day]);
 		[$season, $playoffs] = $league->divisions;
 		$games = $season->games;
 		$facility = $games[0]->game_slot->field->facility_record;
@@ -690,7 +697,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertResponseRegExp($this->gameRegex($games[13]->id, '7:00PM-9:00PM', $facility, 2, $yellow, $blue, '', true));
 
 		// Confirm that there are appropriate links for weeks with games that aren't yet finalized
-		$date = FrozenDate::now()->next(ChronosInterface::MONDAY)->subWeeks(1)->toDateString();
+		$date = FrozenDate::now()->next($day)->subWeeks(1)->toDateString();
 		$this->assertResponseContains('/divisions/schedule?division=' . $season->id . '&amp;edit_date=' . $date);
 		$this->assertResponseContains('/divisions/slots?division=' . $season->id . '&amp;date=' . $date);
 		$this->assertResponseContains('/schedules/delete?division=' . $season->id . '&amp;date=' . $date);
@@ -702,7 +709,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertResponseNotContains('/games/attendance');
 
 		// Check for initialize dependencies link where appropriate
-		$date = FrozenDate::now()->next(ChronosInterface::MONDAY)->subWeeks(3)->addWeeks(9);
+		$date = FrozenDate::now()->next($day)->subWeeks(3)->addWeeks(9);
 		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $playoffs->id], $manager->id);
 		$this->assertResponseRegExp('#/divisions/initialize_dependencies\?division=' . $playoffs->id . '&amp;date=' . $date . '[^>]*\"#ms');
 		$this->assertResponseRegExp('#/divisions/initialize_dependencies\?division=' . $playoffs->id . '&amp;date=' . $date . '&amp;reset=1[^>]*\"#ms');
@@ -726,8 +733,10 @@ class DivisionsControllerTest extends ControllerTestCase {
 		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
 		$affiliates = $admin->affiliates;
 
+		$day = date('w') + 1;
+
 		/** @var \App\Model\Entity\League $league */
-		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true, 'playoffs' => true]);
+		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'scores' => true, 'playoffs' => true, 'day_id' => $day]);
 		[$season, $playoffs] = $league->divisions;
 		$games = $season->games;
 		$facility = $games[0]->game_slot->field->facility_record;
@@ -759,7 +768,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertResponseRegExp($this->gameRegex($games[13]->id, '7:00PM-9:00PM', $facility, 2, $yellow, $blue, '', true));
 
 		// Confirm that there are appropriate links for weeks with games that aren't yet finalized
-		$date = FrozenDate::now()->next(ChronosInterface::MONDAY)->subWeeks(1)->toDateString();
+		$date = FrozenDate::now()->next($day)->subWeeks(1)->toDateString();
 		$this->assertResponseContains('/divisions/schedule?division=' . $season->id . '&amp;edit_date=' . $date);
 		$this->assertResponseContains('/divisions/slots?division=' . $season->id . '&amp;date=' . $date);
 		$this->assertResponseContains('/schedules/delete?division=' . $season->id . '&amp;date=' . $date);
@@ -771,7 +780,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertResponseNotContains('/games/attendance');
 
 		// Check for initialize dependencies link where appropriate
-		$date = FrozenDate::now()->next(ChronosInterface::MONDAY)->subWeeks(3)->addWeeks(9);
+		$date = FrozenDate::now()->next($day)->subWeeks(3)->addWeeks(9);
 		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $playoffs->id], $volunteer->id);
 		$this->assertResponseRegExp('#/divisions/initialize_dependencies\?division=' . $playoffs->id . '&amp;date=' . $date . '[^>]*\"#ms');
 		$this->assertResponseRegExp('#/divisions/initialize_dependencies\?division=' . $playoffs->id . '&amp;date=' . $date . '&amp;reset=1[^>]*\"#ms');
