@@ -2,6 +2,7 @@
 /**
  * @type \App\View\AppView $this
  * @type \App\Model\Entity\Registration[] $registrations
+ * @type \App\Model\Entity\Credit[] $debits
  * @type \App\Model\Entity\Person $person
  * @type \StripePayment\Event\Listener $listener
  * @type int $number_of_providers
@@ -45,6 +46,20 @@ foreach ($registrations as $registration) {
 				'metadata' => ['event_id' => $registration->event->id, 'registration_id' => $registration->id],
 			],
 			'unit_amount' => round(($cost + $tax1 + $tax2) * 100),
+		],
+		'quantity' => 1,
+	];
+}
+foreach ($debits as $debit) {
+	$items[] = [
+		'price_data' => [
+			'currency' => strtolower(Configure::read('payment.currency')),
+			'product_data' => [
+				'name' => $debit->notes,
+				'description' => $debit->notes,
+				'metadata' => ['credit_id' => $debit->id],
+			],
+			'unit_amount' => round(-$debit->balance * 100),
 		],
 		'quantity' => 1,
 	];

@@ -52,8 +52,8 @@ class PaymentController extends AppController {
 
 		// Bambora sends data back through the URL
 		$data = $this->request->getUri()->getQuery();
-		[$result, $audit, $registration_ids] = $this->getAPI(API::isTestData($data))->parsePayment($data);
-		$this->_processPayment($result, $audit, $registration_ids);
+		[$result, $audit, $registration_ids, $debit_ids] = $this->getAPI(API::isTestData($data))->parsePayment($data);
+		$this->_processPayment($result, $audit, $registration_ids, $debit_ids);
 	}
 
 }

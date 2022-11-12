@@ -68,8 +68,8 @@ class PaymentController extends AppController {
 
 		// Chase posts data back to us as if we're a form
 		$data = $this->request->getData();
-		[$result, $audit, $registration_ids] = $this->getAPI(API::isTestData($data))->parsePayment($data);
-		$this->_processPayment($result, $audit, $registration_ids);
+		[$result, $audit, $registration_ids, $debit_ids] = $this->getAPI(API::isTestData($data))->parsePayment($data);
+		$this->_processPayment($result, $audit, $registration_ids, $debit_ids);
 	}
 
 	public function from_email() {
@@ -80,7 +80,7 @@ class PaymentController extends AppController {
 				return;
 			}
 
-			[$result, $audit, $registration_ids] = $this->getAPI(API::isTestData($values))->parsePayment($values, false);
+			[$result, $audit, $registration_ids, $debit_ids] = $this->getAPI(API::isTestData($values))->parsePayment($values, false);
 			if (!$result) {
 				$this->Flash->warning(__('Unable to extract payment information from the text provided.'));
 				return;
@@ -95,7 +95,7 @@ class PaymentController extends AppController {
 				return;
 			}
 			if ($registrations->some(function (Registration $registration) {
-				if ($registration->payment == 'Paid') {
+				if ($registration->payment === 'Paid') {
 					return !empty($registration->payments);
 				}
 			})) {
@@ -111,8 +111,8 @@ class PaymentController extends AppController {
 		$this->Authorization->authorize($this);
 		$this->viewBuilder()->setTemplate('index');
 		$data = $this->request->getData();
-		[$result, $audit, $registration_ids] = $this->getAPI(API::isTestData($data))->parsePayment($data, false);
-		$this->_processPayment($result, $audit, $registration_ids);
+		[$result, $audit, $registration_ids, $debit_ids] = $this->getAPI(API::isTestData($data))->parsePayment($data, false);
+		$this->_processPayment($result, $audit, $registration_ids, $debit_ids);
 	}
 
 	private function _parseEmail($text) {

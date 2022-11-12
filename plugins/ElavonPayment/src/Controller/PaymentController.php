@@ -68,7 +68,7 @@ class PaymentController extends AppController {
 		// Elavon posts data back to us as if we're a form
 		$data = $this->request->getData();
 
-		[$result, $audit, $registration_ids] = $this->getAPI(API::isTestData($data))->parsePayment($data);
-		$this->_processPayment($result, $audit, $registration_ids);
+		[$result, $audit, $registration_ids, $debit_ids] = $this->getAPI(API::isTestData($data))->parsePayment($data);
+		$this->_processPayment($result, $audit, $registration_ids, $debit_ids);
 	}
 }

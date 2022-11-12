@@ -418,6 +418,11 @@ class SettingsSeed extends AbstractSeed {
 			],
 			[
 				'category' => 'registration',
+				'name' => 'debit_id_format',
+				'value' => 'D%09d',
+			],
+			[
+				'category' => 'registration',
 				'name' => 'offline_payment_text',
 				'value' => '<ul>\r\n<li>Mail (or personally deliver) a cheque for the appropriate amount to the head office.</li>\r\n<li>Ensure that you quote your order number on the cheque in order for your payment to be properly credited.</li>\r\n<li>Also include a note indicating which registration the cheque is for, along with your full name.</li>\r\n<li>If you are paying for multiple registrations with a single cheque, be sure to list all applicable order numbers, registrations and member names.</li>\r\n</ul>\r\n<p>Please note that online payment registrations are \'live\' while offline payments are not.  You will not be registered to the appropriate category that you are paying for until the cheque is received and processed (usually within 1-2 business days of receipt).</p>\r\n<p><b>Insufficient Funds (NSF) - Refused Credit Cards</b></p>\r\n<p>A $15 surcharge will be added when a payment cheque cannot be cashed due to insufficient funds or when a manual credit card transaction slip is refused. (Note: the on-line payments system validates credit cards in real time. There is no surcharge if an on-line transaction is refused.) </p>\r\n',
 			],

@@ -64,8 +64,8 @@ class PaymentController extends AppController {
 	public function index() {
 		// Stripe sends data back through an event
 		$data = $this->request->input();
-		[$result, $audit, $registration_ids] = $this->getAPI(API::isTestData($data))->parsePayment($data);
-		$this->_processPayment($result, $audit, $registration_ids);
+		[$result, $audit, $registration_ids, $debit_ids] = $this->getAPI(API::isTestData($data))->parsePayment($data);
+		$this->_processPayment($result, $audit, $registration_ids, $debit_ids);
 
 		if (!$result) {
 			return $this->response->withStatus(400);

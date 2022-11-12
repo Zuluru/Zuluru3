@@ -8,7 +8,7 @@ class API extends \App\Http\API {
 
 	/**
 	 * @param array $data
-	 * @return string
+	 * @return string|array
 	 */
 	public function checkoutSessionCreate(array $fields) {
 		if ($this->isTest()) {
@@ -67,7 +67,7 @@ class API extends \App\Http\API {
 	 */
 	public function parsePayment(Array $data) {
 		if (array_key_exists('errorCode', $data)) {
-			return [false, ['message' => $data['errorMessage']], []];
+			return [false, ['message' => $data['errorMessage']], [], []];
 		}
 
 		// Retrieve the parameters sent from the server
@@ -94,9 +94,9 @@ class API extends \App\Http\API {
 			$audit['time'] = $matches[2];
 		}
 
-		$registration_ids = explode(',', $data['ssl_description']);
+		[$registration_ids, $debit_ids] = $this->splitRegistrationIds($data['ssl_description']);
 
-		return [true, $audit, $registration_ids];
+		return [true, $audit, $registration_ids, $debit_ids];
 	}
 
 }

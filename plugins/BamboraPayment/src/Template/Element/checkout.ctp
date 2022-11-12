@@ -2,6 +2,7 @@
 /**
  * @type \App\View\AppView $this
  * @type \App\Model\Entity\Registration[] $registrations
+ * @type \App\Model\Entity\Credit[] $debits
  * @type \App\Model\Entity\Person $person
  * @type \BamboraPayment\Event\Listener $listener
  * @type int $number_of_providers
@@ -36,6 +37,10 @@ foreach ($registrations as $registration) {
 	$total_amount += $cost + $tax1 + $tax2;
 	$ids[] = $registration->id;
 	$event_ids[] = $registration->event->id;
+}
+foreach ($debits as $debit) {
+    $total_amount -= $debit->balance;
+    $ids[] = "D{$debit->id}";
 }
 $total_amount = sprintf('%.2f', $total_amount);
 
