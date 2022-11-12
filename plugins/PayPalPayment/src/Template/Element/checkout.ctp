@@ -2,6 +2,7 @@
 /**
  * @type \App\View\AppView $this
  * @type \App\Model\Entity\Registration[] $registrations
+ * @type \App\Model\Entity\Credit[] $debits
  * @type \App\Model\Entity\Person $person
  * @type \PayPalPayment\Event\Listener $listener
  * @type int $number_of_providers
@@ -75,6 +76,17 @@ foreach ($registrations as $registration) {
 	$total_amount += $cost + $tax1 + $tax2;
 	$total_tax += $tax1 + $tax2;
 	$ids[] = $registration->id;
+	++ $m;
+}
+foreach ($debits as $debit) {
+	$fields["L_PAYMENTREQUEST_0_NAME$m"] = $debit->notes;
+	$fields["L_PAYMENTREQUEST_0_DESC$m"] = substr($debit->notes, 0, 127);
+	$fields["L_PAYMENTREQUEST_0_AMT$m"] = sprintf('%.2f', -$debit->balance);
+	$fields["L_PAYMENTREQUEST_0_NUMBER$m"] = sprintf(Configure::read('registration.debit_id_format'), $debit->id);
+	$fields["L_PAYMENTREQUEST_0_QTY$m"] = 1;
+
+	$total_amount -= $debit->balance;
+	$ids[] = "D{$debit->id}";
 	++ $m;
 }
 $fields['PAYMENTREQUEST_0_CUSTOM'] = $person->id . ':' . implode(',', $ids);

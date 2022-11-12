@@ -630,7 +630,7 @@ class RegistrationsController extends AppController {
 				Configure::read('Security.authModel'),
 				'Credits' => [
 					'queryBuilder' => function (Query $q) {
-						return $q->where(['Credits.amount_used < Credits.amount']);
+						return $q->where(['Credits.amount_used != Credits.amount']);
 					},
 				],
 				// TODOLATER: Include relatives, and allow us to pay for them too; see also All/splash.ctp

@@ -28,6 +28,15 @@ if (!$affiliate) {
 			'help' => __('sprintf format string for the unique order ID.'),
 		],
 	]);
+
+	echo $this->element('Settings/input', [
+		'category' => 'registration',
+		'name' => 'debit_id_format',
+		'options' => [
+			'label' => __('Debit ID Format String'),
+			'help' => __('sprintf format string for debit (negative credit) IDs.'),
+		],
+	]);
 }
 
 echo $this->element('Settings/input', [

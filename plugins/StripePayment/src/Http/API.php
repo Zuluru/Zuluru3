@@ -55,16 +55,16 @@ class API extends \App\Http\API {
 			$event = $this->constructEvent($input);
 		} catch(\UnexpectedValueException $ex) {
 			// Invalid payload
-			return [false, ['message' => $ex->getMessage()], []];
+			return [false, ['message' => $ex->getMessage()], [], []];
 		} catch(\Stripe\Exception\SignatureVerificationException $ex) {
 			// Invalid signature
-			return [false, ['message' => $ex->getMessage()], []];
+			return [false, ['message' => $ex->getMessage()], [], []];
 		}
 
 		$session = $event->data->object;
-		if ($event->type == 'checkout.session.completed') {
+		if ($event->type === 'checkout.session.completed') {
 			$payment = $this->paymentIntentsRetrieve($session->payment_intent);
-			if ($payment->status == 'succeeded') {
+			if ($payment->status === 'succeeded') {
 				$charge = $payment->charges->data[0];
 
 				$audit = [
@@ -82,13 +82,13 @@ class API extends \App\Http\API {
 					'time' => date('H:i:s', $payment->created),
 				];
 
-				$registration_ids = $this->getRegistrationIds($session->id);
+				[$registration_ids, $debit_ids] = $this->getRegistrationIds($session->id);
 
-				return [true, $audit, $registration_ids];
+				return [true, $audit, $registration_ids, $debit_ids];
 			}
 		}
 
-		return [true, [], []];
+		return [true, [], [], []];
 	}
 
 	/**
@@ -129,13 +129,17 @@ class API extends \App\Http\API {
 	 */
 	public function getRegistrationIds($id) {
 		$line_items = \Stripe\Checkout\Session::allLineItems($id);
-		$registration_ids = [];
+		$registration_ids = $debit_ids = [];
 		foreach ($line_items->data as $item) {
 			$product = $this->client()->products->retrieve($item->price->product);
-			$registration_ids[] = $product->metadata->registration_id;
+			if ($product->metadata->offsetExists('registration_id')) {
+				$registration_ids[] = $product->metadata->registration_id;
+			} else {
+				$debit_ids[] = $product->metadata->debit_id;
+			}
 		}
 
-		return $registration_ids;
+		return [$registration_ids, $debit_ids];
 	}
 
 }

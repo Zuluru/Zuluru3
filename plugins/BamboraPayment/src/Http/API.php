@@ -42,7 +42,7 @@ class API extends \App\Http\API {
 		// Validate the hash
 		$hash_pos = strpos($qs, '&hashValue=');
 		if ($hash_pos === false) {
-			return [false, $audit, []];
+			return [false, $audit, [], []];
 		} else {
 			$qs = substr($qs, 0, $hash_pos);
 		}
@@ -55,12 +55,12 @@ class API extends \App\Http\API {
 
 		// Validate the response code
 		if ($audit['iso_code'] != 1 || $data['hashValue'] != $calculated_hash) {
-			return [false, $audit, []];
+			return [false, $audit, [], []];
 		}
 
-		$registration_ids = explode(',', $data['ref1']);
+		[$registration_ids, $debit_ids] = $this->splitRegistrationIds($data['ref1']);
 
-		return [true, $audit, $registration_ids];
+		return [true, $audit, $registration_ids, $debit_ids];
 	}
 
 }

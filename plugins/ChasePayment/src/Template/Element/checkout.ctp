@@ -2,6 +2,7 @@
 /**
  * @type \App\View\AppView $this
  * @type \App\Model\Entity\Registration[] $registrations
+ * @type \App\Model\Entity\Credit[] $debits
  * @type \App\Model\Entity\Person $person
  * @type \ChasePayment\Event\Listener $listener
  * @type int $number_of_providers
@@ -46,6 +47,7 @@ function open_payment_window_chase() {
 ', ['block' => true, 'buffer' => true]);
 
 $order_fmt = Configure::read('registration.order_id_format');
+$debit_fmt = Configure::read('registration.debit_id_format');
 
 // Generate a unique order id
 $time = FrozenTime::now()->toUnixString();
@@ -107,6 +109,19 @@ foreach ($registrations as $registration) {
 	$total_tax += $tax1 + $tax2;
 	$ids[] = $registration->id;
 	$event_ids[] = $registration->event->id;
+}
+foreach ($debits as $debit) {
+	echo quick_hidden($this, 'x_line_item', implode($join, [
+		sprintf($debit_fmt, $debit->id),
+		$debit->notes,
+		$debit->notes,
+		'1',
+		-$debit->balance,
+		'NO',
+	]) . $join);
+
+	$total_amount -= $debit->balance;
+	$ids[] = "D{$debit->id}";
 }
 $total_amount = sprintf('%.2f', $total_amount);
 $hash_source = implode('^', [

@@ -2,6 +2,7 @@
 /**
  * @type \App\View\AppView $this
  * @type \App\Model\Entity\Registration[] $registrations
+ * @type \App\Model\Entity\Credit[] $debits
  * @type \App\Model\Entity\Person $person
  * @type \ElavonPayment\Event\Listener $listener
  * @type int $number_of_providers
@@ -19,6 +20,7 @@ function open_payment_window_elavon() {
 ', ['block' => true, 'buffer' => true]);
 
 $order_fmt = Configure::read('registration.order_id_format');
+$debit_fmt = Configure::read('registration.debit_id_format');
 $invoice_num = sprintf($order_fmt, $registrations[0]->id);
 
 // Build the online payment form
@@ -35,6 +37,17 @@ foreach ($registrations as $registration) {
 		$registration->event->name,
 		'',
 	]);
+}
+foreach ($debits as $debit) {
+    $total_amount -= $debit->balance;
+    $ids[] = "D{$debit->id}";
+
+    $items[] = implode('::', [
+        sprintf('%.2f', -$debit->balance),
+        1,
+        $debit->notes,
+        '',
+    ]);
 }
 $total_amount = sprintf('%.2f', $total_amount);
 

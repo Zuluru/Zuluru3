@@ -79,14 +79,14 @@ class API extends \App\Http\API {
 
 			// Validate the response code
 			if ($audit['iso_code'] != 1 || $data['x_MD5_Hash'] != $calculated_hash) {
-				return [false, $audit, []];
+				return [false, $audit, [], []];
 			}
 		} else if (!array_key_exists('response_code', $audit)) {
 			$audit['response_code'] = '0';
 		}
 
-		$registration_ids = explode(',', $data['x_description']);
-		return [true, $audit, $registration_ids];
+		[$registration_ids, $debit_ids] = $this->splitRegistrationIds($data['x_description']);
+		return [true, $audit, $registration_ids, $debit_ids];
 	}
 
 }
