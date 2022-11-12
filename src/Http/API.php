@@ -8,7 +8,7 @@ abstract class API {
 	/**
 	 * @var bool
 	 */
-	private $test = true;
+	private $test;
 
 	/**
 	 * API constructor.
@@ -18,25 +18,30 @@ abstract class API {
 		$this->test = $test;
 	}
 
-	/**
-	 * @param bool $test
-	 */
-	public function setTest(bool $test) {
+	public function setTest(bool $test): void {
 		$this->test = $test;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isTest() {
+	public function isTest(): bool {
 		return $this->test;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public static function isTestData($data) {
+	public static function isTestData($data): bool {
 		return RegistrationsController::isTest();
+	}
+
+	public static function splitRegistrationIds(string $ids): array {
+		// Pull out any IDs that are for debits
+		$registration_ids = $debit_ids = [];
+		foreach (explode(',', $ids) as $id) {
+			if ($id[0] === 'D') {
+				$debit_ids[] = substr($id, 1);
+			} else {
+				$registration_ids[] = $id;
+			}
+		}
+
+		return [$registration_ids, $debit_ids];
 	}
 
 }

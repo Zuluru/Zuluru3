@@ -534,6 +534,29 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	}
 
 	/**
+	 * Test checkout method with debits
+	 */
+	public function testCheckoutDebit(): void {
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
+		$this->loadFixtureScenario(DiverseRegistrationsScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'player' => $player,
+		]);
+
+		$debit = CreditFactory::make(['person_id' => $player->id, 'affiliate_id' => $admin->affiliates[0]->id, 'amount' => -100, 'notes' => 'Test debit'])->persist();
+
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'checkout'], $player->id);
+
+		// Confirm that the debit is there
+		$this->assertResponseContains('Test debit');
+		$this->assertResponseContains(sprintf('D%09d', $debit->id));
+		$this->assertResponseContains('$100.00');
+
+		// Confirm the total of the registration and the debit
+		$this->assertResponseContains('$215.00');
+	}
+
+	/**
 	 * Test checkout method for various failure scenarios
 	 */
 	public function testCheckoutFailure(): void {

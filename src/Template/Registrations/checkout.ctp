@@ -8,10 +8,19 @@
  */
 
 use App\Controller\AppController;
+use App\Model\Entity\Credit;
 use Cake\Core\Configure;
 
 $this->Html->addCrumb(__('Registration'));
 $this->Html->addCrumb(__('Checkout'));
+
+$credit_split = collection($person->credits ?? [])->groupBy(function (Credit $credit) {
+	return $credit->balance > 0;
+})->toArray();
+/** @var Credit[] $credits */
+$credits = $credit_split[true] ?? [];
+/** @var Credit[] $debits */
+$debits = $credit_split[false] ?? [];
 ?>
 
 <div class="registrations checkout form">
@@ -19,6 +28,7 @@ $this->Html->addCrumb(__('Checkout'));
 
 <?php
 $order_id_format = Configure::read('registration.order_id_format');
+$debit_id_format = Configure::read('registration.debit_id_format');
 
 if (!empty($registrations)):
 	echo $this->Html->para(null, __('These are your current unpaid registrations. <span class="highlight-message">Payment completes your registration and confirms your booking/purchase.</span>'));
@@ -86,7 +96,7 @@ if (!empty($registrations)):
 <?php
 	endif;
 
-	if (!empty($person->credits)):
+	if (!empty($credits)):
 ?>
 		<div class="caption">
 <?php
@@ -166,14 +176,14 @@ if (!empty($registrations)):
 							);
 						}
 
-						if (!empty($person->credits)) {
+						if (!empty($credits)) {
 							echo $this->Html->link(__('Redeem Credit'), ['action' => 'redeem', 'registration' => $registration->id]);
 						}
 					?></td>
 					<td><?= sprintf($order_id_format, $registration->id) ?></td>
 					<td><?php
 						echo $this->Html->link($registration->long_description, ['controller' => 'Events', 'action' => 'view', 'event' => $registration->event->id]);
-						if ($registration->payment == 'Reserved') {
+						if ($registration->payment === 'Reserved') {
 							if ($registration->reservation_expires) {
 								$expiry = __('Reserved until {0}', $this->Time->datetime($registration->reservation_expires));
 							} else {
@@ -183,6 +193,22 @@ if (!empty($registrations)):
 						}
 					?></td>
 					<td><?= $this->Number->currency($cost + $tax1 + $tax2) ?></td>
+				</tr>
+<?php
+	endforeach;
+
+	foreach ($debits as $debit):
+		$total -= $debit->balance;
+?>
+				<tr>
+					<td class="actions"><?php
+						if (!empty($credits)) {
+							echo $this->Html->link(__('Redeem Credit'), ['action' => 'redeem', 'registration' => $registration->id]);
+						}
+					?></td>
+					<td><?= sprintf($debit_id_format, $debit->id) ?></td>
+					<td><?= $debit->notes ?></td>
+					<td><?= $this->Number->currency(-$debit->balance) ?></td>
 				</tr>
 <?php
 	endforeach;
@@ -205,7 +231,7 @@ if (!empty($registrations)):
 				$element = $params;
 				$params = [];
 			}
-			echo $this->element($element, array_merge($params, ['number_of_providers' => $plugin_elements->count()]));
+			echo $this->element($element, array_merge($params, ['number_of_providers' => $plugin_elements->count(), 'debits' => $debits]));
 		}
 	} else {
 		echo $this->Html->para('warning-message', __('Online payments have been enabled on this system, but no payment provider has been configured.'));

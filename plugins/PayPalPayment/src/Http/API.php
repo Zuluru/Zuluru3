@@ -13,7 +13,7 @@ class API extends \App\Http\API {
 	public function parsePayment(Array $data) {
 		$details = $this->GetExpressCheckoutDetails(['TOKEN' => $data['token']]);
 		if (!is_array($details)) {
-			return [false, ['message' => $details], []];
+			return [false, ['message' => $details], [], []];
 		}
 
 		$response = $this->DoExpressCheckoutPayment([
@@ -24,7 +24,7 @@ class API extends \App\Http\API {
 			'PAYMENTREQUEST_0_CURRENCYCODE' => $details['PAYMENTREQUEST_0_CURRENCYCODE'],
 		]);
 		if (!is_array($response)) {
-			return [false, ['message' => $response], []];
+			return [false, ['message' => $response], [], []];
 		}
 
 		// Retrieve the parameters sent from the server
@@ -48,10 +48,10 @@ class API extends \App\Http\API {
 		// Validate the response code
 		if ($response['PAYMENTINFO_0_ERRORCODE'] == 0) {
 			[$user_id, $registration_ids] = explode(':', $details['PAYMENTREQUEST_0_CUSTOM']);
-			$registration_ids = explode(',', $registration_ids);
-			return [true, $audit, $registration_ids];
+			[$registration_ids, $debit_ids] = $this->splitRegistrationIds($registration_ids);
+			return [true, $audit, $registration_ids, $debit_ids];
 		} else {
-			return [false, $audit, []];
+			return [false, $audit, [], []];
 		}
 	}
 
@@ -114,7 +114,7 @@ class API extends \App\Http\API {
 
 		curl_close($ch);
 		parse_str($response, $responseArray); // Break the NVP string to an array
-		if ($responseArray['ACK'] != 'Success') {
+		if ($responseArray['ACK'] !== 'Success') {
 			return "The PayPal server returned the following error message: {$responseArray['L_LONGMESSAGE0']}";
 		}
 

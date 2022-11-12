@@ -381,6 +381,13 @@ class SettingsFixture extends TestFixture {
 			[
 				'person_id' => null,
 				'category' => 'registration',
+				'name' => 'debit_id_format',
+				'value' => 'D%09d',
+				'affiliate_id' => null,
+			],
+			[
+				'person_id' => null,
+				'category' => 'registration',
 				'name' => 'online_payments',
 				'value' => 1,
 				'affiliate_id' => null,

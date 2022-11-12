@@ -1,9 +1,13 @@
 <?php
 namespace App\Controller;
 
+use Cake\ORM\TableRegistry;
+
 trait PaymentsTrait {
 
-	private function _processPayment($result, $audit, $registration_ids) {
+	private function _processPayment($result, $audit, $registration_ids, $debit_ids) {
+		$credits_table = TableRegistry::getTableLocator()->get('Credits');
+
 		$errors = [];
 		if ($result) {
 			$registrations = $this->Registrations->find()
@@ -39,13 +43,17 @@ trait PaymentsTrait {
 				->where(['Registrations.id IN' => $registration_ids])
 				->toArray();
 
+			$debits = $credits_table->find()
+				->where(['Credits.id IN' => $debit_ids])
+				->toArray();
+
 			$audit = $this->Registrations->Payments->RegistrationAudits->newEntity($audit);
 			if (!$this->Registrations->Payments->RegistrationAudits->save($audit)) {
 				$errors[] = __('There was an error updating the audit record in the database. Contact the office to ensure that your information is updated, quoting order #<b>{0}</b>, or you may not be allowed to be added to rosters, etc.', $audit->order_id);
 				$this->log($audit->errors());
 			}
 
-			foreach ($registrations as $key => $registration) {
+			foreach ($registrations as $registration) {
 				[$cost, $tax1, $tax2] = $registration->paymentAmounts();
 				$registration->payments[] = $this->Registrations->Payments->newEntity([
 					'registration_audit_id' => $audit->id,
@@ -56,6 +64,13 @@ trait PaymentsTrait {
 
 				// The registration is also passed as an option, so that the payment rules have easy access to it
 				if (!$this->Registrations->save($registration, ['registration' => $registration, 'event' => $registration->event])) {
+					$errors[] = __('Your payment was approved, but there was an error updating your payment status in the database. Contact the office to ensure that your information is updated, quoting order #<b>{0}</b>, or you may not be allowed to be added to rosters, etc.', $audit->order_id);
+				}
+			}
+
+			foreach ($debits as $debit) {
+				$debit->amount_used = $debit->amount;
+				if (!$credits_table->save($debit)) {
 					$errors[] = __('Your payment was approved, but there was an error updating your payment status in the database. Contact the office to ensure that your information is updated, quoting order #<b>{0}</b>, or you may not be allowed to be added to rosters, etc.', $audit->order_id);
 				}
 			}
