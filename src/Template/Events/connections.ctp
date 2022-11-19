@@ -68,4 +68,4 @@ echo $this->Form->input('alternate._ids', [
 <?php
 $this->Html->css(['jquery.asmselect.css'], ['block' => true]);
 $this->Html->script(['jquery.asmselect.js'], ['block' => true]);
-$this->Html->scriptBlock('jQuery("select[multiple]").asmSelect();', ['buffer' => true]);
+$this->Html->scriptBlock('zjQuery("select[multiple]").asmSelect();', ['buffer' => true]);

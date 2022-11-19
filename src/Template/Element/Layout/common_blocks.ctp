@@ -137,9 +137,9 @@ if (!$this->fetch('jquery_scripts')) {
 
 	// Change jQueryUI plugin names to prevent name collision with Bootstrap.
 	echo $this->Html->scriptBlock('
-jQuery.noConflict();
-jQuery.widget.bridge("uitooltip", jQuery.ui.tooltip);
-jQuery.widget.bridge("uibutton", jQuery.ui.button);
+zjQuery = jQuery.noConflict();
+zjQuery.widget.bridge("uitooltip", zjQuery.ui.tooltip);
+zjQuery.widget.bridge("uibutton", zjQuery.ui.button);
 ');
 	$this->end();
 }
@@ -185,7 +185,8 @@ if (!$this->fetch('javascript_variables') && method_exists($this->Html, 'iconImg
 if (!$this->fetch('bootstrap_scripts')) {
 	$this->start('bootstrap_scripts');
 	echo $this->Html->script([
-		'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js',
+		//'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js',
+		'bootstrap.min.js',
 	]);
 	$this->end();
 }
@@ -209,13 +210,13 @@ if (!$this->fetch('language_scripts')) {
 			'https://www.zuluru.net/js/uls/jquery.uls.core.js',
 		]);
 		echo $this->Html->scriptBlock('
-jQuery(".uls-trigger").uls({
+zjQuery(".uls-trigger").uls({
 	// Locate the dialog right-aligned with the trigger.
 	// TODO: Likely needs to change with RTL languages.
 	onVisible : function () {
-		var trigger = jQuery(".uls-trigger").first();
-		var right = jQuery(window).width() - (trigger.offset().left + trigger.outerWidth());
-		jQuery(".uls-menu").css("left", "").css("right", right + "px");
+		var trigger = zjQuery(".uls-trigger").first();
+		var right = zjQuery(window).width() - (trigger.offset().left + trigger.outerWidth());
+		zjQuery(".uls-menu").css("left", "").css("right", right + "px");
 	},
 	onSelect : function (language) {
 		window.location = "' . $this->Url->build(['controller' => 'All', 'action' => 'language', 'return' => AppController::_return()], true) . '&lang=" + language;

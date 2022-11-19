@@ -75,16 +75,16 @@ function soccerInlinePositions(id)
 
 function soccerUpdateForm()
 {
-	jQuery('#soccer_fields .show_angle').html(fields[current].angle);
-	jQuery('#soccer_fields .show_width').html(fields[current].width);
-	jQuery('#soccer_fields .show_length').html(fields[current].length);
+	zjQuery('#soccer_fields .show_angle').html(fields[current].angle);
+	zjQuery('#soccer_fields .show_width').html(fields[current].width);
+	zjQuery('#soccer_fields .show_length').html(fields[current].length);
 }
 
 function soccerSaveField()
 {
 	if (current != 0) {
-		fields[current].angle = parseInt(jQuery('#soccer_fields .show_angle').html());
-		fields[current].width = parseInt(jQuery('#soccer_fields .show_width').html());
-		fields[current].length = parseInt(jQuery('#soccer_fields .show_length').html());
+		fields[current].angle = parseInt(zjQuery('#soccer_fields .show_angle').html());
+		fields[current].width = parseInt(zjQuery('#soccer_fields .show_width').html());
+		fields[current].length = parseInt(zjQuery('#soccer_fields .show_length').html());
 	}
 }

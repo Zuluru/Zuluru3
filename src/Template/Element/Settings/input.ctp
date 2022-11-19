@@ -111,7 +111,7 @@ if (isset($jquery)) {
 if (!empty($confirm)) {
 	$confirm = str_replace("'", "\\'", $confirm);
 	if ($options['type'] == 'radio') {
-		echo $this->Html->scriptBlock("jQuery('#{$id}-value-1').on('click', function () {
+		echo $this->Html->scriptBlock("zjQuery('#{$id}-value-1').on('click', function () {
 			return confirm('$confirm');
 		});", ['buffer' => true]);
 	} else {

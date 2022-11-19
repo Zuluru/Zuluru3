@@ -89,14 +89,14 @@ $edit_link = Router::url(['controller' => 'People', 'action' => 'edit', 'return'
 $confirm = __('Confirm');
 $confirm_link = Router::url(['controller' => 'People', 'action' => 'confirm']);
 $this->Html->scriptBlock("
-jQuery('#ProfileConfirmation').dialog({
+zjQuery('#ProfileConfirmation').dialog({
 	buttons: {
 		'$edit': function () {
 			window.location.href = '$edit_link';
 		},
 		'$confirm': function () {
-			jQuery('#ProfileConfirmation').dialog('close');
-			jQuery.ajax({
+			zjQuery('#ProfileConfirmation').dialog('close');
+			zjQuery.ajax({
 				type: 'GET',
 				url: '$confirm_link'
 			})

@@ -63,18 +63,18 @@ function ultimateInlinePositions(id)
 
 function ultimateUpdateForm()
 {
-	jQuery('#ultimate_fields .show_angle').html(fields[current].angle);
-	jQuery('#ultimate_fields .show_width').html(fields[current].width);
-	jQuery('#ultimate_fields .show_length').html(fields[current].length);
-	jQuery('#ultimate_fields .show_field').html(ultimateFieldLength(fields[current].length));
-	jQuery('#ultimate_fields .show_endzone').html(ultimateEndzoneLength(fields[current].length));
+	zjQuery('#ultimate_fields .show_angle').html(fields[current].angle);
+	zjQuery('#ultimate_fields .show_width').html(fields[current].width);
+	zjQuery('#ultimate_fields .show_length').html(fields[current].length);
+	zjQuery('#ultimate_fields .show_field').html(ultimateFieldLength(fields[current].length));
+	zjQuery('#ultimate_fields .show_endzone').html(ultimateEndzoneLength(fields[current].length));
 }
 
 function ultimateSaveField()
 {
 	if (current != 0) {
-		fields[current].angle = parseInt(jQuery('#ultimate_fields .show_angle').html());
-		fields[current].width = parseInt(jQuery('#ultimate_fields .show_width').html());
-		fields[current].length = parseInt(jQuery('#ultimate_fields .show_length').html());
+		fields[current].angle = parseInt(zjQuery('#ultimate_fields .show_angle').html());
+		fields[current].width = parseInt(zjQuery('#ultimate_fields .show_width').html());
+		fields[current].length = parseInt(zjQuery('#ultimate_fields .show_length').html());
 	}
 }

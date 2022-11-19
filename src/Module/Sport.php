@@ -598,29 +598,29 @@ class Sport {
 
 	public function validate_team_score($stat) {
 		$ret = [];
-		$ret[] = "if (jQuery('#team_' + team_id).find('th.stat_{$stat->id}').html() > team_score) alert_msg += 'The number of {$stat->name} entered is more than the score.\\n';";
-		$ret[] = "if (jQuery('#team_' + team_id).find('th.stat_{$stat->id}').html() < team_score) confirm_msg += 'The number of {$stat->name} entered is less than the score.\\n';";
+		$ret[] = "if (zjQuery('#team_' + team_id).find('th.stat_{$stat->id}').html() > team_score) alert_msg += 'The number of {$stat->name} entered is more than the score.\\n';";
+		$ret[] = "if (zjQuery('#team_' + team_id).find('th.stat_{$stat->id}').html() < team_score) confirm_msg += 'The number of {$stat->name} entered is less than the score.\\n';";
 		return $ret;
 	}
 
 	public function validate_team_score_fuzzy($stat) {
 		$ret = [];
-		$ret[] = "if (jQuery('#team_' + team_id).find('th.stat_{$stat->id}').html() > team_score) confirm_msg += 'The number of {$stat->name} entered is more than the score.\\n';";
-		$ret[] = "if (jQuery('#team_' + team_id).find('th.stat_{$stat->id}').html() < team_score) confirm_msg += 'The number of {$stat->name} entered is less than the score.\\n';";
+		$ret[] = "if (zjQuery('#team_' + team_id).find('th.stat_{$stat->id}').html() > team_score) confirm_msg += 'The number of {$stat->name} entered is more than the score.\\n';";
+		$ret[] = "if (zjQuery('#team_' + team_id).find('th.stat_{$stat->id}').html() < team_score) confirm_msg += 'The number of {$stat->name} entered is less than the score.\\n';";
 		return $ret;
 	}
 
 	public function validate_team_score_two($stat) {
 		$ret = [];
-		$ret[] = "if (jQuery('#team_' + team_id).find('th.stat_{$stat->id}').html() > team_score * 2) alert_msg += 'The number of {$stat->name} entered is more than the score.\\n';";
-		$ret[] = "if (jQuery('#team_' + team_id).find('th.stat_{$stat->id}').html() < team_score * 2) confirm_msg += 'The number of {$stat->name} entered is less than the score.\\n';";
+		$ret[] = "if (zjQuery('#team_' + team_id).find('th.stat_{$stat->id}').html() > team_score * 2) alert_msg += 'The number of {$stat->name} entered is more than the score.\\n';";
+		$ret[] = "if (zjQuery('#team_' + team_id).find('th.stat_{$stat->id}').html() < team_score * 2) confirm_msg += 'The number of {$stat->name} entered is less than the score.\\n';";
 		return $ret;
 	}
 
 	public function validate_opponent_score($stat) {
 		$ret = [];
-		$ret[] = "if (jQuery('#team_' + team_id).find('th.stat_{$stat->id}').html() > opponent_score) alert_msg += 'The number of {$stat->name} entered is more than the score.\\n';";
-		$ret[] = "if (jQuery('#team_' + team_id).find('th.stat_{$stat->id}').html() < opponent_score) confirm_msg += 'The number of {$stat->name} entered is less than the score.\\n';";
+		$ret[] = "if (zjQuery('#team_' + team_id).find('th.stat_{$stat->id}').html() > opponent_score) alert_msg += 'The number of {$stat->name} entered is more than the score.\\n';";
+		$ret[] = "if (zjQuery('#team_' + team_id).find('th.stat_{$stat->id}').html() < opponent_score) confirm_msg += 'The number of {$stat->name} entered is less than the score.\\n';";
 		return $ret;
 	}
 

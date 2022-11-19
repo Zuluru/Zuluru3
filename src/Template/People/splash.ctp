@@ -49,8 +49,8 @@ if (empty($relatives)):
 	$id = $this->UserCache->currentId();
 	echo $this->Html->tag('div', $this->element('All/blank_splash', ['id' => $id, 'name' => __('My Teams')]), ['id' => "tab-$id"]);
 	$this->Html->scriptBlock("
-	jQuery.get('$url', function(result) {
-		jQuery('#tab-$id').find('.schedule').replaceWith(result.content);
+	zjQuery.get('$url', function(result) {
+		zjQuery('#tab-$id').find('.schedule').replaceWith(result.content);
 	});", ['buffer' => true]);
 else:
 ?>
@@ -86,7 +86,7 @@ else:
 	</div>
 <?php
 	$this->Html->scriptBlock("
-	jQuery('#tabs').tabs({
+	zjQuery('#tabs').tabs({
 		active: $default_tab_index,
 		beforeLoad: function(event, ui) {
 			if (ui.panel.attr('loaded')) {
@@ -95,7 +95,7 @@ else:
 			ui.panel.attr('loaded', true);
 			// Technique from http://stackoverflow.com/questions/2785548/loading-json-encoded-ajax-content-into-jquery-ui-tabs
 			var url = ui.ajaxSettings.url;
-			jQuery.get(url, function(result) {
+			zjQuery.get(url, function(result) {
 				ui.panel.find('.schedule').replaceWith(result.content);
 			});
 			return false;

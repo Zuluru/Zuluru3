@@ -94,16 +94,16 @@ function hockeyInlinePositions(id)
 
 function hockeyUpdateForm()
 {
-	jQuery('#hockey_fields .show_angle').html(fields[current].angle);
-	jQuery('#hockey_fields .show_width').html(fields[current].width);
-	jQuery('#hockey_fields .show_length').html(fields[current].length);
+	zjQuery('#hockey_fields .show_angle').html(fields[current].angle);
+	zjQuery('#hockey_fields .show_width').html(fields[current].width);
+	zjQuery('#hockey_fields .show_length').html(fields[current].length);
 }
 
 function hockeySaveField()
 {
 	if (current != 0) {
-		fields[current].angle = parseInt(jQuery('#hockey_fields .show_angle').html());
-		fields[current].width = parseInt(jQuery('#hockey_fields .show_width').html());
-		fields[current].length = parseInt(jQuery('#hockey_fields .show_length').html());
+		fields[current].angle = parseInt(zjQuery('#hockey_fields .show_angle').html());
+		fields[current].width = parseInt(zjQuery('#hockey_fields .show_width').html());
+		fields[current].length = parseInt(zjQuery('#hockey_fields .show_length').html());
 	}
 }

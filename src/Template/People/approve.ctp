@@ -266,6 +266,6 @@ echo $this->Form->input('disposition', [
 echo $this->Form->button(__('Submit'), ['class' => 'btn-success']);
 echo $this->Form->end();
 
-$this->Html->scriptBlock('jQuery(".duplicate").hide();', ['buffer' => true]);
+$this->Html->scriptBlock('zjQuery(".duplicate").hide();', ['buffer' => true]);
 ?>
 </div>

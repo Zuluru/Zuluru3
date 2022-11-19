@@ -12,8 +12,8 @@ function initializeEdit(id) {
 
 	var field = fields[id];
 
-	jQuery('.sport_specific_fields').css('display', 'none');
-	jQuery('#' + field.sport + '_fields').css('display', '');
+	zjQuery('.sport_specific_fields').css('display', 'none');
+	zjQuery('#' + field.sport + '_fields').css('display', '');
 
 	if (field.latitude != undefined) {
 		position = new google.maps.LatLng(field.latitude, field.longitude);
@@ -85,11 +85,11 @@ function selectField(id) {
 
 	current = id;
 
-	jQuery('.sport_specific_fields').css('display', 'none');
-	jQuery('#' + fields[id].sport + '_fields').css('display', '');
+	zjQuery('.sport_specific_fields').css('display', 'none');
+	zjQuery('#' + fields[id].sport + '_fields').css('display', '');
 
 	// Update the display with data about the selected field
-	jQuery('#show_num').html(fields[id].num + ' (id ' + id + ')');
+	zjQuery('#show_num').html(fields[id].num + ' (id ' + id + ')');
 	window[fields[id].sport + 'UpdateForm']();
 
 	// Add selection colouring and listener to the new field
@@ -188,7 +188,7 @@ function addParking() {
 		google.maps.event.removeListener(parking_listener);
 	}
 
-	//jQuery('#map').css('cursor','crosshair');
+	//zjQuery('#map').css('cursor','crosshair');
 	parking_listener = google.maps.event.addListener(map, 'click', function(event) {
 		addParkingClick(event);
 	});
@@ -200,7 +200,7 @@ function addParking() {
 function addParkingClick(event) {
 	google.maps.event.removeListener(parking_listener);
 	parking_listener = null;
-	//jQuery('#map').css('cursor','auto');
+	//zjQuery('#map').css('cursor','auto');
 
 	++ lastParkingId;
 	var marker = showParking (event.latLng);
@@ -224,7 +224,7 @@ function addEntrance() {
 		google.maps.event.removeListener(entrance_listener);
 	}
 
-	//jQuery('#map').css('cursor','crosshair');
+	//zjQuery('#map').css('cursor','crosshair');
 	entrance_listener = google.maps.event.addListener(map, 'click', function(event) {
 		addEntranceClick(event);
 	});
@@ -236,7 +236,7 @@ function addEntrance() {
 function addEntranceClick(event) {
 	google.maps.event.removeListener(entrance_listener);
 	entrance_listener = null;
-	//jQuery('#map').css('cursor','auto');
+	//zjQuery('#map').css('cursor','auto');
 
 	++ lastEntranceId;
 	var marker = showEntrance (event.latLng);
@@ -263,14 +263,14 @@ function check() {
 	// Save any layout changes into the form
 	window[fields[current].sport + 'SaveField']();
 	for (var id in fields) {
-		jQuery('#fields-' + id + '-zoom').val(map.getZoom());
+		zjQuery('#fields-' + id + '-zoom').val(map.getZoom());
 		if (fields[id].length != 0) {
-			jQuery('#fields-' + id + '-angle').val(fields[id].angle);
-			jQuery('#fields-' + id + '-width').val(fields[id].width);
-			jQuery('#fields-' + id + '-length').val(fields[id].length);
+			zjQuery('#fields-' + id + '-angle').val(fields[id].angle);
+			zjQuery('#fields-' + id + '-width').val(fields[id].width);
+			zjQuery('#fields-' + id + '-length').val(fields[id].length);
 		}
-		jQuery('#fields-' + id + '-latitude').val(fields[id].marker.getPosition().lat());
-		jQuery('#fields-' + id + '-longitude').val(fields[id].marker.getPosition().lng());
+		zjQuery('#fields-' + id + '-latitude').val(fields[id].marker.getPosition().lat());
+		zjQuery('#fields-' + id + '-longitude').val(fields[id].marker.getPosition().lng());
 	}
 
 	// Combine the parking details
@@ -282,7 +282,7 @@ function check() {
 		}
 	}
 	parkingString = parkingString.substring(0, parkingString.length - 1);
-	jQuery('#parking').val(parkingString);
+	zjQuery('#parking').val(parkingString);
 
 	// Combine the entrance details
 	var entranceString = '';
@@ -293,5 +293,5 @@ function check() {
 		}
 	}
 	entranceString = entranceString.substring(0, entranceString.length - 1);
-	jQuery('#entrances').val(entranceString);
+	zjQuery('#entrances').val(entranceString);
 }

@@ -1,1 +1,1 @@
-<?= $this->Html->scriptBlock("jQuery('#TwitterMessage').val('$twitter'); alert('$message');", ['buffer' => true]);
+<?= $this->Html->scriptBlock("zjQuery('#TwitterMessage').val('$twitter'); alert('$message');", ['buffer' => true]);

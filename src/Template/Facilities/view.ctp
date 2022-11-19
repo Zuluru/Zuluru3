@@ -285,4 +285,4 @@ if ($can_edit) {
 // Make the field table sortable
 $this->Html->script(['jquery.tablesorter.min.js'], ['block' => true]);
 $this->Html->css(['jquery.tablesorter.css'], ['block' => true]);
-$this->Html->scriptBlock("jQuery('.tablesorter').tablesorter({sortInitialOrder: 'asc'});", ['buffer' => true]);
+$this->Html->scriptBlock("zjQuery('.tablesorter').tablesorter({sortInitialOrder: 'asc'});", ['buffer' => true]);

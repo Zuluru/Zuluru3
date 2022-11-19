@@ -296,25 +296,25 @@ endif;
 $win = Configure::read('scoring.default_winning_score');
 $lose = Configure::read('scoring.default_losing_score');
 $this->Html->scriptBlock("
-jQuery('#Status').on('change', function (){
-	if (jQuery('#Status').val() == 'home_default') {
-		jQuery('#ScoreHome').prop('readonly', true);
-		jQuery('#ScoreAway').prop('readonly', true);
-		jQuery('#ScoreHome').val($lose);
-		jQuery('#ScoreAway').val($win);
-	} else if (jQuery('#Status').val() == 'away_default') {
-		jQuery('#ScoreHome').prop('readonly', true);
-		jQuery('#ScoreAway').prop('readonly', true);
-		jQuery('#ScoreHome').val($win);
-		jQuery('#ScoreAway').val($lose);
+zjQuery('#Status').on('change', function (){
+	if (zjQuery('#Status').val() == 'home_default') {
+		zjQuery('#ScoreHome').prop('readonly', true);
+		zjQuery('#ScoreAway').prop('readonly', true);
+		zjQuery('#ScoreHome').val($lose);
+		zjQuery('#ScoreAway').val($win);
+	} else if (zjQuery('#Status').val() == 'away_default') {
+		zjQuery('#ScoreHome').prop('readonly', true);
+		zjQuery('#ScoreAway').prop('readonly', true);
+		zjQuery('#ScoreHome').val($win);
+		zjQuery('#ScoreAway').val($lose);
 	} else {
-		jQuery('#ScoreHome').removeProp('readonly');
-		jQuery('#ScoreAway').removeProp('readonly');
-		if (jQuery('#Status').val() != 'normal') {
-			jQuery('#ScoreHome').val(0);
-			jQuery('#ScoreAway').val(0);
+		zjQuery('#ScoreHome').removeProp('readonly');
+		zjQuery('#ScoreAway').removeProp('readonly');
+		if (zjQuery('#Status').val() != 'normal') {
+			zjQuery('#ScoreHome').val(0);
+			zjQuery('#ScoreAway').val(0);
 		}
 	}
 });
-jQuery('#Status').change();
+zjQuery('#Status').change();
 ", ['buffer' => true]);

@@ -41,16 +41,16 @@ foreach ($questions as $group_label => $group_questions) {
 $calculate = __('Calculate');
 $cancel = __('Cancel');
 $this->Html->scriptBlock("
-jQuery('#rating_dialog_$sport').dialog({
+zjQuery('#rating_dialog_$sport').dialog({
 	autoOpen: false,
 	buttons: {
 		'$calculate': function () {
 			if (calculate_rating('$sport', $min, $max)) {
-				jQuery('#rating_dialog_$sport').dialog('close');
+				zjQuery('#rating_dialog_$sport').dialog('close');
 			}
 		},
 		'$cancel': function () {
-			jQuery('#rating_dialog_$sport').dialog('close');
+			zjQuery('#rating_dialog_$sport').dialog('close');
 		}
 	},
 	modal: true,
@@ -70,12 +70,12 @@ function calculate_rating(sport, min, max) {
 
 	// Check for skipped questions and show error
 	var okay = true;
-	jQuery('form[name=rating_' + sport + ']').find('div.form-group.radio').each(function() {
-		if (jQuery(this).find('input:checked').size() == 0) {
-			jQuery(this).addClass('error');
+	zjQuery('form[name=rating_' + sport + ']').find('div.form-group.radio').each(function() {
+		if (zjQuery(this).find('input:checked').size() == 0) {
+			zjQuery(this).addClass('error');
 			okay = false;
 		} else {
-			jQuery(this).removeClass('error');
+			zjQuery(this).removeClass('error');
 		}
 	});
 	if (!okay) {
@@ -84,8 +84,8 @@ function calculate_rating(sport, min, max) {
 	}
 
 	// Sum up all selected answers
-	jQuery('form[name=rating_' + sport + ']').find('input:checked').each(function() {
-		sum += parseInt(jQuery(this).val());
+	zjQuery('form[name=rating_' + sport + ']').find('input:checked').each(function() {
+		sum += parseInt(zjQuery(this).val());
 	});
 
 	// Move the sum so the average is zero
@@ -98,13 +98,13 @@ function calculate_rating(sport, min, max) {
 	rating = Math.round(rating);
 
 	// put the result into the text box
-	jQuery(jQuery('#rating_dialog_' + sport).data('field')).val(rating);
+	zjQuery(zjQuery('#rating_dialog_' + sport).data('field')).val(rating);
 	return true;
 }
 
 function dorating(sport, field) {
-	jQuery('#rating_dialog_' + sport).data('field', field);
-	jQuery('#rating_dialog_' + sport).dialog('open');
+	zjQuery('#rating_dialog_' + sport).data('field', field);
+	zjQuery('#rating_dialog_' + sport).dialog('open');
 }
 	");
 }

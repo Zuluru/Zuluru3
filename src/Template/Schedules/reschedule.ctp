@@ -35,7 +35,7 @@ echo $this->Html->para('warning-message', __('Note that no attempt is made to pr
 echo $this->Form->button(__('Continue'), ['class' => 'btn-success']);
 echo $this->Form->end();
 $confirm = __('Are you sure you want to reschedule these games? This cannot be undone.');
-$this->Html->scriptBlock("jQuery(':submit').bind('click', function (event) { return confirm('$confirm'); return false; })", ['buffer' => true]);
+$this->Html->scriptBlock("zjQuery(':submit').bind('click', function (event) { return confirm('$confirm'); return false; })", ['buffer' => true]);
 ?>
 
 </div>

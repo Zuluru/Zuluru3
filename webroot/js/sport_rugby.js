@@ -66,18 +66,18 @@ function rugbyInlinePositions(id)
 
 function rugbyUpdateForm()
 {
-	jQuery('#rugby_fields .show_angle').html(fields[current].angle);
-	jQuery('#rugby_fields .show_width').html(fields[current].width);
-	jQuery('#rugby_fields .show_length').html(fields[current].length);
-	jQuery('#rugby_fields .show_field').html(rugbyFieldLength(fields[current].length));
-	jQuery('#rugby_fields .show_ingoal').html(rugbyInGoalLength(fields[current].length));
+	zjQuery('#rugby_fields .show_angle').html(fields[current].angle);
+	zjQuery('#rugby_fields .show_width').html(fields[current].width);
+	zjQuery('#rugby_fields .show_length').html(fields[current].length);
+	zjQuery('#rugby_fields .show_field').html(rugbyFieldLength(fields[current].length));
+	zjQuery('#rugby_fields .show_ingoal').html(rugbyInGoalLength(fields[current].length));
 }
 
 function rugbySaveField()
 {
 	if (current != 0) {
-		fields[current].angle = parseInt(jQuery('#rugby_fields .show_angle').html());
-		fields[current].width = parseInt(jQuery('#rugby_fields .show_width').html());
-		fields[current].length = parseInt(jQuery('#rugby_fields .show_length').html());
+		fields[current].angle = parseInt(zjQuery('#rugby_fields .show_angle').html());
+		fields[current].width = parseInt(zjQuery('#rugby_fields .show_width').html());
+		fields[current].length = parseInt(zjQuery('#rugby_fields .show_length').html());
 	}
 }
