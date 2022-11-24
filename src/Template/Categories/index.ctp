@@ -1,6 +1,17 @@
 <?php
+/**
+ * @type \App\View\AppView $this
+ * @type \App\Model\Entity\Category[] $categories
+ * @type \App\Model\Entity\Affiliate[] $affiliates
+ */
+
+use Cake\Core\Configure;
+
 $this->Html->addCrumb(__('Categories'));
 $this->Html->addCrumb(__('List'));
+
+$types = Configure::read('options.category_types');
+$multiple_types = (count($types) > 1);
 ?>
 
 <div class="categories index">
@@ -9,13 +20,22 @@ $this->Html->addCrumb(__('List'));
 	<table class="table table-striped table-hover table-condensed">
 		<thead>
 			<tr>
+<?php
+if ($multiple_types):
+?>
+			<th><?= __('Type') ?></th>
+<?php
+endif;
+?>
+			<th></th>
 			<th><?= __('Name') ?></th>
+			<th><?= __('Slug') ?></th>
 			<th class="actions"><?= __('Actions') ?></th>
 			</tr>
 		</thead>
 		<tbody>
 <?php
-$affiliate_id = null;
+$affiliate_id = $type = null;
 foreach ($categories as $category):
 	if (count($affiliates) > 1 && $category->affiliate_id != $affiliate_id):
 		$affiliate_id = $category->affiliate_id;
@@ -29,7 +49,21 @@ foreach ($categories as $category):
 	endif;
 ?>
 			<tr>
+<?php
+if ($multiple_types):
+?>
+				<td><?php
+					if ($category->type !== $type) {
+						echo $types[$category->type];
+						$type = $category->type;
+					}
+				?></td>
+<?php
+endif;
+?>
+				<td><?= $category->image_url ? $this->Html->image($category->image_url) : '' ?></td>
 				<td><?= h($category->name) ?></td>
+				<td><?= h($category->slug) ?></td>
 				<td class="actions"><?php
 				echo $this->Html->iconLink('view_24.png',
 					['action' => 'view', 'category' => $category->id],

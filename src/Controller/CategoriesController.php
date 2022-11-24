@@ -27,7 +27,7 @@ class CategoriesController extends AppController {
 		$this->set('categories', $this->Categories->find()
 			->contain(['Affiliates'])
 			->where(['affiliate_id IN' => $affiliates])
-			->order(['Affiliates.name', 'Categories.name']));
+			->order(['Affiliates.name', 'Categories.type', 'Categories.name']));
 	}
 
 	/**
@@ -39,7 +39,7 @@ class CategoriesController extends AppController {
 		$id = $this->request->getQuery('category');
 		try {
 			$category = $this->Categories->get($id, [
-				'contain' => ['Affiliates', 'Tasks' => ['People']]
+				'contain' => ['Affiliates', 'Leagues', 'Tasks' => ['People']]
 			]);
 		} catch (RecordNotFoundException $ex) {
 			$this->Flash->info(__('Invalid category.'));

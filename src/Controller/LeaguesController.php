@@ -153,6 +153,7 @@ class LeaguesController extends AppController {
 				'contain' => [
 					'Divisions',
 					'Affiliates',
+					'Categories',
 				],
 			]);
 		} catch (RecordNotFoundException $ex) {
@@ -328,6 +329,7 @@ class LeaguesController extends AppController {
 							},
 						],
 					],
+					'Categories',
 					'StatTypes',
 				]
 			]);
@@ -344,7 +346,7 @@ class LeaguesController extends AppController {
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			$league = $this->Leagues->patchEntity($league, $this->request->getData(), [
-				'associated' => ['StatTypes', 'Divisions' => ['validateDays' => true], 'Divisions.Days'],
+				'associated' => ['Categories', 'StatTypes', 'Divisions' => ['validateDays' => true], 'Divisions.Days'],
 			]);
 
 			if ($this->Leagues->save($league, ['divisions' => $league->divisions])) {
@@ -363,6 +365,7 @@ class LeaguesController extends AppController {
 		$this->set(compact('league'));
 		$this->set('affiliates', $this->Authentication->applicableAffiliates(true));
 		$this->set('days', $this->Leagues->Divisions->Days->find('list'));
+		$this->set('categories', $this->Leagues->Categories->find('list')->where(['Categories.type' => 'Leagues'])->toArray());
 		$this->set('stat_types', $this->Leagues->StatTypes->findBySport($league->sport));
 
 		if (count($league->divisions) == 1) {

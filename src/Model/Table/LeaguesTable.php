@@ -19,6 +19,7 @@ use App\Model\Rule\InConfigRule;
  *
  * @property \Cake\ORM\Association\BelongsTo $Affiliates
  * @property \Cake\ORM\Association\HasMany $Divisions
+ * @property \Cake\ORM\Association\BelongsToMany $Categories
  * @property \Cake\ORM\Association\BelongsToMany $StatTypes
  */
 class LeaguesTable extends AppTable {
@@ -47,6 +48,13 @@ class LeaguesTable extends AppTable {
 		$this->hasMany('Divisions', [
 			'foreignKey' => 'league_id',
 			'dependent' => true,
+		]);
+
+		$this->belongsToMany('Categories', [
+			'foreignKey' => 'league_id',
+			'targetForeignKey' => 'category_id',
+			'joinTable' => 'leagues_categories',
+			'saveStrategy' => 'replace',
 		]);
 
 		$this->belongsToMany('StatTypes', [

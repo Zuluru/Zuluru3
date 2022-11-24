@@ -16,6 +16,13 @@ namespace App\Config;
 use Cake\Core\Configure;
 use Cake\I18n\FrozenTime;
 
+$category_types = [
+	'Leagues' => __('Leagues'),
+];
+if (Configure::read('feature.tasks')) {
+	$category_types['Tasks'] = __('Tasks');
+}
+
 $options['options'] = [
 	'enable' => [
 		false => __('Disabled'),
@@ -333,6 +340,8 @@ $options['options'] = [
 		'description' => __('Description'),
 		'label' => __('Label'),
 	],
+
+	'category_types' => $category_types,
 
 	// List of available badge categories
 	'category' => [

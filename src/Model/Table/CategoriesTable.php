@@ -1,6 +1,7 @@
 <?php
 namespace App\Model\Table;
 
+use App\Model\Rule\InConfigRule;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
@@ -9,6 +10,7 @@ use Cake\Validation\Validator;
  * Categories Model
  *
  * @property \Cake\ORM\Association\BelongsTo $Affiliates
+ * @property \Cake\ORM\Association\BelongsToMany $Leagues
  * @property \Cake\ORM\Association\HasMany $Tasks
  */
 class CategoriesTable extends AppTable {
@@ -33,6 +35,13 @@ class CategoriesTable extends AppTable {
 			'foreignKey' => 'affiliate_id',
 		]);
 
+		$this->belongsToMany('Leagues', [
+			'foreignKey' => 'category_id',
+			'joinTable' => 'leagues_categories',
+			'targetForeignKey' => 'league_id',
+			'saveStrategy' => 'append',
+		]);
+
 		$this->hasMany('Tasks', [
 			'foreignKey' => 'category_id',
 		]);
@@ -52,8 +61,19 @@ class CategoriesTable extends AppTable {
 			->requirePresence('affiliate_id', 'create')
 			->notEmpty('affiliate_id')
 
+			->requirePresence('type', 'create')
+			->notEmpty('type')
+
 			->requirePresence('name', 'create', __('The name cannot be blank.'))
 			->notEmpty('name', __('The name cannot be blank.'))
+
+			->allowEmpty('slug')
+
+			->url('image_url', __('Please enter a valid URL.'))
+			->allowEmpty('image_url')
+
+			->url('description_url', __('Please enter a valid URL.'))
+			->allowEmpty('description_url')
 
 			;
 
@@ -69,6 +89,12 @@ class CategoriesTable extends AppTable {
 	 */
 	public function buildRules(RulesChecker $rules) {
 		$rules->add($rules->existsIn(['affiliate_id'], 'Affiliates', __('You must select a valid affiliate.')));
+
+		$rules->add(new InConfigRule('options.category_types'), 'validType', [
+			'errorField' => 'type',
+			'message' => __('You must select a valid type.'),
+		]);
+
 		return $rules;
 	}
 

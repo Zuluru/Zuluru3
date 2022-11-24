@@ -687,6 +687,8 @@ class AppController extends Controller {
 			if (Configure::read('feature.contacts')) {
 				$this->_addMenuItem(__('Contacts'), ['plugin' => false, 'controller' => 'Contacts', 'action' => 'index'], __('Configuration'));
 			}
+
+			$this->_addMenuItem(__('Categories'), ['plugin' => false, 'controller' => 'Categories', 'action' => 'index'], __('Configuration'));
 		}
 
 		if ($this->Authorization->can(AllController::class, 'clear_cache')) {
@@ -771,7 +773,6 @@ class AppController extends Controller {
 			}
 
 			if ($identity && $identity->isManager()) {
-				$this->_addMenuItem(__('Categories'), ['plugin' => false, 'controller' => 'Categories', 'action' => 'index'], __('Tasks'));
 				$this->_addMenuItem(__('Download All'), ['plugin' => false, 'controller' => 'Tasks', 'action' => 'index', '_ext' => 'csv'], __('Tasks'));
 			}
 		}
