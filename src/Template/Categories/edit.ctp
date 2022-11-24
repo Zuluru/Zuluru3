@@ -43,9 +43,10 @@ echo $this->Form->input('image_url', [
 	'label' => __('Image URL'),
 	'size' => 255,
 ]);
-echo $this->Form->input('description_url', [
-	'label' => __('Description URL'),
-	'size' => 255,
+echo $this->Form->input('description', [
+	'cols' => 70,
+	'rows' => 5,
+	'class' => 'wysiwyg_advanced',
 ]);
 if ($category->isNew()) {
 	echo $this->Form->input('affiliate_id', [

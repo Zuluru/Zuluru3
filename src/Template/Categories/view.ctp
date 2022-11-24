@@ -40,20 +40,16 @@ if ($category->slug):
 <?php
 endif;
 
+// TODO: Display the actual image
 if ($category->image_url):
 ?>
 		<dt><?= __('Image URL') ?></dt>
 		<dd><?= h($category->image_url) ?></dd>
 <?php
 endif;
-
-if ($category->description_url):
 ?>
-		<dt><?= __('Description URL') ?></dt>
-		<dd><?= h($category->description_url) ?></dd>
-<?php
-endif;
-?>
+		<dt><?= __('Description') ?></dt>
+		<dd><?= $category->description ?></dd>
 	</dl>
 </div>
 <div class="related row">

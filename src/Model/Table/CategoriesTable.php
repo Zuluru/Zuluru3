@@ -72,8 +72,7 @@ class CategoriesTable extends AppTable {
 			->url('image_url', __('Please enter a valid URL.'))
 			->allowEmpty('image_url')
 
-			->url('description_url', __('Please enter a valid URL.'))
-			->allowEmpty('description_url')
+			->allowEmpty('description')
 
 			;
 

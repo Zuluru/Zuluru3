@@ -14,7 +14,7 @@ use Cake\ORM\Entity;
  * @property string $type
  * @property string $slug
  * @property string $image_url
- * @property string $description_url
+ * @property string $description
  *
  * @property \App\Model\Entity\Affiliate $affiliate
  * @property \App\Model\Entity\League[] $leagues

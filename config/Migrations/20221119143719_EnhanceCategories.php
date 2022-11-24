@@ -24,9 +24,9 @@ class EnhanceCategories extends AbstractMigration {
 				'limit' => 255,
 				'null' => false,
 			])
-			->addColumn('description_url', 'string', [
+			->addColumn('description', 'text', [
 				'default' => null,
-				'limit' => 255,
+				'limit' => null,
 				'null' => false,
 			])
 			->update();
