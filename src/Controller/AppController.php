@@ -646,6 +646,7 @@ class AppController extends Controller {
 
 		if ($identity && $identity->isManager()) {
 			$this->_addMenuItem(__('By Name'), ['plugin' => false, 'controller' => 'People', 'action' => 'search'], [__('People'), __('Search')]);
+			$this->_addMenuItem(__('By Email'), ['plugin' => false, 'controller' => 'People', 'action' => 'email_search'], [__('People'), __('Search')]);
 			$this->_addMenuItem(__('By Rule'), ['plugin' => false, 'controller' => 'People', 'action' => 'rule_search'], [__('People'), __('Search')]);
 			$this->_addMenuItem(__('By League'), ['plugin' => false, 'controller' => 'People', 'action' => 'league_search'], [__('People'), __('Search')]);
 			$this->_addMenuItem(__('Inactive'), ['plugin' => false, 'controller' => 'People', 'action' => 'inactive_search'], [__('People'), __('Search')]);

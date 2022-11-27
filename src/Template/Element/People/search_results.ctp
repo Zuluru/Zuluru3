@@ -1,4 +1,11 @@
 <?php
+/**
+ * @type $this \App\View\AppView
+ * @type $person \App\Model\Entity\Person
+ * @type $url string|array
+ * @type $extra_url string|array
+ */
+
 use App\Controller\AppController;
 ?>
 <div class="index">
@@ -28,6 +35,13 @@ elseif (isset($people)):
 	endif;
 ?>
 					<th><?= $this->Paginator->sort('last_name') ?></th>
+<?php
+	if ($this->Identity->isLoggedIn()):
+?>
+					<th><?= $this->Paginator->sort('email') ?></th>
+<?php
+	endif;
+?>
 					<th class="actions"><?= __('Actions') ?></th>
 				</tr>
 			</thead>
@@ -48,6 +62,23 @@ elseif (isset($people)):
 	endif;
 ?>
 					<td><?= $this->element('People/block', ['person' => $person, 'display_field' => 'last_name']) ?></td>
+<?php
+	if ($this->Identity->isLoggedIn()):
+?>
+					<td><?php
+						if ($this->Authorize->can('email', $person)) {
+							if ($person->email && $person->alternate_email) {
+								echo "$person->email ($person->alternate_email)";
+							} else if ($person->email) {
+								echo $person->email;
+							} else if ($person->alternate_email) {
+								echo $person->alternate_email;
+							}
+						}
+					?></td>
+<?php
+	endif;
+?>
 					<td class="actions"><?php
 					echo $this->Html->iconLink('view_24.png', ['controller' => 'People', 'action' => 'view', 'person' => $person->id, 'return' => AppController::_return()], ['alt' => __('View Profile'), 'title' => __('View Profile')]);
 					if ($this->Authorize->can('vcf', $person)) {

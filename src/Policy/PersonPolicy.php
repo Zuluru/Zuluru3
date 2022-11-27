@@ -301,6 +301,10 @@ class PersonPolicy extends AppPolicy {
 		return true;
 	}
 
+	public function canEmail_search(IdentityInterface $identity, $controller) {
+		return $identity->isManager();
+	}
+
 	public function canRule_search(IdentityInterface $identity, $controller) {
 		return $identity->isManager();
 	}
@@ -323,6 +327,11 @@ class PersonPolicy extends AppPolicy {
 		}
 
 		return $identity->isManagerOf($person);
+	}
+
+	public function canEmail(IdentityInterface $identity, Person $person) {
+        return $identity->isManager() ||
+		    $person->status === 'active' && $person->publish_email && $identity->isLoggedIn();
 	}
 
 	public function canVcf(IdentityInterface $identity = null, Person $person) {
