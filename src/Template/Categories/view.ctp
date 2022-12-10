@@ -34,9 +34,13 @@ if ($multiple_types):
 endif;
 
 if ($category->slug):
+	$url = null;
+	if ($category->type === 'Leagues') {
+		$url = ['controller' => 'Events', 'action' => 'index', $category->slug];
+	}
 ?>
 		<dt><?= __('Slug') ?></dt>
-		<dd><?= h($category->slug) ?></dd>
+		<dd><?= $url ? $this->Html->link($category->slug, $url) : h($category->slug) ?></dd>
 <?php
 endif;
 

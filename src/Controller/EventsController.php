@@ -43,7 +43,7 @@ class EventsController extends AppController {
 	 *
 	 * @return void|\Cake\Network\Response
 	 */
-	public function index() {
+	public function index(?string $slug = null) {
 		if ($this->Authorization->can(\App\Controller\EventsController::class, 'add')) {
 			$year = $this->request->getQuery('year');
 			if ($year) {
@@ -96,21 +96,54 @@ class EventsController extends AppController {
 						return $q->order(['Prices.open', 'Prices.close', 'Prices.id']);
 					}
 				],
-				'Divisions' => ['Leagues', 'Days']
-			])
-			->toArray();
+				'Divisions' => ['Leagues' => ['Categories'], 'Days']
+			]);
 
-		$years = $this->Events->find()
-			->enableHydration(false)
-			->select(['year' => 'DISTINCT YEAR(Events.open)'])
-			->where([
-				'YEAR(Events.open) !=' => 0,
-				'Events.affiliate_id IN' => $affiliates,
-			])
-			->order(['year'])
-			->toArray();
+		if ($slug) {
+			$category = $this->Events->Divisions->Leagues->Categories->findBySlug($slug)->first();
+			if (!$category) {
+				$this->Flash->info(__('Invalid category.'));
+				return $this->redirect(['action' => 'index']);
+			}
+			$this->set(compact('category'));
 
-		$this->set(compact('affiliates', 'events', 'years', 'year'));
+			$leagues = $this->Events->Divisions->Leagues->find()
+				->contain(['Categories'])
+				->where(['OR' => [
+					'Leagues.is_open' => true,
+					'Leagues.open >' => FrozenDate::now(),
+				]])
+				->matching('Categories', function (Query $q) use ($slug) {
+					return $q->where(['Categories.slug' => $slug]);
+				})
+				->extract('id')
+				->toArray();
+			if (empty($leagues)) {
+				$this->Flash->info(__('No active or upcoming leagues in this category.'));
+				return $this->redirect(['action' => 'index']);
+			}
+
+			$events = $events
+				->matching('Divisions.Leagues', function (Query $q) use ($leagues) {
+					return $q->where(['Leagues.id IN' => $leagues]);
+				});
+		} else {
+			$years = $this->Events->find()
+				->enableHydration(false)
+				->select(['year' => 'DISTINCT YEAR(Events.open)'])
+				->where([
+					'YEAR(Events.open) !=' => 0,
+					'Events.affiliate_id IN' => $affiliates,
+				])
+				->order(['year'])
+				->toArray();
+
+			$this->set(compact('years'));
+		}
+
+		$events = $events->toArray();
+
+		$this->set(compact('affiliates', 'events', 'year'));
 	}
 
 	public function wizard($step = null) {

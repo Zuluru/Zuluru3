@@ -2,12 +2,18 @@
 namespace App\View;
 
 use App\View\Helper\AuthorizeHelper;
+use App\View\Helper\UserCacheHelper;
+use App\View\Helper\ZuluruGameHelper;
+use Authentication\View\Helper\IdentityHelper;
 use Cake\View\View;
 
 /**
  * App View class
  *
+ * @property IdentityHelper $Identity
  * @property AuthorizeHelper $Authorize
+ * @property UserCacheHelper $UserCache
+ * @property ZuluruGameHelper $Game
  */
 class AppView extends View {
 

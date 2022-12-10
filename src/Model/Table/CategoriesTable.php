@@ -15,6 +15,8 @@ use Cake\Validation\Validator;
  */
 class CategoriesTable extends AppTable {
 
+	const SLUG_REGEX = '/^[\p{Ll}\p{Lm}\p{Lo}\p{Lt}\p{Lu}\p{Mc}\p{Mn}\p{Nd}\p{Pd}_-]+$/mu';
+
 	/**
 	 * Initialize method
 	 *
@@ -56,23 +58,31 @@ class CategoriesTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', 'create')
 
 			->requirePresence('affiliate_id', 'create')
-			->notEmpty('affiliate_id')
+			->notEmptyString('affiliate_id')
 
 			->requirePresence('type', 'create')
-			->notEmpty('type')
+			->notEmptyString('type')
 
 			->requirePresence('name', 'create', __('The name cannot be blank.'))
-			->notEmpty('name', __('The name cannot be blank.'))
+			->notEmptyString('name', __('The name cannot be blank.'))
 
-			->allowEmpty('slug')
+			->allowEmptyString('slug', function($context) {
+				return (!array_key_exists('type', $context['data']) || $context['data']['type'] !== 'Leagues');
+			})
+			->add('slug', 'valid', [
+				'rule' => ['custom', self::SLUG_REGEX],
+				'message' => __('Slugs can only include letters, numbers, hyphens and underscores.'),
+			])
 
 			->url('image_url', __('Please enter a valid URL.'))
-			->allowEmpty('image_url')
+			->allowEmptyString('image_url', function($context) {
+				return (!array_key_exists('type', $context['data']) || $context['data']['type'] !== 'Leagues');
+			})
 
-			->allowEmpty('description')
+			->allowEmptyString('description')
 
 			;
 
@@ -93,6 +103,8 @@ class CategoriesTable extends AppTable {
 			'errorField' => 'type',
 			'message' => __('You must select a valid type.'),
 		]);
+
+		$rules->add($rules->isUnique(['slug'], __('There is already a category using this slug.')));
 
 		return $rules;
 	}

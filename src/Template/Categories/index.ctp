@@ -37,6 +37,11 @@ endif;
 <?php
 $affiliate_id = $type = null;
 foreach ($categories as $category):
+	$url = null;
+	if ($category->type === 'Leagues') {
+		$url = ['controller' => 'Events', 'action' => 'index', $category->slug];
+	}
+
 	if (count($affiliates) > 1 && $category->affiliate_id != $affiliate_id):
 		$affiliate_id = $category->affiliate_id;
 ?>
@@ -50,7 +55,7 @@ foreach ($categories as $category):
 ?>
 			<tr>
 <?php
-if ($multiple_types):
+	if ($multiple_types):
 ?>
 				<td><?php
 					if ($category->type !== $type) {
@@ -59,11 +64,11 @@ if ($multiple_types):
 					}
 				?></td>
 <?php
-endif;
+	endif;
 ?>
 				<td><?= $category->image_url ? $this->Html->image($category->image_url) : '' ?></td>
 				<td><?= h($category->name) ?></td>
-				<td><?= h($category->slug) ?></td>
+				<td><?= $url ? $this->Html->link($category->slug, $url) : h($category->slug) ?></td>
 				<td class="actions"><?php
 				echo $this->Html->iconLink('view_24.png',
 					['action' => 'view', 'category' => $category->id],

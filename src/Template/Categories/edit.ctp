@@ -38,10 +38,12 @@ echo $this->Form->input('name', [
 ]);
 echo $this->Form->input('slug', [
 	'size' => 100,
+	'help' => __('Unique identifier to be used in URLs for this category. Should be entirely lower case, numbers, hyphens or underscores.'),
 ]);
 echo $this->Form->input('image_url', [
 	'label' => __('Image URL'),
 	'size' => 255,
+	'help' => __('URL of the image to use for this category.'),
 ]);
 echo $this->Form->input('description', [
 	'cols' => 70,
