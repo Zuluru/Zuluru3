@@ -73,7 +73,6 @@ function tableReorder(table) {
  * Deal with various selector drop-downs
  */
 function selectorChanged() {
-	var hide_selector = '';
 	var show_selector = '';
 	zjQuery('span.selector').find('select').each(function() {
 		var id = zjQuery(this).attr('id');
@@ -92,6 +91,43 @@ function selectorChanged() {
 		show.css('display', '');
 		all.filter(':input').attr('disabled', 'disabled');
 		show.filter(':input').not('.disabled').removeAttr('disabled');
+	}
+}
+
+/**
+ * Deal with various selector radio buttons
+ */
+function radioChanged(trigger) {
+	// This is only supported right now for radio inputs in tr elements
+	var row = zjQuery(trigger).closest('tr');
+	if (row.length == 0) {
+		console.log('Unsupported radio selector scenario');
+		return;
+	}
+
+	var show_selector = '';
+	row.find('input:checked').each(function() {
+		var name = zjQuery(this).attr('name');
+		var setting = zjQuery(this).val();
+		if (setting != '') {
+			show_selector += '.' + name + '_' + setting;
+		}
+	});
+	var all = row.find('[class*=\"selector_\"]');
+	if (show_selector == '') {
+		all.css('display', '');
+		all.filter(':input').not('.disabled').removeAttr('disabled');
+	} else {
+		var show = row.find(show_selector);
+		all.css('display', 'none');
+		show.css('display', '');
+		all.filter(':input').attr('disabled', 'disabled');
+		show.filter(':input').not('.disabled').removeAttr('disabled');
+	}
+
+	// Call any local callback function
+	if (typeof radioChangedCallback === 'function') {
+		radioChangedCallback(trigger, row);
 	}
 }
 
@@ -1240,6 +1276,13 @@ zjQuery(function($) {
 	$('body').on('change', 'span.selector select', function() {
 		// Just call the helper function
 		selectorChanged();
+
+		// Don't bubble the event up any further
+		return false;
+	});
+	$('body').on('change', 'span.selector div.radio input', function() {
+		// Just call the helper function
+		radioChanged(zjQuery(this));
 
 		// Don't bubble the event up any further
 		return false;

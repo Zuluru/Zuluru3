@@ -16,6 +16,12 @@ $this->Html->addCrumb(__('Summary'));
 					<th><?= __('Season') ?></th>
 					<th><?= __('Name') ?></th>
 <?php
+if ($categories > 0):
+?>
+					<th><?= __('Categories') ?></th>
+<?php
+endif;
+
 if (Configure::read('feature.spirit')):
 ?>
 					<th><?= __('Spirit Display') ?></th>
@@ -38,16 +44,17 @@ endif;
 			<tbody>
 <?php
 $sports = array_keys(Configure::read('sports'));
-$league = $season = $affiliate_id = $sport = null;
+$leagues = [];
+$season = $affiliate_id = $sport = null;
 foreach ($divisions as $division):
-	if ($division->league->id == $league) {
+	if (in_array($division->league->id, $leagues)) {
 		continue;
 	}
 	if (count($affiliates) > 1 && $division->league->affiliate_id != $affiliate_id):
 		$affiliate_id = $division->league->affiliate_id;
 ?>
 				<tr>
-					<th colspan="<?= 5 + (Configure::read('feature.spirit') * 3) + Configure::read('scoring.carbon_flip') ?>">
+					<th colspan="<?= 5 + ($categories > 0) + (Configure::read('feature.spirit') * 3) + Configure::read('scoring.carbon_flip') ?>">
 						<h3 class="affiliate"><?= h($division->league->affiliate->name) ?></h3>
 					</th>
 				</tr>
@@ -55,17 +62,18 @@ foreach ($divisions as $division):
 	endif;
 
 	if (count($sports) > 1 && $division->league->sport != $sport):
+		$season = null;
 		$sport = $division->league->sport;
 ?>
 				<tr>
-					<th colspan="<?= 5 + (Configure::read('feature.spirit') * 3) + Configure::read('scoring.carbon_flip') ?>">
+					<th colspan="<?= 5 + ($categories > 0) + (Configure::read('feature.spirit') * 3) + Configure::read('scoring.carbon_flip') ?>">
 						<h4 class="sport"><?= h(Inflector::humanize($division->league->sport)) ?></h4>
 					</th>
 				</tr>
 <?php
 	endif;
 
-	$league = $division->league->id;
+	$leagues[] = $division->league->id;
 ?>
 				<tr>
 					<td><?php
@@ -78,6 +86,12 @@ foreach ($divisions as $division):
 						echo $this->Html->link($division->league->name, ['action' => 'edit', 'league' => $division->league->id, 'return' => AppController::_return()]);
 					?></td>
 <?php
+if ($categories > 0):
+?>
+					<td><?= implode(', ', collection($division->league->categories ?? [])->extract('name')->toArray()) ?></td>
+<?php
+endif;
+
 	if (Configure::read('feature.spirit')):
 ?>
 					<td><?= __(Inflector::humanize($division->league->display_sotg)) ?></td>
@@ -157,6 +171,7 @@ foreach ($divisions as $division):
 	endif;
 
 	if (count($sports) > 1 && $division->league->sport != $sport):
+		$season = null;
 		$sport = $division->league->sport;
 ?>
 				<tr>

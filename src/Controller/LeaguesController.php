@@ -121,7 +121,7 @@ class LeaguesController extends AppController {
 	public function summary() {
 		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		$divisions = $this->Leagues->Divisions->find()
-			->contain(['Leagues' => ['Affiliates'], 'Days'])
+			->contain(['Leagues' => ['Affiliates', 'Categories'], 'Days'])
 			->where([
 				'OR' => [
 					'Leagues.is_open' => true,
@@ -139,6 +139,7 @@ class LeaguesController extends AppController {
 		$this->Authorization->authorize(current($divisions)->league);
 		usort($divisions, [LeaguesTable::class, 'compareLeagueAndDivision']);
 		$this->set(compact('divisions', 'affiliates'));
+		$this->set('categories', $this->Leagues->Categories->find('list')->where(['Categories.type' => 'Leagues'])->count());
 	}
 
 	/**

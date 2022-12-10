@@ -1,12 +1,16 @@
 <?php
 /**
+ * @type $this \App\View\AppView
  * @type $events \App\Model\Entity\Event[]
+ * @type $category \App\Model\Entity\Category
  * @type $year string
  * @type $years string[][]
  * @type $affiliates int[]
  */
 
 use App\Controller\AppController;
+use App\Model\Entity\Event;
+use App\Model\Entity\Price;
 use Cake\Core\Configure;
 
 $this->Html->addCrumb(__('Registration Events'));
@@ -19,8 +23,17 @@ $my_affiliates = $this->UserCache->read('ManagedAffiliateIDs');
 ?>
 
 <div class="events index">
+<?php
+if (isset($category)):
+?>
+	<h2><?= $category->image_url ? $this->Html->image($category->image_url) : '' ?><?= $category->name ?></h2>
+<?php
+else:
+?>
 	<h2><?= __('Registration Events List') ?><?= isset($year) ? ': ' . $year : '' ?></h2>
 <?php
+endif;
+
 if ($this->Identity->isLoggedIn()) {
 	echo $this->element('Registrations/relative_notice');
 }
