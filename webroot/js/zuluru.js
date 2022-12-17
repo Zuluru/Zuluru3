@@ -1071,13 +1071,39 @@ zjQuery(function($) {
 	}
 
 	/**
+	 * Add event handler for popup dialogs
+	 */
+	$('body').on('click', '.zuluru_popup_link', function() {
+		// Get the key pieces of data from the DOM
+		var trigger = $(this);
+		var id = trigger.data('id');
+
+		var buttons = {};
+		buttons[zuluru_close] = function () {
+			zjQuery('#' + id).dialog('close');
+		};
+
+		zjQuery('#' + id).dialog({
+			buttons: buttons,
+			modal: true,
+			resizable: false,
+			// TODOBOOTSTRAP: Can we do something to make the size flexible based on the canvas size? It's really too small on a desktop.
+			width: 480,
+			height: 250
+		});
+
+		// Don't bubble the event up any further
+		return false;
+	});
+
+	/**
 	 * Add event handler for help dialogs
 	 */
 	$('body').on('click', '.zuluru_help_link', function() {
 		// Get the key pieces of data from the DOM
 		var trigger = $(this);
 		var id = trigger.data('id');
-		var link = trigger.closest('a').attr('href');
+		var link = trigger.attr('href');
 
 		var buttons = {};
 		buttons[zuluru_open_help] = function () {
