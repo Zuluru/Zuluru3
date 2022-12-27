@@ -465,6 +465,7 @@ class AppController extends Controller {
 			}
 
 			if ($identity && $identity->isManager()) {
+				$this->_addMenuItem(__('Admin List'), ['plugin' => false, 'controller' => 'Events', 'action' => 'admin'], __('Registration'));
 				$this->_addMenuItem(__('Create Event'), ['plugin' => false, 'controller' => 'Events', 'action' => 'add'], __('Registration'));
 				$this->_addMenuItem(__('Unpaid'), ['plugin' => false, 'controller' => 'Registrations', 'action' => 'unpaid'], __('Registration'));
 				$this->_addMenuItem(__('Credits'), ['plugin' => false, 'controller' => 'Credits', 'action' => 'index'], __('Registration'));

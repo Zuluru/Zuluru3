@@ -3,23 +3,13 @@
  * @type $this \App\View\AppView
  * @type $events \App\Model\Entity\Event[]
  * @type $category \App\Model\Entity\Category
- * @type $year string
- * @type $years string[][]
  * @type $affiliates int[]
  */
 
-use App\Controller\AppController;
-use App\Model\Entity\Event;
-use App\Model\Entity\Price;
 use Cake\Core\Configure;
 
 $this->Html->addCrumb(__('Registration Events'));
 $this->Html->addCrumb(__('List'));
-if (isset($year)) {
-	$this->Html->addCrumb($year);
-}
-
-$my_affiliates = $this->UserCache->read('ManagedAffiliateIDs');
 ?>
 
 <div class="events index">
@@ -30,7 +20,7 @@ if (isset($category)):
 <?php
 else:
 ?>
-	<h2><?= __('Registration Events List') ?><?= isset($year) ? ': ' . $year : '' ?></h2>
+	<h2><?= __('Registration Events List') ?></h2>
 <?php
 endif;
 
@@ -38,27 +28,47 @@ if ($this->Identity->isLoggedIn()) {
 	echo $this->element('Registrations/relative_notice');
 }
 
-if (empty($events)):
+echo $this->element('Registrations/notice');
+if (!$this->Identity->isLoggedIn()) {
+	echo $this->element('Events/not_logged_in');
+}
+
+echo $this->element('Events/selectors', compact('events'));
+
+foreach ($events as $affiliate_id => $affiliate_events):
+	if (count($affiliates) > 1):
 ?>
-	<p class="warning-message"><?= __('There are no events currently available for registration. Please check back periodically for updates.') ?></p>
+	<h3 class="affiliate"><?= h($affiliate_events[0]->affiliate->name) ?></h3>
 <?php
-else:
-	echo $this->element('Registrations/notice');
-	if (!$this->Identity->isLoggedIn()) {
-		echo $this->element('Events/not_logged_in');
+	endif;
+
+	// Combine events by categories
+	if (!isset($category)) {
+		$categories = $uncategorized = [];
+		foreach ($affiliate_events as $event) {
+			if ($event->division_id && !empty($event->division->league->categories)) {
+				foreach ($event->division->league->categories as $event_category) {
+					if (!array_key_exists($event_category->id, $categories)) {
+						$categories[$event_category->id] = ['category' => $event_category, 'events' => []];
+					}
+
+					$categories[$event_category->id]['events'][] = $event;
+				}
+			} else {
+				if (!array_key_exists($event->event_type_id, $uncategorized)) {
+					$uncategorized[$event->event_type_id] = [];
+				}
+				$uncategorized[$event->event_type_id][] = $event;
+			}
+		}
+
+		ksort($uncategorized);
+	} else {
+		// Keep things in the same overall structure regardless of whether there was a single category specified
+		$categories = [$category->id => ['category' => $category, 'events' => $affiliate_events]];
 	}
 
-	$sports = array_unique(collection($events)->extract('division.league.sport')->reject(function($sport) { return empty($sport); })->toArray());
-	echo $this->element('selector', ['title' => 'Sport', 'options' => $sports]);
-
-	$seasons = array_unique(collection($events)->extract('division.league.season')->reject(function($season) { return empty($season); })->toArray());
-	echo $this->element('selector', ['title' => 'Season', 'options' => $seasons]);
-
-	$days = collection($events)->extract('division.days.{*}')->combine('id', 'name')->toArray();
-	ksort($days);
-	echo $this->element('selector', ['title' => 'Day', 'options' => $days]);
-
-	$play_types = ['team', 'individual'];
+	if (!empty($uncategorized)):
 ?>
 
 	<div class="table-responsive clear-float">
@@ -74,153 +84,87 @@ else:
 		</thead>
 		<tbody>
 <?php
-	$last_name = $affiliate_id = null;
-	foreach ($events as $event):
-		$can_edit = $this->Authorize->can('edit', $event->affiliate);
-		if (count($affiliates) > 1 && $event->affiliate_id != $affiliate_id):
-			$affiliate_id = $event->affiliate_id;
-?>
-			<tr>
-				<th colspan="<?= 4 + !$can_edit ?>"><h3 class="affiliate"><?= h($event->affiliate->name) ?></h3></th>
-<?php
-			if ($can_edit):
-?>
-				<th class="actions"><?php
-				echo $this->Html->iconLink('edit_24.png',
-					['controller' => 'Affiliates', 'action' => 'edit', 'affiliate' => $event->affiliate_id, 'return' => AppController::_return()],
-					['alt' => __('Edit'), 'title' => __('Edit Affiliate')]);
-				?></th>
-<?php
-			endif;
-?>
-			</tr>
-<?php
-		endif;
-
-		if ($event->event_type->name != $last_name) {
-			$classes = [];
-			if (in_array($event->event_type->type, $play_types)) {
-				$divisions = collection($events)->match(['event_type_id' => $event->event_type_id])->extract('division');
-
-				$sports = array_unique($divisions->extract('league.sport')->toArray());
-				$classes[] = $this->element('selector_classes', ['title' => 'Sport', 'options' => $sports]);
-
-				$seasons = array_unique($divisions->extract('league.season')->toArray());
-				$classes[] = $this->element('selector_classes', ['title' => 'Season', 'options' => $seasons]);
-
-				$days = $divisions->extract('days.{*}')->combine('id', 'name')->toArray();
-				ksort($days);
-				$classes[] = $this->element('selector_classes', ['title' => 'Day', 'options' => $days]);
-			}
-			if (!empty($classes)) {
-				$class = ' class="' . implode(' ', $classes) . '"';
-			} else {
-				$class = '';
-			}
-			echo "<tr$class><th colspan='5'><h4>{$event->event_type->name}</h4></th></tr>";
-			$last_name = $event->event_type->name;
+		foreach ($uncategorized as $type_events) {
+			echo $this->element('Events/list_type', ['event_type' => $type_events[0]->event_type, 'events' => $type_events]);
 		}
-		$classes = [];
-		if (in_array($event->event_type->type, $play_types)) {
-			if (!empty($event->division_id)) {
-				$classes[] = $this->element('selector_classes', ['title' => 'Sport', 'options' => $event->division->league->sport]);
-				$classes[] = $this->element('selector_classes', ['title' => 'Season', 'options' => $event->division->league->season]);
-				$days = collection($event->division->days)->combine('id', 'name')->toArray();
-				ksort($days);
-				$classes[] = $this->element('selector_classes', ['title' => 'Day', 'options' => $days]);
-			} else {
-				$classes[] = $this->element('selector_classes', ['title' => 'Sport', 'options' => []]);
-				$classes[] = $this->element('selector_classes', ['title' => 'Season', 'options' => []]);
-				$classes[] = $this->element('selector_classes', ['title' => 'Day', 'options' => []]);
-			}
-		}
-		if (!empty($classes)) {
-			$class = ' class="' . implode(' ', $classes) . '"';
-		} else {
-			$class = '';
-		}
-
-		if (count($event->prices) == 1):
-?>
-			<tr<?= $class ?>>
-				<td><?= $this->Html->link($event->name, ['action' => 'view', 'event' => $event->id]) ?></td>
-				<td><?php
-				$cost = $event->prices[0]->total;
-				if ($cost > 0) {
-					echo $this->Number->currency($cost);
-				} else {
-					echo $this->Html->tag('span', __('FREE'), ['class' => 'free']);
-				}
-				?></td>
-				<td><?= $this->Time->datetime($event->prices[0]->open) ?></td>
-				<td><?= $this->Time->datetime($event->prices[0]->close) ?></td>
-				<td class="actions"><?= $this->element('Events/actions', ['event' => $event]) ?></td>
-			</tr>
-<?php
-		else:
-?>
-			<tr>
-				<td colspan="4"><h5><?= $this->Html->link($event->name, ['action' => 'view', 'event' => $event->id]) ?></h5></td>
-				<td class="actions"><?= $this->element('Events/actions', ['event' => $event]) ?></td>
-			</tr>
-<?php
-			foreach ($event->prices as $price):
-?>
-			<tr>
-				<td class="price-point"><?= $this->Html->link($price->name, ['action' => 'view', 'event' => $event->id]) ?></td>
-				<td><?php
-				$cost = $price->total;
-				if ($cost > 0) {
-					echo $this->Number->currency($cost);
-				} else {
-					echo $this->Html->tag('span', __('FREE'), ['class' => 'free']);
-				}
-				?></td>
-				<td><?= $this->Time->datetime($price->open) ?></td>
-				<td><?= $this->Time->datetime($price->close) ?></td>
-				<td class="actions"><?php
-				echo $this->Html->iconLink('view_24.png',
-					['action' => 'view', 'event' => $event->id],
-					['alt' => __('View'), 'title' => __('View')]);
-				if (Configure::read('registration.register_now')) {
-					echo $this->Html->link(__('Register Now!'), ['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id, 'price' => $price->id]);
-				}
-				if ($this->Authorize->can('delete', $price)) {
-					echo $this->Form->iconPostLink('delete_24.png',
-						['controller' => 'Prices', 'action' => 'delete', 'price' => $price->id],
-						['alt' => __('Delete'), 'title' => __('Delete')],
-						['confirm' => __('Are you sure you want to delete this price?')]);
-				}
-				if ($this->Authorize->can('refund', $event)) {
-					echo $this->Html->link(__('Bulk Refunds'), ['controller' => 'Events', 'action' => 'refund', 'event' => $event->id, 'price' => $price->id]);
-				}
-				?></td>
-			</tr>
-<?php
-			endforeach;
-		endif;
-	endforeach;
 ?>
 		</tbody>
 	</table>
 	</div>
 <?php
-endif;
-?>
-</div>
-<?php
-if ($this->Authorize->can('add', \App\Controller\EventsController::class)):
-?>
-<div class="actions columns">
-	<ul class="nav nav-pills">
-<?php
-	foreach ($years as $y) {
-		echo $this->Html->tag('li', $this->Html->link($y['year'], ['year' => $y['year']]));
-	}
-?>
-	</ul>
-</div>
-<?php
-endif;
+	endif;
 
+	if (!empty($categories)) {
+		foreach ($categories as $details) {
+			echo $this->element('Events/list_category', ['category' => $details['category'], 'events' => $details['events']]);
+		}
+	}
+
+endforeach;
+?>
+</div>
+<?php
 echo $this->element('People/confirmation', ['fields' => ['height', 'shirt_size', 'year_started', 'skill_level']]);
+
+$no_matches = __('No matching offering, please try a different option');
+$multiple_matches = __('Multiple matches, please refine your selection');
+$locale = \Cake\I18n\I18n::getLocale();
+$currency = Configure::read('payment.currency');
+
+echo $this->Html->scriptBlock("
+const formatter = new Intl.NumberFormat('$locale', {
+  style: 'currency',
+  currency: '$currency',
+});
+
+function resetRadio(trigger) {
+	table = trigger.closest('table').find('input:checked').not('.disabled').each(function() {
+		i = zjQuery(this);
+		if (i.attr('disabled') === undefined) {
+			i.prop('checked', false);
+			radioChanged(i);
+		}
+	});
+}
+
+function radioChangedCallback(trigger, row) {
+	options = row.find('span.prices:visible');
+	el = row.find('span.final');
+
+	if (options.length === 0) {
+		html = '$no_matches';
+	} else {
+		min = options.get().reduce(function (result, item) {
+			return Math.min(result, zjQuery(item).data('min-cost'));
+		}, 999999);
+		max = options.get().reduce(function (result, item) {
+			return Math.max(result, zjQuery(item).data('max-cost'));
+		}, 0);
+
+		html = formatter.format(min);
+		if (max !== min) {
+			html += ' - ' + formatter.format(max);
+		}
+
+		if (options.length === 1) {
+			action = zjQuery(options[0]).data('link');
+			html += '<br/>' + zjQuery(options[0]).data('event');
+		} else {
+			action = '$multiple_matches';
+		}
+
+		html += '<br/>' + action;
+	}
+
+	el.html(html);
+}
+
+function initializePrices() {
+	zjQuery('.final').each(function () {
+		row = zjQuery(this).closest('tr');
+		radioChangedCallback(zjQuery(this), row);
+	});
+}
+");
+
+$this->Html->scriptBlock('initializePrices();', ['buffer' => true]);

@@ -3,7 +3,10 @@ namespace App\View;
 
 use App\View\Helper\AuthorizeHelper;
 use App\View\Helper\UserCacheHelper;
+use App\View\Helper\ZuluruFormHelper;
 use App\View\Helper\ZuluruGameHelper;
+use App\View\Helper\ZuluruHtmlHelper;
+use App\View\Helper\ZuluruTimeHelper;
 use Authentication\View\Helper\IdentityHelper;
 use Cake\View\View;
 
@@ -13,7 +16,10 @@ use Cake\View\View;
  * @property IdentityHelper $Identity
  * @property AuthorizeHelper $Authorize
  * @property UserCacheHelper $UserCache
+ * @property ZuluruFormHelper $Form
  * @property ZuluruGameHelper $Game
+ * @property ZuluruHtmlHelper $Html
+ * @property ZuluruTimeHelper $Time
  */
 class AppView extends View {
 

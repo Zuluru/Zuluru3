@@ -28,6 +28,10 @@ class EventPolicy extends AppPolicy {
 		$this->blockLocked($identity);
 	}
 
+	public function canAdmin(IdentityInterface $identity, $controller) {
+		return $identity->isManager();
+	}
+
 	public function canWizard(IdentityInterface $identity = null, $resource) {
 		if (!$identity || !$identity->isLoggedIn()) {
 			throw new ForbiddenRedirectException(null, ['controller' => 'Events', 'action' => 'index']);

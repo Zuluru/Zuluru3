@@ -3,6 +3,7 @@
  * @type $event \App\Model\Entity\Event
  * @type $times \App\Model\Entity\GameSlot[]
  * @type $affiliates \App\Model\Entity\Affiliate[]
+ * @type $facilities string[]
  * @type $allowed boolean
  * @type $notices string[]
  */

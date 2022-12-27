@@ -30,6 +30,7 @@ if (count($options) > 1):
 		'label' => false,
 		'type' => 'radio',
 		'options' => $new_options,
+		'hiddenField' => false,
 	];
 
 	echo $this->Form->input($name, $input_options);

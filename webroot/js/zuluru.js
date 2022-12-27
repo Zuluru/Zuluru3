@@ -72,7 +72,7 @@ function tableReorder(table) {
 /**
  * Deal with various selector drop-downs
  */
-function selectorChanged() {
+function selectorChanged(trigger) {
 	var show_selector = '';
 	zjQuery('span.selector').find('select').each(function() {
 		var id = zjQuery(this).attr('id');
@@ -82,6 +82,7 @@ function selectorChanged() {
 		}
 	});
 	var all = zjQuery('[class*=\"selector_\"]');
+
 	if (show_selector == '') {
 		all.css('display', '');
 		all.filter(':input').not('.disabled').removeAttr('disabled');
@@ -91,6 +92,28 @@ function selectorChanged() {
 		show.css('display', '');
 		all.filter(':input').attr('disabled', 'disabled');
 		show.filter(':input').not('.disabled').removeAttr('disabled');
+	}
+
+	if (trigger) {
+		var id = trigger.attr('id');
+		var setting = trigger.val();
+		var all_radio = zjQuery('span.selector div.radio').find(':input[name="' + id + '"]');
+
+		if (setting == '') {
+			// Reset related radio selectors
+			all_radio.removeAttr('disabled');
+			all_radio.prop('checked', false);
+		} else {
+			// Set related radio selectors
+			all_radio.not('.disabled').attr('disabled', 'disabled');
+			all_radio.not('.disabled').prop('checked', false);
+			var show_radio = all_radio.filter('[value="' + trigger.val() + '"]');
+			show_radio.prop('checked', true);
+		}
+
+		all_radio.each(function() {
+			radioChanged(this);
+		});
 	}
 }
 
@@ -793,7 +816,7 @@ function initializeStatus() {
 	/**
 	 * Set initial state of any selectors
 	 */
-	selectorChanged();
+	selectorChanged(null);
 
 	/**
 	 * Initialize CKEditor on any applicable input fields
@@ -1301,7 +1324,7 @@ zjQuery(function($) {
 	 */
 	$('body').on('change', 'span.selector select', function() {
 		// Just call the helper function
-		selectorChanged();
+		selectorChanged(jQuery(this));
 
 		// Don't bubble the event up any further
 		return false;

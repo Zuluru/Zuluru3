@@ -1,4 +1,11 @@
 <?php
+/**
+ * @type $this \App\View\AppView
+ * @type $events \App\Model\Entity\Event[]
+ * @type $affiliates int[]
+ * @type $step string
+ */
+
 $this->Html->addCrumb(__('Registration Events'));
 $this->Html->addCrumb(__('Wizard'));
 ?>
@@ -10,19 +17,26 @@ echo $this->Html->para('highlight-message', __('This wizard walks you through re
 	$this->Html->link(__('complete list of offerings'), ['action' => 'index'])));
 echo $this->element('Registrations/relative_notice');
 
-if (empty($events)):
-?>
-<p class="warning-message"><?= __('There are no events currently available for registration. Please check back periodically for updates.') ?></p>
-<?php
-else:
-	echo $this->element('Registrations/notice');
+echo $this->element('Registrations/notice');
 
-	$events_by_type = collection($events)->groupBy(function ($event) { return $event->event_type_id; })->toArray();
+if ($step) {
+	echo $this->element('Events/selectors', compact('events'));
+}
+
+foreach ($events as $affiliate_id => $affiliate_events):
+	if (count($affiliates) > 1):
+?>
+	<h3 class="affiliate" style="clear:both;"><?= h($affiliate_events[0]->affiliate->name) ?></h3>
+<?php
+	endif;
+
+	$events_by_type = collection($affiliate_events)->groupBy(function ($event) { return $event->event_type_id; })->toArray();
 	$event_types_available = array_keys($events_by_type);
 	if (empty($step) && count($event_types_available) == 1) {
 		$step = current($event_types_available);
 	}
 
+	// TODO: String steps are from URLs, numeric are when there's only one type available
 	switch ($step) {
 		case 'membership':
 		case 1:
@@ -30,8 +44,6 @@ else:
 				echo $this->Html->tag('h3', __($events_by_type[1][0]->event_type->name));
 				echo $this->Html->para(null, __('You are currently eligible for the following memberships.'));
 				echo $this->element('Events/list', ['events' => $events_by_type[1]]);
-			} else {
-				// TODO: Error message if people get here by accident
 			}
 			break;
 
@@ -41,8 +53,6 @@ else:
 				echo $this->Html->tag('h3', __($events_by_type[2][0]->event_type->name));
 				echo $this->Html->para(null, __('You are currently eligible to register a team in the following leagues.'));
 				echo $this->element('Events/list', ['events' => $events_by_type[2]]);
-			} else {
-				// TODO: Error message if people get here by accident
 			}
 			break;
 
@@ -52,8 +62,6 @@ else:
 				echo $this->Html->tag('h3', __($events_by_type[3][0]->event_type->name));
 				echo $this->Html->para(null, __('You are currently eligible to register as an individual in the following leagues.'));
 				echo $this->element('Events/list', ['events' => $events_by_type[3]]);
-			} else {
-				// TODO: Error message if people get here by accident
 			}
 			break;
 
@@ -63,8 +71,6 @@ else:
 				echo $this->Html->tag('h3', __($events_by_type[8][0]->event_type->name));
 				echo $this->Html->para(null, __('You are currently eligible to register as a youth in the following leagues.'));
 				echo $this->element('Events/list', ['events' => $events_by_type[8]]);
-			} else {
-				// TODO: Error message if people get here by accident
 			}
 			break;
 
@@ -74,8 +80,6 @@ else:
 				echo $this->Html->tag('h3', __($events_by_type[4][0]->event_type->name));
 				echo $this->Html->para(null, __('You are currently eligible to register a team for the following events.'));
 				echo $this->element('Events/list', ['events' => $events_by_type[4]]);
-			} else {
-				// TODO: Error message if people get here by accident
 			}
 			break;
 
@@ -85,8 +89,6 @@ else:
 				echo $this->Html->tag('h3', __($events_by_type[5][0]->event_type->name));
 				echo $this->Html->para(null, __('You are currently eligible to register as an individual for the following events.'));
 				echo $this->element('Events/list', ['events' => $events_by_type[5]]);
-			} else {
-				// TODO: Error message if people get here by accident
 			}
 			break;
 
@@ -96,8 +98,6 @@ else:
 				echo $this->Html->tag('h3', __($events_by_type[6][0]->event_type->name));
 				echo $this->Html->para(null, __('You are currently eligible to register for the following clinics.'));
 				echo $this->element('Events/list', ['events' => $events_by_type[6]]);
-			} else {
-				// TODO: Error message if people get here by accident
 			}
 			break;
 
@@ -107,8 +107,6 @@ else:
 				echo $this->Html->tag('h3', __($events_by_type[7][0]->event_type->name));
 				echo $this->Html->para(null, __('You can register for the following social events.'));
 				echo $this->element('Events/list', ['events' => $events_by_type[7]]);
-			} else {
-				// TODO: Error message if people get here by accident
 			}
 			break;
 
@@ -171,7 +169,8 @@ else:
 
 			break;
 	}
-endif;
+
+endforeach;
 ?>
 </div>
 <?= $this->element('People/confirmation', ['fields' => ['height', 'shirt_size', 'year_started', 'skill_level']]);
