@@ -1,3 +1,8 @@
+<?php
+/**
+ * @type $this \App\View\AppView
+ */
+?>
 <div class="search form">
 <?= $this->Form->create(false, ['align' => 'horizontal']) ?>
 <p><?= __('Enter first and/or last name of person to search for and click \'submit\'. You may use \'*\' as a wildcard.') ?>
