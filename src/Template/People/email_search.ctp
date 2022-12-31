@@ -6,7 +6,7 @@
  */
 
 $this->Html->addCrumb(__('People'));
-$this->Html->addCrumb(__('Rule-based Search'));
+$this->Html->addCrumb(__('Email Search'));
 ?>
 
 <div class="people search">
