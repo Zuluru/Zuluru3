@@ -14,7 +14,7 @@ use Cake\Core\Configure;
 ) ?>
 
 
-<?= __('This credit can be redeemed towards any future purchase on the {0} site, or transferred to any other member (e.g. a relative or your captain) for them to use.',
+<?= __('This credit can be redeemed towards any future registration on the {0} site, or transferred to any other member (e.g. a relative or your captain) for them to use.',
 	Configure::read('organization.name')
 ) ?>
 

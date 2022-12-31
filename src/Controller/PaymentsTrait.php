@@ -43,9 +43,13 @@ trait PaymentsTrait {
 				->where(['Registrations.id IN' => $registration_ids])
 				->toArray();
 
-			$debits = $credits_table->find()
-				->where(['Credits.id IN' => $debit_ids])
-				->toArray();
+			if (!empty($debit_ids)) {
+				$debits = $credits_table->find()
+					->where(['Credits.id IN' => $debit_ids])
+					->toArray();
+			} else {
+				$debits = [];
+			}
 
 			$audit = $this->Registrations->Payments->RegistrationAudits->newEntity($audit);
 			if (!$this->Registrations->Payments->RegistrationAudits->save($audit)) {

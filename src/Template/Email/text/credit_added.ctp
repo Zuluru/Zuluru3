@@ -9,12 +9,13 @@ use Cake\Core\Configure;
 <?= __('Dear {0},', $person->first_name) ?>
 
 
-<?= __('You have been issued a credit of {0}.',
-	$this->Number->currency($credit->amount)
+<?= __('You have been issued a credit of {0} ({1}).',
+	$this->Number->currency($credit->amount),
+	$credit->notes
 ) ?>
 
 
-<?= __('This credit can be redeemed towards any future purchase on the {0} site, or transferred to any other member (e.g. a relative or your captain) for them to use.',
+<?= __('This credit can be redeemed towards any future registration on the {0} site, or transferred to any other member (e.g. a relative or your captain) for them to use.',
 	Configure::read('organization.name')
 ) ?>
 

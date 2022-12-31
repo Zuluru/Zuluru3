@@ -770,7 +770,7 @@ class EventsControllerTest extends ControllerTestCase {
 		$this->assertMailSentTo($player->user->email);
 		$this->assertMailSentWith('Test Zuluru Affiliate Registration credited', 'Subject');
 		$this->assertMailContains('You have been issued a credit of CA$10.00 for your registration for ' . $league_team->name . '.');
-		$this->assertMailContains('This credit can be redeemed towards any future purchase on the Test Zuluru Affiliate site');
+		$this->assertMailContains('This credit can be redeemed towards any future registration on the Test Zuluru Affiliate site');
 	}
 
 	/**

@@ -171,17 +171,13 @@ foreach ($registrations as $registration):
 		<td align="right"><?= $this->Number->currency($tax2) ?></td>
 	</tr>
 <?php
-	else:
-?>
-	<tr><td>&nbsp;</td></tr>
-<?php
 	endif;
 endforeach;
 
 if (isset($audit)) {
 	$total = $audit->charge_total;
 } else {
-	$total = $cost + $tax1 + $tax1;
+	$total = $cost + $tax1 + $tax2;
 }
 ?>
 

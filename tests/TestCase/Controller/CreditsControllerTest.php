@@ -150,7 +150,7 @@ class CreditsControllerTest extends ControllerTestCase {
 		$this->assertMailSentTo($target->email);
 		$this->assertMailSentWith('Test Zuluru Affiliate Credit transferred', 'Subject');
 		$this->assertMailContains('A credit with a balance of CA$1.00 has been transferred to you.');
-		$this->assertMailContains('This credit can be redeemed towards any future purchase on the Test Zuluru Affiliate site');
+		$this->assertMailContains('This credit can be redeemed towards any future registration on the Test Zuluru Affiliate site');
 	}
 
 	/**

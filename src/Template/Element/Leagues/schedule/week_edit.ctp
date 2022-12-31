@@ -238,7 +238,7 @@ foreach ($games as $game):
 				// Get the list of seeds in the pool
 				foreach ($games as $other_game) {
 					if ($other_game->division_id === $game->division_id && $other_game->type !== SEASON_GAME && $other_game->round === $game->round && $other_game->pool_id === $game->pool_id) {
-						if (!in_array($other_game->home_pool_team->id, $ids)) {
+						if ($other_game->home_pool_team && !in_array($other_game->home_pool_team->id, $ids)) {
 							$dependency = $other_game->home_pool_team->dependency();
 							$alias = $other_game->home_pool_team->alias;
 							if (!empty($alias)) {
@@ -247,7 +247,7 @@ foreach ($games as $game):
 							$ids[$other_game->home_pool_team->id] = $dependency;
 						}
 
-						if (!in_array($other_game->away_pool_team->id, $ids)) {
+						if ($other_game->away_pool_team && !in_array($other_game->away_pool_team->id, $ids)) {
 							$dependency = $other_game->away_pool_team->dependency();
 							$alias = $other_game->away_pool_team->alias;
 							if (!empty($alias)) {

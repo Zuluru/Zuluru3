@@ -2309,6 +2309,26 @@ class PeopleControllerTest extends ControllerTestCase {
 	}
 
 	/**
+	 * Test email_search method
+	 */
+	public function testEmailSearch(): void {
+		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		// Admins are allowed to email search
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'email_search'], $admin->id);
+
+		// Managers are allowed to email search
+		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'email_search'], $manager->id);
+
+		// Others are not allowed to email search
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'email_search'], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'People', 'action' => 'email_search'], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'People', 'action' => 'email_search']);
+
+		$this->markTestIncomplete('More scenarios to test above.');
+	}
+
+	/**
 	 * Test league_search method
 	 */
 	public function testLeagueSearch(): void {

@@ -2446,6 +2446,12 @@ class PeopleController extends AppController {
 		$this->_handlePersonSearch();
 	}
 
+	public function email_search() {
+		$this->Authorization->authorize($this);
+		[$params, $url] = $this->_extractSearchParams();
+		$this->_handleEmailSearch($params, $url);
+	}
+
 	public function rule_search() {
 		$this->Authorization->authorize($this);
 		[$params, $url] = $this->_extractSearchParams();
@@ -2506,6 +2512,68 @@ class PeopleController extends AppController {
 		}
 
 		$this->_handleRuleSearch($params, $url);
+	}
+
+	protected function _handleEmailSearch($params, $url) {
+		$affiliates = $this->Authentication->applicableAffiliates();
+		$this->set(compact('url', 'affiliates'));
+
+		if (array_key_exists('email', $params)) {
+			$min = $this->Authentication->getIdentity()->isManager() ? 1 : 2;
+			if (strlen($params['email']) < $min) {
+				$this->set('search_error', __('The search terms used are too general. Please be more specific.'));
+			} else {
+				$value = $params['email'];
+				$op = '';
+				if (strpos($value, '*') !== false) {
+					$op = ' LIKE';
+					$value = strtr($value, '*', '%');
+				}
+
+				$user_model = Configure::read('Security.authModel');
+				$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . $user_model);
+				$users = $users_table->find()
+					->where([$users_table->emailField . $op => $value])
+					->extract('id')
+					->toArray();
+
+				$search_conditions = ["People.alternate_email$op" => $value];
+				if (!empty($users)) {
+					$search_conditions = ['OR' => [
+						'user_id IN' => $users,
+						$search_conditions,
+					]];
+				}
+				$query = $this->People->find()
+					->contain([$user_model])
+					->where($search_conditions);
+
+				if ($query->count()) {
+					// Match people in the affiliate, or admins who are effectively in all
+					if (array_key_exists('affiliate_id', $params)) {
+						$admins = $this->People->find()
+							->enableHydration(false)
+							->select(['People.id'])
+							->matching('Groups', function (Query $q) {
+								return $q->where(['Groups.id' => GROUP_ADMIN]);
+							})
+							->extract('id')
+							->toArray();
+						$query->matching('Affiliates')
+							->andwhere(['OR' => [
+								'AffiliatesPeople.affiliate_id' => $params['affiliate_id'],
+								'People.id IN' => $admins,
+							]])
+							->order(['Affiliates.name']);
+					}
+
+					$this->set('people', $this->paginate($query));
+				} else {
+					$this->Flash->info(__('No matches found!'));
+					return false;
+				}
+			}
+		}
 	}
 
 	protected function _handleRuleSearch($params, $url) {

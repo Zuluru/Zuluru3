@@ -47,11 +47,9 @@ foreach ($waivers as $waiver):
 					<td><?php
 						switch ($waiver->expiry_type) {
 							case 'fixed_dates':
-								printf('%s %d - %s %d',
-									$this->Time->format(mktime(12, 0, 0, $waiver->start_month), 'MMM'),
-									$waiver->start_day,
-									$this->Time->format(mktime(12, 0, 0, $waiver->end_month), 'MMM'),
-									$waiver->end_day);
+								printf('%s - %s',
+									$this->Time->format(mktime(12, 0, 0, $waiver->start_month, $waiver->start_day), 'MMM d'),
+									$this->Time->format(mktime(12, 0, 0, $waiver->end_month, $waiver->end_day), 'MMM d'));
 								break;
 
 							case 'elapsed_time':

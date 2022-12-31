@@ -213,7 +213,7 @@ if (Configure::read('scoring.allstars') && $game->division->allstars !== 'never'
 			'secure' => false,
 		], [
 			'selector' => '#AllstarDetails',
-		]), ['class' => 'no-labels', 'style' => 'margin-top: 15px']);
+		]), ['class' => 'no-labels', 'style' => 'margin-top: 15px;']);
 	}
 ?>
 		<fieldset id="AllstarDetails">
@@ -277,7 +277,7 @@ if ($game->division->league->hasStats()):
 		'value' => '1',
 		'label' => __('I want to enter stats for this game (if you don\'t do it now, you can do it later)'),
 		'secure' => false,
-	]), ['class' => 'no-labels', 'style' => 'margin-top: 15px']);
+	]), ['class' => 'no-labels', 'style' => 'margin-top: 15px;']);
 ?>
 	</div>
 <?php
