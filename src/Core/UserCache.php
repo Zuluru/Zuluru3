@@ -616,6 +616,7 @@ class UserCache {
 	public function _deleteTeamData($id = null) {
 		$this->clear('Teams', $id);
 		$this->clear('TeamIDs', $id);
+		$this->clear('AcceptedTeamIDs', $id);
 		$this->clear('AllTeams', $id);
 		$this->clear('AllTeamIDs', $id);
 		$this->clear('OwnedTeams', $id);

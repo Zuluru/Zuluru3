@@ -53,7 +53,8 @@ unset($player_fields['last_name']);
 
 $column = Configure::read('gender.column');
 
-foreach ($team->teams_people as $roster_entry) {
+foreach ($team->people as $person) {
+	$roster_entry = $person->_joinData;
 	$person = $roster_entry->person;
 
 	$row = [

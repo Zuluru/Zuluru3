@@ -248,7 +248,13 @@ if (!empty($game->score_entries)):
 				<tr>
 					<td><?= __('Defaulted?') ?></td>
 					<td><?= $homeScoreEntry->person_id ? ($homeScoreEntry->status == 'home_default' ? __('us') : ($homeScoreEntry->status == 'away_default' ? __('them') : __('no'))) : '' ?></td>
+<?php
+		if ($game->division->schedule_type != 'competition'):
+?>
 					<td><?= $awayScoreEntry->person_id ? ($awayScoreEntry->status == 'away_default' ? __('us') : ($awayScoreEntry->status == 'home_default' ? __('them') : __('no'))) : '' ?></td>
+<?php
+		endif;
+?>
 				</tr>
 <?php
 	endif;

@@ -14,7 +14,7 @@ class API extends \App\Http\API {
 	/**
 	 * @return bool
 	 */
-	public static function isTestData($data) {
+	public static function isTestData($data): bool {
 		$data = json_decode($data, true);
 		return !$data['livemode'];
 	}

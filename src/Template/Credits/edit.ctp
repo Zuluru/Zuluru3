@@ -25,7 +25,9 @@ if ($credit->isNew()) {
 } else {
 	echo $this->Form->input('amount_used');
 }
-echo $this->Form->input('notes');
+echo $this->Form->input('notes', [
+	'help' => $credit->isNew() ? __('These notes will be included in the notification email to the recipient.') : false,
+]);
 ?>
 	</fieldset>
 	<?= $this->Form->button(__('Submit'), ['class' => 'btn-success']) ?>

@@ -17,7 +17,7 @@ use Cake\Core\Configure;
 <?php
 if ($refund->payment_type == 'Credit'):
 ?>
-<p><?= __('This credit can be redeemed towards any future purchase on the {0} site, or transferred to any other member (e.g. a relative or your captain) for them to use.',
+<p><?= __('This credit can be redeemed towards any future registration on the {0} site, or transferred to any other member (e.g. a relative or your captain) for them to use.',
 	Configure::read('organization.name')
 ) ?></p>
 <?php

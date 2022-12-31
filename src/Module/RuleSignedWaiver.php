@@ -68,7 +68,7 @@ class RuleSignedWaiver extends Rule {
 	// Check if the user has signed the required waiver
 	public function evaluate($affiliate, $params, Team $team = null, $strict = true, $text_reason = false, $complete = true, $absolute_url = false, $formats = []) {
 		$url = ['controller' => 'Waivers', 'action' => 'sign', 'waiver' => $this->waiver_ids[0], 'date' => $this->date->toDateString()];
-		if ($this->waiver->expiry_type == 'never') {
+		if ($this->waiver->expiry_type == 'never' && $this->date->isFuture()) {
 			$url['date'] = FrozenDate::now()->toDateString();
 		}
 

@@ -445,7 +445,7 @@ class DivisionsController extends AppController {
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			$division->teams = [];
-			$default = $this->request->getData('teams.0');
+			$default = array_merge($this->request->getData('teams.0'), ['division_id' => $id]);
 			foreach ($this->request->getData('teams') as $key => $team) {
 				if (!empty($team['name'])) {
 					$division->teams[$key] = $this->Divisions->Teams->newEntity(array_merge($default, $team));
@@ -1623,12 +1623,12 @@ class DivisionsController extends AppController {
 			if ($multi_day) {
 				$end = $date->next(Configure::read('organization.first_day'))->subDay();
 				$games = collection($games)->filter(function ($game) use ($date, $end) {
-					return $game->game_slot->game_date >= $date && $game->game_slot->game_date < $end;
-				});
+					return $game->game_slot->game_date >= $date && $game->game_slot->game_date <= $end;
+				})->toArray();
 			} else {
 				$games = collection($games)->filter(function ($game) use ($date) {
 					return $game->game_slot->game_date == $date;
-				});
+				})->toArray();
 			}
 		}
 		if (empty($games)) {

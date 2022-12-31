@@ -1013,7 +1013,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 		$this->assertMailCount(1);
 		$this->assertMailContains('You have been issued a credit of CA$11.50 for your registration for Membership.');
-		$this->assertMailContains('This credit can be redeemed towards any future purchase on the Test Zuluru Affiliate site');
+		$this->assertMailContains('This credit can be redeemed towards any future registration on the Test Zuluru Affiliate site');
 	}
 
 	/**

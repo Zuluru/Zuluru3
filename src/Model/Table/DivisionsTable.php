@@ -502,7 +502,7 @@ class DivisionsTable extends AppTable {
 			->matching('People', function (Query $q) use ($id) {
 				return $q->where(['People.id' => $id]);
 			})
-			->order(['Divisions.open'])
+			->order(['Divisions.open', 'Divisions.id'])
 			->toArray();
 
 		return $divisions;

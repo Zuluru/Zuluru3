@@ -166,7 +166,10 @@ class RegistrationsTableTest extends TableTestCase {
 		$this->loadFixtures();
 		ConfigurationLoader::loadConfiguration();
 
-		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, [
+			'admin',
+			'player' => ['gender' => 'Woman', 'roster_designation' => 'Woman']
+		]);
 		$this->assertEquals('Woman', $player->roster_designation);
 
 		$event = EventFactory::make(['event_type_id' => EVENT_TYPE_ID_CLINICS, 'open_cap' => 0, 'women_cap' => 1])
