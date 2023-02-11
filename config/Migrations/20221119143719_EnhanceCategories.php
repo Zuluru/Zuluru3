@@ -29,6 +29,10 @@ class EnhanceCategories extends AbstractMigration {
 				'limit' => null,
 				'null' => false,
 			])
+			->addColumn('sort', 'integer', [
+				'default' => 1,
+				'null' => false,
+			])
 			->update();
 
 		$this->execute('UPDATE categories SET type = "Tasks"');

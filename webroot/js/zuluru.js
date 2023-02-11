@@ -1106,13 +1106,13 @@ zjQuery(function($) {
 			zjQuery('#' + id).dialog('close');
 		};
 
+		container = zjQuery('.zuluru.container').first();
 		zjQuery('#' + id).dialog({
 			buttons: buttons,
 			modal: true,
 			resizable: false,
-			// TODOBOOTSTRAP: Can we do something to make the size flexible based on the canvas size? It's really too small on a desktop.
-			width: 480,
-			height: 250
+			height: zjQuery(window).height() * 0.9,
+			width: container.width() * 0.9
 		});
 
 		// Don't bubble the event up any further
@@ -1137,13 +1137,13 @@ zjQuery(function($) {
 			zjQuery('#' + id).dialog('close');
 		};
 
+		container = zjQuery('.zuluru.container').first();
 		zjQuery('#' + id).dialog({
 			buttons: buttons,
 			modal: true,
 			resizable: false,
-			// TODOBOOTSTRAP: Can we do something to make the size flexible based on the canvas size? It's really too small on a desktop.
-			width: 480,
-			height: 250
+			height: zjQuery(window).height() * 0.9,
+			width: container.width() * 0.9
 		});
 
 		// Don't bubble the event up any further

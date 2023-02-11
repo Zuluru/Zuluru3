@@ -5,7 +5,9 @@
  * @type $events \App\Model\Entity\Event[]
  */
 
-use function App\Lib\no_null;
+use App\Authorization\ContextResource;
+use Cake\Core\Configure;
+use function App\Lib\no_blank;
 
 $sports = array_unique(collection($events)->extract('division.league.sport')->reject(function($sport) { return empty($sport); })->toArray());
 $seasons = array_unique(collection($events)->extract('division.league.season')->reject(function($season) { return empty($season); })->toArray());
@@ -13,8 +15,8 @@ $ratios = array_unique(collection($events)->extract('division.ratio_rule')->reje
 $types = array_unique(collection($events)->extract('event_type.name')->toArray());
 $days = collection($events)->extract('division.days.{*}')->combine('id', 'name')->toArray();
 ksort($days);
-$competitions = array_unique(collection($events)->extract('level_of_play')->toArray());
-$locations = no_null(array_unique(collection($events)->extract('location')->toArray()));
+$competitions = no_blank(array_unique(collection($events)->extract('level_of_play')->toArray()));
+$locations = no_blank(array_unique(collection($events)->extract('location')->toArray()));
 
 $classes = [
 	'table-responsive', 'clear-float',
@@ -134,6 +136,7 @@ endif;
 ?>
 			<td class="final"><span class="final"></span>
 <?php
+$events_by_class = [];
 foreach ($events as $event) {
 	$days = collection($event->division->days)->combine('id', 'name')->toArray();
 	ksort($days);
@@ -148,14 +151,36 @@ foreach ($events as $event) {
 	];
 	$class = implode(' ', $classes);
 
+	$id_class = implode(' ', collection($classes)->extract(function (string $class) {
+		if (strpos($class, ' ') === false) {
+			return '';
+		}
+		[$type, $specific] = explode(' ', $class);
+		return $specific;
+	})->toArray());
+
+	if (!array_key_exists($id_class, $events_by_class)) {
+		$events_by_class[$id_class] = [];
+	}
+	$events_by_class[$id_class][] = $event;
+
 	$prices = array_unique(collection($event->prices)->extract('total')->toArray());
 	sort($prices);
+
+	$resource = new ContextResource($event, ['strict' => false]);
+	$can = $this->Authorize->can('register', $resource);
+	if ($can) {
+		$link = $this->Html->link(__('Register Now!'), ['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id]);
+	} else {
+		$link = $this->element('messages', ['messages' => $resource->context('notices')]);
+	}
+
 	echo $this->Html->tag('span', '', [
 		'class' => "prices $class",
 		'data-min-cost' => min($prices),
 		'data-max-cost' => max($prices),
 		'data-event' => $event->name,
-		'data-link' => $this->Html->link(__('Register Now!'), ['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id]),
+		'data-link' => $link,
 	]);
 }
 ?>
@@ -163,4 +188,44 @@ foreach ($events as $event) {
 		</tr>
 	</tbody>
 </table>
+
+<?php
+// Assuming that if we can edit one event, we're an admin that can edit them all
+if ($this->Authorize->can('edit', $event)):
+	$show_warning = true;
+	foreach ($events_by_class as $class => $class_events):
+		if (count($class_events) > 1):
+			if ($show_warning):
+?>
+<h4 class="warning-message"><?= __('Admin warning') ?></h4>
+<p class="warning-message"><?= __('The following events were indistinguishable to the system and will result in users not being able to select any of them.') ?></p>
+<?php
+				$show_warning = false;
+			endif;
+?>
+<p><?= __('The code for these events was {0}', $class) ?></p>
+<ul>
+<?php
+			/** @var \App\Model\Entity\Event $event */
+			foreach ($class_events as $event):
+				$links = [
+					$this->Html->link(__('View Event'), ['action' => 'view', 'event' => $event->id]),
+					$this->Html->link(__('Edit Event'), ['action' => 'edit', 'event' => $event->id]),
+				];
+				if ($event->division_id) {
+					$links[] = $this->Html->link(__('View Division'), ['controller' => 'Divisions', 'action' => 'view', 'division' => $event->division_id]);
+					$links[] = $this->Html->link(__('Edit Division'), ['controller' => 'Divisions', 'action' => 'edit', 'division' => $event->division_id]);
+					$links[] = $this->Html->link(__('Game Slots'), ['controller' => 'Divisions', 'action' => 'slots', 'division' => $event->division_id]);
+				}
+?>
+	<li><?= __('{0}: {1}', $event->name, implode(' / ', $links)) ?></li>
+<?php
+			endforeach;
+?>
+</ul>
+<?php
+		endif;
+	endforeach;
+endif;
+?>
 </div>

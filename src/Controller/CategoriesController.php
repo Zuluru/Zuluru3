@@ -13,6 +13,14 @@ use Cake\Http\Exception\MethodNotAllowedException;
  */
 class CategoriesController extends AppController {
 
+	public function beforeFilter(\Cake\Event\Event $event) {
+		parent::beforeFilter($event);
+		if (isset($this->Security)) {
+			// All the fields for sorting in the index page are hidden and hence by default locked
+			$this->Security->setConfig('unlockedActions', ['index']);
+		}
+	}
+
 	/**
 	 * Index method
 	 *
@@ -22,12 +30,24 @@ class CategoriesController extends AppController {
 		$this->Authorization->authorize($this);
 
 		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
-		$this->set(compact('affiliates'));
 
-		$this->set('categories', $this->Categories->find()
+		$categories = $this->Categories->find()
 			->contain(['Affiliates'])
 			->where(['affiliate_id IN' => $affiliates])
-			->order(['Affiliates.name', 'Categories.type', 'Categories.name']));
+			->order(['Affiliates.name', 'Categories.type', 'Categories.sort', 'Categories.name'])
+			->toArray();
+
+		if ($this->request->is('post')) {
+			$categories = $this->Categories->patchEntities($categories, $this->request->getData());
+			if ($this->Categories->saveMany($categories)) {
+				$this->Flash->success(__('Sort order has been updated.'));
+				return $this->redirect(['action' => 'index']);
+			} else {
+				$this->Flash->warning(__('Sort order could not be updated.'));
+			}
+		}
+
+		$this->set(compact('affiliates', 'categories'));
 	}
 
 	/**

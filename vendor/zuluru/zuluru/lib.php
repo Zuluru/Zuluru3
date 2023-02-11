@@ -108,8 +108,13 @@ function array_transpose($array, $selectKey = false) {
 	return $return;
 }
 
-function no_null(array $array): array {
+function no_blank(array $array): array {
 	$key = array_search(null, $array, true);
+	if ($key !== false) {
+		unset($array[$key]);
+	}
+
+	$key = array_search('', $array, true);
 	if ($key !== false) {
 		unset($array[$key]);
 	}

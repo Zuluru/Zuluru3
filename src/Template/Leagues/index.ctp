@@ -189,7 +189,7 @@ if (!empty($years)):
 	<ul class="nav nav-pills">
 <?php
 foreach ($years as $year) {
-	echo $this->Html->tag('li', $this->Html->link($year['year'], ['affiliate' => $affiliate, 'sport' => $sport, 'year' => $year['year']]));
+	echo $this->Html->tag('li', $this->Html->link($year, ['affiliate' => $affiliate, 'sport' => $sport, 'year' => $year]));
 }
 ?>
 	</ul>

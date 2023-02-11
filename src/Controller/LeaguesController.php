@@ -105,7 +105,7 @@ class LeaguesController extends AppController {
 		usort($leagues, [LeaguesTable::class, 'compareLeagueAndDivision']);
 		$this->set(compact('leagues', 'affiliate', 'affiliates', 'sport', 'tournaments'));
 
-		$this->set(['years' => $this->Leagues->find()
+		$open = $this->Leagues->find()
 			->enableHydration(false)
 			->select(['year' => 'DISTINCT YEAR(Leagues.open)'])
 			->where([
@@ -113,8 +113,18 @@ class LeaguesController extends AppController {
 				'Leagues.affiliate_id IN' => $affiliates,
 			])
 			->order(['year'])
-			->toArray()
-		]);
+			->toArray();
+		$close = $this->Leagues->find()
+			->enableHydration(false)
+			->select(['year' => 'DISTINCT YEAR(Leagues.close)'])
+			->where([
+				'YEAR(Leagues.close) !=' => 0,
+				'Leagues.affiliate_id IN' => $affiliates,
+			])
+			->order(['year'])
+			->toArray();
+		$years = array_unique(collection(array_merge($open, $close))->extract('year')->toArray());
+		$this->set(compact('years'));
 		$this->set('_serialize', ['league', 'years']);
 	}
 

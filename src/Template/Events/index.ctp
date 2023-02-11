@@ -95,6 +95,9 @@ foreach ($events as $affiliate_id => $affiliate_events):
 	endif;
 
 	if (!empty($categories)) {
+		uasort($categories, function ($a, $b) {
+			return $a['category']->sort <=> $b['category']->sort;
+		});
 		foreach ($categories as $details) {
 			echo $this->element('Events/list_category', ['category' => $details['category'], 'events' => $details['events']]);
 		}
