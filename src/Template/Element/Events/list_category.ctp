@@ -167,12 +167,16 @@ foreach ($events as $event) {
 	$prices = array_unique(collection($event->prices)->extract('total')->toArray());
 	sort($prices);
 
-	$resource = new ContextResource($event, ['strict' => false]);
-	$can = $this->Authorize->can('register', $resource);
-	if ($can) {
-		$link = $this->Html->link(__('Register Now!'), ['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id]);
+	if ($this->Authorize->getIdentity()) {
+		$resource = new ContextResource($event, ['strict' => false]);
+		$can = $this->Authorize->can('register', $resource);
+		if ($can) {
+			$link = $this->Html->link(__('Register Now!'), ['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id]);
+		} else if ($resource->context('notices')) {
+			$link = $this->element('messages', ['messages' => $resource->context('notices')]);
+		}
 	} else {
-		$link = $this->element('messages', ['messages' => $resource->context('notices')]);
+		$link = $this->Html->link(__('View Event'), ['controller' => 'Events', 'action' => 'view', 'event' => $event->id]);
 	}
 
 	echo $this->Html->tag('span', '', [
