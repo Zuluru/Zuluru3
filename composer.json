@@ -39,7 +39,7 @@
         "ozee31/cakephp-cors": "^1.1",
         "cakephp/authentication": "^1.0",
         "cakephp/authorization": "dev-master",
-        "firebase/php-jwt": "^5.0",
+        "firebase/php-jwt": "^6.0",
         "dereuromark/cakephp-transifex": "^2.0",
         "stripe/stripe-php": "^7.39",
         "symfony/yaml": "3.4.37"
