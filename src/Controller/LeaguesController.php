@@ -294,7 +294,7 @@ class LeaguesController extends AppController {
 				// To clone a league, read the old one and remove the id
 				try {
 					$league = $this->Leagues->get($id, [
-						'contain' => ['Divisions' => ['Days']]
+						'contain' => ['Categories', 'Divisions' => ['Days']]
 					]);
 				} catch (RecordNotFoundException $ex) {
 					$this->Flash->info(__('Invalid league.'));
@@ -318,6 +318,7 @@ class LeaguesController extends AppController {
 		$this->set(compact('league'));
 		$this->set('affiliates', $this->Authentication->applicableAffiliates(true));
 		$this->set('days', $this->Leagues->Divisions->Days->find('list'));
+		$this->set('categories', $this->Leagues->Categories->find('list')->where(['Categories.type' => 'Leagues'])->toArray());
 		$this->set('stat_types', $this->Leagues->StatTypes->findBySport($league->sport));
 		$this->render('edit');
 	}
