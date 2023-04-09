@@ -1,4 +1,11 @@
 <?php
+/**
+ * @type $this \App\View\AppView
+ * @type $person \App\Model\Entity\Person
+ * @type $teams \App\Model\Entity\Team[]
+ */
+
+use App\Model\Entity\Team;
 use Cake\Core\Configure;
 
 $this->Html->addCrumb(__('People'));
@@ -10,24 +17,26 @@ $this->Html->addCrumb(__('Team History'));
 	<h2><?= __('Team History') . ': ' . $person->full_name ?></h2>
 
 <?php
-$years = [];
-foreach ($teams as $team) {
-	if ($team->division->open->year != 0) {
-		$years[] = $team->division->open->year;
-		$seasons[] = $team->division->league->season;
-	}
-}
-echo $this->element('selector', ['title' => 'Year', 'options' => array_unique($years)]);
-
-$seasons = array_unique(collection($teams)->extract('division.league.season')->toArray());
-echo $this->element('selector', ['title' => 'Season', 'options' => array_intersect_key(Configure::read('options.season'), array_flip($seasons))]);
-
-$days = collection($teams)->extract('division.days.{*}')->combine('id', function ($entity) { return $entity->translateField('name'); })->toArray();
-ksort($days);
-echo $this->element('selector', ['title' => 'Day', 'options' => $days]);
-
-$roles = array_unique(collection($teams)->extract('_matchingData.TeamsPeople.role')->toArray());
-echo $this->element('selector', ['title' => 'Role', 'options' => array_intersect_key(Configure::read('options.roster_role'), array_flip($roles))]);
+echo $this->Selector->selector('Year', $this->Selector->extractOptions(
+	$teams,
+	function (Team $item) { return $item->division ? $item->division->open : null; },
+	'year'
+));
+echo $this->Selector->selector('Season', $this->Selector->extractOptionsUnsorted(
+	$teams,
+	function (Team $item) { return $item->division ? $item->division->league : null; },
+	'season'
+));
+echo $this->Selector->selector('Day', $this->Selector->extractOptions(
+	$teams,
+	function (Team $item) { return $item->division && !empty($item->division->days) ? $item->division->days : null; },
+	'name', 'id'
+));
+echo $this->Selector->selector('Role', $this->Selector->extractOptions(
+	$teams,
+	function (Team $item) { return $item->_matchingData['TeamsPeople']; },
+	function (\App\Model\Entity\TeamsPerson $roster) { return Configure::read("options.roster_role.{$roster->role}"); }
+));
 ?>
 	<div class="table-responsive clear-float">
 		<table class="table table-striped table-hover table-condensed">
@@ -41,28 +50,23 @@ foreach ($teams as $team):
 		$year_text = __('N/A');
 	}
 	if ($last_year != $year):
+		$classes = collection($teams)->filter(function ($test) use ($year) {
+			return !empty($test->division_id) && $test->division->open >= "$year-01-01" && $test->division->open <= "$year-12-31";
+		})->extract(function (Team $team) {
+			return "select_id_{$team->id}";
+		})->toArray();
+
 		$last_year = $year;
-		$seasons = $days = $roles = [];
-		foreach ($teams as $year_team) {
-			if (!empty($year_team->division_id) && $year_team->division->open >= "$year-01-01" && $year_team->division->open <= "$year-12-31") {
-				$seasons[] = $year_team->division->league->season;
-				$days = array_merge($days, collection($year_team->division->days)->extract('name')->toArray());
-				$roles[] = $year_team->_matchingData['TeamsPeople']->role;
-			}
-		}
-		$seasons = array_unique($seasons);
-		$days = array_unique($days);
-		$roles = array_unique($roles);
 ?>
-			<tr class="<?= $this->element('selector_classes', ['title' => 'Year', 'options' => $year]) ?> <?= $this->element('selector_classes', ['title' => 'Season', 'options' => $seasons]) ?> <?= $this->element('selector_classes', ['title' => 'Day', 'options' => $days]) ?> <?= $this->element('selector_classes', ['title' => 'Role', 'options' => $roles]) ?>">
+			<tr class="<?= implode(' ', $classes) ?>">
 				<th colspan="3"><?= $year_text ?></th>
 			</tr>
 <?php
 	endif;
 ?>
-			<tr class="<?= $this->element('selector_classes', ['title' => 'Year', 'options' => $year]) ?> <?= $this->element('selector_classes', ['title' => 'Season', 'options' => $team->division->league->season]) ?> <?= $this->element('selector_classes', ['title' => 'Day', 'options' => array_unique(collection($team->division->days)->extract('name')->toArray())]) ?> <?= $this->element('selector_classes', ['title' => 'Role', 'options' => $team->_matchingData['TeamsPeople']->role]) ?>">
+			<tr class="select_id_<?= $team->id ?>">
 				<td><?= $this->element('Teams/block', compact('team')) ?></td>
-				<td><?= $team->_matchingData['TeamsPeople']->role ?></td>
+				<td><?= Configure::read("options.roster_role.{$team->_matchingData['TeamsPeople']->role}") ?></td>
 				<td><?= $this->element('Divisions/block', ['division' => $team->division, 'field' => 'full_league_name']) ?></td>
 <?php
 endforeach;

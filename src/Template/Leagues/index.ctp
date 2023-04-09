@@ -9,6 +9,7 @@
  */
 
 use App\Controller\AppController;
+use App\Model\Entity\League;
 use Cake\Utility\Inflector;
 
 $this->Html->addCrumb($tournaments ? __('Tournaments') : __('Leagues'));
@@ -25,46 +26,37 @@ if (empty($leagues)):
 	echo $this->Html->para('warning-message', __('There are no leagues currently active. Please check back periodically for updates{0}.',
 		!empty($years) ? ' ' . __('or use the links below to review historical information') : ''));
 else:
-	$sports = array_unique(collection($leagues)->extract('sport')->toArray());
-	echo $this->element('selector', [
-		'title' => 'Sport',
-		'options' => $sports,
-	]);
+	$sports = $this->Selector->extractOptions($leagues, null, 'sport');
+	echo $this->Selector->selector('Sport', $sports);
 
-	$seasons = array_unique(collection($leagues)->extract('long_season')->toArray());
-	echo $this->element('selector', [
-		'title' => 'Season',
-		'options' => $seasons,
-	]);
+	$seasons = $this->Selector->extractOptionsUnsorted($leagues, null, 'long_season');
+	echo $this->Selector->selector('Season', $seasons);
 
-	$days = collection($leagues)->extract('divisions.{*}.days.{*}')->combine('id', 'name')->toArray();
-	ksort($days);
-	echo $this->element('selector', [
-		'title' => 'Day',
-		'options' => $days,
-	]);
+	echo $this->Selector->selector('Day', $this->Selector->extractOptions(
+		$leagues,
+		function (League $item) { return collection($item->divisions)->extract('days.{*}')->toArray(); },
+		'name', 'id'
+	));
 ?>
 	<div class="table-responsive clear-float">
 	<table class="table table-hover table-condensed">
 <?php
-	$affiliate_id = null;
+	$affiliate_id = $current_sport = $season = null;
 
 	foreach ($leagues as $league):
 		$this->start('thead');
 
-		if ($league->affiliate_id != $affiliate_id):
+		if ($league->affiliate_id !== $affiliate_id):
 			$affiliate_id = $league->affiliate_id;
 			$affiliate_leagues = collection($leagues)->filter(function ($league) use ($affiliate_id) {
-				return $league->affiliate_id == $affiliate_id;
+				return $league->affiliate_id === $affiliate_id;
 			});
 			$current_sport = null;
 
 			if (count($affiliates) > 1):
-				$affiliate_sports = array_unique($affiliate_leagues->extract('sport')->toArray());
-				$affiliate_seasons = array_unique($affiliate_leagues->extract('long_season')->toArray());
-				$affiliate_days = array_unique($affiliate_leagues->extract('divisions.{*}.days.{*}.name')->toArray());
+				$classes = $affiliate_leagues->extract(function (League $league) { return "select_id_{$league->id}"; })->toArray();
 ?>
-			<tr class="<?= $this->element('selector_classes', ['title' => 'Sport', 'options' => $affiliate_sports]) ?> <?= $this->element('selector_classes', ['title' => 'Season', 'options' => $affiliate_seasons]) ?> <?= $this->element('selector_classes', ['title' => 'Day', 'options' => $affiliate_days]) ?>">
+			<tr class="<?= implode(' ', $classes) ?>">
 				<th<?= $this->Authorize->can('edit', $league->affiliate) ? '' : ' colspan="2"' ?>>
 					<h3 class="affiliate"><?= h($league->affiliate->name) ?></h3>
 				</th>
@@ -84,32 +76,34 @@ else:
 			endif;
 		endif;
 
-		if ($league->sport != $current_sport):
+		if ($league->sport !== $current_sport):
 			$current_sport = $league->sport;
-			$sport_leagues = $affiliate_leagues->filter(function ($league) use ($current_sport) {
-				return $league->sport == $current_sport;
-			});
+			$classes = $affiliate_leagues->filter(function (League $league) use ($current_sport) {
+				return $league->sport === $current_sport;
+			})->extract(function (League $league) {
+				return "select_id_{$league->id}";
+			})->toArray();
 			$season = null;
 
 			if (count($sports) > 1):
-				$sport_seasons = array_unique($sport_leagues->extract('long_season')->toArray());
-				$sport_days = array_unique($sport_leagues->extract('divisions.{*}.days.{*}.name')->toArray());
 ?>
-			<tr class="<?= $this->element('selector_classes', ['title' => 'Sport', 'options' => $current_sport]) ?> <?= $this->element('selector_classes', ['title' => 'Season', 'options' => $sport_seasons]) ?> <?= $this->element('selector_classes', ['title' => 'Day', 'options' => $sport_days]) ?>">
+			<tr class="<?= implode(' ', $classes) ?>">
 				<th colspan="2"><?= Inflector::humanize($current_sport) ?></th>
 			</tr>
 <?php
 			endif;
 		endif;
 
-		if ($league->long_season != $season):
+		if ($league->long_season !== $season):
 			$season = $league->long_season;
 			if (count($seasons) > 1):
-				$season_days = array_unique($sport_leagues->filter(function ($league) use ($season) {
-					return $league->long_season == $season;
-				})->extract('divisions.{*}.days.{*}.name')->toArray());
+				$classes = $affiliate_leagues->filter(function (League $league) use ($current_sport, $season) {
+					return $league->sport === $current_sport && $league->long_season === $season;
+				})->extract(function (League $league) {
+					return "select_id_{$league->id}";
+				})->toArray();
 ?>
-			<tr class="<?= $this->element('selector_classes', ['title' => 'Sport', 'options' => $current_sport]) ?> <?= $this->element('selector_classes', ['title' => 'Season', 'options' => $season]) ?> <?= $this->element('selector_classes', ['title' => 'Day', 'options' => $season_days]) ?>">
+			<tr class="<?= implode(' ', $classes) ?>">
 				<th colspan="2"><?= $season ?></th>
 			</tr>
 <?php
@@ -125,14 +119,13 @@ else:
 		<tbody>
 <?php
 		// If the league has only a single division, we'll merge the details
-		$collapse = (count($league->divisions) == 1);
+		$collapse = (count($league->divisions) === 1);
 		if ($collapse):
 			$class = 'inner-border';
 		else:
 			$class = '';
-			$division_days = collection($league->divisions)->extract('days.{*}.name')->toList();
 ?>
-			<tr class="<?= $this->element('selector_classes', ['title' => 'Sport', 'options' => $current_sport]) ?> <?= $this->element('selector_classes', ['title' => 'Season', 'options' => $season]) ?> <?= $this->element('selector_classes', ['title' => 'Day', 'options' => $division_days]) ?>">
+			<tr class="select_id_<?= $league->id ?>">
 				<td<?= $this->Authorize->can('edit', $league) ? '' : ' colspan="2"' ?> class="inner-border">
 					<strong><?= $this->element('Leagues/block', ['league' => $league, 'field' => 'name',  'tournaments' => $tournaments]) ?></strong>
 				</td>
@@ -148,9 +141,8 @@ else:
 		endif;
 
 		foreach ($league->divisions as $division):
-			$division_days = collection($division->days)->extract('name')->toArray();
 ?>
-			<tr class="<?= $this->element('selector_classes', ['title' => 'Sport', 'options' => $current_sport]) ?> <?= $this->element('selector_classes', ['title' => 'Season', 'options' => $season]) ?> <?= $this->element('selector_classes', ['title' => 'Day', 'options' => $division_days]) ?>">
+			<tr class="select_id_<?= $league->id ?>">
 				<td class="<?= $class ?>"><?php
 					if ($collapse) {
 						$name = $league->name;

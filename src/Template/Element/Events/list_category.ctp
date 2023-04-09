@@ -6,31 +6,50 @@
  */
 
 use App\Authorization\ContextResource;
+use App\Model\Entity\Event;
 use Cake\Core\Configure;
 use function App\Lib\no_blank;
 
-$sports = array_unique(collection($events)->extract('division.league.sport')->reject(function($sport) { return empty($sport); })->toArray());
-$seasons = array_unique(collection($events)->extract('division.league.season')->reject(function($season) { return empty($season); })->toArray());
-$ratios = array_unique(collection($events)->extract('division.ratio_rule')->reject(function($ratio) { return empty($ratio); })->toArray());
-$types = array_unique(collection($events)->extract('event_type.name')->toArray());
-$days = collection($events)->extract('division.days.{*}')->combine('id', 'name')->toArray();
-ksort($days);
-$competitions = no_blank(array_unique(collection($events)->extract('level_of_play')->toArray()));
-$locations = no_blank(array_unique(collection($events)->extract('location')->toArray()));
+$sports = $this->Selector->extractOptions(
+	$events,
+	function (Event $item) { return $item->division ? $item->division->league : null; },
+	'sport'
+);
+$seasons = $this->Selector->extractOptionsUnsorted(
+	$events,
+	function (Event $item) { return $item->division ? $item->division->league : null; },
+	'season'
+);
+$ratios = $this->Selector->extractOptions(
+	$events,
+	function (Event $item) { return $item->division ?: null; },
+	'ratio_rule'
+);
+$types = $this->Selector->extractOptions(
+	$events,
+	function (Event $item) { return $item->event_type; },
+	'name', 'id'
+);
+$days = $this->Selector->extractOptions(
+	$events,
+	function (Event $item) { return $item->division && !empty($item->division->days) ? $item->division->days : null; },
+	'name', 'id'
+);
+$competitions = $this->Selector->extractOptions(
+	$events,
+	null,
+	'level_of_play'
+);
+$locations = $this->Selector->extractOptions(
+	$events,
+	null,
+	'location'
+);
 
-$classes = [
-	'table-responsive', 'clear-float',
-	$this->element('selector_classes', ['title' => 'Sport', 'options' => $sports]),
-	$this->element('selector_classes', ['title' => 'Season', 'options' => $seasons]),
-	$this->element('selector_classes', ['title' => 'Ratio', 'options' => $ratios]),
-	$this->element('selector_classes', ['title' => 'Type', 'options' => $types]),
-	$this->element('selector_classes', ['title' => 'Day', 'options' => $days]),
-	$this->element('selector_classes', ['title' => 'Competition', 'options' => $competitions]),
-	$this->element('selector_classes', ['title' => 'Location', 'options' => $locations]),
-];
+$classes = collection($events)->extract(function (Event $event) { return "select_id_{$event->id}"; })->toArray();
 $class = implode(' ', $classes);
 ?>
-<div class="<?= $class ?>">
+<div class="table-responsive clear-float <?= $class ?>">
 <h3><?php
 echo $category->name;
 if (!empty($category->description)) {
@@ -94,43 +113,43 @@ endif;
 <?php
 if (count($sports) > 1):
 ?>
-			<td><?= $this->element('radio_selector', ['slug' => $category->slug, 'title' => 'Sport', 'options' => $sports]) ?></td>
+			<td><?= $this->Selector->radioSelector($category->slug, 'Sport', $sports) ?></td>
 <?php
 endif;
 
 if (count($seasons) > 1):
 ?>
-			<td><?= $this->element('radio_selector', ['slug' => $category->slug, 'title' => 'Season', 'options' => $seasons]) ?></td>
+			<td><?= $this->Selector->radioSelector($category->slug, 'Season', $seasons) ?></td>
 <?php
 endif;
 
 if (count($ratios) > 1):
 ?>
-			<td><?= $this->element('radio_selector', ['slug' => $category->slug, 'title' => 'Ratio', 'options' => $ratios]) ?></td>
+			<td><?= $this->Selector->radioSelector($category->slug, 'Ratio', $ratios) ?></td>
 <?php
 endif;
 
 if (count($types) > 1):
 ?>
-			<td><?= $this->element('radio_selector', ['slug' => $category->slug, 'title' => 'Type', 'options' => $types]) ?></td>
+			<td><?= $this->Selector->radioSelector($category->slug, 'Type', $types) ?></td>
 <?php
 endif;
 
 if (count($days) > 1):
 ?>
-			<td><?= $this->element('radio_selector', ['slug' => $category->slug, 'title' => 'Day', 'options' => $days]) ?></td>
+			<td><?= $this->Selector->radioSelector($category->slug, 'Day', $days) ?></td>
 <?php
 endif;
 
 if (count($competitions) > 1):
 ?>
-			<td><?= $this->element('radio_selector', ['slug' => $category->slug, 'title' => 'Competition', 'options' => $competitions]) ?></td>
+			<td><?= $this->Selector->radioSelector($category->slug, 'Competition', $competitions) ?></td>
 <?php
 endif;
 
 if (count($locations) > 1):
 ?>
-			<td><?= $this->element('radio_selector', ['slug' => $category->slug, 'title' => 'Location', 'options' => $locations]) ?></td>
+			<td><?= $this->Selector->radioSelector($category->slug, 'Location', $locations) ?></td>
 <?php
 endif;
 ?>
@@ -138,26 +157,16 @@ endif;
 <?php
 $events_by_class = [];
 foreach ($events as $event) {
-	$days = collection($event->division->days)->combine('id', 'name')->toArray();
-	ksort($days);
-	$classes = [
-		$this->element('selector_classes', ['title' => 'Sport', 'options' => $event->division->league->sport]),
-		$this->element('selector_classes', ['title' => 'Season', 'options' => $event->division->league->season]),
-		$this->element('selector_classes', ['title' => 'Ratio', 'options' => $event->division->ratio_rule]),
-		$this->element('selector_classes', ['title' => 'Type', 'options' => $event->event_type->name]),
-		$this->element('selector_classes', ['title' => 'Day', 'options' => $days]),
-		$this->element('selector_classes', ['title' => 'Competition', 'options' => $event->level_of_play]),
-		$this->element('selector_classes', ['title' => 'Location', 'options' => $event->location]),
-	];
-	$class = implode(' ', $classes);
-
-	$id_class = implode(' ', collection($classes)->extract(function (string $class) {
-		if (strpos($class, ' ') === false) {
-			return '';
-		}
-		[$type, $specific] = explode(' ', $class);
-		return $specific;
-	})->toArray());
+	$day = reset($event->division->days)->name;
+	$id_class = implode(' ', [
+		"sport:{$event->division->league->sport}",
+		"season:{$event->division->league->season}",
+		"ratio:{$event->division->ratio_rule}",
+		"type:{$event->event_type->name}",
+		"day:{$day}",
+		"competition:{$event->level_of_play}",
+		"location:{$event->location}",
+	]);
 
 	if (!array_key_exists($id_class, $events_by_class)) {
 		$events_by_class[$id_class] = [];
@@ -180,7 +189,7 @@ foreach ($events as $event) {
 	}
 
 	echo $this->Html->tag('span', '', [
-		'class' => "prices $class",
+		'class' => "prices option_id_{$event->id}",
 		'data-min-cost' => min($prices),
 		'data-max-cost' => max($prices),
 		'data-event' => $event->name,

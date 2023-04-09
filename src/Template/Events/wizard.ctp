@@ -23,6 +23,7 @@ if ($step) {
 	echo $this->element('Events/selectors', compact('events'));
 }
 
+$events = collection($events)->groupBy('affiliate_id')->toArray();
 foreach ($events as $affiliate_id => $affiliate_events):
 	if (count($affiliates) > 1):
 ?>
@@ -173,4 +174,6 @@ foreach ($events as $affiliate_id => $affiliate_events):
 endforeach;
 ?>
 </div>
-<?= $this->element('People/confirmation', ['fields' => ['height', 'shirt_size', 'year_started', 'skill_level']]);
+<?php
+echo $this->element('People/confirmation', ['fields' => ['height', 'shirt_size', 'year_started', 'skill_level']]);
+echo $this->element('Events/category_scaffolding');

@@ -5,69 +5,20 @@
  * @type $events \App\Model\Entity\Event[]
  */
 
+use App\Model\Entity\Event;
 use Cake\Core\Configure;
 
 $play_types = ['team', 'individual'];
 
-$classes = [];
-if (in_array($event_type->type, $play_types)) {
-	$divisions = collection($events)->extract('division');
-
-	$sports = array_unique($divisions->extract('league.sport')->toArray());
-	$classes[] = $this->element('selector_classes', ['title' => 'Sport', 'options' => $sports]);
-
-	$seasons = array_unique($divisions->extract('league.season')->reject(function ($season) { return empty($season); })->toArray());
-	$classes[] = $this->element('selector_classes', ['title' => 'Season', 'options' => $seasons]);
-
-	$classes[] = $this->element('selector_classes', ['title' => 'Type', 'options' => $event_type->name]);
-
-	$days = $divisions->extract('days.{*}')->combine('id', 'name')->toArray();
-	ksort($days);
-	$classes[] = $this->element('selector_classes', ['title' => 'Day', 'options' => $days]);
-
-	$competitions = array_unique(collection($events)->extract('level_of_play')->toArray());
-	$classes[] = $this->element('selector_classes', ['title' => 'Competition', 'options' => $competitions]);
-
-	$locations = array_unique(collection($events)->extract('location')->toArray());
-	$classes[] = $this->element('selector_classes', ['title' => 'Location', 'options' => $locations]);
-}
-if (!empty($classes)) {
-	$class = ' class="' . implode(' ', $classes) . '"';
-} else {
-	$class = '';
-}
-echo "<tr$class><th colspan='5'><h4>{$event_type->name}</h4></th></tr>";
-
+$classes = collection($events)->extract(function (Event $event) { return "select_id_{$event->id}"; })->toArray();
+$class = implode(' ', $classes);
+?>
+<tr class="select_ids <?= $class ?>"><th colspan="5"><h4><?= $event_type->name ?></h4></th></tr>
+<?php
 foreach ($events as $event):
-	$classes = [];
-	if (in_array($event_type->type, $play_types)) {
-		if (!empty($event->division_id)) {
-			$classes[] = $this->element('selector_classes', ['title' => 'Sport', 'options' => $event->division->league->sport]);
-			$classes[] = $this->element('selector_classes', ['title' => 'Season', 'options' => $event->division->league->season]);
-			$classes[] = $this->element('selector_classes', ['title' => 'Type', 'options' => $event_type->name]);
-			$days = collection($event->division->days)->combine('id', 'name')->toArray();
-			ksort($days);
-			$classes[] = $this->element('selector_classes', ['title' => 'Day', 'options' => $days]);
-			$classes[] = $this->element('selector_classes', ['title' => 'Competition', 'options' => $event->level_of_play]);
-			$classes[] = $this->element('selector_classes', ['title' => 'Location', 'options' => $event->location]);
-		} else {
-			$classes[] = $this->element('selector_classes', ['title' => 'Sport', 'options' => []]);
-			$classes[] = $this->element('selector_classes', ['title' => 'Season', 'options' => []]);
-			$classes[] = $this->element('selector_classes', ['title' => 'Type', 'options' => $event_type->name]);
-			$classes[] = $this->element('selector_classes', ['title' => 'Day', 'options' => []]);
-			$classes[] = $this->element('selector_classes', ['title' => 'Competition', 'options' => $event->level_of_play]);
-			$classes[] = $this->element('selector_classes', ['title' => 'Location', 'options' => []]);
-		}
-	}
-	if (!empty($classes)) {
-		$class = ' class="' . implode(' ', $classes) . '"';
-	} else {
-		$class = '';
-	}
-
 	if (count($event->prices) === 1):
 ?>
-<tr<?= $class ?>>
+<tr class="select_id_<?= $event->id ?>">
 	<td><?= $this->Html->link($event->name, ['action' => 'view', 'event' => $event->id]) ?></td>
 	<td><?php
 	$cost = $event->prices[0]->total;
@@ -84,14 +35,14 @@ foreach ($events as $event):
 <?php
 	else:
 ?>
-<tr>
+<tr class="select_id_<?= $event->id ?>">
 	<td colspan="4"><h5><?= $this->Html->link($event->name, ['action' => 'view', 'event' => $event->id]) ?></h5></td>
 	<td class="actions"><?= $this->element('Events/actions', ['event' => $event]) ?></td>
 </tr>
 <?php
 		foreach ($event->prices as $price):
 ?>
-<tr>
+<tr class="select_id_<?= $event->id ?>">
 	<td class="price-point"><?= $this->Html->link($price->name, ['action' => 'view', 'event' => $event->id]) ?></td>
 	<td><?php
 	$cost = $price->total;

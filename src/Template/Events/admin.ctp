@@ -24,6 +24,7 @@ if (isset($year)) {
 <?php
 echo $this->element('Events/selectors', compact('events'));
 
+$events = collection($events)->groupBy('affiliate_id')->toArray();
 foreach ($events as $affiliate_id => $affiliate_events):
 	if (count($affiliates) > 1):
 ?>

@@ -73,48 +73,88 @@ function tableReorder(table) {
  * Deal with various selector drop-downs
  */
 function selectorChanged(trigger) {
-	var show_selector = '';
+	// Find the list of IDs that match the current selections
+	var selected_ids = false;
 	zjQuery('span.selector').find('select').each(function() {
-		var id = zjQuery(this).attr('id');
-		var setting = zjQuery(this).val();
-		if (setting != '') {
-			show_selector += '.' + id + '_' + setting;
+		var select = zjQuery(this);
+		var setting = select.val();
+		if (setting !== '') {
+			// This happens without a trigger being set if there is a selector with an initial value, e.g. the sport selector for add bulk game slots
+			var option = select.find(':selected');
+			var ids = option.data('ids');
+			if (typeof ids === 'number') {
+				ids = [String(ids)];
+			} else {
+				ids = ids.split(' ');
+			}
+
+			if (selected_ids === false) {
+				selected_ids = ids;
+			} else {
+				selected_ids = zjQuery(selected_ids).filter(ids);
+			}
 		}
 	});
-	var all = zjQuery('[class*=\"selector_\"]');
 
-	if (show_selector == '') {
+	// Build selectors from the list of matching IDs
+	var all = zjQuery('[class*=\"select_id_\"]');
+	var all_radio = zjQuery('[class*=\"select_radio_id_\"]');
+	var show_selector = '';
+	var radio_selector = '';
+	if (selected_ids !== false) {
+		for (i = 0; i < selected_ids.length; ++i) {
+			show_selector += '.select_id_' + selected_ids[i] + ',';
+			radio_selector += '.select_radio_id_' + selected_ids[i] + ',';
+		}
+		if (show_selector === '') {
+			// There were selections made, but they match nothing. Hide it all!
+			show_selector = '.select_id_no_match';
+			radio_selector = '.select_radio_id_no_match';
+		} else {
+			// Trim the trailing comma.
+			show_selector = show_selector.slice(0, -1);
+			radio_selector = radio_selector.slice(0, -1);
+		}
+	}
+
+	// Show and hide things based on those selectors
+	if (show_selector === '') {
 		all.css('display', '');
 		all.filter(':input').not('.disabled').removeAttr('disabled');
+
+		all_radio.not('.disabled').removeAttr('disabled');
 	} else {
 		var show = zjQuery(show_selector);
 		all.css('display', 'none');
 		show.css('display', '');
 		all.filter(':input').attr('disabled', 'disabled');
 		show.filter(':input').not('.disabled').removeAttr('disabled');
-	}
 
-	if (trigger) {
-		var id = trigger.attr('id');
-		var setting = trigger.val();
-		var all_radio = zjQuery('span.selector div.radio').find(':input[name="' + id + '"]');
+		// Set related radio selectors
+		var show_radio = zjQuery(radio_selector);
+		zjQuery('form.selector div.form-group.radio').each(function () {
+			var inputs = zjQuery(this).find('input');
+			var matches = inputs.filter(show_radio);
+			var not_matches = inputs.not(show_radio);
 
-		if (setting == '') {
-			// Reset related radio selectors
-			all_radio.removeAttr('disabled');
-			all_radio.prop('checked', false);
-		} else {
-			// Set related radio selectors
-			all_radio.not('.disabled').attr('disabled', 'disabled');
-			all_radio.not('.disabled').prop('checked', false);
-			var show_radio = all_radio.filter('[value="' + trigger.val() + '"]');
-			show_radio.prop('checked', true);
-		}
+			// Uncheck and disable all not-matching inputs
+			not_matches.not('.disabled').attr('disabled', 'disabled');
+			not_matches.not('.disabled').prop('checked', false);
 
-		all_radio.each(function() {
-			radioChanged(this);
+			if (matches.length == 1) {
+				// Check the one match, and disable it so reset doesn't have any effect
+				matches.not('.disabled').attr('disabled', 'disabled');
+				zjQuery(matches[0]).prop('checked', true);
+			} else {
+				// Enable all matching inputs
+				matches.not('.disabled').removeAttr('disabled');
+			}
 		});
 	}
+
+	all_radio.each(function () {
+		radioChanged(this);
+	});
 }
 
 /**
@@ -128,15 +168,37 @@ function radioChanged(trigger) {
 		return;
 	}
 
-	var show_selector = '';
+	var selected_ids = false;
 	row.find('input:checked').each(function() {
-		var name = zjQuery(this).attr('name');
-		var setting = zjQuery(this).val();
-		if (setting != '') {
-			show_selector += '.' + name + '_' + setting;
+		var ids = zjQuery(this).data('ids');
+		if (typeof ids === 'number') {
+			ids = [String(ids)];
+		} else {
+			ids = ids.split(' ');
+		}
+
+		if (selected_ids === false) {
+			selected_ids = ids;
+		} else {
+			selected_ids = zjQuery(selected_ids).filter(ids);
 		}
 	});
-	var all = row.find('[class*=\"selector_\"]');
+
+	var show_selector = '';
+	if (selected_ids !== false) {
+		for (i = 0; i < selected_ids.length; ++i) {
+			show_selector += '.option_id_' + selected_ids[i] + ',';
+		}
+		if (show_selector === '') {
+			// There were selections made, but they match nothing. Hide it all!
+			show_selector = '.option_no_match';
+		} else {
+			// Trim the trailing comma.
+			show_selector = show_selector.slice(0, -1);
+		}
+	}
+
+	var all = row.find('[class*=\"option_id_\"]');
 	if (show_selector == '') {
 		all.css('display', '');
 		all.filter(':input').not('.disabled').removeAttr('disabled');

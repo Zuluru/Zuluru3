@@ -115,7 +115,6 @@ class EventsController extends AppController {
 		}
 
 		$this->populateLocations($events);
-		$events = collection($events)->groupBy('affiliate_id')->toArray();
 
 		$this->set(compact('affiliates', 'events'));
 	}
@@ -180,8 +179,6 @@ class EventsController extends AppController {
 			$this->Flash->info(__('No matching events.'));
 			return $this->redirect('/');
 		}
-
-		$events = collection($events)->groupBy('affiliate_id')->toArray();
 
 		$this->set(compact('affiliates', 'events', 'year', 'years'));
 	}
@@ -256,7 +253,7 @@ class EventsController extends AppController {
 						return $q->order(['Prices.open', 'Prices.close', 'Prices.id']);
 					}
 				],
-				'Divisions' => ['Leagues', 'Days'],
+				'Divisions' => ['Leagues' => ['Categories'], 'Days'],
 			])
 			->where($conditions)
 			->order(['Events.event_type_id', 'Events.open', 'Events.close', 'Events.id'])
@@ -284,7 +281,6 @@ class EventsController extends AppController {
 		}
 
 		$this->populateLocations($events);
-		$events = collection($events)->groupBy('affiliate_id')->toArray();
 
 		$this->set(compact('events', 'types', 'affiliates', 'step'));
 	}
