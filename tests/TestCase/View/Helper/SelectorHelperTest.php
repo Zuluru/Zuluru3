@@ -116,7 +116,7 @@ class SelectorHelperTest extends TestCase
 		$this->assertArrayHasKey('ids', $options['ultimate']);
 		$this->assertTrue(is_array($options['ultimate']['ids']));
 		$this->assertCount(1, $options['ultimate']['ids']);
-		$this->assertEquals($events[0]->id, $options['ultimate']['ids'][0]);
+		$this->assertEquals($events[0]->id, current($options['ultimate']['ids']));
 
 		$this->assertArrayHasKey('soccer', $options);
 		$this->assertTrue(is_array($options['soccer']));
@@ -125,7 +125,7 @@ class SelectorHelperTest extends TestCase
 		$this->assertArrayHasKey('ids', $options['soccer']);
 		$this->assertTrue(is_array($options['soccer']['ids']));
 		$this->assertCount(1, $options['soccer']['ids']);
-		$this->assertEquals($events[1]->id, $options['soccer']['ids'][0]);
+		$this->assertEquals($events[1]->id, current($options['soccer']['ids']));
 
 		// Tests for extracting arrays.
 		$options = $this->SelectorHelper->extractOptionsUnsorted($events,
@@ -142,7 +142,7 @@ class SelectorHelperTest extends TestCase
 		$this->assertArrayHasKey('ids', $options[ChronosInterface::MONDAY]);
 		$this->assertTrue(is_array($options[ChronosInterface::MONDAY]['ids']));
 		$this->assertCount(1, $options[ChronosInterface::MONDAY]['ids']);
-		$this->assertEquals($events[0]->id, $options[ChronosInterface::MONDAY]['ids'][0]);
+		$this->assertEquals($events[0]->id, current($options[ChronosInterface::MONDAY]['ids']));
 
 		$this->assertArrayHasKey(ChronosInterface::TUESDAY, $options);
 		$this->assertTrue(is_array($options[ChronosInterface::TUESDAY]));
@@ -151,7 +151,7 @@ class SelectorHelperTest extends TestCase
 		$this->assertArrayHasKey('ids', $options[ChronosInterface::TUESDAY]);
 		$this->assertTrue(is_array($options[ChronosInterface::TUESDAY]['ids']));
 		$this->assertCount(1, $options[ChronosInterface::TUESDAY]['ids']);
-		$this->assertEquals($events[1]->id, $options[ChronosInterface::TUESDAY]['ids'][0]);
+		$this->assertEquals($events[1]->id, current($options[ChronosInterface::TUESDAY]['ids']));
 
 		$this->assertArrayHasKey(ChronosInterface::FRIDAY, $options);
 		$this->assertTrue(is_array($options[ChronosInterface::FRIDAY]));
@@ -160,8 +160,7 @@ class SelectorHelperTest extends TestCase
 		$this->assertArrayHasKey('ids', $options[ChronosInterface::FRIDAY]);
 		$this->assertTrue(is_array($options[ChronosInterface::FRIDAY]['ids']));
 		$this->assertCount(2, $options[ChronosInterface::FRIDAY]['ids']);
-		$this->assertEquals($events[0]->id, $options[ChronosInterface::FRIDAY]['ids'][0]);
-		$this->assertEquals($events[1]->id, $options[ChronosInterface::FRIDAY]['ids'][1]);
+		$this->assertEquals([$events[0]->id, $events[1]->id], array_values($options[ChronosInterface::FRIDAY]['ids']));
 	}
 
 }
