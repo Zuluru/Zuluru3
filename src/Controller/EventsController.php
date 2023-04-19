@@ -9,6 +9,7 @@ use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\I18n\FrozenDate;
+use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 
@@ -48,8 +49,8 @@ class EventsController extends AppController {
 	 */
 	public function index(?string $slug = null) {
 		$conditions = [
-			'Events.open <' => FrozenDate::now()->addDays(30),
-			'Events.close >' => FrozenDate::now(),
+			'Events.open <' => FrozenTime::now()->addDays(30),
+			'Events.close >' => FrozenTime::now(),
 		];
 
 		$affiliates = $this->Authentication->applicableAffiliateIDs();
@@ -72,7 +73,9 @@ class EventsController extends AppController {
 				'Affiliates',
 				'Prices' => [
 					'queryBuilder' => function (Query $q) {
-						return $q->order(['Prices.open', 'Prices.close', 'Prices.id']);
+						return $q
+							->where(['Prices.close >=' => FrozenTime::now()])
+							->order(['Prices.open', 'Prices.close', 'Prices.id']);
 					}
 				],
 				'Divisions' => ['Leagues' => ['Categories'], 'Days']
@@ -216,8 +219,8 @@ class EventsController extends AppController {
 		$affiliates = $this->Authentication->applicableAffiliateIDs();
 
 		$conditions = [
-			'Events.open <' => FrozenDate::now()->addDays(30),
-			'Events.close >' => FrozenDate::now(),
+			'Events.open <' => FrozenTime::now()->addDays(30),
+			'Events.close >' => FrozenTime::now(),
 		];
 		if (!empty($prereg)) {
 			$conditions = [
@@ -250,7 +253,9 @@ class EventsController extends AppController {
 				'Affiliates',
 				'Prices' => [
 					'queryBuilder' => function (Query $q) {
-						return $q->order(['Prices.open', 'Prices.close', 'Prices.id']);
+						return $q
+							->where(['Prices.close >=' => FrozenTime::now()])
+							->order(['Prices.open', 'Prices.close', 'Prices.id']);
 					}
 				],
 				'Divisions' => ['Leagues' => ['Categories'], 'Days'],

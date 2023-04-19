@@ -312,6 +312,8 @@ class EventPolicy extends AppPolicy {
 			$prices = [$resource->price];
 		} else if (!empty($event->prices)) {
 			$prices = $event->prices;
+		} else {
+			$prices = [];
 		}
 
 		// If there is a preregistration record, we ignore open and close times.
