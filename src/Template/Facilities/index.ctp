@@ -1,7 +1,15 @@
 <?php
+/**
+ * @type $this \App\View\AppView
+ * @type $regions \App\Model\Entity\Region[]
+ * @type $affiliates \App\Model\Entity\Affiliate[]
+ * @type $closed bool
+ */
 
 use App\Controller\AppController;
+use App\Model\Entity\Facility;
 use App\Model\Entity\Field;
+use App\Model\Entity\Region;
 use Cake\Core\Configure;
 
 $this->Html->addCrumb(__('Facilities'));
@@ -43,28 +51,22 @@ else:
 		}
 	}
 
-	$collection = collection($regions);
-
-	$sports = array_unique($collection->extract('facilities.{*}.fields.{*}.sport')->toList());
-	sort($sports);
-	echo $this->element('selector', [
-			'title' => 'Sport',
-			'options' => $sports,
-	]);
-
-	$surfaces = array_unique($collection->extract('facilities.{*}.fields.{*}.surface')->toList());
-	sort($surfaces);
-	echo $this->element('selector', [
-			'title' => 'Surface',
-			'options' => $surfaces,
-	]);
-
-	$indoor = array_flip(array_map('intval', array_unique($collection->extract('facilities.{*}.fields.{*}.indoor')->toList())));
-	$indoor_options = [1 => 'indoor', 0 => 'outdoor'];
-	echo $this->element('selector', [
-			'title' => 'Indoor/Outdoor',
-			'options' => array_intersect_key($indoor_options, $indoor),
-	]);
+	$facilities = collection($regions)->extract('facilities.{*}');
+	echo $this->Selector->selector('Sport', $this->Selector->extractOptions(
+		$facilities,
+		function (Facility $item) { return $item->fields; },
+		'sport'
+	));
+	echo $this->Selector->selector('Surface', $this->Selector->extractOptions(
+		$facilities,
+		function (Facility $item) { return $item->fields; },
+		'surface'
+	));
+	echo $this->Selector->selector('Indoor/Outdoor', $this->Selector->extractOptions(
+		$facilities,
+		function (Facility $item) { return $item->fields; },
+		function (Field $item) { return $item->indoor ? 'indoor' : 'outdoor'; }
+	));
 ?>
 
 	<div class="table-responsive clear-float">
@@ -82,12 +84,13 @@ else:
 		if (count($affiliates) > 1 && $region->affiliate_id != $affiliate_id):
 			$affiliate_id = $region->affiliate_id;
 
-			$collection = collection($regions)->match(['affiliate_id' => $affiliate_id]);
-			$affiliate_sports = array_unique($collection->extract('facilities.{*}.fields.{*}.sport')->toList());
-			$affiliate_surfaces = array_unique($collection->extract('facilities.{*}.fields.{*}.surface')->toList());
-			$affiliate_indoor = array_flip(array_map('intval', array_unique($collection->extract('facilities.{*}.fields.{*}.indoor')->toList())));
+			$classes = collection($regions)->match(['affiliate_id' => $affiliate_id])
+				->extract('facilities.{*}')
+				->extract(function (Facility $facility) {
+					return "select_id_{$facility->id}";
+				})->toList();
 ?>
-			<tr class="<?= $this->element('selector_classes', ['title' => 'Sport', 'options' => $affiliate_sports]) ?> <?= $this->element('selector_classes', ['title' => 'Surface', 'options' => $affiliate_surfaces]) ?> <?= $this->element('selector_classes', ['title' => 'Indoor/Outdoor', 'options' => array_intersect_key($indoor_options, $affiliate_indoor)]) ?>">
+			<tr class="<?= implode(' ', $classes) ?>">
 				<th colspan="2">
 					<h3 class="affiliate"><?= h($region->affiliate->name) ?></h3>
 				</th>
@@ -96,12 +99,11 @@ else:
 		endif;
 
 		if (count($regions) > 1):
-			$collection = collection($region->facilities);
-			$region_sports = array_unique($collection->extract('fields.{*}.sport')->toList());
-			$region_surfaces = array_unique($collection->extract('fields.{*}.surface')->toList());
-			$region_indoor = array_flip(array_map('intval', array_unique($collection->extract('fields.{*}.indoor')->toList())));
+			$classes = collection($region->facilities)->extract(function (Facility $facility) {
+				return "select_id_{$facility->id}";
+			})->toArray();
 ?>
-			<tr class="<?= $this->element('selector_classes', ['title' => 'Sport', 'options' => $region_sports]) ?> <?= $this->element('selector_classes', ['title' => 'Surface', 'options' => $region_surfaces]) ?> <?= $this->element('selector_classes', ['title' => 'Indoor/Outdoor', 'options' => array_intersect_key($indoor_options, $region_indoor)]) ?>">
+			<tr class="<?= implode(' ', $classes) ?>">
 				<td colspan="2">
 					<h4 class="affiliate"><?= h($region->name) ?></h4>
 				</td>
@@ -110,12 +112,10 @@ else:
 		endif;
 
 		foreach ($region->facilities as $facility):
-			$collection = collection($facility->fields);
-			$facility_sports = array_unique($collection->extract('sport')->toList());
-			$facility_surfaces = array_unique($collection->extract('surface')->toList());
-			$facility_indoor = array_flip(array_map('intval', array_unique($collection->extract('indoor')->toList())));
+			$facility_surfaces = array_unique(collection($facility->fields)->extract('surface')->toList());
+			sort($facility_surfaces);
 ?>
-			<tr class="<?= $this->element('selector_classes', ['title' => 'Sport', 'options' => $facility_sports]) ?> <?= $this->element('selector_classes', ['title' => 'Surface', 'options' => $facility_surfaces]) ?> <?= $this->element('selector_classes', ['title' => 'Indoor/Outdoor', 'options' => array_intersect_key($indoor_options, $facility_indoor)]) ?>">
+			<tr class="select_id_<?= $facility->id ?>">
 				<td>
 					<?= $this->Html->link($facility->name, ['controller' => 'Facilities', 'action' => 'view', 'facility' => $facility->id]) ?>
 <?php

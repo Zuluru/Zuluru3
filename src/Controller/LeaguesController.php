@@ -105,7 +105,7 @@ class LeaguesController extends AppController {
 		usort($leagues, [LeaguesTable::class, 'compareLeagueAndDivision']);
 		$this->set(compact('leagues', 'affiliate', 'affiliates', 'sport', 'tournaments'));
 
-		$this->set(['years' => $this->Leagues->find()
+		$open = $this->Leagues->find()
 			->enableHydration(false)
 			->select(['year' => 'DISTINCT YEAR(Leagues.open)'])
 			->where([
@@ -113,15 +113,25 @@ class LeaguesController extends AppController {
 				'Leagues.affiliate_id IN' => $affiliates,
 			])
 			->order(['year'])
-			->toArray()
-		]);
+			->toArray();
+		$close = $this->Leagues->find()
+			->enableHydration(false)
+			->select(['year' => 'DISTINCT YEAR(Leagues.close)'])
+			->where([
+				'YEAR(Leagues.close) !=' => 0,
+				'Leagues.affiliate_id IN' => $affiliates,
+			])
+			->order(['year'])
+			->toArray();
+		$years = array_unique(collection(array_merge($open, $close))->extract('year')->toArray());
+		$this->set(compact('years'));
 		$this->set('_serialize', ['league', 'years']);
 	}
 
 	public function summary() {
 		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		$divisions = $this->Leagues->Divisions->find()
-			->contain(['Leagues' => ['Affiliates'], 'Days'])
+			->contain(['Leagues' => ['Affiliates', 'Categories'], 'Days'])
 			->where([
 				'OR' => [
 					'Leagues.is_open' => true,
@@ -139,6 +149,7 @@ class LeaguesController extends AppController {
 		$this->Authorization->authorize(current($divisions)->league);
 		usort($divisions, [LeaguesTable::class, 'compareLeagueAndDivision']);
 		$this->set(compact('divisions', 'affiliates'));
+		$this->set('categories', $this->Leagues->Categories->find('list')->where(['Categories.type' => 'Leagues'])->count());
 	}
 
 	/**
@@ -153,6 +164,7 @@ class LeaguesController extends AppController {
 				'contain' => [
 					'Divisions',
 					'Affiliates',
+					'Categories',
 				],
 			]);
 		} catch (RecordNotFoundException $ex) {
@@ -282,7 +294,7 @@ class LeaguesController extends AppController {
 				// To clone a league, read the old one and remove the id
 				try {
 					$league = $this->Leagues->get($id, [
-						'contain' => ['Divisions' => ['Days']]
+						'contain' => ['Categories', 'Divisions' => ['Days']]
 					]);
 				} catch (RecordNotFoundException $ex) {
 					$this->Flash->info(__('Invalid league.'));
@@ -306,6 +318,7 @@ class LeaguesController extends AppController {
 		$this->set(compact('league'));
 		$this->set('affiliates', $this->Authentication->applicableAffiliates(true));
 		$this->set('days', $this->Leagues->Divisions->Days->find('list'));
+		$this->set('categories', $this->Leagues->Categories->find('list')->where(['Categories.type' => 'Leagues'])->toArray());
 		$this->set('stat_types', $this->Leagues->StatTypes->findBySport($league->sport));
 		$this->render('edit');
 	}
@@ -328,6 +341,7 @@ class LeaguesController extends AppController {
 							},
 						],
 					],
+					'Categories',
 					'StatTypes',
 				]
 			]);
@@ -344,7 +358,7 @@ class LeaguesController extends AppController {
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
 			$league = $this->Leagues->patchEntity($league, $this->request->getData(), [
-				'associated' => ['StatTypes', 'Divisions' => ['validateDays' => true], 'Divisions.Days'],
+				'associated' => ['Categories', 'StatTypes', 'Divisions' => ['validateDays' => true], 'Divisions.Days'],
 			]);
 
 			if ($this->Leagues->save($league, ['divisions' => $league->divisions])) {
@@ -363,6 +377,7 @@ class LeaguesController extends AppController {
 		$this->set(compact('league'));
 		$this->set('affiliates', $this->Authentication->applicableAffiliates(true));
 		$this->set('days', $this->Leagues->Divisions->Days->find('list'));
+		$this->set('categories', $this->Leagues->Categories->find('list')->where(['Categories.type' => 'Leagues'])->toArray());
 		$this->set('stat_types', $this->Leagues->StatTypes->findBySport($league->sport));
 
 		if (count($league->divisions) == 1) {

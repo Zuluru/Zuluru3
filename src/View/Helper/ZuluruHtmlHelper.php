@@ -51,9 +51,9 @@ class ZuluruHtmlHelper extends HtmlHelper {
 	public function imageLink($img, $url, array $imgOptions = [], array $linkOptions = []) {
 		if (array_key_exists('class', $linkOptions)) {
 			if (is_array($linkOptions['class'])) {
-				$linkOptions[] = 'icon';
+				$linkOptions['class'][] = 'icon';
 			} else {
-				$linkOptions .= ' icon';
+				$linkOptions['class'] .= ' icon';
 			}
 		} else {
 			$linkOptions['class'] = 'icon';
@@ -84,17 +84,41 @@ class ZuluruHtmlHelper extends HtmlHelper {
 	 * Create links from icons.
 	 */
 	public function iconLink($img, $url, array $imgOptions = [], array $linkOptions = []) {
-		$linkOptions['class'] = 'icon';
+		if (array_key_exists('class', $linkOptions)) {
+			if (is_array($linkOptions['class'])) {
+				$linkOptions['class'][] = 'icon';
+			} else {
+				$linkOptions['class'] .= ' icon';
+			}
+		} else {
+			$linkOptions['class'] = 'icon';
+		}
+
 		return $this->link($this->iconImg($img, $imgOptions),
 			$url, array_merge(['escapeTitle' => false], $linkOptions));
+	}
+
+	/**
+	 * Create pop-up links.
+	 */
+	public function popup(string $link_text, string $title, string $id, string $text, array $link_options = []): string {
+		$this->_View->append('help');
+		echo $this->tag('div', $text, [
+			'id' => $id, 'class' => 'help-dialog', 'title' => $title
+		]);
+		$this->_View->end();
+
+		return $this->link($link_text, '#', $link_options + [
+			'class' => 'zuluru_popup_link',
+			'data-id' => $id,
+			'target' => 'help',
+		]);
 	}
 
 	/**
 	 * Create pop-up help links.
 	 */
 	public function help(array $url, $duplicate = false) {
-		$help = '';
-
 		// Add "/help" to the beginning of whatever URL is provided
 		$url = array_merge(['controller' => 'Help'], $url);
 
@@ -103,14 +127,6 @@ class ZuluruHtmlHelper extends HtmlHelper {
 		if (!$duplicate && in_array($id, $this->__helpShown)) {
 			return;
 		}
-
-		// Add the help image, with a link to a pop-up with the help
-		$help .= $this->iconLink('help_16.png', $url, [
-			'class' => 'zuluru_help_link',
-			'alt' => __('[Help]'),
-			'title' => __('Additional help'),
-			'data-id' => $id,
-		], ['target' => 'help']);
 
 		if (!in_array($id, $this->__helpShown)) {
 			$this->_View->append('help');
@@ -135,7 +151,15 @@ class ZuluruHtmlHelper extends HtmlHelper {
 			$this->__helpShown[] = $id;
 		}
 
-		return $help;
+		// Add the help image, with a link to a pop-up with the help
+		return $this->iconLink('help_16.png', $url, [
+			'alt' => __('[Help]'),
+			'title' => __('Additional help'),
+		], [
+			'class' => 'zuluru_help_link',
+			'data-id' => $id,
+			'target' => 'help',
+		]);
 	}
 
 	public static function formatTextMessage($message) {

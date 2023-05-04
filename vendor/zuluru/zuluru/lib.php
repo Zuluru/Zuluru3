@@ -108,6 +108,20 @@ function array_transpose($array, $selectKey = false) {
 	return $return;
 }
 
+function no_blank(array $array): array {
+	$key = array_search(null, $array, true);
+	if ($key !== false) {
+		unset($array[$key]);
+	}
+
+	$key = array_search('', $array, true);
+	if ($key !== false) {
+		unset($array[$key]);
+	}
+
+	return $array;
+}
+
 function fake_id() {
 	$unused_id = Configure::read ('unused_id');
 	if (! $unused_id) {

@@ -1,27 +1,53 @@
 <?php
+/**
+ * @type \App\View\AppView $this
+ * @type \App\Model\Entity\Category[] $categories
+ * @type \App\Model\Entity\Affiliate[] $affiliates
+ */
+
+use Cake\Core\Configure;
+
 $this->Html->addCrumb(__('Categories'));
 $this->Html->addCrumb(__('List'));
+
+$types = Configure::read('options.category_types');
+$multiple_types = (count($types) > 1);
 ?>
 
 <div class="categories index">
 	<h2><?= __('Categories') ?></h2>
 	<div class="table-responsive">
-	<table class="table table-striped table-hover table-condensed">
+	<?= $this->Form->create(false) ?>
+	<table class="table table-striped table-hover table-condensed sortable">
 		<thead>
 			<tr>
+<?php
+if ($multiple_types):
+?>
+			<th><?= __('Type') ?></th>
+<?php
+endif;
+?>
+			<th></th>
 			<th><?= __('Name') ?></th>
+			<th><?= __('Slug') ?></th>
 			<th class="actions"><?= __('Actions') ?></th>
 			</tr>
 		</thead>
 		<tbody>
 <?php
-$affiliate_id = null;
-foreach ($categories as $category):
+$affiliate_id = $type = null;
+foreach ($categories as $i => $category):
+	$url = null;
+	if ($category->type === 'Leagues') {
+		$url = ['controller' => 'Events', 'action' => 'index', $category->slug];
+	}
+
 	if (count($affiliates) > 1 && $category->affiliate_id != $affiliate_id):
 		$affiliate_id = $category->affiliate_id;
 ?>
 			<tr>
-				<th colspan="2">
+				<th colspan="<?= 4 + $multiple_types ?>>">
 					<h3 class="affiliate"><?= h($category->affiliate->name) ?></h3>
 				</th>
 			</tr>
@@ -29,8 +55,24 @@ foreach ($categories as $category):
 	endif;
 ?>
 			<tr>
-				<td><?= h($category->name) ?></td>
+<?php
+	if ($multiple_types):
+?>
+				<td class="handle"><?php
+					if ($category->type !== $type) {
+						echo $types[$category->type];
+						$type = $category->type;
+					}
+				?></td>
+<?php
+	endif;
+?>
+				<td class="handle"><?= $category->image_url ? $this->Html->image($category->image_url) : '' ?></td>
+				<td class="handle"><?= h($category->name) ?></td>
+				<td class="handle"><?= $url ? $this->Html->link($category->slug, $url) : h($category->slug) ?></td>
 				<td class="actions"><?php
+				echo $this->Form->hidden("$i.id", ['value' => $category->id]);
+				echo $this->Form->hidden("$i.sort", ['value' => $category->sort]);
 				echo $this->Html->iconLink('view_24.png',
 					['action' => 'view', 'category' => $category->id],
 					['alt' => __('View'), 'title' => __('View')]);
@@ -49,6 +91,10 @@ endforeach;
 ?>
 		</tbody>
 	</table>
+<?php
+	echo $this->Form->button(__('Save Changes'), ['class' => 'btn-success']);
+	echo $this->Form->end();
+?>
 	</div>
 </div>
 <?php

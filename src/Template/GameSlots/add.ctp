@@ -1,4 +1,14 @@
 <?php
+/**
+ * @type $this \App\View\AppView
+ * @type $regions \App\Model\Entity\Region[]
+ * @type $field \App\Model\Entity\Field
+ * @type $game_slot \App\Model\Entity\GameSlot
+ * @type $affiliate \App\Model\Entity\Affiliate
+ * @type $days array
+ */
+
+use App\Model\Entity\Facility;
 use Cake\Core\Configure;
 
 if (isset($field)) {
@@ -28,19 +38,17 @@ else:
 			<p class="warning-message"><?= __('NOTE: By default, checking a facility here will create game slots for ALL open {0} at that facility.', Configure::read('UI.fields')) . ' ' .
 				__('If you want to create game slots for selected {0}, click the facility name to see the list of {0} at that facility.', Configure::read('UI.fields')) ?></p>
 <?php
-	$sports = Configure::read('options.sport');
+	$sports = $this->Selector->extractOptions(
+		collection($regions)->extract('facilities.{*}'),
+		function (Facility $item) { return $item->fields; },
+		'sport'
+	);
 	if (count($sports) > 1) {
-		echo $this->element('selector', [
-			'title' => 'Sport',
-			'options' => $sports,
-			'include_form' => false,
-			'include_empty' => false,
-			'data' => [
-				'selector' => '#DivisionList',
-				'url' => ['controller' => 'Divisions', 'action' => 'select', 'affiliate' => $affiliate],
-				// The JavaScript will automatically pull in the month and year inputs along with the day
-				'additional-inputs' => '[name="game_date[day]"], input:checked[name="days[]"]',
-			],
+		echo $this->Selector->selector('Sport', $sports, false, [
+			'selector' => '#DivisionList',
+			'url' => ['controller' => 'Divisions', 'action' => 'select', 'affiliate' => $affiliate],
+			// The JavaScript will automatically pull in the month and year inputs along with the day
+			'additional-inputs' => '[name="game_date[day]"], input:checked[name="days[]"]',
 		]);
 	} else {
 		echo $this->Form->hidden('sport', ['id' => 'sport', 'value' => current(array_keys($sports))]);
@@ -55,11 +63,12 @@ else:
 			unset($regions[$key]);
 			continue;
 		}
-		$region_sports = array_unique(collection($region->facilities)->extract('fields.{*}.sport')->toList());
+
+		$classes = collection($region->facilities)->extract(function (Facility $facility) { return "select_id_{$facility->id}"; })->toArray();
 
 		echo $this->Html->tag('li',
 			$this->Jquery->toggleLink($region->name, "#region{$region->id}", [
-				'class' => $this->element('selector_classes', ['title' => 'Sport', 'options' => $region_sports]),
+				'class' => implode(' ', $classes),
 			], [
 				'toggle_text' => true,
 			])
@@ -71,9 +80,9 @@ else:
 
 <?php
 	foreach ($regions as $region):
-		$region_sports = array_unique(collection($region->facilities)->extract('fields.{*}.sport')->toList());
+		$classes = collection($region->facilities)->extract(function (Facility $facility) { return "select_id_{$facility->id}"; })->toArray();
 ?>
-			<fieldset id="region<?= $region->id ?>" class="<?= $this->element('selector_classes', ['title' => 'Sport', 'options' => $region_sports]) ?>">
+			<fieldset id="region<?= $region->id ?>" class="<?= implode(' ', $classes) ?>">
 				<legend><?= __($region->name) ?></legend>
 				<div class="columns">
 					<div class="actions">
@@ -86,9 +95,8 @@ else:
 					</div>
 <?php
 		foreach ($region->facilities as $facility):
-			$facility_sports = array_unique(collection($facility->fields)->extract('sport')->toList());
 ?>
-					<div style="clear: both;" class="<?= $this->element('selector_classes', ['title' => 'Sport', 'options' => $facility_sports]) ?>">
+					<div style="clear: both;" class="select_id_<?= $facility->id ?>">
 <?php
 			if (count($facility->fields) == 1):
 				$field = current($facility->fields);
@@ -115,11 +123,11 @@ else:
 					echo $this->Html->tag('span',
 						$this->Form->input("fields.{$field->id}", [
 							'label' => $field->num,
-							'class' => $this->element('selector_classes', ['title' => 'Sport', 'options' => $field->sport]),
+							'class' => "select_id_{$field->facility_id}",
 							'type' => 'checkbox',
 							'hiddenField' => false,
 						]),
-						['class' => $this->element('selector_classes', ['title' => 'Sport', 'options' => $field->sport])]
+						['class' => "select_id_{$field->facility_id}"]
 					);
 				endforeach;
 ?>

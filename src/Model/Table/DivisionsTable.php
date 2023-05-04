@@ -535,6 +535,16 @@ class DivisionsTable extends AppTable {
 		}
 	}
 
+	public static function clearLocationsCache(array $divisions) {
+		foreach ($divisions as $division) {
+			if (is_int($division)) {
+				Cache::delete("division/{$division}/locations", 'long_term');
+			} else {
+				Cache::delete("division/{$division->id}/locations", 'long_term');
+			}
+		}
+	}
+
 	public function prepForView(Division $division) {
 		$this->loadInto($division, [
 			'People',

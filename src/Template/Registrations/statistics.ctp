@@ -1,5 +1,12 @@
 <?php
-use App\Controller\AppController;
+/**
+ * @type $this \App\View\AppView
+ * @type $events \App\Model\Entity\Event[]
+ * @type $affiliates int[]
+ * @type $years string[]
+ */
+
+use App\Model\Entity\Event;
 
 $this->Html->addCrumb(__('Registrations'));
 $this->Html->addCrumb(__('Statistics'));
@@ -9,20 +16,26 @@ $this->Html->addCrumb(__('Statistics'));
 	<h2><?= __('Registration Statistics') ?></h2>
 
 <?php
-$types = collection($events)->combine('event_type.id', 'event_type.name')->toArray();
-ksort($types);
-echo $this->element('selector', ['title' => 'Type', 'options' => $types]);
-
-$sports = array_unique(collection($events)->extract('division.league.sport')->toArray());
-sort($sports);
-echo $this->element('selector', ['title' => 'Sport', 'options' => $sports]);
-
-$seasons = array_unique(collection($events)->extract('division.league.season')->toArray());
-echo $this->element('selector', ['title' => 'Season', 'options' => $seasons]);
-
-$days = collection($events)->extract('division.days.{*}')->combine('id', 'name')->toArray();
-ksort($days);
-echo $this->element('selector', ['title' => 'Day', 'options' => $days]);
+echo $this->Selector->selector('Sport', $this->Selector->extractOptions(
+	$events,
+	function (Event $item) { return $item->division ? $item->division->league : null; },
+	'sport'
+));
+echo $this->Selector->selector('Season', $this->Selector->extractOptionsUnsorted(
+	$events,
+	function (Event $item) { return $item->division ? $item->division->league : null; },
+	'season'
+));
+echo $this->Selector->selector('Type', $this->Selector->extractOptions(
+	$events,
+	function (Event $item) { return $item->event_type; },
+	'name', 'id'
+));
+echo $this->Selector->selector('Day', $this->Selector->extractOptions(
+	$events,
+	function (Event $item) { return $item->division && !empty($item->division->days) ? $item->division->days : null; },
+	'name', 'id'
+));
 
 $play_types = ['team', 'individual'];
 ?>
@@ -44,45 +57,18 @@ foreach ($events as $event):
 	if ($event->event_type->name != $group):
 		$group = $event->event_type->name;
 
-		$classes = [];
-		$classes[] = $this->element('selector_classes', ['title' => 'Type', 'options' => $event->event_type->name]);
-		if (in_array($event->event_type->type, $play_types)) {
-			$divisions = collection($events)->filter(function ($test) use ($event) {
-				return $test->event_type_id == $event->event_type_id;
-			})->extract('division');
-
-			$sports = array_unique($divisions->extract('league.sport')->toArray());
-			sort($sports);
-			$classes[] = $this->element('selector_classes', ['title' => 'Sport', 'options' => $sports]);
-
-			$seasons = array_unique($divisions->extract('league.season')->toArray());
-			$classes[] = $this->element('selector_classes', ['title' => 'Season', 'options' => $seasons]);
-
-			$days = $divisions->extract('days.{*}')->combine('id', 'name')->toArray();
-			ksort($days);
-			$classes[] = $this->element('selector_classes', ['title' => 'Day', 'options' => $days]);
-		}
+		$classes = collection($events)->filter(function ($test) use ($event) {
+			return $test->event_type_id == $event->event_type_id;
+		})->extract(function (Event $event) {
+			return "select_id_{$event->id}";
+		})->toArray();
 ?>
 				<tr class="<?= implode(' ', $classes) ?>"><td colspan="3"><h4><?= $group ?></h4></td></tr>
 <?php
 	endif;
-
-	$classes = [];
-	$classes[] = $this->element('selector_classes', ['title' => 'Type', 'options' => $event->event_type->name]);
-	if (in_array($event->event_type->type, $play_types) && !empty($event->division->id)) {
-		$classes[] = $this->element('selector_classes', ['title' => 'Sport', 'options' => $event->division->league->sport]);
-		$classes[] = $this->element('selector_classes', ['title' => 'Season', 'options' => $event->division->league->season]);
-		$days = collection($event->division->days)->combine('id', 'name')->toArray();
-		ksort($days);
-		$classes[] = $this->element('selector_classes', ['title' => 'Day', 'options' => $days]);
-	} else {
-		$classes[] = $this->element('selector_classes', ['title' => 'Sport', 'options' => []]);
-		$classes[] = $this->element('selector_classes', ['title' => 'Season', 'options' => []]);
-		$classes[] = $this->element('selector_classes', ['title' => 'Day', 'options' => []]);
-	}
 ?>
 
-				<tr class="<?= implode(' ', $classes) ?>">
+				<tr class="select_id_<?= $event->id ?>">
 					<td><?= $this->Html->link($event->name, ['action' => 'summary', 'event' => $event->id]) ?></td>
 					<td><?= $event->registration_count ?></td>
 					<td class="actions"><?= $this->element('Events/actions', ['event' => $event]) ?></td>

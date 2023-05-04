@@ -72,26 +72,147 @@ function tableReorder(table) {
 /**
  * Deal with various selector drop-downs
  */
-function selectorChanged() {
-	var hide_selector = '';
-	var show_selector = '';
+function selectorChanged(trigger) {
+	// Find the list of IDs that match the current selections
+	var selected_ids = false;
 	zjQuery('span.selector').find('select').each(function() {
-		var id = zjQuery(this).attr('id');
-		var setting = zjQuery(this).val();
-		if (setting != '') {
-			show_selector += '.' + id + '_' + setting;
+		var select = zjQuery(this);
+		var setting = select.val();
+		if (setting !== '') {
+			// This happens without a trigger being set if there is a selector with an initial value, e.g. the sport selector for add bulk game slots
+			var option = select.find(':selected');
+			var ids = option.data('ids');
+			if (typeof ids === 'number') {
+				ids = [String(ids)];
+			} else {
+				ids = ids.split(' ');
+			}
+
+			if (selected_ids === false) {
+				selected_ids = ids;
+			} else {
+				selected_ids = zjQuery(selected_ids).filter(ids);
+			}
 		}
 	});
-	var all = zjQuery('[class*=\"selector_\"]');
-	if (show_selector == '') {
+
+	// Build selectors from the list of matching IDs
+	var all = zjQuery('[class*=\"select_id_\"]');
+	var all_radio = zjQuery('[class*=\"select_radio_id_\"]');
+	var show_selector = '';
+	var radio_selector = '';
+	if (selected_ids !== false) {
+		for (i = 0; i < selected_ids.length; ++i) {
+			show_selector += '.select_id_' + selected_ids[i] + ',';
+			radio_selector += '.select_radio_id_' + selected_ids[i] + ',';
+		}
+		if (show_selector === '') {
+			// There were selections made, but they match nothing. Hide it all!
+			show_selector = '.select_id_no_match';
+			radio_selector = '.select_radio_id_no_match';
+		} else {
+			// Trim the trailing comma.
+			show_selector = show_selector.slice(0, -1);
+			radio_selector = radio_selector.slice(0, -1);
+		}
+	}
+
+	// Show and hide things based on those selectors
+	if (show_selector === '') {
 		all.css('display', '');
 		all.filter(':input').not('.disabled').removeAttr('disabled');
+
+		all_radio.not('.disabled').removeAttr('disabled');
 	} else {
 		var show = zjQuery(show_selector);
 		all.css('display', 'none');
 		show.css('display', '');
 		all.filter(':input').attr('disabled', 'disabled');
 		show.filter(':input').not('.disabled').removeAttr('disabled');
+
+		// Set related radio selectors
+		var show_radio = zjQuery(radio_selector);
+		zjQuery('form.selector div.form-group.radio').each(function () {
+			var inputs = zjQuery(this).find('input');
+			var matches = inputs.filter(show_radio);
+			var not_matches = inputs.not(show_radio);
+
+			// Uncheck and disable all not-matching inputs
+			not_matches.not('.disabled').attr('disabled', 'disabled');
+			not_matches.not('.disabled').prop('checked', false);
+
+			if (matches.length == 1) {
+				// Check the one match, and disable it so reset doesn't have any effect
+				matches.not('.disabled').attr('disabled', 'disabled');
+				zjQuery(matches[0]).prop('checked', true);
+			} else {
+				// Enable all matching inputs
+				matches.not('.disabled').removeAttr('disabled');
+			}
+		});
+	}
+
+	all_radio.each(function () {
+		radioChanged(this);
+	});
+}
+
+/**
+ * Deal with various selector radio buttons
+ */
+function radioChanged(trigger) {
+	// This is only supported right now for radio inputs in tr elements
+	var row = zjQuery(trigger).closest('tr');
+	if (row.length == 0) {
+		console.log('Unsupported radio selector scenario');
+		return;
+	}
+
+	var selected_ids = false;
+	row.find('input:checked').each(function() {
+		var ids = zjQuery(this).data('ids');
+		if (typeof ids === 'number') {
+			ids = [String(ids)];
+		} else {
+			ids = ids.split(' ');
+		}
+
+		if (selected_ids === false) {
+			selected_ids = ids;
+		} else {
+			selected_ids = zjQuery(selected_ids).filter(ids);
+		}
+	});
+
+	var show_selector = '';
+	if (selected_ids !== false) {
+		for (i = 0; i < selected_ids.length; ++i) {
+			show_selector += '.option_id_' + selected_ids[i] + ',';
+		}
+		if (show_selector === '') {
+			// There were selections made, but they match nothing. Hide it all!
+			show_selector = '.option_no_match';
+		} else {
+			// Trim the trailing comma.
+			show_selector = show_selector.slice(0, -1);
+		}
+	}
+
+	var all = row.find('[class*=\"option_id_\"]');
+	if (show_selector == '') {
+		all.css('display', '');
+		all.filter(':input').not('.disabled').removeAttr('disabled');
+	} else {
+		var show = row.find(show_selector);
+		all.css('display', 'none');
+		show.css('display', '');
+		all.filter(':input').attr('disabled', 'disabled');
+		show.filter(':input').not('.disabled').removeAttr('disabled');
+	}
+
+	// Call any local callback function
+	if (typeof radioChangedCallback === 'function') {
+		radioChangedCallback(trigger, row);
 	}
 }
 
@@ -757,7 +878,7 @@ function initializeStatus() {
 	/**
 	 * Set initial state of any selectors
 	 */
-	selectorChanged();
+	selectorChanged(null);
 
 	/**
 	 * Initialize CKEditor on any applicable input fields
@@ -1035,13 +1156,39 @@ zjQuery(function($) {
 	}
 
 	/**
+	 * Add event handler for popup dialogs
+	 */
+	$('body').on('click', '.zuluru_popup_link', function() {
+		// Get the key pieces of data from the DOM
+		var trigger = $(this);
+		var id = trigger.data('id');
+
+		var buttons = {};
+		buttons[zuluru_close] = function () {
+			zjQuery('#' + id).dialog('close');
+		};
+
+		container = zjQuery('.zuluru.container').first();
+		zjQuery('#' + id).dialog({
+			buttons: buttons,
+			modal: true,
+			resizable: false,
+			height: zjQuery(window).height() * 0.9,
+			width: container.width() * 0.9
+		});
+
+		// Don't bubble the event up any further
+		return false;
+	});
+
+	/**
 	 * Add event handler for help dialogs
 	 */
 	$('body').on('click', '.zuluru_help_link', function() {
 		// Get the key pieces of data from the DOM
 		var trigger = $(this);
 		var id = trigger.data('id');
-		var link = trigger.closest('a').attr('href');
+		var link = trigger.attr('href');
 
 		var buttons = {};
 		buttons[zuluru_open_help] = function () {
@@ -1052,13 +1199,13 @@ zjQuery(function($) {
 			zjQuery('#' + id).dialog('close');
 		};
 
+		container = zjQuery('.zuluru.container').first();
 		zjQuery('#' + id).dialog({
 			buttons: buttons,
 			modal: true,
 			resizable: false,
-			// TODOBOOTSTRAP: Can we do something to make the size flexible based on the canvas size? It's really too small on a desktop.
-			width: 480,
-			height: 250
+			height: zjQuery(window).height() * 0.9,
+			width: container.width() * 0.9
 		});
 
 		// Don't bubble the event up any further
@@ -1239,7 +1386,14 @@ zjQuery(function($) {
 	 */
 	$('body').on('change', 'span.selector select', function() {
 		// Just call the helper function
-		selectorChanged();
+		selectorChanged(jQuery(this));
+
+		// Don't bubble the event up any further
+		return false;
+	});
+	$('body').on('change', 'span.selector div.radio input', function() {
+		// Just call the helper function
+		radioChanged(zjQuery(this));
 
 		// Don't bubble the event up any further
 		return false;

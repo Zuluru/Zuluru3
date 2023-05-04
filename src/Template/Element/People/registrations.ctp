@@ -1,4 +1,12 @@
 <?php
+/**
+ * @type $this \App\View\AppView
+ * @type $registrations \App\Model\Entity\Registration[]
+ * @type $affiliates int[]
+ * @type $years string[]
+ */
+
+use App\Model\Entity\Registration;
 use Cake\Core\Configure;
 
 if (isset($registrations)):
@@ -11,19 +19,21 @@ if (isset($registrations)):
 	?></p>
 
 <?php
-	$types = collection($registrations)->extract('event.event_type')->combine('id', 'name')->toArray();
-	ksort($types);
-	echo $this->element('selector', ['title' => 'Type', 'options' => $types]);
-
-	$seasons = array_unique(collection($registrations)
-		->filter(function ($registration) {
-			return !empty($registration->event->division_id);
-		})->extract('event.division.league.season')->toArray());
-	echo $this->element('selector', ['title' => 'Season', 'options' => array_intersect_key(Configure::read('options.season'), array_flip($seasons))]);
-
-	$days = collection($registrations)->extract('event.division.days.{*}')->combine('id', 'name')->toArray();
-	ksort($days);
-	echo $this->element('selector', ['title' => 'Day', 'options' => $days]);
+	echo $this->Selector->selector('Season', $this->Selector->extractOptionsUnsorted(
+		$registrations,
+		function (Registration $item) { return $item->event->division ? $item->event->division->league : null; },
+		'season'
+	));
+	echo $this->Selector->selector('Type', $this->Selector->extractOptions(
+		$registrations,
+		function (Registration $item) { return $item->event->event_type; },
+		'name', 'id'
+	));
+	echo $this->Selector->selector('Day', $this->Selector->extractOptions(
+		$registrations,
+		function (Registration $item) { return $item->event->division && !empty($item->event->division->days) ? $item->event->division->days : null; },
+		'name', 'id'
+	));
 
 	$play_types = ['team', 'individual'];
 ?>
@@ -42,6 +52,7 @@ if (isset($registrations)):
 			<tbody>
 <?php
 	$affiliate_id = null;
+	$registrations = $registrations->toArray();
 	foreach ($registrations as $registration):
 		if (count($affiliates) > 1 && $registration->event->affiliate_id != $affiliate_id):
 			$affiliate_id = $registration->event->affiliate_id;
@@ -53,20 +64,8 @@ if (isset($registrations)):
 				</tr>
 <?php
 		endif;
-
-		$classes = [];
-		$classes[] = $this->element('selector_classes', ['title' => 'Type', 'options' => $registration->event->event_type->name]);
-		if (in_array($registration->event->event_type->type, $play_types) && !empty($registration->event->division->id)) {
-			$classes[] = $this->element('selector_classes', ['title' => 'Season', 'options' => $registration->event->division->league->season]);
-			$days = collection($registration->event->division->days)->combine('id', 'name')->toArray();
-			ksort($days);
-			$classes[] = $this->element('selector_classes', ['title' => 'Day', 'options' => $days]);
-		} else {
-			$classes[] = $this->element('selector_classes', ['title' => 'Season', 'options' => []]);
-			$classes[] = $this->element('selector_classes', ['title' => 'Day', 'options' => []]);
-		}
 ?>
-				<tr class="<?= implode(' ', $classes) ?>">
+				<tr class="select_id_<?= $registration->id ?>">
 					<td><?= $this->Html->link($registration->event->name, ['controller' => 'Events', 'action' => 'view', 'event' => $registration->event->id]) ?></td>
 					<td><?php
 					$order = sprintf(Configure::read('registration.order_id_format'), $registration->id);

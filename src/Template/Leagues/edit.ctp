@@ -1,4 +1,14 @@
 <?php
+/**
+ * @type \App\View\AppView $this
+ * @type \App\Model\Entity\League $league
+ * @type \App\Model\Entity\Affiliate[] $affiliates
+ * @type \App\Model\Entity\Day[] $days
+ * @type \App\Model\Entity\Category[] $categories
+ * @type \App\Model\Entity\StatType[] $stat_types
+ * @type bool $tournaments
+ */
+
 use App\Model\Entity\Division;
 use Cake\Core\Configure;
 
@@ -82,6 +92,15 @@ echo $this->Form->input('season', [
 	'empty' => '---',
 	'help' => $tournaments ? __('Season during which this tournament\'s games take place.') : __('Season during which this league\'s games take place.'),
 ]);
+
+if (!empty($categories)) {
+	echo $this->Form->input('categories._ids', [
+		'options' => $categories,
+		'multiple' => true,
+		'hiddenField' => false,
+		'title' => __('Select all that apply'),
+	]);
+}
 
 echo $this->Form->input('schedule_attempts', [
 	'div' => 'input advanced',

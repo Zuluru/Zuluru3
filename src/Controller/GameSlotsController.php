@@ -137,6 +137,8 @@ class GameSlotsController extends AppController {
 				// Try to save
 				if ($this->GameSlots->save($game_slot, ['single' => true])) {
 					$this->Flash->success(__('The game slot has been saved.'));
+					$this->GameSlots->Divisions->clearLocationsCache($game_slot->divisions);
+
 					// We intentionally don't redirect here, leaving the user back on the
 					// original "add" form, with the last game date/start/end/weeks options
 					// already selected.
@@ -241,6 +243,8 @@ class GameSlotsController extends AppController {
 						})
 						) {
 							$this->Flash->success(__('The game slots have been saved.'));
+							$this->GameSlots->Divisions->clearLocationsCache($game_slot->divisions);
+
 							// We intentionally don't redirect here, leaving the user back on the
 							// original "add" form, with the last game date/start/end/weeks options
 							// already selected.
@@ -308,8 +312,16 @@ class GameSlotsController extends AppController {
 				'divisions' => true,
 			]);
 
+			// Find the items that are in one or the other but not both. Has to be done before the save.
+			$division_ids = collection($game_slot->divisions)->extract('id')->toArray();
+			$old_division_ids = collection($game_slot->getOriginal('divisions'))->extract('id')->toArray();
+			$intersect = array_intersect($division_ids, $old_division_ids);
+			$diff = array_merge(array_diff($division_ids, $intersect), array_diff($old_division_ids, $intersect));
+
 			if ($this->GameSlots->save($game_slot, ['single' => true])) {
 				$this->Flash->success(__('The game slot has been saved.'));
+				$this->GameSlots->Divisions->clearLocationsCache($diff);
+
 				return $this->redirect(['action' => 'view', 'slot' => $id]);
 			} else {
 				$this->Flash->warning(__('The game slot could not be saved. Please correct the errors below and try again.'));
@@ -337,7 +349,9 @@ class GameSlotsController extends AppController {
 		$this->request->allowMethod(['post', 'delete']);
 
 		try {
-			$game_slot = $this->GameSlots->get($this->request->getQuery('slot'));
+			$game_slot = $this->GameSlots->get($this->request->getQuery('slot'), [
+				'contain' => ['Divisions']
+			]);
 		} catch (RecordNotFoundException $ex) {
 			$this->Flash->info(__('Invalid game slot.'));
 			return $this->redirect('/');
@@ -350,6 +364,7 @@ class GameSlotsController extends AppController {
 
 		if ($this->GameSlots->delete($game_slot)) {
 			$this->Flash->success(__('The game slot has been deleted.'));
+			$this->GameSlots->Divisions->clearLocationsCache($game_slot->divisions);
 		} else if ($game_slot->errors('delete')) {
 			$this->Flash->warning(current($game_slot->errors('delete')));
 		} else {

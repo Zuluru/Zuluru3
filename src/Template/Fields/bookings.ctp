@@ -1,5 +1,11 @@
 <?php
+/**
+ * @type $this \App\View\AppView
+ * @type $field \App\Model\Entity\Field
+ */
+
 use App\Controller\AppController;
+use App\Model\Entity\GameSlot;
 use Cake\Core\Configure;
 
 $this->Html->addCrumb(Configure::read('UI.fields_cap'));
@@ -11,17 +17,17 @@ $this->Html->addCrumb($field->long_name);
 	<h2><?= __('Availability and Bookings') . ': ' . $field->long_name ?></h2>
 
 <?php
-$seasons = array_unique(collection($field->game_slots)->extract('divisions.{*}.league.long_season')->toList());
-echo $this->element('selector', [
-	'title' => 'Season',
-	'options' => $seasons,
-]);
-$days = collection($field->game_slots)->extract('divisions.{*}.days.{*}')->combine('id', 'name')->toArray();
-ksort($days);
-echo $this->element('selector', [
-	'title' => 'Day',
-	'options' => $days,
-]);
+echo $this->Selector->selector('Season', $this->Selector->extractOptionsUnsorted(
+	$field->game_slots,
+	function (GameSlot $item) { return collection($item->divisions)->extract('league')->toArray(); },
+	'long_season'
+));
+echo $this->Selector->selector('Day', $this->Selector->extractOptions(
+	$field->game_slots,
+	function (GameSlot $item) { return collection($item->divisions)->extract('days.{*}')->toArray(); },
+	'name', 'id'
+));
+
 $can_edit = $this->Authorize->can('add_game_slots', $field);
 ?>
 
@@ -46,9 +52,6 @@ endif;
 			<tbody>
 <?php
 foreach ($field->game_slots as $slot):
-	$seasons = array_unique(collection($slot->divisions)->extract('league.long_season')->toArray());
-	$day = $slot->game_date->format('l');
-
 	$divisions = [];
 	foreach ($slot->games as $game) {
 		if (!array_key_exists($game->division_id, $divisions)) {
@@ -58,7 +61,7 @@ foreach ($field->game_slots as $slot):
 	}
 	$rows = max(count($divisions), 1);
 ?>
-				<tr class="<?= $this->element('selector_classes', ['title' => 'Season', 'options' => $seasons]) ?> <?= $this->element('selector_classes', ['title' => 'Day', 'options' => $day]) ?>">
+				<tr class="select_id_<?= $slot->id ?>">
 					<td rowspan="<?= $rows ?>"><?= $this->Time->date($slot->game_date) ?></td>
 <?php
 	if ($this->Authorize->can('view', $slot)):

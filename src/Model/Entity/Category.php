@@ -11,8 +11,13 @@ use Cake\ORM\Entity;
  * @property int $id
  * @property string $name
  * @property int $affiliate_id
+ * @property string $type
+ * @property string $slug
+ * @property string $image_url
+ * @property string $description
  *
  * @property \App\Model\Entity\Affiliate $affiliate
+ * @property \App\Model\Entity\League[] $leagues
  * @property \App\Model\Entity\Task[] $tasks
  */
 class Category extends Entity {

@@ -2,12 +2,26 @@
 namespace App\View;
 
 use App\View\Helper\AuthorizeHelper;
+use App\View\Helper\SelectorHelper;
+use App\View\Helper\UserCacheHelper;
+use App\View\Helper\ZuluruFormHelper;
+use App\View\Helper\ZuluruGameHelper;
+use App\View\Helper\ZuluruHtmlHelper;
+use App\View\Helper\ZuluruTimeHelper;
+use Authentication\View\Helper\IdentityHelper;
 use Cake\View\View;
 
 /**
  * App View class
  *
+ * @property IdentityHelper $Identity
  * @property AuthorizeHelper $Authorize
+ * @property UserCacheHelper $UserCache
+ * @property SelectorHelper $Selector
+ * @property ZuluruHtmlHelper $Html
+ * @property ZuluruFormHelper $Form
+ * @property ZuluruTimeHelper $Time
+ * @property ZuluruGameHelper $Game
  */
 class AppView extends View {
 
@@ -25,6 +39,7 @@ class AppView extends View {
 		$this->loadHelper('UserCache');
 		$this->loadHelper('Number');
 		$this->loadHelper('Text');
+		$this->loadHelper('Selector');
 		$this->loadHelper('Html', ['className' => 'ZuluruHtml']);
 		$this->loadHelper('Form', ['className' => 'ZuluruForm']);
 		$this->loadHelper('Time', ['className' => 'ZuluruTime']);

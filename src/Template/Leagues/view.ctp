@@ -37,6 +37,13 @@ if (count($affiliates) > 1):
 		<dd><?= $this->Html->link($league->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', 'affiliate' => $league->affiliate->id]) ?></dd>
 <?php
 endif;
+
+if (!empty($league->categories)):
+?>
+		<dt><?= __('Categories') ?></dt>
+		<dd><?= h(implode(', ', collection($league->categories)->extract('name')->toArray())) ?></dd>
+<?php
+endif;
 ?>
 		<dt><?= __('Season') ?></dt>
 		<dd><?= __($league->season) ?></dd>

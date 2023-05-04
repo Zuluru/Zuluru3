@@ -465,6 +465,7 @@ class AppController extends Controller {
 			}
 
 			if ($identity && $identity->isManager()) {
+				$this->_addMenuItem(__('Admin List'), ['plugin' => false, 'controller' => 'Events', 'action' => 'admin'], __('Registration'));
 				$this->_addMenuItem(__('Create Event'), ['plugin' => false, 'controller' => 'Events', 'action' => 'add'], __('Registration'));
 				$this->_addMenuItem(__('Unpaid'), ['plugin' => false, 'controller' => 'Registrations', 'action' => 'unpaid'], __('Registration'));
 				$this->_addMenuItem(__('Credits'), ['plugin' => false, 'controller' => 'Credits', 'action' => 'index'], __('Registration'));
@@ -688,6 +689,8 @@ class AppController extends Controller {
 			if (Configure::read('feature.contacts')) {
 				$this->_addMenuItem(__('Contacts'), ['plugin' => false, 'controller' => 'Contacts', 'action' => 'index'], __('Configuration'));
 			}
+
+			$this->_addMenuItem(__('Categories'), ['plugin' => false, 'controller' => 'Categories', 'action' => 'index'], __('Configuration'));
 		}
 
 		if ($this->Authorization->can(AllController::class, 'clear_cache')) {
@@ -772,7 +775,6 @@ class AppController extends Controller {
 			}
 
 			if ($identity && $identity->isManager()) {
-				$this->_addMenuItem(__('Categories'), ['plugin' => false, 'controller' => 'Categories', 'action' => 'index'], __('Tasks'));
 				$this->_addMenuItem(__('Download All'), ['plugin' => false, 'controller' => 'Tasks', 'action' => 'index', '_ext' => 'csv'], __('Tasks'));
 			}
 		}

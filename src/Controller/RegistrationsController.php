@@ -503,7 +503,7 @@ class RegistrationsController extends AppController {
 					'price' => $price,
 					'for_edit' => $for_edit ? $price->event->registrations[0] : false,
 					'waiting' => $this->request->getQuery('waiting'),
-					'ignore_date' => true,
+					'ignore_date' => $for_edit,
 				]), 'register');
 
 				$this->set(compact('price', 'for_edit'));

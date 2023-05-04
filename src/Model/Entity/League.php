@@ -31,6 +31,7 @@ use Cake\Utility\Inflector;
  * @property \App\Model\Entity\Affiliate $affiliate
  * @property \App\Model\Entity\Division[] $divisions
  * @property \App\Model\Entity\StatType[] $stat_types
+ * @property \App\Model\Entity\Category[] $categories
  *
  * @property string $long_name
  * @property string $full_name

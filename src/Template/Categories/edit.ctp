@@ -1,4 +1,12 @@
 <?php
+/**
+ * @type \App\View\AppView $this
+ * @type \App\Model\Entity\Category $category
+ * @type \App\Model\Entity\Affiliate[] $affiliates
+ */
+
+use Cake\Core\Configure;
+
 $this->Html->addCrumb(__('Categories'));
 if ($category->isNew()) {
 	$this->Html->addCrumb(__('Create'));
@@ -6,6 +14,9 @@ if ($category->isNew()) {
 	$this->Html->addCrumb(h($category->name));
 	$this->Html->addCrumb(__('Edit'));
 }
+
+$types = Configure::read('options.category_types');
+$multiple_types = (count($types) > 1);
 ?>
 
 <div class="categories form">
@@ -13,8 +24,31 @@ if ($category->isNew()) {
 	<fieldset>
 		<legend><?= $category->isNew() ? __('Create Category') : __('Edit Category') ?></legend>
 <?php
+if ($multiple_types) {
+	echo $this->Form->input('type', [
+		'options' => $types,
+	]);
+} else {
+	echo $this->Form->hidden('type', [
+		'value' => array_key_first($types),
+	]);
+}
 echo $this->Form->input('name', [
-		'size' => 100,
+	'size' => 100,
+]);
+echo $this->Form->input('slug', [
+	'size' => 100,
+	'help' => __('Unique identifier to be used in URLs for this category. Should be entirely lower case, numbers, hyphens or underscores.'),
+]);
+echo $this->Form->input('image_url', [
+	'label' => __('Image URL'),
+	'size' => 255,
+	'help' => __('URL of the image to use for this category.'),
+]);
+echo $this->Form->input('description', [
+	'cols' => 70,
+	'rows' => 5,
+	'class' => 'wysiwyg_advanced',
 ]);
 if ($category->isNew()) {
 	echo $this->Form->input('affiliate_id', [

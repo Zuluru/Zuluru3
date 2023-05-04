@@ -2,12 +2,16 @@
 namespace App\Controller;
 
 use App\Authorization\ContextResource;
+use App\Model\Entity\Event;
 use App\Model\Entity\EventsConnection;
+use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\I18n\FrozenDate;
+use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
+use Cake\ORM\TableRegistry;
 
 /**
  * Events Controller
@@ -43,35 +47,11 @@ class EventsController extends AppController {
 	 *
 	 * @return void|\Cake\Network\Response
 	 */
-	public function index() {
-		if ($this->Authorization->can(\App\Controller\EventsController::class, 'add')) {
-			$year = $this->request->getQuery('year');
-			if ($year) {
-				$conditions = ['OR' => [
-					[
-						'Events.open >' => $year,
-						'Events.open <' => (string) ($year + 1),
-					],
-					[
-						'Events.close >' => $year,
-						'Events.close <' => (string) ($year + 1),
-					],
-				]];
-			} else {
-				// Admins and managers see things that have recently closed, or open far in the future
-				// TODO: Use the 'open' finder
-				$conditions = [
-					'Events.open <' => FrozenDate::now()->addDays(180),
-					'Events.close >' => FrozenDate::now()->subDays(30),
-				];
-			}
-		} else {
-			$year = null;
-			$conditions = [
-				'Events.open <' => FrozenDate::now()->addDays(30),
-				'Events.close >' => FrozenDate::now(),
-			];
-		}
+	public function index(?string $slug = null) {
+		$conditions = [
+			'Events.open <' => FrozenTime::now()->addDays(30),
+			'Events.close >' => FrozenTime::now(),
+		];
 
 		$affiliates = $this->Authentication->applicableAffiliateIDs();
 
@@ -93,12 +73,99 @@ class EventsController extends AppController {
 				'Affiliates',
 				'Prices' => [
 					'queryBuilder' => function (Query $q) {
+						return $q
+							->where(['Prices.close >=' => FrozenTime::now()])
+							->order(['Prices.open', 'Prices.close', 'Prices.id']);
+					}
+				],
+				'Divisions' => ['Leagues' => ['Categories'], 'Days']
+			]);
+
+		if ($slug) {
+			$category = $this->Events->Divisions->Leagues->Categories->findBySlug($slug)->first();
+			if (!$category) {
+				$this->Flash->info(__('Invalid category.'));
+				return $this->redirect(['action' => 'index']);
+			}
+			$this->set(compact('category'));
+
+			$leagues = $this->Events->Divisions->Leagues->find()
+				->contain(['Categories'])
+				->where(['OR' => [
+					'Leagues.is_open' => true,
+					'Leagues.open >' => FrozenDate::now(),
+				]])
+				->matching('Categories', function (Query $q) use ($slug) {
+					return $q->where(['Categories.slug' => $slug]);
+				})
+				->extract('id')
+				->toArray();
+			if (empty($leagues)) {
+				$this->Flash->info(__('No active or upcoming leagues in this category.'));
+				return $this->redirect(['action' => 'index']);
+			}
+
+			$events = $events
+				->matching('Divisions.Leagues', function (Query $q) use ($leagues) {
+					return $q->where(['Leagues.id IN' => $leagues]);
+				});
+		}
+
+		$events = $events->toArray();
+		if (empty($events)) {
+			$this->Flash->info(__('There are no events currently available for registration. Please check back periodically for updates.'));
+			return $this->redirect('/');
+		}
+
+		$this->populateLocations($events);
+
+		$this->set(compact('affiliates', 'events'));
+	}
+
+	/**
+	 * Index method
+	 *
+	 * @return void|\Cake\Network\Response
+	 */
+	public function admin() {
+		$this->Authorization->authorize($this);
+		$year = $this->request->getQuery('year');
+		if ($year) {
+			$conditions = ['OR' => [
+				[
+					'Events.open >' => $year,
+					'Events.open <' => (string) ($year + 1),
+				],
+				[
+					'Events.close >' => $year,
+					'Events.close <' => (string) ($year + 1),
+				],
+			]];
+		} else {
+			// Admins and managers see things that have recently closed, or open far in the future
+			// TODO: Use the 'open' finder
+			$conditions = [
+				'Events.open <' => FrozenDate::now()->addDays(180),
+				'Events.close >' => FrozenDate::now()->subDays(30),
+			];
+		}
+
+		$affiliates = $this->Authentication->applicableAffiliateIDs();
+		$conditions['Events.affiliate_id IN'] = $affiliates;
+
+		$events = $this->Events->find()
+			->where($conditions)
+			->order(['Affiliates.name', 'Events.event_type_id', 'Events.open', 'Events.close', 'Events.id'])
+			->contain([
+				'EventTypes',
+				'Affiliates',
+				'Prices' => [
+					'queryBuilder' => function (Query $q) {
 						return $q->order(['Prices.open', 'Prices.close', 'Prices.id']);
 					}
 				],
-				'Divisions' => ['Leagues', 'Days']
-			])
-			->toArray();
+				'Divisions' => ['Leagues' => ['Categories'], 'Days']
+			]);
 
 		$years = $this->Events->find()
 			->enableHydration(false)
@@ -110,7 +177,13 @@ class EventsController extends AppController {
 			->order(['year'])
 			->toArray();
 
-		$this->set(compact('affiliates', 'events', 'years', 'year'));
+		$events = $events->toArray();
+		if (empty($events)) {
+			$this->Flash->info(__('No matching events.'));
+			return $this->redirect('/');
+		}
+
+		$this->set(compact('affiliates', 'events', 'year', 'years'));
 	}
 
 	public function wizard($step = null) {
@@ -143,12 +216,11 @@ class EventsController extends AppController {
 		$prereg = collection($this->UserCache->read('Preregistrations'))->extract('event_id')->toArray();
 
 		// Find all the events that are potentially available
-		// TODO: Eliminate the events that don't match the step, if any
 		$affiliates = $this->Authentication->applicableAffiliateIDs();
 
 		$conditions = [
-			'Events.open <' => FrozenDate::now()->addDays(30),
-			'Events.close >' => FrozenDate::now(),
+			'Events.open <' => FrozenTime::now()->addDays(30),
+			'Events.close >' => FrozenTime::now(),
 		];
 		if (!empty($prereg)) {
 			$conditions = [
@@ -160,16 +232,33 @@ class EventsController extends AppController {
 		}
 		$conditions['Events.affiliate_id IN'] = $affiliates;
 
+		if ($step) {
+			// TODO: Improve this structure
+			$step_map = [
+				'membership' => 1,
+				'league_team' => 2,
+				'league_individual' => 3,
+				'event_team' => 4,
+				'event_individual' => 5,
+				'clinic' => 6,
+				'social_event' => 7,
+				'league_youth' => 8,
+			];
+			$conditions['Events.event_type_id'] = $step_map[$step];
+		}
+
 		$events = $this->Events->find()
 			->contain([
 				'EventTypes',
 				'Affiliates',
 				'Prices' => [
 					'queryBuilder' => function (Query $q) {
-						return $q->order(['Prices.open', 'Prices.close', 'Prices.id']);
+						return $q
+							->where(['Prices.close >=' => FrozenTime::now()])
+							->order(['Prices.open', 'Prices.close', 'Prices.id']);
 					}
 				],
-				'Divisions' => ['Leagues', 'Days'],
+				'Divisions' => ['Leagues' => ['Categories'], 'Days'],
 			])
 			->where($conditions)
 			->order(['Events.event_type_id', 'Events.open', 'Events.close', 'Events.id'])
@@ -187,7 +276,41 @@ class EventsController extends AppController {
 			}
 		}
 
+		if (empty($events)) {
+			if ($step) {
+				$this->Flash->info(__('There are no events of this type currently available for registration. Please check back periodically for updates.'));
+			} else {
+				$this->Flash->info(__('There are no events currently available for registration. Please check back periodically for updates.'));
+			}
+			return $this->redirect('/');
+		}
+
+		$this->populateLocations($events);
+
 		$this->set(compact('events', 'types', 'affiliates', 'step'));
+	}
+
+	/**
+	 * @param Event[] $events
+	 */
+	private function populateLocations(array $events) {
+		foreach ($events as $event) {
+			if ($event->division) {
+				$locations = Cache::remember("division/{$event->division_id}/locations", function() use ($event) {
+					$availability_table = TableRegistry::getTableLocator()->get('DivisionsGameslots');
+					$facilities = $availability_table->find()
+						->contain(['GameSlots' => ['Fields' => ['Facilities']]])
+						->where(['DivisionsGameslots.division_id' => $event->division_id])
+						->distinct('GameSlots.field_id');
+					return collection($facilities)->combine('game_slot.field.facility_id', 'game_slot.field.facility.name')->toArray();
+				}, 'long_term');
+
+				// The selectors on this page are only for *single location* events
+				if (count($locations) === 1) {
+					$event->location = array_shift($locations);
+				}
+			}
+		}
 	}
 
 	/**
