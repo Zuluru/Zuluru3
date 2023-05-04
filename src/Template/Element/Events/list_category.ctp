@@ -104,7 +104,7 @@ if (count($locations) > 1):
 <?php
 endif;
 ?>
-			<th style="width: 20%;"><?= __('Price') ?></th>
+			<th style="width: 20%;"><?= __('Price') ?> <?= __('(taxes included)') ?></th>
 		</tr>
 	</thead>
 	<tbody>

@@ -49,7 +49,7 @@ if (!empty($division->capt_list)):
 endif;
 ?>
 <dt><?= __('Status') ?></dt>
-<dd><?= $division->is_open ? __('Open') : __('Closed') ?></dd>
+<dd><?= $division->is_open ? __('Open') : ($division->open->isFuture() ? __('Opening Soon') : __('Closed')) ?></dd>
 <?php
 if ($division->open != '0000-00-00'):
 ?>
