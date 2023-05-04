@@ -606,7 +606,7 @@ div.register-help img
 /* Add in some overrides of styles from jQueryUI */
 .ui-front
 {
-	z-index: 1000;
+	z-index: 100000;
 }
 
 /* Add in some overrides of styles from Bootstrap */

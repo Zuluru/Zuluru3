@@ -50,7 +50,7 @@ if (!$this->fetch('third_party_css')) {
 	$this->start('third_party_css');
 	echo $this->Html->css([
 		'https://code.jquery.com/ui/1.10.3/themes/redmond/jquery-ui.css',
-		'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css',
+		'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css',
 	]);
 	$this->end();
 }
