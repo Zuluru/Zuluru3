@@ -97,14 +97,10 @@ abstract class Ratings {
 
 				return true;
 			}
-			if ($this->per_game_ratings) {
+			if ($this->per_game_ratings || !$this->iterative) {
 				$this->recalculateGameRatings();
 			} else {
-				if ($this->iterative) {
-					for ($it = 0; $it < $this->iterations; ++$it) {
-						$this->recalculateGameRatings();
-					}
-				} else {
+				for ($it = 0; $it < $this->iterations; ++$it) {
 					$this->recalculateGameRatings();
 				}
 			}
