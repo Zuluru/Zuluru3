@@ -427,7 +427,9 @@ class PeopleTable extends AppTable {
 			->requirePresence('roster_designation', function ($context) {
 				return Configure::read('gender.column') == 'roster_designation';
 			}, __('You must select a roster designation.'))
-			->notEmptyString('roster_designation', __('You must select a roster designation.'));
+			->notEmptyString('roster_designation', __('You must select a roster designation.'), function ($context) {
+				return Configure::read('gender.column') == 'roster_designation';
+			});
 
 		$validator
 			->allowEmptyString('pronouns');

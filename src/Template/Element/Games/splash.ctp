@@ -44,7 +44,7 @@ if (!empty($items)):
 					echo $this->element('Fields/block', ['field' => $item->game_slot->field]);
 				?></td>
 				<td class="actions splash-action"><?php
-					if (in_array($item->home_team->id, $team_ids) && in_array($item->away_team->id, $team_ids)) {
+					if ($item->home_team && $item->away_team && in_array($item->home_team->id, $team_ids) && in_array($item->away_team->id, $team_ids)) {
 						// This person is on both teams; pick the one they're more important on...
 						// TODO: Better handling of this, as well as deal with game notes in such cases
 						$home_role = collection($teams)->firstMatch(['id' => $item->home_team_id])->_matchingData['TeamsPeople']->role;

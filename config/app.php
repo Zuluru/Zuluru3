@@ -8,11 +8,11 @@ use Cake\Utility\Inflector;
  * override something that doesn't allow for this (e.g. themes, callbacks),
  * copying app_local.default.php to app_local.php and make your changes there.
  */
-$domain = env('HTTP_HOST');
-if (strpos('www.', $domain) === 0) {
+$domain = env('HTTP_HOST') ?? '';
+if (strpos($domain, 'www.') === 0) {
 	$domain = substr($domain, 4);
 }
-if (strpos('zuluru.', $domain) === 0) {
+if (strpos($domain, 'zuluru.') === 0) {
 	$domain = substr($domain, 7);
 }
 
@@ -300,6 +300,11 @@ return [
 		'skipLog' => [
 			'Cake\Http\Exception\GoneException',
 			'Cake\Routing\Exception\MissingControllerException',
+			'Cake\Routing\Exception\MissingRouteException',
+			'Cake\Controller\Exception\MissingActionException',
+			'Cake\View\Exception\MissingElementException',
+			'Cake\Http\Exception\InvalidCsrfTokenException',
+			'InvalidArgumentException',
 		],
 		'log' => true,
 		'trace' => true,

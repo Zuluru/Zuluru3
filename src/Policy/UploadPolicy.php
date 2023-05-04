@@ -8,7 +8,7 @@ use Cake\Core\Configure;
 class UploadPolicy extends AppPolicy {
 
 	public function before($identity, $resource, $action) {
-		if (!Configure::read('feature.documents')) {
+		if ($resource->type_id && !Configure::read('feature.documents')) {
 			return false;
 		}
 
@@ -16,7 +16,15 @@ class UploadPolicy extends AppPolicy {
 	}
 
 	public function canPhoto(IdentityInterface $identity, Upload $upload) {
-		return $upload->approved || $identity->getIdentifier() == $upload->person_id || $identity->isManagerOf($upload);
+		if ($upload->approved || $identity->getIdentifier() == $upload->person_id) {
+			return true;
+		}
+
+		if ($upload->type_id) {
+			return $identity->isManagerOf($upload);
+		}
+
+		return $identity->isManager();
 	}
 
 	public function canDocument(IdentityInterface $identity, Upload $upload) {

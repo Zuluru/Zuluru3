@@ -1200,12 +1200,14 @@ zjQuery(function($) {
 		};
 
 		container = zjQuery('.zuluru.container').first();
+		width = Math.min(Math.max(container.width() * 0.9, 600), zjQuery(window).width());
+
 		zjQuery('#' + id).dialog({
 			buttons: buttons,
 			modal: true,
 			resizable: false,
 			height: zjQuery(window).height() * 0.9,
-			width: container.width() * 0.9
+			width: width
 		});
 
 		// Don't bubble the event up any further

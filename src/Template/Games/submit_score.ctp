@@ -195,6 +195,7 @@ if (Configure::read('scoring.incident_reports')):
 		'label' => __('Enter the details of the incident'),
 		'cols' => 60,
 		'secure' => false,
+		'help' => __('Please include all relevant details, e.g. names of any individuals involved.'),
 	]);
 ?>
 	</fieldset>

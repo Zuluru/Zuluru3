@@ -295,6 +295,9 @@ class PeopleController extends AppController {
 		$buckets = $demographics = [];
 		// TODO: Allow for pulling demographics from past years
 		$reportDate = new FrozenDate('Aug 31');
+		if (FrozenDate::now()->month < 3) {
+			$reportDate = $reportDate->subYear();
+		}
 		$end = $reportDate->addDay(); // Registrations have times, we'll find anything less than this to include the whole report date day.
 		$start = $end->subYear();
 

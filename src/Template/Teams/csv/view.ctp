@@ -55,7 +55,6 @@ $column = Configure::read('gender.column');
 
 foreach ($team->people as $person) {
 	$roster_entry = $person->_joinData;
-	$person = $roster_entry->person;
 
 	$row = [
 		$person->first_name,
