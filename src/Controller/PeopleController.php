@@ -157,7 +157,7 @@ class PeopleController extends AppController {
 				return $q->where(['Groups.id' => GROUP_PLAYER]);
 			})
 			->leftJoinWith('Skills')
-			->where(['Skills.enabled' => true])
+			->where(['Skills.enabled' => true, 'People.status' => 'active'])
 			->group(['AffiliatesPeople.affiliate_id', 'Skills.sport', 'People.gender'])
 			->order(['Affiliates.name', 'Skills.sport', 'People.gender' => 'DESC'])
 		);
@@ -176,7 +176,7 @@ class PeopleController extends AppController {
 					return $q->where(['Groups.id' => GROUP_PLAYER]);
 				})
 				->leftJoinWith('Skills')
-				->where(['Skills.enabled' => true])
+				->where(['Skills.enabled' => true, 'People.status' => 'active'])
 				->group(['AffiliatesPeople.affiliate_id', 'Skills.sport', 'People.' . Configure::read('gender.column')])
 				->order(['Affiliates.name', 'Skills.sport', 'People.' . Configure::read('gender.column') => Configure::read('gender.order')])
 			);
@@ -192,6 +192,7 @@ class PeopleController extends AppController {
 				return $q->where(['Affiliates.id IN' => $affiliates]);
 			})
 			->matching('Groups')
+			->where(['People.status' => 'active'])
 			->group(['AffiliatesPeople.affiliate_id', 'Groups.id'])
 			->order(['Affiliates.name', 'Groups.id'])
 		);
@@ -216,6 +217,7 @@ class PeopleController extends AppController {
 				->leftJoinWith('Skills')
 				->where([
 					'Skills.enabled' => true,
+					'People.status' => 'active',
 					'birthdate IS NOT' => null,
 					'birthdate !=' => '0000-00-00',
 				])
@@ -238,7 +240,7 @@ class PeopleController extends AppController {
 					return $q->where(['Groups.id' => GROUP_PLAYER]);
 				})
 				->leftJoinWith('Skills')
-				->where(['Skills.enabled' => true])
+				->where(['Skills.enabled' => true, 'People.status' => 'active'])
 				->group(['AffiliatesPeople.affiliate_id', 'Skills.sport', 'Skills.year_started'])
 				->order(['Affiliates.name', 'Skills.sport', 'Skills.year_started'])
 			);
@@ -258,7 +260,7 @@ class PeopleController extends AppController {
 					return $q->where(['Groups.id' => GROUP_PLAYER]);
 				})
 				->leftJoinWith('Skills')
-				->where(['Skills.enabled' => true])
+				->where(['Skills.enabled' => true, 'People.status' => 'active'])
 				->group(['AffiliatesPeople.affiliate_id', 'Skills.sport', 'Skills.skill_level'])
 				->order(['Affiliates.name', 'Skills.sport', 'Skills.skill_level'])
 			);
@@ -278,7 +280,7 @@ class PeopleController extends AppController {
 					return $q->where(['Groups.id' => GROUP_PLAYER]);
 				})
 				->leftJoinWith('Skills')
-				->where(['Skills.enabled' => true])
+				->where(['Skills.enabled' => true, 'People.status' => 'active'])
 				->group(['AffiliatesPeople.affiliate_id', 'Skills.sport', 'addr_city'])
 				->having(['person_count >' => 2])
 				->order(['Affiliates.name', 'Skills.sport', 'person_count' => 'DESC'])
