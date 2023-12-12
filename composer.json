@@ -42,7 +42,8 @@
         "firebase/php-jwt": "^5.0",
         "dereuromark/cakephp-transifex": "^2.0",
         "stripe/stripe-php": "^7.39",
-        "symfony/yaml": "3.4.37"
+        "symfony/yaml": "3.4.37",
+        "cakephp/plugin-installer": "^1.3"
     },
     "require-dev": {
         "cakephp/debug_kit": "3.2.*",

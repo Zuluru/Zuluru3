@@ -34,21 +34,6 @@ return [
 			'ask' => false,
 			'schema' => false,
 			'migrations' => true,
-			'pre_migrate' => function(Controller $controller, Migrations $migrations) {
-				// TODO: Work around what appears to be a bug in the Migrations plugin. This whole block should be able to be skipped?
-				$inputDefinition = new InputDefinition([
-					new InputOption('source'),
-					new InputOption('plugin'),
-					new InputOption('connection'),
-				]);
-				$input = new ArrayInput([], $inputDefinition);
-				$migrations->setInput($input);
-				$config = $migrations->getConfig();
-				$migrations->getManager($config);
-
-				// Mark all migrations prior to the "install" one as migrated; they are for handling legacy databases
-				$migrations->markMigrated(null, ['target' => 20180622171412]);
-			},
 			'post_migrate' => function(Controller $controller, Migrations $migrations) {
 				$controller->Flash->success(__('Your admin password has been set to {0}. Log in right away and change it to something more memorable.', Configure::read('new_admin_password')));
 			},
