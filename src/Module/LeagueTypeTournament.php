@@ -137,6 +137,7 @@ class LeagueTypeTournament extends LeagueType {
 
 			case 10:
 				$types['quarters_consolation_ten'] = __('Bracket with quarter-finals, semi-finals and finals, plus 9th and 10th place play-ins');
+				$types['quarters_consolation_ten_plus'] = __('Bracket with quarter-finals, semi-finals and finals, plus 9th and 10th place play-ins, everyone gets at least 3 games');
 				$types['presemis_consolation_ten'] = __('Bracket with pre-semi-finals, semi-finals and finals, everyone gets 3 games');
 				$types['quarters_shuffle_ten'] = __('Bracket with quarter-finals, semi-finals and finals, bottom 6 get shuffled to minimize duplicates, everyone gets 3 games');
 				$types['prequarters_shuffle_ten'] = __('Bracket with quarter-finals, semi-finals and finals, plus 9th and 10th place play-ins, bottom 6 get shuffled to minimize duplicates, everyone gets 4 games');
@@ -210,6 +211,8 @@ class LeagueTypeTournament extends LeagueType {
 				return [1, 4, 4, 4, 1];
 			case 'quarters_consolation_ten':
 				return [2, 5, 4, 4];
+			case 'quarters_consolation_ten_plus':
+				return [2, 4, 4, 2, 5];
 			case 'presemis_consolation_ten':
 			case 'quarters_shuffle_ten':
 				return [5, 5, 5];
@@ -376,6 +379,9 @@ class LeagueTypeTournament extends LeagueType {
 				break;
 			case 'quarters_consolation_ten':
 				$this->createQuartersTen($division, $pool, true, true);
+				break;
+			case 'quarters_consolation_ten_plus':
+				$this->createQuartersTenPlus($division, $pool, true, true);
 				break;
 			case 'presemis_consolation_ten':
 				$this->createPresemisTen($division, $pool, true, true);
@@ -758,6 +764,43 @@ class LeagueTypeTournament extends LeagueType {
 		if ($consolation) {
 			$this->createTournamentGame($division, $pool, 14, 4, null, $this->first_team + 5, BRACKET_GAME, 'game_winner', 10, 'game_winner', 11);
 			$this->createTournamentGame($division, $pool, 15, 4, null, $this->first_team + 7, BRACKET_GAME, 'game_loser', 10, 'game_loser', 11);
+		}
+	}
+
+	public function createQuartersTenPlus(Division $division, Pool $pool, $bronze, $consolation) {
+		// Round 1: 8v9, 7v10
+		$this->createTournamentGame($division, $pool, 1, 1, '01', null, BRACKET_GAME, 'pool', 8, 'pool', 9);
+		$this->createTournamentGame($division, $pool, 2, 1, '02', null, BRACKET_GAME, 'pool', 7, 'pool', 10);
+
+		// Round 2: 1 vs Winner 1, 2 vs Winner 2, 3v6, 4v5
+		$this->createTournamentGame($division, $pool, 3, 2, '03', null, BRACKET_GAME, 'pool', 1, 'game_winner', 1);
+		$this->createTournamentGame($division, $pool, 4, 2, '04', null, BRACKET_GAME, 'pool', 4, 'pool', 5);
+		$this->createTournamentGame($division, $pool, 5, 2, '05', null, BRACKET_GAME, 'pool', 2, 'game_winner', 2);
+		$this->createTournamentGame($division, $pool, 6, 2, '06', null, BRACKET_GAME, 'pool', 3, 'pool', 6);
+
+		// Round 3: winners vs winners, optional losers vs losers
+		$this->createTournamentGame($division, $pool, 7, 3, '07', null, BRACKET_GAME, 'game_winner', 3, 'game_winner', 4);
+		$this->createTournamentGame($division, $pool, 8, 3, '08', null, BRACKET_GAME, 'game_winner', 5, 'game_winner', 6);
+		if ($consolation) {
+			$this->createTournamentGame($division, $pool, 9, 3, '09', null, BRACKET_GAME, 'game_loser', 3, 'game_loser', 2);
+			$this->createTournamentGame($division, $pool, 10, 3, '10', null, BRACKET_GAME, 'game_loser', 5, 'game_loser', 1);
+		}
+
+		// Round 4: Consolation round semis
+		if ($consolation) {
+			$this->createTournamentGame($division, $pool, 11, 4, '11', null, BRACKET_GAME, 'game_loser', 4, 'game_winner', 9);
+			$this->createTournamentGame($division, $pool, 12, 4, '12', null, BRACKET_GAME, 'game_loser', 6, 'game_winner', 10);
+		}
+
+		// Round 5: more winners vs winners, optional losers vs losers
+		$this->createTournamentGame($division, $pool, 13, 5, null, $this->first_team + 1, BRACKET_GAME, 'game_winner', 7, 'game_winner', 8);
+		if ($bronze) {
+			$this->createTournamentGame($division, $pool, 14, 5, null, $this->first_team + 3, BRACKET_GAME, 'game_loser', 7, 'game_loser', 8);
+		}
+		if ($consolation) {
+			$this->createTournamentGame($division, $pool, 15, 5, null, $this->first_team + 5, BRACKET_GAME, 'game_winner', 11, 'game_winner', 12);
+			$this->createTournamentGame($division, $pool, 16, 5, null, $this->first_team + 7, BRACKET_GAME, 'game_loser', 12, 'game_loser', 11);
+			$this->createTournamentGame($division, $pool, 17, 5, null, $this->first_team + 9, BRACKET_GAME, 'game_loser', 10, 'game_loser', 9);
 		}
 	}
 
