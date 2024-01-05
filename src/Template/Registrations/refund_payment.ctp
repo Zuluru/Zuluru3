@@ -2,6 +2,7 @@
 /**
  * @type $registration \App\Model\Entity\Registration
  * @type $payment \App\Model\Entity\Payment
+ * @type $api \App\Http\API
  * @type $refund \App\Model\Entity\Payment
  */
 
@@ -31,24 +32,20 @@ echo $this->Form->hidden('payment_method', [
 ]);
 echo $this->Form->input('payment_amount', [
 	'label' => __('Refund Amount'),
-	'default' => ($refund->getErrors() || $registration->getErrors()) ? -$refund->amount : $payment->paid,
+	'default' => ($refund->getErrors() || $registration->getErrors()) ? -$refund->payment_amount : $payment->paid,
 ]);
 
 if (empty($payment->registration_audit_id)) {
 	echo $this->Html->para('warning-message', __('This payment was recorded manually, so in addition to noting the refund here you will need to issue a refund manually.'));
-} else {
-	echo $this->Html->para('warning-message', __('Note that your online payment provider does not currently support automatic refunds, so in addition to noting the refund here you will need to issue a refund manually.'));
-}
-/**
- * TODO: Handle online refunds
-else if ($payment_obj) {
+} else if ($api && $api->canRefund($payment)) {
 	echo $this->Form->input('online_refund', [
-		'label' => __('Issue refund through online payment provider'),
+		'label' => __('Issue refund through online payment provider?'),
 		'type' => 'checkbox',
 		'checked' => true,
 	]);
+} else {
+	echo $this->Html->para('warning-message', __('Note that your online payment provider does not currently support automatic refunds, so in addition to noting the refund here you will need to issue a refund manually. You may be able to enable online refunds in the payment provider plugin settings.'));
 }
-*/
 
 if (!in_array($registration->getOriginal('payment'), Configure::read('registration_cancelled'))) {
 	echo $this->Form->input('mark_refunded', [

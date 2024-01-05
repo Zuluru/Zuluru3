@@ -1,6 +1,8 @@
 <?php
 namespace BamboraPayment\Http;
 
+use App\Model\Entity\Event;
+use App\Model\Entity\Payment;
 use Cake\Core\Configure;
 
 class API extends \App\Http\API {
@@ -14,7 +16,7 @@ class API extends \App\Http\API {
 		parse_str($qs, $data);
 
 		// Retrieve the parameters sent from the server
-		$audit = [];
+		$audit = ['payment_plugin' => 'Bambora'];
 		foreach ([
 			'iso_code' => 'trnApproved',
 			'transaction_id' => 'trnId',
@@ -61,6 +63,10 @@ class API extends \App\Http\API {
 		[$registration_ids, $debit_ids] = $this->splitRegistrationIds($data['ref1']);
 
 		return [true, $audit, $registration_ids, $debit_ids];
+	}
+
+	public function canRefund(Payment $payment): bool {
+		return Configure::read('payment.bambora_refunds');
 	}
 
 }

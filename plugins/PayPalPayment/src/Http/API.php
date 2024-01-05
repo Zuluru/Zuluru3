@@ -1,6 +1,8 @@
 <?php
 namespace PayPalPayment\Http;
 
+use App\Model\Entity\Event;
+use App\Model\Entity\Payment;
 use Cake\Core\Configure;
 use Psr\Log\LogLevel;
 
@@ -29,6 +31,7 @@ class API extends \App\Http\API {
 
 		// Retrieve the parameters sent from the server
 		$audit = [
+			'payment_plugin' => 'PayPal',
 			'order_id' => $details['PAYMENTREQUEST_0_INVNUM'],
 			'charge_total' => $details['PAYMENTREQUEST_0_AMT'],
 			'cardholder' => "{$details['FIRSTNAME']} {$details['LASTNAME']}",
@@ -119,6 +122,10 @@ class API extends \App\Http\API {
 		}
 
 		return $responseArray;
+	}
+
+	public function canRefund(Payment $payment): bool {
+		return Configure::read('payment.paypal_refunds');
 	}
 
 }

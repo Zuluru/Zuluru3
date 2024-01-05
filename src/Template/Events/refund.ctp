@@ -36,7 +36,8 @@ echo $this->Jquery->toggleInput('payment_type', [
 	],
 ], [
 	'values' => [
-		'Credit' => '.credit',
+		'Refund' => '.refund_input',
+		'Credit' => '.credit_input',
 	],
 ]);
 echo $this->Form->hidden('payment_method', [
@@ -76,6 +77,15 @@ echo $this->Html->tag('div',
 	['class' => 'input']
 );
 
+echo $this->Html->tag('div',
+	$this->Form->input('online_refund', [
+		'label' => __('Issue applicable refunds through online payment provider? It will be your responsibility to manually refund any payments that might have been collected offline.'),
+		'type' => 'checkbox',
+		'checked' => true,
+	]),
+	['class' => 'refund_input']
+);
+
 echo $this->Form->input('mark_refunded', [
 	'label' => __('Mark these registrations as refunded?'),
 	'type' => 'checkbox',
@@ -97,7 +107,7 @@ echo $this->Html->tag('div',
 		'help' => __('These notes will be attached to the new credit record, and will be visible by the person in question.'),
 		'secure' => false,
 	]),
-	['class' => 'credit']
+	['class' => 'credit_input']
 );
 ?>
 	</fieldset>

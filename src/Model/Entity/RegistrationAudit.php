@@ -23,6 +23,7 @@ use Cake\ORM\Entity;
  * @property string $issuer
  * @property string $issuer_invoice
  * @property string $issuer_confirmation
+ * @property string $payment_plugin
  *
  * @property \App\Model\Entity\Payment[] $payments
  */

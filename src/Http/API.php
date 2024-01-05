@@ -2,6 +2,9 @@
 namespace App\Http;
 
 use App\Controller\RegistrationsController;
+use App\Exception\PaymentException;
+use App\Model\Entity\Event;
+use App\Model\Entity\Payment;
 
 abstract class API {
 
@@ -44,4 +47,11 @@ abstract class API {
 		return [$registration_ids, $debit_ids];
 	}
 
+	public function canRefund(Payment $payment): bool {
+		return false;
+	}
+
+	public function refund(Event $event, Payment $payment, Payment $refund): array {
+		throw new PaymentException('Payment providers must implement their own refund capability.');
+	}
 }

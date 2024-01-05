@@ -16,8 +16,17 @@
 		<testsuite name="App Test Suite">
 			<directory>./tests/TestCase</directory>
 		</testsuite>
+		<testsuite name="Bambora Test Suite">
+			<directory>./plugins/Bambora/tests/TestCase</directory>
+		</testsuite>
 		<testsuite name="Chase Test Suite">
 			<directory>./plugins/Chase/tests/TestCase</directory>
+		</testsuite>
+		<testsuite name="Elavon Test Suite">
+			<directory>./plugins/Elavon/tests/TestCase</directory>
+		</testsuite>
+		<testsuite name="Javelin Test Suite">
+			<directory>./plugins/Javelin/tests/TestCase</directory>
 		</testsuite>
 		<testsuite name="PayPal Test Suite">
 			<directory>./plugins/PayPal/tests/TestCase</directory>

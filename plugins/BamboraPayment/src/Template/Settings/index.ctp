@@ -1,5 +1,6 @@
 <?php
 
+use Cake\Core\Configure;
 use Cake\Routing\Router;
 
 $this->Html->addCrumb(__('Settings'));
@@ -81,6 +82,16 @@ echo $this->element('Settings/input', [
 		'help' => __('Required only if you are testing payments. You will need to create a {0} with Bambora to do this.',
 			$this->Html->link(__('test account'), 'https://dev.na.bambora.com/docs/forms/create_test_merchant_account')
 		),
+	],
+]);
+echo $this->element('Settings/input', [
+	'category' => 'payment',
+	'name' => 'bambora_refunds',
+	'options' => [
+		'label' => __('Issue refunds online'),
+		'type' => 'radio',
+		'options' => Configure::read('options.enable'),
+		'help' => __('If enabled, refunds for payments received through {0} can be issued though {0}.', 'Bambora'),
 	],
 ]);
 ?>

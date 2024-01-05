@@ -1,6 +1,8 @@
 <?php
 namespace StripePayment\Http;
 
+use App\Model\Entity\Event;
+use App\Model\Entity\Payment;
 use Cake\Core\Configure;
 use Stripe\StripeClient;
 
@@ -68,6 +70,7 @@ class API extends \App\Http\API {
 				$charge = $payment->charges->data[0];
 
 				$audit = [
+					'payment_plugin' => 'Stripe',
 					'order_id' => $session->client_reference_id,
 					'response_code' => '0',
 					'transaction_id' => '0',
@@ -134,12 +137,16 @@ class API extends \App\Http\API {
 			$product = $this->client()->products->retrieve($item->price->product);
 			if ($product->metadata->offsetExists('registration_id')) {
 				$registration_ids[] = $product->metadata->registration_id;
-			} else {
+			} else if ($product->metadata->offsetExists('debit_id')) {
 				$debit_ids[] = $product->metadata->debit_id;
 			}
 		}
 
 		return [$registration_ids, $debit_ids];
+	}
+
+	public function canRefund(Payment $payment): bool {
+		return Configure::read('payment.stripe_refunds');
 	}
 
 }

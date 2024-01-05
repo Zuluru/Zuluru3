@@ -1,5 +1,6 @@
 <?php
 
+use Cake\Core\Configure;
 use Cake\Routing\Router;
 
 $this->Html->addCrumb(__('Settings'));
@@ -37,7 +38,7 @@ echo $this->Form->create(false, ['align' => 'horizontal']);
 			Router::url(['plugin' => 'ElavonPayment', 'controller' => 'Payment', 'action' => 'index'], true)
 		) ?></li>
 		<li><?= __('Additional form configuration details can be found in the {0}.',
-			$this->Html->link(__('{0} documentation', 'Elavon'), 'https://developer.elavon.com/na/docs/converge/1.0.0/integration-guide/integration_methods/hosted_payments#customize-the-checkout-form', ['target' => '_new'])
+			$this->Html->link(__('{0} documentation', 'Elavon'), 'https://support.convergepay.com/s/article/Customize-the-Hosted-Payments-Page', ['target' => '_new'])
 		) ?></li>
 	</ol>
 <?php
@@ -77,7 +78,7 @@ echo $this->element('Settings/input', [
 	'options' => [
 		'label' => __('Test merchant ID'),
 		'help' => __('Required only if you are testing payments. You will need to request a {0} with Elavon to do this.',
-			$this->Html->link(__('demo account'), 'https://developer.elavon.com/na/docs/converge/1.0.0/integration-guide/api_introduction#contact-elavon-support')
+			$this->Html->link(__('demo account'), 'https://developer.elavon.com/products/converge/v1/getting-started#contact-elavon-support')
 		),
 	],
 ]);
@@ -87,7 +88,7 @@ echo $this->element('Settings/input', [
 	'options' => [
 		'label' => __('Test merchant user ID'),
 		'help' => __('Required only if you are testing payments. You will need to request a {0} with Elavon to do this.',
-			$this->Html->link(__('demo account'), 'https://developer.elavon.com/na/docs/converge/1.0.0/integration-guide/api_introduction#contact-elavon-support')
+			$this->Html->link(__('demo account'), 'https://developer.elavon.com/products/converge/v1/getting-started#contact-elavon-support')
 		),
 	],
 ]);
@@ -97,8 +98,18 @@ echo $this->element('Settings/input', [
 	'options' => [
 		'label' => __('Test PIN'),
 		'help' => __('Required only if you are testing payments. You will need to request a {0} with Elavon to do this.',
-			$this->Html->link(__('demo account'), 'https://developer.elavon.com/na/docs/converge/1.0.0/integration-guide/api_introduction#contact-elavon-support')
+			$this->Html->link(__('demo account'), 'https://developer.elavon.com/products/converge/v1/getting-started#contact-elavon-support')
 		),
+	],
+]);
+echo $this->element('Settings/input', [
+	'category' => 'payment',
+	'name' => 'elavon_refunds',
+	'options' => [
+		'label' => __('Issue refunds online'),
+		'type' => 'radio',
+		'options' => Configure::read('options.enable'),
+		'help' => __('If enabled, refunds for payments received through {0} can be issued though {0}.', 'Elavon'),
 	],
 ]);
 ?>

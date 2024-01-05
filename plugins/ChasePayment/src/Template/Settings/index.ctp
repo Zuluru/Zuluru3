@@ -1,4 +1,7 @@
 <?php
+
+use Cake\Core\Configure;
+
 $this->Html->addCrumb(__('Settings'));
 $this->Html->addCrumb('Chase Paymentech');
 ?>
@@ -51,6 +54,16 @@ echo $this->element('Settings/input', [
 	'name' => 'chase_test_response',
 	'options' => [
 		'label' => __('Test response key'),
+	],
+]);
+echo $this->element('Settings/input', [
+	'category' => 'payment',
+	'name' => 'chase_refunds',
+	'options' => [
+		'label' => __('Issue refunds online'),
+		'type' => 'radio',
+		'options' => Configure::read('options.enable'),
+		'help' => __('If enabled, refunds for payments received through {0} can be issued though {0}.', 'Chase'),
 	],
 ]);
 ?>

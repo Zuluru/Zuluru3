@@ -76,7 +76,9 @@
             "App\\Test\\": "tests",
             "Cake\\Test\\": "vendor/cakephp/cakephp/tests",
             "Javelin\\Test\\": "plugins/Javelin/tests",
+            "BamboraPayment\\Test\\": "plugins/BamboraPayment/tests",
             "ChasePayment\\Test\\": "plugins/ChasePayment/tests",
+            "ElavonPayment\\Test\\": "plugins/ElavonPayment/tests",
             "PayPalPayment\\Test\\": "plugins/PayPalPayment/tests",
             "StripePayment\\Test\\": "plugins/StripePayment/tests"
         }

@@ -1,6 +1,8 @@
 <?php
 namespace ChasePayment\Http;
 
+use App\Model\Entity\Event;
+use App\Model\Entity\Payment;
 use Cake\Core\Configure;
 
 class API extends \App\Http\API {
@@ -12,7 +14,7 @@ class API extends \App\Http\API {
 	 */
 	public function parsePayment(Array $data, $checkHash = true) {
 		// Retrieve the parameters sent from the server
-		$audit = [];
+		$audit = ['payment_plugin' => 'Chase'];
 		foreach ([
 			'order_id' => 'Reference_No',
 			'response_code' => 'Bank_Resp_Code',
@@ -87,6 +89,10 @@ class API extends \App\Http\API {
 
 		[$registration_ids, $debit_ids] = $this->splitRegistrationIds($data['x_description']);
 		return [true, $audit, $registration_ids, $debit_ids];
+	}
+
+	public function canRefund(Payment $payment): bool {
+		return Configure::read('payment.chase_refunds');
 	}
 
 }
