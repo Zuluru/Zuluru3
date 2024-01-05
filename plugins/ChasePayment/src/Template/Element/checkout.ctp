@@ -65,6 +65,7 @@ if ($is_test) {
 	$server = 'checkout';
 }
 
+// See https://support.exactpay.com/support/solutions/articles/150000065320-hosted-checkout-integration-manual#6
 $form_options = ['url' => "https://$server.e-xact.com/payment", 'name' => 'chase_form'];
 $submit_options = ['div' => false];
 

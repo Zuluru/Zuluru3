@@ -17,6 +17,9 @@ use Faker\Factory;
 
 class ApiTest extends TestCase
 {
+	private $transaction_id;
+	private $amount;
+
 	public function testParsePayment() {
 		$this->markTestSkipped('todo');
 	}
@@ -26,23 +29,23 @@ class ApiTest extends TestCase
 		$event = EventFactory::make()
 			->with('Prices')
 			->persist();
-		$cost = $event->prices[0]->cost;
-		$transaction_id = Factory::create('en_CA')->regexify('^([A-F0-9]){9}-([A-F0-9]){8}-([A-F0-9]){4}-([A-F0-9]){4}-([A-F0-9]){4}-([A-F0-9]){12}$');
+		$this->amount = $event->prices[0]->cost;
+		$this->transaction_id = Factory::create('en_CA')->regexify('^([A-F0-9]){9}-([A-F0-9]){8}-([A-F0-9]){4}-([A-F0-9]){4}-([A-F0-9]){4}-([A-F0-9]){12}$');
 
 		/** @var Registration $registration */
 		$registration = RegistrationFactory::make([
 			'event_id' => $event->id,
 			'price_id' => $event->prices[0]->id,
 			'payment' => 'Paid',
-			'total_amount' => $cost,
+			'total_amount' => $this->amount,
 		])
 			->with('Payments',
 				PaymentFactory::make([
-					'payment_amount' => $cost,
+					'payment_amount' => $this->amount,
 				])->with('RegistrationAudits', [
 					'payment_plugin' => 'Elavon',
-					'transaction_id' => $transaction_id,
-					'charge_total' => $cost,
+					'transaction_id' => $this->transaction_id,
+					'charge_total' => $this->amount,
 				])
 			)
 			->persist();
@@ -50,14 +53,14 @@ class ApiTest extends TestCase
 		/** @var Payment $refund */
 		$refund = PaymentFactory::make([
 			'payment_type' => 'Refund',
-			'payment_amount' => $cost,
+			'payment_amount' => - $this->amount,
 			'registration_id' => $registration->id,
 			'payment_id' => $registration->payments[0]->id,
 		])
 			->getEntity();
 
 		$client = $this->getMockBuilder(Client::class)
-			->disableOriginalConstructor()
+			->setConstructorArgs([true])
 			->disableOriginalClone()
 			->disableArgumentCloning()
 			->disallowMockingUnknownTypes()
@@ -71,18 +74,22 @@ class ApiTest extends TestCase
 		$api->setClient($client);
 		$data = $api->refund($event, $registration->payments[0], $refund);
 
-		$this->assertEquals($cost, $data['charge_total']);
-		$this->assertEquals($transaction_id, $data['transaction_id']);
+		$this->assertEquals($this->amount, $data['charge_total']);
+		$this->assertEquals($this->transaction_id, $data['transaction_id']);
 		$this->assertEquals('401054', $data['approval_code']);
 		$this->assertEquals('0', $data['response_code']);
 		$this->assertEquals('12345', $data['order_id']);
 	}
 
-	public function returnXml(array $args) {
+	public function returnXml(string $endpoint, string $data): string {
+		// Confirm that the payload has been built as expected
+		$this->assertEquals('https://api.demo.convergepay.com/VirtualMerchantDemo/processxml.do', $endpoint);
+		$this->assertEquals("xmldata=<txn>\n\t<ssl_merchant_id></ssl_merchant_id>\n\t<ssl_user_id></ssl_user_id>\n\t<ssl_pin></ssl_pin>\n\t<ssl_transaction_type>ccreturn</ssl_transaction_type>\n\t<ssl_txn_id>{$this->transaction_id}</ssl_txn_id>\n\t<ssl_amount>{$this->amount}</ssl_amount>\n</txn>", $data);
+
 		$time = FrozenTime::now()->format('m/d/Y h:i:s A');
 		$exp = FrozenDate::now()->addMonth()->format('mY');
 
-		return "<txn>
+		return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><txn>
 				<ssl_issuer_response>00</ssl_issuer_response>
 				<ssl_last_name>Test Last</ssl_last_name>
 				<ssl_company></ssl_company>
@@ -90,11 +97,11 @@ class ApiTest extends TestCase
 				<ssl_card_number>41**********9990</ssl_card_number>
 				<ssl_departure_date></ssl_departure_date>
 				<ssl_result>0</ssl_result>
-				<ssl_txn_id>{$args['ssl_txn_id']}</ssl_txn_id>
+				<ssl_txn_id>{$this->transaction_id}</ssl_txn_id>
 				<ssl_avs_response> </ssl_avs_response>
 				<ssl_approval_code>401054</ssl_approval_code>
 				<ssl_email></ssl_email>
-				<ssl_amount>{$args['ssl_amount']}</ssl_amount>
+				<ssl_amount>{$this->amount}</ssl_amount>
 				<ssl_avs_zip>12345</ssl_avs_zip>
 				<ssl_txn_time>$time</ssl_txn_time>
 				<ssl_description></ssl_description>

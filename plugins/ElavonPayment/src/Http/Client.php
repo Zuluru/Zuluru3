@@ -28,10 +28,14 @@ class Client {
 			$this->merchant_id = Configure::read('payment.elavon_live_merchant_id');
 			$this->user_id = Configure::read('payment.elavon_live_merchant_user_id');
 			$this->pin = Configure::read('payment.elavon_live_pin');
+			$this->purchaseEndpoint = 'https://api.convergepay.com/hosted-payments/transaction_token';
 			$this->refundEndpoint = 'https://api.convergepay.com/VirtualMerchant/processxml.do';
 		}
 	}
 
+	/**
+	 * See https://developer.elavon.com/products/converge/v1/ccsale
+	 */
 	public function checkoutSessionCreate(array $fields): string {
 		$fields = [
 			'ssl_merchant_id' => $this->merchant_id,
@@ -48,6 +52,9 @@ class Client {
 		return $response;
 	}
 
+	/**
+	 * See https://developer.elavon.com/products/converge/v1/ccreturn
+	 */
 	public function refund(Event $event, Payment $payment, Payment $refund): string {
 		$amount = -$refund->payment_amount;
 		$xml = <<<EOXML
@@ -82,7 +89,6 @@ EOXML;
 			CURLOPT_SSLVERSION => CURL_SSLVERSION_TLSv1_2,
 			CURLOPT_RETURNTRANSFER => 1,
 			CURLOPT_POST => 1,
-			// If we just use the fields array here, it seems to use the wrong post method
 			CURLOPT_POSTFIELDS => $fields,
 		];
 
