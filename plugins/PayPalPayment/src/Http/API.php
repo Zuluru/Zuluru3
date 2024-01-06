@@ -4,9 +4,25 @@ namespace PayPalPayment\Http;
 use App\Model\Entity\Event;
 use App\Model\Entity\Payment;
 use Cake\Core\Configure;
-use Psr\Log\LogLevel;
 
 class API extends \App\Http\API {
+
+	/**
+	 * @var Client
+	 */
+	private $client = null;
+
+	public function setClient(Client $client) {
+		$this->client = $client;
+	}
+
+	private function client(): Client {
+		if (!$this->client) {
+			$this->client = new Client($this->isTest());
+		}
+
+		return $this->client;
+	}
 
 	/**
 	 * @param array $data
@@ -58,74 +74,52 @@ class API extends \App\Http\API {
 		}
 	}
 
+	/**
+	 * See https://developer.paypal.com/api/nvp-soap/set-express-checkout-nvp/
+	 */
 	public function SetExpressCheckout($fields) {
-		return $this->fetch('SetExpressCheckout', $fields);
+		return $this->client()->get('SetExpressCheckout', $fields);
 	}
 
+	/**
+	 * See https://developer.paypal.com/api/nvp-soap/get-express-checkout-details-nvp/
+	 */
 	public function GetExpressCheckoutDetails($fields) {
-		return $this->fetch('GetExpressCheckoutDetails', $fields);
+		return $this->client()->get('GetExpressCheckoutDetails', $fields);
 	}
 
+	/**
+	 * See https://developer.paypal.com/api/nvp-soap/do-express-checkout-payment-nvp/
+	 */
 	public function DoExpressCheckoutPayment($fields) {
-		return $this->fetch('DoExpressCheckoutPayment', $fields);
-	}
-
-	private function fetch($method, $fields) {
-		if ($this->isTest()) {
-			$login = Configure::read('payment.paypal_test_user');
-			$key = Configure::read('payment.paypal_test_password');
-			$signature = Configure::read('payment.paypal_test_signature');
-			$endpoint = 'https://api-3t.sandbox.paypal.com/nvp';
-		} else {
-			$login = Configure::read('payment.paypal_live_user');
-			$key = Configure::read('payment.paypal_live_password');
-			$signature = Configure::read('payment.paypal_live_signature');
-			$endpoint = 'https://api-3t.paypal.com/nvp';
-		}
-
-		$fields = [
-			'USER' => $login,
-			'PWD' => $key,
-			'VERSION' => '124.0',
-			'SIGNATURE' => $signature,
-			'METHOD' => $method,
-		] + $fields;
-
-		// cURL settings
-		$curlOptions = [
-			CURLOPT_URL => $endpoint,
-			CURLOPT_VERBOSE => 0,
-			CURLOPT_SSL_VERIFYPEER => true,
-			CURLOPT_SSL_VERIFYHOST => 2,
-			CURLOPT_SSLVERSION => CURL_SSLVERSION_TLSv1_2,
-			CURLOPT_RETURNTRANSFER => 1,
-			CURLOPT_POST => 1,
-			// If we just use the fields array here, it seems to use the wrong post method
-			CURLOPT_POSTFIELDS => http_build_query($fields),
-		];
-
-		$ch = curl_init();
-		curl_setopt_array($ch, $curlOptions);
-		$response = curl_exec($ch);
-
-		// Check for cURL errors
-		if (curl_errno($ch)) {
-			\Cake\Log\Log::write(LogLevel::ERROR, 'cURL error: ' . curl_error($ch));
-			curl_close($ch);
-			return 'There was a problem communicating with the PayPal server. Please try again shortly.';
-		}
-
-		curl_close($ch);
-		parse_str($response, $responseArray); // Break the NVP string to an array
-		if ($responseArray['ACK'] !== 'Success') {
-			return "The PayPal server returned the following error message: {$responseArray['L_LONGMESSAGE0']}";
-		}
-
-		return $responseArray;
+		return $this->client()->get('DoExpressCheckoutPayment', $fields);
 	}
 
 	public function canRefund(Payment $payment): bool {
 		return Configure::read('payment.paypal_refunds');
+	}
+
+	public function refund(Event $event, Payment $payment, Payment $refund): array {
+		$data = $this->client()->refund($event, $payment, $refund);
+
+		return $this->parseRefund($data);
+	}
+
+	public function parseRefund(array $data): array {
+		// Retrieve the parameters sent from the server
+		$audit = ['payment_plugin' => 'PayPal'];
+
+		foreach ([
+			'transaction_id' => 'REFUNDTRANSACTIONID',
+			'charge_total' => 'GROSSREFUNDAMT',
+			'message' => 'REFUNDSTATUS',
+		] as $field => $key) {
+			if (array_key_exists($key, $data)) {
+				$audit[$field] = $data[$key];
+			}
+		}
+
+		return $audit;
 	}
 
 }

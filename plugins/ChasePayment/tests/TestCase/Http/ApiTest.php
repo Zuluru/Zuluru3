@@ -76,7 +76,7 @@ class ApiTest extends TestCase
 		$data = $api->refund($event, $registration->payments[0], $refund);
 
 		$this->assertEquals($this->amount, $data['charge_total']);
-		$this->assertNotEquals($this->transaction_id, $data['transaction_id']);
+		$this->assertEquals(902010341, $data['transaction_id']);
 		$this->assertEquals('RETURN', $data['approval_code']);
 		$this->assertEquals('0', $data['response_code']);
 	}
