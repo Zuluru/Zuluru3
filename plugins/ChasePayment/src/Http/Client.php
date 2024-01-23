@@ -16,12 +16,12 @@ class Client {
 
 	public function __construct(bool $test) {
 		if ($test) {
-			$this->login = Configure::read('payment.chase_test_store');
-			$this->key = Configure::read('payment.chase_test_response');
+			$this->login = Configure::read('payment.chase_test_gateway_id');
+			$this->key = Configure::read('payment.chase_test_gateway_password');
 			$this->refundEndpoint = 'https://api.demo.e-xact.com/transaction';
 		} else {
-			$this->login = Configure::read('payment.chase_live_store');
-			$this->key = Configure::read('payment.chase_live_response');
+			$this->login = Configure::read('payment.chase_live_gateway_id');
+			$this->key = Configure::read('payment.chase_live_gateway_password');
 			$this->refundEndpoint = 'https://api.e-xact.com/transaction';
 		}
 	}
