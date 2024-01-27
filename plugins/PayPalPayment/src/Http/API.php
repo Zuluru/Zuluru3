@@ -107,7 +107,10 @@ class API extends \App\Http\API {
 
 	public function parseRefund(array $data): array {
 		// Retrieve the parameters sent from the server
-		$audit = ['payment_plugin' => 'PayPal'];
+		$audit = [
+			'payment_plugin' => 'PayPal',
+			'response_code' => 0,
+		];
 
 		foreach ([
 			'transaction_id' => 'REFUNDTRANSACTIONID',
@@ -118,6 +121,10 @@ class API extends \App\Http\API {
 				$audit[$field] = $data[$key];
 			}
 		}
+
+		preg_match ('#(\d{4}-\d{2}-\d{2})T(\d+:\d+:\d+)Z#', $data['TIMESTAMP'], $matches);
+		$audit['date'] = $matches[1];
+		$audit['time'] = $matches[2];
 
 		return $audit;
 	}
