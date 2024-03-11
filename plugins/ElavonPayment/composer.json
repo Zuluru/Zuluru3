@@ -4,8 +4,10 @@
     "type": "cakephp-plugin",
     "require": {
         "php": ">=7.2.0",
-        "cakephp/cakephp": ">=3.8.4"
-    },
+        "cakephp/cakephp": ">=3.8.4",
+		"ext-curl": "*",
+		"ext-simplexml": "*"
+	},
     "require-dev": {
         "phpunit/phpunit": "*"
     },

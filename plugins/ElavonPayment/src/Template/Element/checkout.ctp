@@ -9,6 +9,7 @@
  * @type bool $is_test
  */
 
+use App\Exception\PaymentException;
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 
@@ -67,27 +68,27 @@ if (!empty($person->email)) {
 	}
 }
 
-$response = $listener->getAPI($is_test)->checkoutSessionCreate([
-	'ssl_transaction_type' => 'ccsale',
-	'ssl_amount' => $total_amount,
-	'ssl_customer_id' => $person->id,
-	'ssl_first_name' => $person->first_name,
-	'ssl_last_name' => $person->last_name,
-	'ssl_email' => $email,
-	'ssl_merchant_txn_id' => $registrations[0]->id,
-	'ssl_invoice_number' => $invoice_num,
-	'ssl_description' => implode(',', $ids),
-	'ssl_product_string' => implode('; ', $items),
-	'ssl_salestax_indicator' => 'Y',
-	'ssl_callback_url' => Router::url(['plugin' => 'ElavonPayment', 'controller' => 'Payment', 'action' => 'index'], true),
-]);
-if (is_array($response)) {
+try {
+	$token = $listener->getAPI($is_test)->checkoutSessionCreate([
+		'ssl_transaction_type' => 'ccsale',
+		'ssl_amount' => $total_amount,
+		'ssl_customer_id' => $person->id,
+		'ssl_first_name' => $person->first_name,
+		'ssl_last_name' => $person->last_name,
+		'ssl_email' => $email,
+		'ssl_merchant_txn_id' => $registrations[0]->id,
+		'ssl_invoice_number' => $invoice_num,
+		'ssl_description' => implode(',', $ids),
+		'ssl_product_string' => implode('; ', $items),
+		'ssl_salestax_indicator' => 'Y',
+	]);
+
 	if ($is_test) {
 		$endpoint = 'https://api.demo.convergepay.com/hosted-payments';
 	} else {
 		$endpoint = 'https://api.convergepay.com/hosted-payments';
 	}
-	$endpoint .= '?ssl_txn_auth_token=' . urlencode($response['token']);
+	$endpoint .= '?ssl_txn_auth_token=' . urlencode($token);
 
 	$link_options = [];
 	if (Configure::read('payment.popup')) {
@@ -101,6 +102,6 @@ if (is_array($response)) {
 		$this->Html->link(__n('Pay now', 'Pay with Elavon', $number_of_providers), $endpoint, $link_options),
 		['class' => 'btn btn-default']
 	);
-} else {
-	echo $this->Html->scriptBlock("alert('$response');");
+} catch (PaymentException $ex) {
+	echo $this->Html->scriptBlock('alert("' . $ex->getMessage() . '");');
 }

@@ -1,6 +1,8 @@
 <?php
 namespace App\Model\Table;
 
+use App\Http\API;
+use App\Model\Entity\RegistrationAudit;
 use Cake\Validation\Validator;
 
 /**
@@ -79,6 +81,23 @@ class RegistrationAuditsTable extends AppTable {
 			;
 
 		return $validator;
+	}
+
+	public function getAPI(RegistrationAudit $audit): ?API {
+		if (!$audit->payment_plugin) {
+			return null;
+		}
+
+		$plugin = $audit->payment_plugin;
+		$class = $plugin . 'Payment\Http\API';
+		try {
+			// TODO: If we change isTestData to rely in any way on the data being posted, this will need to change.
+			// Alternately, skip isTestData entirely, and track in the audit record whether it was a test payment.
+			return new $class(API::isTestData(null));
+		} catch (\Exception $ex) {
+			$this->log($ex->getMessage());
+			return null;
+		}
 	}
 
 }

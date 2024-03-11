@@ -1,4 +1,7 @@
 <?php
+
+use Cake\Core\Configure;
+
 $this->Html->addCrumb(__('Settings'));
 $this->Html->addCrumb('PayPal');
 ?>
@@ -59,6 +62,16 @@ echo $this->element('Settings/input', [
 	'name' => 'paypal_test_signature',
 	'options' => [
 		'label' => __('Sandbox signature'),
+	],
+]);
+echo $this->element('Settings/input', [
+	'category' => 'payment',
+	'name' => 'paypal_refunds',
+	'options' => [
+		'label' => __('Issue refunds online'),
+		'type' => 'radio',
+		'options' => Configure::read('options.enable'),
+		'help' => __('If enabled, refunds for payments received through {0} can be issued though {0}.', 'PayPal'),
 	],
 ]);
 ?>

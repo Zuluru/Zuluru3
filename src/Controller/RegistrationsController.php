@@ -4,6 +4,7 @@ namespace App\Controller;
 use App\Authorization\ContextResource;
 use App\Core\UserCache;
 use App\Model\Entity\Event;
+use App\Model\Entity\Payment;
 use App\Model\Entity\Registration;
 use Authorization\Exception\ForbiddenException;
 use Cake\Core\Configure;
@@ -822,6 +823,7 @@ class RegistrationsController extends AppController {
 		$id = $this->request->getQuery('payment');
 		try {
 			$registration_id = $this->Registrations->Payments->field('registration_id', ['Payments.id' => $id]);
+			/** @var Registration $registration */
 			$registration = $this->Registrations->get($registration_id, [
 				'contain' => [
 					'People',
@@ -834,6 +836,7 @@ class RegistrationsController extends AppController {
 						'queryBuilder' => function (Query  $q) {
 							return $q->order(['Payments.created']);
 						},
+						'RegistrationAudits',
 					],
 				]
 			]);
@@ -851,10 +854,17 @@ class RegistrationsController extends AppController {
 		$this->Configuration->loadAffiliate($registration->event->affiliate_id);
 		$refund = $this->Registrations->Payments->newEntity();
 
+		if ($payment->registration_audit_id) {
+			$api = $this->Registrations->Payments->RegistrationAudits->getAPI($payment->registration_audit);
+			$this->set(compact('api'));
+		}
+
 		if ($this->request->is(['patch', 'post', 'put'])) {
+			$data = $this->request->getData();
 			// The registration is also passed as an option, so that the payment marshaller has easy access to it
-			$refund = $this->Registrations->Payments->patchEntity($refund, $this->request->getData(), ['validate' => 'refund', 'registration' => $registration]);
-			if ($this->Registrations->refundPayment($registration->event, $registration, $payment, $refund, $this->request->getData('mark_refunded'))) {
+			/** @var Payment $refund */
+			$refund = $this->Registrations->Payments->patchEntity($refund, $data, ['validate' => 'refund', 'registration' => $registration]);
+			if ($this->Registrations->refundPayment($registration->event, $registration, $payment, $refund, $data['mark_refunded'], $data['online_refund'] ?? false)) {
 				$this->Flash->success(__('The refund has been saved.'));
 				return $this->redirect(['action' => 'view', 'registration' => $registration->id]);
 			}
@@ -903,6 +913,7 @@ class RegistrationsController extends AppController {
 		$id = $this->request->getQuery('payment');
 		try {
 			$registration_id = $this->Registrations->Payments->field('registration_id', ['Payments.id' => $id]);
+			/** @var Registration $registration */
 			$registration = $this->Registrations->get($registration_id, [
 				'contain' => [
 					'People' => ['Credits'],
@@ -929,9 +940,11 @@ class RegistrationsController extends AppController {
 		$refund = $this->Registrations->Payments->newEntity();
 
 		if ($this->request->is(['patch', 'post', 'put'])) {
+			$data = $this->request->getData();
 			// The registration is also passed as an option, so that the payment marshaller has easy access to it
-			$refund = $this->Registrations->Payments->patchEntity($refund, $this->request->getData(), ['validate' => 'credit', 'registration' => $registration]);
-			if ($this->Registrations->refundPayment($registration->event, $registration, $payment, $refund, $this->request->getData('mark_refunded'), $this->request->getData('credit_notes'))) {
+			/** @var Payment $refund */
+			$refund = $this->Registrations->Payments->patchEntity($refund, $data, ['validate' => 'credit', 'registration' => $registration]);
+			if ($this->Registrations->refundPayment($registration->event, $registration, $payment, $refund, $data['mark_refunded'], false, $data['credit_notes'])) {
 				$this->Flash->success(__('The credit has been saved.'));
 				$this->UserCache->clear('Credits', $registration->person_id);
 				return $this->redirect(['action' => 'view', 'registration' => $registration->id]);

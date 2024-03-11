@@ -25,8 +25,9 @@ class PaymentListener implements EventListenerInterface {
 	}
 
 	public function afterSave(CakeEvent $cakeEvent, Payment $payment, Registration $registration, Event $event) {
-		// Don't send any notifications about refunds or credits, those are handled elsewhere
-		if ($payment->amount < 0) {
+		// Don't send any notifications about refunds or credits, those are handled elsewhere.
+		// Also, don't notify about updates to payments, e.g. when we are refunding one.
+		if (!$payment->isNew() || in_array($payment->payment_type, ['Refund', 'Credit'])) {
 			return;
 		}
 

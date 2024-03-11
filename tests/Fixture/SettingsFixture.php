@@ -460,13 +460,6 @@ class SettingsFixture extends TestFixture {
 			[
 				'person_id' => null,
 				'category' => 'payment',
-				'name' => 'bambora_test_hash_key',
-				'value' => '12345678-ABCD-EFGH-1234-12345678',
-				'affiliate_id' => null,
-			],
-			[
-				'person_id' => null,
-				'category' => 'payment',
 				'name' => 'elavon_test_hash_key',
 				'value' => '',
 				'affiliate_id' => null,

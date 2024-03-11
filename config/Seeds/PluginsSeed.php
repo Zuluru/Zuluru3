@@ -34,13 +34,6 @@ class PluginsSeed extends AbstractSeed {
 				'enabled' => false,
 			],
 			[
-				'name' => 'Bambora',
-				'load_name' => 'BamboraPayment',
-				'path' => 'plugins/BamboraPayment',
-				'advertise' => true,
-				'enabled' => false,
-			],
-			[
 				'name' => 'Elavon',
 				'load_name' => 'ElavonPayment',
 				'path' => 'plugins/ElavonPayment',

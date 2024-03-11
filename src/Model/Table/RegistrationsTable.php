@@ -2,7 +2,8 @@
 namespace App\Model\Table;
 
 use App\Event\FlashTrait;
-use App\Model\Entity\Credit;
+use App\Exception\PaymentException;
+use App\Http\API;
 use App\Model\Entity\Event;
 use App\Model\Entity\Payment;
 use App\Model\Entity\Registration;
@@ -158,7 +159,7 @@ class RegistrationsTable extends AppTable {
 	 * having been saved so their ID is available, so they can't be done in beforeMarshal.
 	 *
 	 * @param \Cake\Event\Event $cakeEvent The beforeRules event that was fired
-	 * @param \Cake\Datasource\EntityInterface $entity The entity that is going to be saved
+	 * @param Registration $entity The entity that is going to be saved
 	 * @param \ArrayObject $options The options passed to the save method
 	 * @param mixed $operation The operation (e.g. create, delete) about to be run
 	 * @return void
@@ -178,7 +179,7 @@ class RegistrationsTable extends AppTable {
 	 * Modifies the entity before it is saved.
 	 *
 	 * @param \Cake\Event\Event $cakeEvent The beforeSave event that was fired
-	 * @param \Cake\Datasource\EntityInterface $entity The entity that is going to be saved
+	 * @param Registration $entity The entity that is going to be saved
 	 * @param \ArrayObject $options The options passed to the save method
 	 * @return bool
 	 */
@@ -244,7 +245,7 @@ class RegistrationsTable extends AppTable {
 	 * Perform post-processing to ensure that any required event-type-specific steps are taken.
 	 *
 	 * @param \Cake\Event\Event $cakeEvent The afterSave event that was fired
-	 * @param \Cake\Datasource\EntityInterface $entity The entity that was saved
+	 * @param Registration $entity The entity that was saved
 	 * @param \ArrayObject $options The options passed to the save method
 	 * @return void
 	 */
@@ -256,7 +257,7 @@ class RegistrationsTable extends AppTable {
 	 * Perform additional operations before it is deleted.
 	 *
 	 * @param \Cake\Event\Event $cakeEvent The beforeDelete event that was fired
-	 * @param \Cake\Datasource\EntityInterface $entity The entity to be deleted
+	 * @param Registration $entity The entity to be deleted
 	 * @param \ArrayObject $options The options passed to the delete method
 	 * @return bool
 	 */
@@ -269,7 +270,7 @@ class RegistrationsTable extends AppTable {
 	 * Perform additional operations after it is deleted.
 	 *
 	 * @param \Cake\Event\Event $cakeEvent The afterDelete event that was fired
-	 * @param \Cake\Datasource\EntityInterface $entity The entity that was deleted
+	 * @param Registration $entity The entity that was deleted
 	 * @param \ArrayObject $options The options passed to the delete method
 	 * @return void
 	 */
@@ -454,7 +455,7 @@ class RegistrationsTable extends AppTable {
 					'payment_amount' => $refund_amount,
 				]), ['validate' => 'refund', 'registration' => $registration]);
 
-				return $this->refundPayment($event, $registration, $payment, $refund, $data['mark_refunded'], $credit_notes);
+				return $this->refundPayment($event, $registration, $payment, $refund, $data['mark_refunded'], $data['online_refund'] ?? false, $credit_notes);
 			}
 
 			if ($refund_amount > round(collection($registration->payments)->sumOf('paid'), 2)) {
@@ -473,7 +474,7 @@ class RegistrationsTable extends AppTable {
 					'payment_amount' => $amount,
 				]), ['validate' => 'refund', 'registration' => $registration]);
 
-				if (!$this->refundPayment($event, $registration, $payment, $refund, $data['mark_refunded'], $credit_notes)) {
+				if (!$this->refundPayment($event, $registration, $payment, $refund, $data['mark_refunded'], $data['online_refund'] ?? false, $credit_notes)) {
 					if ($payment->getErrors()) {
 						foreach ($payment->getErrors() as $errors) {
 							foreach ($errors as $error) {
@@ -501,7 +502,7 @@ class RegistrationsTable extends AppTable {
 		});
 	}
 
-	public function refundPayment(Event $event, Registration $registration, Payment $payment, Payment $refund, $mark_refunded, $credit_notes = null) {
+	public function refundPayment(Event $event, Registration $registration, Payment $payment, Payment $refund, $mark_refunded, $online_refund, $credit_notes = null) {
 		// The form has a positive amount to be refunded, but the refund record has a negative amount.
 		$payment->refunded_amount = round($payment->refunded_amount - $refund->payment_amount, 2);
 		$registration->mark_refunded = $mark_refunded;
@@ -510,7 +511,7 @@ class RegistrationsTable extends AppTable {
 		$refund->payment_id = $payment->id;
 		$registration->setDirty('payments', true);
 
-		if ($refund->payment_type == 'Credit') {
+		if ($refund->payment_type === 'Credit') {
 			if (empty($refund->credits)) {
 				$refund->credits = [];
 			}
@@ -523,7 +524,9 @@ class RegistrationsTable extends AppTable {
 			$refund->setDirty('credits', true);
 		}
 
-		return $this->getConnection()->transactional(function () use ($event, $registration, $payment, $refund) {
+		return $this->getConnection()->transactional(function () use ($event, $registration, $payment, $refund, $online_refund) {
+			$safe_payment = $registration->payment;
+
 			// The registration is also passed as an option, so that the payment rules have easy access to it
 			if (!$this->save($registration, ['registration' => $registration, 'event' => $event])) {
 				$this->Flash('warning', __('The refund could not be saved. Please correct the errors below and try again.'));
@@ -532,19 +535,59 @@ class RegistrationsTable extends AppTable {
 					$refund->setErrors(['payment_amount' => $payment->getError('payment_amount')]);
 				}
 
+				// Reset the payment status; it might have been changed in beforeSave
+				$registration->payment = $safe_payment;
+				$registration->clean();
+
 				return false;
 			}
 
-			/**
-			 * TODO: Handle refunds through the registered payment processor. Will need to remember which one processed it,
-			 * for sites that enable multiple processors.
-			if ($refund->payment_type == 'Refund' && $payment_obj->can_refund && $this->request->getData('online_refund') &&
-				!$payment_obj->refund($payment, $this->request->getData('payment_amount'))
-			) {
-				$this->Flash('error', __('Failed to issue refund through online processor. Refund data was NOT saved. You can try again, or uncheck the "Issue refund through online payment provider" box and issue the refund manually.'));
-				return false;
+			// Not sure why this has to be done, but the one returned from saving the registration seems to be a
+			// different object than the one it was before the save.
+			$refund = end($registration->payments);
+
+			// Some "refunds" are actually credits. Don't process them online.
+			if ($refund->payment_type === 'Refund' && $online_refund && $payment->registration_audit_id) {
+				/** @var API $api */
+				$api = $this->Payments->RegistrationAudits->getAPI($payment->registration_audit);
+				if ($api && $api->canRefund($payment)) {
+					try {
+						$data = $api->refund($event, $payment, $refund);
+
+						$audit = $this->Payments->RegistrationAudits->newEntity($data);
+						if (!$this->Payments->RegistrationAudits->save($audit)) {
+							throw new PaymentException(__('Issued the refund online, but failed to save the audit record. ' .
+								'Re-issue the refund here but without checking the "{0}" box. ',
+								__('Issue refund through online payment provider')
+							));
+						}
+
+						// We don't use patchEntity here because beforeMarshal currently expects to be given all the data for a new entity
+						$refund->registration_audit_id = $audit->id;
+						$refund->payment_method = 'Online';
+
+						// The registration is also passed as an option, so that the payment rules have easy access to it
+						if (!$this->Payments->save($refund, ['registration' => $registration, 'event' => $registration->event])) {
+							throw new PaymentException(__('Issued the refund online, but failed to save the payment record. ' .
+								'Re-issue the refund here but without checking the "{0}" box. ',
+								__('Issue refund through online payment provider')
+							));
+						}
+					} catch (PaymentException $ex) {
+						$this->Flash('error', __('Failed to issue refund through online processor. ' .
+							'Refund data was NOT saved. ' .
+							'You can try again, or uncheck the "{0}" box and issue the refund manually.',
+							__('Issue refund through online payment provider')
+						));
+
+						// Reset the payment status; it might have been changed in beforeSave
+						$registration->payment = $safe_payment;
+						$registration->clean();
+
+						return false;
+					}
+				}
 			}
-			 */
 
 			AppController::_sendMail([
 				'to' => $registration->person,

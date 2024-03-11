@@ -1,58 +1,50 @@
 <?php
 namespace StripePayment\Http;
 
+use App\Model\Entity\Event;
+use App\Model\Entity\Payment;
 use Cake\Core\Configure;
-use Stripe\StripeClient;
+use Cake\I18n\FrozenTime;
+use Stripe\Charge;
+use Stripe\Checkout\Session;
 
 class API extends \App\Http\API {
 
 	/**
-	 * @var StripeClient
+	 * @var Client
 	 */
 	private $client = null;
 
-	/**
-	 * @return bool
-	 */
+	public function setClient(Client $client) {
+		$this->client = $client;
+	}
+
+	private function client(): Client {
+		if (!$this->client) {
+			$this->client = new Client($this->isTest());
+		}
+
+		return $this->client;
+	}
+
 	public static function isTestData($data): bool {
 		$data = json_decode($data, true);
 		return !$data['livemode'];
 	}
 
 	/**
-	 * @return StripeClient
+	 * @throws \Stripe\Exception\ApiErrorException
 	 */
-	private function client() {
-		if (!$this->client) {
-			if ($this->isTest()) {
-				$key = Configure::read('payment.stripe_test_secret_key');
-			} else {
-				$key = Configure::read('payment.stripe_live_secret_key');
-			}
-
-			$this->client = new \Stripe\StripeClient($key);
-		}
-
-		return $this->client;
+	public function checkoutSessionCreate(array $options): Session {
+		return $this->client()->checkoutSessionCreate($options);
 	}
 
 	/**
-	 * @param array $options
-	 * @return \Stripe\Checkout\Session
 	 * @throws \Stripe\Exception\ApiErrorException
 	 */
-	public function checkoutSessionCreate(array $options) {
-		return $this->client()->checkout->sessions->create($options);
-	}
-
-	/**
-	 * @param $input
-	 * @return array
-	 * @throws \Stripe\Exception\ApiErrorException
-	 */
-	public function parsePayment($input) {
+	public function parsePayment(string $input): array {
 		try {
-			$event = $this->constructEvent($input);
+			$event = $this->client()->constructEvent($input);
 		} catch(\UnexpectedValueException $ex) {
 			// Invalid payload
 			return [false, ['message' => $ex->getMessage()], [], []];
@@ -61,16 +53,19 @@ class API extends \App\Http\API {
 			return [false, ['message' => $ex->getMessage()], [], []];
 		}
 
+		/** @var Session $session */
 		$session = $event->data->object;
 		if ($event->type === 'checkout.session.completed') {
-			$payment = $this->paymentIntentsRetrieve($session->payment_intent);
+			$payment = $this->client()->paymentIntentsRetrieve($session->payment_intent);
 			if ($payment->status === 'succeeded') {
+				/** @var Charge $charge */
 				$charge = $payment->charges->data[0];
 
 				$audit = [
+					'payment_plugin' => 'Stripe',
 					'order_id' => $session->client_reference_id,
 					'response_code' => '0',
-					'transaction_id' => '0',
+					'transaction_id' => $session->id,
 					'transaction_name' => $charge->payment_method_details->card->funding,
 					'charge_total' => $payment->amount / 100,
 					'cardholder' => $charge->billing_details->name,
@@ -82,7 +77,7 @@ class API extends \App\Http\API {
 					'time' => date('H:i:s', $payment->created),
 				];
 
-				[$registration_ids, $debit_ids] = $this->getRegistrationIds($session->id);
+				[$registration_ids, $debit_ids] = $this->client()->getRegistrationIds($session->id);
 
 				return [true, $audit, $registration_ids, $debit_ids];
 			}
@@ -91,55 +86,26 @@ class API extends \App\Http\API {
 		return [true, [], [], []];
 	}
 
-	/**
-	 * @param $input
-	 * @return \Stripe\Event
-	 * @throws \Stripe\Exception\SignatureVerificationException
-	 */
-	public function constructEvent($input) {
-		if ($this->isTest()) {
-			$key = Configure::read('payment.stripe_test_secret_key');
-			$endpoint_secret = Configure::read('payment.stripe_test_webhook_signing');
-		} else {
-			$key = Configure::read('payment.stripe_live_secret_key');
-			$endpoint_secret = Configure::read('payment.stripe_live_webhook_signing');
-		}
-
-		\Stripe\Stripe::setApiKey($key);
-		$sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
-
-		return \Stripe\Webhook::constructEvent(
-			$input, $sig_header, $endpoint_secret
-		);
+	public function canRefund(Payment $payment): bool {
+		return Configure::read('payment.stripe_refunds');
 	}
 
-	/**
-	 * @param string $intent
-	 * @return \Stripe\PaymentIntent
-	 * @throws \Stripe\Exception\ApiErrorException
-	 */
-	public function paymentIntentsRetrieve($intent) {
-		return $this->client()->paymentIntents->retrieve($intent);
-	}
+	public function refund(Event $event, Payment $payment, Payment $refund): array {
+		$response = $this->client()->refund($event, $payment, $refund);
+		$time = FrozenTime::createFromTimestamp($response->created);
 
-	/**
-	 * @param $id
-	 * @return array
-	 * @throws \Stripe\Exception\ApiErrorException
-	 */
-	public function getRegistrationIds($id) {
-		$line_items = \Stripe\Checkout\Session::allLineItems($id);
-		$registration_ids = $debit_ids = [];
-		foreach ($line_items->data as $item) {
-			$product = $this->client()->products->retrieve($item->price->product);
-			if ($product->metadata->offsetExists('registration_id')) {
-				$registration_ids[] = $product->metadata->registration_id;
-			} else {
-				$debit_ids[] = $product->metadata->debit_id;
-			}
-		}
-
-		return [$registration_ids, $debit_ids];
+		// Build an audit record for the refund response
+		// Retrieve the parameters sent from the server
+		return [
+			'payment_plugin' => 'Stripe',
+			'transaction_id' => $response->id,
+			'message' => $response->status,
+			'charge_total' => $response->amount,
+			'issuer_invoice' => $response->destination_details->card->reference,
+			'transaction_name' => $response->destination_details->card->type,
+			'date' => $time->format('M d y'),
+			'time' => $time->format('h:i:s'),
+		];
 	}
 
 }

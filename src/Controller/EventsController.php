@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Authorization\ContextResource;
+use App\Exception\PaymentException;
 use App\Model\Entity\Event;
 use App\Model\Entity\EventsConnection;
 use Cake\Cache\Cache;
@@ -740,7 +741,9 @@ class EventsController extends AppController {
 
 					$failed = [];
 					foreach ($registrations as $registration) {
-						if (!$this->Events->Registrations->refund($event, $registration, $data)) {
+						try {
+							$this->Events->Registrations->refund($event, $registration, $data);
+						} catch (PaymentException $ex) {
 							$failed[$registration->id] = $registration->person->full_name;
 						}
 					}

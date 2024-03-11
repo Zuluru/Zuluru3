@@ -105,7 +105,7 @@ class PaymentControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testIndexAsAnonymous() {
-		// PayPal sends parameters in the URL.
+		// Elavon sends parameters in the URL.
 		$this->assertGetAnonymousAccessDenied(['plugin' => 'ElavonPayment', 'controller' => 'Payment', 'action' => 'index']);
 	}
 

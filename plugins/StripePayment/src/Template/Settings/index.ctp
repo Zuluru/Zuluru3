@@ -3,6 +3,7 @@
  * @type \App\View\AppView $this
  */
 
+use Cake\Core\Configure;
 use Cake\Routing\Router;
 
 $this->Html->addCrumb(__('Settings'));
@@ -54,6 +55,16 @@ echo $this->element('Settings/input', [
 	'options' => [
 		'label' => __('Test secret key'),
 		'help' => __('Should start with "{0}".', 'sk_test_'),
+	],
+]);
+echo $this->element('Settings/input', [
+	'category' => 'payment',
+	'name' => 'stripe_refunds',
+	'options' => [
+		'label' => __('Issue refunds online'),
+		'type' => 'radio',
+		'options' => Configure::read('options.enable'),
+		'help' => __('If enabled, refunds for payments received through {0} can be issued though {0}.', 'Stripe'),
 	],
 ]);
 ?>
