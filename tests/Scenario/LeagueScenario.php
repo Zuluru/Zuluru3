@@ -53,6 +53,7 @@ class LeagueScenario implements FixtureScenarioInterface {
 			'open' => $open, 'close' => $open->addWeeks(8), 'is_open' => true,
 			'schedule_type' => 'ratings_ladder', 'rating_calculator' => 'wager',
 			'allstars' => 'optional', 'allstars_from' => 'opponent',
+			'email_after' => 24, 'finalize_after' => 48,
 		];
 
 		if (array_key_exists('divisions', $args)) {
