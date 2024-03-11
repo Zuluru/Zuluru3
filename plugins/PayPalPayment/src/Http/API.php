@@ -28,7 +28,7 @@ class API extends \App\Http\API {
 	 * @param array $data
 	 * @return array
 	 */
-	public function parsePayment(Array $data) {
+	public function parsePayment(array $data) {
 		$details = $this->GetExpressCheckoutDetails(['TOKEN' => $data['token']]);
 		if (!is_array($details)) {
 			return [false, ['message' => $details], [], []];
