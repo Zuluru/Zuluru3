@@ -101,7 +101,7 @@ class RuleSignedWaiver extends Rule {
 		}
 
 		if ($params->has('waivers')) {
-			if (collection($params->waivers)->some(function ($waiver) {
+			if (collection($params->waivers ?? [])->some(function ($waiver) {
 				if ($waiver->has('_joinData')) {
 					$match = $waiver->_joinData;
 				} else if ($waiver->has('_matchingData')) {

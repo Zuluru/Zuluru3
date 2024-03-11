@@ -36,7 +36,7 @@ class CreditsController extends AppController {
 			->where($conditions)
 			->contain([
 				'Affiliates',
-				'People',
+				'People' => [Configure::read('Security.authModel')],
 			])
 			->order(['Credits.affiliate_id', 'Credits.created']);
 		if ($credits->isEmpty()) {

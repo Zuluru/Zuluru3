@@ -180,7 +180,10 @@ foreach ($events as $event) {
 		$resource = new ContextResource($event, ['strict' => false]);
 		$can = $this->Authorize->can('register', $resource);
 		if ($can) {
-			$link = $this->Html->link(__('Register Now!'), ['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id]);
+			$link = $this->Html->link(__('Register Now!'),
+				 ['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id],
+				['class' => 'btn btn-primary']
+			);
 		} else if ($resource->context('notices')) {
 			$link = $this->element('messages', ['messages' => $resource->context('notices')]);
 		}

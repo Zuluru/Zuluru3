@@ -9,6 +9,8 @@ $fp = fopen('php://output','w+');
 
 $header = [
 	__('Person'),
+	__('Email'),
+	__('Alternate Email'),
 	__('Date'),
 	__('Initial Amount'),
 	__('Amount Used'),
@@ -26,6 +28,8 @@ foreach ($credits as $credit) {
 
 	$row = [
 		$credit->person->full_name,
+		$credit->person->email,
+		$credit->person->alternate_email,
 		$credit->created,
 		$credit->amount,
 		$credit->amount_used,

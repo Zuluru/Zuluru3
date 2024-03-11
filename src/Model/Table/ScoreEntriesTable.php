@@ -94,7 +94,15 @@ class ScoreEntriesTable extends AppTable {
 
 			->range('home_carbon_flip', [0, 2], __('You must select a valid carbon flip result.'))
 			->requirePresence('home_carbon_flip', function ($context) {
-				return Configure::read('scoring.carbon_flip') && array_key_exists('score_for', $context['data']);
+				if (!Configure::read('scoring.carbon_flip') || !array_key_exists('score_for', $context['data'])) {
+					return false;
+				}
+
+				$game = $this->Games->get($context['data']['game_id'], [
+					'contain' => ['Divisions' => 'Leagues']
+				]);
+
+				return $game->division->league->hasCarbonFlip();
 			}, __('You must select a valid carbon flip result.'))
 
 			->range('women_present', [0, 25], __('You must enter the number of women designated players.'))

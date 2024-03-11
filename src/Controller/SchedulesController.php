@@ -1031,6 +1031,11 @@ class SchedulesController extends AppController {
 				$league_obj->startSchedule($division, $new_date);
 				$league_obj->assignFieldsByPreferences($division, $new_date, $games);
 				$league_obj->finishSchedule($division, $games);
+
+				$ids = collection($games)->extract('id')->toArray();
+				TableRegistry::getTableLocator()->get('ActivityLogs')
+					->deleteAll(['game_id IN' => $ids]);
+
 				$this->Flash->success(__('Games rescheduled.'));
 				return $this->redirect(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $id]);
 			} catch (ScheduleException $ex) {

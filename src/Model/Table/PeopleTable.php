@@ -891,8 +891,10 @@ class PeopleTable extends AppTable {
 		// TODO: This is ugly. Fix it.
 		if (!empty($person->affiliates)) {
 			$affiliates = collection($person->affiliates)->extract('id')->toArray();
-		} else {
+		} else if (!empty($person->affiliates_people)) {
 			$affiliates = collection($person->affiliates_people)->extract('affiliate_id')->toArray();
+		} else {
+			$affiliates = [-1];
 		}
 
 		$user_model = Configure::read('Security.authModel');

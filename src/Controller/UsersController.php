@@ -78,6 +78,7 @@ class UsersController extends AppController {
 		$this->set('model', $users_table->alias());
 		$this->set('user_field', $users_table->userField);
 		$this->set('pwd_field', $users_table->pwdField);
+		$this->set('redirect', $this->request->getQuery('redirect'));
 	}
 
 	public function logout() {

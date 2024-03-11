@@ -3,7 +3,9 @@
  * @type $registrations \App\Model\Entity\Registration[]
  * @type $audit \App\Model\Entity\RegistrationAudit|null
  */
+use App\Model\Entity\Payment;
 use Cake\Core\Configure;
+use Cake\I18n\FrozenTime;
 
 $reg_id_format = Configure::read('payment.reg_id_format');
 // TODOBOOTSTRAP: Fix the formatting of this whole ugly page
@@ -27,6 +29,14 @@ endif;
 	<tr><td align="center" colspan="4"><?= Configure::read('organization.phone') ?></td></tr>
 
 	<tr><td align="center" colspan="4"><a href="<?= $_SERVER['REQUEST_SCHEME'] ?>://<?= $_SERVER['HTTP_HOST'] ?>/"><?= $_SERVER['HTTP_HOST'] ?></a></td></tr>
+<?php
+if (!empty(Configure::read('organization.hst_registration'))):
+?>
+	<tr><td align="center" colspan="4"><?= __('HST Registration: {0}', Configure::read('organization.hst_registration')) ?></td></tr>
+	<tr><td align="center" colspan="4"><?= __('Invoice # {0}', sprintf(Configure::read('registration.order_id_format'), $registrations[0]->id)) ?></td></tr>
+<?php
+endif;
+?>
 	<tr><td>&nbsp;</td></tr>
 
 <?php
@@ -137,7 +147,13 @@ endif;
 		<td bgcolor="#DDDDDD" width=100 align="right"><strong><?= __('Subtotal') ?></strong></td>
 	</tr>
 <?php
+$date = null;
 foreach ($registrations as $registration):
+	$paid = collection($registration->payments)->filter(function (Payment $payment) { return in_array($payment->payment_type, Configure::read('payment_payment')); })->max('created');
+	if ($paid && $paid->created > $date) {
+		$date = $paid->created;
+	}
+
 	if (isset($audit)) {
 		[$cost, $tax1, $tax2] = $registration->paymentAmounts();
 	} else {
@@ -185,6 +201,16 @@ if (isset($audit)) {
 		<td></td><td></td><td></td><td align="right"><?= __('Total') ?>:</td>
 		<td align="right"><?= $this->Number->currency($total) ?></td>
 	</tr>
+<?php
+if ($date):
+?>
+	<tr>
+		<td></td><td></td><td></td><td align="right"><?= __('Paid') ?>:</td>
+		<td align="right"><?= $this->Time->date($date) ?></td>
+	</tr>
+<?php
+endif;
+?>
 </table>
 
 <table width="700" cellspacing=3 cellpadding=3>

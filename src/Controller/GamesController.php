@@ -2314,7 +2314,6 @@ class GamesController extends AppController {
 			->toArray();
 
 		$this->set(compact('games'));
-		$this->set('_serialize', ['games']);
 	}
 
 	function results() {

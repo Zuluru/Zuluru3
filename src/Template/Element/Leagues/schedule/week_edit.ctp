@@ -86,6 +86,11 @@ foreach ($games as $game) {
 		} else {
 			$is_season = true;
 			$season_divisions[$game->division_id] = true;
+			if ($game->away_team && $game->away_team->division_id !== $game->division_id) {
+				$season_divisions[$game->away_team->division_id] = true;
+			} else if ($game->home_team && $game->home_team->division_id !== $game->division_id) {
+				$season_divisions[$game->home_team->division_id] = true;
+			}
 		}
 		if ($can_edit) {
 			$finalized &= $game->isFinalized();

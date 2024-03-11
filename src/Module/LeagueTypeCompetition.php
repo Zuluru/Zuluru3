@@ -8,6 +8,7 @@ namespace App\Module;
 use App\Exception\ScheduleException;
 use App\Model\Entity\Division;
 use App\Model\Entity\Team;
+use Authorization\IdentityInterface;
 
 class LeagueTypeCompetition extends LeagueType {
 	/**
@@ -20,6 +21,16 @@ class LeagueTypeCompetition extends LeagueType {
 			'initial_rating' => 0,
 			'rating' => 0,
 		];
+	}
+
+	public function links(Division $division, IdentityInterface $identity = null, $controller, $action) {
+		$links = parent::links($division, $identity, $controller, $action);
+		if (($controller !== 'Divisions' || $action !== 'ratings') && $identity && $identity->can('edit_schedule', $division)) {
+			$links[__('Adjust Ratings')] = [
+				'url' => ['controller' => 'Divisions', 'action' => 'ratings', 'division' => $division->id],
+			];
+		}
+		return $links;
 	}
 
 	/**

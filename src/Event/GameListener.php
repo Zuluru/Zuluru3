@@ -125,27 +125,29 @@ class GameListener implements EventListenerInterface {
 		}
 
 		// Email opposing captains with this score and an easy link
-		$captains = collection($opponent->people)->filter(function ($player) {
-			return in_array($player->_joinData->role, Configure::read('privileged_roster_roles')) && $player->_joinData->status == ROSTER_APPROVED;
-		})->toArray();
-		if (!empty($captains)) {
-			AppController::_sendMail([
-				'to' => $captains,
-				'replyTo' => UserCache::getInstance()->read('Person'),
-				'subject' => function() { return __('Opponent score submission'); },
-				'template' => 'score_submission',
-				'sendAs' => 'both',
-				'viewVars' => array_merge([
-					'captains' => implode(', ', collection($captains)->extract('first_name')->toArray()),
-					'division' => $game->division,
-				], compact('game', 'status', 'opponent_status', 'score_for', 'score_against', 'team', 'opponent')),
-			]);
+		if ($game->division->email_after) {
+			$captains = collection($opponent->people)->filter(function ($player) {
+				return in_array($player->_joinData->role, Configure::read('privileged_roster_roles')) && $player->_joinData->status == ROSTER_APPROVED;
+			})->toArray();
+			if (!empty($captains)) {
+				AppController::_sendMail([
+					'to' => $captains,
+					'replyTo' => UserCache::getInstance()->read('Person'),
+					'subject' => function() { return __('Opponent score submission'); },
+					'template' => 'score_submission',
+					'sendAs' => 'both',
+					'viewVars' => array_merge([
+						'captains' => implode(', ', collection($captains)->extract('first_name')->toArray()),
+						'division' => $game->division,
+					], compact('game', 'status', 'opponent_status', 'score_for', 'score_against', 'team', 'opponent')),
+				]);
+			}
 		}
 	}
 
 	public function scoreMismatch(CakeEvent $cakeEvent, Game $game) {
 		// TODO: Do this on a recurring basis, every few days, instead of just once.
-		if (empty($game->score_mismatch_emails)) {
+		if (empty($game->score_mismatch_emails) && !empty($game->division->people)) {
 			if (AppController::_sendMail([
 				'to' => $game->division->people,
 				'subject' => function() { return __('Score entry mismatch'); },

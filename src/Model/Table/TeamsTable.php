@@ -335,7 +335,7 @@ class TeamsTable extends AppTable {
 			->where($conditions)
 			->toArray();
 
-		usort($teams, [LeaguesTable::class, 'compareLeagueAndDivision']);
+		@usort($teams, [LeaguesTable::class, 'compareLeagueAndDivision']);
 
 		return $teams;
 	}

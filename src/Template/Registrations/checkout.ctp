@@ -172,6 +172,7 @@ if (!empty($registrations)):
 						if ($this->Authorize->can('unregister', $registration)) {
 							echo $this->Html->iconLink('delete_32.png',
 								['action' => 'unregister', 'registration' => $registration->id, 'return' => AppController::_return()],
+								['alt' => __('Unregister'), 'title' => __('Unregister')],
 								['confirm' => __('Are you sure you want to unregister from this event? This will delete all of your preferences and you may lose the spot that is currently tentatively reserved for you.')]
 							);
 						}
@@ -268,6 +269,7 @@ if (!empty($other)):
 						if ($this->Authorize->can('unregister', $registration['registration'])) {
 							echo $this->Html->iconLink('delete_32.png',
 								['action' => 'unregister', 'registration' => $registration['registration']->id, 'return' => AppController::_return()],
+								['alt' => __('Unregister'), 'title' => __('Unregister')],
 								['confirm' => __('Are you sure you want to unregister from this event? This will delete all of your preferences and you may lose the spot that is currently tentatively reserved for you.')]
 							);
 						}

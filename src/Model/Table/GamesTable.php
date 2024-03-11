@@ -244,10 +244,19 @@ class GamesTable extends AppTable {
 			->integer('rating_points')
 
 			->requirePresence('home_carbon_flip', function ($context) {
-				return Configure::read('scoring.carbon_flip') &&
-					!in_array($context['data']['status'], Configure::read('unplayed_status')) &&
-					strpos($context['data']['status'], 'default') === false &&
-					array_key_exists('home_score', $context['data']);
+				if (!Configure::read('scoring.carbon_flip') ||
+					in_array($context['data']['status'], Configure::read('unplayed_status')) ||
+					strpos($context['data']['status'], 'default') !== false ||
+					!array_key_exists('home_score', $context['data'])
+				) {
+					return false;
+				}
+
+				$game = $this->get($context['data']['id'], [
+					'contain' => ['Divisions' => 'Leagues']
+				]);
+
+				return $game->division->league->hasCarbonFlip();
 			}, __('You must select a valid carbon flip result.'))
 			->range('home_carbon_flip', [0, 2], __('You must select a valid carbon flip result.'))
 
@@ -644,6 +653,11 @@ class GamesTable extends AppTable {
 	}
 
 	private function checkDoubleHeader(EntityInterface $entity, Array $options, $team, $opp) {
+		// Tournaments just inherently have all kinds of double headers
+		if ($entity->division->schedule_type === 'tournament') {
+			return true;
+		}
+
 		$other_games = collection($options['games'])->filter(function ($game) use ($entity) {
 			return $game->id != $entity->id;
 		});

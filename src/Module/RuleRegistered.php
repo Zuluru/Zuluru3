@@ -76,7 +76,7 @@ class RuleRegistered extends Rule {
 		];
 
 		if ($params->has('registrations')) {
-			return collection($params->registrations)->some(function ($registration) {
+			return collection($params->registrations ?? [])->some(function ($registration) {
 				return in_array($registration->event_id, $this->event_ids);
 			});
 		}

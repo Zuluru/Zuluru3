@@ -26,6 +26,12 @@ if ($is_manager) {
 	];
 }
 
+if ($is_manager && Configure::read('gender.column') === 'roster_designation') {
+	$fields += [
+		'gender' => __('Gender Identification'),
+	];
+}
+
 $fields += [
 	Configure::read('gender.column') => Configure::read('gender.label'),
 	'birthdate' => __('Birthdate'),

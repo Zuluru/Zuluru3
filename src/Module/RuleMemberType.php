@@ -78,7 +78,7 @@ class RuleMemberType extends Rule {
 			return 'none';
 		}
 
-		$memberships = collection($params->registrations)
+		$memberships = collection($params->registrations ?? [])
 			->filter(function (Registration $reg) use ($affiliate) {
 				return (!empty($reg->event->membership_begins) &&
 					$reg->event->affiliate_id == $affiliate &&
@@ -121,7 +121,7 @@ class RuleMemberType extends Rule {
 					unset($events[$key]);
 				}
 			}
-			$this->events = collection($events)->extract('id')->toArray();
+			$this->events = collection($events ?? [])->extract('id')->toArray();
 		}
 
 		$query

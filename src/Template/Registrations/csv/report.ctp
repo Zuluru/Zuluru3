@@ -1,4 +1,5 @@
 <?php
+use App\Model\Entity\Payment;
 use Cake\Core\Configure;
 
 $fp = fopen('php://output','w+');
@@ -45,7 +46,17 @@ foreach ($registrations as $registration) {
 	if (Configure::read('registration.online_payments')) {
 		$data[] = implode(';', array_unique(collection($registration->payments)->extract('registration_audit.transaction_id')->toArray()));
 	}
-	$data[] = $registration->notes;
+
+	$notes = [];
+	if ($registration->notes) {
+		$notes[] = $registration->notes;
+	}
+	$payment_notes = collection($registration->payments)->filter(function (Payment $payment) { return $payment->notes; })->extract('notes')->toArray();
+	if ($payment_notes) {
+		$notes = array_unique(array_merge($notes, $payment_notes));
+	}
+	$data[] = implode('; ', $notes);
+
 	if (count($affiliates) > 1 && empty($affiliate)) {
 		array_unshift($data, $registration->event->affiliate->name);
 	}

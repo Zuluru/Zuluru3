@@ -69,7 +69,7 @@ foreach ($all_items as $item) {
 			$header_cells[] = $prefix . $this->Time->date($item->game_slot->game_date);
 		}
 	} else {
-		$header_cells[] = $this->Html->link($item->name,
+		$header_cells[] = $this->Html->link(__('{0} ({1})', $item->name, $this->Time->format($item->start_time, 'MMM d')),
 			['controller' => 'TeamEvents', 'action' => 'view', 'event' => $item->id],
 			['title' => $this->Time->datetime($item->start_time)]
 		);

@@ -148,6 +148,7 @@ class RegistrationsController extends AppController {
 				->group(['People.' . Configure::read('gender.column')])
 				->order(['People.' . Configure::read('gender.column') => Configure::read('gender.order')])
 				->toArray();
+			$this->set(compact('gender_split'));
 
 			// We need to include a gender breakdown of the payment statuses if both
 			// genders are allowed to register.
@@ -181,7 +182,7 @@ class RegistrationsController extends AppController {
 			->order(['question_id'])
 			->toArray();
 
-		$this->set(compact('event', 'gender_split', 'payment', 'responses'));
+		$this->set(compact('event', 'payment', 'responses'));
 	}
 
 	public function statistics() {

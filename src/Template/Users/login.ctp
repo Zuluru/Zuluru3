@@ -14,7 +14,7 @@ if ($failed):
 <?php
 endif;
 
-echo $this->Form->create(false);
+echo $this->Form->create(false, ['url' => ['controller' => 'Users', 'action' => 'login', 'redirect' => $redirect]]);
 echo $this->Form->input("$user_field", [
 	'label' => false,
 	'id' => 'UserName',

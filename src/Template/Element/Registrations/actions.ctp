@@ -42,6 +42,14 @@ if (($this->getRequest()->getParam('controller') != 'Registrations' || $this->ge
 	);
 }
 
+if (($this->getRequest()->getParam('controller') != 'Registrations' || $this->getRequest()->getParam('action') != 'invoice') &&
+	$this->Authorize->can('invoice', $registration)
+) {
+	$links[] = $this->Html->link(__('View Invoice'),
+		['controller' => 'Registrations', 'action' => 'invoice', 'registration' => $registration->id]
+	);
+}
+
 if ($this->Authorize->can('unregister', $registration)) {
 	$links[] = $this->Html->link(__('Unregister'),
 		['controller' => 'Registrations', 'action' => 'unregister', 'registration' => $registration->id, 'return' => AppController::_return()],

@@ -360,10 +360,14 @@ class Game extends Entity {
 			}
 			if ($this->getOriginal('home_score') >= $this->getOriginal('away_score')) {
 				$this->home_team->rating -= $this->rating_points;
-				$this->away_team->rating += $this->rating_points;
+				if ($this->away_tem) {
+					$this->away_team->rating += $this->rating_points;
+				}
 			} else {
 				$this->home_team->rating += $this->rating_points;
-				$this->away_team->rating -= $this->rating_points;
+				if ($this->away_tem) {
+					$this->away_team->rating -= $this->rating_points;
+				}
 			}
 			$this->setDirty('home_team', true);
 			$this->setDirty('away_team', true);
@@ -403,12 +407,16 @@ class Game extends Entity {
 			$change = $ratings_obj->calculateRatingsChange($this->home_score, $this->away_score,
 				$ratings_obj->calculateExpectedWin($this->home_team->rating, $this->away_team->rating));
 			$this->home_team->rating += $change;
-			$this->away_team->rating -= $change;
+			if ($this->away_tem) {
+				$this->away_team->rating -= $change;
+			}
 		} else {
 			$change = $ratings_obj->calculateRatingsChange($this->home_score, $this->away_score,
 				$ratings_obj->calculateExpectedWin($this->away_team->rating, $this->home_team->rating));
 			$this->home_team->rating -= $change;
-			$this->away_team->rating += $change;
+			if ($this->away_tem) {
+				$this->away_team->rating += $change;
+			}
 		}
 
 		$this->rating_points = $change;

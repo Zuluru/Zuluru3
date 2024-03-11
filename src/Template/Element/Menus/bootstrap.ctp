@@ -6,6 +6,7 @@
 			<span class="icon-bar"></span>
 			<span class="icon-bar"></span>
 		</button>
+		<p class="navbar-text visible-xs-inline-block" style="float: right;padding-right: 1em;">Zuluru Menu</p>
 	</div>
 	<div class="collapse navbar-collapse" id="zuluru-top-menu-collapse">
 		<ul class="nav navbar-nav navbar-left"><?php
