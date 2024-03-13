@@ -1,10 +1,10 @@
 <?php
 /**
- * @type $division \App\Model\Entity\Division
- * @type $league \App\Model\Entity\League
- * @type $team \App\Model\Entity\Team
- * @type $format string
- * @type $size string
+ * @var \App\Model\Entity\Division $division
+ * @var \App\Model\Entity\League $league
+ * @var \App\Model\Entity\Team $team
+ * @var string $format
+ * @var string $size
  */
 use App\Authorization\ContextResource;
 use App\Controller\AppController;

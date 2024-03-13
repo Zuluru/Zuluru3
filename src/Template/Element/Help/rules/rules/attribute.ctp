@@ -11,7 +11,7 @@ use Cake\ORM\TableRegistry;
 <p><?php
 $fields = [];
 $people_table = TableRegistry::getTableLocator()->get('People');
-foreach ($people_table->schema()->columns() as $key) {
+foreach ($people_table->getSchema()->columns() as $key) {
 	$include = false;
 
 	// Check for entirely disabled features

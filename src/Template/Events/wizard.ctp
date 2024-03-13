@@ -1,9 +1,9 @@
 <?php
 /**
- * @type $this \App\View\AppView
- * @type $events \App\Model\Entity\Event[]
- * @type $affiliates int[]
- * @type $step string
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Event[] $events
+ * @var int[] $affiliates
+ * @var string $step
  */
 
 $this->Html->addCrumb(__('Registration Events'));

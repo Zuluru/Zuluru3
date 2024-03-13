@@ -78,7 +78,7 @@ class SkillsTable extends AppTable {
 
 		// We are happy if the field is disabled or the record is not enabled or the skill level is valid
 		$rules->add(new OrRule([
-			function (EntityInterface $entity, Array $options) { return !Configure::read('profile.skill_level') || !$entity->enabled; },
+			function (EntityInterface $entity, array $options) { return !Configure::read('profile.skill_level') || !$entity->enabled; },
 			new InConfigRule('options.skill')
 		]), 'validSkill', [
 			'errorField' => 'skill_level',
@@ -87,7 +87,7 @@ class SkillsTable extends AppTable {
 
 		// We are happy if the field is disabled or the record is not enabled or the year started is valid
 		$rules->add(new OrRule([
-			function (EntityInterface $entity, Array $options) { return !Configure::read('profile.year_started') || !$entity->enabled; },
+			function (EntityInterface $entity, array $options) { return !Configure::read('profile.year_started') || !$entity->enabled; },
 			new InDateConfigRule('started')
 		]), 'validYearStarted', [
 			'errorField' => 'year_started',
@@ -106,12 +106,12 @@ class SkillsTable extends AppTable {
 	 * @param ArrayObject $options Unused
 	 */
 	public function beforeMarshal(CakeEvent $cakeEvent, ArrayObject $data, ArrayObject $options) {
-		if (array_key_exists('year_started', $data) && is_array($data['year_started'])) {
+		if ($data->offsetExists('year_started') && is_array($data['year_started'])) {
 			$data['year_started'] = $data['year_started']['year'];
 		}
 	}
 
-	public function mergeList(Array $old, Array $new) {
+	public function mergeList(array $old, array $new) {
 		// Clear ids from all the new skills
 		foreach ($new as $skill) {
 			unset($skill->id);

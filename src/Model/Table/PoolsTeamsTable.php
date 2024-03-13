@@ -68,7 +68,7 @@ class PoolsTeamsTable extends AppTable {
 	 * Custom validation rules for generic-type events.
 	 *
 	 * @param \Cake\Validation\Validator $validator Validator instance.
-	 * @param Array $valid_options List of valid options for the qualifier
+	 * @param array $valid_options List of valid options for the qualifier
 	 * @return \Cake\Validation\Validator
 	 */
 	public function validationQualifiers(Validator $validator, $valid_options) {
@@ -96,7 +96,7 @@ class PoolsTeamsTable extends AppTable {
 		// The following rules perform a number of checks on the teams being saved as a collection.
 		//
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			if ($entity->has('qualifier')) {
 				// Make sure that we haven't got both pool and ordinal types selected
 				// for any particular "tier" in the pools. For example, A-1 can be used

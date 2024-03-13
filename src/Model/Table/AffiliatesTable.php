@@ -128,7 +128,7 @@ class AffiliatesTable extends AppTable {
 		return $validator;
 	}
 
-	public function findActive(Query $query, Array $options) {
+	public function findActive(Query $query, array $options) {
 		$query->where(['Affiliates.active' => true]);
 		return $query;
 	}

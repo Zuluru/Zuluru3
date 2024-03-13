@@ -1,9 +1,9 @@
 <?php
 /**
- * @type $person \App\Model\Entity\Person
- * @type $roster \App\Model\Entity\TeamsPerson
- * @type $team \App\Model\Entity\Team
- * @type $division \App\Model\Entity\Division
+ * @var \App\Model\Entity\Person $person
+ * @var \App\Model\Entity\TeamsPerson $roster
+ * @var \App\Model\Entity\Team $team
+ * @var \App\Model\Entity\Division $division
  */
 
 use App\Authorization\ContextResource;

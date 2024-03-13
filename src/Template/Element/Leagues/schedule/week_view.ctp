@@ -1,9 +1,9 @@
 <?php
 /**
- * @type $division \App\Model\Entity\Division
- * @type $league \App\Model\Entity\League
- * @type $multi_day boolean
- * @type $week \Cake\I18n\FrozenDate[]
+ * @var \App\Model\Entity\Division $division
+ * @var \App\Model\Entity\League $league
+ * @var bool $multi_day
+ * @var \Cake\I18n\FrozenDate[] $week
  */
 
 if (isset($division)) {

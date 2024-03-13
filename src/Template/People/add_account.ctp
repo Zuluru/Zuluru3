@@ -1,12 +1,12 @@
 <?php
 /**
- * @type $this \App\View\AppView
- * @type $person \App\Model\Entity\Person
- * @type $user_model string
- * @type $user_field string
- * @type $email_field string
- * @type $provinces string[]
- * @type $countries string[]
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Person $person
+ * @var string $user_model
+ * @var string $user_field
+ * @var string $email_field
+ * @var string[] $provinces
+ * @var string[] $countries
  */
 
 use Cake\Core\Configure;

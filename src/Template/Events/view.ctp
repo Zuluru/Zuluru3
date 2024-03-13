@@ -1,11 +1,11 @@
 <?php
 /**
- * @type $event \App\Model\Entity\Event
- * @type $times \App\Model\Entity\GameSlot[]
- * @type $affiliates \App\Model\Entity\Affiliate[]
- * @type $facilities string[]
- * @type $allowed boolean
- * @type $notices string[]
+ * @var \App\Model\Entity\Event $event
+ * @var \App\Model\Entity\GameSlot[] $times
+ * @var \App\Model\Entity\Affiliate[] $affiliates
+ * @var string[] $facilities
+ * @var bool $allowed
+ * @var string[] $notices
  */
 
 use App\Model\Table\PricesTable;

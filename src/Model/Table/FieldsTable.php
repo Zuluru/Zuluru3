@@ -110,7 +110,7 @@ class FieldsTable extends AppTable {
 	public function buildRules(RulesChecker $rules) {
 		$rules->add($rules->existsIn(['facility_id'], 'Facilities', __('You must select a valid facility.')));
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			if (array_key_exists('fields', $options)) {
 				$fields = count($options['fields']);
 			} else if ($entity->has('facility') && $entity->facility->has('fields')) {

@@ -51,7 +51,7 @@ class MailingListsController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->getQuery('mailing_list');
+		$id = $this->getRequest()->getQuery('mailing_list');
 		try {
 			$mailing_list = $this->MailingLists->get($id, [
 				'contain' => ['Affiliates', 'Newsletters']
@@ -72,7 +72,7 @@ class MailingListsController extends AppController {
 	}
 
 	public function preview() {
-		$id = $this->request->getQuery('mailing_list');
+		$id = $this->getRequest()->getQuery('mailing_list');
 		try {
 			$mailing_list = $this->MailingLists->get($id, [
 				'contain' => [
@@ -161,8 +161,8 @@ class MailingListsController extends AppController {
 		$mailing_list = $this->MailingLists->newEntity();
 		$this->Authorization->authorize($this);
 
-		if ($this->request->is('post')) {
-			$mailing_list = $this->MailingLists->patchEntity($mailing_list, $this->request->getData());
+		if ($this->getRequest()->is('post')) {
+			$mailing_list = $this->MailingLists->patchEntity($mailing_list, $this->getRequest()->getData());
 			if ($this->MailingLists->save($mailing_list)) {
 				$this->Flash->success(__('The mailing list has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -182,7 +182,7 @@ class MailingListsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->getQuery('mailing_list');
+		$id = $this->getRequest()->getQuery('mailing_list');
 		try {
 			$mailing_list = $this->MailingLists->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -196,8 +196,8 @@ class MailingListsController extends AppController {
 		$this->Authorization->authorize($mailing_list);
 		$this->Configuration->loadAffiliate($mailing_list->affiliate_id);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$mailing_list = $this->MailingLists->patchEntity($mailing_list, $this->request->getData());
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$mailing_list = $this->MailingLists->patchEntity($mailing_list, $this->getRequest()->getData());
 			if ($this->MailingLists->save($mailing_list)) {
 				$this->Flash->success(__('The mailing list has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -216,9 +216,9 @@ class MailingListsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects to index.
 	 */
 	public function delete() {
-		$this->request->allowMethod(['post', 'delete']);
+		$this->getRequest()->allowMethod(['post', 'delete']);
 
-		$id = $this->request->getQuery('mailing_list');
+		$id = $this->getRequest()->getQuery('mailing_list');
 		try {
 			$mailing_list = $this->MailingLists->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -239,8 +239,8 @@ class MailingListsController extends AppController {
 
 		if ($this->MailingLists->delete($mailing_list)) {
 			$this->Flash->success(__('The mailing list has been deleted.'));
-		} else if ($mailing_list->errors('delete')) {
-			$this->Flash->warning(current($mailing_list->errors('delete')));
+		} else if ($mailing_list->getError('delete')) {
+			$this->Flash->warning(current($mailing_list->getError('delete')));
 		} else {
 			$this->Flash->warning(__('The mailing list could not be deleted. Please, try again.'));
 		}
@@ -249,7 +249,7 @@ class MailingListsController extends AppController {
 	}
 
 	public function unsubscribe() {
-		$id = $this->request->getQuery('list');
+		$id = $this->getRequest()->getQuery('list');
 		try {
 			$mailing_list = $this->MailingLists->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -260,8 +260,8 @@ class MailingListsController extends AppController {
 			return $this->redirect(['action' => 'index']);
 		}
 
-		$person_id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
-		$this->Authorization->authorize(new ContextResource($mailing_list, ['person_id' => $person_id, 'code' => $this->request->getQuery('code')]));
+		$person_id = $this->getRequest()->getQuery('person') ?: $this->UserCache->currentId();
+		$this->Authorization->authorize(new ContextResource($mailing_list, ['person_id' => $person_id, 'code' => $this->getRequest()->getQuery('code')]));
 		$this->Configuration->loadAffiliate($mailing_list->affiliate_id);
 
 		// Check for subscription records

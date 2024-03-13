@@ -4,8 +4,8 @@ use App\Model\Table\SpiritEntriesTable;
 use Cake\Core\Configure;
 
 /**
- * @type $division \App\Model\Entity\Division
- * @type $spirit_obj \App\Module\Spirit
+ * @var \App\Model\Entity\Division $division
+ * @var \App\Module\Spirit $spirit_obj
  */
 
 $this->Html->addCrumb(__('Divisions'));

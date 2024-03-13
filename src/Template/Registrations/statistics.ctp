@@ -1,9 +1,9 @@
 <?php
 /**
- * @type $this \App\View\AppView
- * @type $events \App\Model\Entity\Event[]
- * @type $affiliates int[]
- * @type $years string[]
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Event[] $events
+ * @var int[] $affiliates
+ * @var string[] $years
  */
 
 use App\Model\Entity\Event;

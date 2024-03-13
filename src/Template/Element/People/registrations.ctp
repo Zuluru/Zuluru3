@@ -1,9 +1,9 @@
 <?php
 /**
- * @type $this \App\View\AppView
- * @type $registrations \App\Model\Entity\Registration[]
- * @type $affiliates int[]
- * @type $years string[]
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Registration[] $registrations
+ * @var int[] $affiliates
+ * @var string[] $years
  */
 
 use App\Model\Entity\Registration;

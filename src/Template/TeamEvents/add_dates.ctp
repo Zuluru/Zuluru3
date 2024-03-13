@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\TeamEvent $team_event
+ */
+
 $this->Html->addCrumb(__('Team Events'));
 $this->Html->addCrumb(__('Create'));
 $this->Html->addCrumb(__('Dates'));
@@ -12,8 +17,8 @@ $this->Html->addCrumb(__('Dates'));
 for ($i = 0; $i < $this->getRequest()->getData('repeat_count'); ++ $i) {
 	echo $this->Form->input("dates.$i.date", ['type' => 'date']);
 }
-unset($this->getRequest()->data['dates']);
-echo $this->element('hidden', ['fields' => $this->getRequest()->data]);
+$this->setRequest($this->getRequest()->withoutData('dates'));
+echo $this->element('hidden', ['fields' => $this->getRequest()->getData()]);
 ?>
 	</fieldset>
 	<?= $this->Form->button(__('Submit'), ['class' => 'btn-success']) ?>

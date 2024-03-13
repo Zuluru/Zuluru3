@@ -1,7 +1,7 @@
 <?php
 use Cake\Core\Configure;
 if ($event->has('prices') && array_key_exists($index, $event->prices)) {
-	$errors = $event->prices[$index]->errors();
+	$errors = $event->prices[$index]->getErrors();
 	$new = false;
 } else {
 	$new = true;

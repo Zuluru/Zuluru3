@@ -1,7 +1,7 @@
 <?php
 /**
- * @type $this \App\View\AppView
- * @type $field \App\Model\Entity\Field
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Field $field
  */
 
 use App\Controller\AppController;

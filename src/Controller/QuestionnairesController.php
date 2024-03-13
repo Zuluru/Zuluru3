@@ -19,7 +19,7 @@ class QuestionnairesController extends AppController {
 	public function beforeFilter(\Cake\Event\Event $event) {
 		parent::beforeFilter($event);
 		if (isset($this->Security)) {
-			$this->Security->config('unlockedActions', ['edit']);
+			$this->Security->setConfig('unlockedActions', ['edit']);
 		}
 	}
 
@@ -69,7 +69,7 @@ class QuestionnairesController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->getQuery('questionnaire');
+		$id = $this->getRequest()->getQuery('questionnaire');
 		try {
 			$questionnaire = $this->Questionnaires->get($id, [
 				'contain' => [
@@ -110,8 +110,8 @@ class QuestionnairesController extends AppController {
 	public function add() {
 		$questionnaire = $this->Questionnaires->newEntity();
 		$this->Authorization->authorize($questionnaire);
-		if ($this->request->is('post')) {
-			$questionnaire = $this->Questionnaires->patchEntity($questionnaire, $this->request->getData());
+		if ($this->getRequest()->is('post')) {
+			$questionnaire = $this->Questionnaires->patchEntity($questionnaire, $this->getRequest()->getData());
 			if ($this->Questionnaires->save($questionnaire)) {
 				$this->Flash->success(__('The questionnaire has been saved.'));
 				return $this->redirect(['action' => 'edit', 'questionnaire' => $questionnaire->id]);
@@ -132,7 +132,7 @@ class QuestionnairesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->getQuery('questionnaire');
+		$id = $this->getRequest()->getQuery('questionnaire');
 		try {
 			$questionnaire = $this->Questionnaires->get($id, [
 				'contain' => ['Questions']
@@ -148,8 +148,8 @@ class QuestionnairesController extends AppController {
 		$this->Authorization->authorize($questionnaire);
 		$this->Configuration->loadAffiliate($questionnaire->affiliate_id);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$questionnaire = $this->Questionnaires->patchEntity($questionnaire, $this->request->getData(), [
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$questionnaire = $this->Questionnaires->patchEntity($questionnaire, $this->getRequest()->getData(), [
 				'associated' => ['Questions', 'Questions._joinData'],
 			]);
 			if ($this->Questionnaires->save($questionnaire)) {
@@ -170,9 +170,9 @@ class QuestionnairesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
 	 */
 	public function activate() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('questionnaire');
+		$id = $this->getRequest()->getQuery('questionnaire');
 		try {
 			$questionnaire = $this->Questionnaires->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -200,9 +200,9 @@ class QuestionnairesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
 	 */
 	public function deactivate() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('questionnaire');
+		$id = $this->getRequest()->getQuery('questionnaire');
 		try {
 			$questionnaire = $this->Questionnaires->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -230,9 +230,9 @@ class QuestionnairesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects to index.
 	 */
 	public function delete() {
-		$this->request->allowMethod(['post', 'delete']);
+		$this->getRequest()->allowMethod(['post', 'delete']);
 
-		$id = $this->request->getQuery('questionnaire');
+		$id = $this->getRequest()->getQuery('questionnaire');
 		try {
 			$questionnaire = $this->Questionnaires->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -253,8 +253,8 @@ class QuestionnairesController extends AppController {
 
 		if ($this->Questionnaires->delete($questionnaire)) {
 			$this->Flash->success(__('The questionnaire has been deleted.'));
-		} else if ($questionnaire->errors('delete')) {
-			$this->Flash->warning(current($questionnaire->errors('delete')));
+		} else if ($questionnaire->getError('delete')) {
+			$this->Flash->warning(current($questionnaire->getError('delete')));
 		} else {
 			$this->Flash->warning(__('The questionnaire could not be deleted. Please, try again.'));
 		}
@@ -263,9 +263,9 @@ class QuestionnairesController extends AppController {
 	}
 
 	public function add_question() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$question_id = $this->request->getQuery('question');
+		$question_id = $this->getRequest()->getQuery('question');
 		try {
 			$question = $this->Questionnaires->Questions->get($question_id);
 		} catch (RecordNotFoundException $ex) {
@@ -278,7 +278,7 @@ class QuestionnairesController extends AppController {
 
 		$this->Authorization->authorize($question);
 
-		$questionnaire_id = $this->request->getQuery('questionnaire');
+		$questionnaire_id = $this->getRequest()->getQuery('questionnaire');
 		try {
 			$questionnaire = $this->Questionnaires->get($questionnaire_id, [
 				'contain' => [
@@ -309,9 +309,9 @@ class QuestionnairesController extends AppController {
 
 	// TODO: Maybe the remove link should only remove the row, and leave unlinking for the save operation, just like add_question does
 	public function remove_question() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$question_id = $this->request->getQuery('question');
+		$question_id = $this->getRequest()->getQuery('question');
 		try {
 			$question = $this->Questionnaires->Questions->get($question_id);
 		} catch (RecordNotFoundException $ex) {
@@ -324,7 +324,7 @@ class QuestionnairesController extends AppController {
 
 		$this->Authorization->authorize($question);
 
-		$questionnaire_id = $this->request->getQuery('questionnaire');
+		$questionnaire_id = $this->getRequest()->getQuery('questionnaire');
 		try {
 			$questionnaire = $this->Questionnaires->get($questionnaire_id, [
 				'contain' => [

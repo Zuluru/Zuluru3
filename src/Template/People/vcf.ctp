@@ -1,6 +1,6 @@
 <?php
 /**
- * @type $person \App\Model\Entity\Person
+ * @var \App\Model\Entity\Person $person
  */
 
 $visible_properties = $person->getVisible();

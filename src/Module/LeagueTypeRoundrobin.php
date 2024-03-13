@@ -44,7 +44,7 @@ class LeagueTypeRoundrobin extends LeagueType {
 
 		$rule = new InConfigRule('options.round');
 		if (!$rule($entity, ['errorField' => 'current_round'])) {
-			$entity->errors('current_round', ['validRound' => __('You must select a valid round.')]);
+			$entity->setErrors('current_round', ['validRound' => __('You must select a valid round.')]);
 			$ret = false;
 		}
 

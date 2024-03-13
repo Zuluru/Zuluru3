@@ -1,7 +1,7 @@
 <?php
 /**
- * @type $event \App\Model\Entity\Event
- * @type $registrations \App\Model\Entity\Registration[]
+ * @var \App\Model\Entity\Event $event
+ * @var \App\Model\Entity\Registration[] $registrations
  */
 
 use Cake\Core\Configure;

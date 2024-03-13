@@ -1,8 +1,8 @@
 <?php
 /**
- * @type \App\View\AppView $this
- * @type \App\Model\Entity\Category $category
- * @type \App\Model\Entity\Affiliate[] $affiliates
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Category $category
+ * @var \App\Model\Entity\Affiliate[] $affiliates
  */
 
 use Cake\Core\Configure;

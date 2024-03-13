@@ -2,7 +2,7 @@
 use Cake\I18n\FrozenTime;
 
 /**
- * @type $min int
+ * @var int $min
  */
 
 $this->Html->addCrumb(__('People'));

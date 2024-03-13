@@ -1,7 +1,7 @@
 <?php
 /**
- * @type $registrations \App\Model\Entity\Registration[]
- * @type $audit \App\Model\Entity\RegistrationAudit|null
+ * @var \App\Model\Entity\Registration[] $registrations
+ * @var \App\Model\Entity\RegistrationAudit|null $audit
  */
 use App\Model\Entity\Payment;
 use Cake\Core\Configure;

@@ -47,7 +47,7 @@ class Questionnaire extends Entity {
 	 * @return Validator
 	 * TODOLATER: Can this just be moved into the normal Reponses validation? If so, does anything in the Responses rules become obsolete?
 	 */
-	public function addResponseValidation(Validator $validator, EventTypeBase $event_obj, Array $responses, Event $event, Registration $registration = null) {
+	public function addResponseValidation(Validator $validator, EventTypeBase $event_obj, array $responses, Event $event, Registration $registration = null) {
 		$validator
 			->notEmpty('answer_text', __('Must not be blank.'), function ($context) {
 				$question = collection($this->questions)->firstMatch(['id' => $context['data']['question_id']]);

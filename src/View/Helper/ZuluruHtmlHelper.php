@@ -66,7 +66,7 @@ class ZuluruHtmlHelper extends HtmlHelper {
 	/**
 	 * Use local settings to select an icon.
 	 */
-	public function iconImg($img, Array $imgOptions = []) {
+	public function iconImg($img, array $imgOptions = []) {
 		$base_folder = Configure::read('App.paths.imgBase');
 
 		$icon_pack = Configure::read('App.iconPack');

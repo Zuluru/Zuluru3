@@ -1,8 +1,8 @@
 <?php
 /**
- * @type $this \App\View\AppView
- * @type $affiliate_id int
- * @type $affiliates string[]
+ * @var \App\View\AppView $this
+ * @var int $affiliate_id
+ * @var string[] $affiliates
  */
 
 $this->Html->addCrumb(__('People'));

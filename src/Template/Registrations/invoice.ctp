@@ -1,7 +1,7 @@
 <?php
 /**
- * @type $this \App\View\AppView
- * @type $registration \App\Model\Entity\Registration
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Registration $registration
  */
 
 use Cake\Core\Configure;

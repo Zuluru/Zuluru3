@@ -42,10 +42,10 @@ use Cake\Database\Type;
 use Cake\Datasource\ConnectionManager;
 use Cake\Error\ErrorHandler;
 use Cake\Event\EventManager;
+use Cake\Http\ServerRequest;
 use Cake\Log\Log;
 use Cake\Mailer\Email;
 use Cake\Mailer\TransportFactory;
-use Cake\Network\Request;
 use Cake\Utility\Security;
 use Detection\MobileDetect;
 use josegonzalez\Dotenv\Loader;
@@ -171,11 +171,11 @@ Security::setSalt(Configure::consume('Security.salt'));
 /**
  * Setup detectors for mobile and tablet.
  */
-Request::addDetector('mobile', function ($request) {
+ServerRequest::addDetector('mobile', function ($request) {
 	$detector = new MobileDetect();
 	return $detector->isMobile();
 });
-Request::addDetector('tablet', function ($request) {
+ServerRequest::addDetector('tablet', function ($request) {
 	$detector = new MobileDetect();
 	return $detector->isTablet();
 });

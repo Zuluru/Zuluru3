@@ -1,15 +1,15 @@
 <?php
 /**
- * @type $person \App\Model\Entity\Person
- * @type $groups \App\Model\Entity\Group[]
- * @type $provinces string[]
- * @type $countries string[]
- * @type $affiliates string[]
- * @type $user_model string
- * @type $id_field string
- * @type $user_field string
- * @type $email_field string
- * @type $manage_users bool
+ * @var \App\Model\Entity\Person $person
+ * @var \App\Model\Entity\Group[] $groups
+ * @var string[] $provinces
+ * @var string[] $countries
+ * @var string[] $affiliates
+ * @var string $user_model
+ * @var string $id_field
+ * @var string $user_field
+ * @var string $email_field
+ * @var bool $manage_users
  */
 
 use Cake\Core\Configure;

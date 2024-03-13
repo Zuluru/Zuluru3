@@ -7,9 +7,9 @@ class OrRule {
 	/**
 	 * Constructor.
 	 *
-	 * @param Array $rules The list of rules to check.
+	 * @param array $rules The list of rules to check.
 	 */
-	public function __construct(Array $rules) {
+	public function __construct(array $rules) {
 		$this->_rules = $rules;
 	}
 

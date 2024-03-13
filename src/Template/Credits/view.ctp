@@ -1,6 +1,6 @@
 <?php
 /**
- * @type $credit \App\Model\Entity\Credit
+ * @var \App\Model\Entity\Credit $credit
  */
 
 use Cake\Core\Configure;

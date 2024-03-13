@@ -280,7 +280,7 @@ class EventsTable extends AppTable {
 			// Pull out the custom configuration fields
 			$custom = [];
 			foreach ($event_obj->configurationFields() as $field) {
-				if (array_key_exists($field, $data)) {
+				if ($data->offsetExists($field)) {
 					$custom[$field] = $data[$field];
 				}
 			}
@@ -302,7 +302,7 @@ class EventsTable extends AppTable {
 		$entity->processWaitingList();
 	}
 
-	public function findOpen(Query $query, Array $options) {
+	public function findOpen(Query $query, array $options) {
 		$query->where([
 			'OR' => [
 				// TODO: Use variable intervals for extended vs regular
@@ -318,7 +318,7 @@ class EventsTable extends AppTable {
 		return $query;
 	}
 
-	public function findMembership(Query $query, Array $options) {
+	public function findMembership(Query $query, array $options) {
 		$membership_types = $this->EventTypes->find('list', [
 			'conditions' => ['type' => 'membership'],
 			'keyField' => 'id',
@@ -333,7 +333,7 @@ class EventsTable extends AppTable {
 		return $query->andWhere(['event_type_id IN' => $membership_types]);
 	}
 
-	public function findNotMembership(Query $query, Array $options) {
+	public function findNotMembership(Query $query, array $options) {
 		$membership_types = $this->EventTypes->find('list', [
 			'conditions' => ['type' => 'membership'],
 			'keyField' => 'id',

@@ -80,7 +80,7 @@ class StatsTable extends AppTable {
 		$rules->add($rules->existsIn(['team_id'], 'Teams'));
 		$rules->add($rules->existsIn(['stat_type_id'], 'StatTypes'));
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			// Person_id can be zero for unlisted subs
 			if ($entity->person_id == 0) {
 				return true;

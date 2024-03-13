@@ -70,7 +70,7 @@ class LeagueTypeRatingsLadder extends LeagueType {
 
 		$rule = new InConfigRule('options.games_before_repeat');
 		if (!$rule($entity, ['errorField' => 'games_before_repeat'])) {
-			$entity->errors('current_round', ['validGamesBeforeRepeat' => __('You must select a valid number of games before repeat.')]);
+			$entity->setErrors('current_round', ['validGamesBeforeRepeat' => __('You must select a valid number of games before repeat.')]);
 			$ret = false;
 		}
 

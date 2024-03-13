@@ -3,6 +3,7 @@ namespace App\Model\Table;
 
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Log\LogTrait;
+use Cake\ORM\Entity;
 use Cake\ORM\Table;
 use Cake\Utility\Inflector;
 
@@ -30,7 +31,7 @@ class AppTable extends Table {
 		if (!$record) {
 			throw new RecordNotFoundException(sprintf(
 				'Record not found in table "%s"',
-				$this->table()
+				$this->getTable()
 			));
 		}
 
@@ -56,13 +57,13 @@ class AppTable extends Table {
 		$dependencies = [];
 		$associations = $this->associations();
 
-		foreach ($associations->type('BelongsToMany') as $association) {
-			$class = $association->name();
-			$foreign_key = $association->foreignKey();
-			$through = $association->junction()->alias();
+		foreach ($associations->getByType('BelongsToMany') as $association) {
+			$class = $association->getName();
+			$foreign_key = $association->getForeignKey();
+			$through = $association->junction()->getAlias();
 			$dependent = $association->junction()->find()->where(["$through.$foreign_key" => $id]);
 
-			$association_conditions = $association->conditions();
+			$association_conditions = $association->getConditions();
 			if (!empty($association_conditions)) {
 				$dependent->andWhere($association_conditions);
 			}
@@ -89,18 +90,18 @@ class AppTable extends Table {
 			$ignore[] = $through;
 		}
 
-		foreach ($associations->type('HasMany') as $association) {
-			$class = $association->name();
-			$foreign_key = $association->foreignKey();
-			$dependent = $association->target()->find()->where(["$class.$foreign_key" => $id]);
+		foreach ($associations->getByType('HasMany') as $association) {
+			$class = $association->getName();
+			$foreign_key = $association->getForeignKey();
+			$dependent = $association->getTarget()->find()->where(["$class.$foreign_key" => $id]);
 
-			$association_conditions = $association->conditions();
+			$association_conditions = $association->getConditions();
 			if (!empty($association_conditions)) {
 				$dependent->andWhere($association_conditions);
 			}
 
 			if (in_array($class, $ignoreDeep) || array_key_exists($class, $ignoreDeep)) {
-				foreach ($dependent->extract($association->primaryKey())->toArray() as $deepId) {
+				foreach ($dependent->extract($association->getPrimaryKey())->toArray() as $deepId) {
 					if (array_key_exists($class, $ignoreDeep)) {
 						$deep = $association->dependencies($deepId, $ignoreDeep[$class]);
 					} else {
@@ -129,7 +130,7 @@ class AppTable extends Table {
 	 * @return \Cake\ORM\Entity The entity without any IDs in it. Note that this does not actually clone a
 	 * provided Entity, just makes it safe to save such that the result will be new rows in the database.
 	 */
-	public function cloneWithoutIds($entity, $options = []) {
+	public function cloneWithoutIds($entity, $options = []): Entity {
 		if (is_numeric($entity)) {
 			$entity = $this->get($entity, $options);
 		}
@@ -138,40 +139,40 @@ class AppTable extends Table {
 		return $this->_cloneWithoutIds($entity);
 	}
 
-	protected function _cloneWithoutIds(\Cake\ORM\Entity $entity) {
+	protected function _cloneWithoutIds(\Cake\ORM\Entity $entity): Entity {
 		// Make sure the entity type matches
-		if (!is_a($entity, $this->entityClass())) {
-			trigger_error('Incorrect entity type: ' . get_class($entity) . ' provided, expected ' . $this->entityClass(), E_USER_ERROR);
+		if (!is_a($entity, $this->getEntityClass())) {
+			trigger_error('Incorrect entity type: ' . get_class($entity) . ' provided, expected ' . $this->getEntityClass(), E_USER_ERROR);
 		}
 
 		// Remove the ID, and set the entity as being new
 		$entity->isNew(true);
 
 		foreach ($this->associations() as $association) {
-			$name = $association->property();
+			$name = $association->getProperty();
 			if ($entity->has($name)) {
 				if (is_a($association, 'Cake\ORM\Association\HasMany')) {
 					// If there's a foreign key associated with it, clear that ID too
-					$bindingKey = $association->bindingKey();
-					$foreignKey = $association->foreignKey();
+					$bindingKey = $association->getBindingKey();
+					$foreignKey = $association->getForeignKey();
 					foreach ($entity->$name as $associated) {
 						$associated->unsetProperty($bindingKey);
 						$associated->unsetProperty($foreignKey);
-						$association->target()->_cloneWithoutIds($associated);
+						$association->getTarget()->_cloneWithoutIds($associated);
 					}
 				} else if (is_a($association, 'Cake\ORM\Association\BelongsToMany')) {
-					$bindingKey = $association->bindingKey();
-					$foreignKey = $association->foreignKey();
+					$bindingKey = $association->getBindingKey();
+					$foreignKey = $association->getForeignKey();
 					foreach ($entity->$name as $associated) {
 						$associated->_joinData->unsetProperty($bindingKey);
 						$associated->_joinData->unsetProperty($foreignKey);
 						$associated->_joinData->isNew(true);
-						$association->target()->_cloneWithoutIds($associated);
+						$association->getTarget()->_cloneWithoutIds($associated);
 					}
 				} else if (is_a($association, 'Cake\ORM\Association\BelongsTo')) {
 					// Belongs to records remain unchanged, IDs and all.
 				} else {
-					$association->target()->_cloneWithoutIds($entity->$name);
+					$association->getTarget()->_cloneWithoutIds($entity->$name);
 				}
 			}
 		}

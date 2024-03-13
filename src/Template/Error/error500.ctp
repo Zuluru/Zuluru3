@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var string $message
+ * @var \Exception $error
+ */
+
 use Cake\Core\Configure;
 use Cake\Error\Debugger;
 
@@ -8,10 +14,10 @@ use Cake\Error\Debugger;
 @header('Cache-Control: post-check=0, pre-check=0', false);
 @header('Pragma: no-cache');
 
-$this->viewBuilder()->layout('error');
+$this->viewBuilder()->setLayout('error');
 
 if (Configure::read('debug')):
-	$this->viewBuilder()->layout('dev_error');
+	$this->viewBuilder()->setLayout('dev_error');
 
 	$this->assign('title', $message);
 	$this->assign('templateName', 'error500.ctp');

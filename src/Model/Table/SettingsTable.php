@@ -75,7 +75,7 @@ class SettingsTable extends AppTable {
 		return $rules;
 	}
 
-	public function mergeList(Array $old, Array $new) {
+	public function mergeList(array $old, array $new) {
 		// Clear ids from all the new settings
 		foreach ($new as $setting) {
 			unset($setting->id);

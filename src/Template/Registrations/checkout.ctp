@@ -1,10 +1,10 @@
 <?php
 /**
- * @type $this \App\View\AppView
- * @type $registrations \App\Model\Entity\Registration[]
- * @type $other \App\Model\Entity\Registration[]
- * @type $person \App\Model\Entity\Person
- * @type $plugin_elements ArrayObject
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Registration[] $registrations
+ * @var \App\Model\Entity\Registration[] $other
+ * @var \App\Model\Entity\Person $person
+ * @var ArrayObject $plugin_elements
  */
 
 use App\Controller\AppController;

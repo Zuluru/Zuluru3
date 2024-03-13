@@ -93,7 +93,7 @@ class CreditsTable extends AppTable {
 		$rules->add($rules->existsIn(['person_id'], 'People'));
 		$rules->add($rules->existsIn(['created_person_id'], 'People'));
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			return $entity->amount_used === null || round($entity->amount_used, 2) <= round($entity->amount, 2);
 		}, 'validAmountUsed', [
 			'errorField' => 'amount_used',

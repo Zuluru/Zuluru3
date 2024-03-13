@@ -3,7 +3,7 @@ use Cake\Core\Configure;
 use App\Core\ModuleRegistry;
 
 if ($league->has('divisions') && array_key_exists($index, $league->divisions)) {
-	$errors = $league->divisions[$index]->errors();
+	$errors = $league->divisions[$index]->getErrors();
 	$new = false;
 } else {
 	$new = true;

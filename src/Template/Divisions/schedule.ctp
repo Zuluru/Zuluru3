@@ -1,10 +1,10 @@
 <?php
 /**
- * @type $division \App\Model\Entity\Division
- * @type $multi_day boolean
- * @type $edit_date \Cake\I18n\FrozenDate
- * @type $game_slots \App\Model\Entity\GameSlot[]
- * @type $is_tournament bool
+ * @var \App\Model\Entity\Division $division
+ * @var bool $multi_day
+ * @var \Cake\I18n\FrozenDate $edit_date
+ * @var \App\Model\Entity\GameSlot[] $game_slots
+ * @var bool $is_tournament
  */
 
 use Cake\Core\Configure;

@@ -92,7 +92,7 @@ class AffiliatesPeopleTable extends AppTable {
 		$cache->clear('ManagedAffiliateIDs', $entity->person_id);
 	}
 
-	public function mergeList(Array $old, Array $new) {
+	public function mergeList(array $old, array $new) {
 		// Clear ids from the join data in all the new affiliates
 		foreach ($new as $affiliate_person) {
 			unset($affiliate_person->id);

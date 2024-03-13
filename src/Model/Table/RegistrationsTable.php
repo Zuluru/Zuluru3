@@ -126,7 +126,7 @@ class RegistrationsTable extends AppTable {
 		$rules->add($rules->existsIn(['event_id'], 'Events'));
 		$rules->add($rules->existsIn(['price_id'], 'Prices'));
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			if ($entity->person_id == UserCache::getInstance()->currentId() &&
 				$entity->has('price') && $entity->price->has('canRegister') && !$entity->price->canRegister['allowed'])
 			{
@@ -137,7 +137,7 @@ class RegistrationsTable extends AppTable {
 			'errorField' => 'price_id',
 		]);
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			// This should happen only when creating or editing a registration, not if they're ever moved to or from the waiting list, etc.
 			if ($entity->payment_type == 'Deposit') {
 				if ($entity->deposit_amount < $entity->price->minimum_deposit) {
@@ -288,7 +288,7 @@ class RegistrationsTable extends AppTable {
 	 * @return bool
 	 */
 	private function preProcess(EntityInterface $registration, ArrayObject $options, $original_payment, $new_payment) {
-		if (!array_key_exists('event_obj', $options)) {
+		if (!$options->offsetExists('event_obj')) {
 			$options['event_obj'] = ModuleRegistry::getInstance()->load("EventType:{$options['event']->event_type->type}");
 		}
 
@@ -340,7 +340,7 @@ class RegistrationsTable extends AppTable {
 	}
 
 	private function postProcess(EntityInterface $registration, ArrayObject $options, $original_payment, $new_payment) {
-		if (!array_key_exists('event_obj', $options)) {
+		if (!$options->offsetExists('event_obj')) {
 			$options['event_obj'] = ModuleRegistry::getInstance()->load("EventType:{$options['event']->event_type->type}");
 		}
 

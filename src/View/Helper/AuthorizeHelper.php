@@ -37,8 +37,8 @@ class AuthorizeHelper extends Helper {
 	 * @return void
 	 */
 	public function initialize(array $config) {
-		$this->_identity = $this->getView()->request->getAttribute('identity');
-		$this->_authorize = $this->getView()->request->getAttribute('authorization');
+		$this->_identity = $this->getView()->getRequest()->getAttribute('identity');
+		$this->_authorize = $this->getView()->getRequest()->getAttribute('authorization');
 
 		if (empty($this->_identity)) {
 			return;

@@ -127,7 +127,7 @@ class TeamEventsTable extends AppTable {
 		return $rules;
 	}
 
-	public function findSchedule(Query $query, Array $options) {
+	public function findSchedule(Query $query, array $options) {
 		$query->contain(['Teams']);
 		if (!empty($options['teams'])) {
 			$query->where(['TeamEvents.team_id IN' => $options['teams']]);
@@ -135,7 +135,7 @@ class TeamEventsTable extends AppTable {
 		return $query;
 	}
 
-	public function findWithAttendance(Query $query, Array $options) {
+	public function findWithAttendance(Query $query, array $options) {
 		$contain = [
 			'Attendances' => [
 				'queryBuilder' => function (Query $q) use ($options) {

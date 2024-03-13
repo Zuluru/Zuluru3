@@ -1,11 +1,11 @@
 <?php
 /**
- * @type $this \App\View\AppView
- * @type $regions \App\Model\Entity\Region[]
- * @type $field \App\Model\Entity\Field
- * @type $game_slot \App\Model\Entity\GameSlot
- * @type $affiliate \App\Model\Entity\Affiliate
- * @type $days array
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Region[] $regions
+ * @var \App\Model\Entity\Field $field
+ * @var \App\Model\Entity\GameSlot $game_slot
+ * @var \App\Model\Entity\Affiliate $affiliate
+ * @var array $days
  */
 
 use App\Model\Entity\Facility;

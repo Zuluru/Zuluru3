@@ -190,7 +190,7 @@ class DivisionsTable extends AppTable {
 	public function buildRules(RulesChecker $rules) {
 		$rules->add($rules->existsIn(['league_id'], 'Leagues', __('You must select a valid league.')));
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			if (array_key_exists('divisions', $options)) {
 				$divisions = count($options['divisions']);
 			} else if ($entity->has('league') && $entity->league->has('divisions')) {
@@ -242,7 +242,7 @@ class DivisionsTable extends AppTable {
 			'message' => __('There is an error in the rule syntax.'),
 		]);
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			if ($entity->has('league')) {
 				$sport = $entity->league->sport;
 			} else {
@@ -305,7 +305,7 @@ class DivisionsTable extends AppTable {
 			'message' => __('You must select whether or not to flag players that potentially have scheduling conflicts.'),
 		]);
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			if ($entity->has('schedule_type') && !empty($entity->schedule_type)) {
 				try {
 					$league_obj = ModuleRegistry::getInstance()->load("LeagueType:{$entity->schedule_type}");
@@ -316,7 +316,7 @@ class DivisionsTable extends AppTable {
 			}
 		}, 'validScheduleFields');
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			if ($entity->has('schedule_type') && $entity->schedule_type != 'none' && $entity->has('days') && empty($entity->days)) {
 				// If a schedule type was chosen, require at least one "day of play"
 				return false;
@@ -444,7 +444,7 @@ class DivisionsTable extends AppTable {
 		Cache::delete('tournaments', 'today');
 	}
 
-	public function findOpen(Query $query, Array $options) {
+	public function findOpen(Query $query, array $options) {
 		$query->where([
 			'OR' => [
 				'Divisions.is_open' => true,
@@ -455,7 +455,7 @@ class DivisionsTable extends AppTable {
 		return $query;
 	}
 
-	public function findDay(Query $query, Array $options) {
+	public function findDay(Query $query, array $options) {
 		$day = $options['date']->format('N');
 		$query->matching('Days', function (Query $q) use ($day) {
 			return $q->where(['Days.id' => $day]);
@@ -464,7 +464,7 @@ class DivisionsTable extends AppTable {
 		return $query;
 	}
 
-	public function findByLeague(Query $query, Array $options) {
+	public function findByLeague(Query $query, array $options) {
 		$query->where(['Divisions.league_id' => $options['league']]);
 		return $query;
 	}

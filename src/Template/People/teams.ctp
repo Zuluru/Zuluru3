@@ -1,8 +1,8 @@
 <?php
 /**
- * @type $this \App\View\AppView
- * @type $person \App\Model\Entity\Person
- * @type $teams \App\Model\Entity\Team[]
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Person $person
+ * @var \App\Model\Entity\Team[] $teams
  */
 
 use App\Model\Entity\Team;

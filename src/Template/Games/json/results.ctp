@@ -2,7 +2,7 @@
 use Cake\Core\Configure;
 
 /**
- * @type $games \App\Model\Entity\Game[]
+ * @var \App\Model\Entity\Game[] $games
  */
 
 $return = [];

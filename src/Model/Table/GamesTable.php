@@ -178,7 +178,7 @@ class GamesTable extends AppTable {
 			->notEmpty('home_team_id', __('You must select a team.'))
 
 			->notEmpty('away_team_id', __('You must select a team.'))
-			->provider('zuluru', 'App\Validation\Zuluru')
+			->setProvider('zuluru', \App\Validation\Zuluru::class)
 			->add('away_team_id', 'valid', ['provider' => 'zuluru', 'rule' => ['comparisonWith', '!=', 'home_team_id'], 'message' => __('Team was scheduled twice in the same game slot.')])
 
 			->requirePresence('round', function ($context) {
@@ -319,7 +319,7 @@ class GamesTable extends AppTable {
 		$rules->add($rules->existsIn(['away_pool_team_id'], 'AwayPoolTeam'));
 		$rules->add($rules->existsIn(['game_slot_id'], 'GameSlots'));
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			if (in_array($entity->approved_by_id, [APPROVAL_AUTOMATIC, APPROVAL_AUTOMATIC_HOME, APPROVAL_AUTOMATIC_AWAY, APPROVAL_AUTOMATIC_FORFEIT])) {
 				return true;
 			}
@@ -330,7 +330,7 @@ class GamesTable extends AppTable {
 			'message' => __d('cake', 'This value does not exist'),
 		]);
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			if (in_array($entity->home_dependency_type, ['game_winner', 'game_loser'])) {
 				$rule = new ExistsIn(['home_dependency_id'], $this);
 				return $rule($entity, $options);
@@ -341,7 +341,7 @@ class GamesTable extends AppTable {
 			'message' => __d('cake', 'This value does not exist'),
 		]);
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			if (in_array($entity->away_dependency_type, ['game_winner', 'game_loser'])) {
 				$rule = new ExistsIn(['away_dependency_id'], $this);
 				return $rule($entity, $options);
@@ -370,7 +370,7 @@ class GamesTable extends AppTable {
 		]);
 
 		// Make sure that dependencies are resolved before saving
-		$rules->addCreate(function (EntityInterface $entity, Array $options) {
+		$rules->addCreate(function (EntityInterface $entity, array $options) {
 			if (!$entity->has('home_dependency_resolved') || $entity->home_dependency_resolved) {
 				return true;
 			}
@@ -379,7 +379,7 @@ class GamesTable extends AppTable {
 			'message' => __('A game dependency was not resolved before saving the game. Check the scheduling algorithm.'),
 		]);
 
-		$rules->addCreate(function (EntityInterface $entity, Array $options) {
+		$rules->addCreate(function (EntityInterface $entity, array $options) {
 			if (!$entity->has('away_dependency_resolved') || $entity->away_dependency_resolved) {
 				return true;
 			}
@@ -394,7 +394,7 @@ class GamesTable extends AppTable {
 
 		// This does a subset of the Update checks, trusting that the game slots will have been correctly set by the
 		// creation algorithm. This will need to be revisited if we provide a manual bulk game creation mechanism.
-		$rules->addCreate(function (EntityInterface $entity, Array $options) {
+		$rules->addCreate(function (EntityInterface $entity, array $options) {
 			// Make sure that some other coordinator hasn't scheduled a game in a
 			// different league on one of the unused slots.
 			if ($this->find()
@@ -411,7 +411,7 @@ class GamesTable extends AppTable {
 			'errorField' => 'game_slot_id',
 		]);
 
-		$rules->addUpdate(function (EntityInterface $entity, Array $options) {
+		$rules->addUpdate(function (EntityInterface $entity, array $options) {
 			if (!array_key_exists('games', $options)) {
 				// If we're only saving a single game, none of this applies.
 				return true;
@@ -507,7 +507,7 @@ class GamesTable extends AppTable {
 
 		// We don't do any of these checks for new games, trusting that the data will have been correctly set by the
 		// creation algorithm. This will need to be revisited if we provide a manual bulk game creation mechanism.
-		$rules->addUpdate(function (EntityInterface $entity, Array $options) {
+		$rules->addUpdate(function (EntityInterface $entity, array $options) {
 			if (!array_key_exists('games', $options)) {
 				// If we're only saving a single game, none of this applies.
 				return true;
@@ -531,7 +531,7 @@ class GamesTable extends AppTable {
 
 		// We don't do any of these checks for new games, trusting that the data will have been correctly set by the
 		// creation algorithm. This will need to be revisited if we provide a manual bulk game creation mechanism.
-		$rules->addUpdate(function (EntityInterface $entity, Array $options) {
+		$rules->addUpdate(function (EntityInterface $entity, array $options) {
 			if (!array_key_exists('games', $options)) {
 				// If we're only saving a single game, none of this applies.
 				return true;
@@ -551,7 +551,7 @@ class GamesTable extends AppTable {
 
 		// We don't do any of these checks for new games, trusting that the data will have been correctly set by the
 		// creation algorithm. This will need to be revisited if we provide a manual bulk game creation mechanism.
-		$rules->addUpdate(function (EntityInterface $entity, Array $options) {
+		$rules->addUpdate(function (EntityInterface $entity, array $options) {
 			if (!array_key_exists('games', $options)) {
 				// If we're only saving a single game, none of this applies.
 				return true;
@@ -579,7 +579,7 @@ class GamesTable extends AppTable {
 
 		// We don't do any of these checks for new games, trusting that the data will have been correctly set by the
 		// creation algorithm. This will need to be revisited if we provide a manual bulk game creation mechanism.
-		$rules->addUpdate(function (EntityInterface $entity, Array $options) {
+		$rules->addUpdate(function (EntityInterface $entity, array $options) {
 			if (!array_key_exists('games', $options)) {
 				// If we're only saving a single game, none of this applies.
 				return true;
@@ -607,7 +607,7 @@ class GamesTable extends AppTable {
 
 		// We don't do any of these checks for new games, trusting that the data will have been correctly set by the
 		// creation algorithm. This will need to be revisited if we provide a manual bulk game creation mechanism.
-		$rules->addUpdate(function (EntityInterface $entity, Array $options) {
+		$rules->addUpdate(function (EntityInterface $entity, array $options) {
 			if (!array_key_exists('games', $options)) {
 				// If we're only saving a single game, none of this applies.
 				return true;
@@ -629,7 +629,7 @@ class GamesTable extends AppTable {
 
 		// We don't do any of these checks for new games, trusting that the data will have been correctly set by the
 		// creation algorithm. This will need to be revisited if we provide a manual bulk game creation mechanism.
-		$rules->addUpdate(function (EntityInterface $entity, Array $options) {
+		$rules->addUpdate(function (EntityInterface $entity, array $options) {
 			if (!array_key_exists('games', $options)) {
 				// If we're only saving a single game, none of this applies.
 				return true;
@@ -652,7 +652,7 @@ class GamesTable extends AppTable {
 		return $rules;
 	}
 
-	private function checkDoubleHeader(EntityInterface $entity, Array $options, $team, $opp) {
+	private function checkDoubleHeader(EntityInterface $entity, array $options, $team, $opp) {
 		// Tournaments just inherently have all kinds of double headers
 		if ($entity->division->schedule_type === 'tournament') {
 			return true;
@@ -925,7 +925,7 @@ class GamesTable extends AppTable {
 		// Might also make sense to do this in the IncidentsTable afterSave, but then we don't have the game info handy.
 		if ($entity->isDirty('incidents') && !empty($entity->incidents)) {
 			$event = new CakeEvent('Model.Game.incidentReport', $this, [$entity]);
-			$this->eventManager()->dispatch($event);
+			$this->getEventManager()->dispatch($event);
 		}
 
 		if (Configure::read('feature.badges') && $entity->isFinalized() && (!$options->offsetExists('update_badges') || $options['update_badges'])) {
@@ -1006,11 +1006,11 @@ class GamesTable extends AppTable {
 		}
 	}
 
-	public function findPlayed(Query $query, Array $options) {
+	public function findPlayed(Query $query, array $options) {
 		return $query->where(['NOT' => ['Games.status IN' => Configure::read('unplayed_status')]]);
 	}
 
-	public function findSchedule(Query $query, Array $options) {
+	public function findSchedule(Query $query, array $options) {
 		if (!empty($options['teams'])) {
 			$conditions = [
 				'Games.home_team_id IN' => $options['teams'],
@@ -1068,7 +1068,7 @@ class GamesTable extends AppTable {
 			->where(['OR' => $conditions]);
 	}
 
-	public function findWithAttendance(Query $query, Array $options) {
+	public function findWithAttendance(Query $query, array $options) {
 		$contain = [
 			'Attendances' => [
 				'queryBuilder' => function (Query $q) use ($options) {
@@ -1112,7 +1112,7 @@ class GamesTable extends AppTable {
 		}
 
 		// Handle named playoff games (and team events have names too)
-		if (array_key_exists('name', $a) && !empty($a->name)) {
+		if (!empty($a->name)) {
 			if (strpos($a->name, '-') !== false) {
 				[, $a_name] = explode('-', $a->name);
 			} else {

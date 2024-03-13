@@ -97,8 +97,8 @@ class UsersTable extends AppTable {
 	 */
 	public function validationDefault(Validator $validator) {
 		$validator
-			->numeric($this->primaryKey())
-			->allowEmpty($this->primaryKey(), 'create')
+			->numeric($this->getPrimaryKey())
+			->allowEmpty($this->getPrimaryKey(), 'create')
 
 			->requirePresence($this->userField, 'create', __('Username must not be blank.'))
 			->notEmpty($this->userField, __('Username must not be blank.'))
@@ -127,7 +127,7 @@ class UsersTable extends AppTable {
 		$validator
 			->add('old_password', 'valid', [
 				'rule' => function ($value, $context) {
-					$user = $this->get($context['data'][$this->primaryKey()]);
+					$user = $this->get($context['data'][$this->getPrimaryKey()]);
 					if ($user && (new $this->hasher)->check($value, $user->password)) {
 						return true;
 					}
@@ -149,7 +149,7 @@ class UsersTable extends AppTable {
 						if (array_key_exists($this->userField, $context['data'])) {
 							$username = $context['data'][$this->userField];
 						} else {
-							$user = $this->get($context['data'][$this->primaryKey()]);
+							$user = $this->get($context['data'][$this->getPrimaryKey()]);
 							$username = $user->{$this->userField};
 						}
 						if ($value != $username) {
@@ -270,7 +270,7 @@ class UsersTable extends AppTable {
 
 		// Send an event to any callback listeners
 		$event = new CakeEvent('Model.User.afterSave', $this, [$entity]);
-		$this->eventManager()->dispatch($event);
+		$this->getEventManager()->dispatch($event);
 	}
 
 	/**
@@ -284,7 +284,7 @@ class UsersTable extends AppTable {
 	public function afterDelete(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		// Send an event to any callback listeners
 		$event = new CakeEvent('Model.User.afterDelete', $this, [$entity]);
-		$this->eventManager()->dispatch($event);
+		$this->getEventManager()->dispatch($event);
 	}
 
 	/**
@@ -302,7 +302,7 @@ class UsersTable extends AppTable {
 	 */
 	public function createPersonRecord($user) {
 		$save = [
-			'user_id' => $user->{$this->primaryKey()},
+			'user_id' => $user->{$this->getPrimaryKey()},
 			'status' => Configure::read('feature.auto_approve') ? 'active' : 'new',
 			'complete' => false,
 			'gender' => '',

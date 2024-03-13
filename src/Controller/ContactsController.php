@@ -29,7 +29,7 @@ class ContactsController extends AppController {
 	public function index() {
 		$this->Authorization->authorize($this);
 
-		$affiliate = $this->request->getQuery('affiliate');
+		$affiliate = $this->getRequest()->getQuery('affiliate');
 		$affiliates = $this->Authentication->applicableAffiliateIDs();
 
 		$query = $this->Contacts->find()
@@ -51,8 +51,8 @@ class ContactsController extends AppController {
 		$contact = $this->Contacts->newEntity();
 		$this->Authorization->authorize($contact);
 
-		if ($this->request->is('post')) {
-			$contact = $this->Contacts->patchEntity($contact, $this->request->getData());
+		if ($this->getRequest()->is('post')) {
+			$contact = $this->Contacts->patchEntity($contact, $this->getRequest()->getData());
 			if ($this->Contacts->save($contact)) {
 				$this->Flash->success(__('The contact has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -73,7 +73,7 @@ class ContactsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->getQuery('contact');
+		$id = $this->getRequest()->getQuery('contact');
 		try {
 			$contact = $this->Contacts->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -85,8 +85,8 @@ class ContactsController extends AppController {
 		}
 		$this->Authorization->authorize($contact);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$contact = $this->Contacts->patchEntity($contact, $this->request->getData());
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$contact = $this->Contacts->patchEntity($contact, $this->getRequest()->getData());
 			if ($this->Contacts->save($contact)) {
 				$this->Flash->success(__('The contact has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -106,9 +106,9 @@ class ContactsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects to index.
 	 */
 	public function delete() {
-		$this->request->allowMethod(['post', 'delete']);
+		$this->getRequest()->allowMethod(['post', 'delete']);
 
-		$id = $this->request->getQuery('contact');
+		$id = $this->getRequest()->getQuery('contact');
 		try {
 			$contact = $this->Contacts->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -129,8 +129,8 @@ class ContactsController extends AppController {
 
 		if ($this->Contacts->delete($contact)) {
 			$this->Flash->success(__('The contact has been deleted.'));
-		} else if ($contact->errors('delete')) {
-			$this->Flash->warning(current($contact->errors('delete')));
+		} else if ($contact->getError('delete')) {
+			$this->Flash->warning(current($contact->getError('delete')));
 		} else {
 			$this->Flash->warning(__('The contact could not be deleted. Please, try again.'));
 		}
@@ -142,12 +142,12 @@ class ContactsController extends AppController {
 		$this->Authorization->authorize($this);
 
 		$message = new MessageForm();
-		if ($this->request->is(['patch', 'post', 'put'])) {
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			try {
-				if ($message->execute($this->request->getData())) {
+				if ($message->execute($this->getRequest()->getData())) {
 					$this->Flash->success(__('Your message has been sent.'));
 					return $this->redirect('/');
-				} else if ($message->errors()) {
+				} else if ($message->getErrors()) {
 					$this->Flash->warning(__('The email could not be sent. Please correct the errors below and try again.'));
 				} else {
 					$this->Flash->warning(__('Error sending email.'));
@@ -158,7 +158,7 @@ class ContactsController extends AppController {
 			}
 		}
 
-		$id = $this->request->getQuery('contact');
+		$id = $this->getRequest()->getQuery('contact');
 		if (!$id) {
 			$affiliates = $this->Authentication->applicableAffiliateIDs();
 			$contacts = $this->Contacts->find()

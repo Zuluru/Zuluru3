@@ -116,7 +116,7 @@ class PricesTable extends AppTable {
 	public function buildRules(RulesChecker $rules) {
 		$rules->add($rules->existsIn(['event_id'], 'Events', __('You must select a valid event.')));
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			if (array_key_exists('prices', $options)) {
 				$prices = count($options['prices']);
 			} else if ($entity->has('event') && $entity->event->has('prices')) {
@@ -185,7 +185,7 @@ class PricesTable extends AppTable {
 	 */
 	public function beforeMarshal(CakeEvent $cakeEvent, ArrayObject $data, ArrayObject $options) {
 		// If online payment option indicates that the minimum deposit should be zero, make sure it's so
-		if (array_key_exists('online_payment_option', $data) &&
+		if ($data->offsetExists('online_payment_option') &&
 			in_array($data['online_payment_option'], [ONLINE_FULL_PAYMENT, ONLINE_NO_MINIMUM, ONLINE_NO_PAYMENT])
 		) {
 			$data['minimum_deposit'] = 0;

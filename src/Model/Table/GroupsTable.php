@@ -69,7 +69,7 @@ class GroupsTable extends AppTable {
 	/**
 	 * Read the database-based group options.
 	 */
-	public function findOptions(Query $query, Array $options) {
+	public function findOptions(Query $query, array $options) {
 		$user_cache = UserCache::getInstance();
 		$groups = $user_cache->read('Groups');
 
@@ -97,7 +97,7 @@ class GroupsTable extends AppTable {
 		});
 	}
 
-	public function mergeList(Array $old, Array $new) {
+	public function mergeList(array $old, array $new) {
 		// Clear join data from all the new groups
 		foreach ($new as $group) {
 			unset($group->_joinData);

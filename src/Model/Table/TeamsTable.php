@@ -143,7 +143,7 @@ class TeamsTable extends AppTable {
 
 			->requirePresence('name', 'create', __('Team name must not be blank.'))
 			->notEmpty('name', __('The name cannot be blank.'))
-			->provider('zuluru', 'App\Validation\Zuluru')
+			->setProvider('zuluru', \App\Validation\Zuluru::class)
 			->add('name', 'unique', ['provider' => 'zuluru', 'rule' => ['teamUnique'], 'message' => __('There is already a team by that name in this league.')])
 
 			->url('url', __('Enter a valid URL, or leave blank.'))
@@ -279,7 +279,7 @@ class TeamsTable extends AppTable {
 		}
 	}
 
-	public function findOpenRoster(Query $query, Array $options) {
+	public function findOpenRoster(Query $query, array $options) {
 		return $query
 			->contain(['Divisions' => ['Leagues' => ['Affiliates']]])
 			->where([

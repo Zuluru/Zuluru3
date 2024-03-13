@@ -1,7 +1,7 @@
 <?php
 /**
- * @type $person \App\Model\Entity\Person
- * @type $upload \App\Model\Entity\Upload
+ * @var \App\Model\Entity\Person $person
+ * @var \App\Model\Entity\Upload $upload
  */
 
 $this->Html->addCrumb(__('People'));

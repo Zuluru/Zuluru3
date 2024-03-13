@@ -123,7 +123,7 @@ class ModuleRegistry extends ObjectRegistry implements EventDispatcherInterface 
 		$instance = new $class($this, $config);
 		$enable = isset($config['enabled']) ? $config['enabled'] : true;
 		if ($enable && $instance instanceof EventListenerInterface) {
-			$this->eventManager()->on($instance);
+			$this->getEventManager()->on($instance);
 		}
 		return $instance;
 	}

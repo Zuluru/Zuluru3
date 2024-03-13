@@ -1,9 +1,9 @@
 <?php
 /**
- * @type $person \App\Model\Entity\Person
- * @type $registration \App\Model\Entity\Registration
- * @type $event \App\Model\Entity\Event
- * @type $payment \App\Model\Entity\Payment
+ * @var \App\Model\Entity\Person $person
+ * @var \App\Model\Entity\Registration $registration
+ * @var \App\Model\Entity\Event $event
+ * @var \App\Model\Entity\Payment $payment
  */
 use Cake\Core\Configure;
 use Cake\Routing\Router;

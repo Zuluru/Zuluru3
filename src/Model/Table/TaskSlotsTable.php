@@ -96,7 +96,7 @@ class TaskSlotsTable extends AppTable {
 		return $rules;
 	}
 
-	public function findAssigned(Query $query, Array $options) {
+	public function findAssigned(Query $query, array $options) {
 		return $query
 			->contain([
 				'Tasks' => [

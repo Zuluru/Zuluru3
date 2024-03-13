@@ -65,6 +65,6 @@ class UserZikulaTable extends UsersTable {
 	public function TODOLATER_merge(EntityInterface $old, EntityInterface $new, $copy_empty = true) {
 		$this->delete($old_id);
 		// TODO: Update nuke_group_membership record too
-		$this->updateAll([$this->primaryKey() => $old_id], [$this->primaryKey() => $new_id]);
+		$this->updateAll([$this->getPrimaryKey() => $old_id], [$this->getPrimaryKey() => $new_id]);
 	}
 }

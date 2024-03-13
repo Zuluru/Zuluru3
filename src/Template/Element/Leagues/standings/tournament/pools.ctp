@@ -1,9 +1,9 @@
 <?php
 /**
- * @type $division \App\Model\Entity\Division
- * @type $games \App\Model\Entity\Pool[][]
- * @type $teams \App\Model\Entity\Team[]
- * @type $can_edit boolean
+ * @var \App\Model\Entity\Division $division
+ * @var \App\Model\Entity\Pool[][] $games
+ * @var \App\Model\Entity\Team[] $teams
+ * @var bool $can_edit
  */
 
 use App\Controller\AppController;

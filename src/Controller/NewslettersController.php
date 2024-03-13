@@ -67,7 +67,7 @@ class NewslettersController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->getQuery('newsletter');
+		$id = $this->getRequest()->getQuery('newsletter');
 		try {
 			$newsletter = $this->Newsletters->get($id, [
 				'contain' => ['MailingLists']
@@ -95,14 +95,14 @@ class NewslettersController extends AppController {
 		$newsletter = $this->Newsletters->newEntity();
 		$this->Authorization->authorize($newsletter);
 
-		if ($this->request->is('post')) {
-			$newsletter = $this->Newsletters->patchEntity($newsletter, $this->request->getData());
+		if ($this->getRequest()->is('post')) {
+			$newsletter = $this->Newsletters->patchEntity($newsletter, $this->getRequest()->getData());
 			if ($this->Newsletters->save($newsletter)) {
 				$this->Flash->success(__('The newsletter has been saved.'));
 				return $this->redirect(['action' => 'index']);
 			} else {
 				$this->Flash->warning(__('The newsletter could not be saved. Please correct the errors below and try again.'));
-				$this->Configuration->loadAffiliate($this->Newsletters->MailingLists->affiliate($this->request->getData('mailing_list_id')));
+				$this->Configuration->loadAffiliate($this->Newsletters->MailingLists->affiliate($this->getRequest()->getData('mailing_list_id')));
 			}
 		}
 
@@ -126,7 +126,7 @@ class NewslettersController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->getQuery('newsletter');
+		$id = $this->getRequest()->getQuery('newsletter');
 		try {
 			$newsletter = $this->Newsletters->get($id, [
 				'contain' => ['MailingLists']
@@ -141,14 +141,14 @@ class NewslettersController extends AppController {
 
 		$this->Authorization->authorize($newsletter);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$newsletter = $this->Newsletters->patchEntity($newsletter, $this->request->getData());
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$newsletter = $this->Newsletters->patchEntity($newsletter, $this->getRequest()->getData());
 			if ($this->Newsletters->save($newsletter)) {
 				$this->Flash->success(__('The newsletter has been saved.'));
 				return $this->redirect(['action' => 'index']);
 			} else {
 				$this->Flash->warning(__('The newsletter could not be saved. Please correct the errors below and try again.'));
-				$affiliate = $this->Newsletters->MailingLists->affiliate($this->request->getData('mailing_list_id'));
+				$affiliate = $this->Newsletters->MailingLists->affiliate($this->getRequest()->getData('mailing_list_id'));
 			}
 		} else {
 			$affiliate = $newsletter->mailing_list->affiliate_id;
@@ -167,9 +167,9 @@ class NewslettersController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects to index.
 	 */
 	public function delete() {
-		$this->request->allowMethod(['post', 'delete']);
+		$this->getRequest()->allowMethod(['post', 'delete']);
 
-		$id = $this->request->getQuery('newsletter');
+		$id = $this->getRequest()->getQuery('newsletter');
 		try {
 			$newsletter = $this->Newsletters->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -190,8 +190,8 @@ class NewslettersController extends AppController {
 
 		if ($this->Newsletters->delete($newsletter)) {
 			$this->Flash->success(__('The newsletter has been deleted.'));
-		} else if ($newsletter->errors('delete')) {
-			$this->Flash->warning(current($newsletter->errors('delete')));
+		} else if ($newsletter->getError('delete')) {
+			$this->Flash->warning(current($newsletter->getError('delete')));
 		} else {
 			$this->Flash->warning(__('The newsletter could not be deleted. Please, try again.'));
 		}
@@ -200,7 +200,7 @@ class NewslettersController extends AppController {
 	}
 
 	public function delivery() {
-		$id = $this->request->getQuery('newsletter');
+		$id = $this->getRequest()->getQuery('newsletter');
 		try {
 			$newsletter = $this->Newsletters->get($id, [
 				'contain' => ['MailingLists', 'Deliveries']
@@ -230,9 +230,9 @@ class NewslettersController extends AppController {
 	}
 
 	public function send() {
-		$id = $this->request->getQuery('newsletter');
-		$execute = $this->request->getQuery('execute');
-		$test = $this->request->getQuery('test');
+		$id = $this->getRequest()->getQuery('newsletter');
+		$execute = $this->getRequest()->getQuery('execute');
+		$test = $this->getRequest()->getQuery('test');
 		$this->set(compact('execute', 'test'));
 
 		$this->loadComponent('Lock');

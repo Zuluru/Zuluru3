@@ -1,11 +1,11 @@
 <?php
 /**
- * @type $league \App\Model\Entity\League
- * @type $competition boolean
- * @type $multi_day boolean
- * @type $id_field string
- * @type $id int
- * @type $week \Cake\I18n\FrozenDate[]
+ * @var \App\Model\Entity\League $league
+ * @var bool $competition
+ * @var bool $multi_day
+ * @var string $id_field
+ * @var int $id
+ * @var \Cake\I18n\FrozenDate[] $week
  */
 
 use Cake\Core\Configure;

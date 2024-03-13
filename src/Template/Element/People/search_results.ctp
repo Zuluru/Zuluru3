@@ -1,9 +1,9 @@
 <?php
 /**
- * @type $this \App\View\AppView
- * @type $person \App\Model\Entity\Person
- * @type $url string|array
- * @type $extra_url string|array
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Person $person
+ * @var string|array $url
+ * @var string|array $extra_url
  */
 
 use App\Controller\AppController;
@@ -136,7 +136,7 @@ elseif (isset($people)):
 </ul></nav>
 
 <?php
-	if (in_array($this->getRequest()->action, ['rule_search', 'league_search', 'inactive_search'])):
+	if (in_array($this->getRequest()->getParam('action'), ['rule_search', 'league_search', 'inactive_search'])):
 ?>
 <div class="actions columns">
 	<ul class="nav nav-pills">

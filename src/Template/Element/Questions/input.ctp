@@ -2,8 +2,8 @@
 use Cake\Utility\Hash;
 
 /**
- * @type $question \App\Model\Entity\Question
- * @type $key int
+ * @var \App\Model\Entity\Question $question
+ * @var int $key
  */
 
 // There may be multiple checkboxes with the same key, but we need separate indices for them

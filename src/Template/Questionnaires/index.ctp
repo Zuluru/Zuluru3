@@ -68,7 +68,7 @@ endforeach;
 echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
 	['action' => 'add'],
 	['alt' => __('Add'), 'title' => __('Add Questionnaire')]));
-if ($this->getRequest()->action == 'index') {
+if ($this->getRequest()->getParam('action') == 'index') {
 	echo $this->Html->tag('li', $this->Html->link(__('Deactivated'), ['action' => 'deactivated']));
 } else {
 	echo $this->Html->tag('li', $this->Html->link(__('List'), ['action' => 'index']));

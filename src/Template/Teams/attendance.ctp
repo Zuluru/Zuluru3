@@ -1,12 +1,12 @@
 <?php
 /**
- * @type $this \App\View\AppView
- * @type $team \App\Model\Entity\Team
- * @type $games \App\Model\Entity\Game[]
- * @type $attendance \App\Model\Entity\Game[]
- * @type $event_attendance \App\Model\Entity\TeamEvent[]
- * @type $days int[]
- * @type $dates \Cake\I18n\FrozenDate[]
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Team $team
+ * @var \App\Model\Entity\Game[] $games
+ * @var \App\Model\Entity\Game[] $attendance
+ * @var \App\Model\Entity\TeamEvent[] $event_attendance
+ * @var int[] $days
+ * @var \Cake\I18n\FrozenDate[] $dates
  */
 
 use App\Authorization\ContextResource;

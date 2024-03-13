@@ -1,9 +1,9 @@
 <?php
 /**
- * @type $game \App\Model\Entity\Game
- * @type $ratings_obj \App\Module\Ratings
- * @type $spirit_obj \App\Module\Spirit
- * @type $league_obj \App\Module\LeagueType
+ * @var \App\Model\Entity\Game $game
+ * @var \App\Module\Ratings $ratings_obj
+ * @var \App\Module\Spirit $spirit_obj
+ * @var \App\Module\LeagueType $league_obj
  */
 
 use App\Authorization\ContextResource;

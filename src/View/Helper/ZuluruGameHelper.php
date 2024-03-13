@@ -51,7 +51,9 @@ class ZuluruGameHelper extends Helper {
 					}
 
 					try {
-						if (($this->request->getParam('controller') !== 'Games' || $this->request->getParam('action') !== 'stats') && $identity->can('stats', $league)) {
+						if (($this->getView()->getRequest()->getParam('controller') !== 'Games' ||
+							$this->getView()->getRequest()->getParam('action') !== 'stats') && $identity->can('stats', $league)
+						) {
 							$links[] = $this->ZuluruHtml->iconLink('stats_24.png',
 								['controller' => 'Games', 'action' => 'stats', 'game' => $game->id, 'team' => $show_score_for_team],
 								['alt' => __('Game Stats'), 'title' => __('Game Stats')]);

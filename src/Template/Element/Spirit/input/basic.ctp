@@ -4,11 +4,11 @@ use Cake\Core\Configure;
 echo $this->element('FormBuilder/input', ['prefix' => $prefix, 'preview' => false, 'questions' => $spirit_obj->questions, 'secure' => false]);
 
 if (Configure::read('scoring.most_spirited') && $game->division->most_spirited != 'never'):
-	if ($this->getRequest()->action != 'edit'):
+	if ($this->getRequest()->getParam('action') != 'edit'):
 ?>
 <div id="MostSpiritedWrapper" class="normal">
 <?php
-		if ($this->getRequest()->action != 'edit' && $game->division->most_spirited == 'optional') {
+		if ($this->getRequest()->getParam('action') != 'edit' && $game->division->most_spirited == 'optional') {
 			echo $this->Form->input("$prefix.has_most_spirited", [
 				'type' => 'checkbox',
 				'value' => '1',
@@ -47,7 +47,7 @@ if (Configure::read('scoring.most_spirited') && $game->division->most_spirited !
 		'secure' => false,
 	]);
 
-	if ($this->getRequest()->action != 'edit'):
+	if ($this->getRequest()->getParam('action') != 'edit'):
 ?>
 </div>
 </div>

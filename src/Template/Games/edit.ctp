@@ -1,7 +1,7 @@
 <?php
 /**
- * @type $game \App\Model\Entity\Game
- * @type $spirit_obj \App\Module\Spirit
+ * @var \App\Model\Entity\Game $game
+ * @var \App\Module\Spirit $spirit_obj
  */
 
 use Cake\Core\Configure;

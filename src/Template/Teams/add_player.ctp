@@ -1,8 +1,8 @@
 <?php
 /**
- * @type $team \App\Model\Entity\Team
- * @type $teams \App\Model\Entity\Team[]
- * @type $events \App\Model\Entity\Event[]
+ * @var \App\Model\Entity\Team $team
+ * @var \App\Model\Entity\Team[] $teams
+ * @var \App\Model\Entity\Event[] $events
  */
 
 $this->Html->addCrumb(__('Team'));

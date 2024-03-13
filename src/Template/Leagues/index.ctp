@@ -1,11 +1,11 @@
 <?php
 /**
- * @type $leagues \App\Model\Entity\League[]
- * @type $sport string
- * @type $tournaments bool
- * @type $affiliates int[]
- * @type $affiliate int
- * @type $years int[]
+ * @var \App\Model\Entity\League[] $leagues
+ * @var string $sport
+ * @var bool $tournaments
+ * @var int[] $affiliates
+ * @var int $affiliate
+ * @var int[] $years
  */
 
 use App\Controller\AppController;

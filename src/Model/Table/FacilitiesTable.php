@@ -130,7 +130,7 @@ class FacilitiesTable extends AppTable {
 
 		// We are happy if the sport is either empty or a valid selection
 		$rules->add(new OrRule([
-			function (EntityInterface $entity, Array $options) { return empty($entity->sport); },
+			function (EntityInterface $entity, array $options) { return empty($entity->sport); },
 			new InConfigRule('options.sport'),
 		]), 'validSport', [
 			'errorField' => 'sport',
@@ -140,7 +140,7 @@ class FacilitiesTable extends AppTable {
 		return $rules;
 	}
 
-	public function findOpen(Query $query, Array $options) {
+	public function findOpen(Query $query, array $options) {
 		$query->where(['Facilities.is_open' => true]);
 		if (!empty($options['affiliates'])) {
 			$query->matching('Regions', function (Query $q) use ($options) {

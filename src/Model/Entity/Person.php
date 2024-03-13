@@ -205,7 +205,7 @@ class Person extends Entity {
 			// Convoluted process to get the name of the property where user table data will be found
 			$user_model = Configure::read('Security.authModel');
 			$people_table = TableRegistry::getTableLocator()->get('People');
-			$property = $people_table->associations()->get($user_model)->property();
+			$property = $people_table->associations()->get($user_model)->getProperty();
 			if (!array_key_exists($property, $this->_properties)) {
 				$people_table->loadInto($this, [$user_model]);
 			}
@@ -329,7 +329,7 @@ class Person extends Entity {
 			if ($this->isAccessible($prop) && !in_array($prop, $preserve)) {
 				if (is_array($new->$prop)) {
 					if (!empty($new->$prop)) {
-						$model_table = TableRegistry::getTableLocator()->get($new->{$prop}[0]->source());
+						$model_table = TableRegistry::getTableLocator()->get($new->{$prop}[0]->getSource());
 						$this->$prop = $model_table->mergeList($this->$prop, $new->$prop);
 					}
 				} else if (!empty($new->$prop) || !in_array($prop, $preserve_if_new_is_empty)) {

@@ -1,10 +1,10 @@
 <?php
 /**
- * @type $this \App\View\AppView
- * @type $events \App\Model\Entity\Event[]
- * @type $year string
- * @type $years string[][]
- * @type $affiliates int[]
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Event[] $events
+ * @var string $year
+ * @var string[][] $years
+ * @var int[] $affiliates
  */
 
 use App\Controller\AppController;

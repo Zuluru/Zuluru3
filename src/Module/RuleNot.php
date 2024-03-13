@@ -29,7 +29,7 @@ class RuleNot extends RuleMeta {
 		$this->people = $query->extract('id')->toArray();
 	}
 
-	protected function merge(Array $people) {
+	protected function merge(array $people) {
 		$this->people = array_diff($this->people, $people);
 		return true;
 	}

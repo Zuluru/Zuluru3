@@ -55,9 +55,9 @@ class BadgesPersonTest extends TestCase {
 	 * Test __construct method
 	 */
 	public function testConstruct(): void {
-		$this->assertContains('game', $this->BadgesPerson->virtualProperties());
-		$this->assertContains('registration', $this->BadgesPerson->virtualProperties());
-		$this->assertContains('team', $this->BadgesPerson->virtualProperties());
+		$this->assertContains('game', $this->BadgesPerson->getVirtual());
+		$this->assertContains('registration', $this->BadgesPerson->getVirtual());
+		$this->assertContains('team', $this->BadgesPerson->getVirtual());
 	}
 
 }

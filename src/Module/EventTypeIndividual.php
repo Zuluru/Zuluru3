@@ -28,7 +28,7 @@ class EventTypeIndividual extends EventType {
 
 		$rule = new ExistsIn(['division_id'], 'Divisions');
 		if (!$rule($entity, ['errorField' => 'division_id'])) {
-			$entity->errors('division_id', ['validDivision' => __('You must select a valid division.')]);
+			$entity->setErrors('division_id', ['validDivision' => __('You must select a valid division.')]);
 			$ret = false;
 		}
 
@@ -61,7 +61,7 @@ class EventTypeIndividual extends EventType {
 		return $fields;
 	}
 
-	public function validateResponse($value, $context, Question $question, Array $responses, Event $event, Registration $registration = null) {
+	public function validateResponse($value, $context, Question $question, array $responses, Event $event, Registration $registration = null) {
 		// Some questions are validated based on their ID
 		switch ($question->id) {
 			case SHIRT_SIZE:

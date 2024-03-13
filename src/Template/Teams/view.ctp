@@ -1,6 +1,6 @@
 <?php
 /**
- * @type $team \App\Model\Entity\Team
+ * @var \App\Model\Entity\Team $team
  */
 
 use App\Authorization\ContextResource;

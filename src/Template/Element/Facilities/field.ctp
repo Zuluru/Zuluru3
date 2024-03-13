@@ -1,7 +1,7 @@
 <?php
 use Cake\Core\Configure;
 if ($facility->has('fields') && array_key_exists($index, $facility->fields)) {
-	$errors = $facility->fields[$index]->errors();
+	$errors = $facility->fields[$index]->getErrors();
 	$new = false;
 } else {
 	$new = true;

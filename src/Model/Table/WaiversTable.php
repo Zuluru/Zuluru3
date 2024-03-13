@@ -128,7 +128,7 @@ class WaiversTable extends AppTable {
 		}
 	}
 
-	public function findActive(Query $query, Array $options) {
+	public function findActive(Query $query, array $options) {
 		$query->where(['Waivers.active' => true]);
 
 		if (!empty($options['affiliates'])) {

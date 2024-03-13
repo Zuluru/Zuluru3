@@ -1,9 +1,9 @@
 <?php
 /**
- * @type $game \App\Model\Entity\Game
- * @type $team_id int
- * @type $opponent_score \App\Model\Entity\ScoreEntry
- * @type $spirit_obj \App\Module\Spirit
+ * @var \App\Model\Entity\Game $game
+ * @var int $team_id
+ * @var \App\Model\Entity\ScoreEntry $opponent_score
+ * @var \App\Module\Spirit $spirit_obj
  */
 
 use Cake\Core\Configure;

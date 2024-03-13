@@ -1,6 +1,6 @@
 <?php
 /**
- * @type $affiliate \App\Model\Entity\Affiliate
+ * @var \App\Model\Entity\Affiliate $affiliate
  */
 
 use Cake\Core\Configure;

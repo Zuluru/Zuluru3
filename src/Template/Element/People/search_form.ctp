@@ -1,6 +1,6 @@
 <?php
 /**
- * @type $this \App\View\AppView
+ * @var \App\View\AppView $this
  */
 ?>
 <div class="search form">

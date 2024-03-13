@@ -1,10 +1,10 @@
 <?php
 /**
- * @type $event \App\Model\Entity\Event
- * @type $registrations \App\Model\Entity\Registration[]
- * @type $refund \App\Model\Entity\Payment
- * @type $id int
- * @type $price_id int
+ * @var \App\Model\Entity\Event $event
+ * @var \App\Model\Entity\Registration[] $registrations
+ * @var \App\Model\Entity\Payment $refund
+ * @var int $id
+ * @var int $price_id
  */
 
 $this->Html->addCrumb(__('Events'));

@@ -147,7 +147,7 @@ class ScoreEntriesTable extends AppTable {
 		$rules->add(new OrRule([
 			// If there's no person_id on the entity, it's just a container for allstars,
 			// in which case we don't need a status.
-			function (EntityInterface $entity, Array $options) { return !$entity->person_id; },
+			function (EntityInterface $entity, array $options) { return !$entity->person_id; },
 			new InConfigRule('options.game_status'),
 		]), 'validStatus', [
 			'errorField' => 'status',
@@ -166,7 +166,7 @@ class ScoreEntriesTable extends AppTable {
 		]);
 
 		if (Configure::read('scoring.allstars')) {
-			$rules->add(function (EntityInterface $entity, Array $options) {
+			$rules->add(function (EntityInterface $entity, array $options) {
 				return empty($entity->allstars) || count($entity->allstars) <= 2;
 			}, 'validAllstars', [
 				'errorField' => 'allstars',
@@ -175,7 +175,7 @@ class ScoreEntriesTable extends AppTable {
 		}
 
 		if (Configure::read('scoring.women_present')) {
-			$rules->add(function (EntityInterface $entity, Array $options) {
+			$rules->add(function (EntityInterface $entity, array $options) {
 				if (!$options['game']->division->women_present ||
 					// If the game has been finalized, it's an admin editing a score that was not submitted
 					// by the team. These have no women_present value, and we can't require that they do,
@@ -212,7 +212,7 @@ class ScoreEntriesTable extends AppTable {
 	 */
 	public function beforeMarshal(CakeEvent $cakeEvent, ArrayObject $data, ArrayObject $options) {
 		// When editing a game, the score entries won't have their statuses changed.
-		if (!array_key_exists('status', $data)) {
+		if (!$data->offsetExists('status')) {
 			return;
 		}
 

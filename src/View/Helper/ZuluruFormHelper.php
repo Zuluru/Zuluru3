@@ -41,7 +41,7 @@ class ZuluruFormHelper extends FormHelper {
 	 * Also, add popup help link, if available.
 	 * TODOLATER: Deal with new data format (_joinData, etc.): we don't need it for anything right now?
 	 */
-	public function input($fieldName, Array $options = []) {
+	public function input($fieldName, array $options = []) {
 		$options += ['secure' => true];
 
 		// Split into model and field name
@@ -57,7 +57,7 @@ class ZuluruFormHelper extends FormHelper {
 			} while (is_numeric($model));
 			$model = Inflector::tableize($model);
 		} else {
-			$model = Inflector::tableize($this->request->getParam('controller'));
+			$model = Inflector::tableize($this->getView()->getRequest()->getParam('controller'));
 			$shortFieldName = $fieldName;
 		}
 		$value = $this->context()->val($fieldName);

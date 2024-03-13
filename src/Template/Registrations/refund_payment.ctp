@@ -1,9 +1,9 @@
 <?php
 /**
- * @type $registration \App\Model\Entity\Registration
- * @type $payment \App\Model\Entity\Payment
- * @type $api \App\Http\API
- * @type $refund \App\Model\Entity\Payment
+ * @var \App\Model\Entity\Registration $registration
+ * @var \App\Model\Entity\Payment $payment
+ * @var \App\Http\API $api
+ * @var \App\Model\Entity\Payment $refund
  */
 
 use Cake\Core\Configure;

@@ -1,8 +1,8 @@
 <?php
 /**
- * @type $items \Cake\ORM\Entity[]
- * @type $relatives \App\Model\Entity\Person[]
- * @type $teams \App\Model\Entity\Team[]
+ * @var \Cake\ORM\Entity[] $items
+ * @var \App\Model\Entity\Person[] $relatives
+ * @var \App\Model\Entity\Team[] $teams
  */
 ?>
 <div class="schedule table-responsive">

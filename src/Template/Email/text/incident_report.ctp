@@ -2,13 +2,13 @@
 use Cake\Core\Configure;
 
 /**
- * @type $incident \App\Model\Entity\Incident
- * @type $game \App\Model\Entity\Game
- * @type $division \App\Model\Entity\Division
- * @type $slot \App\Model\Entity\GameSlot
- * @type $field \App\Model\Entity\Field
- * @type $home_team \App\Model\Entity\Team
- * @type $away_team \App\Model\Entity\Team
+ * @var \App\Model\Entity\Incident $incident
+ * @var \App\Model\Entity\Game $game
+ * @var \App\Model\Entity\Division $division
+ * @var \App\Model\Entity\GameSlot $slot
+ * @var \App\Model\Entity\Field $field
+ * @var \App\Model\Entity\Team $home_team
+ * @var \App\Model\Entity\Team $away_team
  */
 ?>
 

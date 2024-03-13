@@ -25,13 +25,13 @@ class EventTypeMembership extends EventType {
 
 		$rule = new GreaterDateRule('membership_begins');
 		if (!$rule($entity, ['errorField' => 'membership_ends'])) {
-			$entity->errors('membership_ends', ['validMembershipEnds' => __('The membership ends date must be after the membership begins date.')]);
+			$entity->setErrors('membership_ends', ['validMembershipEnds' => __('The membership ends date must be after the membership begins date.')]);
 			$ret = false;
 		}
 
 		$rule = new InConfigRule('options.membership_types');
 		if (!$rule($entity, ['errorField' => 'membership_type'])) {
-			$entity->errors('membership_type', ['validMembershipType' => __('You must select a valid membership type.')]);
+			$entity->setErrors('membership_type', ['validMembershipType' => __('You must select a valid membership type.')]);
 			$ret = false;
 		}
 

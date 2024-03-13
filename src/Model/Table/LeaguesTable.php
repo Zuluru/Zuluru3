@@ -152,7 +152,7 @@ class LeaguesTable extends AppTable {
 			'message' => __('You must select a valid spirit questionnaire.'),
 		]);
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			if (!$entity->has('tie_breaker')) {
 				return true;
 			}
@@ -180,7 +180,7 @@ class LeaguesTable extends AppTable {
 	 * @param ArrayObject $options Unused
 	 */
 	public function beforeMarshal(CakeEvent $cakeEvent, ArrayObject $data, ArrayObject $options) {
-		if (array_key_exists('tie_breakers', $data)) {
+		if ($data->offsetExists('tie_breakers')) {
 			$data['tie_breaker'] = implode(',', $data['tie_breakers']);
 		}
 	}
@@ -209,7 +209,7 @@ class LeaguesTable extends AppTable {
 		Cache::delete('tournaments', 'today');
 	}
 
-	public function findOpen(Query $query, Array $options) {
+	public function findOpen(Query $query, array $options) {
 		$query->where([
 			'OR' => [
 				'Leagues.is_open' => true,

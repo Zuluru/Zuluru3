@@ -92,7 +92,7 @@ class TeamsPeopleTable extends AppTable {
 			'message' => __('You must select a valid role.'),
 		]);
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			$division = $this->Teams->field('division_id', ['Teams.id' => $entity->team_id]);
 			if (!$division) {
 				return true;

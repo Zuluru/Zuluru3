@@ -20,7 +20,7 @@ class MapsController extends AppController {
 
 	public function index() {
 		if ($this->Authentication->getIdentity() && $this->Authentication->getIdentity()->isManager()) {
-			$closed = $this->request->getQuery('closed');
+			$closed = $this->getRequest()->getQuery('closed');
 		} else {
 			$closed = false;
 		}
@@ -56,11 +56,11 @@ class MapsController extends AppController {
 
 		$this->set(compact('regions', 'closed', 'affiliates'));
 
-		$this->viewBuilder()->layout('map');
+		$this->viewBuilder()->setLayout('map');
 	}
 
 	public function view() {
-		$id = $this->request->getQuery('field');
+		$id = $this->getRequest()->getQuery('field');
 
 		try {
 			$facilities_table = TableRegistry::getTableLocator()->get('Facilities');
@@ -104,11 +104,11 @@ class MapsController extends AppController {
 		}
 		$this->set(compact('field', 'facility', 'home_addr'));
 
-		$this->viewBuilder()->layout('map');
+		$this->viewBuilder()->setLayout('map');
 	}
 
 	public function edit() {
-		$id = $this->request->getQuery('field');
+		$id = $this->getRequest()->getQuery('field');
 
 		try {
 			$facilities_table = TableRegistry::getTableLocator()->get('Facilities');
@@ -137,8 +137,8 @@ class MapsController extends AppController {
 		$this->Authorization->authorize($facility);
 		$this->Configuration->loadAffiliate($facility->region->affiliate_id);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$facility = $facilities_table->patchEntity($facility, $this->request->getData(), ['associated' => ['Fields']]);
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$facility = $facilities_table->patchEntity($facility, $this->getRequest()->getData(), ['associated' => ['Fields']]);
 			if ($facilities_table->save($facility)) {
 				$this->Flash->warning(__('The {0} layout has been saved.', Configure::read('UI.field')));
 				return $this->redirect(['controller' => 'Maps', 'action' => 'view', 'field' => $id]);
@@ -158,7 +158,7 @@ class MapsController extends AppController {
 
 		$this->set(compact('field', 'facility', 'leaguelat', 'leaguelng'));
 
-		$this->viewBuilder()->layout('map');
+		$this->viewBuilder()->setLayout('map');
 	}
 
 }

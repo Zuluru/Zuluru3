@@ -1,8 +1,8 @@
 <?php
 /**
- * @type $person \App\Model\Entity\Person
- * @type $id int
- * @type $plugin_elements ArrayObject
+ * @var \App\Model\Entity\Person $person
+ * @var int $id
+ * @var ArrayObject $plugin_elements
  */
 use Cake\Core\Configure;
 use Cake\I18n\FrozenTime;

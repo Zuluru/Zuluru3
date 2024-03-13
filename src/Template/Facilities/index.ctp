@@ -1,9 +1,9 @@
 <?php
 /**
- * @type $this \App\View\AppView
- * @type $regions \App\Model\Entity\Region[]
- * @type $affiliates \App\Model\Entity\Affiliate[]
- * @type $closed bool
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Region[] $regions
+ * @var \App\Model\Entity\Affiliate[] $affiliates
+ * @var bool $closed
  */
 
 use App\Controller\AppController;

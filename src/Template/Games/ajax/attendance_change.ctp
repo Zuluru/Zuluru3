@@ -1,10 +1,10 @@
 <?php
 /**
- * @type $team \App\Model\Entity\Team
- * @type $person \App\Model\Entity\Person
- * @type $attendance \App\Model\Entity\Attendance
- * @type $game \App\Model\Entity\Game
- * @type $game_date \Cake\I18n\Date
+ * @var \App\Model\Entity\Team $team
+ * @var \App\Model\Entity\Person $person
+ * @var \App\Model\Entity\Attendance $attendance
+ * @var \App\Model\Entity\Game $game
+ * @var \Cake\I18n\Date $game_date
  */
 
 $args = [

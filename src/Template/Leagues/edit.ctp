@@ -1,12 +1,12 @@
 <?php
 /**
- * @type \App\View\AppView $this
- * @type \App\Model\Entity\League $league
- * @type \App\Model\Entity\Affiliate[] $affiliates
- * @type \App\Model\Entity\Day[] $days
- * @type \App\Model\Entity\Category[] $categories
- * @type \App\Model\Entity\StatType[] $stat_types
- * @type bool $tournaments
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\League $league
+ * @var \App\Model\Entity\Affiliate[] $affiliates
+ * @var \App\Model\Entity\Day[] $days
+ * @var \App\Model\Entity\Category[] $categories
+ * @var \App\Model\Entity\StatType[] $stat_types
+ * @var bool $tournaments
  */
 
 use App\Model\Entity\Division;

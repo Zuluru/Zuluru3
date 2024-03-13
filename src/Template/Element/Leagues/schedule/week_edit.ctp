@@ -3,11 +3,11 @@
 use App\Model\Table\GameSlotsTable;
 
 /**
- * @type $division \App\Model\Entity\Division
- * @type $league \App\Model\Entity\League
- * @type $multi_day boolean
- * @type $edit_date \Cake\I18n\FrozenDate
- * @type $week \Cake\I18n\FrozenDate[]
+ * @var \App\Model\Entity\Division $division
+ * @var \App\Model\Entity\League $league
+ * @var bool $multi_day
+ * @var \Cake\I18n\FrozenDate $edit_date
+ * @var \Cake\I18n\FrozenDate[] $week
  */
 
 use App\Model\Entity\Team;

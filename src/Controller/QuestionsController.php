@@ -18,7 +18,7 @@ class QuestionsController extends AppController {
 	public function beforeFilter(\Cake\Event\Event $event) {
 		parent::beforeFilter($event);
 		if (isset($this->Security)) {
-			$this->Security->config('unlockedActions', ['edit']);
+			$this->Security->setConfig('unlockedActions', ['edit']);
 		}
 	}
 
@@ -70,7 +70,7 @@ class QuestionsController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->getQuery('question');
+		$id = $this->getRequest()->getQuery('question');
 		try {
 			$question = $this->Questions->get($id, [
 				'contain' => ['Affiliates', 'Questionnaires', 'Answers']
@@ -98,8 +98,8 @@ class QuestionsController extends AppController {
 	public function add() {
 		$question = $this->Questions->newEntity();
 		$this->Authorization->authorize($this);
-		if ($this->request->is('post')) {
-			$question = $this->Questions->patchEntity($question, $this->request->getData());
+		if ($this->getRequest()->is('post')) {
+			$question = $this->Questions->patchEntity($question, $this->getRequest()->getData());
 			if ($this->Questions->save($question)) {
 				$this->Flash->success(__('The question has been saved.'));
 				return $this->redirect(['action' => 'edit', 'question' => $question->id]);
@@ -119,7 +119,7 @@ class QuestionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->getQuery('question');
+		$id = $this->getRequest()->getQuery('question');
 		try {
 			$question = $this->Questions->get($id, [
 				'contain' => [
@@ -141,8 +141,8 @@ class QuestionsController extends AppController {
 		$this->Authorization->authorize($question);
 		$this->Configuration->loadAffiliate($question->affiliate_id);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$question = $this->Questions->patchEntity($question, $this->request->getData());
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$question = $this->Questions->patchEntity($question, $this->getRequest()->getData());
 			if ($this->Questions->save($question)) {
 				$this->Flash->success(__('The question has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -161,9 +161,9 @@ class QuestionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
 	 */
 	public function activate() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('question');
+		$id = $this->getRequest()->getQuery('question');
 		try {
 			$question = $this->Questions->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -191,9 +191,9 @@ class QuestionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
 	 */
 	public function deactivate() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('question');
+		$id = $this->getRequest()->getQuery('question');
 		try {
 			$question = $this->Questions->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -221,9 +221,9 @@ class QuestionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects to index.
 	 */
 	public function delete() {
-		$this->request->allowMethod(['post', 'delete']);
+		$this->getRequest()->allowMethod(['post', 'delete']);
 
-		$id = $this->request->getQuery('question');
+		$id = $this->getRequest()->getQuery('question');
 		try {
 			$question = $this->Questions->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -244,8 +244,8 @@ class QuestionsController extends AppController {
 
 		if ($this->Questions->delete($question)) {
 			$this->Flash->success(__('The question has been deleted.'));
-		} else if ($question->errors('delete')) {
-			$this->Flash->warning(current($question->errors('delete')));
+		} else if ($question->getError('delete')) {
+			$this->Flash->warning(current($question->getError('delete')));
 		} else {
 			$this->Flash->warning(__('The question could not be deleted. Please, try again.'));
 		}
@@ -254,9 +254,9 @@ class QuestionsController extends AppController {
 	}
 
 	public function add_answer() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('question');
+		$id = $this->getRequest()->getQuery('question');
 		try {
 			$question = $this->Questions->get($id, [
 				'contain' => [
@@ -297,9 +297,9 @@ class QuestionsController extends AppController {
 	}
 
 	public function delete_answer() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('answer');
+		$id = $this->getRequest()->getQuery('answer');
 		try {
 			$answer = $this->Questions->Answers->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -332,10 +332,10 @@ class QuestionsController extends AppController {
 	}
 
 	public function autocomplete() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
 		try {
-			$affiliate = TableRegistry::getTableLocator()->get('Affiliates')->get($this->request->getQuery('affiliate'));
+			$affiliate = TableRegistry::getTableLocator()->get('Affiliates')->get($this->getRequest()->getQuery('affiliate'));
 		} catch (RecordNotFoundException $ex) {
 			$this->Flash->info(__('Invalid affiliate.'));
 			return $this->redirect(['action' => 'index']);
@@ -349,8 +349,8 @@ class QuestionsController extends AppController {
 		$this->set('questions', $this->Questions->find()
 			->where([
 				'OR' => [
-					'Questions.question LIKE' => '%' . $this->request->getQuery('term') . '%',
-					'Questions_question_translation.content LIKE' => '%' . $this->request->getQuery('term') . '%',
+					'Questions.question LIKE' => '%' . $this->getRequest()->getQuery('term') . '%',
+					'Questions_question_translation.content LIKE' => '%' . $this->getRequest()->getQuery('term') . '%',
 				],
 				'Questions.active' => true,
 				'Questions.affiliate_id' => $affiliate->id,

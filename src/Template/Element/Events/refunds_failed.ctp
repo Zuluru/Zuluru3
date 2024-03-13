@@ -1,6 +1,6 @@
 <?php
 /**
- * @type $failed string[]
+ * @var string[] $failed
  */
 
 use Cake\Core\Configure;

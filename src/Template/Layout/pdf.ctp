@@ -6,7 +6,7 @@ use Cake\Core\Configure;
 @header('Cache-Control: post-check=0, pre-check=0', false);
 @header('Pragma: no-cache');
 ?>
-<?= $this->Html->doctype('html5') ?>
+<!DOCTYPE html>
 <html>
 <head>
 	<?= $this->Html->charset() ?>

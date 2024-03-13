@@ -19,9 +19,9 @@ class PricesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects to index.
 	 */
 	public function delete() {
-		$this->request->allowMethod(['post', 'delete']);
+		$this->getRequest()->allowMethod(['post', 'delete']);
 
-		$id = $this->request->getQuery('price');
+		$id = $this->getRequest()->getQuery('price');
 		try {
 			$price = $this->Prices->get($id, [
 				'contain' => ['Events' => ['Prices']],
@@ -44,8 +44,8 @@ class PricesController extends AppController {
 
 		if ($this->Prices->delete($price)) {
 			$this->Flash->success(__('The price point has been deleted.'));
-		} else if ($price->errors('delete')) {
-			$this->Flash->warning(current($price->errors('delete')));
+		} else if ($price->getError('delete')) {
+			$this->Flash->warning(current($price->getError('delete')));
 		} else {
 			$this->Flash->warning(__('The price point could not be deleted. Please, try again.'));
 		}

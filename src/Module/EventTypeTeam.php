@@ -31,7 +31,7 @@ class EventTypeTeam extends EventType {
 
 		$rule = new ExistsIn(['division_id'], 'Divisions');
 		if (!$rule($entity, ['errorField' => 'division_id'])) {
-			$entity->errors('division_id', ['validDivision' => __('You must select a valid division.')]);
+			$entity->setErrors('division_id', ['validDivision' => __('You must select a valid division.')]);
 			$ret = false;
 		}
 
@@ -155,7 +155,7 @@ class EventTypeTeam extends EventType {
 		return $fields;
 	}
 
-	public function validateResponse($value, $context, Question $question, Array $responses, Event $event, Registration $registration = null) {
+	public function validateResponse($value, $context, Question $question, array $responses, Event $event, Registration $registration = null) {
 		switch ($question->id) {
 			case TEAM_NAME:
 				// If we're creating team records in a division, make sure the name is unique in that entire league

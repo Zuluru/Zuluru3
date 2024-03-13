@@ -1,8 +1,8 @@
 <?php
 /**
- * @type $event \App\Model\Entity\Event
- * @type $format string
- * @type $size string
+ * @var \App\Model\Entity\Event $event
+ * @var string $format
+ * @var string $size
  */
 
 use App\Controller\AppController;

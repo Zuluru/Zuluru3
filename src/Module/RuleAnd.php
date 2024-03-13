@@ -69,7 +69,7 @@ class RuleAnd extends RuleMeta {
 		return $status;
 	}
 
-	protected function merge(Array $people) {
+	protected function merge(array $people) {
 		// If the saved array is empty, this is the first query
 		if (empty($this->people)) {
 			$this->people = $people;
