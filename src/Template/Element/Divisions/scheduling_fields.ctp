@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
+
 // On the division edit page, we don't need the model name included. Anywhere else (e.g. league edit), we do.
 $prefix = (isset($index) ? "divisions.$index." : '');
 

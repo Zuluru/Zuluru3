@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\TeamEvent $team_event
+ */
+
 
 use App\Authorization\ContextResource;
 use App\Controller\AppController;

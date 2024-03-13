@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\League $league
+ * @var \App\Model\Entity\GameSlot $slots
+ */
+
 use App\Model\Entity\Division;
 use Cake\Core\Configure;
 

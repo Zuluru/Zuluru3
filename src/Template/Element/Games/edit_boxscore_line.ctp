@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Game $game
+ * @var \App\Model\Entity\ScoreDetail $detail
+ */
+
 use Cake\Core\Configure;
 
 $stats = false;

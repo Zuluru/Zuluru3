@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\League $league
+ */
 
 use App\Model\Table\TeamsTable;
 use Cake\Core\Configure;

@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Holiday $holiday
+ */
+
 $this->Html->addCrumb(__('Holiday'));
 if ($holiday->isNew()) {
 	$this->Html->addCrumb(__('Create'));

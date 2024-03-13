@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Game $game
+ */
+
 use App\Authorization\ContextResource;
 use Cake\Core\Configure;
 use Cake\Utility\Text;

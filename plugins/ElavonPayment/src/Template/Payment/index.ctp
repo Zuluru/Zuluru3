@@ -1,8 +1,8 @@
 <?php
 /**
- * @type bool $result
- * @type string[] $errors
- * @type \App\Model\Entity\RegistrationAudit $audit
+ * @var bool $result
+ * @var string[] $errors
+ * @var \App\Model\Entity\RegistrationAudit $audit
  */
 
 echo $this->element('Registrations/payment', compact('result', 'errors', 'audit'));

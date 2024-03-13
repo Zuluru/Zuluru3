@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ */
+?>
 <h1><?= __('Credits') ?></h1>
 <p><?= __('{0} is written and maintained by {1}.',
 	$this->Html->link(ZULURU, 'https://zuluru.org/'),

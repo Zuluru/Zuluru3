@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\MailingList[] $mailingLists
+ */
+
 $this->Html->addCrumb(__('Mailing Lists'));
 $this->Html->addCrumb(__('List'));
 ?>

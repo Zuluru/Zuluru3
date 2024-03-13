@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Question[] $questions
+ */
+
 use Html2Text\Html2Text;
 use Html2Text\Html2TextException;
 

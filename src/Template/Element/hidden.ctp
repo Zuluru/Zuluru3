@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
+
 // Output a block with hidden fields for all of the items in the provided array.
 if (isset($model)) {
 	$model .= '.';

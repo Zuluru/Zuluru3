@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ */
+?>
 <p><?= __('If the "{0}" flag is set for the division, you will have the option, when adding games, to select teams that you don\'t want to include in the generated schedule.',
 	__('Exclude Teams')
 ) ?></p>

@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Question[] $questions
+ */
+
 $preview = false;
 foreach ($questions as $question => $details) {
 	if (!array_key_exists('restricted', $details) || !$details['restricted'] || $show_restricted) {

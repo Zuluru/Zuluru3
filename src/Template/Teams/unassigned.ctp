@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Team[] $teams
+ */
+
 $this->Html->addCrumb(__('Teams'));
 $this->Html->addCrumb(__('Unassigned Teams'));
 ?>

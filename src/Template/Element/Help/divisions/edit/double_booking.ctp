@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ */
+?>
 <p><?= __('If the "{0}" flag is set for the division, you will have the option, when adding games or editing schedules, to put multiple games in the same game slot.',
 	__('Allow double-booking?')
 ) ?></p>

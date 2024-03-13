@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Person[] $new
+ */
+
 use App\Controller\AppController;
 use Cake\Core\Configure;
 

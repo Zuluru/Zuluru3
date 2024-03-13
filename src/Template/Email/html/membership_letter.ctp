@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Event $event
+ * @var \App\Model\Entity\Person $person
+ */
+
 use Cake\Core\Configure;
 use Cake\I18n\FrozenTime;
 ?>

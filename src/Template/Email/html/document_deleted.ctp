@@ -1,4 +1,11 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Upload $person
+ * @var \App\Model\Entity\Upload $document
+ * @var string $comment
+ */
+
 use Cake\Core\Configure;
 ?>
 

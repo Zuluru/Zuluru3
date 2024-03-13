@@ -1,5 +1,10 @@
 <?php
-// This is required on every page where a roster role or position change popup is used
+/**
+ * This is required on every page where a roster role or position change popup is used
+ *
+ * @var \App\View\AppView $this
+ */
+
 use Cake\Core\Configure;
 
 foreach (array_keys(Configure::read('options.sport')) as $sport) {

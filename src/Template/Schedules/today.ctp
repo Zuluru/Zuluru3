@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Game[] $games
+ */
+
 use Cake\I18n\FrozenDate;
 ?>
 <div id="gamestoday">

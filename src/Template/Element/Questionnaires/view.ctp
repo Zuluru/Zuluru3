@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Questionnaire $questionnaire
+ */
+
 use Cake\Utility\Hash;
 
 $rows = [];

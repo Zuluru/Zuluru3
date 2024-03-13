@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Affiliate $affiliate
+ */
+
 $this->Html->addCrumb(__('Affiliates'));
 if ($affiliate->isNew()) {
 	$this->Html->addCrumb(__('Create'));

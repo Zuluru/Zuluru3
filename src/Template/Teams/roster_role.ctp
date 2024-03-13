@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Team $team
+ * @var \App\Model\Entity\Person $person
+ */
+
 use Cake\Core\Configure;
 
 $this->Html->addCrumb(__('Teams'));

@@ -1,3 +1,10 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\League $league
+ */
+
+?>
 <h2><?= $league->full_name ?></h2>
 <dl class="dl-horizontal">
 	<dt><?= __('Season') ?></dt>

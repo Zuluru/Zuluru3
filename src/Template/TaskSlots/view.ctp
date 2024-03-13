@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\TaskSlot $task_slot
+ */
+
 $this->Html->addCrumb(__('Task Slot'));
 $this->Html->addCrumb(__('View'));
 ?>

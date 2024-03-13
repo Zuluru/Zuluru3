@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Region $region
+ */
+
 $this->Html->addCrumb(__('Regions'));
 if ($region->isNew()) {
 	$this->Html->addCrumb(__('Create'));

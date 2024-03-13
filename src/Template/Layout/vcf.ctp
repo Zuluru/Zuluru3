@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
+
 // Start the output, let the browser know what type it is
 @header('Content-type: text/directory; charset=UTF-8; profile=vCard');
 @header("Content-Disposition: attachment; filename=\"$download_file_name.vcf\"");

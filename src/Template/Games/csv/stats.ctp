@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Game $game
+ * @var int $team_id
+ */
+
 $fp = fopen('php://output','w+');
 if (isset($team_id)) {
 	$header = [];

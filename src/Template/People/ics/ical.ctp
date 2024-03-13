@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
+
 if (isset($games)) {
 	foreach ($games as $game) {
 		echo $this->element('Games/ical', ['game_id' => $game->id, 'team_id' => $team_id, 'game' => $game, 'uid_prefix' => 'P']);

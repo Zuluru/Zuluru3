@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Person $person
+ * @var \App\Model\Entity\Waiver $waiver
+ */
+
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
 

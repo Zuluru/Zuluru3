@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var array $items
+ */
+
 
 use App\Authorization\ContextResource;
 use Cake\Core\Configure;

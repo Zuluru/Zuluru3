@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Task[] $tasks
+ */
+
 use Cake\Core\Configure;
 
 $fp = fopen('php://output','w+');

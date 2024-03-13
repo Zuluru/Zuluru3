@@ -1,5 +1,10 @@
 <?php
-// This is required on every page where the attendance change popup is used
+/**
+ * This is required on every page where the attendance change popup is used
+ *
+ * @var \App\View\AppView $this
+ */
+
 use Cake\Core\Configure;
 
 $options = Configure::read('attendance');

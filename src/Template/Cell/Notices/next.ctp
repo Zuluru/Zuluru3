@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Notice $notice
+ */
+
 use Cake\Core\Configure;
 
 if (!empty($notice)):

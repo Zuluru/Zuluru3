@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\TeamEvent $team_event
+ */
+
 use Cake\Routing\Router;
 
 $address = "{$team_event->location_street}, {$team_event->location_city}, {$team_event->location_province}";

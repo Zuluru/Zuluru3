@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Group[] $groups
+ */
+
 $this->Html->addCrumb(__('Groups'));
 $this->Html->addCrumb(__('List'));
 ?>

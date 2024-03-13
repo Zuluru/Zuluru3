@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var string $user_field
+ * @var string $email_field
+ */
+
 $this->Html->addCrumb(__('Users'));
 $this->Html->addCrumb(__('Reset Password'));
 ?>

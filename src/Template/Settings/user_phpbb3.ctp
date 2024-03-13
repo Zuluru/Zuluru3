@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
+
 $this->Html->addCrumb(__('Settings'));
 $this->Html->addCrumb('phpBB3');
 ?>

@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Task $task
+ * @var \App\Model\Entity\TaskSlot $task_slot
+ */
+
 use Cake\Core\Configure;
 
 // Get domain URL for signing tasks

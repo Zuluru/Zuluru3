@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
+
 use Cake\Core\Configure;
 
 @header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');

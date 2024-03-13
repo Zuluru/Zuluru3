@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Person $person
+ */
+
 use App\Controller\AppController;
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;

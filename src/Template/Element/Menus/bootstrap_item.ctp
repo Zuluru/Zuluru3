@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var array $item
+ */
+
 if (array_key_exists('opts', $item)) {
 	$opts = $item['opts'];
 } else {

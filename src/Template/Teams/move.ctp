@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Team $team
+ * @var \App\Model\Entity\Division[] $divisions
+ */
+
 $this->Html->addCrumb(__('Team'));
 $this->Html->addCrumb($team->name);
 $this->Html->addCrumb(__('Move'));

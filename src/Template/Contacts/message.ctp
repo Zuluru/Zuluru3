@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Contact $contact
+ */
+
 $this->Html->addCrumb(__('Contacts'));
 $this->Html->addCrumb(__('Message'));
 if (isset($contact)) {

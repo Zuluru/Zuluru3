@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Game[] $gameS
+ * @var \App\Model\Entity\TeamEvent[] $events
+ */
+
 // Outlook only imports the first item from an ICS file. We'll consider games more important than events and put them first.
 if (isset($games) && !empty($games)) {
 	$uid_prefix = '';

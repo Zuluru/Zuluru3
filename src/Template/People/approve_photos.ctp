@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Upload[] $photos
+ */
+
 $this->Html->addCrumb(__('People'));
 $this->Html->addCrumb(__('Approve Photos'));
 ?>

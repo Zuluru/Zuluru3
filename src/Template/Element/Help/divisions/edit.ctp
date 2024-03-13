@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ */
+?>
 <p><?= __('The "{0}" page is used to update details of your division. Only coordinators have permission to edit division details.',
 	__('Edit Division')
 ) ?></p>

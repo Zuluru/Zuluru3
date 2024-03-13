@@ -1,4 +1,14 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\League $league
+ * @var array $options
+ * @var int $id
+ * @var string $field
+ * @var string $name
+ * @var bool $tournaments
+ */
+
 $id = "leagues_league_{$league->id}";
 
 if (isset($options)) {

@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Questionnaire[] $questionnaires
+ */
+
 $this->Html->addCrumb(__('Questionnaires'));
 $this->Html->addCrumb(__('List'));
 ?>

@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Region $region
+ */
+
 use App\Controller\AppController;
 
 $this->Html->addCrumb(__('Regions'));

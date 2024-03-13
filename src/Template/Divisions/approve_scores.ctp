@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Division $division
+ */
+
 use App\Controller\AppController;
 use App\Model\Entity\ScoreEntry;
 

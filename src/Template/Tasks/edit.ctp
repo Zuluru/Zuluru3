@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Task $task
+ */
+
 $this->Html->addCrumb(__('Tasks'));
 if ($task->isNew()) {
 	$this->Html->addCrumb(__('Create'));

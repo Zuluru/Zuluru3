@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\UploadType $upload_type
+ */
+
 $this->Html->addCrumb(__('Upload Type'));
 if ($upload_type->isNew()) {
 	$this->Html->addCrumb(__('Create'));

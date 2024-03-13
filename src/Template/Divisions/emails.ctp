@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Division $division
+ */
+
 $this->Html->addCrumb(__('Divisions'));
 $this->Html->addCrumb(__('Emails'));
 $this->Html->addCrumb($division->full_league_name);

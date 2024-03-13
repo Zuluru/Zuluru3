@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Newsletter $newsletter
+ */
+
 use Cake\Core\Configure;
 use Cake\I18n\FrozenTime;
 use Cake\Routing\Router;

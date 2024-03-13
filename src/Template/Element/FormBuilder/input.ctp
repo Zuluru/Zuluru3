@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Question[] $questions
+ * @var bool $secure
+ */
+
 if (!isset($secure)) {
 	$secure = true;
 }

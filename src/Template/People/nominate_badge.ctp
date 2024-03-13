@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Badge $badge
+ */
+
 $this->Html->addCrumb(__('Badges'));
 if ($badge->category == 'assigned') {
 	$this->Html->addCrumb(__('Assign'));

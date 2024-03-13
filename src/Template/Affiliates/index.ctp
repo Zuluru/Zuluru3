@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Affiliate[] $affiliates
+ */
+
 $this->Html->addCrumb(__('Affiliates'));
 $this->Html->addCrumb(__('List'));
 ?>

@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\MailingList $mailing_list
+ */
+
 $this->Html->addCrumb(__('Mailing List'));
 if ($mailing_list->isNew()) {
 	$this->Html->addCrumb(__('Create'));

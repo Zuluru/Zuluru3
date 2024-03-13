@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Event[] $events
+ */
+
 if (!empty($events)):
 ?>
 <div class="related">

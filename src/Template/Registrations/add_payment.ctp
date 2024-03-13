@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Registration $registration
+ * @var \App\Model\Entity\Payment $payment
+ */
+
 use Cake\Core\Configure;
 
 $this->Html->addCrumb(__('Registration'));

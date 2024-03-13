@@ -1,4 +1,7 @@
 <?php
+/**
+ * @var \App\Model\Entity\Person $person
+ */
 
 use App\Controller\TeamsController;
 use Cake\Core\Configure;

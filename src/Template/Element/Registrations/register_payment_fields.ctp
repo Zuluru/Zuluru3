@@ -1,4 +1,11 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Event $event
+ * @var \App\Model\Entity\Price $price
+ * @var \App\Model\Entity\Registration $registration
+ */
+
 use App\Model\Table\PricesTable;
 
 if (isset($price) && !empty($price->canRegister) && empty($for_edit)) {

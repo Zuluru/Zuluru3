@@ -1,3 +1,11 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Field $field
+ * @var \App\Model\Entity\GameSlot $game_slot
+ * @var array $weeks
+ */
+?>
 <li><?= $this->Jquery->toggleLink($field->long_name, "#Field{$field->id}Slots") ?>
 <div id="Field<?= $field->id ?>Slots" class="no-labels" style="margin-top: 1em;<?= empty($expanded) ? ' display: none;' : '' ?>">
 <?php

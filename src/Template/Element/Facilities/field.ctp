@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Facility $facility
+ * @var int $index
+ */
+
 use Cake\Core\Configure;
 if ($facility->has('fields') && array_key_exists($index, $facility->fields)) {
 	$errors = $facility->fields[$index]->getErrors();

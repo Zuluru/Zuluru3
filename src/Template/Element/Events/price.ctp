@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Event $event
+ * @var int $index
+ */
+
 use Cake\Core\Configure;
 if ($event->has('prices') && array_key_exists($index, $event->prices)) {
 	$errors = $event->prices[$index]->getErrors();

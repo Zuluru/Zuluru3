@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ */
+?>
 <p><?= __('If a schedule has been created or edited but not yet published, it can be published with the "{0}" link on the league schedule.',
 	__('Publish')
 ) ?></p>

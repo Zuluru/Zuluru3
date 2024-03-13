@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Game $game
+ */
+
 $this->Html->addCrumb(__('Games'));
 $this->Html->addCrumb(__('Game') . ' ' . $game->id);
 $this->Html->addCrumb(__('Ratings Table'));

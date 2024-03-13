@@ -1,4 +1,12 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var string $field
+ * @var string $label
+ * @var array $options
+ * @var bool $secure
+ */
+
 $answers = [];
 $default = null;
 foreach ($options as $key => $option) {

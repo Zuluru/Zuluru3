@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var array $message
+ */
+
 use Cake\Core\Configure;
 
 $message = (array)$message;

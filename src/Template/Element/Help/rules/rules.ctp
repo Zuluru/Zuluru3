@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ */
+?>
 <p><?= __('The following rules are available for use in the rules engine. Note that rule names are accepted in upper, lower or mixed case, but arguments to rules are generally case-specific.') ?></p>
 <?php
 echo $this->element('Help/topics', [

@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ */
+?>
 <p><?= __('Shirt colour can be whatever you want, but if you pick a common colour you\'ll get a properly-coloured shirt icon next to your team name in various displays. Examples include {0}, {1} and {2}. If you have two options, list them both. For example, "{3}" will show like this: {4}. If you get the "unknown" shirt {5}, this means that your colour is not supported.',
 	'yellow ' . $this->Html->iconImg('shirts/yellow.png'),
 	'light blue ' . $this->Html->iconImg('shirts/light_blue.png'),

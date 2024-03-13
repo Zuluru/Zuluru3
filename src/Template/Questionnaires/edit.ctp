@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Questionnaire $questionnaire
+ */
+
 $this->Html->addCrumb(__('Questionnaire'));
 if ($questionnaire->isNew()) {
 	$this->Html->addCrumb(__('Create'));

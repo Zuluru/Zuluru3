@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
+
 use Cake\ORM\TableRegistry;
 
 // Get the list of divisions

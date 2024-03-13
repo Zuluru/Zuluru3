@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Division $division
+ * @var int $teams
+ */
+
 $this->Html->addCrumb(__('Division'));
 $this->Html->addCrumb($division->full_league_name);
 $this->Html->addCrumb(__('Add Games'));

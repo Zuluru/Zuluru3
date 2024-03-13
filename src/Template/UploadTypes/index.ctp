@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\UploadType[] $uploadTypes
+ */
+
 $this->Html->addCrumb(__('Upload Types'));
 $this->Html->addCrumb(__('List'));
 ?>

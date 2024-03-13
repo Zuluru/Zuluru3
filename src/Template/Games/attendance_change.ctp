@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Game $game
+ */
+
 use Cake\Core\Configure;
 
 $this->Html->addCrumb(__('Games'));

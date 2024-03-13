@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ */
+?>
 <h4><?= __('Type: Boolean') ?></h4>
 <p><?= __('The {0} rule accepts a comma-separated list of integers and returns true if the user has registered for at least one of them. Payment status is NOT checked, in order to allow people to register for multiple items and pay all at once.', 'REGISTERED') ?></p>
 <p><?= __('Example:') ?></p>

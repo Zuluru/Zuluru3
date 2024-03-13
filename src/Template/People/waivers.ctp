@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Person $person
+ */
+
 use Cake\I18n\FrozenDate;
 
 $this->Html->addCrumb(__('People'));

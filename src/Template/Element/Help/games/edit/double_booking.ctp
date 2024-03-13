@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ */
+?>
 <p><?= __('If the "{0}" box is checked, you will be allowed to schedule multiple games in a single game slot.',
 	__('Allow double-booking?')
 ) ?></p>

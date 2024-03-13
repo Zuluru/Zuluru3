@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Region[] $regions
+ */
+
 $this->Html->addCrumb(__('Regions'));
 $this->Html->addCrumb(__('List'));
 ?>

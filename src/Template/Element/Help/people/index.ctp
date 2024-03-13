@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
+
 echo $this->element('Help/topics', [
 	'section' => 'people',
 	'topics' => [

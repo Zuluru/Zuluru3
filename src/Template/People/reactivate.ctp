@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Person $person
+ */
+
 $this->Html->addCrumb(__('People'));
 $this->Html->addCrumb($person->full_name);
 $this->Html->addCrumb(__('Reactivate'));

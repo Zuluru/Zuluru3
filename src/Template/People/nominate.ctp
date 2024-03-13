@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Badge[] $badges
+ */
+
 $this->Html->addCrumb(__('Badges'));
 $this->Html->addCrumb(__('Nominate'));
 ?>

@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Affiliate $affiliate
+ */
 
 use Cake\Core\Configure;
 

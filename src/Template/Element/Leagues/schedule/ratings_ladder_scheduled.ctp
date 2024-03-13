@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ */
+?>
 <div class="schedule">
 	<h2>Ratings ladder games successfully scheduled.</h2>
 	<table width="100%">

@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Team $team
+ */
 
 use App\Authorization\ContextResource;
 use Cake\Core\Configure;

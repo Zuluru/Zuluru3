@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ */
+?>
 <p><?= __('To add games to a schedule, you select the type of schedule to create, whether to publish games, and whether double-headers are allowed.') ?></p>
 <?php
 echo $this->element('Help/topics', [

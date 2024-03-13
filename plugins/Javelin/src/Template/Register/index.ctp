@@ -1,7 +1,7 @@
 <?php
 /**
- * @type \App\View\AppView $this
- * @type $register \Javelin\Form\RegisterForm
+ * @var \App\View\AppView $this
+ * @var \Javelin\Form\RegisterForm $register
  */
 
 $this->Html->addCrumb('Javelin');

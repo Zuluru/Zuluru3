@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Game $game
+ */
+
 use Cake\Core\Configure;
 
 // We intentionally do not echo the result of the create call. It is just to set up some defaults in the form helper.

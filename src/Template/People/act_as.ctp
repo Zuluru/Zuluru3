@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
+
 $this->Html->addCrumb(__('People'));
 $this->Html->addCrumb(__('Act As'));
 ?>

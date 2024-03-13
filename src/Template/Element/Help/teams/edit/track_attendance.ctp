@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ */
+?>
 <p><?= __('{0} includes the capability to manage and track your team\'s attendance over the season. Attendance management involves sending regular emails to coaches, captains and players, so it is optional. To turn this on, the coach or captain must enable it in the {1} page.',
 	ZULURU,
 	(array_key_exists('team', $this->getRequest()->getQueryParams()) ? $this->Html->link(__('Edit Team'), ['controller' => 'Teams', 'action' => 'edit', 'team' => $this->getRequest()->getQuery('team')]) : '"' . __('Edit Team') . '"')

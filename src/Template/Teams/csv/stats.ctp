@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Team $team
+ */
+
 $fp = fopen('php://output','w+');
 $header = [
 	__('Name'),

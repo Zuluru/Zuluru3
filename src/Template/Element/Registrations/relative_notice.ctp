@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
+
 $relatives = $this->UserCache->allActAs();
 if (!empty($relatives)) {
 	$url = array_merge(['action' => $this->getRequest()->getParam('action')], $this->getRequest()->getQueryParams());

@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Affiliate $affiliate
+ */
+
 $this->Html->addCrumb(__('Affiliates'));
 $this->Html->addCrumb($affiliate->name);
 $this->Html->addCrumb(__('Add Manager'));

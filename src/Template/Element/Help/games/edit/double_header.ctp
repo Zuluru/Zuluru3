@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ */
+?>
 <p><?= __('If the "{0}" box is checked, you will be allowed to schedule the same team in more than one game slot, though the system will still ensure that all such games are at the same facility and not in overlapping times.',
 	__('Allow double-headers?')
 ) ?></p>

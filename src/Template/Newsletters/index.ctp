@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Newsletter[] $newsletters
+ */
+
 $this->Html->addCrumb(__('Newsletters'));
 $this->Html->addCrumb(__('List'));
 ?>

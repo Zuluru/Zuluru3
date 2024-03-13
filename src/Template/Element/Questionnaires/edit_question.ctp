@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Questionnaire $questionnaire
+ * @var \App\Model\Entity\Question $question
+ */
+
 use App\Controller\AppController;
 
 if (!isset($i)) {

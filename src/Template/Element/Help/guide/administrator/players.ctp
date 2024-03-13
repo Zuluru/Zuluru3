@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ */
+?>
 <h2><?= __('{0}: {1}', __('Administrator Guide'), __('Player Management')) ?></h2>
 
 <h3><?= __('New Players') ?></h3>

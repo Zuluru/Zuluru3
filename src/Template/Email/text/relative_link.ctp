@@ -1,4 +1,11 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Person $person
+ * @var \App\Model\Entity\Person $relative
+ * @var string $code
+ */
+
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 ?>

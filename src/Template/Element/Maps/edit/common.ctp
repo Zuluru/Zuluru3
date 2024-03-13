@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ */
+?>
 <p>Angle:
 <span class="show_angle"></span>
 <input type="submit" onclick="return updateAngle(10)" value="+10">

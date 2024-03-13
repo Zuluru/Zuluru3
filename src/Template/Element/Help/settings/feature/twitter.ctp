@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ */
+?>
 <p><?= __('To enable {0} integration, you must first install two support libraries into {1}.', 'Twitter', 'zuluru/libs') ?></p>
 <p><?= __('From {0} you need {1} (renamed to {2}) and {3}.',
 	$this->Html->link('tmhOAuth', 'https://github.com/themattharris/tmhOAuth'),

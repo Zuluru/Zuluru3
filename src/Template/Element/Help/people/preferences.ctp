@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ */
+?>
 <p><?= __('On the {0} page, you can set a number of options which change the way the site works for you.',
 	$this->Html->link(__('My Profile') . ' -> ' . __('Preferences'), ['controller' => 'People', 'action' => 'preferences'])
 ) ?></p>

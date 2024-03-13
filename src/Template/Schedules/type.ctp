@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Division $division
+ * @var \App\Model\Entity\Pool $pool
+ */
+
 use Cake\Core\Configure;
 
 $this->Html->addCrumb(__('Division'));

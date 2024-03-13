@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
+
 if (empty($divisions)) {
 	echo __('No divisions operate on the selected night.');
 } else {

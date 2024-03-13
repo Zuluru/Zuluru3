@@ -1,4 +1,11 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Team[] $teams
+ * @var string $letter
+ * @var string[] $letters
+ */
+
 $this->Html->addCrumb(__('Teams'));
 $this->Html->addCrumb(__('Starting with {0}', $letter));
 ?>

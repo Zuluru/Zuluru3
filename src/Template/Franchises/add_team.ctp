@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Franchise $franchise
+ */
+
 $this->Html->addCrumb(__('Franchise'));
 $this->Html->addCrumb($franchise->name);
 $this->Html->addCrumb(__('Add Team to Franchise'));

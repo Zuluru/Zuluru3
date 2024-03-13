@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Game $game
+ * @var \App\Model\Entity\Team $attendance
+ */
+
 use Cake\Core\Configure;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\StatsTable;

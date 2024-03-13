@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Upload $documents
+ */
+
 $this->Html->addCrumb(__('People'));
 $this->Html->addCrumb(__('Approve Documents'));
 ?>

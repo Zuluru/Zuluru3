@@ -1,7 +1,12 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Team $team
+ */
+
 use Cake\Core\Configure;
 
-$style = 'width:' . floor(80 / count($team['division']['league']['stat_types'])) . '%;';
+$style = 'width:' . floor(80 / count($team->division->league->stat_types)) . '%;';
 ?>
 
 <div class="stat-sheet">
@@ -15,7 +20,7 @@ $style = 'width:' . floor(80 / count($team['division']['league']['stat_types']))
 			</tr>
 			<tr>
 				<td><?= __('Team') ?>:</td>
-				<td><?= $team['name'] . __(' ({0})', __('home/away')) ?></td>
+				<td><?= $team->name . __(' ({0})', __('home/away')) ?></td>
 			</tr>
 			<tr>
 				<td><?= __('Opponent') ?>:</td>
@@ -27,18 +32,18 @@ $style = 'width:' . floor(80 / count($team['division']['league']['stat_types']))
 			</tr>
 			<tr>
 				<td><?= __('Final score') ?>:</td>
-				<td><?= $team['name'] ?>: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  <?= __('Opponent') ?>: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+				<td><?= $team->name ?>: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  <?= __('Opponent') ?>: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
 			</tr>
 			<tr>
 				<td><?= __('Timeouts taken') ?>:</td>
-				<td><?= $team['name'] ?>: [&nbsp;] [&nbsp;] [&nbsp;]  <?= __('Opponent') ?>: [&nbsp;] [&nbsp;] [&nbsp;]</td>
+				<td><?= $team->name ?>: [&nbsp;] [&nbsp;] [&nbsp;]  <?= __('Opponent') ?>: [&nbsp;] [&nbsp;] [&nbsp;]</td>
 			</tr>
 <?php
 if (Configure::read("sports.{$team->division->league->sport}.start.stat_sheet")):
 ?>
 			<tr>
 				<td><?= __(Configure::read("sports.{$team->division->league->sport}.start.stat_sheet")) ?>:</td>
-				<td><?= $team['name'] ?>: [&nbsp;]  <?= __('Opponent') ?>: [&nbsp;]<?=
+				<td><?= $team->name ?>: [&nbsp;]  <?= __('Opponent') ?>: [&nbsp;]<?=
 				Configure::read("sports.{$team->division->league->sport}.start.stat_sheet_direction") ? __('End') : '' ?></td>
 			</tr>
 <?php
@@ -46,7 +51,7 @@ elseif (Configure::read("sports.{$team->division->league->sport}.start.stat_shee
 ?>
 			<tr>
 				<td><?= __('Starting end') ?>:</td>
-				<td><?= $team['name'] ?>: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  <?= __('Opponent') ?>: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+				<td><?= $team->name ?>: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  <?= __('Opponent') ?>: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
 			</tr>
 <?php
 endif;
@@ -59,20 +64,20 @@ endif;
 			<tr>
 				<th><?= __('Player') ?></th>
 <?php
-foreach ($team['division']['league']['stat_types'] as $stat) {
-	echo $this->Html->tag('th', __($stat['name']), compact('style'));
+foreach ($team->division->league->stat_types as $stat) {
+	echo $this->Html->tag('th', __($stat->name), compact('style'));
 }
 ?>
 			</tr>
 		</thead>
 		<tbody>
 <?php
-foreach ($team['people'] as $person):
+foreach ($team->people as $person):
 ?>
 			<tr>
-				<td><?= $person['full_name'] ?></td>
+				<td><?= $person->full_name ?></td>
 <?php
-	foreach ($team['division']['league']['stat_types'] as $stat):
+	foreach ($team->division->league->stat_types as $stat):
 ?>
 				<td style="<?= $style ?>">&nbsp;</td>
 <?php
@@ -87,7 +92,7 @@ endforeach;
 			<tr>
 				<td><?= __('Unlisted Subs') ?></td>
 <?php
-foreach ($team['division']['league']['stat_types'] as $stat):
+foreach ($team->division->league->stat_types as $stat):
 ?>
 				<td style="<?= $style ?>">&nbsp;</td>
 <?php

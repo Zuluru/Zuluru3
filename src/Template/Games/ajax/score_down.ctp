@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
+
 if (isset($message)) {
 	$this->Html->scriptBlock("alert('$message')", ['buffer' => true]);
 } else {

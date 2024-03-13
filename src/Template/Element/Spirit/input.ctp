@@ -1,4 +1,13 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Game $game
+ * @var \App\Model\Entity\Team $for_team
+ * @var \App\Model\Entity\Team $from_team
+ * @var \App\Module\Spirit $spirit_obj
+ * @var int $index
+ */
+
 use Cake\Core\Configure;
 
 $prefix = "spirit_entries.{$index}";
