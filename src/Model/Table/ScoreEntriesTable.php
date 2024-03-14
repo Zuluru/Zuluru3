@@ -81,16 +81,16 @@ class ScoreEntriesTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', 'create')
 
 			->nonNegativeInteger('score_for', __('Scores must be in the range 0-99.'))
-			->allowEmpty('score_for', function($context) { return !empty($context['data']['status']) && $context['data']['status'] != 'normal'; })
+			->allowEmptyString('score_for', function($context) { return !empty($context['data']['status']) && $context['data']['status'] != 'normal'; })
 
 			->nonNegativeInteger('score_against', __('Scores must be in the range 0-99.'))
-			->allowEmpty('score_against', function($context) { return !empty($context['data']['status']) && $context['data']['status'] != 'normal'; })
+			->allowEmptyString('score_against', function($context) { return !empty($context['data']['status']) && $context['data']['status'] != 'normal'; })
 
 			->requirePresence('status', function($context) { return $context['newRecord'] && !empty($context['data']['person_id']); }, __('You must select a valid status.'))
-			->notEmpty('status', __('You must select a valid status.'))
+			->notEmptyString('status', __('You must select a valid status.'))
 
 			->range('home_carbon_flip', [0, 2], __('You must select a valid carbon flip result.'))
 			->requirePresence('home_carbon_flip', function ($context) {
@@ -125,7 +125,7 @@ class ScoreEntriesTable extends AppTable {
 				]);
 				return $game->division->women_present;
 			}, __('You must enter the number of women designated players.'))
-			->allowEmpty('women_present')
+			->allowEmptyString('women_present')
 
 			;
 

@@ -66,18 +66,18 @@ class SpiritEntriesTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', 'create')
 
 			->numeric('score_entry_penalty')
-			->notEmpty('score_entry_penalty')
+			->notEmptyString('score_entry_penalty')
 
-			->allowEmpty('comments')
+			->allowEmptyString('comments')
 
-			->allowEmpty('highlights')
+			->allowEmptyString('highlights')
 
 			// TODOLATER: Require based on league setting? Do in SpiritModule? Any other similar fields?
 			->numeric('most_spirited_id')
-			->allowEmpty('most_spirited_id')
+			->allowEmptyString('most_spirited_id')
 
 			;
 

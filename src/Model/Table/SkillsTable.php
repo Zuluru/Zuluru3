@@ -46,20 +46,20 @@ class SkillsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', 'create')
 
 			->requirePresence('sport', 'create')
-			->notEmpty('sport')
+			->notEmptyString('sport')
 
 			->numeric('skill_level')
-			->allowEmpty('skill_level')
+			->allowEmptyString('skill_level')
 
 			->numeric('year_started')
-			->allowEmpty('year_started')
+			->allowEmptyString('year_started')
 
 			->boolean('enabled')
 			->requirePresence('enabled', 'create')
-			->notEmpty('enabled')
+			->notEmptyString('enabled')
 
 			;
 

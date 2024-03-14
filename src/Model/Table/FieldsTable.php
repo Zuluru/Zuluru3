@@ -54,46 +54,46 @@ class FieldsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', 'create')
 
 			// validation will allow empty numbers; rules will limit this
-			->allowEmpty('num')
+			->allowEmptyString('num')
 
 			->boolean('is_open')
-			->notEmpty('is_open')
+			->notEmptyString('is_open')
 
 			->boolean('indoor')
-			->notEmpty('indoor')
+			->notEmptyString('indoor')
 
-			->notEmpty('rating', __('Select a rating from the list.'))
+			->notEmptyString('rating', __('Select a rating from the list.'))
 
 			->latitude('latitude')
-			->allowEmpty('latitude')
+			->allowEmptyString('latitude')
 
 			->longitude('longitude')
-			->allowEmpty('longitude')
+			->allowEmptyString('longitude')
 
 			->numeric('angle')
-			->allowEmpty('angle')
+			->allowEmptyString('angle')
 
 			->numeric('length')
-			->allowEmpty('length')
+			->allowEmptyString('length')
 
 			->numeric('width')
-			->allowEmpty('width')
+			->allowEmptyString('width')
 
 			->numeric('zoom')
-			->allowEmpty('zoom')
+			->allowEmptyString('zoom')
 
 			->url('layout_url', __('Must be a valid URL, if specified'))
 			->requirePresence('layout_url', false)
-			->allowEmpty('layout_url')
+			->allowEmptyString('layout_url')
 
 			->requirePresence('surface', 'create')
-			->notEmpty('surface', __('Select a playing surface from the list.'))
+			->notEmptyString('surface', __('Select a playing surface from the list.'))
 
 			->requirePresence('sport', 'create')
-			->notEmpty('sport', __('Select a sport from the list.'))
+			->notEmptyString('sport', __('Select a sport from the list.'))
 
 			;
 

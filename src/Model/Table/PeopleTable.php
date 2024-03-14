@@ -384,7 +384,7 @@ class PeopleTable extends AppTable {
 
 		if (Configure::read('feature.antispam')) {
 			$validator
-				->allowEmpty('relatives')
+				->allowEmptyArray('relatives')
 				->add('relatives', 'antispam', [
 					'rule' => function ($value, $context) {
 						if (!is_array($value) || !array_key_exists(0, $value)) {

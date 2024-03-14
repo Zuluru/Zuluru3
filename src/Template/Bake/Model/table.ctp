@@ -119,13 +119,13 @@ foreach ($validation as $field => $rules):
 		if (isset($rule['allowEmpty'])):
 			if (is_string($rule['allowEmpty'])):
 				printf(
-					"			->allowEmpty('%s', '%s')\n",
+					"			->allowEmptyString('%s', '%s')\n",
 					$field,
 					$rule['allowEmpty']
 				);
 			elseif ($rule['allowEmpty']):
 				printf(
-					"			->allowEmpty('%s')\n",
+					"			->allowEmptyString('%s')\n",
 					$field
 				);
 			else:
@@ -134,7 +134,7 @@ foreach ($validation as $field => $rules):
 					$field
 				);
 				printf(
-					"			->notEmpty('%s')\n",
+					"			->notEmptyString('%s')\n",
 					$field
 				);
 			endif;

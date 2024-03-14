@@ -46,11 +46,11 @@ class SubscriptionsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', 'create')
 
 			->boolean('subscribed')
 			->requirePresence('subscribed', 'create')
-			->notEmpty('subscribed')
+			->notEmptyString('subscribed')
 
 			;
 

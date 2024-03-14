@@ -3,6 +3,8 @@ namespace App\Model\Table;
 
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Log\LogTrait;
+use Cake\ORM\Association\BelongsToMany;
+use Cake\ORM\Association\HasMany;
 use Cake\ORM\Entity;
 use Cake\ORM\Table;
 use Cake\Utility\Inflector;
@@ -57,6 +59,7 @@ class AppTable extends Table {
 		$dependencies = [];
 		$associations = $this->associations();
 
+		/** @var BelongsToMany $association */
 		foreach ($associations->getByType('BelongsToMany') as $association) {
 			$class = $association->getName();
 			$foreign_key = $association->getForeignKey();
@@ -69,7 +72,7 @@ class AppTable extends Table {
 			}
 
 			if (in_array($class, $ignoreDeep) || array_key_exists($class, $ignoreDeep)) {
-				foreach ($dependent->extract($association->targetForeignKey())->toArray() as $deepId) {
+				foreach ($dependent->extract($association->getTargetForeignKey())->toArray() as $deepId) {
 					if (array_key_exists($class, $ignoreDeep)) {
 						$deep = $association->dependencies($deepId, $ignoreDeep[$class]);
 					} else {
@@ -90,6 +93,7 @@ class AppTable extends Table {
 			$ignore[] = $through;
 		}
 
+		/** @var HasMany $association */
 		foreach ($associations->getByType('HasMany') as $association) {
 			$class = $association->getName();
 			$foreign_key = $association->getForeignKey();
@@ -125,9 +129,9 @@ class AppTable extends Table {
 	}
 
 	/**
-	 * @param mixed|\Cake\ORM\Entity $entity The entity to clone, or the ID of the entity to read from the database
+	 * @param mixed|Entity $entity The entity to clone, or the ID of the entity to read from the database
 	 * @param array $options Options to pass to the get function, if required
-	 * @return \Cake\ORM\Entity The entity without any IDs in it. Note that this does not actually clone a
+	 * @return Entity The entity without any IDs in it. Note that this does not actually clone a
 	 * provided Entity, just makes it safe to save such that the result will be new rows in the database.
 	 */
 	public function cloneWithoutIds($entity, $options = []): Entity {
@@ -139,7 +143,7 @@ class AppTable extends Table {
 		return $this->_cloneWithoutIds($entity);
 	}
 
-	protected function _cloneWithoutIds(\Cake\ORM\Entity $entity): Entity {
+	protected function _cloneWithoutIds(Entity $entity): Entity {
 		// Make sure the entity type matches
 		if (!is_a($entity, $this->getEntityClass())) {
 			trigger_error('Incorrect entity type: ' . get_class($entity) . ' provided, expected ' . $this->getEntityClass(), E_USER_ERROR);
@@ -151,7 +155,7 @@ class AppTable extends Table {
 		foreach ($this->associations() as $association) {
 			$name = $association->getProperty();
 			if ($entity->has($name)) {
-				if (is_a($association, 'Cake\ORM\Association\HasMany')) {
+				if (is_a($association, \Cake\ORM\Association\HasMany::class)) {
 					// If there's a foreign key associated with it, clear that ID too
 					$bindingKey = $association->getBindingKey();
 					$foreignKey = $association->getForeignKey();
@@ -160,7 +164,7 @@ class AppTable extends Table {
 						$associated->unsetProperty($foreignKey);
 						$association->getTarget()->_cloneWithoutIds($associated);
 					}
-				} else if (is_a($association, 'Cake\ORM\Association\BelongsToMany')) {
+				} else if (is_a($association, \Cake\ORM\Association\BelongsToMany::class)) {
 					$bindingKey = $association->getBindingKey();
 					$foreignKey = $association->getForeignKey();
 					foreach ($entity->$name as $associated) {
@@ -169,7 +173,7 @@ class AppTable extends Table {
 						$associated->_joinData->isNew(true);
 						$association->getTarget()->_cloneWithoutIds($associated);
 					}
-				} else if (is_a($association, 'Cake\ORM\Association\BelongsTo')) {
+				} else if (is_a($association, \Cake\ORM\Association\BelongsTo::class)) {
 					// Belongs to records remain unchanged, IDs and all.
 				} else {
 					$association->getTarget()->_cloneWithoutIds($entity->$name);

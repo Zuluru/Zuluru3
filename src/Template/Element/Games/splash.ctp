@@ -23,7 +23,7 @@ if (!empty($items)):
 ?>
 			<tr>
 <?php
-		if (is_a($item, 'App\Model\Entity\Game')):
+		if (is_a($item, \App\Model\Entity\Game::class)):
 ?>
 				<td class="splash_item"><?= $this->Html->link($this->Time->dateTimeRange($item->game_slot), ['controller' => 'Games', 'action' => 'view', 'game' => $item->id]) ?></td>
 				<td class="splash_item"><?php
@@ -101,7 +101,7 @@ if (!empty($items)):
 					}
 				?></td>
 <?php
-		elseif (is_a($item, 'App\Model\Entity\TeamEvent')):
+		elseif (is_a($item, \App\Model\Entity\TeamEvent::class)):
 ?>
 				<td class="splash_item"><?php
 					$time = $this->Time->day($item->date) . ', ' .
@@ -147,7 +147,7 @@ if (!empty($items)):
 					}
 				?></td>
 <?php
-		elseif (is_a($item, 'App\Model\Entity\TaskSlot')):
+		elseif (is_a($item, \App\Model\Entity\TaskSlot::class)):
 ?>
 				<td class="splash_item"><?php
 					$time = $this->Time->day($item->task_date) . ', ' .

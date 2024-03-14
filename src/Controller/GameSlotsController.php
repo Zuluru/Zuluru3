@@ -203,7 +203,7 @@ class GameSlotsController extends AppController {
 				} else if (array_key_exists('confirm', $this->getRequest()->getData())) {
 					if (empty($this->getRequest()->getData('game_slots'))) {
 						$this->Flash->info(__('You must select at least one game slot!'));
-						$this->viewBuilder()->template('confirm');
+						$this->viewBuilder()->setTemplate('confirm');
 					} else {
 						if ($this->GameSlots->getConnection()->transactional(function () use ($game_slot, $holidays, $times, $weeks) {
 							$division_ids = collection($game_slot->divisions)->extract('id')->toArray();
@@ -249,11 +249,11 @@ class GameSlotsController extends AppController {
 							// original "add" form, with the last game date/start/end/weeks options
 							// already selected.
 						} else {
-							$this->viewBuilder()->template('add');
+							$this->viewBuilder()->setTemplate('add');
 						}
 					}
 				} else {
-					$this->viewBuilder()->template('confirm');
+					$this->viewBuilder()->setTemplate('confirm');
 				}
 			}
 		} else {

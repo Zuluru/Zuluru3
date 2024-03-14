@@ -42,17 +42,17 @@ class ReportsTable extends AppTable {
 	 */
 	public function validationDefault(Validator $validator) {
 		$validator
-			->add('id', 'valid', ['rule' => 'numeric'])
-			->allowEmpty('id', 'create')
+			->numeric('id', 'valid')
+			->allowEmptyString('id', 'create')
 
 			->requirePresence('report', 'create')
-			->notEmpty('report')
+			->notEmptyString('report')
 
 			->requirePresence('params', 'create')
-			->notEmpty('params')
+			->notEmptyString('params')
 
-			->add('failures', 'valid', ['rule' => 'numeric'])
-			->notEmpty('failures')
+			->numeric('failures', 'valid')
+			->notEmptyString('failures')
 
 			;
 

@@ -563,7 +563,7 @@ class SchedulesController extends AppController {
 						$date_type = 'datetime';
 					}
 					$q->distinct('date')
-						->selectTypeMap()
+						->getSelectTypeMap()
 						->addDefaults([
 							'date' => $date_type
 						]);

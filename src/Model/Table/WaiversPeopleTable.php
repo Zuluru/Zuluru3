@@ -47,13 +47,13 @@ class WaiversPeopleTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', 'create')
 
 			->date('valid_from')
-			->allowEmpty('valid_from')
+			->allowEmptyDate('valid_from')
 
 			->date('valid_until')
-			->allowEmpty('valid_until')
+			->allowEmptyDate('valid_until')
 
 			;
 

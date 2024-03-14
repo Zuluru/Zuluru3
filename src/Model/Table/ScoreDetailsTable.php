@@ -55,16 +55,16 @@ class ScoreDetailsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', 'create')
 
 			->numeric('score_from')
-			->allowEmpty('score_from')
+			->allowEmptyString('score_from')
 
 			->requirePresence('play', 'create')
-			->notEmpty('play')
+			->notEmptyString('play')
 
 			->numeric('points')
-			->allowEmpty('points')
+			->allowEmptyString('points')
 
 			;
 

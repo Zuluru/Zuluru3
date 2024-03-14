@@ -333,7 +333,7 @@ class Person extends Entity {
 						$this->$prop = $model_table->mergeList($this->$prop, $new->$prop);
 					}
 				} else if (!empty($new->$prop) || !in_array($prop, $preserve_if_new_is_empty)) {
-					if (!is_object($new->$prop) || is_a($new->$prop, 'Cake\Chronos\ChronosInterface')) {
+					if (!is_object($new->$prop) || is_a($new->$prop, \Cake\Chronos\ChronosInterface::class)) {
 						$this->$prop = $new->$prop;
 					} else if ($new->$prop instanceof \App\Model\Entity\User) {
 						if ($this->has($prop)) {

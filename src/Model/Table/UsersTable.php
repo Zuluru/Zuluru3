@@ -98,19 +98,19 @@ class UsersTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric($this->getPrimaryKey())
-			->allowEmpty($this->getPrimaryKey(), 'create')
+			->allowEmptyString($this->getPrimaryKey(), 'create')
 
 			->requirePresence($this->userField, 'create', __('Username must not be blank.'))
-			->notEmpty($this->userField, __('Username must not be blank.'))
+			->notEmptyString($this->userField, __('Username must not be blank.'))
 
 			->requirePresence($this->emailField, 'create', __('You must supply a valid email address.'))
-			->notEmpty($this->emailField)
+			->notEmptyString($this->emailField)
 			->email($this->emailField, false, __('You must supply a valid email address.'))
 
 			->dateTime('last_login')
-			->allowEmpty('last_login')
+			->allowEmptyDateTime('last_login')
 
-			->allowEmpty('client_ip')
+			->allowEmptyString('client_ip')
 
 			;
 
@@ -135,7 +135,7 @@ class UsersTable extends AppTable {
 				},
 				'message' => __('Old password is not correct.'),
 			])
-			->notEmpty('old_password')
+			->notEmptyString('old_password')
 
 			->requirePresence('new_password', 'create', __('Password must be between 6 and 50 characters long.'))
 			->add('new_password', [
@@ -161,7 +161,7 @@ class UsersTable extends AppTable {
 					'last' => true,
 				]
 			])
-			->notEmpty('new_password')
+			->notEmptyString('new_password')
 
 			->requirePresence('confirm_password', 'create', __('Password must be between 6 and 50 characters long.'))
 			->add('confirm_password', [
@@ -170,7 +170,7 @@ class UsersTable extends AppTable {
 					'message' => __('Passwords must match.'),
 				]
 			])
-			->notEmpty('confirm_password')
+			->notEmptyString('confirm_password')
 
 		;
 
@@ -189,7 +189,7 @@ class UsersTable extends AppTable {
 
 		if (Configure::read('feature.antispam')) {
 			$validator
-				->allowEmpty('subject')
+				->allowEmptyString('subject')
 				->add('subject', 'antispam', [
 					'rule' => function ($value, $context) {
 						// The presence of data in a field that should not be filled in triggers anti-spam measures.

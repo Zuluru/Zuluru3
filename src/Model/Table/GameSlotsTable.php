@@ -66,19 +66,19 @@ class GameSlotsTable extends AppTable {
 	public function validationCommon(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', 'create')
 
 			->date('game_date', __('You must provide a valid game date.'))
-			->notEmpty('game_date', __('You must provide a valid game date.'))
+			->notEmptyDate('game_date', __('You must provide a valid game date.'))
 
 			->time('game_start', __('You must provide a valid game start time.'))
-			->notEmpty('game_start', __('You must provide a valid game start time.'))
+			->notEmptyTime('game_start', __('You must provide a valid game start time.'))
 
 			->time('game_end', __('You must provide a valid game end time.'))
-			->allowEmpty('game_end')
+			->allowEmptyTime('game_end')
 
 			->boolean('assigned')
-			->notEmpty('assigned')
+			->notEmptyString('assigned')
 
 			;
 
@@ -96,7 +96,7 @@ class GameSlotsTable extends AppTable {
 
 		$validator
 			->requirePresence('divisions', 'create', __('You must select at least one division!'))
-			->notEmpty('divisions', __('You must select at least one division!'))
+			->notEmptyArray('divisions', __('You must select at least one division!'))
 
 			;
 
@@ -114,7 +114,7 @@ class GameSlotsTable extends AppTable {
 
 		$validator
 			->requirePresence('fields', 'create', __('You must select at least one {0}!', Configure::read('UI.field')))
-			->notEmpty('fields', __('You must select at least one {0}!', Configure::read('UI.field')))
+			->notEmptyArray('fields', __('You must select at least one {0}!', Configure::read('UI.field')))
 
 			->add('length', 'noLengthWithSunset', [
 				'rule' => function ($value, $context) {

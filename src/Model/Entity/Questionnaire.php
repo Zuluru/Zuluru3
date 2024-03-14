@@ -49,7 +49,7 @@ class Questionnaire extends Entity {
 	 */
 	public function addResponseValidation(Validator $validator, EventTypeBase $event_obj, array $responses, Event $event, Registration $registration = null) {
 		$validator
-			->notEmpty('answer_text', __('Must not be blank.'), function ($context) {
+			->notEmptyString('answer_text', __('Must not be blank.'), function ($context) {
 				$question = collection($this->questions)->firstMatch(['id' => $context['data']['question_id']]);
 				return $question ? (!empty($question->required) || !empty($question->_joinData->required)) : false;
 			})
@@ -60,7 +60,7 @@ class Questionnaire extends Entity {
 				},
 			])
 
-			->notEmpty('answer_id', __('Select one.'), function ($context) {
+			->notEmptyString('answer_id', __('Select one.'), function ($context) {
 				$question = collection($this->questions)->firstMatch(['id' => $context['data']['question_id']]);
 				return $question ? (!empty($question->required) || !empty($question->_joinData->required)) : false;
 			})

@@ -43,13 +43,13 @@ class ContactsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', 'create')
 
 			->requirePresence('name', 'create', __('Contact name must not be blank.'))
-			->notEmpty('name', __('The name cannot be blank.'))
+			->notEmptyString('name', __('The name cannot be blank.'))
 
 			->requirePresence('email', 'create', __('You must provide a valid email address.'))
-			->notEmpty('email', __('You must provide a valid email address.'))
+			->notEmptyString('email', __('You must provide a valid email address.'))
 			->email('email', false, __('You must provide a valid email address.'))
 
 			;

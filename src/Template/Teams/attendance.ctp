@@ -62,7 +62,7 @@ usort($all_items, [GamesTable::class, 'compareDateAndField']);
 
 $header_cells = [''];
 foreach ($all_items as $item) {
-	if (is_a($item, 'App\Model\Entity\Game')) {
+	if (is_a($item, \App\Model\Entity\Game::class)) {
 		if ($item->id) {
 			$header_cells[] = $this->element('Games/block', ['game' => $item, 'game_slot' => $item->game_slot]);
 		} else {
@@ -96,7 +96,7 @@ foreach ($people as $person):
 <?php
 	$total = 0;
 	foreach ($all_items as $key => $item):
-		if (is_a($item, 'App\Model\Entity\Game')) {
+		if (is_a($item, \App\Model\Entity\Game::class)) {
 			if ($item->id) {
 				$record = collection($person->attendances)->firstMatch(['game_id' => $item->id]);
 			} else {

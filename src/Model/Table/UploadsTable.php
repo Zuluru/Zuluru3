@@ -84,10 +84,10 @@ class UploadsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', 'create')
 
 			->requirePresence('filename', 'create', __('There was an unexpected error uploading the file. Please try again.'))
-			->notEmpty('filename', __('You must select a document to upload.'))
+			->notEmptyFile('filename', __('You must select a document to upload.'))
 			->add('filename', 'noErrors', [
 				'rule' => function ($value, $context) {
 					// We may just get a plain filename here, from cropped photo uploads
@@ -125,13 +125,13 @@ class UploadsTable extends AppTable {
 			])
 
 			->boolean('approved')
-			->allowEmpty('approved')
+			->allowEmptyString('approved')
 
 			->date('valid_from', __('You must provide a valid date.'))
-			->allowEmpty('valid_from')
+			->allowEmptyDate('valid_from')
 
 			->date('valid_until', __('You must provide a valid date.'))
-			->allowEmpty('valid_until')
+			->allowEmptyDate('valid_until')
 
 			;
 

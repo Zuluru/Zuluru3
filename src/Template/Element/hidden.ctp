@@ -10,7 +10,7 @@ if (isset($model)) {
 	$model = '';
 }
 
-if (is_a($fields, 'Cake\ORM\Entity')) {
+if (is_a($fields, \Cake\ORM\Entity::class)) {
 	$fields = $fields->toArray();
 }
 

@@ -65,7 +65,7 @@ if (!empty($team['games'])):
 <?php
 	foreach ($team->games as $game):
 		$class = null;
-		$is_event = is_a($game, 'App\Model\Entity\TeamEvent');
+		$is_event = is_a($game, \App\Model\Entity\TeamEvent::class);
 		if (!$is_event) {
 			if (!$game->published) {
 				$class = ' class="unpublished"';

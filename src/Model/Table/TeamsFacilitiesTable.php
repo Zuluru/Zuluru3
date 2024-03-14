@@ -43,11 +43,11 @@ class TeamsFacilitiesTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', 'create')
 
 			->numeric('rank')
 			->requirePresence('rank', 'create')
-			->notEmpty('rank')
+			->notEmptyString('rank')
 
 			;
 

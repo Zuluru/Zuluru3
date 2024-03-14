@@ -45,21 +45,21 @@ class GroupsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', 'create')
 
 			->requirePresence('name', 'create')
-			->notEmpty('name', __('The name cannot be blank.'))
+			->notEmptyString('name', __('The name cannot be blank.'))
 
 			->boolean('active')
 			->requirePresence('active', 'create')
-			->notEmpty('active')
+			->notEmptyString('active')
 
 			->numeric('level')
 			->requirePresence('level', 'create')
-			->notEmpty('level')
+			->notEmptyString('level')
 
 			->requirePresence('description', 'create')
-			->notEmpty('description')
+			->notEmptyString('description')
 
 			;
 

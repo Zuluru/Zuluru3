@@ -1061,7 +1061,7 @@ class AppController extends Controller {
 	public static function _extractEmails($input, $single = false, $check_relatives = true, $formatted = false) {
 		$emails = [];
 
-		if (is_a($input, 'Cake\ORM\Entity')) {
+		if (is_a($input, \Cake\ORM\Entity::class)) {
 			// If it's an entity, extract what we can.
 			if (!empty($input->full_name)) {
 				$name = $input->full_name;
@@ -1136,7 +1136,7 @@ class AppController extends Controller {
 	}
 
 	public static function _extractLocales($input, $locales) {
-		if (is_a($input, 'App\Model\Entity\Person')) {
+		if (is_a($input, \App\Model\Entity\Person::class)) {
 			// If it's a person, check if they have a language preference
 			$preference = TableRegistry::getTableLocator()->get('Settings')->find()
 				->where(['person_id' => $input->id, 'name' => 'language'])

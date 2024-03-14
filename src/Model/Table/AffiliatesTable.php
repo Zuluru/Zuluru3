@@ -115,13 +115,13 @@ class AffiliatesTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', 'create')
 
 			->requirePresence('name', 'create')
-			->notEmpty('name', __('The name cannot be blank.'))
+			->notEmptyString('name', __('The name cannot be blank.'))
 
 			->boolean('active')
-			->allowEmpty('active', 'create')
+			->allowEmptyString('active', 'create')
 
 			;
 

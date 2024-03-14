@@ -47,16 +47,16 @@ class SettingsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', 'create')
 
 			->requirePresence('category', 'create')
-			->notEmpty('category')
+			->notEmptyString('category')
 
 			->requirePresence('name', 'create')
-			->notEmpty('name', __('The name cannot be blank.'))
+			->notEmptyString('name', __('The name cannot be blank.'))
 
 			->requirePresence('value', 'create')
-			->allowEmpty('value')
+			->allowEmptyString('value')
 
 			;
 

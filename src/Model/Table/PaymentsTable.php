@@ -80,21 +80,21 @@ class PaymentsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', 'create')
 
 			->requirePresence('payment_type', 'create')
-			->notEmpty('payment_type')
+			->notEmptyString('payment_type')
 
 			->numeric('payment_amount')
-			->notEmpty('payment_amount')
+			->notEmptyString('payment_amount')
 
 			->numeric('refunded_amount')
-			->allowEmpty('refunded_amount')
+			->allowEmptyString('refunded_amount')
 
-			->allowEmpty('notes')
+			->allowEmptyString('notes')
 
 			->requirePresence('payment_method', 'create')
-			->notEmpty('payment_method')
+			->notEmptyString('payment_method')
 
 			;
 

@@ -121,19 +121,19 @@ class SpiritTeam extends Spirit {
 		return parent::addValidation($validator, $league)
 			->range('q1', [0, 3], __('Select one of the given options.'))
 			->requirePresence('q1', 'create')
-			->notEmpty('q1')
+			->notEmptyString('q1')
 
 			->range('q2', [0, 3], __('Select one of the given options.'))
 			->requirePresence('q2', 'create')
-			->notEmpty('q2')
+			->notEmptyString('q2')
 
 			->range('q3', [0, 3], __('Select one of the given options.'))
 			->requirePresence('q3', 'create')
-			->notEmpty('q3')
+			->notEmptyString('q3')
 
 			->range('q4', [0, 1], __('Select one of the given options.'))
 			->requirePresence('q4', 'create')
-			->notEmpty('q4')
+			->notEmptyString('q4')
 
 			;
 	}

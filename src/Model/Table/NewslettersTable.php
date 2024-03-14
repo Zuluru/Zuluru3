@@ -55,40 +55,40 @@ class NewslettersTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', 'create')
 
 			->requirePresence('name', 'create')
-			->notEmpty('name', __('The name cannot be blank.'))
+			->notEmptyString('name', __('The name cannot be blank.'))
 
 			->requirePresence('subject', 'create')
-			->notEmpty('subject')
+			->notEmptyString('subject')
 
-			->allowEmpty('text')
+			->allowEmptyString('text')
 
 			->date('target')
-			->allowEmpty('target')
+			->allowEmptyDate('target')
 
 			->email('from_email', false, __('You must supply a valid email address.'))
 			->requirePresence('from_email', 'create', __('You must supply a valid email address.'))
-			->notEmpty('from_email', __('You must supply a valid email address.'))
+			->notEmptyString('from_email', __('You must supply a valid email address.'))
 
 			->email('to_email', false, __('You must supply a valid email address.'))
-			->allowEmpty('to_email')
+			->allowEmptyString('to_email')
 
 			->email('reply_to', false, __('You must supply a valid email address.'))
-			->allowEmpty('reply_to')
+			->allowEmptyString('reply_to')
 
 			->range('delay', [1, 60], __('Delay must be between 1 and 60 minutes.'))
 			->requirePresence('delay', 'create', __('Delay must be between 1 and 60 minutes.'))
-			->notEmpty('delay', __('Delay must be between 1 and 60 minutes.'))
+			->notEmptyString('delay', __('Delay must be between 1 and 60 minutes.'))
 
 			->range('batch_size', [1, 1000], __('Batch size must be between 1 and 1000.'))
 			->requirePresence('batch_size', 'create', __('Batch size must be between 1 and 1000.'))
-			->notEmpty('batch_size', __('Batch size must be between 1 and 1000.'))
+			->notEmptyString('batch_size', __('Batch size must be between 1 and 1000.'))
 
 			->boolean('personalize', __('Indicate whether this newsletter will be personalized.'))
 			->requirePresence('personalize', 'create', __('Indicate whether this newsletter will be personalized.'))
-			->notEmpty('personalize', __('Indicate whether this newsletter will be personalized.'))
+			->notEmptyString('personalize', __('Indicate whether this newsletter will be personalized.'))
 
 			;
 

@@ -74,13 +74,13 @@ class NotesTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', 'create')
 
 			->numeric('visibility')
 			->requirePresence('visibility', 'create')
-			->notEmpty('visibility')
+			->notEmptyString('visibility')
 
-			->allowEmpty('note')
+			->allowEmptyString('note')
 
 			;
 

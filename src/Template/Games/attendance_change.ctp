@@ -2,6 +2,12 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Game $game
+ * @var \App\Model\Entity\Team $team
+ * @var \App\Model\Entity\Attendance $attendance
+ * @var \Cake\I18n\FrozenDate $game_date
+ * @var string[] $attendance_options
+ * @var bool $is_me
+ * @var bool $is_captain
  */
 
 use Cake\Core\Configure;

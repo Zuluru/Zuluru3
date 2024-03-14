@@ -28,7 +28,7 @@ foreach ($items as $item):
 ?>
 			<tr>
 <?php
-	if (is_a($item, 'App\Model\Entity\Game')):
+	if (is_a($item, \App\Model\Entity\Game::class)):
 		$home_attendance = $this->Authorize->can('attendance', new \App\Authorization\ContextResource($item, ['home_team' => $item->home_team]));
 		$away_attendance = $this->Authorize->can('attendance', new \App\Authorization\ContextResource($item, ['away_team' => $item->away_team]));
 ?>
@@ -141,7 +141,7 @@ foreach ($items as $item):
 ?>
 				<td><?= $this->Game->displayScore($item, $item->division, $item->division->league) ?></td>
 <?php
-	elseif (is_a($item, 'App\Model\Entity\TeamEvent')):
+	elseif (is_a($item, \App\Model\Entity\TeamEvent::class)):
 ?>
 				<td class="splash_item"><?php
 					$time = $this->Time->day($item->date) . ', ' .
@@ -204,7 +204,7 @@ foreach ($items as $item):
 ?>
 				<td></td>
 <?php
-	elseif (is_a($item, 'App\Model\Entity\TaskSlot')):
+	elseif (is_a($item, \App\Model\Entity\TaskSlot::class)):
 ?>
 				<td class="splash_item"><?php
 					$time = $this->Time->day($item->task_date) . ', ' .

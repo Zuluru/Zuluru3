@@ -55,16 +55,16 @@ class MailingListsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', 'create')
 
 			->requirePresence('name', 'create')
-			->notEmpty('name', __('The name cannot be blank.'))
+			->notEmptyString('name', __('The name cannot be blank.'))
 
 			->boolean('opt_out')
 			->requirePresence('opt_out', 'create')
-			->notEmpty('opt_out')
+			->notEmptyString('opt_out')
 
-			->allowEmpty('rule')
+			->allowEmptyString('rule')
 
 			;
 

@@ -57,11 +57,11 @@ class StatsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', 'create')
 
 			->numeric('value', __('Stats must be numeric.'))
 			->requirePresence('value', 'create', __('Stats must be numeric.'))
-			->notEmpty('value', __('Stats must be numeric.'))
+			->notEmptyString('value', __('Stats must be numeric.'))
 
 			;
 

@@ -48,10 +48,10 @@ class AffiliatesPeopleTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', 'create')
 
 			->requirePresence('position', 'create')
-			->notEmpty('position')
+			->notEmptyString('position')
 
 			;
 

@@ -53,19 +53,19 @@ class TaskSlotsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', 'create')
 
 			->date('task_date', __('You must provide a valid task date.'))
-			->allowEmpty('task_date')
+			->allowEmptyDate('task_date')
 
 			->time('task_start', __('You must select a valid start time.'))
-			->allowEmpty('task_start')
+			->allowEmptyTime('task_start')
 
 			->time('task_end', __('You must select a valid end time.'))
-			->allowEmpty('task_end')
+			->allowEmptyTime('task_end')
 
 			->boolean('approved', __('Indicate whether the task assignment has been approved.'))
-			->allowEmpty('approved')
+			->allowEmptyString('approved')
 
 			->numeric('number_of_slots', __('Number of slots must be a number. Use 1 to create a single slot.'))
 
