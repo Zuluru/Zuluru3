@@ -50,7 +50,7 @@ foreach ($fields as $field):
 	if (in_array($field, $primaryKey) || $field == $displayField) {
 		continue;
 	}
-	$type = $schema->columnType($field);
+	$type = $schema->getColumnType($field);
 	if (isset($associationFields[$field])):
 		$details = $associationFields[$field];
 %>

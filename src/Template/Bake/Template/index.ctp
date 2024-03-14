@@ -16,7 +16,7 @@ use Cake\Utility\Inflector;
 
 $fields = collection($fields)
 	->filter(function ($field) use ($schema) {
-		return !in_array($schema->columnType($field), ['binary', 'text']);
+		return !in_array($schema->getColumnType($field), ['binary', 'text']);
 	})
 	->take(7);
 %>
@@ -66,7 +66,7 @@ foreach ($<%= $pluralVar %> as $<%= $singularVar %>):
 					}
 				}
 				if ($isKey !== true) {
-					$type = $schema->columnType($field);
+					$type = $schema->getColumnType($field);
 					if (in_array($type, ['integer', 'biginteger', 'decimal', 'float'])) {
 %>
 				<td><?= $this->Number->format($<%= $singularVar %>-><%= $field %>) ?></td>

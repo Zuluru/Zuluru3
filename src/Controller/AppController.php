@@ -65,7 +65,7 @@ class AppController extends Controller {
 		$this->loadComponent('RequestHandler', ['enableBeforeRedirect' => false]);
 
 		// Don't attempt to do anything database- or user-related during installation
-		if ($this->plugin == 'Installer') {
+		if ($this->getPlugin() === 'Installer') {
 			return;
 		}
 
@@ -122,7 +122,7 @@ class AppController extends Controller {
 		parent::beforeFilter($cakeEvent);
 
 		// Don't attempt to do anything database- or user-related during installation
-		if ($this->plugin == 'Installer') {
+		if ($this->getPlugin() === 'Installer') {
 			return;
 		}
 
@@ -256,7 +256,7 @@ class AppController extends Controller {
 	 * @link https://book.cakephp.org/3/en/controllers.html#Controller::redirect
 	 */
 	public function redirect($url, $status = 302) {
-		$this->autoRender = false;
+		$this->disableAutoRender();
 
 		if ($status) {
 			$this->setResponse($this->getResponse()->withStatus($status));

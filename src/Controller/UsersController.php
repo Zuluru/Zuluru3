@@ -5,6 +5,7 @@ use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Datasource\RulesChecker;
+use Cake\Http\Cookie\Cookie;
 use Cake\I18n\FrozenTime;
 use Cake\I18n\Time;
 use Cake\Http\Exception\UnauthorizedException;
@@ -498,15 +499,15 @@ class UsersController extends AppController {
 			if ($users_table->save($user)) {
 				// Update the "remember me" cookie, if there is one
 				if ($this->getRequest()->getCookie('ZuluruAuth')) {
-					$expires = new Time('+1 year');
-					$this->setResponse($this->getResponse()->withCookie('ZuluruAuth', [
-						'value' => [
+					$this->setResponse($this->getResponse()->withCookie(new Cookie(
+						'ZuluruAuth',
+						[
 							'user_name' => $user->{$users_table->userField},
 							'password' => $data[$users_table->pwdField],
 						],
-						'expire' => $expires->format('U'),
-						'path' => '/' . trim($this->getRequest()->getAttribute('webroot'), '/'),
-					]));
+						FrozenTime::now()->addYear(),
+						'/' . trim($this->getRequest()->getAttribute('webroot'), '/'),
+					)));
 				}
 
 				$this->Flash->success(__('The password has been updated.'));

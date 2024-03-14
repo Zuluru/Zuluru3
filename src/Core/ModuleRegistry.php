@@ -53,7 +53,7 @@ class ModuleRegistry extends ObjectRegistry implements EventDispatcherInterface 
 	 */
 	public function setController(Controller $controller) {
 		$this->_Controller = $controller;
-		$this->eventManager($controller->eventManager());
+		$this->setEventManager($controller->getEventManager());
 	}
 
 	public static function &getInstance() {

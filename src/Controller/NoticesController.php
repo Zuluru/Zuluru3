@@ -23,7 +23,7 @@ class NoticesController extends AppController {
 	 * @return void Generates no output, just updates the database
 	 */
 	public function viewed($id, $remind = false) {
-		$this->autoRender = false;
+		$this->disableAutoRender();
 
 		// If the login has timed out, don't try to save
 		if (!$this->UserCache->currentId()) {

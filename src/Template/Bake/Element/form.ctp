@@ -16,7 +16,7 @@ use Cake\Utility\Inflector;
 
 $fields = collection($fields)
 	->filter(function ($field) use ($schema) {
-		return $schema->columnType($field) !== 'binary';
+		return $schema->getColumnType($field) !== 'binary';
 	});
 %>
 <?php
@@ -40,7 +40,7 @@ if ($<%= $singularVar %>->isNew()) {
 				continue;
 			}
 			if (isset($keyFields[$field])) {
-				$fieldData = $schema->column($field);
+				$fieldData = $schema->getColumn($field);
 				if (!empty($fieldData['null'])) {
 %>
 			echo $this->Form->control('<%= $field %>', ['options' => $<%= $keyFields[$field] %>, 'empty' => true]);
@@ -53,7 +53,7 @@ if ($<%= $singularVar %>->isNew()) {
 				continue;
 			}
 			if (!in_array($field, ['created', 'modified'])) {
-				$fieldData = $schema->column($field);
+				$fieldData = $schema->getColumn($field);
 				if (($fieldData['type'] === 'date') && (!empty($fieldData['null']))) {
 %>
 			echo $this->Form->control('<%= $field %>', ['empty' => true, 'default' => '']);

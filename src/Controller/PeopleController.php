@@ -356,16 +356,16 @@ class PeopleController extends AppController {
 					'Divisions.close >=' => $start,
 				];
 
-				$leagueNames = TableRegistry::get('Divisions')->find()
+				$leagueNames = TableRegistry::getTableLocator()->get('Divisions')->find()
 					->contain(['Leagues'])
 					->where($conditions)
 					->extract('league.full_name')
 					->toArray();
 
-				$divisions = TableRegistry::get('Divisions')->find()
+				$divisions = TableRegistry::getTableLocator()->get('Divisions')->find()
 					->select('id')
 					->where($conditions);
-				$people = TableRegistry::get('TeamsPeople')->find()
+				$people = TableRegistry::getTableLocator()->get('TeamsPeople')->find()
 					->distinct('person_id')
 					->select('person_id')
 					->contain(['Teams'])
@@ -1649,7 +1649,7 @@ class PeopleController extends AppController {
 		if ($this->getRequest()->is('post')) {
 			// Add some configuration that the upload behaviour will use
 			$filename = $person->id . '_' . md5(mt_rand());
-			$this->People->Uploads->behaviors()->get('Upload')->config([
+			$this->People->Uploads->behaviors()->get('Upload')->setConfig([
 				'filename' => [
 					// Callbacks for adjusting the file name before saving. Both are required. :-(
 					'nameCallback' => function (Table $table, Entity $entity, $data, $field, $settings) use ($filename) {
