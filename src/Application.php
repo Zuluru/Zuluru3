@@ -131,7 +131,17 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 	 * @return \Authentication\AuthenticationServiceInterface
 	 */
 	public function getAuthenticationService(ServerRequestInterface $request, ResponseInterface $response) {
-		$service = new AuthenticationService();
+		// TODO: Read these from site configuration
+		if (Configure::read('feature.authenticate_through') == 'Zuluru') {
+			$loginAction = Router::url(Configure::read('App.urls.login'), true);
+		} else {
+			$loginAction = Router::url(['controller' => 'Leagues', 'action' => 'index'], true);
+		}
+
+		$service = new AuthenticationService([
+			'unauthenticatedRedirect' => $loginAction,
+			'queryParam' => 'redirect',
+		]);
 		$authenticators = Configure::read('Security.authenticators');
 
 		// The fields to use for identification
@@ -402,18 +412,8 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 				callable $next
 			) {
 				// Do not attempt authentication for the installer
-				if ($request && $request->getParam('plugin') != 'Installer') {
-					// TODO: Read these from site configuration
-					if (Configure::read('feature.authenticate_through') == 'Zuluru') {
-						$loginAction = Router::url(Configure::read('App.urls.login'), true);
-					} else {
-						$loginAction = Router::url(['controller' => 'Leagues', 'action' => 'index'], true);
-					}
-
-					$authentication = new AuthenticationMiddleware($this, [
-						'unauthenticatedRedirect' => $loginAction,
-						'queryParam' => 'redirect',
-					]);
+				if ($request->getParam('plugin') != 'Installer') {
+					$authentication = new AuthenticationMiddleware($this);
 
 					return $authentication($request, $response, $next);
 				} else {

@@ -13,7 +13,7 @@ $this->Html->addCrumb(__('Email Search'));
 	<h2><?= __('Search People') ?></h2>
 
 	<div class="search form">
-		<?= $this->Form->create(false, ['align' => 'horizontal']) ?>
+		<?= $this->form->create(null, ['align' => 'horizontal']) ?>
 <?php
 if (isset($affiliate_id)) {
 	echo $this->Form->hidden('affiliate_id', ['value' => $affiliate_id]);

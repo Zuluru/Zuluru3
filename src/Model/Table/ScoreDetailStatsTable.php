@@ -50,7 +50,7 @@ class ScoreDetailStatsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmptyString('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			;
 

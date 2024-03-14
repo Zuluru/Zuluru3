@@ -14,7 +14,7 @@ $this->Html->addCrumb(__('Report'));
 	<h2><?= __('Registration Report') ?></h2>
 
 <?php
-echo $this->Form->create(false, ['align' => 'horizontal']);
+echo $this->form->create(null, ['align' => 'horizontal']);
 ?>
 
 	<fieldset>

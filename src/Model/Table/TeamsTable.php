@@ -139,7 +139,7 @@ class TeamsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmptyString('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->requirePresence('name', 'create', __('Team name must not be blank.'))
 			->notEmptyString('name', __('The name cannot be blank.'))

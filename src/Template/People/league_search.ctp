@@ -11,7 +11,7 @@ $this->Html->addCrumb(__('League Search'));
 	<h2><?= __('Search People') ?></h2>
 
 	<div class="search form">
-		<?= $this->Form->create(false, ['align' => 'horizontal']) ?>
+		<?= $this->form->create(null, ['align' => 'horizontal']) ?>
 		<p><?= __('Select a league to show players from.') ?></p>
 <?php
 if (isset($affiliate_id)) {

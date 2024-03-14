@@ -92,7 +92,7 @@ class RegistrationsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmptyString('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->allowEmptyString('payment')
 
@@ -102,7 +102,7 @@ class RegistrationsTable extends AppTable {
 			->allowEmptyString('deposit_amount')
 
 			->dateTime('reservation_expires')
-			->allowEmptyDateTime('reservation_expires', function($context) {
+			->allowEmptyDateTime('reservation_expires', null, function($context) {
 				return (!empty($context['data']['payment']) && $context['data']['payment'] != 'Reserved') || (Configure::read('registration.reservation_time') == 0);
 			})
 

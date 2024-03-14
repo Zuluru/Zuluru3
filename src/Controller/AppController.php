@@ -247,7 +247,7 @@ class AppController extends Controller {
 	}
 
 	/**
-	 * Redirects to given $url, after turning off $this->autoRender, unless there is a "return" referer to go to instead.
+	 * Redirects to given $url, after turning off autoRender, unless there is a "return" referer to go to instead.
 	 *
 	 * @param string|array $url A string or array-based URL pointing to another location within the app,
 	 *     or an absolute URL

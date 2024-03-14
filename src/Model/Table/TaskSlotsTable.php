@@ -53,7 +53,7 @@ class TaskSlotsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmptyString('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->date('task_date', __('You must provide a valid task date.'))
 			->allowEmptyDate('task_date')

@@ -39,7 +39,7 @@ class RegistrationAuditsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmptyString('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->numeric('response_code')
 			->requirePresence('response_code', 'create')

@@ -5,6 +5,6 @@
  */
 
 // We intentionally do not echo the result of the create call. It is just to set up some defaults in the form helper.
-$this->Form->create(false, ['align' => 'horizontal']);
+$this->form->create(null, ['align' => 'horizontal']);
 
 echo $this->element('Payments/settings/' . $provider);

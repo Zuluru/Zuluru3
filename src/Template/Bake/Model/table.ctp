@@ -119,7 +119,7 @@ foreach ($validation as $field => $rules):
 		if (isset($rule['allowEmpty'])):
 			if (is_string($rule['allowEmpty'])):
 				printf(
-					"			->allowEmptyString('%s', '%s')\n",
+					"			->allowEmptyString('%s', null, '%s')\n",
 					$field,
 					$rule['allowEmpty']
 				);

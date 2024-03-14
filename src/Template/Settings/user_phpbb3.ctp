@@ -9,7 +9,7 @@ $this->Html->addCrumb('phpBB3');
 
 <div class="settings form">
 <?php
-echo $this->Form->create(false, ['align' => 'horizontal']);
+echo $this->form->create(null, ['align' => 'horizontal']);
 
 echo $this->element('Settings/banner');
 

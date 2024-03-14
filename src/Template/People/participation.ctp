@@ -13,7 +13,7 @@ $this->Html->addCrumb(__('Participation Statistics'));
 	<h2><?= __('Participation Statistics') ?></h2>
 
 <?php
-echo $this->Form->create(false, ['align' => 'horizontal']);
+echo $this->form->create(null, ['align' => 'horizontal']);
 $year = FrozenTime::now()->year;
 $years = array_combine(range($year, $min), range($year, $min));
 echo $this->Form->control('start', [

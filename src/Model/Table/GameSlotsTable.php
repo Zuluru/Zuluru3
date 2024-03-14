@@ -66,7 +66,7 @@ class GameSlotsTable extends AppTable {
 	public function validationCommon(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmptyString('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->date('game_date', __('You must provide a valid game date.'))
 			->notEmptyDate('game_date', __('You must provide a valid game date.'))

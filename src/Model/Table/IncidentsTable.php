@@ -49,7 +49,7 @@ class IncidentsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmptyString('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->requirePresence('type', 'create', __('Select the incident type'))
 			->notEmptyString('type', __('Select the incident type'))

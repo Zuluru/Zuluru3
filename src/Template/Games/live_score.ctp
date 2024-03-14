@@ -63,7 +63,7 @@ if (Configure::read('feature.twitter')) {
 	} else {
 		$twitter = "#{$game->division->name} game between " . $team->twitterName() . ' and ' . $opponent->twitterName() . " is about to start at {$game->game_slot->field->long_code}.";
 	}
-	echo $this->Form->create('Twitter', ['url' => ['controller' => 'Games', 'action' => 'tweet']]);
+	echo $this->Form->create(null, ['url' => ['controller' => 'Games', 'action' => 'tweet']]);
 	echo $this->Form->hidden('lat', ['value' => $game->game_slot->field->latitude]);
 	echo $this->Form->hidden('long', ['value' => $game->game_slot->field->longitude]);
 	echo $this->Form->control('message', [
@@ -91,7 +91,7 @@ if (empty($game->score_details)):
 <div class="zuluru">
 <?php
 	$url = ['controller' => 'Games', 'action' => 'play', 'game' => $game->id, 'team' => $submitter];
-	echo $this->Form->create(false, [
+	echo $this->form->create(null, [
 		'id' => "StartForm{$team->id}",
 		'url' => $url,
 	]);

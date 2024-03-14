@@ -105,7 +105,7 @@ class DivisionsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmptyString('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			// validation will allow empty names; rules will limit this
 			->allowEmptyString('name')

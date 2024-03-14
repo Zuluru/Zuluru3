@@ -52,7 +52,7 @@ class BadgesTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmptyString('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->requirePresence('affiliate_id', 'create')
 			->notEmptyString('affiliate_id', __('You must select a valid affiliate.'))

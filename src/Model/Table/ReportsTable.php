@@ -43,7 +43,7 @@ class ReportsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id', 'valid')
-			->allowEmptyString('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->requirePresence('report', 'create')
 			->notEmptyString('report')

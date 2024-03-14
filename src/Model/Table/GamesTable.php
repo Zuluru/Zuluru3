@@ -159,7 +159,7 @@ class GamesTable extends AppTable {
 	 */
 	public function validationDefault(Validator $validator) {
 		$validator
-			->allowEmptyString('id', 'create')
+			->allowEmptyString('id', null, 'create')
 			->numeric('id')
 
 			->notEmptyString('published')
@@ -240,7 +240,7 @@ class GamesTable extends AppTable {
 			->allowEmptyString('away_field_rank')
 			->naturalNumber('away_field_rank')
 
-			->allowEmptyString('rating_points', 'create')
+			->allowEmptyString('rating_points', null, 'create')
 			->integer('rating_points')
 
 			->requirePresence('home_carbon_flip', function ($context) {

@@ -55,7 +55,7 @@ class TeamsPeopleTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmptyString('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->numeric('status')
 			->range('status', [ROSTER_APPROVED, ROSTER_REQUESTED], __('You must select a valid status.'))

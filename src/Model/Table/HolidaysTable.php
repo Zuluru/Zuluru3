@@ -42,7 +42,7 @@ class HolidaysTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmptyString('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->date('date')
 			->notEmptyDate('date')

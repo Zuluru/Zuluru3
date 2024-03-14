@@ -57,7 +57,7 @@ class PricesTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmptyString('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			// validation will allow empty names; rules will limit this
 			->allowEmptyString('name')
@@ -68,10 +68,10 @@ class PricesTable extends AppTable {
 			->notEmptyString('cost', __('You must enter a valid cost.'))
 
 			->numeric('tax1', __('You must enter a valid tax amount.'))
-			->allowEmptyString('tax1', function () { return !Configure::read('payment.tax1_enable'); })
+			->allowEmptyString('tax1', null, function () { return !Configure::read('payment.tax1_enable'); })
 
 			->numeric('tax2', __('You must enter a valid tax amount.'))
-			->allowEmptyString('tax2', function () { return !Configure::read('payment.tax2_enable'); })
+			->allowEmptyString('tax2', null, function () { return !Configure::read('payment.tax2_enable'); })
 
 			->dateTime('open', __('You must select a valid opening date.'))
 			->requirePresence('open', 'create', __('You must select a valid opening date.'))

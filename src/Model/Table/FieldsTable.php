@@ -54,7 +54,7 @@ class FieldsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmptyString('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			// validation will allow empty numbers; rules will limit this
 			->allowEmptyString('num')

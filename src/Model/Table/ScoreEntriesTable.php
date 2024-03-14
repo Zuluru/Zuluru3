@@ -81,13 +81,13 @@ class ScoreEntriesTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmptyString('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->nonNegativeInteger('score_for', __('Scores must be in the range 0-99.'))
-			->allowEmptyString('score_for', function($context) { return !empty($context['data']['status']) && $context['data']['status'] != 'normal'; })
+			->allowEmptyString('score_for', null, function($context) { return !empty($context['data']['status']) && $context['data']['status'] != 'normal'; })
 
 			->nonNegativeInteger('score_against', __('Scores must be in the range 0-99.'))
-			->allowEmptyString('score_against', function($context) { return !empty($context['data']['status']) && $context['data']['status'] != 'normal'; })
+			->allowEmptyString('score_against', null, function($context) { return !empty($context['data']['status']) && $context['data']['status'] != 'normal'; })
 
 			->requirePresence('status', function($context) { return $context['newRecord'] && !empty($context['data']['person_id']); }, __('You must select a valid status.'))
 			->notEmptyString('status', __('You must select a valid status.'))

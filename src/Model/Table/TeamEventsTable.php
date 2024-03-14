@@ -73,7 +73,7 @@ class TeamEventsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmptyString('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->requirePresence('name', 'create', __('Event name must not be blank.'))
 			->notEmptyString('name', __('The name cannot be blank.'))

@@ -9,7 +9,7 @@ $this->Html->addCrumb(__('Nominate'));
 ?>
 
 <div class="badges form">
-<?= $this->Form->create(false, ['align' => 'horizontal']) ?>
+<?= $this->form->create(null, ['align' => 'horizontal']) ?>
 	<fieldset>
 		<legend><?= __('Nominate for a Badge') ?></legend>
 <?php

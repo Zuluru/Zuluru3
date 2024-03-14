@@ -84,7 +84,7 @@ class UploadsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmptyString('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->requirePresence('filename', 'create', __('There was an unexpected error uploading the file. Please try again.'))
 			->notEmptyFile('filename', __('You must select a document to upload.'))

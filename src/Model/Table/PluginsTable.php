@@ -36,7 +36,7 @@ class PluginsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id', 'valid')
-			->allowEmptyString('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->requirePresence('name', 'create')
 			->notEmptyString('name')

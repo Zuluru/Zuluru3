@@ -8,7 +8,7 @@ $this->Html->addCrumb(__('Select'));
 ?>
 
 <div class="affiliates form">
-	<?= $this->Form->create(false, ['align' => 'horizontal']) ?>
+	<?= $this->form->create(null, ['align' => 'horizontal']) ?>
 	<fieldset>
 		<p class="warning-message"><?= __('By selecting an affiliate below, you will only be shown that affiliate\'s details throughout the site. You will be able to remove this restriction or select another affiliate to browse, using links on your {0}.',
 			__('Dashboard')

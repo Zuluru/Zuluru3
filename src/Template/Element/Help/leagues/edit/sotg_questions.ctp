@@ -12,7 +12,7 @@ use App\Core\ModuleRegistry;
 <?php
 // We need to save the existing form helper context and restore it later
 $context = $this->Form->context();
-echo $this->Form->create(false, ['align' => 'horizontal']);
+echo $this->Form->create(null, ['align' => 'horizontal']);
 $options = Configure::read('options.spirit_questions');
 foreach ($options as $option => $name):
 	$spirit_obj = ModuleRegistry::getInstance()->load("Spirit:{$option}");

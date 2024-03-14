@@ -80,7 +80,7 @@ class PaymentsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmptyString('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->requirePresence('payment_type', 'create')
 			->notEmptyString('payment_type')

@@ -11,7 +11,7 @@ $this->Html->addCrumb(__('Rule-based Search'));
 	<h2><?= __('Search People') ?></h2>
 
 	<div class="search form">
-		<?= $this->Form->create(false, ['align' => 'horizontal']) ?>
+		<?= $this->form->create(null, ['align' => 'horizontal']) ?>
 		<p><?= __('Enter a rule to find people who match.') ?>
 
 		<?= $this->Html->help(['action' => 'rules', 'rules']) ?>

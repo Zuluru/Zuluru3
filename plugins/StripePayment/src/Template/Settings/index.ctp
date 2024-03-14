@@ -12,7 +12,7 @@ $this->Html->addCrumb('Stripe');
 
 <div class="settings form">
 <?php
-echo $this->Form->create(false, ['align' => 'horizontal']);
+echo $this->form->create(null, ['align' => 'horizontal']);
 ?>
 <fieldset>
 	<legend><?= __('{0} Settings', 'Stripe') ?></legend>

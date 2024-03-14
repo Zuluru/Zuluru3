@@ -17,7 +17,7 @@ $multiple_types = (count($types) > 1);
 <div class="categories index">
 	<h2><?= __('Categories') ?></h2>
 	<div class="table-responsive">
-	<?= $this->Form->create(false) ?>
+	<?= $this->form->create(null) ?>
 	<table class="table table-striped table-hover table-condensed sortable">
 		<thead>
 			<tr>

@@ -66,7 +66,7 @@ class SpiritEntriesTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmptyString('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->numeric('score_entry_penalty')
 			->notEmptyString('score_entry_penalty')
