@@ -1406,8 +1406,7 @@ class PeopleController extends AppController {
 			->first();
 		if (!empty($photo)) {
 			$this->Authorization->authorize($photo);
-			$this->getResponse()->withFile(Configure::read('App.paths.uploads') . DS . $photo->filename);
-			return $this->response;
+			return $this->getResponse()->withFile(Configure::read('App.paths.uploads') . DS . $photo->filename);
 		}
 	}
 
@@ -1601,11 +1600,10 @@ class PeopleController extends AppController {
 			$this->getResponse()->setTypeMap($type, $mime);
 		}
 		$f = new File($document->filename);
-		$this->getResponse()->withFile(Configure::read('App.paths.uploads') . DS . $document->filename, [
+		return $this->getResponse()->withFile(Configure::read('App.paths.uploads') . DS . $document->filename, [
 			'name' => $document->filename,
 			'download' => !in_array($f->ext(), Configure::read('no_download_extensions')),
 		]);
-		return $this->response;
 	}
 
 	public function document_upload() {
@@ -2417,7 +2415,7 @@ class PeopleController extends AppController {
 			} else {
 				$this->Authorization->authorize($target);
 
-				$user = $this->Authentication->getIdentity()->actAs($this->request, $this->response, $target);
+				$user = $this->Authentication->getIdentity()->actAs($this->getRequest(), $this->getResponse(), $target);
 				if ($user->real_person) {
 					$this->Flash->success(__('You are now acting as {0}.', $target->full_name));
 				} else {

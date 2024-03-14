@@ -43,7 +43,7 @@ for ($i = 1; $i <= $pools; ++ $i):
 ?>
 					<tr>
 						<td><?= $i ?>.</td>
-						<td><?= $this->Form->input("_options.pools.$i.name", [
+						<td><?= $this->Form->control("_options.pools.$i.name", [
 							'label' => false,
 							'maxlength' => 2,
 							'size' => 5,
@@ -52,7 +52,7 @@ for ($i = 1; $i <= $pools; ++ $i):
 <?php
 	if ($type != 'snake'):
 ?>
-						<td><?= $this->Form->input("_options.pools.$i.count", [
+						<td><?= $this->Form->control("_options.pools.$i.count", [
 							'label' => false,
 							'type' => 'number',
 							'maxlength' => 2,

@@ -15,7 +15,7 @@ $this->Html->addCrumb($this->Time->date($date));
 	<h2><?= __('Daily Schedule') . ': ' . $this->Time->date($date) ?></h2>
 <?php
 echo $this->Form->create(false, ['align' => 'horizontal']);
-echo $this->Form->input('date', [
+echo $this->Form->control('date', [
 	'label' => false,
 	'type' => 'date',
 	'empty' => true,

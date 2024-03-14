@@ -57,19 +57,19 @@ echo $this->Html->para(null, __('Current status: {0}',
 
 echo $this->Html->para(null, __('Possible attendance options are:'));
 echo $this->Form->create($attendance, ['align' => 'horizontal']);
-echo $this->Form->input('status', [
+echo $this->Form->control('status', [
 	'label' => false,
 	'type' => 'radio',
 	'options' => $attendance_options,
 	'default' => $attendance->status,
 ]);
-echo $this->Form->input('comment', [
+echo $this->Form->control('comment', [
 	'label' => __('You may optionally add a comment'),
 	'size' => 80,
 	'default' => $attendance->comment,
 ]);
 if ($is_captain && array_key_exists(ATTENDANCE_INVITED, $attendance_options)) {
-	echo $this->Form->input('note', [
+	echo $this->Form->control('note', [
 		'label' => __('You may optionally add a personal note which will be included in the invitation email to the player'),
 		'size' => 80,
 	]);

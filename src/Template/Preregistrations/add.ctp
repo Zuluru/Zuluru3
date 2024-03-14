@@ -24,7 +24,7 @@ if (!isset($event)):
 	<fieldset>
 		<legend><?= __('Add Preregistration') ?></legend>
 <?php
-	echo $this->Form->input('event', [
+	echo $this->Form->control('event', [
 		'options' => $events,
 		'empty' => __('Select one:'),
 	]);

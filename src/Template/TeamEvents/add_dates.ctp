@@ -15,7 +15,7 @@ $this->Html->addCrumb(__('Dates'));
 		<legend><?= __('Team Event Dates') ?></legend>
 <?php
 for ($i = 0; $i < $this->getRequest()->getData('repeat_count'); ++ $i) {
-	echo $this->Form->input("dates.$i.date", ['type' => 'date']);
+	echo $this->Form->control("dates.$i.date", ['type' => 'date']);
 }
 $this->setRequest($this->getRequest()->withoutData('dates'));
 echo $this->element('hidden', ['fields' => $this->getRequest()->getData()]);

@@ -18,15 +18,15 @@ if ($holiday->isNew()) {
 	<fieldset>
 		<legend><?= $holiday->isNew() ? __('Create Holiday') : __('Edit Holiday') ?></legend>
 <?php
-echo $this->Form->input('name');
+echo $this->Form->control('name');
 if ($holiday->isNew()) {
-	echo $this->Form->input('affiliate_id', [
+	echo $this->Form->control('affiliate_id', [
 		'options' => $affiliates,
 		'hide_single' => true,
 		'empty' => '---',
 	]);
 }
-echo $this->Form->input('date');
+echo $this->Form->control('date');
 ?>
 	</fieldset>
 	<?= $this->Form->button(__('Submit'), ['class' => 'btn-success']) ?>

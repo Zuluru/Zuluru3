@@ -14,7 +14,7 @@ $divisions = TableRegistry::getTableLocator()->get('Divisions')->find()
 	])
 	->toArray();
 
-echo $this->Form->input('division_id', [
+echo $this->Form->control('division_id', [
 	'label' => __('Division'),
 	'options' => collection($divisions)->combine('id', 'full_league_name')->toArray(),
 	'empty' => __('Not associated with any division'),
@@ -23,7 +23,7 @@ echo $this->Form->input('division_id', [
 ]);
 $this->Form->unlockField('division_id');
 
-echo $this->Form->input('level_of_play', [
+echo $this->Form->control('level_of_play', [
 	'size' => 70,
 	'help' => __('Indicate the expected level(s) of play in this division.'),
 	'secure' => false,

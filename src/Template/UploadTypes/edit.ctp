@@ -18,9 +18,9 @@ if ($upload_type->isNew()) {
 	<fieldset>
 		<legend><?= $upload_type->isNew() ? __('Create Upload Type') : __('Edit Upload Type') ?></legend>
 <?php
-echo $this->Form->input('name');
+echo $this->Form->control('name');
 if ($upload_type->isNew()) {
-	echo $this->Form->input('affiliate_id', [
+	echo $this->Form->control('affiliate_id', [
 		'options' => $affiliates,
 		'hide_single' => true,
 		'empty' => '---',

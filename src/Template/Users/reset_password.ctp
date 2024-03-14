@@ -18,8 +18,8 @@ $this->Html->addCrumb(__('Reset Password'));
 <?= $this->Form->create($user, ['align' => 'horizontal']) ?>
 	<fieldset>
 <?php
-	echo $this->Form->input($user_field, ['label' => __('Username')]);
-	echo $this->Form->input($email_field, ['label' => __('Email')]);
+	echo $this->Form->control($user_field, ['label' => __('Username')]);
+	echo $this->Form->control($email_field, ['label' => __('Email')]);
 ?>
 	<p class="highlight-message"><?= __('Only one of these is typically required.') ?></p>
 	</fieldset>

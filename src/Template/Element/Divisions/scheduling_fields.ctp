@@ -7,7 +7,7 @@
 $prefix = (isset($index) ? "divisions.$index." : '');
 
 foreach ($fields as $field => $options) {
-	echo $this->Form->input("$prefix$field", array_merge(['secure' => false], $options));
+	echo $this->Form->control("$prefix$field", array_merge(['secure' => false], $options));
 	$this->Form->unlockField("$prefix$field");
 }
 

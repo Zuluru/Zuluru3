@@ -26,7 +26,7 @@ foreach ($questions as $group_label => $group_questions) {
 	foreach ($group_questions as $label => $options) {
 		$min += min(array_keys($options));
 		$max += max(array_keys($options));
-		echo $this->Form->input("{$sport}_q{$i}", [
+		echo $this->Form->control("{$sport}_q{$i}", [
 			'label' => "$i. $label",
 			'type' => 'radio',
 			'options' => $options,

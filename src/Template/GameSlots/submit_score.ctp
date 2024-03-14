@@ -20,7 +20,7 @@ $this->Html->addCrumb(__('Submit Game Results'));
 <?php
 echo $this->Form->create($game, ['align' => 'horizontal']);
 
-echo $this->Form->input("Game.status", [
+echo $this->Form->control("Game.status", [
 	'id' => 'Status',
 	'label' => __('This game was:'),
 	'options' => [
@@ -51,7 +51,7 @@ foreach ($game_slot->games as $game):
 ?>
 				<tr>
 					<td><?= $game['HomeTeam']['name'] ?></td>
-					<td><?= $this->Form->input("Game.{$game['home_team_id']}.home_score", [
+					<td><?= $this->Form->control("Game.{$game['home_team_id']}.home_score", [
 						'div' => false,
 						'class' => 'score',
 						'label' => false,
@@ -62,7 +62,7 @@ foreach ($game_slot->games as $game):
 	if (Configure::read('scoring.incident_reports')):
 ?>
 					<td><?php
-						echo $this->Form->input("Game.{$game['home_team_id']}.incident", [
+						echo $this->Form->control("Game.{$game['home_team_id']}.incident", [
 							'class' => 'incident_checkbox',
 							'type' => 'checkbox',
 							'value' => '1',
@@ -97,12 +97,12 @@ if (Configure::read('scoring.incident_reports')):
 			<form>
 <?php
 	echo $this->Form->hidden('Incident.team');
-	echo $this->Form->input('Incident.type', [
+	echo $this->Form->control('Incident.type', [
 		'label' => __('Incident Type'),
 		'options' => Configure::read('options.incident_types'),
 		'empty' => '---',
 	]);
-	echo $this->Form->input('Incident.details', [
+	echo $this->Form->control('Incident.details', [
 		'label' => __('Enter the details of the incident'),
 		'cols' => 60,
 	]);

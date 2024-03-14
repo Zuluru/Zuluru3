@@ -19,7 +19,7 @@ if (!isset($i)) {
 			($question->anonymous ? __(' ({0})', __('anonymous')) : '');
 	?></td>
 	<td><?php
-		echo $this->Form->input("questions.$i._joinData.required", [
+		echo $this->Form->control("questions.$i._joinData.required", [
 			'div' => false,
 			'label' => false,
 			'type' => 'checkbox',

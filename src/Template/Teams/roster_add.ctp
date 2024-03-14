@@ -42,7 +42,7 @@ if ($can_add !== true) {
 echo $this->Form->create($team, ['align' => 'horizontal']);
 
 echo $this->Html->para(null, __('Possible roster roles are:'));
-echo $this->Form->input('role', [
+echo $this->Form->control('role', [
 	'label' => false,
 	'type' => 'radio',
 	'options' => $roster_role_options,
@@ -52,7 +52,7 @@ echo $this->Form->input('role', [
 $positions = $team->division_id ? Configure::read("sports.{$team->division->league->sport}.positions") : [];
 if (!empty($positions)) {
 	echo $this->Html->para(null, __('Possible roster positions are:'));
-	echo $this->Form->input('position', [
+	echo $this->Form->control('position', [
 		'label' => false,
 		'type' => 'radio',
 		'options' => $positions,

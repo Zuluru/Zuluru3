@@ -18,13 +18,13 @@ $this->Html->addCrumb(__('Connections'));
 		<fieldset>
 <?php
 echo __('These two lists connect this event to events that have gone before. They will typically be the same. For more details see the help for each field.');
-echo $this->Form->input('predecessor._ids', [
+echo $this->Form->control('predecessor._ids', [
 	'label' => __('Events to consider as predecessors to this one:'),
 	'multiple' => true,
 	'hiddenField' => false,
 	'title' => __('Select all that apply'),
 ]);
-echo $this->Form->input('successor_to._ids', [
+echo $this->Form->control('successor_to._ids', [
 	'label' => __('Events that this one is considered a successor to:'),
 	'multiple' => true,
 	'hiddenField' => false,
@@ -36,13 +36,13 @@ echo $this->Form->input('successor_to._ids', [
 		<fieldset>
 <?php
 echo __('These two lists connect this event to events that come later, and are generally not applicable when creating a new event. They will typically be the same. For more details see the help for each field.');
-echo $this->Form->input('predecessor_to._ids', [
+echo $this->Form->control('predecessor_to._ids', [
 	'label' => __('Events that this one is considered a predecessor to:'),
 	'multiple' => true,
 	'hiddenField' => false,
 	'title' => __('Select all that apply'),
 ]);
-echo $this->Form->input('successor._ids', [
+echo $this->Form->control('successor._ids', [
 	'label' => __('Events to consider as successors to this one:'),
 	'multiple' => true,
 	'hiddenField' => false,
@@ -53,7 +53,7 @@ echo $this->Form->input('successor._ids', [
 
 		<fieldset>
 <?php
-echo $this->Form->input('alternate._ids', [
+echo $this->Form->control('alternate._ids', [
 	'label' => __('Events to consider as alternates to this one:'),
 	'multiple' => true,
 	'hiddenField' => false,

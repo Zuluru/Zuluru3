@@ -17,15 +17,15 @@ $this->Html->addCrumb($credit->person->full_name);
 	<fieldset>
 		<legend><?= ($credit->isNew() ? __('Create Credit') : __('Edit Credit')) . ': ' . $credit->person->full_name ?></legend>
 <?php
-echo $this->Form->input('amount', [
+echo $this->Form->control('amount', [
 	'help' => $credit->payment_id ? __('Editing this amount will also change the amount of the related refund.') : false,
 ]);
 if ($credit->isNew()) {
 	echo $this->Form->hidden('person_id', ['value' => $credit->person->id]);
 } else {
-	echo $this->Form->input('amount_used');
+	echo $this->Form->control('amount_used');
 }
-echo $this->Form->input('notes', [
+echo $this->Form->control('notes', [
 	'help' => $credit->isNew() ? __('These notes will be included in the notification email to the recipient.') : false,
 ]);
 ?>

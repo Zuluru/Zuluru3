@@ -35,7 +35,7 @@ if (!$edit || in_array(Configure::read('profile.gender'), $access)) {
 		],
 	]);
 } else {
-	echo $this->Form->input("{$prefix}gender", [
+	echo $this->Form->control("{$prefix}gender", [
 		'label' => __('Gender Identification'),
 		'disabled' => true,
 		'class' => 'disabled',
@@ -46,27 +46,27 @@ if (!$edit || in_array(Configure::read('profile.gender'), $access)) {
 $gender = isset($person) ? $person->gender : null;
 if (!$edit || in_array(Configure::read('profile.gender'), $access) || $gender == 'Prefer to specify') {
 	echo $this->Html->tag('div',
-		$this->Form->input("{$prefix}gender_description", [
+		$this->Form->control("{$prefix}gender_description", [
 			'secure' => false,
 		]),
 		['class' => "{$class_prefix}self-defined-gender"]
 	);
 }
 
-echo $this->Form->input("{$prefix}publish_gender", [
+echo $this->Form->control("{$prefix}publish_gender", [
 	'label' => __('Allow registered users to view gender identification'),
 ]);
 
 if (Configure::read('gender.column') == 'roster_designation') {
 	if (!$edit || in_array(Configure::read('profile.gender'), $access)) {
-		echo $this->Form->input("{$prefix}roster_designation", [
+		echo $this->Form->control("{$prefix}roster_designation", [
 			'options' => Configure::read('options.roster_designation'),
 			'empty' => '---',
 			'secure' => false,
 			'help' => $this->element('People/roster_designation_help'),
 		]);
 	} else {
-		echo $this->Form->input("{$prefix}roster_designation", [
+		echo $this->Form->control("{$prefix}roster_designation", [
 			'disabled' => true,
 			'class' => 'disabled',
 			'help' => __('To prevent system abuses, this can only be changed by an administrator. To change this, please email your {0} to {1}.', __('new roster designation'), $this->Html->link($admin, "mailto:$admin")),
@@ -76,13 +76,13 @@ if (Configure::read('gender.column') == 'roster_designation') {
 
 if (Configure::read('profile.pronouns')) {
 	if (!$edit || in_array(Configure::read('profile.pronouns'), $access)) {
-		echo $this->Form->input("{$prefix}pronouns", [
+		echo $this->Form->control("{$prefix}pronouns", [
 			'label' => __('Pronouns'),
 			'help' => __('In case we need to get in touch with you or introduce you to another player, captain, or volunteer, what pronouns should we use? (Optional)'),
 			'secure' => $secure,
 		]);
 	} else {
-		echo $this->Form->input("{$prefix}pronouns", [
+		echo $this->Form->control("{$prefix}pronouns", [
 			'label' => __('Pronouns'),
 			'disabled' => true,
 			'class' => 'disabled',
@@ -90,7 +90,7 @@ if (Configure::read('profile.pronouns')) {
 		]);
 	}
 
-	echo $this->Form->input("{$prefix}publish_pronouns", [
+	echo $this->Form->control("{$prefix}publish_pronouns", [
 		'label' => __('Allow registered users to view pronouns'),
 	]);
 }

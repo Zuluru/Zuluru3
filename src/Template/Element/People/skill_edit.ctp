@@ -64,7 +64,7 @@ foreach ($sports as $sport => $name):
 		<div id="<?= $id_prefix ?>Skill<?= $i ?>Details">
 <?php
 	if (in_array(Configure::read('profile.year_started'), $access)) {
-		echo $this->Form->input("{$prefix}skills.{$i}.year_started", [
+		echo $this->Form->control("{$prefix}skills.{$i}.year_started", [
 			'type' => 'year',
 			'minYear' => Configure::read('options.year.started.min'),
 			'maxYear' => Configure::read('options.year.started.max'),
@@ -76,7 +76,7 @@ foreach ($sports as $sport => $name):
 			'secure' => false,
 		]);
 	} else if (Configure::read('profile.year_started')) {
-		echo $this->Form->input("{$prefix}skills.{$i}.year_started", [
+		echo $this->Form->control("{$prefix}skills.{$i}.year_started", [
 			'disabled' => true,
 			'class' => 'disabled',
 			'help' => __('To prevent system abuses, this can only be changed by an administrator. To change this, please email your {0} to {1}.', __('correct year started'), $this->Html->link($admin, "mailto:$admin")),
@@ -90,7 +90,7 @@ foreach ($sports as $sport => $name):
 		} else {
 			$after = $this->Html->para(null, __('This is used to help build teams from individual sign-ups and inform our skills development programming.'));
 		}
-		echo $this->Form->input("{$prefix}skills.{$i}.skill_level", [
+		echo $this->Form->control("{$prefix}skills.{$i}.skill_level", [
 			'type' => 'select',
 			'empty' => '---',
 			'options' => Configure::read('options.skill'),
@@ -98,7 +98,7 @@ foreach ($sports as $sport => $name):
 			'secure' => false,
 		]);
 	} else if (Configure::read('profile.skill_level')) {
-		echo $this->Form->input("{$prefix}skills.{$i}.skill_level", [
+		echo $this->Form->control("{$prefix}skills.{$i}.skill_level", [
 			'disabled' => true,
 			'class' => 'disabled',
 			'size' => 70,

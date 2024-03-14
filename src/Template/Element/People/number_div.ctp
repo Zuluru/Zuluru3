@@ -7,7 +7,7 @@
 ?>
 <div id="number_entry_div" style="display: none;" title="<?= __('Shirt Number') ?>"><form>
 <p><?= __('Enter the new shirt number here, or leave blank to assign no shirt number.') ?></p>
-<br /><?= $this->Form->input('people.0._joinData.number', [
+<br /><?= $this->Form->control('people.0._joinData.number', [
 		'label' => false,
 		'type' => 'number',
 		'size' => 6,

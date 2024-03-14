@@ -23,7 +23,7 @@ $this->Html->addCrumb(__('Add Payment'));
 echo $this->Form->hidden('registration_id', [
 	'value' => $registration->id,
 ]);
-echo $this->Form->input('payment_amount', [
+echo $this->Form->control('payment_amount', [
 	'default' => $registration->balance,
 ]);
 
@@ -55,7 +55,7 @@ echo $this->Jquery->toggleInput('payment_method', [
 
 		<div id="standard_options">
 <?php
-echo $this->Form->input('notes', [
+echo $this->Form->control('notes', [
 	'type' => 'textarea',
 	'cols' => 72,
 	'help' => __('These notes will be attached to the new payment record, and are only visible to admins.'),
@@ -66,7 +66,7 @@ echo $this->Form->input('notes', [
 		</div>
 		<div id="credit_options">
 <?php
-echo $this->Form->input('credit_id', [
+echo $this->Form->control('credit_id', [
 	'options' => $credit_options,
 	'help' => __('The lowest of the credit amount, specified payment amount, and outstanding balance will be used as the actual payment amount.'),
 	'secure' => false,

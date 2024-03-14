@@ -20,18 +20,18 @@ if ($franchise->isNew()) {
 	<fieldset>
 		<legend><?= $franchise->isNew() ? __('Create Franchise') : __('Edit Franchise') ?></legend>
 <?php
-echo $this->Form->input('name', [
+echo $this->Form->control('name', [
 	'help' => __('The full name of your franchise.'),
 ]);
 if ($franchise->isNew()) {
-	echo $this->Form->input('affiliate_id', [
+	echo $this->Form->control('affiliate_id', [
 		'options' => $affiliates,
 		'hide_single' => true,
 		'empty' => '---',
 	]);
 }
 if (Configure::read('feature.urls')) {
-	echo $this->Form->input('website', [
+	echo $this->Form->control('website', [
 		'help' => __('Your franchise\'s website, if you have one.'),
 	]);
 }

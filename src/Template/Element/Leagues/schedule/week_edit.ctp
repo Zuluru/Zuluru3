@@ -150,7 +150,7 @@ foreach ($games as $game):
 				echo $this->Form->hidden("games.{$game->id}.placement", ['value' => $game->placement]);
 				echo Number::ordinal($game->placement);
 			} else {
-				echo $this->Form->input("games.{$game->id}.name", [
+				echo $this->Form->control("games.{$game->id}.name", [
 					'div' => false,
 					'label' => false,
 					'size' => 5,
@@ -159,7 +159,7 @@ foreach ($games as $game):
 		}
 	?></td>
 	<td colspan="<?= 2 + $multi_day ?>"><?php
-		echo $this->Form->input("games.{$game->id}.game_slot_id", [
+		echo $this->Form->control("games.{$game->id}.game_slot_id", [
 			'div' => false,
 			'label' => false,
 			'options' => $slots,
@@ -194,7 +194,7 @@ foreach ($games as $game):
 					}
 				}
 
-				echo $this->Form->input("games.{$game->id}.home_pool_team_id", [
+				echo $this->Form->control("games.{$game->id}.home_pool_team_id", [
 					'div' => false,
 					'label' => false,
 					'options' => $ids,
@@ -210,13 +210,13 @@ foreach ($games as $game):
 				ksort($ids);
 
 				// TODOBOOTSTRAP Can these two be smaller, so they fit side-by-side better?
-				echo $this->Form->input("games.{$game->id}.home_dependency_type", [
+				echo $this->Form->control("games.{$game->id}.home_dependency_type", [
 					'div' => false,
 					'label' => false,
 					'options' => $dependency_types,
 					'empty' => '---',
 				]);
-				echo $this->Form->input("games.{$game->id}.home_dependency_id", [
+				echo $this->Form->control("games.{$game->id}.home_dependency_id", [
 					'div' => false,
 					'label' => false,
 					'options' => $ids,
@@ -224,7 +224,7 @@ foreach ($games as $game):
 				]);
 			}
 		} else {
-			echo $this->Form->input("games.{$game->id}.home_team_id", [
+			echo $this->Form->control("games.{$game->id}.home_team_id", [
 				'div' => false,
 				'label' => false,
 				'options' => $teams,
@@ -263,7 +263,7 @@ foreach ($games as $game):
 					}
 				}
 
-				echo $this->Form->input("games.{$game->id}.away_pool_team_id", [
+				echo $this->Form->control("games.{$game->id}.away_pool_team_id", [
 					'div' => false,
 					'label' => false,
 					'options' => $ids,
@@ -279,13 +279,13 @@ foreach ($games as $game):
 				ksort($ids);
 
 				// TODOBOOTSTRAP These two too...
-				echo $this->Form->input("games.{$game->id}.away_dependency_type", [
+				echo $this->Form->control("games.{$game->id}.away_dependency_type", [
 					'div' => false,
 					'label' => false,
 					'options' => $dependency_types,
 					'empty' => '---',
 				]);
-				echo $this->Form->input("games.{$game->id}.away_dependency_id", [
+				echo $this->Form->control("games.{$game->id}.away_dependency_id", [
 					'div' => false,
 					'label' => false,
 					'options' => $ids,
@@ -293,7 +293,7 @@ foreach ($games as $game):
 				]);
 			}
 		} else {
-			echo $this->Form->input("games.{$game->id}.away_team_id", [
+			echo $this->Form->control("games.{$game->id}.away_team_id", [
 				'div' => false,
 				'label' => false,
 				'options' => $teams,
@@ -314,31 +314,31 @@ endforeach;
 <tr>
 	<td colspan="<?= 3 + $multi_day + !$competition ?>"><?php
 		// TODOBOOTSTRAP: This is creating a wide (though transparent) div that partially "covers up" the Submit button so that only the bottom of it is clickable
-		echo $this->Form->input('options.publish', [
+		echo $this->Form->control('options.publish', [
 			'label' => __('Set as published for player viewing?'),
 			'type' => 'checkbox',
 			'checked' => $published,
 		]);
 		if ($is_season) {
-			echo $this->Form->input('options.double_header', [
+			echo $this->Form->control('options.double_header', [
 				'label' => __('Allow double-headers?'),
 				'type' => 'checkbox',
 			]);
 		}
 		if ($multi_day) {
-			echo $this->Form->input('options.multiple_days', [
+			echo $this->Form->control('options.multiple_days', [
 				'label' => __('Allow teams to be booked on more than one day?'),
 				'type' => 'checkbox',
 			]);
 		}
 		if ($double_booking) {
-			echo $this->Form->input('options.double_booking', [
+			echo $this->Form->control('options.double_booking', [
 				'label' => __('Allow double-booking?'),
 				'type' => 'checkbox',
 			]);
 		}
 		if ($cross_division) {
-			echo $this->Form->input('options.cross_division', [
+			echo $this->Form->control('options.cross_division', [
 				'label' => __('Allow cross-division games?'),
 				'type' => 'checkbox',
 			]);

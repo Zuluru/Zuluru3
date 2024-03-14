@@ -24,11 +24,11 @@ $options = [
 if ($this->Authorize->getIdentity()->isManagerOf($person)) {
 	$options[VISIBILITY_ADMIN] = __('Administrators only');
 }
-echo $this->Form->input('visibility', [
+echo $this->Form->control('visibility', [
 	'options' => $options,
 	'hide_single' => true,
 ]);
-echo $this->Form->input('note', ['cols' => 70, 'class' => 'wysiwyg_simple']);
+echo $this->Form->control('note', ['cols' => 70, 'class' => 'wysiwyg_simple']);
 echo $this->Form->button(__('Submit'), ['class' => 'btn-success']);
 echo $this->Form->end();
 ?>

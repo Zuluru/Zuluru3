@@ -25,7 +25,7 @@ echo $this->Html->para(null, __('Current position:') . ' ' .
 
 echo $this->Html->para(null, __('Possible roster positions are:'));
 echo $this->Form->create($person, ['align' => 'horizontal']);
-echo $this->Form->input('position', [
+echo $this->Form->control('position', [
 	'label' => false,
 	'type' => 'radio',
 	'options' => $roster_position_options,

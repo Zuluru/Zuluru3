@@ -27,7 +27,7 @@ if (empty($event->registrations)) {
 	foreach ($event->registrations as $registration) {
 		// TODOBOOTSTRAP: Better formatting of this list
 		if ($registration->can_add === true) {
-			echo $this->Form->input("player.{$registration->person_id}.role", [
+			echo $this->Form->control("player.{$registration->person_id}.role", [
 				'label' => [
 					'text' => $this->element('People/block', ['person' => $registration->person, 'link' => false]),
 					'escape' => false,

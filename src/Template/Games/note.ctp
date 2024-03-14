@@ -75,12 +75,12 @@ if ($this->Authorize->getIdentity()->isCoordinatorOf($game)) {
 if ($this->Authorize->getIdentity()->isManagerOf($game)) {
 	$options[VISIBILITY_ADMIN] = __('Administrators only');
 }
-echo $this->Form->input('visibility', [
+echo $this->Form->control('visibility', [
 	'options' => $options,
 	'hide_single' => true,
 ]);
 
-echo $this->Form->input('note', ['cols' => 70, 'class' => 'wysiwyg_simple']);
+echo $this->Form->control('note', ['cols' => 70, 'class' => 'wysiwyg_simple']);
 if ($note->isNew()) {
 	echo $this->Html->para(null, __('Everyone else that is allowed to see this note will be sent an email informing them. This is a good way to communicate with your teams.'));
 } else {

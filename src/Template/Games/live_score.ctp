@@ -66,7 +66,7 @@ if (Configure::read('feature.twitter')) {
 	echo $this->Form->create('Twitter', ['url' => ['controller' => 'Games', 'action' => 'tweet']]);
 	echo $this->Form->hidden('lat', ['value' => $game->game_slot->field->latitude]);
 	echo $this->Form->hidden('long', ['value' => $game->game_slot->field->longitude]);
-	echo $this->Form->input('message', [
+	echo $this->Form->control('message', [
 			'div' => 'clear',
 			'cols' => 50,
 			'rows' => 4,
@@ -98,7 +98,7 @@ if (empty($game->score_details)):
 
 	$start_text = Configure::read("sports.{$game->division->league->sport}.start.live_score");
 	if ($start_text) {
-		echo $this->Form->input('team_id', [
+		echo $this->Form->control('team_id', [
 				'label' => __($start_text),
 				'options' => [
 					$team->id => $team->name,

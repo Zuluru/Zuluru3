@@ -18,9 +18,9 @@ if ($region->isNew()) {
 	<fieldset>
 		<legend><?= $region->isNew() ? __('Create Region') : __('Edit Region') ?></legend>
 <?php
-echo $this->Form->input('name');
+echo $this->Form->control('name');
 if ($region->isNew()) {
-	echo $this->Form->input('affiliate_id', [
+	echo $this->Form->control('affiliate_id', [
 		'options' => $affiliates,
 		'hide_single' => true,
 		'empty' => '---',

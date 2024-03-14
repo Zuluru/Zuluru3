@@ -18,7 +18,7 @@ $collapsed = (empty($errors) && !$event->isNew());
 <div class="panel panel-default">
 	<div class="panel-heading" role="tab" id="PriceHeading<?= $index ?>">
 		<h4 class="panel-title"><a role="button" class="accordion-toggle<?= $collapsed ? ' collapsed' : '' ?>" data-toggle="collapse" data-parent="#accordion" href="#PriceDetails<?= $index ?>" aria-expanded="<?= $collapsed ? 'true' : 'false' ?>" aria-controls="PriceDetails<?= $index ?>"><?= __('Price Point Details') ?>:</a>
-			<?= $this->Form->input("prices.$index.name", [
+			<?= $this->Form->control("prices.$index.name", [
 				'placeholder' => __('Price Point Name'),
 			]) ?>
 		</h4>
@@ -27,28 +27,28 @@ $collapsed = (empty($errors) && !$event->isNew());
 		<div class="panel-body">
 <?php
 if (!$new) {
-	echo $this->Form->input("prices.$index.id");
+	echo $this->Form->control("prices.$index.id");
 }
-echo $this->Form->input("prices.$index.description", [
+echo $this->Form->control("prices.$index.description", [
 	'cols' => 70,
 	'rows' => 5,
 	'help' => __('Complete description of the price point, HTML is allowed, may be blank if it\'s self-explanatory or if you only have one price for the event.'),
 	'class' => 'wysiwyg_advanced',
 ]);
-echo $this->Form->input("prices.$index.cost", [
+echo $this->Form->control("prices.$index.cost", [
 	'help' => __('Cost of this event, may be 0, <span class="warning-message">not including tax</span>.') . ($event->isNew() ? '' : ' ' . __('If you change the price, anyone who has registered for this but not yet paid will still be charged their original registration price, not the new price. If you need to charge them the new price, close this price point (via the "Closes on" field below), make sure that "Allow Late Payment" is disabled, and add a new price point with the new price.')),
 ]);
 if (Configure::read('payment.tax1_enable')) {
-	echo $this->Form->input("prices.$index.tax1", [
+	echo $this->Form->control("prices.$index.tax1", [
 		'label' => Configure::read('payment.tax1_name'),
 	]);
 }
 if (Configure::read('payment.tax2_enable')) {
-	echo $this->Form->input("prices.$index.tax2", [
+	echo $this->Form->control("prices.$index.tax2", [
 		'label' => Configure::read('payment.tax2_name'),
 	]);
 }
-echo $this->Form->input("prices.$index.open", [
+echo $this->Form->control("prices.$index.open", [
 	'label' => __('Opens on'),
 	'minYear' => Configure::read('options.year.event.min'),
 	'maxYear' => Configure::read('options.year.event.max'),
@@ -56,7 +56,7 @@ echo $this->Form->input("prices.$index.open", [
 	// TODO: JavaScript link on "12:01AM" to set the time in the inputs
 	'help' => __('The date and time at which registration for this event will open ({0} recommended to disambiguate noon from midnight).', __('12:01AM')),
 ]);
-echo $this->Form->input("prices.$index.close", [
+echo $this->Form->control("prices.$index.close", [
 	'label' => __('Closes on'),
 	'minYear' => Configure::read('options.year.event.min'),
 	'maxYear' => Configure::read('options.year.event.max'),
@@ -64,12 +64,12 @@ echo $this->Form->input("prices.$index.close", [
 	// TODO: JavaScript link on "11:59PM" to set the time in the inputs
 	'help' => __('The date and time at which registration for this event will close ({0} recommended to disambiguate midnight from noon).', __('11:59PM')),
 ]);
-echo $this->Form->input("prices.$index.register_rule", [
+echo $this->Form->control("prices.$index.register_rule", [
 	'cols' => 70,
 	'help' => __('Rules that must be passed to allow a person to register for this event.') .
 		' ' . $this->Html->help(['action' => 'rules', 'rules']),
 ]);
-echo $this->Form->input("prices.$index.allow_late_payment", [
+echo $this->Form->control("prices.$index.allow_late_payment", [
 	'options' => Configure::read('options.enable'),
 	'default' => false,
 	'help' => __('This should generally be enabled except for "early bird" specials that expire and are followed by a higher-priced alternative, or if you absolutely require that payment be made by the registration cutoff date.'),
@@ -87,19 +87,19 @@ if (Configure::read('registration.online_payments')) {
 		],
 		'parent_selector' => '.form-group',
 	]);
-	echo $this->Form->input("prices.$index.minimum_deposit", [
+	echo $this->Form->control("prices.$index.minimum_deposit", [
 		'class' => "minimum-deposit-$index",
 		'default' => 0,
 		'help' => __('Minimum allowable deposit that the registrant must make.'),
 		'secure' => false,
 	]);
-	echo $this->Form->input("prices.$index.minimum_deposit", [
+	echo $this->Form->control("prices.$index.minimum_deposit", [
 		'label' => __('Deposit Amount'),
 		'class' => "specific-deposit-$index",
 		'default' => 0,
 		'secure' => false,
 	]);
-	echo $this->Form->input("prices.$index.minimum_deposit", [
+	echo $this->Form->control("prices.$index.minimum_deposit", [
 		'label' => __('Deposit Amount'),
 		'class' => "deposit-only-$index",
 		'default' => 0,
@@ -113,7 +113,7 @@ echo $this->Jquery->toggleInput("prices.$index.allow_reservations", [
 	'selector' => ".reservation-$index",
 	'parent_selector' => '.form-group',
 ]);
-echo $this->Form->input("prices.$index.reservation_duration", [
+echo $this->Form->control("prices.$index.reservation_duration", [
 	'class' => "reservation-$index",
 	'default' => 0,
 	'help' => __('If enabled above, the time in minutes that a reservation will be held before reverting to "Unpaid" status. One day = 1440 minutes.'),

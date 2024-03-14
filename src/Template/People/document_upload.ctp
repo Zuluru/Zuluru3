@@ -18,10 +18,10 @@ $this->Html->addCrumb(__('Upload Document'));
 <?php
 echo $this->Form->create($upload, ['align' => 'horizontal', 'type' => 'file']);
 echo $this->Form->hidden('person_id', ['value' => $person->id]);
-echo $this->Form->input('type_id', [
+echo $this->Form->control('type_id', [
 	'empty' => __('Select one:'),
 ]);
-echo $this->Form->input('filename', ['type' => 'file']);
+echo $this->Form->control('filename', ['type' => 'file']);
 echo $this->Form->button(__('Upload'), ['class' => 'btn-success']);
 echo $this->Form->end();
 ?>

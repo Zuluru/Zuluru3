@@ -19,21 +19,21 @@ if ($failed):
 endif;
 
 echo $this->Form->create(false, ['url' => ['controller' => 'Users', 'action' => 'login', 'redirect' => $redirect]]);
-echo $this->Form->input("$user_field", [
+echo $this->Form->control("$user_field", [
 	'label' => false,
 	'id' => 'UserName',
 	'placeholder' => __('Username'),
 	'tabindex' => 1,
 	'help' => $this->Html->link(__('I forgot my username'), ['action' => 'reset_password']),
 ]);
-echo $this->Form->input("$pwd_field", [
+echo $this->Form->control("$pwd_field", [
 	'type' => 'password',
 	'label' => false,
 	'placeholder' => __('Password'),
 	'tabindex' => 1,
 	'help' => $this->Html->link(__('I forgot my password'), ['action' => 'reset_password']),
 ]);
-echo $this->Form->input('remember_me', [
+echo $this->Form->control('remember_me', [
 	'type' => 'checkbox',
 	'tabindex' => 1,
 ]);

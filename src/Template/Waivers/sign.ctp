@@ -35,7 +35,7 @@ echo strtr($waiver->text, $variables);
 
 echo $this->Form->create($waiver, ['align' => 'horizontal']);
 echo $this->Html->para(null,
-	$this->Form->input('signed', [
+	$this->Form->control('signed', [
 		'options' => [
 			'yes' => __('I agree to the above conditions'),
 			'no' => __('I DO NOT agree to the above conditions'),

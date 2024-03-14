@@ -262,7 +262,7 @@ if (!empty($duplicates) && !$activated && $person->user_id) {
 }
 
 echo $this->Form->create($person, ['align' => 'horizontal']);
-echo $this->Form->input('disposition', [
+echo $this->Form->control('disposition', [
 	'label' => __('This user should be:'),
 	'options' => $dispositions,
 	'empty' => '---',

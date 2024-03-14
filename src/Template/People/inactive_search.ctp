@@ -21,7 +21,7 @@ if (Configure::read('feature.affiliates')):
 	if (isset($affiliate_id)) {
 		echo $this->Form->hidden('affiliate_id', ['value' => $affiliate_id]);
 	} else if (isset($affiliates)) {
-		echo $this->Form->input('affiliate_id', [
+		echo $this->Form->control('affiliate_id', [
 				'options' => $affiliates,
 				'hide_single' => true,
 		]);

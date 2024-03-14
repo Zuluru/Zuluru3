@@ -49,7 +49,7 @@ if (isset($price) && (($price->canRegister && $price->canRegister['allowed']) ||
 	]);
 
 	if ($price->allow_deposit && !$price->fixed_deposit) {
-		echo $this->Form->input('deposit_amount', [
+		echo $this->Form->control('deposit_amount', [
 			'default' => $default_type == 'Full' ? $price->minimum_deposit : $registration->deposit_amount,
 			'class' => 'deposit',
 			'secure' => false,

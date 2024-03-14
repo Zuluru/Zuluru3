@@ -20,23 +20,23 @@ if ($waiver->isNew()) {
 	<fieldset>
 		<legend><?= $waiver->isNew() ? __('Create Waiver') : __('Edit Waiver') ?></legend>
 <?php
-echo $this->Form->input('name', [
+echo $this->Form->control('name', [
 	'size' => 60,
 	'help' => __('Full name of this waiver.'),
 ]);
 if ($waiver->isNew()) {
-	echo $this->Form->input('affiliate_id', [
+	echo $this->Form->control('affiliate_id', [
 		'options' => $affiliates,
 		'hide_single' => true,
 		'empty' => '---',
 	]);
 }
-echo $this->Form->input('description', [
+echo $this->Form->control('description', [
 	'size' => 60,
 	'help' => __('An extended description, shown solely to administrators, for example to differentiate between various "Membership" waivers.'),
 ]);
 if (!isset($can_edit_text) || $can_edit_text) {
-	echo $this->Form->input('text', [
+	echo $this->Form->control('text', [
 		'cols' => 60,
 		'rows' => 30,
 		'help' => __('Complete waiver text, HTML is allowed.'),
@@ -45,7 +45,7 @@ if (!isset($can_edit_text) || $can_edit_text) {
 } else {
 	echo $this->Html->para('highlight-message', __('This waiver has already been signed, so for legal reasons the text cannot be edited.'));
 }
-echo $this->Form->input('active');
+echo $this->Form->control('active');
 
 $selectors = Configure::read('options.waivers.expiry_type');
 foreach (array_keys($selectors) as $key) {
@@ -62,22 +62,22 @@ echo $this->Jquery->toggleInput('expiry_type', [
 			<legend><?= __('Expiry Options') ?></legend>
 			<div id="fixed_dates_options">
 <?php
-echo $this->Form->input('start_month', [
+echo $this->Form->control('start_month', [
 	'type' => 'month',
 	'label' => __('From month'),
 	'value' => sprintf('%02f', $waiver->start_month),
 ]);
-echo $this->Form->input('start_day', [
+echo $this->Form->control('start_day', [
 	'type' => 'day',
 	'label' => __('From day'),
 	'value' => sprintf('%02f', $waiver->start_day),
 ]);
-echo $this->Form->input('end_month', [
+echo $this->Form->control('end_month', [
 	'type' => 'month',
 	'label' => __('Through month'),
 	'value' => sprintf('%02f', $waiver->end_month),
 ]);
-echo $this->Form->input('end_day', [
+echo $this->Form->control('end_day', [
 	'type' => 'day',
 	'label' => __('Through day'),
 	'value' => sprintf('%02f', $waiver->end_day),
@@ -86,7 +86,7 @@ echo $this->Form->input('end_day', [
 			</div>
 			<div id="elapsed_time_options">
 <?php
-echo $this->Form->input('duration', [
+echo $this->Form->control('duration', [
 	'size' => 5,
 	'help' => ' ' . __('days'),
 ]);

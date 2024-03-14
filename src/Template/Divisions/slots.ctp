@@ -17,7 +17,7 @@ $this->Html->addCrumb($division->full_league_name);
 <p><?= __('Select a date below on which to view all available game slots:') ?></p>
 <?php
 echo $this->Form->create(false, ['align' => 'horizontal']);
-echo $this->Form->input('date', [
+echo $this->Form->control('date', [
 	'label' => false,
 	'options' => array_combine(
 		array_map(function ($date) { return $date->toDateString(); }, $dates),

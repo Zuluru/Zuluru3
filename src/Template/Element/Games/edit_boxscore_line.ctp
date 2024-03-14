@@ -36,7 +36,7 @@ if ($detail->play == 'Start') {
 		// TODO: Add security to this, somehow. Low priority, as it's already restricted by permissions to people we purportedly trust.
 		$this->Form->unlockField("score_details.{$detail->id}.team_id");
 	} else {
-		echo $this->Form->input("score_details.{$detail->id}.team_id", [
+		echo $this->Form->control("score_details.{$detail->id}.team_id", [
 			'type' => 'select',
 			'options' => $team_names,
 			'value' => $detail->team_id,
@@ -60,7 +60,7 @@ if ($detail->play == 'Start') {
 	$this->Form->unlockField("score_details.{$detail->id}.created.month");
 	$this->Form->unlockField("score_details.{$detail->id}.created.day");
 
-	echo $this->Form->input("score_details.{$detail->id}.created", [
+	echo $this->Form->control("score_details.{$detail->id}.created", [
 		'type' => 'time',
 		'value' => $detail->created,
 		'label' => false,
@@ -78,7 +78,7 @@ foreach($game->division->league->stat_types as $i => $stat):
 		} else {
 			$person = null;
 		}
-		echo $this->Form->input("score_details.{$detail->id}.score_detail_stats.$i.person_id", [
+		echo $this->Form->control("score_details.{$detail->id}.score_detail_stats.$i.person_id", [
 			'label' => false,
 			'options' => $roster[$detail->team_id],
 			'empty' => '---',

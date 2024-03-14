@@ -8,7 +8,7 @@ $this->Html->addCrumb (__('Add Payment Details from Email'));
 <?php
 if (!isset($fields)) {
 	echo $this->Form->create(false, ['align' => 'horizontal']);
-	echo $this->Form->input('email_text', [
+	echo $this->Form->control('email_text', [
 		'cols' => 60,
 		'rows' => 20,
 	]);

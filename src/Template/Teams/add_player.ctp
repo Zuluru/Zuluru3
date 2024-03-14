@@ -40,7 +40,7 @@ if (!empty($teams) && in_array($team->id, $this->UserCache->read('OwnedTeamIDs')
 		}
 	}
 	echo $this->Form->create(false, ['url' => ['action' => 'add_from_team', 'team' => $team->id], 'align' => 'horizontal']);
-	echo $this->Form->input('team', [
+	echo $this->Form->control('team', [
 		'label' => false,
 		'options' => $options,
 		'empty' => __('-- select from list --'),
@@ -58,7 +58,7 @@ if (!empty($events)) {
 		$options[$event->id] = $event->name;
 	}
 	echo $this->Form->create(false, ['url' => ['action' => 'add_from_event', 'team' => $team->id], 'align' => 'horizontal']);
-	echo $this->Form->input('event', [
+	echo $this->Form->control('event', [
 		'label' => false,
 		'options' => $options,
 		'empty' => __('-- select from list --'),

@@ -42,10 +42,10 @@ foreach ($division->teams as $key => $team):
 					<td><?= $team->rating ?></td>
 					<td><?= $team->initial_rating ?></td>
 					<td><?php
-						echo $this->Form->input("teams.$key.id", [
+						echo $this->Form->control("teams.$key.id", [
 							'value' => $team->id,
 						]);
-						echo $this->Form->input("teams.$key.initial_rating", [
+						echo $this->Form->control("teams.$key.initial_rating", [
 							'label' => false,
 							'size' => 3,
 							'tabindex' => 1,

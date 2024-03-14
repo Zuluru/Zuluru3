@@ -45,7 +45,7 @@ foreach ($facility->fields as $related) {
 		if ($secure) {
 			echo $this->Form->hidden("fields.{$related->id}.$var", ['value' => $related->$var]);
 		} else {
-			echo $this->Form->input("fields.{$related->id}.$var", ['label' => false, 'value' => $related->$var, 'help' => false]);
+			echo $this->Form->control("fields.{$related->id}.$var", ['label' => false, 'value' => $related->$var, 'help' => false]);
 		}
 	}
 	$variables .= "fields[{$related->id}] = { " . implode(', ', $vals) . " };\n";
@@ -69,9 +69,9 @@ if ($facility->entrances) {
 	}
 }
 
-echo $this->Form->input('id');
-echo $this->Form->input('parking', ['label' => false, 'secure' => false]);
-echo $this->Form->input('entrances', ['label' => false, 'secure' => false]);
+echo $this->Form->control('id');
+echo $this->Form->control('parking', ['label' => false, 'secure' => false]);
+echo $this->Form->control('entrances', ['label' => false, 'secure' => false]);
 
 $this->Html->script([
 	"https://maps.googleapis.com/maps/api/js?key=$gmaps_key&libraries=geometry",

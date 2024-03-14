@@ -15,7 +15,7 @@ $divisions = TableRegistry::getTableLocator()->get('Divisions')->find()
 	])
 	->toArray();
 
-echo $this->Form->input('division_id', [
+echo $this->Form->control('division_id', [
 	'label' => __('Division'),
 	'options' => collection($divisions)->combine('id', 'full_league_name')->toArray(),
 	'empty' => 'Create no team records',
@@ -24,14 +24,14 @@ echo $this->Form->input('division_id', [
 ]);
 $this->Form->unlockField('division_id');
 
-echo $this->Form->input('level_of_play', [
+echo $this->Form->control('level_of_play', [
 	'size' => 70,
 	'help' => __('Indicate the expected level(s) of play in this division.'),
 	'secure' => false,
 ]);
 $this->Form->unlockField('level_of_play');
 
-echo $this->Form->input('ask_status', [
+echo $this->Form->control('ask_status', [
 	'label' => __('Team status'),
 	'type' => 'checkbox',
 	'help' => __('Ask whether team rosters will be open or closed during registration?'),
@@ -40,7 +40,7 @@ echo $this->Form->input('ask_status', [
 $this->Form->unlockField('ask_status');
 
 if (Configure::read('feature.region_preference')) {
-	echo $this->Form->input('ask_region', [
+	echo $this->Form->control('ask_region', [
 		'label' => __('Region Preference'),
 		'type' => 'checkbox',
 		'help' => __('Ask teams for their regional preference during registration?'),
@@ -49,7 +49,7 @@ if (Configure::read('feature.region_preference')) {
 	$this->Form->unlockField('ask_region');
 }
 
-echo $this->Form->input('ask_attendance', [
+echo $this->Form->control('ask_attendance', [
 	'label' => __('Attendance Tracking'),
 	'type' => 'checkbox',
 	'help' => __('Ask teams whether they want to use attendance tracking during registration?'),

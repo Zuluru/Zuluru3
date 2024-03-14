@@ -1067,11 +1067,11 @@ class SchedulesController extends AppController {
 	}
 
 	public function publish() {
-		$this->_publish(1, __('publish'), __('Published'));
+		return $this->_publish(1, __('publish'), __('Published'));
 	}
 
 	public function unpublish() {
-		$this->_publish(0, __('unpublish'), __('Unpublished'));
+		return $this->_publish(0, __('unpublish'), __('Unpublished'));
 	}
 
 	protected function _publish($true, $publish, $published) {

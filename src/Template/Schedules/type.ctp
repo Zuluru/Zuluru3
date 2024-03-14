@@ -41,7 +41,7 @@ echo $this->element('hidden', ['model' => '_options', 'fields' => $division->_op
 <fieldset>
 <legend><?= __('Create a ...') ?></legend>
 <?php
-echo $this->Form->input('_options.type', [
+echo $this->Form->control('_options.type', [
 	'label' => false,
 	'type' => 'radio',
 	'options' => $types,
@@ -61,7 +61,7 @@ if (!$is_tournament) {
 	);
 }
 
-echo $this->Form->input('_options.publish', [
+echo $this->Form->control('_options.publish', [
 	'label' => __('Publish created games for player viewing?'),
 	'type' => 'checkbox',
 ]);
@@ -73,7 +73,7 @@ echo $this->Form->input('_options.publish', [
 if ($is_tournament):
 	echo $this->Form->hidden('_options.double_header', ['value' => false]);
 else:
-	echo $this->Form->input('_options.double_header', [
+	echo $this->Form->control('_options.double_header', [
 		'label' => __('Allow double-headers?'),
 		'type' => 'checkbox',
 		'checked' => false,
@@ -85,7 +85,7 @@ else:
 endif;
 
 if ($division->double_booking):
-	echo $this->Form->input('_options.double_booking', [
+	echo $this->Form->control('_options.double_booking', [
 		'label' => __('Allow double-booking?'),
 		'type' => 'checkbox',
 		'checked' => true,

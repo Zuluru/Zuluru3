@@ -2621,7 +2621,7 @@ class GamesControllerTest extends ControllerTestCase {
 
 		$this->assertMailCount(2);
 		$this->assertMailSentFromAt(0, 'admin@zuluru.org');
-		$this->assertMailSentToAt(0, $game->away_team->people[0]->user->email);
+		$this->assertMailSentToAt(0, $volunteer->user->email);
 		$this->assertMailSentWithAt(0, [], 'CC');
 		$this->assertMailSentWithAt(0, 'Score entry mismatch', 'Subject');
 		$this->assertMailContainsAt(0, "The {$game->game_slot->game_date->format('M j, Y')} game between {$home->name} and {$away->name} in {$game->division->league->name} has score entries which do not match. You can edit the game here:");

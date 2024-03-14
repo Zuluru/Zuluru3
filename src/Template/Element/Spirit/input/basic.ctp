@@ -17,7 +17,7 @@ if (Configure::read('scoring.most_spirited') && $game->division->most_spirited !
 <div id="MostSpiritedWrapper" class="normal">
 <?php
 		if ($this->getRequest()->getParam('action') != 'edit' && $game->division->most_spirited == 'optional') {
-			echo $this->Form->input("$prefix.has_most_spirited", [
+			echo $this->Form->control("$prefix.has_most_spirited", [
 				'type' => 'checkbox',
 				'value' => '1',
 				'label' => __('I want to nominate a most spirited player'),
@@ -48,7 +48,7 @@ if (Configure::read('scoring.most_spirited') && $game->division->most_spirited !
 		$players[$person->id] = $block;
 	}
 
-	echo $this->Form->input("$prefix.most_spirited_id", [
+	echo $this->Form->control("$prefix.most_spirited_id", [
 		'type' => 'radio',
 		'options' => $players,
 		'escape' => false,

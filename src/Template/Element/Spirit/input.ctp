@@ -52,7 +52,7 @@ if ($game->division->league->numeric_sotg) {
 		'secure' => false,
 	], $opts);
 
-	$spirit .= $this->Form->input("spirit_entries.{$index}.entered_sotg", $opts);
+	$spirit .= $this->Form->control("spirit_entries.{$index}.entered_sotg", $opts);
 }
 
 // Don't show this when submitting scores, just when editing. We don't need
@@ -69,7 +69,7 @@ if ($this->getRequest()->getParam('action') == 'edit') {
 	{
 		$checked = true;
 	}
-	$spirit .= $this->Form->input("spirit_entries.{$index}.score_entry_penalty", [
+	$spirit .= $this->Form->control("spirit_entries.{$index}.score_entry_penalty", [
 		'type' => 'checkbox',
 		'label' => __('Assign penalty for missing score entry?'),
 		'value' => -Configure::read('scoring.missing_score_spirit_penalty'),

@@ -28,7 +28,7 @@ $options = [];
 for ($i = 1; $i <= floor($teams / 2); ++ $i) {
 	$options["crossover_$i"] = $i;
 }
-echo $this->Form->input('_options.pool_type', [
+echo $this->Form->control('_options.pool_type', [
 	'label' => __('How many crossover games do you want?'),
 	'options' => $options,
 	'help' => __('This is the total number of crossover games for all pools in this division.'),

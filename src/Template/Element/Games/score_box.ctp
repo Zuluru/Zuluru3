@@ -49,12 +49,12 @@ echo $this->Form->create(false, [
 
 echo $this->Form->hidden('team_id', ['value' => $team['id']]);
 echo $this->Form->hidden('score_from');
-echo $this->Form->input('play', [
+echo $this->Form->control('play', [
 		'options' => $score_options,
 		'empty' => '---',
 		'hide_single' => true,
 ]);
-echo $this->Form->input('created', [
+echo $this->Form->control('created', [
 		'type' => 'datetime',
 		'label' => __('Time'),
 ]);
@@ -78,7 +78,7 @@ if ($has_stats) {
 	asort($roster);
 
 	foreach($game['Division']['League']['StatType'] as $stat) {
-		echo $this->Form->input("Stat.{$stat['id']}", [
+		echo $this->Form->control("Stat.{$stat['id']}", [
 				'label' => __(Inflector::singularize($stat['name'])),
 				'options' => $roster,
 				'empty' => '---',
@@ -190,11 +190,11 @@ if (count($other_options) > 1):
 	echo $this->Form->hidden('team_id', ['value' => $team['id']]);
 	echo $this->Form->hidden('score_from');
 	// TODO: Add in non-scoring stats that are being tracked for this division
-	echo $this->Form->input('play', [
+	echo $this->Form->control('play', [
 			'options' => $other_options,
 			'empty' => '---',
 	]);
-	echo $this->Form->input('created', [
+	echo $this->Form->control('created', [
 			'type' => 'datetime',
 			'label' => __('Time'),
 	]);

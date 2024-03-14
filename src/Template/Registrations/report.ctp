@@ -26,12 +26,12 @@ $start = $now->startOfYear();
 if ($now->month <= 2) {
 	$start = $start->subYear();
 }
-echo $this->Form->input('start_date', [
+echo $this->Form->control('start_date', [
 	'type' => 'date',
 	'value' => $start,
 	'maxYear' => $now->year,
 ]);
-echo $this->Form->input('end_date', [
+echo $this->Form->control('end_date', [
 	'type' => 'date',
 	'value' => $start->endOfYear(),
 	'maxYear' => $now->year,

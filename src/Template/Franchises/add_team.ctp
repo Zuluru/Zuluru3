@@ -24,7 +24,7 @@ foreach ($teams as $team) {
 	}
 }
 echo $this->Form->create($franchise, ['align' => 'horizontal']);
-echo $this->Form->input('team_id', [
+echo $this->Form->control('team_id', [
 		'label' => false,
 		'options' => $options,
 		'empty' => __('-- select from list --'),

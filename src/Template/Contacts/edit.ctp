@@ -18,14 +18,14 @@ if ($contact->isNew()) {
 	<fieldset>
 		<legend><?= $contact->isNew() ? __('Create Contact') : __('Edit Contact') ?></legend>
 <?php
-echo $this->Form->input('name', [
+echo $this->Form->control('name', [
 	'help' => __('The name of your contact.'),
 ]);
-echo $this->Form->input('email', [
+echo $this->Form->control('email', [
 	'help' => __('The email address for your contact. This will not be shown to users, only used to deliver messages.'),
 ]);
 if ($contact->isNew()) {
-	echo $this->Form->input('affiliate_id', [
+	echo $this->Form->control('affiliate_id', [
 		'options' => $affiliates,
 		'hide_single' => true,
 		'empty' => '---',

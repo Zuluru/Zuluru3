@@ -23,12 +23,12 @@ $this->Html->addCrumb($document->upload_type->name);
 <?php
 		echo $this->Form->hidden('approved', ['value' => true]);
 
-		echo $this->Form->input('valid_from', [
+		echo $this->Form->control('valid_from', [
 			'minYear' => Configure::read('options.year.event.min'),
 			'maxYear' => Configure::read('options.year.event.max'),
 			'default' => FrozenDate::now()->startOfYear(),
 		]);
-		echo $this->Form->input('valid_until', [
+		echo $this->Form->control('valid_until', [
 			'minYear' => Configure::read('options.year.event.min'),
 			'maxYear' => Configure::read('options.year.event.max'),
 			'default' => FrozenDate::now()->endOfYear(),

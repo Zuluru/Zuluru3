@@ -13,7 +13,7 @@ $this->Html->addCrumb(__('Nominate'));
 	<fieldset>
 		<legend><?= __('Nominate for a Badge') ?></legend>
 <?php
-	echo $this->Form->input('badge', [
+	echo $this->Form->control('badge', [
 			'options' => $badges,
 			'empty' => __('Select one:'),
 	]);

@@ -59,15 +59,15 @@ endif;
 
 <?php
 echo $this->Form->create($user, ['align' => 'horizontal', 'type' => 'file']);
-echo $this->Form->input('file', ['type' => 'file', 'label' => __('CSV file')]);
+echo $this->Form->control('file', ['type' => 'file', 'label' => __('CSV file')]);
 if (Configure::read('feature.multiple_affiliates')) {
-	echo $this->Form->input('person.affiliates._ids', [
+	echo $this->Form->control('person.affiliates._ids', [
 		'help' => __('Select all affiliates you are interested in.'),
 		'multiple' => 'checkbox',
 		'hiddenField' => false,
 	]);
 } else {
-	echo $this->Form->input('person.affiliates.0.id', [
+	echo $this->Form->control('person.affiliates.0.id', [
 		'label' => __('Affiliate'),
 		'options' => $affiliates,
 		'type' => 'select',
@@ -75,20 +75,20 @@ if (Configure::read('feature.multiple_affiliates')) {
 	]);
 }
 
-echo $this->Form->input('person.trim_email_domain', [
+echo $this->Form->control('person.trim_email_domain', [
 	'type' => 'checkbox',
 	'help' => __('If checked, and a user name is created from an email address, the domain portion of the email address will be removed first. If duplicates are caused this way, they will be numbered 2, 3, etc.'),
 ]);
-echo $this->Form->input('person.trial_run', [
+echo $this->Form->control('person.trial_run', [
 	'type' => 'checkbox',
 	'help' => __('If checked, no users will be created; the file will be tested and a report generated.'),
 ]);
-echo $this->Form->input('person.status', [
+echo $this->Form->control('person.status', [
 	'label' => __('Status to set for imported accounts'),
 	'options' => Configure::read('options.record_status'),
 	'empty' => '---',
 ]);
-echo $this->Form->input('person.groups._ids', [
+echo $this->Form->control('person.groups._ids', [
 	'label' => __('Select groups for new users to be added to.'),
 	'type' => 'select',
 	'multiple' => 'checkbox',
@@ -96,7 +96,7 @@ echo $this->Form->input('person.groups._ids', [
 	'options' => $groups,
 	'hide_single' => true,
 ]);
-echo $this->Form->input('person.on_error', [
+echo $this->Form->control('person.on_error', [
 	'options' => [
 		'skip' => 'Skip record',
 		'blank' => 'Import blank field',
@@ -105,7 +105,7 @@ echo $this->Form->input('person.on_error', [
 	'empty' => '---',
 	'help' => __('Note that the email and user name fields cannot be blank, so records with errors in those fields will always be skipped. This has no effect if "trial run" is checked above.'),
 ]);
-echo $this->Form->input('person.notify_new_users', [
+echo $this->Form->control('person.notify_new_users', [
 	'type' => 'checkbox',
 	'help' => __('If checked, new users will receive an email with their user name and password. This has no effect if "trial run" is checked above.'),
 ]);

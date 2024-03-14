@@ -42,7 +42,7 @@ elseif ($badge->visibility == BADGE_VISIBILITY_ADMIN):
 <?php
 endif;
 
-echo $this->Form->input('reason', [
+echo $this->Form->control('reason', [
 	'cols' => 70,
 ]);
 ?>

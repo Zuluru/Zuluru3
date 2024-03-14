@@ -54,10 +54,10 @@ endif;
 ?>
 					<td><?= $team->initial_seed ?></td>
 					<td><?php
-						echo $this->Form->input("teams.$key.id", [
+						echo $this->Form->control("teams.$key.id", [
 							'value' => $team->id,
 						]);
-						echo $this->Form->input("teams.$key.initial_seed", [
+						echo $this->Form->control("teams.$key.initial_seed", [
 							'label' => false,
 							'size' => 3,
 							'tabindex' => 1,

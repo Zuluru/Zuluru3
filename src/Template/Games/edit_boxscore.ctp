@@ -80,7 +80,7 @@ foreach ($game->score_details as $detail) {
 ?>
 		<tr id="add_row">
 			<td><?php
-			echo $this->Form->input('add_detail.team_id', [
+			echo $this->Form->control('add_detail.team_id', [
 				'type' => 'select',
 				'options' => $team_names,
 				'empty' => '---',
@@ -91,7 +91,7 @@ foreach ($game->score_details as $detail) {
 			echo $this->Form->hidden('add_detail.created.year', ['value' => $game->game_slot->game_date->year]);
 			echo $this->Form->hidden('add_detail.created.month', ['value' => $game->game_slot->game_date->month]);
 			echo $this->Form->hidden('add_detail.created.day', ['value' => $game->game_slot->game_date->day]);
-			echo $this->Form->input('add_detail.created', [
+			echo $this->Form->control('add_detail.created', [
 				'type' => 'time',
 				// This will use the time of the previous detail as the default
 				'value' => $created,
@@ -99,7 +99,7 @@ foreach ($game->score_details as $detail) {
 			]);
 			?></td>
 			<td><?php
-			echo $this->Form->input('add_detail.play', [
+			echo $this->Form->control('add_detail.play', [
 				'options' => array_merge(
 					Configure::read("sports.{$game->division->league->sport}.score_options"),
 					['Start' => __('Start'), 'Timeout' => __('Timeout')],

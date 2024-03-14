@@ -15,7 +15,7 @@ $this->Html->addCrumb(__('Move'));
 
 <?php
 echo $this->Form->create($team, ['align' => 'horizontal']);
-echo $this->Form->input('to', [
+echo $this->Form->control('to', [
 	'label' => __('Division to move this team to:'),
 	'options' => collection($divisions)->combine('id', 'full_league_name')->toArray(),
 ]);

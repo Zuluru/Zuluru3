@@ -14,7 +14,7 @@ $this->Html->addCrumb(__('Select'));
 			__('Dashboard')
 		) ?></p>
 		<p class="warning-message"><?= __('Note that, regardless of which affiliate you may select, your {0} and menus will always show your teams and games.', __('Dashboard')) ?></p>
-		<?= $this->Form->input('affiliate') ?>
+		<?= $this->Form->control('affiliate') ?>
 	</fieldset>
 	<?= $this->Form->button(__('Submit'), ['class' => 'btn-success']) ?>
 	<?= $this->Form->end() ?>

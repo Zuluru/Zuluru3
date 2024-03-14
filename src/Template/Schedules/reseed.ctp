@@ -55,7 +55,7 @@ foreach ($division->_options->pools as $i => $pool):
 					<tr>
 						<td><?= $display_name ?></td>
 						<td><?= $team ?></td>
-						<td><?= $this->Form->input("_options.pools.$i.pools_teams.$team.qualifier", [
+						<td><?= $this->Form->control("_options.pools.$i.pools_teams.$team.qualifier", [
 							'label' => false,
 							'options' => $options,
 							'empty' => 'Select:',

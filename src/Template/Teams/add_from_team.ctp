@@ -38,7 +38,7 @@ if (empty($old_team->people)) {
 			$label .= ' ' . $this->Html->iconImg('help_16.png', ['title' => $this->Html->formatMessage($person->can_add, null, true), 'alt' => '?']);
 		}
 
-		$inputs = $this->Form->input("player.{$person->id}.role", [
+		$inputs = $this->Form->control("player.{$person->id}.role", [
 			'label' => [
 				'text' => $label,
 				'escape' => false,
@@ -50,7 +50,7 @@ if (empty($old_team->people)) {
 		]);
 
 		if (!empty($positions)) {
-			$inputs .= $this->Form->input("player.{$person->id}.position", [
+			$inputs .= $this->Form->control("player.{$person->id}.position", [
 				'label' => __('Position'),
 				'type' => 'radio',
 				'options' => $positions,

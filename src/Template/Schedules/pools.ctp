@@ -35,7 +35,7 @@ echo $this->element('hidden', ['model' => '_options', 'fields' => $division->_op
 <fieldset>
 <legend><?= __('Create a ...') ?></legend>
 <?php
-echo $this->Form->input('_options.pool_type', [
+echo $this->Form->control('_options.pool_type', [
 	'label' => false,
 	'type' => 'radio',
 	'options' => $types,

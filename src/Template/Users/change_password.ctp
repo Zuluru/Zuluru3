@@ -19,10 +19,10 @@ $this->Html->addCrumb(__('Change Password'));
 $identity = $this->Authorize->getIdentity();
 // Admins must still enter their own passwords, just not for others.
 if ($identity->isMe($user) || !$identity->isManagerOf($user)) {
-	echo $this->Form->input('old_password', ['type' => 'password', 'label' => __('Existing Password'), 'value' => '']);
+	echo $this->Form->control('old_password', ['type' => 'password', 'label' => __('Existing Password'), 'value' => '']);
 }
-echo $this->Form->input('new_password', ['type' => 'password', 'label' => __('New Password')]);
-echo $this->Form->input('confirm_password', ['type' => 'password', 'label' => __('Confirm Password')]);
+echo $this->Form->control('new_password', ['type' => 'password', 'label' => __('New Password')]);
+echo $this->Form->control('confirm_password', ['type' => 'password', 'label' => __('Confirm Password')]);
 ?>
 	</fieldset>
 <?php

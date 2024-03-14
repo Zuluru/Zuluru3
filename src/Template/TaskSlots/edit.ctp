@@ -13,9 +13,9 @@ $this->Html->addCrumb(__('Edit'));
 	<fieldset>
 		<legend><?= __('Edit Task Slot') ?></legend>
 <?php
-echo $this->Form->input('task_date');
-echo $this->Form->input('task_start');
-echo $this->Form->input('task_end');
+echo $this->Form->control('task_date');
+echo $this->Form->control('task_start');
+echo $this->Form->control('task_end');
 ?>
 	</fieldset>
 	<?= $this->Form->button(__('Submit'), ['class' => 'btn-success']) ?>

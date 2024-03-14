@@ -18,11 +18,11 @@ if ($affiliate->isNew()) {
 	<fieldset>
 		<legend><?= $affiliate->isNew() ? __('Create Affiliate') : __('Edit Affiliate') ?></legend>
 <?php
-echo $this->Form->input('name', [
+echo $this->Form->control('name', [
 	'size' => 70,
 ]);
 if (!$affiliate->isNew()) {
-	echo $this->Form->input('active');
+	echo $this->Form->control('active');
 }
 ?>
 	</fieldset>

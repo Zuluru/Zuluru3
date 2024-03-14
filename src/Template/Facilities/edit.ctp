@@ -27,36 +27,36 @@ if ($facility->isNew()) {
 				<div id="FacilityDetails" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="FacilityHeading">
 					<div class="panel-body">
 <?php
-echo $this->Form->input('name');
-echo $this->Form->input('code');
-echo $this->Form->input('sport', [
+echo $this->Form->control('name');
+echo $this->Form->control('code');
+echo $this->Form->control('sport', [
 	'options' => Configure::read('options.sport'),
 	'hide_single' => true,
 	'empty' => __('Multi-sport facility'),
 	'help' => __('Primary sport played at this facility.'),
 ]);
-echo $this->Form->input('is_open');
-echo $this->Form->input('location_street', [
+echo $this->Form->control('is_open');
+echo $this->Form->control('location_street', [
 	'label' => __('Address'),
 ]);
-echo $this->Form->input('location_city', [
+echo $this->Form->control('location_city', [
 	'label' => __('City'),
 	'default' => Configure::read('organization.city'),
 ]);
-echo $this->Form->input('location_province', [
+echo $this->Form->control('location_province', [
 	'label' => __('Province'),
 	'options' => $provinces,
 	'default' => Configure::read('organization.province'),
 ]);
-echo $this->Form->input('region_id', ['hide_single' => true, 'default' => $region]);
-echo $this->Form->input('driving_directions', ['cols' => 70, 'class' => 'wysiwyg_simple']);
-echo $this->Form->input('parking_details', ['cols' => 70, 'class' => 'wysiwyg_simple']);
-echo $this->Form->input('transit_directions', ['cols' => 70, 'class' => 'wysiwyg_simple']);
-echo $this->Form->input('biking_directions', ['cols' => 70, 'class' => 'wysiwyg_simple']);
-echo $this->Form->input('washrooms', ['cols' => 70, 'class' => 'wysiwyg_simple']);
-echo $this->Form->input('public_instructions', ['cols' => 70, 'class' => 'wysiwyg_simple']);
-echo $this->Form->input('site_instructions', ['cols' => 70, 'class' => 'wysiwyg_advanced']);
-echo $this->Form->input('sponsor', ['cols' => 70, 'class' => 'wysiwyg_advanced']);
+echo $this->Form->control('region_id', ['hide_single' => true, 'default' => $region]);
+echo $this->Form->control('driving_directions', ['cols' => 70, 'class' => 'wysiwyg_simple']);
+echo $this->Form->control('parking_details', ['cols' => 70, 'class' => 'wysiwyg_simple']);
+echo $this->Form->control('transit_directions', ['cols' => 70, 'class' => 'wysiwyg_simple']);
+echo $this->Form->control('biking_directions', ['cols' => 70, 'class' => 'wysiwyg_simple']);
+echo $this->Form->control('washrooms', ['cols' => 70, 'class' => 'wysiwyg_simple']);
+echo $this->Form->control('public_instructions', ['cols' => 70, 'class' => 'wysiwyg_simple']);
+echo $this->Form->control('site_instructions', ['cols' => 70, 'class' => 'wysiwyg_advanced']);
+echo $this->Form->control('sponsor', ['cols' => 70, 'class' => 'wysiwyg_advanced']);
 ?>
 					</div>
 				</div>

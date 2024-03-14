@@ -5,7 +5,7 @@
 
 use Cake\Core\Configure;
 
-echo $this->Form->input('membership_begins', [
+echo $this->Form->control('membership_begins', [
 	'type' => 'date',
 	'minYear' => Configure::read('options.year.event.min'),
 	'maxYear' => Configure::read('options.year.event.max'),
@@ -15,7 +15,7 @@ echo $this->Form->input('membership_begins', [
 ]);
 $this->Form->unlockField('membership_begins');
 
-echo $this->Form->input('membership_ends', [
+echo $this->Form->control('membership_ends', [
 	'type' => 'date',
 	'minYear' => Configure::read('options.year.event.min'),
 	'maxYear' => Configure::read('options.year.event.max'),
@@ -25,7 +25,7 @@ echo $this->Form->input('membership_ends', [
 ]);
 $this->Form->unlockField('membership_ends');
 
-echo $this->Form->input('membership_type', [
+echo $this->Form->control('membership_type', [
 	'options' => Configure::read('options.membership_types'),
 	'empty' => '---',
 	'hide_single' => true,

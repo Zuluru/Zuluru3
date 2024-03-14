@@ -19,7 +19,7 @@ echo $this->Form->hidden('_options.step', ['value' => 'exclude']);
 
 foreach ($division->teams as $team) {
 	// TODO: See discussion of CakePHP bug in date.ctp
-	echo $this->Form->input("_options.exclude.t{$team->id}", [
+	echo $this->Form->control("_options.exclude.t{$team->id}", [
 		'label' => $team->name,
 		'type' => 'checkbox',
 		'value' => $team->id,

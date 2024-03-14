@@ -21,7 +21,7 @@ $this->Html->addCrumb(__('Reschedule'));
 <?php
 echo $this->Form->create($division, ['align' => 'horizontal']);
 
-echo $this->Form->input('new_date', [
+echo $this->Form->control('new_date', [
 	'label' => __('Reschedule games to'),
 	// We have an array like 0 => date, and need SQL => readable
 	'options' => array_combine(
@@ -30,7 +30,7 @@ echo $this->Form->input('new_date', [
 	),
 ]);
 
-echo $this->Form->input('publish', [
+echo $this->Form->control('publish', [
 	'label' => __('Publish rescheduled games for player viewing?'),
 	'type' => 'checkbox',
 ]);

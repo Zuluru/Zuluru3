@@ -46,7 +46,7 @@ foreach ($registrations as $registration):
 ?>
 
 				<tr>
-					<td><?= $this->Form->input("registrations.{$registration->id}", [
+					<td><?= $this->Form->control("registrations.{$registration->id}", [
 						'label' => false,
 						'type' => 'checkbox',
 						'hiddenField' => false,

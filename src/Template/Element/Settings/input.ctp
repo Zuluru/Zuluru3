@@ -105,7 +105,7 @@ if (isset($jquery)) {
 		'param-name' => $name,
 	], $options) . "\n";
 } else {
-	echo $this->Form->input("$id.value", $options) . "\n";
+	echo $this->Form->control("$id.value", $options) . "\n";
 }
 
 if (!empty($confirm)) {

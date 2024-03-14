@@ -275,7 +275,7 @@ class AppController extends Controller {
 			$url = Router::normalize($url);
 		}
 
-		$event = $this->dispatchEvent('Controller.beforeRedirect', [$url, $this->response]);
+		$event = $this->dispatchEvent('Controller.beforeRedirect', [$url, $this->getResponse()]);
 		if ($event->getResult() instanceof Response) {
 			return $event->getResult();
 		}

@@ -49,7 +49,7 @@ if (Configure::read('feature.antispam')):
 ?>
 	<div id="spam_trap" style="display:none;">
 <?php
-	echo $this->Form->input('subject');
+	echo $this->Form->control('subject');
 	echo $this->Form->hidden('timestamp', ['default' => FrozenTime::now()->toUnixString()]);
 ?>
 	</div>
@@ -82,7 +82,7 @@ if ($this->Authorize->can('list_new', \App\Controller\PeopleController::class)) 
 	if (Configure::read('feature.auto_approve')) {
 		unset($options['new']);
 	}
-	echo $this->Form->input('person.status', [
+	echo $this->Form->control('person.status', [
 		'type' => 'select',
 		'empty' => '---',
 		'options' => $options,
@@ -99,16 +99,16 @@ endif;
 	<fieldset>
 		<legend><?= __('Your Information') . ' ' . $this->Html->tag('span', __('(parent\'s name, not the child\'s)'), ['style' => 'display:none;', 'class' => 'parent']) ?></legend>
 <?php
-echo $this->Form->input('person.first_name', [
+echo $this->Form->control('person.first_name', [
 	'label' => Configure::read('profile.legal_name') ? __('Preferred Name') : __('First Name'),
 	'help' => __('First (and, if desired, middle) name.'),
 ]);
 if (Configure::read('profile.legal_name')) {
-	echo $this->Form->input('person.legal_name', [
+	echo $this->Form->control('person.legal_name', [
 		'help' => __('For insurance and legal purposes. This will be visible only to administrators. Required only if substantially different from your Preferred Name.'),
 	]);
 }
-echo $this->Form->input('person.last_name');
+echo $this->Form->control('person.last_name');
 
 $phone_numbers_enabled = array_diff([
 	Configure::read('profile.home_phone'),
@@ -120,30 +120,30 @@ if (count($phone_numbers_enabled) > 1) {
 }
 
 if (Configure::read('profile.home_phone')) {
-	echo $this->Form->input('person.home_phone', [
+	echo $this->Form->control('person.home_phone', [
 		'help' => __('Enter your home telephone number.'),
 	]);
-	echo $this->Form->input('person.publish_home_phone', [
+	echo $this->Form->control('person.publish_home_phone', [
 		'label' => __('Allow registered users to view home number'),
 	]);
 }
 if (Configure::read('profile.work_phone')) {
-	echo $this->Form->input('person.work_phone', [
+	echo $this->Form->control('person.work_phone', [
 		'help' => __('Enter your work telephone number (optional).'),
 	]);
-	echo $this->Form->input('person.work_ext', [
+	echo $this->Form->control('person.work_ext', [
 		'label' => __('Work Extension'),
 		'help' => __('Enter your work extension (optional).'),
 	]);
-	echo $this->Form->input('person.publish_work_phone', [
+	echo $this->Form->control('person.publish_work_phone', [
 		'label' => __('Allow registered users to view work number'),
 	]);
 }
 if (Configure::read('profile.mobile_phone')) {
-	echo $this->Form->input('person.mobile_phone', [
+	echo $this->Form->control('person.mobile_phone', [
 		'help' => __('Enter your cell or pager number (optional).'),
 	]);
-	echo $this->Form->input('person.publish_mobile_phone', [
+	echo $this->Form->control('person.publish_mobile_phone', [
 		'label' => __('Allow registered users to view mobile number'),
 	]);
 }
@@ -157,38 +157,38 @@ if (array_key_exists(GROUP_PARENT, $groups)):
 		<p><?= __('This alternate parent/guardian contact information is for display purposes only. If the alternate contact should have their own login, do not enter their information here; instead create a separate account and then link them together.') ?></p>
 		<p><?= __('This is not for your child\'s name; enter that in the "Child Profile" section below.') ?></p>
 <?php
-	echo $this->Form->input('person.alternate_first_name', [
+	echo $this->Form->control('person.alternate_first_name', [
 		'label' => __('First Name'),
 		'help' => __('First (and, if desired, middle) name.'),
 		'secure' => false,
 	]);
-	echo $this->Form->input('person.alternate_last_name', [
+	echo $this->Form->control('person.alternate_last_name', [
 		'label' => __('Last Name'),
 		'secure' => false,
 	]);
 	if (Configure::read('profile.work_phone')) {
-		echo $this->Form->input('person.alternate_work_phone', [
+		echo $this->Form->control('person.alternate_work_phone', [
 			'label' => __('Work Phone'),
 			'help' => __('Enter your work telephone number (optional).'),
 			'secure' => false,
 		]);
-		echo $this->Form->input('person.alternate_work_ext', [
+		echo $this->Form->control('person.alternate_work_ext', [
 			'label' => __('Work Extension'),
 			'help' => __('Enter your work extension (optional).'),
 			'secure' => false,
 		]);
-		echo $this->Form->input('person.publish_alternate_work_phone', [
+		echo $this->Form->control('person.publish_alternate_work_phone', [
 			'label' => __('Allow registered users to view work number'),
 			'secure' => false,
 		]);
 	}
 	if (Configure::read('profile.mobile_phone')) {
-		echo $this->Form->input('person.alternate_mobile_phone', [
+		echo $this->Form->control('person.alternate_mobile_phone', [
 			'label' => __('Mobile Phone'),
 			'help' => __('Enter your cell or pager number (optional).'),
 			'secure' => false,
 		]);
-		echo $this->Form->input('person.publish_alternate_mobile_phone', [
+		echo $this->Form->control('person.publish_alternate_mobile_phone', [
 			'label' => __('Allow registered users to view mobile number'),
 			'secure' => false,
 		]);
@@ -201,11 +201,11 @@ endif;
 	<fieldset>
 		<legend><?= __('Username and Password') ?></legend>
 <?php
-echo $this->Form->input($user_field, [
+echo $this->Form->control($user_field, [
 	'label' => __('Username'),
 ]);
-echo $this->Form->input('new_password', ['type' => 'password', 'label' => __('Password')]);
-echo $this->Form->input('confirm_password', ['type' => 'password', 'label' => __('Confirm Password')]);
+echo $this->Form->control('new_password', ['type' => 'password', 'label' => __('Password')]);
+echo $this->Form->control('confirm_password', ['type' => 'password', 'label' => __('Confirm Password')]);
 ?>
 	</fieldset>
 <?php
@@ -215,12 +215,12 @@ if (Configure::read('feature.affiliates')):
 		<legend><?= __('Affiliate') ?></legend>
 <?php
 	if (Configure::read('feature.multiple_affiliates')) {
-		echo $this->Form->input('person.affiliates._ids', [
+		echo $this->Form->control('person.affiliates._ids', [
 			'help' => __('Select all affiliates you are interested in.'),
 			'multiple' => 'checkbox',
 		]);
 	} else {
-		echo $this->Form->input('person.affiliates.0.id', [
+		echo $this->Form->control('person.affiliates.0.id', [
 			'label' => __('Affiliate'),
 			'options' => $affiliates,
 			'type' => 'select',
@@ -235,16 +235,16 @@ endif;
 	<fieldset>
 		<legend><?= __('Online Contact') ?></legend>
 <?php
-echo $this->Form->input($email_field, [
+echo $this->Form->control($email_field, [
 	'label' => __('Email'),
 ]);
-echo $this->Form->input('person.publish_email', [
+echo $this->Form->control('person.publish_email', [
 	'label' => __('Allow registered users to view my email address'),
 ]);
-echo $this->Form->input('person.alternate_email', [
+echo $this->Form->control('person.alternate_email', [
 	'help' => __('Optional second email address.'),
 ]);
-echo $this->Form->input('person.publish_alternate_email', [
+echo $this->Form->control('person.publish_alternate_email', [
 	'label' => __('Allow registered users to view my alternate email address'),
 ]);
 if (Configure::read('feature.gravatar')) {
@@ -255,13 +255,13 @@ if (Configure::read('feature.gravatar')) {
 		$after = __('You can have an image shown on your account if you enable this setting and then create a {0} account using the email address you\'ve associated with your {1} account.',
 			$this->Html->link('gravatar.com', 'https://www.gravatar.com/'), Configure::read('organization.short_name'));
 	}
-	echo $this->Form->input('person.show_gravatar', [
+	echo $this->Form->control('person.show_gravatar', [
 		'label' => __('Show Gravatar image for your account?'),
 		'help' => $after,
 	]);
 }
 if (Configure::read('profile.contact_for_feedback')) {
-	echo $this->Form->input('person.contact_for_feedback', [
+	echo $this->Form->control('person.contact_for_feedback', [
 		'label' => __('From time to time, {0} would like to contact members with information on our programs and to solicit feedback. Can {0} contact you in this regard?', $short),
 		'checked' => true,
 	]);
@@ -277,19 +277,19 @@ if (Configure::read('profile.addr_street') || Configure::read('profile.addr_city
 		<legend><?= __('Street Address') ?></legend>
 <?php
 	if (Configure::read('profile.addr_street')) {
-		echo $this->Form->input('person.addr_street', [
+		echo $this->Form->control('person.addr_street', [
 			'label' => __('Street and Number'),
 			'help' => __('Number, street name, and apartment number if necessary.'),
 		]);
 	}
 	if (Configure::read('profile.addr_city')) {
-		echo $this->Form->input('person.addr_city', [
+		echo $this->Form->control('person.addr_city', [
 			'label' => __('City'),
 			'help' => __('Name of city.'),
 		]);
 	}
 	if (Configure::read('profile.addr_prov')) {
-		echo $this->Form->input('person.addr_prov', [
+		echo $this->Form->control('person.addr_prov', [
 			'label' => __('Province'),
 			'type' => 'select',
 			'empty' => '---',
@@ -298,7 +298,7 @@ if (Configure::read('profile.addr_street') || Configure::read('profile.addr_city
 		]);
 	}
 	if (Configure::read('profile.addr_country')) {
-		echo $this->Form->input('person.addr_country', [
+		echo $this->Form->control('person.addr_country', [
 			'label' => __('Country'),
 			'type' => 'select',
 			'empty' => '---',
@@ -308,7 +308,7 @@ if (Configure::read('profile.addr_street') || Configure::read('profile.addr_city
 		]);
 	}
 	if (Configure::read('profile.addr_postalcode')) {
-		echo $this->Form->input('person.addr_postalcode', [
+		echo $this->Form->control('person.addr_postalcode', [
 			'label' => __('Postal Code'),
 			'help' => __('Please enter a correct postal code matching the address above. {0} uses this information to help locate new {1} near its members.', $short, Configure::read('UI.fields')),
 		]);
@@ -325,7 +325,7 @@ echo $this->element('People/gender_inputs', ['prefix' => 'person.', 'secure' => 
 
 if (Configure::read('profile.birthdate')) {
 	if (Configure::read('feature.birth_year_only')) {
-		echo $this->Form->input('person.birthdate', [
+		echo $this->Form->control('person.birthdate', [
 			'templates' => [
 				'dateWidget' => '{{year}}',
 				// Change the input container template, removing the "date" class, so it doesn't get a date picker added
@@ -347,7 +347,7 @@ if (Configure::read('profile.birthdate')) {
 			'secure' => false,
 		]);
 	} else {
-		echo $this->Form->input('person.birthdate', [
+		echo $this->Form->control('person.birthdate', [
 			'minYear' => Configure::read('options.year.born.min'),
 			'maxYear' => Configure::read('options.year.born.max'),
 			'empty' => '---',
@@ -362,7 +362,7 @@ if (Configure::read('profile.height')) {
 	} else {
 		$units = __('inches (5 feet is 60 inches; 6 feet is 72 inches)');
 	}
-	echo $this->Form->input('person.height', [
+	echo $this->Form->control('person.height', [
 		'size' => 6,
 		'help' => __('Please enter your height in {0}. This is used to help build even teams from individual signups.', $units),
 		'secure' => false,
@@ -370,7 +370,7 @@ if (Configure::read('profile.height')) {
 }
 
 if (in_array(Configure::read('profile.shirt_size'), [PROFILE_USER_UPDATE, PROFILE_ADMIN_UPDATE])) {
-	echo $this->Form->input('person.shirt_size', [
+	echo $this->Form->control('person.shirt_size', [
 		'type' => 'select',
 		'empty' => '---',
 		'options' => Configure::read('options.shirt_size'),
@@ -379,7 +379,7 @@ if (in_array(Configure::read('profile.shirt_size'), [PROFILE_USER_UPDATE, PROFIL
 	]);
 }
 if (Configure::read('feature.dog_questions')) {
-	echo $this->Form->input('person.has_dog', [
+	echo $this->Form->control('person.has_dog', [
 		'secure' => false,
 	]);
 }
@@ -393,7 +393,7 @@ if (array_key_exists(GROUP_COACH, $groups) && Configure::read('profile.shirt_siz
 		<legend><?= __('Your Coaching Profile') ?></legend>
 <?php
 	if (Configure::read('profile.shirt_size')) {
-		echo $this->Form->input('person.shirt_size', [
+		echo $this->Form->control('person.shirt_size', [
 			'type' => 'select',
 			'empty' => '---',
 			'options' => Configure::read('options.shirt_size'),
@@ -411,11 +411,11 @@ if (array_key_exists(GROUP_PARENT, $groups)):
 	<fieldset class="parent" style="display:none;">
 		<legend><?= __('Child Profile') ?></legend>
 <?php
-	echo $this->Form->input('person.relatives.0.first_name', [
+	echo $this->Form->control('person.relatives.0.first_name', [
 		'help' => __('First (and, if desired, middle) name.'),
 		'secure' => false,
 	]);
-	echo $this->Form->input('person.relatives.0.last_name', [
+	echo $this->Form->control('person.relatives.0.last_name', [
 		'secure' => false,
 	]);
 
@@ -423,7 +423,7 @@ if (array_key_exists(GROUP_PARENT, $groups)):
 
 	if (Configure::read('profile.birthdate')) {
 		if (Configure::read('feature.birth_year_only')) {
-			echo $this->Form->input('person.relatives.0.birthdate', [
+			echo $this->Form->control('person.relatives.0.birthdate', [
 				'templates' => [
 					'dateWidget' => '{{year}}',
 					// Change the input container template, removing the "date" class, so it doesn't get a date picker added
@@ -445,7 +445,7 @@ if (array_key_exists(GROUP_PARENT, $groups)):
 				'secure' => false,
 			]);
 		} else {
-			echo $this->Form->input('person.relatives.0.birthdate', [
+			echo $this->Form->control('person.relatives.0.birthdate', [
 				'minYear' => Configure::read('options.year.born.min'),
 				'maxYear' => Configure::read('options.year.born.max'),
 				'empty' => '---',
@@ -460,14 +460,14 @@ if (array_key_exists(GROUP_PARENT, $groups)):
 		} else {
 			$units = __('inches (5 feet is 60 inches; 6 feet is 72 inches)');
 		}
-		echo $this->Form->input('person.relatives.0.height', [
+		echo $this->Form->control('person.relatives.0.height', [
 			'size' => 6,
 			'help' => __('Please enter your height in {0}. This is used to help build even teams from individual signups.', $units),
 			'secure' => false,
 		]);
 	}
 	if (in_array(Configure::read('profile.shirt_size'), [PROFILE_USER_UPDATE, PROFILE_ADMIN_UPDATE])) {
-		echo $this->Form->input('person.relatives.0.shirt_size', [
+		echo $this->Form->control('person.relatives.0.shirt_size', [
 			'type' => 'select',
 			'empty' => '---',
 			'options' => Configure::read('options.shirt_size'),

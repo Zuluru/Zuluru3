@@ -18,23 +18,23 @@ if ($task->isNew()) {
 	<fieldset>
 		<legend><?= $task->isNew() ? __('Create Task') : __('Edit Task') ?></legend>
 <?php
-echo $this->Form->input('name', [
+echo $this->Form->control('name', [
 	'size' => 100,
 ]);
-echo $this->Form->input('category_id');
-echo $this->Form->input('description', [
+echo $this->Form->control('category_id');
+echo $this->Form->control('description', [
 	'help' => __('This description will be visible to people assigned to the task.'),
 ]);
-echo $this->Form->input('notes', [
+echo $this->Form->control('notes', [
 	'help' => __('Notes will only be visible administrators.'),
 ]);
-echo $this->Form->input('auto_approve', [
+echo $this->Form->control('auto_approve', [
 	'help' => __('If checked, assignments will not require separate admin approval.'),
 ]);
-echo $this->Form->input('allow_signup', [
+echo $this->Form->control('allow_signup', [
 	'help' => __('If checked, volunteers will be able to sign themselves up; if not, an admin will have to assign people.'),
 ]);
-echo $this->Form->input('person_id', [
+echo $this->Form->control('person_id', [
 	'label' => __('Reporting To'),
 	'empty' => '---',
 ]);

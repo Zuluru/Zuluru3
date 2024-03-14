@@ -20,7 +20,7 @@ if (isset($person)) {
 <?php
 if (isset($person)):
 	echo $this->Html->tag('h2', h($team->name) . ': ' . h($person->full_name) . ': ' . __('Shirt Number'));
-	echo $this->Form->input('people.0._joinData.number', [
+	echo $this->Form->control('people.0._joinData.number', [
 		'type' => 'number',
 	]);
 else:
@@ -29,7 +29,7 @@ else:
 		<legend><?= h($team->name) . ': ' . __('Shirt Numbers') ?></legend>
 <?php
 	foreach ($team->people as $key => $person) {
-		echo $this->Form->input("people.$key._joinData.number", [
+		echo $this->Form->control("people.$key._joinData.number", [
 			'label' => [
 				'text' => $this->element('People/block', compact('person')),
 				'escape' => false,

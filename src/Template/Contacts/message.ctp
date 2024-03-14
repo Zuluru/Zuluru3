@@ -17,22 +17,22 @@ if (isset($contact)) {
 		<legend><?= __('Message Details') ?></legend>
 <?php
 if (isset($contacts)) {
-	echo $this->Form->input('contact_id', [
+	echo $this->Form->control('contact_id', [
 		'label' => __('To'),
 		'options' => $contacts,
 		'empty' => '---',
 	]);
 } else {
-	echo $this->Form->input('To', [
+	echo $this->Form->control('To', [
 		'size' => 60,
 		'value' => $contact->name,
 		'disabled' => true,
 	]);
 	echo $this->Form->hidden('contact_id', ['value' => $contact->id]);
 }
-echo $this->Form->input('subject', ['size' => 60]);
-echo $this->Form->input('message', ['rows' => 6, 'cols' => 60]);
-echo $this->Form->input('cc', [
+echo $this->Form->control('subject', ['size' => 60]);
+echo $this->Form->control('message', ['rows' => 6, 'cols' => 60]);
+echo $this->Form->control('cc', [
 	'label' => __('Send a copy to your email address'),
 	'type' => 'checkbox',
 ]);

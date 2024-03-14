@@ -20,7 +20,7 @@ foreach ($weeks as $key => $week) {
 		} else {
 			$end = $this->Time->time($game_slot->game_end);
 		}
-		echo $this->Form->input("game_slots.{$field->id}.$key.$key2", [
+		echo $this->Form->control("game_slots.{$field->id}.$key.$key2", [
 			'div' => false,
 			'label' => __('{0} {1}-{2}', $this->Time->date($week), $this->Time->time($start), $end),
 			'type' => 'checkbox',

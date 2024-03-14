@@ -20,46 +20,46 @@ if ($newsletter->isNew()) {
 	<fieldset>
 		<legend><?= $newsletter->isNew() ? __('Create Newsletter') : __('Edit Newsletter') ?></legend>
 <?php
-	echo $this->Form->input('name', [
+	echo $this->Form->control('name', [
 		'size' => 60,
 		'help' => __('A short name for this newsletter, to be used as a heading in administrative reports.'),
 	]);
-	echo $this->Form->input('mailing_list_id', ['empty' => 'Select one:']);
-	echo $this->Form->input('from_email', [
+	echo $this->Form->control('mailing_list_id', ['empty' => 'Select one:']);
+	echo $this->Form->control('from_email', [
 		'size' => 60,
 		'help' => __('Email address that this newsletter should come from.'),
 	]);
-	echo $this->Form->input('to_email', [
+	echo $this->Form->control('to_email', [
 		'size' => 60,
 		'help' => __('Email address that this newsletter should be sent to, if different than the From address. If the "Personalize" box is checked, this is ignored.'),
 	]);
-	echo $this->Form->input('reply_to', [
+	echo $this->Form->control('reply_to', [
 		'size' => 60,
 		'help' => __('Email address that replies to this newsletter should be sent to, if different than the From address.'),
 	]);
-	echo $this->Form->input('subject', [
+	echo $this->Form->control('subject', [
 		'size' => 60,
 		'help' => __('Subject line for emailing this newsletter.'),
 	]);
-	echo $this->Form->input('text', [
+	echo $this->Form->control('text', [
 		'cols' => 60,
 		'rows' => 30,
 		'help' => __('The full text of the newsletter.'),
 		'class' => 'wysiwyg_newsletter',
 	]);
-	echo $this->Form->input('target', [
+	echo $this->Form->control('target', [
 		'minYear' => Configure::read('options.year.event.min'),
 		'maxYear' => Configure::read('options.year.event.max'),
 		'looseYears' => true,
 		'help' => __('Target date for sending this newsletter. For display purposes only; does not cause the newsletter to be sent on this date.'),
 	]);
-	echo $this->Form->input('delay', [
+	echo $this->Form->control('delay', [
 		'help' => __('Time (in minutes) between batches. Larger delays decrease the chance that sites like Hotmail will consider your email to be spam.'),
 	]);
-	echo $this->Form->input('batch_size', [
+	echo $this->Form->control('batch_size', [
 		'help' => __('Maximum number of newsletters to send in a single batch. Smaller batches decrease the chance that sites like Hotmail will consider your email to be spam.'),
 	]);
-	echo $this->Form->input('personalize', [
+	echo $this->Form->control('personalize', [
 		'help' => __('Check this to personalize each email. This slows down the sending process and increases the amount of internet traffic your newsletter will generate.'),
 	]);
 ?>

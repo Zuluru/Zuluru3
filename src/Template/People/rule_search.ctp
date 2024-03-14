@@ -20,13 +20,13 @@ $this->Html->addCrumb(__('Rule-based Search'));
 if (isset($affiliate_id)) {
 	echo $this->Form->hidden('affiliate_id', ['value' => $affiliate_id]);
 } else if (isset($affiliates)) {
-	echo $this->Form->input('affiliate_id', [
+	echo $this->Form->control('affiliate_id', [
 		'options' => $affiliates,
 		'hide_single' => true,
 	]);
 }
 
-echo $this->Form->input('rule', ['cols' => 60, 'rows' => 5, 'value' => !empty($params['rule']) ? $params['rule'] : null]);
+echo $this->Form->control('rule', ['cols' => 60, 'rows' => 5, 'value' => !empty($params['rule']) ? $params['rule'] : null]);
 echo $this->Form->hidden('sort', ['value' => 'last_name']);
 echo $this->Form->hidden('direction', ['value' => 'asc']);
 

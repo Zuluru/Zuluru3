@@ -82,11 +82,11 @@ for ($h = 0; $h <= $max_score; $h++) {
 		<p><?= __('What if the teams had different ratings? Check it here:') ?></p>
 <?= $this->Form->create($game, ['align' => 'horizontal']) ?>
 <?php
-echo $this->Form->input('rating_home', [
+echo $this->Form->control('rating_home', [
 		'label' => $game->home_team->name,
 		'size' => 5,
 ]);
-echo $this->Form->input('rating_away', [
+echo $this->Form->control('rating_away', [
 		'label' => $game->away_team->name,
 		'size' => 5,
 ]);
