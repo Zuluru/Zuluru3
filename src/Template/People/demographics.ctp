@@ -11,8 +11,8 @@
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb(__('Demographics as at {0}', $reportDate->format('M d, Y')));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add(__('Demographics as at {0}', $reportDate->format('M d, Y')));
 
 $multi_sport = (count($demographics) > 1);
 $genders = Configure::read('options.gender');

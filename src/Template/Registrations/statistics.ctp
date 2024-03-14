@@ -8,8 +8,8 @@
 
 use App\Model\Entity\Event;
 
-$this->Html->addCrumb(__('Registrations'));
-$this->Html->addCrumb(__('Statistics'));
+$this->Breadcrumbs->add(__('Registrations'));
+$this->Breadcrumbs->add(__('Statistics'));
 ?>
 
 <div class="registrations statistics">

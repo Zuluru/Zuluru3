@@ -3,8 +3,8 @@
  * @var \App\View\AppView $this
  */
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb(__('Rule-based Search'));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add(__('Rule-based Search'));
 ?>
 
 <div class="people search">

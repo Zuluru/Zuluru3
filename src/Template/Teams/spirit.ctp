@@ -6,9 +6,9 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Team'));
-$this->Html->addCrumb(__('Spirit'));
-$this->Html->addCrumb($team->name);
+$this->Breadcrumbs->add(__('Team'));
+$this->Breadcrumbs->add(__('Spirit'));
+$this->Breadcrumbs->add($team->name);
 ?>
 
 <div class="teams spirit">

@@ -9,9 +9,9 @@ use App\Model\Entity\Division;
 $tournaments = collection($league->divisions)->every(function (Division $division) {
 	return $division->schedule_type == 'tournament';
 });
-$this->Html->addCrumb($tournaments ? __('Tournaments') : __('Leagues'));
-$this->Html->addCrumb($league->full_name);
-$this->Html->addCrumb(__('Standings'));
+$this->Breadcrumbs->add($tournaments ? __('Tournaments') : __('Leagues'));
+$this->Breadcrumbs->add($league->full_name);
+$this->Breadcrumbs->add(__('Standings'));
 ?>
 
 <div class="leagues standings">

@@ -4,9 +4,9 @@
  * @var \App\Model\Entity\TeamEvent $team_event
  */
 
-$this->Html->addCrumb(__('Team Events'));
-$this->Html->addCrumb(__('Create'));
-$this->Html->addCrumb(__('Dates'));
+$this->Breadcrumbs->add(__('Team Events'));
+$this->Breadcrumbs->add(__('Create'));
+$this->Breadcrumbs->add(__('Dates'));
 ?>
 
 <div class="team_events form">

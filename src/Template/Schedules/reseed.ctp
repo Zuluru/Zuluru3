@@ -5,13 +5,13 @@
  * @var string $type
  */
 
-$this->Html->addCrumb(__('Division'));
-$this->Html->addCrumb($division->full_league_name);
-$this->Html->addCrumb(__('Add Games'));
+$this->Breadcrumbs->add(__('Division'));
+$this->Breadcrumbs->add($division->full_league_name);
+$this->Breadcrumbs->add(__('Add Games'));
 if ($type == 'crossover') {
-	$this->Html->addCrumb(__('Crossover Details'));
+	$this->Breadcrumbs->add(__('Crossover Details'));
 } else {
-	$this->Html->addCrumb(__('Re-seeding Details'));
+	$this->Breadcrumbs->add(__('Re-seeding Details'));
 }
 ?>
 

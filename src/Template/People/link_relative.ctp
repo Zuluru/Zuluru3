@@ -4,9 +4,9 @@
  * @var \App\Model\Entity\Person $person
  */
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb($person->full_name);
-$this->Html->addCrumb(__('Link Relative'));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add($person->full_name);
+$this->Breadcrumbs->add(__('Link Relative'));
 ?>
 
 <div class="people link_relative">

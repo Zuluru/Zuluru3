@@ -5,10 +5,10 @@
  * @var int $teams
  */
 
-$this->Html->addCrumb(__('Division'));
-$this->Html->addCrumb($division->full_league_name);
-$this->Html->addCrumb(__('Add Games'));
-$this->Html->addCrumb(__('Number of Crossovers'));
+$this->Breadcrumbs->add(__('Division'));
+$this->Breadcrumbs->add($division->full_league_name);
+$this->Breadcrumbs->add(__('Add Games'));
+$this->Breadcrumbs->add(__('Number of Crossovers'));
 ?>
 
 <div class="schedules add">

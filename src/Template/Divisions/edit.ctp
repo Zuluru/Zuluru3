@@ -7,15 +7,15 @@
 use Cake\Core\Configure;
 use App\Core\ModuleRegistry;
 
-$this->Html->addCrumb(__('Divisions'));
+$this->Breadcrumbs->add(__('Divisions'));
 if ($division->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($division->league->name));
+	$this->Breadcrumbs->add(h($division->league->name));
 	if (!empty($division->name)) {
-		$this->Html->addCrumb($division->name);
+		$this->Breadcrumbs->add($division->name);
 	}
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 
 // Set up the templates to use for advanced options. Note that these are based on the horizontal

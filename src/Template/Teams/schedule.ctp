@@ -10,9 +10,9 @@ use Cake\I18n\FrozenDate;
 use Cake\Routing\Router;
 use App\Model\Table\GamesTable;
 
-$this->Html->addCrumb(__('Teams'));
-$this->Html->addCrumb($team->name);
-$this->Html->addCrumb(__('Schedule'));
+$this->Breadcrumbs->add(__('Teams'));
+$this->Breadcrumbs->add($team->name);
+$this->Breadcrumbs->add(__('Schedule'));
 
 $annotate = $this->Authorize->can('view_notes', $team);
 $display_attendance = $this->Authorize->can('attendance', $team);

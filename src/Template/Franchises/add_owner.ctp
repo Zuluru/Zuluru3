@@ -4,9 +4,9 @@
  * @var \App\Model\Entity\Franchise $franchise
  */
 
-$this->Html->addCrumb(__('Franchise'));
-$this->Html->addCrumb($franchise->name);
-$this->Html->addCrumb(__('Add an Owner'));
+$this->Breadcrumbs->add(__('Franchise'));
+$this->Breadcrumbs->add($franchise->name);
+$this->Breadcrumbs->add(__('Add an Owner'));
 ?>
 
 <div class="franchises add_owner">

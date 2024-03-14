@@ -7,10 +7,10 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Players'));
-$this->Html->addCrumb($person->full_name);
-$this->Html->addCrumb(__('Sign Waiver'));
-$this->Html->addCrumb($waiver->name);
+$this->Breadcrumbs->add(__('Players'));
+$this->Breadcrumbs->add($person->full_name);
+$this->Breadcrumbs->add(__('Sign Waiver'));
+$this->Breadcrumbs->add($waiver->name);
 ?>
 
 <?php

@@ -6,13 +6,13 @@
  */
 
 if (isset($division)) {
-	$this->Html->addCrumb(__('Division'));
-	$this->Html->addCrumb($division->full_league_name);
+	$this->Breadcrumbs->add(__('Division'));
+	$this->Breadcrumbs->add($division->full_league_name);
 } else {
-	$this->Html->addCrumb(__('League'));
-	$this->Html->addCrumb($league->full_name);
+	$this->Breadcrumbs->add(__('League'));
+	$this->Breadcrumbs->add($league->full_name);
 }
-$this->Html->addCrumb(__('Delete Games'));
+$this->Breadcrumbs->add(__('Delete Games'));
 ?>
 
 <div class="schedules delete">

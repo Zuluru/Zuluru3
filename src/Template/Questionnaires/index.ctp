@@ -4,8 +4,8 @@
  * @var \App\Model\Entity\Questionnaire[] $questionnaires
  */
 
-$this->Html->addCrumb(__('Questionnaires'));
-$this->Html->addCrumb(__('List'));
+$this->Breadcrumbs->add(__('Questionnaires'));
+$this->Breadcrumbs->add(__('List'));
 ?>
 
 <div class="questionnaires index">

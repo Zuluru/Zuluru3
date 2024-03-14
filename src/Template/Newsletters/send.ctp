@@ -8,9 +8,9 @@ use Cake\Core\Configure;
 use Cake\I18n\FrozenTime;
 use Cake\Routing\Router;
 
-$this->Html->addCrumb(__('Newsletter'));
-$this->Html->addCrumb($newsletter->name);
-$this->Html->addCrumb(__('Sending'));
+$this->Breadcrumbs->add(__('Newsletter'));
+$this->Breadcrumbs->add($newsletter->name);
+$this->Breadcrumbs->add(__('Sending'));
 ?>
 
 <div class="newsletters sent">

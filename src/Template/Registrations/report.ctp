@@ -6,8 +6,8 @@
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
 
-$this->Html->addCrumb(__('Registrations'));
-$this->Html->addCrumb(__('Report'));
+$this->Breadcrumbs->add(__('Registrations'));
+$this->Breadcrumbs->add(__('Report'));
 ?>
 
 <div class="registrations index">

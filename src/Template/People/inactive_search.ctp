@@ -5,8 +5,8 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb(__('Inactive Search'));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add(__('Inactive Search'));
 ?>
 
 <div class="people search">

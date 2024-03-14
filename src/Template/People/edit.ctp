@@ -15,9 +15,9 @@
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb($person->full_name);
-$this->Html->addCrumb(__('Edit'));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add($person->full_name);
+$this->Breadcrumbs->add(__('Edit'));
 
 $short = Configure::read('organization.short_name');
 $admin = Configure::read('email.admin_email');

@@ -4,8 +4,8 @@
  * @var \App\Model\Entity\Upload[] $photos
  */
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb(__('Approve Photos'));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add(__('Approve Photos'));
 ?>
 
 <div class="people photos">

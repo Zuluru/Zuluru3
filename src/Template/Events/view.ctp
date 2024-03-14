@@ -11,9 +11,9 @@
 use App\Model\Table\PricesTable;
 use Cake\Utility\Inflector;
 
-$this->Html->addCrumb(__('Event'));
-$this->Html->addCrumb(h($event->name));
-$this->Html->addCrumb(__('View'));
+$this->Breadcrumbs->add(__('Event'));
+$this->Breadcrumbs->add(h($event->name));
+$this->Breadcrumbs->add(__('View'));
 ?>
 
 <?php

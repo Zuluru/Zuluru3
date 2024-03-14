@@ -7,8 +7,8 @@
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 
-$this->Html->addCrumb(__('Daily Schedule'));
-$this->Html->addCrumb($this->Time->date($date));
+$this->Breadcrumbs->add(__('Daily Schedule'));
+$this->Breadcrumbs->add($this->Time->date($date));
 ?>
 
 <div class="schedules day form">

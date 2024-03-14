@@ -7,8 +7,8 @@
 use App\Controller\AppController;
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Franchises'));
-$this->Html->addCrumb(__('List'));
+$this->Breadcrumbs->add(__('Franchises'));
+$this->Breadcrumbs->add(__('List'));
 ?>
 
 <div class="franchises index">

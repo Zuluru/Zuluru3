@@ -4,8 +4,8 @@
  * @var \App\Model\Entity\Badge[] $badges
  */
 
-$this->Html->addCrumb(__('Badges'));
-$this->Html->addCrumb(__('Nominate'));
+$this->Breadcrumbs->add(__('Badges'));
+$this->Breadcrumbs->add(__('Nominate'));
 ?>
 
 <div class="badges form">

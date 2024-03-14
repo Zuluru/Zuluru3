@@ -8,9 +8,9 @@
 use App\Model\Entity\Team;
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb($person->full_name);
-$this->Html->addCrumb(__('Team History'));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add($person->full_name);
+$this->Breadcrumbs->add(__('Team History'));
 ?>
 
 <div class="teams index">

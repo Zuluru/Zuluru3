@@ -6,9 +6,9 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Divisions'));
-$this->Html->addCrumb(__('Division {0} Availability Report', __(Configure::read("sports.{$division->league->sport}.field_cap"))));
-$this->Html->addCrumb($division->full_league_name);
+$this->Breadcrumbs->add(__('Divisions'));
+$this->Breadcrumbs->add(__('Division {0} Availability Report', __(Configure::read("sports.{$division->league->sport}.field_cap"))));
+$this->Breadcrumbs->add($division->full_league_name);
 ?>
 
 <div class="divisions slots">

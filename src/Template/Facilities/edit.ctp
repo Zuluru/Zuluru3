@@ -6,12 +6,12 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Facilities'));
+$this->Breadcrumbs->add(__('Facilities'));
 if ($facility->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($facility->name));
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(h($facility->name));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 

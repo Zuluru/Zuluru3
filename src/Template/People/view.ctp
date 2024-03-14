@@ -10,9 +10,9 @@ use App\Model\Entity\Credit;
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb(h($person->full_name));
-$this->Html->addCrumb(__('View'));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add(h($person->full_name));
+$this->Breadcrumbs->add(__('View'));
 ?>
 
 <div class="people view">

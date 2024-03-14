@@ -6,9 +6,9 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Waiver'));
-$this->Html->addCrumb(h($waiver->name));
-$this->Html->addCrumb(__('View'));
+$this->Breadcrumbs->add(__('Waiver'));
+$this->Breadcrumbs->add(h($waiver->name));
+$this->Breadcrumbs->add(__('View'));
 ?>
 
 <div class="waivers view">

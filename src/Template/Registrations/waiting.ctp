@@ -6,9 +6,9 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Registrations'));
-$this->Html->addCrumb(__('Waiting List'));
-$this->Html->addCrumb($event->name);
+$this->Breadcrumbs->add(__('Registrations'));
+$this->Breadcrumbs->add(__('Waiting List'));
+$this->Breadcrumbs->add($event->name);
 ?>
 
 <div class="registrations index">

@@ -12,9 +12,9 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Games'));
-$this->Html->addCrumb(__('Attendance Change'));
-$this->Html->addCrumb(h($team->name));
+$this->Breadcrumbs->add(__('Games'));
+$this->Breadcrumbs->add(__('Attendance Change'));
+$this->Breadcrumbs->add(h($team->name));
 ?>
 
 <div class="games form">

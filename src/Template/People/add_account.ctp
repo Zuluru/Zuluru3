@@ -13,8 +13,8 @@ use Cake\Core\Configure;
 use Cake\I18n\FrozenTime;
 use Cake\Routing\Router;
 
-$this->Html->addCrumb(__('Users'));
-$this->Html->addCrumb(__('Create Login'));
+$this->Breadcrumbs->add(__('Users'));
+$this->Breadcrumbs->add(__('Create Login'));
 
 $short = Configure::read('organization.short_name');
 ?>

@@ -6,9 +6,9 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb($person->full_name);
-$this->Html->addCrumb(__('Registration History'));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add($person->full_name);
+$this->Breadcrumbs->add(__('Registration History'));
 ?>
 
 <div class="people registrations">

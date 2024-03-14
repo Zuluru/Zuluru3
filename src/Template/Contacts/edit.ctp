@@ -4,12 +4,12 @@
  * @var \App\Model\Entity\Contact $contact
  */
 
-$this->Html->addCrumb(__('Contacts'));
+$this->Breadcrumbs->add(__('Contacts'));
 if ($contact->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($contact->name));
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(h($contact->name));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 

@@ -15,11 +15,11 @@ use Cake\Core\Configure;
 <head>
 	<?= $this->Html->charset() ?>
 	<title><?php
-		$crumbs = $this->Html->getCrumbs(' &raquo; ');
-		if (!empty($crumbs))
+		$crumbs = $this->Breadcrumbs->getAsString(' &raquo; ');
+		if (!empty($crumbs)) {
 			echo $crumbs . ' : ';
-		echo Configure::read('site.name') . ' : ' .
-			Configure::read('organization.name');
+		}
+		echo Configure::read('site.name') . ' : ' . Configure::read('organization.name');
 	?></title>
 <?php
 // Attempt to figure out where the CSS file is located, so we can give dompdf an absolute path.

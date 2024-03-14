@@ -8,9 +8,9 @@ use App\Controller\AppController;
 use App\Model\Entity\GameSlot;
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(Configure::read('UI.fields_cap'));
-$this->Html->addCrumb(__('Availability and Bookings'));
-$this->Html->addCrumb($field->long_name);
+$this->Breadcrumbs->add(Configure::read('UI.fields_cap'));
+$this->Breadcrumbs->add(__('Availability and Bookings'));
+$this->Breadcrumbs->add($field->long_name);
 ?>
 
 <div class="fields bookings">

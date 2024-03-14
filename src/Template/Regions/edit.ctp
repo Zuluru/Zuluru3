@@ -4,12 +4,12 @@
  * @var \App\Model\Entity\Region $region
  */
 
-$this->Html->addCrumb(__('Regions'));
+$this->Breadcrumbs->add(__('Regions'));
 if ($region->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($region->name));
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(h($region->name));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 

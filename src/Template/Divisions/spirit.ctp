@@ -8,9 +8,9 @@ use Cake\Core\Configure;
  * @var \App\Module\Spirit $spirit_obj
  */
 
-$this->Html->addCrumb(__('Divisions'));
-$this->Html->addCrumb($division->full_league_name);
-$this->Html->addCrumb(__('Spirit Report'));
+$this->Breadcrumbs->add(__('Divisions'));
+$this->Breadcrumbs->add($division->full_league_name);
+$this->Breadcrumbs->add(__('Spirit Report'));
 ?>
 
 <div class="divisions spirit">

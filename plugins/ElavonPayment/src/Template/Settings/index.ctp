@@ -3,8 +3,8 @@
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 
-$this->Html->addCrumb(__('Settings'));
-$this->Html->addCrumb('Elavon');
+$this->Breadcrumbs->add(__('Settings'));
+$this->Breadcrumbs->add('Elavon');
 ?>
 
 <div class="settings form">

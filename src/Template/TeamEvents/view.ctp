@@ -9,10 +9,10 @@ use App\Authorization\ContextResource;
 use App\Controller\AppController;
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Team Event'));
-$this->Html->addCrumb(h($team_event->team->name));
-$this->Html->addCrumb(h($team_event->name));
-$this->Html->addCrumb(__('View'));
+$this->Breadcrumbs->add(__('Team Event'));
+$this->Breadcrumbs->add(h($team_event->team->name));
+$this->Breadcrumbs->add(h($team_event->name));
+$this->Breadcrumbs->add(__('View'));
 
 $display_gender = $this->Authorize->can('display_gender', new ContextResource($team_event->team, ['division' => $team_event->team->division])) && Configure::read('offerings.genders') !== 'Open';
 ?>

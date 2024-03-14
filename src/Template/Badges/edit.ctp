@@ -6,12 +6,12 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Badges'));
+$this->Breadcrumbs->add(__('Badges'));
 if ($badge->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($badge->name));
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(h($badge->name));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 

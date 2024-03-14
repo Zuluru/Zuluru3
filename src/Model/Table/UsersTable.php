@@ -98,7 +98,7 @@ class UsersTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric($this->getPrimaryKey())
-			->allowEmptyString($this->getPrimaryKey(), 'create')
+			->allowEmptyString($this->getPrimaryKey(), null, 'create')
 
 			->requirePresence($this->userField, 'create', __('Username must not be blank.'))
 			->notEmptyString($this->userField, __('Username must not be blank.'))

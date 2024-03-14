@@ -20,12 +20,12 @@ $fields = collection($fields)
 	});
 %>
 <?php
-$this->Html->addCrumb(__('<%= $pluralHumanName %>'));
+$this->Breadcrumbs->add(__('<%= $pluralHumanName %>'));
 if ($<%= $singularVar %>->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($<%= $singularVar %>->name));
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(h($<%= $singularVar %>->name));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 

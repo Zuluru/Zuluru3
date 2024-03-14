@@ -8,10 +8,10 @@ use App\Authorization\ContextResource;
 use Cake\Core\Configure;
 use Cake\Utility\Text;
 
-$this->Html->addCrumb(__('Games'));
-$this->Html->addCrumb(__('Attendance'));
-$this->Html->addCrumb($team->name);
-$this->Html->addCrumb($this->Time->date($game->game_slot->game_date));
+$this->Breadcrumbs->add(__('Games'));
+$this->Breadcrumbs->add(__('Attendance'));
+$this->Breadcrumbs->add($team->name);
+$this->Breadcrumbs->add($this->Time->date($game->game_slot->game_date));
 
 $display_gender = $this->Authorize->can('display_gender', new ContextResource($team, ['division' => $game->division])) && Configure::read('offerings.genders') !== 'Open';
 ?>

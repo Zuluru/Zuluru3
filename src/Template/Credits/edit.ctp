@@ -3,13 +3,13 @@
  * @var \App\Model\Entity\Credit $credit
  */
 
-$this->Html->addCrumb(__('Credits'));
+$this->Breadcrumbs->add(__('Credits'));
 if ($credit->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(__('Edit'));
 }
-$this->Html->addCrumb($credit->person->full_name);
+$this->Breadcrumbs->add($credit->person->full_name);
 ?>
 
 <div class="credits form">

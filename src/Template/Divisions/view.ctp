@@ -7,9 +7,9 @@
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 
-$this->Html->addCrumb(__('Divisions'));
-$this->Html->addCrumb(h($division->full_league_name));
-$this->Html->addCrumb(__('View'));
+$this->Breadcrumbs->add(__('Divisions'));
+$this->Breadcrumbs->add(h($division->full_league_name));
+$this->Breadcrumbs->add(__('View'));
 ?>
 
 <?php

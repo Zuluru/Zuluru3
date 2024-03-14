@@ -12,10 +12,10 @@ use App\Model\Entity\Facility;
 use Cake\Core\Configure;
 
 if (isset($field)) {
-	$this->Html->addCrumb($field->long_name);
+	$this->Breadcrumbs->add($field->long_name);
 }
-$this->Html->addCrumb(__('Game Slots'));
-$this->Html->addCrumb(__('Create'));
+$this->Breadcrumbs->add(__('Game Slots'));
+$this->Breadcrumbs->add(__('Create'));
 ?>
 
 <div class="gameSlots form">

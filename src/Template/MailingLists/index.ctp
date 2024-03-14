@@ -4,8 +4,8 @@
  * @var \App\Model\Entity\MailingList[] $mailingLists
  */
 
-$this->Html->addCrumb(__('Mailing Lists'));
-$this->Html->addCrumb(__('List'));
+$this->Breadcrumbs->add(__('Mailing Lists'));
+$this->Breadcrumbs->add(__('List'));
 ?>
 
 <div class="mailingLists index">

@@ -3,9 +3,9 @@
  * @var \App\Model\Entity\Event $event
  */
 
-$this->Html->addCrumb(__('Registrations'));
-$this->Html->addCrumb($event->name);
-$this->Html->addCrumb(__('List'));
+$this->Breadcrumbs->add(__('Registrations'));
+$this->Breadcrumbs->add($event->name);
+$this->Breadcrumbs->add(__('List'));
 ?>
 
 <div class="registrations index">

@@ -6,8 +6,8 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Holidays'));
-$this->Html->addCrumb(__('List'));
+$this->Breadcrumbs->add(__('Holidays'));
+$this->Breadcrumbs->add(__('List'));
 ?>
 
 <div class="holidays index">

@@ -27,7 +27,7 @@ if (isset($controller)) {
 }
 
 foreach ($elements as $element) {
-	$this->Html->addCrumb(__(Inflector::humanize($element)));
+	$this->Breadcrumbs->add(__(Inflector::humanize($element)));
 }
 
 if ($heading !== null) {

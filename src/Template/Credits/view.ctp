@@ -5,8 +5,8 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Credit'));
-$this->Html->addCrumb(__('View'));
+$this->Breadcrumbs->add(__('Credit'));
+$this->Breadcrumbs->add(__('View'));
 ?>
 
 <div class="credits view">

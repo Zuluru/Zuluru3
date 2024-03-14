@@ -5,9 +5,9 @@
  * @var \App\Model\Entity\Person[] $captains
  */
 
-$this->Html->addCrumb(__('Credit'));
-$this->Html->addCrumb($credit->person->full_name);
-$this->Html->addCrumb(__('Transfer'));
+$this->Breadcrumbs->add(__('Credit'));
+$this->Breadcrumbs->add($credit->person->full_name);
+$this->Breadcrumbs->add(__('Transfer'));
 ?>
 
 <div class="credits form">

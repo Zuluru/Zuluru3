@@ -5,8 +5,8 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Users'));
-$this->Html->addCrumb(__('Import'));
+$this->Breadcrumbs->add(__('Users'));
+$this->Breadcrumbs->add(__('Import'));
 ?>
 
 <div class="users view">

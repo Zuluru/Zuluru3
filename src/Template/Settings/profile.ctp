@@ -5,8 +5,8 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Settings'));
-$this->Html->addCrumb(__('Profile'));
+$this->Breadcrumbs->add(__('Settings'));
+$this->Breadcrumbs->add(__('Profile'));
 ?>
 
 <div class="settings form">

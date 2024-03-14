@@ -7,10 +7,10 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Teams'));
-$this->Html->addCrumb($team->name);
-$this->Html->addCrumb(__('Roster Position'));
-$this->Html->addCrumb($person->full_name);
+$this->Breadcrumbs->add(__('Teams'));
+$this->Breadcrumbs->add($team->name);
+$this->Breadcrumbs->add(__('Roster Position'));
+$this->Breadcrumbs->add($person->full_name);
 ?>
 
 <div class="people form">

@@ -6,12 +6,12 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Events'));
+$this->Breadcrumbs->add(__('Events'));
 if ($event->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($event->name));
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(h($event->name));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 

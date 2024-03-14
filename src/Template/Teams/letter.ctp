@@ -6,8 +6,8 @@
  * @var string[] $letters
  */
 
-$this->Html->addCrumb(__('Teams'));
-$this->Html->addCrumb(__('Starting with {0}', $letter));
+$this->Breadcrumbs->add(__('Teams'));
+$this->Breadcrumbs->add(__('Starting with {0}', $letter));
 ?>
 
 <div class="teams index">

@@ -6,7 +6,7 @@
  */
 
 $title = ($all ? __('Credits') : __('Unused Credits'));
-$this->Html->addCrumb($title);
+$this->Breadcrumbs->add($title);
 ?>
 
 <div class="registrations index">

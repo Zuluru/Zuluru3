@@ -12,9 +12,9 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Team Events'));
-$this->Html->addCrumb(__('Attendance Change'));
-$this->Html->addCrumb($team->name);
+$this->Breadcrumbs->add(__('Team Events'));
+$this->Breadcrumbs->add(__('Attendance Change'));
+$this->Breadcrumbs->add($team->name);
 ?>
 
 <div class="team_events form">

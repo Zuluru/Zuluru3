@@ -4,9 +4,9 @@
  * @var \App\Model\Entity\Person $person
  */
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb($person->full_name);
-$this->Html->addCrumb(__('Reactivate'));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add($person->full_name);
+$this->Breadcrumbs->add(__('Reactivate'));
 ?>
 
 <div class="people form">

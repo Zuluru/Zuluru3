@@ -4,8 +4,8 @@
  * @var \App\Model\Entity\Badge[] $badges
  */
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb(__('Approve Badges'));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add(__('Approve Badges'));
 ?>
 
 <div class="people badges">

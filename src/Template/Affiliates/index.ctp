@@ -4,8 +4,8 @@
  * @var \App\Model\Entity\Affiliate[] $affiliates
  */
 
-$this->Html->addCrumb(__('Affiliates'));
-$this->Html->addCrumb(__('List'));
+$this->Breadcrumbs->add(__('Affiliates'));
+$this->Breadcrumbs->add(__('List'));
 ?>
 
 <div class="affiliates index">

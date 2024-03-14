@@ -6,10 +6,10 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Registration'));
-$this->Html->addCrumb($registration->person->full_name);
-$this->Html->addCrumb($registration->event->name);
-$this->Html->addCrumb(__('Edit'));
+$this->Breadcrumbs->add(__('Registration'));
+$this->Breadcrumbs->add($registration->person->full_name);
+$this->Breadcrumbs->add($registration->event->name);
+$this->Breadcrumbs->add(__('Edit'));
 ?>
 
 <div class="registrations form">

@@ -4,8 +4,8 @@
  * @var \App\Model\Entity\Contact[] $contacts
  */
 
-$this->Html->addCrumb(__('Contacts'));
-$this->Html->addCrumb(__('List'));
+$this->Breadcrumbs->add(__('Contacts'));
+$this->Breadcrumbs->add(__('List'));
 ?>
 
 <div class="contacts index">

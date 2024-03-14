@@ -6,9 +6,9 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Badges'));
-$this->Html->addCrumb(h($badge->name));
-$this->Html->addCrumb(__('View'));
+$this->Breadcrumbs->add(__('Badges'));
+$this->Breadcrumbs->add(h($badge->name));
+$this->Breadcrumbs->add(__('View'));
 ?>
 
 <div class="badges view">

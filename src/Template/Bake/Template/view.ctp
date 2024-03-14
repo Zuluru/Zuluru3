@@ -37,9 +37,9 @@ $pk = "\$$singularVar->{$primaryKey[0]}";
  * @var \App\Model\Entity\<%= $singularHumanName %> $<%= $singularVar %>
  */
 
-$this->Html->addCrumb(__('<%= $singularHumanName %>'));
-$this->Html->addCrumb(h($<%= $singularVar %>-><%= $displayField %>));
-$this->Html->addCrumb(__('View'));
+$this->Breadcrumbs->add(__('<%= $singularHumanName %>'));
+$this->Breadcrumbs->add(h($<%= $singularVar %>-><%= $displayField %>));
+$this->Breadcrumbs->add(__('View'));
 ?>
 
 <div class="<%= $pluralVar %> view">

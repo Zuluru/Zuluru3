@@ -8,7 +8,7 @@
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 
-$this->Html->addCrumb(__('Online Transaction Result'));
+$this->Breadcrumbs->add(__('Online Transaction Result'));
 
 if ($result === true) {
 	echo $this->element('Payments/invoices/' . Configure::read('payment.invoice_implementation'));

@@ -7,9 +7,9 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Registrations'));
-$this->Html->addCrumb($event->name);
-$this->Html->addCrumb(__('Summary'));
+$this->Breadcrumbs->add(__('Registrations'));
+$this->Breadcrumbs->add($event->name);
+$this->Breadcrumbs->add(__('Summary'));
 ?>
 
 <div class="registrations summary">

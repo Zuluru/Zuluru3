@@ -4,8 +4,8 @@
  * @var \App\Model\Entity\Group[] $groups
  */
 
-$this->Html->addCrumb(__('Groups'));
-$this->Html->addCrumb(__('List'));
+$this->Breadcrumbs->add(__('Groups'));
+$this->Breadcrumbs->add(__('List'));
 ?>
 
 <div class="groups index">

@@ -7,9 +7,9 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Registration'));
-$this->Html->addCrumb($event->name);
-$this->Html->addCrumb(__('Preferences'));
+$this->Breadcrumbs->add(__('Registration'));
+$this->Breadcrumbs->add($event->name);
+$this->Breadcrumbs->add(__('Preferences'));
 ?>
 
 <div class="registrations form">

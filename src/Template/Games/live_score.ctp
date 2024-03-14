@@ -8,9 +8,9 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Games'));
-$this->Html->addCrumb(__('{0} vs {1}', $team->name, $opponent->name));
-$this->Html->addCrumb(__('Live Game Scoring'));
+$this->Breadcrumbs->add(__('Games'));
+$this->Breadcrumbs->add(__('{0} vs {1}', $team->name, $opponent->name));
+$this->Breadcrumbs->add(__('Live Game Scoring'));
 ?>
 
 <div class="games form">

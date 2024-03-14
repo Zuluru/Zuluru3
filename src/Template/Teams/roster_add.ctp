@@ -11,10 +11,10 @@ use Cake\Core\Configure;
 
 $adding_noun = $adding ? __('Addition') : __('Invitation');
 
-$this->Html->addCrumb(__('Teams'));
-$this->Html->addCrumb($team->name);
-$this->Html->addCrumb(__('Roster {0}', $adding_noun));
-$this->Html->addCrumb($person->full_name);
+$this->Breadcrumbs->add(__('Teams'));
+$this->Breadcrumbs->add($team->name);
+$this->Breadcrumbs->add(__('Roster {0}', $adding_noun));
+$this->Breadcrumbs->add($person->full_name);
 ?>
 
 <div class="people form">

@@ -4,9 +4,9 @@
  * @var \App\Model\Entity\Upload $upload
  */
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb($person->full_name);
-$this->Html->addCrumb(__('Upload Photo'));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add($person->full_name);
+$this->Breadcrumbs->add(__('Upload Photo'));
 ?>
 
 <div class="people upload">

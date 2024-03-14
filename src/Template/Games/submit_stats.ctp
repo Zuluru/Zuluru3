@@ -5,8 +5,8 @@
  * @var \App\Module\Sport $sport_obj
  */
 
-$this->Html->addCrumb(__('Games'));
-$this->Html->addCrumb(__('Submit Game Stats'));
+$this->Breadcrumbs->add(__('Games'));
+$this->Breadcrumbs->add(__('Submit Game Stats'));
 ?>
 
 <?php

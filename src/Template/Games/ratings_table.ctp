@@ -4,9 +4,9 @@
  * @var \App\Model\Entity\Game $game
  */
 
-$this->Html->addCrumb(__('Games'));
-$this->Html->addCrumb(__('Game') . ' ' . $game->id);
-$this->Html->addCrumb(__('Ratings Table'));
+$this->Breadcrumbs->add(__('Games'));
+$this->Breadcrumbs->add(__('Game') . ' ' . $game->id);
+$this->Breadcrumbs->add(__('Ratings Table'));
 ?>
 
 <div class="games view">

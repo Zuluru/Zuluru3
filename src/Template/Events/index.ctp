@@ -6,8 +6,8 @@
  * @var int[] $affiliates
  */
 
-$this->Html->addCrumb(__('Registration Events'));
-$this->Html->addCrumb(__('List'));
+$this->Breadcrumbs->add(__('Registration Events'));
+$this->Breadcrumbs->add(__('List'));
 ?>
 
 <div class="events index">

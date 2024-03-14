@@ -4,12 +4,12 @@
  * @var \App\Model\Entity\MailingList $mailing_list
  */
 
-$this->Html->addCrumb(__('Mailing List'));
+$this->Breadcrumbs->add(__('Mailing List'));
 if ($mailing_list->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($mailing_list->name));
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(h($mailing_list->name));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 

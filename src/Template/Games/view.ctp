@@ -11,9 +11,9 @@ use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 use App\Controller\AppController;
 
-$this->Html->addCrumb(__('Games'));
-$this->Html->addCrumb(__('Game') . ' ' . $game->id);
-$this->Html->addCrumb(__('View'));
+$this->Breadcrumbs->add(__('Games'));
+$this->Breadcrumbs->add(__('Game') . ' ' . $game->id);
+$this->Breadcrumbs->add(__('View'));
 
 $preliminary = ($game->home_team_id === null || ($game->division->schedule_type != 'competition' && $game->away_team_id === null));
 

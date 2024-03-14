@@ -6,8 +6,8 @@
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 
-$this->Html->addCrumb(__('Settings'));
-$this->Html->addCrumb('Stripe');
+$this->Breadcrumbs->add(__('Settings'));
+$this->Breadcrumbs->add('Stripe');
 ?>
 
 <div class="settings form">

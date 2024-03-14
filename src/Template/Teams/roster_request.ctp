@@ -5,10 +5,10 @@
  * @var \App\Model\Entity\Person $person
  */
 
-$this->Html->addCrumb(__('Teams'));
-$this->Html->addCrumb($team->name);
-$this->Html->addCrumb(__('Roster Request'));
-$this->Html->addCrumb($person->full_name);
+$this->Breadcrumbs->add(__('Teams'));
+$this->Breadcrumbs->add($team->name);
+$this->Breadcrumbs->add(__('Roster Request'));
+$this->Breadcrumbs->add($person->full_name);
 ?>
 
 <div class="people form">

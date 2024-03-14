@@ -4,8 +4,8 @@
  * @var \App\Model\Entity\Team[] $teams
  */
 
-$this->Html->addCrumb(__('Teams'));
-$this->Html->addCrumb(__('Join'));
+$this->Breadcrumbs->add(__('Teams'));
+$this->Breadcrumbs->add(__('Join'));
 ?>
 
 <div class="teams index" id="kick_start">

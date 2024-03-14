@@ -5,8 +5,8 @@
  * @var string $email_field
  */
 
-$this->Html->addCrumb(__('Users'));
-$this->Html->addCrumb(__('Reset Password'));
+$this->Breadcrumbs->add(__('Users'));
+$this->Breadcrumbs->add(__('Reset Password'));
 ?>
 
 <h3><?= __('Reset Password') ?></h3>

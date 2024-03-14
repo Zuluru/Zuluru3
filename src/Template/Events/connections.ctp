@@ -6,9 +6,9 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Event'));
-$this->Html->addCrumb(h($event->name));
-$this->Html->addCrumb(__('Connections'));
+$this->Breadcrumbs->add(__('Event'));
+$this->Breadcrumbs->add(h($event->name));
+$this->Breadcrumbs->add(__('Connections'));
 ?>
 
 <div class="events connections form">

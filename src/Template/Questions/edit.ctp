@@ -6,8 +6,8 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Question'));
-$this->Html->addCrumb(__('Edit'));
+$this->Breadcrumbs->add(__('Question'));
+$this->Breadcrumbs->add(__('Edit'));
 ?>
 
 <div class="questions form">

@@ -4,13 +4,13 @@
  * @var \App\Model\Entity\Game $game
  */
 
-$this->Html->addCrumb(__('Games'));
-$this->Html->addCrumb(__('Game') . ' ' . $game->id);
-$this->Html->addCrumb(__('Note'));
+$this->Breadcrumbs->add(__('Games'));
+$this->Breadcrumbs->add(__('Game') . ' ' . $game->id);
+$this->Breadcrumbs->add(__('Note'));
 if ($note->isNew()) {
-	$this->Html->addCrumb(__('Add'));
+	$this->Breadcrumbs->add(__('Add'));
 } else {
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 

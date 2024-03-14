@@ -984,7 +984,8 @@ class AppController extends Controller {
 			if (array_key_exists($var, $opts)) {
 				$emails = self::_extractEmails($opts[$var], $single);
 				if (!empty($emails)) {
-					$email->$var($emails);
+					$func = 'set' . ucfirst($var);
+					$email->$func($emails);
 				}
 				$locales = self::_extractLocales($opts[$var], $locales);
 			}

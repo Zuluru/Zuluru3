@@ -2,8 +2,8 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Settings'));
-$this->Html->addCrumb('Chase Paymentech');
+$this->Breadcrumbs->add(__('Settings'));
+$this->Breadcrumbs->add('Chase Paymentech');
 ?>
 
 <div class="settings form">

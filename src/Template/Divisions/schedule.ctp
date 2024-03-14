@@ -9,9 +9,9 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Divisions'));
-$this->Html->addCrumb($division->full_league_name);
-$this->Html->addCrumb(__('Schedule'));
+$this->Breadcrumbs->add(__('Divisions'));
+$this->Breadcrumbs->add($division->full_league_name);
+$this->Breadcrumbs->add(__('Schedule'));
 
 if (!empty($division->header)):
 ?>

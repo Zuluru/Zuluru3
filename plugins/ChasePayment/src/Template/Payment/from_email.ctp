@@ -1,6 +1,6 @@
 <?php
-$this->Html->addCrumb (__('Registration'));
-$this->Html->addCrumb (__('Add Payment Details from Email'));
+$this->Breadcrumbs->add (__('Registration'));
+$this->Breadcrumbs->add (__('Add Payment Details from Email'));
 ?>
 
 <div class="registrations form">

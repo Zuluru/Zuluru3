@@ -4,12 +4,12 @@
  * @var \App\Model\Entity\Holiday $holiday
  */
 
-$this->Html->addCrumb(__('Holiday'));
+$this->Breadcrumbs->add(__('Holiday'));
 if ($holiday->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($holiday->name));
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(h($holiday->name));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 

@@ -6,8 +6,8 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Games'));
-$this->Html->addCrumb(__('Submit Game Results'));
+$this->Breadcrumbs->add(__('Games'));
+$this->Breadcrumbs->add(__('Submit Game Results'));
 ?>
 
 <div class="games form">

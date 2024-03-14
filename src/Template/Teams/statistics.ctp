@@ -8,8 +8,8 @@ use App\Controller\AppController;
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 
-$this->Html->addCrumb(__('Teams'));
-$this->Html->addCrumb(__('Statistics'));
+$this->Breadcrumbs->add(__('Teams'));
+$this->Breadcrumbs->add(__('Statistics'));
 
 $sports = array_unique(collection($divisions)->extract('league.sport')->toArray());
 $show_shirt = false;

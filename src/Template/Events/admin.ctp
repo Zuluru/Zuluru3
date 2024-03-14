@@ -12,10 +12,10 @@ use App\Model\Entity\Event;
 use App\Model\Entity\Price;
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Registration Events'));
-$this->Html->addCrumb(__('List'));
+$this->Breadcrumbs->add(__('Registration Events'));
+$this->Breadcrumbs->add(__('List'));
 if (isset($year)) {
-	$this->Html->addCrumb($year);
+	$this->Breadcrumbs->add($year);
 }
 ?>
 

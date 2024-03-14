@@ -6,8 +6,8 @@
  * @var string $step
  */
 
-$this->Html->addCrumb(__('Registration Events'));
-$this->Html->addCrumb(__('Wizard'));
+$this->Breadcrumbs->add(__('Registration Events'));
+$this->Breadcrumbs->add(__('Wizard'));
 ?>
 
 <div class="events index">

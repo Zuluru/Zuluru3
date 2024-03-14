@@ -7,12 +7,12 @@
  * @var int $price_id
  */
 
-$this->Html->addCrumb(__('Events'));
-$this->Html->addCrumb($event->name);
+$this->Breadcrumbs->add(__('Events'));
+$this->Breadcrumbs->add($event->name);
 if ($price_id) {
-	$this->Html->addCrumb(current($event->prices)->name);
+	$this->Breadcrumbs->add(current($event->prices)->name);
 }
-$this->Html->addCrumb(__('Refund'));
+$this->Breadcrumbs->add(__('Refund'));
 ?>
 
 <div class="events refund">

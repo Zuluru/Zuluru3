@@ -4,12 +4,12 @@
  * @var \App\Model\Entity\Task $task
  */
 
-$this->Html->addCrumb(__('Tasks'));
+$this->Breadcrumbs->add(__('Tasks'));
 if ($task->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($task->name));
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(h($task->name));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 

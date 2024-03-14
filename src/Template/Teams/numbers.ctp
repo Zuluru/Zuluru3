@@ -5,13 +5,13 @@
  * @var \App\Model\Entity\Person $person
  */
 
-$this->Html->addCrumb(__('Teams'));
-$this->Html->addCrumb(h($team->name));
+$this->Breadcrumbs->add(__('Teams'));
+$this->Breadcrumbs->add(h($team->name));
 if (isset($person)) {
-	$this->Html->addCrumb($person->full_name);
-	$this->Html->addCrumb(__('Shirt Number'));
+	$this->Breadcrumbs->add($person->full_name);
+	$this->Breadcrumbs->add(__('Shirt Number'));
 } else {
-	$this->Html->addCrumb(__('Shirt Numbers'));
+	$this->Breadcrumbs->add(__('Shirt Numbers'));
 }
 ?>
 

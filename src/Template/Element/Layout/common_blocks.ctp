@@ -4,6 +4,8 @@
  * This element will not change any of the standard blocks: meta, css, script, content, etc.
 
  * @var \Cake\View\View $this
+ * @var string $menu_element
+ * @var array $menu_items
  */
 
 use App\Controller\AppController;
@@ -26,7 +28,7 @@ if (!$this->fetch('html')) {
  * We don't check whether there is one already, because there is ALWAYS one already, from the default view.
  */
 $this->start('title');
-$crumbs = $this->Html->getCrumbs(' &raquo; ');
+$crumbs = $this->Breadcrumbs->getAsString(' &raquo; ');
 if (!empty($crumbs)) {
 	echo $crumbs . ' : ';
 }
@@ -354,7 +356,7 @@ endif;
  */
 $this->start('zuluru_content');
 echo $this->fetch('zuluru_menu');
-echo $this->Html->getCrumbList();
+echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 if (!isset($error)) {
 	echo $this->fetch('zuluru_session');
 	echo $this->cell('Notices::next')->render();

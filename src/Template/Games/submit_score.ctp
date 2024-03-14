@@ -8,8 +8,8 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Games'));
-$this->Html->addCrumb(__('Submit Game Results'));
+$this->Breadcrumbs->add(__('Games'));
+$this->Breadcrumbs->add(__('Submit Game Results'));
 
 if ($team_id == $game->home_team_id) {
 	$this_team = $game->home_team;

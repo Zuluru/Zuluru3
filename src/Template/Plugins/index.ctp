@@ -4,8 +4,8 @@
  * @var \App\Model\Entity\Plugin[] $plugins
  */
 
-$this->Html->addCrumb(__('Plugins'));
-$this->Html->addCrumb(__('List'));
+$this->Breadcrumbs->add(__('Plugins'));
+$this->Breadcrumbs->add(__('List'));
 ?>
 
 <div class="plugins index">

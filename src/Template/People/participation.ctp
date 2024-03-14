@@ -5,8 +5,8 @@ use Cake\I18n\FrozenTime;
  * @var int $min
  */
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb(__('Participation Statistics'));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add(__('Participation Statistics'));
 ?>
 
 <div class="people participation">

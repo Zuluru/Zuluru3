@@ -10,9 +10,9 @@ use App\Core\ModuleRegistry;
 use App\Model\Entity\Team;
 use Cake\ORM\TableRegistry;
 
-$this->Html->addCrumb(__('Games'));
-$this->Html->addCrumb(__('Game') . ' ' . $game->id);
-$this->Html->addCrumb(__('Edit'));
+$this->Breadcrumbs->add(__('Games'));
+$this->Breadcrumbs->add(__('Game') . ' ' . $game->id);
+$this->Breadcrumbs->add(__('Edit'));
 
 $preliminary = ($game->home_team_id === null || ($game->division->schedule_type != 'competition' && $game->away_team_id === null));
 if ($game->division->league->hasCarbonFlip()) {

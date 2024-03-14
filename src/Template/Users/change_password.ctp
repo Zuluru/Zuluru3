@@ -6,9 +6,9 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Users'));
-$this->Html->addCrumb($user->person->full_name);
-$this->Html->addCrumb(__('Change Password'));
+$this->Breadcrumbs->add(__('Users'));
+$this->Breadcrumbs->add($user->person->full_name);
+$this->Breadcrumbs->add(__('Change Password'));
 ?>
 
 <div class="users form">

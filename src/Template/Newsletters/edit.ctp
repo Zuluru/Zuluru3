@@ -6,12 +6,12 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Newsletter'));
+$this->Breadcrumbs->add(__('Newsletter'));
 if ($newsletter->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($newsletter->name));
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(h($newsletter->name));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 

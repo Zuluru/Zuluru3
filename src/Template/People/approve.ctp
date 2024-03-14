@@ -7,9 +7,9 @@
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb(__('Approve Account'));
-$this->Html->addCrumb($person->full_name);
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add(__('Approve Account'));
+$this->Breadcrumbs->add($person->full_name);
 ?>
 
 <div class="people approve">

@@ -5,9 +5,9 @@
  * @var \App\Model\Entity\TaskSlot $task_slot
  */
 
-$this->Html->addCrumb($task->name);
-$this->Html->addCrumb(__('Task Slots'));
-$this->Html->addCrumb(__('Create'));
+$this->Breadcrumbs->add($task->name);
+$this->Breadcrumbs->add(__('Task Slots'));
+$this->Breadcrumbs->add(__('Create'));
 ?>
 
 <div class="task_slots form">

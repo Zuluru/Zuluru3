@@ -10,9 +10,9 @@
 
 use App\Authorization\ContextResource;
 
-$this->Html->addCrumb(__('Divisions'));
-$this->Html->addCrumb($division->full_league_name);
-$this->Html->addCrumb(__('Standings'));
+$this->Breadcrumbs->add(__('Divisions'));
+$this->Breadcrumbs->add($division->full_league_name);
+$this->Breadcrumbs->add(__('Standings'));
 ?>
 
 <?php

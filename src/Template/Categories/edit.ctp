@@ -7,12 +7,12 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Categories'));
+$this->Breadcrumbs->add(__('Categories'));
 if ($category->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($category->name));
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(h($category->name));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 
 $types = Configure::read('options.category_types');

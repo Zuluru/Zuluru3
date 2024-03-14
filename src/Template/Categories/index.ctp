@@ -7,8 +7,8 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Categories'));
-$this->Html->addCrumb(__('List'));
+$this->Breadcrumbs->add(__('Categories'));
+$this->Breadcrumbs->add(__('List'));
 
 $types = Configure::read('options.category_types');
 $multiple_types = (count($types) > 1);

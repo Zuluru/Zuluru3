@@ -6,8 +6,8 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Game Slot'));
-$this->Html->addCrumb(__('Edit'));
+$this->Breadcrumbs->add(__('Game Slot'));
+$this->Breadcrumbs->add(__('Edit'));
 ?>
 
 <div class="gameSlots form">

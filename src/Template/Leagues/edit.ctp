@@ -21,12 +21,12 @@ if (!isset($tournaments)) {
 		$tournaments = false;
 	}
 }
-$this->Html->addCrumb($tournaments ? __('Tournaments') : __('Leagues'));
+$this->Breadcrumbs->add($tournaments ? __('Tournaments') : __('Leagues'));
 if ($league->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($league->name));
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(h($league->name));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 
 // Set up the templates to use for advanced options. Note that these are based on the horizontal

@@ -7,9 +7,9 @@
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
 
-$this->Html->addCrumb(__('Division'));
-$this->Html->addCrumb($division->full_league_name);
-$this->Html->addCrumb(__('Reschedule'));
+$this->Breadcrumbs->add(__('Division'));
+$this->Breadcrumbs->add($division->full_league_name);
+$this->Breadcrumbs->add(__('Reschedule'));
 ?>
 
 <div class="schedules reschedule">

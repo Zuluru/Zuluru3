@@ -4,12 +4,19 @@ namespace App\View;
 use App\View\Helper\AuthorizeHelper;
 use App\View\Helper\SelectorHelper;
 use App\View\Helper\UserCacheHelper;
+use App\View\Helper\ZuluruBreadcrumbsHelper;
 use App\View\Helper\ZuluruFormHelper;
 use App\View\Helper\ZuluruGameHelper;
 use App\View\Helper\ZuluruHtmlHelper;
 use App\View\Helper\ZuluruTimeHelper;
 use Authentication\View\Helper\IdentityHelper;
+use BootstrapUI\View\Helper\FlashHelper;
+use BootstrapUI\View\Helper\PaginatorHelper;
+use Cake\View\Helper\NumberHelper;
+use Cake\View\Helper\TextHelper;
 use Cake\View\View;
+use ZuluruBootstrap\View\Helper\AccordionHelper;
+use ZuluruJquery\View\Helper\JqueryHelper;
 
 /**
  * App View class
@@ -17,11 +24,18 @@ use Cake\View\View;
  * @property IdentityHelper $Identity
  * @property AuthorizeHelper $Authorize
  * @property UserCacheHelper $UserCache
+ * @property NumberHelper $Number
+ * @property TextHelper $Text
  * @property SelectorHelper $Selector
  * @property ZuluruHtmlHelper $Html
  * @property ZuluruFormHelper $Form
+ * @property ZuluruBreadcrumbsHelper $Breadcrumbs
  * @property ZuluruTimeHelper $Time
  * @property ZuluruGameHelper $Game
+ * @property FlashHelper $Flash
+ * @property PaginatorHelper $Paginator
+ * @property AccordionHelper $Accordion
+ * @property JqueryHelper $Jquery
  */
 class AppView extends View {
 
@@ -42,6 +56,7 @@ class AppView extends View {
 		$this->loadHelper('Selector');
 		$this->loadHelper('Html', ['className' => 'ZuluruHtml']);
 		$this->loadHelper('Form', ['className' => 'ZuluruForm']);
+		$this->loadHelper('Breadcrumbs', ['className' => 'ZuluruBreadcrumbs']);
 		$this->loadHelper('Time', ['className' => 'ZuluruTime']);
 		$this->loadHelper('Game', ['className' => 'ZuluruGame']);
 		$this->loadHelper('BootstrapUI.Flash');

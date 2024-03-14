@@ -6,12 +6,12 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Waivers'));
+$this->Breadcrumbs->add(__('Waivers'));
 if ($waiver->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($waiver->name));
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(h($waiver->name));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 

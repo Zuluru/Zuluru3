@@ -3,8 +3,8 @@
  * @var \App\View\AppView $this
  */
 
-$this->Html->addCrumb(__('Affiliates'));
-$this->Html->addCrumb(__('Select'));
+$this->Breadcrumbs->add(__('Affiliates'));
+$this->Breadcrumbs->add(__('Select'));
 ?>
 
 <div class="affiliates form">

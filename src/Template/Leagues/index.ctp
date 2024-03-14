@@ -12,10 +12,10 @@ use App\Controller\AppController;
 use App\Model\Entity\League;
 use Cake\Utility\Inflector;
 
-$this->Html->addCrumb($tournaments ? __('Tournaments') : __('Leagues'));
-$this->Html->addCrumb(__('List'));
+$this->Breadcrumbs->add($tournaments ? __('Tournaments') : __('Leagues'));
+$this->Breadcrumbs->add(__('List'));
 if (!empty($sport)) {
-	$this->Html->addCrumb(__(Inflector::humanize($sport)));
+	$this->Breadcrumbs->add(__(Inflector::humanize($sport)));
 }
 ?>
 

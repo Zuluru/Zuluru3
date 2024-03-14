@@ -17,9 +17,9 @@ use App\Model\Entity\Game;
 use App\Model\Entity\GameSlot;
 use App\Model\Table\GamesTable;
 
-$this->Html->addCrumb(__('Teams'));
-$this->Html->addCrumb(__('Season Attendance'));
-$this->Html->addCrumb($team->name);
+$this->Breadcrumbs->add(__('Teams'));
+$this->Breadcrumbs->add(__('Season Attendance'));
+$this->Breadcrumbs->add($team->name);
 ?>
 
 <div class="teams attendance">

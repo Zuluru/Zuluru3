@@ -8,8 +8,8 @@ use App\Controller\AppController;
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 
-$this->Html->addCrumb(__('Leagues'));
-$this->Html->addCrumb(__('Summary'));
+$this->Breadcrumbs->add(__('Leagues'));
+$this->Breadcrumbs->add(__('Summary'));
 ?>
 
 <div class="leagues summary">

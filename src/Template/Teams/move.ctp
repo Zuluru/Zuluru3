@@ -5,9 +5,9 @@
  * @var \App\Model\Entity\Division[] $divisions
  */
 
-$this->Html->addCrumb(__('Team'));
-$this->Html->addCrumb($team->name);
-$this->Html->addCrumb(__('Move'));
+$this->Breadcrumbs->add(__('Team'));
+$this->Breadcrumbs->add($team->name);
+$this->Breadcrumbs->add(__('Move'));
 ?>
 
 <div class="teams move">

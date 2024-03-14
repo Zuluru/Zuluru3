@@ -6,13 +6,13 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Teams'));
-$this->Html->addCrumb($team->name);
-$this->Html->addCrumb(__('Note'));
+$this->Breadcrumbs->add(__('Teams'));
+$this->Breadcrumbs->add($team->name);
+$this->Breadcrumbs->add(__('Note'));
 if ($note->isNew()) {
-	$this->Html->addCrumb(__('Add'));
+	$this->Breadcrumbs->add(__('Add'));
 } else {
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 

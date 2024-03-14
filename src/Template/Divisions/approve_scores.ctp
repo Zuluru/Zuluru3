@@ -7,9 +7,9 @@
 use App\Controller\AppController;
 use App\Model\Entity\ScoreEntry;
 
-$this->Html->addCrumb(__('Divisions'));
-$this->Html->addCrumb($division->full_league_name);
-$this->Html->addCrumb(__('Approve Scores'));
+$this->Breadcrumbs->add(__('Divisions'));
+$this->Breadcrumbs->add($division->full_league_name);
+$this->Breadcrumbs->add(__('Approve Scores'));
 ?>
 
 <div class="divisions approve_scores">

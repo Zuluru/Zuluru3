@@ -4,10 +4,10 @@
  * @var \App\Model\Entity\Division $division
  */
 
-$this->Html->addCrumb(__('Division'));
-$this->Html->addCrumb($division->full_league_name);
-$this->Html->addCrumb(__('Add Games'));
-$this->Html->addCrumb(__('Select Exclusions'));
+$this->Breadcrumbs->add(__('Division'));
+$this->Breadcrumbs->add($division->full_league_name);
+$this->Breadcrumbs->add(__('Add Games'));
+$this->Breadcrumbs->add(__('Select Exclusions'));
 ?>
 
 <div class="schedules add">

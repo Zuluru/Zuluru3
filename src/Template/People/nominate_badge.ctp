@@ -4,16 +4,16 @@
  * @var \App\Model\Entity\Badge $badge
  */
 
-$this->Html->addCrumb(__('Badges'));
+$this->Breadcrumbs->add(__('Badges'));
 if ($badge->category == 'assigned') {
-	$this->Html->addCrumb(__('Assign'));
+	$this->Breadcrumbs->add(__('Assign'));
 } else {
-	$this->Html->addCrumb(__('Nominate'));
+	$this->Breadcrumbs->add(__('Nominate'));
 }
 if (count($affiliates) > 1) {
-	$this->Html->addCrumb($badge->affiliate->name);
+	$this->Breadcrumbs->add($badge->affiliate->name);
 }
-$this->Html->addCrumb($badge->name);
+$this->Breadcrumbs->add($badge->name);
 ?>
 
 <div class="badges form">

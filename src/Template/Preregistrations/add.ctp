@@ -6,13 +6,13 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Preregistrations'));
-$this->Html->addCrumb(__('Add'));
+$this->Breadcrumbs->add(__('Preregistrations'));
+$this->Breadcrumbs->add(__('Add'));
 if (isset($event)) {
 	if (count($affiliates) > 1) {
-		$this->Html->addCrumb($event->affiliate->name);
+		$this->Breadcrumbs->add($event->affiliate->name);
 	}
-	$this->Html->addCrumb($event->name);
+	$this->Breadcrumbs->add($event->name);
 }
 ?>
 

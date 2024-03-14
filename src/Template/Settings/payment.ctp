@@ -5,8 +5,8 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Settings'));
-$this->Html->addCrumb(__('Online Payments'));
+$this->Breadcrumbs->add(__('Settings'));
+$this->Breadcrumbs->add(__('Online Payments'));
 ?>
 
 <div class="settings form">

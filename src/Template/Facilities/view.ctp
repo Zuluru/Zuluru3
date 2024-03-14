@@ -8,9 +8,9 @@ use App\Controller\AppController;
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 
-$this->Html->addCrumb(__('Facilities'));
-$this->Html->addCrumb(h($facility->name));
-$this->Html->addCrumb(__('View'));
+$this->Breadcrumbs->add(__('Facilities'));
+$this->Breadcrumbs->add(h($facility->name));
+$this->Breadcrumbs->add(__('View'));
 
 if (!$this->Authorize->can('closed', \App\Controller\FacilitiesController::class)) {
 	$facility->fields = collection($facility->fields)->match(['is_open' => true])->toArray();

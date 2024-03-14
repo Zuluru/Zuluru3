@@ -5,9 +5,9 @@
  * @var \App\Model\Entity\Event[] $events
  */
 
-$this->Html->addCrumb(__('Team'));
-$this->Html->addCrumb(__('Add Player'));
-$this->Html->addCrumb(h($team->name));
+$this->Breadcrumbs->add(__('Team'));
+$this->Breadcrumbs->add(__('Add Player'));
+$this->Breadcrumbs->add(h($team->name));
 ?>
 
 <div class="teams add_player">

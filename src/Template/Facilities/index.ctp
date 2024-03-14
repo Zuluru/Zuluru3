@@ -12,8 +12,8 @@ use App\Model\Entity\Field;
 use App\Model\Entity\Region;
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Facilities'));
-$this->Html->addCrumb(__('List'));
+$this->Breadcrumbs->add(__('Facilities'));
+$this->Breadcrumbs->add(__('List'));
 ?>
 
 <div class="facilities index">

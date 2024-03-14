@@ -3,8 +3,8 @@
  * @var \App\View\AppView $this
  */
 
-$this->Html->addCrumb(__('Settings'));
-$this->Html->addCrumb('phpBB3');
+$this->Breadcrumbs->add(__('Settings'));
+$this->Breadcrumbs->add('phpBB3');
 ?>
 
 <div class="settings form">

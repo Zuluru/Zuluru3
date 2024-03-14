@@ -4,12 +4,12 @@
  * @var \App\Model\Entity\UploadType $upload_type
  */
 
-$this->Html->addCrumb(__('Upload Type'));
+$this->Breadcrumbs->add(__('Upload Type'));
 if ($upload_type->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($upload_type->name));
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(h($upload_type->name));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 

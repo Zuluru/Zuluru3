@@ -6,8 +6,8 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb(__('Add Child'));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add(__('Add Child'));
 ?>
 
 <div class="people add_relative form">

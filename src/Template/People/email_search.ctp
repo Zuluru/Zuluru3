@@ -5,8 +5,8 @@
  * @var string[] $affiliates
  */
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb(__('Email Search'));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add(__('Email Search'));
 ?>
 
 <div class="people search">

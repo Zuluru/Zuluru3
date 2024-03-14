@@ -4,13 +4,13 @@
  * @var \App\Model\Entity\Person $person
  */
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb($person->full_name);
-$this->Html->addCrumb(__('Note'));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add($person->full_name);
+$this->Breadcrumbs->add(__('Note'));
 if ($note->isNew()) {
-	$this->Html->addCrumb(__('Add'));
+	$this->Breadcrumbs->add(__('Add'));
 } else {
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 

@@ -7,8 +7,8 @@ use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 use Cake\Utility\Text;
 
-$this->Html->addCrumb(__('Settings'));
-$this->Html->addCrumb(__('Organization'));
+$this->Breadcrumbs->add(__('Settings'));
+$this->Breadcrumbs->add(__('Organization'));
 ?>
 
 <div class="settings form">

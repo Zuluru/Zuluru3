@@ -7,8 +7,8 @@
 use Cake\Core\Configure;
 use Cake\I18n\FrozenTime;
 
-$this->Html->addCrumb(__('Preferences'));
-$this->Html->addCrumb($person->full_name);
+$this->Breadcrumbs->add(__('Preferences'));
+$this->Breadcrumbs->add($person->full_name);
 ?>
 
 <div class="settings form">

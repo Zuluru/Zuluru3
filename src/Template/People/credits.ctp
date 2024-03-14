@@ -4,9 +4,9 @@
  * @var int[] $affiliates
  */
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb($person->full_name);
-$this->Html->addCrumb(__('Credits'));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add($person->full_name);
+$this->Breadcrumbs->add(__('Credits'));
 ?>
 
 <div class="players index">

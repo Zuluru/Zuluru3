@@ -4,8 +4,8 @@
  * @var \App\Model\Entity\Registration $registration
  */
 
-$this->Html->addCrumb(__('Registration'));
-$this->Html->addCrumb(__('Redeem Credit'));
+$this->Breadcrumbs->add(__('Registration'));
+$this->Breadcrumbs->add(__('Redeem Credit'));
 ?>
 
 <div class="registrations form">

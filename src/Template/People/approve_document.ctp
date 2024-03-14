@@ -7,14 +7,14 @@
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb($document->person->full_name);
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add($document->person->full_name);
 if ($this->getRequest()->getParam('action') == 'edit_document') {
-	$this->Html->addCrumb(__('Edit Document'));
+	$this->Breadcrumbs->add(__('Edit Document'));
 } else {
-	$this->Html->addCrumb(__('Approve Document'));
+	$this->Breadcrumbs->add(__('Approve Document'));
 }
-$this->Html->addCrumb($document->upload_type->name);
+$this->Breadcrumbs->add($document->upload_type->name);
 ?>
 
 <div class="people form">

@@ -2,8 +2,8 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Settings'));
-$this->Html->addCrumb('PayPal');
+$this->Breadcrumbs->add(__('Settings'));
+$this->Breadcrumbs->add('PayPal');
 ?>
 
 <div class="settings form">

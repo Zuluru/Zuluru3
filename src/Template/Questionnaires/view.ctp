@@ -6,9 +6,9 @@
 
 use App\Controller\AppController;
 
-$this->Html->addCrumb(__('Questionnaire'));
-$this->Html->addCrumb(h($questionnaire->name));
-$this->Html->addCrumb(__('View'));
+$this->Breadcrumbs->add(__('Questionnaire'));
+$this->Breadcrumbs->add(h($questionnaire->name));
+$this->Breadcrumbs->add(__('View'));
 ?>
 
 <div class="questionnaires view">

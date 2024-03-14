@@ -11,9 +11,9 @@ use Cake\Core\Configure;
 $tournaments = collection($league->divisions)->every(function (Division $division) {
 	return $division->schedule_type == 'tournament';
 });
-$this->Html->addCrumb($tournaments ? __('Tournaments') : __('Leagues'));
-$this->Html->addCrumb(__('League {0} Availability Report', __(Configure::read("sports.{$league->sport}.field_cap"))));
-$this->Html->addCrumb($league->full_name);
+$this->Breadcrumbs->add($tournaments ? __('Tournaments') : __('Leagues'));
+$this->Breadcrumbs->add(__('League {0} Availability Report', __(Configure::read("sports.{$league->sport}.field_cap"))));
+$this->Breadcrumbs->add($league->full_name);
 ?>
 
 <div class="leagues slots">

@@ -4,8 +4,8 @@
  * @var \App\Model\Entity\Upload $documents
  */
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb(__('Approve Documents'));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add(__('Approve Documents'));
 ?>
 
 <div class="people documents">

@@ -11,8 +11,8 @@ use App\Controller\AppController;
 use App\Model\Entity\Credit;
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Registration'));
-$this->Html->addCrumb(__('Checkout'));
+$this->Breadcrumbs->add(__('Registration'));
+$this->Breadcrumbs->add(__('Checkout'));
 
 $credit_split = collection($person->credits ?? [])->groupBy(function (Credit $credit) {
 	return $credit->balance > 0;

@@ -6,9 +6,9 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Divisions'));
-$this->Html->addCrumb($division->long_league_name);
-$this->Html->addCrumb(__('Add Teams'));
+$this->Breadcrumbs->add(__('Divisions'));
+$this->Breadcrumbs->add($division->long_league_name);
+$this->Breadcrumbs->add(__('Add Teams'));
 ?>
 
 <div class="teams form">

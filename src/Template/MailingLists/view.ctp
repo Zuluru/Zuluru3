@@ -6,9 +6,9 @@
 
 use App\Controller\AppController;
 
-$this->Html->addCrumb(__('Mailing List'));
-$this->Html->addCrumb(h($mailing_list->name));
-$this->Html->addCrumb(__('View'));
+$this->Breadcrumbs->add(__('Mailing List'));
+$this->Breadcrumbs->add(h($mailing_list->name));
+$this->Breadcrumbs->add(__('View'));
 ?>
 
 <div class="mailingLists view">

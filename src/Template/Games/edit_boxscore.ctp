@@ -7,9 +7,9 @@
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 
-$this->Html->addCrumb(__('Games'));
-$this->Html->addCrumb(__('{0} vs {1}', $game->home_team->name, $game->away_team->name));
-$this->Html->addCrumb(__('Edit Box Score'));
+$this->Breadcrumbs->add(__('Games'));
+$this->Breadcrumbs->add(__('{0} vs {1}', $game->home_team->name, $game->away_team->name));
+$this->Breadcrumbs->add(__('Edit Box Score'));
 
 $team_names = [
 	$game->home_team->id => $game->home_team->name,

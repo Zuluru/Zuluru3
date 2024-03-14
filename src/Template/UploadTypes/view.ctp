@@ -4,9 +4,9 @@
  * @var \App\Model\Entity\UploadType $upload_type
  */
 
-$this->Html->addCrumb(__('Upload Type'));
-$this->Html->addCrumb(h($upload_type->name));
-$this->Html->addCrumb(__('View'));
+$this->Breadcrumbs->add(__('Upload Type'));
+$this->Breadcrumbs->add(h($upload_type->name));
+$this->Breadcrumbs->add(__('View'));
 ?>
 
 <div class="upload_types view">

@@ -10,8 +10,8 @@ use Cake\I18n\FrozenDate;
  * @var \App\Model\Entity\Region[] $regions
  */
 
-$this->Html->addCrumb(__('Game Slots'));
-$this->Html->addCrumb(__('Confirm'));
+$this->Breadcrumbs->add(__('Game Slots'));
+$this->Breadcrumbs->add(__('Confirm'));
 ?>
 
 <div class="gameSlots form">

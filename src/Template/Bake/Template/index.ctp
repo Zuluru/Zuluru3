@@ -25,8 +25,8 @@ $fields = collection($fields)
  * @var \App\Model\Entity\<%= $singularHumanName %>[] $<%= $pluralVar %>
  */
 
-$this->Html->addCrumb(__('<%= $pluralHumanName %>'));
-$this->Html->addCrumb(__('List'));
+$this->Breadcrumbs->add(__('<%= $pluralHumanName %>'));
+$this->Breadcrumbs->add(__('List'));
 ?>
 
 <div class="<%= $pluralVar %> index">
