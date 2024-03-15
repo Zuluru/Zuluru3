@@ -3,9 +3,9 @@ use Cake\Core\Configure;
 use Cake\Routing\Router;
 
 /**
- * @type $person \App\Model\Entity\Person
- * @type $team \App\Model\Entity\Team
- * @type $captains string
+ * @var \App\Model\Entity\Person $person
+ * @var \App\Model\Entity\Team $team
+ * @var string $captains
  */
 ?>
 

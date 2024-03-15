@@ -1,9 +1,16 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Game $game
+ * @var \App\Model\Entity\Team $team
+ * @var \App\Model\Entity\Team $opponent
+ */
+
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Games'));
-$this->Html->addCrumb(__('{0} vs {1}', $team->name, $opponent->name));
-$this->Html->addCrumb(__('Live Game Scoring'));
+$this->Breadcrumbs->add(__('Games'));
+$this->Breadcrumbs->add(__('{0} vs {1}', $team->name, $opponent->name));
+$this->Breadcrumbs->add(__('Live Game Scoring'));
 ?>
 
 <div class="games form">
@@ -56,10 +63,10 @@ if (Configure::read('feature.twitter')) {
 	} else {
 		$twitter = "#{$game->division->name} game between " . $team->twitterName() . ' and ' . $opponent->twitterName() . " is about to start at {$game->game_slot->field->long_code}.";
 	}
-	echo $this->Form->create('Twitter', ['url' => ['controller' => 'Games', 'action' => 'tweet']]);
+	echo $this->Form->create(null, ['url' => ['controller' => 'Games', 'action' => 'tweet']]);
 	echo $this->Form->hidden('lat', ['value' => $game->game_slot->field->latitude]);
 	echo $this->Form->hidden('long', ['value' => $game->game_slot->field->longitude]);
-	echo $this->Form->input('message', [
+	echo $this->Form->control('message', [
 			'div' => 'clear',
 			'cols' => 50,
 			'rows' => 4,
@@ -84,14 +91,14 @@ if (empty($game->score_details)):
 <div class="zuluru">
 <?php
 	$url = ['controller' => 'Games', 'action' => 'play', 'game' => $game->id, 'team' => $submitter];
-	echo $this->Form->create(false, [
+	echo $this->form->create(null, [
 		'id' => "StartForm{$team->id}",
 		'url' => $url,
 	]);
 
 	$start_text = Configure::read("sports.{$game->division->league->sport}.start.live_score");
 	if ($start_text) {
-		echo $this->Form->input('team_id', [
+		echo $this->Form->control('team_id', [
 				'label' => __($start_text),
 				'options' => [
 					$team->id => $team->name,

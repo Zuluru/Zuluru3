@@ -67,7 +67,7 @@ class EventType {
 	 * @param Registration|null $registration The existing registration entity, if any
 	 * @return mixed true if validation succeeds, false or a specific message string if it fails
 	 */
-	public function validateResponse($value, $context, Question $question, Array $responses, Event $event, Registration $registration = null) {
+	public function validateResponse($value, $context, Question $question, array $responses, Event $event, Registration $registration = null) {
 		// Others are validated based on their type
 		switch ($question->type) {
 			case 'text':

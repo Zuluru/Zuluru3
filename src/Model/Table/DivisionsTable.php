@@ -105,75 +105,75 @@ class DivisionsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			// validation will allow empty names; rules will limit this
-			->allowEmpty('name')
+			->allowEmptyString('name')
 
 			->date('open', __('You must provide a valid date for the first game.'))
 			->requirePresence('open', 'create', __('You must provide a valid date for the first game.'))
-			->notEmpty('open', __('You must provide a valid date for the first game.'))
+			->notEmptyDate('open', __('You must provide a valid date for the first game.'))
 
 			->date('close', __('You must provide a valid date for the last game.'))
 			->requirePresence('close', 'create', __('You must provide a valid date for the last game.'))
-			->notEmpty('close', __('You must provide a valid date for the last game.'))
+			->notEmptyDate('close', __('You must provide a valid date for the last game.'))
 
 			->requirePresence('ratio_rule', 'create', __('You must select a valid ratio rule.'))
-			->notEmpty('ratio_rule', __('You must select a valid ratio rule.'))
+			->notEmptyString('ratio_rule', __('You must select a valid ratio rule.'))
 
 			->date('roster_deadline', __('You must provide a valid roster deadline.'))
-			->allowEmpty('roster_deadline')
+			->allowEmptyDate('roster_deadline')
 
-			->allowEmpty('roster_rule')
+			->allowEmptyString('roster_rule')
 
 			->requirePresence('schedule_type', 'create')
-			->notEmpty('schedule_type', __('You must select a valid schedule type.'))
+			->notEmptyString('schedule_type', __('You must select a valid schedule type.'))
 
 			->boolean('exclude_teams')
-			->notEmpty('exclude_teams')
+			->notEmptyString('exclude_teams')
 
-			->allowEmpty('coord_list')
+			->allowEmptyString('coord_list')
 
-			->allowEmpty('capt_list')
+			->allowEmptyString('capt_list')
 
 			->numeric('email_after')
 			->requirePresence('email_after', 'create')
-			->notEmpty('email_after')
+			->notEmptyString('email_after')
 
 			->numeric('finalize_after')
 			->requirePresence('finalize_after', 'create')
-			->notEmpty('finalize_after')
+			->notEmptyString('finalize_after')
 
 			->requirePresence('roster_method', 'create')
-			->notEmpty('roster_method')
+			->notEmptyString('roster_method')
 
 			->requirePresence('rating_calculator', function ($context) { return array_key_exists('schedule_type', $context['data']) && $context['data']['schedule_type'] == 'ratings_ladder' && $context['newRecord']; })
-			->notEmpty('rating_calculator', null, function ($context) { return array_key_exists('schedule_type', $context['data']) && $context['data']['schedule_type'] == 'ratings_ladder'; })
+			->notEmptyString('rating_calculator', null, function ($context) { return array_key_exists('schedule_type', $context['data']) && $context['data']['schedule_type'] == 'ratings_ladder'; })
 
 			->boolean('flag_membership')
-			->notEmpty('flag_membership', null, function () { return Configure::read('feature.registration'); })
+			->notEmptyString('flag_membership', null, function () { return Configure::read('feature.registration'); })
 
 			->boolean('flag_roster_conflict')
-			->notEmpty('flag_roster_conflict')
+			->notEmptyString('flag_roster_conflict')
 
 			->boolean('flag_schedule_conflict')
-			->notEmpty('flag_schedule_conflict')
+			->notEmptyString('flag_schedule_conflict')
 
 			->requirePresence('allstars', function ($context) { return Configure::read('scoring.allstars') && $context['newRecord']; })
-			->notEmpty('allstars', null, function () { return Configure::read('scoring.allstars'); })
+			->notEmptyString('allstars', null, function () { return Configure::read('scoring.allstars'); })
 
 			->requirePresence('allstars_from', function ($context) { return Configure::read('scoring.allstars') && $context['newRecord']; })
-			->notEmpty('allstars_from', null, function () { return Configure::read('scoring.allstars'); })
+			->notEmptyString('allstars_from', null, function () { return Configure::read('scoring.allstars'); })
 
 			->boolean('double_booking')
-			->notEmpty('double_booking')
+			->notEmptyString('double_booking')
 
 			->requirePresence('most_spirited', function ($context) { return Configure::read('scoring.most_spirited') && $context['newRecord']; })
-			->notEmpty('most_spirited', null, function () { return Configure::read('scoring.most_spirited'); })
+			->notEmptyString('most_spirited', null, function () { return Configure::read('scoring.most_spirited'); })
 
-			->allowEmpty('header')
+			->allowEmptyString('header')
 
-			->allowEmpty('footer')
+			->allowEmptyString('footer')
 
 			;
 
@@ -190,7 +190,7 @@ class DivisionsTable extends AppTable {
 	public function buildRules(RulesChecker $rules) {
 		$rules->add($rules->existsIn(['league_id'], 'Leagues', __('You must select a valid league.')));
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			if (array_key_exists('divisions', $options)) {
 				$divisions = count($options['divisions']);
 			} else if ($entity->has('league') && $entity->league->has('divisions')) {
@@ -242,7 +242,7 @@ class DivisionsTable extends AppTable {
 			'message' => __('There is an error in the rule syntax.'),
 		]);
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			if ($entity->has('league')) {
 				$sport = $entity->league->sport;
 			} else {
@@ -305,7 +305,7 @@ class DivisionsTable extends AppTable {
 			'message' => __('You must select whether or not to flag players that potentially have scheduling conflicts.'),
 		]);
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			if ($entity->has('schedule_type') && !empty($entity->schedule_type)) {
 				try {
 					$league_obj = ModuleRegistry::getInstance()->load("LeagueType:{$entity->schedule_type}");
@@ -316,7 +316,7 @@ class DivisionsTable extends AppTable {
 			}
 		}, 'validScheduleFields');
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			if ($entity->has('schedule_type') && $entity->schedule_type != 'none' && $entity->has('days') && empty($entity->days)) {
 				// If a schedule type was chosen, require at least one "day of play"
 				return false;
@@ -444,7 +444,7 @@ class DivisionsTable extends AppTable {
 		Cache::delete('tournaments', 'today');
 	}
 
-	public function findOpen(Query $query, Array $options) {
+	public function findOpen(Query $query, array $options) {
 		$query->where([
 			'OR' => [
 				'Divisions.is_open' => true,
@@ -455,7 +455,7 @@ class DivisionsTable extends AppTable {
 		return $query;
 	}
 
-	public function findDay(Query $query, Array $options) {
+	public function findDay(Query $query, array $options) {
 		$day = $options['date']->format('N');
 		$query->matching('Days', function (Query $q) use ($day) {
 			return $q->where(['Days.id' => $day]);
@@ -464,7 +464,7 @@ class DivisionsTable extends AppTable {
 		return $query;
 	}
 
-	public function findByLeague(Query $query, Array $options) {
+	public function findByLeague(Query $query, array $options) {
 		$query->where(['Divisions.league_id' => $options['league']]);
 		return $query;
 	}

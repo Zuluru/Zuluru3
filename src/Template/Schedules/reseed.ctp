@@ -1,11 +1,17 @@
 <?php
-$this->Html->addCrumb(__('Division'));
-$this->Html->addCrumb($division->full_league_name);
-$this->Html->addCrumb(__('Add Games'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Division $division
+ * @var string $type
+ */
+
+$this->Breadcrumbs->add(__('Division'));
+$this->Breadcrumbs->add($division->full_league_name);
+$this->Breadcrumbs->add(__('Add Games'));
 if ($type == 'crossover') {
-	$this->Html->addCrumb(__('Crossover Details'));
+	$this->Breadcrumbs->add(__('Crossover Details'));
 } else {
-	$this->Html->addCrumb(__('Re-seeding Details'));
+	$this->Breadcrumbs->add(__('Re-seeding Details'));
 }
 ?>
 
@@ -49,7 +55,7 @@ foreach ($division->_options->pools as $i => $pool):
 					<tr>
 						<td><?= $display_name ?></td>
 						<td><?= $team ?></td>
-						<td><?= $this->Form->input("_options.pools.$i.pools_teams.$team.qualifier", [
+						<td><?= $this->Form->control("_options.pools.$i.pools_teams.$team.qualifier", [
 							'label' => false,
 							'options' => $options,
 							'empty' => 'Select:',

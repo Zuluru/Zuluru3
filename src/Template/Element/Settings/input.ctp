@@ -1,10 +1,10 @@
 <?php
 /**
- * @type $category string
- * @type $name string
- * @type $options string[]
- * @type $settings string[]
- * @type $defaults string[]
+ * @var string $category
+ * @var string $name
+ * @var string[] $options
+ * @var string[] $settings
+ * @var string[] $defaults
  */
 
 if (!isset($options)) {
@@ -105,7 +105,7 @@ if (isset($jquery)) {
 		'param-name' => $name,
 	], $options) . "\n";
 } else {
-	echo $this->Form->input("$id.value", $options) . "\n";
+	echo $this->Form->control("$id.value", $options) . "\n";
 }
 
 if (!empty($confirm)) {

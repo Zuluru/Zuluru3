@@ -12,13 +12,23 @@ use Cake\ORM\Behavior;
 class TrimBehavior extends Behavior {
 	public function trim(ArrayObject $data) {
 		// Check the schema for text types, and trim those fields
-		$schema = $this->_table->schema();
+		$schema = $this->_table->getSchema();
 		foreach ($schema->columns() as $fieldName) {
-			$fieldSchema = $schema->column($fieldName);
-			if (($fieldSchema['type'] == 'string' || $fieldSchema['type'] == 'text') && array_key_exists($fieldName, $data) && !empty($data[$fieldName])) {
-				$data[$fieldName] = trim($data[$fieldName]);
+			$fieldSchema = $schema->getColumn($fieldName);
+			if ($this->isTextField($fieldSchema) && $this->isFilled($fieldName, $data)) {
+				$data[$fieldName] = trim((string)$data[$fieldName]);
 			}
 		}
+	}
+
+	protected function isTextField($fieldSchema)
+	{
+		return $fieldSchema['type'] == 'string' || $fieldSchema['type'] == 'text';
+	}
+
+	protected function isFilled($fieldName, ArrayObject $data)
+	{
+		return isset($data[$fieldName]) && !empty($data[$fieldName]);
 	}
 
 	/**

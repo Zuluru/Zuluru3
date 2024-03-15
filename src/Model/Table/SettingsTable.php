@@ -47,16 +47,16 @@ class SettingsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->requirePresence('category', 'create')
-			->notEmpty('category')
+			->notEmptyString('category')
 
 			->requirePresence('name', 'create')
-			->notEmpty('name', __('The name cannot be blank.'))
+			->notEmptyString('name', __('The name cannot be blank.'))
 
 			->requirePresence('value', 'create')
-			->allowEmpty('value')
+			->allowEmptyString('value')
 
 			;
 
@@ -75,7 +75,7 @@ class SettingsTable extends AppTable {
 		return $rules;
 	}
 
-	public function mergeList(Array $old, Array $new) {
+	public function mergeList(array $old, array $new) {
 		// Clear ids from all the new settings
 		foreach ($new as $setting) {
 			unset($setting->id);

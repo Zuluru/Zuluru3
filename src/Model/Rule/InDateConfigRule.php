@@ -24,7 +24,7 @@ class InDateConfigRule {
 	public function __invoke(EntityInterface $entity, array $options) {
 		$field = $options['errorField'];
 
-		if (is_a($entity->$field, 'Cake\Chronos\ChronosInterface')) {
+		if (is_a($entity->$field, \Cake\Chronos\ChronosInterface::class)) {
 			$year = $entity->$field->year;
 		} else {
 			// Some date fields are just years as strings

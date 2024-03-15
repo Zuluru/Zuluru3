@@ -51,7 +51,7 @@ class LeaguesController extends AppController {
 	public function beforeFilter(\Cake\Event\Event $event) {
 		parent::beforeFilter($event);
 		if (isset($this->Security)) {
-			$this->Security->config('unlockedActions', ['add', 'edit']);
+			$this->Security->setConfig('unlockedActions', ['add', 'edit']);
 		}
 	}
 
@@ -61,7 +61,7 @@ class LeaguesController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function index() {
-		$year = $this->request->getQuery('year');
+		$year = $this->getRequest()->getQuery('year');
 		if ($year === null) {
 			$conditions = ['OR' => [
 				'Leagues.is_open' => true,
@@ -71,16 +71,16 @@ class LeaguesController extends AppController {
 			$conditions = ['YEAR(Leagues.open)' => $year];
 		}
 
-		$affiliate = $this->request->getQuery('affiliate');
+		$affiliate = $this->getRequest()->getQuery('affiliate');
 		$affiliates = $this->Authentication->applicableAffiliateIDs();
 		$conditions['Leagues.affiliate_id IN'] = $affiliates;
 
-		$sport = $this->request->getQuery('sport');
+		$sport = $this->getRequest()->getQuery('sport');
 		if ($sport) {
 			$conditions['Leagues.sport'] = $sport;
 		}
 
-		$tournaments = $this->request->getParam('tournaments');
+		$tournaments = $this->getRequest()->getParam('tournaments');
 
 		$leagues = $this->Leagues->find()
 			->contain([
@@ -158,7 +158,7 @@ class LeaguesController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->getQuery('league') ?: $this->request->getQuery('tournament');
+		$id = $this->getRequest()->getQuery('league') ?: $this->getRequest()->getQuery('tournament');
 		try {
 			$league = $this->Leagues->get($id, [
 				'contain' => [
@@ -191,9 +191,9 @@ class LeaguesController extends AppController {
 	}
 
 	public function tooltip() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('league') ?: $this->request->getQuery('tournament');
+		$id = $this->getRequest()->getQuery('league') ?: $this->getRequest()->getQuery('tournament');
 		try {
 			$league = $this->Leagues->get($id, [
 				'contain' => [
@@ -221,7 +221,7 @@ class LeaguesController extends AppController {
 	}
 
 	public function participation() {
-		$id = $this->request->getQuery('league') ?: $this->request->getQuery('tournament');
+		$id = $this->getRequest()->getQuery('league') ?: $this->getRequest()->getQuery('tournament');
 		$contain = [
 			'Divisions' => [
 				'Teams' => [
@@ -229,7 +229,7 @@ class LeaguesController extends AppController {
 				],
 			],
 		];
-		if ($this->request->is('csv')) {
+		if ($this->getRequest()->is('csv')) {
 			$contain['Divisions']['Teams']['People'] = [
 				Configure::read('Security.authModel'),
 				'Groups',
@@ -262,8 +262,8 @@ class LeaguesController extends AppController {
 		$this->Authorization->authorize($league);
 		$this->Configuration->loadAffiliate($league->affiliate_id);
 
-		if ($this->request->is('csv')) {
-			$this->response->download("Participation - {$league->full_name}.csv");
+		if ($this->getRequest()->is('csv')) {
+			$this->getResponse()->withDownload("Participation - {$league->full_name}.csv");
 		}
 		$this->set(compact('league'));
 	}
@@ -277,8 +277,8 @@ class LeaguesController extends AppController {
 		$this->Authorization->authorize($this);
 		$league = $this->Leagues->newEntity();
 
-		if ($this->request->is('post')) {
-			$league = $this->Leagues->patchEntity($league, $this->request->getData(), [
+		if ($this->getRequest()->is('post')) {
+			$league = $this->Leagues->patchEntity($league, $this->getRequest()->getData(), [
 				'associated' => ['StatTypes', 'Divisions' => ['validateDays' => true], 'Divisions.Days'],
 			]);
 
@@ -289,7 +289,7 @@ class LeaguesController extends AppController {
 				$this->Flash->warning(__('The league could not be saved. Please correct the errors below and try again.'));
 			}
 		} else {
-			$id = $this->request->getQuery('league') ?: $this->request->getQuery('tournament');
+			$id = $this->getRequest()->getQuery('league') ?: $this->getRequest()->getQuery('tournament');
 			if ($id) {
 				// To clone a league, read the old one and remove the id
 				try {
@@ -329,7 +329,7 @@ class LeaguesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->getQuery('league') ?: $this->request->getQuery('tournament');
+		$id = $this->getRequest()->getQuery('league') ?: $this->getRequest()->getQuery('tournament');
 		try {
 			$league = $this->Leagues->get($id, [
 				'contain' => [
@@ -356,8 +356,8 @@ class LeaguesController extends AppController {
 		$this->Authorization->authorize($league);
 		$this->Configuration->loadAffiliate($league->affiliate_id);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$league = $this->Leagues->patchEntity($league, $this->request->getData(), [
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$league = $this->Leagues->patchEntity($league, $this->getRequest()->getData(), [
 				'associated' => ['Categories', 'StatTypes', 'Divisions' => ['validateDays' => true], 'Divisions.Days'],
 			]);
 
@@ -391,7 +391,7 @@ class LeaguesController extends AppController {
 	 * @return void Renders view, just an empty division block with a random index.
 	 */
 	public function add_division() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 		$this->Authorization->authorize($this, 'add_division_fields');
 		$league = $this->Leagues->newEntity();
 		$this->set(compact('league'));
@@ -406,9 +406,9 @@ class LeaguesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects to index.
 	 */
 	public function delete() {
-		$this->request->allowMethod(['post', 'delete']);
+		$this->getRequest()->allowMethod(['post', 'delete']);
 
-		$id = $this->request->getQuery('league') ?: $this->request->getQuery('tournament');
+		$id = $this->getRequest()->getQuery('league') ?: $this->getRequest()->getQuery('tournament');
 		try {
 			$league = $this->Leagues->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -429,8 +429,8 @@ class LeaguesController extends AppController {
 
 		if ($this->Leagues->delete($league)) {
 			$this->Flash->success(__('The league has been deleted.'));
-		} else if ($league->errors('delete')) {
-			$this->Flash->warning(current($league->errors('delete')));
+		} else if ($league->getError('delete')) {
+			$this->Flash->warning(current($league->getError('delete')));
 		} else {
 			$this->Flash->warning(__('The league could not be deleted. Please, try again.'));
 		}
@@ -439,7 +439,7 @@ class LeaguesController extends AppController {
 	}
 
 	public function schedule() {
-		$id = intval($this->request->getQuery('league') ?: $this->request->getQuery('tournament'));
+		$id = intval($this->getRequest()->getQuery('league') ?: $this->getRequest()->getQuery('tournament'));
 
 		// Hopefully, everything we need is already cached
 		$league = Cache::remember("league/{$id}/schedule", function () use ($id) {
@@ -548,7 +548,7 @@ class LeaguesController extends AppController {
 
 		$can_edit = $this->Authorization->can($league, 'edit_schedule');
 		if ($can_edit) {
-			$edit_date = $this->request->getQuery('edit_date');
+			$edit_date = $this->getRequest()->getQuery('edit_date');
 		} else {
 			$edit_date = null;
 		}
@@ -584,13 +584,13 @@ class LeaguesController extends AppController {
 		}
 
 		// Save posted data
-		if ($this->request->is(['patch', 'post', 'put']) && $can_edit) {
+		if ($this->getRequest()->is(['patch', 'post', 'put']) && $can_edit) {
 			$this->loadComponent('Lock');
 
 			if ($this->Lock->lock('scheduling', $this->Leagues->affiliate($league->id), 'schedule creation or edit')) {
 				try {
-					$edit_games = $this->Leagues->Divisions->Games->patchEntities($league->games, $this->request->getData('games'),
-						array_merge($this->request->getData('options'), ['validate' => 'scheduleEdit'])
+					$edit_games = $this->Leagues->Divisions->Games->patchEntities($league->games, $this->getRequest()->getData('games'),
+						array_merge($this->getRequest()->getData('options'), ['validate' => 'scheduleEdit'])
 					);
 
 					$edit_ids = collection($edit_games)->extract('id')->toArray();
@@ -602,7 +602,7 @@ class LeaguesController extends AppController {
 
 					if ($this->Leagues->Divisions->Games->getConnection()->transactional(function () use ($edit_games, $game_slots) {
 						$success = true;
-						$options = array_merge($this->request->getData('options'), [
+						$options = array_merge($this->getRequest()->getData('options'), [
 							'games' => $edit_games,
 							'game_slots' => $game_slots,
 							'validate' => 'scheduleEdit',
@@ -644,7 +644,7 @@ class LeaguesController extends AppController {
 	}
 
 	public function standings() {
-		$id = intval($this->request->getQuery('league') ?: $this->request->getQuery('tournament'));
+		$id = intval($this->getRequest()->getQuery('league') ?: $this->getRequest()->getQuery('tournament'));
 
 		// Hopefully, everything we need is already cached
 		$league = Cache::remember("league/{$id}/standings", function () use ($id) {
@@ -765,7 +765,7 @@ class LeaguesController extends AppController {
 	}
 
 	public function slots() {
-		$id = $this->request->getQuery('league') ?: $this->request->getQuery('tournament');
+		$id = $this->getRequest()->getQuery('league') ?: $this->getRequest()->getQuery('tournament');
 		try {
 			$league = $this->Leagues->get($id, [
 				'contain' => [
@@ -796,9 +796,9 @@ class LeaguesController extends AppController {
 			->extract('game_date')
 			->toArray();
 
-		$date = $this->request->getQuery('date');
-		if ($this->request->is(['patch', 'post', 'put']) && array_key_exists('date', $this->request->data)) {
-			$date = $this->request->getData('date');
+		$date = $this->getRequest()->getQuery('date');
+		if ($this->getRequest()->is(['patch', 'post', 'put']) && array_key_exists('date', $this->getRequest()->getData())) {
+			$date = $this->getRequest()->getData('date');
 			// TODO: Is there a way to make the Ajax form submitter not send the string literal "null"?
 			if (empty($date) || $date == 'null') {
 				$this->Flash->info(__('You must select a date.'));

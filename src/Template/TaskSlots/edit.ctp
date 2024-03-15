@@ -1,6 +1,11 @@
 <?php
-$this->Html->addCrumb(__('Task Slots'));
-$this->Html->addCrumb(__('Edit'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\TaskSlot $task_slot
+ */
+
+$this->Breadcrumbs->add(__('Task Slots'));
+$this->Breadcrumbs->add(__('Edit'));
 ?>
 
 <div class="task_slots form">
@@ -8,9 +13,9 @@ $this->Html->addCrumb(__('Edit'));
 	<fieldset>
 		<legend><?= __('Edit Task Slot') ?></legend>
 <?php
-echo $this->Form->input('task_date');
-echo $this->Form->input('task_start');
-echo $this->Form->input('task_end');
+echo $this->Form->control('task_date');
+echo $this->Form->control('task_start');
+echo $this->Form->control('task_end');
 ?>
 	</fieldset>
 	<?= $this->Form->button(__('Submit'), ['class' => 'btn-success']) ?>

@@ -1,10 +1,15 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Registration $registration
+ */
+
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Registration'));
-$this->Html->addCrumb($registration->person->full_name);
-$this->Html->addCrumb($registration->event->name);
-$this->Html->addCrumb(__('Edit'));
+$this->Breadcrumbs->add(__('Registration'));
+$this->Breadcrumbs->add($registration->person->full_name);
+$this->Breadcrumbs->add($registration->event->name);
+$this->Breadcrumbs->add(__('Edit'));
 ?>
 
 <div class="registrations form">
@@ -13,19 +18,19 @@ $this->Html->addCrumb(__('Edit'));
 	<fieldset>
 		<legend><?= __('Registration Details') ?></legend>
 <?php
-echo $this->Form->input('order', [
+echo $this->Form->control('order', [
 	'label' => __('Order ID'),
 	'value' => sprintf(Configure::read('registration.order_id_format'), $registration->id),
 	'disabled' => true,
 ]);
 if ($this->Authorize->getIdentity()->isManagerOf($registration->event)) {
-	echo $this->Form->input('name', [
+	echo $this->Form->control('name', [
 		'value' => $registration->person->full_name,
 		'disabled' => true,
 		'size' => 75,
 	]);
 }
-echo $this->Form->input('event', [
+echo $this->Form->control('event', [
 	'value' => $registration->event->name,
 	'disabled' => true,
 	'size' => 75,
@@ -40,14 +45,14 @@ if ($this->Authorize->getIdentity()->isManagerOf($registration->event)) {
 		],
 		'parent_selector' => '.form-group',
 	]);
-	echo $this->Form->input('reservation_expires', [
+	echo $this->Form->control('reservation_expires', [
 		'templates' => [
 			'inputContainer' => '<div class="form-group reserved {{type}}{{required}}">{{content}}</div>',
 			'inputContainerError' => '<div class="form-group reserved {{type}}{{required}} has-error">{{content}}</div>',
 		],
 		'secure' => false,
 	]);
-	echo $this->Form->input('notes', [
+	echo $this->Form->control('notes', [
 		'type' => 'textarea',
 		'cols' => 72,
 	]);

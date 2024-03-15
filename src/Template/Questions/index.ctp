@@ -1,6 +1,11 @@
 <?php
-$this->Html->addCrumb(__('Questions'));
-$this->Html->addCrumb(__('List'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Question[] $questions
+ */
+
+$this->Breadcrumbs->add(__('Questions'));
+$this->Breadcrumbs->add(__('List'));
 ?>
 
 <div class="questions index">
@@ -72,7 +77,7 @@ endforeach;
 echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
 	['action' => 'add'],
 	['alt' => __('Add'), 'title' => __('Add Question')]));
-if ($this->getRequest()->action == 'index') {
+if ($this->getRequest()->getParam('action') == 'index') {
 	echo $this->Html->tag('li', $this->Html->link(__('Deactivated'), ['action' => 'deactivated']));
 } else {
 	echo $this->Html->tag('li', $this->Html->link(__('List'), ['action' => 'index']));

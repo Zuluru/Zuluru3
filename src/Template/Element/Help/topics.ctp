@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var array $topics
+ * @var string $section
+ */
+
 use Cake\Utility\Inflector;
 
 $replacements = [

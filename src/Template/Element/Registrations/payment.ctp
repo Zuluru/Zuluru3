@@ -1,14 +1,14 @@
 <?php
 /**
- * @type $result bool
- * @type $errors string[]
- * @type $audit \App\Model\Entity\RegistrationAudit
+ * @var bool $result
+ * @var string[] $errors
+ * @var \App\Model\Entity\RegistrationAudit $audit
  */
 
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 
-$this->Html->addCrumb(__('Online Transaction Result'));
+$this->Breadcrumbs->add(__('Online Transaction Result'));
 
 if ($result === true) {
 	echo $this->element('Payments/invoices/' . Configure::read('payment.invoice_implementation'));

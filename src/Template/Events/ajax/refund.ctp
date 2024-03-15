@@ -1,8 +1,8 @@
 <?php
 /**
- * @type $event \App\Model\Entity\Event
- * @type $registrations \App\Model\Entity\Registration[]
- * @type $refund \App\Model\Entity\Payment
+ * @var \App\Model\Entity\Event $event
+ * @var \App\Model\Entity\Registration[] $registrations
+ * @var \App\Model\Entity\Payment $refund
  */
 
 // Intentionally don't output anything, this just sets up some templates

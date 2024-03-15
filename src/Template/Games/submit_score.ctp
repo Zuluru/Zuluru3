@@ -1,15 +1,15 @@
 <?php
 /**
- * @type $game \App\Model\Entity\Game
- * @type $team_id int
- * @type $opponent_score \App\Model\Entity\ScoreEntry
- * @type $spirit_obj \App\Module\Spirit
+ * @var \App\Model\Entity\Game $game
+ * @var int $team_id
+ * @var \App\Model\Entity\ScoreEntry $opponent_score
+ * @var \App\Module\Spirit $spirit_obj
  */
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Games'));
-$this->Html->addCrumb(__('Submit Game Results'));
+$this->Breadcrumbs->add(__('Games'));
+$this->Breadcrumbs->add(__('Submit Game Results'));
 
 if ($team_id == $game->home_team_id) {
 	$this_team = $game->home_team;
@@ -70,7 +70,7 @@ echo $this->Form->hidden('score_entries.0.game_id', ['value' => $game->id]);
 			<tbody>
 				<tr>
 					<td><?= $this_team['name'] ?></td>
-					<td><?= $this->Form->input('score_entries.0.score_for', [
+					<td><?= $this->Form->control('score_entries.0.score_for', [
 						'div' => false,
 						'id' => ($team_id == $game->home_team_id ? 'ScoreHome' : 'ScoreAway'),
 						'label' => false,
@@ -88,7 +88,7 @@ echo $this->Form->hidden('score_entries.0.game_id', ['value' => $game->id]);
 				</tr>
 				<tr>
 					<td><?= $opponent->name ?></td>
-					<td><?= $this->Form->input('score_entries.0.score_against', [
+					<td><?= $this->Form->control('score_entries.0.score_against', [
 						'div' => false,
 						'id' => ($team_id == $game->home_team_id ? 'ScoreAway' : 'ScoreHome'),
 						'label' => false,
@@ -115,7 +115,7 @@ if ($game->division->league->hasCarbonFlip()):
 							0 => __('{0} won', $game->away_team->name),
 							1 => __('tie'),
 						];
-						echo $this->Form->input('score_entries.0.home_carbon_flip', [
+						echo $this->Form->control('score_entries.0.home_carbon_flip', [
 							'div' => false,
 							'id' => 'CarbonFlip',
 							'label' => false,
@@ -140,7 +140,7 @@ if ($game->division->women_present):
 				<tr class="normal">
 					<td><?= __('How many women designated players did you have at this game?') ?></td>
 					<td><?php
-						echo $this->Form->input('score_entries.0.women_present', [
+						echo $this->Form->control('score_entries.0.women_present', [
 							'div' => false,
 							'id' => 'WomenPresent',
 							'label' => false,
@@ -185,13 +185,13 @@ if (Configure::read('scoring.incident_reports')):
 	<fieldset id="IncidentDetails">
 		<legend>Incident Details</legend>
 <?php
-	echo $this->Form->input('incidents.0.type', [
+	echo $this->Form->control('incidents.0.type', [
 		'label' => __('Incident Type'),
 		'options' => Configure::read('options.incident_types'),
 		'empty' => '---',
 		'secure' => false,
 	]);
-	echo $this->Form->input('incidents.0.details', [
+	echo $this->Form->control('incidents.0.details', [
 		'label' => __('Enter the details of the incident'),
 		'cols' => 60,
 		'secure' => false,
@@ -247,7 +247,7 @@ if (Configure::read('scoring.allstars') && $game->division->allstars !== 'never'
 
 	if (!empty($players)) {
 		// TODO: Add some JavaScript to disable further entries once two are selected
-		echo $this->Form->input('score_entries.0.allstars._ids', [
+		echo $this->Form->control('score_entries.0.allstars._ids', [
 			'multiple' => 'checkbox',
 			'options' => $players,
 			'escape' => false,
@@ -273,7 +273,7 @@ if ($game->division->league->hasStats()):
 ?>
 	<div class="normal">
 <?php
-	echo $this->Html->tag('div', $this->Form->input('collect_stats', [
+	echo $this->Html->tag('div', $this->Form->control('collect_stats', [
 		'type' => 'checkbox',
 		'value' => '1',
 		'label' => __('I want to enter stats for this game (if you don\'t do it now, you can do it later)'),

@@ -1,15 +1,15 @@
 <?php
 /**
- * @type \App\View\AppView $this
- * @type \App\Model\Entity\Category $category
- * @type \App\Model\Entity\Affiliate[] $affiliates
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Category $category
+ * @var \App\Model\Entity\Affiliate[] $affiliates
  */
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Categories'));
-$this->Html->addCrumb(h($category->name));
-$this->Html->addCrumb(__('View'));
+$this->Breadcrumbs->add(__('Categories'));
+$this->Breadcrumbs->add(h($category->name));
+$this->Breadcrumbs->add(__('View'));
 
 $types = Configure::read('options.category_types');
 $multiple_types = (count($types) > 1);

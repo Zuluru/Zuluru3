@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Division[] $divisions
+ * @var string $comment
+ */
+
 if (!empty($divisions)):
 ?>
 <div class="table-responsive">

@@ -1,9 +1,9 @@
 <?php
 /**
- * @type $this \App\View\AppView
- * @type $regions \App\Model\Entity\Region[]
- * @type $affiliates \App\Model\Entity\Affiliate[]
- * @type $closed bool
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Region[] $regions
+ * @var \App\Model\Entity\Affiliate[] $affiliates
+ * @var bool $closed
  */
 
 use App\Controller\AppController;
@@ -12,8 +12,8 @@ use App\Model\Entity\Field;
 use App\Model\Entity\Region;
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Facilities'));
-$this->Html->addCrumb(__('List'));
+$this->Breadcrumbs->add(__('Facilities'));
+$this->Breadcrumbs->add(__('List'));
 ?>
 
 <div class="facilities index">

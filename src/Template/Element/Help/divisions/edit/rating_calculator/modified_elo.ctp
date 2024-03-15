@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
+?>
+<?php
 use Cake\Core\Configure;
 ?>
 

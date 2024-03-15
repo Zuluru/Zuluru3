@@ -1,12 +1,17 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\TeamEvent $team_event
+ */
+
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Team Events'));
+$this->Breadcrumbs->add(__('Team Events'));
 if ($team_event->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($team_event->name));
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(h($team_event->name));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 
@@ -15,15 +20,15 @@ if ($team_event->isNew()) {
 	<fieldset>
 		<legend><?= $team_event->isNew() ? __('Create Team Event') : __('Edit Team Event') ?></legend>
 <?php
-echo $this->Form->input('name', ['label' => __('Event Name')]);
+echo $this->Form->control('name', ['label' => __('Event Name')]);
 echo $this->Form->hidden('team_id');
-echo $this->Form->input('description');
+echo $this->Form->control('description');
 if (Configure::read('feature.urls')) {
-	echo $this->Form->input('website');
+	echo $this->Form->control('website');
 }
-echo $this->Form->input('date');
-echo $this->Form->input('start');
-echo $this->Form->input('end');
+echo $this->Form->control('date');
+echo $this->Form->control('start');
+echo $this->Form->control('end');
 
 if ($team_event->isNew()):
 	echo $this->Jquery->toggleInput('repeat', [
@@ -36,12 +41,12 @@ if ($team_event->isNew()):
 		<fieldset id="RepeatDetails">
 			<legend><?= __('Event Repetition Details') ?></legend>
 <?php
-	echo $this->Form->input('repeat_count', [
+	echo $this->Form->control('repeat_count', [
 		'label' => __('Number of events to create'),
 		'size' => 6,
 	]);
 	$this->Form->unlockField('repeat_count');
-	echo $this->Form->input('repeat_type', [
+	echo $this->Form->control('repeat_type', [
 		'label' => __('Create events'),
 		'options' => [
 			'weekly' => __('Once a week on the same day'),
@@ -57,10 +62,10 @@ if ($team_event->isNew()):
 <?php
 endif;
 
-echo $this->Form->input('location_name', ['label' => __('Location')]);
-echo $this->Form->input('location_street', ['label' => __('Address')]);
-echo $this->Form->input('location_city', ['label' => __('City')]);
-echo $this->Form->input('location_province', [
+echo $this->Form->control('location_name', ['label' => __('Location')]);
+echo $this->Form->control('location_street', ['label' => __('Address')]);
+echo $this->Form->control('location_city', ['label' => __('City')]);
+echo $this->Form->control('location_province', [
 	'label' => __('Province'),
 	'options' => $provinces,
 	'empty' => '---',

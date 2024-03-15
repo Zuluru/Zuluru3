@@ -1,10 +1,15 @@
 <?php
-$this->Html->addCrumb(__('Mailing List'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\MailingList $mailing_list
+ */
+
+$this->Breadcrumbs->add(__('Mailing List'));
 if ($mailing_list->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($mailing_list->name));
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(h($mailing_list->name));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 
@@ -13,20 +18,20 @@ if ($mailing_list->isNew()) {
 	<fieldset>
 		<legend><?= $mailing_list->isNew() ? __('Create Mailing List') : __('Edit Mailing List') ?></legend>
 <?php
-	echo $this->Form->input('name', [
+	echo $this->Form->control('name', [
 		'size' => 60,
 	]);
 	if ($mailing_list->isNew()) {
-		echo $this->Form->input('affiliate_id', [
+		echo $this->Form->control('affiliate_id', [
 			'options' => $affiliates,
 			'hide_single' => true,
 			'empty' => '---',
 		]);
 	}
-	echo $this->Form->input('opt_out', [
+	echo $this->Form->control('opt_out', [
 		'help' => __('Check this to allow recipients to unsubscribe from this mailing list. Be sure that your local privacy laws allow you to uncheck this before doing so.'),
 	]);
-	echo $this->Form->input('rule', [
+	echo $this->Form->control('rule', [
 		'cols' => 70,
 		'help' => $this->Html->para(null, __('Rules that must be passed to include a person on this mailing list.') .
 			' ' . $this->Html->help(['action' => 'rules', 'rules'])),

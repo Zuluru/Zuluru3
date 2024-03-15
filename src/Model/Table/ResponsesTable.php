@@ -60,7 +60,7 @@ class ResponsesTable extends AppTable {
 		$rules->add($rules->existsIn(['event_id'], 'Events'));
 		$rules->add($rules->existsIn(['registration_id'], 'Registrations'));
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			// Negative question IDs are for automatic questions, like team name
 			if ($entity->question_id < 1) {
 				return true;
@@ -72,7 +72,7 @@ class ResponsesTable extends AppTable {
 			'message' => __d('cake', 'This value does not exist'),
 		]);
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			// Negative question IDs are for automatic questions, like team name; we validate them elsewhere
 			if ($entity->question_id < 1) {
 				return true;

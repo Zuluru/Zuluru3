@@ -34,7 +34,7 @@ class RegionsController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->getQuery('region');
+		$id = $this->getRequest()->getQuery('region');
 		try {
 			$region = $this->Regions->get($id, [
 				'contain' => ['Affiliates', 'Facilities']
@@ -62,14 +62,14 @@ class RegionsController extends AppController {
 	public function add() {
 		$region = $this->Regions->newEntity();
 		$this->Authorization->authorize($region);
-		if ($this->request->is('post')) {
-			$region = $this->Regions->patchEntity($region, $this->request->getData());
+		if ($this->getRequest()->is('post')) {
+			$region = $this->Regions->patchEntity($region, $this->getRequest()->getData());
 			if ($this->Regions->save($region)) {
 				$this->Flash->success(__('The region has been saved.'));
 				return $this->redirect(['action' => 'index']);
 			} else {
 				$this->Flash->warning(__('The region could not be saved. Please correct the errors below and try again.'));
-				$this->Configuration->loadAffiliate($this->request->getData('affiliate_id'));
+				$this->Configuration->loadAffiliate($this->getRequest()->getData('affiliate_id'));
 			}
 		}
 		$affiliates = $this->Authentication->applicableAffiliates(true);
@@ -83,7 +83,7 @@ class RegionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->getQuery('region');
+		$id = $this->getRequest()->getQuery('region');
 		try {
 			$region = $this->Regions->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -96,8 +96,8 @@ class RegionsController extends AppController {
 
 		$this->Authorization->authorize($region);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$region = $this->Regions->patchEntity($region, $this->request->getData());
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$region = $this->Regions->patchEntity($region, $this->getRequest()->getData());
 			if ($this->Regions->save($region)) {
 				$this->Flash->success(__('The region has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -116,9 +116,9 @@ class RegionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects to index.
 	 */
 	public function delete() {
-		$this->request->allowMethod(['post', 'delete']);
+		$this->getRequest()->allowMethod(['post', 'delete']);
 
-		$id = $this->request->getQuery('region');
+		$id = $this->getRequest()->getQuery('region');
 		try {
 			$region = $this->Regions->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -139,8 +139,8 @@ class RegionsController extends AppController {
 
 		if ($this->Regions->delete($region)) {
 			$this->Flash->success(__('The region has been deleted.'));
-		} else if ($region->errors('delete')) {
-			$this->Flash->warning(current($region->errors('delete')));
+		} else if ($region->getError('delete')) {
+			$this->Flash->warning(current($region->getError('delete')));
 		} else {
 			$this->Flash->warning(__('The region could not be deleted. Please, try again.'));
 		}

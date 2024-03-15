@@ -1,15 +1,20 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Upload $document
+ */
+
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb($document->person->full_name);
-if ($this->getRequest()->action == 'edit_document') {
-	$this->Html->addCrumb(__('Edit Document'));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add($document->person->full_name);
+if ($this->getRequest()->getParam('action') == 'edit_document') {
+	$this->Breadcrumbs->add(__('Edit Document'));
 } else {
-	$this->Html->addCrumb(__('Approve Document'));
+	$this->Breadcrumbs->add(__('Approve Document'));
 }
-$this->Html->addCrumb($document->upload_type->name);
+$this->Breadcrumbs->add($document->upload_type->name);
 ?>
 
 <div class="people form">
@@ -18,12 +23,12 @@ $this->Html->addCrumb($document->upload_type->name);
 <?php
 		echo $this->Form->hidden('approved', ['value' => true]);
 
-		echo $this->Form->input('valid_from', [
+		echo $this->Form->control('valid_from', [
 			'minYear' => Configure::read('options.year.event.min'),
 			'maxYear' => Configure::read('options.year.event.max'),
 			'default' => FrozenDate::now()->startOfYear(),
 		]);
-		echo $this->Form->input('valid_until', [
+		echo $this->Form->control('valid_until', [
 			'minYear' => Configure::read('options.year.event.min'),
 			'maxYear' => Configure::read('options.year.event.max'),
 			'default' => FrozenDate::now()->endOfYear(),

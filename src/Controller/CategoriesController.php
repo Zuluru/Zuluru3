@@ -37,8 +37,8 @@ class CategoriesController extends AppController {
 			->order(['Affiliates.name', 'Categories.type', 'Categories.sort', 'Categories.name'])
 			->toArray();
 
-		if ($this->request->is('post')) {
-			$categories = $this->Categories->patchEntities($categories, $this->request->getData());
+		if ($this->getRequest()->is('post')) {
+			$categories = $this->Categories->patchEntities($categories, $this->getRequest()->getData());
 			if ($this->Categories->saveMany($categories)) {
 				$this->Flash->success(__('Sort order has been updated.'));
 				return $this->redirect(['action' => 'index']);
@@ -56,7 +56,7 @@ class CategoriesController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->getQuery('category');
+		$id = $this->getRequest()->getQuery('category');
 		try {
 			$category = $this->Categories->get($id, [
 				'contain' => ['Affiliates', 'Leagues', 'Tasks' => ['People']]
@@ -85,8 +85,8 @@ class CategoriesController extends AppController {
 		$category = $this->Categories->newEntity();
 		$this->Authorization->authorize($this);
 
-		if ($this->request->is('post')) {
-			$category = $this->Categories->patchEntity($category, $this->request->getData());
+		if ($this->getRequest()->is('post')) {
+			$category = $this->Categories->patchEntity($category, $this->getRequest()->getData());
 			if ($this->Categories->save($category)) {
 				$this->Flash->success(__('The category has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -106,7 +106,7 @@ class CategoriesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->getQuery('category');
+		$id = $this->getRequest()->getQuery('category');
 		try {
 			$category = $this->Categories->get($id);
 		} catch (RecordNotFoundException  $ex) {
@@ -118,8 +118,8 @@ class CategoriesController extends AppController {
 		}
 		$this->Authorization->authorize($category);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$category = $this->Categories->patchEntity($category, $this->request->getData());
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$category = $this->Categories->patchEntity($category, $this->getRequest()->getData());
 			if ($this->Categories->save($category)) {
 				$this->Flash->success(__('The category has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -138,9 +138,9 @@ class CategoriesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects to index.
 	 */
 	public function delete() {
-		$this->request->allowMethod(['post', 'delete']);
+		$this->getRequest()->allowMethod(['post', 'delete']);
 
-		$id = $this->request->getQuery('category');
+		$id = $this->getRequest()->getQuery('category');
 		try {
 			$category = $this->Categories->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -161,8 +161,8 @@ class CategoriesController extends AppController {
 
 		if ($this->Categories->delete($category)) {
 			$this->Flash->success(__('The category has been deleted.'));
-		} else if ($category->errors('delete')) {
-			$this->Flash->warning(current($category->errors('delete')));
+		} else if ($category->getError('delete')) {
+			$this->Flash->warning(current($category->getError('delete')));
 		} else {
 			$this->Flash->warning(__('The category could not be deleted. Please, try again.'));
 		}

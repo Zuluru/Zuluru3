@@ -131,9 +131,9 @@ class Email extends CakeEmail {
 			list($templatePlugin) = pluginSplit($View->getTemplate());
 			list($layoutPlugin) = pluginSplit($View->getLayout());
 			if ($templatePlugin) {
-				$View->plugin = $templatePlugin;
+				$View->setPlugin($templatePlugin);
 			} elseif ($layoutPlugin) {
-				$View->plugin = $layoutPlugin;
+				$View->setPlugin($layoutPlugin);
 			}
 
 			if ($View->get('content') === null) {
@@ -143,6 +143,7 @@ class Email extends CakeEmail {
 			foreach ($locales as $locale) {
 				I18n::setLocale($locale);
 				foreach ($types as $type) {
+					// @todo Cake4: Just remove the setting of 'hasRendered'
 					$View->hasRendered = false;
 					$View->setTemplatePath('Email' . DIRECTORY_SEPARATOR . $type);
 					$View->enableAutoLayout(false);

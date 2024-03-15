@@ -1,6 +1,11 @@
 <?php
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb(__('Approve Photos'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Upload[] $photos
+ */
+
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add(__('Approve Photos'));
 ?>
 
 <div class="people photos">

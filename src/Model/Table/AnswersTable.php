@@ -47,10 +47,10 @@ class AnswersTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->requirePresence('answer', 'create')
-			->notEmpty('answer')
+			->notEmptyString('answer')
 
 			;
 

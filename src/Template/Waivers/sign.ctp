@@ -1,10 +1,16 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Person $person
+ * @var \App\Model\Entity\Waiver $waiver
+ */
+
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Players'));
-$this->Html->addCrumb($person->full_name);
-$this->Html->addCrumb(__('Sign Waiver'));
-$this->Html->addCrumb($waiver->name);
+$this->Breadcrumbs->add(__('Players'));
+$this->Breadcrumbs->add($person->full_name);
+$this->Breadcrumbs->add(__('Sign Waiver'));
+$this->Breadcrumbs->add($waiver->name);
 ?>
 
 <?php
@@ -29,7 +35,7 @@ echo strtr($waiver->text, $variables);
 
 echo $this->Form->create($waiver, ['align' => 'horizontal']);
 echo $this->Html->para(null,
-	$this->Form->input('signed', [
+	$this->Form->control('signed', [
 		'options' => [
 			'yes' => __('I agree to the above conditions'),
 			'no' => __('I DO NOT agree to the above conditions'),

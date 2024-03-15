@@ -1,8 +1,13 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Team[] $teams
+ */
+
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Teams'));
-$this->Html->addCrumb(__('List'));
+$this->Breadcrumbs->add(__('Teams'));
+$this->Breadcrumbs->add(__('List'));
 ?>
 
 <div class="teams index">

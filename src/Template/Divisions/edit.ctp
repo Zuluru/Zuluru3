@@ -1,16 +1,21 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Division $division
+ */
+
 use Cake\Core\Configure;
 use App\Core\ModuleRegistry;
 
-$this->Html->addCrumb(__('Divisions'));
+$this->Breadcrumbs->add(__('Divisions'));
 if ($division->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($division->league->name));
+	$this->Breadcrumbs->add(h($division->league->name));
 	if (!empty($division->name)) {
-		$this->Html->addCrumb($division->name);
+		$this->Breadcrumbs->add($division->name);
 	}
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 
 // Set up the templates to use for advanced options. Note that these are based on the horizontal
@@ -35,30 +40,30 @@ $advanced = [
 		<legend><?= __('Division Information') ?></legend>
 <?php
 echo $this->Form->hidden('league_id');
-echo $this->Form->input('name', [
+echo $this->Form->control('name', [
 	'size' => 70,
 	'help' => __('The name of the division.'),
 ]);
-echo $this->Form->input('coord_list', [
+echo $this->Form->control('coord_list', [
 	'templates' => $advanced,
 	'label' => __('Coordinator Email List'),
 	'size' => 70,
 	'help' => __('An email alias for all coordinators of this division (can be a comma separated list of individual email addresses).'),
 ]);
-echo $this->Form->input('capt_list', [
+echo $this->Form->control('capt_list', [
 	'templates' => $advanced,
 	'label' => __('Coach/Captain Email List'),
 	'size' => 70,
 	'help' => __('An email alias for all coaches and captains of this division.'),
 ]);
-echo $this->Form->input('header', [
+echo $this->Form->control('header', [
 	'templates' => $advanced,
 	'cols' => 70,
 	'rows' => 5,
 	'help' => __('A short blurb to be displayed at the top of schedule and standings pages, HTML is allowed.'),
 	'class' => 'wysiwyg_advanced',
 ]);
-echo $this->Form->input('footer', [
+echo $this->Form->control('footer', [
 	'templates' => $advanced,
 	'cols' => 70,
 	'rows' => 5,
@@ -70,7 +75,7 @@ echo $this->Form->input('footer', [
 	<fieldset>
 		<legend><?= __('Dates') ?></legend>
 <?php
-echo $this->Form->input('open', [
+echo $this->Form->control('open', [
 	'label' => __('First Game'),
 	'empty' => '---',
 	'minYear' => Configure::read('options.year.event.min'),
@@ -78,7 +83,7 @@ echo $this->Form->input('open', [
 	'looseYears' => !$division->isNew(),
 	'help' => __('Date of the first game in the schedule. Will be used to determine open/closed status.'),
 ]);
-echo $this->Form->input('close', [
+echo $this->Form->control('close', [
 	'label' => __('Last Game'),
 	'empty' => '---',
 	'minYear' => Configure::read('options.year.event.min'),
@@ -86,7 +91,7 @@ echo $this->Form->input('close', [
 	'looseYears' => !$division->isNew(),
 	'help' => __('Date of the last game in the schedule. Will be used to determine open/closed status.'),
 ]);
-echo $this->Form->input('roster_deadline', [
+echo $this->Form->control('roster_deadline', [
 	'empty' => '---',
 	'minYear' => Configure::read('options.year.event.min'),
 	'maxYear' => Configure::read('options.year.event.max'),
@@ -98,44 +103,44 @@ echo $this->Form->input('roster_deadline', [
 	<fieldset>
 		<legend><?= __('Specifics') ?></legend>
 <?php
-echo $this->Form->input('days._ids', [
+echo $this->Form->control('days._ids', [
 	'label' => __('Day(s) of play'),
 	'multiple' => 'checkbox',
 	'hiddenField' => false,
 	'help' => __('Day, or days, on which this division will play.'),
 ]);
 $this->Form->unlockField('days._ids');
-echo $this->Form->input('ratio_rule', [
+echo $this->Form->control('ratio_rule', [
 	'options' => Configure::read("sports.{$division->league->sport}.ratio_rule"),
 	'hide_single' => true,
 	'empty' => '---',
 	'help' => __('Gender format for the division.'),
 ]);
-echo $this->Form->input('roster_rule', [
+echo $this->Form->control('roster_rule', [
 	'templates' => $advanced,
 	'cols' => 70,
 	'help' => __('Rules that must be passed to allow a player to be added to the roster of a team in this division.') .
 		' ' . $this->Html->help(['action' => 'rules', 'rules']),
 ]);
-echo $this->Form->input('roster_method', [
+echo $this->Form->control('roster_method', [
 	'templates' => $advanced,
 	'options' => Configure::read('options.roster_methods'),
 	'default' => 'invite',
 	'help' => __('Do players need to accept invitations, or can they just be added? The latter has privacy policy implications and should be used only when necessary.'),
 ]);
 if (Configure::read('feature.registration')) {
-	echo $this->Form->input('flag_membership', [
+	echo $this->Form->control('flag_membership', [
 		'templates' => $advanced,
 		'options' => Configure::read('options.enable'),
 		'default' => false,
 	]);
 }
-echo $this->Form->input('flag_roster_conflict', [
+echo $this->Form->control('flag_roster_conflict', [
 	'templates' => $advanced,
 	'options' => Configure::read('options.enable'),
 	'default' => true,
 ]);
-echo $this->Form->input('flag_schedule_conflict', [
+echo $this->Form->control('flag_schedule_conflict', [
 	'templates' => $advanced,
 	'options' => Configure::read('options.enable'),
 	'default' => true,
@@ -178,13 +183,13 @@ echo $this->element('Divisions/scheduling_fields', compact('fields', 'unlock_fie
 ?>
 		</div>
 <?php
-echo $this->Form->input('exclude_teams', [
+echo $this->Form->control('exclude_teams', [
 	'templates' => $advanced,
 	'options' => Configure::read('options.enable'),
 	'default' => false,
 	'help' => __('Allows coordinators to exclude teams from schedule generation.'),
 ]);
-echo $this->Form->input('double_booking', [
+echo $this->Form->control('double_booking', [
 	'templates' => $advanced,
 	'label' => __('Allow double-booking?'),
 	'options' => Configure::read('options.enable'),
@@ -196,31 +201,31 @@ echo $this->Form->input('double_booking', [
 	<fieldset>
 		<legend><?= __('Scoring') ?></legend>
 <?php
-echo $this->Form->input('rating_calculator', [
+echo $this->Form->control('rating_calculator', [
 	'options' => Configure::read('options.rating_calculator'),
 	'hide_single' => true,
 	'default' => 'none',
 	'help' => __('What type of ratings calculation to use.'),
 ]);
-echo $this->Form->input('email_after', [
+echo $this->Form->control('email_after', [
 	'label' => __('Scoring reminder delay'),
 	'size' => 5,
 	'default' => 0,
 	'help' => __('Email coaches and captains who haven\'t scored games after this many hours, no reminder if 0.'),
 ]);
-echo $this->Form->input('finalize_after', [
+echo $this->Form->control('finalize_after', [
 	'size' => 5,
 	'default' => 0,
 	'help' => __('Games which haven\'t been scored will be automatically finalized after this many hours, no finalization if 0.'),
 ]);
 if (Configure::read('scoring.allstars')) {
-	echo $this->Form->input('allstars', [
+	echo $this->Form->control('allstars', [
 		'templates' => $advanced,
 		'options' => Configure::read('options.allstar'),
 		'default' => 'never',
 		'help' => __('When to ask coaches and captains for allstar nominations.'),
 	]);
-	echo $this->Form->input('allstars_from', [
+	echo $this->Form->control('allstars_from', [
 		'templates' => $advanced,
 		'label' => __('All-star nominations from'),
 		'options' => Configure::read('options.allstar_from'),
@@ -229,7 +234,7 @@ if (Configure::read('scoring.allstars')) {
 	]);
 }
 if (Configure::read('scoring.most_spirited')) {
-	echo $this->Form->input('most_spirited', [
+	echo $this->Form->control('most_spirited', [
 		'templates' => $advanced,
 		'options' => Configure::read('options.most_spirited'),
 		'default' => 'never',

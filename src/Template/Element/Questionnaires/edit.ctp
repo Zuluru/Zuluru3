@@ -1,3 +1,10 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Questionnaire $questionnaire
+ */
+
+?>
 <table id="Questions" class="sortable list">
 	<thead>
 		<tr>

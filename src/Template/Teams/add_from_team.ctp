@@ -1,14 +1,14 @@
 <?php
 /**
- * @type $team \App\Model\Entity\Team
- * @type $old_team \App\Model\Entity\Team
+ * @var \App\Model\Entity\Team $team
+ * @var \App\Model\Entity\Team $old_team
  */
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Team'));
-$this->Html->addCrumb(__('Add Player'));
-$this->Html->addCrumb($team->name);
+$this->Breadcrumbs->add(__('Team'));
+$this->Breadcrumbs->add(__('Add Player'));
+$this->Breadcrumbs->add($team->name);
 ?>
 
 <div class="teams add_player">
@@ -25,7 +25,7 @@ if (empty($old_team->people)) {
 	echo $this->Html->para(null, __('All people from {0} are already on your roster.', $old_team_name));
 } else {
 	echo $this->Html->para(null, __('The following people were on the roster for {0} but are not on your current roster:', $old_team_name));
-	echo $this->Form->create(false, ['align' => 'horizontal']);
+	echo $this->form->create(null, ['align' => 'horizontal']);
 	echo $this->Form->hidden('team', ['value' => $old_team->id]);
 
 	$cannot = [];
@@ -38,7 +38,7 @@ if (empty($old_team->people)) {
 			$label .= ' ' . $this->Html->iconImg('help_16.png', ['title' => $this->Html->formatMessage($person->can_add, null, true), 'alt' => '?']);
 		}
 
-		$inputs = $this->Form->input("player.{$person->id}.role", [
+		$inputs = $this->Form->control("player.{$person->id}.role", [
 			'label' => [
 				'text' => $label,
 				'escape' => false,
@@ -50,7 +50,7 @@ if (empty($old_team->people)) {
 		]);
 
 		if (!empty($positions)) {
-			$inputs .= $this->Form->input("player.{$person->id}.position", [
+			$inputs .= $this->Form->control("player.{$person->id}.position", [
 				'label' => __('Position'),
 				'type' => 'radio',
 				'options' => $positions,

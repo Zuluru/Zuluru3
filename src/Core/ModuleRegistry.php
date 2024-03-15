@@ -53,7 +53,7 @@ class ModuleRegistry extends ObjectRegistry implements EventDispatcherInterface 
 	 */
 	public function setController(Controller $controller) {
 		$this->_Controller = $controller;
-		$this->eventManager($controller->eventManager());
+		$this->setEventManager($controller->getEventManager());
 	}
 
 	public static function &getInstance() {
@@ -123,7 +123,7 @@ class ModuleRegistry extends ObjectRegistry implements EventDispatcherInterface 
 		$instance = new $class($this, $config);
 		$enable = isset($config['enabled']) ? $config['enabled'] : true;
 		if ($enable && $instance instanceof EventListenerInterface) {
-			$this->eventManager()->on($instance);
+			$this->getEventManager()->on($instance);
 		}
 		return $instance;
 	}

@@ -1,7 +1,13 @@
 <?php
-$this->Html->addCrumb(__('Team'));
-$this->Html->addCrumb($team->name);
-$this->Html->addCrumb(__('Move'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Team $team
+ * @var \App\Model\Entity\Division[] $divisions
+ */
+
+$this->Breadcrumbs->add(__('Team'));
+$this->Breadcrumbs->add($team->name);
+$this->Breadcrumbs->add(__('Move'));
 ?>
 
 <div class="teams move">
@@ -9,7 +15,7 @@ $this->Html->addCrumb(__('Move'));
 
 <?php
 echo $this->Form->create($team, ['align' => 'horizontal']);
-echo $this->Form->input('to', [
+echo $this->Form->control('to', [
 	'label' => __('Division to move this team to:'),
 	'options' => collection($divisions)->combine('id', 'full_league_name')->toArray(),
 ]);

@@ -1,12 +1,17 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Franchise $franchise
+ */
+
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Franchises'));
+$this->Breadcrumbs->add(__('Franchises'));
 if ($franchise->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($franchise->name));
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(h($franchise->name));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 
@@ -15,18 +20,18 @@ if ($franchise->isNew()) {
 	<fieldset>
 		<legend><?= $franchise->isNew() ? __('Create Franchise') : __('Edit Franchise') ?></legend>
 <?php
-echo $this->Form->input('name', [
+echo $this->Form->control('name', [
 	'help' => __('The full name of your franchise.'),
 ]);
 if ($franchise->isNew()) {
-	echo $this->Form->input('affiliate_id', [
+	echo $this->Form->control('affiliate_id', [
 		'options' => $affiliates,
 		'hide_single' => true,
 		'empty' => '---',
 	]);
 }
 if (Configure::read('feature.urls')) {
-	echo $this->Form->input('website', [
+	echo $this->Form->control('website', [
 		'help' => __('Your franchise\'s website, if you have one.'),
 	]);
 }

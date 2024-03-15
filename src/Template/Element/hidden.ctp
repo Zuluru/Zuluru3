@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
+
 // Output a block with hidden fields for all of the items in the provided array.
 if (isset($model)) {
 	$model .= '.';
@@ -6,7 +10,7 @@ if (isset($model)) {
 	$model = '';
 }
 
-if (is_a($fields, 'Cake\ORM\Entity')) {
+if (is_a($fields, \Cake\ORM\Entity::class)) {
 	$fields = $fields->toArray();
 }
 

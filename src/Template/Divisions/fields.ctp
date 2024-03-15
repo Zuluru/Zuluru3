@@ -1,9 +1,14 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Division $division
+ */
+
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Divisions'));
-$this->Html->addCrumb($division->full_league_name);
-$this->Html->addCrumb(__('{0} Distribution Report', __(Configure::read("sports.{$division->league->sport}.field_cap"))));
+$this->Breadcrumbs->add(__('Divisions'));
+$this->Breadcrumbs->add($division->full_league_name);
+$this->Breadcrumbs->add(__('{0} Distribution Report', __(Configure::read("sports.{$division->league->sport}.field_cap"))));
 ?>
 
 <div class="divisions field_distribution">

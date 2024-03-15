@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\TeamEvent $team_event
+ * @var \App\Model\Entity\Team $team
+ */
+
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 

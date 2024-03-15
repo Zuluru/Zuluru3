@@ -1,20 +1,20 @@
 <?php
 /**
- * @type $team \App\Model\Entity\Team
- * @type $person \App\Model\Entity\Person
- * @type $attendance \App\Model\Entity\Attendance
- * @type $event \App\Model\Entity\TeamEvent
- * @type $date \Cake\I18n\FrozenDate
- * @type $is_me boolean
- * @type $is_captain boolean
- * @type $attendance_options mixed[]
+ * @var \App\Model\Entity\Team $team
+ * @var \App\Model\Entity\Person $person
+ * @var \App\Model\Entity\Attendance $attendance
+ * @var \App\Model\Entity\TeamEvent $event
+ * @var \Cake\I18n\FrozenDate $date
+ * @var bool $is_me
+ * @var bool $is_captain
+ * @var mixed[] $attendance_options
  */
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Team Events'));
-$this->Html->addCrumb(__('Attendance Change'));
-$this->Html->addCrumb($team->name);
+$this->Breadcrumbs->add(__('Team Events'));
+$this->Breadcrumbs->add(__('Attendance Change'));
+$this->Breadcrumbs->add($team->name);
 ?>
 
 <div class="team_events form">
@@ -49,19 +49,19 @@ echo $this->Html->para(null, __('Current status: {0}',
 
 echo $this->Html->para(null, __('Possible attendance options are:'));
 echo $this->Form->create($attendance, ['align' => 'horizontal']);
-echo $this->Form->input('status', [
+echo $this->Form->control('status', [
 	'label' => false,
 	'type' => 'radio',
 	'options' => $attendance_options,
 	'default' => $attendance->status,
 ]);
-echo $this->Form->input('comment', [
+echo $this->Form->control('comment', [
 	'label' => __('You may optionally add a comment'),
 	'size' => 80,
 	'default' => $attendance->comment,
 ]);
 if ($is_captain && array_key_exists(ATTENDANCE_INVITED, $attendance_options)) {
-	echo $this->Form->input('note', [
+	echo $this->Form->control('note', [
 		'label' => __('You may optionally add a personal note which will be included in the invitation email to the player'),
 		'size' => 80,
 	]);

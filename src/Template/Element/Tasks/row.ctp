@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\TaskSlot $task_slot
+ * @var string[] $people
+ */
+
 
 use App\Authorization\ContextResource;
 

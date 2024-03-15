@@ -1,8 +1,13 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Holiday[] $holidays
+ */
+
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Holidays'));
-$this->Html->addCrumb(__('List'));
+$this->Breadcrumbs->add(__('Holidays'));
+$this->Breadcrumbs->add(__('List'));
 ?>
 
 <div class="holidays index">

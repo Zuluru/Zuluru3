@@ -175,12 +175,12 @@ abstract class Rule {
 			if (strpos($condition_string, 'Related.') !== false) {
 				$user_model = Configure::read('Security.authModel');
 				$authenticate = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . $user_model);
-				$primary_key = $authenticate->primaryKey();
+				$primary_key = $authenticate->getPrimaryKey();
 
 				// TODO: Use matching instead?
 				$query->leftJoin(['PeoplePeople' => 'people_people'], 'People.id = PeoplePeople.relative_id');
 				$query->leftJoin(['Related' => 'people'], 'Related.id = PeoplePeople.person_id');
-				$query->leftJoin(["Related$user_model" => $authenticate->table()], "Related$user_model.$primary_key = Related.user_id");
+				$query->leftJoin(["Related$user_model" => $authenticate->getTable()], "Related$user_model.$primary_key = Related.user_id");
 			}
 
 			$query->where($conditions);
@@ -210,7 +210,7 @@ abstract class Rule {
 		// Add in invariant conditions, fields and joins
 		$user_model = Configure::read('Security.authModel');
 		$authenticate = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . $user_model);
-		$id_field = $authenticate->primaryKey();
+		$id_field = $authenticate->getPrimaryKey();
 
 		$query->select('People.id');
 		$query->where([
@@ -218,7 +218,7 @@ abstract class Rule {
 			'People.status' => 'active',
 		]);
 
-		$query->leftJoin([$user_model => $authenticate->table()], "$user_model.$id_field = People.user_id");
+		$query->leftJoin([$user_model => $authenticate->getTable()], "$user_model.$id_field = People.user_id");
 
 		// TODO: We should really not use this when using TeamCount or LeagueTeamCount or Registered or MemberType
 		// or SignedWaiver or HasDocument or any other hypothetical rule that already includes affiliate info.

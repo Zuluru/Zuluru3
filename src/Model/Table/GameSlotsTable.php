@@ -66,19 +66,19 @@ class GameSlotsTable extends AppTable {
 	public function validationCommon(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->date('game_date', __('You must provide a valid game date.'))
-			->notEmpty('game_date', __('You must provide a valid game date.'))
+			->notEmptyDate('game_date', __('You must provide a valid game date.'))
 
 			->time('game_start', __('You must provide a valid game start time.'))
-			->notEmpty('game_start', __('You must provide a valid game start time.'))
+			->notEmptyTime('game_start', __('You must provide a valid game start time.'))
 
 			->time('game_end', __('You must provide a valid game end time.'))
-			->allowEmpty('game_end')
+			->allowEmptyTime('game_end')
 
 			->boolean('assigned')
-			->notEmpty('assigned')
+			->notEmptyString('assigned')
 
 			;
 
@@ -96,7 +96,7 @@ class GameSlotsTable extends AppTable {
 
 		$validator
 			->requirePresence('divisions', 'create', __('You must select at least one division!'))
-			->notEmpty('divisions', __('You must select at least one division!'))
+			->notEmptyArray('divisions', __('You must select at least one division!'))
 
 			;
 
@@ -114,7 +114,7 @@ class GameSlotsTable extends AppTable {
 
 		$validator
 			->requirePresence('fields', 'create', __('You must select at least one {0}!', Configure::read('UI.field')))
-			->notEmpty('fields', __('You must select at least one {0}!', Configure::read('UI.field')))
+			->notEmptyArray('fields', __('You must select at least one {0}!', Configure::read('UI.field')))
 
 			->add('length', 'noLengthWithSunset', [
 				'rule' => function ($value, $context) {
@@ -161,7 +161,7 @@ class GameSlotsTable extends AppTable {
 			'message' => __('You must select a valid game buffer.'),
 		]);
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			if (!empty($entity->game_end)) {
 				return true;
 			}
@@ -194,7 +194,7 @@ class GameSlotsTable extends AppTable {
 			'errorField' => 'game_end',
 		]);
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			if ($entity->end_time->diffInMinutes($entity->start_time) > 12 * 60) {
 				return __('Game end time of {0} is more than 12 hours from game start time of {1}!', ZuluruTimeHelper::time($entity->end_time), ZuluruTimeHelper::time($entity->start_time));
 			}
@@ -203,7 +203,7 @@ class GameSlotsTable extends AppTable {
 			'errorField' => 'game_end',
 		]);
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			$sunset = \App\Lib\local_sunset_for_date($entity->game_date);
 			if (empty($entity->game_end)) {
 				$game_end = $sunset;
@@ -280,7 +280,7 @@ class GameSlotsTable extends AppTable {
 	}
 
 	// TODOLATER: Replace all the getXxx functions with query-based custom finders like this?
-	public function findAvailable(Query $query, Array $options) {
+	public function findAvailable(Query $query, array $options) {
 		$query
 			->contain([
 				'Games',

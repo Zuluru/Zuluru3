@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ */
+?>
 <p><?= __('The {0} algorithm is an updated version of their previous College algorithm, introduced for both College and Club series in 2014.',
 	__('USA Ultimate Rankings v2')
 ) ?></p>

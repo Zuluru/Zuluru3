@@ -1,7 +1,12 @@
 <?php
-$this->Html->addCrumb(__('Franchise'));
-$this->Html->addCrumb($franchise->name);
-$this->Html->addCrumb(__('Add Team to Franchise'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Franchise $franchise
+ */
+
+$this->Breadcrumbs->add(__('Franchise'));
+$this->Breadcrumbs->add($franchise->name);
+$this->Breadcrumbs->add(__('Add Team to Franchise'));
 ?>
 
 <div class="franchises add_team">
@@ -19,7 +24,7 @@ foreach ($teams as $team) {
 	}
 }
 echo $this->Form->create($franchise, ['align' => 'horizontal']);
-echo $this->Form->input('team_id', [
+echo $this->Form->control('team_id', [
 		'label' => false,
 		'options' => $options,
 		'empty' => __('-- select from list --'),

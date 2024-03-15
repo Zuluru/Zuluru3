@@ -1,10 +1,15 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Division $division
+ */
+
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
 
-$this->Html->addCrumb(__('Division'));
-$this->Html->addCrumb($division->full_league_name);
-$this->Html->addCrumb(__('Reschedule'));
+$this->Breadcrumbs->add(__('Division'));
+$this->Breadcrumbs->add($division->full_league_name);
+$this->Breadcrumbs->add(__('Reschedule'));
 ?>
 
 <div class="schedules reschedule">
@@ -16,7 +21,7 @@ $this->Html->addCrumb(__('Reschedule'));
 <?php
 echo $this->Form->create($division, ['align' => 'horizontal']);
 
-echo $this->Form->input('new_date', [
+echo $this->Form->control('new_date', [
 	'label' => __('Reschedule games to'),
 	// We have an array like 0 => date, and need SQL => readable
 	'options' => array_combine(
@@ -25,7 +30,7 @@ echo $this->Form->input('new_date', [
 	),
 ]);
 
-echo $this->Form->input('publish', [
+echo $this->Form->control('publish', [
 	'label' => __('Publish rescheduled games for player viewing?'),
 	'type' => 'checkbox',
 ]);

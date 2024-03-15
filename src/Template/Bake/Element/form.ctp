@@ -16,16 +16,16 @@ use Cake\Utility\Inflector;
 
 $fields = collection($fields)
 	->filter(function ($field) use ($schema) {
-		return $schema->columnType($field) !== 'binary';
+		return $schema->getColumnType($field) !== 'binary';
 	});
 %>
 <?php
-$this->Html->addCrumb(__('<%= $pluralHumanName %>'));
+$this->Breadcrumbs->add(__('<%= $pluralHumanName %>'));
 if ($<%= $singularVar %>->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($<%= $singularVar %>->name));
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(h($<%= $singularVar %>->name));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 
@@ -40,27 +40,27 @@ if ($<%= $singularVar %>->isNew()) {
 				continue;
 			}
 			if (isset($keyFields[$field])) {
-				$fieldData = $schema->column($field);
+				$fieldData = $schema->getColumn($field);
 				if (!empty($fieldData['null'])) {
 %>
-			echo $this->Form->input('<%= $field %>', ['options' => $<%= $keyFields[$field] %>, 'empty' => true]);
+			echo $this->Form->control('<%= $field %>', ['options' => $<%= $keyFields[$field] %>, 'empty' => true]);
 <%
 				} else {
 %>
-			echo $this->Form->input('<%= $field %>', ['options' => $<%= $keyFields[$field] %>]);
+			echo $this->Form->control('<%= $field %>', ['options' => $<%= $keyFields[$field] %>]);
 <%
 				}
 				continue;
 			}
 			if (!in_array($field, ['created', 'modified'])) {
-				$fieldData = $schema->column($field);
+				$fieldData = $schema->getColumn($field);
 				if (($fieldData['type'] === 'date') && (!empty($fieldData['null']))) {
 %>
-			echo $this->Form->input('<%= $field %>', ['empty' => true, 'default' => '']);
+			echo $this->Form->control('<%= $field %>', ['empty' => true, 'default' => '']);
 <%
 				} else {
 %>
-			echo $this->Form->input('<%= $field %>');
+			echo $this->Form->control('<%= $field %>');
 <%
 				}
 			}
@@ -68,7 +68,7 @@ if ($<%= $singularVar %>->isNew()) {
 		if (!empty($associations['BelongsToMany'])) {
 			foreach ($associations['BelongsToMany'] as $assocName => $assocData) {
 %>
-			echo $this->Form->input('<%= $assocData['property'] %>._ids', ['options' => $<%= $assocData['variable'] %>]);
+			echo $this->Form->control('<%= $assocData['property'] %>._ids', ['options' => $<%= $assocData['variable'] %>]);
 <%
 			}
 		}

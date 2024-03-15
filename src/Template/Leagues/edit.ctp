@@ -1,12 +1,12 @@
 <?php
 /**
- * @type \App\View\AppView $this
- * @type \App\Model\Entity\League $league
- * @type \App\Model\Entity\Affiliate[] $affiliates
- * @type \App\Model\Entity\Day[] $days
- * @type \App\Model\Entity\Category[] $categories
- * @type \App\Model\Entity\StatType[] $stat_types
- * @type bool $tournaments
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\League $league
+ * @var \App\Model\Entity\Affiliate[] $affiliates
+ * @var \App\Model\Entity\Day[] $days
+ * @var \App\Model\Entity\Category[] $categories
+ * @var \App\Model\Entity\StatType[] $stat_types
+ * @var bool $tournaments
  */
 
 use App\Model\Entity\Division;
@@ -21,12 +21,12 @@ if (!isset($tournaments)) {
 		$tournaments = false;
 	}
 }
-$this->Html->addCrumb($tournaments ? __('Tournaments') : __('Leagues'));
+$this->Breadcrumbs->add($tournaments ? __('Tournaments') : __('Leagues'));
 if ($league->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($league->name));
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(h($league->name));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 
 // Set up the templates to use for advanced options. Note that these are based on the horizontal
@@ -57,13 +57,13 @@ $advanced = [
 				<div id="LeagueDetails" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="LeagueHeading">
 					<div class="panel-body">
 <?php
-echo $this->Form->input('name', [
+echo $this->Form->control('name', [
 	'size' => 70,
 	'help' => $tournaments ? __('The full name of the tournament.') : __('The full name of the league. Year and season will be automatically added.'),
 ]);
 
 if ($league->isNew()) {
-	echo $this->Form->input('affiliate_id', [
+	echo $this->Form->control('affiliate_id', [
 		'options' => $affiliates,
 		'hide_single' => true,
 		'empty' => '---',
@@ -86,7 +86,7 @@ echo $this->Jquery->toggleInput('sport', [
 	'parent_selector_optional' => true,
 ]);
 
-echo $this->Form->input('season', [
+echo $this->Form->control('season', [
 	'options' => Configure::read('options.season'),
 	'hide_single' => true,
 	'empty' => '---',
@@ -94,7 +94,7 @@ echo $this->Form->input('season', [
 ]);
 
 if (!empty($categories)) {
-	echo $this->Form->input('categories._ids', [
+	echo $this->Form->control('categories._ids', [
 		'options' => $categories,
 		'multiple' => true,
 		'hiddenField' => false,
@@ -102,7 +102,7 @@ if (!empty($categories)) {
 	]);
 }
 
-echo $this->Form->input('schedule_attempts', [
+echo $this->Form->control('schedule_attempts', [
 	'div' => 'input advanced',
 	'size' => 5,
 	'default' => 100,
@@ -118,19 +118,19 @@ if (Configure::read('feature.spirit') && !Configure::read("sports.{$league->spor
 		__('NOTE: If you set the questionnaire to "{0}" and disable numeric entry, spirit will not be tracked for this tournament.', Configure::read('options.spirit_questions.none')) :
 		__('NOTE: If you set the questionnaire to "{0}" and disable numeric entry, spirit will not be tracked for this league.', Configure::read('options.spirit_questions.none'))
 	);
-	echo $this->Form->input('sotg_questions', [
+	echo $this->Form->control('sotg_questions', [
 		'options' => Configure::read('options.spirit_questions'),
 		'label' => __('Spirit Questionnaire'),
 		'default' => Configure::read('scoring.spirit_questions'),
 		'help' => __('Select which questionnaire to use for spirit scoring, or "{0}" to use numeric scoring only.', Configure::read('options.spirit_questions.none')),
 	]);
-	echo $this->Form->input('numeric_sotg', [
+	echo $this->Form->control('numeric_sotg', [
 		'options' => Configure::read('options.enable'),
 		'label' => __('Spirit Numeric Entry'),
 		'default' => Configure::read('scoring.spirit_numeric'),
 		'help' => __('Enable or disable the entry of a numeric spirit score, independent of the questionnaire selected above.'),
 	]);
-	echo $this->Form->input('display_sotg', [
+	echo $this->Form->control('display_sotg', [
 		'div' => 'input advanced',
 		'options' => Configure::read('options.sotg_display'),
 		'label' => __('Spirit Display'),
@@ -143,7 +143,7 @@ if (Configure::read('feature.spirit') && !Configure::read("sports.{$league->spor
 	unset($tie_breakers['spirit']);
 }
 if (Configure::read('scoring.carbon_flip')) {
-	echo $this->Form->input('carbon_flip', [
+	echo $this->Form->control('carbon_flip', [
 		'div' => 'input advanced',
 		'options' => Configure::read('options.enable'),
 		'empty' => $league->isNew() ? '---' : false,
@@ -165,7 +165,7 @@ foreach ($tie_breakers as $value => $text) {
 	$tie_breaker_options[] = $option;
 }
 
-echo $this->Form->input('tie_breakers', [
+echo $this->Form->control('tie_breakers', [
 	'div' => 'input advanced',
 	'options' => $tie_breaker_options,
 	'type' => 'select',
@@ -178,7 +178,7 @@ $this->Html->css('jquery.asmselect.css', ['block' => true]);
 $this->Html->script('jquery.asmselect.js', ['block' => true]);
 $this->Html->scriptBlock('zjQuery("select[multiple]").asmSelect({sortable:true});', ['buffer' => true]);
 
-echo $this->Form->input('expected_max_score', [
+echo $this->Form->control('expected_max_score', [
 	'div' => 'input advanced',
 	'size' => 5,
 	'default' => 17,
@@ -223,7 +223,7 @@ if (Configure::read('scoring.stat_tracking')):
 		}
 		if (!empty($options)) {
 			echo $this->Html->tag('fieldset', $this->Html->tag('legend', $type_desc) .
-				$this->Form->input('stat_types._ids', [
+				$this->Form->control('stat_types._ids', [
 					'label' => false,
 					'options' => $options,
 					'multiple' => 'checkbox',

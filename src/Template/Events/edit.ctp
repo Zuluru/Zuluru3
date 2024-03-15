@@ -1,12 +1,17 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Event $event
+ */
+
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Events'));
+$this->Breadcrumbs->add(__('Events'));
 if ($event->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($event->name));
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(h($event->name));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 
@@ -22,12 +27,12 @@ if ($event->isNew()) {
 				<div id="EventDetails" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="EventHeading">
 					<div class="panel-body">
 <?php
-echo $this->Form->input('name', [
+echo $this->Form->control('name', [
 	'size' => 70,
 	'help' => __('Full name of this registration event.'),
 ]);
 if ($event->isNew()) {
-	echo $this->Form->input('affiliate_id', [
+	echo $this->Form->control('affiliate_id', [
 		'options' => $affiliates,
 		'hide_single' => true,
 		'empty' => '---',
@@ -35,7 +40,7 @@ if ($event->isNew()) {
 } else {
 	echo $this->Form->hidden('affiliate_id');
 }
-echo $this->Form->input('description', [
+echo $this->Form->control('description', [
 	'cols' => 70,
 	'rows' => 5,
 	'help' => __('Complete description of the event, HTML is allowed.'),
@@ -48,18 +53,18 @@ echo $this->Jquery->ajaxInput('event_type_id', [
 	'empty' => '---',
 	'help' => __('Note that any team type will result in team records being created. If you don\'t want this, then use the appropriate individual type.'),
 ]);
-echo $this->Form->input('open_cap', [
+echo $this->Form->control('open_cap', [
 	'help' => __('-1 for no limit.'),
 ]);
-echo $this->Form->input('women_cap', [
+echo $this->Form->control('women_cap', [
 	'help' => __('-1 for no limit, -2 to use open cap as combined limit.'),
 ]);
 // TODOBOOTSTRAP: Better alignment for checkboxes. Also, investigate http://www.bootstraptoggle.com/
-echo $this->Form->input('multiple', [
+echo $this->Form->control('multiple', [
 	'label' => __('Allow multiple registrations'),
 	'help' => __('Can a single user register for this event multiple times?'),
 ]);
-echo $this->Form->input('questionnaire_id', [
+echo $this->Form->control('questionnaire_id', [
 	'empty' => 'None',
 ]);
 ?>

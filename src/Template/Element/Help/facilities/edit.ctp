@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
+
 use Cake\Core\Configure;
 ?>
 <p><?= __('The "{0}" page is used to update details of your facilities and {1}.',

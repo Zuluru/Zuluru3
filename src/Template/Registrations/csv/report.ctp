@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Registration[] $registrations
+ */
+
 use App\Model\Entity\Payment;
 use Cake\Core\Configure;
 

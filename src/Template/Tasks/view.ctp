@@ -1,9 +1,14 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Task $task
+ */
+
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Tasks'));
-$this->Html->addCrumb(h($task->name));
-$this->Html->addCrumb(__('View'));
+$this->Breadcrumbs->add(__('Tasks'));
+$this->Breadcrumbs->add(h($task->name));
+$this->Breadcrumbs->add(__('View'));
 ?>
 
 <div class="tasks view">

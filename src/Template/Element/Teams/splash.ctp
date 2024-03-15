@@ -1,4 +1,11 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Team[] $teams
+ * @var \App\Model\Entity\Team[] $past_teams
+ * @var string $name
+ */
+
 use Cake\Core\Configure;
 
 if (!empty($teams) || $past_teams > 0):

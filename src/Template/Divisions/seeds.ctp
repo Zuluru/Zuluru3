@@ -1,7 +1,12 @@
 <?php
-$this->Html->addCrumb(__('Divisions'));
-$this->Html->addCrumb($division->full_league_name);
-$this->Html->addCrumb(__('Adjust Initial Seeds'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Division $division
+ */
+
+$this->Breadcrumbs->add(__('Divisions'));
+$this->Breadcrumbs->add($division->full_league_name);
+$this->Breadcrumbs->add(__('Adjust Initial Seeds'));
 ?>
 
 <div class="divisions seeds">
@@ -49,10 +54,10 @@ endif;
 ?>
 					<td><?= $team->initial_seed ?></td>
 					<td><?php
-						echo $this->Form->input("teams.$key.id", [
+						echo $this->Form->control("teams.$key.id", [
 							'value' => $team->id,
 						]);
-						echo $this->Form->input("teams.$key.initial_seed", [
+						echo $this->Form->control("teams.$key.initial_seed", [
 							'label' => false,
 							'size' => 3,
 							'tabindex' => 1,

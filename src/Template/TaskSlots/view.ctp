@@ -1,6 +1,11 @@
 <?php
-$this->Html->addCrumb(__('Task Slot'));
-$this->Html->addCrumb(__('View'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\TaskSlot $task_slot
+ */
+
+$this->Breadcrumbs->add(__('Task Slot'));
+$this->Breadcrumbs->add(__('View'));
 ?>
 
 <div class="task_slots view">

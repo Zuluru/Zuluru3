@@ -1,8 +1,8 @@
 <?php
 /**
- * @type $division \App\Model\Entity\Division
- * @type $league \App\Model\Entity\League
- * @type $can_edit boolean
+ * @var \App\Model\Entity\Division $division
+ * @var \App\Model\Entity\League $league
+ * @var bool $can_edit
  */
 
 use App\Controller\TeamsController;

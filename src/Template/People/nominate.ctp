@@ -1,14 +1,19 @@
 <?php
-$this->Html->addCrumb(__('Badges'));
-$this->Html->addCrumb(__('Nominate'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Badge[] $badges
+ */
+
+$this->Breadcrumbs->add(__('Badges'));
+$this->Breadcrumbs->add(__('Nominate'));
 ?>
 
 <div class="badges form">
-<?= $this->Form->create(false, ['align' => 'horizontal']) ?>
+<?= $this->form->create(null, ['align' => 'horizontal']) ?>
 	<fieldset>
 		<legend><?= __('Nominate for a Badge') ?></legend>
 <?php
-	echo $this->Form->input('badge', [
+	echo $this->Form->control('badge', [
 			'options' => $badges,
 			'empty' => __('Select one:'),
 	]);

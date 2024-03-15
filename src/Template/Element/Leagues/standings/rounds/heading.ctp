@@ -1,7 +1,7 @@
 <?php
 /**
- * @type $division \App\Model\Entity\Division
- * @type $league \App\Model\Entity\League
+ * @var \App\Model\Entity\Division $division
+ * @var \App\Model\Entity\League $league
  */
 ?>
 <tr>

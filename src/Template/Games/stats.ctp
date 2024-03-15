@@ -1,10 +1,17 @@
 <?php
-$this->Html->addCrumb(__('Games'));
-$this->Html->addCrumb(__('Game') . ' ' . $game->id);
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Game $game
+ * @var \App\Model\Entity\Team $team
+ * @var int $team_id
+ */
+
+$this->Breadcrumbs->add(__('Games'));
+$this->Breadcrumbs->add(__('Game') . ' ' . $game->id);
 if (isset($team_id)) {
-	$this->Html->addCrumb($team->name);
+	$this->Breadcrumbs->add($team->name);
 }
-$this->Html->addCrumb(__('Stats'));
+$this->Breadcrumbs->add(__('Stats'));
 ?>
 
 <div class="games stats">

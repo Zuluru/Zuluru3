@@ -35,25 +35,25 @@ class PluginsTable extends AppTable {
 	 */
 	public function validationDefault(Validator $validator) {
 		$validator
-			->add('id', 'valid', ['rule' => 'numeric'])
-			->allowEmpty('id', 'create')
+			->numeric('id', 'valid')
+			->allowEmptyString('id', null, 'create')
 
 			->requirePresence('name', 'create')
-			->notEmpty('name')
+			->notEmptyString('name')
 
 			->requirePresence('load_name', 'create')
-			->notEmpty('load_name')
+			->notEmptyString('load_name')
 
 			->requirePresence('path', 'create')
-			->notEmpty('path')
+			->notEmptyString('path')
 
-			->add('advertise', 'valid', ['rule' => 'boolean'])
+			->boolean('advertise', 'valid')
 			->requirePresence('advertise', 'create')
-			->notEmpty('advertise')
+			->notEmptyString('advertise')
 
-			->add('enabled', 'valid', ['rule' => 'boolean'])
+			->boolean('enabled', 'valid')
 			->requirePresence('enabled', 'create')
-			->notEmpty('enabled')
+			->notEmptyString('enabled')
 			;
 
 		return $validator;

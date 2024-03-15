@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Game $game
+ * @var \App\Model\Entity\Team $attendance
+ */
+
 use Cake\Core\Configure;
 use Cake\ORM\TableRegistry;
 use App\Model\Table\StatsTable;
@@ -77,7 +83,7 @@ foreach ($attendance->people as $person):
 			if (!empty($person->_joinData->position) && !StatsTable::applicable($stat, $person->_joinData->position) && empty($stat_record->value)) {
 				$class .= ' unapplicable';
 			}
-			echo $this->Form->input("stats.$i.value", ['div' => false, 'label' => false, 'size' => 3, 'type' => 'number', 'class' => $class, 'data-stat-id' => $stat->id, 'value' => $stat_record->value]);
+			echo $this->Form->control("stats.$i.value", ['div' => false, 'label' => false, 'size' => 3, 'type' => 'number', 'class' => $class, 'data-stat-id' => $stat->id, 'value' => $stat_record->value]);
 ?>
 				</td>
 <?php
@@ -132,7 +138,7 @@ foreach ($stat_types as $stat):
 	echo $this->Form->hidden("stats.$i.team_id", ['value' => $stat_record->team_id]);
 	echo $this->Form->hidden("stats.$i.person_id", ['value' => $stat_record->person_id]);
 	echo $this->Form->hidden("stats.$i.stat_type_id", ['value' => $stat_record->stat_type_id]);
-	echo $this->Form->input("stats.$i.value", ['div' => false, 'label' => false, 'size' => 3, 'type' => 'number', 'class' => "stat_{$stat->id}", 'data-stat-id' => $stat->id, 'value' => $stat_record->value]);
+	echo $this->Form->control("stats.$i.value", ['div' => false, 'label' => false, 'size' => 3, 'type' => 'number', 'class' => "stat_{$stat->id}", 'data-stat-id' => $stat->id, 'value' => $stat_record->value]);
 ?>
 
 				</td>

@@ -1,15 +1,20 @@
 <?php
-$this->Html->addCrumb(__('Badges'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Badge $badge
+ */
+
+$this->Breadcrumbs->add(__('Badges'));
 if ($badge->category == 'assigned') {
-	$this->Html->addCrumb(__('Assign'));
+	$this->Breadcrumbs->add(__('Assign'));
 } else {
-	$this->Html->addCrumb(__('Nominate'));
+	$this->Breadcrumbs->add(__('Nominate'));
 }
 if (count($affiliates) > 1) {
-	$this->Html->addCrumb($badge->affiliate->name);
+	$this->Breadcrumbs->add($badge->affiliate->name);
 }
-$this->Html->addCrumb($badge->name);
-$this->Html->addCrumb($person->full_name);
+$this->Breadcrumbs->add($badge->name);
+$this->Breadcrumbs->add($person->full_name);
 ?>
 
 <div class="badges form">
@@ -37,7 +42,7 @@ elseif ($badge->visibility == BADGE_VISIBILITY_ADMIN):
 <?php
 endif;
 
-echo $this->Form->input('reason', [
+echo $this->Form->control('reason', [
 	'cols' => 70,
 ]);
 ?>

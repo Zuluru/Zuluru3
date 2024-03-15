@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ */
+?>
 <p><?= __('iCal is a standardized format for exchanging schedule information between applications. {0} supports iCal output in a variety of ways, but perhaps the most useful is the "Personal Feed".', ZULURU) ?></p>
 <p><?= __('If you {0} to enable this, you will be able to have iCal, Google Calendar and others automatically pull your schedule, from week to week, season to season, and year to year, and keep you informed of all of your upcoming games.',
 	$this->Html->link(__('edit your preferences'), ['controller' => 'People', 'action' => 'preferences'])

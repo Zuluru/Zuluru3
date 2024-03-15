@@ -115,20 +115,20 @@ class AffiliatesTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->requirePresence('name', 'create')
-			->notEmpty('name', __('The name cannot be blank.'))
+			->notEmptyString('name', __('The name cannot be blank.'))
 
 			->boolean('active')
-			->allowEmpty('active', 'create')
+			->allowEmptyString('active', null, 'create')
 
 			;
 
 		return $validator;
 	}
 
-	public function findActive(Query $query, Array $options) {
+	public function findActive(Query $query, array $options) {
 		$query->where(['Affiliates.active' => true]);
 		return $query;
 	}

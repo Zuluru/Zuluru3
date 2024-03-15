@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ */
+?>
 <p><?= __('The "{0}" section of the {1} {2} provides a list of the teams you are on, limited to leagues that are either ongoing, closed recently, or will open soon.',
 	__('My Teams'), ZULURU, __('Dashboard')
 ) ?></p>

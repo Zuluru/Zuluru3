@@ -1,6 +1,11 @@
 <?php
-$this->Html->addCrumb(__('Regions'));
-$this->Html->addCrumb(__('List'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Region[] $regions
+ */
+
+$this->Breadcrumbs->add(__('Regions'));
+$this->Breadcrumbs->add(__('List'));
 ?>
 
 <div class="regions index">

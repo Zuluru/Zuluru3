@@ -1,10 +1,14 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Person $person
+ * @var \App\Model\Entity\Event $event
+ * @var \App\Model\Entity\Registration $registration
+ */
+
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 ?>
-
-<?= __('Dear {0},', $person->first_name) ?>
-
 
 <?= __('Dear {0},', $person->first_name) ?>
 

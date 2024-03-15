@@ -58,7 +58,7 @@ class CategoriesTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmptyString('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->requirePresence('affiliate_id', 'create')
 			->notEmptyString('affiliate_id')
@@ -69,7 +69,7 @@ class CategoriesTable extends AppTable {
 			->requirePresence('name', 'create', __('The name cannot be blank.'))
 			->notEmptyString('name', __('The name cannot be blank.'))
 
-			->allowEmptyString('slug', function($context) {
+			->allowEmptyString('slug', null, function($context) {
 				return (!array_key_exists('type', $context['data']) || $context['data']['type'] !== 'Leagues');
 			})
 			->add('slug', 'valid', [
@@ -78,7 +78,7 @@ class CategoriesTable extends AppTable {
 			])
 
 			->url('image_url', __('Please enter a valid URL.'))
-			->allowEmptyString('image_url', function($context) {
+			->allowEmptyString('image_url', null, function($context) {
 				return (!array_key_exists('type', $context['data']) || $context['data']['type'] !== 'Leagues');
 			})
 

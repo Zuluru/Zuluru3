@@ -1,12 +1,12 @@
 <?php
 /**
- * @type $team \App\Model\Entity\Team
- * @type $attendance \App\Model\Entity\Attendance
- * @type $game \App\Model\Entity\Game
- * @type $game_date \Cake\I18n\Date
- * @type $role string
- * @type $person_id int
- * @type $future_only bool
+ * @var \App\Model\Entity\Team $team
+ * @var \App\Model\Entity\Attendance $attendance
+ * @var \App\Model\Entity\Game $game
+ * @var \Cake\I18n\Date $game_date
+ * @var string $role
+ * @var int $person_id
+ * @var bool $future_only
  */
 
 use App\Authorization\ContextResource;

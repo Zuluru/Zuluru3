@@ -1,11 +1,16 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Franchise $franchise
+ */
+
 
 use App\Authorization\ContextResource;
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Franchises'));
-$this->Html->addCrumb(h($franchise->name));
-$this->Html->addCrumb(__('View'));
+$this->Breadcrumbs->add(__('Franchises'));
+$this->Breadcrumbs->add(h($franchise->name));
+$this->Breadcrumbs->add(__('View'));
 ?>
 
 <div class="franchises view">

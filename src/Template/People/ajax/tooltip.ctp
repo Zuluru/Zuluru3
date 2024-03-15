@@ -1,7 +1,7 @@
 <?php
 /**
- * @type $person \App\Model\Entity\Person
- * @type $photo \App\Model\Entity\Upload
+ * @var \App\Model\Entity\Person $person
+ * @var \App\Model\Entity\Upload $photo
  */
 
 $visible_properties = $person->getVisible();

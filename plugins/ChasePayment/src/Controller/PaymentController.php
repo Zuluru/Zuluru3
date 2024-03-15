@@ -67,15 +67,15 @@ class PaymentController extends AppController {
 		}
 
 		// Chase posts data back to us as if we're a form
-		$data = $this->request->getData();
+		$data = $this->getRequest()->getData();
 		[$result, $audit, $registration_ids, $debit_ids] = $this->getAPI(API::isTestData($data))->parsePayment($data);
 		$this->_processPayment($result, $audit, $registration_ids, $debit_ids);
 	}
 
 	public function from_email() {
 		$this->Authorization->authorize($this);
-		if (!empty($this->request->getData())) {
-			$values = $this->_parseEmail($this->request->getData('email_text'));
+		if (!empty($this->getRequest()->getData())) {
+			$values = $this->_parseEmail($this->getRequest()->getData('email_text'));
 			if (!$values) {
 				return;
 			}
@@ -110,7 +110,7 @@ class PaymentController extends AppController {
 	public function from_email_confirmation() {
 		$this->Authorization->authorize($this);
 		$this->viewBuilder()->setTemplate('index');
-		$data = $this->request->getData();
+		$data = $this->getRequest()->getData();
 		[$result, $audit, $registration_ids, $debit_ids] = $this->getAPI(API::isTestData($data))->parsePayment($data, false);
 		$this->_processPayment($result, $audit, $registration_ids, $debit_ids);
 	}

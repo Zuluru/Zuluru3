@@ -63,21 +63,21 @@ class PaymentController extends AppController {
 
 	public function index() {
 		// Stripe sends data back through an event
-		$data = $this->request->input();
+		$data = $this->getRequest()->input();
 		[$result, $audit, $registration_ids, $debit_ids] = $this->getAPI(API::isTestData($data))->parsePayment($data);
 
 		// Stripe payments processed outside of Zuluru are still sent to us. Just accept them.
 		if (empty($registration_ids) && empty($debit_ids)) {
-			return $this->response->withStringBody('OK');
+			return $this->getResponse()->withStringBody('OK');
 		}
 
 		$this->_processPayment($result, $audit, $registration_ids, $debit_ids);
 
 		if (!$result) {
-			return $this->response->withStatus(400);
+			return $this->getResponse()->withStatus(400);
 		}
 
-		return $this->response->withStringBody('OK');
+		return $this->getResponse()->withStringBody('OK');
 	}
 
 	public function success() {

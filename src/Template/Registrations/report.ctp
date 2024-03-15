@@ -1,16 +1,20 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
+
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
 
-$this->Html->addCrumb(__('Registrations'));
-$this->Html->addCrumb(__('Report'));
+$this->Breadcrumbs->add(__('Registrations'));
+$this->Breadcrumbs->add(__('Report'));
 ?>
 
 <div class="registrations index">
 	<h2><?= __('Registration Report') ?></h2>
 
 <?php
-echo $this->Form->create(false, ['align' => 'horizontal']);
+echo $this->form->create(null, ['align' => 'horizontal']);
 ?>
 
 	<fieldset>
@@ -22,12 +26,12 @@ $start = $now->startOfYear();
 if ($now->month <= 2) {
 	$start = $start->subYear();
 }
-echo $this->Form->input('start_date', [
+echo $this->Form->control('start_date', [
 	'type' => 'date',
 	'value' => $start,
 	'maxYear' => $now->year,
 ]);
-echo $this->Form->input('end_date', [
+echo $this->Form->control('end_date', [
 	'type' => 'date',
 	'value' => $start->endOfYear(),
 	'maxYear' => $now->year,

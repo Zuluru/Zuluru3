@@ -1,6 +1,11 @@
 <?php
-$this->Html->addCrumb(__('Contacts'));
-$this->Html->addCrumb(__('List'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Contact[] $contacts
+ */
+
+$this->Breadcrumbs->add(__('Contacts'));
+$this->Breadcrumbs->add(__('List'));
 ?>
 
 <div class="contacts index">

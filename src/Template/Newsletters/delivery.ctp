@@ -1,9 +1,14 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Newsletter $newsletter
+ */
+
 use App\Controller\AppController;
 
-$this->Html->addCrumb(__('Newsletter'));
-$this->Html->addCrumb($newsletter->name);
-$this->Html->addCrumb(__('Delivery Report'));
+$this->Breadcrumbs->add(__('Newsletter'));
+$this->Breadcrumbs->add($newsletter->name);
+$this->Breadcrumbs->add(__('Delivery Report'));
 ?>
 
 <div class="newsletters view">

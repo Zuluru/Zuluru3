@@ -60,16 +60,16 @@ class PoolsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->requirePresence('stage', 'create')
 			->numeric('stage')
 
 			->requirePresence('type', 'create')
-			->notEmpty('type')
+			->notEmptyString('type')
 
 			->requirePresence('name', 'create')
-			->notEmpty('name', __('The name cannot be blank.'))
+			->notEmptyString('name', __('The name cannot be blank.'))
 			->add('name', 'alpha', ['rule' => ['custom', '/^[A-Z]+$/i'], 'message' => __('Pool names can only include letters.')])
 			->add('name', 'length', ['rule' => ['maxLength', 2], 'message' => __('Pool names can be no longer than two letters.')])
 

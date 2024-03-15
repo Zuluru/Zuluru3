@@ -1,14 +1,18 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Event $event
+ */
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Preregistrations'));
-$this->Html->addCrumb(__('List'));
+$this->Breadcrumbs->add(__('Preregistrations'));
+$this->Breadcrumbs->add(__('List'));
 if (isset($event)) {
 	if (count($affiliates) > 1) {
-		$this->Html->addCrumb($event->affiliate->name);
+		$this->Breadcrumbs->add($event->affiliate->name);
 	}
-	$this->Html->addCrumb($event->name);
+	$this->Breadcrumbs->add($event->name);
 }
 ?>
 

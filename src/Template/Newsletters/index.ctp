@@ -1,6 +1,11 @@
 <?php
-$this->Html->addCrumb(__('Newsletters'));
-$this->Html->addCrumb(__('List'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Newsletter[] $newsletters
+ */
+
+$this->Breadcrumbs->add(__('Newsletters'));
+$this->Breadcrumbs->add(__('List'));
 ?>
 
 <div class="newsletters index">

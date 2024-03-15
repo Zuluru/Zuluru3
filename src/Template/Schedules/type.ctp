@@ -1,10 +1,16 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Division $division
+ * @var \App\Model\Entity\Pool $pool
+ */
+
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Division'));
-$this->Html->addCrumb($division->full_league_name);
-$this->Html->addCrumb(__('Add Games'));
-$this->Html->addCrumb(__('Select Type'));
+$this->Breadcrumbs->add(__('Division'));
+$this->Breadcrumbs->add($division->full_league_name);
+$this->Breadcrumbs->add(__('Add Games'));
+$this->Breadcrumbs->add(__('Select Type'));
 ?>
 
 <div class="schedules add">
@@ -35,7 +41,7 @@ echo $this->element('hidden', ['model' => '_options', 'fields' => $division->_op
 <fieldset>
 <legend><?= __('Create a ...') ?></legend>
 <?php
-echo $this->Form->input('_options.type', [
+echo $this->Form->control('_options.type', [
 	'label' => false,
 	'type' => 'radio',
 	'options' => $types,
@@ -55,7 +61,7 @@ if (!$is_tournament) {
 	);
 }
 
-echo $this->Form->input('_options.publish', [
+echo $this->Form->control('_options.publish', [
 	'label' => __('Publish created games for player viewing?'),
 	'type' => 'checkbox',
 ]);
@@ -67,7 +73,7 @@ echo $this->Form->input('_options.publish', [
 if ($is_tournament):
 	echo $this->Form->hidden('_options.double_header', ['value' => false]);
 else:
-	echo $this->Form->input('_options.double_header', [
+	echo $this->Form->control('_options.double_header', [
 		'label' => __('Allow double-headers?'),
 		'type' => 'checkbox',
 		'checked' => false,
@@ -79,7 +85,7 @@ else:
 endif;
 
 if ($division->double_booking):
-	echo $this->Form->input('_options.double_booking', [
+	echo $this->Form->control('_options.double_booking', [
 		'label' => __('Allow double-booking?'),
 		'type' => 'checkbox',
 		'checked' => true,

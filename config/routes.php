@@ -46,7 +46,7 @@ Router::scope('/', function (RouteBuilder $routes) {
 	/**
 	 * Make sure CakePHP parses file requests with other known extensions correctly
 	 */
-	$routes->extensions(['csv', 'ics', 'json']);
+	$routes->setExtensions(['csv', 'ics', 'json']);
 
 	/**
 	 * Connect the root to the splash page instead
@@ -94,9 +94,3 @@ Router::scope('/', function (RouteBuilder $routes) {
      */
     $routes->fallbacks('InflectedRoute');
 });
-
-/**
- * Load all plugin routes.  See the Plugin documentation on
- * how to customize the loading of plugin routes.
- */
-Plugin::routes();

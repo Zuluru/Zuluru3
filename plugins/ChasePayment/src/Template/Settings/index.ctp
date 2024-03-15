@@ -2,13 +2,13 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Settings'));
-$this->Html->addCrumb('Chase Paymentech');
+$this->Breadcrumbs->add(__('Settings'));
+$this->Breadcrumbs->add('Chase Paymentech');
 ?>
 
 <div class="settings form">
 <?php
-echo $this->Form->create(false, ['align' => 'horizontal']);
+echo $this->form->create(null, ['align' => 'horizontal']);
 ?>
 <fieldset>
 	<legend><?= __('{0} Settings', 'Chase Paymentech') ?></legend>

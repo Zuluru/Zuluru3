@@ -1,9 +1,14 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Franchise[] $franchises
+ */
+
 use App\Controller\AppController;
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Franchises'));
-$this->Html->addCrumb(__('Starting with {0}', $letter));
+$this->Breadcrumbs->add(__('Franchises'));
+$this->Breadcrumbs->add(__('Starting with {0}', $letter));
 ?>
 
 <div class="franchises index">

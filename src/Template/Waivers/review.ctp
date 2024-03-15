@@ -1,11 +1,17 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Person $person
+ * @var \App\Model\Entity\Waiver $waiver
+ */
+
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
 
-$this->Html->addCrumb(__('Players'));
-$this->Html->addCrumb($person->full_name);
-$this->Html->addCrumb(__('View Waiver'));
-$this->Html->addCrumb($waiver->name);
+$this->Breadcrumbs->add(__('Players'));
+$this->Breadcrumbs->add($person->full_name);
+$this->Breadcrumbs->add(__('View Waiver'));
+$this->Breadcrumbs->add($waiver->name);
 ?>
 
 <?php

@@ -1,4 +1,11 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var string $message
+ * @var string $team_score
+ * @var string $twitter
+ */
+
 if (isset($message)) {
 	$this->Html->scriptBlock("alert('$message')", ['buffer' => true]);
 } else {

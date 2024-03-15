@@ -1,7 +1,12 @@
 <?php
-$this->Html->addCrumb(__('Affiliates'));
-$this->Html->addCrumb($affiliate->name);
-$this->Html->addCrumb(__('Add Manager'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Affiliate $affiliate
+ */
+
+$this->Breadcrumbs->add(__('Affiliates'));
+$this->Breadcrumbs->add($affiliate->name);
+$this->Breadcrumbs->add(__('Add Manager'));
 ?>
 
 <div class="affiliates add_manager">

@@ -1,6 +1,11 @@
 <?php
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb(__('Approve Badges'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Badge[] $badges
+ */
+
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add(__('Approve Badges'));
 ?>
 
 <div class="people badges">

@@ -139,66 +139,66 @@ class TeamsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->requirePresence('name', 'create', __('Team name must not be blank.'))
-			->notEmpty('name', __('The name cannot be blank.'))
-			->provider('zuluru', 'App\Validation\Zuluru')
+			->notEmptyString('name', __('The name cannot be blank.'))
+			->setProvider('zuluru', \App\Validation\Zuluru::class)
 			->add('name', 'unique', ['provider' => 'zuluru', 'rule' => ['teamUnique'], 'message' => __('There is already a team by that name in this league.')])
 
 			->url('url', __('Enter a valid URL, or leave blank.'))
-			->allowEmpty('website')
+			->allowEmptyString('website')
 
-			->notEmpty('shirt_colour', __('Shirt colour must not be blank.'))
+			->notEmptyString('shirt_colour', __('Shirt colour must not be blank.'))
 
 			->numeric('home_field_id')
-			->allowEmpty('home_field_id')
+			->allowEmptyString('home_field_id')
 
 			->numeric('region_preference_id')
-			->allowEmpty('region_preference_id')
+			->allowEmptyString('region_preference_id')
 
 			->boolean('open_roster')
-			->allowEmpty('open_roster')
+			->allowEmptyString('open_roster')
 
 			->numeric('rating')
-			->allowEmpty('rating')
+			->allowEmptyString('rating')
 
 			->boolean('track_attendance')
-			->allowEmpty('track_attendance')
+			->allowEmptyString('track_attendance')
 
 			->numeric('attendance_reminder', __('Please enter a number.'))
 			->range('attendance_reminder', [-1, 5], __('Attendance reminders can be sent a maximum of five days in advance.'))
-			->allowEmpty('attendance_reminder')
+			->allowEmptyString('attendance_reminder')
 
 			->numeric('attendance_summary', __('Please enter a number.'))
 			->range('attendance_summary', [-1, 5], __('Attendance summaries can be sent a maximum of five days in advance.'))
-			->allowEmpty('attendance_summary')
+			->allowEmptyString('attendance_summary')
 
 			->numeric('attendance_notification', __('Please enter a number.'))
 			->range('attendance_notification', [-1, 14], __('Attendance notifications can be sent starting a maximum of 14 days in advance.'))
-			->allowEmpty('attendance_notification')
+			->allowEmptyString('attendance_notification')
 
 			->numeric('initial_rating')
-			->allowEmpty('initial_rating')
+			->allowEmptyString('initial_rating')
 
-			->allowEmpty('short_name')
+			->allowEmptyString('short_name')
 
-			->allowEmpty('logo')
+			->allowEmptyString('logo')
 
 			->numeric('initial_seed')
-			->notEmpty('initial_seed')
+			->notEmptyString('initial_seed')
 
 			->numeric('seed')
-			->notEmpty('seed')
+			->notEmptyString('seed')
 
-			->allowEmpty('flickr_user')
+			->allowEmptyString('flickr_user')
 
-			->allowEmpty('flickr_set')
+			->allowEmptyString('flickr_set')
 
 			->boolean('flickr_ban')
-			->allowEmpty('flickr_ban')
+			->allowEmptyString('flickr_ban')
 
-			->allowEmpty('twitter_user')
+			->allowEmptyString('twitter_user')
 
 			;
 
@@ -279,7 +279,7 @@ class TeamsTable extends AppTable {
 		}
 	}
 
-	public function findOpenRoster(Query $query, Array $options) {
+	public function findOpenRoster(Query $query, array $options) {
 		return $query
 			->contain(['Divisions' => ['Leagues' => ['Affiliates']]])
 			->where([

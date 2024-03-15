@@ -1,7 +1,12 @@
 <?php
-$this->Html->addCrumb(__('Divisions'));
-$this->Html->addCrumb(__('Emails'));
-$this->Html->addCrumb($division->full_league_name);
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Division $division
+ */
+
+$this->Breadcrumbs->add(__('Divisions'));
+$this->Breadcrumbs->add(__('Emails'));
+$this->Breadcrumbs->add($division->full_league_name);
 ?>
 
 <div class="divisions emails">

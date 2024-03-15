@@ -10,6 +10,7 @@ use Cake\Controller\Controller;
 use Cake\Core\Configure;
 use Cake\Event\Event as CakeEvent;
 use Cake\Event\EventManager;
+use Cake\Http\Response;
 use Cake\I18n\FrozenTime;
 use Cake\I18n\I18n;
 use Cake\I18n\Number;
@@ -55,16 +56,16 @@ class AppController extends Controller {
 		parent::initialize();
 
 		// TODO: Find a better solution for black-holing of Ajax requests?
-		if (!$this->request->is('ajax') && !$this->request->is('json')) {
+		if (!$this->getRequest()->is('ajax') && !$this->getRequest()->is('json')) {
 			$this->loadComponent('Security');
-			$this->Security->config('blackHoleCallback', '_blackhole');
+			$this->Security->setConfig('blackHoleCallback', '_blackhole');
 		}
 
 		$this->loadComponent('Flash');
 		$this->loadComponent('RequestHandler', ['enableBeforeRedirect' => false]);
 
 		// Don't attempt to do anything database- or user-related during installation
-		if ($this->plugin == 'Installer') {
+		if ($this->getPlugin() === 'Installer') {
 			return;
 		}
 
@@ -77,7 +78,7 @@ class AppController extends Controller {
 		]);
 
 		// Check what actions anyone (logged on or not) is allowed in this controller.
-		$allowed = $this->request->is('json') ? $this->_noAuthenticationJsonActions() : $this->_noAuthenticationActions();
+		$allowed = $this->getRequest()->is('json') ? $this->_noAuthenticationJsonActions() : $this->_noAuthenticationActions();
 		$this->Authentication->allowUnauthenticated($allowed);
 
 		$this->loadComponent('Authorization.Authorization');
@@ -98,13 +99,14 @@ class AppController extends Controller {
 				$this->UserCache->clear('User', $user->person->id);
 
 				$user->last_login = FrozenTime::now();
-				$this->request->trustProxy = true;
-				$user->client_ip = $this->request->clientIp();
+				$request = $this->getRequest();
+				$request->trustProxy = true;
+				$user->client_ip = $request->clientIp();
 
 				$identifiers = $this->Authentication->getAuthenticationService()->identifiers();
 				foreach ($identifiers as $identifier) {
 					if (method_exists($identifier, 'needsPasswordRehash') && $identifier->needsPasswordRehash()) {
-						$user->password = $this->request->getData('password');
+						$user->password = $this->getRequest()->getData('password');
 						break;
 					}
 				}
@@ -120,7 +122,7 @@ class AppController extends Controller {
 		parent::beforeFilter($cakeEvent);
 
 		// Don't attempt to do anything database- or user-related during installation
-		if ($this->plugin == 'Installer') {
+		if ($this->getPlugin() === 'Installer') {
 			return;
 		}
 
@@ -147,14 +149,14 @@ class AppController extends Controller {
 			);
 		}
 
-		$this->request->addDetector('csv', ['param' => '_ext', 'value' => 'csv']);
-		$this->response->type(['csv' => 'text/x-csv']);
+		$this->getRequest()->addDetector('csv', ['param' => '_ext', 'value' => 'csv']);
+		$this->getResponse()->setTypeMap('csv', 'text/x-csv');
 
 		// Check if we need to redirect logged-in users for some required step first
 		// Don't cause redirects for JSON requests.
 		$free = $this->_freeActions();
 		$identity = $this->Authentication->getIdentity();
-		if (!$this->request->is('json') && $identity && $identity->isLoggedIn() && !in_array($this->request->action, $free)) {
+		if (!$this->getRequest()->is('json') && $identity && $identity->isLoggedIn() && !in_array($this->getRequest()->getParam('action'), $free)) {
 			if ($this->UserCache->read('Person.user_id') && empty($this->UserCache->read('Person.email'))) {
 				$this->Flash->warning(__('Last time we tried to contact you, your email bounced. We require a valid email address as part of your profile. You must update it before proceeding.'));
 				$this->Authorization->skipAuthorization();
@@ -176,9 +178,9 @@ class AppController extends Controller {
 				})->extract('id')->toArray();
 				if (!empty($response_required) &&
 					// Let's not block admins from turning off this setting if they have a team request
-					$this->request->getParam('controller') != 'Settings' &&
+					$this->getRequest()->getParam('controller') != 'Settings' &&
 					// We will let people look at information about teams that they've been invited to
-					($this->request->getParam('controller') != 'Teams' || !in_array($this->request->getQuery('team'), $response_required))
+					($this->getRequest()->getParam('controller') != 'Teams' || !in_array($this->getRequest()->getQuery('team'), $response_required))
 				) {
 					$this->Flash->info(__('You have been invited to join a team, and must either accept or decline this invitation before proceeding. Before deciding, you have the ability to look at this team\'s roster, schedule, etc.'));
 					return $this->redirect(['plugin' => false, 'controller' => 'Teams', 'action' => 'view', 'team' => current($response_required)]);
@@ -212,7 +214,7 @@ class AppController extends Controller {
 	}
 
 	protected function _setLanguage() {
-		Number::defaultCurrency(Configure::read('payment.currency'));
+		Number::setDefaultCurrency(Configure::read('payment.currency'));
 		Configure::load('options', 'default', false);
 		Configure::load('sports', 'default', false);
 		$configuration_table = TableRegistry::getTableLocator()->get('Configuration');
@@ -230,9 +232,9 @@ class AppController extends Controller {
 	public function beforeRender(CakeEvent $cakeEvent) {
 		parent::beforeRender($cakeEvent);
 
-		if ($this->request->is('json')) {
+		if ($this->getRequest()->is('json')) {
 			// We don't have our own JSON view class to set these overrides
-			$this->viewBuilder()->helpers([
+			$this->viewBuilder()->setHelpers([
 				'Html' => ['className' => 'ZuluruHtml'],
 				'Time' => ['className' => 'ZuluruTime'],
 			]);
@@ -245,7 +247,7 @@ class AppController extends Controller {
 	}
 
 	/**
-	 * Redirects to given $url, after turning off $this->autoRender, unless there is a "return" referer to go to instead.
+	 * Redirects to given $url, after turning off autoRender, unless there is a "return" referer to go to instead.
 	 *
 	 * @param string|array $url A string or array-based URL pointing to another location within the app,
 	 *     or an absolute URL
@@ -254,17 +256,17 @@ class AppController extends Controller {
 	 * @link https://book.cakephp.org/3/en/controllers.html#Controller::redirect
 	 */
 	public function redirect($url, $status = 302) {
-		$this->autoRender = false;
+		$this->disableAutoRender();
 
 		if ($status) {
-			$this->response = $this->response->withStatus($status);
+			$this->setResponse($this->getResponse()->withStatus($status));
 		}
 
-		if ($this->request->getQuery('return')) {
+		if ($this->getRequest()->getQuery('return')) {
 			// If there's a return requested, and nothing already saved to return to, remember the referrer
-			$url = $this->decodeRedirect($this->request->getQuery('return'));
-		} else if ($this->request->getQuery('redirect')) {
-			$url = $this->request->getQuery('redirect');
+			$url = $this->decodeRedirect($this->getRequest()->getQuery('return'));
+		} else if ($this->getRequest()->getQuery('redirect')) {
+			$url = $this->getRequest()->getQuery('redirect');
 		}
 
 		// String URLs might have come from $this->here, or might be '/'.
@@ -273,20 +275,20 @@ class AppController extends Controller {
 			$url = Router::normalize($url);
 		}
 
-		$event = $this->dispatchEvent('Controller.beforeRedirect', [$url, $this->response]);
+		$event = $this->dispatchEvent('Controller.beforeRedirect', [$url, $this->getResponse()]);
 		if ($event->getResult() instanceof Response) {
-			return $this->response = $event->getResult();
+			return $event->getResult();
 		}
 		if ($event->isStopped()) {
 			return null;
 		}
-		$response = $this->response;
+		$response = $this->getResponse();
 
 		if (!$response->getHeaderLine('Location')) {
 			$response = $response->withLocation(Router::url($url));
 		}
 
-		return $this->response = $response;
+		return $response;
 	}
 
 	/**
@@ -300,10 +302,10 @@ class AppController extends Controller {
 	 * @link http://book.cakephp.org/3.0/en/controllers.html#Controller::redirect
 	 */
 	public function forceRedirect($url, $status = 302) {
-		$params = $this->request->getQueryParams();
+		$params = $this->getRequest()->getQueryParams();
 		unset($params['redirect']);
 		unset($params['return']);
-		$this->request = $this->request->withQueryParams($params);
+		$this->setRequest($this->getRequest()->withQueryParams($params));
 
 		return $this->redirect($url, $status);
 	}
@@ -961,7 +963,7 @@ class AppController extends Controller {
 	/**
 	 * Wrapper around the email component, simplifying sending the kinds of emails we want to send.
 	 *
-	 * @param mixed $opts Array of options controlling the email.
+	 * @param mixed $opts array of options controlling the email.
 	 * @return mixed true if the email was sent, false otherwise.
 	 */
 	public static function _sendMail($opts) {
@@ -982,7 +984,8 @@ class AppController extends Controller {
 			if (array_key_exists($var, $opts)) {
 				$emails = self::_extractEmails($opts[$var], $single);
 				if (!empty($emails)) {
-					$email->$var($emails);
+					$func = 'set' . ucfirst($var);
+					$email->$func($emails);
 				}
 				$locales = self::_extractLocales($opts[$var], $locales);
 			}
@@ -1059,7 +1062,7 @@ class AppController extends Controller {
 	public static function _extractEmails($input, $single = false, $check_relatives = true, $formatted = false) {
 		$emails = [];
 
-		if (is_a($input, 'Cake\ORM\Entity')) {
+		if (is_a($input, \Cake\ORM\Entity::class)) {
 			// If it's an entity, extract what we can.
 			if (!empty($input->full_name)) {
 				$name = $input->full_name;
@@ -1134,7 +1137,7 @@ class AppController extends Controller {
 	}
 
 	public static function _extractLocales($input, $locales) {
-		if (is_a($input, 'App\Model\Entity\Person')) {
+		if (is_a($input, \App\Model\Entity\Person::class)) {
 			// If it's a person, check if they have a language preference
 			$preference = TableRegistry::getTableLocator()->get('Settings')->find()
 				->where(['person_id' => $input->id, 'name' => 'language'])
@@ -1183,7 +1186,7 @@ class AppController extends Controller {
 					->distinct(['People.id'])
 					->contain(['Affiliates', 'Groups']);
 
-				$columns = $this->People->schema()->columns();
+				$columns = $this->People->getSchema()->columns();
 				$search_conditions = [];
 				foreach ($params as $field => $value) {
 					if (!in_array($field, $columns)) {
@@ -1232,10 +1235,10 @@ class AppController extends Controller {
 	}
 
 	protected function _extractSearchParams(array $url_params = []) {
-		if ($this->request->is('post')) {
-			$params = $url = array_merge($this->request->getData(), $this->request->getQueryParams());
+		if ($this->getRequest()->is('post')) {
+			$params = $url = array_merge($this->getRequest()->getData(), $this->getRequest()->getQueryParams());
 		} else {
-			$params = $url = $this->request->getQueryParams();
+			$params = $url = $this->getRequest()->getQueryParams();
 		}
 		foreach (['sort', 'direction', 'page'] as $pagination) {
 			unset($params[$pagination]);
@@ -1248,7 +1251,7 @@ class AppController extends Controller {
 			unset($params['legal_name']);
 		}
 
-		if (!$this->request->is('post')) {
+		if (!$this->getRequest()->is('post')) {
 			$this->setRequest($this->getRequest()->withParsedBody($params));
 		}
 		return [$params, $url];
@@ -1309,7 +1312,7 @@ class AppController extends Controller {
 	// Wrapper around the Footprint function, to work with Authentication plugin
 	protected function _setCurrentUser($user = null) {
 		if (!$user) {
-			$user = $this->request->getAttribute('identity');
+			$user = $this->getRequest()->getAttribute('identity');
 			if ($user) {
 				$user = $user->getOriginalData();
 			}

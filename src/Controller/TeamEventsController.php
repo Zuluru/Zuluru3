@@ -36,7 +36,7 @@ class TeamEventsController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->getQuery('event');
+		$id = $this->getRequest()->getQuery('event');
 		try {
 			$team_event = $this->TeamEvents->get($id, [
 				'contain' => [
@@ -70,7 +70,7 @@ class TeamEventsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
-		$id = $this->request->getQuery('team');
+		$id = $this->getRequest()->getQuery('team');
 		try {
 			$team = $this->TeamEvents->Teams->get($id, [
 				'contain' => ['Divisions' => ['Leagues']],
@@ -92,29 +92,29 @@ class TeamEventsController extends AppController {
 
 		$team_event = $this->TeamEvents->newEntity();
 
-		if ($this->request->is('post')) {
-			$team_event = $this->TeamEvents->patchEntity($team_event, array_merge($this->request->getData(), ['team_id' => $id, 'dates' => []]));
+		if ($this->getRequest()->is('post')) {
+			$team_event = $this->TeamEvents->patchEntity($team_event, array_merge($this->getRequest()->getData(), ['team_id' => $id, 'dates' => []]));
 
 			// TODO: This entire block could benefit from some refactoring to improve code re-use and error detection
-			if (!empty($this->request->getData('repeat'))) {
-				if (!$team_event->errors()) {
-					if ($this->request->getData('repeat_type') == 'custom') {
-						if (!empty($this->request->getData('dates'))) {
+			if (!empty($this->getRequest()->getData('repeat'))) {
+				if (!$team_event->getErrors()) {
+					if ($this->getRequest()->getData('repeat_type') == 'custom') {
+						if (!empty($this->getRequest()->getData('dates'))) {
 							if (!$this->TeamEvents->getConnection()->transactional(function () use ($id, $team_event) {
 								$team_event['dates'] = $dates = [];
-								for ($i = 0; $i < $this->request->getData('repeat_count'); ++ $i) {
+								for ($i = 0; $i < $this->getRequest()->getData('repeat_count'); ++ $i) {
 									// Note: We intentionally use a different variable than $team_event,
 									// so that the team_event that is sent to the view has original data
 									// in it, not the modified date.
-									$team_event['dates'][$i] = $this->TeamEvents->newEntity(array_merge($this->request->getData(), ['date' => $this->request->getData("dates.$i.date")]));
+									$team_event['dates'][$i] = $this->TeamEvents->newEntity(array_merge($this->getRequest()->getData(), ['date' => $this->getRequest()->getData("dates.$i.date")]));
 									$this->TeamEvents->save($team_event['dates'][$i]);
 									if (in_array($team_event['dates'][$i]->date, $dates)) {
-										$team_event['dates'][$i]->errors('date', __('You cannot select the same date more than once.'));
+										$team_event['dates'][$i]->setErrors('date', __('You cannot select the same date more than once.'));
 									} else {
 										$dates[] = $team_event['dates'][$i]->date;
 									}
 								}
-								if ($team_event->errors()) {
+								if ($team_event->getErrors()) {
 									$this->Flash->warning(__('The team event could not be saved. Please correct the errors below and try again.'));
 									return false;
 								}
@@ -132,14 +132,14 @@ class TeamEventsController extends AppController {
 						}
 					} else {
 						$date = $team_event->date;
-						for ($i = 0; $i < $this->request->getData('repeat_count'); ++ $i) {
+						for ($i = 0; $i < $this->getRequest()->getData('repeat_count'); ++ $i) {
 							// Note: We intentionally use a different variable than $team_event,
 							// so that the team_event that is sent to the view has original data
 							// in it, not the modified date.
-							$team_event['dates'][$i] = $this->TeamEvents->newEntity(array_merge($this->request->getData(), ['team_id' => $id, 'date' => $date]));
+							$team_event['dates'][$i] = $this->TeamEvents->newEntity(array_merge($this->getRequest()->getData(), ['team_id' => $id, 'date' => $date]));
 
 							// Calculate the date of the next event
-							switch ($this->request->getData('repeat_type')) {
+							switch ($this->getRequest()->getData('repeat_type')) {
 								case 'weekly':
 									$date = $date->addWeek();
 									break;
@@ -189,7 +189,7 @@ class TeamEventsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->getQuery('event');
+		$id = $this->getRequest()->getQuery('event');
 		try {
 			$team_event = $this->TeamEvents->get($id, [
 				'contain' => [
@@ -208,8 +208,8 @@ class TeamEventsController extends AppController {
 
 		$this->Authorization->authorize($team_event);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$team_event = $this->TeamEvents->patchEntity($team_event, $this->request->getData());
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$team_event = $this->TeamEvents->patchEntity($team_event, $this->getRequest()->getData());
 			if ($this->TeamEvents->save($team_event)) {
 				$this->Flash->success(__('The team event has been saved.'));
 				return $this->redirect('/');
@@ -229,9 +229,9 @@ class TeamEventsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects to index.
 	 */
 	public function delete() {
-		$this->request->allowMethod(['post', 'delete']);
+		$this->getRequest()->allowMethod(['post', 'delete']);
 
-		$id = $this->request->getQuery('event');
+		$id = $this->getRequest()->getQuery('event');
 		try {
 			$team_event = $this->TeamEvents->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -246,8 +246,8 @@ class TeamEventsController extends AppController {
 
 		if ($this->TeamEvents->delete($team_event)) {
 			$this->Flash->success(__('The team event has been deleted.'));
-		} else if ($team_event->errors('delete')) {
-			$this->Flash->warning(current($team_event->errors('delete')));
+		} else if ($team_event->getError('delete')) {
+			$this->Flash->warning(current($team_event->getError('delete')));
 		} else {
 			$this->Flash->warning(__('The team event could not be deleted. Please, try again.'));
 		}
@@ -256,8 +256,8 @@ class TeamEventsController extends AppController {
 	}
 
 	public function attendance_change() {
-		$id = $this->request->getQuery('event');
-		$person_id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
+		$id = $this->getRequest()->getQuery('event');
+		$person_id = $this->getRequest()->getQuery('person') ?: $this->UserCache->currentId();
 		if (!$person_id) {
 			throw new MissingIdentityException();
 		}
@@ -317,7 +317,7 @@ class TeamEventsController extends AppController {
 		}
 		$team = $team_event->team;
 
-		$code = $this->request->getQuery('code');
+		$code = $this->getRequest()->getQuery('code');
 		// After authorization, the context will also include an indication of whether it's a player or captain
 		$context = new ContextResource($team, ['attendance' => $attendance, 'code' => $code, 'event' => $team_event]);
 		$this->Authorization->authorize($context);
@@ -330,24 +330,26 @@ class TeamEventsController extends AppController {
 		$is_me = $context->is_player || ($identity && ($identity->isMe($attendance) || $identity->isRelative($attendance)));
 		$is_captain = $context->is_captain || ($identity && $identity->isCaptainOf($attendance));
 
-		if ($code) {
-			// Fake the posted data array with the status from the URL
-			$this->request->data = ['status' => $this->request->getQuery('status')];
-		}
-
 		$role = $attendance->person->teams[0]->_joinData->role;
 		$attendance_options = GamesTable::attendanceOptions($role, $attendance->status, $past, $is_captain);
 
-		if ($code || $this->request->is(['patch', 'post', 'put'])) {
+		if ($code || $this->getRequest()->is(['patch', 'post', 'put'])) {
+			if ($code) {
+				// Fake the posted data array with the status from the URL
+				$data = ['status' => $this->getRequest()->getQuery('status')];
+			} else {
+				$data = $this->getRequest()->getData();
+			}
+
 			// Future dates give a negative diff; a positive number is more logical here.
 			$days_to_event = - $date->diffInDays(null, false);
 
-			if (array_key_exists('status', $this->request->data) && $this->request->getData('status') == 'comment') {
+			if (array_key_exists('status', $data) && $data['status'] == 'comment') {
 				// Comments that come via Ajax will have the status set to comment, which is not useful.
-				unset($this->request->data['status']);
-				$result = $this->_updateAttendanceComment($attendance, $team_event, $date, $team, $is_me, $days_to_event, $past);
+				unset($data['status']);
+				$result = $this->_updateAttendanceComment($data, $attendance, $team_event, $date, $team, $is_me, $days_to_event, $past);
 			} else {
-				$result = $this->_updateAttendanceStatus($attendance, $team_event, $date, $team, $is_captain, $is_me, $days_to_event, $past, $attendance_options);
+				$result = $this->_updateAttendanceStatus($data, $attendance, $team_event, $date, $team, $is_captain, $is_me, $days_to_event, $past, $attendance_options);
 			}
 
 			// Where do we go from here? It depends...
@@ -356,8 +358,8 @@ class TeamEventsController extends AppController {
 					return $this->redirect('/');
 				}
 			} else {
-				if ($this->request->is('ajax')) {
-					$this->set('dedicated', $this->request->getQuery('dedicated'));
+				if ($this->getRequest()->is('ajax')) {
+					$this->set('dedicated', $this->getRequest()->getQuery('dedicated'));
 				} else if (!$this->Authorization->can($team, 'attendance')) {
 					return $this->redirect(['controller' => 'Teams', 'action' => 'view', 'team' => $team_id]);
 				} else {
@@ -372,13 +374,13 @@ class TeamEventsController extends AppController {
 		]));
 	}
 
-	protected function _updateAttendanceStatus($attendance, $team_event, $date, $team, $is_captain, $is_me, $days_to_event, $past, $attendance_options) {
-		if (!array_key_exists($this->request->getData('status'), $attendance_options)) {
+	protected function _updateAttendanceStatus($data, $attendance, $team_event, $date, $team, $is_captain, $is_me, $days_to_event, $past, $attendance_options) {
+		if (!array_key_exists($data['status'], $attendance_options)) {
 			$this->Flash->info(__('That is not currently a valid attendance status for this person for this event.'));
 			return false;
 		}
 
-		$attendance = $this->TeamEvents->Attendances->patchEntity($attendance, $this->request->getData());
+		$attendance = $this->TeamEvents->Attendances->patchEntity($attendance, $data);
 		if (!$attendance->isDirty('status') && !$attendance->isDirty('comment') && !$attendance->isDirty('note')) {
 			return true;
 		}
@@ -388,7 +390,7 @@ class TeamEventsController extends AppController {
 			return false;
 		}
 
-		if (!$this->request->is('ajax')) {
+		if (!$this->getRequest()->is('ajax')) {
 			$this->Flash->success(__('Attendance has been updated to {0}.', $attendance_options[$attendance->status]));
 		}
 
@@ -439,8 +441,8 @@ class TeamEventsController extends AppController {
 		return true;
 	}
 
-	protected function _updateAttendanceComment($attendance, $team_event, $date, $team, $is_me, $days_to_event, $past) {
-		$attendance = $this->TeamEvents->Attendances->patchEntity($attendance, $this->request->getData());
+	protected function _updateAttendanceComment($data, $attendance, $team_event, $date, $team, $is_me, $days_to_event, $past) {
+		$attendance = $this->TeamEvents->Attendances->patchEntity($attendance, $data);
 		if (!$attendance->isDirty('comment')) {
 			return true;
 		}
@@ -450,7 +452,7 @@ class TeamEventsController extends AppController {
 			return false;
 		}
 
-		if (!$this->request->is('ajax')) {
+		if (!$this->getRequest()->is('ajax')) {
 			$this->Flash->success(__('Attendance comment has been updated.'));
 		}
 

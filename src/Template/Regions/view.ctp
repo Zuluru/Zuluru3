@@ -1,9 +1,14 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Region $region
+ */
+
 use App\Controller\AppController;
 
-$this->Html->addCrumb(__('Regions'));
-$this->Html->addCrumb(h($region->name));
-$this->Html->addCrumb(__('View'));
+$this->Breadcrumbs->add(__('Regions'));
+$this->Breadcrumbs->add(h($region->name));
+$this->Breadcrumbs->add(__('View'));
 ?>
 
 <div class="regions view">

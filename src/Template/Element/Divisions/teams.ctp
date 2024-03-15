@@ -1,9 +1,9 @@
 <?php
 /**
- * @type $division \App\Model\Entity\Division
- * @type $league \App\Model\Entity\League
- * @type $teams \App\Model\Entity\Team[]
- * @type $league_obj \App\Module\LeagueType
+ * @var \App\Model\Entity\Division $division
+ * @var \App\Model\Entity\League $league
+ * @var \App\Model\Entity\Team[] $teams
+ * @var \App\Module\LeagueType $league_obj
  */
 
 ?>

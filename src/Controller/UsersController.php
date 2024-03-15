@@ -5,6 +5,7 @@ use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Datasource\RulesChecker;
+use Cake\Http\Cookie\Cookie;
 use Cake\I18n\FrozenTime;
 use Cake\I18n\Time;
 use Cake\Http\Exception\UnauthorizedException;
@@ -50,7 +51,7 @@ class UsersController extends AppController {
 	public function beforeFilter(\Cake\Event\Event $event) {
 		parent::beforeFilter($event);
 		if (isset($this->Security)) {
-			$this->Security->config('unlockedActions', ['login']);
+			$this->Security->setConfig('unlockedActions', ['login']);
 		}
 	}
 
@@ -66,7 +67,7 @@ class UsersController extends AppController {
 			return $this->redirect($redirect);
 		}
 
-		if ($this->request->is(['post'])) {
+		if ($this->getRequest()->is(['post'])) {
 			$this->Flash->error(__('Username or password is incorrect'));
 			$this->set('failed', true);
 		} else {
@@ -75,14 +76,14 @@ class UsersController extends AppController {
 
 		// Set some variables the login page needs to properly render the form
 		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'));
-		$this->set('model', $users_table->alias());
+		$this->set('model', $users_table->getAlias());
 		$this->set('user_field', $users_table->userField);
 		$this->set('pwd_field', $users_table->pwdField);
-		$this->set('redirect', $this->request->getQuery('redirect'));
+		$this->set('redirect', $this->getRequest()->getQuery('redirect'));
 	}
 
 	public function logout() {
-		$this->request->getSession()->delete('Zuluru');
+		$this->getRequest()->getSession()->delete('Zuluru');
 		return $this->redirect($this->Authentication->logout());
 	}
 
@@ -116,18 +117,19 @@ class UsersController extends AppController {
 
 		$user = $users_table->newEntity();
 
-		if ($this->request->is('post')) {
+		if ($this->getRequest()->is('post')) {
 			// Handle affiliations
 			if (Configure::read('feature.affiliates') && Configure::read('Perm.is_manager')) {
-				pr($this->request->getData('person.affiliates'));
+				pr($this->getRequest()->getData('person.affiliates'));
 				trigger_error('TODOLATER', E_USER_WARNING);
 				exit;
 				// Something like this to ensure that the person is a manager of the affiliate they are adding the person for
 				$is_user_manager = Configure::read('Perm.is_manager') && in_array($division->league->affiliate_id, $this->UserCache->read('ManagedAffiliateIDs'));
 			}
 
-			$this->request->data[$users_table->pwdField] = $this->request->getData('new_password');
-			$user = $users_table->patchEntity($user, $this->request->getData(), [
+			$data = $this->getRequest()->getData();
+			$data[$users_table->pwdField] = $data['new_password'];
+			$user = $users_table->patchEntity($user, $data, [
 				'associated' => [
 					'People' => ['validate' => 'create'],
 					'People.Groups',
@@ -150,14 +152,14 @@ class UsersController extends AppController {
 
 				return false;
 			})) {
-				$this->Flash->account_created(null, ['params' => ['continue' => $this->request->getData('action') == 'continue']]);
+				$this->Flash->account_created(null, ['params' => ['continue' => $data['action'] == 'continue']]);
 
 				if (!$identity) {
 					if (Configure::read('feature.authenticate_through') == 'Zuluru') {
 						// Automatically log the user in
 						$this->Authentication->setIdentity($user);
 
-						if ($this->request->getData('action') == 'continue') {
+						if ($data['action'] == 'continue') {
 							return $this->redirect(['controller' => 'People', 'action' => 'add_relative']);
 						}
 					} else if (!empty($user->person->relatives)) {
@@ -193,7 +195,7 @@ class UsersController extends AppController {
 		$this->set('groups', $users_table->People->Groups->find('options', ['Groups.min_level' => 3])->toArray());
 
 		// TODO: Centralize checking of profile fields
-		$columns = $this->Users->People->schema()->columns();
+		$columns = $this->Users->People->getSchema()->columns();
 		foreach ($columns as $key => $column) {
 			if (in_array($column, ['id', 'user_id', 'user_name', 'email', 'complete', 'twitter_token', 'twitter_secret', 'modified'])) {
 				unset($columns[$key]);
@@ -222,20 +224,20 @@ class UsersController extends AppController {
 
 		$user = $users_table->newEntity();
 
-		if ($this->request->is('post')) {
+		if ($this->getRequest()->is('post')) {
 			$continue = true;
-			if (empty($this->request->getData('Person.on_error'))) {
+			if (empty($this->getRequest()->getData('Person.on_error'))) {
 				$this->Person->validationErrors['on_error'] = __('Select how to handle fields with errors in them.');
 				$continue = false;
 			}
-			if (empty($this->request->getData('Person.status'))) {
+			if (empty($this->getRequest()->getData('Person.status'))) {
 				$this->Person->validationErrors['status'] = __('Select a status for imported accounts.');
 				$continue = false;
 			}
-			if (!empty($this->request->getData('file.error'))) {
+			if (!empty($this->getRequest()->getData('file.error'))) {
 				$this->Flash->info(__('There was an error uploading the file.'));
 				$continue = false;
-			} else if ($this->request->getData('file.type') != 'text/x-csv') {
+			} else if ($this->getRequest()->getData('file.type') != 'text/x-csv') {
 				$this->Flash->info(__('Only import from CSV files is currently supported.'));
 				$continue = false;
 			}
@@ -243,7 +245,7 @@ class UsersController extends AppController {
 			if ($continue) {
 				// TODOLATER: Is the inputTypeMap useful here?
 				// http://book.cakephp.org/3.0/en/controllers/components/request-handling.html#automatically-decoding-request-data
-				$file = fopen($this->request->getData('file.tmp_name'), 'r');
+				$file = fopen($this->getRequest()->getData('file.tmp_name'), 'r');
 				$header = fgetcsv($file);
 				$skip = [];
 				foreach ($header as $key => $column) {
@@ -276,8 +278,8 @@ class UsersController extends AppController {
 						$errors = [];
 						$data = [
 							'Person' => [],
-							$users_table->alias() => [],
-							'Affiliate' => $this->request->getData('Affiliate'),
+							$users_table->getAlias() => [],
+							'Affiliate' => $this->getRequest()->getData('Affiliate'),
 						];
 						foreach ($header as $key => $column) {
 							if (array_key_exists($column, $remap)) {
@@ -286,7 +288,7 @@ class UsersController extends AppController {
 								$mapped_column = $column;
 							}
 							if ($columns[$column] === true) {
-								$data[$users_table->alias()][$mapped_column] = $row[$key];
+								$data[$users_table->getAlias()][$mapped_column] = $row[$key];
 							} else {
 								$data['Person'][$mapped_column] = $row[$key];
 							}
@@ -298,9 +300,9 @@ class UsersController extends AppController {
 								$continue = false;
 							}
 						}
-						if (empty($data[$users_table->alias()][$users_table->userField])) {
-							$user_name = $data[$users_table->alias()][$users_table->emailField];
-							if ($this->request->getData('Person.trim_email_domain')) {
+						if (empty($data[$users_table->getAlias()][$users_table->userField])) {
+							$user_name = $data[$users_table->getAlias()][$users_table->emailField];
+							if ($this->getRequest()->getData('Person.trim_email_domain')) {
 								$user_name = $base_name = substr($user_name, 0, strpos($user_name, '@'));
 								$append = 2;
 								while (true) {
@@ -314,10 +316,10 @@ class UsersController extends AppController {
 									++ $append;
 								}
 							}
-							$data[$users_table->alias()][$users_table->userField] = $user_name;
+							$data[$users_table->getAlias()][$users_table->userField] = $user_name;
 						}
-						if (empty($data[$users_table->alias()]['new_password'])) {
-							$data[$users_table->alias()]['new_password'] = $this->_password(10);
+						if (empty($data[$users_table->getAlias()]['new_password'])) {
+							$data[$users_table->getAlias()]['new_password'] = $this->_password(10);
 						}
 						$names = [];
 						if (!empty($data['Person']['first_name'])) {
@@ -329,21 +331,21 @@ class UsersController extends AppController {
 						$data['Person']['full_name'] = implode(' ', $names);
 
 						// Special handling of child accounts
-						if (strtolower($data[$users_table->alias()][$users_table->emailField]) == 'child') {
+						if (strtolower($data[$users_table->getAlias()][$users_table->emailField]) == 'child') {
 							$is_child = true;
 							$data['Group'] = ['Group' => [GROUP_PLAYER]];
-							unset($data[$users_table->alias()]);
+							unset($data[$users_table->getAlias()]);
 							$data['Related'] = [['person_id' => $parent_id, 'approved' => true]];
 						} else {
 							$is_child = false;
-							$data['Group'] = $this->request->getData('Group');
-							$data['Person']['email'] = $data[$users_table->alias()][$users_table->emailField];
-							if (!empty($users_table->nameField) && empty($data[$users_table->alias()][$users_table->nameField])) {
-								$data[$users_table->alias()][$users_table->nameField] = $data['Person']['full_name'];
+							$data['Group'] = $this->getRequest()->getData('Group');
+							$data['Person']['email'] = $data[$users_table->getAlias()][$users_table->emailField];
+							if (!empty($users_table->nameField) && empty($data[$users_table->getAlias()][$users_table->nameField])) {
+								$data[$users_table->getAlias()][$users_table->nameField] = $data['Person']['full_name'];
 							}
 						}
 						if (empty($data['Person']['status'])) {
-							$data['Person']['status'] = $this->request->getData('Person.status');
+							$data['Person']['status'] = $this->getRequest()->getData('Person.status');
 						}
 
 						$success = $this->Person->saveAll($data, ['validate' => 'only']);
@@ -354,23 +356,23 @@ class UsersController extends AppController {
 							} else {
 								$mapped_column = $column;
 							}
-							$errors[] = "$mapped_column ({$data[$users_table->alias()][$column]})";
+							$errors[] = "$mapped_column ({$data[$users_table->getAlias()][$column]})";
 							$continue = false;
 						}
 
-						if ($continue && !$this->request->getData('Person.trial_run')) {
+						if ($continue && !$this->getRequest()->getData('Person.trial_run')) {
 							$this->Person->create();
 							if ($success) {
 								$success = $this->Person->saveAll($data);
 							} else {
 								$old_validate = $this->Person->validate;
-								if ($this->request->getData('Person.on_error') == 'blank') {
+								if ($this->getRequest()->getData('Person.on_error') == 'blank') {
 									foreach (array_keys($this->Person->validationErrors) as $column) {
 										unset($data['Person'][$column]);
 										unset($this->Person->validate[$column]);
 										$errors[] = "$column ('{$data['Person'][$column]}' blanked)";
 									}
-								} else if ($this->request->getData('Person.on_error') == 'ignore') {
+								} else if ($this->getRequest()->getData('Person.on_error') == 'ignore') {
 									foreach (array_keys($this->Person->validationErrors) as $column) {
 										unset($this->Person->validate[$column]);
 										$errors[] = "$column ('{$data['Person'][$column]}' imported anyway)";
@@ -389,7 +391,7 @@ class UsersController extends AppController {
 						if ($is_child) {
 							$desc = "&nbsp;&nbsp;+ {$data['Person']['full_name']} as a child";
 						} else {
-							$desc = "{$data[$users_table->alias()][$users_table->userField]} ({$data[$users_table->alias()][$users_table->emailField]})";
+							$desc = "{$data[$users_table->getAlias()][$users_table->userField]} ({$data[$users_table->getAlias()][$users_table->emailField]})";
 						}
 
 						if ($continue && $success) {
@@ -401,7 +403,7 @@ class UsersController extends AppController {
 							} else {
 								$resolved[] = $desc . ': ' . implode(', ', $errors);
 							}
-							if (!$this->request->getData('Person.trial_run') && $this->request->getData('Person.notify_new_users') && !$is_child) {
+							if (!$this->getRequest()->getData('Person.trial_run') && $this->getRequest()->getData('Person.notify_new_users') && !$is_child) {
 								$this->_sendMail([
 									'to' => $data,
 									'subject' => function() { return __('New account'); },
@@ -409,16 +411,16 @@ class UsersController extends AppController {
 									'sendAs' => 'both',
 									'viewVars' => [
 										'user' => $data,
-										'user_model' => $users_table->alias(),
+										'user_model' => $users_table->getAlias(),
 										'user_field' => $users_table->userField,
 									],
 								]);
 							}
 						} else {
-							unset($this->Person->validationErrors[$users_table->alias()]);
+							unset($this->Person->validationErrors[$users_table->getAlias()]);
 							foreach (array_keys($this->Person->validationErrors) as $column) {
 								$errors[] = "$column ({$data['Person'][$column]})";
-								if ($this->request->getData('Person.on_error') == 'skip') {
+								if ($this->getRequest()->getData('Person.on_error') == 'skip') {
 									$continue = false;
 								}
 							}
@@ -447,7 +449,7 @@ class UsersController extends AppController {
 	}
 
 	public function token() {
-		if (!$this->request->is('json')) {
+		if (!$this->getRequest()->is('json')) {
 			throw new UnauthorizedException(__('Tokens are only valid for JSON requests'));
 		}
 
@@ -460,16 +462,16 @@ class UsersController extends AppController {
 			'success' => true,
 			'data' => [
 				'token' => JWT::encode([
-					'sub' => $user[TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'))->primaryKey()],
+					'sub' => $user[TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'))->getPrimaryKey()],
 					'exp' =>  FrozenTime::now()->addWeek()->toUnixString()
-				], Security::salt())
+				], Security::getSalt())
 			],
 			'_serialize' => ['success', 'data']
 		]);
 	}
 
 	public function change_password() {
-		$id = $this->request->getQuery('user');
+		$id = $this->getRequest()->getQuery('user');
 		if (!$id) {
 			$id = $this->UserCache->read('Person.user_id');
 		}
@@ -490,21 +492,22 @@ class UsersController extends AppController {
 
 		$this->Authorization->authorize($user);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$this->request->data[$users_table->pwdField] = $this->request->getData('new_password');
-			$user = $users_table->patchEntity($user, $this->request->getData(), ['validate' => 'password']);
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$data = $this->getRequest()->getData();
+			$data[$users_table->pwdField] = $data['new_password'];
+			$user = $users_table->patchEntity($user, $data, ['validate' => 'password']);
 			if ($users_table->save($user)) {
 				// Update the "remember me" cookie, if there is one
-				if ($this->request->getCookie('ZuluruAuth')) {
-					$expires = new Time('+1 year');
-					$this->response = $this->response->withCookie('ZuluruAuth', [
-						'value' => [
+				if ($this->getRequest()->getCookie('ZuluruAuth')) {
+					$this->setResponse($this->getResponse()->withCookie(new Cookie(
+						'ZuluruAuth',
+						[
 							'user_name' => $user->{$users_table->userField},
-							'password' => $this->request->data($users_table->pwdField),
+							'password' => $data[$users_table->pwdField],
 						],
-						'expire' => $expires->format('U'),
-						'path' => '/' . trim($this->request->getAttribute('webroot'), '/'),
-					]);
+						FrozenTime::now()->addYear(),
+						'/' . trim($this->getRequest()->getAttribute('webroot'), '/'),
+					)));
 				}
 
 				$this->Flash->success(__('The password has been updated.'));
@@ -549,18 +552,18 @@ class UsersController extends AppController {
 					$this->Flash->warning(__('There was an error emailing your new password to you, please try again. If you have continued problems, please contact the office.'));
 				}
 			}
-		} else if ($this->request->is(['patch', 'post', 'put'])) {
+		} else if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			// Remove any empty fields
-			foreach ($this->request->data as $field => $value) {
+			foreach ($this->getRequest()->getData() as $field => $value) {
 				if (empty($value)) {
-					unset($this->request->data[$field]);
+					$this->setRequest($this->getRequest()->withoutData($field));
 				}
 			}
-			if (!empty($this->request->getData())) {
+			if (!empty($this->getRequest()->getData())) {
 				// Find the user and send the email
 				$matches = $users_table->find()
 					->contain(['People'])
-					->where($this->request->getData());
+					->where($this->getRequest()->getData());
 				switch ($matches->count()) {
 					case 0:
 						$this->Flash->info(__('No matching accounts were found!'));

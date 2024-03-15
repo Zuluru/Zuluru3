@@ -1,6 +1,11 @@
 <?php
-$this->Html->addCrumb(__('Teams'));
-$this->Html->addCrumb(__('Unassigned Teams'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Team[] $teams
+ */
+
+$this->Breadcrumbs->add(__('Teams'));
+$this->Breadcrumbs->add(__('Unassigned Teams'));
 ?>
 
 <div class="teams index">

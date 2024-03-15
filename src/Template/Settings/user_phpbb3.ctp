@@ -1,11 +1,15 @@
 <?php
-$this->Html->addCrumb(__('Settings'));
-$this->Html->addCrumb('phpBB3');
+/**
+ * @var \App\View\AppView $this
+ */
+
+$this->Breadcrumbs->add(__('Settings'));
+$this->Breadcrumbs->add('phpBB3');
 ?>
 
 <div class="settings form">
 <?php
-echo $this->Form->create(false, ['align' => 'horizontal']);
+echo $this->form->create(null, ['align' => 'horizontal']);
 
 echo $this->element('Settings/banner');
 

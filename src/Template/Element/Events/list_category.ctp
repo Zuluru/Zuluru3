@@ -1,8 +1,8 @@
 <?php
 /**
- * @type $this \App\View\AppView
- * @type $category \App\Model\Entity\Category
- * @type $events \App\Model\Entity\Event[]
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Category $category
+ * @var \App\Model\Entity\Event[] $events
  */
 
 use App\Authorization\ContextResource;

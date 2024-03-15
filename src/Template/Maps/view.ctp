@@ -1,8 +1,13 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Facility $facility
+ */
+
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('{0} Layout', Configure::read('UI.field_cap')));
-$this->Html->addCrumb(trim("{$facility->name} ({$facility->code}) {$field->num}"));
+$this->Breadcrumbs->add(__('{0} Layout', Configure::read('UI.field_cap')));
+$this->Breadcrumbs->add(trim("{$facility->name} ({$facility->code}) {$field->num}"));
 
 $map_vars = ['id', 'num', 'sport', 'latitude', 'longitude', 'angle', 'width', 'length', 'zoom', 'surface'];
 

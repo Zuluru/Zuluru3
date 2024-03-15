@@ -1,7 +1,12 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Price $price
+ */
+
 if (isset($price)) {
 	// We intentionally do not echo the result of the create call. It is just to set up some defaults in the form helper.
-	$this->Form->create(false, ['align' => 'horizontal']);
+	$this->form->create(null, ['align' => 'horizontal']);
 
 	echo $this->element('Registrations/register_payment_fields', [
 		'price' => $price,

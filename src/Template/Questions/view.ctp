@@ -1,8 +1,13 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Question $question
+ */
+
 use App\Controller\AppController;
 
-$this->Html->addCrumb(__('Question'));
-$this->Html->addCrumb(__('Preview'));
+$this->Breadcrumbs->add(__('Question'));
+$this->Breadcrumbs->add(__('Preview'));
 ?>
 
 <div class="questions view">

@@ -27,9 +27,9 @@ class GroupsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
 	 */
 	public function activate() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('group');
+		$id = $this->getRequest()->getQuery('group');
 		try {
 			$group = $this->Groups->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -57,9 +57,9 @@ class GroupsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
 	 */
 	public function deactivate() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('group');
+		$id = $this->getRequest()->getQuery('group');
 		try {
 			$group = $this->Groups->get($id);
 		} catch (RecordNotFoundException $ex) {

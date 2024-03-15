@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
+
 use Cake\Core\Configure;
 
 if (Configure::read('feature.auto_approve')) {

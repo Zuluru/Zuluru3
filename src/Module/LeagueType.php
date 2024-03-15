@@ -376,7 +376,7 @@ abstract class LeagueType {
 				$validate = ($game->isNew() ? 'scheduleAdd' : 'scheduleEdit');
 				if (!$games_table->save($game, ['validate' => $validate, 'games' => $games, 'game_slots' => $division->used_slots])) {
 					$errors = [__('Failed to save a game.')];
-					foreach ($game->errors() as $field => $error) {
+					foreach ($game->getErrors() as $field => $error) {
 						$errors[] = $field . ': ';
 						foreach ($error as $message) {
 							$errors[] = $message;

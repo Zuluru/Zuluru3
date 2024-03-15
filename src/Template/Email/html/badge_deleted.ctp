@@ -1,4 +1,11 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Badge $badge
+ * @var \App\Model\Entity\Person $person
+ * @var string $comment
+ */
+
 use Cake\Core\Configure;
 ?>
 <p><?= __('Dear {0},', $person->first_name) ?></p>

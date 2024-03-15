@@ -1,14 +1,14 @@
 <?php
 /**
- * @type $team \App\Model\Entity\Team
+ * @var \App\Model\Entity\Team $team
  */
 
 use App\Model\Entity\Person;
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Team'));
-$this->Html->addCrumb(__('Player Emails'));
-$this->Html->addCrumb($team->name);
+$this->Breadcrumbs->add(__('Team'));
+$this->Breadcrumbs->add(__('Player Emails'));
+$this->Breadcrumbs->add($team->name);
 
 $grouped = collection($team->people)->groupBy(function (Person $person) {
 	return in_array($person->_joinData->role, Configure::read('privileged_roster_roles')) ? 1 :

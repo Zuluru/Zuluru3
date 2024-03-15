@@ -83,7 +83,7 @@ class RuleOr extends RuleMeta {
 		return $status;
 	}
 
-	protected function merge(Array $people) {
+	protected function merge(array $people) {
 		$this->people = array_unique(array_merge($this->people, $people));
 		return true;
 	}

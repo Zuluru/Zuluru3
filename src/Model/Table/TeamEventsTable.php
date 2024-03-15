@@ -73,34 +73,34 @@ class TeamEventsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->requirePresence('name', 'create', __('Event name must not be blank.'))
-			->notEmpty('name', __('The name cannot be blank.'))
+			->notEmptyString('name', __('The name cannot be blank.'))
 
-			->allowEmpty('description')
+			->allowEmptyString('description')
 
 			->url('website', __('Enter a valid URL, or leave blank.'))
-			->allowEmpty('website')
+			->allowEmptyString('website')
 
 			->date('date', __('You must provide a valid date.'))
-			->allowEmpty('date')
+			->allowEmptyDate('date')
 
 			->time('start', __('You must select a valid start time.'))
-			->allowEmpty('start')
+			->allowEmptyTime('start')
 
 			->time('end', __('You must select a valid end time.'))
-			->allowEmpty('end')
+			->allowEmptyTime('end')
 
-			->notEmpty('location_name', __('Location name must not be blank.'))
+			->notEmptyString('location_name', __('Location name must not be blank.'))
 
-			->notEmpty('location_street', __('You must supply a valid street address.'))
+			->notEmptyString('location_street', __('You must supply a valid street address.'))
 
-			->notEmpty('location_city', __('You must supply a city.'))
+			->notEmptyString('location_city', __('You must supply a city.'))
 
-			->notEmpty('location_province', __('Select a province/state from the list.'))
+			->notEmptyString('location_province', __('Select a province/state from the list.'))
 
-			->notEmpty('repeat_count', __('You must specify a number of events to create.'), function ($context) { return !empty($context['data']['repeat']); })
+			->notEmptyString('repeat_count', __('You must specify a number of events to create.'), function ($context) { return !empty($context['data']['repeat']); })
 			->numeric('repeat_count', __('Number of events to create must be numeric.'))
 			->range('repeat_count', [1, 100], __('Number of events to create must be between 1 and 100. If you need more than 100, just add a second batch.'))
 
@@ -127,7 +127,7 @@ class TeamEventsTable extends AppTable {
 		return $rules;
 	}
 
-	public function findSchedule(Query $query, Array $options) {
+	public function findSchedule(Query $query, array $options) {
 		$query->contain(['Teams']);
 		if (!empty($options['teams'])) {
 			$query->where(['TeamEvents.team_id IN' => $options['teams']]);
@@ -135,7 +135,7 @@ class TeamEventsTable extends AppTable {
 		return $query;
 	}
 
-	public function findWithAttendance(Query $query, Array $options) {
+	public function findWithAttendance(Query $query, array $options) {
 		$contain = [
 			'Attendances' => [
 				'queryBuilder' => function (Query $q) use ($options) {
@@ -178,7 +178,7 @@ class TeamEventsTable extends AppTable {
 				return [];
 			}
 		} else {
-			if (!is_a($team, 'App\Model\Entity\Team') || !$team->has('people')) {
+			if (!is_a($team, \App\Model\Entity\Team::class) || !$team->has('people')) {
 				trigger_error('Team records must include rosters when used with readAttendance', E_USER_ERROR);
 			}
 		}

@@ -1,11 +1,16 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Person[] $people
+ */
+
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb(__('List'));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add(__('List'));
 if (isset($group)) {
-	$this->Html->addCrumb(__(Inflector::pluralize($group)));
+	$this->Breadcrumbs->add(__(Inflector::pluralize($group)));
 }
 ?>
 

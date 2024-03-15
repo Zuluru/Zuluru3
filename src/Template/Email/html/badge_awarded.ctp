@@ -1,3 +1,12 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Badge $badge
+ * @var \App\Model\Entity\BadgesPerson $link
+ * @var \App\Model\Entity\Person $person
+ * @var \App\Model\Entity\Person $nominator
+ */
+?>
 <p><?= __('Dear {0},', $person->first_name) ?></p>
 <p><?php
 echo __('You have been awarded the {0} badge.', $badge->name) . ' ' . $badge->description;

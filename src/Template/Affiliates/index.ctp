@@ -1,6 +1,11 @@
 <?php
-$this->Html->addCrumb(__('Affiliates'));
-$this->Html->addCrumb(__('List'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Affiliate[] $affiliates
+ */
+
+$this->Breadcrumbs->add(__('Affiliates'));
+$this->Breadcrumbs->add(__('List'));
 ?>
 
 <div class="affiliates index">

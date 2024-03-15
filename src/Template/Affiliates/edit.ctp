@@ -1,10 +1,15 @@
 <?php
-$this->Html->addCrumb(__('Affiliates'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Affiliate $affiliate
+ */
+
+$this->Breadcrumbs->add(__('Affiliates'));
 if ($affiliate->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($affiliate->name));
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(h($affiliate->name));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 
@@ -13,11 +18,11 @@ if ($affiliate->isNew()) {
 	<fieldset>
 		<legend><?= $affiliate->isNew() ? __('Create Affiliate') : __('Edit Affiliate') ?></legend>
 <?php
-echo $this->Form->input('name', [
+echo $this->Form->control('name', [
 	'size' => 70,
 ]);
 if (!$affiliate->isNew()) {
-	echo $this->Form->input('active');
+	echo $this->Form->control('active');
 }
 ?>
 	</fieldset>

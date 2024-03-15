@@ -1,18 +1,18 @@
 <?php
 /**
- * @type $this \App\View\AppView
- * @type $affiliates \App\Model\Entity\Affiliate[]
- * @type $demographics \App\Model\Entity\Person[][][][]
- * @type $reportDate \Cake\I18n\FrozenDate
- * @type $eventNames string[]
- * @type $leagueNames string[]
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Affiliate[] $affiliates
+ * @var \App\Model\Entity\Person[][][][] $demographics
+ * @var \Cake\I18n\FrozenDate $reportDate
+ * @var string[] $eventNames
+ * @var string[] $leagueNames
  */
 
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb(__('Demographics as at {0}', $reportDate->format('M d, Y')));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add(__('Demographics as at {0}', $reportDate->format('M d, Y')));
 
 $multi_sport = (count($demographics) > 1);
 $genders = Configure::read('options.gender');

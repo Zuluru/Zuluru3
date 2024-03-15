@@ -1,18 +1,18 @@
 <?php
 /**
- * @type $event \App\Model\Entity\Event
- * @type $registrations \App\Model\Entity\Registration[]
- * @type $refund \App\Model\Entity\Payment
- * @type $id int
- * @type $price_id int
+ * @var \App\Model\Entity\Event $event
+ * @var \App\Model\Entity\Registration[] $registrations
+ * @var \App\Model\Entity\Payment $refund
+ * @var int $id
+ * @var int $price_id
  */
 
-$this->Html->addCrumb(__('Events'));
-$this->Html->addCrumb($event->name);
+$this->Breadcrumbs->add(__('Events'));
+$this->Breadcrumbs->add($event->name);
 if ($price_id) {
-	$this->Html->addCrumb(current($event->prices)->name);
+	$this->Breadcrumbs->add(current($event->prices)->name);
 }
-$this->Html->addCrumb(__('Refund'));
+$this->Breadcrumbs->add(__('Refund'));
 ?>
 
 <div class="events refund">
@@ -59,7 +59,7 @@ echo $this->Jquery->toggleInput('amount_type', [
 	],
 ]);
 echo $this->Html->tag('div',
-	$this->Form->input('payment_percent', [
+	$this->Form->control('payment_percent', [
 		'label' => __('Refund Percent'),
 		'default' => 100,
 		'help' => __('People will get back this percentage of their expected total, to a maximum of whatever they have paid. For people who have already paid a pro-rated amount, or received a discount or partial refund, you should probably NOT select them in the list, and deal with them on a one-off basis.'),
@@ -68,7 +68,7 @@ echo $this->Html->tag('div',
 	['class' => 'prorated']
 );
 echo $this->Html->tag('div',
-	$this->Form->input('payment_amount', [
+	$this->Form->control('payment_amount', [
 		'label' => __('Refund Amount'),
 		'default' => current($event->prices)->total,
 		'help' => __('People will get back this exact amount, to a maximum of whatever they have paid. For people who have already paid a pro-rated amount, or received a discount or partial refund, you should probably NOT select them in the list, and deal with them on a one-off basis.'),
@@ -78,7 +78,7 @@ echo $this->Html->tag('div',
 );
 
 echo $this->Html->tag('div',
-	$this->Form->input('online_refund', [
+	$this->Form->control('online_refund', [
 		'label' => __('Issue applicable refunds through online payment provider? It will be your responsibility to manually refund any payments that might have been collected offline.'),
 		'type' => 'checkbox',
 		'checked' => true,
@@ -86,21 +86,21 @@ echo $this->Html->tag('div',
 	['class' => 'refund_input']
 );
 
-echo $this->Form->input('mark_refunded', [
+echo $this->Form->control('mark_refunded', [
 	'label' => __('Mark these registrations as refunded?'),
 	'type' => 'checkbox',
 	'checked' => false,
 	'help' => $event->event_type->type == 'team' ? __('Remember that marking team registrations as refunded will entirely remove teams from the system.') : false,
 ]);
 
-echo $this->Form->input('notes', [
+echo $this->Form->control('notes', [
 	'type' => 'textarea',
 	'cols' => 72,
 	'help' => __('These notes will be preserved with the original registration, and are only visible to admins.'),
 ]);
 
 echo $this->Html->tag('div',
-	$this->Form->input('credit_notes', [
+	$this->Form->control('credit_notes', [
 		'type' => 'textarea',
 		'cols' => 72,
 		'default' => __('Credit for registration for {0}', $event->name),

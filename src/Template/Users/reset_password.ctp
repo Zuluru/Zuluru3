@@ -1,6 +1,12 @@
 <?php
-$this->Html->addCrumb(__('Users'));
-$this->Html->addCrumb(__('Reset Password'));
+/**
+ * @var \App\View\AppView $this
+ * @var string $user_field
+ * @var string $email_field
+ */
+
+$this->Breadcrumbs->add(__('Users'));
+$this->Breadcrumbs->add(__('Reset Password'));
 ?>
 
 <h3><?= __('Reset Password') ?></h3>
@@ -12,8 +18,8 @@ $this->Html->addCrumb(__('Reset Password'));
 <?= $this->Form->create($user, ['align' => 'horizontal']) ?>
 	<fieldset>
 <?php
-	echo $this->Form->input($user_field, ['label' => __('Username')]);
-	echo $this->Form->input($email_field, ['label' => __('Email')]);
+	echo $this->Form->control($user_field, ['label' => __('Username')]);
+	echo $this->Form->control($email_field, ['label' => __('Email')]);
 ?>
 	<p class="highlight-message"><?= __('Only one of these is typically required.') ?></p>
 	</fieldset>

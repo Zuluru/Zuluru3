@@ -14,7 +14,7 @@ use Cake\ORM\Query;
 class TeamsController extends AppController {
 
 	public function join() {
-		$id = $this->request->getQuery('team');
+		$id = $this->getRequest()->getQuery('team');
 		$this->loadModel('Teams');
 
 		try {
@@ -53,7 +53,7 @@ class TeamsController extends AppController {
 	}
 
 	public function leave() {
-		$id = $this->request->getQuery('team');
+		$id = $this->getRequest()->getQuery('team');
 		$this->loadModel('Teams');
 
 		try {

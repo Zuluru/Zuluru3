@@ -1,12 +1,12 @@
 <?php
 /**
- * @type $person \App\Model\Entity\Person
- * @type $upload \App\Model\Entity\Upload
+ * @var \App\Model\Entity\Person $person
+ * @var \App\Model\Entity\Upload $upload
  */
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb($person->full_name);
-$this->Html->addCrumb(__('Upload Photo'));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add($person->full_name);
+$this->Breadcrumbs->add(__('Upload Photo'));
 ?>
 
 <div class="people upload">
@@ -20,7 +20,7 @@ echo $this->Html->para(null, __('Supported formats are PNG, JPEG and GIF.'));
 // This is intentionally outside the form, so that the file contents aren't uploaded.
 // That will be taken care of by the plugin and browser instead, sending only the
 // cropped data.
-echo $this->Form->input('photo', ['type' => 'file', 'label' => false, 'value' => __('Choose a file'), 'accept' => 'image/*']);
+echo $this->Form->control('photo', ['type' => 'file', 'label' => false, 'value' => __('Choose a file'), 'accept' => 'image/*']);
 
 echo $this->Html->tag('div', $this->Html->para('', __('Select an image to upload.')), ['id' => 'croppie-msg', 'class' => 'step1']);
 echo $this->Html->para('step2', __('Drag the image, and use the slider to resize, until the desired area is highlighted.'));

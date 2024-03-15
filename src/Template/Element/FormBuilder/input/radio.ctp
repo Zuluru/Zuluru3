@@ -1,4 +1,12 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var string $field
+ * @var string $label
+ * @var array $options
+ * @var bool $secure
+ */
+
 $answers = [];
 $default = null;
 foreach ($options as $key => $option) {
@@ -8,4 +16,4 @@ foreach ($options as $key => $option) {
 }
 
 echo $this->Html->tag('label', $label);
-echo $this->Form->input($field, ['type' => 'radio', 'label' => false, 'options' => $answers, 'default' => $default, 'help' => $desc, 'secure' => $secure]);
+echo $this->Form->control($field, ['type' => 'radio', 'label' => false, 'options' => $answers, 'default' => $default, 'help' => $desc, 'secure' => $secure]);

@@ -35,7 +35,7 @@ class UploadTypesController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->getQuery('type');
+		$id = $this->getRequest()->getQuery('type');
 		try {
 			$upload_type = $this->UploadTypes->get($id, [
 				'contain' => [
@@ -66,14 +66,14 @@ class UploadTypesController extends AppController {
 	public function add() {
 		$upload_type = $this->UploadTypes->newEntity();
 		$this->Authorization->authorize($upload_type);
-		if ($this->request->is('post')) {
-			$upload_type = $this->UploadTypes->patchEntity($upload_type, $this->request->getData());
+		if ($this->getRequest()->is('post')) {
+			$upload_type = $this->UploadTypes->patchEntity($upload_type, $this->getRequest()->getData());
 			if ($this->UploadTypes->save($upload_type)) {
 				$this->Flash->success(__('The upload type has been saved.'));
 				return $this->redirect(['action' => 'index']);
 			} else {
 				$this->Flash->warning(__('The upload type could not be saved. Please correct the errors below and try again.'));
-				$this->Configuration->loadAffiliate($this->request->getData('affiliate_id'));
+				$this->Configuration->loadAffiliate($this->getRequest()->getData('affiliate_id'));
 			}
 		}
 
@@ -88,7 +88,7 @@ class UploadTypesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->getQuery('type');
+		$id = $this->getRequest()->getQuery('type');
 		try {
 			$upload_type = $this->UploadTypes->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -101,8 +101,8 @@ class UploadTypesController extends AppController {
 
 		$this->Authorization->authorize($upload_type);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$upload_type = $this->UploadTypes->patchEntity($upload_type, $this->request->getData());
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$upload_type = $this->UploadTypes->patchEntity($upload_type, $this->getRequest()->getData());
 			if ($this->UploadTypes->save($upload_type)) {
 				$this->Flash->success(__('The upload type has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -122,9 +122,9 @@ class UploadTypesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects to index.
 	 */
 	public function delete() {
-		$this->request->allowMethod(['post', 'delete']);
+		$this->getRequest()->allowMethod(['post', 'delete']);
 
-		$id = $this->request->getQuery('type');
+		$id = $this->getRequest()->getQuery('type');
 		try {
 			$upload_type = $this->UploadTypes->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -145,8 +145,8 @@ class UploadTypesController extends AppController {
 
 		if ($this->UploadTypes->delete($upload_type)) {
 			$this->Flash->success(__('The upload type has been deleted.'));
-		} else if ($upload_type->errors('delete')) {
-			$this->Flash->warning(current($upload_type->errors('delete')));
+		} else if ($upload_type->getError('delete')) {
+			$this->Flash->warning(current($upload_type->getError('delete')));
 		} else {
 			$this->Flash->warning(__('The upload type could not be deleted. Please, try again.'));
 		}

@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\League $league
+ */
 
 use App\Model\Table\TeamsTable;
 use Cake\Core\Configure;
@@ -68,7 +72,7 @@ foreach ($league->divisions as $division) {
 					$model = $name['model'];
 					if (is_array($person->$model) && !empty($person->{$model}[0]) && $person->{$model}[0]->has($field)) {
 						$row[] = $person->{$model}[0]->$field;
-					} else if (is_a($person->$model, 'Cake\ORM\Entity') && $person->$model->has($field)) {
+					} else if (is_a($person->$model, \Cake\ORM\Entity::class) && $person->$model->has($field)) {
 						$row[] = $person->$model->$field;
 					} else {
 						$row[] = '';

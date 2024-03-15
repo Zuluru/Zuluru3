@@ -1,8 +1,13 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Question $question
+ */
+
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Question'));
-$this->Html->addCrumb(__('Add'));
+$this->Breadcrumbs->add(__('Question'));
+$this->Breadcrumbs->add(__('Add'));
 ?>
 
 <div class="questions form">
@@ -10,25 +15,25 @@ $this->Html->addCrumb(__('Add'));
 	<fieldset>
 		<legend><?= __('Create Question') ?></legend>
 <?php
-echo $this->Form->input('name', [
+echo $this->Form->control('name', [
 	'size' => 60,
 	'help' => __('A short name for this question, to be used as a heading in administrative reports.'),
 ]);
-echo $this->Form->input('affiliate_id', [
+echo $this->Form->control('affiliate_id', [
 	'options' => $affiliates,
 	'hide_single' => true,
 	'empty' => '---',
 ]);
-echo $this->Form->input('question', [
+echo $this->Form->control('question', [
 	'cols' => 60,
 	'help' => __('The full text of the question, to be shown to users.'),
 	'class' => 'wysiwyg_advanced',
 ]);
-echo $this->Form->input('type', [
+echo $this->Form->control('type', [
 	'options' => Configure::read('options.question_types'),
 	'empty' => true,
 ]);
-echo $this->Form->input('anonymous', [
+echo $this->Form->control('anonymous', [
 	'label' => __('Anonymous results'),
 	'help' => __('Will responses to this question be kept anonymous?'),
 ]);

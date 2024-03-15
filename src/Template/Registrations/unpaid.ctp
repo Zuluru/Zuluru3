@@ -1,8 +1,13 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Registration[] $registrations
+ */
+
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Registrations'));
-$this->Html->addCrumb(__('Unpaid'));
+$this->Breadcrumbs->add(__('Registrations'));
+$this->Breadcrumbs->add(__('Unpaid'));
 ?>
 
 <div class="registrations index">

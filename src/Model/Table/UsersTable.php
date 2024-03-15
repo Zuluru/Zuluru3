@@ -97,20 +97,20 @@ class UsersTable extends AppTable {
 	 */
 	public function validationDefault(Validator $validator) {
 		$validator
-			->numeric($this->primaryKey())
-			->allowEmpty($this->primaryKey(), 'create')
+			->numeric($this->getPrimaryKey())
+			->allowEmptyString($this->getPrimaryKey(), null, 'create')
 
 			->requirePresence($this->userField, 'create', __('Username must not be blank.'))
-			->notEmpty($this->userField, __('Username must not be blank.'))
+			->notEmptyString($this->userField, __('Username must not be blank.'))
 
 			->requirePresence($this->emailField, 'create', __('You must supply a valid email address.'))
-			->notEmpty($this->emailField)
+			->notEmptyString($this->emailField)
 			->email($this->emailField, false, __('You must supply a valid email address.'))
 
 			->dateTime('last_login')
-			->allowEmpty('last_login')
+			->allowEmptyDateTime('last_login')
 
-			->allowEmpty('client_ip')
+			->allowEmptyString('client_ip')
 
 			;
 
@@ -127,7 +127,7 @@ class UsersTable extends AppTable {
 		$validator
 			->add('old_password', 'valid', [
 				'rule' => function ($value, $context) {
-					$user = $this->get($context['data'][$this->primaryKey()]);
+					$user = $this->get($context['data'][$this->getPrimaryKey()]);
 					if ($user && (new $this->hasher)->check($value, $user->password)) {
 						return true;
 					}
@@ -135,7 +135,7 @@ class UsersTable extends AppTable {
 				},
 				'message' => __('Old password is not correct.'),
 			])
-			->notEmpty('old_password')
+			->notEmptyString('old_password')
 
 			->requirePresence('new_password', 'create', __('Password must be between 6 and 50 characters long.'))
 			->add('new_password', [
@@ -149,7 +149,7 @@ class UsersTable extends AppTable {
 						if (array_key_exists($this->userField, $context['data'])) {
 							$username = $context['data'][$this->userField];
 						} else {
-							$user = $this->get($context['data'][$this->primaryKey()]);
+							$user = $this->get($context['data'][$this->getPrimaryKey()]);
 							$username = $user->{$this->userField};
 						}
 						if ($value != $username) {
@@ -161,7 +161,7 @@ class UsersTable extends AppTable {
 					'last' => true,
 				]
 			])
-			->notEmpty('new_password')
+			->notEmptyString('new_password')
 
 			->requirePresence('confirm_password', 'create', __('Password must be between 6 and 50 characters long.'))
 			->add('confirm_password', [
@@ -170,7 +170,7 @@ class UsersTable extends AppTable {
 					'message' => __('Passwords must match.'),
 				]
 			])
-			->notEmpty('confirm_password')
+			->notEmptyString('confirm_password')
 
 		;
 
@@ -189,7 +189,7 @@ class UsersTable extends AppTable {
 
 		if (Configure::read('feature.antispam')) {
 			$validator
-				->allowEmpty('subject')
+				->allowEmptyString('subject')
 				->add('subject', 'antispam', [
 					'rule' => function ($value, $context) {
 						// The presence of data in a field that should not be filled in triggers anti-spam measures.
@@ -270,7 +270,7 @@ class UsersTable extends AppTable {
 
 		// Send an event to any callback listeners
 		$event = new CakeEvent('Model.User.afterSave', $this, [$entity]);
-		$this->eventManager()->dispatch($event);
+		$this->getEventManager()->dispatch($event);
 	}
 
 	/**
@@ -284,7 +284,7 @@ class UsersTable extends AppTable {
 	public function afterDelete(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		// Send an event to any callback listeners
 		$event = new CakeEvent('Model.User.afterDelete', $this, [$entity]);
-		$this->eventManager()->dispatch($event);
+		$this->getEventManager()->dispatch($event);
 	}
 
 	/**
@@ -302,7 +302,7 @@ class UsersTable extends AppTable {
 	 */
 	public function createPersonRecord($user) {
 		$save = [
-			'user_id' => $user->{$this->primaryKey()},
+			'user_id' => $user->{$this->getPrimaryKey()},
 			'status' => Configure::read('feature.auto_approve') ? 'active' : 'new',
 			'complete' => false,
 			'gender' => '',

@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Event $event
+ * @var \App\Model\Entity\Registration[] $registrations
+ */
+
 use Cake\Core\Configure;
 use App\Controller\AppController;
 
@@ -95,7 +101,7 @@ foreach ($registrations as $registration) {
 			$model = $name['model'];
 			if (is_array($registration->person->$model) && array_key_exists(0, $registration->person->$model)) {
 				$row[] = $registration->person->{$model}[0]->$field;
-			} else if (is_a($registration->person->$model, 'Cake\ORM\Entity') && $registration->person->$model->has($field)) {
+			} else if (is_a($registration->person->$model, \Cake\ORM\Entity::class) && $registration->person->$model->has($field)) {
 				$row[] = $registration->person->$model->$field;
 			} else {
 				$row[] = '';

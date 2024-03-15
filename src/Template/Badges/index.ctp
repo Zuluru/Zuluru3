@@ -1,8 +1,13 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Badge[] $badges
+ */
+
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Badges'));
-$this->Html->addCrumb(__('List'));
+$this->Breadcrumbs->add(__('Badges'));
+$this->Breadcrumbs->add(__('List'));
 ?>
 
 <div class="badges index">

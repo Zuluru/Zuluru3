@@ -1,9 +1,14 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Division $division
+ */
+
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Divisions'));
-$this->Html->addCrumb(__('Division {0} Availability Report', __(Configure::read("sports.{$division->league->sport}.field_cap"))));
-$this->Html->addCrumb($division->full_league_name);
+$this->Breadcrumbs->add(__('Divisions'));
+$this->Breadcrumbs->add(__('Division {0} Availability Report', __(Configure::read("sports.{$division->league->sport}.field_cap"))));
+$this->Breadcrumbs->add($division->full_league_name);
 ?>
 
 <div class="divisions slots">
@@ -11,8 +16,8 @@ $this->Html->addCrumb($division->full_league_name);
 
 <p><?= __('Select a date below on which to view all available game slots:') ?></p>
 <?php
-echo $this->Form->create(false, ['align' => 'horizontal']);
-echo $this->Form->input('date', [
+echo $this->Form->create(null, ['align' => 'horizontal']);
+echo $this->Form->control('date', [
 	'label' => false,
 	'options' => array_combine(
 		array_map(function ($date) { return $date->toDateString(); }, $dates),

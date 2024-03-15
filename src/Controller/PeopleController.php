@@ -74,7 +74,7 @@ class PeopleController extends AppController {
 		$this->Authorization->authorize($this);
 		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		$this->set(compact('affiliates'));
-		$group_id = $this->request->getQuery('group');
+		$group_id = $this->getRequest()->getQuery('group');
 
 		// TODO: Multiple default sort fields break pagination links.
 		// https://github.com/cakephp/cakephp/issues/7324 has related info.
@@ -102,11 +102,11 @@ class PeopleController extends AppController {
 			$this->set(compact('group'));
 		}
 
-		if ($this->request->is('csv')) {
+		if ($this->getRequest()->is('csv')) {
 			if ($group_id) {
-				$this->response->download(Inflector::pluralize($group) . '.csv');
+				$this->getResponse()->withDownload(Inflector::pluralize($group) . '.csv');
 			} else {
-				$this->response->download('People.csv');
+				$this->getResponse()->withDownload('People.csv');
 			}
 			$this->set('people', $query->contain(['Related']));
 			$this->render('rule_search');
@@ -356,16 +356,16 @@ class PeopleController extends AppController {
 					'Divisions.close >=' => $start,
 				];
 
-				$leagueNames = TableRegistry::get('Divisions')->find()
+				$leagueNames = TableRegistry::getTableLocator()->get('Divisions')->find()
 					->contain(['Leagues'])
 					->where($conditions)
 					->extract('league.full_name')
 					->toArray();
 
-				$divisions = TableRegistry::get('Divisions')->find()
+				$divisions = TableRegistry::getTableLocator()->get('Divisions')->find()
 					->select('id')
 					->where($conditions);
-				$people = TableRegistry::get('TeamsPeople')->find()
+				$people = TableRegistry::getTableLocator()->get('TeamsPeople')->find()
 					->distinct('person_id')
 					->select('person_id')
 					->contain(['Teams'])
@@ -422,8 +422,8 @@ class PeopleController extends AppController {
 		$this->set(compact('min'));
 
 		// Check form data
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			if ($this->request->getData('start') > $this->request->getData('end')) {
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			if ($this->getRequest()->getData('start') > $this->getRequest()->getData('end')) {
 				$this->Flash->info(__('End date cannot precede start date.'));
 				return;
 			}
@@ -432,7 +432,7 @@ class PeopleController extends AppController {
 			$report = $reports_table->newEntity([
 				'report' => 'people_participation',
 				'person_id' => $this->UserCache->currentId(),
-				'params' => json_encode($this->request->getData()),
+				'params' => json_encode($this->getRequest()->getData()),
 			]);
 			if (!$reports_table->save($report)) {
 				$this->Flash->warning(__('Failed to queue your report request.'));
@@ -456,8 +456,8 @@ class PeopleController extends AppController {
 		$this->set(compact('min'));
 
 		// Check form data
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			if ($this->request->getData('start') > $this->request->getData('end')) {
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			if ($this->getRequest()->getData('start') > $this->getRequest()->getData('end')) {
 				$this->Flash->info(__('End date cannot precede start date.'));
 				return;
 			}
@@ -466,7 +466,7 @@ class PeopleController extends AppController {
 			$report = $reports_table->newEntity([
 				'report' => 'people_retention',
 				'person_id' => $this->UserCache->currentId(),
-				'params' => json_encode($this->request->getData()),
+				'params' => json_encode($this->getRequest()->getData()),
 			]);
 			if (!$reports_table->save($report)) {
 				$this->Flash->warning(__('Failed to queue your report request.'));
@@ -483,7 +483,7 @@ class PeopleController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$user_id = $this->request->getQuery('user');
+		$user_id = $this->getRequest()->getQuery('user');
 		if ($user_id) {
 			try {
 				$id = $this->People->field('id', ['People.user_id' => $user_id]);
@@ -492,7 +492,7 @@ class PeopleController extends AppController {
 				return $this->redirect('/');
 			}
 		} else {
-			$id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
+			$id = $this->getRequest()->getQuery('person') ?: $this->UserCache->currentId();
 		}
 		$person = $this->UserCache->read('Person', $id);
 		if (empty($person)) {
@@ -596,9 +596,9 @@ class PeopleController extends AppController {
 	}
 
 	public function tooltip() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('person');
+		$id = $this->getRequest()->getQuery('person');
 		$person = $this->UserCache->read('Person', $id);
 		if (empty($person)) {
 			$this->Flash->info(__('Invalid person.'));
@@ -657,7 +657,7 @@ class PeopleController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
+		$id = $this->getRequest()->getQuery('person') ?: $this->UserCache->currentId();
 
 		$this->_loadAddressOptions();
 		// We always want to include players, even if they aren't a valid "create account" group.
@@ -708,7 +708,7 @@ class PeopleController extends AppController {
 
 		$this->Authorization->authorize($person);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			$access = [PROFILE_USER_UPDATE, PROFILE_REGISTRATION];
 			// People with incomplete profiles can update any of the fields that
 			// normally only admins can edit, so that they can successfully fill
@@ -718,7 +718,7 @@ class PeopleController extends AppController {
 			}
 
 			// TODO: Centralize checking of profile fields
-			$columns = $this->People->schema()->columns();
+			$columns = $this->People->getSchema()->columns();
 			$accessible = [
 				'id' => false,
 				'user_id' => false,
@@ -747,7 +747,7 @@ class PeopleController extends AppController {
 				}
 			}
 
-			$person = $this->People->patchEntity($person, $this->request->getData(), [
+			$person = $this->People->patchEntity($person, $this->getRequest()->getData(), [
 				'associated' => $associated,
 				'accessibleFields' => $accessible,
 			]);
@@ -768,7 +768,7 @@ class PeopleController extends AppController {
 		$this->set([
 			'person' => $person,
 			'user_model' => Configure::read('Security.authModel'),
-			'id_field' => $users_table->primaryKey(),
+			'id_field' => $users_table->getPrimaryKey(),
 			'user_field' => $users_table->userField,
 			'email_field' => $users_table->emailField,
 			'manage_users' => $users_table->manageUsers,
@@ -782,7 +782,7 @@ class PeopleController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add_account() {
-		$id = $this->request->getQuery('person');
+		$id = $this->getRequest()->getQuery('person');
 		if (!$id) {
 			$id = $this->UserCache->read('Person.id');
 		}
@@ -806,9 +806,9 @@ class PeopleController extends AppController {
 			'email_field' => $users_table->emailField,
 		]);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$this->request = $this->request->withData("{$user_model}.{$users_table->pwdField}", $this->request->getData("{$user_model}.new_password"));
-			$person = $this->People->patchEntity($person, $this->request->getData(), [
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$this->setRequest($this->getRequest()->withData("{$user_model}.{$users_table->pwdField}", $this->getRequest()->getData("{$user_model}.new_password")));
+			$person = $this->People->patchEntity($person, $this->getRequest()->getData(), [
 				'Associated' => [
 					Configure::read('Security.authModel') => ['validate' => 'create'],
 				],
@@ -837,7 +837,7 @@ class PeopleController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects
 	 */
 	public function deactivate() {
-		$id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
+		$id = $this->getRequest()->getQuery('person') ?: $this->UserCache->currentId();
 		try {
 			$person = $this->People->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -863,7 +863,7 @@ class PeopleController extends AppController {
 			return $this->redirect('/');
 		}
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			$person->status = 'inactive';
 			if ($this->People->save($person)) {
 				$this->Flash->warning(__('Your profile has been deactivated; sorry to see you go. If you ever change your mind, you can just return to the site and reactivate your profile; we\'ll be happy to have you back!'));
@@ -882,7 +882,7 @@ class PeopleController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects
 	 */
 	public function reactivate() {
-		$id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
+		$id = $this->getRequest()->getQuery('person') ?: $this->UserCache->currentId();
 		try {
 			$person = $this->People->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -900,7 +900,7 @@ class PeopleController extends AppController {
 			return $this->redirect('/');
 		}
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			$person->status = 'active';
 			if ($this->People->save($person)) {
 				$this->Flash->warning(__('Your profile has been reactivated; welcome back!'));
@@ -915,7 +915,7 @@ class PeopleController extends AppController {
 
 	public function confirm() {
 		$this->Authorization->authorize($this);
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
 		$person = $this->Authentication->getIdentity()->getOriginalData()->person;
 		$this->People->touch($person);
@@ -923,13 +923,13 @@ class PeopleController extends AppController {
 			$this->Flash->success(__("Profile details have been confirmed, thank you.\nYou will be reminded about this again periodically."));
 		} else {
 			$this->Flash->info(__("Failed to update profile details.\nYou will likely be prompted about this again very soon.\n\nIf problems persist, contact your system administrator."));
-			$this->log($person->errors());
+			$this->log($person->getErrors());
 			return $this->redirect('/');
 		}
 	}
 
 	public function note() {
-		$note_id = $this->request->getQuery('note');
+		$note_id = $this->getRequest()->getQuery('note');
 
 		if ($note_id) {
 			try {
@@ -948,7 +948,7 @@ class PeopleController extends AppController {
 			$person = $note->person;
 		} else {
 			try {
-				$person = $this->People->get($this->request->getQuery('person'));
+				$person = $this->People->get($this->getRequest()->getQuery('person'));
 			} catch (RecordNotFoundException $ex) {
 				$this->Flash->info(__('Invalid person.'));
 				return $this->redirect('/');
@@ -962,8 +962,8 @@ class PeopleController extends AppController {
 
 		$this->Authorization->authorize($person);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$note = $this->People->Notes->patchEntity($note, $this->request->getData());
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$note = $this->People->Notes->patchEntity($note, $this->getRequest()->getData());
 
 			if (empty($note->note)) {
 				if ($note->isNew()) {
@@ -973,8 +973,8 @@ class PeopleController extends AppController {
 					if ($this->People->Notes->delete($note)) {
 						$this->Flash->success(__('The note has been deleted.'));
 						return $this->redirect(['action' => 'view', 'person' => $person->id]);
-					} else if ($note->errors('delete')) {
-						$this->Flash->warning(current($note->errors('delete')));
+					} else if ($note->getError('delete')) {
+						$this->Flash->warning(current($note->getError('delete')));
 					} else {
 						$this->Flash->warning(__('The note could not be deleted. Please, try again.'));
 					}
@@ -991,9 +991,9 @@ class PeopleController extends AppController {
 	}
 
 	public function delete_note() {
-		$this->request->allowMethod(['post', 'delete']);
+		$this->getRequest()->allowMethod(['post', 'delete']);
 
-		$note_id = $this->request->getQuery('note');
+		$note_id = $this->getRequest()->getQuery('note');
 
 		try {
 			$note = $this->People->Notes->get($note_id);
@@ -1009,8 +1009,8 @@ class PeopleController extends AppController {
 
 		if ($this->People->Notes->delete($note)) {
 			$this->Flash->success(__('The note has been deleted.'));
-		} else if ($note->errors('delete')) {
-			$this->Flash->warning(current($note->errors('delete')));
+		} else if ($note->getError('delete')) {
+			$this->Flash->warning(current($note->getError('delete')));
 		} else {
 			$this->Flash->warning(__('The note could not be deleted. Please, try again.'));
 		}
@@ -1019,7 +1019,7 @@ class PeopleController extends AppController {
 	}
 
 	public function preferences() {
-		$id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
+		$id = $this->getRequest()->getQuery('person') ?: $this->UserCache->currentId();
 		$person = $this->UserCache->read('Person', $id);
 		if (empty($person)) {
 			$this->Flash->info(__('Invalid person.'));
@@ -1036,8 +1036,8 @@ class PeopleController extends AppController {
 		$event = new Event('Plugin.preferences', $this, [$plugin_elements]);
 		$this->getEventManager()->dispatch($event);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$settings = $this->People->Settings->patchEntities($settings, $this->request->getData());
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$settings = $this->People->Settings->patchEntities($settings, $this->getRequest()->getData());
 
 			if ($this->People->Settings->getConnection()->transactional(function () use ($settings) {
 				foreach ($settings as $setting) {
@@ -1057,10 +1057,10 @@ class PeopleController extends AppController {
 
 						if (empty($lang)) {
 							// Clear any existing cookie, and set to the default language
-							$this->response = $this->response->withExpiredCookie(new Cookie('ZuluruLocale'));
+							$this->setResponse($this->getResponse()->withExpiredCookie(new Cookie('ZuluruLocale')));
 							$lang = 'en';
 						} else {
-							$this->response = $this->response->withCookie(new Cookie('ZuluruLocale', $lang));
+							$this->setResponse($this->getResponse()->withCookie(new Cookie('ZuluruLocale', $lang)));
 						}
 						I18n::setLocale($lang);
 						$this->_setLanguage();
@@ -1082,9 +1082,10 @@ class PeopleController extends AppController {
 		$this->_loadAffiliateOptions();
 		$person = $this->People->newEntity();
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$this->request->data['is_child'] = true;
-			$person = $this->People->patchEntity($person, $this->request->getData(), [
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$data = $this->getRequest()->getData();
+			$data['is_child'] = true;
+			$person = $this->People->patchEntity($person, $data, [
 				'validate' => 'create',
 				'associated' => ['Affiliates', 'Groups', 'Skills'],
 			]);
@@ -1110,7 +1111,7 @@ class PeopleController extends AppController {
 
 				return true;
 			})) {
-				if ($this->request->getData('action') == 'continue') {
+				if ($data['action'] == 'continue') {
 					$person = $this->People->newEntity();
 				} else {
 					return $this->redirect('/');
@@ -1122,7 +1123,7 @@ class PeopleController extends AppController {
 	}
 
 	public function link_relative() {
-		$person_id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
+		$person_id = $this->getRequest()->getQuery('person') ?: $this->UserCache->currentId();
 		try {
 			$person = $this->People->get($person_id);
 		} catch (RecordNotFoundException $ex) {
@@ -1136,7 +1137,7 @@ class PeopleController extends AppController {
 		$this->Authorization->authorize($person);
 		$this->set(compact('person'));
 
-		$relative_id = $this->request->getQuery('relative');
+		$relative_id = $this->getRequest()->getQuery('relative');
 		if ($relative_id !== null) {
 			if ($relative_id == $person_id) {
 				$this->Flash->info(__('You can\'t link yourself as a relative!'));
@@ -1191,9 +1192,9 @@ class PeopleController extends AppController {
 
 	public function approve_relative() {
 		// The profile being granted control, which is not the current user
-		$person_id = $this->request->getQuery('person');
+		$person_id = $this->getRequest()->getQuery('person');
 		// The profile to be controlled, which is the current user
-		$relative_id = $this->request->getQuery('relative');
+		$relative_id = $this->getRequest()->getQuery('relative');
 		if ($relative_id === null || $person_id === null) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect(['action' => 'view', 'person' => $person_id]);
@@ -1205,7 +1206,7 @@ class PeopleController extends AppController {
 		// The profile to be controlled, i.e. the relative, is the one that grants permission for this
 		$person = $this->UserCache->read('Person', $person_id);
 		$relative = $this->UserCache->read('Person', $relative_id);
-		$this->Authorization->authorize(new ContextResource($relative, ['relation' => $relation, 'code' => $this->request->getQuery('code')]));
+		$this->Authorization->authorize(new ContextResource($relative, ['relation' => $relation, 'code' => $this->getRequest()->getQuery('code')]));
 
 		$relation->_joinData->approved = true;
 		$people_people_table = TableRegistry::getTableLocator()->get('PeoplePeople');
@@ -1233,9 +1234,9 @@ class PeopleController extends AppController {
 
 	public function remove_relative() {
 		// The profile that was granted control
-		$person_id = $this->request->getQuery('person');
+		$person_id = $this->getRequest()->getQuery('person');
 		// The profile that is controlled
-		$relative_id = $this->request->getQuery('relative');
+		$relative_id = $this->getRequest()->getQuery('relative');
 		if ($relative_id === null || $person_id === null) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect(['action' => 'view', 'person' => $person_id]);
@@ -1256,9 +1257,9 @@ class PeopleController extends AppController {
 
 		// Either side of the relation may grant permission for this
 		try {
-			$this->Authorization->authorize(new ContextResource($relative, ['relation' => $relation, 'code' => $this->request->getQuery('code')]));
+			$this->Authorization->authorize(new ContextResource($relative, ['relation' => $relation, 'code' => $this->getRequest()->getQuery('code')]));
 		} catch (ForbiddenException $ex) {
-			$this->Authorization->authorize(new ContextResource($person, ['relation' => $relation, 'code' => $this->request->getQuery('code')]));
+			$this->Authorization->authorize(new ContextResource($person, ['relation' => $relation, 'code' => $this->getRequest()->getQuery('code')]));
 		}
 
 		// TODOLATER: Check for unlink return value, if they change it such that it returns success
@@ -1320,16 +1321,16 @@ class PeopleController extends AppController {
 			'consumer_secret' => Configure::read('twitter.consumer_secret'),
 		]);
 
-		if (!empty($this->request->params['url']['oauth_token'])) {
-			$response = $this->request->getSession()->read('Twitter.response');
-			$this->request->getSession()->delete('Twitter.response');
-			if ($this->request->params['url']['oauth_token'] !== $response['oauth_token']) {
+		if (!empty($this->getRequest()->getParam('url.oauth_token'))) {
+			$response = $this->getRequest()->getSession()->read('Twitter.response');
+			$this->getRequest()->getSession()->delete('Twitter.response');
+			if ($this->getRequest()->getParam('url.oauth_token') !== $response['oauth_token']) {
 				$this->Flash->warning(__('The oauth token you started with doesn\'t match the one you\'ve been redirected with. Do you have multiple tabs open?'));
 				return $this->redirect(['action' => 'preferences']);
 			}
 
-			if (!isset($this->request->params['url']['oauth_verifier'])) {
-				$this->Flash->warning(__('The oauth verifier is missing so we cannot continue. Did you deny the appliction access?'));
+			if (empty($this->getRequest()->getParam('url.oauth_verifier'))) {
+				$this->Flash->warning(__('The oauth verifier is missing so we cannot continue. Did you deny the application access?'));
 				return $this->redirect(['action' => 'preferences']);
 			}
 
@@ -1343,7 +1344,7 @@ class PeopleController extends AppController {
 				'method' => 'POST',
 				'url' => $tmhOAuth->url('oauth/access_token', ''),
 				'params' => [
-					'oauth_verifier' => trim($this->request->params['url']['oauth_verifier']),
+					'oauth_verifier' => trim($this->getRequest()->getParam('url.oauth_verifier')),
 				]
 			]);
 
@@ -1364,7 +1365,7 @@ class PeopleController extends AppController {
 				'method' => 'POST',
 				'url' => $tmhOAuth->url('oauth/request_token', ''),
 				'params' => [
-					'oauth_callback' => Router::url(Router::normalize($this->request->getRequestTarget()), true),
+					'oauth_callback' => Router::url(Router::normalize($this->getRequest()->getRequestTarget()), true),
 				],
 			]);
 
@@ -1381,7 +1382,7 @@ class PeopleController extends AppController {
 				$this->Flash->warning(__('The callback was not confirmed by Twitter so we cannot continue.') . ' ' . $tmhOAuth->response['response']);
 				return $this->redirect(['action' => 'preferences']);
 			} else {
-				$this->request->getSession()->write('Twitter.response', $response);
+				$this->getRequest()->getSession()->write('Twitter.response', $response);
 				return $this->redirect($tmhOAuth->url('oauth/authorize', '') . "?oauth_token={$response['oauth_token']}");
 			}
 		}
@@ -1399,14 +1400,13 @@ class PeopleController extends AppController {
 	public function photo() {
 		$photo = $this->People->Uploads->find()
 			->where([
-				'person_id' => $this->request->getQuery('person'),
+				'person_id' => $this->getRequest()->getQuery('person'),
 				'type_id IS' => null,
 			])
 			->first();
 		if (!empty($photo)) {
 			$this->Authorization->authorize($photo);
-			$this->response->file(Configure::read('App.paths.uploads') . DS . $photo->filename);
-			return $this->response;
+			return $this->getResponse()->withFile(Configure::read('App.paths.uploads') . DS . $photo->filename);
 		}
 	}
 
@@ -1451,10 +1451,10 @@ class PeopleController extends AppController {
 
 		$this->set(compact('person', 'upload'));
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			// Extract base64 file for standard data
-			$fileBin = file_get_contents($this->request->getData('cropped'));
-			$mimeType = mime_content_type($this->request->getData('cropped'));
+			$fileBin = file_get_contents($this->getRequest()->getData('cropped'));
+			$mimeType = mime_content_type($this->getRequest()->getData('cropped'));
 
 			// Check allowed mime type
 			if (substr($mimeType, 0, 6) == 'image/') {
@@ -1464,7 +1464,7 @@ class PeopleController extends AppController {
 
 				// Are approvals required?
 				$approved = (Configure::read('feature.approve_photos') ? false : true);
-				$upload = $this->People->Uploads->patchEntity($upload, array_merge($this->request->getData(), compact('filename', 'approved')));
+				$upload = $this->People->Uploads->patchEntity($upload, array_merge($this->getRequest()->getData(), compact('filename', 'approved')));
 				if ($this->People->Uploads->save($upload)) {
 					if (isset($old_filename) && $old_filename != $filename) {
 						unlink(Configure::read('App.paths.uploads') . DS . $old_filename);
@@ -1506,9 +1506,9 @@ class PeopleController extends AppController {
 	}
 
 	public function approve_photo() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('person');
+		$id = $this->getRequest()->getQuery('person');
 		try {
 			$photo = $this->People->Uploads->find()
 				->contain(['People'])
@@ -1547,9 +1547,9 @@ class PeopleController extends AppController {
 	}
 
 	public function delete_photo() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('person');
+		$id = $this->getRequest()->getQuery('person');
 		try {
 			$photo = $this->People->Uploads->find()
 				->contain(['People'])
@@ -1583,7 +1583,7 @@ class PeopleController extends AppController {
 
 	public function document() {
 		try {
-			$document = $this->People->Uploads->get($this->request->getQuery('document'), [
+			$document = $this->People->Uploads->get($this->getRequest()->getQuery('document'), [
 				'contain' => ['People', 'UploadTypes']
 			]);
 		} catch (RecordNotFoundException $ex) {
@@ -1596,13 +1596,14 @@ class PeopleController extends AppController {
 
 		$this->Authorization->authorize($document);
 
-		$this->response->type(Configure::read('new_mime_types'));
+		foreach (Configure::read('new_mime_types') as $type => $mime) {
+			$this->getResponse()->setTypeMap($type, $mime);
+		}
 		$f = new File($document->filename);
-		$this->response->file(Configure::read('App.paths.uploads') . DS . $document->filename, [
+		return $this->getResponse()->withFile(Configure::read('App.paths.uploads') . DS . $document->filename, [
 			'name' => $document->filename,
 			'download' => !in_array($f->ext(), Configure::read('no_download_extensions')),
 		]);
-		return $this->response;
 	}
 
 	public function document_upload() {
@@ -1616,7 +1617,7 @@ class PeopleController extends AppController {
 			return $this->redirect('/');
 		}
 
-		$id = $this->request->getQuery('person');
+		$id = $this->getRequest()->getQuery('person');
 		if ($id) {
 			try {
 				$person = $this->People->get($id);
@@ -1645,10 +1646,10 @@ class PeopleController extends AppController {
 
 		$upload = $this->People->Uploads->newEntity();
 
-		if ($this->request->is('post')) {
+		if ($this->getRequest()->is('post')) {
 			// Add some configuration that the upload behaviour will use
 			$filename = $person->id . '_' . md5(mt_rand());
-			$this->People->Uploads->behaviors()->get('Upload')->config([
+			$this->People->Uploads->behaviors()->get('Upload')->setConfig([
 				'filename' => [
 					// Callbacks for adjusting the file name before saving. Both are required. :-(
 					'nameCallback' => function (Table $table, Entity $entity, $data, $field, $settings) use ($filename) {
@@ -1662,7 +1663,7 @@ class PeopleController extends AppController {
 				],
 			]);
 
-			$upload = $this->People->Uploads->patchEntity($upload, $this->request->getData());
+			$upload = $this->People->Uploads->patchEntity($upload, $this->getRequest()->getData());
 
 			if ($this->People->Uploads->save($upload)) {
 				$this->Flash->success(__('Document saved, you will receive an email when it has been approved.'));
@@ -1671,7 +1672,7 @@ class PeopleController extends AppController {
 				$this->Flash->warning(__('Failed to save your document.'));
 			}
 		} else {
-			$upload->type_id = $this->request->getQuery('type');
+			$upload->type_id = $this->getRequest()->getQuery('type');
 		}
 
 		$this->set(compact('person', 'types', 'upload'));
@@ -1695,7 +1696,7 @@ class PeopleController extends AppController {
 
 	public function approve_document() {
 		try {
-			$document = $this->People->Uploads->get($this->request->getQuery('document'), [
+			$document = $this->People->Uploads->get($this->getRequest()->getQuery('document'), [
 				'contain' => ['People' => [Configure::read('Security.authModel')], 'UploadTypes']
 			]);
 		} catch (RecordNotFoundException $ex) {
@@ -1708,8 +1709,8 @@ class PeopleController extends AppController {
 
 		$this->Authorization->authorize($document);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$document = $this->People->Uploads->patchEntity($document, $this->request->getData());
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$document = $this->People->Uploads->patchEntity($document, $this->getRequest()->getData());
 			if ($this->People->Uploads->save($document)) {
 				$this->Flash->success(__('Approved document.'));
 
@@ -1736,7 +1737,7 @@ class PeopleController extends AppController {
 
 	public function edit_document() {
 		try {
-			$document = $this->People->Uploads->get($this->request->getQuery('document'), [
+			$document = $this->People->Uploads->get($this->getRequest()->getQuery('document'), [
 				'contain' => ['People' => [Configure::read('Security.authModel')], 'UploadTypes']
 			]);
 		} catch (RecordNotFoundException $ex) {
@@ -1749,8 +1750,8 @@ class PeopleController extends AppController {
 
 		$this->Authorization->authorize($document);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$document = $this->People->Uploads->patchEntity($document, $this->request->getData());
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$document = $this->People->Uploads->patchEntity($document, $this->getRequest()->getData());
 			if ($this->People->Uploads->save($document)) {
 				$this->Flash->success(__('Updated document.'));
 
@@ -1770,18 +1771,16 @@ class PeopleController extends AppController {
 			} else {
 				$this->Flash->warning(__('Failed to update the document.'));
 			}
-		} else {
-			$this->request->data = $document;
 		}
 		$this->set(compact('document'));
 		$this->render('approve_document');
 	}
 
 	public function delete_document() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
 		try {
-			$document = $this->People->Uploads->get($this->request->getQuery('document'), [
+			$document = $this->People->Uploads->get($this->getRequest()->getQuery('document'), [
 				'contain' => ['People' => [Configure::read('Security.authModel')], 'UploadTypes']
 			]);
 		} catch (RecordNotFoundException $ex) {
@@ -1807,7 +1806,7 @@ class PeopleController extends AppController {
 				'sendAs' => 'both',
 				'viewVars' => array_merge([
 					'person' => $document->person,
-				], $this->request->getData(), compact('document')),
+				], $this->getRequest()->getData(), compact('document')),
 			]))
 			{
 				$this->Flash->warning(__('Error sending email to {0}.', $document->person->full_name));
@@ -1818,11 +1817,11 @@ class PeopleController extends AppController {
 	public function nominate() {
 		$this->Authorization->authorize($this);
 
-		if ($this->request->is('post')) {
-			if (empty($this->request->getData('badge'))) {
+		if ($this->getRequest()->is('post')) {
+			if (empty($this->getRequest()->getData('badge'))) {
 				$this->Flash->warning(__('You must select a badge!'));
 			} else {
-				return $this->redirect(['action' => 'nominate_badge', 'badge' => $this->request->getData('badge')]);
+				return $this->redirect(['action' => 'nominate_badge', 'badge' => $this->getRequest()->getData('badge')]);
 			}
 		}
 
@@ -1865,7 +1864,7 @@ class PeopleController extends AppController {
 	}
 
 	public function nominate_badge() {
-		$badge_id = $this->request->getQuery('badge');
+		$badge_id = $this->getRequest()->getQuery('badge');
 		if (!$badge_id) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['controller' => 'Badges', 'action' => 'index']);
@@ -1895,12 +1894,12 @@ class PeopleController extends AppController {
 	}
 
 	public function nominate_badge_reason() {
-		$badge_id = $this->request->getQuery('badge');
+		$badge_id = $this->getRequest()->getQuery('badge');
 		if (!$badge_id) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['controller' => 'Badges', 'action' => 'index']);
 		}
-		$person_id = $this->request->getQuery('person');
+		$person_id = $this->getRequest()->getQuery('person');
 		if (!$person_id) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect(['controller' => 'Badges', 'action' => 'index']);
@@ -1957,9 +1956,9 @@ class PeopleController extends AppController {
 		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		$this->set(compact('badge', 'person', 'affiliates'));
 
-		if ($this->request->is('post')) {
+		if ($this->getRequest()->is('post')) {
 			$data = [
-				'reason' => $this->request->getData('reason'),
+				'reason' => $this->getRequest()->getData('reason'),
 			];
 			if ($badge->category == 'assigned') {
 				$data['approved'] = true;
@@ -2021,9 +2020,9 @@ class PeopleController extends AppController {
 	}
 
 	public function approve_badge() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('badge');
+		$id = $this->getRequest()->getQuery('badge');
 		try {
 			$badges_table = TableRegistry::getTableLocator()->get('BadgesPeople');
 			$link = $badges_table->get($id, [
@@ -2081,9 +2080,9 @@ class PeopleController extends AppController {
 	}
 
 	public function delete_badge() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('badge');
+		$id = $this->getRequest()->getQuery('badge');
 		try {
 			$badges_table = TableRegistry::getTableLocator()->get('BadgesPeople');
 			$link = $badges_table->get($id, [
@@ -2115,7 +2114,7 @@ class PeopleController extends AppController {
 						'subject' => function() { return __('{0} Notification of Badge Deletion', Configure::read('organization.name')); },
 						'template' => 'badge_deleted',
 						'sendAs' => 'both',
-						'viewVars' => ['person' => $link->person, 'badge' => $link->badge, 'comment' => $this->request->getData('comment')],
+						'viewVars' => ['person' => $link->person, 'badge' => $link->badge, 'comment' => $this->getRequest()->getData('comment')],
 					])
 					) {
 						$this->Flash->warning(__('Error sending email to {0}.', $link->person->full_name));
@@ -2127,7 +2126,7 @@ class PeopleController extends AppController {
 						'subject' => function() { return __('{0} Notification of Badge Rejection', Configure::read('organization.name')); },
 						'template' => 'badge_nomination_rejected',
 						'sendAs' => 'both',
-						'viewVars' => ['person' => $link->person, 'badge' => $link->badge, 'nominator' => $link->nominated_by, 'comment' => $this->request->getData('comment')],
+						'viewVars' => ['person' => $link->person, 'badge' => $link->badge, 'nominator' => $link->nominated_by, 'comment' => $this->getRequest()->getData('comment')],
 					])
 					) {
 						$this->Flash->warning(__('Error sending email to {0}.', $link->nominated_by->full_name));
@@ -2143,9 +2142,9 @@ class PeopleController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects to index.
 	 */
 	public function delete() {
-		$this->request->allowMethod(['post', 'delete']);
+		$this->getRequest()->allowMethod(['post', 'delete']);
 
-		$id = $this->request->getQuery('person');
+		$id = $this->getRequest()->getQuery('person');
 		try {
 			$person = $this->People->get($id, [
 				'contain' => [Configure::read('Security.authModel')]
@@ -2168,8 +2167,8 @@ class PeopleController extends AppController {
 
 		if ($this->People->delete($person)) {
 			$this->Flash->success(__('The person has been deleted.'));
-		} else if ($person->errors('delete')) {
-			$this->Flash->warning(current($person->errors('delete')));
+		} else if ($person->getError('delete')) {
+			$this->Flash->warning(current($person->getError('delete')));
 		} else {
 			$this->Flash->warning(__('The person could not be deleted. Please, try again.'));
 		}
@@ -2216,9 +2215,9 @@ class PeopleController extends AppController {
 	}
 
 	public function schedule() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('person');
+		$id = $this->getRequest()->getQuery('person');
 		if (!$id) {
 			$id = $this->UserCache->currentId();
 		}
@@ -2383,7 +2382,7 @@ class PeopleController extends AppController {
 
 	public function consolidated_schedule() {
 		$this->Authorization->authorize($this);
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
 		// We need to read attendance for all relatives, as shared games might not
 		// be on everyone's list, but we still want to accurately show attendance
@@ -2408,7 +2407,7 @@ class PeopleController extends AppController {
 	}
 
 	public function act_as() {
-		$act_as = $this->request->getQuery('person');
+		$act_as = $this->getRequest()->getQuery('person');
 		if ($act_as) {
 			$target = $this->UserCache->read('Person', $act_as);
 			if (!$target) {
@@ -2416,7 +2415,7 @@ class PeopleController extends AppController {
 			} else {
 				$this->Authorization->authorize($target);
 
-				$user = $this->Authentication->getIdentity()->actAs($this->request, $this->response, $target);
+				$user = $this->Authentication->getIdentity()->actAs($this->getRequest(), $this->getResponse(), $target);
 				if ($user->real_person) {
 					$this->Flash->success(__('You are now acting as {0}.', $target->full_name));
 				} else {
@@ -2629,8 +2628,8 @@ class PeopleController extends AppController {
 					])
 					->where(['People.id IN' => $people]);
 
-				if ($this->request->is('csv')) {
-					$this->response->download('Search results.csv');
+				if ($this->getRequest()->is('csv')) {
+					$this->getResponse()->withDownload('Search results.csv');
 					$this->set('people', $query->contain(['Related'])->toArray());
 					$this->render('rule_search');
 				} else {
@@ -2691,7 +2690,7 @@ class PeopleController extends AppController {
 	}
 
 	public function approve() {
-		$id = $this->request->getQuery('person');
+		$id = $this->getRequest()->getQuery('person');
 
 		// We don't need to contain Relatives here; those will be handled in the updateAll calls
 		$contain = [Configure::read('Security.authModel'), 'AffiliatesPeople', 'Skills', 'Groups', 'Related', 'Settings'];
@@ -2712,12 +2711,12 @@ class PeopleController extends AppController {
 		$duplicates = $this->People->find('duplicates', compact('person'))
 			->contain($contain);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			if (empty($this->request->getData('disposition'))) {
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			if (empty($this->getRequest()->getData('disposition'))) {
 				$this->Flash->info(__('You must select a disposition for this account.'));
 			} else {
-				if (strpos($this->request->getData('disposition'), ':') !== false) {
-					[$disposition, $dup_id] = explode(':', $this->request->getData('disposition'));
+				if (strpos($this->getRequest()->getData('disposition'), ':') !== false) {
+					[$disposition, $dup_id] = explode(':', $this->getRequest()->getData('disposition'));
 					$duplicate = collection($duplicates)->firstMatch(['id' => $dup_id]);
 					if ($duplicate) {
 						if ($this->_approve($person, $disposition, $duplicate)) {
@@ -2730,7 +2729,7 @@ class PeopleController extends AppController {
 						$this->Flash->info(__('You have selected an invalid user!'));
 					}
 				} else {
-					if ($this->_approve($person, $this->request->getData('disposition'))) {
+					if ($this->_approve($person, $this->getRequest()->getData('disposition'))) {
 						return $this->redirect(['action' => 'list_new']);
 					}
 				}
@@ -2809,10 +2808,10 @@ class PeopleController extends AppController {
 				$associations = $this->People->associations();
 
 				foreach ($associations->getByType('BelongsToMany') as $association) {
-					if (!in_array($association->name(), $ignore)) {
-						$foreign_key = $association->foreignKey();
+					if (!in_array($association->getName(), $ignore)) {
+						$foreign_key = $association->getForeignKey();
 						$conditions = [$foreign_key => $delete->id];
-						$association_conditions = $association->conditions();
+						$association_conditions = $association->getConditions();
 						if (!empty($association_conditions)) {
 							$conditions += $association_conditions;
 						}
@@ -2821,18 +2820,18 @@ class PeopleController extends AppController {
 
 					// BelongsToMany associations also create HasMany associations for the join tables.
 					// Ignore them when we get there.
-					$ignore[] = $association->junction()->alias();
+					$ignore[] = $association->junction()->getAlias();
 				}
 
 				foreach ($associations->getByType('HasMany') as $association) {
-					if (!in_array($association->name(), $ignore)) {
-						$foreign_key = $association->foreignKey();
+					if (!in_array($association->getName(), $ignore)) {
+						$foreign_key = $association->getForeignKey();
 						$conditions = [$foreign_key => $delete->id];
-						$association_conditions = $association->conditions();
+						$association_conditions = $association->getConditions();
 						if (!empty($association_conditions)) {
 							$conditions += $association_conditions;
 						}
-						$association->target()->updateAll([$foreign_key => $save->id], $conditions);
+						$association->getTarget()->updateAll([$foreign_key => $save->id], $conditions);
 					}
 				}
 			}
@@ -2886,8 +2885,8 @@ class PeopleController extends AppController {
 	}
 
 	public function vcf() {
-		$this->viewBuilder()->layout('vcf');
-		$id = $this->request->getQuery('person');
+		$this->viewBuilder()->setLayout('vcf');
+		$id = $this->getRequest()->getQuery('person');
 		$person = $this->UserCache->read('Person', $id);
 		if (empty($person)) {
 			$this->Flash->info(__('Invalid person.'));
@@ -2896,7 +2895,7 @@ class PeopleController extends AppController {
 		$person->updateHidden($this->Authentication->getIdentity());
 
 		$this->set(compact('person'));
-		$this->response->download("{$person->full_name}.vcf");
+		$this->getResponse()->withDownload("{$person->full_name}.vcf");
 	}
 
 	/**
@@ -2909,7 +2908,7 @@ class PeopleController extends AppController {
 	 * @throws \Cake\Http\Exception\GoneException When record not found.
 	 */
 	public function ical($id) {
-		$this->viewBuilder()->layout('ical');
+		$this->viewBuilder()->setLayout('ical');
 		$id = intval($id);
 
 		// Check that the person has enabled this option
@@ -2967,12 +2966,12 @@ class PeopleController extends AppController {
 
 		$this->set('calendar_type', 'Player Schedule');
 		$this->set('calendar_name', "{$person->full_name}'s schedule");
-		$this->response->download("$id.ics");
+		$this->getResponse()->withDownload("$id.ics");
 		$this->RequestHandler->ext = 'ics';
 	}
 
 	public function registrations() {
-		$id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
+		$id = $this->getRequest()->getQuery('person') ?: $this->UserCache->currentId();
 		$person = $this->UserCache->read('Person', $id);
 		if (empty($person)) {
 			$this->Flash->info(__('Invalid person.'));
@@ -2999,7 +2998,7 @@ class PeopleController extends AppController {
 	}
 
 	public function credits() {
-		$id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
+		$id = $this->getRequest()->getQuery('person') ?: $this->UserCache->currentId();
 		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 
 		try {
@@ -3029,7 +3028,7 @@ class PeopleController extends AppController {
 	}
 
 	public function teams() {
-		$id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
+		$id = $this->getRequest()->getQuery('person') ?: $this->UserCache->currentId();
 		$person = $this->UserCache->read('Person', $id);
 		if (empty($person)) {
 			$this->Flash->info(__('Invalid person.'));
@@ -3043,7 +3042,7 @@ class PeopleController extends AppController {
 	}
 
 	public function waivers() {
-		$id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
+		$id = $this->getRequest()->getQuery('person') ?: $this->UserCache->currentId();
 		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		try {
 			$person = $this->People->get($id, [

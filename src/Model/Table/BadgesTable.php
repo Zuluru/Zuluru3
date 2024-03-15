@@ -52,30 +52,30 @@ class BadgesTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->requirePresence('affiliate_id', 'create')
-			->notEmpty('affiliate_id', __('You must select a valid affiliate.'))
+			->notEmptyString('affiliate_id', __('You must select a valid affiliate.'))
 
 			->requirePresence('name', 'create')
-			->notEmpty('name', __('The name cannot be blank.'))
+			->notEmptyString('name', __('The name cannot be blank.'))
 
 			->requirePresence('description', 'create')
-			->notEmpty('description', __('The description cannot be blank.'))
+			->notEmptyString('description', __('The description cannot be blank.'))
 
 			->requirePresence('category', 'create')
-			->notEmpty('category', __('You must select a valid category.'))
+			->notEmptyString('category', __('You must select a valid category.'))
 
-			->allowEmpty('handler')
+			->allowEmptyString('handler')
 
 			->boolean('active', __('Select whether or not this badge will be active in your system.'))
 
 			->numeric('visibility')
 			->requirePresence('visibility', 'create')
-			->notEmpty('visibility', [false])
+			->notEmptyString('visibility')
 
 			->requirePresence('icon', 'create')
-			->notEmpty('icon', __('You must provide the file name of the badge icon, relative to the icons folder.'))
+			->notEmptyString('icon', __('You must provide the file name of the badge icon, relative to the icons folder.'))
 
 			;
 

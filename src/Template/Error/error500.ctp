@@ -1,17 +1,23 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var string $message
+ * @var \Exception $error
+ */
+
 use Cake\Core\Configure;
 use Cake\Error\Debugger;
 
-// TODOSECOND: How does this compare to $this->disableCache(); in the controller?
+// TODOSECOND: How does this compare to $this->withDisabledCache(); in the controller?
 @header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 @header('Cache-Control: no-store, no-cache, must-revalidate');
 @header('Cache-Control: post-check=0, pre-check=0', false);
 @header('Pragma: no-cache');
 
-$this->viewBuilder()->layout('error');
+$this->viewBuilder()->setLayout('error');
 
 if (Configure::read('debug')):
-	$this->viewBuilder()->layout('dev_error');
+	$this->viewBuilder()->setLayout('dev_error');
 
 	$this->assign('title', $message);
 	$this->assign('templateName', 'error500.ctp');

@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Answer $answer
+ */
+
 if (!isset($i)) {
 	$i = mt_rand(1000, mt_getrandmax());
 }
@@ -7,7 +12,7 @@ if (!isset($i)) {
 	<td class="handle"><?php
 	echo $this->Form->hidden("answers.$i.id", ['value' => $answer->id]);
 	echo $this->Form->hidden("answers.$i.sort", ['value' => $answer->sort]);
-	echo $this->Form->input("answers.$i.answer", [
+	echo $this->Form->control("answers.$i.answer", [
 		'div' => false,
 		'label' => false,
 		'type' => 'text',

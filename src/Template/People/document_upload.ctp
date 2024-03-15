@@ -1,12 +1,12 @@
 <?php
 /**
- * @type $person \App\Model\Entity\Person
- * @type $upload \App\Model\Entity\Upload
+ * @var \App\Model\Entity\Person $person
+ * @var \App\Model\Entity\Upload $upload
  */
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb($person->full_name);
-$this->Html->addCrumb(__('Upload Document'));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add($person->full_name);
+$this->Breadcrumbs->add(__('Upload Document'));
 ?>
 
 <div class="people view">
@@ -18,10 +18,10 @@ $this->Html->addCrumb(__('Upload Document'));
 <?php
 echo $this->Form->create($upload, ['align' => 'horizontal', 'type' => 'file']);
 echo $this->Form->hidden('person_id', ['value' => $person->id]);
-echo $this->Form->input('type_id', [
+echo $this->Form->control('type_id', [
 	'empty' => __('Select one:'),
 ]);
-echo $this->Form->input('filename', ['type' => 'file']);
+echo $this->Form->control('filename', ['type' => 'file']);
 echo $this->Form->button(__('Upload'), ['class' => 'btn-success']);
 echo $this->Form->end();
 ?>

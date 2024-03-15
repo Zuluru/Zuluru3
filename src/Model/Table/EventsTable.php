@@ -130,23 +130,23 @@ class EventsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->requirePresence('name', 'create')
-			->notEmpty('name', __('The name cannot be blank.'))
+			->notEmptyString('name', __('The name cannot be blank.'))
 
 			->requirePresence('affiliate_id', 'create')
-			->notEmpty('affiliate_id', __('You must select a valid affiliate.'))
+			->notEmptyString('affiliate_id', __('You must select a valid affiliate.'))
 
 			->requirePresence('description', 'create')
-			->notEmpty('description', __('The description cannot be blank.'))
+			->notEmptyString('description', __('The description cannot be blank.'))
 
 			->requirePresence('event_type_id', 'create')
-			->notEmpty('event_type_id', __('You must select a valid event type.'))
+			->notEmptyString('event_type_id', __('You must select a valid event type.'))
 
 			->numeric('open_cap', __('You must enter a number for the open cap.'))
 			->requirePresence('open_cap', 'create', __('You must enter a number for the open cap.'))
-			->notEmpty('open_cap', __('You must enter a number for the open cap.'))
+			->notEmptyString('open_cap', __('You must enter a number for the open cap.'))
 			->add('open_cap', 'range', [
 				'rule' => ['comparison', '>=', -1],
 				'message' => __('The open cap cannot be less than -1.'),
@@ -154,16 +154,16 @@ class EventsTable extends AppTable {
 
 			->numeric('women_cap', __('You must enter a number for the women cap.'))
 			->requirePresence('women_cap', 'create', __('You must enter a number for the women cap.'))
-			->notEmpty('women_cap', __('You must enter a number for the women cap.'))
+			->notEmptyString('women_cap', __('You must enter a number for the women cap.'))
 			->add('women_cap', 'range', [
 				'rule' => ['comparison', '>=', CAP_COMBINED],
 				'message' => __('The women cap cannot be less than -2.'),
 			])
 
 			->boolean('multiple', __('Indicate whether multiple registrations are allowed.'))
-			->allowEmpty('multiple')
+			->allowEmptyString('multiple')
 
-			->allowEmpty('custom')
+			->allowEmptyString('custom')
 
 			;
 
@@ -203,12 +203,12 @@ class EventsTable extends AppTable {
 
 		$validator
 			->date('membership_begins', __('You must select a valid beginning date.'))
-			->notEmpty('membership_begins', __('You must select a valid beginning date.'))
+			->notEmptyDate('membership_begins', __('You must select a valid beginning date.'))
 
 			->date('membership_ends', __('You must select a valid ending date.'))
-			->notEmpty('membership_ends', __('You must select a valid ending date.'))
+			->notEmptyDate('membership_ends', __('You must select a valid ending date.'))
 
-			->notEmpty('membership_type', __('You must select a valid membership type.'))
+			->notEmptyString('membership_type', __('You must select a valid membership type.'))
 
 			;
 
@@ -227,11 +227,11 @@ class EventsTable extends AppTable {
 		$validator
 			->boolean('ask_status')
 			->requirePresence('ask_status', 'create')
-			->notEmpty('ask_status')
+			->notEmptyString('ask_status')
 
 			->boolean('ask_attendance')
 			->requirePresence('ask_attendance', 'create')
-			->notEmpty('ask_attendance')
+			->notEmptyString('ask_attendance')
 
 			;
 
@@ -239,7 +239,7 @@ class EventsTable extends AppTable {
 			$validator
 				->boolean('ask_region')
 				->requirePresence('ask_region', 'create')
-				->notEmpty('ask_region');
+				->notEmptyString('ask_region');
 		}
 
 		return $validator;
@@ -280,7 +280,7 @@ class EventsTable extends AppTable {
 			// Pull out the custom configuration fields
 			$custom = [];
 			foreach ($event_obj->configurationFields() as $field) {
-				if (array_key_exists($field, $data)) {
+				if ($data->offsetExists($field)) {
 					$custom[$field] = $data[$field];
 				}
 			}
@@ -302,7 +302,7 @@ class EventsTable extends AppTable {
 		$entity->processWaitingList();
 	}
 
-	public function findOpen(Query $query, Array $options) {
+	public function findOpen(Query $query, array $options) {
 		$query->where([
 			'OR' => [
 				// TODO: Use variable intervals for extended vs regular
@@ -318,7 +318,7 @@ class EventsTable extends AppTable {
 		return $query;
 	}
 
-	public function findMembership(Query $query, Array $options) {
+	public function findMembership(Query $query, array $options) {
 		$membership_types = $this->EventTypes->find('list', [
 			'conditions' => ['type' => 'membership'],
 			'keyField' => 'id',
@@ -333,7 +333,7 @@ class EventsTable extends AppTable {
 		return $query->andWhere(['event_type_id IN' => $membership_types]);
 	}
 
-	public function findNotMembership(Query $query, Array $options) {
+	public function findNotMembership(Query $query, array $options) {
 		$membership_types = $this->EventTypes->find('list', [
 			'conditions' => ['type' => 'membership'],
 			'keyField' => 'id',

@@ -35,7 +35,7 @@ class TaskSlotsController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->getQuery('slot');
+		$id = $this->getRequest()->getQuery('slot');
 		try {
 			$task_slot = $this->TaskSlots->get($id, [
 				'contain' => [
@@ -60,7 +60,7 @@ class TaskSlotsController extends AppController {
 
 	// This function takes the parameters the old-fashioned way, to try to be more third-party friendly
 	public function ical($id) {
-		$this->viewBuilder()->layout('ical');
+		$this->viewBuilder()->setLayout('ical');
 		try {
 			$task_slot = $this->TaskSlots->get($id, [
 				'contain' => [
@@ -80,7 +80,7 @@ class TaskSlotsController extends AppController {
 
 		$this->set('calendar_type', 'Task');
 		$this->set('calendar_name', 'Task');
-		$this->response->download("$id.ics");
+		$this->getResponse()->withDownload("$id.ics");
 		$this->set(compact('task_slot'));
 		$this->RequestHandler->ext = 'ics';
 	}
@@ -91,7 +91,7 @@ class TaskSlotsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
-		$id = $this->request->getQuery('task');
+		$id = $this->getRequest()->getQuery('task');
 		try {
 			$task = $this->TaskSlots->Tasks->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -106,13 +106,13 @@ class TaskSlotsController extends AppController {
 		$this->Configuration->loadAffiliate($task->affiliate_id);
 
 		$task_slot = $this->TaskSlots->newEntity();
-		if ($this->request->is('post')) {
-			$task_slot = $this->TaskSlots->patchEntity($task_slot, array_merge($this->request->getData(), ['task_id' => $id]));
+		if ($this->getRequest()->is('post')) {
+			$task_slot = $this->TaskSlots->patchEntity($task_slot, array_merge($this->getRequest()->getData(), ['task_id' => $id]));
 			$date = $task_slot->task_date;
-			if (!$task_slot->errors()) {
-				for ($days = 0; $days < $this->request->getData('days_to_repeat'); ++ $days) {
-					for ($slots = 0; $slots < $this->request->getData('number_of_slots'); ++ $slots) {
-						$slot = $this->TaskSlots->newEntity(array_merge($this->request->getData(), ['task_id' => $id, 'task_date' => $date]));
+			if (!$task_slot->getErrors()) {
+				for ($days = 0; $days < $this->getRequest()->getData('days_to_repeat'); ++ $days) {
+					for ($slots = 0; $slots < $this->getRequest()->getData('number_of_slots'); ++ $slots) {
+						$slot = $this->TaskSlots->newEntity(array_merge($this->getRequest()->getData(), ['task_id' => $id, 'task_date' => $date]));
 						$this->TaskSlots->save($slot);
 					}
 					$date = $date->addDay();
@@ -133,7 +133,7 @@ class TaskSlotsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->getQuery('slot');
+		$id = $this->getRequest()->getQuery('slot');
 		try {
 			$task_slot = $this->TaskSlots->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -146,8 +146,8 @@ class TaskSlotsController extends AppController {
 
 		$this->Authorization->authorize($task_slot);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$task_slot = $this->TaskSlots->patchEntity($task_slot, $this->request->getData());
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$task_slot = $this->TaskSlots->patchEntity($task_slot, $this->getRequest()->getData());
 			if ($this->TaskSlots->save($task_slot)) {
 				$this->Flash->success(__('The task slot has been saved.'));
 				return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
@@ -165,9 +165,9 @@ class TaskSlotsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects to index.
 	 */
 	public function delete() {
-		$this->request->allowMethod(['post', 'delete']);
+		$this->getRequest()->allowMethod(['post', 'delete']);
 
-		$id = $this->request->getQuery('slot');
+		$id = $this->getRequest()->getQuery('slot');
 		try {
 			$task_slot = $this->TaskSlots->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -188,8 +188,8 @@ class TaskSlotsController extends AppController {
 
 		if ($this->TaskSlots->delete($task_slot)) {
 			$this->Flash->success(__('The task slot has been deleted.'));
-		} else if ($task_slot->errors('delete')) {
-			$this->Flash->warning(current($task_slot->errors('delete')));
+		} else if ($task_slot->getError('delete')) {
+			$this->Flash->warning(current($task_slot->getError('delete')));
 		} else {
 			$this->Flash->warning(__('The task slot could not be deleted. Please, try again.'));
 		}
@@ -198,9 +198,9 @@ class TaskSlotsController extends AppController {
 	}
 
 	public function assign() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('slot');
+		$id = $this->getRequest()->getQuery('slot');
 		try {
 			$task_slot = $this->TaskSlots->get($id, [
 				'contain' => ['Tasks' => ['Categories']]
@@ -216,7 +216,7 @@ class TaskSlotsController extends AppController {
 		$context = new ContextResource($task_slot, ['task' => $task_slot->task]);
 		$this->Authorization->authorize($context);
 
-		$person_id = $this->request->getData('person');
+		$person_id = $this->getRequest()->getData('person');
 		if (!empty($person_id)) {
 			try {
 				$this->TaskSlots->People->get($person_id);
@@ -286,7 +286,7 @@ class TaskSlotsController extends AppController {
 		if ($task_slot->approved && $person_id) {
 			$this->UserCache->clear('Tasks', $person_id);
 		}
-		if (!$this->request->is('ajax')) {
+		if (!$this->getRequest()->is('ajax')) {
 			$this->Flash->success(__('The assignment has been saved.'));
 			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $task_slot->task->id]);
 		}
@@ -315,9 +315,9 @@ class TaskSlotsController extends AppController {
 	}
 
 	public function approve() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('slot');
+		$id = $this->getRequest()->getQuery('slot');
 		try {
 			$task_slot = $this->TaskSlots->get($id, [
 				'contain' => ['Tasks' => ['Categories']]
@@ -353,7 +353,7 @@ class TaskSlotsController extends AppController {
 		}
 
 		$this->UserCache->clear('Tasks', $task_slot->person_id);
-		if (!$this->request->is('ajax')) {
+		if (!$this->getRequest()->is('ajax')) {
 			$this->Flash->success(__('The assignment has been approved.'));
 			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $task_slot->task->id]);
 		}

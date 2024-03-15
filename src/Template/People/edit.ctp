@@ -1,23 +1,23 @@
 <?php
 /**
- * @type $person \App\Model\Entity\Person
- * @type $groups \App\Model\Entity\Group[]
- * @type $provinces string[]
- * @type $countries string[]
- * @type $affiliates string[]
- * @type $user_model string
- * @type $id_field string
- * @type $user_field string
- * @type $email_field string
- * @type $manage_users bool
+ * @var \App\Model\Entity\Person $person
+ * @var \App\Model\Entity\Group[] $groups
+ * @var string[] $provinces
+ * @var string[] $countries
+ * @var string[] $affiliates
+ * @var string $user_model
+ * @var string $id_field
+ * @var string $user_field
+ * @var string $email_field
+ * @var bool $manage_users
  */
 
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb($person->full_name);
-$this->Html->addCrumb(__('Edit'));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add($person->full_name);
+$this->Breadcrumbs->add(__('Edit'));
 
 $short = Configure::read('organization.short_name');
 $admin = Configure::read('email.admin_email');
@@ -98,7 +98,7 @@ if (($person->user_id && count($groups) > 1) || $is_manager):
 		if (Configure::read('feature.auto_approve')) {
 			unset($options['new']);
 		}
-		echo $this->Form->input('status', [
+		echo $this->Form->control('status', [
 			'type' => 'select',
 			'empty' => '---',
 			'options' => $options,
@@ -130,32 +130,32 @@ $this->Form->unlockField('groups._ids');
 		<legend><?= __('Your Information') ?></legend>
 <?php
 if (in_array(Configure::read('profile.first_name'), $access)) {
-	echo $this->Form->input('first_name', [
+	echo $this->Form->control('first_name', [
 		'label' => Configure::read('profile.legal_name') ? __('Preferred Name') : __('First Name'),
 		'help' => __('First (and, if desired, middle) name.'),
 	]);
 } else {
-	echo $this->Form->input('first_name', [
+	echo $this->Form->control('first_name', [
 		'disabled' => true,
 		'class' => 'disabled',
 		'help' => __('To prevent system abuses, this can only be changed by an administrator. To change this, please email your {0} to {1}.', __('new name'), $this->Html->link($admin, "mailto:$admin")),
 	]);
 }
 if (in_array(Configure::read('profile.legal_name'), $access)) {
-	echo $this->Form->input('legal_name', [
+	echo $this->Form->control('legal_name', [
 		'help' => __('For insurance and legal purposes. This will be visible only to administrators. Required only if substantially different from your Preferred Name.'),
 	]);
 } else if (Configure::read('profile.legal_name')) {
-	echo $this->Form->input('legal_name', [
+	echo $this->Form->control('legal_name', [
 		'disabled' => true,
 		'class' => 'disabled',
 		'help' => __('To prevent system abuses, this can only be changed by an administrator. To change this, please email your {0} to {1}.', __('new name'), $this->Html->link($admin, "mailto:$admin")),
 	]);
 }
 if (in_array(Configure::read('profile.last_name'), $access)) {
-	echo $this->Form->input('last_name');
+	echo $this->Form->control('last_name');
 } else {
-	echo $this->Form->input('last_name', [
+	echo $this->Form->control('last_name', [
 		'disabled' => true,
 		'class' => 'disabled',
 		'help' => __('To prevent system abuses, this can only be changed by an administrator. To change this, please email your {0} to {1}.', __('new name'), $this->Html->link($admin, "mailto:$admin")),
@@ -173,35 +173,35 @@ if ($person->user_id) {
 	}
 
 	if (in_array(Configure::read('profile.home_phone'), $access)) {
-		echo $this->Form->input('home_phone', [
+		echo $this->Form->control('home_phone', [
 			'help' => __('Enter your home telephone number.'),
 		]);
 	} else if (Configure::read('profile.home_phone')) {
-		echo $this->Form->input('home_phone', [
+		echo $this->Form->control('home_phone', [
 			'disabled' => true,
 			'class' => 'disabled',
 			'help' => __('To prevent system abuses, this can only be changed by an administrator. To change this, please email your {0} to {1}.', __('new phone number'), $this->Html->link($admin, "mailto:$admin")),
 		]);
 	}
 	if (Configure::read('profile.home_phone')) {
-		echo $this->Form->input('publish_home_phone', [
+		echo $this->Form->control('publish_home_phone', [
 			'label' => __('Allow registered users to view home number'),
 		]);
 	}
 	if (in_array(Configure::read('profile.work_phone'), $access)) {
-		echo $this->Form->input('work_phone', [
+		echo $this->Form->control('work_phone', [
 			'help' => __('Enter your work telephone number (optional).'),
 		]);
-		echo $this->Form->input('work_ext', [
+		echo $this->Form->control('work_ext', [
 			'label' => __('Work Extension'),
 			'help' => __('Enter your work extension (optional).'),
 		]);
 	} else if (Configure::read('profile.work_phone')) {
-		echo $this->Form->input('work_phone', [
+		echo $this->Form->control('work_phone', [
 			'disabled' => true,
 			'class' => 'disabled',
 		]);
-		echo $this->Form->input('work_ext', [
+		echo $this->Form->control('work_ext', [
 			'disabled' => true,
 			'class' => 'disabled',
 			'label' => __('Work Extension'),
@@ -209,23 +209,23 @@ if ($person->user_id) {
 		]);
 	}
 	if (Configure::read('profile.work_phone')) {
-		echo $this->Form->input('publish_work_phone', [
+		echo $this->Form->control('publish_work_phone', [
 			'label' => __('Allow registered users to view work number'),
 		]);
 	}
 	if (in_array(Configure::read('profile.mobile_phone'), $access)) {
-		echo $this->Form->input('mobile_phone', [
+		echo $this->Form->control('mobile_phone', [
 			'help' => __('Enter your cell or pager number (optional).'),
 		]);
 	} else if (Configure::read('profile.mobile_phone')) {
-		echo $this->Form->input('mobile_phone', [
+		echo $this->Form->control('mobile_phone', [
 			'disabled' => true,
 			'class' => 'disabled',
 			'help' => __('To prevent system abuses, this can only be changed by an administrator. To change this, please email your {0} to {1}.', __('new phone number'), $this->Html->link($admin, "mailto:$admin")),
 		]);
 	}
 	if (Configure::read('profile.mobile_phone')) {
-		echo $this->Form->input('publish_mobile_phone', [
+		echo $this->Form->control('publish_mobile_phone', [
 			'label' => __('Allow registered users to view mobile number'),
 		]);
 	}
@@ -241,38 +241,38 @@ if ($person->user_id):
 		<legend><?= __('Alternate Contact (optional)') ?></legend>
 		<p><?= __('This alternate contact information is for display purposes only. If the alternate contact should have their own login details, do not enter their information here; instead create a separate account and then link them together.') ?></p>
 <?php
-	echo $this->Form->input('alternate_first_name', [
+	echo $this->Form->control('alternate_first_name', [
 		'label' => __('First Name'),
 		'help' => __('First (and, if desired, middle) name.'),
 		'secure' => false,
 	]);
-	echo $this->Form->input('alternate_last_name', [
+	echo $this->Form->control('alternate_last_name', [
 		'label' => __('Last Name'),
 		'secure' => false,
 	]);
 	if (Configure::read('profile.work_phone')) {
-		echo $this->Form->input('alternate_work_phone', [
+		echo $this->Form->control('alternate_work_phone', [
 			'label' => __('Work Phone'),
 			'help' => __('Enter your work telephone number (optional).'),
 			'secure' => false,
 		]);
-		echo $this->Form->input('alternate_work_ext', [
+		echo $this->Form->control('alternate_work_ext', [
 			'label' => __('Work Extension'),
 			'help' => __('Enter your work extension (optional).'),
 			'secure' => false,
 		]);
-		echo $this->Form->input('publish_alternate_work_phone', [
+		echo $this->Form->control('publish_alternate_work_phone', [
 			'label' => __('Allow registered users to view work number'),
 			'secure' => false,
 		]);
 	}
 	if (Configure::read('profile.mobile_phone')) {
-		echo $this->Form->input('alternate_mobile_phone', [
+		echo $this->Form->control('alternate_mobile_phone', [
 			'label' => __('Mobile Phone'),
 			'help' => __('Enter your cell or pager number (optional).'),
 			'secure' => false,
 		]);
-		echo $this->Form->input('publish_alternate_mobile_phone', [
+		echo $this->Form->control('publish_alternate_mobile_phone', [
 			'label' => __('Allow registered users to view mobile number'),
 			'secure' => false,
 		]);
@@ -291,7 +291,7 @@ if ($person->user_id && $manage_users):
 <?php
 	$user_model = Inflector::singularize(Inflector::underscore($user_model));
 	echo $this->Form->hidden("$user_model.$id_field");
-	echo $this->Form->input("$user_model.$user_field", [
+	echo $this->Form->control("$user_model.$user_field", [
 		'label' => __('Username'),
 	]);
 ?>
@@ -317,14 +317,14 @@ if (Configure::read('feature.affiliates') && !$identity->isAdmin() &&
 			$help .= ' ' . __('Note that affiliates you are already a manager of ({0}) are not included here; this will remain unchanged.',
 				implode(', ', collection($this->UserCache->read('ManagedAffiliates'))->extract(function ($entity) { return $entity->translateField('name'); })->toArray()));
 		}
-		echo $this->Form->input('affiliates._ids', [
+		echo $this->Form->control('affiliates._ids', [
 			'help' => $help,
 			'multiple' => 'checkbox',
 			'hide_single' => !$identity->isManager(),
 		]);
 		$this->Form->unlockField('affiliates._ids');
 	} else {
-		echo $this->Form->input('affiliates.0.id', [
+		echo $this->Form->control('affiliates.0.id', [
 			'label' => __('Affiliate'),
 			'options' => $affiliates,
 			'type' => 'select',
@@ -343,20 +343,20 @@ if ($person->user_id):
 	<fieldset>
 		<legend><?= __('Online Contact') ?></legend>
 <?php
-	echo $this->Form->input("$user_model.$email_field", [
+	echo $this->Form->control("$user_model.$email_field", [
 		'label' => __('Email'),
 		'disabled' => !$manage_users,
 		'help' => $manage_users ? null : __('This field is managed through your {0}.',
 			$this->Html->link(__('primary account'), Configure::read('App.urls.manage'))
 		),
 	]);
-	echo $this->Form->input('publish_email', [
+	echo $this->Form->control('publish_email', [
 		'label' => __('Allow registered users to view my email address'),
 	]);
-	echo $this->Form->input('alternate_email', [
+	echo $this->Form->control('alternate_email', [
 		'help' => __('Optional second email address.'),
 	]);
-	echo $this->Form->input('publish_alternate_email', [
+	echo $this->Form->control('publish_alternate_email', [
 		'label' => __('Allow registered users to view my alternate email address'),
 	]);
 	if (Configure::read('feature.gravatar')) {
@@ -367,13 +367,13 @@ if ($person->user_id):
 			$after = __('You can have an image shown on your account if you enable this setting and then create a {0} account using the email address you\'ve associated with your {1} account.',
 				$this->Html->link('gravatar.com', 'https://www.gravatar.com/'), Configure::read('organization.short_name'));
 		}
-		echo $this->Form->input('show_gravatar', [
+		echo $this->Form->control('show_gravatar', [
 			'label' => __('Show Gravatar image for your account?'),
 			'help' => $after,
 		]);
 	}
 	if (in_array(Configure::read('profile.contact_for_feedback'), $access)) {
-		echo $this->Form->input('contact_for_feedback', [
+		echo $this->Form->control('contact_for_feedback', [
 			'label' => __('From time to time, {0} would like to contact members with information on our programs and to solicit feedback. Can {0} contact you in this regard?', $short),
 		]);
 	}
@@ -390,12 +390,12 @@ if ($person->user_id):
 		<legend><?= __('Street Address') ?></legend>
 <?php
 		if (in_array(Configure::read('profile.addr_street'), $access)) {
-			echo $this->Form->input('addr_street', [
+			echo $this->Form->control('addr_street', [
 				'label' => __('Street and Number'),
 				'help' => __('Number, street name, and apartment number if necessary.'),
 			]);
 		} else if (Configure::read('profile.addr_street')) {
-			echo $this->Form->input('addr_street', [
+			echo $this->Form->control('addr_street', [
 				'disabled' => true,
 				'class' => 'disabled',
 				'label' => __('Street and Number'),
@@ -403,12 +403,12 @@ if ($person->user_id):
 			]);
 		}
 		if (in_array(Configure::read('profile.addr_city'), $access)) {
-			echo $this->Form->input('addr_city', [
+			echo $this->Form->control('addr_city', [
 				'label' => __('City'),
 				'help' => __('Name of city.'),
 			]);
 		} else if (Configure::read('profile.addr_city')) {
-			echo $this->Form->input('addr_city', [
+			echo $this->Form->control('addr_city', [
 				'disabled' => true,
 				'class' => 'disabled',
 				'label' => __('City'),
@@ -416,7 +416,7 @@ if ($person->user_id):
 			]);
 		}
 		if (in_array(Configure::read('profile.addr_prov'), $access)) {
-			echo $this->Form->input('addr_prov', [
+			echo $this->Form->control('addr_prov', [
 				'label' => __('Province'),
 				'type' => 'select',
 				'empty' => '---',
@@ -424,7 +424,7 @@ if ($person->user_id):
 				'help' => __('Select a province/state from the list'),
 			]);
 		} else if (Configure::read('profile.addr_prov')) {
-			echo $this->Form->input('addr_prov', [
+			echo $this->Form->control('addr_prov', [
 				'disabled' => true,
 				'class' => 'disabled',
 				'label' => __('Province'),
@@ -432,7 +432,7 @@ if ($person->user_id):
 			]);
 		}
 		if (in_array(Configure::read('profile.addr_country'), $access)) {
-			echo $this->Form->input('addr_country', [
+			echo $this->Form->control('addr_country', [
 				'label' => __('Country'),
 				'type' => 'select',
 				'empty' => '---',
@@ -441,7 +441,7 @@ if ($person->user_id):
 				'help' => __('Select a country from the list.'),
 			]);
 		} else if (Configure::read('profile.addr_country') && count($countries) > 1) {
-			echo $this->Form->input('addr_country', [
+			echo $this->Form->control('addr_country', [
 				'disabled' => true,
 				'class' => 'disabled',
 				'label' => __('Country'),
@@ -450,12 +450,12 @@ if ($person->user_id):
 		}
 		if (in_array(Configure::read('profile.addr_postalcode'), $access)) {
 			$fields = Configure::read('UI.fields');
-			echo $this->Form->input('addr_postalcode', [
+			echo $this->Form->control('addr_postalcode', [
 				'label' => __('Postal Code'),
 				'help' => __('Please enter a correct postal code matching the address above. {0} uses this information to help locate new {1} near its members.', $short, Configure::read('UI.fields')),
 			]);
 		} else if (Configure::read('profile.addr_postalcode')) {
-			echo $this->Form->input('addr_postalcode', [
+			echo $this->Form->control('addr_postalcode', [
 				'disabled' => true,
 				'class' => 'disabled',
 				'label' => __('Postal Code'),
@@ -482,7 +482,7 @@ if (Configure::read('profile.gender') || Configure::read('profile.pronouns') || 
 
 	if (in_array(Configure::read('profile.birthdate'), $access)) {
 		if (Configure::read('feature.birth_year_only')) {
-			echo $this->Form->input('birthdate', [
+			echo $this->Form->control('birthdate', [
 				'templates' => [
 					'dateWidget' => '{{year}}',
 					// Change the input container template, removing the "date" class, so it doesn't get a date picker added
@@ -505,7 +505,7 @@ if (Configure::read('profile.gender') || Configure::read('profile.pronouns') || 
 			$this->Form->unlockField('birthdate.month');
 			$this->Form->unlockField('birthdate.day');
 		} else {
-			echo $this->Form->input('birthdate', [
+			echo $this->Form->control('birthdate', [
 				'minYear' => Configure::read('options.year.born.min'),
 				'maxYear' => Configure::read('options.year.born.max'),
 				'empty' => '---',
@@ -515,7 +515,7 @@ if (Configure::read('profile.gender') || Configure::read('profile.pronouns') || 
 			]);
 		}
 	} else if (Configure::read('profile.birthdate')) {
-		echo $this->Form->input('birthdate', [
+		echo $this->Form->control('birthdate', [
 			'disabled' => true,
 			'year' => [
 				'class' => 'disabled',
@@ -538,13 +538,13 @@ if (Configure::read('profile.gender') || Configure::read('profile.pronouns') || 
 		} else {
 			$units = __('inches (5 feet is 60 inches; 6 feet is 72 inches)');
 		}
-		echo $this->Form->input('height', [
+		echo $this->Form->control('height', [
 			'size' => 6,
 			'help' => __('Please enter your height in {0}. This is used to help build even teams from individual signups.', $units),
 			'secure' => false,
 		]);
 	} else if (Configure::read('profile.height')) {
-		echo $this->Form->input('height', [
+		echo $this->Form->control('height', [
 			'disabled' => true,
 			'class' => 'disabled',
 			'size' => 6,
@@ -553,7 +553,7 @@ if (Configure::read('profile.gender') || Configure::read('profile.pronouns') || 
 		]);
 	}
 	if (in_array(Configure::read('profile.shirt_size'), $access)) {
-		echo $this->Form->input('shirt_size', [
+		echo $this->Form->control('shirt_size', [
 			'type' => 'select',
 			'empty' => '---',
 			'options' => Configure::read('options.shirt_size'),
@@ -561,7 +561,7 @@ if (Configure::read('profile.gender') || Configure::read('profile.pronouns') || 
 			'secure' => false,
 		]);
 	} else if (Configure::read('profile.shirt_size')) {
-		echo $this->Form->input('shirt_size', [
+		echo $this->Form->control('shirt_size', [
 			'disabled' => true,
 			'class' => 'disabled',
 			'help' => __('To prevent system abuses, this can only be changed by an administrator. To change this, please email your {0} to {1}.', __('new shirt size'), $this->Html->link($admin, "mailto:$admin")),
@@ -569,7 +569,7 @@ if (Configure::read('profile.gender') || Configure::read('profile.pronouns') || 
 		]);
 	}
 	if (Configure::read('feature.dog_questions')) {
-		echo $this->Form->input('has_dog', [
+		echo $this->Form->control('has_dog', [
 			'secure' => false,
 		]);
 	}
@@ -587,7 +587,7 @@ if (array_key_exists(GROUP_COACH, $groups) && $person->user_id && Configure::rea
 		<legend><?= __('Your Coaching Profile') ?></legend>
 <?php
 	if (in_array(Configure::read('profile.shirt_size'), $access)) {
-		echo $this->Form->input('shirt_size', [
+		echo $this->Form->control('shirt_size', [
 			'type' => 'select',
 			'empty' => '---',
 			'options' => Configure::read('options.shirt_size'),
@@ -595,7 +595,7 @@ if (array_key_exists(GROUP_COACH, $groups) && $person->user_id && Configure::rea
 			'secure' => false,
 		]);
 	} else if (Configure::read('profile.shirt_size')) {
-		echo $this->Form->input('shirt_size', [
+		echo $this->Form->control('shirt_size', [
 			'disabled' => true,
 			'class' => 'disabled',
 			'help' => __('To prevent system abuses, this can only be changed by an administrator. To change this, please email your {0} to {1}.', __('new shirt size'), $this->Html->link($admin, "mailto:$admin")),

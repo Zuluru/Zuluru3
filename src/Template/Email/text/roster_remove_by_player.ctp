@@ -2,11 +2,11 @@
 use Cake\Core\Configure;
 
 /**
- * @type $person \App\Model\Entity\Person
- * @type $team \App\Model\Entity\Team
- * @type $captains string
- * @type $old_role string
- * @type $reply string
+ * @var \App\Model\Entity\Person $person
+ * @var \App\Model\Entity\Team $team
+ * @var string $captains
+ * @var string $old_role
+ * @var string $reply
  */
 ?>
 

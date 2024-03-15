@@ -28,6 +28,8 @@ vendor/guzzlehttp/
 vendor/jakub-onderka/
 vendor/jdorn/
 vendor/josegonzalez/
+vendor/justinrainbow/
+vendor/laminas/
 vendor/league/
 vendor/m1/
 vendor/mobiledetect/
@@ -37,14 +39,17 @@ vendor/myclabs/
 vendor/nikic/
 vendor/oyejorge/
 vendor/ozee31/
+vendor/paragonie/
 vendor/phpdocumentor/
 vendor/phpspec/
 vendor/phpunit/
 vendor/psr/
 vendor/psy/
 vendor/ralouphie/
+vendor/react/
 vendor/robmorgan/
 vendor/sebastian/
+vendor/seld/
 vendor/soundasleep/
 vendor/stripe/
 vendor/symfony/

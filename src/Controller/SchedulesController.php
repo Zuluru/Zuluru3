@@ -57,12 +57,12 @@ class SchedulesController extends AppController {
 	public function beforeFilter(\Cake\Event\Event $event) {
 		parent::beforeFilter($event);
 		if (isset($this->Security)) {
-			$this->Security->config('unlockedActions', ['delete']);
+			$this->Security->setConfig('unlockedActions', ['delete']);
 		}
 	}
 
 	public function add() {
-		$id = intval($this->request->getQuery('division'));
+		$id = intval($this->getRequest()->getQuery('division'));
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -100,7 +100,7 @@ class SchedulesController extends AppController {
 		}
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
-		if ($this->request->getQuery('playoff') ||
+		if ($this->getRequest()->getQuery('playoff') ||
 			($division->schedule_type != 'tournament' && $this->_unscheduledPools($division)))
 		{
 			$this->league_obj = $this->moduleRegistry->load('LeagueType:tournament');
@@ -112,8 +112,8 @@ class SchedulesController extends AppController {
 		$division->games = [];
 
 		// Import posted data into the _options property
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$division->_options = new Entity($this->request->getData('_options'));
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$division->_options = new Entity($this->getRequest()->getData('_options'));
 			// TODO: Make a non-table-backed entity type with a custom schema that can do this as part of the patch?
 			if ($division->_options->has('start_date')) {
 				if (is_array($division->_options->start_date)) {
@@ -128,7 +128,7 @@ class SchedulesController extends AppController {
 			// What's the default first step?
 			if (isset($this->pool)) {
 				$division->_options->step = 'type';
-			} else if ($this->request->getQuery('playoff') || $division->schedule_type === 'tournament') {
+			} else if ($this->getRequest()->getQuery('playoff') || $division->schedule_type === 'tournament') {
 				$division->_options->step = 'pools';
 			} else if ($division->exclude_teams) {
 				$division->_options->step = 'exclude';
@@ -145,7 +145,7 @@ class SchedulesController extends AppController {
 		// Non-tournament divisions must currently have even # of teams for scheduling unless the exclude_teams flag is set
 		if ($this->_numTeams($division) % 2 && !$division->exclude_teams &&
 			$division->schedule_type !== 'tournament' && $division->schedule_type !== 'competition' &&
-			!$this->request->getQuery('playoff') && !$this->pool)
+			!$this->getRequest()->getQuery('playoff') && !$this->pool)
 		{
 			$this->Flash->html(__('Must currently have an even number of teams in your division. If you need a bye, please create a team named Bye and add it to your division. Otherwise, {0} and set the "exclude teams" flag.'), [
 				'params' => [
@@ -177,7 +177,7 @@ class SchedulesController extends AppController {
 
 	protected function _exclude($division, $stage) {
 		// Validate any exclusion selection
-		if ($this->request->is(['patch', 'post', 'put'])) {
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			if ($this->_numTeams($division) % 2) {
 				$this->Flash->warning(__('You marked {0} teams to exclude, that leaves {1}. Cannot schedule games for an un-even number of teams!',
 					!empty($division->_options->exclude) ? count($division->_options->exclude) : __('no'),
@@ -201,7 +201,7 @@ class SchedulesController extends AppController {
 		$types = $this->league_obj->poolOptions($this->_numTeams($division), $next_stage);
 
 		// Validate any data posted to us
-		if ($this->request->is(['patch', 'post', 'put']) && $division->_options->step == 'pools') {
+		if ($this->getRequest()->is(['patch', 'post', 'put']) && $division->_options->step == 'pools') {
 			if (!array_key_exists($division->_options->pool_type, $types)) {
 				$this->Flash->warning(__('Select the number of pools to add.'));
 			} else if ($division->_options->pool_type == 'crossover') {
@@ -217,7 +217,7 @@ class SchedulesController extends AppController {
 
 	protected function _crosscount($division, $stage) {
 		// Validate any data posted to us
-		if ($this->request->is(['patch', 'post', 'put']) && $division->_options->step == 'crosscount') {
+		if ($this->getRequest()->is(['patch', 'post', 'put']) && $division->_options->step == 'crosscount') {
 			[$type, $pools] = explode('_', $division->_options->pool_type);
 			$pool_data = [
 				'division_id' => $division->id,
@@ -266,7 +266,7 @@ class SchedulesController extends AppController {
 		}
 
 		// Validate any data posted to us
-		if ($this->request->is(['patch', 'post', 'put']) && $division->_options->step == 'details') {
+		if ($this->getRequest()->is(['patch', 'post', 'put']) && $division->_options->step == 'details') {
 			for ($i = 1; $i <= $pools; ++ $i) {
 				$division->_options->pools[$i] = $this->Divisions->Pools->newEntity(
 					array_merge($division->_options->pools[$i], $pool_data),
@@ -275,10 +275,10 @@ class SchedulesController extends AppController {
 			}
 
 			if ($type != 'snake' && array_sum(collection($division->_options->pools)->extract('count')->toList()) != $this->_numTeams($division)) {
-				$division->_options->pools[1]->errors('count', __('Number of teams must add up to {0}.', $this->_numTeams($division)));
+				$division->_options->pools[1]->setErrors('count', __('Number of teams must add up to {0}.', $this->_numTeams($division)));
 			}
 
-			if (!$division->errors()) {
+			if (!$division->getErrors()) {
 				// Call the specific type function to populate the pools_teams dependency records
 				$func = "_$type";
 				$ret = $this->$func($division, $stage);
@@ -423,7 +423,7 @@ class SchedulesController extends AppController {
 		}
 
 		// Validate any data posted to us, building the data to save as we go
-		if ($this->request->is(['patch', 'post', 'put']) && $division->_options->step == 'reseed') {
+		if ($this->getRequest()->is(['patch', 'post', 'put']) && $division->_options->step == 'reseed') {
 			$proceed = true;
 
 			$validator = $this->Divisions->Pools->PoolsTeams->validationQualifiers(new Validator(), array_keys($valid_options));
@@ -523,7 +523,7 @@ class SchedulesController extends AppController {
 		}
 
 		// Validate any data posted to us
-		if ($this->request->is(['patch', 'post', 'put']) && $division->_options->step == 'type') {
+		if ($this->getRequest()->is(['patch', 'post', 'put']) && $division->_options->step == 'type') {
 			if (!array_key_exists($division->_options->type, $types)) {
 				$this->Flash->warning(__('Select the type of game or games to add.'));
 			} else {
@@ -537,7 +537,7 @@ class SchedulesController extends AppController {
 
 	protected function _date($division, $stage) {
 		// Validate any data posted to us
-		if ($this->request->is(['patch', 'post', 'put']) && $division->_options->step == 'date') {
+		if ($this->getRequest()->is(['patch', 'post', 'put']) && $division->_options->step == 'date') {
 			if ($this->_canSchedule($division, $stage)) {
 				return $this->_confirm($division, $stage);
 			}
@@ -563,7 +563,7 @@ class SchedulesController extends AppController {
 						$date_type = 'datetime';
 					}
 					$q->distinct('date')
-						->selectTypeMap()
+						->getSelectTypeMap()
 						->addDefaults([
 							'date' => $date_type
 						]);
@@ -748,9 +748,9 @@ class SchedulesController extends AppController {
 	}
 
 	public function delete() {
-		$division_id = $this->request->getQuery('division');
+		$division_id = $this->getRequest()->getQuery('division');
 		if (!$division_id) {
-			$league_id = $this->request->getQuery('league');
+			$league_id = $this->getRequest()->getQuery('league');
 			if (!$league_id) {
 				$this->Flash->warning(__('Invalid division.'));
 				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
@@ -836,8 +836,8 @@ class SchedulesController extends AppController {
 		}
 		$this->set(compact('division_id', 'division', 'league_id', 'league'));
 
-		$date = $this->request->getQuery('date');
-		$pool_id = $this->request->getQuery('pool');
+		$date = $this->getRequest()->getQuery('date');
+		$pool_id = $this->getRequest()->getQuery('pool');
 		if (!$date && !$pool_id) {
 			$this->Flash->warning(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
@@ -936,7 +936,7 @@ class SchedulesController extends AppController {
 			}
 		}
 
-		if ($this->request->getQuery('confirm')) {
+		if ($this->getRequest()->getQuery('confirm')) {
 			if ($this->Divisions->getConnection()->transactional(function () use ($games, $reset_pools, $same_pool, $dependent) {
 				// Reset dependencies for affected pools
 				if (!empty($reset_pools)) {
@@ -984,8 +984,8 @@ class SchedulesController extends AppController {
 	}
 
 	public function reschedule() {
-		$id = $this->request->getQuery('division');
-		$date = $this->request->getQuery('date');
+		$id = $this->getRequest()->getQuery('division');
+		$date = $this->getRequest()->getQuery('date');
 
 		try {
 			$division = $this->Divisions->get($id,
@@ -1018,7 +1018,7 @@ class SchedulesController extends AppController {
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
 		$league_obj = $this->moduleRegistry->load("LeagueType:{$division->schedule_type}");
-		if ($this->request->is(['patch', 'post', 'put'])) {
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			$this->loadComponent('Lock');
 			if (!$this->Lock->lock('scheduling', $division->league->affiliate_id, 'schedule creation or edit')) {
 				return $this->redirect(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $id]);
@@ -1026,7 +1026,7 @@ class SchedulesController extends AppController {
 			try {
 				// Save the list of games to be rescheduled; we'll overwrite it in startSchedule
 				$games = $division->games;
-				$new_date = new FrozenDate($this->request->getData('new_date'));
+				$new_date = new FrozenDate($this->getRequest()->getData('new_date'));
 				$division->_options = new Entity(['ignore_games' => $games]);
 				$league_obj->startSchedule($division, $new_date);
 				$league_obj->assignFieldsByPreferences($division, $new_date, $games);
@@ -1067,17 +1067,17 @@ class SchedulesController extends AppController {
 	}
 
 	public function publish() {
-		$this->_publish(1, __('publish'), __('Published'));
+		return $this->_publish(1, __('publish'), __('Published'));
 	}
 
 	public function unpublish() {
-		$this->_publish(0, __('unpublish'), __('Unpublished'));
+		return $this->_publish(0, __('unpublish'), __('Unpublished'));
 	}
 
 	protected function _publish($true, $publish, $published) {
-		$division_id = $this->request->getQuery('division');
+		$division_id = $this->getRequest()->getQuery('division');
 		if (!$division_id) {
-			$league_id = $this->request->getQuery('league');
+			$league_id = $this->getRequest()->getQuery('league');
 			if (!$league_id) {
 				$this->Flash->warning(__('Invalid division.'));
 				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
@@ -1140,8 +1140,8 @@ class SchedulesController extends AppController {
 
 			$multi_day = ($division->schedule_type != 'tournament' && count($division->days) > 1);
 		}
-		$date = $this->request->getQuery('date');
-		$pool_id = $this->request->getQuery('pool');
+		$date = $this->getRequest()->getQuery('date');
+		$pool_id = $this->getRequest()->getQuery('pool');
 
 		$query = $this->Divisions->Games->find()
 			->where(['Games.division_id IN' => $divisions]);
@@ -1221,8 +1221,8 @@ class SchedulesController extends AppController {
 	}
 
 	public function today() {
-		if (!$this->request->is('json')) {
-			$this->viewBuilder()->layout('iframe');
+		if (!$this->getRequest()->is('json')) {
+			$this->viewBuilder()->setLayout('iframe');
 		}
 
 		$games = $this->Divisions->Games->find()
@@ -1237,10 +1237,10 @@ class SchedulesController extends AppController {
 	}
 
 	public function day() {
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$date = $this->request->getData('date.year') . '-' . $this->request->getData('date.month') . '-' . $this->request->getData('date.day');
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$date = $this->getRequest()->getData('date.year') . '-' . $this->getRequest()->getData('date.month') . '-' . $this->getRequest()->getData('date.day');
 		} else {
-			$date = $this->request->getQuery('date');
+			$date = $this->getRequest()->getQuery('date');
 		}
 		if (empty($date)) {
 			$date = FrozenDate::now();

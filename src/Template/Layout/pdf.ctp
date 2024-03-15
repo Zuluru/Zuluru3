@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
+
 use Cake\Core\Configure;
 
 @header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
@@ -6,16 +10,16 @@ use Cake\Core\Configure;
 @header('Cache-Control: post-check=0, pre-check=0', false);
 @header('Pragma: no-cache');
 ?>
-<?= $this->Html->doctype('html5') ?>
+<!DOCTYPE html>
 <html>
 <head>
 	<?= $this->Html->charset() ?>
 	<title><?php
-		$crumbs = $this->Html->getCrumbs(' &raquo; ');
-		if (!empty($crumbs))
+		$crumbs = $this->Breadcrumbs->getAsString(' &raquo; ');
+		if (!empty($crumbs)) {
 			echo $crumbs . ' : ';
-		echo Configure::read('site.name') . ' : ' .
-			Configure::read('organization.name');
+		}
+		echo Configure::read('site.name') . ' : ' . Configure::read('organization.name');
 	?></title>
 <?php
 // Attempt to figure out where the CSS file is located, so we can give dompdf an absolute path.

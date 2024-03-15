@@ -1,3 +1,13 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Team $team
+ * @var \App\Model\Entity\TeamEvent $team_event
+ * @var \App\Model\Entity\Person $person
+ * @var \App\Model\Entity\Attendance $attendance
+ */
+
+?>
 <?= __('Dear {0},', $captains) ?>
 
 

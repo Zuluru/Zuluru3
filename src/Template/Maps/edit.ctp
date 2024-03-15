@@ -1,8 +1,13 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Facility $facility
+ */
+
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('{0} Editor', Configure::read('UI.field_cap')));
-$this->Html->addCrumb(trim("{$facility->name} ({$facility->code}) {$field->num}"));
+$this->Breadcrumbs->add(__('{0} Editor', Configure::read('UI.field_cap')));
+$this->Breadcrumbs->add(trim("{$facility->name} ({$facility->code}) {$field->num}"));
 
 $map_vars = ['id' => true, 'num' => true, 'sport' => true, 'latitude' => false, 'longitude' => false, 'angle' => false, 'width' => false, 'length' => false, 'zoom' => false];
 $required_map_vars = ['id', 'num'];
@@ -40,7 +45,7 @@ foreach ($facility->fields as $related) {
 		if ($secure) {
 			echo $this->Form->hidden("fields.{$related->id}.$var", ['value' => $related->$var]);
 		} else {
-			echo $this->Form->input("fields.{$related->id}.$var", ['label' => false, 'value' => $related->$var, 'help' => false]);
+			echo $this->Form->control("fields.{$related->id}.$var", ['label' => false, 'value' => $related->$var, 'help' => false]);
 		}
 	}
 	$variables .= "fields[{$related->id}] = { " . implode(', ', $vals) . " };\n";
@@ -64,9 +69,9 @@ if ($facility->entrances) {
 	}
 }
 
-echo $this->Form->input('id');
-echo $this->Form->input('parking', ['label' => false, 'secure' => false]);
-echo $this->Form->input('entrances', ['label' => false, 'secure' => false]);
+echo $this->Form->control('id');
+echo $this->Form->control('parking', ['label' => false, 'secure' => false]);
+echo $this->Form->control('entrances', ['label' => false, 'secure' => false]);
 
 $this->Html->script([
 	"https://maps.googleapis.com/maps/api/js?key=$gmaps_key&libraries=geometry",

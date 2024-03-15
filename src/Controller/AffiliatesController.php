@@ -40,7 +40,7 @@ class AffiliatesController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->getQuery('affiliate');
+		$id = $this->getRequest()->getQuery('affiliate');
 		try {
 			$affiliate = $this->Affiliates->get($id, [
 				'contain' => [
@@ -73,8 +73,8 @@ class AffiliatesController extends AppController {
 		$affiliate = $this->Affiliates->newEntity();
 		$this->Authorization->authorize($affiliate);
 
-		if ($this->request->is('post')) {
-			$affiliate = $this->Affiliates->patchEntity($affiliate, $this->request->getData());
+		if ($this->getRequest()->is('post')) {
+			$affiliate = $this->Affiliates->patchEntity($affiliate, $this->getRequest()->getData());
 			if ($this->Affiliates->save($affiliate)) {
 				$this->Flash->success(__('The affiliate has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -92,7 +92,7 @@ class AffiliatesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->getQuery('affiliate');
+		$id = $this->getRequest()->getQuery('affiliate');
 		try {
 			$affiliate = $this->Affiliates->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -106,8 +106,8 @@ class AffiliatesController extends AppController {
 		$this->Authorization->authorize($affiliate);
 		$this->Configuration->loadAffiliate($id);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$affiliate = $this->Affiliates->patchEntity($affiliate, $this->request->getData());
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$affiliate = $this->Affiliates->patchEntity($affiliate, $this->getRequest()->getData());
 			if ($this->Affiliates->save($affiliate)) {
 				$this->Flash->success(__('The affiliate has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -124,9 +124,9 @@ class AffiliatesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects to index.
 	 */
 	public function delete() {
-		$this->request->allowMethod(['post', 'delete']);
+		$this->getRequest()->allowMethod(['post', 'delete']);
 
-		$id = $this->request->getQuery('affiliate');
+		$id = $this->getRequest()->getQuery('affiliate');
 		try {
 			$affiliate = $this->Affiliates->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -147,8 +147,8 @@ class AffiliatesController extends AppController {
 
 		if ($this->Affiliates->delete($affiliate)) {
 			$this->Flash->success(__('The affiliate has been deleted.'));
-		} else if ($affiliate->errors('delete')) {
-			$this->Flash->warning(current($affiliate->errors('delete')));
+		} else if ($affiliate->getError('delete')) {
+			$this->Flash->warning(current($affiliate->getError('delete')));
 		} else {
 			$this->Flash->warning(__('The affiliate could not be deleted. Please, try again.'));
 		}
@@ -162,7 +162,7 @@ class AffiliatesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise
 	 */
 	public function add_manager() {
-		$id = $this->request->getQuery('affiliate');
+		$id = $this->getRequest()->getQuery('affiliate');
 		try {
 			$affiliate = $this->Affiliates->get($id, [
 				'contain' => [
@@ -184,7 +184,7 @@ class AffiliatesController extends AppController {
 		$this->Authorization->authorize($affiliate);
 		$this->set(compact('affiliate'));
 
-		$person_id = $this->request->getQuery('person');
+		$person_id = $this->getRequest()->getQuery('person');
 		if ($person_id != null) {
 			try {
 				$person = $this->Affiliates->People->get($person_id, [
@@ -234,10 +234,10 @@ class AffiliatesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects to view.
 	 */
 	public function remove_manager() {
-		$this->request->allowMethod(['post']);
+		$this->getRequest()->allowMethod(['post']);
 
-		$id = $this->request->getQuery('affiliate');
-		$person_id = $this->request->getQuery('person');
+		$id = $this->getRequest()->getQuery('affiliate');
+		$person_id = $this->getRequest()->getQuery('person');
 		try {
 			$affiliate = $this->Affiliates->get($id, [
 				'contain' => [
@@ -281,8 +281,8 @@ class AffiliatesController extends AppController {
 	public function select() {
 		$this->Authorization->authorize($this);
 
-		if ($this->request->is('post')) {
-			$this->request->getSession()->write('Zuluru.CurrentAffiliate', $this->request->getData('affiliate'));
+		if ($this->getRequest()->is('post')) {
+			$this->getRequest()->getSession()->write('Zuluru.CurrentAffiliate', $this->getRequest()->getData('affiliate'));
 			return $this->redirect('/');
 		}
 		$affiliates = $this->Affiliates->find('list', [
@@ -294,7 +294,7 @@ class AffiliatesController extends AppController {
 	public function view_all() {
 		$this->Authorization->authorize($this);
 
-		$this->request->getSession()->delete('Zuluru.CurrentAffiliate');
+		$this->getRequest()->getSession()->delete('Zuluru.CurrentAffiliate');
 		return $this->redirect('/');
 	}
 }

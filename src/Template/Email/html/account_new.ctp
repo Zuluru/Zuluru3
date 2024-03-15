@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\User $user
+ * @var string $user_model
+ * @var string $user_field
+ */
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 ?>

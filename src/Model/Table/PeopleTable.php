@@ -268,11 +268,11 @@ class PeopleTable extends AppTable {
 	 * @return \Cake\Validation\Validator
 	 */
 	public function validationDefault(Validator $validator) {
-		$validator->provider('intl', 'App\Validation\Intl');
+		$validator->setProvider('intl', \App\Validation\Intl::class);
 
 		$validator
 			->numeric('id')
-			->allowEmptyString('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->add('first_name', 'valid', [
 				'rule' => ['custom', self::NAME_REGEX],
@@ -384,7 +384,7 @@ class PeopleTable extends AppTable {
 
 		if (Configure::read('feature.antispam')) {
 			$validator
-				->allowEmpty('relatives')
+				->allowEmptyArray('relatives')
 				->add('relatives', 'antispam', [
 					'rule' => function ($value, $context) {
 						if (!is_array($value) || !array_key_exists(0, $value)) {
@@ -575,7 +575,7 @@ class PeopleTable extends AppTable {
 		// the Configuration table object is created, the Footprint event is triggered, which reads the
 		// current user, and the UsersTable is associated with the PeopleTable, meaning that this function
 		// right here is called before the settings are actually loaded into the global config. :-(
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			if (!Configure::read('profile.height') || empty($entity->groups) || !collection($entity->groups)->some(function (Group $group) {
 				return $group->id == GROUP_PLAYER;
 			})) {
@@ -602,7 +602,7 @@ class PeopleTable extends AppTable {
 			'message' => __('You must select a valid status.'),
 		]);
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			if (empty($entity->groups)) {
 				return true;
 			}
@@ -623,14 +623,14 @@ class PeopleTable extends AppTable {
 
 		if (Configure::read('feature.affiliates')) {
 			if (Configure::read('feature.multiple_affiliates')) {
-				$rules->add(function (EntityInterface $entity, Array $options) {
+				$rules->add(function (EntityInterface $entity, array $options) {
 					return empty($options['manage_affiliates']) || !empty($entity->affiliates);
 				}, 'validAffiliates', [
 					'errorField' => 'affiliates',
 					'message' => __('You must select at least one affiliate that you are interested in.'),
 				]);
 			} else {
-				$rules->add(function (EntityInterface $entity, Array $options) {
+				$rules->add(function (EntityInterface $entity, array $options) {
 					return empty($options['manage_affiliates']) || count($entity->affiliates) == 1;
 				}, 'validAffiliates', [
 					'errorField' => 'affiliates',
@@ -640,12 +640,12 @@ class PeopleTable extends AppTable {
 		}
 
 		// Seems the simplest way to handle these optional fields is via custom validators accessed as a rule...
-		$rules->add(function(EntityInterface $entity, Array $options) {
+		$rules->add(function(EntityInterface $entity, array $options) {
 			if (empty($entity->groups)) {
 				return true;
 			}
 
-			$data = $entity->extract($this->schema()->columns());
+			$data = $entity->extract($this->getSchema()->columns());
 
 			foreach (collection($entity->groups)->extract('id') as $group) {
 				switch ($group) {
@@ -865,7 +865,7 @@ class PeopleTable extends AppTable {
 
 		// Send an event to any callback listeners
 		$event = new CakeEvent('Model.Person.afterSave', $this, [$entity]);
-		$this->eventManager()->dispatch($event);
+		$this->getEventManager()->dispatch($event);
 	}
 
 	/**
@@ -881,10 +881,10 @@ class PeopleTable extends AppTable {
 
 		// Send an event to any callback listeners
 		$event = new CakeEvent('Model.Person.afterDelete', $this, [$entity]);
-		$this->eventManager()->dispatch($event);
+		$this->getEventManager()->dispatch($event);
 	}
 
-	public function findDuplicates(Query $query, Array $options) {
+	public function findDuplicates(Query $query, array $options) {
 		// $options parameter must be an array. So we'll pass the entity in the array...
 		/** @var Person $person */
 		$person = $options['person'];
@@ -977,7 +977,7 @@ class PeopleTable extends AppTable {
 		return true;
 	}
 
-	public function mergeList(Array $old, Array $new) {
+	public function mergeList(array $old, array $new) {
 		// Clear ids from the join data in all the new people
 		foreach ($new as $person) {
 			unset($person->_joinData->id);

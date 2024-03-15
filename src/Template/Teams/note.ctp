@@ -1,13 +1,18 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Team $team
+ */
+
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Teams'));
-$this->Html->addCrumb($team->name);
-$this->Html->addCrumb(__('Note'));
+$this->Breadcrumbs->add(__('Teams'));
+$this->Breadcrumbs->add($team->name);
+$this->Breadcrumbs->add(__('Note'));
 if ($note->isNew()) {
-	$this->Html->addCrumb(__('Add'));
+	$this->Breadcrumbs->add(__('Add'));
 } else {
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 
@@ -29,11 +34,11 @@ if ($this->Authorize->getIdentity()->isCoordinatorOf($team)) {
 if ($this->Authorize->getIdentity()->isManagerOf($team)) {
 	$options[VISIBILITY_ADMIN] = __('Administrators only');
 }
-echo $this->Form->input('visibility', [
+echo $this->Form->control('visibility', [
 	'options' => $options,
 	'hide_single' => true,
 ]);
-echo $this->Form->input('note', ['cols' => 70, 'class' => 'wysiwyg_simple']);
+echo $this->Form->control('note', ['cols' => 70, 'class' => 'wysiwyg_simple']);
 echo $this->Form->button(__('Submit'), ['class' => 'btn-success']);
 echo $this->Form->end();
 ?>

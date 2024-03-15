@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
+
 use Cake\Core\Configure;
 
 $email_css_file = ZULURU_RESOURCES . DS . 'email.css';

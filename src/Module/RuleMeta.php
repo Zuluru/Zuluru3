@@ -61,5 +61,5 @@ abstract class RuleMeta extends Rule {
 	/**
 	 * All meta rules need a way to merge results from various data sets.
 	 */
-	abstract protected function merge(Array $people);
+	abstract protected function merge(array $people);
 }

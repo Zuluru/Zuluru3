@@ -1,4 +1,13 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Game $game
+ * @var \App\Model\Entity\Team $for_team
+ * @var \App\Model\Entity\Team $from_team
+ * @var \App\Module\Spirit $spirit_obj
+ * @var int $index
+ */
+
 use Cake\Core\Configure;
 
 $prefix = "spirit_entries.{$index}";
@@ -43,12 +52,12 @@ if ($game->division->league->numeric_sotg) {
 		'secure' => false,
 	], $opts);
 
-	$spirit .= $this->Form->input("spirit_entries.{$index}.entered_sotg", $opts);
+	$spirit .= $this->Form->control("spirit_entries.{$index}.entered_sotg", $opts);
 }
 
 // Don't show this when submitting scores, just when editing. We don't need
 // to check admin/coordinator permissions, as that's already been done.
-if ($this->getRequest()->action == 'edit') {
+if ($this->getRequest()->getParam('action') == 'edit') {
 	$checked = false;
 	if (array_key_exists($index, $game->spirit_entries) &&
 		$game->spirit_entries[$index]->has('score_entry_penalty') &&
@@ -60,7 +69,7 @@ if ($this->getRequest()->action == 'edit') {
 	{
 		$checked = true;
 	}
-	$spirit .= $this->Form->input("spirit_entries.{$index}.score_entry_penalty", [
+	$spirit .= $this->Form->control("spirit_entries.{$index}.score_entry_penalty", [
 		'type' => 'checkbox',
 		'label' => __('Assign penalty for missing score entry?'),
 		'value' => -Configure::read('scoring.missing_score_spirit_penalty'),

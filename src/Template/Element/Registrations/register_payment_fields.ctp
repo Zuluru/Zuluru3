@@ -1,4 +1,11 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Event $event
+ * @var \App\Model\Entity\Price $price
+ * @var \App\Model\Entity\Registration $registration
+ */
+
 use App\Model\Table\PricesTable;
 
 if (isset($price) && !empty($price->canRegister) && empty($for_edit)) {
@@ -42,7 +49,7 @@ if (isset($price) && (($price->canRegister && $price->canRegister['allowed']) ||
 	]);
 
 	if ($price->allow_deposit && !$price->fixed_deposit) {
-		echo $this->Form->input('deposit_amount', [
+		echo $this->Form->control('deposit_amount', [
 			'default' => $default_type == 'Full' ? $price->minimum_deposit : $registration->deposit_amount,
 			'class' => 'deposit',
 			'secure' => false,

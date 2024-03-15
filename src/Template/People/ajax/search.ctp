@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
+
 if ($this->Authorize->getIdentity()->isManager()) {
 	echo $this->element('People/search_results', [
 		'extra_url' => [

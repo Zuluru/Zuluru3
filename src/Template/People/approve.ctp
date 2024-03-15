@@ -1,11 +1,15 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Person $person
+ */
 
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb(__('Approve Account'));
-$this->Html->addCrumb($person->full_name);
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add(__('Approve Account'));
+$this->Breadcrumbs->add($person->full_name);
 ?>
 
 <div class="people approve">
@@ -258,7 +262,7 @@ if (!empty($duplicates) && !$activated && $person->user_id) {
 }
 
 echo $this->Form->create($person, ['align' => 'horizontal']);
-echo $this->Form->input('disposition', [
+echo $this->Form->control('disposition', [
 	'label' => __('This user should be:'),
 	'options' => $dispositions,
 	'empty' => '---',

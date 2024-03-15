@@ -1,7 +1,11 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
+
 $relatives = $this->UserCache->allActAs();
 if (!empty($relatives)) {
-	$url = array_merge(['action' => $this->getRequest()->action], $this->getRequest()->getQueryParams());
+	$url = array_merge(['action' => $this->getRequest()->getParam('action')], $this->getRequest()->getQueryParams());
 	$links = [];
 
 	foreach ($relatives as $id => $relative) {

@@ -30,13 +30,13 @@ class MessageForm extends Form {
 	protected function _buildValidator(Validator $validator) {
 		$validator
 			->requirePresence('subject', 'create')
-			->notEmpty('subject', __('Subject must not be blank.'))
+			->notEmptyString('subject', __('Subject must not be blank.'))
 
 			->requirePresence('message', 'create')
-			->notEmpty('message', __('Message must not be blank.'))
+			->notEmptyString('message', __('Message must not be blank.'))
 
 			->requirePresence('contact_id', 'create')
-			->notEmpty('contact_id', __('You must select a valid contact.'))
+			->notEmptyString('contact_id', __('You must select a valid contact.'))
 
 			;
 

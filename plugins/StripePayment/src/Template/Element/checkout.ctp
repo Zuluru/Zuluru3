@@ -1,12 +1,12 @@
 <?php
 /**
- * @type \App\View\AppView $this
- * @type \App\Model\Entity\Registration[] $registrations
- * @type \App\Model\Entity\Credit[] $debits
- * @type \App\Model\Entity\Person $person
- * @type \StripePayment\Event\Listener $listener
- * @type int $number_of_providers
- * @type bool $is_test
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Registration[] $registrations
+ * @var \App\Model\Entity\Credit[] $debits
+ * @var \App\Model\Entity\Person $person
+ * @var \StripePayment\Event\Listener $listener
+ * @var int $number_of_providers
+ * @var bool $is_test
  */
 
 use Cake\Core\Configure;
@@ -101,7 +101,7 @@ function open_payment_window_stripe() {
 		// Build the online payment form
 		$form_options = ['url' => '#', 'name' => 'stripe_form', 'escape' => false];
 		$submit_options = ['div' => false, 'alt' => 'Pay', 'onClick' => 'return open_payment_window_stripe();'];
-		echo $this->Form->create(false, $form_options);
+		echo $this->Form->create(null, $form_options);
 		echo $this->Form->submit(__n('Pay now', 'Pay with Stripe', $number_of_providers), $submit_options);
 		echo $this->Form->end();
 	} else {

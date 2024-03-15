@@ -1,20 +1,20 @@
 <?php
 /**
- * @type $team \App\Model\Entity\Team
- * @type $person \App\Model\Entity\Person
- * @type $adding boolean
- * @type $can_add boolean|string
- * @type $roster_role_options string[]
+ * @var \App\Model\Entity\Team $team
+ * @var \App\Model\Entity\Person $person
+ * @var bool $adding
+ * @var bool|string $can_add
+ * @var string[] $roster_role_options
  */
 
 use Cake\Core\Configure;
 
 $adding_noun = $adding ? __('Addition') : __('Invitation');
 
-$this->Html->addCrumb(__('Teams'));
-$this->Html->addCrumb($team->name);
-$this->Html->addCrumb(__('Roster {0}', $adding_noun));
-$this->Html->addCrumb($person->full_name);
+$this->Breadcrumbs->add(__('Teams'));
+$this->Breadcrumbs->add($team->name);
+$this->Breadcrumbs->add(__('Roster {0}', $adding_noun));
+$this->Breadcrumbs->add($person->full_name);
 ?>
 
 <div class="people form">
@@ -42,7 +42,7 @@ if ($can_add !== true) {
 echo $this->Form->create($team, ['align' => 'horizontal']);
 
 echo $this->Html->para(null, __('Possible roster roles are:'));
-echo $this->Form->input('role', [
+echo $this->Form->control('role', [
 	'label' => false,
 	'type' => 'radio',
 	'options' => $roster_role_options,
@@ -52,7 +52,7 @@ echo $this->Form->input('role', [
 $positions = $team->division_id ? Configure::read("sports.{$team->division->league->sport}.positions") : [];
 if (!empty($positions)) {
 	echo $this->Html->para(null, __('Possible roster positions are:'));
-	echo $this->Form->input('position', [
+	echo $this->Form->control('position', [
 		'label' => false,
 		'type' => 'radio',
 		'options' => $positions,

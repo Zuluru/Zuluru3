@@ -14,7 +14,7 @@ class FormatterBehavior extends Behavior {
 	protected $_defaultConfig = [];
 
 	public function format(Entity $entity) {
-		$config = $this->config();
+		$config = $this->getConfig();
 		$countryCode = \App\Lib\countryCode($entity);
 		foreach ($config['fields'] as $field => $formatter) {
 			if ($entity->has($field) && !empty($entity->$field)) {
@@ -25,7 +25,7 @@ class FormatterBehavior extends Behavior {
 				} else if (method_exists($this, $formatter)) {
 					$new = $this->$formatter($entity->$field, $countryCode);
 				} else {
-					trigger_error("Formatter $formatter not found for field $field in model " . $this->_table->alias(), E_USER_ERROR);
+					trigger_error("Formatter $formatter not found for field $field in model " . $this->_table->getAlias(), E_USER_ERROR);
 				}
 				if ($new != $entity->$field) {
 					$entity->set($field, $new);

@@ -1,3 +1,10 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ * @var array $params
+ */
+
+?>
 <?= $this->element('BootstrapUI.Flash/default', [
 	'message' => $this->element('Leagues/schedule/ratings_ladder_scheduled', $params),
 	'params' => [

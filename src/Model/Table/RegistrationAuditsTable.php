@@ -39,44 +39,44 @@ class RegistrationAuditsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->numeric('response_code')
 			->requirePresence('response_code', 'create')
-			->notEmpty('response_code')
+			->notEmptyString('response_code')
 
 			->numeric('iso_code')
-			->allowEmpty('iso_code')
+			->allowEmptyString('iso_code')
 
 			->requirePresence('date', 'create')
-			->notEmpty('date')
+			->notEmptyString('date')
 
 			->requirePresence('time', 'create')
-			->notEmpty('time')
+			->notEmptyString('time')
 
-			->allowEmpty('approval_code')
+			->allowEmptyString('approval_code')
 
-			->allowEmpty('transaction_name')
+			->allowEmptyString('transaction_name')
 
 			->decimal('charge_total')
 			->requirePresence('charge_total', 'create')
-			->notEmpty('charge_total')
+			->notEmptyString('charge_total')
 
-			->allowEmpty('cardholder')
+			->allowEmptyString('cardholder')
 
-			->allowEmpty('expiry')
+			->allowEmptyString('expiry')
 
-			->allowEmpty('f4l4')
+			->allowEmptyString('f4l4')
 
-			->allowEmpty('card')
+			->allowEmptyString('card')
 
-			->allowEmpty('message')
+			->allowEmptyString('message')
 
-			->allowEmpty('issuer')
+			->allowEmptyString('issuer')
 
-			->allowEmpty('issuer_invoice')
+			->allowEmptyString('issuer_invoice')
 
-			->allowEmpty('issuer_confirmation')
+			->allowEmptyString('issuer_confirmation')
 
 			;
 

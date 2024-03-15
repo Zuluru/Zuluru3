@@ -1,10 +1,15 @@
 <?php
-$this->Html->addCrumb(__('Holiday'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Holiday $holiday
+ */
+
+$this->Breadcrumbs->add(__('Holiday'));
 if ($holiday->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($holiday->name));
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(h($holiday->name));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 
@@ -13,15 +18,15 @@ if ($holiday->isNew()) {
 	<fieldset>
 		<legend><?= $holiday->isNew() ? __('Create Holiday') : __('Edit Holiday') ?></legend>
 <?php
-echo $this->Form->input('name');
+echo $this->Form->control('name');
 if ($holiday->isNew()) {
-	echo $this->Form->input('affiliate_id', [
+	echo $this->Form->control('affiliate_id', [
 		'options' => $affiliates,
 		'hide_single' => true,
 		'empty' => '---',
 	]);
 }
-echo $this->Form->input('date');
+echo $this->Form->control('date');
 ?>
 	</fieldset>
 	<?= $this->Form->button(__('Submit'), ['class' => 'btn-success']) ?>

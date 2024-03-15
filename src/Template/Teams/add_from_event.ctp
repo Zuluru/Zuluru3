@@ -1,14 +1,14 @@
 <?php
 /**
- * @type $team \App\Model\Entity\Team
- * @type $event \App\Model\Entity\Event
+ * @var \App\Model\Entity\Team $team
+ * @var \App\Model\Entity\Event $event
  */
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Team'));
-$this->Html->addCrumb(__('Add Player'));
-$this->Html->addCrumb($team->name);
+$this->Breadcrumbs->add(__('Team'));
+$this->Breadcrumbs->add(__('Add Player'));
+$this->Breadcrumbs->add($team->name);
 ?>
 
 <div class="teams add_player">
@@ -19,7 +19,7 @@ if (empty($event->registrations)) {
 	echo $this->Html->para(null, __('All people registered for {0} are already on this roster.', $event->name));
 } else {
 	echo $this->Html->para(null, __('The following people have registered and paid for {0} but are not on the current roster:', $event->name));
-	echo $this->Form->create(false, ['align' => 'horizontal']);
+	echo $this->form->create(null, ['align' => 'horizontal']);
 	echo $this->Form->hidden('event', ['value' => $event->id]);
 
 	$cannot = [];
@@ -27,7 +27,7 @@ if (empty($event->registrations)) {
 	foreach ($event->registrations as $registration) {
 		// TODOBOOTSTRAP: Better formatting of this list
 		if ($registration->can_add === true) {
-			echo $this->Form->input("player.{$registration->person_id}.role", [
+			echo $this->Form->control("player.{$registration->person_id}.role", [
 				'label' => [
 					'text' => $this->element('People/block', ['person' => $registration->person, 'link' => false]),
 					'escape' => false,

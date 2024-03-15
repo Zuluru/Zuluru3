@@ -65,7 +65,7 @@ class PluginsController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function deactivate() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
 		$id = $this->getRequest()->getQuery('plugin_id');
 		try {

@@ -1,6 +1,11 @@
 <?php
-$this->Html->addCrumb(__('Registration'));
-$this->Html->addCrumb(__('Redeem Credit'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Registration $registration
+ */
+
+$this->Breadcrumbs->add(__('Registration'));
+$this->Breadcrumbs->add(__('Redeem Credit'));
 ?>
 
 <div class="registrations form">

@@ -3,12 +3,12 @@ namespace App\Module;
 
 use App\Controller\AppController;
 use App\Model\Entity\Person;
+use App\Model\Table\PeopleTable;
 use Cake\Core\Configure;
 use Cake\Database\Expression\QueryExpression;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
-use App\Model\Table\PeopleTable;
 
 class ReportPeopleParticipation extends Report {
 	public function run($params, Person $recipient) {
@@ -30,7 +30,7 @@ class ReportPeopleParticipation extends Report {
 
 		$captains = Configure::read('privileged_roster_roles');
 
-		$membership_event_list = TableRegistry::getTableLocator()->get('Events')->find()
+		$membership_event_list = $events_table->find()
 			->contain(['EventTypes'])
 			->where(['EventTypes.type' => 'membership'])
 			->order(['Events.open', 'Events.close', 'Events.id'])

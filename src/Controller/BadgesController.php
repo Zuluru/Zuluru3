@@ -30,7 +30,7 @@ class BadgesController extends AppController {
 
 		$query = $this->Badges->find()
 			->select(['count' => 'COUNT(People.id)'])
-			->autoFields(true)
+			->enableAutoFields(true)
 			->matching('Affiliates', function (Query $q) use ($affiliates) {
 				return $q->where(['Affiliates.id IN' => $affiliates]);
 			})
@@ -80,7 +80,7 @@ class BadgesController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->getQuery('badge');
+		$id = $this->getRequest()->getQuery('badge');
 		try {
 			$badge = $this->Badges->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -121,7 +121,7 @@ class BadgesController extends AppController {
 	}
 
 	public function initialize_awards() {
-		$id = $this->request->getQuery('badge');
+		$id = $this->getRequest()->getQuery('badge');
 		try {
 			$badge = $this->Badges->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -154,9 +154,9 @@ class BadgesController extends AppController {
 	}
 
 	public function tooltip() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('badge');
+		$id = $this->getRequest()->getQuery('badge');
 		try {
 			$badge = $this->Badges->get($id, [
 				'contain' => ['People' => [
@@ -187,13 +187,13 @@ class BadgesController extends AppController {
 		$badge = $this->Badges->newEntity();
 		$this->Authorization->authorize($this);
 
-		if ($this->request->is('post')) {
-			$badge = $this->Badges->patchEntity($badge, $this->request->getData());
+		if ($this->getRequest()->is('post')) {
+			$badge = $this->Badges->patchEntity($badge, $this->getRequest()->getData());
 			if ($this->Badges->save($badge)) {
 				$this->Flash->success(__('The badge has been saved.'));
 				return $this->redirect(['action' => 'index']);
 			} else {
-				$this->Configuration->loadAffiliate($this->request->getData('affiliate_id'));
+				$this->Configuration->loadAffiliate($this->getRequest()->getData('affiliate_id'));
 				$this->Flash->warning(__('The badge could not be saved. Please correct the errors below and try again.'));
 			}
 		}
@@ -208,7 +208,7 @@ class BadgesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->getQuery('badge');
+		$id = $this->getRequest()->getQuery('badge');
 		try {
 			$badge = $this->Badges->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -222,8 +222,8 @@ class BadgesController extends AppController {
 		$this->Authorization->authorize($badge);
 		$this->Configuration->loadAffiliate($badge->affiliate_id);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$badge = $this->Badges->patchEntity($badge, $this->request->getData());
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$badge = $this->Badges->patchEntity($badge, $this->getRequest()->getData());
 			if ($this->Badges->save($badge)) {
 				$this->Flash->success(__('The badge has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -241,9 +241,9 @@ class BadgesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
 	 */
 	public function activate() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('badge');
+		$id = $this->getRequest()->getQuery('badge');
 		try {
 			$badge = $this->Badges->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -270,9 +270,9 @@ class BadgesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
 	 */
 	public function deactivate() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('badge');
+		$id = $this->getRequest()->getQuery('badge');
 		try {
 			$badge = $this->Badges->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -299,9 +299,9 @@ class BadgesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects to index.
 	 */
 	public function delete() {
-		$this->request->allowMethod(['post', 'delete']);
+		$this->getRequest()->allowMethod(['post', 'delete']);
 
-		$id = $this->request->getQuery('badge');
+		$id = $this->getRequest()->getQuery('badge');
 
 		try {
 			$badge = $this->Badges->get($id);
@@ -323,8 +323,8 @@ class BadgesController extends AppController {
 
 		if ($this->Badges->delete($badge)) {
 			$this->Flash->success(__('The badge has been deleted.'));
-		} else if ($badge->errors('delete')) {
-			$this->Flash->warning(current($badge->errors('delete')));
+		} else if ($badge->getError('delete')) {
+			$this->Flash->warning(current($badge->getError('delete')));
 		} else {
 			$this->Flash->warning(__('The badge could not be deleted. Please, try again.'));
 		}

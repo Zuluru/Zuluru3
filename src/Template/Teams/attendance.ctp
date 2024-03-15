@@ -1,12 +1,12 @@
 <?php
 /**
- * @type $this \App\View\AppView
- * @type $team \App\Model\Entity\Team
- * @type $games \App\Model\Entity\Game[]
- * @type $attendance \App\Model\Entity\Game[]
- * @type $event_attendance \App\Model\Entity\TeamEvent[]
- * @type $days int[]
- * @type $dates \Cake\I18n\FrozenDate[]
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Team $team
+ * @var \App\Model\Entity\Game[] $games
+ * @var \App\Model\Entity\Game[] $attendance
+ * @var \App\Model\Entity\TeamEvent[] $event_attendance
+ * @var int[] $days
+ * @var \Cake\I18n\FrozenDate[] $dates
  */
 
 use App\Authorization\ContextResource;
@@ -17,9 +17,9 @@ use App\Model\Entity\Game;
 use App\Model\Entity\GameSlot;
 use App\Model\Table\GamesTable;
 
-$this->Html->addCrumb(__('Teams'));
-$this->Html->addCrumb(__('Season Attendance'));
-$this->Html->addCrumb($team->name);
+$this->Breadcrumbs->add(__('Teams'));
+$this->Breadcrumbs->add(__('Season Attendance'));
+$this->Breadcrumbs->add($team->name);
 ?>
 
 <div class="teams attendance">
@@ -62,7 +62,7 @@ usort($all_items, [GamesTable::class, 'compareDateAndField']);
 
 $header_cells = [''];
 foreach ($all_items as $item) {
-	if (is_a($item, 'App\Model\Entity\Game')) {
+	if (is_a($item, \App\Model\Entity\Game::class)) {
 		if ($item->id) {
 			$header_cells[] = $this->element('Games/block', ['game' => $item, 'game_slot' => $item->game_slot]);
 		} else {
@@ -96,7 +96,7 @@ foreach ($people as $person):
 <?php
 	$total = 0;
 	foreach ($all_items as $key => $item):
-		if (is_a($item, 'App\Model\Entity\Game')) {
+		if (is_a($item, \App\Model\Entity\Game::class)) {
 			if ($item->id) {
 				$record = collection($person->attendances)->firstMatch(['game_id' => $item->id]);
 			} else {

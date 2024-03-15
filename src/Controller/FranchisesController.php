@@ -35,7 +35,7 @@ class FranchisesController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function index() {
-		$affiliate = $this->request->getQuery('affiliate');
+		$affiliate = $this->getRequest()->getQuery('affiliate');
 		$affiliates = $this->Authentication->applicableAffiliateIDs();
 		$this->set(compact('affiliates', 'affiliate'));
 
@@ -62,13 +62,13 @@ class FranchisesController extends AppController {
 	}
 
 	public function letter() {
-		$letter = strtoupper($this->request->getQuery('letter'));
+		$letter = strtoupper($this->getRequest()->getQuery('letter'));
 		if (!$letter) {
 			$this->Flash->info(__('Invalid letter.'));
 			return $this->redirect(['action' => 'index']);
 		}
 
-		$affiliate = $this->request->getQuery('affiliate');
+		$affiliate = $this->getRequest()->getQuery('affiliate');
 		$affiliates = $this->Authentication->applicableAffiliateIDs();
 		$this->set(compact('letter', 'affiliates', 'affiliate'));
 
@@ -99,7 +99,7 @@ class FranchisesController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->getQuery('franchise');
+		$id = $this->getRequest()->getQuery('franchise');
 		try {
 			$franchise = $this->Franchises->get($id, [
 				'contain' => [
@@ -130,9 +130,10 @@ class FranchisesController extends AppController {
 		$this->Authorization->authorize($this);
 
 		$franchise = $this->Franchises->newEntity();
-		if ($this->request->is('post')) {
-			$this->request->data['people'] = ['_ids' => [$this->UserCache->currentId()]];
-			$franchise = $this->Franchises->patchEntity($franchise, $this->request->getData());
+		if ($this->getRequest()->is('post')) {
+			$data = $this->getRequest()->getData();
+			$data['people'] = ['_ids' => [$this->UserCache->currentId()]];
+			$franchise = $this->Franchises->patchEntity($franchise, $data);
 			if ($this->Franchises->save($franchise)) {
 				$this->Flash->success(__('The franchise has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -152,7 +153,7 @@ class FranchisesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->getQuery('franchise');
+		$id = $this->getRequest()->getQuery('franchise');
 		try {
 			$franchise = $this->Franchises->get($id, [
 				'contain' => ['People']
@@ -168,8 +169,8 @@ class FranchisesController extends AppController {
 		$this->Authorization->authorize($franchise);
 		$this->Configuration->loadAffiliate($franchise->affiliate_id);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$franchise = $this->Franchises->patchEntity($franchise, $this->request->getData());
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$franchise = $this->Franchises->patchEntity($franchise, $this->getRequest()->getData());
 			if ($this->Franchises->save($franchise)) {
 				$this->Flash->success(__('The franchise has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -188,9 +189,9 @@ class FranchisesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects to index.
 	 */
 	public function delete() {
-		$this->request->allowMethod(['post', 'delete']);
+		$this->getRequest()->allowMethod(['post', 'delete']);
 
-		$id = $this->request->getQuery('franchise');
+		$id = $this->getRequest()->getQuery('franchise');
 		try {
 			$franchise = $this->Franchises->get($id, [
 				'contain' => ['People'],
@@ -213,8 +214,8 @@ class FranchisesController extends AppController {
 
 		if ($this->Franchises->delete($franchise)) {
 			$this->Flash->success(__('The franchise has been deleted.'));
-		} else if ($franchise->errors('delete')) {
-			$this->Flash->warning(current($franchise->errors('delete')));
+		} else if ($franchise->getError('delete')) {
+			$this->Flash->warning(current($franchise->getError('delete')));
 		} else {
 			$this->Flash->warning(__('The franchise could not be deleted. Please, try again.'));
 		}
@@ -228,7 +229,7 @@ class FranchisesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise
 	 */
 	public function add_team() {
-		$id = $this->request->getQuery('franchise');
+		$id = $this->getRequest()->getQuery('franchise');
 		try {
 			$franchise = $this->Franchises->get($id, [
 				'contain' => [
@@ -247,11 +248,11 @@ class FranchisesController extends AppController {
 		$this->Configuration->loadAffiliate($franchise->affiliate_id);
 
 		$teams = $this->UserCache->read('AllOwnedTeams');
-		if ($this->request->data) {
-			if (collection($franchise->teams)->firstMatch(['id' => $this->request->getData('team_id')])) {
+		if ($this->getRequest()->getData()) {
+			if (collection($franchise->teams)->firstMatch(['id' => $this->getRequest()->getData('team_id')])) {
 				$this->Flash->info(__('That team is already part of this franchise.'));
 			} else {
-				$team = collection($teams)->firstMatch(['id' => $this->request->getData('team_id')]);
+				$team = collection($teams)->firstMatch(['id' => $this->getRequest()->getData('team_id')]);
 				if (!$team) {
 					$this->Flash->info(__('You are not a captain, assistant captain or coach of the selected team.'));
 				}
@@ -276,9 +277,9 @@ class FranchisesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects to view.
 	 */
 	public function remove_team() {
-		$this->request->allowMethod(['post']);
+		$this->getRequest()->allowMethod(['post']);
 
-		$id = $this->request->getQuery('franchise');
+		$id = $this->getRequest()->getQuery('franchise');
 		try {
 			$franchise = $this->Franchises->get($id, [
 				'contain' => [
@@ -297,7 +298,7 @@ class FranchisesController extends AppController {
 		$this->Authorization->authorize($franchise);
 		$this->Configuration->loadAffiliate($franchise->affiliate_id);
 
-		$team_id = $this->request->getQuery('team');
+		$team_id = $this->getRequest()->getQuery('team');
 		if (!$team_id) {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect(['action' => 'view', 'franchise' => $id]);
@@ -352,7 +353,7 @@ class FranchisesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise
 	 */
 	public function add_owner() {
-		$id = $this->request->getQuery('franchise');
+		$id = $this->getRequest()->getQuery('franchise');
 		try {
 			$franchise = $this->Franchises->get($id, [
 				'contain' => [
@@ -372,7 +373,7 @@ class FranchisesController extends AppController {
 
 		$this->set(compact('franchise'));
 
-		$person_id = $this->request->getQuery('person');
+		$person_id = $this->getRequest()->getQuery('person');
 		if ($person_id != null) {
 			try {
 				$person = $this->Franchises->People->get($person_id, [
@@ -415,10 +416,10 @@ class FranchisesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects to view.
 	 */
 	public function remove_owner() {
-		$this->request->allowMethod(['post']);
+		$this->getRequest()->allowMethod(['post']);
 
-		$id = $this->request->getQuery('franchise');
-		$person_id = $this->request->getQuery('person');
+		$id = $this->getRequest()->getQuery('franchise');
+		$person_id = $this->getRequest()->getQuery('person');
 		try {
 			$franchise = $this->Franchises->get($id, [
 				'contain' => [

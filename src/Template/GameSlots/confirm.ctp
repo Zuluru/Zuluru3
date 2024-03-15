@@ -2,8 +2,16 @@
 use Cake\Core\Configure;
 use Cake\I18n\FrozenDate;
 
-$this->Html->addCrumb(__('Game Slots'));
-$this->Html->addCrumb(__('Confirm'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\GameSlot $game_slot
+ * @var string[] $weeks
+ * @var string[] $times
+ * @var \App\Model\Entity\Region[] $regions
+ */
+
+$this->Breadcrumbs->add(__('Game Slots'));
+$this->Breadcrumbs->add(__('Confirm'));
 ?>
 
 <div class="gameSlots form">
@@ -12,7 +20,7 @@ $this->Html->addCrumb(__('Confirm'));
 		<legend><?= __('Confirm Game Slots') ?></legend>
 <?php
 // The last form's fields need to be carried through as hidden fields
-$hidden = $this->getRequest()->data;
+$hidden = $this->getRequest()->getData();
 // ...and one new field
 $hidden['confirm'] = true;
 echo $this->element('hidden', ['fields' => $hidden]);

@@ -1,6 +1,11 @@
 <?php
-$this->Html->addCrumb(__('Upload Types'));
-$this->Html->addCrumb(__('List'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\UploadType[] $uploadTypes
+ */
+
+$this->Breadcrumbs->add(__('Upload Types'));
+$this->Breadcrumbs->add(__('List'));
 ?>
 
 <div class="upload_types index">

@@ -1,8 +1,13 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Waiver[] $waivers
+ */
+
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Waivers'));
-$this->Html->addCrumb(__('List'));
+$this->Breadcrumbs->add(__('Waivers'));
+$this->Breadcrumbs->add(__('List'));
 ?>
 
 <div class="waivers index">

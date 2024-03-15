@@ -1,10 +1,15 @@
 <?php
-$this->Html->addCrumb(__('Upload Type'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\UploadType $upload_type
+ */
+
+$this->Breadcrumbs->add(__('Upload Type'));
 if ($upload_type->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($upload_type->name));
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(h($upload_type->name));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 
@@ -13,9 +18,9 @@ if ($upload_type->isNew()) {
 	<fieldset>
 		<legend><?= $upload_type->isNew() ? __('Create Upload Type') : __('Edit Upload Type') ?></legend>
 <?php
-echo $this->Form->input('name');
+echo $this->Form->control('name');
 if ($upload_type->isNew()) {
-	echo $this->Form->input('affiliate_id', [
+	echo $this->Form->control('affiliate_id', [
 		'options' => $affiliates,
 		'hide_single' => true,
 		'empty' => '---',

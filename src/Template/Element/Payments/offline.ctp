@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var string $offline
+ */
+
 use Cake\Core\Configure;
 
 $offline = Configure::read('registration.offline_payment_text');

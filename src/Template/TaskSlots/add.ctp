@@ -1,7 +1,13 @@
 <?php
-$this->Html->addCrumb($task->name);
-$this->Html->addCrumb(__('Task Slots'));
-$this->Html->addCrumb(__('Create'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Task $task
+ * @var \App\Model\Entity\TaskSlot $task_slot
+ */
+
+$this->Breadcrumbs->add($task->name);
+$this->Breadcrumbs->add(__('Task Slots'));
+$this->Breadcrumbs->add(__('Create'));
 ?>
 
 <div class="task_slots form">
@@ -9,16 +15,16 @@ $this->Html->addCrumb(__('Create'));
 	<fieldset>
 		<legend><?= __('Create Slots for the "{0}" Task', $task->name) ?></legend>
 <?php
-			echo $this->Form->input('task_date');
-			echo $this->Form->input('task_start');
-			echo $this->Form->input('task_end');
-			echo $this->Form->input('number_of_slots', [
+			echo $this->Form->control('task_date');
+			echo $this->Form->control('task_start');
+			echo $this->Form->control('task_end');
+			echo $this->Form->control('number_of_slots', [
 				'type' => 'number',
 				'size' => 3,
 				'default' => 1,
 				'help' => __('The system will add this many slots at the specified time.'),
 			]);
-			echo $this->Form->input('days_to_repeat', [
+			echo $this->Form->control('days_to_repeat', [
 				'type' => 'number',
 				'size' => 3,
 				'default' => 1,

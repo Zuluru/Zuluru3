@@ -1,8 +1,13 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\GameSlot $game_slot
+ */
+
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Game Slot'));
-$this->Html->addCrumb(__('Edit'));
+$this->Breadcrumbs->add(__('Game Slot'));
+$this->Breadcrumbs->add(__('Edit'));
 ?>
 
 <div class="gameSlots form">
@@ -21,10 +26,10 @@ echo $this->Jquery->ajaxInput('game_date', [
 	'looseYears' => true,
 ]);
 
-echo $this->Form->input('game_start', [
+echo $this->Form->control('game_start', [
 	'label' => __('Game start time'),
 ]);
-echo $this->Form->input('game_end', [
+echo $this->Form->control('game_end', [
 	'label' => __('Game time cap'),
 	'empty' => '---',
 	'help' => $game_slot->field->indoor ? null : __('Choose "---" to assign the default time cap (dark).'),
@@ -38,7 +43,7 @@ echo $this->Form->input('game_end', [
 if (empty($divisions)) {
 	echo __('No divisions operate on the selected night.');
 } else {
-	echo $this->Form->input('divisions._ids', [
+	echo $this->Form->control('divisions._ids', [
 		'label' => false,
 		'multiple' => 'checkbox',
 		'hiddenField' => false,

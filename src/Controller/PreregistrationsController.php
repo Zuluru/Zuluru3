@@ -33,8 +33,8 @@ class PreregistrationsController extends AppController {
 			],
 		];
 
-		if ($this->request->getQuery('event')) {
-			$event_id = $this->request->getQuery('event');
+		if ($this->getRequest()->getQuery('event')) {
+			$event_id = $this->getRequest()->getQuery('event');
 			if (!$event_id) {
 				$this->Flash->info(__('Invalid event.'));
 				return $this->redirect(['controller' => 'Events', 'action' => 'index']);
@@ -67,8 +67,8 @@ class PreregistrationsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
-		$event_id = $this->request->getQuery('event');
-		$person_id = $this->request->getQuery('person');
+		$event_id = $this->getRequest()->getQuery('event');
+		$person_id = $this->getRequest()->getQuery('person');
 
 		// If we have an event ID, verify it
 		if (!empty($event_id)) {
@@ -124,9 +124,9 @@ class PreregistrationsController extends AppController {
 			// we redirect to the page that handles that. This lets us add a batch
 			// of similar preregistrations easily with the "return" parameter.
 			// Any other post will be from the search form, handled below.
-			if ($this->request->is(['post']) && !empty($this->request->getData('event'))) {
-				return $this->redirect($this->request->getData());
-			} else if ($this->request->is('ajax')) {
+			if ($this->getRequest()->is(['post']) && !empty($this->getRequest()->getData('event'))) {
+				return $this->redirect($this->getRequest()->getData());
+			} else if ($this->getRequest()->is('ajax')) {
 				// Handle a post to the search form or a pagination link
 				$this->_handlePersonSearch(['event']);
 			} else if (!$event_id) {
@@ -151,7 +151,7 @@ class PreregistrationsController extends AppController {
 				$this->set(compact('events'));
 
 				// Any post that reached this point must not have selected an event
-				if ($this->request->is(['post'])) {
+				if ($this->getRequest()->is(['post'])) {
 					$this->Flash->warning(__('You must select an event!'));
 				}
 			}
@@ -166,9 +166,9 @@ class PreregistrationsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects to index.
 	 */
 	public function delete() {
-		$this->request->allowMethod(['post', 'delete']);
+		$this->getRequest()->allowMethod(['post', 'delete']);
 
-		$id = $this->request->getQuery('preregistration');
+		$id = $this->getRequest()->getQuery('preregistration');
 		try {
 			$preregistration = $this->Preregistrations->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -184,8 +184,8 @@ class PreregistrationsController extends AppController {
 		if ($this->Preregistrations->delete($preregistration)) {
 			$this->UserCache->clear('Preregistrations', $preregistration->person_id);
 			$this->Flash->success(__('The preregistration has been deleted.'));
-		} else if ($preregistration->errors('delete')) {
-			$this->Flash->warning(current($preregistration->errors('delete')));
+		} else if ($preregistration->getError('delete')) {
+			$this->Flash->warning(current($preregistration->getError('delete')));
 		} else {
 			$this->Flash->warning(__('The preregistration could not be deleted. Please, try again.'));
 		}

@@ -14,7 +14,7 @@ class RegisterController extends AppController {
 	public function index() {
 		$this->Authorization->authorize($this);
 
-		$person_id = $this->request->getQuery('person');
+		$person_id = $this->getRequest()->getQuery('person');
 		if ($person_id != null) {
 			try {
 				$person = TableRegistry::getTableLocator()->get('People')->get($person_id);

@@ -1,10 +1,15 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Game $game
+ */
+
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 
-$this->Html->addCrumb(__('Games'));
-$this->Html->addCrumb(__('{0} vs {1}', $game->home_team->name, $game->away_team->name));
-$this->Html->addCrumb(__('Edit Box Score'));
+$this->Breadcrumbs->add(__('Games'));
+$this->Breadcrumbs->add(__('{0} vs {1}', $game->home_team->name, $game->away_team->name));
+$this->Breadcrumbs->add(__('Edit Box Score'));
 
 $team_names = [
 	$game->home_team->id => $game->home_team->name,
@@ -75,7 +80,7 @@ foreach ($game->score_details as $detail) {
 ?>
 		<tr id="add_row">
 			<td><?php
-			echo $this->Form->input('add_detail.team_id', [
+			echo $this->Form->control('add_detail.team_id', [
 				'type' => 'select',
 				'options' => $team_names,
 				'empty' => '---',
@@ -86,7 +91,7 @@ foreach ($game->score_details as $detail) {
 			echo $this->Form->hidden('add_detail.created.year', ['value' => $game->game_slot->game_date->year]);
 			echo $this->Form->hidden('add_detail.created.month', ['value' => $game->game_slot->game_date->month]);
 			echo $this->Form->hidden('add_detail.created.day', ['value' => $game->game_slot->game_date->day]);
-			echo $this->Form->input('add_detail.created', [
+			echo $this->Form->control('add_detail.created', [
 				'type' => 'time',
 				// This will use the time of the previous detail as the default
 				'value' => $created,
@@ -94,7 +99,7 @@ foreach ($game->score_details as $detail) {
 			]);
 			?></td>
 			<td><?php
-			echo $this->Form->input('add_detail.play', [
+			echo $this->Form->control('add_detail.play', [
 				'options' => array_merge(
 					Configure::read("sports.{$game->division->league->sport}.score_options"),
 					['Start' => __('Start'), 'Timeout' => __('Timeout')],

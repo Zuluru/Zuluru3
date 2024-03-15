@@ -1,13 +1,13 @@
 <?php
 /**
- * @type $credit \App\Model\Entity\Credit
- * @type $relatives \App\Model\Entity\Person[]
- * @type $captains \App\Model\Entity\Person[]
+ * @var \App\Model\Entity\Credit $credit
+ * @var \App\Model\Entity\Person[] $relatives
+ * @var \App\Model\Entity\Person[] $captains
  */
 
-$this->Html->addCrumb(__('Credit'));
-$this->Html->addCrumb($credit->person->full_name);
-$this->Html->addCrumb(__('Transfer'));
+$this->Breadcrumbs->add(__('Credit'));
+$this->Breadcrumbs->add($credit->person->full_name);
+$this->Breadcrumbs->add(__('Transfer'));
 ?>
 
 <div class="credits form">

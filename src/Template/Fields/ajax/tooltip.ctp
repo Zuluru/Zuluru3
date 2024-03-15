@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Field $field
+ */
+
 use Cake\Core\Configure;
 ?>
 

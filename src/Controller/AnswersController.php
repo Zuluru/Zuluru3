@@ -19,9 +19,9 @@ class AnswersController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
 	 */
 	public function activate() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('answer');
+		$id = $this->getRequest()->getQuery('answer');
 		try {
 			$answer = $this->Answers->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -49,9 +49,9 @@ class AnswersController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
 	 */
 	public function deactivate() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('answer');
+		$id = $this->getRequest()->getQuery('answer');
 		try {
 			$answer = $this->Answers->get($id);
 		} catch (RecordNotFoundException $ex) {

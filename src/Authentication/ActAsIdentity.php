@@ -63,7 +63,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 		$this->authorization = $auth;
 		$this->identity = $identity->getOriginalData();
 
-		if (is_a($this->identity, 'App\Model\Entity\Person')) {
+		if (is_a($this->identity, \App\Model\Entity\Person::class)) {
 			// Handle creating an identity from a person instead of a user.
 			// At this time, this is used only in the relative_notice element,
 			// which doesn't need user information at all, so we fake it.
@@ -266,17 +266,17 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 			$affiliate_id = $entity;
 		} else if ($entity->has('affiliate_id')) {
 			$affiliate_id = $entity->affiliate_id;
-		} else if (is_a($entity, 'App\Model\Entity\Affiliate')) {
+		} else if (is_a($entity, \App\Model\Entity\Affiliate::class)) {
 			$affiliate_id = $entity->id;
-		} else if (is_a($entity, 'App\Model\Entity\Person')) {
+		} else if (is_a($entity, \App\Model\Entity\Person::class)) {
 			$affiliates = UserCache::getInstance()->read('AffiliateIDs', $entity->id);
 			$intersection = array_intersect($this->_managedAffiliateIds, $affiliates);
 			return !empty($intersection);
-		} else if (is_a($entity, 'App\Model\Entity\Note') && $entity->person_id) {
+		} else if (is_a($entity, \App\Model\Entity\Note::class) && $entity->person_id) {
 			$affiliates = UserCache::getInstance()->read('AffiliateIDs', $entity->person_id);
 			$intersection = array_intersect($this->_managedAffiliateIds, $affiliates);
 			return !empty($intersection);
-		} else if (is_a($entity, 'App\Model\Entity\User')) {
+		} else if (is_a($entity, \App\Model\Entity\User::class)) {
 			if ($entity->has('person')) {
 				$person_id = $entity->person->id;
 			} else {
@@ -307,7 +307,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 
 		if (is_numeric($entity)) {
 			$division_id = $entity;
-		} else if (is_a($entity, 'App\Model\Entity\League')) {
+		} else if (is_a($entity, \App\Model\Entity\League::class)) {
 			// Special case to check if a coordinator coordinates all divisions in a league
 			if (isset($entity->divisions)) {
 				$league_divisions = collection($entity->divisions)->extract('id')->toArray();
@@ -316,7 +316,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 			}
 			$intersection = array_intersect($this->_coordinatedDivisionIds, $league_divisions);
 			return (count($league_divisions) == count($intersection));
-		} else if (is_a($entity, 'App\Model\Entity\Division')) {
+		} else if (is_a($entity, \App\Model\Entity\Division::class)) {
 			$division_id = $entity->id;
 		} else if ($entity->has('division_id')) {
 			$division_id = $entity->division_id;
@@ -378,9 +378,9 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 
 		if (is_numeric($entity)) {
 			$team_id = $entity;
-		} else if (is_a($entity, 'App\Model\Entity\Team')) {
+		} else if (is_a($entity, \App\Model\Entity\Team::class)) {
 			$team_id = $entity->id;
-		} else if (is_a($entity, 'App\Model\Entity\Game')) {
+		} else if (is_a($entity, \App\Model\Entity\Game::class)) {
 			return in_array($entity->home_team_id, $this->_captainedTeamIds) || in_array($entity->away_team_id, $this->_captainedTeamIds);
 		} else if ($entity->has('team_id')) {
 			$team_id = $entity->team_id;
@@ -406,9 +406,9 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 
 		if (is_numeric($entity)) {
 			$team_id = $entity;
-		} else if (is_a($entity, 'App\Model\Entity\Team')) {
+		} else if (is_a($entity, \App\Model\Entity\Team::class)) {
 			$team_id = $entity->id;
-		} else if (is_a($entity, 'App\Model\Entity\Game')) {
+		} else if (is_a($entity, \App\Model\Entity\Game::class)) {
 			return in_array($entity->home_team_id, $this->_allCaptainedTeamIds) || in_array($entity->away_team_id, $this->_allCaptainedTeamIds);
 		} else if ($entity->has('team_id')) {
 			$team_id = $entity->team_id;
@@ -434,9 +434,9 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 
 		if (is_numeric($entity)) {
 			$team_id = $entity;
-		} else if (is_a($entity, 'App\Model\Entity\Team')) {
+		} else if (is_a($entity, \App\Model\Entity\Team::class)) {
 			$team_id = $entity->id;
-		} else if (is_a($entity, 'App\Model\Entity\Game')) {
+		} else if (is_a($entity, \App\Model\Entity\Game::class)) {
 			return in_array($entity->home_team_id, $this->_teamIds) || in_array($entity->away_team_id, $this->_teamIds);
 		} else if ($entity->has('team_id')) {
 			$team_id = $entity->team_id;
@@ -462,7 +462,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 
 		if (is_numeric($entity)) {
 			$team_id = $entity;
-		} else if (is_a($entity, 'App\Model\Entity\Team')) {
+		} else if (is_a($entity, \App\Model\Entity\Team::class)) {
 			$team_id = $entity->id;
 		} else if ($entity->has('team_id')) {
 			$team_id = $entity->team_id;
@@ -488,7 +488,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 
 		if (is_numeric($entity)) {
 			$team_id = $entity;
-		} else if (is_a($entity, 'App\Model\Entity\Team')) {
+		} else if (is_a($entity, \App\Model\Entity\Team::class)) {
 			$team_id = $entity->id;
 		} else if ($entity->has('team_id')) {
 			$team_id = $entity->team_id;
@@ -514,7 +514,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 
 		if (is_numeric($entity)) {
 			$team_id = $entity;
-		} else if (is_a($entity, 'App\Model\Entity\Team')) {
+		} else if (is_a($entity, \App\Model\Entity\Team::class)) {
 			$team_id = $entity->id;
 		} else if ($entity->has('team_id')) {
 			$team_id = $entity->team_id;
@@ -532,9 +532,9 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 	public function isMe($entity) {
 		if (is_numeric($entity)) {
 			$person_id = $entity;
-		} else if (is_a($entity, 'App\Model\Entity\Person')) {
+		} else if (is_a($entity, \App\Model\Entity\Person::class)) {
 			$person_id = $entity->id;
-		} else if (is_a($entity, 'App\Model\Entity\User')) {
+		} else if (is_a($entity, \App\Model\Entity\User::class)) {
 			if ($entity->has('person')) {
 				$person_id = $entity->person->id;
 			} else {
@@ -570,9 +570,9 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 
 		if (is_numeric($entity)) {
 			$person_id = $entity;
-		} else if (is_a($entity, 'App\Model\Entity\Person')) {
+		} else if (is_a($entity, \App\Model\Entity\Person::class)) {
 			$person_id = $entity->id;
-		} else if (is_a($entity, 'App\Model\Entity\User')) {
+		} else if (is_a($entity, \App\Model\Entity\User::class)) {
 			if ($entity->has('person')) {
 				$person_id = $entity->person->id;
 			} else {

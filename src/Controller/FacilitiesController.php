@@ -25,7 +25,7 @@ class FacilitiesController extends AppController {
 	public function beforeFilter(\Cake\Event\Event $event) {
 		parent::beforeFilter($event);
 		if (isset($this->Security)) {
-			$this->Security->config('unlockedActions', ['add', 'edit']);
+			$this->Security->setConfig('unlockedActions', ['add', 'edit']);
 		}
 	}
 
@@ -95,7 +95,7 @@ class FacilitiesController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->getQuery('facility');
+		$id = $this->getRequest()->getQuery('facility');
 		try {
 			$facility = $this->Facilities->get($id, [
 				'contain' => [
@@ -128,14 +128,14 @@ class FacilitiesController extends AppController {
 		$facility = $this->Facilities->newEntity();
 		$this->Authorization->authorize($this);
 
-		if ($this->request->is('post')) {
-			$facility = $this->Facilities->patchEntity($facility, $this->request->getData());
+		if ($this->getRequest()->is('post')) {
+			$facility = $this->Facilities->patchEntity($facility, $this->getRequest()->getData());
 			if ($this->Facilities->save($facility, ['fields' => $facility->fields])) {
 				$this->Flash->success(__('The facility has been saved.'));
 				return $this->redirect(['action' => 'index']);
 			} else {
 				$this->Flash->warning(__('The facility could not be saved. Please correct the errors below and try again.'));
-				$this->Configuration->loadAffiliate($this->Facilities->Regions->affiliate($this->request->getData('region_id')));
+				$this->Configuration->loadAffiliate($this->Facilities->Regions->affiliate($this->getRequest()->getData('region_id')));
 			}
 		} else {
 			$this->Facilities->patchEntity($facility, [
@@ -164,7 +164,7 @@ class FacilitiesController extends AppController {
 		}
 		$this->set(compact('facility', 'regions', 'affiliates'));
 		$this->_loadAddressOptions();
-		$this->set('region', $this->request->getQuery('region'));
+		$this->set('region', $this->getRequest()->getQuery('region'));
 		$this->render('edit');
 	}
 
@@ -174,7 +174,7 @@ class FacilitiesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->getQuery('facility');
+		$id = $this->getRequest()->getQuery('facility');
 		try {
 			$facility = $this->Facilities->get($id, [
 				'contain' => [
@@ -197,14 +197,15 @@ class FacilitiesController extends AppController {
 		$this->Authorization->authorize($facility);
 		$this->Configuration->loadAffiliate($facility->region->affiliate_id);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			if (!$this->request->getData('is_open')) {
-				foreach (array_keys($this->request->getData('fields')) as $key) {
-					$this->request->data['fields'][$key]['is_open'] = false;
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$data = $this->getRequest()->getData();
+			if (!$data['is_open']) {
+				foreach (array_keys($data['fields']) as $key) {
+					$data['fields'][$key]['is_open'] = false;
 				}
 			}
 
-			$facility = $this->Facilities->patchEntity($facility, $this->request->getData());
+			$facility = $this->Facilities->patchEntity($facility, $data);
 			if ($this->Facilities->save($facility, ['fields' => $facility->fields])) {
 				$this->Flash->success(__('The facility has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -219,7 +220,7 @@ class FacilitiesController extends AppController {
 		])->toArray();
 		$this->set(compact('facility', 'regions', 'affiliates'));
 		$this->_loadAddressOptions();
-		$this->set('region', $this->request->getQuery('region'));
+		$this->set('region', $this->getRequest()->getQuery('region'));
 	}
 
 	/**
@@ -230,7 +231,7 @@ class FacilitiesController extends AppController {
 	public function add_field() {
 		$this->Authorization->authorize($this);
 
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 		$facility = $this->Facilities->newEntity();
 		$this->set(compact('facility'));
 	}
@@ -241,9 +242,9 @@ class FacilitiesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
 	 */
 	public function open() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('facility');
+		$id = $this->getRequest()->getQuery('facility');
 		try {
 			$facility = $this->Facilities->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -270,9 +271,9 @@ class FacilitiesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
 	 */
 	public function close() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('facility');
+		$id = $this->getRequest()->getQuery('facility');
 		try {
 			$facility = $this->Facilities->get($id, [
 				'contain' => ['Fields'],
@@ -306,9 +307,9 @@ class FacilitiesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects to index.
 	 */
 	public function delete() {
-		$this->request->allowMethod(['post', 'delete']);
+		$this->getRequest()->allowMethod(['post', 'delete']);
 
-		$id = $this->request->getQuery('facility');
+		$id = $this->getRequest()->getQuery('facility');
 
 		try {
 			$facility = $this->Facilities->get($id);
@@ -329,8 +330,8 @@ class FacilitiesController extends AppController {
 
 		if ($this->Facilities->delete($facility)) {
 			$this->Flash->success(__('The facility has been deleted.'));
-		} else if ($facility->errors('delete')) {
-			$this->Flash->warning(current($facility->errors('delete')));
+		} else if ($facility->getError('delete')) {
+			$this->Flash->warning(current($facility->getError('delete')));
 		} else {
 			$this->Flash->warning(__('The facility could not be deleted. Please, try again.'));
 		}

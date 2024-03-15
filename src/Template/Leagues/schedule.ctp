@@ -1,8 +1,8 @@
 <?php
 /**
- * @type $league \App\Model\Entity\League
- * @type $multi_day boolean
- * @type $edit_date \Cake\I18n\FrozenDate
+ * @var \App\Model\Entity\League $league
+ * @var bool $multi_day
+ * @var \Cake\I18n\FrozenDate $edit_date
  */
 
 use App\Model\Entity\Division;
@@ -11,9 +11,9 @@ use Cake\Core\Configure;
 $tournaments = collection($league->divisions)->every(function (Division $division) {
 	return $division->schedule_type == 'tournament';
 });
-$this->Html->addCrumb($tournaments ? __('Tournaments') : __('Leagues'));
-$this->Html->addCrumb($league->full_name);
-$this->Html->addCrumb(__('Schedule'));
+$this->Breadcrumbs->add($tournaments ? __('Tournaments') : __('Leagues'));
+$this->Breadcrumbs->add($league->full_name);
+$this->Breadcrumbs->add(__('Schedule'));
 ?>
 
 <?php

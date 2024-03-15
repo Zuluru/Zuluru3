@@ -57,38 +57,38 @@ class WaiversTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->requirePresence('name', 'create', __('The name cannot be blank.'))
-			->notEmpty('name', __('The name cannot be blank.'))
+			->notEmptyString('name', __('The name cannot be blank.'))
 
 			->requirePresence('description', 'create')
-			->notEmpty('description')
+			->notEmptyString('description')
 
 			->requirePresence('text', 'create', __('Waiver text cannot be blank.'))
-			->notEmpty('text', __('Waiver text cannot be blank.'))
+			->notEmptyString('text', __('Waiver text cannot be blank.'))
 
 			->boolean('active')
 			->requirePresence('active', 'create')
-			->notEmpty('active')
+			->notEmptyString('active')
 
 			->requirePresence('expiry_type', 'create')
-			->notEmpty('expiry_type')
+			->notEmptyString('expiry_type')
 
 			->numeric('start_month')
-			->allowEmpty('start_month')
+			->allowEmptyString('start_month')
 
 			->numeric('start_day')
-			->allowEmpty('start_day')
+			->allowEmptyString('start_day')
 
 			->numeric('end_month')
-			->allowEmpty('end_month')
+			->allowEmptyString('end_month')
 
 			->numeric('end_day')
-			->allowEmpty('end_day')
+			->allowEmptyString('end_day')
 
 			->numeric('duration')
-			->allowEmpty('duration')
+			->allowEmptyString('duration')
 
 			;
 
@@ -128,7 +128,7 @@ class WaiversTable extends AppTable {
 		}
 	}
 
-	public function findActive(Query $query, Array $options) {
+	public function findActive(Query $query, array $options) {
 		$query->where(['Waivers.active' => true]);
 
 		if (!empty($options['affiliates'])) {

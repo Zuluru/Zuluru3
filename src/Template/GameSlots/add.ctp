@@ -1,21 +1,21 @@
 <?php
 /**
- * @type $this \App\View\AppView
- * @type $regions \App\Model\Entity\Region[]
- * @type $field \App\Model\Entity\Field
- * @type $game_slot \App\Model\Entity\GameSlot
- * @type $affiliate \App\Model\Entity\Affiliate
- * @type $days array
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Region[] $regions
+ * @var \App\Model\Entity\Field $field
+ * @var \App\Model\Entity\GameSlot $game_slot
+ * @var \App\Model\Entity\Affiliate $affiliate
+ * @var array $days
  */
 
 use App\Model\Entity\Facility;
 use Cake\Core\Configure;
 
 if (isset($field)) {
-	$this->Html->addCrumb($field->long_name);
+	$this->Breadcrumbs->add($field->long_name);
 }
-$this->Html->addCrumb(__('Game Slots'));
-$this->Html->addCrumb(__('Create'));
+$this->Breadcrumbs->add(__('Game Slots'));
+$this->Breadcrumbs->add(__('Create'));
 ?>
 
 <div class="gameSlots form">
@@ -100,13 +100,13 @@ else:
 <?php
 			if (count($facility->fields) == 1):
 				$field = current($facility->fields);
-				echo $this->Form->input("fields.{$field->id}", [
+				echo $this->Form->control("fields.{$field->id}", [
 					'label' => $facility->name,
 					'type' => 'checkbox',
 					'hiddenField' => false,
 				]);
 			else:
-				echo $this->Form->input("facilities.{$facility->id}", [
+				echo $this->Form->control("facilities.{$facility->id}", [
 					'label' => [
 						'text' => $this->Jquery->toggleLink($facility->name, "#Facility{$facility->id}Fields"),
 						'escape' => false,
@@ -121,7 +121,7 @@ else:
 <?php
 				foreach ($facility->fields as $field):
 					echo $this->Html->tag('span',
-						$this->Form->input("fields.{$field->id}", [
+						$this->Form->control("fields.{$field->id}", [
 							'label' => $field->num,
 							'class' => "select_id_{$field->facility_id}",
 							'type' => 'checkbox',
@@ -155,22 +155,22 @@ endif;
 ?>
 		<legend><?= __('Game slot details') ?></legend>
 <?php
-echo $this->Form->input('game_start', [
+echo $this->Form->control('game_start', [
 	'label' => __('Start Time'),
 	'empty' => '---',
 	'help' => __('Time for games to start.'),
 ]);
-echo $this->Form->input('length', [
+echo $this->Form->control('length', [
 	'label' => __('Slot length'),
 	'options' => Configure::read('options.game_lengths'),
 	'help' => __('Length of game slot (in minutes), including buffer time below. If you want only a single game slot, leave this at 0 and just set start and end times.'),
 ]);
-echo $this->Form->input('buffer', [
+echo $this->Form->control('buffer', [
 	'label' => __('Game Buffer'),
 	'options' => Configure::read('options.game_buffers'),
 	'help' => __('Buffer between games (in minutes). If slot length is 0 above, this is ignored.'),
 ]);
-echo $this->Form->input('game_end', [
+echo $this->Form->control('game_end', [
 	'label' => __('End Time'),
 	'empty' => '---',
 	'help' => __('Time for games to end. Choose "---" to assign the default time cap (dark) for that week (not available if slot length is set above).'),
@@ -187,14 +187,14 @@ echo $this->Jquery->ajaxInput('game_date', [
 ]);
 // TODO: Include this only if there are existing divisions, open or opening in the future, which operate on multiple days
 // TODO: Check that the JS works when this isn't the case.
-echo $this->Form->input('days', [
+echo $this->Form->control('days', [
 	'label' => __('Days to Include', true),
 	'multiple' => 'checkbox',
 	'options' => $days,
 	'val' => [\Cake\I18n\FrozenDate::now()->format('N')],
 	'help' => __('Create the requested game slots on each of these days in each week.'),
 ]);
-echo $this->Form->input('weeks', [
+echo $this->Form->control('weeks', [
 	'label' => __('Weeks to Repeat'),
 	'options' => array_combine($r = range(1, 26), $r),
 	'help' => __('Number of weeks to repeat this game slot.'),
@@ -207,7 +207,7 @@ echo $this->Form->input('weeks', [
 if (empty($divisions)) {
 	echo __('No divisions operate on the selected night.');
 } else {
-	echo $this->Form->input('divisions._ids', [
+	echo $this->Form->control('divisions._ids', [
 		'label' => false,
 		'multiple' => 'checkbox',
 		'hiddenField' => false,

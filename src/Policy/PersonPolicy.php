@@ -330,8 +330,8 @@ class PersonPolicy extends AppPolicy {
 	}
 
 	public function canEmail(IdentityInterface $identity, Person $person) {
-        return $identity->isManager() ||
-		    $person->status === 'active' && $person->publish_email && $identity->isLoggedIn();
+		return $identity->isManager() ||
+			$person->status === 'active' && $person->publish_email && $identity->isLoggedIn();
 	}
 
 	public function canVcf(IdentityInterface $identity = null, Person $person) {

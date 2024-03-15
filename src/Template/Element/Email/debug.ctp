@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
+
 // TODO: Delete this; any chance Cake will make their version public instead of protected?
 if (!function_exists('_formatAddress')) {
 	function _formatAddress($val, $key) {

@@ -1,12 +1,12 @@
 <?php
 /**
- * @type $game \App\Model\Entity\Game
- * @type $team_id int
- * @type $sport_obj \App\Module\Sport
+ * @var \App\Model\Entity\Game $game
+ * @var int $team_id
+ * @var \App\Module\Sport $sport_obj
  */
 
-$this->Html->addCrumb(__('Games'));
-$this->Html->addCrumb(__('Submit Game Stats'));
+$this->Breadcrumbs->add(__('Games'));
+$this->Breadcrumbs->add(__('Submit Game Stats'));
 ?>
 
 <?php

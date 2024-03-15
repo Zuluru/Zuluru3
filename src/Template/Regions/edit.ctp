@@ -1,10 +1,15 @@
 <?php
-$this->Html->addCrumb(__('Regions'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Region $region
+ */
+
+$this->Breadcrumbs->add(__('Regions'));
 if ($region->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($region->name));
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(h($region->name));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 
@@ -13,9 +18,9 @@ if ($region->isNew()) {
 	<fieldset>
 		<legend><?= $region->isNew() ? __('Create Region') : __('Edit Region') ?></legend>
 <?php
-echo $this->Form->input('name');
+echo $this->Form->control('name');
 if ($region->isNew()) {
-	echo $this->Form->input('affiliate_id', [
+	echo $this->Form->control('affiliate_id', [
 		'options' => $affiliates,
 		'hide_single' => true,
 		'empty' => '---',

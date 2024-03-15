@@ -1,12 +1,12 @@
 <?php
 /**
- * @type \App\View\AppView $this
- * @type \App\Model\Entity\Registration[] $registrations
- * @type \App\Model\Entity\Credit[] $debits
- * @type \App\Model\Entity\Person $person
- * @type \ChasePayment\Event\Listener $listener
- * @type int $number_of_providers
- * @type bool $is_test
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Registration[] $registrations
+ * @var \App\Model\Entity\Credit[] $debits
+ * @var \App\Model\Entity\Person $person
+ * @var \ChasePayment\Event\Listener $listener
+ * @var int $number_of_providers
+ * @var bool $is_test
  */
 
 use Cake\Core\Configure;
@@ -74,7 +74,7 @@ if (Configure::read('payment.popup')) {
 	$submit_options['onClick'] = 'open_payment_window_chase();';
 }
 
-echo $this->Form->create(false, $form_options);
+echo $this->form->create(null, $form_options);
 
 if (!function_exists('quick_hidden')) {
 	function quick_hidden($ths, $name, $value) {

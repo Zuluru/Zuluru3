@@ -1,7 +1,12 @@
 <?php
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb($person->full_name);
-$this->Html->addCrumb(__('Deactivate'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Person $person
+ */
+
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add($person->full_name);
+$this->Breadcrumbs->add(__('Deactivate'));
 ?>
 
 <div class="people form">

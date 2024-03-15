@@ -57,11 +57,11 @@ class StatsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->numeric('value', __('Stats must be numeric.'))
 			->requirePresence('value', 'create', __('Stats must be numeric.'))
-			->notEmpty('value', __('Stats must be numeric.'))
+			->notEmptyString('value', __('Stats must be numeric.'))
 
 			;
 
@@ -80,7 +80,7 @@ class StatsTable extends AppTable {
 		$rules->add($rules->existsIn(['team_id'], 'Teams'));
 		$rules->add($rules->existsIn(['stat_type_id'], 'StatTypes'));
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			// Person_id can be zero for unlisted subs
 			if ($entity->person_id == 0) {
 				return true;

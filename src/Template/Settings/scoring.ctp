@@ -1,12 +1,12 @@
 <?php
 /**
- * @type $affiliate \App\Model\Entity\Affiliate
+ * @var \App\Model\Entity\Affiliate $affiliate
  */
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Settings'));
-$this->Html->addCrumb(__('Scoring'));
+$this->Breadcrumbs->add(__('Settings'));
+$this->Breadcrumbs->add(__('Scoring'));
 ?>
 
 <div class="settings form">
@@ -16,7 +16,7 @@ if ($affiliate) {
 } else {
 	$empty = false;
 }
-echo $this->Form->create(false, ['align' => 'horizontal']);
+echo $this->form->create(null, ['align' => 'horizontal']);
 
 echo $this->element('Settings/banner');
 ?>

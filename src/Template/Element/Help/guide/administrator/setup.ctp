@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ */
+?>
 <h2><?= __('{0}: {1}', __('Administrator Guide'), __('Site Setup and Configuration')) ?></h2>
 
 <p><?= __('If you are reading this page, you have successfully installed {0}. Congratulations!', ZULURU) ?></p>

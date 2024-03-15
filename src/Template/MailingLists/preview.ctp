@@ -1,9 +1,14 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\MailingList $mailing_list
+ */
+
 use App\Controller\AppController;
 
-$this->Html->addCrumb(__('Mailing Lists'));
-$this->Html->addCrumb($mailing_list->name);
-$this->Html->addCrumb(__('Preview'));
+$this->Breadcrumbs->add(__('Mailing Lists'));
+$this->Breadcrumbs->add($mailing_list->name);
+$this->Breadcrumbs->add(__('Preview'));
 ?>
 
 <div class="mailingLists preview">

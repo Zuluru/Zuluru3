@@ -1,14 +1,14 @@
 <?php
 /**
- * @type $team \App\Model\Entity\Team
+ * @var \App\Model\Entity\Team $team
  */
 
 use App\Authorization\ContextResource;
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Team'));
-$this->Html->addCrumb(h($team->name));
-$this->Html->addCrumb(__('View'));
+$this->Breadcrumbs->add(__('Team'));
+$this->Breadcrumbs->add(h($team->name));
+$this->Breadcrumbs->add(__('View'));
 
 if ($team->division_id) {
 	$context = new ContextResource($team, ['league' => $team->division->league, 'division' => $team->division, 'stat_types' => $team->division->league->stat_types]);

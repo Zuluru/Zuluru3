@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Game $game
+ * @var \App\Model\Entity\Team $team
+ */
+
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 use Cake\Utility\Inflector;
@@ -36,19 +42,19 @@ if (($has_stats && ($submitter == $team['id'] || $submitter === null)) || count(
 <div id="ScoreDetails<?= $team['id'] ?>" title="Scoring Play Details" class="form">
 <div class="zuluru">
 <?php
-echo $this->Form->create(false, [
+echo $this->form->create(null, [
 		'id' => "ScoreForm{$team['id']}",
 		'url' => $url_up,
 ]);
 
 echo $this->Form->hidden('team_id', ['value' => $team['id']]);
 echo $this->Form->hidden('score_from');
-echo $this->Form->input('play', [
+echo $this->Form->control('play', [
 		'options' => $score_options,
 		'empty' => '---',
 		'hide_single' => true,
 ]);
-echo $this->Form->input('created', [
+echo $this->Form->control('created', [
 		'type' => 'datetime',
 		'label' => __('Time'),
 ]);
@@ -72,7 +78,7 @@ if ($has_stats) {
 	asort($roster);
 
 	foreach($game['Division']['League']['StatType'] as $stat) {
-		echo $this->Form->input("Stat.{$stat['id']}", [
+		echo $this->Form->control("Stat.{$stat['id']}", [
 				'label' => __(Inflector::singularize($stat['name'])),
 				'options' => $roster,
 				'empty' => '---',
@@ -176,7 +182,7 @@ if (count($other_options) > 1):
 <div id="OtherDetails<?= $team['id'] ?>" title="<?= __('Other Details') ?>" class="form">
 <div class="zuluru">
 <?php
-	echo $this->Form->create(false, [
+	echo $this->form->create(null, [
 		'id' => "OtherForm{$team['id']}",
 		'url' => $url_other,
 	]);
@@ -184,11 +190,11 @@ if (count($other_options) > 1):
 	echo $this->Form->hidden('team_id', ['value' => $team['id']]);
 	echo $this->Form->hidden('score_from');
 	// TODO: Add in non-scoring stats that are being tracked for this division
-	echo $this->Form->input('play', [
+	echo $this->Form->control('play', [
 			'options' => $other_options,
 			'empty' => '---',
 	]);
-	echo $this->Form->input('created', [
+	echo $this->Form->control('created', [
 			'type' => 'datetime',
 			'label' => __('Time'),
 	]);

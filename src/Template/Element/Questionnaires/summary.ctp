@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Event $event
+ */
+
 $rows = [];
 foreach ($event->questionnaire->questions as $question) {
 	if (in_array($question->type, ['select', 'radio', 'checkbox'])) {

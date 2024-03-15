@@ -1,3 +1,9 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Module\Spirit $spirit_obj
+ */
+?>
 <p><?= __('Spirit symbols: ');
 $min = $spirit_obj->mins();
 $max = $spirit_obj->maxs();

@@ -62,23 +62,23 @@ class QuestionsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->requirePresence('name', 'create')
-			->notEmpty('name', __('The name cannot be blank.'))
+			->notEmptyString('name', __('The name cannot be blank.'))
 
 			->requirePresence('question', 'create')
-			->notEmpty('question')
+			->notEmptyString('question')
 
 			->requirePresence('type', 'create')
-			->notEmpty('type')
+			->notEmptyString('type')
 
 			->boolean('active')
-			->notEmpty('active')
+			->notEmptyString('active')
 
 			->boolean('anonymous', __('Indicate whether responses to this question will be anonymous.'))
 			->requirePresence('anonymous', 'create', __('Indicate whether responses to this question will be anonymous.'))
-			->notEmpty('anonymous', __('Indicate whether responses to this question will be anonymous.'))
+			->notEmptyString('anonymous', __('Indicate whether responses to this question will be anonymous.'))
 
 			;
 

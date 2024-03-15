@@ -1,9 +1,9 @@
 <?php
 /**
- * @type $this \App\View\AppView
- * @type $events \App\Model\Entity\Event[]
- * @type $category \App\Model\Entity\Category
- * @type $affiliates int[]
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Event[] $events
+ * @var \App\Model\Entity\Category $category
+ * @var int[] $affiliates
  */
 
 // Combine events by categories

@@ -1,8 +1,12 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
+
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb(__('Inactive Search'));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add(__('Inactive Search'));
 ?>
 
 <div class="people search">
@@ -12,12 +16,12 @@ $this->Html->addCrumb(__('Inactive Search'));
 if (Configure::read('feature.affiliates')):
 ?>
 	<div class="search form">
-		<?= $this->Form->create(false, ['align' => 'horizontal']) ?>
+		<?= $this->form->create(null, ['align' => 'horizontal']) ?>
 <?php
 	if (isset($affiliate_id)) {
 		echo $this->Form->hidden('affiliate_id', ['value' => $affiliate_id]);
 	} else if (isset($affiliates)) {
-		echo $this->Form->input('affiliate_id', [
+		echo $this->Form->control('affiliate_id', [
 				'options' => $affiliates,
 				'hide_single' => true,
 		]);

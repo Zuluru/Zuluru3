@@ -26,7 +26,7 @@ trait HasherTrait {
 		$this->initHasher();
 		if (is_array($input)) {
 			$input = implode(':', array_map(function ($value) {
-				if (is_a($value, 'Cake\Chronos\ChronosInterface')) {
+				if (is_a($value, \Cake\Chronos\ChronosInterface::class)) {
 					// Be absolutely certain that dates and times are always formatted the same, regardless of locale
 					return $value->toDateTimeString();
 				}
@@ -48,7 +48,7 @@ trait HasherTrait {
 		$this->initHasher();
 		if (is_array($input)) {
 			$input = implode(':', array_map(function ($value) {
-				if (is_a($value, 'Cake\Chronos\ChronosInterface')) {
+				if (is_a($value, \Cake\Chronos\ChronosInterface::class)) {
 					// Be absolutely certain that dates and times are always formatted the same, regardless of locale
 					return $value->toDateTimeString();
 				}

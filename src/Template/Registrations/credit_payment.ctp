@@ -1,16 +1,16 @@
 <?php
 /**
- * @type $registration \App\Model\Entity\Registration
- * @type $payment \App\Model\Entity\Payment
- * @type $refund \App\Model\Entity\Payment
+ * @var \App\Model\Entity\Registration $registration
+ * @var \App\Model\Entity\Payment $payment
+ * @var \App\Model\Entity\Payment $refund
  */
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Registration'));
-$this->Html->addCrumb($registration->person->full_name);
-$this->Html->addCrumb($registration->event->name);
-$this->Html->addCrumb(__('Credit Payment'));
+$this->Breadcrumbs->add(__('Registration'));
+$this->Breadcrumbs->add($registration->person->full_name);
+$this->Breadcrumbs->add($registration->event->name);
+$this->Breadcrumbs->add(__('Credit Payment'));
 ?>
 
 <div class="registrations form">
@@ -29,13 +29,13 @@ echo $this->Form->hidden('payment_type', [
 echo $this->Form->hidden('payment_method', [
 	'value' => 'Other',
 ]);
-echo $this->Form->input('payment_amount', [
+echo $this->Form->control('payment_amount', [
 	'label' => __('Credit Amount'),
 	'default' => ($refund->getErrors() || $registration->getErrors()) ? -$refund->amount : $payment->paid,
 ]);
 
 if (!in_array($registration->getOriginal('payment'), Configure::read('registration_cancelled'))) {
-	echo $this->Form->input('mark_refunded', [
+	echo $this->Form->control('mark_refunded', [
 		'label' => __('Mark this registration as refunded?'),
 		'type' => 'checkbox',
 		'checked' => true,
@@ -44,13 +44,13 @@ if (!in_array($registration->getOriginal('payment'), Configure::read('registrati
 	echo $this->Form->hidden('mark_refunded', ['value' => 0]);
 }
 
-echo $this->Form->input('notes', [
+echo $this->Form->control('notes', [
 	'type' => 'textarea',
 	'cols' => 72,
 	'help' => __('These notes will be preserved with the original registration, and are only visible to admins.'),
 ]);
 
-echo $this->Form->input('credit_notes', [
+echo $this->Form->control('credit_notes', [
 	'type' => 'textarea',
 	'cols' => 72,
 	'default' => __('Credit for registration for {0}', $registration->event->name),

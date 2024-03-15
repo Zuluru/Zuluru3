@@ -44,7 +44,7 @@ class CreditsController extends AppController {
 			return $this->redirect('/');
 		}
 
-		if ($this->request->is('csv')) {
+		if ($this->getRequest()->is('csv')) {
 			$date = FrozenDate::now()->format('Y-m-d');
 			$this->setResponse($this->getResponse()->withDownload("Credits - {$date}.csv"));
 		} else {
@@ -169,7 +169,7 @@ class CreditsController extends AppController {
 	}
 
 	public function transfer() {
-		$id = $this->request->getQuery('credit');
+		$id = $this->getRequest()->getQuery('credit');
 		try {
 			$credit = $this->Credits->get($id, [
 				'contain' => [
@@ -187,7 +187,7 @@ class CreditsController extends AppController {
 		$this->Authorization->authorize($credit);
 		$this->Configuration->loadAffiliate($credit->affiliate_id);
 
-		$person_id = $this->request->getQuery('person');
+		$person_id = $this->getRequest()->getQuery('person');
 		if ($person_id) {
 			try {
 				$person = $this->Credits->People->get($person_id, [

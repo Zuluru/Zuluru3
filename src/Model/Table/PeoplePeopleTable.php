@@ -51,11 +51,11 @@ class PeoplePeopleTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->boolean('approved')
 			->requirePresence('approved', 'create')
-			->notEmpty('approved')
+			->notEmptyString('approved')
 
 			;
 

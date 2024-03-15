@@ -34,12 +34,12 @@ $pk = "\$$singularVar->{$primaryKey[0]}";
 %>
 <?php
 /**
- * @type $<%= $singularVar %> \App\Model\Entity\<%= $singularHumanName %>
+ * @var \App\Model\Entity\<%= $singularHumanName %> $<%= $singularVar %>
  */
 
-$this->Html->addCrumb(__('<%= $singularHumanName %>'));
-$this->Html->addCrumb(h($<%= $singularVar %>-><%= $displayField %>));
-$this->Html->addCrumb(__('View'));
+$this->Breadcrumbs->add(__('<%= $singularHumanName %>'));
+$this->Breadcrumbs->add(h($<%= $singularVar %>-><%= $displayField %>));
+$this->Breadcrumbs->add(__('View'));
 ?>
 
 <div class="<%= $pluralVar %> view">
@@ -50,7 +50,7 @@ foreach ($fields as $field):
 	if (in_array($field, $primaryKey) || $field == $displayField) {
 		continue;
 	}
-	$type = $schema->columnType($field);
+	$type = $schema->getColumnType($field);
 	if (isset($associationFields[$field])):
 		$details = $associationFields[$field];
 %>

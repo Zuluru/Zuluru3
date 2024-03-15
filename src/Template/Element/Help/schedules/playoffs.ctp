@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ */
+?>
 <p><?= __('For all divisions except those with the "{0}" schedule type, you have the option to create a playoff schedule. Start from the {1} "{2}" page, look for the "{3}" link. This will take you through the normal "{2}" process, but with the applicable tournament scheduling options (based on the number of teams in the division).',
 	__('Tournament'),
 	$this->Html->iconImg('schedule_add_24.png'),

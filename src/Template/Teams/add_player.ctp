@@ -1,13 +1,13 @@
 <?php
 /**
- * @type $team \App\Model\Entity\Team
- * @type $teams \App\Model\Entity\Team[]
- * @type $events \App\Model\Entity\Event[]
+ * @var \App\Model\Entity\Team $team
+ * @var \App\Model\Entity\Team[] $teams
+ * @var \App\Model\Entity\Event[] $events
  */
 
-$this->Html->addCrumb(__('Team'));
-$this->Html->addCrumb(__('Add Player'));
-$this->Html->addCrumb(h($team->name));
+$this->Breadcrumbs->add(__('Team'));
+$this->Breadcrumbs->add(__('Add Player'));
+$this->Breadcrumbs->add(h($team->name));
 ?>
 
 <div class="teams add_player">
@@ -39,8 +39,8 @@ if (!empty($teams) && in_array($team->id, $this->UserCache->read('OwnedTeamIDs')
 			$options[$history->id] = "{$history->name} ({$history->division->full_league_name})";
 		}
 	}
-	echo $this->Form->create(false, ['url' => ['action' => 'add_from_team', 'team' => $team->id], 'align' => 'horizontal']);
-	echo $this->Form->input('team', [
+	echo $this->form->create(null, ['url' => ['action' => 'add_from_team', 'team' => $team->id], 'align' => 'horizontal']);
+	echo $this->Form->control('team', [
 		'label' => false,
 		'options' => $options,
 		'empty' => __('-- select from list --'),
@@ -57,8 +57,8 @@ if (!empty($events)) {
 	foreach ($events as $event) {
 		$options[$event->id] = $event->name;
 	}
-	echo $this->Form->create(false, ['url' => ['action' => 'add_from_event', 'team' => $team->id], 'align' => 'horizontal']);
-	echo $this->Form->input('event', [
+	echo $this->form->create(null, ['url' => ['action' => 'add_from_event', 'team' => $team->id], 'align' => 'horizontal']);
+	echo $this->Form->control('event', [
 		'label' => false,
 		'options' => $options,
 		'empty' => __('-- select from list --'),

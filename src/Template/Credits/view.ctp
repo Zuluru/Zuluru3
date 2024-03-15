@@ -1,12 +1,12 @@
 <?php
 /**
- * @type $credit \App\Model\Entity\Credit
+ * @var \App\Model\Entity\Credit $credit
  */
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Credit'));
-$this->Html->addCrumb(__('View'));
+$this->Breadcrumbs->add(__('Credit'));
+$this->Breadcrumbs->add(__('View'));
 ?>
 
 <div class="credits view">

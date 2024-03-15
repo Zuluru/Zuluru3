@@ -1,8 +1,14 @@
 <?php
-$this->Html->addCrumb(__('Teams'));
-$this->Html->addCrumb($team->name);
-$this->Html->addCrumb(__('Roster Request'));
-$this->Html->addCrumb($person->full_name);
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Team $team
+ * @var \App\Model\Entity\Person $person
+ */
+
+$this->Breadcrumbs->add(__('Teams'));
+$this->Breadcrumbs->add($team->name);
+$this->Breadcrumbs->add(__('Roster Request'));
+$this->Breadcrumbs->add($person->full_name);
 ?>
 
 <div class="people form">
@@ -14,7 +20,7 @@ echo $this->Html->para(null, __('You are requesting to join the team {0}.',
 
 echo $this->Html->para(null, __('Possible roster roles are:'));
 echo $this->Form->create($person, ['align' => 'horizontal']);
-echo $this->Form->input('role', [
+echo $this->Form->control('role', [
 	'label' => false,
 	'type' => 'radio',
 	'options' => $roster_role_options,

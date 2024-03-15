@@ -1,7 +1,7 @@
 <?php
 /**
- * @type $person \App\Model\Entity\Person
- * @type $credit \App\Model\Entity\Credit
+ * @var \App\Model\Entity\Person $person
+ * @var \App\Model\Entity\Credit $credit
  */
 use Cake\Core\Configure;
 ?>

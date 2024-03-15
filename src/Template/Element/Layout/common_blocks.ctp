@@ -2,6 +2,10 @@
 /**
  * Create a number of commonly-needed blocks that the various layouts can then use as required.
  * This element will not change any of the standard blocks: meta, css, script, content, etc.
+
+ * @var \Cake\View\View $this
+ * @var string $menu_element
+ * @var array $menu_items
  */
 
 use App\Controller\AppController;
@@ -14,7 +18,7 @@ use Cake\Routing\Router;
  */
 if (!$this->fetch('html')) {
 	$this->start('html');
-	echo $this->Html->doctype('html5');
+	echo '<!DOCTYPE html>';
 	printf('<html lang="%s">', Configure::read('App.language'));
 	$this->end();
 }
@@ -24,7 +28,7 @@ if (!$this->fetch('html')) {
  * We don't check whether there is one already, because there is ALWAYS one already, from the default view.
  */
 $this->start('title');
-$crumbs = $this->Html->getCrumbs(' &raquo; ');
+$crumbs = $this->Breadcrumbs->getAsString(' &raquo; ');
 if (!empty($crumbs)) {
 	echo $crumbs . ' : ';
 }
@@ -244,7 +248,7 @@ $this->end();
 /**
  * Default `body` blocks.
  */
-$this->prepend('body_attrs', ' class="' . implode(' ', [strtolower($this->getRequest()->getParam('controller')), $this->getRequest()->action]) . '" ');
+$this->prepend('body_attrs', ' class="' . implode(' ', [strtolower($this->getRequest()->getParam('controller')), $this->getRequest()->getParam('action')]) . '" ');
 if (!$this->fetch('body_start')) {
 	$this->start('body_start');
 	echo '<body' . $this->fetch('body_attrs') . '>';
@@ -352,7 +356,7 @@ endif;
  */
 $this->start('zuluru_content');
 echo $this->fetch('zuluru_menu');
-echo $this->Html->getCrumbList();
+echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
 if (!isset($error)) {
 	echo $this->fetch('zuluru_session');
 	echo $this->cell('Notices::next')->render();

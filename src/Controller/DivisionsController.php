@@ -55,7 +55,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->getQuery('division');
+		$id = $this->getRequest()->getQuery('division');
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -84,9 +84,9 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function tooltip() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('division');
+		$id = $this->getRequest()->getQuery('division');
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -118,7 +118,7 @@ class DivisionsController extends AppController {
 	 * @return \Cake\Network\Response|void
 	 */
 	public function stats() {
-		$id = intval($this->request->getQuery('division'));
+		$id = intval($this->getRequest()->getQuery('division'));
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -179,8 +179,8 @@ class DivisionsController extends AppController {
 
 		$this->set(compact('division', 'sport_obj'));
 
-		if ($this->request->is('csv')) {
-			$this->response->download("Stats - {$division->name}.csv");
+		if ($this->getRequest()->is('csv')) {
+			$this->getResponse()->withDownload("Stats - {$division->name}.csv");
 		}
 	}
 
@@ -190,7 +190,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
-		$league_id = $this->request->getQuery('league');
+		$league_id = $this->getRequest()->getQuery('league');
 		try {
 			$league = $this->Divisions->Leagues->get($league_id);
 		} catch (RecordNotFoundException $ex) {
@@ -206,17 +206,17 @@ class DivisionsController extends AppController {
 
 		$division = $this->Divisions->newEntity();
 
-		if ($this->request->is('post')) {
-			$division = $this->Divisions->patchEntity($division, $this->request->getData(), ['validateDays' => true]);
+		if ($this->getRequest()->is('post')) {
+			$division = $this->Divisions->patchEntity($division, $this->getRequest()->getData(), ['validateDays' => true]);
 			if ($this->Divisions->save($division)) {
 				$this->Flash->success(__('The division has been saved.'));
 				return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 			}
 			$this->Flash->warning(__('The division could not be saved. Please correct the errors below and try again.'));
-		} else if ($this->request->getQuery('division')) {
+		} else if ($this->getRequest()->getQuery('division')) {
 			// To clone a division, read the old one and remove the id
 			try {
-				$division = $this->Divisions->cloneWithoutIds($this->request->getQuery('division'), [
+				$division = $this->Divisions->cloneWithoutIds($this->getRequest()->getQuery('division'), [
 					'contain' => ['Days'],
 				]);
 			} catch (RecordNotFoundException $ex) {
@@ -245,7 +245,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = intval($this->request->getQuery('division'));
+		$id = intval($this->getRequest()->getQuery('division'));
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => ['Leagues', 'Days'],
@@ -261,8 +261,8 @@ class DivisionsController extends AppController {
 		$this->Authorization->authorize($division);
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$division = $this->Divisions->patchEntity($division, $this->request->getData(), ['validateDays' => true]);
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$division = $this->Divisions->patchEntity($division, $this->getRequest()->getData(), ['validateDays' => true]);
 
 			// This recalculation will save all changes including any modified division data
 			$rating_obj = $this->moduleRegistry->load("Ratings:{$division->rating_calculator}");
@@ -285,15 +285,15 @@ class DivisionsController extends AppController {
 	 * @return void Renders view, though that view may be empty.
 	 */
 	public function scheduling_fields() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 		$this->Authorization->authorize($this);
 
-		if (array_key_exists('divisions', $this->request->data)) {
-			$index = current(array_keys($this->request->getData('divisions')));
-			$type = $this->request->getData("divisions.$index.schedule_type");
+		if (array_key_exists('divisions', $this->getRequest()->getData())) {
+			$index = current(array_keys($this->getRequest()->getData('divisions')));
+			$type = $this->getRequest()->getData("divisions.$index.schedule_type");
 		} else {
 			$index = null;
-			$type = $this->request->getData('schedule_type');
+			$type = $this->getRequest()->getData('schedule_type');
 		}
 		$this->set('league_obj', $this->moduleRegistry->load("LeagueType:{$type}"));
 		$this->set(compact('index'));
@@ -305,7 +305,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise
 	 */
 	public function add_coordinator() {
-		$id = $this->request->getQuery('division');
+		$id = $this->getRequest()->getQuery('division');
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -330,7 +330,7 @@ class DivisionsController extends AppController {
 
 		$this->set(compact('division'));
 
-		$person_id = $this->request->getQuery('person');
+		$person_id = $this->getRequest()->getQuery('person');
 		if ($person_id != null) {
 			try {
 				$person = $this->Divisions->People->get($person_id, [
@@ -378,10 +378,10 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects to view.
 	 */
 	public function remove_coordinator() {
-		$this->request->allowMethod(['post']);
+		$this->getRequest()->allowMethod(['post']);
 
-		$id = $this->request->getQuery('division');
-		$person_id = $this->request->getQuery('person');
+		$id = $this->getRequest()->getQuery('division');
+		$person_id = $this->getRequest()->getQuery('person');
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -424,7 +424,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise
 	 */
 	public function add_teams() {
-		$id = $this->request->getQuery('division');
+		$id = $this->getRequest()->getQuery('division');
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -443,10 +443,10 @@ class DivisionsController extends AppController {
 		$this->Authorization->authorize($division);
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			$division->teams = [];
-			$default = array_merge($this->request->getData('teams.0'), ['division_id' => $id]);
-			foreach ($this->request->getData('teams') as $key => $team) {
+			$default = array_merge($this->getRequest()->getData('teams.0'), ['division_id' => $id]);
+			foreach ($this->getRequest()->getData('teams') as $key => $team) {
 				if (!empty($team['name'])) {
 					$division->teams[$key] = $this->Divisions->Teams->newEntity(array_merge($default, $team));
 				}
@@ -471,7 +471,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful save, renders view otherwise
 	 */
 	public function ratings() {
-		$id = intval($this->request->getQuery('division'));
+		$id = intval($this->getRequest()->getQuery('division'));
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -506,8 +506,8 @@ class DivisionsController extends AppController {
 
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$division = $this->Divisions->patchEntity($division, $this->request->getData());
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$division = $this->Divisions->patchEntity($division, $this->getRequest()->getData());
 			$rating_obj = $this->moduleRegistry->load("Ratings:{$division->rating_calculator}");
 
 			// This recalculation will save all changes including initial rating adjustments
@@ -528,7 +528,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful save, renders view otherwise
 	 */
 	public function seeds() {
-		$id = intval($this->request->getQuery('division'));
+		$id = intval($this->getRequest()->getQuery('division'));
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -563,13 +563,13 @@ class DivisionsController extends AppController {
 
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$division = $this->Divisions->patchEntity($division, $this->request->getData());
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$division = $this->Divisions->patchEntity($division, $this->getRequest()->getData());
 
-			$seeds = collection($this->request->getData('teams'))->extract('initial_seed')->toArray();
-			if (count($this->request->getData('teams')) != count(array_unique($seeds))) {
+			$seeds = collection($this->getRequest()->getData('teams'))->extract('initial_seed')->toArray();
+			if (count($this->getRequest()->getData('teams')) != count(array_unique($seeds))) {
 				$this->Flash->warning(__('Each team must have a unique initial seed.'));
-			} else if (min($seeds) != 1 || count($this->request->getData('teams')) != max($seeds)) {
+			} else if (min($seeds) != 1 || count($this->getRequest()->getData('teams')) != max($seeds)) {
 				$this->Flash->warning(__('Initial seeds must start at 1 and not skip any.'));
 			} else {
 				foreach ($division->teams as $team) {
@@ -593,17 +593,14 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects to index.
 	 */
 	public function delete() {
-		$this->request->allowMethod(['post', 'delete']);
+		$this->getRequest()->allowMethod(['post', 'delete']);
 
-		$id = $this->request->getQuery('division');
+		$id = $this->getRequest()->getQuery('division');
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => ['Leagues' => ['Divisions']],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid division.'));
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
@@ -618,8 +615,8 @@ class DivisionsController extends AppController {
 
 		if ($this->Divisions->delete($division)) {
 			$this->Flash->success(__('The division has been deleted.'));
-		} else if ($division->errors('delete')) {
-			$this->Flash->warning(current($division->errors('delete')));
+		} else if ($division->getError('delete')) {
+			$this->Flash->warning(current($division->getError('delete')));
 		} else {
 			$this->Flash->warning(__('The division could not be deleted. Please, try again.'));
 		}
@@ -632,7 +629,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
 	 */
 	public function schedule() {
-		$id = intval($this->request->getQuery('division'));
+		$id = intval($this->getRequest()->getQuery('division'));
 
 		// Hopefully, everything we need is already cached
 		$division = Cache::remember("division/{$id}/schedule", function () use ($id) {
@@ -728,7 +725,7 @@ class DivisionsController extends AppController {
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
 		if ($this->Authorization->can($division, 'edit_schedule')) {
-			$edit_date = $this->request->getQuery('edit_date');
+			$edit_date = $this->getRequest()->getQuery('edit_date');
 		} else {
 			$edit_date = null;
 		}
@@ -754,13 +751,13 @@ class DivisionsController extends AppController {
 		}
 
 		// Save posted data
-		if ($this->request->is(['patch', 'post', 'put']) && $this->Authorization->can($division, 'edit_schedule')) {
+		if ($this->getRequest()->is(['patch', 'post', 'put']) && $this->Authorization->can($division, 'edit_schedule')) {
 			$this->loadComponent('Lock');
 
 			if ($this->Lock->lock('scheduling', $this->Divisions->affiliate($id), 'schedule creation or edit')) {
 				try {
-					$edit_games = $this->Divisions->Games->patchEntities($division->games, $this->request->getData('games'),
-						array_merge($this->request->getData('options'), ['validate' => 'scheduleEdit'])
+					$edit_games = $this->Divisions->Games->patchEntities($division->games, $this->getRequest()->getData('games'),
+						array_merge($this->getRequest()->getData('options'), ['validate' => 'scheduleEdit'])
 					);
 
 					$edit_ids = collection($edit_games)->extract('id')->toArray();
@@ -772,7 +769,7 @@ class DivisionsController extends AppController {
 
 					if ($this->Divisions->Games->getConnection()->transactional(function () use ($division, $edit_games, $game_slots) {
 						$success = true;
-						$options = array_merge($this->request->getData('options'), [
+						$options = array_merge($this->getRequest()->getData('options'), [
 							'games' => $edit_games,
 							'game_slots' => $game_slots,
 							'validate' => 'scheduleEdit',
@@ -819,9 +816,9 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
 	 */
 	public function standings() {
-		$id = intval($this->request->getQuery('division'));
-		$team_id = $this->request->getQuery('team');
-		$show_all = $this->request->getQuery('full') || $this->request->is('json');
+		$id = intval($this->getRequest()->getQuery('division'));
+		$team_id = $this->getRequest()->getQuery('team');
+		$show_all = $this->getRequest()->getQuery('full') || $this->getRequest()->is('json');
 
 		try {
 			$division = $this->Divisions->get($id, [
@@ -888,7 +885,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
 	 */
 	public function scores() {
-		$id = $this->request->getQuery('division');
+		$id = $this->getRequest()->getQuery('division');
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -951,7 +948,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
 	 */
 	public function fields() {
-		$id = $this->request->getQuery('division');
+		$id = $this->getRequest()->getQuery('division');
 
 		$conditions = [
 			'OR' => [
@@ -960,7 +957,7 @@ class DivisionsController extends AppController {
 			],
 		];
 
-		if ($this->request->getQuery('published')) {
+		if ($this->getRequest()->getQuery('published')) {
 			$conditions['Games.published'] = true;
 			$this->set('published', true);
 		}
@@ -1026,7 +1023,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
 	 */
 	public function slots() {
-		$id = $this->request->getQuery('division');
+		$id = $this->getRequest()->getQuery('division');
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => ['Leagues'],
@@ -1054,9 +1051,9 @@ class DivisionsController extends AppController {
 			->extract('game_date')
 			->toArray();
 
-		$date = $this->request->getQuery('date');
-		if ($this->request->is('post') && array_key_exists('date', $this->request->data)) {
-			$date = $this->request->getData('date');
+		$date = $this->getRequest()->getQuery('date');
+		if ($this->getRequest()->is('post') && array_key_exists('date', $this->getRequest()->getData())) {
+			$date = $this->getRequest()->getData('date');
 			// TODO: Is there a way to make the Ajax form submitter not send the string literal "null"?
 			if (empty($date) || $date == 'null') {
 				$this->Flash->info(__('You must select a date.'));
@@ -1118,7 +1115,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
 	 */
 	public function status() {
-		$id = $this->request->getQuery('division');
+		$id = $this->getRequest()->getQuery('division');
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -1263,7 +1260,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
 	 */
 	public function allstars() {
-		$id = $this->request->getQuery('division');
+		$id = $this->getRequest()->getQuery('division');
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -1281,7 +1278,7 @@ class DivisionsController extends AppController {
 		$this->Authorization->authorize($division);
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 
-		$min = $this->request->getQuery('min');
+		$min = $this->getRequest()->getQuery('min');
 		if (!$min) {
 			$min = 2;
 		}
@@ -1308,7 +1305,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
 	 */
 	public function emails() {
-		$id = $this->request->getQuery('division');
+		$id = $this->getRequest()->getQuery('division');
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -1345,7 +1342,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
 	 */
 	public function spirit() {
-		$id = $this->request->getQuery('division');
+		$id = $this->getRequest()->getQuery('division');
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -1396,8 +1393,8 @@ class DivisionsController extends AppController {
 		usort($division->games, [GamesTable::class, 'compareDateAndField']);
 		$this->set(compact('division', 'spirit_obj'));
 
-		if ($this->request->is('csv')) {
-			$this->response->download("Spirit - {$division->full_league_name}.csv");
+		if ($this->getRequest()->is('csv')) {
+			$this->getResponse()->withDownload("Spirit - {$division->full_league_name}.csv");
 		}
 	}
 
@@ -1407,7 +1404,7 @@ class DivisionsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise
 	 */
 	public function approve_scores() {
-		$id = $this->request->getQuery('division');
+		$id = $this->getRequest()->getQuery('division');
 		$roles = Configure::read('privileged_roster_roles');
 		try {
 			$division = $this->Divisions->get($id, [
@@ -1488,7 +1485,7 @@ class DivisionsController extends AppController {
 	 * @return \Cake\Network\Response Redirects to division view
 	 */
 	public function initialize_ratings() {
-		$id = intval($this->request->getQuery('division'));
+		$id = intval($this->getRequest()->getQuery('division'));
 		try {
 			/** @var Division $division */
 			$division = $this->Divisions->get($id, [
@@ -1539,7 +1536,7 @@ class DivisionsController extends AppController {
 	 * @return \Cake\Network\Response Redirects to division schedule
 	 */
 	public function initialize_dependencies() {
-		$id = intval($this->request->getQuery('division'));
+		$id = intval($this->getRequest()->getQuery('division'));
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -1598,7 +1595,7 @@ class DivisionsController extends AppController {
 			$conditions['NOT'] = ['Games.pool_id IN' => $finalized_pools];
 		}
 
-		$pool = $this->request->getQuery('pool');
+		$pool = $this->getRequest()->getQuery('pool');
 		if ($pool) {
 			if (in_array($pool, $finalized_pools)) {
 				$this->Flash->warning(__('There are already games finalized in this pool. Unable to proceed.'));
@@ -1616,7 +1613,7 @@ class DivisionsController extends AppController {
 			->where($conditions)
 			->toArray();
 
-		$date = $this->request->getQuery('date');
+		$date = $this->getRequest()->getQuery('date');
 		if ($date) {
 			$date = new FrozenDate($date);
 			$multi_day = ($division->schedule_type != 'tournament' && count($division->days) > 1);
@@ -1665,7 +1662,7 @@ class DivisionsController extends AppController {
 		$league_obj = $this->moduleRegistry->load("LeagueType:{$division->schedule_type}");
 		$spirit_obj = $division->league->hasSpirit() ? $this->moduleRegistry->load("Spirit:{$division->league->sotg_questions}") : null;
 		$league_obj->sort($division, $division->league, $division->games, $spirit_obj, false);
-		$reset = $this->request->getQuery('reset');
+		$reset = $this->getRequest()->getQuery('reset');
 		$operation = ($reset ? __('reset') : __('update'));
 
 		// Go through all games, updating seed dependencies
@@ -1811,8 +1808,8 @@ class DivisionsController extends AppController {
 	 * @return \Cake\Network\Response Redirects to "schedule add" page
 	 */
 	public function delete_stage() {
-		$id = intval($this->request->getQuery('division'));
-		$stage = $this->request->getQuery('stage');
+		$id = intval($this->getRequest()->getQuery('division'));
+		$stage = $this->getRequest()->getQuery('stage');
 		try {
 			$division = $this->Divisions->get($id, [
 				'contain' => [
@@ -1871,17 +1868,17 @@ class DivisionsController extends AppController {
 
 	public function select() {
 		$this->Authorization->authorize($this);
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
 		$date = new DateType();
-		$date = $date->marshal($this->request->getData('game_date'));
+		$date = $date->marshal($this->getRequest()->getData('game_date'));
 
 		$query = $this->Divisions->find('open')
 			->find('day', ['date' => $date])
 			->contain(['Leagues'])
-			->where(['Leagues.affiliate_id' => $this->request->getQuery('affiliate')]);
+			->where(['Leagues.affiliate_id' => $this->getRequest()->getQuery('affiliate')]);
 
-		$sport = $this->request->getData('sport');
+		$sport = $this->getRequest()->getData('sport');
 		if ($sport) {
 			$query->where(['Leagues.sport' => $sport]);
 		}

@@ -1,21 +1,21 @@
 <?php
 /**
- * @type $leagues \App\Model\Entity\League[]
- * @type $sport string
- * @type $tournaments bool
- * @type $affiliates int[]
- * @type $affiliate int
- * @type $years int[]
+ * @var \App\Model\Entity\League[] $leagues
+ * @var string $sport
+ * @var bool $tournaments
+ * @var int[] $affiliates
+ * @var int $affiliate
+ * @var int[] $years
  */
 
 use App\Controller\AppController;
 use App\Model\Entity\League;
 use Cake\Utility\Inflector;
 
-$this->Html->addCrumb($tournaments ? __('Tournaments') : __('Leagues'));
-$this->Html->addCrumb(__('List'));
+$this->Breadcrumbs->add($tournaments ? __('Tournaments') : __('Leagues'));
+$this->Breadcrumbs->add(__('List'));
 if (!empty($sport)) {
-	$this->Html->addCrumb(__(Inflector::humanize($sport)));
+	$this->Breadcrumbs->add(__(Inflector::humanize($sport)));
 }
 ?>
 

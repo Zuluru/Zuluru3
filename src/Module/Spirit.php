@@ -48,7 +48,7 @@ abstract class Spirit {
 			$validator = $validator
 				->range('entered_sotg', [0, $this->max()], __('Spirit scores must be in the range 0-{0}.', $this->max()))
 				->requirePresence('entered_sotg', 'create')
-				->notEmpty('entered_sotg');
+				->notEmptyString('entered_sotg');
 		}
 
 		return $validator;

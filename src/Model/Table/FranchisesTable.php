@@ -66,12 +66,12 @@ class FranchisesTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
-			->notEmpty('name', __('The name cannot be blank.'))
+			->notEmptyString('name', __('The name cannot be blank.'))
 
 			->url('url', __('Enter a valid URL, or leave blank.'))
-			->allowEmpty('website')
+			->allowEmptyString('website')
 
 			;
 

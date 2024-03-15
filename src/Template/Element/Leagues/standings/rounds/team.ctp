@@ -1,11 +1,11 @@
 <?php
 /**
- * @type $division \App\Model\Entity\Division
- * @type $league \App\Model\Entity\League
- * @type $team \App\Model\Entity\Team
- * @type $spirit_obj \App\Module\Spirit
- * @type $classes string[]
- * @type $seed int
+ * @var \App\Model\Entity\Division $division
+ * @var \App\Model\Entity\League $league
+ * @var \App\Model\Entity\Team $team
+ * @var \App\Module\Spirit $spirit_obj
+ * @var string[] $classes
+ * @var int $seed
  */
 
 $class = null;

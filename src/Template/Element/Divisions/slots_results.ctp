@@ -1,9 +1,9 @@
 <?php
 /**
- * @type $division \App\Model\Entity\Division
- * @type $date string
- * @type $slots \App\Model\Entity\GameSlot[]
- * @type $is_tournament bool
+ * @var \App\Model\Entity\Division $division
+ * @var string $date
+ * @var \App\Model\Entity\GameSlot[] $slots
+ * @var bool $is_tournament
  */
 
 use Cake\Core\Configure;

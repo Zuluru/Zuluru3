@@ -1,8 +1,8 @@
 <?php
 /**
- * @type $this \App\View\AppView
- * @type $event_type \App\Model\Entity\EventType
- * @type $events \App\Model\Entity\Event[]
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\EventType $event_type
+ * @var \App\Model\Entity\Event[] $events
  */
 
 use App\Model\Entity\Event;

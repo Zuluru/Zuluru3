@@ -1,9 +1,14 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Questionnaire $questionnaire
+ */
+
 use App\Controller\AppController;
 
-$this->Html->addCrumb(__('Questionnaire'));
-$this->Html->addCrumb(h($questionnaire->name));
-$this->Html->addCrumb(__('View'));
+$this->Breadcrumbs->add(__('Questionnaire'));
+$this->Breadcrumbs->add(h($questionnaire->name));
+$this->Breadcrumbs->add(__('View'));
 ?>
 
 <div class="questionnaires view">
@@ -20,7 +25,7 @@ endif;
 		<dt><?= __('Active') ?></dt>
 		<dd><?= $questionnaire->active ? __('Yes') : __('No') ?></dd>
 	</dl>
-<?= $this->Form->create(false) ?>
+<?= $this->form->create(null) ?>
 	<fieldset>
 		<legend><?= __('Questionnaire Preview') ?></legend>
 <?= $this->element('Questionnaires/input', ['questionnaire' => $questionnaire, 'responses' => []]) ?>

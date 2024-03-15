@@ -1,8 +1,15 @@
 <?php
-$this->Html->addCrumb(__('Division'));
-$this->Html->addCrumb($division->full_league_name);
-$this->Html->addCrumb(__('Add Games'));
-$this->Html->addCrumb(__('Create Pools'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Division $division
+ * @var int $stage
+ * @var string[] $types
+ */
+
+$this->Breadcrumbs->add(__('Division'));
+$this->Breadcrumbs->add($division->full_league_name);
+$this->Breadcrumbs->add(__('Add Games'));
+$this->Breadcrumbs->add(__('Create Pools'));
 ?>
 
 <div class="schedules add">
@@ -28,7 +35,7 @@ echo $this->element('hidden', ['model' => '_options', 'fields' => $division->_op
 <fieldset>
 <legend><?= __('Create a ...') ?></legend>
 <?php
-echo $this->Form->input('_options.pool_type', [
+echo $this->Form->control('_options.pool_type', [
 	'label' => false,
 	'type' => 'radio',
 	'options' => $types,

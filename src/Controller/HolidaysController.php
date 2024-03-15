@@ -37,8 +37,8 @@ class HolidaysController extends AppController {
 		$holiday = $this->Holidays->newEntity();
 		$this->Authorization->authorize($holiday);
 
-		if ($this->request->is('post')) {
-			$holiday = $this->Holidays->patchEntity($holiday, $this->request->getData());
+		if ($this->getRequest()->is('post')) {
+			$holiday = $this->Holidays->patchEntity($holiday, $this->getRequest()->getData());
 			if ($this->Holidays->save($holiday)) {
 				$this->Flash->success(__('The holiday has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -59,7 +59,7 @@ class HolidaysController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->getQuery('holiday');
+		$id = $this->getRequest()->getQuery('holiday');
 		try {
 			$holiday = $this->Holidays->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -73,8 +73,8 @@ class HolidaysController extends AppController {
 		$this->Authorization->authorize($holiday);
 		$this->Configuration->loadAffiliate($holiday->affiliate_id);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$holiday = $this->Holidays->patchEntity($holiday, $this->request->getData());
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$holiday = $this->Holidays->patchEntity($holiday, $this->getRequest()->getData());
 			if ($this->Holidays->save($holiday)) {
 				$this->Flash->success(__('The holiday has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -93,9 +93,9 @@ class HolidaysController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects to index.
 	 */
 	public function delete() {
-		$this->request->allowMethod(['post', 'delete']);
+		$this->getRequest()->allowMethod(['post', 'delete']);
 
-		$id = $this->request->getQuery('holiday');
+		$id = $this->getRequest()->getQuery('holiday');
 		try {
 			$holiday = $this->Holidays->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -110,8 +110,8 @@ class HolidaysController extends AppController {
 
 		if ($this->Holidays->delete($holiday)) {
 			$this->Flash->success(__('The holiday has been deleted.'));
-		} else if ($holiday->errors('delete')) {
-			$this->Flash->warning(current($holiday->errors('delete')));
+		} else if ($holiday->getError('delete')) {
+			$this->Flash->warning(current($holiday->getError('delete')));
 		} else {
 			$this->Flash->warning(__('The holiday could not be deleted. Please, try again.'));
 		}

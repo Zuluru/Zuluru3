@@ -53,28 +53,28 @@ class TasksTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->requirePresence('name', 'create')
-			->notEmpty('name', __('The name cannot be blank.'))
+			->notEmptyString('name', __('The name cannot be blank.'))
 
-			->notEmpty('description', __('The description cannot be blank.'))
+			->notEmptyString('description', __('The description cannot be blank.'))
 
-			->allowEmpty('notes')
+			->allowEmptyString('notes')
 
 			->requirePresence('category_id', 'create')
-			->notEmpty('category_id', __('You must select a valid category.'))
+			->notEmptyString('category_id', __('You must select a valid category.'))
 
 			->requirePresence('person_id', 'create')
-			->notEmpty('person_id', __('You must select a valid person.'))
+			->notEmptyString('person_id', __('You must select a valid person.'))
 
 			->boolean('auto_approve')
 			->requirePresence('auto_approve', 'create')
-			->allowEmpty('auto_approve')
+			->allowEmptyString('auto_approve')
 
 			->boolean('allow_signup')
 			->requirePresence('allow_signup', 'create')
-			->allowEmpty('allow_signup')
+			->allowEmptyString('allow_signup')
 
 			;
 

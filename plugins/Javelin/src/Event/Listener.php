@@ -224,7 +224,7 @@ class Listener implements EventListenerInterface {
 
 	public function rosterRemove(Event $event, $team, $person) {
 		if (is_numeric($team)) {
-			$team = TableRegistry::get('Teams')->get($team, [
+			$team = TableRegistry::getTableLocator()->get('Teams')->get($team, [
 				'contain' => [
 					'Divisions',
 				]
@@ -235,7 +235,7 @@ class Listener implements EventListenerInterface {
 			return true;
 		}
 
-		$opt_in = TableRegistry::getTableLocator()->get('Settings')->find()
+		$opt_in = TableRegistry::getTableLocator()->getTableLocator()->get('Settings')->find()
 			->where(['Settings.name' => 'javelin', 'Settings.person_id' => $person->id])
 			->first();
 		if ($opt_in) {
@@ -267,7 +267,7 @@ class Listener implements EventListenerInterface {
 
 	public function rosterDelete(Event $event, $team) {
 		if (is_numeric($team)) {
-			$team = TableRegistry::get('Teams')->get($team, [
+			$team = TableRegistry::getTableLocator()->get('Teams')->get($team, [
 				'contain' => [
 					'Divisions',
 				]
@@ -716,7 +716,7 @@ class Listener implements EventListenerInterface {
 		}
 
 		Configure::delete('javelin.updated_schedules');
-		$updated_teams = TableRegistry::get('Teams')->find()
+		$updated_teams = TableRegistry::getTableLocator()->get('Teams')->find()
 			->select('Teams.id')
 			->where([
 				'id IN' => array_keys($updated_teams),

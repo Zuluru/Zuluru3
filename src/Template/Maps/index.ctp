@@ -1,10 +1,13 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Region[] $regions[]
+ */
+
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('All {0}', Configure::read('UI.fields_cap')));
-?>
+$this->Breadcrumbs->add(__('All {0}', Configure::read('UI.fields_cap')));
 
-<?php
 $map_vars = ['id', 'name', 'code', 'location_street'];
 
 $gmaps_key = Configure::read('site.gmaps_key');

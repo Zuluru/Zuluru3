@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ */
+?>
 <p><?= __('Before scheduling games for a tournament, you need to define the pools that teams will be placed in. Depending on the number of teams in the division, you will be given various options to split the division into brackets.') ?></p>
 <h3><?= __('Seeded splits') ?></h3>
 <p><?= __('Choose the number of pools to split the teams into. You will be given the opportunity to specify the name and number of teams for each pool. The split will put the top few teams (however many you ask for) in the first pool, the next few in the second pool, and so on. Seeded split is only available for the first stage of a tournament.') ?></p>

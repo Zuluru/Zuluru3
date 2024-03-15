@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Task[] $tasks
+ */
+
 if (!empty($tasks)):
 ?>
 <div class="table-responsive">

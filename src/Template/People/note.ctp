@@ -1,11 +1,16 @@
 <?php
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb($person->full_name);
-$this->Html->addCrumb(__('Note'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Person $person
+ */
+
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add($person->full_name);
+$this->Breadcrumbs->add(__('Note'));
 if ($note->isNew()) {
-	$this->Html->addCrumb(__('Add'));
+	$this->Breadcrumbs->add(__('Add'));
 } else {
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 
@@ -19,11 +24,11 @@ $options = [
 if ($this->Authorize->getIdentity()->isManagerOf($person)) {
 	$options[VISIBILITY_ADMIN] = __('Administrators only');
 }
-echo $this->Form->input('visibility', [
+echo $this->Form->control('visibility', [
 	'options' => $options,
 	'hide_single' => true,
 ]);
-echo $this->Form->input('note', ['cols' => 70, 'class' => 'wysiwyg_simple']);
+echo $this->Form->control('note', ['cols' => 70, 'class' => 'wysiwyg_simple']);
 echo $this->Form->button(__('Submit'), ['class' => 'btn-success']);
 echo $this->Form->end();
 ?>

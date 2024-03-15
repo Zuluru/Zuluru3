@@ -4,8 +4,8 @@ namespace App\Controller;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
+use Cake\Http\Client\Message;
 use Cake\I18n\FrozenDate;
-use Cake\Network\Http\Message;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 
@@ -40,7 +40,7 @@ class FieldsController extends AppController {
 	 * @return \Cake\Network\Response Redirects
 	 */
 	public function view() {
-		$id = $this->request->getQuery('field');
+		$id = $this->getRequest()->getQuery('field');
 		try {
 			$facility_id = $this->Fields->field('facility_id', ['Fields.id' => $id]);
 		} catch (RecordNotFoundException $ex) {
@@ -57,9 +57,9 @@ class FieldsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
 	 */
 	public function tooltip() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('field');
+		$id = $this->getRequest()->getQuery('field');
 		try {
 			$field = $this->Fields->get($id, [
 				'contain' => [
@@ -84,9 +84,9 @@ class FieldsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
 	 */
 	public function open() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('field');
+		$id = $this->getRequest()->getQuery('field');
 		try {
 			$field = $this->Fields->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -113,9 +113,9 @@ class FieldsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
 	 */
 	public function close() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('field');
+		$id = $this->getRequest()->getQuery('field');
 		try {
 			$field = $this->Fields->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -142,9 +142,9 @@ class FieldsController extends AppController {
 	 * @return \Cake\Network\Response Redirects to index.
 	 */
 	public function delete() {
-		$this->request->allowMethod(['post', 'delete']);
+		$this->getRequest()->allowMethod(['post', 'delete']);
 
-		$id = $this->request->getQuery('field');
+		$id = $this->getRequest()->getQuery('field');
 		try {
 			$field = $this->Fields->get($id, [
 				'contain' => ['Facilities' => ['Fields']],
@@ -167,7 +167,7 @@ class FieldsController extends AppController {
 		if ($this->Fields->delete($field)) {
 			$this->Flash->success(__('The {0} has been deleted.', Configure::read('UI.field')));
 		} else {
-			$errors = $field->errors();
+			$errors = $field->getErrors();
 			if (array_key_exists('delete', $errors)) {
 				$this->Flash->warning(current($errors['delete']));
 			} else {
@@ -184,7 +184,7 @@ class FieldsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
 	 */
 	public function bookings() {
-		$id = $this->request->getQuery('field');
+		$id = $this->getRequest()->getQuery('field');
 		if ($this->Authentication->getIdentity()->isManager()) {
 			$conditions = ['OR' => [
 				'is_open' => true,

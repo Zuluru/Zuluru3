@@ -75,47 +75,47 @@ class LeaguesTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->requirePresence('name', 'create', __('A valid league name must be entered.'))
-			->notEmpty('name', __('The name cannot be blank.'))
+			->notEmptyString('name', __('The name cannot be blank.'))
 
 			->requirePresence('sport', 'create', __('You must select a valid sport.'))
-			->notEmpty('sport', __('You must select a valid sport.'))
+			->notEmptyString('sport', __('You must select a valid sport.'))
 
 			->requirePresence('season', 'create', __('You must select a valid season.'))
-			->notEmpty('season', __('You must select a valid season.'))
+			->notEmptyString('season', __('You must select a valid season.'))
 
 			->numeric('schedule_attempts', __('Enter a valid number of schedules to try before picking the best.'))
-			->notEmpty('schedule_attempts', __('Enter a valid number of schedules to try before picking the best.'))
+			->notEmptyString('schedule_attempts', __('Enter a valid number of schedules to try before picking the best.'))
 
 			->requirePresence('display_sotg', function ($context) { return Configure::read('feature.spirit') && $context['newRecord']; }, __('You must select a valid spirit display method.'))
-			->notEmpty('display_sotg', __('You must select a valid spirit display method.'), function ($context) { return Configure::read('feature.spirit') && $context['newRecord']; })
+			->notEmptyString('display_sotg', __('You must select a valid spirit display method.'), function ($context) { return Configure::read('feature.spirit') && $context['newRecord']; })
 
 			->requirePresence('sotg_questions', function ($context) { return Configure::read('feature.spirit') && $context['newRecord']; }, __('You must select a valid spirit questionnaire.'))
-			->notEmpty('sotg_questions', __('You must select a valid spirit questionnaire.'), 'create')
+			->notEmptyString('sotg_questions', __('You must select a valid spirit questionnaire.'), 'create')
 
 			->boolean('numeric_sotg', __('You must select whether or not numeric spirit entry is enabled.'))
-			->notEmpty('numeric_sotg', __('You must select whether or not numeric spirit entry is enabled.'), function ($context) { return Configure::read('feature.spirit') && $context['newRecord']; })
+			->notEmptyString('numeric_sotg', __('You must select whether or not numeric spirit entry is enabled.'), function ($context) { return Configure::read('feature.spirit') && $context['newRecord']; })
 
 			->numeric('expected_max_score', __('Enter the highest score that you expect the winning team to reasonably reach.'))
 			->requirePresence('expected_max_score', 'create', __('Enter the highest score that you expect the winning team to reasonably reach.'))
-			->notEmpty('expected_max_score', __('Enter the highest score that you expect the winning team to reasonably reach.'))
+			->notEmptyString('expected_max_score', __('Enter the highest score that you expect the winning team to reasonably reach.'))
 
 			->requirePresence('stat_tracking', function ($context) {
 				return $context['newRecord'] && Configure::read('scoring.stat_tracking');
 			}, __('You must select when to do stat tracking.'))
-			->notEmpty('stat_tracking', __('You must select when to do stat tracking.'))
+			->notEmptyString('stat_tracking', __('You must select when to do stat tracking.'))
 
 			// The field in the edit page is tie_breakers for the select list, not tie_breaker for the string
 			->requirePresence('tie_breakers', 'create', __('You must select one or more tie breaker methods.'))
-			->notEmpty('tie_breakers', __('You must select one or more tie breaker methods.'))
+			->notEmptyArray('tie_breakers', __('You must select one or more tie breaker methods.'))
 
 			->boolean('carbon_flip', __('You must select whether or not the carbon flip is enabled.'))
 			->requirePresence('carbon_flip', function ($context) {
 				return $context['newRecord'] && Configure::read('scoring.carbon_flip');
 			}, __('You must select whether or not the carbon flip is enabled.'))
-			->notEmpty('carbon_flip', __('You must select whether or not the carbon flip is enabled.'))
+			->notEmptyString('carbon_flip', __('You must select whether or not the carbon flip is enabled.'))
 
 			;
 
@@ -152,7 +152,7 @@ class LeaguesTable extends AppTable {
 			'message' => __('You must select a valid spirit questionnaire.'),
 		]);
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			if (!$entity->has('tie_breaker')) {
 				return true;
 			}
@@ -180,7 +180,7 @@ class LeaguesTable extends AppTable {
 	 * @param ArrayObject $options Unused
 	 */
 	public function beforeMarshal(CakeEvent $cakeEvent, ArrayObject $data, ArrayObject $options) {
-		if (array_key_exists('tie_breakers', $data)) {
+		if ($data->offsetExists('tie_breakers')) {
 			$data['tie_breaker'] = implode(',', $data['tie_breakers']);
 		}
 	}
@@ -209,7 +209,7 @@ class LeaguesTable extends AppTable {
 		Cache::delete('tournaments', 'today');
 	}
 
-	public function findOpen(Query $query, Array $options) {
+	public function findOpen(Query $query, array $options) {
 		$query->where([
 			'OR' => [
 				'Leagues.is_open' => true,

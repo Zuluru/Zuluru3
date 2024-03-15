@@ -1,7 +1,12 @@
 <?php
-$this->Html->addCrumb(__('Divisions'));
-$this->Html->addCrumb($division->full_league_name);
-$this->Html->addCrumb(__('Adjust Ratings'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Division $division
+ */
+
+$this->Breadcrumbs->add(__('Divisions'));
+$this->Breadcrumbs->add($division->full_league_name);
+$this->Breadcrumbs->add(__('Adjust Ratings'));
 ?>
 
 <div class="divisions ratings">
@@ -37,10 +42,10 @@ foreach ($division->teams as $key => $team):
 					<td><?= $team->rating ?></td>
 					<td><?= $team->initial_rating ?></td>
 					<td><?php
-						echo $this->Form->input("teams.$key.id", [
+						echo $this->Form->control("teams.$key.id", [
 							'value' => $team->id,
 						]);
-						echo $this->Form->input("teams.$key.initial_rating", [
+						echo $this->Form->control("teams.$key.initial_rating", [
 							'label' => false,
 							'size' => 3,
 							'tabindex' => 1,

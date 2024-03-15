@@ -32,7 +32,7 @@ class RegistrationsController extends AppController {
 	 */
 	public function full_list() {
 		$this->paginate['order'] = ['Registrations.payment' => 'DESC', 'Registrations.created' => 'DESC'];
-		$id = $this->request->getQuery('event');
+		$id = $this->getRequest()->getQuery('event');
 		try {
 			$event = $this->Registrations->Events->get($id, [
 				'contain' => [
@@ -69,7 +69,7 @@ class RegistrationsController extends AppController {
 			->where(['Registrations.event_id' => $id])
 			->order(['Registrations.payment' => 'DESC', 'Registrations.created' => 'DESC']);
 
-		if ($this->request->is('csv')) {
+		if ($this->getRequest()->is('csv')) {
 			$query->contain([
 				'People' => [
 					Configure::read('Security.authModel'),
@@ -97,7 +97,7 @@ class RegistrationsController extends AppController {
 				]]);
 			}
 			$this->set('registrations', $query);
-			$this->response->download("Registrations - {$event->name}.csv");
+			$this->getResponse()->withDownload("Registrations - {$event->name}.csv");
 		} else {
 			$this->set('registrations', $this->paginate($query));
 		}
@@ -106,7 +106,7 @@ class RegistrationsController extends AppController {
 	}
 
 	public function summary() {
-		$id = $this->request->getQuery('event');
+		$id = $this->getRequest()->getQuery('event');
 		try {
 			$event = $this->Registrations->Events->get($id, [
 				'contain' => [
@@ -187,7 +187,7 @@ class RegistrationsController extends AppController {
 
 	public function statistics() {
 		$this->Authorization->authorize($this);
-		$year = $this->request->getQuery('year');
+		$year = $this->getRequest()->getQuery('year');
 		if ($year === null) {
 			$year = FrozenTime::now()->year;
 		}
@@ -237,13 +237,13 @@ class RegistrationsController extends AppController {
 
 	public function report() {
 		$this->Authorization->authorize($this);
-		if ($this->request->is('post')) {
+		if ($this->getRequest()->is('post')) {
 			// Deconstruct dates
-			$start_date = sprintf('%04d-%02d-%02d', $this->request->getData('start_date.year'), $this->request->getData('start_date.month'), $this->request->getData('start_date.day'));
-			$end_date = sprintf('%04d-%02d-%02d', $this->request->getData('end_date.year'), $this->request->getData('end_date.month'), $this->request->getData('end_date.day'));
+			$start_date = sprintf('%04d-%02d-%02d', $this->getRequest()->getData('start_date.year'), $this->getRequest()->getData('start_date.month'), $this->getRequest()->getData('start_date.day'));
+			$end_date = sprintf('%04d-%02d-%02d', $this->getRequest()->getData('end_date.year'), $this->getRequest()->getData('end_date.month'), $this->getRequest()->getData('end_date.day'));
 		} else {
-			$start_date = $this->request->getQuery('start_date');
-			$end_date = $this->request->getQuery('end_date');
+			$start_date = $this->getRequest()->getQuery('start_date');
+			$end_date = $this->getRequest()->getQuery('end_date');
 			if (!$start_date || !$end_date) {
 				// Just return, which will present the user with a date selection
 				return;
@@ -255,7 +255,7 @@ class RegistrationsController extends AppController {
 			return;
 		}
 
-		$affiliate = $this->request->getQuery('affiliate');
+		$affiliate = $this->getRequest()->getQuery('affiliate');
 		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 
 		$query = $this->Registrations->find()
@@ -272,7 +272,7 @@ class RegistrationsController extends AppController {
 				'Events.affiliate_id IN' => $affiliates,
 			]);
 
-		if ($this->request->is('csv')) {
+		if ($this->getRequest()->is('csv')) {
 			$query
 				->contain([
 					'People' => [
@@ -282,7 +282,7 @@ class RegistrationsController extends AppController {
 				])
 				->order(['Events.affiliate_id', 'Registrations.payment' => 'DESC', 'Registrations.created']);
 			$this->set('registrations', $query);
-			$this->response->download("Registrations $start_date to $end_date.csv");
+			$this->getResponse()->withDownload("Registrations $start_date to $end_date.csv");
 		} else {
 			$query->order(['Events.affiliate_id']);
 			$this->paginate = [
@@ -304,7 +304,7 @@ class RegistrationsController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->getQuery('registration');
+		$id = $this->getRequest()->getQuery('registration');
 		try {
 			$registration = $this->Registrations->get($id, [
 				'contain' => [
@@ -365,7 +365,7 @@ class RegistrationsController extends AppController {
 	public function register() {
 		$this->Registrations->expireReservations();
 
-		$id = $this->request->getQuery('event');
+		$id = $this->getRequest()->getQuery('event');
 		try {
 			$event = $this->Registrations->Events->get($id, [
 				'contain' => [
@@ -399,9 +399,9 @@ class RegistrationsController extends AppController {
 		}
 
 		// TODO: Eliminate the 'option' option once all old links are gone
-		$price_id = $this->request->getQuery('variant') ?: $this->request->getQuery('option');
-		if (empty($price_id) && $this->request->is(['patch', 'post', 'put'])) {
-			$price_id = $this->request->getData('price_id');
+		$price_id = $this->getRequest()->getQuery('variant') ?: $this->getRequest()->getQuery('option');
+		if (empty($price_id) && $this->getRequest()->is(['patch', 'post', 'put'])) {
+			$price_id = $this->getRequest()->getData('price_id');
 		}
 		if (!empty($price_id)) {
 			$price = collection($event->prices)->firstMatch(['id' => $price_id]);
@@ -415,13 +415,14 @@ class RegistrationsController extends AppController {
 			$price = null;
 		}
 
-		$context = new ContextResource($event, ['price' => $price, 'waiting' => $this->request->getQuery('waiting'), 'all_rules' => true]);
+		$context = new ContextResource($event, ['price' => $price, 'waiting' => $this->getRequest()->getQuery('waiting'), 'all_rules' => true]);
 		$this->Authorization->authorize($context);
 		$this->Configuration->loadAffiliate($event->affiliate_id);
 
 		$event_obj = $this->moduleRegistry->load("EventType:{$event->event_type->type}");
 		$event->mergeAutoQuestions($event_obj, $this->UserCache->currentId());
 
+		$data = $this->getRequest()->getData();
 		$registration = $this->Registrations->newEntity();
 		$force_save = false;
 		if (isset($price)) {
@@ -429,11 +430,11 @@ class RegistrationsController extends AppController {
 				// The event has no questionnaire, and no price options; save trivial registration data and proceed
 				$force_save = true;
 				if (!$price->allow_deposit) {
-					$this->request->data['payment_amount'] = $price->total;
+					$data['payment_amount'] = $price->total;
 				} else {
-					$this->request->data['payment_amount'] = $price->minimum_deposit;
+					$data['payment_amount'] = $price->minimum_deposit;
 				}
-				$this->request->data['event_id'] = $id;
+				$data['event_id'] = $id;
 			}
 
 			// We have a price selected, set it in the entity so the view reflects it
@@ -442,13 +443,13 @@ class RegistrationsController extends AppController {
 		}
 
 		// Data was posted, save it and proceed
-		if ($this->request->is(['patch', 'post', 'put']) || $force_save) {
+		if ($this->getRequest()->is(['patch', 'post', 'put']) || $force_save) {
 			$responseValidator = $this->Registrations->Responses->validationDefault(new Validator());
 			if (!empty($event->questionnaire->questions)) {
-				$responseValidator = $event->questionnaire->addResponseValidation($responseValidator, $event_obj, $this->request->getData('responses'), $event);
+				$responseValidator = $event->questionnaire->addResponseValidation($responseValidator, $event_obj, $data['responses'], $event);
 			}
 
-			$registration = $this->Registrations->patchEntity($registration, $this->request->getData(), ['associated' => [
+			$registration = $this->Registrations->patchEntity($registration, $data, ['associated' => [
 				'Responses' => ['validate' => $responseValidator],
 			]]);
 			$this->_reindexResponses($registration, $event);
@@ -481,12 +482,12 @@ class RegistrationsController extends AppController {
 
 	public function register_payment_fields() {
 		$this->Authorization->authorize($this);
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$price_id = $this->request->getData('price_id');
+		$price_id = $this->getRequest()->getData('price_id');
 		if (!empty($price_id)) {
 			$contain = ['Events' => ['EventTypes']];
-			$registration = $this->request->getQuery('registration_id');
+			$registration = $this->getRequest()->getQuery('registration_id');
 			if ($registration) {
 				$contain['Events']['Registrations'] = [
 					'queryBuilder' => function (Query $q) use ($registration) {
@@ -497,14 +498,14 @@ class RegistrationsController extends AppController {
 
 			try {
 				$price = $this->Registrations->Prices->get($price_id, compact('contain'));
-				$for_edit = $this->request->getQuery('for_edit');
+				$for_edit = $this->getRequest()->getQuery('for_edit');
 
 				// This authorization call is just to set the message, if any, in the price
 				$this->Authorization->can(new ContextResource($price->event, [
 					'person_id' => $for_edit ? $price->event->registrations[0]->person_id : $this->UserCache->currentId(),
 					'price' => $price,
 					'for_edit' => $for_edit ? $price->event->registrations[0] : false,
-					'waiting' => $this->request->getQuery('waiting'),
+					'waiting' => $this->getRequest()->getQuery('waiting'),
 					'ignore_date' => $for_edit,
 				]), 'register');
 
@@ -516,7 +517,7 @@ class RegistrationsController extends AppController {
 	}
 
 	public function redeem() {
-		$id = $this->request->getQuery('registration');
+		$id = $this->getRequest()->getQuery('registration');
 		try {
 			$registration = $this->Registrations->get($id, [
 				'contain' => [
@@ -555,7 +556,7 @@ class RegistrationsController extends AppController {
 		]));
 		$this->Configuration->loadAffiliate($registration->event->affiliate_id);
 
-		$credit = $this->request->getQuery('credit');
+		$credit = $this->getRequest()->getQuery('credit');
 		if ($credit) {
 			$credit = collection($registration->person->credits)->firstMatch(['id' => $credit]);
 			if (!$credit) {
@@ -641,7 +642,7 @@ class RegistrationsController extends AppController {
 		]);
 
 		$other = [];
-		$affiliate = $this->request->getQuery('affiliate');
+		$affiliate = $this->getRequest()->getQuery('affiliate');
 		foreach ($registrations as $key => $registration) {
 			// Check that we're still allowed to pay for this
 			if (!$registration->price->allow_late_payment && $registration->price->close->isPast()) {
@@ -709,10 +710,10 @@ class RegistrationsController extends AppController {
 	}
 
 	public function unregister() {
-		$this->request->allowMethod(['get', 'post', 'delete']);
+		$this->getRequest()->allowMethod(['get', 'post', 'delete']);
 
 		try {
-			$registration = $this->Registrations->get($this->request->getQuery('registration'), [
+			$registration = $this->Registrations->get($this->getRequest()->getQuery('registration'), [
 				'contain' => [
 					'Events' => ['EventTypes'],
 					'Prices',
@@ -744,7 +745,7 @@ class RegistrationsController extends AppController {
 	}
 
 	public function add_payment() {
-		$id = $this->request->getQuery('registration');
+		$id = $this->getRequest()->getQuery('registration');
 		try {
 			$registration = $this->Registrations->get($id, [
 				'contain' => [
@@ -777,24 +778,26 @@ class RegistrationsController extends AppController {
 
 		$this->set(compact('registration', 'payment'));
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$data = $this->getRequest()->getData();
+
 			// Handle credit redemption
-			if (array_key_exists('credit_id', $this->request->data)) {
-				$credit = collection($registration->person->credits)->firstMatch(['id' => $this->request->getData('credit_id')]);
+			if (array_key_exists('credit_id', $data)) {
+				$credit = collection($registration->person->credits)->firstMatch(['id' => $data['credit_id']]);
 				if (!$credit) {
 					$this->Flash->info(__('Invalid credit.'));
 					return;
 				}
 
-				$this->request->data['payment_amount'] = min($this->request->data['payment_amount'], $registration->balance, $credit->balance);
-				$this->request->data['notes'] = __('Applied {0} from credit #{1}', Number::currency($this->request->data['payment_amount']), $credit->id);
+				$data['payment_amount'] = min($data['payment_amount'], $registration->balance, $credit->balance);
+				$data['notes'] = __('Applied {0} from credit #{1}', Number::currency($data['payment_amount']), $credit->id);
 
-				$credit->amount_used += $this->request->getData('payment_amount');
+				$credit->amount_used += $data['payment_amount'];
 				if (!empty($credit->notes)) {
 					$credit->notes .= "\n";
 				}
 				$credit->notes .= __('{0} applied to registration #{1}: {2}',
-					$this->request->data['payment_amount'] == $credit->amount ? __('Credit') : Number::currency($this->request->getData('payment_amount')),
+					$data['payment_amount'] == $credit->amount ? __('Credit') : Number::currency($data['payment_amount']),
 					$registration->id, $registration->event->name);
 
 				// We don't actually want to update the "modified" column in the people table here, but we do need to save the credit
@@ -806,7 +809,7 @@ class RegistrationsController extends AppController {
 			}
 
 			// The registration is also passed as an option, so that the payment marshaller has easy access to it
-			$payment = $this->Registrations->Payments->patchEntity($payment, $this->request->getData(), ['validate' => 'payment', 'registration' => $registration]);
+			$payment = $this->Registrations->Payments->patchEntity($payment, $data, ['validate' => 'payment', 'registration' => $registration]);
 			$registration->payments[] = $payment;
 			$registration->setDirty('payments', true);
 
@@ -821,7 +824,7 @@ class RegistrationsController extends AppController {
 	}
 
 	public function refund_payment() {
-		$id = $this->request->getQuery('payment');
+		$id = $this->getRequest()->getQuery('payment');
 		try {
 			$registration_id = $this->Registrations->Payments->field('registration_id', ['Payments.id' => $id]);
 			/** @var Registration $registration */
@@ -860,8 +863,8 @@ class RegistrationsController extends AppController {
 			$this->set(compact('api'));
 		}
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$data = $this->request->getData();
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$data = $this->getRequest()->getData();
 			// The registration is also passed as an option, so that the payment marshaller has easy access to it
 			/** @var Payment $refund */
 			$refund = $this->Registrations->Payments->patchEntity($refund, $data, ['validate' => 'refund', 'registration' => $registration]);
@@ -880,7 +883,7 @@ class RegistrationsController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function invoice() {
-		$id = $this->request->getQuery('registration');
+		$id = $this->getRequest()->getQuery('registration');
 		try {
 			$registration = $this->Registrations->get($id, [
 				'contain' => [
@@ -911,7 +914,7 @@ class RegistrationsController extends AppController {
 	}
 
 	public function credit_payment() {
-		$id = $this->request->getQuery('payment');
+		$id = $this->getRequest()->getQuery('payment');
 		try {
 			$registration_id = $this->Registrations->Payments->field('registration_id', ['Payments.id' => $id]);
 			/** @var Registration $registration */
@@ -940,8 +943,8 @@ class RegistrationsController extends AppController {
 		$this->Configuration->loadAffiliate($registration->event->affiliate_id);
 		$refund = $this->Registrations->Payments->newEntity();
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$data = $this->request->getData();
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$data = $this->getRequest()->getData();
 			// The registration is also passed as an option, so that the payment marshaller has easy access to it
 			/** @var Payment $refund */
 			$refund = $this->Registrations->Payments->patchEntity($refund, $data, ['validate' => 'credit', 'registration' => $registration]);
@@ -961,7 +964,7 @@ class RegistrationsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->getQuery('registration');
+		$id = $this->getRequest()->getQuery('registration');
 		try {
 			$registration = $this->Registrations->get($id, [
 				'contain' => [
@@ -1001,11 +1004,11 @@ class RegistrationsController extends AppController {
 		$event_obj = $this->moduleRegistry->load("EventType:{$registration->event->event_type->type}");
 		$registration->event->mergeAutoQuestions($event_obj, $registration->person->id);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			$this->Authorization->can(new ContextResource($registration->event, ['for_edit' => $registration, 'all_rules' => true]), 'register');
 			$responseValidator = $this->Registrations->Responses->validationDefault(new Validator());
 			if (!empty($registration->event->questionnaire->questions)) {
-				$responseValidator = $registration->event->questionnaire->addResponseValidation($responseValidator, $event_obj, $this->request->getData('responses'), $registration->event, $registration);
+				$responseValidator = $registration->event->questionnaire->addResponseValidation($responseValidator, $event_obj, $this->getRequest()->getData('responses'), $registration->event, $registration);
 			}
 
 			// We use the "replace" saving strategy for responses, so that unnecessary responses get discarded,
@@ -1015,7 +1018,7 @@ class RegistrationsController extends AppController {
 				'franchise_id' => FRANCHISE_ID_CREATED,
 			]);
 
-			$registration = $this->Registrations->patchEntity($registration, $this->request->getData(), ['associated' => [
+			$registration = $this->Registrations->patchEntity($registration, $this->getRequest()->getData(), ['associated' => [
 				'Responses' => ['validate' => $responseValidator],
 			]]);
 			$this->_reindexResponses($registration, $registration->event);
@@ -1082,7 +1085,7 @@ class RegistrationsController extends AppController {
 	}
 
 	public function waiting() {
-		$id = $this->request->getQuery('event');
+		$id = $this->getRequest()->getQuery('event');
 		try {
 			$event = $this->Registrations->Events->get($id, [
 				'contain' => [

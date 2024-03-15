@@ -1,3 +1,10 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Person $person
+ */
+
+?>
 <?= __('Dear {0},', $person->first_name) ?>
 
 

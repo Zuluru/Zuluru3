@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Division $division
+ * @var \App\Model\Entity\League $league
+ */
+
 if (isset($league)) {
 	if (!empty($division->name)) {
 		echo __('{0} division of the ', $division->name);

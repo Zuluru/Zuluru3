@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Division $division
+ */
+
 use Cake\ORM\TableRegistry;
 ?>
 <h2><?= h($division->full_league_name) ?></h2>

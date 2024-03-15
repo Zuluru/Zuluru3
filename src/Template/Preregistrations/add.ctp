@@ -1,26 +1,30 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Event $event
+ */
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Preregistrations'));
-$this->Html->addCrumb(__('Add'));
+$this->Breadcrumbs->add(__('Preregistrations'));
+$this->Breadcrumbs->add(__('Add'));
 if (isset($event)) {
 	if (count($affiliates) > 1) {
-		$this->Html->addCrumb($event->affiliate->name);
+		$this->Breadcrumbs->add($event->affiliate->name);
 	}
-	$this->Html->addCrumb($event->name);
+	$this->Breadcrumbs->add($event->name);
 }
 ?>
 
 <div class="preregistrations form">
 <?php
 if (!isset($event)):
-	echo $this->Form->create(false, ['align' => 'horizontal']);
+	echo $this->form->create(null, ['align' => 'horizontal']);
 ?>
 	<fieldset>
 		<legend><?= __('Add Preregistration') ?></legend>
 <?php
-	echo $this->Form->input('event', [
+	echo $this->Form->control('event', [
 		'options' => $events,
 		'empty' => __('Select one:'),
 	]);

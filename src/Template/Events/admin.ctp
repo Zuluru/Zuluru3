@@ -1,10 +1,10 @@
 <?php
 /**
- * @type $this \App\View\AppView
- * @type $events \App\Model\Entity\Event[]
- * @type $year string
- * @type $years string[][]
- * @type $affiliates int[]
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Event[] $events
+ * @var string $year
+ * @var string[][] $years
+ * @var int[] $affiliates
  */
 
 use App\Controller\AppController;
@@ -12,10 +12,10 @@ use App\Model\Entity\Event;
 use App\Model\Entity\Price;
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Registration Events'));
-$this->Html->addCrumb(__('List'));
+$this->Breadcrumbs->add(__('Registration Events'));
+$this->Breadcrumbs->add(__('List'));
 if (isset($year)) {
-	$this->Html->addCrumb($year);
+	$this->Breadcrumbs->add($year);
 }
 ?>
 

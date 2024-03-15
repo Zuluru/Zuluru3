@@ -1,10 +1,15 @@
 <?php
-$this->Html->addCrumb(__('Questionnaire'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Questionnaire $questionnaire
+ */
+
+$this->Breadcrumbs->add(__('Questionnaire'));
 if ($questionnaire->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(h($questionnaire->name));
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(h($questionnaire->name));
+	$this->Breadcrumbs->add(__('Edit'));
 }
 ?>
 
@@ -13,15 +18,15 @@ if ($questionnaire->isNew()) {
 	<fieldset>
 		<legend><?= $questionnaire->isNew() ? __('Create Questionnaire') : __('Edit Questionnaire') ?></legend>
 <?php
-echo $this->Form->input('name', ['size' => 60]);
+echo $this->Form->control('name', ['size' => 60]);
 if ($questionnaire->isNew()) {
-	echo $this->Form->input('affiliate_id', [
+	echo $this->Form->control('affiliate_id', [
 		'options' => $affiliates,
 		'hide_single' => true,
 		'empty' => '---',
 	]);
 } else {
-	echo $this->Form->input('active');
+	echo $this->Form->control('active');
 }
 ?>
 	</fieldset>

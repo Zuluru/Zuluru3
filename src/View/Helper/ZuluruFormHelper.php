@@ -36,12 +36,12 @@ class ZuluruFormHelper extends FormHelper {
 	}
 
 	/**
-	 * Extend the default input function by allowing for use of a hidden
+	 * Extend the default control function by allowing for use of a hidden
 	 * field instead of a select, if there's only one option.
 	 * Also, add popup help link, if available.
 	 * TODOLATER: Deal with new data format (_joinData, etc.): we don't need it for anything right now?
 	 */
-	public function input($fieldName, Array $options = []) {
+	public function control($fieldName, array $options = []) {
 		$options += ['secure' => true];
 
 		// Split into model and field name
@@ -57,7 +57,7 @@ class ZuluruFormHelper extends FormHelper {
 			} while (is_numeric($model));
 			$model = Inflector::tableize($model);
 		} else {
-			$model = Inflector::tableize($this->request->getParam('controller'));
+			$model = Inflector::tableize($this->getView()->getRequest()->getParam('controller'));
 			$shortFieldName = $fieldName;
 		}
 		$value = $this->context()->val($fieldName);
@@ -134,7 +134,7 @@ class ZuluruFormHelper extends FormHelper {
 			}
 		}
 
-		return parent::input($fieldName, $options);
+		return parent::control($fieldName, $options);
 	}
 
 	public function iconPostLink($img, $url = null, array $imgOptions = [], array $linkOptions = []) {

@@ -56,7 +56,7 @@ class GamesController extends AppController {
 	public function beforeFilter(\Cake\Event\Event $event) {
 		parent::beforeFilter($event);
 		if (isset($this->Security)) {
-			$this->Security->config('unlockedActions', ['edit_boxscore']);
+			$this->Security->setConfig('unlockedActions', ['edit_boxscore']);
 		}
 	}
 
@@ -66,7 +66,7 @@ class GamesController extends AppController {
 	 * @return void|\Cake\Network\Response
 	 */
 	public function view() {
-		$id = $this->request->getQuery('game');
+		$id = $this->getRequest()->getQuery('game');
 		try {
 			$game = $this->Games->get($id, [
 				'contain' => [
@@ -187,9 +187,9 @@ class GamesController extends AppController {
 	 * @return void
 	 */
 	public function tooltip() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('game');
+		$id = $this->getRequest()->getQuery('game');
 		try {
 			$game = $this->Games->get($id, [
 				'contain' => [
@@ -214,10 +214,10 @@ class GamesController extends AppController {
 	}
 
 	public function ratings_table() {
-		$id = $this->request->getQuery('game');
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$this->set('rating_home', $this->request->getData('rating_home'));
-			$this->set('rating_away', $this->request->getData('rating_away'));
+		$id = $this->getRequest()->getQuery('game');
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$this->set('rating_home', $this->getRequest()->getData('rating_home'));
+			$this->set('rating_away', $this->getRequest()->getData('rating_away'));
 		}
 
 		try {
@@ -246,7 +246,7 @@ class GamesController extends AppController {
 
 	// This function takes the parameters the old-fashioned way, to try to be more third-party friendly
 	public function ical($game_id, $team_id) {
-		$this->viewBuilder()->layout('ical');
+		$this->viewBuilder()->setLayout('ical');
 		$game_id = intval($game_id);
 		$team_id = intval($team_id);
 		if (!$game_id || !$team_id) {
@@ -273,7 +273,7 @@ class GamesController extends AppController {
 
 		$this->set('calendar_type', 'Game');
 		$this->set('calendar_name', 'Game');
-		$this->response->download("$game_id.ics");
+		$this->getResponse()->withDownload("$game_id.ics");
 		$this->set(compact('game', 'team_id'));
 		$this->RequestHandler->ext = 'ics';
 	}
@@ -284,7 +284,7 @@ class GamesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->getQuery('game');
+		$id = $this->getRequest()->getQuery('game');
 		// We need some basic game information right off. Much of the
 		// data we display here doesn't come from the form, so we have
 		// to read the whole thing.
@@ -352,10 +352,11 @@ class GamesController extends AppController {
 			$this->set(compact('spirit_obj'));
 		}
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$this->request->data['approved_by_id'] = $this->UserCache->currentId();
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$data = $this->getRequest()->getData();
+			$data['approved_by_id'] = $this->UserCache->currentId();
 
-			$game = $this->Games->patchEntity($game, $this->request->getData(), [
+			$game = $this->Games->patchEntity($game, $data, [
 				'associated' => ['ScoreEntries', 'ScoreEntries.Allstars', 'SpiritEntries'],
 			]);
 			$game->resetEntryIndices();
@@ -397,7 +398,7 @@ class GamesController extends AppController {
 			if ($this->Games->save($game, compact('game'))) {
 				$this->Flash->success(__('The game has been saved.'));
 
-				if ($this->request->getQuery('stats')) {
+				if ($this->getRequest()->getQuery('stats')) {
 					return $this->redirect(['action' => 'submit_stats', 'game' => $id]);
 				} else {
 					return $this->redirect(['action' => 'view', 'game' => $id]);
@@ -412,7 +413,7 @@ class GamesController extends AppController {
 
 	public function edit_boxscore() {
 		try {
-			$game = $this->Games->get($this->request->getQuery('game'), [
+			$game = $this->Games->get($this->getRequest()->getQuery('game'), [
 				'contain' => [
 					'Divisions' => [
 						'Leagues' => [
@@ -460,8 +461,8 @@ class GamesController extends AppController {
 		$this->Configuration->loadAffiliate($game->division->league->affiliate_id);
 		$game->readDependencies();
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$game = $this->Games->patchEntity($game, $this->request->getData(), [
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$game = $this->Games->patchEntity($game, $this->getRequest()->getData(), [
 				'associated' => ['ScoreDetails', 'ScoreDetails.ScoreDetailStats'],
 			]);
 
@@ -489,10 +490,10 @@ class GamesController extends AppController {
 	}
 
 	public function delete_score() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('detail');
-		$game_id = $this->request->getQuery('game');
+		$id = $this->getRequest()->getQuery('detail');
+		$game_id = $this->getRequest()->getQuery('game');
 		try {
 			$detail = $this->Games->ScoreDetails->get($id, ['contain' => ['Games']]);
 			if ($detail->game_id != $game_id) {
@@ -514,9 +515,9 @@ class GamesController extends AppController {
 	}
 
 	public function add_score() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$game_id = $this->request->getQuery('game');
+		$game_id = $this->getRequest()->getQuery('game');
 
 		try {
 			$game = $this->Games->get($game_id, [
@@ -558,7 +559,7 @@ class GamesController extends AppController {
 		$this->Configuration->loadAffiliate($game->division->league->affiliate_id);
 		$game->readDependencies();
 
-		$detail = $this->Games->ScoreDetails->newEntity(array_merge($this->request->getData('add_detail'), compact('game_id')));
+		$detail = $this->Games->ScoreDetails->newEntity(array_merge($this->getRequest()->getData('add_detail'), compact('game_id')));
 		$detail->game = $game;
 
 		if (!$this->Games->ScoreDetails->save($detail)) {
@@ -570,8 +571,8 @@ class GamesController extends AppController {
 	}
 
 	public function note() {
-		$game_id = $this->request->getQuery('game');
-		$note_id = $this->request->getQuery('note');
+		$game_id = $this->getRequest()->getQuery('game');
+		$note_id = $this->getRequest()->getQuery('note');
 
 		try {
 			$game = $this->Games->get($game_id, [
@@ -612,8 +613,8 @@ class GamesController extends AppController {
 			$note = $this->Games->Notes->newEntity();
 		}
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
-			$note = $this->Games->Notes->patchEntity($note, $this->request->getData());
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$note = $this->Games->Notes->patchEntity($note, $this->getRequest()->getData());
 
 			$is_new = $note->isNew();
 			if (empty($note->note)) {
@@ -624,8 +625,8 @@ class GamesController extends AppController {
 					if ($this->Games->Notes->delete($note)) {
 						$this->Flash->success(__('The note has been deleted.'));
 						return $this->redirect(['action' => 'view', 'game' => $game_id]);
-					} else if ($note->errors('delete')) {
-						$this->Flash->warning(current($note->errors('delete')));
+					} else if ($note->getError('delete')) {
+						$this->Flash->warning(current($note->getError('delete')));
 					} else {
 						$this->Flash->warning(__('The note could not be deleted. Please, try again.'));
 					}
@@ -697,9 +698,9 @@ class GamesController extends AppController {
 	}
 
 	public function delete_note() {
-		$this->request->allowMethod(['post', 'delete']);
+		$this->getRequest()->allowMethod(['post', 'delete']);
 
-		$note_id = $this->request->getQuery('note');
+		$note_id = $this->getRequest()->getQuery('note');
 
 		try {
 			$note = $this->Games->Notes->get($note_id);
@@ -715,8 +716,8 @@ class GamesController extends AppController {
 
 		if ($this->Games->Notes->delete($note)) {
 			$this->Flash->success(__('The note has been deleted.'));
-		} else if ($note->errors('delete')) {
-			$this->Flash->warning(current($note->errors('delete')));
+		} else if ($note->getError('delete')) {
+			$this->Flash->warning(current($note->getError('delete')));
 		} else {
 			$this->Flash->warning(__('The note could not be deleted. Please, try again.'));
 		}
@@ -729,9 +730,9 @@ class GamesController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects to index.
 	 */
 	public function delete() {
-		$this->request->allowMethod(['post', 'delete']);
+		$this->getRequest()->allowMethod(['post', 'delete']);
 
-		$id = $this->request->getQuery('game');
+		$id = $this->getRequest()->getQuery('game');
 		try {
 			$game = $this->Games->get($id, [
 				'contain' => [
@@ -753,7 +754,7 @@ class GamesController extends AppController {
 		$this->Authorization->authorize($game);
 		$this->Configuration->loadAffiliate($game->division->league->affiliate_id);
 
-		if (!$this->request->getQuery('force')) {
+		if (!$this->getRequest()->getQuery('force')) {
 			if ($game->isFinalized()) {
 				$msg = __('The score for that game has already been finalized.');
 			}
@@ -784,8 +785,8 @@ class GamesController extends AppController {
 		if ($this->Games->delete($game)) {
 			$this->Flash->success(__('The game has been deleted.'));
 			return $this->redirect(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $game->division_id]);
-		} else if ($game->errors('delete')) {
-			$this->Flash->warning(current($game->errors('delete')));
+		} else if ($game->getError('delete')) {
+			$this->Flash->warning(current($game->getError('delete')));
 			return $this->redirect(['action' => 'view', 'game' => $id]);
 		} else {
 			$this->Flash->warning(__('The game could not be deleted. Please, try again.'));
@@ -794,8 +795,8 @@ class GamesController extends AppController {
 	}
 
 	public function attendance() {
-		$id = $this->request->getQuery('game');
-		$team_id = $this->request->getQuery('team');
+		$id = $this->getRequest()->getQuery('game');
+		$team_id = $this->getRequest()->getQuery('team');
 		try {
 			$game = $this->Games->get($id, [
 				'contain' => [
@@ -845,20 +846,20 @@ class GamesController extends AppController {
 	}
 
 	public function attendance_change() {
-		$id = $this->request->getQuery('game');
-		$game_date = $this->request->getQuery('date');
+		$id = $this->getRequest()->getQuery('game');
+		$game_date = $this->getRequest()->getQuery('date');
 		if (!$id && !$game_date) {
 			$this->Flash->info(__('Invalid game.'));
 			return $this->redirect('/');
 		}
 
-		$team_id = $this->request->getQuery('team');
+		$team_id = $this->getRequest()->getQuery('team');
 		if (!$team_id) {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect('/');
 		}
 
-		$person_id = $this->request->getQuery('person') ?: $this->UserCache->currentId();
+		$person_id = $this->getRequest()->getQuery('person') ?: $this->UserCache->currentId();
 		if (!$person_id) {
 			throw new MissingIdentityException();
 		}
@@ -960,7 +961,7 @@ class GamesController extends AppController {
 			}
 		}
 
-		$code = $this->request->getQuery('code');
+		$code = $this->getRequest()->getQuery('code');
 		// After authorization, the context will also include an indication of whether it's a player or captain
 		$context = new ContextResource($team, compact('attendance', 'code', 'game', 'game_date'));
 		$this->Authorization->authorize($context);
@@ -971,19 +972,21 @@ class GamesController extends AppController {
 
 		if ($code) {
 			// Fake the posted data array with the status from the URL
-			$this->request->data = ['status' => $this->request->getQuery('status')];
+			$data = ['status' => $this->getRequest()->getQuery('status')];
+		} else {
+			$data = $this->getRequest()->getData();
 		}
 
 		$role = $attendance->person->teams[0]->_joinData->role;
 		$attendance_options = $this->Games->attendanceOptions($role, $attendance->status, $past, $is_captain);
 
-		if ($code || $this->request->is(['patch', 'post', 'put'])) {
+		if ($code || $this->getRequest()->is(['patch', 'post', 'put'])) {
 			// Future dates give a negative diff; a positive number is more logical here.
 			$days_to_game = - $game_date->diffInDays(null, false);
 
-			if (array_key_exists('status', $this->request->data) && $this->request->getData('status') == 'comment') {
+			if (array_key_exists('status', $data) && $data['status'] == 'comment') {
 				// Comments that come via Ajax will have the status set to comment, which is not useful.
-				unset($this->request->data['status']);
+				$this->setRequest($this->getRequest()->withoutData('status'));
 				$result = $this->_updateAttendanceComment($attendance, $game, $game_date, $team, $opponent, $is_me, $days_to_game, $past);
 			} else {
 				$result = $this->_updateAttendanceStatus($attendance, $game, $game_date, $team, $opponent, $is_captain, $is_me, $days_to_game, $past, $attendance_options);
@@ -995,8 +998,8 @@ class GamesController extends AppController {
 					return $this->redirect('/');
 				}
 			} else {
-				if ($this->request->is('ajax')) {
-					$this->set('dedicated', $this->request->getQuery('dedicated'));
+				if ($this->getRequest()->is('ajax')) {
+					$this->set('dedicated', $this->getRequest()->getQuery('dedicated'));
 				} else if (!$this->Authorization->can($team, 'attendance')) {
 					return $this->redirect(['controller' => 'Teams', 'action' => 'view', 'team' => $team_id]);
 				} else if ($id) {
@@ -1011,12 +1014,12 @@ class GamesController extends AppController {
 	}
 
 	protected function _updateAttendanceStatus($attendance, $game, $date, $team, $opponent, $is_captain, $is_me, $days_to_game, $past, $attendance_options) {
-		if (!array_key_exists($this->request->getData('status'), $attendance_options)) {
+		if (!array_key_exists($this->getRequest()->getData('status'), $attendance_options)) {
 			$this->Flash->info(__('That is not currently a valid attendance status for this person for this game.'));
 			return false;
 		}
 
-		$attendance = $this->Games->Attendances->patchEntity($attendance, $this->request->getData());
+		$attendance = $this->Games->Attendances->patchEntity($attendance, $this->getRequest()->getData());
 		if (!$attendance->isDirty('status') && !$attendance->isDirty('comment') && !$attendance->isDirty('note')) {
 			return true;
 		}
@@ -1026,7 +1029,7 @@ class GamesController extends AppController {
 			return false;
 		}
 
-		if (!$this->request->is('ajax')) {
+		if (!$this->getRequest()->is('ajax')) {
 			$this->Flash->success(__('Attendance has been updated to {0}.', $attendance_options[$attendance->status]));
 		}
 
@@ -1078,7 +1081,7 @@ class GamesController extends AppController {
 	}
 
 	protected function _updateAttendanceComment($attendance, $game, $date, $team, $opponent, $is_me, $days_to_game, $past) {
-		$attendance = $this->Games->Attendances->patchEntity($attendance, $this->request->getData());
+		$attendance = $this->Games->Attendances->patchEntity($attendance, $this->getRequest()->getData());
 		if (!$attendance->isDirty('comment')) {
 			return true;
 		}
@@ -1088,7 +1091,7 @@ class GamesController extends AppController {
 			return false;
 		}
 
-		if (!$this->request->is('ajax')) {
+		if (!$this->getRequest()->is('ajax')) {
 			$this->Flash->success(__('Attendance comment has been updated.'));
 		}
 
@@ -1118,8 +1121,8 @@ class GamesController extends AppController {
 	}
 
 	public function stat_sheet() {
-		$id = $this->request->getQuery('game');
-		$team_id = $this->request->getQuery('team');
+		$id = $this->getRequest()->getQuery('game');
+		$team_id = $this->getRequest()->getQuery('team');
 		try {
 			$game = $this->Games->get($id, [
 				'contain' => [
@@ -1177,10 +1180,10 @@ class GamesController extends AppController {
 	}
 
 	public function TODOLATER_live_score() {
-		$this->viewBuilder()->layout('bare');
+		$this->viewBuilder()->setLayout('bare');
 
-		$id = $this->request->getQuery('game');
-		$team_id = $this->request->getQuery('team');
+		$id = $this->getRequest()->getQuery('game');
+		$team_id = $this->getRequest()->getQuery('team');
 		$contain = [
 			'Division' => [
 				'League' => [
@@ -1265,20 +1268,20 @@ class GamesController extends AppController {
 	}
 
 	public function TODOLATER_score_up() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('game');
+		$id = $this->getRequest()->getQuery('game');
 		if (!$id) {
 			$this->set('message', __('Invalid game.'));
 			return;
 		}
 
-		if (!$this->request->getData('team_id')) {
+		if (!$this->getRequest()->getData('team_id')) {
 			$this->set('message', __('Invalid team.'));
 			return;
 		}
 
-		$submitter = $this->request->getQuery('team');
+		$submitter = $this->getRequest()->getQuery('team');
 
 		// Lock all of this to prevent multiple simultaneous score updates
 		// TODO: Handle both teams updating at the same time, one with details and one without
@@ -1296,9 +1299,9 @@ class GamesController extends AppController {
 			'AwayTeam',
 			'ScoreEntry' => ['conditions' => ['ScoreEntry.team_id' => $submitter]],
 			'ScoreDetail' => ['conditions' => [
-				'ScoreDetail.team_id' => $this->request->getData('team_id'),
-				'ScoreDetail.score_from' => $this->request->getData('score_from'),
-				'ScoreDetail.play' => $this->request->getData('play'),
+				'ScoreDetail.team_id' => $this->getRequest()->getData('team_id'),
+				'ScoreDetail.score_from' => $this->getRequest()->getData('score_from'),
+				'ScoreDetail.play' => $this->getRequest()->getData('play'),
 			]],
 		]);
 		$game = $this->Game->read(null, $id);
@@ -1309,7 +1312,7 @@ class GamesController extends AppController {
 
 		$this->Authorization->authorize(new ContextResource($game, ['team' => $submitter]));
 
-		if ($this->request->getData('team_id') != $game->home_team_id && $this->request->getData('team_id') != $game->away_team_id) {
+		if ($this->getRequest()->getData('team_id') != $game->home_team_id && $this->getRequest()->getData('team_id') != $game->away_team_id) {
 			$this->set('message', __('That team did not play in that game!'));
 			return;
 		}
@@ -1320,7 +1323,7 @@ class GamesController extends AppController {
 		}
 
 		// This will handle either the home team or a third-party submitting the score as "for"
-		if (($submitter === null && $this->request->getData('team_id') == $game->home_team_id) || $submitter == $this->request->getData('team_id')) {
+		if (($submitter === null && $this->getRequest()->getData('team_id') == $game->home_team_id) || $submitter == $this->getRequest()->getData('team_id')) {
 			$team_score_field = 'score_for';
 			$opponent_score_field = 'score_against';
 		} else {
@@ -1348,18 +1351,18 @@ class GamesController extends AppController {
 			$team_score = $opponent_score = 0;
 		}
 
-		if ($team_score != $this->request->getData('score_from')) {
+		if ($team_score != $this->getRequest()->getData('score_from')) {
 			$this->set('message', __('The saved score does not match yours.\nSomeone else may have updated the score in the meantime.\n\nPlease refresh the page and try again.'));
 			return;
 		}
 
 		$this->Configuration->loadAffiliate($game->division->league['affiliate_id']);
 
-		if (empty($this->request->getData('play'))) {
+		if (empty($this->getRequest()->getData('play'))) {
 			$this->set('message', __('You must indicate the scoring play so that the new score can be calculated.'));
 			return;
 		}
-		$points = Configure::read("sports.{$game->division->league->sport}.score_points.{$this->request->getData('play')}");
+		$points = Configure::read("sports.{$game->division->league->sport}.score_points.{$this->getRequest()->getData('play')}");
 		if (!$points) {
 			$this->set('message', __('Invalid scoring play!'));
 			return;
@@ -1381,7 +1384,7 @@ class GamesController extends AppController {
 		if (!empty($game['ScoreDetail'])) {
 			$this->Game->ScoreDetail->id = $game['ScoreDetail'][0]->id;
 		}
-		if (!$this->Game->ScoreDetail->save(array_merge($this->request->getData(), [
+		if (!$this->Game->ScoreDetail->save(array_merge($this->getRequest()->getData(), [
 				'game_id' => $id,
 				'created_team_id' => $submitter,
 				'points' => $points,
@@ -1392,8 +1395,8 @@ class GamesController extends AppController {
 		}
 
 		// Save stat details
-		if (!empty($this->request->getData('Stat'))) {
-			foreach ($this->request->getData('Stat') as $stat_type_id => $person_id) {
+		if (!empty($this->getRequest()->getData('Stat'))) {
+			foreach ($this->getRequest()->getData('Stat') as $stat_type_id => $person_id) {
 				if (!empty($person_id)) {
 					$this->Game->ScoreDetail->ScoreDetailStat->create();
 					$this->Game->ScoreDetail->ScoreDetailStat->save([
@@ -1417,10 +1420,10 @@ class GamesController extends AppController {
 			unlink($cache_file);
 		}
 
-		if ($game->home_team_id == $this->request->getData('team_id') || $this->request->getData('team_id') === null) {
+		if ($game->home_team_id == $this->getRequest()->getData('team_id') || $this->getRequest()->getData('team_id') === null) {
 			$team = $game->home_team;
 			$opponent = $game->away_team;
-		} else if ($game->away_team_id == $this->request->getData('team_id')) {
+		} else if ($game->away_team_id == $this->getRequest()->getData('team_id')) {
 			$team = $game->away_team;
 			$opponent = $game->home_team;
 		}
@@ -1453,20 +1456,20 @@ class GamesController extends AppController {
 	}
 
 	public function TODOLATER_score_down() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('game');
+		$id = $this->getRequest()->getQuery('game');
 		if (!$id) {
 			$this->set('message', __('Invalid game.'));
 			return;
 		}
 
-		if (!$this->request->getData('team_id')) {
+		if (!$this->getRequest()->getData('team_id')) {
 			$this->set('message', __('Invalid team.'));
 			return;
 		}
 
-		$submitter = $this->request->getQuery('team');
+		$submitter = $this->getRequest()->getQuery('team');
 
 		// Lock all of this to prevent multiple simultaneous score updates
 		// TODO: Handle both teams updating at the same time, one with details and one without
@@ -1485,7 +1488,7 @@ class GamesController extends AppController {
 			'ScoreEntry' => ['conditions' => ['ScoreEntry.team_id' => $submitter]],
 			'ScoreDetail' => [
 				'conditions' => [
-					'ScoreDetail.team_id' => $this->request->getData('team_id'),
+					'ScoreDetail.team_id' => $this->getRequest()->getData('team_id'),
 					'ScoreDetail.points IS NOT' => null,
 				],
 				'order' => ['ScoreDetail.score_from' => 'DESC'],
@@ -1500,7 +1503,7 @@ class GamesController extends AppController {
 		$this->Authorization->authorize(new ContextResource($game, ['team' => $submitter]));
 		$this->Game->adjustEntryIndices($game);
 
-		if ($this->request->getData('team_id') != $game->home_team_id && $this->request->getData('team_id') != $game->away_team_id) {
+		if ($this->getRequest()->getData('team_id') != $game->home_team_id && $this->getRequest()->getData('team_id') != $game->away_team_id) {
 			$this->set('message', __('That team did not play in that game!'));
 			return;
 		}
@@ -1511,7 +1514,7 @@ class GamesController extends AppController {
 		}
 
 		// This will handle either the home team or a third-party submitting the score as "for"
-		if (($submitter === null && $this->request->getData('team_id') == $game->home_team_id) || $submitter == $this->request->getData('team_id')) {
+		if (($submitter === null && $this->getRequest()->getData('team_id') == $game->home_team_id) || $submitter == $this->getRequest()->getData('team_id')) {
 			$team_score_field = 'score_for';
 			$opponent_score_field = 'score_against';
 		} else {
@@ -1534,7 +1537,7 @@ class GamesController extends AppController {
 		$team_score = $entry[$team_score_field];
 		$opponent_score = $entry[$opponent_score_field];
 
-		if ($team_score != $this->request->getData('score_from')) {
+		if ($team_score != $this->getRequest()->getData('score_from')) {
 			$this->set('message', __('The saved score does not match yours.\nSomeone else may have updated the score in the meantime.\n\nPlease refresh the page and try again.'));
 			return;
 		}
@@ -1572,10 +1575,10 @@ class GamesController extends AppController {
 			unlink($cache_file);
 		}
 
-		if ($game->home_team_id == $this->request->getData('team_id') || $this->request->getData('team_id') === null) {
+		if ($game->home_team_id == $this->getRequest()->getData('team_id') || $this->getRequest()->getData('team_id') === null) {
 			$team = $game->home_team;
 			$opponent = $game->away_team;
-		} else if ($game->away_team_id == $this->request->getData('team_id')) {
+		} else if ($game->away_team_id == $this->getRequest()->getData('team_id')) {
 			$team = $game->away_team;
 			$opponent = $game->home_team;
 		}
@@ -1586,20 +1589,20 @@ class GamesController extends AppController {
 	}
 
 	public function TODOLATER_timeout() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('game');
+		$id = $this->getRequest()->getQuery('game');
 		if (!$id) {
 			$this->set('message', __('Invalid game.'));
 			return;
 		}
 
-		if (!$this->request->getData('team_id')) {
+		if (!$this->getRequest()->getData('team_id')) {
 			$this->set('message', __('Invalid team.'));
 			return;
 		}
 
-		$submitter = $this->request->getQuery('team');
+		$submitter = $this->getRequest()->getQuery('team');
 
 		// Lock all of this to prevent multiple simultaneous score updates
 		$this->loadComponent('Lock');
@@ -1616,7 +1619,7 @@ class GamesController extends AppController {
 			'AwayTeam',
 			'ScoreEntry' => ['conditions' => ['ScoreEntry.team_id' => $submitter]],
 			'ScoreDetail' => ['conditions' => [
-				'ScoreDetail.team_id' => $this->request->getData('team_id'),
+				'ScoreDetail.team_id' => $this->getRequest()->getData('team_id'),
 				'ScoreDetail.play' => 'Timeout',
 			]],
 		]);
@@ -1629,7 +1632,7 @@ class GamesController extends AppController {
 		$this->Authorization->authorize(new ContextResource($game, ['team' => $submitter]));
 		$this->Game->adjustEntryIndices($game);
 
-		if ($this->request->getData('team_id') != $game->home_team_id && $this->request->getData('team_id') != $game->away_team_id) {
+		if ($this->getRequest()->getData('team_id') != $game->home_team_id && $this->getRequest()->getData('team_id') != $game->away_team_id) {
 			$this->set('message', __('That team did not play in that game!'));
 			return;
 		}
@@ -1640,7 +1643,7 @@ class GamesController extends AppController {
 		}
 
 		// This will handle either the home team or a third-party submitting the timeout as "for"
-		if (($submitter === null && $this->request->getData('team_id') == $game->home_team_id) || $submitter == $this->request->getData('team_id')) {
+		if (($submitter === null && $this->getRequest()->getData('team_id') == $game->home_team_id) || $submitter == $this->getRequest()->getData('team_id')) {
 			$team_score_field = 'score_for';
 			$opponent_score_field = 'score_against';
 		} else {
@@ -1659,17 +1662,17 @@ class GamesController extends AppController {
 			$team_score = $entry[$team_score_field];
 			$opponent_score = $entry[$opponent_score_field];
 		}
-		if ($team_score != $this->request->getData('score_from')) {
+		if ($team_score != $this->getRequest()->getData('score_from')) {
 			$this->set('message', __('The saved score does not match yours.\nSomeone else may have updated the score in the meantime.\n\nPlease refresh the page and try again.'));
 			return;
 		}
 
 		$this->Configuration->loadAffiliate($game->division->league['affiliate_id']);
 
-		if ($game->home_team_id == $this->request->getData('team_id') || $this->request->getData('team_id') === null) {
+		if ($game->home_team_id == $this->getRequest()->getData('team_id') || $this->getRequest()->getData('team_id') === null) {
 			$team = $game->home_team;
 			$opponent = $game->away_team;
-		} else if ($game->away_team_id == $this->request->getData('team_id')) {
+		} else if ($game->away_team_id == $this->getRequest()->getData('team_id')) {
 			$team = $game->away_team;
 			$opponent = $game->home_team;
 		}
@@ -1681,7 +1684,7 @@ class GamesController extends AppController {
 		foreach ($game->score_details as $detail) {
 			if ($detail->play == 'Timeout' &&
 				$detail->created_team_id != $submitter &&
-				$detail->score_from == $this->request->getData('score_from') &&
+				$detail->score_from == $this->getRequest()->getData('score_from') &&
 				$detail->created >= FrozenTime::now()->subMinutes(2))
 			{
 				$this->set('taken', count($game->score_details));
@@ -1690,7 +1693,7 @@ class GamesController extends AppController {
 			}
 		}
 
-		if (!$this->Game->ScoreDetail->save(array_merge($this->request->getData(), [
+		if (!$this->Game->ScoreDetail->save(array_merge($this->getRequest()->getData(), [
 				'game_id' => $id,
 				'created_team_id' => $submitter,
 				'play' => 'Timeout',
@@ -1705,20 +1708,20 @@ class GamesController extends AppController {
 	}
 
 	public function TODOLATER_play() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$id = $this->request->getQuery('game');
+		$id = $this->getRequest()->getQuery('game');
 		if (!$id) {
 			$this->set('message', __('Invalid game.'));
 			return;
 		}
 
-		if (!$this->request->getData('team_id')) {
+		if (!$this->getRequest()->getData('team_id')) {
 			$this->set('message', __('Invalid team.'));
 			return;
 		}
 
-		$submitter = $this->request->getQuery('team');
+		$submitter = $this->getRequest()->getQuery('team');
 
 		// Lock all of this to prevent multiple simultaneous score updates
 		$this->loadComponent('Lock');
@@ -1745,7 +1748,7 @@ class GamesController extends AppController {
 		$this->Authorization->authorize(new ContextResource($game, ['team' => $submitter]));
 		$this->Game->adjustEntryIndices($game);
 
-		if ($this->request->getData('team_id') != $game->home_team_id && $this->request->getData('team_id') != $game->away_team_id) {
+		if ($this->getRequest()->getData('team_id') != $game->home_team_id && $this->getRequest()->getData('team_id') != $game->away_team_id) {
 			$this->set('message', __('That team did not play in that game!'));
 			return;
 		}
@@ -1756,7 +1759,7 @@ class GamesController extends AppController {
 		}
 
 		// This will handle either the home team or a third-party submitting the score as "for"
-		if (($submitter === null && $this->request->getData('team_id') == $game->home_team_id) || $submitter == $this->request->getData('team_id')) {
+		if (($submitter === null && $this->getRequest()->getData('team_id') == $game->home_team_id) || $submitter == $this->getRequest()->getData('team_id')) {
 			$team_score_field = 'score_for';
 			$opponent_score_field = 'score_against';
 		} else {
@@ -1779,29 +1782,29 @@ class GamesController extends AppController {
 		$this->Configuration->loadAffiliate($game->division->league['affiliate_id']);
 		$sport_obj = $this->moduleRegistry->load("Sport:{$game->division->league->sport}");
 
-		if (empty($this->request->getData('play'))) {
+		if (empty($this->getRequest()->getData('play'))) {
 			$this->set('message', __('You must indicate the play so that the box score will be accurate.'));
 			return;
 		}
-		if ($this->request->getData('play') != 'Start' && !Configure::read("sports.{$game->division->league->sport}.other_options.{$this->request->getData('play')}")) {
+		if ($this->getRequest()->getData('play') != 'Start' && !Configure::read("sports.{$game->division->league->sport}.other_options.{$this->getRequest()->getData('play')}")) {
 			$this->set('message', __('Invalid play!'));
 			return;
 		}
 
-		if ($game->home_team_id == $this->request->getData('team_id') || $this->request->getData('team_id') === null) {
+		if ($game->home_team_id == $this->getRequest()->getData('team_id') || $this->getRequest()->getData('team_id') === null) {
 			$team = $game->home_team;
 			$opponent = $game->away_team;
-		} else if ($game->away_team_id == $this->request->getData('team_id')) {
+		} else if ($game->away_team_id == $this->getRequest()->getData('team_id')) {
 			$team = $game->away_team;
 			$opponent = $game->home_team;
 		}
 
-		$valid = $sport_obj->validatePlay($this->request->getData('team_id'), $this->request->getData('play'), $this->request->getData('score_from'), $game['ScoreDetail']);
+		$valid = $sport_obj->validatePlay($this->getRequest()->getData('team_id'), $this->getRequest()->getData('play'), $this->getRequest()->getData('score_from'), $game['ScoreDetail']);
 		if ($valid !== true) {
 			$this->set('message', addslashes($valid));
 			$this->set('twitter', '');
 			return;
-		} else if ($this->request->getData('play') == 'Start') {
+		} else if ($this->getRequest()->getData('play') == 'Start') {
 			$this->set('message', __('Game timer initialized.'));
 			$twitter = __('Game update #{0}:', $game->division->name) . ' ';
 			$text = Configure::read("sports.{$game->division->league->sport}.start.twitter");
@@ -1813,25 +1816,25 @@ class GamesController extends AppController {
 			$twitter .= '.';
 			$this->set('twitter', addslashes($twitter));
 		} else {
-			$this->set('message', Configure::read("sports.{$game->division->league->sport}.other_options.{$this->request->getData('play')}") . ' ' . __('recorded'));
-			$twitter = "Game update #{$game->division['name']}: " . $team->twitterName() . ' ' . strtolower(Configure::read("sports.{$game->division->league->sport}.other_options.{$this->request->getData('play')}")) . ' vs ' . $opponent->twitterName();
+			$this->set('message', Configure::read("sports.{$game->division->league->sport}.other_options.{$this->getRequest()->getData('play')}") . ' ' . __('recorded'));
+			$twitter = "Game update #{$game->division['name']}: " . $team->twitterName() . ' ' . strtolower(Configure::read("sports.{$game->division->league->sport}.other_options.{$this->getRequest()->getData('play')}")) . ' vs ' . $opponent->twitterName();
 			$this->set('twitter', addslashes($twitter));
 		}
 
 		// Check if there's already a score detail record from the other team that this is likely a duplicate of.
 		// If so, we want to disregard it.
 		foreach ($game->score_details as $detail) {
-			if ($detail->play == $this->request->getData('play') &&
-				$detail->team_id == $this->request->getData('team_id') &&
+			if ($detail->play == $this->getRequest()->getData('play') &&
+				$detail->team_id == $this->getRequest()->getData('team_id') &&
 				$detail->created_team_id != $submitter &&
-				$detail->score_from == $this->request->getData('score_from') &&
+				$detail->score_from == $this->getRequest()->getData('score_from') &&
 				$detail->created >= FrozenTime::now()->subMinutes(2))
 			{
 				return;
 			}
 		}
 
-		if (!$this->Game->ScoreDetail->save(array_merge($this->request->getData(), [
+		if (!$this->Game->ScoreDetail->save(array_merge($this->getRequest()->getData(), [
 				'game_id' => $id,
 				'created_team_id' => $submitter,
 		])))
@@ -1842,7 +1845,7 @@ class GamesController extends AppController {
 	}
 
 	public function TODOLATER_tweet() {
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
 		if (!App::import('Lib', 'twitter_api_exchange')) {
 			$this->set('message', __('Failed to load the {0} library! Contact your system administrator.', 'Twitter API Exchange'));
@@ -1862,9 +1865,9 @@ class GamesController extends AppController {
 		];
 		$url = 'https://api.twitter.com/1.1/statuses/update.json';
 		$postfields = [
-				'status' => $this->request->getData('Twitter.message'),
-				'lat' => $this->request->getData('Twitter.lat'),
-				'long' => $this->request->getData('Twitter.long'),
+				'status' => $this->getRequest()->getData('Twitter.message'),
+				'lat' => $this->getRequest()->getData('Twitter.lat'),
+				'long' => $this->getRequest()->getData('Twitter.long'),
 		];
 		$twitter = new TwitterAPIExchange($settings);
 		$response = json_decode($twitter->buildOauth($url, 'POST')->setPostfields($postfields)->performRequest());
@@ -1876,8 +1879,8 @@ class GamesController extends AppController {
 	}
 
 	public function submit_score() {
-		$id = $this->request->getQuery('game');
-		$team_id = $this->request->getQuery('team');
+		$id = $this->getRequest()->getQuery('game');
+		$team_id = $this->getRequest()->getQuery('team');
 
 		if (Configure::read('scoring.allstars') || Configure::read('scoring.most_spirited')) {
 			// We need roster details for potential allstar nominations.
@@ -2003,21 +2006,21 @@ class GamesController extends AppController {
 
 		$opponent_score = $game->getScoreEntry($opponent->id);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			// TODO: Move these checks to rules?
-			if (!empty($game->score_entries) && !array_key_exists('id', $this->request->getData('score_entries.0'))) {
+			if (!empty($game->score_entries) && !array_key_exists('id', $this->getRequest()->getData('score_entries.0'))) {
 				$this->Flash->warning(__('There is already a score submitted by your team for this game. To update this, use the "{0}" link.',
 					__('Edit Score')));
 				return $this->redirect(['action' => 'view', 'game' => $id]);
 			}
 
-			if (!empty($game->spirit_entries) && !array_key_exists('id', $this->request->getData('spirit_entries.0'))) {
+			if (!empty($game->spirit_entries) && !array_key_exists('id', $this->getRequest()->getData('spirit_entries.0'))) {
 				$this->Flash->warning(__('There is already a spirit score submitted by your team for this game. To update this, use the "{0}" link.',
 					__('Edit Score')));
 				return $this->redirect(['action' => 'view', 'game' => $id]);
 			}
 
-			$game = $this->Games->patchEntity($game, $this->request->getData(), [
+			$game = $this->Games->patchEntity($game, $this->getRequest()->getData(), [
 				'associated' => ['ScoreEntries', 'ScoreEntries.Allstars', 'SpiritEntries', 'Incidents'],
 			]);
 
@@ -2033,7 +2036,7 @@ class GamesController extends AppController {
 			}
 
 			if ($this->Games->save($game, ['game' => $game, 'team_id' => $team_id])) {
-				if ($game->division->league->hasStats() && $this->request->getData('collect_stats')) {
+				if ($game->division->league->hasStats() && $this->getRequest()->getData('collect_stats')) {
 					return $this->redirect(['action' => 'submit_stats', 'game' => $id, 'team' => $team_id]);
 				} else {
 					return $this->redirect('/');
@@ -2044,11 +2047,11 @@ class GamesController extends AppController {
 		} else {
 			// Include any parameters from emailed confirmation link
 			foreach (['status', 'score_for', 'score_against', 'home_carbon_flip'] as $field) {
-				if ($this->request->getQuery($field) !== null) {
+				if ($this->getRequest()->getQuery($field) !== null) {
 					if (empty($game->score_entries)) {
 						$game->score_entries = [$this->Games->ScoreEntries->newEntity()];
 					}
-					$game->score_entries[0]->$field = $this->request->getQuery($field);
+					$game->score_entries[0]->$field = $this->getRequest()->getQuery($field);
 				}
 			}
 		}
@@ -2057,7 +2060,7 @@ class GamesController extends AppController {
 	}
 
 	public function submit_stats() {
-		$id = $this->request->getQuery('game');
+		$id = $this->getRequest()->getQuery('game');
 		try {
 			$game = $this->Games->get($id, [
 				'contain' => [
@@ -2090,15 +2093,16 @@ class GamesController extends AppController {
 		}
 
 		$this->Games->adjustEntryIndices($game);
-		$team_id = $this->request->getQuery('team');
+		$team_id = $this->getRequest()->getQuery('team');
 		$this->Authorization->authorize(new ContextResource($game, ['team_id' => $team_id, 'league' => $game->division->league, 'stat_types' => $game->division->league->stat_types]));
 		$this->Configuration->loadAffiliate($game->division->league->affiliate_id);
 		$sport_obj = $this->moduleRegistry->load("Sport:{$game->division->league->sport}");
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			// Remove any empty or invalid stats. We DON'T remove '0' stats, as that's still a stat.
 			$entry_stats = collection($game->division->league->stat_types)->extract('id')->toArray();
-			$this->request->data['stats'] = collection($this->request->getData('stats'))->filter(function ($datum) use ($entry_stats) {
+			$data = $this->getRequest()->getData();
+			$data['stats'] = collection($data['stats'])->filter(function ($datum) use ($entry_stats) {
 				return ($datum['value'] !== '' && in_array($datum['stat_type_id'], $entry_stats));
 			})->toArray();
 
@@ -2116,7 +2120,7 @@ class GamesController extends AppController {
 					return (!$team_id || $stat->team_id == $team_id) || in_array($stat->stat_type_id, $calc_stat_ids);
 				})
 				->extract('id')->toArray(false);
-			$game = $this->Games->patchEntity($game, $this->request->getData(), ['associated' => ['Stats']]);
+			$game = $this->Games->patchEntity($game, $data, ['associated' => ['Stats']]);
 			if (!empty($to_delete)) {
 				$to_delete = array_diff($to_delete, collection($game->stats)->reject(function ($stat) {
 					return empty($stat->id);
@@ -2171,7 +2175,7 @@ class GamesController extends AppController {
 				return $this->redirect(['action' => 'view', 'game' => $id]);
 			}
 
-			if (empty($this->request->getData('stats'))) {
+			if (empty($data['stats'])) {
 				$this->Flash->info(__('You did not submit any stats. You can return to complete this at any time.'));
 				return $this->redirect(['action' => 'view', 'game' => $id]);
 			}
@@ -2218,8 +2222,8 @@ class GamesController extends AppController {
 	}
 
 	public function stats() {
-		$id = $this->request->getQuery('game');
-		$team_id = $this->request->getQuery('team');
+		$id = $this->getRequest()->getQuery('game');
+		$team_id = $this->getRequest()->getQuery('team');
 		try {
 			$game = $this->Games->get($id, [
 				'contain' => [
@@ -2281,8 +2285,8 @@ class GamesController extends AppController {
 		}
 
 		$this->set(compact('game', 'team_id', 'team', 'opponent', 'sport_obj'));
-		if ($this->request->is('csv')) {
-			$this->response->download("Stats - Game {$game->id}.csv");
+		if ($this->getRequest()->is('csv')) {
+			$this->getResponse()->withDownload("Stats - Game {$game->id}.csv");
 		}
 	}
 

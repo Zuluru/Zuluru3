@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Questionnaire $questionnaire
+ * @var \App\Model\Entity\Question $question
+ */
+
 use App\Controller\AppController;
 
 if (!isset($i)) {
@@ -13,7 +19,7 @@ if (!isset($i)) {
 			($question->anonymous ? __(' ({0})', __('anonymous')) : '');
 	?></td>
 	<td><?php
-		echo $this->Form->input("questions.$i._joinData.required", [
+		echo $this->Form->control("questions.$i._joinData.required", [
 			'div' => false,
 			'label' => false,
 			'type' => 'checkbox',

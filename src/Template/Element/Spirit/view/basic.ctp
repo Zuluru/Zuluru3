@@ -1,10 +1,10 @@
 <?php
 /**
- * @type $game \App\Model\Entity\Game
- * @type $division \App\Model\Entity\Division
- * @type $league \App\Model\Entity\League
- * @type $spirit \App\Model\Entity\SpiritEntry
- * @type $spirit_obj \App\Module\Spirit
+ * @var \App\Model\Entity\Game $game
+ * @var \App\Model\Entity\Division $division
+ * @var \App\Model\Entity\League $league
+ * @var \App\Model\Entity\SpiritEntry $spirit
+ * @var \App\Module\Spirit $spirit_obj
  */
 
 if ($spirit) {

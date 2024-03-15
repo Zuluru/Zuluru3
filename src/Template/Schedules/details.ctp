@@ -1,8 +1,13 @@
 <?php
-$this->Html->addCrumb(__('Division'));
-$this->Html->addCrumb($division->full_league_name);
-$this->Html->addCrumb(__('Add Games'));
-$this->Html->addCrumb(__('Set Pool Details'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Division $division
+ */
+
+$this->Breadcrumbs->add(__('Division'));
+$this->Breadcrumbs->add($division->full_league_name);
+$this->Breadcrumbs->add(__('Add Games'));
+$this->Breadcrumbs->add(__('Set Pool Details'));
 ?>
 
 <div class="schedules add">
@@ -38,7 +43,7 @@ for ($i = 1; $i <= $pools; ++ $i):
 ?>
 					<tr>
 						<td><?= $i ?>.</td>
-						<td><?= $this->Form->input("_options.pools.$i.name", [
+						<td><?= $this->Form->control("_options.pools.$i.name", [
 							'label' => false,
 							'maxlength' => 2,
 							'size' => 5,
@@ -47,7 +52,7 @@ for ($i = 1; $i <= $pools; ++ $i):
 <?php
 	if ($type != 'snake'):
 ?>
-						<td><?= $this->Form->input("_options.pools.$i.count", [
+						<td><?= $this->Form->control("_options.pools.$i.count", [
 							'label' => false,
 							'type' => 'number',
 							'maxlength' => 2,

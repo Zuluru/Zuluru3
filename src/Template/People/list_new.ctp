@@ -1,9 +1,14 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Person[] $new
+ */
+
 use App\Controller\AppController;
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb(__('New Accounts'));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add(__('New Accounts'));
 ?>
 
 <div class="people list_new">

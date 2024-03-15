@@ -1,4 +1,10 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Newsletter $newsletter
+ * @var \App\Model\Entity\Person $person
+ */
+
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 use Html2Text\Html2Text;

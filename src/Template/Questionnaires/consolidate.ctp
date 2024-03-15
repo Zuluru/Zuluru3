@@ -1,3 +1,9 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ * @var array $matches
+ */
+?>
 <div style="padding:1em;">
 <ol>
 <?php

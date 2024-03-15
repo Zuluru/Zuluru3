@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ */
+?>
 <p><?= __('The Rating Percentage Index is a simple system for rating teams based on their winning percentage, their opponents\' winning percentage, and their opponents\' opponents\' winning percentage. It is commonly applied to NCAA basketball and baseball.') ?></p>
 <p><?= __('With the RPI system, ratings are re-calculated on a daily basis, taking into account the strength of each team\'s schedule.') ?></p>
 <?php

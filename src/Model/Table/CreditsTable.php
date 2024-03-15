@@ -65,16 +65,16 @@ class CreditsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->numeric('amount')
-			->notEmpty('amount')
+			->notEmptyString('amount')
 			->add('amount', 'valid', ['rule' => ['comparison', '>', 0], 'message' => __('{0} amounts must be positive.', __('Credit'))])
 
 			->numeric('amount_used')
-			->allowEmpty('amount_used')
+			->allowEmptyString('amount_used')
 
-			->allowEmpty('notes')
+			->allowEmptyString('notes')
 
 		;
 
@@ -93,7 +93,7 @@ class CreditsTable extends AppTable {
 		$rules->add($rules->existsIn(['person_id'], 'People'));
 		$rules->add($rules->existsIn(['created_person_id'], 'People'));
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			return $entity->amount_used === null || round($entity->amount_used, 2) <= round($entity->amount, 2);
 		}, 'validAmountUsed', [
 			'errorField' => 'amount_used',

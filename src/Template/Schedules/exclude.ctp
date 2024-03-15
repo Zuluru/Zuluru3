@@ -1,8 +1,13 @@
 <?php
-$this->Html->addCrumb(__('Division'));
-$this->Html->addCrumb($division->full_league_name);
-$this->Html->addCrumb(__('Add Games'));
-$this->Html->addCrumb(__('Select Exclusions'));
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Division $division
+ */
+
+$this->Breadcrumbs->add(__('Division'));
+$this->Breadcrumbs->add($division->full_league_name);
+$this->Breadcrumbs->add(__('Add Games'));
+$this->Breadcrumbs->add(__('Select Exclusions'));
 ?>
 
 <div class="schedules add">
@@ -14,7 +19,7 @@ echo $this->Form->hidden('_options.step', ['value' => 'exclude']);
 
 foreach ($division->teams as $team) {
 	// TODO: See discussion of CakePHP bug in date.ctp
-	echo $this->Form->input("_options.exclude.t{$team->id}", [
+	echo $this->Form->control("_options.exclude.t{$team->id}", [
 		'label' => $team->name,
 		'type' => 'checkbox',
 		'value' => $team->id,

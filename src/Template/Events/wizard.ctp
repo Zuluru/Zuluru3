@@ -1,13 +1,13 @@
 <?php
 /**
- * @type $this \App\View\AppView
- * @type $events \App\Model\Entity\Event[]
- * @type $affiliates int[]
- * @type $step string
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Event[] $events
+ * @var int[] $affiliates
+ * @var string $step
  */
 
-$this->Html->addCrumb(__('Registration Events'));
-$this->Html->addCrumb(__('Wizard'));
+$this->Breadcrumbs->add(__('Registration Events'));
+$this->Breadcrumbs->add(__('Wizard'));
 ?>
 
 <div class="events index">

@@ -2,13 +2,13 @@
 
 use Cake\Core\Configure;
 
-$this->Html->addCrumb(__('Settings'));
-$this->Html->addCrumb('PayPal');
+$this->Breadcrumbs->add(__('Settings'));
+$this->Breadcrumbs->add('PayPal');
 ?>
 
 <div class="settings form">
 <?php
-echo $this->Form->create(false, ['align' => 'horizontal']);
+echo $this->form->create(null, ['align' => 'horizontal']);
 ?>
 <fieldset>
 	<legend><?= __('{0} Settings', 'PayPal') ?></legend>

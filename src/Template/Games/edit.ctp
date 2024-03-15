@@ -1,7 +1,7 @@
 <?php
 /**
- * @type $game \App\Model\Entity\Game
- * @type $spirit_obj \App\Module\Spirit
+ * @var \App\Model\Entity\Game $game
+ * @var \App\Module\Spirit $spirit_obj
  */
 
 use Cake\Core\Configure;
@@ -10,9 +10,9 @@ use App\Core\ModuleRegistry;
 use App\Model\Entity\Team;
 use Cake\ORM\TableRegistry;
 
-$this->Html->addCrumb(__('Games'));
-$this->Html->addCrumb(__('Game') . ' ' . $game->id);
-$this->Html->addCrumb(__('Edit'));
+$this->Breadcrumbs->add(__('Games'));
+$this->Breadcrumbs->add(__('Game') . ' ' . $game->id);
+$this->Breadcrumbs->add(__('Edit'));
 
 $preliminary = ($game->home_team_id === null || ($game->division->schedule_type != 'competition' && $game->away_team_id === null));
 if ($game->division->league->hasCarbonFlip()) {
@@ -346,7 +346,7 @@ if (!$preliminary):
 ?>
 		<dl class="dl-horizontal">
 			<dt class="normal default"><?= $this->Text->truncate($game->home_team->name, 28) ?></dt>
-			<dd class="normal default"><?= $this->Form->input('home_score', [
+			<dd class="normal default"><?= $this->Form->control('home_score', [
 				'id' => 'ScoreHome',
 				'label' => false,
 				'size' => 2,
@@ -357,7 +357,7 @@ if (!$preliminary):
 	if ($game->division->schedule_type !== 'competition'):
 ?>
 			<dt class="normal default"><?= $this->Text->truncate($game->away_team->name, 28) ?></dt>
-			<dd class="normal default"><?= $this->Form->input('away_score', [
+			<dd class="normal default"><?= $this->Form->control('away_score', [
 				'id' => 'ScoreAway',
 				'label' => false,
 				'size' => 2,
@@ -375,7 +375,7 @@ if (!$preliminary):
 	if ($game->division->league->hasCarbonFlip()):
 ?>
 			<dt class="normal"><?= __('Carbon Flip') ?></dt>
-			<dd class="normal"><?= $this->Form->input('home_carbon_flip', [
+			<dd class="normal"><?= $this->Form->control('home_carbon_flip', [
 				'label' => false,
 				'empty' => '---',
 				'options' => $carbon_flip_options,
@@ -388,12 +388,12 @@ if (!$preliminary):
 	if ($game->division->women_present):
 ?>
 			<dt class="normal"><?= __('Home Team Women Designated Players') ?></dt>
-			<dd class="normal"><?= $this->Form->input('score_entries.0.women_present', [
+			<dd class="normal"><?= $this->Form->control('score_entries.0.women_present', [
 				'label' => false,
 				'secure' => false,
 			]) ?></dd>
 			<dt class="normal"><?= __('Away Team Women Designated Players') ?></dt>
-			<dd class="normal"><?= $this->Form->input('score_entries.1.women_present', [
+			<dd class="normal"><?= $this->Form->control('score_entries.1.women_present', [
 				'label' => false,
 				'secure' => false,
 			]) ?></dd>
@@ -441,7 +441,7 @@ if ($game->division->allstars != 'never'):
 		$allstars = [];
 	}
 
-	echo $this->Form->input("score_entries.$id0.allstars._ids", [
+	echo $this->Form->control("score_entries.$id0.allstars._ids", [
 		'label' => false,
 		'options' => collection($game->home_team->people)->combine('id', 'full_name')->toArray(),
 		'multiple' => 'checkbox',
@@ -477,7 +477,7 @@ if ($game->division->allstars != 'never'):
 		$allstars = [];
 	}
 
-	echo $this->Form->input("score_entries.$id1.allstars._ids", [
+	echo $this->Form->control("score_entries.$id1.allstars._ids", [
 		'label' => false,
 		'options' => collection($game->away_team->people)->combine('id', 'full_name')->toArray(),
 		'multiple' => 'checkbox',

@@ -1,18 +1,18 @@
 <?php
 /**
- * @type \App\View\AppView $this
+ * @var \App\View\AppView $this
  */
 
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 
-$this->Html->addCrumb(__('Settings'));
-$this->Html->addCrumb('Stripe');
+$this->Breadcrumbs->add(__('Settings'));
+$this->Breadcrumbs->add('Stripe');
 ?>
 
 <div class="settings form">
 <?php
-echo $this->Form->create(false, ['align' => 'horizontal']);
+echo $this->form->create(null, ['align' => 'horizontal']);
 ?>
 <fieldset>
 	<legend><?= __('{0} Settings', 'Stripe') ?></legend>

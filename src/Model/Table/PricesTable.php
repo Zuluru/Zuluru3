@@ -57,49 +57,49 @@ class PricesTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			// validation will allow empty names; rules will limit this
-			->allowEmpty('name')
+			->allowEmptyString('name')
 
-			->allowEmpty('description')
+			->allowEmptyString('description')
 
 			->numeric('cost', __('You must enter a valid cost.'))
-			->notEmpty('cost', __('You must enter a valid cost.'))
+			->notEmptyString('cost', __('You must enter a valid cost.'))
 
 			->numeric('tax1', __('You must enter a valid tax amount.'))
-			->allowEmpty('tax1', function () { return !Configure::read('payment.tax1_enable'); })
+			->allowEmptyString('tax1', null, function () { return !Configure::read('payment.tax1_enable'); })
 
 			->numeric('tax2', __('You must enter a valid tax amount.'))
-			->allowEmpty('tax2', function () { return !Configure::read('payment.tax2_enable'); })
+			->allowEmptyString('tax2', null, function () { return !Configure::read('payment.tax2_enable'); })
 
 			->dateTime('open', __('You must select a valid opening date.'))
 			->requirePresence('open', 'create', __('You must select a valid opening date.'))
-			->notEmpty('open', __('You must select a valid opening date.'))
+			->notEmptyDateTime('open', __('You must select a valid opening date.'))
 
 			->dateTime('close', __('You must select a valid closing date.'))
 			->requirePresence('close', 'create', __('You must select a valid closing date.'))
-			->notEmpty('close', __('You must select a valid closing date.'))
+			->notEmptyDateTime('close', __('You must select a valid closing date.'))
 
-			->allowEmpty('register_rule')
+			->allowEmptyString('register_rule')
 
 			->boolean('allow_late_payment', __('You must select whether or not payment will be accepted after the close date.'))
 			->requirePresence('allow_late_payment', 'create')
-			->allowEmpty('allow_late_payment')
+			->allowEmptyString('allow_late_payment')
 
 			->numeric('minimum_deposit', __('You must enter a valid deposit amount.'))
 			->requirePresence('minimum_deposit', function ($context) {
 				return Configure::read('registration.online_payments') && in_array($context['data']['online_payment_option'], [ONLINE_MINIMUM_DEPOSIT, ONLINE_SPECIFIC_DEPOSIT, ONLINE_DEPOSIT_ONLY]);
 			})
-			->allowEmpty('minimum_deposit')
+			->allowEmptyString('minimum_deposit')
 
 			->boolean('allow_reservations', __('You must select whether reservations are allowed.'))
 			->requirePresence('allow_reservations', 'create')
-			->allowEmpty('allow_reservations')
+			->allowEmptyString('allow_reservations')
 
 			->numeric('reservation_duration', __('You must enter a valid reservation duration.'))
 			->requirePresence('reservation_duration', function ($context) { return !empty($context['data']['allow_reservations']); })
-			->allowEmpty('reservation_duration')
+			->allowEmptyString('reservation_duration')
 
 			;
 
@@ -116,7 +116,7 @@ class PricesTable extends AppTable {
 	public function buildRules(RulesChecker $rules) {
 		$rules->add($rules->existsIn(['event_id'], 'Events', __('You must select a valid event.')));
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			if (array_key_exists('prices', $options)) {
 				$prices = count($options['prices']);
 			} else if ($entity->has('event') && $entity->event->has('prices')) {
@@ -185,7 +185,7 @@ class PricesTable extends AppTable {
 	 */
 	public function beforeMarshal(CakeEvent $cakeEvent, ArrayObject $data, ArrayObject $options) {
 		// If online payment option indicates that the minimum deposit should be zero, make sure it's so
-		if (array_key_exists('online_payment_option', $data) &&
+		if ($data->offsetExists('online_payment_option') &&
 			in_array($data['online_payment_option'], [ONLINE_FULL_PAYMENT, ONLINE_NO_MINIMUM, ONLINE_NO_PAYMENT])
 		) {
 			$data['minimum_deposit'] = 0;

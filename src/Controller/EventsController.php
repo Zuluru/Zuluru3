@@ -39,7 +39,7 @@ class EventsController extends AppController {
 	public function beforeFilter(\Cake\Event\Event $event) {
 		parent::beforeFilter($event);
 		if (isset($this->Security)) {
-			$this->Security->config('unlockedActions', ['add', 'edit']);
+			$this->Security->setConfig('unlockedActions', ['add', 'edit']);
 		}
 	}
 
@@ -130,7 +130,7 @@ class EventsController extends AppController {
 	 */
 	public function admin() {
 		$this->Authorization->authorize($this);
-		$year = $this->request->getQuery('year');
+		$year = $this->getRequest()->getQuery('year');
 		if ($year) {
 			$conditions = ['OR' => [
 				[
@@ -322,7 +322,7 @@ class EventsController extends AppController {
 	public function view() {
 		$this->Events->Registrations->expireReservations();
 
-		$id = $this->request->getQuery('event');
+		$id = $this->getRequest()->getQuery('event');
 		if ($this->Authorization->can($this, 'add')) {
 			// Admins and managers see things that have recently closed, or open far in the future
 			$close = FrozenDate::now()->subDays(30);
@@ -410,15 +410,15 @@ class EventsController extends AppController {
 		$this->Authorization->authorize($this);
 		$event = $this->Events->newEntity();
 
-		if ($this->request->is('post')) {
+		if ($this->getRequest()->is('post')) {
 			// Validation requires this information
-			if (!empty($this->request->getData('event_type_id'))) {
-				$type = $this->Events->EventTypes->field('type', ['EventTypes.id' => $this->request->getData('event_type_id')]);
+			if (!empty($this->getRequest()->getData('event_type_id'))) {
+				$type = $this->Events->EventTypes->field('type', ['EventTypes.id' => $this->getRequest()->getData('event_type_id')]);
 			} else {
 				$type = 'default';
 			}
 
-			$event = $this->Events->patchEntity($event, $this->request->getData(), ['validate' => $type]);
+			$event = $this->Events->patchEntity($event, $this->getRequest()->getData(), ['validate' => $type]);
 			if ($this->Events->save($event, ['prices' => $event->prices])) {
 				$this->Flash->success(__('The event has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -426,10 +426,10 @@ class EventsController extends AppController {
 				$this->Flash->warning(__('The event could not be saved. Please correct the errors below and try again.'));
 				$this->Configuration->loadAffiliate($event->affiliate_id);
 			}
-		} else if ($this->request->getQuery('event')) {
+		} else if ($this->getRequest()->getQuery('event')) {
 			// To clone an event, read the old one and remove the id
 			try {
-				$event = $this->Events->get($this->request->getQuery('event'), [
+				$event = $this->Events->get($this->getRequest()->getQuery('event'), [
 					'contain' => [
 						'EventTypes',
 						'Prices' => [
@@ -477,7 +477,7 @@ class EventsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
-		$id = $this->request->getQuery('event');
+		$id = $this->getRequest()->getQuery('event');
 		try {
 			$event = $this->Events->get($id, [
 				'contain' => [
@@ -501,15 +501,15 @@ class EventsController extends AppController {
 		$this->Authorization->authorize($event);
 		$this->Configuration->loadAffiliate($event->affiliate_id);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			// Validation requires this information
-			if (!empty($this->request->getData('event_type_id'))) {
-				$type = $this->Events->EventTypes->field('type', ['EventTypes.id' => $this->request->getData('event_type_id')]);
+			if (!empty($this->getRequest()->getData('event_type_id'))) {
+				$type = $this->Events->EventTypes->field('type', ['EventTypes.id' => $this->getRequest()->getData('event_type_id')]);
 			} else {
 				$type = 'default';
 			}
 
-			$event = $this->Events->patchEntity($event, $this->request->getData(), ['validate' => $type]);
+			$event = $this->Events->patchEntity($event, $this->getRequest()->getData(), ['validate' => $type]);
 			if ($this->Events->save($event, ['prices' => $event->prices])) {
 				$this->Flash->success(__('The event has been saved.'));
 				return $this->redirect(['action' => 'index']);
@@ -533,9 +533,9 @@ class EventsController extends AppController {
 		// TODO: Change this to authorize on the event_type, in case we make them affiliate-specific
 		$this->Authorization->authorize($this);
 
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 
-		$type = $this->Events->EventTypes->field('type', ['EventTypes.id' => $this->request->getData('event_type_id')]);
+		$type = $this->Events->EventTypes->field('type', ['EventTypes.id' => $this->getRequest()->getData('event_type_id')]);
 		$this->set('event_obj', $this->moduleRegistry->load("EventType:{$type}"));
 		$this->set('affiliates', $this->Authentication->applicableAffiliates(true));
 	}
@@ -548,7 +548,7 @@ class EventsController extends AppController {
 	public function add_price() {
 		$this->Authorization->authorize($this);
 
-		$this->request->allowMethod('ajax');
+		$this->getRequest()->allowMethod('ajax');
 		$event = $this->Events->newEntity();
 		$this->set(compact('event'));
 	}
@@ -559,9 +559,9 @@ class EventsController extends AppController {
 	 * @return void|\Cake\Network\Response Redirects to index.
 	 */
 	public function delete() {
-		$this->request->allowMethod(['post', 'delete']);
+		$this->getRequest()->allowMethod(['post', 'delete']);
 
-		$id = $this->request->getQuery('event');
+		$id = $this->getRequest()->getQuery('event');
 		try {
 			$event = $this->Events->get($id);
 		} catch (RecordNotFoundException $ex) {
@@ -582,8 +582,8 @@ class EventsController extends AppController {
 
 		if ($this->Events->delete($event)) {
 			$this->Flash->success(__('The event has been deleted.'));
-		} else if ($event->errors('delete')) {
-			$this->Flash->warning(current($event->errors('delete')));
+		} else if ($event->getError('delete')) {
+			$this->Flash->warning(current($event->getError('delete')));
 		} else {
 			$this->Flash->warning(__('The event could not be deleted. Please, try again.'));
 		}
@@ -591,7 +591,7 @@ class EventsController extends AppController {
 	}
 
 	public function connections() {
-		$id = $this->request->getQuery('event');
+		$id = $this->getRequest()->getQuery('event');
 		try {
 			$event = $this->Events->get($id, [
 				'contain' => [
@@ -615,10 +615,11 @@ class EventsController extends AppController {
 		$this->Authorization->authorize($event, 'edit');
 		$this->Configuration->loadAffiliate($event->affiliate_id);
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			// Alternates always go both ways
-			$this->request->data['alternate_to'] = $this->request->getData('alternate');
-			$event = $this->Events->patchEntity($event, $this->request->getData());
+			$data = $this->getRequest()->getData();
+			$data['alternate_to'] = $data['alternate'];
+			$event = $this->Events->patchEntity($event, $data);
 
 			// We need to add join data for all of the connections we're about to make,
 			// to tell the system what type of connections they are.
@@ -684,8 +685,8 @@ class EventsController extends AppController {
 	public function refund() {
 		$this->paginate['order'] = ['Registrations.payment' => 'DESC', 'Registrations.created' => 'DESC'];
 		$this->paginate['limit'] = 100;
-		$id = $this->request->getQuery('event');
-		$price_id = $this->request->getQuery('price');
+		$id = $this->getRequest()->getQuery('event');
+		$price_id = $this->getRequest()->getQuery('price');
 
 		try {
 			$event = $this->Events->get($id, [
@@ -716,8 +717,8 @@ class EventsController extends AppController {
 
 		$refund = $this->Events->Registrations->Payments->newEntity();
 
-		if ($this->request->is('post')) {
-			$data = $this->request->getData();
+		if ($this->getRequest()->is('post')) {
+			$data = $this->getRequest()->getData();
 			$refund = $this->Events->Registrations->Payments->patchEntity($refund, $data);
 
 			if (!in_array($data['amount_type'], ['total', 'prorated', 'input'])) {

@@ -45,7 +45,7 @@ class PreregistrationsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create');
+			->allowEmptyString('id', null, 'create');
 
 		return $validator;
 	}

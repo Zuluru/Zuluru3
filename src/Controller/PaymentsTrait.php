@@ -54,7 +54,7 @@ trait PaymentsTrait {
 			$audit = $this->Registrations->Payments->RegistrationAudits->newEntity($audit);
 			if (!$this->Registrations->Payments->RegistrationAudits->save($audit)) {
 				$errors[] = __('There was an error updating the audit record in the database. Contact the office to ensure that your information is updated, quoting order #<b>{0}</b>, or you may not be allowed to be added to rosters, etc.', $audit->order_id);
-				$this->log($audit->errors());
+				$this->log($audit->getErrors());
 			}
 
 			foreach ($registrations as $registration) {

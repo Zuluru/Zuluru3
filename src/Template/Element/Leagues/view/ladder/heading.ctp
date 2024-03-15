@@ -1,4 +1,7 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
 
 use App\Controller\TeamsController;
 use Cake\Core\Configure;

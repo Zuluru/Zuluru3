@@ -1,13 +1,19 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\League $league
+ * @var \App\Model\Entity\GameSlot $slots
+ */
+
 use App\Model\Entity\Division;
 use Cake\Core\Configure;
 
 $tournaments = collection($league->divisions)->every(function (Division $division) {
 	return $division->schedule_type == 'tournament';
 });
-$this->Html->addCrumb($tournaments ? __('Tournaments') : __('Leagues'));
-$this->Html->addCrumb(__('League {0} Availability Report', __(Configure::read("sports.{$league->sport}.field_cap"))));
-$this->Html->addCrumb($league->full_name);
+$this->Breadcrumbs->add($tournaments ? __('Tournaments') : __('Leagues'));
+$this->Breadcrumbs->add(__('League {0} Availability Report', __(Configure::read("sports.{$league->sport}.field_cap"))));
+$this->Breadcrumbs->add($league->full_name);
 ?>
 
 <div class="leagues slots">
@@ -16,7 +22,7 @@ $this->Html->addCrumb($league->full_name);
 	<p><?= __('Select a date below on which to view all available game slots:') ?></p>
 <?php
 echo $this->Form->create($league, ['align' => 'horizontal', 'id' => 'SlotForm']);
-echo $this->Form->input('date', [
+echo $this->Form->control('date', [
 	'label' => false,
 	'options' => array_combine(
 		array_map(function ($date) { return $date->toDateString(); }, $dates),

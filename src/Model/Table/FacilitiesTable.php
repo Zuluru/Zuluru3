@@ -70,43 +70,43 @@ class FacilitiesTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->boolean('is_open')
 			->requirePresence('is_open', 'create')
-			->notEmpty('is_open')
+			->notEmptyString('is_open')
 
-			->notEmpty('name', __('The name cannot be blank.'))
+			->notEmptyString('name', __('The name cannot be blank.'))
 
-			->notEmpty('code', __('The code cannot be blank.'))
+			->notEmptyString('code', __('The code cannot be blank.'))
 
-			->notEmpty('location_street', __('You must supply a valid street address.'))
+			->notEmptyString('location_street', __('You must supply a valid street address.'))
 
-			->notEmpty('location_city', __('You must supply a city.'))
+			->notEmptyString('location_city', __('You must supply a city.'))
 
-			->notEmpty('location_province', __('Select a province/state from the list.'))
+			->notEmptyString('location_province', __('Select a province/state from the list.'))
 
-			->allowEmpty('parking')
+			->allowEmptyString('parking')
 
-			->allowEmpty('driving_directions')
+			->allowEmptyString('driving_directions')
 
-			->allowEmpty('parking_details')
+			->allowEmptyString('parking_details')
 
-			->allowEmpty('transit_directions')
+			->allowEmptyString('transit_directions')
 
-			->allowEmpty('biking_directions')
+			->allowEmptyString('biking_directions')
 
-			->allowEmpty('washrooms')
+			->allowEmptyString('washrooms')
 
-			->allowEmpty('public_instructions')
+			->allowEmptyString('public_instructions')
 
-			->allowEmpty('site_instructions')
+			->allowEmptyString('site_instructions')
 
-			->allowEmpty('sponsor')
+			->allowEmptyString('sponsor')
 
-			->allowEmpty('entrances')
+			->allowEmptyString('entrances')
 
-			->allowEmpty('sport')
+			->allowEmptyString('sport')
 
 			;
 
@@ -130,7 +130,7 @@ class FacilitiesTable extends AppTable {
 
 		// We are happy if the sport is either empty or a valid selection
 		$rules->add(new OrRule([
-			function (EntityInterface $entity, Array $options) { return empty($entity->sport); },
+			function (EntityInterface $entity, array $options) { return empty($entity->sport); },
 			new InConfigRule('options.sport'),
 		]), 'validSport', [
 			'errorField' => 'sport',
@@ -140,7 +140,7 @@ class FacilitiesTable extends AppTable {
 		return $rules;
 	}
 
-	public function findOpen(Query $query, Array $options) {
+	public function findOpen(Query $query, array $options) {
 		$query->where(['Facilities.is_open' => true]);
 		if (!empty($options['affiliates'])) {
 			$query->matching('Regions', function (Query $q) use ($options) {

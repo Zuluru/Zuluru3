@@ -1,3 +1,8 @@
+<?php
+/**
+ * @var \App\View\AppView $this
+ */
+?>
 <div class="sport_specific_fields" id="baseball_fields">
 <p>Angle:
 <span class="show_angle"></span>

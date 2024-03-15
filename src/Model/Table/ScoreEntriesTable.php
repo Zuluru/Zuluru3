@@ -81,16 +81,16 @@ class ScoreEntriesTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->nonNegativeInteger('score_for', __('Scores must be in the range 0-99.'))
-			->allowEmpty('score_for', function($context) { return !empty($context['data']['status']) && $context['data']['status'] != 'normal'; })
+			->allowEmptyString('score_for', null, function($context) { return !empty($context['data']['status']) && $context['data']['status'] != 'normal'; })
 
 			->nonNegativeInteger('score_against', __('Scores must be in the range 0-99.'))
-			->allowEmpty('score_against', function($context) { return !empty($context['data']['status']) && $context['data']['status'] != 'normal'; })
+			->allowEmptyString('score_against', null, function($context) { return !empty($context['data']['status']) && $context['data']['status'] != 'normal'; })
 
 			->requirePresence('status', function($context) { return $context['newRecord'] && !empty($context['data']['person_id']); }, __('You must select a valid status.'))
-			->notEmpty('status', __('You must select a valid status.'))
+			->notEmptyString('status', __('You must select a valid status.'))
 
 			->range('home_carbon_flip', [0, 2], __('You must select a valid carbon flip result.'))
 			->requirePresence('home_carbon_flip', function ($context) {
@@ -125,7 +125,7 @@ class ScoreEntriesTable extends AppTable {
 				]);
 				return $game->division->women_present;
 			}, __('You must enter the number of women designated players.'))
-			->allowEmpty('women_present')
+			->allowEmptyString('women_present')
 
 			;
 
@@ -147,7 +147,7 @@ class ScoreEntriesTable extends AppTable {
 		$rules->add(new OrRule([
 			// If there's no person_id on the entity, it's just a container for allstars,
 			// in which case we don't need a status.
-			function (EntityInterface $entity, Array $options) { return !$entity->person_id; },
+			function (EntityInterface $entity, array $options) { return !$entity->person_id; },
 			new InConfigRule('options.game_status'),
 		]), 'validStatus', [
 			'errorField' => 'status',
@@ -166,7 +166,7 @@ class ScoreEntriesTable extends AppTable {
 		]);
 
 		if (Configure::read('scoring.allstars')) {
-			$rules->add(function (EntityInterface $entity, Array $options) {
+			$rules->add(function (EntityInterface $entity, array $options) {
 				return empty($entity->allstars) || count($entity->allstars) <= 2;
 			}, 'validAllstars', [
 				'errorField' => 'allstars',
@@ -175,7 +175,7 @@ class ScoreEntriesTable extends AppTable {
 		}
 
 		if (Configure::read('scoring.women_present')) {
-			$rules->add(function (EntityInterface $entity, Array $options) {
+			$rules->add(function (EntityInterface $entity, array $options) {
 				if (!$options['game']->division->women_present ||
 					// If the game has been finalized, it's an admin editing a score that was not submitted
 					// by the team. These have no women_present value, and we can't require that they do,
@@ -212,7 +212,7 @@ class ScoreEntriesTable extends AppTable {
 	 */
 	public function beforeMarshal(CakeEvent $cakeEvent, ArrayObject $data, ArrayObject $options) {
 		// When editing a game, the score entries won't have their statuses changed.
-		if (!array_key_exists('status', $data)) {
+		if (!$data->offsetExists('status')) {
 			return;
 		}
 

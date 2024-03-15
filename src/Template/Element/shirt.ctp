@@ -1,4 +1,9 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var string $colour
+ */
+
 use Cake\Core\Configure;
 use Cake\Utility\Text;
 

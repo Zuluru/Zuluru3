@@ -1,9 +1,13 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
+
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 
-$this->Html->addCrumb(__('Dashboard'));
-$this->Html->addCrumb($this->UserCache->read('Person.full_name'));
+$this->Breadcrumbs->add(__('Dashboard'));
+$this->Breadcrumbs->add($this->UserCache->read('Person.full_name'));
 ?>
 
 <div class="all splash">

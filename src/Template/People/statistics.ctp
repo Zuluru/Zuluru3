@@ -1,9 +1,13 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ */
+
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 
-$this->Html->addCrumb(__('People'));
-$this->Html->addCrumb(__('Statistics'));
+$this->Breadcrumbs->add(__('People'));
+$this->Breadcrumbs->add(__('Statistics'));
 
 $multi_sport = (count(Configure::read('options.sport')) > 1);
 ?>

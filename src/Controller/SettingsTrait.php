@@ -17,7 +17,7 @@ trait SettingsTrait {
 			$settings = $settings->andWhere($conditions);
 		}
 
-		$affiliate_id = $this->request->getQuery('affiliate');
+		$affiliate_id = $this->getRequest()->getQuery('affiliate');
 		if ($affiliate_id) {
 			try {
 				$affiliate = $this->Settings->Affiliates->get($affiliate_id);
@@ -49,27 +49,28 @@ trait SettingsTrait {
 		$defaults->indexBy('id')->toArray();
 		$this->set(compact('affiliate', 'settings', 'defaults'));
 
-		if ($this->request->is(['patch', 'post', 'put'])) {
+		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
+			$data = $this->getRequest()->getData();
 			$to_delete = [];
 
-			foreach ($this->request->data as $key => $value) {
+			foreach ($data as $key => $value) {
 				if (is_array($value['value'])) {
 					// There may be dates that need to be deconstructed
 					if ($affiliate_id && (empty($value['value']['day']) || empty($value['value']['month']))) {
 						// If we're editing affiliate settings, anything blank should be removed so the system default applies
-						unset($this->request->data[$key]);
+						unset($data[$key]);
 						if ($key < MIN_FAKE_ID) {
 							$to_delete[] = $key;
 						}
 					} else if (array_key_exists('year', $value['value'])) {
-						$this->request->data[$key]['value'] = sprintf('%04d-%02d-%02d', $value['value']['year'], $value['value']['month'], $value['value']['day']);
+						$data[$key]['value'] = sprintf('%04d-%02d-%02d', $value['value']['year'], $value['value']['month'], $value['value']['day']);
 					} else if (array_key_exists('month', $value['value'])) {
-						$this->request->data[$key]['value'] = sprintf('0-%02d-%02d', $value['value']['month'], $value['value']['day']);
+						$data[$key]['value'] = sprintf('0-%02d-%02d', $value['value']['month'], $value['value']['day']);
 					}
 				} else if ($affiliate_id && ((empty($value['value']) && $value['value'] !== '0') || $value['value'] == MIN_FAKE_ID)) {
 					// If we're editing affiliate settings, anything blank should be removed so the system default applies.
 					// MIN_FAKE_ID as a value means it was a select or a radio and they chose "use default".
-					unset($this->request->data[$key]);
+					unset($data[$key]);
 					if ($key < MIN_FAKE_ID) {
 						$to_delete[] = $key;
 					}
@@ -82,8 +83,8 @@ trait SettingsTrait {
 			})->toArray();
 
 			if ($this->Settings->getConnection()->transactional(function () use ($settings, $to_delete, $affiliate_id) {
-				if (!empty($this->request->getData())) {
-					$settings = $this->Settings->patchEntities($settings, $this->request->getData(), ['validate' => false]);
+				if (!empty($data)) {
+					$settings = $this->Settings->patchEntities($settings, $data, ['validate' => false]);
 					foreach ($settings as $setting) {
 						if (!$this->Settings->save($setting)) {
 							$this->Flash->warning(__('Failed to save the settings.'));

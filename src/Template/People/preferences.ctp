@@ -1,14 +1,14 @@
 <?php
 /**
- * @type $person \App\Model\Entity\Person
- * @type $id int
- * @type $plugin_elements ArrayObject
+ * @var \App\Model\Entity\Person $person
+ * @var int $id
+ * @var ArrayObject $plugin_elements
  */
 use Cake\Core\Configure;
 use Cake\I18n\FrozenTime;
 
-$this->Html->addCrumb(__('Preferences'));
-$this->Html->addCrumb($person->full_name);
+$this->Breadcrumbs->add(__('Preferences'));
+$this->Breadcrumbs->add($person->full_name);
 ?>
 
 <div class="settings form">

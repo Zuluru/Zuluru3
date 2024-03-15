@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Team $team
+ */
 
 use App\Authorization\ContextResource;
 use Cake\Core\Configure;
@@ -6,9 +10,9 @@ use Cake\I18n\FrozenDate;
 use Cake\Routing\Router;
 use App\Model\Table\GamesTable;
 
-$this->Html->addCrumb(__('Teams'));
-$this->Html->addCrumb($team->name);
-$this->Html->addCrumb(__('Schedule'));
+$this->Breadcrumbs->add(__('Teams'));
+$this->Breadcrumbs->add($team->name);
+$this->Breadcrumbs->add(__('Schedule'));
 
 $annotate = $this->Authorize->can('view_notes', $team);
 $display_attendance = $this->Authorize->can('attendance', $team);
@@ -61,7 +65,7 @@ if (!empty($team['games'])):
 <?php
 	foreach ($team->games as $game):
 		$class = null;
-		$is_event = is_a($game, 'App\Model\Entity\TeamEvent');
+		$is_event = is_a($game, \App\Model\Entity\TeamEvent::class);
 		if (!$is_event) {
 			if (!$game->published) {
 				$class = ' class="unpublished"';

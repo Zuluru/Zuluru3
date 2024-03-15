@@ -80,21 +80,21 @@ class PaymentsTable extends AppTable {
 	public function validationDefault(Validator $validator) {
 		$validator
 			->numeric('id')
-			->allowEmpty('id', 'create')
+			->allowEmptyString('id', null, 'create')
 
 			->requirePresence('payment_type', 'create')
-			->notEmpty('payment_type')
+			->notEmptyString('payment_type')
 
 			->numeric('payment_amount')
-			->notEmpty('payment_amount')
+			->notEmptyString('payment_amount')
 
 			->numeric('refunded_amount')
-			->allowEmpty('refunded_amount')
+			->allowEmptyString('refunded_amount')
 
-			->allowEmpty('notes')
+			->allowEmptyString('notes')
 
 			->requirePresence('payment_method', 'create')
-			->notEmpty('payment_method')
+			->notEmptyString('payment_method')
 
 			;
 
@@ -140,14 +140,14 @@ class PaymentsTable extends AppTable {
 			'message' => __('Select a valid payment method.'),
 		]);
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			return ($options['registration']->total_payment <= $options['registration']->total_amount);
 		}, 'validPayments', [
 			'errorField' => 'payment_amount',
 			'message' => __('This would pay more than the amount owing.'),
 		]);
 
-		$rules->add(function (EntityInterface $entity, Array $options) {
+		$rules->add(function (EntityInterface $entity, array $options) {
 			return ($entity->refunded_amount <= $entity->payment_amount) || in_array($entity->payment_type, ['Refund', 'Credit', 'Transfer']);
 		}, 'validPayments', [
 			'errorField' => 'payment_amount',
@@ -178,7 +178,7 @@ class PaymentsTable extends AppTable {
 			}
 		}
 
-		if (in_array($data['payment_type'], ['Refund', 'Credit']) && array_key_exists('payment_amount', $data)) {
+		if (in_array($data['payment_type'], ['Refund', 'Credit']) && $data->offsetExists('payment_amount')) {
 			$data['payment_amount'] *= -1;
 		}
 	}
@@ -210,7 +210,7 @@ class PaymentsTable extends AppTable {
 	public function afterSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		// Send an event to any callback listeners
 		$event = new CakeEvent('Model.Payment.afterSave', $this, [$entity, $options['registration'], $options['event']]);
-		$this->eventManager()->dispatch($event);
+		$this->getEventManager()->dispatch($event);
 	}
 
 	public function affiliate($id) {

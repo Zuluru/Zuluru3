@@ -1,15 +1,15 @@
 <?php
 /**
- * @type $credit \App\Model\Entity\Credit
+ * @var \App\Model\Entity\Credit $credit
  */
 
-$this->Html->addCrumb(__('Credits'));
+$this->Breadcrumbs->add(__('Credits'));
 if ($credit->isNew()) {
-	$this->Html->addCrumb(__('Create'));
+	$this->Breadcrumbs->add(__('Create'));
 } else {
-	$this->Html->addCrumb(__('Edit'));
+	$this->Breadcrumbs->add(__('Edit'));
 }
-$this->Html->addCrumb($credit->person->full_name);
+$this->Breadcrumbs->add($credit->person->full_name);
 ?>
 
 <div class="credits form">
@@ -17,15 +17,15 @@ $this->Html->addCrumb($credit->person->full_name);
 	<fieldset>
 		<legend><?= ($credit->isNew() ? __('Create Credit') : __('Edit Credit')) . ': ' . $credit->person->full_name ?></legend>
 <?php
-echo $this->Form->input('amount', [
+echo $this->Form->control('amount', [
 	'help' => $credit->payment_id ? __('Editing this amount will also change the amount of the related refund.') : false,
 ]);
 if ($credit->isNew()) {
 	echo $this->Form->hidden('person_id', ['value' => $credit->person->id]);
 } else {
-	echo $this->Form->input('amount_used');
+	echo $this->Form->control('amount_used');
 }
-echo $this->Form->input('notes', [
+echo $this->Form->control('notes', [
 	'help' => $credit->isNew() ? __('These notes will be included in the notification email to the recipient.') : false,
 ]);
 ?>

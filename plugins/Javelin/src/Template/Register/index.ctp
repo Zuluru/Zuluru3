@@ -1,11 +1,11 @@
 <?php
 /**
- * @type \App\View\AppView $this
- * @type $register \Javelin\Form\RegisterForm
+ * @var \App\View\AppView $this
+ * @var \Javelin\Form\RegisterForm $register
  */
 
-$this->Html->addCrumb('Javelin');
-$this->Html->addCrumb(__('Register'));
+$this->Breadcrumbs->add('Javelin');
+$this->Breadcrumbs->add(__('Register'));
 ?>
 
 <div class="javelin register">
