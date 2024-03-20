@@ -36,17 +36,17 @@ class PersonFactory extends BaseFactory
 			$phoneFormat = '({{areaCode}}) {{exchangeCode}}-####';
 
 			return [
-				'first_name' => $faker->firstName,
-				'last_name' => $faker->lastName,
+				'first_name' => $faker->firstName(),
+				'last_name' => $faker->lastName(),
 				'gender' => $gender ? 'Woman' : 'Man',
 				'roster_designation' => $gender ? 'Woman' : 'Open',
 				'home_phone' => $faker->numerify($faker->parse($phoneFormat)),
 				'work_phone' => $faker->boolean() ? $faker->numerify($faker->parse($phoneFormat)) : null,
 				'mobile_phone' => $faker->boolean() ? $faker->numerify($faker->parse($phoneFormat)) : null,
-				'addr_street' => $faker->streetAddress,
-				'addr_city' => $faker->city,
+				'addr_street' => $faker->streetAddress(),
+				'addr_city' => $faker->city(),
 				'addr_prov' => 'Ontario',
-				'addr_postalcode' => $faker->postcode,
+				'addr_postalcode' => $faker->postcode(),
 				'addr_country' => 'Canada',
 				'birthdate' => $faker->dateTimeBetween('-60 years', '-18 years'),
 				'height' => $faker->numberBetween(48, 80),

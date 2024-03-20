@@ -43,7 +43,7 @@ class DivisionsTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('divisions');
@@ -102,7 +102,7 @@ class DivisionsTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
@@ -187,7 +187,7 @@ class DivisionsTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->existsIn(['league_id'], 'Leagues', __('You must select a valid league.')));
 
 		$rules->add(function (EntityInterface $entity, array $options) {
@@ -359,10 +359,10 @@ class DivisionsTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the save method
 	 * @return void
 	 */
-	public function beforeSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function beforeSave(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		// Does the division need to be opened immediately?
 		$entity->is_open = ($entity->open < FrozenDate::now()->addWeeks(3) &&
-			$entity->close > FrozenDate::now()->subWeek());
+			$entity->close > FrozenDate::now()->subWeeks(1));
 	}
 
 	/**
@@ -373,7 +373,7 @@ class DivisionsTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the save method
 	 * @return void
 	 */
-	public function afterSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function afterSave(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		// Update this division's league open and close dates, if required
 		$league = $this->Leagues->get($entity->league_id, [
 			'contain' => ['Divisions']
@@ -440,7 +440,7 @@ class DivisionsTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the delete method
 	 * @return void
 	 */
-	public function afterDelete(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function afterDelete(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		Cache::delete('tournaments', 'today');
 	}
 

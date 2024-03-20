@@ -2,6 +2,8 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Question[] $questions
+ * @var int[] $affiliates
+ * @var bool $active
  */
 
 $this->Breadcrumbs->add(__('Questions'));
@@ -44,19 +46,19 @@ endif;
 					<td><?= $question->anonymous ? __('Yes') : __('No') ?></td>
 					<td class="actions"><?php
 						echo $this->Html->iconLink('view_24.png',
-							['action' => 'view', 'question' => $question->id],
+							['action' => 'view', '?' => ['question' => $question->id]],
 							['alt' => __('Preview'), 'title' => __('Preview')]);
 						echo $this->Html->iconLink('edit_24.png',
-							['action' => 'edit', 'question' => $question->id],
+							['action' => 'edit', '?' => ['question' => $question->id]],
 							['alt' => __('Edit'), 'title' => __('Edit')]);
 						echo $this->Form->iconPostLink('delete_24.png',
-							['action' => 'delete', 'question' => $question->id],
+							['action' => 'delete', '?' => ['question' => $question->id]],
 							['alt' => __('Delete'), 'title' => __('Delete')],
 							['confirm' => __('Are you sure you want to delete this question?')]);
 						if ($question->active) {
-							echo $this->Jquery->ajaxLink(__('Deactivate'), ['url' => ['action' => 'deactivate', 'question' => $question->id]]);
+							echo $this->Jquery->ajaxLink(__('Deactivate'), ['url' => ['action' => 'deactivate', '?' => ['question' => $question->id]]]);
 						} else {
-							echo $this->Jquery->ajaxLink(__('Activate'), ['url' => ['action' => 'activate', 'question' => $question->id]]);
+							echo $this->Jquery->ajaxLink(__('Activate'), ['url' => ['action' => 'activate', '?' => ['question' => $question->id]]]);
 						}
 					?></td>
 				</tr>

@@ -16,7 +16,7 @@ use Cake\Routing\Router;
 <p><?= __('{0} has changed their role on the roster of the {1} team {2} from {3} to {4}.',
 	$person->full_name,
 	Configure::read('organization.name'),
-	$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], true)),
+	$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]], true)),
 	Configure::read("options.roster_role.$old_role"),
 	Configure::read("options.roster_role.$role")
 ) ?></p>

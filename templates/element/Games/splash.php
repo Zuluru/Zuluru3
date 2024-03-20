@@ -25,7 +25,7 @@ if (!empty($items)):
 <?php
 		if (is_a($item, \App\Model\Entity\Game::class)):
 ?>
-				<td class="splash_item"><?= $this->Html->link($this->Time->dateTimeRange($item->game_slot), ['controller' => 'Games', 'action' => 'view', 'game' => $item->id]) ?></td>
+				<td class="splash_item"><?= $this->Html->link($this->Time->dateTimeRange($item->game_slot), ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $item->id]]) ?></td>
 				<td class="splash_item"><?php
 					$item->readDependencies();
 					if ($item->home_team_id === null) {
@@ -81,12 +81,12 @@ if (!empty($items)):
 							}
 							if (!$item->game_slot->game_date->isPast()) {
 								echo $this->Html->iconLink('attendance_24.png',
-									['controller' => 'Games', 'action' => 'attendance', 'team' => $team->id, 'game' => $item->id],
+									['controller' => 'Games', 'action' => 'attendance', '?' => ['team' => $team->id, 'game' => $item->id]],
 									['alt' => __('Attendance'), 'title' => __('View Game Attendance Report')]);
 
 								if ($this->Authorize->can('stat_sheet', new ContextResource($team, ['league' => $item->division->league, 'stat_types' => $item->division->league->stat_types]))) {
 									echo $this->Html->iconLink('pdf_24.png',
-										['controller' => 'Games', 'action' => 'stat_sheet', 'team' => $team->id, 'game' => $item->id],
+										['controller' => 'Games', 'action' => 'stat_sheet', '?' => ['team' => $team->id, 'game' => $item->id]],
 										['alt' => __('Stat Sheet'), 'title' => __('Stat Sheet')],
 										['confirm' => __('This stat sheet will only include players who have indicated that they are playing, plus a couple of blank lines.\n\nFor a stat sheet with your full roster, use the link from the team view page.')]);
 								}
@@ -97,7 +97,7 @@ if (!empty($items)):
 					echo $this->Game->displayScore($item, $item->division, $item->division->league);
 
 					if (Configure::read('feature.annotations')) {
-						echo $this->Html->link(__('Add Note'), ['controller' => 'Games', 'action' => 'note', 'game' => $item->id]);
+						echo $this->Html->link(__('Add Note'), ['controller' => 'Games', 'action' => 'note', '?' => ['game' => $item->id]]);
 					}
 				?></td>
 <?php
@@ -107,7 +107,7 @@ if (!empty($items)):
 					$time = $this->Time->day($item->date) . ', ' .
 						$this->Time->time($item->start) . '-' .
 						$this->Time->time($item->end);
-					echo $this->Html->link($time, ['controller' => 'TeamEvents', 'action' => 'view', 'event' => $item->id]);
+					echo $this->Html->link($time, ['controller' => 'TeamEvents', 'action' => 'view', '?' => ['event' => $item->id]]);
 				?></td>
 				<td class="splash_item"><?php
 					echo $this->element('Teams/block', ['team' => $item->team, 'show_shirt' => false]) . ' ' .
@@ -141,7 +141,7 @@ if (!empty($items)):
 
 						if (!$item->date->isPast()) {
 							echo $this->Html->iconLink('attendance_24.png',
-								['controller' => 'TeamEvents', 'action' => 'view', 'event' => $item->id],
+								['controller' => 'TeamEvents', 'action' => 'view', '?' => ['event' => $item->id]],
 								['alt' => __('Attendance'), 'title' => __('View Event Attendance')]);
 						}
 					}
@@ -153,10 +153,10 @@ if (!empty($items)):
 					$time = $this->Time->day($item->task_date) . ', ' .
 						$this->Time->time($item->task_start) . '-' .
 						$this->Time->time($item->task_end);
-					echo $this->Html->link($time, ['controller' => 'Tasks', 'action' => 'view', 'task' => $item->task->id]);
+					echo $this->Html->link($time, ['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $item->task->id]]);
 				?></td>
 				<td class="splash_item"><?php
-					echo $this->Html->link($item->task->translateField('name'), ['controller' => 'Tasks', 'action' => 'view', 'task' => $item->task->id]) .
+					echo $this->Html->link($item->task->translateField('name'), ['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $item->task->id]]) .
 						__(' ({0})', __('report to {0}', $this->element('People/block', ['person' => $item->task->person])));
 				?></td>
 				<td class="actions splash-action"><?php

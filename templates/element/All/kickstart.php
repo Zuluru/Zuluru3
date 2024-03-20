@@ -2,6 +2,9 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Person $person
+ * @var int $id
+ * @var int[] $applicable_affiliates
+ * @var bool $empty
  */
 
 use App\Controller\AppController;
@@ -22,7 +25,7 @@ $isPlayer = $person ? in_array(GROUP_PLAYER, $this->UserCache->read('GroupIDs', 
 if ($this->Authorize->can('index', \App\Controller\AffiliatesController::class)):
 	if (empty($affiliates)):
 		echo $this->Html->para('warning-message', __('You have enabled the affiliate option, but have not yet created any affiliates. ') .
-			$this->Html->link(__('Create one now!'), ['controller' => 'Affiliates', 'action' => 'add', 'return' => AppController::_return()]));
+			$this->Html->link(__('Create one now!'), ['controller' => 'Affiliates', 'action' => 'add', '?' => ['return' => AppController::_return()]]));
 	elseif (!empty($unmanaged)):
 ?>
 	<p class="warning-message"><?= __('The following affiliates do not yet have managers assigned to them:') ?></p>
@@ -42,13 +45,13 @@ if ($this->Authorize->can('index', \App\Controller\AffiliatesController::class))
 					<td class="splash_item"><?= $affiliate->name ?></td>
 					<td class="actions"><?php
 						echo $this->Html->iconLink('edit_24.png',
-							['controller' => 'Affiliates', 'action' => 'edit', 'affiliate' => $affiliate->id, 'return' => AppController::_return()],
+							['controller' => 'Affiliates', 'action' => 'edit', '?' => ['affiliate' => $affiliate->id, 'return' => AppController::_return()]],
 							['alt' => __('Edit'), 'title' => __('Edit')]);
 						echo $this->Html->iconLink('coordinator_add_24.png',
-							['controller' => 'Affiliates', 'action' => 'add_manager', 'affiliate' => $affiliate->id, 'return' => AppController::_return()],
+							['controller' => 'Affiliates', 'action' => 'add_manager', '?' => ['affiliate' => $affiliate->id, 'return' => AppController::_return()]],
 							['alt' => __('Add Manager'), 'title' => __('Add Manager')]);
 						echo $this->Form->iconPostLink('delete_24.png',
-							['controller' => 'Affiliates', 'action' => 'delete', 'affiliate' => $affiliate->id, 'return' => AppController::_return()],
+							['controller' => 'Affiliates', 'action' => 'delete', '?' => ['affiliate' => $affiliate->id, 'return' => AppController::_return()]],
 							['alt' => __('Delete'), 'title' => __('Delete')],
 							['confirm' => __('Are you sure you want to delete this affiliate?')]);
 					?></td>
@@ -69,7 +72,7 @@ if ($identity->isManager()):
 		$facilities = TableRegistry::getTableLocator()->get('Facilities')->find('open', ['affiliates' => $my_affiliates]);
 		if ($facilities->count() == 0):
 			echo $this->Html->para('warning-message', __('You have no open facilities.') . ' ' .
-				$this->Html->link(__('Create one now!'), ['controller' => 'Facilities', 'action' => 'add', 'return' => AppController::_return()])
+				$this->Html->link(__('Create one now!'), ['controller' => 'Facilities', 'action' => 'add', '?' => ['return' => AppController::_return()]])
 			);
 		else:
 			// Eliminate any open facilities that have fields, and check if there's anything left that we need to warn about
@@ -100,13 +103,13 @@ if ($identity->isManager()):
 					<td class="splash_item"><?= $facility->name ?></td>
 					<td class="actions"><?php
 						echo $this->Html->iconLink('view_24.png',
-							['controller' => 'Facilities', 'action' => 'view', 'facility' => $facility->id],
+							['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $facility->id]],
 							['alt' => __('View'), 'title' => __('View Facility')]);
 						echo $this->Html->iconLink('edit_24.png',
-							['controller' => 'Facilities', 'action' => 'edit', 'facility' => $facility->id, 'return' => AppController::_return()],
+							['controller' => 'Facilities', 'action' => 'edit', '?' => ['facility' => $facility->id, 'return' => AppController::_return()]],
 							['alt' => __('Edit'), 'title' => __('Edit Facility')]);
 						echo $this->Form->iconPostLink('delete_24.png',
-							['controller' => 'Facilities', 'action' => 'delete', 'facility' => $facility->id, 'return' => AppController::_return()],
+							['controller' => 'Facilities', 'action' => 'delete', '?' => ['facility' => $facility->id, 'return' => AppController::_return()]],
 							['alt' => __('Delete'), 'title' => __('Delete Facility')],
 							['confirm' => __('Are you sure you want to delete this facility?')]);
 					?></td>
@@ -124,13 +127,13 @@ if ($identity->isManager()):
 		$leagues = TableRegistry::getTableLocator()->get('Leagues')->find('open', ['affiliates' => $my_affiliates]);
 		if ($leagues->count() == 0) {
 			echo $this->Html->para('warning-message', __('You have no current or upcoming leagues. ') .
-				$this->Html->link(__('Create one now!'), ['controller' => 'Leagues', 'action' => 'add', 'return' => AppController::_return()]));
+				$this->Html->link(__('Create one now!'), ['controller' => 'Leagues', 'action' => 'add', '?' => ['return' => AppController::_return()]]));
 		}
 
 		if (Configure::read('feature.registration')) {
 			if (TableRegistry::getTableLocator()->get('Events')->find('open', ['extended' => true])->count() == 0) {
 				echo $this->Html->para('warning-message', __('You have no current or upcoming registration events. ') .
-					$this->Html->link(__('Create one now!'), ['controller' => 'Events', 'action' => 'add', 'return' => AppController::_return()]));
+					$this->Html->link(__('Create one now!'), ['controller' => 'Events', 'action' => 'add', '?' => ['return' => AppController::_return()]]));
 			}
 		}
 	endif;
@@ -148,7 +151,7 @@ elseif ($empty && $isPlayer):
 	$actions = [];
 
 	if (empty($signed_waivers) && count($waivers) == 1 && in_array($waivers[0]->expiry_type, ['elapsed_time', 'never'])) {
-		$actions[] = $this->Html->link(__('Sign the waiver'), ['controller' => 'Waivers', 'action' => 'sign', 'waiver' => $waivers[0]->id, 'date' => FrozenDate::now()->toDateString(), 'act_as' => $act_as]);
+		$actions[] = $this->Html->link(__('Sign the waiver'), ['controller' => 'Waivers', 'action' => 'sign', '?' => ['waiver' => $waivers[0]->id, 'date' => FrozenDate::now()->toDateString(), 'act_as' => $act_as]]);
 	} else {
 		$options = [];
 		if ($membership_events) {
@@ -159,12 +162,12 @@ elseif ($empty && $isPlayer):
 		}
 
 		if (!empty($options)) {
-			$actions[] = $this->Html->link(__('Register for') . ' ' . implode(' ' . __('or') . ' ', $options), ['controller' => 'Events', 'action' => 'wizard', 'act_as' => $act_as]);
+			$actions[] = $this->Html->link(__('Register for') . ' ' . implode(' ' . __('or') . ' ', $options), ['controller' => 'Events', 'action' => 'wizard', '?' => ['act_as' => $act_as]]);
 		}
 	}
 
 	if ($open_teams) {
-		$actions[] = $this->Html->link(__('Join an existing team'), ['controller' => 'Teams', 'action' => 'join', 'act_as' => $act_as]);
+		$actions[] = $this->Html->link(__('Join an existing team'), ['controller' => 'Teams', 'action' => 'join', '?' => ['act_as' => $act_as]]);
 	}
 
 	if ($leagues) {

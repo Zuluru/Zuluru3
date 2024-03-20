@@ -13,9 +13,9 @@ use Cake\Routing\Router;
 
 <p><?= __('Dear {0},', $captains) ?></p>
 <p><?= __('You have not submitted a score for the game between your team {0} and {1}, starting at {2} on {3} in {4}.',
-	$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], true)),
-	$this->Html->link($opponent->name, Router::url(['controller' => 'Teams', 'action' => 'view', 'team' => $opponent->id], true)),
-	$this->Html->link($this->Time->time($game->game_slot->game_start), Router::url(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], true)),
+	$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]], true)),
+	$this->Html->link($opponent->name, Router::url(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $opponent->id]], true)),
+	$this->Html->link($this->Time->time($game->game_slot->game_start), Router::url(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], true)),
 	$this->Time->date($game->game_slot->game_date),
 	$division->full_league_name
 ) ?></p>

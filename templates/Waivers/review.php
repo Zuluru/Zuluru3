@@ -31,14 +31,14 @@ if (!empty($person->waivers)) {
 		$this->Time->time($person->waivers[0]->_joinData->created), $this->Time->fulldate($person->waivers[0]->_joinData->created),
 		$this->Time->fulldate($person->waivers[0]->_joinData->valid_from), $this->Time->fulldate($person->waivers[0]->_joinData->valid_until));
 } else {
-	$url = ['action' => 'sign', 'waiver' => $waiver->id];
+	$url = ['action' => 'sign', '?' => ['waiver' => $waiver->id]];
 	if (isset($date)) {
 		$message = __('You have not accepted this waiver for the dates {0} to {1}.',
 				$this->Time->fulldate($valid_from), $this->Time->fulldate($valid_until));
-		$url['date'] = $date->toDateString();
+		$url['?']['date'] = $date->toDateString();
 	} else {
 		$message = __('You haven\'t accepted this waiver.');
-		$url['date'] = FrozenDate::now()->toDateString();
+		$url['?']['date'] = FrozenDate::now()->toDateString();
 	}
 	if ($waiver->active) {
 		$message .= ' ' . __('You may {0}; if you choose not to, you may be prompted to do so at a later time.',

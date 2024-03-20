@@ -31,16 +31,16 @@ foreach ($mailingLists as $mailing_list):
 				<td><?= $mailing_list->opt_out ? __('Yes') : __('No') ?></td>
 				<td class="actions"><?php
 				echo $this->Html->iconLink('view_24.png',
-					['action' => 'view', 'mailing_list' => $mailing_list->id],
+					['action' => 'view', '?' => ['mailing_list' => $mailing_list->id]],
 					['alt' => __('View'), 'title' => __('View')]);
 				echo $this->Html->iconLink('edit_24.png',
-					['action' => 'edit', 'mailing_list' => $mailing_list->id],
+					['action' => 'edit', '?' => ['mailing_list' => $mailing_list->id]],
 					['alt' => __('Edit'), 'title' => __('Edit')]);
 				echo $this->Html->iconLink('email_24.png',
-					['action' => 'preview', 'mailing_list' => $mailing_list->id],
+					['action' => 'preview', '?' => ['mailing_list' => $mailing_list->id]],
 					['alt' => __('Preview'), 'title' => __('Preview')]);
 				echo $this->Form->iconPostLink('delete_24.png',
-					['action' => 'delete', 'mailing_list' => $mailing_list->id],
+					['action' => 'delete', '?' => ['mailing_list' => $mailing_list->id]],
 					['alt' => __('Delete'), 'title' => __('Delete')],
 					['confirm' => __('Are you sure you want to delete this mailingList?')]);
 				?></td>

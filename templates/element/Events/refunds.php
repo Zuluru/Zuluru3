@@ -54,7 +54,7 @@ foreach ($registrations as $registration):
 					]) ?></td>
 					<td><?php
 						$order = sprintf(Configure::read('registration.order_id_format'), $registration->id);
-						echo $this->Html->link($order, ['controller' => 'Registrations', 'action' => 'view', 'registration' => $registration->id]);
+						echo $this->Html->link($order, ['controller' => 'Registrations', 'action' => 'view', '?' => ['registration' => $registration->id]]);
 					?></td>
 					<td><?= $this->element('People/block', ['person' => $registration->person]) ?></td>
 					<td><?= $this->Time->dateTime($registration->created) ?></td>

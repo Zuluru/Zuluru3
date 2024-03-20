@@ -9,7 +9,7 @@ trait SettingsTrait {
 	/**
 	 * Process settings from any source
 	 *
-	 * @return bool|\Cake\Network\Response Redirects on certain failures, returns indication of whether settings saved otherwise.
+	 * @return bool|\Cake\Http\Response Redirects on certain failures, returns indication of whether settings saved otherwise.
 	 */
 	private function _process($conditions = []) {
 		$settings = $this->Settings->find()->where(['person_id IS' => null]);

@@ -15,7 +15,7 @@ use Cake\Routing\Router;
 <p><?= __('{0} has removed you from the roster of the {1} team {2}. You were previously listed as a {3}.',
 	$captain,
 	Configure::read('organization.name'),
-	$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], true)),
+	$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]], true)),
 	Configure::read("options.roster_role.$old_role")
 ) ?></p>
 <p><?= __('This is a notification only, there is no action required on your part.') ?></p>

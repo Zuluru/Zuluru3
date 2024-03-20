@@ -13,7 +13,7 @@ use Cake\ORM\TableRegistry;
 
 class CallbackPhpbb3 extends Callback {
 
-	public function implementedEvents() {
+	public function implementedEvents(): array {
 		return [
 			'Model.User.afterSave' => 'afterSave',
 			'Model.User.afterDelete' => 'afterDelete',

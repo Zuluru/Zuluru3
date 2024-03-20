@@ -62,7 +62,7 @@ if ($this->Identity->isLoggedIn() && !empty($badge->people)):
 									if ($this->Authorize->can('edit', $badge)) {
 										$reason = $this->Html->tag('span',
 											$reason . __(' ({0})', $this->Jquery->ajaxLink(__('Delete'), [
-												'url' => ['controller' => 'People', 'action' => 'delete_badge', 'badge' => $record->id],
+												'url' => ['controller' => 'People', 'action' => 'delete_badge', '?' => ['badge' => $record->id]],
 												'dialog' => 'badge_comment_div',
 												'disposition' => 'remove_closest',
 												'selector' => 'span',
@@ -77,7 +77,7 @@ if ($this->Identity->isLoggedIn() && !empty($badge->people)):
 								} else if (!empty($record->team_id)) {
 									$reasons[] = $this->element('Teams/block', ['team' => $record->team, 'show_shirt' => false]);
 								} else if (!empty($record->registration_id)) {
-									$reasons[] = $this->Html->link($record->registration->event->name, ['controller' => 'Events', 'action' => 'view', 'event' => $record->registration->event->id]);
+									$reasons[] = $this->Html->link($record->registration->event->name, ['controller' => 'Events', 'action' => 'view', '?' => ['event' => $record->registration->event->id]]);
 								}
 							}
 							echo implode(', ', $reasons);
@@ -103,22 +103,22 @@ endif;
 	<ul class="nav nav-pills">
 <?php
 if ($badge->category == 'nominated') {
-	echo $this->Html->tag('li', $this->Html->link(__('Nominate'), ['controller' => 'People', 'action' => 'nominate_badge', 'badge' => $badge->id]));
+	echo $this->Html->tag('li', $this->Html->link(__('Nominate'), ['controller' => 'People', 'action' => 'nominate_badge', '?' => ['badge' => $badge->id]]));
 }
 if ($this->Authorize->can('edit', $badge)) {
 	if ($badge->category == 'assigned') {
-		echo $this->Html->tag('li', $this->Html->link(__('Assign'), ['controller' => 'People', 'action' => 'nominate_badge', 'badge' => $badge->id]));
+		echo $this->Html->tag('li', $this->Html->link(__('Assign'), ['controller' => 'People', 'action' => 'nominate_badge', '?' => ['badge' => $badge->id]]));
 	} else if (!in_array($badge->category, ['nominated', 'runtime', 'aggregate'])) {
 		echo $this->Html->tag('li', $this->Html->iconLink('initialize_32.png',
-			['action' => 'initialize_awards', 'badge' => $badge->id],
+			['action' => 'initialize_awards', '?' => ['badge' => $badge->id]],
 			['alt' => __('Initialize'), 'title' => __('Initialize')],
 			['confirm' => __('Are you sure you want to initialize? This should only ever need to be done once when the badge system is introduced.')]));
 	}
 	echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
-		['action' => 'edit', 'badge' => $badge->id],
+		['action' => 'edit', '?' => ['badge' => $badge->id]],
 		['alt' => __('Edit'), 'title' => __('Edit Badge')]));
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-		['action' => 'delete', 'badge' => $badge->id],
+		['action' => 'delete', '?' => ['badge' => $badge->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Badge')],
 		['confirm' => __('Are you sure you want to delete this badge?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',

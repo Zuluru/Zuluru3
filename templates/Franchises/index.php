@@ -25,7 +25,7 @@ else:
 		$links = [];
 		foreach ($letters as $l) {
 			$l = strtoupper($l['letter']);
-			$links[] = $this->Html->link($l, ['action' => 'letter', 'letter' => $l], ['rel' => 'nofollow']);
+			$links[] = $this->Html->link($l, ['action' => 'letter', '?' => ['letter' => $l]], ['rel' => 'nofollow']);
 		}
 		echo implode('&nbsp;&nbsp;', $links);
 	?></p>
@@ -58,7 +58,7 @@ else:
 ?>
 				<tr>
 					<td><?php
-						echo $this->Html->link($franchise->name, ['action' => 'view', 'franchise' => $franchise->id]);
+						echo $this->Html->link($franchise->name, ['action' => 'view', '?' => ['franchise' => $franchise->id]]);
 						// TODO: Link to website, if any
 					?></td>
 					<td><?php
@@ -70,26 +70,26 @@ else:
 					?></td>
 					<td class="actions"><?php
 						echo $this->Html->iconLink('view_24.png',
-							['action' => 'view', 'franchise' => $franchise->id],
+							['action' => 'view', '?' => ['franchise' => $franchise->id]],
 							['alt' => __('View'), 'title' => __('View')]);
 						if ($this->Authorize->can('add_team', $franchise)) {
 							echo $this->Html->iconLink('team_add_24.png',
-								['action' => 'add_team', 'franchise' => $franchise->id],
+								['action' => 'add_team', '?' => ['franchise' => $franchise->id]],
 								['alt' => __('Add Team'), 'title' => __('Add Team')]);
 						}
 						if ($this->Authorize->can('edit', $franchise)) {
 							echo $this->Html->iconLink('edit_24.png',
-								['action' => 'edit', 'franchise' => $franchise->id, 'return' => AppController::_return()],
+								['action' => 'edit', '?' => ['franchise' => $franchise->id, 'return' => AppController::_return()]],
 								['alt' => __('Edit'), 'title' => __('Edit')]);
 						}
 						if ($this->Authorize->can('add_owner', $franchise)) {
 							echo $this->Html->iconLink('move_24.png',
-								['action' => 'add_owner', 'franchise' => $franchise->id, 'return' => AppController::_return()],
+								['action' => 'add_owner', '?' => ['franchise' => $franchise->id, 'return' => AppController::_return()]],
 								['alt' => __('Add an Owner'), 'title' => __('Add an Owner')]);
 						}
 						if ($this->Authorize->can('delete', $franchise)) {
 							echo $this->Form->iconPostLink('delete_24.png',
-								['action' => 'delete', 'franchise' => $franchise->id],
+								['action' => 'delete', '?' => ['franchise' => $franchise->id]],
 								['alt' => __('Delete'), 'title' => __('Delete')],
 								['confirm' => __('Are you sure you want to delete this franchise?')]);
 						}

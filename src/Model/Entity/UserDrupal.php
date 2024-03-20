@@ -108,7 +108,7 @@ class UserDrupal extends User {
 		parent::merge($new);
 
 		// We also need to copy over the password, but we can't set it directly, as it will be re-hashed
-		$this->_properties['pass'] = $new->pass;
+		$this->_fields['pass'] = $new->pass;
 		$this->setDirty('pass', true);
 
 		// TODOSECOND: Update users_roles record too

@@ -30,7 +30,7 @@ foreach ($event->registrations as $registration):
 	$order_id = sprintf($order_id_format, $registration->id);
 ?>
 				<tr>
-					<td><?= $this->Authorize->can('view', $registration) ? $this->Html->link($order_id, ['action' => 'view', 'registration' => $registration->id]) : $order_id ?></td>
+					<td><?= $this->Authorize->can('view', $registration) ? $this->Html->link($order_id, ['action' => 'view', '?' => ['registration' => $registration->id]]) : $order_id ?></td>
 					<td><?= $this->element('People/block', ['person' => $registration->person]) ?></td>
 					<td><?= $this->Time->datetime($registration->created) ?></td>
 					<td class="actions"><?= $this->element('Registrations/actions', ['registration' => $registration]) ?></td>

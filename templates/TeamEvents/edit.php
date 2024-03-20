@@ -80,7 +80,7 @@ echo $this->Form->control('location_province', [
 <?php
 if (!$team_event->isNew()) {
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-		['action' => 'delete', 'event' => $team_event->id],
+		['action' => 'delete', '?' => ['event' => $team_event->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Team Event')],
 		['confirm' => __('Are you sure you want to delete this team_event?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',

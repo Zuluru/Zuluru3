@@ -68,7 +68,7 @@ $header[] = null;
 $rows = [];
 // Down the left side, we only list teams currently in the division
 foreach ($division->teams as $team_id => $team) {
-	$link = $this->Html->link($team->name, ['controller' => 'Teams', 'action' => 'schedule', 'team' => $team_id]);
+	$link = $this->Html->link($team->name, ['controller' => 'Teams', 'action' => 'schedule', '?' => ['team' => $team_id]]);
 	$row = [$link];
 	// In each row, we want all teams included
 	foreach ($all_teams as $opp_id => $opp) {
@@ -119,7 +119,7 @@ foreach ($division->teams as $team_id => $team) {
 
 				$popup = $this->Time->date($game->game_slot->game_date) . " at {$game->game_slot->field->long_code}: $game_result";
 
-				$results[] = $this->Html->link($game_score, ['controller' => 'Games', 'action' => 'view', 'game' => $game->id], ['title' => $popup]);
+				$results[] = $this->Html->link($game_score, ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], ['title' => $popup]);
 			}
 			$cell = implode('<br />', $results);
 			if ($wins > $losses) {

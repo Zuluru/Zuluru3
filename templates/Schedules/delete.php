@@ -57,7 +57,7 @@ if (!empty($dependent)) {
 <?php
 if (!empty($published)) {
 	echo $this->Html->para(null, __('Deleting published games can be confusing for coaches, captains and players, so be sure to {0} to inform them of this.',
-		isset($division) ? $this->Html->link(__('contact all coaches and captains'), ['controller' => 'Divisions', 'action' => 'emails', 'division' => $division->id]) : __('contact all coaches and captains')));
+		isset($division) ? $this->Html->link(__('contact all coaches and captains'), ['controller' => 'Divisions', 'action' => 'emails', '?' => ['division' => $division->id]]) : __('contact all coaches and captains')));
 }
 if (!empty($finalized)):
 ?>
@@ -78,7 +78,7 @@ if (isset($division)) {
 	$id = $league_id;
 }
 // TODOBOOTSTRAP: Format this as a submit button, not an action link
-echo $this->Html->link(__('Proceed'), [$id_field => $id, 'date' => $date->toDateString(), 'pool' => $pool_id, 'confirm' => true]);
+echo $this->Html->link(__('Proceed'), ['?' => [$id_field => $id, 'date' => $date->toDateString(), 'pool' => $pool_id, 'confirm' => true]]);
 ?>
 		</li>
 	</ul>

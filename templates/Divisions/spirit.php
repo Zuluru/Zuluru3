@@ -278,7 +278,7 @@ foreach ($division->games as $game) {
 
 			if ($entry->created_team_id == $game->$team->id) {
 				$row = [
-					$this->Html->link($game->id, ['controller' => 'Games', 'action' => 'view', 'game' => $game->id]),
+					$this->Html->link($game->id, ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]]),
 					$this->element('Teams/block', ['team' => $game->$team, 'show_shirt' => false]),
 					$this->element('Teams/block', ['team' => $game->$opp, 'show_shirt' => false]),
 				];

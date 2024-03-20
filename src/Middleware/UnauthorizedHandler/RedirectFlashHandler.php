@@ -22,7 +22,7 @@ class RedirectFlashHandler extends RedirectHandler {
 	 *
 	 * {@inheritDoc}
 	 */
-	public function handle(Exception $exception, ServerRequestInterface $request, ResponseInterface $response, array $options = []) {
+	public function handle(Exception $exception, ServerRequestInterface $request, array $options = []): ResponseInterface {
 		$options += $this->defaultOptions;
 
 		foreach ($options['exceptions'] as $class => $handler) {
@@ -54,7 +54,7 @@ class RedirectFlashHandler extends RedirectHandler {
 	 * @param boolean $unauthenticated Indicates whether the requested URL is for unauthenticated or unauthorized access
 	 * @return string
 	 */
-	public function getUrl(ServerRequestInterface $request, array $options) {
+	public function getUrl(ServerRequestInterface $request, array $options): string {
 		if (isset($options['unauthenticated'])) {
 			$url = $options['unauthenticatedUrl'];
 		} else {

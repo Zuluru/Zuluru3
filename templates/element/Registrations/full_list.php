@@ -42,7 +42,7 @@ foreach ($registrations as $registration):
 					<td><?php
 						$order = sprintf(Configure::read('registration.order_id_format'), $registration->id);
 						if ($this->Authorize->can('view', $registration)) {
-							echo $this->Html->link($order, ['controller' => 'Registrations', 'action' => 'view', 'registration' => $registration->id]);
+							echo $this->Html->link($order, ['controller' => 'Registrations', 'action' => 'view', '?' => ['registration' => $registration->id]]);
 						} else {
 							echo $order;
 						}

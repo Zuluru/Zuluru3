@@ -42,7 +42,9 @@ if (empty($event->registrations)) {
 
 			// TODO: If the team has numbers, add a field for entering that here
 		} else {
-			$cannot[] = $this->Html->tag('span', $this->Html->link($registration->person->full_name, ['controller' => 'People', 'action' => 'view', 'person' => $registration->person->id]), ['title' => $this->Html->formatMessage($registration->can_add, null, true)]);
+			$cannot[] = $this->Html->tag('span', $this->Html->link($registration->person->full_name,
+				['controller' => 'People', 'action' => 'view', '?' => ['person' => $registration->person->id]]),
+				['title' => $this->Html->formatMessage($registration->can_add, null, true)]);
 		}
 	}
 

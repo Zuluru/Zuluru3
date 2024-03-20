@@ -34,7 +34,7 @@ echo $this->Form->end();
 $is_tournament = ($division->schedule_type == 'tournament');
 if (!$is_tournament) {
 	echo $this->Html->para(null, __('Alternately, you can {0}.',
-		$this->Html->link(__('create a playoff schedule'), ['division' => $division->id, 'playoff' => true])) .
+		$this->Html->link(__('create a playoff schedule'), ['?' => ['division' => $division->id, 'playoff' => true]])) .
 		$this->Html->help(['action' => 'schedules', 'playoffs'])
 	);
 }

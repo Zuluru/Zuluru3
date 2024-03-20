@@ -91,9 +91,9 @@ if (!empty($team['games'])):
 			?></td>
 			<td><?php
 			if ($is_event) {
-				echo $this->Html->link($this->Time->timeRange($game), ['controller' => 'TeamEvents', 'action' => 'view', 'event' => $game->id]);
+				echo $this->Html->link($this->Time->timeRange($game), ['controller' => 'TeamEvents', 'action' => 'view', '?' => ['event' => $game->id]]);
 			} else {
-				echo $this->Html->link($this->Time->timeRange($game->game_slot), ['controller' => 'Games', 'action' => 'view', 'game' => $game->id]);
+				echo $this->Html->link($this->Time->timeRange($game->game_slot), ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]]);
 			}
 			?></td>
 			<td><?php
@@ -107,7 +107,7 @@ if (!empty($team['games'])):
 			?></td>
 			<td><?php
 			if ($is_event) {
-				echo $this->Html->link($game->display_name, ['controller' => 'TeamEvents', 'action' => 'view', 'event' => $game->id]);
+				echo $this->Html->link($game->display_name, ['controller' => 'TeamEvents', 'action' => 'view', '?' => ['event' => $game->id]]);
 			} else if ($team->division->schedule_type != 'competition') {
 				if ($team->id == $game->home_team_id) {
 					if ($game->away_team_id === null) {
@@ -149,9 +149,9 @@ if (!empty($team['games'])):
 ?>
 			<td class="actions"><?php
 			if ($is_event) {
-				echo $this->Html->link(__('View'), ['controller' => 'TeamEvents', 'action' => 'view', 'event' => $game->id]);
+				echo $this->Html->link(__('View'), ['controller' => 'TeamEvents', 'action' => 'view', '?' => ['event' => $game->id]]);
 			} else {
-				echo $this->Html->link(__('View'), ['controller' => 'Games', 'action' => 'attendance', 'team' => $team->id, 'game' => $game->id]);
+				echo $this->Html->link(__('View'), ['controller' => 'Games', 'action' => 'attendance', '?' => ['team' => $team->id, 'game' => $game->id]]);
 			}
 
 			if ($display_gender) {
@@ -183,7 +183,7 @@ if (!empty($team['games'])):
 ?>
 			<td class="actions"><?php
 			if (!$is_event) {
-				echo $this->Html->link(__('Add'), ['controller' => 'Games', 'action' => 'note', 'game' => $game->id]);
+				echo $this->Html->link(__('Add'), ['controller' => 'Games', 'action' => 'note', '?' => ['game' => $game->id]]);
 			}
 			?></td>
 <?php

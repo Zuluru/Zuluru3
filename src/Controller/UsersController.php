@@ -48,7 +48,7 @@ class UsersController extends AppController {
 	}
 
 	// TODO: Proper fix for black-holing of logins
-	public function beforeFilter(\Cake\Event\Event $event) {
+	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
 		if (isset($this->Security)) {
 			$this->Security->setConfig('unlockedActions', ['login']);
@@ -90,7 +90,7 @@ class UsersController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function create_account() {
 		if (!Configure::read('feature.control_account_creation')) {
@@ -115,7 +115,7 @@ class UsersController extends AppController {
 			'groups' => $groups,
 		]);
 
-		$user = $users_table->newEntity();
+		$user = $users_table->newEmptyEntity();
 
 		if ($this->getRequest()->is('post')) {
 			// Handle affiliations
@@ -222,7 +222,7 @@ class UsersController extends AppController {
 		$columns['user_name'] = true;
 		$columns['email'] = true;
 
-		$user = $users_table->newEntity();
+		$user = $users_table->newEmptyEntity();
 
 		if ($this->getRequest()->is('post')) {
 			$continue = true;
@@ -463,7 +463,7 @@ class UsersController extends AppController {
 			'data' => [
 				'token' => JWT::encode([
 					'sub' => $user[TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'))->getPrimaryKey()],
-					'exp' =>  FrozenTime::now()->addWeek()->toUnixString()
+					'exp' =>  FrozenTime::now()->addWeeks(1)->toUnixString()
 				], Security::getSalt())
 			],
 			'_serialize' => ['success', 'data']
@@ -505,7 +505,7 @@ class UsersController extends AppController {
 							'user_name' => $user->{$users_table->userField},
 							'password' => $data[$users_table->pwdField],
 						],
-						FrozenTime::now()->addYear(),
+						FrozenTime::now()->addYears(1),
 						'/' . trim($this->getRequest()->getAttribute('webroot'), '/'),
 					)));
 				}
@@ -527,7 +527,7 @@ class UsersController extends AppController {
 
 		$user_model = Configure::read('Security.authModel');
 		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . $user_model);
-		$user = $users_table->newEntity();
+		$user = $users_table->newEmptyEntity();
 		if ($code !== null) {
 			try {
 				$user = $users_table->get($id, [

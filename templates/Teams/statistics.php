@@ -85,7 +85,7 @@ else:
 					?></td>
 					<td><?php
 						if ($division->league_id != $league) {
-							echo $this->Html->link($division->league->name, ['action' => 'edit', 'league' => $division->league_id, 'return' => AppController::_return()]);
+							echo $this->Html->link($division->league->name, ['action' => 'edit', '?' => ['league' => $division->league_id, 'return' => AppController::_return()]]);
 							$league = $division->league_id;
 						}
 					?>
@@ -446,7 +446,7 @@ endif;
 	<ul class="nav nav-pills">
 <?php
 foreach ($years as $y) {
-	echo $this->Html->tag('li', $this->Html->link($y->year, ['year' => $y->year]));
+	echo $this->Html->tag('li', $this->Html->link($y->year, ['?' => ['year' => $y->year]]));
 }
 ?>
 

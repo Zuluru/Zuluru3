@@ -28,7 +28,7 @@ $min_text = ($min > 0 ? __(' (minimum of {0} rostered players)', $min) : '');
 
 <?= __('The {0} roster may be accessed at', $team->name) ?>
 
-<?= Router::url(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], true) ?>
+<?= Router::url(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]], true) ?>
 
 
 <?= __('You need to be logged into the website to update this.') ?>
@@ -45,7 +45,7 @@ $min_text = ($min > 0 ? __(' (minimum of {0} rostered players)', $min) : '');
 
 <?= __('Accept the request here:') ?>
 
-<?= Router::url(['controller' => 'Teams', 'action' => 'roster_accept', 'team' => $team->id, 'person' => $person->id, 'code' => $code], true) ?>
+<?= Router::url(['controller' => 'Teams', 'action' => 'roster_accept', '?' => ['team' => $team->id, 'person' => $person->id, 'code' => $code]], true) ?>
 
 
 <?= __('If you decline the request they will be removed from this team\'s roster.') ?>
@@ -53,7 +53,7 @@ $min_text = ($min > 0 ? __(' (minimum of {0} rostered players)', $min) : '');
 
 <?= __('Decline the request here:') ?>
 
-<?= Router::url(['controller' => 'Teams', 'action' => 'roster_decline', 'team' => $team->id, 'person' => $person->id, 'code' => $code], true) ?>
+<?= Router::url(['controller' => 'Teams', 'action' => 'roster_decline', '?' => ['team' => $team->id, 'person' => $person->id, 'code' => $code]], true) ?>
 
 
 <?= __('Please be advised that players are NOT considered a part of a team roster until their request to join has been accepted by a coach or captain. The {0} roster must be completed{1} by the team roster deadline ({2}), and all team members must have been accepted by a coach or captain.',

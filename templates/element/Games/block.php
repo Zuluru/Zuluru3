@@ -21,5 +21,5 @@ if (isset($field)) {
 		$this->Time->time($game_slot->game_start);
 }
 echo $this->Html->link($display,
-	['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
+	['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]],
 	$options);

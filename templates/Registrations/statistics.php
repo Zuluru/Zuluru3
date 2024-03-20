@@ -69,7 +69,7 @@ foreach ($events as $event):
 ?>
 
 				<tr class="select_id_<?= $event->id ?>">
-					<td><?= $this->Html->link($event->name, ['action' => 'summary', 'event' => $event->id]) ?></td>
+					<td><?= $this->Html->link($event->name, ['action' => 'summary', '?' => ['event' => $event->id]]) ?></td>
 					<td><?= $event->registration_count ?></td>
 					<td class="actions"><?= $this->element('Events/actions', ['event' => $event]) ?></td>
 				</tr>
@@ -85,7 +85,7 @@ endforeach;
 	<ul class="nav nav-pills">
 <?php
 foreach ($years as $year) {
-	echo $this->Html->tag('li', $this->Html->link($year['year'], ['action' => 'statistics', 'year' => $year['year']]));
+	echo $this->Html->tag('li', $this->Html->link($year['year'], ['action' => 'statistics', '?' => ['year' => $year['year']]]));
 }
 ?>
 

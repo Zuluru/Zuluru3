@@ -26,7 +26,7 @@ $identity = $this->Authorize->getIdentity();
 	<h2><?php
 	echo h($event->name);
 	if (count($affiliates) > 1) {
-		echo __(' ({0})', $this->Html->link($event->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', 'affiliate' => $event->affiliate->id]));
+		echo __(' ({0})', $this->Html->link($event->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $event->affiliate->id]]));
 	}
 	?></h2>
 	<?= $this->element('Registrations/relative_notice') ?>
@@ -46,7 +46,7 @@ if (!empty($event->division_id)):
 	if (!empty($facilities) && count($facilities) < 6):
 		$facility_links = [];
 		foreach ($facilities as $facility_id => $facility_name) {
-			$facility_links[] = $this->Html->link($facility_name, ['controller' => 'Facilities', 'action' => 'view', 'facility' => $facility_id]);
+			$facility_links[] = $this->Html->link($facility_name, ['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $facility_id]]);
 		}
 ?>
 		<dt><?= __n('Location', 'Locations', count($facilities)) ?></dt>
@@ -222,7 +222,7 @@ if (count($event->prices) > 1):
 					<td class="actions"><?php
 						if (!empty($price->canRegister['allowed'])) {
 							echo $this->Html->link(__('Register now!'),
-								['controller' => 'Registrations', 'action' => 'register', 'event' => $id, 'variant' => $price->id],
+								['controller' => 'Registrations', 'action' => 'register', '?' => ['event' => $id, 'variant' => $price->id]],
 								['title' => __('Register for {0}', $event->name . ' ' . $price->name)]
 							);
 							if ($price->open->isFuture() && $identity->isManagerOf($event)) {
@@ -231,12 +231,12 @@ if (count($event->prices) > 1):
 						}
 						if ($this->Authorize->can('delete', $price)) {
 							echo $this->Form->iconPostLink('delete_24.png',
-								['controller' => 'Prices', 'action' => 'delete', 'price' => $price->id],
+								['controller' => 'Prices', 'action' => 'delete', '?' => ['price' => $price->id]],
 								['alt' => __('Delete'), 'title' => __('Delete')],
 								['confirm' => __('Are you sure you want to delete this price?')]);
 						}
 						if ($this->Authorize->can('refund', $event)) {
-							echo $this->Html->link(__('Bulk Refunds'), ['controller' => 'Events', 'action' => 'refund', 'event' => $event->id, 'price' => $price->id]);
+							echo $this->Html->link(__('Bulk Refunds'), ['controller' => 'Events', 'action' => 'refund', '?' => ['event' => $event->id, 'price' => $price->id]]);
 						}
 					?></td>
 				</tr>
@@ -272,7 +272,7 @@ if (!$this->Identity->isLoggedIn()) {
 	echo $this->element('messages', ['messages' => $notices]);
 	if ($allowed) {
 		echo $this->Html->tag('h2', $this->Html->link(__('Register now!'),
-			['controller' => 'Registrations', 'action' => 'register', 'event' => $id],
+			['controller' => 'Registrations', 'action' => 'register', '?' => ['event' => $id]],
 			['title' => __('Register for {0}', $event->name), 'style' => 'text-decoration: underline;']
 		));
 	}
@@ -304,7 +304,7 @@ if (!empty($event->division->events) || !empty($event->alternate)):
 		foreach ($event->division->events as $related):
 ?>
 				<tr>
-					<td><?= $this->Html->link($related->name, ['controller' => 'Events', 'action' => 'view', 'event' => $related->id]) ?></td>
+					<td><?= $this->Html->link($related->name, ['controller' => 'Events', 'action' => 'view', '?' => ['event' => $related->id]]) ?></td>
 					<td><?= __($related->event_type->name) ?></td>
 				</tr>
 <?php
@@ -314,7 +314,7 @@ if (!empty($event->division->events) || !empty($event->alternate)):
 	foreach ($event->alternate as $related):
 ?>
 				<tr>
-					<td><?= $this->Html->link($related->name, ['controller' => 'Events', 'action' => 'view', 'event' => $related->id]) ?></td>
+					<td><?= $this->Html->link($related->name, ['controller' => 'Events', 'action' => 'view', '?' => ['event' => $related->id]]) ?></td>
 					<td><?= __($related->event_type->name) ?></td>
 				</tr>
 
@@ -356,7 +356,7 @@ if (!empty($event->preregistrations) && $this->Authorize->can('add_preregistrati
 						<td><?= $this->element('People/block', ['person' => $preregistration->person]) ?></td>
 						<td class="actions"><?php
 							echo $this->Form->iconPostLink('delete_24.png',
-								['controller' => 'Preregistrations', 'action' => 'delete', 'preregistration' => $preregistration->id],
+								['controller' => 'Preregistrations', 'action' => 'delete', '?' => ['preregistration' => $preregistration->id]],
 								['alt' => __('Delete'), 'title' => __('Delete')],
 								['confirm' => __('Are you sure you want to delete this preregistration?')]);
 						?></td>

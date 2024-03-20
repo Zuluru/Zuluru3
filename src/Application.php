@@ -14,11 +14,13 @@ use App\Http\Middleware\CookiePathMiddleware;
 use App\Http\Middleware\CsrfProtectionMiddleware;
 use App\Policy\TypeResolver;
 use Authentication\AuthenticationService;
+use Authentication\AuthenticationServiceInterface;
 use Authentication\AuthenticationServiceProviderInterface;
 use Authentication\Authenticator\UnauthenticatedException;
 use Authentication\Identifier\IdentifierInterface;
 use Authentication\Middleware\AuthenticationMiddleware;
 use Authorization\AuthorizationService;
+use Authorization\AuthorizationServiceInterface;
 use Authorization\AuthorizationServiceProviderInterface;
 use Authorization\Exception\ForbiddenException;
 use Authorization\Exception\MissingIdentityException;
@@ -33,6 +35,7 @@ use Cake\Error\Middleware\ErrorHandlerMiddleware;
 use Cake\Http\BaseApplication;
 use Cake\Http\Middleware\BodyParserMiddleware;
 use Cake\Http\Middleware\EncryptedCookieMiddleware;
+use Cake\Http\MiddlewareQueue;
 use Cake\Http\Response;
 use Cake\Http\ServerRequest;
 use Cake\I18n\I18n;
@@ -45,6 +48,7 @@ use Cake\Utility\Inflector;
 use Cake\Utility\Security;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 /**
  * Application setup class.
@@ -59,7 +63,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 	/**
 	 * {@inheritDoc}
 	 */
-	public function bootstrap() {
+	public function bootstrap(): void {
 		if (!defined('DOMAIN_PLUGIN') && !empty(env('DOMAIN_PLUGIN'))) {
 			define('DOMAIN_PLUGIN', env('DOMAIN_PLUGIN'));
 		}
@@ -127,10 +131,9 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 	 * Returns a service provider instance.
 	 *
 	 * @param \Psr\Http\Message\ServerRequestInterface $request Request
-	 * @param \Psr\Http\Message\ResponseInterface $response Response
 	 * @return \Authentication\AuthenticationServiceInterface
 	 */
-	public function getAuthenticationService(ServerRequestInterface $request, ResponseInterface $response) {
+	public function getAuthenticationService(ServerRequestInterface $request): AuthenticationServiceInterface {
 		// TODO: Read these from site configuration
 		if (Configure::read('feature.authenticate_through') == 'Zuluru') {
 			$loginAction = Router::url(Configure::read('App.urls.login'), true);
@@ -238,7 +241,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 		return $service;
 	}
 
-	public function getAuthorizationService(ServerRequestInterface $request, ResponseInterface $response) {
+	public function getAuthorizationService(ServerRequestInterface $request): AuthorizationServiceInterface {
 		$resolver = new ResolverCollection([
 			new OrmResolver(),
 			new TypeResolver([
@@ -270,10 +273,10 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 		if (!$translations || !$translation_strings) {
 			$translations = ['en' => 'English'];
 			$translation_strings = ["en: 'English'"];
-			$dir = opendir(APP . 'Locale');
+			$dir = opendir(ROOT . DS . 'resources' . DS . 'locales');
 			if ($dir) {
 				while (false !== ($entry = readdir($dir))) {
-					if (file_exists(APP . 'Locale' . DS . $entry . DS . 'default.po')) {
+					if (file_exists(ROOT . DS . 'resources' . DS . 'locales' . DS . $entry . DS . 'default.po')) {
 						$name = \Locale::getDisplayName($entry, $entry);
 						if ($name != $entry) {
 							$translations[$entry] = $name;
@@ -297,7 +300,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 	 * @param \Cake\Http\MiddlewareQueue $middlewareQueue The middleware queue to setup.
 	 * @return \Cake\Http\MiddlewareQueue The updated middleware queue.
 	 */
-	public function middleware($middlewareQueue) {
+	public function middleware(MiddlewareQueue $middlewareQueue): MiddlewareQueue {
 		// We use three copies of the localization middleware.
 		// The first will set it based on the header, but won't update the cookie. It defaults to
 		// English. This is what will be used for anyone who is not logged in.
@@ -380,20 +383,19 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 
 			// Add CSRF protection middleware.
 			->add(function (
-				ServerRequest $request,
-				Response $response,
-				callable $next
-			) {
+				ServerRequestInterface $request,
+				RequestHandlerInterface $handler
+			): ResponseInterface {
 				$payment = ($request->getParam('controller') == 'Payment' && $request->getParam('action') == 'index');
 				if (!$payment && !$request->is('json')) {
 					$csrf = new CsrfProtectionMiddleware();
 
 					// This will invoke the CSRF middleware's `__invoke()` handler,
 					// just like it would when being registered via `add()`.
-					return $csrf($request, $response, $next);
+					return $csrf->process($request, $handler);
 				}
 
-				return $next($request, $response);
+				return $handler->handle($request);
 			})
 
 			// Add encrypted cookie middleware.
@@ -407,28 +409,26 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 
 			// Add authentication
 			->add(function (
-				ServerRequest $request,
-				Response $response,
-				callable $next
-			) {
+				ServerRequestInterface $request,
+				RequestHandlerInterface $handler
+			): ResponseInterface {
 				// Do not attempt authentication for the installer
 				if ($request->getParam('plugin') != 'Installer') {
 					$authentication = new AuthenticationMiddleware($this);
 
-					return $authentication($request, $response, $next);
-				} else {
-					return $next($request, $response);
+					return $authentication->process($request, $handler);
 				}
+
+				return $handler->handle($request);
 			})
 
 			// Add unauthorized flash message
 			->add(function (
-				ServerRequest $request,
-				Response $response,
-				callable $next
-			) {
+				ServerRequestInterface $request,
+				RequestHandlerInterface $handler
+			): ResponseInterface {
 				try {
-					return $next($request, $response);
+					return $handler->handle($request);
 				} catch (UnauthenticatedException $ex) {
 					$this->Flash('error', __('You must login to access full site functionality.'));
 					throw $ex;
@@ -437,10 +437,9 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 
 			// Ensure that the logged in user, if there is one, has a person record
 			->add(function (
-				ServerRequest $request,
-				Response $response,
-				callable $next
-			) {
+				ServerRequestInterface $request,
+				RequestHandlerInterface $handler
+			): ResponseInterface {
 				$identity = $request->getAttribute('identity');
 				if ($identity) {
 					$user = $identity->getOriginalData();
@@ -462,16 +461,15 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 					}
 				}
 
-				return $next($request, $response);
+				return $handler->handle($request);
 			})
 
 			->add($user_localization)
 
 			->add(function (
-				ServerRequest $request,
-				Response $response,
-				callable $next
-			) {
+				ServerRequestInterface $request,
+				RequestHandlerInterface $handler
+			): ResponseInterface {
 				// Do not attempt authorization for the installer
 				if ($request && $request->getParam('plugin') != 'Installer') {
 					// We wrap this in a function, so that by the time the Router::url calls below happen,
@@ -529,10 +527,10 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 							],
 						],
 					]);
-					return $authorization($request, $response, $next);
-				} else {
-					return $next($request, $response);
+					return $authorization->process($request, $handler);
 				}
+
+				return $handler->handle($request);
 			})
 
 			// Handle "act as" parameters in the URL

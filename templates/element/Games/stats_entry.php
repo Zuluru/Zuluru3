@@ -11,7 +11,7 @@ use App\Model\Table\StatsTable;
 
 if (!$attendance->track_attendance) {
 	echo $this->Html->para('warning-message', __('Because this team does not have attendance tracking enabled, the list below assumes that all regular players are attending and all subs are unknown. To enable attendance tracking, {0}.',
-		$this->Html->link(__('edit the team record'), ['controller' => 'Teams', 'action' => 'edit', 'team' => $attendance->id])));
+		$this->Html->link(__('edit the team record'), ['controller' => 'Teams', 'action' => 'edit', '?' => ['team' => $attendance->id]])));
 }
 
 $style = 'width:' . floor(80 / count($game->division->league->stat_types)) . '%;';
@@ -102,7 +102,7 @@ if (0 && $attendance->track_attendance):
 			<tr id="add_row_<?= $attendance->id ?>">
 				<td colspan="<?= 2 + count($stat_types) ?>"><?php
 				echo $this->Html->link(__('Add a sub'),
-					['controller' => 'Games', 'action' => 'add_sub', 'game' => $game->id, 'team' => $attendance->id],
+					['controller' => 'Games', 'action' => 'add_sub', '?' => ['game' => $game->id, 'team' => $attendance->id]],
 					['onclick' => "add_sub({$game->id}, {$attendance->id}, 'stats', 'add_row_{$attendance->id}'); return false;"]);
 				?></td>
 			</tr>

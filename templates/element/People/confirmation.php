@@ -29,7 +29,7 @@ if ($person->modified) {
 	if ($identity->isChild()) {
 		$check = $person->modified->addMonths(6);
 	} else {
-		$check = $person->modified->addYear();
+		$check = $person->modified->addYears(1);
 	}
 	if ($check->isFuture()) {
 		return;

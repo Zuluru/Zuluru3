@@ -17,9 +17,9 @@ $link_address = strtr($address, ' ', '+');
 <p><?php
 if ($status == ATTENDANCE_UNKNOWN || $status == ATTENDANCE_INVITED) {
 	echo __('You have not yet indicated your attendance for the {0} event "{1}" at {2} ({3}) starting at {4} on {5}.',
-		$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], true)),
+		$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]], true)),
 		$this->Html->link($team_event->name,
-			Router::url(['controller' => 'TeamEvents', 'action' => 'view', 'event' => $team_event->id], true)),
+			Router::url(['controller' => 'TeamEvents', 'action' => 'view', '?' => ['event' => $team_event->id]], true)),
 		$team_event->location_name,
 		$this->Html->link($address, "https://maps.google.com/maps?q=$link_address"),
 		$this->Time->time($team_event->start),
@@ -28,9 +28,9 @@ if ($status == ATTENDANCE_UNKNOWN || $status == ATTENDANCE_INVITED) {
 } else {
 	echo __('You are currently listed as {0} for the {1} event "{2}" at {3} ({4}) starting at {5} on {6}.',
 		Configure::read("attendance.$status"),
-		$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], true)),
+		$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]], true)),
 		$this->Html->link($team_event->name,
-			Router::url(['controller' => 'TeamEvents', 'action' => 'view', 'event' => $team_event->id], true)),
+			Router::url(['controller' => 'TeamEvents', 'action' => 'view', '?' => ['event' => $team_event->id]], true)),
 		$team_event->location_name,
 		$this->Html->link($address, "https://maps.google.com/maps?q=$link_address"),
 		$this->Time->time($team_event->start),
@@ -47,10 +47,10 @@ endif;
 ?>
 <p><?= __('If you are able to attend, {0}.',
 	$this->Html->link(__('click here'),
-		Router::url(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => $team_event->id, 'person' => $person->id, 'code' => $code, 'status' => ATTENDANCE_ATTENDING], true))
+		Router::url(['controller' => 'TeamEvents', 'action' => 'attendance_change', '?' => ['event' => $team_event->id, 'person' => $person->id, 'code' => $code, 'status' => ATTENDANCE_ATTENDING]], true))
 ) ?></p>
 <p><?= __('If you are unavailable to attend, {0}.',
 	$this->Html->link(__('click here'),
-		Router::url(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => $team_event->id, 'person' => $person->id, 'code' => $code, 'status' => ATTENDANCE_ABSENT], true))
+		Router::url(['controller' => 'TeamEvents', 'action' => 'attendance_change', '?' => ['event' => $team_event->id, 'person' => $person->id, 'code' => $code, 'status' => ATTENDANCE_ABSENT]], true))
 ) ?></p>
 <?= $this->element('Email/html/footer');

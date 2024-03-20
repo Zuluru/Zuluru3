@@ -58,7 +58,7 @@ endif;
 		<dt><?= __('Region') ?></dt>
 		<dd><?php
 			if ($this->Authorize->can('view', $facility->region)) {
-				echo $this->Html->link($facility->region->name, ['controller' => 'Regions', 'action' => 'view', $facility->region->id]);
+				echo $this->Html->link($facility->region->name, ['controller' => 'Regions', 'action' => 'view', '?' => ['region' => $facility->region->id]]);
 			} else {
 				echo __($facility->region->name);
 			}
@@ -211,13 +211,13 @@ if (!empty($facility->fields)):
 				<td><?php
 				$mapurl = null;
 				if ($field->length > 0) {
-					echo $this->Html->link(__('Map'), ['controller' => 'Maps', 'action' => 'view', 'field' => $field->id], ['target' => 'map']);
+					echo $this->Html->link(__('Map'), ['controller' => 'Maps', 'action' => 'view', '?' => ['field' => $field->id]], ['target' => 'map']);
 				} else {
 					echo __('N/A');
 				}
 				if ($can_edit) {
 					echo $this->Html->iconLink('edit_24.png',
-						['controller' => 'Maps', 'action' => 'edit', 'field' => $field->id, 'return' => AppController::_return()],
+						['controller' => 'Maps', 'action' => 'edit', '?' => ['field' => $field->id, 'return' => AppController::_return()]],
 						['alt' => __('Edit'), 'title' => __('Edit Layout')]);
 				}
 				if (!empty($field->layout_url)) {
@@ -232,18 +232,18 @@ if (!empty($facility->fields)):
 		endif;
 ?>
 				<td class="actions"><?php
-				echo $this->Html->link(__('View Bookings'), ['controller' => 'Fields', 'action' => 'bookings', 'field' => $field->id]);
+				echo $this->Html->link(__('View Bookings'), ['controller' => 'Fields', 'action' => 'bookings', '?' => ['field' => $field->id]]);
 				if ($this->Authorize->can('add_game_slots', $field)) {
-					echo $this->Html->link(__('Add Game Slots'), ['controller' => 'GameSlots', 'action' => 'add', 'field' => $field->id]);
+					echo $this->Html->link(__('Add Game Slots'), ['controller' => 'GameSlots', 'action' => 'add', '?' => ['field' => $field->id]]);
 					echo $this->Form->iconPostLink('delete_24.png',
-						['controller' => 'Fields', 'action' => 'delete', 'field' => $field->id, 'return' => AppController::_return()],
+						['controller' => 'Fields', 'action' => 'delete', '?' => ['field' => $field->id, 'return' => AppController::_return()]],
 						['alt' => __('Delete'), 'title' => __('Delete')],
 						['confirm' => __('Are you sure you want to delete this field?')]);
 
 					if ($field->is_open) {
-						echo $this->Jquery->ajaxLink(__('Close'), ['url' => ['controller' => 'Fields', 'action' => 'close', 'field' => $field->id]]);
+						echo $this->Jquery->ajaxLink(__('Close'), ['url' => ['controller' => 'Fields', 'action' => 'close', '?' => ['field' => $field->id]]]);
 					} else {
-						echo $this->Jquery->ajaxLink(__('Open'), ['url' => ['controller' => 'Fields', 'action' => 'open', 'field' => $field->id]]);
+						echo $this->Jquery->ajaxLink(__('Open'), ['url' => ['controller' => 'Fields', 'action' => 'open', '?' => ['field' => $field->id]]]);
 					}
 				}
 				?></td>
@@ -276,10 +276,10 @@ echo $this->Html->tag('li', $this->Html->iconLink('view_32.png',
 	['alt' => __('List'), 'title' => __('List Facilities')]));
 if ($can_edit) {
 	echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
-		['action' => 'edit', 'facility' => $facility->id, 'return' => AppController::_return()],
+		['action' => 'edit', '?' => ['facility' => $facility->id, 'return' => AppController::_return()]],
 		['alt' => __('Edit'), 'title' => __('Edit Facility')]));
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-		['action' => 'delete', 'facility' => $facility->id],
+		['action' => 'delete', '?' => ['facility' => $facility->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Facility')],
 		['confirm' => __('Are you sure you want to delete this facility?')]));
 }

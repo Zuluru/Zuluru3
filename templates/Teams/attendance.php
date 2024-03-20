@@ -70,7 +70,7 @@ foreach ($all_items as $item) {
 		}
 	} else {
 		$header_cells[] = $this->Html->link(__('{0} ({1})', $item->name, $this->Time->format($item->start_time, 'MMM d')),
-			['controller' => 'TeamEvents', 'action' => 'view', 'event' => $item->id],
+			['controller' => 'TeamEvents', 'action' => 'view', '?' => ['event' => $item->id]],
 			['title' => $this->Time->datetime($item->start_time)]
 		);
 	}

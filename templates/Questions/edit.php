@@ -58,7 +58,7 @@ if ($question->type == 'radio' || $question->type == 'select' || $question->type
 			<ul class="nav nav-pills">
 <?php
 	echo $this->Html->tag('li', $this->Jquery->ajaxLink(__('Add an answer to this question'), [
-		'url' => ['action' => 'add_answer', 'question' => $question->id],
+		'url' => ['action' => 'add_answer', '?' => ['question' => $question->id]],
 		'disposition' => 'append',
 		'selector' => '#Answers > tbody',
 	]));

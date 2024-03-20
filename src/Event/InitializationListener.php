@@ -3,18 +3,18 @@ namespace App\Event;
 
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
-use Cake\Event\Event;
+use Cake\Event\EventInterface;
 use Cake\Event\EventListenerInterface;
 
 class InitializationListener implements EventListenerInterface {
 
-	public function implementedEvents() {
+	public function implementedEvents(): array {
 		return [
 			'Controller.beforeRender' => 'beforeRender',
 		];
 	}
 
-	public function beforeRender(Event $event) {
+	public function beforeRender(EventInterface $event) {
 		// Set the theme, if any
 		$theme = Configure::read('App.theme');
 		if (!empty($theme)) {

@@ -31,13 +31,13 @@ echo implode($this->Html->tag('br'), $lines);
 
 $links = [];
 if ($this->Authorize->can('vcf', $person) && !empty($lines)) {
-	$links[] = $this->Html->link(__('VCF'), ['action' => 'vcf', 'person' => $person->id]);
+	$links[] = $this->Html->link(__('VCF'), ['action' => 'vcf', '?' => ['person' => $person->id]]);
 }
 if ($this->Authorize->can('note', $person)) {
-	$links[] = $this->Html->link(__('Add Note'), ['action' => 'note', 'person' => $person->id]);
+	$links[] = $this->Html->link(__('Add Note'), ['action' => 'note', '?' => ['person' => $person->id]]);
 }
 if ($this->Authorize->can('act_as', $person)) {
-	$links[] = $this->Html->link(__('Act As'), ['action' => 'act_as', 'person' => $person->id]);
+	$links[] = $this->Html->link(__('Act As'), ['action' => 'act_as', '?' => ['person' => $person->id]]);
 }
 if (!empty($links)) {
 	echo $this->Html->tag('br') . implode(' / ', $links);

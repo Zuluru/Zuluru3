@@ -9,7 +9,7 @@
 @header('Pragma: no-cache');
 
 // Set up common default blocks
-$this->element('Layout/common_blocks');
+$this->element('layout/common_blocks');
 ?>
 <?= $this->fetch('html') ?>
 

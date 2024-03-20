@@ -33,7 +33,7 @@ class EventsTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('events');
@@ -127,7 +127,7 @@ class EventsTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
@@ -252,7 +252,7 @@ class EventsTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->isUnique(['name'], __('An event with that name already exists.')));
 		$rules->add($rules->existsIn(['event_type_id'], 'EventTypes', __('You must select a valid event type.')));
 		$rules->add($rules->existsIn(['questionnaire_id'], 'Questionnaires', __('You must select a valid questionnaire.')));
@@ -296,7 +296,7 @@ class EventsTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the save method
 	 * @return void
 	 */
-	public function afterSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function afterSave(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		// There might be unpaid registrations now to be moved to the waiting list, or if the cap has risen we can
 		// invite some people fom the waiting list.
 		$entity->processWaitingList();

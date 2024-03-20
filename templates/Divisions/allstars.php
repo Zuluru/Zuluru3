@@ -43,6 +43,6 @@ echo $this->Html->tableCells($rows);
 if ($min > 1) {
 	echo $this->Html->para(null, __("This list shows only those with at least {0} nominations. The {1} is also available.",
 		$min,
-		$this->Html->link(__('complete list'), ['action' => 'allstars', 'division' => $division->id, 'min' => 1])
+		$this->Html->link(__('complete list'), ['action' => 'allstars', '?' => ['division' => $division->id, 'min' => 1]])
 	));
 }

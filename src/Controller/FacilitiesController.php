@@ -22,7 +22,7 @@ class FacilitiesController extends AppController {
 	}
 
 	// TODO: Eliminate this if we can find a way around black-holing caused by Ajax field adds
-	public function beforeFilter(\Cake\Event\Event $event) {
+	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
 		if (isset($this->Security)) {
 			$this->Security->setConfig('unlockedActions', ['add', 'edit']);
@@ -32,7 +32,7 @@ class FacilitiesController extends AppController {
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$affiliates = $this->Authentication->applicableAffiliateIDs();
@@ -92,7 +92,7 @@ class FacilitiesController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('facility');
@@ -122,10 +122,10 @@ class FacilitiesController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
-		$facility = $this->Facilities->newEntity();
+		$facility = $this->Facilities->newEmptyEntity();
 		$this->Authorization->authorize($this);
 
 		if ($this->getRequest()->is('post')) {
@@ -171,7 +171,7 @@ class FacilitiesController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('facility');
@@ -232,14 +232,14 @@ class FacilitiesController extends AppController {
 		$this->Authorization->authorize($this);
 
 		$this->getRequest()->allowMethod('ajax');
-		$facility = $this->Facilities->newEntity();
+		$facility = $this->Facilities->newEmptyEntity();
 		$this->set(compact('facility'));
 	}
 
 	/**
 	 * Open facility method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
 	 */
 	public function open() {
 		$this->getRequest()->allowMethod('ajax');
@@ -268,7 +268,7 @@ class FacilitiesController extends AppController {
 	/**
 	 * Close facility method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
 	 */
 	public function close() {
 		$this->getRequest()->allowMethod('ajax');
@@ -304,7 +304,7 @@ class FacilitiesController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);

@@ -11,7 +11,7 @@
 $this->Html->meta(['name' => 'no_cms_wrapper'], null, ['block' => true]);
 
 // Set up common default blocks
-$this->element('Layout/common_blocks');
+$this->element('layout/common_blocks');
 ?>
 <?= $this->fetch('html') ?>
 
@@ -39,6 +39,6 @@ echo $this->fetch('script');
 ?>
 
 	</div>
-	<?= $this->element('Layout/footer_script') ?>
+	<?= $this->element('layout/footer_script') ?>
 </body>
 </html>

@@ -24,7 +24,7 @@ else:
 		$links = [];
 		foreach ($letters as $l) {
 			$l = strtoupper($l['letter']);
-			$links[] = $this->Html->link($l, ['action' => 'letter', 'affiliate' => $affiliate, 'letter' => $l], ['rel' => 'nofollow']);
+			$links[] = $this->Html->link($l, ['action' => 'letter', '?' => ['affiliate' => $affiliate, 'letter' => $l]], ['rel' => 'nofollow']);
 		}
 		echo implode('&nbsp;&nbsp;', $links);
 	?></p>

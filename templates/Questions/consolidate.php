@@ -12,8 +12,8 @@ foreach ($matches as $one => $match) {
 		if ($reason === true) {
 			echo "Merge $two into $one";
 		} else {
-			echo $this->Html->link($one, ['controller' => 'Questions', 'action' => 'edit', 'question' => $one]) . ' vs ' .
-				$this->Html->link($two, ['controller' => 'Questions', 'action' => 'edit', 'question' => $two]) . ': ' . $reason;
+			echo $this->Html->link($one, ['controller' => 'Questions', 'action' => 'edit', '?' => ['question' => $one]]) . ' vs ' .
+				$this->Html->link($two, ['controller' => 'Questions', 'action' => 'edit', '?' => ['question' => $two]]) . ': ' . $reason;
 		}
 		echo '</li>';
 	}

@@ -23,5 +23,5 @@ if (!isset($use_name) || !$use_name) {
 }
 
 echo $this->Html->link($link,
-	['controller' => 'Badges', 'action' => 'view', 'badge' => $badge->id],
+	['controller' => 'Badges', 'action' => 'view', '?' => ['badge' => $badge->id]],
 	$options);

@@ -37,7 +37,7 @@ foreach ($plugins as $plugin):
 					<td class="actions"><?php
 						if ($plugin->enabled) {
 							echo $this->Jquery->ajaxLink(__('Deactivate'), [
-								'url' => ['action' => 'deactivate', 'plugin_id' => $plugin->id],
+								'url' => ['action' => 'deactivate', '?' => ['plugin_id' => $plugin->id]],
 								'disposition' => 'replace_closest',
 								'selector' => 'td',
 							]);
@@ -46,7 +46,7 @@ foreach ($plugins as $plugin):
 								echo $this->Html->link(__('Settings'), ['plugin' => $plugin->load_name, 'controller' => 'Settings', 'action' => 'index']);
 							}
 						} else {
-							echo $this->Html->link(__('Activate'), ['action' => 'activate', 'plugin_id' => $plugin->id]);
+							echo $this->Html->link(__('Activate'), ['action' => 'activate', '?' => ['plugin_id' => $plugin->id]]);
 						}
 					?></td>
 				</tr>

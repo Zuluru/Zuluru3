@@ -49,9 +49,9 @@ echo $this->element('Games/score_box', ['game' => $game, 'submitter' => $submitt
 	<ul class="nav nav-pills">
 <?php
 if (!$submitter) {
-	echo $this->Html->tag('li', $this->Html->link(__('Finalize'), ['action' => 'edit', 'game' => $game->id, 'stats' => $has_stats]));
+	echo $this->Html->tag('li', $this->Html->link(__('Finalize'), ['action' => 'edit', '?' => ['game' => $game->id, 'stats' => $has_stats]]));
 } else {
-	echo $this->Html->tag('li', $this->Html->link(__('Finalize'), ['action' => 'submit_score', 'game' => $game->id, 'team' => $submitter]));
+	echo $this->Html->tag('li', $this->Html->link(__('Finalize'), ['action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $submitter]]));
 }
 ?>
 	</ul>

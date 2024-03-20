@@ -14,11 +14,11 @@ use Cake\Routing\Router;
 if (!$game->isNew()) {
 	$game_text = __(' against {0} at {1} starting at {2}',
 		$this->Html->link($opponent->name,
-			Router::url(['controller' => 'Teams', 'action' => 'view', 'team' => $opponent->id], true)),
+			Router::url(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $opponent->id]], true)),
 		$this->Html->link($game->game_slot->field->long_name,
-			Router::url(['controller' => 'Facilities', 'action' => 'view', 'facility' => $game->game_slot->field->facility_id], true)),
+			Router::url(['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $game->game_slot->field->facility_id]], true)),
 		$this->Html->link($this->Time->time($game->game_slot->game_start),
-			Router::url(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], true))
+			Router::url(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], true))
 	);
 
 	$arg = 'game';
@@ -34,7 +34,7 @@ if (!$game->isNew()) {
 <p><?= __('{0} has indicated that you are {1} the {2} game{3} on {4}.',
 	$captain,
 	Configure::read("attendance_verb.{$attendance->status}"),
-	$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], true)),
+	$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]], true)),
 	$game_text,
 	$this->Time->date($date)
 ) ?></p>
@@ -58,11 +58,13 @@ elseif ($attendance->status == ATTENDANCE_AVAILABLE):
 endif;
 
 $url_array = [
-	'controller' => 'Games', 'action' => 'attendance_change',
-	'team' => $team->id, $arg => $val, 'person' => $person->id, 'code' => $code];
+	'controller' => 'Games',
+	'action' => 'attendance_change',
+	'?' => ['team' => $team->id, $arg => $val, 'person' => $person->id, 'code' => $code]
+];
 foreach (Configure::read('attendance_verb') as $check_status => $check_verb):
 	if ($attendance->status != $check_status && array_key_exists($check_status, $player_options)):
-		$url_array['status'] = $check_status;
+		$url_array['?']['status'] = $check_status;
 ?>
 <p><?= __('If you are {0} this game, {1}.', $check_verb, $this->Html->link(__('click here'), Router::url($url_array, true))) ?></p>
 <?php

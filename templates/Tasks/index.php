@@ -41,7 +41,7 @@ else:
 ?>
 				<tr>
 					<td><?= $task->name ?></td>
-					<td><?= $this->Html->link($task->category->name, ['controller' => 'Categories', 'action' => 'view', 'category' => $task->category->id]) ?></td>
+					<td><?= $this->Html->link($task->category->name, ['controller' => 'Categories', 'action' => 'view', '?' => ['category' => $task->category->id]]) ?></td>
 					<td><?= $this->element('People/block', ['person' => $task->person]) ?></td>
 <?php
 		if ($this->Authorize->can('edit', $task)):
@@ -53,18 +53,18 @@ else:
 ?>
 					<td class="actions"><?php
 						echo $this->Html->iconLink('view_24.png',
-							['action' => 'view', 'task' => $task->id],
+							['action' => 'view', '?' => ['task' => $task->id]],
 							['alt' => __('View'), 'title' => __('View')]);
 						if ($this->Authorize->can('edit', $task)) {
 							echo $this->Html->iconLink('edit_24.png',
-								['action' => 'edit', 'task' => $task->id],
+								['action' => 'edit', '?' => ['task' => $task->id]],
 								['alt' => __('Edit'), 'title' => __('Edit')]);
 							echo $this->Form->iconPostLink('delete_24.png',
-								['action' => 'delete', 'task' => $task->id],
+								['action' => 'delete', '?' => ['task' => $task->id]],
 								['alt' => __('Delete'), 'title' => __('Delete')],
 								['confirm' => __('Are you sure you want to delete this task?')]);
 							echo $this->Html->iconLink('schedule_add_24.png',
-								['controller' => 'Task_slots', 'action' => 'add', 'task' => $task->id],
+								['controller' => 'Task_slots', 'action' => 'add', '?' => ['task' => $task->id]],
 								['alt' => __('Add Slots'), 'title' => __('Add Slots')]);
 						}
 					?></td>

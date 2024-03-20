@@ -13,7 +13,7 @@ class SettingsController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit($section) {
 		$result = $this->_process();

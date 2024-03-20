@@ -32,7 +32,7 @@ if (!$this->Identity->isLoggedIn() && in_array($person->status, ['locked', 'inac
 	return;
 } else if (!isset($link) || $link) {
 	echo $this->Html->link($person->$display_field,
-		['controller' => 'People', 'action' => 'view', 'person' => $person->id],
+		['controller' => 'People', 'action' => 'view', '?' => ['person' => $person->id]],
 		$options);
 } else {
 	echo $this->Html->tag('span', $person->$display_field, $options);

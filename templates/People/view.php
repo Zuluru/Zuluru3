@@ -334,25 +334,27 @@ endif;
 	<ul class="nav nav-pills">
 <?php
 if ($this->Authorize->can('vcf', $person) && $has_visible_contact) {
-	echo $this->Html->tag('li', $this->Html->link(__('VCF'), ['action' => 'vcf', 'person' => $person->id]));
+	echo $this->Html->tag('li', $this->Html->link(__('VCF'), ['action' => 'vcf', '?' => ['person' => $person->id]]));
 }
 if ($this->Authorize->can('note', $person)) {
-	echo $this->Html->tag('li', $this->Html->link(__('Add Note'), ['action' => 'note', 'person' => $person->id]));
+	echo $this->Html->tag('li', $this->Html->link(__('Add Note'), ['action' => 'note', '?' => ['person' => $person->id]]));
 }
 if ($this->Authorize->can('edit', $person)) {
-	echo $this->Html->tag('li', $this->Html->iconLink('edit_24.png', ['action' => 'edit', 'person' => $person->id, 'return' => AppController::_return()], ['alt' => __('Edit Profile'), 'title' => __('Edit Profile')]));
+	echo $this->Html->tag('li', $this->Html->iconLink('edit_24.png', ['action' => 'edit', '?' => ['person' => $person->id, 'return' => AppController::_return()]],
+		['alt' => __('Edit Profile'), 'title' => __('Edit Profile')]));
 }
 if ($this->Authorize->can('preferences', $person)) {
-	echo $this->Html->tag('li', $this->Html->link(__('Edit Preferences'), ['action' => 'preferences', 'person' => $person->id]));
+	echo $this->Html->tag('li', $this->Html->link(__('Edit Preferences'), ['action' => 'preferences', '?' => ['person' => $person->id]]));
 }
 if ($person->user && $this->Authorize->can('change_password', $person->user)) {
-	echo $this->Html->tag('li', $this->Html->link(__('Change Password'), ['controller' => 'Users', 'action' => 'change_password', 'user' => $person->user_id]));
+	echo $this->Html->tag('li', $this->Html->link(__('Change Password'), ['controller' => 'Users', 'action' => 'change_password', '?' => ['user' => $person->user_id]]));
 }
 if ($this->Authorize->can('act_as', $person)) {
-	echo $this->Html->tag('li', $this->Html->link(__('Act As'), ['controller' => 'People', 'action' => 'act_as', 'person' => $person->id]));
+	echo $this->Html->tag('li', $this->Html->link(__('Act As'), ['controller' => 'People', 'action' => 'act_as', '?' => ['person' => $person->id]]));
 }
 if ($this->Authorize->can('delete', $person)) {
-	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_24.png', ['action' => 'delete', 'person' => $person->id], ['alt' => __('Delete Player'), 'title' => __('Delete Player')], ['confirm' => __('Are you sure you want to delete this person?')]));
+	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_24.png', ['action' => 'delete', '?' => ['person' => $person->id]],
+		['alt' => __('Delete Player'), 'title' => __('Delete Player')], ['confirm' => __('Are you sure you want to delete this person?')]));
 }
 ?>
 	</ul>
@@ -388,13 +390,13 @@ if (!empty($person->notes)):
 					<td class="actions"><?php
 						if ($this->Authorize->can('edit_person', $note)) {
 							echo $this->Html->iconLink('edit_24.png',
-								['action' => 'note', 'note' => $note->id],
+								['action' => 'note', '?' => ['note' => $note->id]],
 								['alt' => __('Edit Note'), 'title' => __('Edit Note')]
 							);
 						}
 						if ($this->Authorize->can('delete_person', $note)) {
 							echo $this->Form->iconPostLink('delete_24.png',
-								['action' => 'delete_note', 'note' => $note->id],
+								['action' => 'delete_note', '?' => ['note' => $note->id]],
 								['alt' => __('Delete Note'), 'title' => __('Delete Note')],
 								['confirm' => __('Are you sure you want to delete this note?')]
 							);
@@ -528,7 +530,7 @@ if (in_array('teams', $visible_properties) && ($is_player || !empty($all_teams))
 	<div class="actions columns">
 		<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('Show Team History'), ['controller' => 'People', 'action' => 'teams', 'person' => $person->id]));
+echo $this->Html->tag('li', $this->Html->link(__('Show Team History'), ['controller' => 'People', 'action' => 'teams', '?' => ['person' => $person->id]]));
 ?>
 		</ul>
 	</div>
@@ -560,9 +562,9 @@ if ((in_array('relatives', $visible_properties)) && (!empty($person->relatives) 
 					?></td>
 					<td><?= $relative->_joinData->approved ? __('Yes') : __('No') ?></td>
 					<td class="actions"><?php
-						echo $this->Html->iconLink('view_24.png', ['controller' => 'People', 'action' => 'view', 'person' => $relative->id]);
+						echo $this->Html->iconLink('view_24.png', ['controller' => 'People', 'action' => 'view', '?' => ['person' => $relative->id]]);
 						echo $this->Form->iconPostLink('delete_24.png',
-							['controller' => 'People', 'action' => 'remove_relative', 'person' => $person->id, 'relative' => $relative->id],
+							['controller' => 'People', 'action' => 'remove_relative', 'person' => $person->id, '?' => ['relative' => $relative->id]],
 							['alt' => __('Remove'), 'title' => __('Remove Relation')],
 							['confirm' => __('Are you sure you want to remove this relation? This does not delete their profile, it only breaks the link between you.')]
 						);
@@ -581,16 +583,16 @@ if ((in_array('relatives', $visible_properties)) && (!empty($person->relatives) 
 				?></td>
 				<td><?= $relative->_joinData->approved ? __('Yes') : __('No') ?></td>
 				<td class="actions"><?php
-				echo $this->Html->iconLink('view_24.png', ['controller' => 'People', 'action' => 'view', 'person' => $relative->id]);
+				echo $this->Html->iconLink('view_24.png', ['controller' => 'People', 'action' => 'view', '?' => ['person' => $relative->id]]);
 				if ($this->Authorize->can('remove_relative', new ContextResource($person, ['relation' => $relative]))) {
 					echo $this->Form->iconPostLink('delete_24.png',
-						['controller' => 'People', 'action' => 'remove_relative', 'person' => $relative->id, 'relative' => $person->id],
+						['controller' => 'People', 'action' => 'remove_relative', 'person' => $relative->id, '?' => ['relative' => $person->id]],
 						['alt' => __('Remove'), 'title' => __('Remove Relation')],
 						['confirm' => __('Are you sure you want to remove this relation? This does not delete their profile, it only breaks the link between you.')]
 					);
 				}
 				if (!$relative->_joinData->approved) {
-					echo $this->Form->iconPostLink('approve_24.png', ['controller' => 'People', 'action' => 'approve_relative', 'person' => $relative->id, 'relative' => $person->id]);
+					echo $this->Form->iconPostLink('approve_24.png', ['controller' => 'People', 'action' => 'approve_relative', '?' => ['person' => $relative->id, 'relative' => $person->id]]);
 				}
 				?></td>
 			</tr>
@@ -625,7 +627,7 @@ if (in_array('badges', $visible_properties) && !empty($person->badges)):
 	<h3><?= __('Badges') ?></h3>
 	<p><?php
 		foreach ($person->badges as $badge) {
-			echo $this->Html->iconLink("{$badge->icon}_64.png", ['controller' => 'Badges', 'action' => 'view', 'badge' => $badge->id],
+			echo $this->Html->iconLink("{$badge->icon}_64.png", ['controller' => 'Badges', 'action' => 'view', '?' => ['badge' => $badge->id]],
 				['alt' => $badge->name, 'title' => $badge->description]);
 		}
 	?></p>
@@ -682,7 +684,7 @@ if (in_array('allstars', $visible_properties) && !empty($person->allstars)):
 		foreach ($person->allstars as $allstar):
 ?>
 				<tr>
-					<td><?= $this->Html->link($this->Time->datetime($allstar->score_entry->game->game_slot->start_time), ['controller' => 'Games', 'action' => 'view', 'game' => $allstar->score_entry->game_id]) ?></td>
+					<td><?= $this->Html->link($this->Time->datetime($allstar->score_entry->game->game_slot->start_time), ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $allstar->score_entry->game_id]]) ?></td>
 					<td><?= $this->element('Teams/block', [
 						'team' => $allstar->team_id == $allstar->score_entry->game->home_team_id ? $allstar->score_entry->game->home_team : $allstar->score_entry->game->away_team,
 						'show_shirt' => false,
@@ -691,7 +693,7 @@ if (in_array('allstars', $visible_properties) && !empty($person->allstars)):
 						'team' => $allstar->team_id == $allstar->score_entry->game->home_team_id ? $allstar->score_entry->game->away_team : $allstar->score_entry->game->home_team,
 						'show_shirt' => false,
 					]) ?></td>
-					<td class="actions"><?= $this->Html->link(__('Delete'), ['controller' => 'Allstars', 'action' => 'delete', 'allstar' => $allstar->id], ['confirm' => __('Are you sure you want to delete this allstar?')]) ?></td>
+					<td class="actions"><?= $this->Html->link(__('Delete'), ['controller' => 'Allstars', 'action' => 'delete', '?' => ['allstar' => $allstar->id]], ['confirm' => __('Are you sure you want to delete this allstar?')]) ?></td>
 				</tr>
 
 <?php
@@ -727,10 +729,10 @@ if (in_array('preregistrations', $visible_properties) || (!empty($person->prereg
 		foreach ($person->preregistrations as $preregistration):
 ?>
 			<tr>
-				<td><?= $this->Html->link($preregistration->event->translateField('name'), ['controller' => 'Events', 'action' => 'view', 'event' => $preregistration->event->id]) ?></td>
+				<td><?= $this->Html->link($preregistration->event->translateField('name'), ['controller' => 'Events', 'action' => 'view', '?' => ['event' => $preregistration->event->id]]) ?></td>
 				<td class="actions"><?php
 					echo $this->Form->iconPostLink('delete_24.png',
-						['controller' => 'Preregistrations', 'action' => 'delete', 'preregistration' => $preregistration->id],
+						['controller' => 'Preregistrations', 'action' => 'delete', '?' => ['preregistration' => $preregistration->id]],
 						['alt' => __('Delete'), 'title' => __('Delete')],
 						['confirm' => __('Are you sure you want to delete this preregistration?')])
 				?></td>
@@ -750,7 +752,7 @@ if (in_array('preregistrations', $visible_properties) || (!empty($person->prereg
 	<div class="actions columns">
 		<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('Add Preregistration'), ['controller' => 'Preregistrations', 'action' => 'add', 'person' => $person->id]));
+echo $this->Html->tag('li', $this->Html->link(__('Add Preregistration'), ['controller' => 'Preregistrations', 'action' => 'add', '?' => ['person' => $person->id]]));
 ?>
 		</ul>
 	</div>
@@ -780,7 +782,7 @@ if ((in_array('registrations', $visible_properties)) && !empty($person->registra
 	foreach ($person->registrations as $registration):
 ?>
 				<tr>
-					<td><?= $this->Html->link($registration->event->translateField('name'), ['controller' => 'Events', 'action' => 'view', 'event' => $registration->event->id]) ?></td>
+					<td><?= $this->Html->link($registration->event->translateField('name'), ['controller' => 'Events', 'action' => 'view', '?' => ['event' => $registration->event->id]]) ?></td>
 					<td><?= $this->Time->date($registration->created) ?></td>
 					<td><?= __($registration->payment) ?></td>
 					<td class="actions"><?= $this->element('Registrations/actions', ['registration' => $registration]) ?></td>
@@ -834,12 +836,12 @@ if (!empty($person->credits)):
 					<td class="actions"><?php
 						if ($this->Authorize->can('view', $credit)) {
 							echo $this->Html->iconLink('view_24.png',
-								['controller' => 'Credits', 'action' => 'view', 'credit' => $credit->id],
+								['controller' => 'Credits', 'action' => 'view', '?' => ['credit' => $credit->id]],
 								['alt' => __('View'), 'title' => __('View')]);
 						}
 						if ($this->Authorize->can('edit', $credit)) {
 							echo $this->Html->iconLink('edit_24.png',
-								['controller' => 'Credits', 'action' => 'edit', 'credit' => $credit->id],
+								['controller' => 'Credits', 'action' => 'edit', '?' => ['credit' => $credit->id]],
 								['alt' => __('Edit'), 'title' => __('Edit')]);
 						}
 						if ($this->Authorize->can('delete', $credit)) {
@@ -848,13 +850,13 @@ if (!empty($person->credits)):
 								$confirm .= "\n\n" . __('Doing so will also delete the related refund, but will NOT change the payment status of the registration.');
 							}
 							echo $this->Form->iconPostLink('delete_24.png',
-								['controller' => 'Credits', 'action' => 'delete', 'credit' => $credit->id],
+								['controller' => 'Credits', 'action' => 'delete', '?' => ['credit' => $credit->id]],
 								['alt' => __('Delete'), 'title' => __('Delete')],
 								['confirm' => $confirm]);
 						}
 						if ($this->Authorize->can('transfer', $credit)) {
 							echo $this->Html->iconLink('move_24.png',
-								['controller' => 'Credits', 'action' => 'transfer', 'credit' => $credit->id],
+								['controller' => 'Credits', 'action' => 'transfer', '?' => ['credit' => $credit->id]],
 								['alt' => __('Transfer'), 'title' => __('Transfer')]);
 						}
 					?></td>
@@ -872,11 +874,11 @@ endif;
 	<div class="actions columns">
 		<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('Show Credit History'), ['controller' => 'People', 'action' => 'credits', 'person' => $person->id]));
+echo $this->Html->tag('li', $this->Html->link(__('Show Credit History'), ['controller' => 'People', 'action' => 'credits', '?' => ['person' => $person->id]]));
 $dummy = new Credit();
 $dummy->person = $person;
 if ($this->Authorize->can('add', $dummy)) {
-	echo $this->Html->tag('li', $this->Html->link(__('Add'), ['controller' => 'Credits', 'action' => 'add', 'person' => $person->id]));
+	echo $this->Html->tag('li', $this->Html->link(__('Add'), ['controller' => 'Credits', 'action' => 'add', '?' => ['person' => $person->id]]));
 }
 ?>
 		</ul>
@@ -912,7 +914,7 @@ if (in_array('waivers', $visible_properties)):
 					<td><?= $this->Time->fulldate($waiver->_matchingData['WaiversPeople']->created) ?></td>
 					<td><?= $this->Time->fulldate($waiver->_matchingData['WaiversPeople']->valid_from) ?></td>
 					<td><?= $this->Time->fulldate($waiver->_matchingData['WaiversPeople']->valid_until) ?></td>
-					<td class="actions"><?= $this->Html->iconLink('view_24.png', ['controller' => 'Waivers', 'action' => 'review', 'waiver' => $waiver->id, 'date' => $waiver->_matchingData['WaiversPeople']->valid_from->toDateString()]) ?></td>
+					<td class="actions"><?= $this->Html->iconLink('view_24.png', ['controller' => 'Waivers', 'action' => 'review', '?' => ['waiver' => $waiver->id, 'date' => $waiver->_matchingData['WaiversPeople']->valid_from->toDateString()]]) ?></td>
 				</tr>
 
 <?php
@@ -932,7 +934,7 @@ if (in_array('waivers', $visible_properties)):
 	<div class="actions columns">
 		<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('Show Waiver History'), ['controller' => 'People', 'action' => 'waivers', 'person' => $person->id]));
+echo $this->Html->tag('li', $this->Html->link(__('Show Waiver History'), ['controller' => 'People', 'action' => 'waivers', '?' => ['person' => $person->id]]));
 ?>
 		</ul>
 	</div>
@@ -976,15 +978,15 @@ if (in_array('uploads', $visible_properties)):
 			endif;
 ?>
 					<td class="actions"><?php
-						echo $this->Html->link(__('View'), ['action' => 'document', 'document' => $upload->id], ['target' => 'preview']);
+						echo $this->Html->link(__('View'), ['action' => 'document', '?' => ['document' => $upload->id]], ['target' => 'preview']);
 						if ($upload->approved && $this->Authorize->can('edit_document', $upload)) {
-							echo $this->Html->link(__('Edit'), ['action' => 'edit_document', 'document' => $upload->id, 'return' => AppController::_return()]);
+							echo $this->Html->link(__('Edit'), ['action' => 'edit_document', '?' => ['document' => $upload->id, 'return' => AppController::_return()]]);
 						} else if (!$upload->approved && $this->Authorize->can('approve_document', $upload)) {
-							echo $this->Html->link(__('Approve'), ['action' => 'approve_document', 'document' => $upload->id, 'return' => AppController::_return()]);
+							echo $this->Html->link(__('Approve'), ['action' => 'approve_document', '?' => ['document' => $upload->id, 'return' => AppController::_return()]]);
 						}
 
 						echo $this->Jquery->ajaxLink($this->Html->iconImg('delete_24.png', ['alt' => __('Delete'), 'title' => __('Delete')]), [
-							'url' => ['action' => 'delete_document', 'document' => $upload->id],
+							'url' => ['action' => 'delete_document', '?' => ['document' => $upload->id]],
 							'confirm' => __('Are you sure you want to delete this document?'),
 							'disposition' => 'remove_closest',
 							'selector' => 'tr',
@@ -1006,7 +1008,7 @@ if (in_array('uploads', $visible_properties)):
 	<div class="actions columns">
 		<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('Upload New Document'), ['action' => 'document_upload', 'person' => $person->id]));
+echo $this->Html->tag('li', $this->Html->link(__('Upload New Document'), ['action' => 'document_upload', '?' => ['person' => $person->id]]));
 ?>
 		</ul>
 	</div>
@@ -1033,7 +1035,7 @@ if ((in_array('tasks', $visible_properties)) && !empty($person->tasks)):
 ?>
 				<tr>
 					<td class="splash_item"><?php
-						echo $this->Html->link($task_slot->task->translateField('name'), ['controller' => 'Tasks', 'action' => 'view', 'task' => $task_slot->task->id]);
+						echo $this->Html->link($task_slot->task->translateField('name'), ['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task_slot->task->id]]);
 					?></td>
 					<td class="splash_item"><?php
 					echo $this->Time->day($task_slot->task_date) . ', ' .

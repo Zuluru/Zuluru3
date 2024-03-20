@@ -35,7 +35,7 @@ if (!$affiliate->isNew()) {
 echo $this->Html->tag('li', $this->Html->link(__('List Affiliates'), ['action' => 'index']));
 if (!$affiliate->isNew()) {
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-		['action' => 'delete', 'affiliate' => $affiliate->id],
+		['action' => 'delete', '?' => ['affiliate' => $affiliate->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Affiliate')],
 		['confirm' => __('Are you sure you want to delete this affiliate?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',

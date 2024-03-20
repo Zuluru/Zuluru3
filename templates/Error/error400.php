@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var string $message
+ * @var string $url
  * @var \Exception $error
  */
 
@@ -14,13 +15,13 @@ use Cake\Error\Debugger;
 @header('Cache-Control: post-check=0, pre-check=0', false);
 @header('Pragma: no-cache');
 
-$this->viewBuilder()->setLayout('error');
+$this->setLayout('error');
 
 if (Configure::read('debug')):
-	$this->viewBuilder()->setLayout('dev_error');
+	$this->setLayout('dev_error');
 
 	$this->assign('title', $message);
-	$this->assign('templateName', 'error400.ctp');
+	$this->assign('templateName', 'error400.php');
 
 	$this->start('file');
 ?>

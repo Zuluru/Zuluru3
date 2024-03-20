@@ -17,7 +17,7 @@ echo $this->element('People/contacts', compact(['person']));
 if (!empty($person->badges)) {
 	echo $this->Html->tag('br');
 	foreach ($person->badges as $badge) {
-		echo $this->Html->iconLink("{$badge->icon}_48.png", ['controller' => 'Badges', 'action' => 'view', 'badge' => $badge->id],
+		echo $this->Html->iconLink("{$badge->icon}_48.png", ['controller' => 'Badges', 'action' => 'view', '?' => ['badge' => $badge->id]],
 			['alt' => $badge->name, 'title' => $badge->description]);
 	}
 }
@@ -31,7 +31,7 @@ if ($this->Authorize->can('view_contacts', $person)) {
 		foreach ($related_to as $relative){
 			if ($relative->_joinData->approved){
 				// TODOBOOTSTRAP: Work on spacing, especially where there are multiple relatives. Pass the formatted name to the element? Replace <br> with <p> and style them differently in tooltips?
-				echo $this->Html->tag('strong', $this->Html->link($relative->full_name, ['controller' => 'People', 'action' => 'view', 'person' => $relative->id])) . '<br />';
+				echo $this->Html->tag('strong', $this->Html->link($relative->full_name, ['controller' => 'People', 'action' => 'view', '?' => ['person' => $relative->id]])) . '<br />';
 				echo $this->element('People/contacts', ['person' => $relative]) . '<br />';
 			}
 		}

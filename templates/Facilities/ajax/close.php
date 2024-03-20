@@ -4,4 +4,4 @@
  * @var \App\Model\Entity\Facility $facility
  */
 
-echo $this->Jquery->ajaxLink(__('Open'), ['url' => ['action' => 'open', 'facility' => $facility->id]]);
+echo $this->Jquery->ajaxLink(__('Open'), ['url' => ['action' => 'open', '?' => ['facility' => $facility->id]]]);

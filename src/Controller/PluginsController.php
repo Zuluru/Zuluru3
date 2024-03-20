@@ -18,7 +18,7 @@ class PluginsController extends AppController {
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$this->Authorization->authorize($this);
@@ -33,7 +33,7 @@ class PluginsController extends AppController {
 	 * normal page load, and redirect to the index afterwards. If a clean method can be found for loading plugins
 	 * from within a controller action, then Ajax can come back to this.
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function activate() {
 		$id = $this->getRequest()->getQuery('plugin_id');
@@ -62,7 +62,7 @@ class PluginsController extends AppController {
 	/**
 	 * Deactivate method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function deactivate() {
 		$this->getRequest()->allowMethod('ajax');

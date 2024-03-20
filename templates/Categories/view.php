@@ -22,7 +22,7 @@ $multiple_types = (count($types) > 1);
 if (count($affiliates) > 1):
 ?>
 		<dt><?= __('Affiliate') ?></dt>
-		<dd><?= $this->Html->link($category->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', 'affiliate' => $category->affiliate->id]) ?></dd>
+		<dd><?= $this->Html->link($category->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $category->affiliate->id]]) ?></dd>
 <?php
 endif;
 
@@ -79,10 +79,10 @@ if ($category->type === 'Leagues'):
 					<td><?= h($league->name) ?></td>
 					<td class="actions"><?php
 						echo $this->Html->iconLink('view_24.png',
-							['controller' => 'Leagues', 'action' => 'view', 'league' => $league->id],
+							['controller' => 'Leagues', 'action' => 'view', '?' => ['league' => $league->id]],
 							['alt' => __('View'), 'title' => __('View')]);
 						echo $this->Html->iconLink('edit_24.png',
-							['controller' => 'Leagues', 'action' => 'edit', 'league' => $league->id],
+							['controller' => 'Leagues', 'action' => 'edit', '?' => ['league' => $league->id]],
 							['alt' => __('Edit'), 'title' => __('Edit')]);
 					?></td>
 				</tr>
@@ -116,13 +116,13 @@ elseif ($category->type === 'Tasks'):
 					<td><?= $this->element('People/block', ['person' => $task->person]) ?></td>
 					<td class="actions"><?php
 						echo $this->Html->iconLink('view_24.png',
-							['controller' => 'Tasks', 'action' => 'view', 'task' => $task->id],
+							['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task->id]],
 							['alt' => __('View'), 'title' => __('View')]);
 						echo $this->Html->iconLink('edit_24.png',
-							['controller' => 'Tasks', 'action' => 'edit', 'task' => $task->id],
+							['controller' => 'Tasks', 'action' => 'edit', '?' => ['task' => $task->id]],
 							['alt' => __('Edit'), 'title' => __('Edit')]);
 						echo $this->Form->iconPostLink('delete_24.png',
-							['controller' => 'Tasks', 'action' => 'delete', 'task' => $task->id],
+							['controller' => 'Tasks', 'action' => 'delete', '?' => ['task' => $task->id]],
 							['alt' => __('Delete'), 'title' => __('Delete')],
 							['confirm' => __('Are you sure you want to delete this task?')]);
 					?></td>
@@ -148,10 +148,10 @@ echo $this->Html->tag('li', $this->Html->iconLink('view_32.png',
 	['action' => 'index'],
 	['alt' => __('List'), 'title' => __('List Categories')]));
 echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
-	['action' => 'edit', 'category' => $category->id],
+	['action' => 'edit', '?' => ['category' => $category->id]],
 	['alt' => __('Edit'), 'title' => __('Edit Category')]));
 echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-	['action' => 'delete', 'category' => $category->id],
+	['action' => 'delete', '?' => ['category' => $category->id]],
 	['alt' => __('Delete'), 'title' => __('Delete Category')],
 	['confirm' => __('Are you sure you want to delete this category?')]));
 echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',

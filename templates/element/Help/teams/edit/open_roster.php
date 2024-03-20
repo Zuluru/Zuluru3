@@ -7,7 +7,7 @@ use Cake\Core\Configure;
 ?>
 
 <p><?= __('Team rosters can be either open or closed. Team rosters typically default to closed, but the desired option can be selected by a coach or captain in the {0} page.',
-	(array_key_exists('team', $this->getRequest()->getQueryParams()) ? $this->Html->link(__('Edit Team'), ['controller' => 'Teams', 'action' => 'edit', 'team' => $this->getRequest()->getQuery('team')]) : '"' . __('Edit Team') . '"')
+	(array_key_exists('team', $this->getRequest()->getQueryParams()) ? $this->Html->link(__('Edit Team'), ['controller' => 'Teams', 'action' => 'edit', '?' => ['team' => $this->getRequest()->getQuery('team')]]) : '"' . __('Edit Team') . '"')
 ) ?></p>
 <p><?= __('Players can always be invited to join a team by a coach or captain. Invitations must be accepted by the player before they are officially added to the roster.') ?>
 <?php

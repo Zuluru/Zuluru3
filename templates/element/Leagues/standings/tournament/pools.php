@@ -23,13 +23,13 @@ foreach ($games as $stage_id => $stage):
 		if ($can_edit) {
 			echo '&nbsp;';
 			echo $this->Form->iconPostLink('delete_24.png',
-				['controller' => 'Schedules', 'action' => 'delete', 'division' => $division->id, 'pool' => $pool->games[0]->home_pool_team->pool->id, 'return' => AppController::_return()],
+				['controller' => 'Schedules', 'action' => 'delete', '?' => ['division' => $division->id, 'pool' => $pool->games[0]->home_pool_team->pool->id, 'return' => AppController::_return()]],
 				['alt' => __('Delete'), 'title' => __('Delete Pool Games')]);
 			echo $this->Html->iconLink('initialize_24.png',
-				['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => $division->id, 'pool' => $pool->games[0]->home_pool_team->pool->id, 'return' => AppController::_return()],
+				['controller' => 'Divisions', 'action' => 'initialize_dependencies', '?' => ['division' => $division->id, 'pool' => $pool->games[0]->home_pool_team->pool->id, 'return' => AppController::_return()]],
 				['alt' => __('Initialize'), 'title' => __('Initialize Schedule Dependencies')]);
 			echo $this->Html->iconLink('reset_24.png',
-				['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => $division->id, 'pool' => $pool->games[0]->home_pool_team->pool->id, 'reset' => true, 'return' => AppController::_return()],
+				['controller' => 'Divisions', 'action' => 'initialize_dependencies', '?' => ['division' => $division->id, 'pool' => $pool->games[0]->home_pool_team->pool->id, 'reset' => true, 'return' => AppController::_return()]],
 				['alt' => __('Reset'), 'title' => __('Reset Schedule Dependencies')]);
 			// TODO: Add publish/unpublish links here
 		}
@@ -196,7 +196,7 @@ foreach ($games as $stage_id => $stage):
 							$class = ' class="unpublished"';
 						}
 ?>
-					<td<?= $class ?>><?= $this->Html->link($game->home_pool_team->alias . __x('standings', 'v') . $game->away_pool_team->alias, ['controller' => 'Games', 'action' => 'view', 'game' => $game->id]) ?></td>
+					<td<?= $class ?>><?= $this->Html->link($game->home_pool_team->alias . __x('standings', 'v') . $game->away_pool_team->alias, ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]]) ?></td>
 					<td<?= $class ?>><?php
 						if ($game->isFinalized()) {
 							echo $game->home_score . '-' . $game->away_score . ' ' . __x('standings', '(F)');

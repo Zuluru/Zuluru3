@@ -53,7 +53,7 @@ class GamesController extends AppController {
 	}
 
 	// TODO: Eliminate this if we can find a way around black-holing caused by Ajax field adds
-	public function beforeFilter(\Cake\Event\Event $event) {
+	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
 		if (isset($this->Security)) {
 			$this->Security->setConfig('unlockedActions', ['edit_boxscore']);
@@ -63,7 +63,7 @@ class GamesController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('game');
@@ -178,7 +178,7 @@ class GamesController extends AppController {
 		$this->set('spirit_obj', $game->division->league->hasSpirit() ? $this->moduleRegistry->load("Spirit:{$game->division->league->sotg_questions}") : null);
 		$this->set('league_obj', $this->moduleRegistry->load("LeagueType:{$game->division->schedule_type}"));
 		$this->set('ratings_obj', $this->moduleRegistry->load("Ratings:{$game->division->rating_calculator}"));
-		$this->set('_serialize', ['game']);
+		$this->viewBuilder()->setOption('serialize', ['game']);
 	}
 
 	/**
@@ -281,7 +281,7 @@ class GamesController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('game');
@@ -610,7 +610,7 @@ class GamesController extends AppController {
 				return $this->redirect(['action' => 'view', 'game' => $game_id]);
 			}
 		} else {
-			$note = $this->Games->Notes->newEntity();
+			$note = $this->Games->Notes->newEmptyEntity();
 		}
 
 		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
@@ -727,7 +727,7 @@ class GamesController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -839,7 +839,7 @@ class GamesController extends AppController {
 
 		$attendance = $this->Games->readAttendance($team_id, collection($game->division->days)->extract('id')->toArray(), $id);
 		$this->set(compact('game', 'team', 'opponent', 'attendance'));
-		$this->set('_serialize', ['game', 'team', 'opponent', 'attendance']);
+		$this->viewBuilder()->setOption('serialize', ['game', 'team', 'opponent', 'attendance']);
 	}
 
 	public function TODOLATER_add_sub() {
@@ -933,8 +933,8 @@ class GamesController extends AppController {
 			}
 		} else {
 			$game_date = new FrozenDate($game_date);
-			$game = $this->Games->newEntity();
-			$opponent = $this->Games->HomeTeam->newEntity();
+			$game = $this->Games->newEmptyEntity();
+			$opponent = $this->Games->HomeTeam->newEmptyEntity();
 
 			$attendance = $this->Games->Attendances->find()
 				->contain([
@@ -1981,7 +1981,7 @@ class GamesController extends AppController {
 
 		$this->Configuration->loadAffiliate($game->division->league->affiliate_id);
 
-		if ($game->game_slot->end_time->subHour()->isFuture()) {
+		if ($game->game_slot->end_time->subHours(1)->isFuture()) {
 			$this->Flash->info(__('That game has not yet occurred!'));
 			return $this->redirect(['action' => 'view', 'game' => $id]);
 		}
@@ -2049,7 +2049,7 @@ class GamesController extends AppController {
 			foreach (['status', 'score_for', 'score_against', 'home_carbon_flip'] as $field) {
 				if ($this->getRequest()->getQuery($field) !== null) {
 					if (empty($game->score_entries)) {
-						$game->score_entries = [$this->Games->ScoreEntries->newEntity()];
+						$game->score_entries = [$this->Games->ScoreEntries->newEmptyEntity()];
 					}
 					$game->score_entries[0]->$field = $this->getRequest()->getQuery($field);
 				}

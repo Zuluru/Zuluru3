@@ -37,7 +37,7 @@ if ($game->has('id')):
 		<div class="name">
 <?php
 	if ($game->published || $can_edit) {
-		echo $this->Html->link($game->display_name, ['controller' => 'Games', 'action' => 'view', 'game' => $game->id]);
+		echo $this->Html->link($game->display_name, ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]]);
 	} else {
 		echo $game->display_name;
 	}

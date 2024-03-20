@@ -43,7 +43,7 @@ $model = ($tournaments ? 'tournament' : 'league');
 
 if ($this->getRequest()->getParam('controller') != 'Leagues' || $this->getRequest()->getParam('action') != 'view') {
 	$links[] = $this->Html->iconLink("view_$size.png",
-		['controller' => $controller, 'action' => 'view', $model => $league->id],
+		['controller' => $controller, 'action' => 'view', '?' => [$model => $league->id]],
 		['alt' => __('Details'), 'title' => $tournaments ? __('View Tournament Details') : __('View League Details')]);
 }
 
@@ -51,12 +51,12 @@ $schedule_types = array_unique(collection($league->divisions)->extract('schedule
 if (!empty($schedule_types) && ($schedule_types[0] != 'none' || count($schedule_types) > 1)) {
 	if ($this->getRequest()->getParam('controller') != 'Leagues' || $this->getRequest()->getParam('action') != 'schedule') {
 		$links[] = $this->Html->iconLink("schedule_$size.png",
-			['controller' => $controller, 'action' => 'schedule', $model => $league->id],
+			['controller' => $controller, 'action' => 'schedule', '?' => [$model => $league->id]],
 			['alt' => __('Schedule'), 'title' => __('Schedule')]);
 	}
 	if ($this->getRequest()->getParam('controller') != 'Leagues' || $this->getRequest()->getParam('action') != 'standings') {
 		$links[] = $this->Html->iconLink("standings_$size.png",
-			['controller' => $controller, 'action' => 'standings', $model => $league->id],
+			['controller' => $controller, 'action' => 'standings', '?' => [$model => $league->id]],
 			['alt' => __('Standings'), 'title' => __('Standings')]);
 	}
 }

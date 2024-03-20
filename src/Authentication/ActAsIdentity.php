@@ -8,6 +8,7 @@ use Authentication\IdentityInterface as AuthenticationInterface;
 use Authorization\AuthorizationService;
 use Authorization\Exception\Exception;
 use Authorization\IdentityInterface as AuthorizationInterface;
+use Authorization\Policy\ResultInterface;
 use BadMethodCallException;
 use Cake\Core\Configure;
 use Cake\ORM\Entity;
@@ -215,7 +216,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 	 * @return void
 	 */
 	public function offsetUnset($offset) {
-		$this->identity->unsetProperty($offset);
+		$this->identity->unset($offset);
 	}
 
 	/**
@@ -235,8 +236,12 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 	/**
 	 * Authorization\IdentityInterface method
 	 */
-	public function can($action, $resource) {
+	public function can(string $action, $resource): bool {
 		return $this->authorization->can($this, $action, $resource);
+	}
+
+	public function canResult(string $action, $resource): ResultInterface {
+		return $this->authorization->canResult($this, $action, $resource);
 	}
 
 	/**

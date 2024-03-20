@@ -27,9 +27,9 @@ foreach ($groups as $group):
 				<td class="actions"><?php
 				if ($group->name != 'Administrator') {
 					if ($group->active) {
-						echo $this->Jquery->ajaxLink(__('Deactivate'), ['url' => ['action' => 'deactivate', 'group' => $group->id]]);
+						echo $this->Jquery->ajaxLink(__('Deactivate'), ['url' => ['action' => 'deactivate', '?' => ['group' => $group->id]]]);
 					} else {
-						echo $this->Jquery->ajaxLink(__('Activate'), ['url' => ['action' => 'activate', 'group' => $group->id]]);
+						echo $this->Jquery->ajaxLink(__('Activate'), ['url' => ['action' => 'activate', '?' => ['group' => $group->id]]]);
 					}
 				}
 				?></td>

@@ -37,7 +37,7 @@ if ($region->isNew()) {
 echo $this->Html->tag('li', $this->Html->link(__('List Regions'), ['action' => 'index']));
 if (!$region->isNew()) {
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-		['action' => 'delete', 'region' => $region->id],
+		['action' => 'delete', '?' => ['region' => $region->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Region')],
 		['confirm' => __('Are you sure you want to delete this region?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',

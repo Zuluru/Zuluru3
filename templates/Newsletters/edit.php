@@ -72,12 +72,12 @@ if ($newsletter->isNew()) {
 <?php
 echo $this->Html->tag('li', $this->Html->link(__('List Newsletters'), ['action' => 'index']));
 if (!$newsletter->isNew()) {
-	echo $this->Html->tag('li', $this->Html->link(__('Delivery Report'), ['action' => 'delivery', 'newsletter' => $newsletter->id]));
+	echo $this->Html->tag('li', $this->Html->link(__('Delivery Report'), ['action' => 'delivery', '?' => ['newsletter' => $newsletter->id]]));
 	echo $this->Html->tag('li', $this->Html->iconLink('newsletter_send_32.png',
-		['action' => 'send', 'newsletter' => $newsletter->id],
+		['action' => 'send', '?' => ['newsletter' => $newsletter->id]],
 		['alt' => __('Send'), 'title' => __('Send')]));
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-		['action' => 'delete', 'newsletter' => $newsletter->id],
+		['action' => 'delete', '?' => ['newsletter' => $newsletter->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Newsletter')],
 		['confirm' => __('Are you sure you want to delete this newsletter?')]));
 }

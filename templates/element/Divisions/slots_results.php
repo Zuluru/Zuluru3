@@ -71,7 +71,7 @@ foreach ($slots as $slot):
 			}
 ?>
 				<td><?= $this->Html->link($game->id,
-					['controller' => 'Games', 'action' => 'view', 'game' => $game->id])
+					['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]])
 				?></td>
 				<td><?= $this->element('Divisions/block', ['division' => $game->division]) ?></td>
 <?php

@@ -17,7 +17,7 @@ class PreregistrationsController extends AppController {
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$this->Authorization->authorize($this);
@@ -64,7 +64,7 @@ class PreregistrationsController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
 		$event_id = $this->getRequest()->getQuery('event');
@@ -163,7 +163,7 @@ class PreregistrationsController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);

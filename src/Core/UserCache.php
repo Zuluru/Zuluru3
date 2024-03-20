@@ -129,7 +129,7 @@ class UserCache {
 			}
 		}
 
-		$self->data[$id] = Cache::read("person/$id", 'long_term');
+		$self->data[$id] = Cache::read("person_$id", 'long_term');
 		if (!$self->data[$id]) {
 			$self->data[$id] = [];
 		}
@@ -470,7 +470,7 @@ class UserCache {
 								'contain' => ['People']
 							]);
 						} else {
-							$user = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'))->newEntity();
+							$user = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'))->newEmptyEntity();
 							$user->person = TableRegistry::getTableLocator()->get('People')->get($id);
 							$self->data[$id][$key] = $user;
 						}
@@ -507,7 +507,7 @@ class UserCache {
 			if (empty($self->data[$id][$key])) {
 				$self->data[$id][$key] = [];
 			}
-			Cache::write("person/$id", $self->data[$id], 'long_term');
+			Cache::write("person_$id", $self->data[$id], 'long_term');
 		}
 
 		if (!$self->data[$id][$key]) {
@@ -536,7 +536,7 @@ class UserCache {
 		}
 
 		if (empty($self->data[$id])) {
-			$self->data[$id] = Cache::read("person/$id", 'long_term');
+			$self->data[$id] = Cache::read("person_$id", 'long_term');
 			if (empty($self->data[$id])) {
 				$self->data[$id] = [];
 			}
@@ -558,7 +558,7 @@ class UserCache {
 			unset($self->data[$id][$key]);
 		}
 
-		Cache::write("person/$id", $self->data[$id], 'long_term');
+		Cache::write("person_$id", $self->data[$id], 'long_term');
 	}
 
 	public static function delete($id) {

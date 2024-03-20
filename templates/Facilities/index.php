@@ -117,7 +117,7 @@ else:
 ?>
 			<tr class="select_id_<?= $facility->id ?>">
 				<td>
-					<?= $this->Html->link($facility->name, ['controller' => 'Facilities', 'action' => 'view', 'facility' => $facility->id]) ?>
+					<?= $this->Html->link($facility->name, ['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $facility->id]]) ?>
 <?php
 			if (!empty($facility_surfaces)) {
 				echo ' [' . implode('/', $facility_surfaces) . ']';
@@ -126,25 +126,25 @@ else:
 				</td>
 				<td class="actions"><?php
 				echo $this->Html->iconLink('view_24.png',
-					['action' => 'view', 'facility' => $facility->id],
+					['action' => 'view', '?' => ['facility' => $facility->id]],
 					['alt' => __('View'), 'title' => __('View')]);
 				if (collection($facility->fields)->some(function (Field $field) {
 					return $field->length > 0;
 				})) {
-					echo $this->Html->link(__('Layout'), ['controller' => 'Maps', 'action' => 'view', 'field' => $facility->fields[0]->id], ['target' => 'map']);
+					echo $this->Html->link(__('Layout'), ['controller' => 'Maps', 'action' => 'view', '?' => ['field' => $facility->fields[0]->id]], ['target' => 'map']);
 				}
 				if ($this->Authorize->can('edit', $facility)) {
 					echo $this->Html->iconLink('edit_24.png',
-						['action' => 'edit', 'facility' => $facility->id],
+						['action' => 'edit', '?' => ['facility' => $facility->id]],
 						['alt' => __('Edit'), 'title' => __('Edit')]);
 					echo $this->Form->iconPostLink('delete_24.png',
-						['action' => 'delete', 'facility' => $facility->id, 'return' => AppController::_return()],
+						['action' => 'delete', '?' => ['facility' => $facility->id, 'return' => AppController::_return()]],
 						['alt' => __('Delete'), 'title' => __('Delete')],
 						['confirm' => __('Are you sure you want to delete this facility?')]);
 					if ($facility['is_open']) {
-						echo $this->Jquery->ajaxLink(__('Close'), ['url' => ['action' => 'close', 'facility' => $facility->id]]);
+						echo $this->Jquery->ajaxLink(__('Close'), ['url' => ['action' => 'close', '?' => ['facility' => $facility->id]]]);
 					} else {
-						echo $this->Jquery->ajaxLink(__('Open'), ['url' => ['action' => 'open', 'facility' => $facility->id]]);
+						echo $this->Jquery->ajaxLink(__('Open'), ['url' => ['action' => 'open', '?' => ['facility' => $facility->id]]]);
 					}
 				}
 				?></td>

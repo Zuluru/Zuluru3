@@ -43,7 +43,7 @@ class RuleTeamCount extends Rule implements RuleHaving {
 		if ($config[0] == '<') {
 			$to = substr($config, 1);
 			try {
-				$to = (new FrozenDate($to))->subDay();
+				$to = (new FrozenDate($to))->subDays(1);
 			} catch (\Exception $ex) {
 				$this->parse_error = __('Invalid date: {0}', $to);
 				return false;
@@ -52,7 +52,7 @@ class RuleTeamCount extends Rule implements RuleHaving {
 		} else if ($config[0] == '>') {
 			$from = substr($config, 1);
 			try {
-				$from = (new FrozenDate($from))->addDay();
+				$from = (new FrozenDate($from))->addDays(1);
 			} catch (\Exception $ex) {
 				$this->parse_error = __('Invalid date: {0}', $from);
 				return false;

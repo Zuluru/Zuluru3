@@ -5,7 +5,7 @@
 
 $relatives = $this->UserCache->allActAs();
 if (!empty($relatives)) {
-	$url = array_merge(['action' => $this->getRequest()->getParam('action')], $this->getRequest()->getQueryParams());
+	$url = ['action' => $this->getRequest()->getParam('action'), '?' => $this->getRequest()->getQueryParams()];
 	$links = [];
 
 	foreach ($relatives as $id => $relative) {
@@ -14,7 +14,7 @@ if (!empty($relatives)) {
 			$this->getRequest()->getAttribute('authentication')->buildIdentity($person)
 		);
 		if ($identity->can('show_registration', \App\Controller\PeopleController::class)) {
-			$url['act_as'] = $id;
+			$url['?']['act_as'] = $id;
 			$links[$id] = $this->Html->link($relative, $url);
 		}
 	}

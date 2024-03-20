@@ -58,7 +58,7 @@ else:
 					echo __('Never expires');
 				}
 				?></td>
-				<td class="actions"><?= $this->Html->iconLink('view_24.png', ['controller' => 'Waivers', 'action' => 'review', 'waiver' => $waiver->id, 'date' => $waiver->_joinData->valid_from->toDateString()]) ?></td>
+				<td class="actions"><?= $this->Html->iconLink('view_24.png', ['controller' => 'Waivers', 'action' => 'review', '?' => ['waiver' => $waiver->id, 'date' => $waiver->_joinData->valid_from->toDateString()]]) ?></td>
 			</tr>
 <?php
 	endforeach;
@@ -104,7 +104,7 @@ if (!empty($waivers)):
 					echo __('from') . ' ' . $this->Time->date($valid_from);
 				}
 				?></td>
-				<td class="actions"><?= $this->Html->link(__('Sign'), ['controller' => 'Waivers', 'action' => 'sign', 'waiver' => $waiver->id, 'date' => FrozenDate::now()->toDateString()]) ?></td>
+				<td class="actions"><?= $this->Html->link(__('Sign'), ['controller' => 'Waivers', 'action' => 'sign', '?' => ['waiver' => $waiver->id, 'date' => FrozenDate::now()->toDateString()]]) ?></td>
 			</tr>
 <?php
 		endif;

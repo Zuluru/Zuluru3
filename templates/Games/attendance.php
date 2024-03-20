@@ -2,6 +2,9 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Game $game
+ * @var \App\Model\Entity\Team $team
+ * @var \App\Model\Entity\Team $opponent
+ * @var \App\Model\Entity\Attendance $attendance
  */
 
 use App\Authorization\ContextResource;
@@ -22,7 +25,7 @@ $display_gender = $this->Authorize->can('display_gender', new ContextResource($t
 		<dt><?= __('League') . '/' . __('Division') ?></dt>
 		<dd><?= $this->element('Divisions/block', ['division' => $game->division, 'field' => 'full_league_name']) ?></dd>
 		<dt><?= __('Date and Time') ?></dt>
-		<dd><?= $this->Html->link($this->Time->dateTimeRange($game->game_slot), ['action' => 'view', 'game' => $game->id]) ?></dd>
+		<dd><?= $this->Html->link($this->Time->dateTimeRange($game->game_slot), ['action' => 'view', '?' => ['game' => $game->id]]) ?></dd>
 		<dt><?= __('Team') ?></dt>
 		<dd><?= $this->element('Teams/block', ['team' => $team]) ?></dd>
 		<dt><?= __('Opponent') ?></dt>
@@ -75,11 +78,11 @@ endif;
 	<ul class="nav nav-pills">
 <?php
 if ($this->Authorize->can('note', new ContextResource($game, ['home_team' => $game->home_team, 'away_team' => $game->away_team]))) {
-	echo $this->Html->tag('li', $this->Html->link(__('Add Note'), ['action' => 'note', 'game' => $game->id]));
+	echo $this->Html->tag('li', $this->Html->link(__('Add Note'), ['action' => 'note', '?' => ['game' => $game->id]]));
 }
 if ($this->Authorize->can('stat_sheet', new ContextResource($team, ['league' => $game->division->league, 'stat_types' => $game->division->league->stat_types]))) {
 	echo $this->Html->tag('li', $this->Html->iconLink('pdf_32.png',
-		['controller' => 'Games', 'action' => 'stat_sheet', 'team' => $team->id, 'game' => $game->id],
+		['controller' => 'Games', 'action' => 'stat_sheet', '?' => ['team' => $team->id, 'game' => $game->id]],
 		['alt' => __('Stat Sheet'), 'title' => __('Stat Sheet')],
 		['confirm' => __('This stat sheet will only include players who have indicated that they are playing, plus a couple of blank lines.\n\nFor a stat sheet with your full roster, use the link from the team view page.')]));
 }

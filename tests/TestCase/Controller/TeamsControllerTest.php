@@ -331,7 +331,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'numbers', 'team' => $team->id], $captain->id);
 
 		// But not after
-		FrozenDate::setTestNow($team->division->rosterDeadline()->addDay());
+		FrozenDate::setTestNow($team->division->rosterDeadline()->addDays(1));
 		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'numbers', 'team' => $team->id],
 			$captain->id, ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'The roster deadline for this division has already passed.');
@@ -1547,7 +1547,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		]);
 
 		// Can get the ical feed for any team in an active or upcoming league
-		FrozenDate::setTestNow($team->division->close->subWeek());
+		FrozenDate::setTestNow($team->division->close->subWeeks(1));
 		$this->assertGetAnonymousAccessOk(['controller' => 'Teams', 'action' => 'ical', $team->id]);
 
 		// But not in the past
@@ -1787,7 +1787,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		]);
 
 		// Make sure that we're before the roster deadline for captains to add players
-		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDays(1));
 
 		// Captains are allowed to add players to their own teams
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'add_player', 'team' => $team->id], $captain->id);
@@ -1932,7 +1932,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$invitee = $other_team->people[1];
 
 		// Make sure that we're before the roster deadline for captains to add players
-		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDays(1));
 
 		// Captains are allowed to add players from their past teams
 		$this->assertPostAsAccessOk(['controller' => 'Teams', 'action' => 'add_from_team', 'team' => $team->id],
@@ -2216,7 +2216,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		]);
 
 		// Make sure that we're before the roster deadline for adding players
-		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDays(1));
 
 		// Others are not allowed to add players from events
 		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'add_from_event', 'team' => $team->id],
@@ -2293,7 +2293,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		]);
 
 		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDays(1));
 
 		// Coordinators are allowed to change roster roles for teams in their divisions
 		$this->assertPostAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_role', 'person' => $player->id, 'team' => $team->id],
@@ -2322,7 +2322,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		[$captain, , $invited] = $team->people;
 
 		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDays(1));
 
 		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_role', 'person' => $volunteer->id, 'team' => $team->id],
 			$captain->id, ['role' => 'substitute'], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
@@ -2359,14 +2359,14 @@ class TeamsControllerTest extends ControllerTestCase {
 		]);
 
 		// Cannot make changes after the roster deadline!
-		FrozenDate::setTestNow($team->division->rosterDeadline()->addDay());
+		FrozenDate::setTestNow($team->division->rosterDeadline()->addDays(1));
 
 		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_role', 'person' => $player->id, 'team' => $team->id],
 			$player->id, ['role' => 'substitute'], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'The roster deadline for this division has already passed.');
 
 		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDays(1));
 
 		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_role', 'person' => $player->id, 'team' => $team->id],
 			$player->id, ['role' => 'captain'], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
@@ -2493,14 +2493,14 @@ class TeamsControllerTest extends ControllerTestCase {
 		$captain = $team->people[0];
 
 		// Cannot make changes after the roster deadline!
-		FrozenDate::setTestNow($team->division->rosterDeadline()->addDay());
+		FrozenDate::setTestNow($team->division->rosterDeadline()->addDays(1));
 
 		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_position', 'person' => $player->id, 'team' => $team->id],
 			$captain->id, ['position' => 'handler'], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'The roster deadline for this division has already passed.');
 
 		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDays(1));
 
 		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_position', 'person' => $volunteer->id, 'team' => $team->id],
 			$captain->id, ['position' => 'handler'], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
@@ -2529,14 +2529,14 @@ class TeamsControllerTest extends ControllerTestCase {
 		]);
 
 		// Cannot make changes after the roster deadline!
-		FrozenDate::setTestNow($team->division->rosterDeadline()->addDay());
+		FrozenDate::setTestNow($team->division->rosterDeadline()->addDays(1));
 
 		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_position', 'person' => $player->id, 'team' => $team->id],
 			$player->id, ['position' => 'handler'], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'The roster deadline for this division has already passed.');
 
 		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDays(1));
 
 		$this->assertPostAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_position', 'person' => $player->id, 'team' => $team->id],
 			$player->id, ['position' => 'xyz'], ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
@@ -2716,7 +2716,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		]);
 
 		// Make sure that we're before the roster deadline for captains to add players
-		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDays(1));
 
 		// Captains are allowed to add players to their own teams
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'roster_add', 'person' => $player->id, 'team' => $team->id], $captain->id);
@@ -2761,7 +2761,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		]);
 
 		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDays(1));
 
 		// Players are allowed to request to join a team
 		$this->assertGetAsAccessOk(['controller' => 'Teams', 'action' => 'roster_request', 'team' => $team->id], $player->id);
@@ -2782,7 +2782,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		]);
 
 		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDays(1));
 
 		// Others (any non-players) are not allowed to request to join a team
 		$this->assertGetAsAccessDenied(['controller' => 'Teams', 'action' => 'roster_request', 'team' => $team->id], $admin->id);
@@ -2881,7 +2881,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		[$captain, $invitee] = $team->people;
 
 		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDays(1));
 
 		// Captains are not allowed to accept roster invitations to their players
 		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => $invitee->id, 'team' => $team->id],
@@ -2908,14 +2908,14 @@ class TeamsControllerTest extends ControllerTestCase {
 		$invitee = $team->people[1];
 
 		// Cannot accept invites after the roster deadline!
-		FrozenDate::setTestNow($team->division->rosterDeadline()->addDay());
+		FrozenDate::setTestNow($team->division->rosterDeadline()->addDays(1));
 
 		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => $invitee->id, 'team' => $team->id],
 			$invitee->id, ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'The roster deadline for this division has already passed.');
 
 		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDays(1));
 
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => $invitee->id, 'team' => $team->id],
 			$invitee->id);
@@ -2943,7 +2943,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$invitee = $team->people[1];
 
 		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDays(1));
 
 		/** @var TeamsPerson $roster */
 		$roster = TableRegistry::getTableLocator()->get('TeamsPeople')->find()->where(['person_id' => $invitee->id, 'team_id' => $team->id])->firstOrFail();
@@ -3066,7 +3066,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		[$captain, $invitee] = $team->people;
 
 		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDays(1));
 
 		// Captains are allowed to remove roster invitations to their players
 		$this->assertGetAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => $invitee->id, 'team' => $team->id],
@@ -3093,14 +3093,14 @@ class TeamsControllerTest extends ControllerTestCase {
 		$invitee = $team->people[1];
 
 		// Cannot decline invites after the roster deadline!
-		FrozenDate::setTestNow($team->division->rosterDeadline()->addDay());
+		FrozenDate::setTestNow($team->division->rosterDeadline()->addDays(1));
 
 		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => $invitee->id, 'team' => $team->id],
 			$invitee->id, ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
 			'The roster deadline for this division has already passed.');
 
 		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDays(1));
 
 		$this->assertGetAjaxAsAccessOk(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => $invitee->id, 'team' => $team->id],
 			$invitee->id);
@@ -3123,7 +3123,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$invitee = $team->people[1];
 
 		// Make sure that we're before the roster deadline
-		FrozenDate::setTestNow($team->division->rosterDeadline()->subDay());
+		FrozenDate::setTestNow($team->division->rosterDeadline()->subDays(1));
 
 		/** @var TeamsPerson $roster */
 		$roster = TableRegistry::getTableLocator()->get('TeamsPeople')->find()->where(['person_id' => $invitee->id, 'team_id' => $team->id])->firstOrFail();

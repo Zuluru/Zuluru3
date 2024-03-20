@@ -62,7 +62,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'affiliate' => $affiliates[0],
 			'coordinator' => $volunteer,
 			// Make sure that we're after the game date
-			'game_date' => FrozenDate::now()->subDay(),
+			'game_date' => FrozenDate::now()->subDays(1),
 			'home_score' => 17,
 			'home_captain' => true,
 			'home_player' => $player,
@@ -362,7 +362,7 @@ class GamesControllerTest extends ControllerTestCase {
 		$game = $this->loadFixtureScenario(SingleGameScenario::class, [
 			'affiliate' => $affiliates[0],
 			// Make sure that the game date is in the future
-			'game_date' => FrozenDate::now()->addDay(),
+			'game_date' => FrozenDate::now()->addDays(1),
 		]);
 
 		// Can get the ical feed for any game in the future
@@ -2304,12 +2304,12 @@ class GamesControllerTest extends ControllerTestCase {
 		$url = ['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $game->home_team_id];
 
 		// Scores can only be submitted after the game, so we need to set "today" for this test to be reliable
-		FrozenTime::setTestNow($game->game_slot->game_date->subDay());
+		FrozenTime::setTestNow($game->game_slot->game_date->subDays(1));
 		$this->assertGetAsAccessRedirect($url,
 			$captain->id, ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
 			'That game has not yet occurred!');
 
-		FrozenTime::setTestNow($game->game_slot->game_date->addDay());
+		FrozenTime::setTestNow($game->game_slot->game_date->addDays(1));
 		$this->assertGetAsAccessOk($url, $captain->id);
 
 		$this->enableCsrfToken();
@@ -2393,11 +2393,11 @@ class GamesControllerTest extends ControllerTestCase {
 		$url = ['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $game->home_team_id];
 
 		// Scores can only be submitted after the game, so we need to set "today" for this test to be reliable
-		FrozenTime::setTestNow($game->game_slot->game_date->subDay());
+		FrozenTime::setTestNow($game->game_slot->game_date->subDays(1));
 		$this->assertGetAsAccessRedirect($url,
 			[$admin->id, $captain->id], ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
 			'That game has not yet occurred!');
-		FrozenTime::setTestNow($game->game_slot->game_date->addDay());
+		FrozenTime::setTestNow($game->game_slot->game_date->addDays(1));
 		$this->assertGetAsAccessOk($url, $captain->id);
 
 		$this->enableCsrfToken();
@@ -2494,7 +2494,7 @@ class GamesControllerTest extends ControllerTestCase {
 		$url = ['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $home->id];
 
 		// Scores can only be submitted after the game, so we need to set "today" for this test to be reliable
-		FrozenTime::setTestNow($game->game_slot->game_date->addDay());
+		FrozenTime::setTestNow($game->game_slot->game_date->addDays(1));
 		$this->assertGetAsAccessOk($url, $captain->id);
 
 		$this->enableCsrfToken();
@@ -2585,7 +2585,7 @@ class GamesControllerTest extends ControllerTestCase {
 		$url = ['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $home->id];
 
 		// Scores can only be submitted after the game, so we need to set "today" for this test to be reliable
-		FrozenTime::setTestNow($game->game_slot->game_date->addDay());
+		FrozenTime::setTestNow($game->game_slot->game_date->addDays(1));
 		$this->assertGetAsAccessOk($url, $captain->id);
 
 		$this->enableCsrfToken();
@@ -2701,7 +2701,7 @@ class GamesControllerTest extends ControllerTestCase {
 		$url = ['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $home->id];
 
 		// Scores can only be submitted after the game, so we need to set "today" for this test to be reliable
-		FrozenTime::setTestNow($game->game_slot->game_date->addDay());
+		FrozenTime::setTestNow($game->game_slot->game_date->addDays(1));
 		$this->assertGetAsAccessOk($url, $captain->id);
 
 		$this->enableCsrfToken();
@@ -2779,7 +2779,7 @@ class GamesControllerTest extends ControllerTestCase {
 		$url = ['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $game->home_team_id];
 
 		// Scores can only be submitted after the game, so we need to set "today" for this test to be reliable
-		FrozenTime::setTestNow($game->game_slot->game_date->addDay());
+		FrozenTime::setTestNow($game->game_slot->game_date->addDays(1));
 
 		// Others are not allowed to submit scores
 		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $game->home_team_id], $admin->id);
@@ -2809,7 +2809,7 @@ class GamesControllerTest extends ControllerTestCase {
 		LeaguesStatTypeFactory::make(['league_id' => $game->division->league_id, 'stat_type_id' => STAT_TYPE_ID_ULTIMATE_GOALS])->persist();
 
 		// Make sure that we're after the game date
-		FrozenDate::setTestNow($game->game_slot->game_date->addDay());
+		FrozenDate::setTestNow($game->game_slot->game_date->addDays(1));
 
 		// Admins are allowed to submit stats
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->home_team_id], $admin->id);
@@ -2837,7 +2837,7 @@ class GamesControllerTest extends ControllerTestCase {
 		LeaguesStatTypeFactory::make(['league_id' => $game->division->league_id, 'stat_type_id' => STAT_TYPE_ID_ULTIMATE_GOALS])->persist();
 
 		// Make sure that we're after the game date
-		FrozenDate::setTestNow($game->game_slot->game_date->addDay());
+		FrozenDate::setTestNow($game->game_slot->game_date->addDays(1));
 
 		// Managers are allowed to submit stats
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->home_team_id], $manager->id);
@@ -2866,7 +2866,7 @@ class GamesControllerTest extends ControllerTestCase {
 		LeaguesStatTypeFactory::make(['league_id' => $game->division->league_id, 'stat_type_id' => STAT_TYPE_ID_ULTIMATE_GOALS])->persist();
 
 		// Make sure that we're after the game date
-		FrozenDate::setTestNow($game->game_slot->game_date->addDay());
+		FrozenDate::setTestNow($game->game_slot->game_date->addDays(1));
 
 		// Coordinators are allowed to submit stats
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->home_team_id], $volunteer->id);
@@ -2895,7 +2895,7 @@ class GamesControllerTest extends ControllerTestCase {
 		LeaguesStatTypeFactory::make(['league_id' => $game->division->league_id, 'stat_type_id' => STAT_TYPE_ID_ULTIMATE_GOALS])->persist();
 
 		// Make sure that we're after the game date
-		FrozenDate::setTestNow($game->game_slot->game_date->addDay());
+		FrozenDate::setTestNow($game->game_slot->game_date->addDays(1));
 
 		// Captains are allowed to submit stats
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->home_team_id], $game->home_team->people[0]->id);
@@ -2923,7 +2923,7 @@ class GamesControllerTest extends ControllerTestCase {
 		LeaguesStatTypeFactory::make(['league_id' => $game->division->league_id, 'stat_type_id' => STAT_TYPE_ID_ULTIMATE_GOALS])->persist();
 
 		// Make sure that we're after the game date
-		FrozenDate::setTestNow($game->game_slot->game_date->addDay());
+		FrozenDate::setTestNow($game->game_slot->game_date->addDays(1));
 
 		// Others are not allowed to submit stats
 		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->home_team_id], $player->id);
@@ -2951,7 +2951,7 @@ class GamesControllerTest extends ControllerTestCase {
 		LeaguesStatTypeFactory::make(['league_id' => $game->division->league_id, 'stat_type_id' => STAT_TYPE_ID_ULTIMATE_GOALS])->persist();
 
 		// Make sure that we're after the game date
-		FrozenDate::setTestNow($game->game_slot->game_date->addDay());
+		FrozenDate::setTestNow($game->game_slot->game_date->addDays(1));
 
 		// Redirect when there are no stats yet
 		$this->assertGetAsAccessRedirect(['controller' => 'Games', 'action' => 'stats', 'game' => $game->id],
@@ -2985,7 +2985,7 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 
 		// Make sure that we're before the game date
-		FrozenDate::setTestNow($game->game_slot->game_date->subDay());
+		FrozenDate::setTestNow($game->game_slot->game_date->subDays(1));
 
 		// Anyone logged in is allowed to see future games
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'future', '_ext' => 'json'], $admin->id);
@@ -3015,7 +3015,7 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 
 		// Make sure that we're after the game date
-		FrozenDate::setTestNow($game->game_slot->game_date->addDay());
+		FrozenDate::setTestNow($game->game_slot->game_date->addDays(1));
 
 		// Anyone is allowed to see recent results
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'results', '_ext' => 'json'], $admin->id);

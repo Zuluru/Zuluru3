@@ -34,7 +34,7 @@ endif;
 if (count($affiliates) > 1):
 ?>
 		<dt><?= __('Affiliate') ?></dt>
-		<dd><?= $this->Html->link($league->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', 'affiliate' => $league->affiliate->id]) ?></dd>
+		<dd><?= $this->Html->link($league->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $league->affiliate->id]]) ?></dd>
 <?php
 endif;
 

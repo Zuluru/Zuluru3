@@ -27,7 +27,7 @@ class LeagueFactory extends BaseFactory
 		$this->setDefaultData(function(Generator $faker) {
 			$seasons = ['Spring', 'Summer', 'Fall', 'Winter'];
 			return [
-				'name' => $faker->word,
+				'name' => $faker->word(),
 				'sport' => 'ultimate',
 				'season' => $faker->randomElement($seasons),
 				'open' => (new FrozenDate('first Monday of June')),

@@ -46,7 +46,7 @@ if (Configure::read('feature.urls')) {
 echo $this->Html->tag('li', $this->Html->link(__('List Franchises'), ['action' => 'index']));
 if (!$franchise->isNew()) {
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-		['action' => 'delete', 'franchise' => $franchise->id],
+		['action' => 'delete', '?' => ['franchise' => $franchise->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Franchise')],
 		['confirm' => __('Are you sure you want to delete this franchise?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',

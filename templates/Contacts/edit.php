@@ -42,7 +42,7 @@ if ($contact->isNew()) {
 echo $this->Html->tag('li', $this->Html->link(__('List Contacts'), ['action' => 'index']));
 if (!$contact->isNew()) {
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-		['action' => 'delete', 'contact' => $contact->id],
+		['action' => 'delete', '?' => ['contact' => $contact->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Contact')],
 		['confirm' => __('Are you sure you want to delete this contact?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',

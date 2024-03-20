@@ -30,10 +30,10 @@ class WaiverTest extends TestCase {
 		$now = FrozenDate::now();
 
 		// Signing just within the year
-		$this->assertTrue($waiver->canSign($now->addYear()));
+		$this->assertTrue($waiver->canSign($now->addYears(1)));
 
 		// Signing just outside the year
-		$this->assertFalse($waiver->canSign($now->addYear()->addDay()));
+		$this->assertFalse($waiver->canSign($now->addYears(1)->addDays(1)));
 	}
 
 	/**
@@ -53,7 +53,7 @@ class WaiverTest extends TestCase {
 		$this->assertTrue($waiver->canSign($now->addDays(5)));
 
 		// Signing before start date
-		$this->assertFalse($waiver->canSign($now->subDay()));
+		$this->assertFalse($waiver->canSign($now->subDays(1)));
 
 		// Signing after end date but we're allowed to
 		$this->assertTrue($waiver->canSign($now->addDays(6)));
@@ -84,13 +84,13 @@ class WaiverTest extends TestCase {
 		$now = FrozenDate::now();
 
 		$apr1 = new FrozenDate('Apr 1');
-		$mar31 = (new FrozenDate('Mar 31'))->addYear();
+		$mar31 = (new FrozenDate('Mar 31'))->addYears(1);
 
 		// Annual waivers are good for the entire year surrounding the date
 		$this->assertEquals([$now->startOfYear(), $now->endOfYear()], $waiver->validRange());
-		$this->assertEquals([$now->startOfYear()->addYear(), $now->endOfYear()->addYear()], $waiver->validRange($now->addYear()));
+		$this->assertEquals([$now->startOfYear()->addYears(1), $now->endOfYear()->addYears(1)], $waiver->validRange($now->addYears(1)));
 		$this->assertEquals([$apr1, $mar31], $waiver_april->validRange());
-		$this->assertEquals([$apr1->addYear(), $mar31->addYear()], $waiver_april->validRange($now->addYear()));
+		$this->assertEquals([$apr1->addYears(1), $mar31->addYears(1)], $waiver_april->validRange($now->addYears(1)));
 	}
 
 	/**

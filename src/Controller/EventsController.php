@@ -36,7 +36,7 @@ class EventsController extends AppController {
 	}
 
 	// TODO: Eliminate this if we can find a way around black-holing caused by Ajax field adds
-	public function beforeFilter(\Cake\Event\Event $event) {
+	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
 		if (isset($this->Security)) {
 			$this->Security->setConfig('unlockedActions', ['add', 'edit']);
@@ -46,7 +46,7 @@ class EventsController extends AppController {
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index(?string $slug = null) {
 		$conditions = [
@@ -126,7 +126,7 @@ class EventsController extends AppController {
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function admin() {
 		$this->Authorization->authorize($this);
@@ -297,7 +297,7 @@ class EventsController extends AppController {
 	private function populateLocations(array $events) {
 		foreach ($events as $event) {
 			if ($event->division) {
-				$locations = Cache::remember("division/{$event->division_id}/locations", function() use ($event) {
+				$locations = Cache::remember("division_{$event->division_id}_locations", function() use ($event) {
 					$availability_table = TableRegistry::getTableLocator()->get('DivisionsGameslots');
 					$facilities = $availability_table->find()
 						->contain(['GameSlots' => ['Fields' => ['Facilities']]])
@@ -317,7 +317,7 @@ class EventsController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$this->Events->Registrations->expireReservations();
@@ -404,11 +404,11 @@ class EventsController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
 		$this->Authorization->authorize($this);
-		$event = $this->Events->newEntity();
+		$event = $this->Events->newEmptyEntity();
 
 		if ($this->getRequest()->is('post')) {
 			// Validation requires this information
@@ -474,7 +474,7 @@ class EventsController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('event');
@@ -549,14 +549,14 @@ class EventsController extends AppController {
 		$this->Authorization->authorize($this);
 
 		$this->getRequest()->allowMethod('ajax');
-		$event = $this->Events->newEntity();
+		$event = $this->Events->newEmptyEntity();
 		$this->set(compact('event'));
 	}
 
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -680,7 +680,7 @@ class EventsController extends AppController {
 	/**
 	 * Refund method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function refund() {
 		$this->paginate['order'] = ['Registrations.payment' => 'DESC', 'Registrations.created' => 'DESC'];
@@ -715,7 +715,7 @@ class EventsController extends AppController {
 		$this->Configuration->loadAffiliate($event->affiliate_id);
 		$event->prices = collection($event->prices)->indexBy('id')->toArray();
 
-		$refund = $this->Events->Registrations->Payments->newEntity();
+		$refund = $this->Events->Registrations->Payments->newEmptyEntity();
 
 		if ($this->getRequest()->is('post')) {
 			$data = $this->getRequest()->getData();

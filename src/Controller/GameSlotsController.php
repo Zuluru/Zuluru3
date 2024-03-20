@@ -16,7 +16,7 @@ use Cake\ORM\TableRegistry;
 class GameSlotsController extends AppController {
 
 	// TODO: Eliminate this if we can find a way around black-holing caused by Ajax field adds
-	public function beforeFilter(\Cake\Event\Event $event) {
+	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
 		if (isset($this->Security)) {
 			$this->Security->setConfig('unlockedActions', ['add']);
@@ -26,7 +26,7 @@ class GameSlotsController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('slot');
@@ -61,7 +61,7 @@ class GameSlotsController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
 		$field = $this->getRequest()->getQuery('field');
@@ -76,7 +76,7 @@ class GameSlotsController extends AppController {
 		}
 
 		// The entity should allow the extra fields that are used for bulk creation
-		$game_slot = $this->GameSlots->newEntity();
+		$game_slot = $this->GameSlots->newEmptyEntity();
 		$game_slot->setAccess(['sport', 'length', 'buffer', 'weeks', 'fields', 'facilities', 'game_slots'], true);
 
 		if ($field) {
@@ -187,7 +187,7 @@ class GameSlotsController extends AppController {
 					} else {
 						$skipped[$key] = $holidays[$key];
 					}
-					$date = $date->addWeek();
+					$date = $date->addWeeks(1);
 				}
 
 				$this->set(compact('times', 'weeks', 'skipped'));
@@ -286,7 +286,7 @@ class GameSlotsController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('slot');
@@ -343,7 +343,7 @@ class GameSlotsController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -405,7 +405,7 @@ class GameSlotsController extends AppController {
 			$this->Flash->info(__('Games in this slot have already been finalized.'));
 			return $this->redirect('/');
 		}
-		if ($game_slot->end_time->subHour()->isFuture()) {
+		if ($game_slot->end_time->subHours(1)->isFuture()) {
 			$this->Flash->info(__('That game has not yet occurred!'));
 			return $this->redirect('/');
 		}

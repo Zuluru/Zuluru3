@@ -26,7 +26,7 @@ class UploadsTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('uploads');
@@ -81,7 +81,7 @@ class UploadsTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
@@ -145,7 +145,7 @@ class UploadsTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->existsIn(['person_id'], 'People'));
 		$rules->add($rules->existsIn(['type_id'], 'UploadTypes'));
 
@@ -175,7 +175,7 @@ class UploadsTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the save method
 	 * @return void
 	 */
-	public function afterSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function afterSave(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		UserCache::getInstance()->clear('Documents', $entity->person_id);
 	}
 

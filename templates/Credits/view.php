@@ -25,7 +25,7 @@ if ($credit->payment_id):
 		<dt><?= __('Registration') ?></dt>
 		<dd><?php
 			$invnum = sprintf(Configure::read('registration.order_id_format'), $credit->payment->registration_id);
-			echo $this->Html->link($invnum, ['controller' => 'Registrations', 'action' => 'view', 'registration' => $credit->payment->registration_id]);
+			echo $this->Html->link($invnum, ['controller' => 'Registrations', 'action' => 'view', '?' => ['registration' => $credit->payment->registration_id]]);
 		?></dd>
 <?php
 endif;
@@ -43,7 +43,7 @@ echo $this->Html->tag('li', $this->Html->iconLink('view_32.png',
 	['alt' => __('List'), 'title' => __('List Credits')]));
 if ($this->Authorize->can('edit', $credit)) {
 	echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
-		['action' => 'edit', 'credit' => $credit->id],
+		['action' => 'edit', '?' => ['credit' => $credit->id]],
 		['alt' => __('Edit'), 'title' => __('Edit Credit')]));
 }
 if ($this->Authorize->can('delete', $credit)) {
@@ -52,7 +52,7 @@ if ($this->Authorize->can('delete', $credit)) {
 		$confirm .= "\n\n" . __('Doing so will also delete the related refund, but will NOT change the payment status of the registration.');
 	}
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-		['action' => 'delete', 'credit' => $credit->id],
+		['action' => 'delete', '?' => ['credit' => $credit->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Credit')],
 		['confirm' => $confirm]));
 }

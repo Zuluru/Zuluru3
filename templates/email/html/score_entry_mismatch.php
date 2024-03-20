@@ -13,6 +13,6 @@ use Cake\Routing\Router;
 	$game->division->league->name
 ) . ' ' .
 __('You can edit the game {0}.',
-	$this->Html->link(__('here'), Router::url(['controller' => 'Games', 'action' => 'edit', 'game' => $game->id], true))
+	$this->Html->link(__('here'), Router::url(['controller' => 'Games', 'action' => 'edit', '?' => ['game' => $game->id]], true))
 ) ?></p>
 <p><?= __('Alternately, contact the coaches or captains, and whoever made a mistake with their entry can edit it themselves.') ?></p>

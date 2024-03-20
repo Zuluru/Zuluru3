@@ -2,6 +2,8 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Questionnaire[] $questionnaires
+ * @var int[] $affiliates
+ * @var bool $active
  */
 
 $this->Breadcrumbs->add(__('Questionnaires'));
@@ -40,19 +42,19 @@ foreach ($questionnaires as $questionnaire):
 					<td><?= h($questionnaire->name) ?></td>
 					<td class="actions"><?php
 						echo $this->Html->iconLink('view_24.png',
-							['action' => 'view', 'questionnaire' => $questionnaire->id],
+							['action' => 'view', '?' => ['questionnaire' => $questionnaire->id]],
 							['alt' => __('Preview'), 'title' => __('Preview')]);
 						echo $this->Html->iconLink('edit_24.png',
-							['action' => 'edit', 'questionnaire' => $questionnaire->id],
+							['action' => 'edit', '?' => ['questionnaire' => $questionnaire->id]],
 							['alt' => __('Edit'), 'title' => __('Edit')]);
 						echo $this->Form->iconPostLink('delete_24.png',
-							['action' => 'delete', 'questionnaire' => $questionnaire->id],
+							['action' => 'delete', '?' => ['questionnaire' => $questionnaire->id]],
 							['alt' => __('Delete'), 'title' => __('Delete')],
 							['confirm' => __('Are you sure you want to delete this questionnaire?')]);
 						if ($questionnaire->active) {
-							echo $this->Jquery->ajaxLink(__('Deactivate'), ['url' => ['action' => 'deactivate', 'questionnaire' => $questionnaire->id]]);
+							echo $this->Jquery->ajaxLink(__('Deactivate'), ['url' => ['action' => 'deactivate', '?' => ['questionnaire' => $questionnaire->id]]]);
 						} else {
-							echo $this->Jquery->ajaxLink(__('Activate'), ['url' => ['action' => 'activate', 'questionnaire' => $questionnaire->id]]);
+							echo $this->Jquery->ajaxLink(__('Activate'), ['url' => ['action' => 'activate', '?' => ['questionnaire' => $questionnaire->id]]]);
 						}
 					?></td>
 				</tr>

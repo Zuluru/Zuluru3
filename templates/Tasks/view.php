@@ -15,7 +15,7 @@ $this->Breadcrumbs->add(__('View'));
 	<h2><?= h($task->name) ?></h2>
 	<dl class="dl-horizontal">
 		<dt><?= __('Category') ?></dt>
-		<dd><?= $this->Html->link($task->category->name, ['controller' => 'Categories', 'action' => 'view', 'category' => $task->category->id]) ?></dd>
+		<dd><?= $this->Html->link($task->category->name, ['controller' => 'Categories', 'action' => 'view', '?' => ['category' => $task->category->id]]) ?></dd>
 		<dt><?= __('Description') ?></dt>
 		<dd><?= $task->description ?></dd>
 <?php
@@ -43,14 +43,14 @@ echo $this->Html->tag('li', $this->Html->iconLink('view_32.png',
 	['alt' => __('List'), 'title' => __('List Tasks')]));
 if ($this->Authorize->can('edit', $task)) {
 	echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
-		['action' => 'edit', 'task' => $task->id],
+		['action' => 'edit', '?' => ['task' => $task->id]],
 		['alt' => __('Edit'), 'title' => __('Edit Task')]));
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-		['action' => 'delete', 'task' => $task->id],
+		['action' => 'delete', '?' => ['task' => $task->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Task')],
 		['confirm' => __('Are you sure you want to delete this task?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('schedule_add_32.png',
-		['controller' => 'Task_slots', 'action' => 'add', 'task' => $task->id],
+		['controller' => 'Task_slots', 'action' => 'add', '?' => ['task' => $task->id]],
 		['alt' => __('Add Slots'), 'title' => __('Add Slots')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
 		['action' => 'add'],

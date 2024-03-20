@@ -24,7 +24,7 @@ echo $this->form->create(null, ['align' => 'horizontal']);
 $now = FrozenDate::now();
 $start = $now->startOfYear();
 if ($now->month <= 2) {
-	$start = $start->subYear();
+	$start = $start->subYears(1);
 }
 echo $this->Form->control('start_date', [
 	'type' => 'date',

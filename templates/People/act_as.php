@@ -17,7 +17,7 @@ echo $this->Html->para(null, __('Switch to:'));
 <ul>
 <?php
 foreach ($opts as $id => $name) {
-	echo $this->Html->tag('li', $this->Html->link($name, ['controller' => 'People', 'action' => 'act_as', 'person' => $id]));
+	echo $this->Html->tag('li', $this->Html->link($name, ['controller' => 'People', 'action' => 'act_as', '?' => ['person' => $id]]));
 }
 ?>
 </ul>

@@ -68,7 +68,7 @@ class PeopleController extends AppController {
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$this->Authorization->authorize($this);
@@ -298,10 +298,10 @@ class PeopleController extends AppController {
 		// TODO: Allow for pulling demographics from past years
 		$reportDate = new FrozenDate('Aug 31');
 		if (FrozenDate::now()->month < 3) {
-			$reportDate = $reportDate->subYear();
+			$reportDate = $reportDate->subYears(1);
 		}
-		$end = $reportDate->addDay(); // Registrations have times, we'll find anything less than this to include the whole report date day.
-		$start = $end->subYear();
+		$end = $reportDate->addDays(1); // Registrations have times, we'll find anything less than this to include the whole report date day.
+		$start = $end->subYears(1);
 
 		foreach (Configure::read('options.sport') as $sport) {
 			$buckets[$sport] = Configure::read("sports.$sport.demographic_ranges");
@@ -480,7 +480,7 @@ class PeopleController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$user_id = $this->getRequest()->getQuery('user');
@@ -592,7 +592,7 @@ class PeopleController extends AppController {
 		$person->updateHidden($identity);
 		$photo_url = $this->Authorization->can($person, 'photo') ? $person->photoUrl($photo) : null;
 		$this->set(compact('person', 'photo', 'photo_url'));
-		$this->set('_serialize', ['person', 'photo_url']);
+		$this->viewBuilder()->setOption('serialize', ['person', 'photo_url']);
 	}
 
 	public function tooltip() {
@@ -654,7 +654,7 @@ class PeopleController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('person') ?: $this->UserCache->currentId();
@@ -779,7 +779,7 @@ class PeopleController extends AppController {
 	/**
 	 * add_account method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add_account() {
 		$id = $this->getRequest()->getQuery('person');
@@ -834,7 +834,7 @@ class PeopleController extends AppController {
 	/**
 	 * Deactivate profile method
 	 *
-	 * @return void|\Cake\Network\Response Redirects
+	 * @return void|\Cake\Http\Response Redirects
 	 */
 	public function deactivate() {
 		$id = $this->getRequest()->getQuery('person') ?: $this->UserCache->currentId();
@@ -879,7 +879,7 @@ class PeopleController extends AppController {
 	/**
 	 * Reactivate profile method
 	 *
-	 * @return void|\Cake\Network\Response Redirects
+	 * @return void|\Cake\Http\Response Redirects
 	 */
 	public function reactivate() {
 		$id = $this->getRequest()->getQuery('person') ?: $this->UserCache->currentId();
@@ -923,7 +923,7 @@ class PeopleController extends AppController {
 			$this->Flash->success(__("Profile details have been confirmed, thank you.\nYou will be reminded about this again periodically."));
 		} else {
 			$this->Flash->info(__("Failed to update profile details.\nYou will likely be prompted about this again very soon.\n\nIf problems persist, contact your system administrator."));
-			$this->log($person->getErrors());
+			$this->log(print_r($person->getErrors(), true));
 			return $this->redirect('/');
 		}
 	}
@@ -956,7 +956,7 @@ class PeopleController extends AppController {
 				$this->Flash->info(__('Invalid person.'));
 				return $this->redirect('/');
 			}
-			$note = $this->People->Notes->newEntity();
+			$note = $this->People->Notes->newEmptyEntity();
 			$note->person_id = $person->id;
 		}
 
@@ -1080,7 +1080,7 @@ class PeopleController extends AppController {
 	public function add_relative() {
 		$this->Authorization->authorize($this);
 		$this->_loadAffiliateOptions();
-		$person = $this->People->newEntity();
+		$person = $this->People->newEmptyEntity();
 
 		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			$data = $this->getRequest()->getData();
@@ -1112,7 +1112,7 @@ class PeopleController extends AppController {
 				return true;
 			})) {
 				if ($data['action'] == 'continue') {
-					$person = $this->People->newEntity();
+					$person = $this->People->newEmptyEntity();
 				} else {
 					return $this->redirect('/');
 				}
@@ -1446,7 +1446,7 @@ class PeopleController extends AppController {
 		if ($upload) {
 			$old_filename = $upload->filename;
 		} else {
-			$upload = $this->People->Uploads->newEntity();
+			$upload = $this->People->Uploads->newEmptyEntity();
 		}
 
 		$this->set(compact('person', 'upload'));
@@ -1644,7 +1644,7 @@ class PeopleController extends AppController {
 			$types = current($types);
 		}
 
-		$upload = $this->People->Uploads->newEntity();
+		$upload = $this->People->Uploads->newEmptyEntity();
 
 		if ($this->getRequest()->is('post')) {
 			// Add some configuration that the upload behaviour will use
@@ -2139,7 +2139,7 @@ class PeopleController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);

@@ -66,7 +66,7 @@ foreach ($division->games as $game):
 			}
 			?></td>
 			<td><?= $this->Html->link(__('approve score'),
-					['controller' => 'Games', 'action' => 'edit', 'game' => $game->id, 'return' => AppController::_return()]) ?></td>
+					['controller' => 'Games', 'action' => 'edit', '?' => ['game' => $game->id, 'return' => AppController::_return()]]) ?></td>
 		</tr>
 		<tr>
 			<td><?= __('Home Score') ?>:</td>

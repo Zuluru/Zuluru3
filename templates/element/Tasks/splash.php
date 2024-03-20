@@ -21,7 +21,7 @@ if (!empty($tasks)):
 	foreach ($tasks as $task):
 ?>
 			<tr>
-				<td class="splash_item"><?= $this->Html->link($task->name, ['controller' => 'Tasks', 'action' => 'view', 'task' => $task->id]) ?></td>
+				<td class="splash_item"><?= $this->Html->link($task->name, ['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task->id]]) ?></td>
 				<td class="splash_item"><?= $this->Time->day($task->task_slot->task_date) . ', ' .
 					$this->Time->time($task->task_slot->task_start) . '-' .
 					$this->Time->time($task->task_slot->task_end)

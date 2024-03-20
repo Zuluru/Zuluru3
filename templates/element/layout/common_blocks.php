@@ -343,7 +343,7 @@ if (!$this->fetch('common_footer')):
 ?>
 <footer class="clearfix">
 <?php
-	echo $this->element('Layout/footer');
+	echo $this->element('layout/footer');
 	echo $this->fetch('powered_by');
 ?>
 </footer>

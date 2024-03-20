@@ -28,7 +28,7 @@ class FieldsController extends AppController {
 	/**
 	 * This is here to support the many links to this page that are out there.
 	 *
-	 * @return \Cake\Network\Response Redirects
+	 * @return \Cake\Http\Response Redirects
 	 */
 	public function index() {
 		return $this->redirect(['controller' => 'Facilities', 'action' => 'index'], Message::STATUS_MOVED_PERMANENTLY);
@@ -37,7 +37,7 @@ class FieldsController extends AppController {
 	/**
 	 * This is here to support the many links to this page that are out there.
 	 *
-	 * @return \Cake\Network\Response Redirects
+	 * @return \Cake\Http\Response Redirects
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('field');
@@ -54,7 +54,7 @@ class FieldsController extends AppController {
 	/**
 	 * Tooltip method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
 	 */
 	public function tooltip() {
 		$this->getRequest()->allowMethod('ajax');
@@ -81,7 +81,7 @@ class FieldsController extends AppController {
 	/**
 	 * Open field method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
 	 */
 	public function open() {
 		$this->getRequest()->allowMethod('ajax');
@@ -110,7 +110,7 @@ class FieldsController extends AppController {
 	/**
 	 * Close field method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
 	 */
 	public function close() {
 		$this->getRequest()->allowMethod('ajax');
@@ -139,7 +139,7 @@ class FieldsController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return \Cake\Network\Response Redirects to index.
+	 * @return \Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -181,7 +181,7 @@ class FieldsController extends AppController {
 	/**
 	 * Bookings method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
 	 */
 	public function bookings() {
 		$id = $this->getRequest()->getQuery('field');

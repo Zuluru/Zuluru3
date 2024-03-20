@@ -15,7 +15,7 @@ class LockComponent extends Component {
 
 	private $lock_id = null;
 
-	public function shutdown(CakeEvent $cakeEvent) {
+	public function shutdown(\Cake\Event\EventInterface $cakeEvent) {
 		$this->unlock();
 	}
 

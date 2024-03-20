@@ -20,7 +20,7 @@ $this->Breadcrumbs->add(__('View'));
 if (count($affiliates) > 1):
 ?>
 		<dt><?= __('Affiliate') ?></dt>
-		<dd><?= $this->Html->link($franchise->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', 'affiliate' => $franchise->affiliate->id]) ?></dd>
+		<dd><?= $this->Html->link($franchise->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $franchise->affiliate->id]]) ?></dd>
 <?php
 endif;
 ?>
@@ -33,7 +33,7 @@ endif;
 				$owner .= '&nbsp;' .
 					$this->Html->tag('span',
 						$this->Form->iconPostLink('delete_24.png',
-							['controller' => 'Franchises', 'action' => 'remove_owner', 'franchise' => $franchise->id, 'person' => $person->id],
+							['controller' => 'Franchises', 'action' => 'remove_owner', '?' => ['franchise' => $franchise->id, 'person' => $person->id]],
 							['alt' => __('Remove'), 'title' => __('Remove')]),
 						['class' => 'actions']);
 			}
@@ -57,22 +57,22 @@ endif;
 <?php
 if ($this->Authorize->can('add_team', $franchise)) {
 	echo $this->Html->tag('li', $this->Html->iconLink('team_add_32.png',
-		['action' => 'add_team', 'franchise' => $franchise->id],
+		['action' => 'add_team', '?' => ['franchise' => $franchise->id]],
 		['alt' => __('Add Team'), 'title' => __('Add Team')]));
 }
 if ($this->Authorize->can('edit', $franchise)) {
 	echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
-		['action' => 'edit', 'franchise' => $franchise->id],
+		['action' => 'edit', '?' => ['franchise' => $franchise->id]],
 		['alt' => __('Edit'), 'title' => __('Edit Franchise')]));
 }
 if ($this->Authorize->can('add_owner', $franchise)) {
 	echo $this->Html->tag('li', $this->Html->iconLink('move_32.png',
-		['action' => 'add_owner', 'franchise' => $franchise->id],
+		['action' => 'add_owner', '?' => ['franchise' => $franchise->id]],
 		['alt' => __('Add an Owner'), 'title' => __('Add an Owner')]));
 }
 if ($this->Authorize->can('delete', $franchise)) {
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-		['action' => 'delete', 'franchise' => $franchise->id],
+		['action' => 'delete', '?' => ['franchise' => $franchise->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Franchise')],
 		['confirm' => __('Are you sure you want to delete this franchise?')]));
 }
@@ -110,7 +110,7 @@ if ($this->Identity->isLoggedIn()):
 					<td class="actions"><?php
 					if ($this->Authorize->can('remove_team', $franchise)) {
 							echo $this->Form->iconPostLink('delete_24.png',
-							['action' => 'remove_team', 'franchise' => $franchise->id, 'team' => $team->id],
+							['action' => 'remove_team', '?' => ['franchise' => $franchise->id, 'team' => $team->id]],
 							['alt' => __('Remove'), 'title' => __('Remove Team from this Franchise')],
 							['confirm' => __('Are you sure you want to remove this team?')]);
 					}

@@ -95,7 +95,7 @@ echo $this->Html->tag('li', $this->Jquery->ajaxLink($this->Html->iconImg('add_32
 echo $this->Html->tag('li', $this->Html->link(__('List Facilities'), ['action' => 'index']));
 if (!$facility->isNew()) {
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-		['action' => 'delete', 'facility' => $facility->id],
+		['action' => 'delete', '?' => ['facility' => $facility->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Facility')],
 		['confirm' => __('Are you sure you want to delete this facility?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',

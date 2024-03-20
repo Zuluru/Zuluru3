@@ -59,7 +59,7 @@ foreach ($<%= $pluralVar %> as $<%= $singularVar %>):
 						if ($field === $details['foreignKey']) {
 							$isKey = true;
 %>
-				<td><?= $<%= $singularVar %>->has('<%= $details['property'] %>') ? $this->Html->link($<%= $singularVar %>-><%= $details['property'] %>-><%= $details['displayField'] %>, ['controller' => '<%= $details['controller'] %>', 'action' => 'view', $<%= $singularVar %>-><%= $details['property'] %>-><%= $details['primaryKey'][0] %>]) : '' ?></td>
+				<td><?= $<%= $singularVar %>->has('<%= $details['property'] %>') ? $this->Html->link($<%= $singularVar %>-><%= $details['property'] %>-><%= $details['displayField'] %>, ['controller' => '<%= $details['controller'] %>', 'action' => 'view', '?' => [$<%= $singularVar %>-><%= $details['property'] %>-><%= $details['primaryKey'][0] %>]]) : '' ?></td>
 <%
 							break;
 						}
@@ -100,16 +100,16 @@ foreach ($<%= $pluralVar %> as $<%= $singularVar %>):
 %>
 				<td class="actions"><?php
 				echo $this->Html->iconLink('view_24.png',
-					['action' => 'view', '<%= $singularVar %>' => <%= $pk %>],
+					['action' => 'view', '?' => ['<%= $singularVar %>' => <%= $pk %>]],
 					['alt' => __('View'), 'title' => __('View')]);
 				if ($this->Authorize->can('edit', $<%= $singularVar %>)) {
 					echo $this->Html->iconLink('edit_24.png',
-						['action' => 'edit', '<%= $singularVar %>' => <%= $pk %>],
+						['action' => 'edit', '?' => ['<%= $singularVar %>' => <%= $pk %>]],
 						['alt' => __('Edit'), 'title' => __('Edit')]);
 				}
 				if ($this->Authorize->can('delete', $<%= $singularVar %>)) {
 					echo $this->Form->iconPostLink('delete_24.png',
-						['action' => 'delete', '<%= $singularVar %>' => <%= $pk %>],
+						['action' => 'delete', '?' => ['<%= $singularVar %>' => <%= $pk %>]],
 						['alt' => __('Delete'), 'title' => __('Delete')],
 						['confirm' => __('Are you sure you want to delete this <%= strtolower($singularHumanName) %>?')]);
 				}

@@ -21,7 +21,7 @@ if (!empty($events)):
 	foreach ($events as $related):
 ?>
 				<tr>
-					<td><?= $this->Html->link($related->name, ['controller' => 'Events', 'action' => 'view', 'event' => $related->id]) ?></td>
+					<td><?= $this->Html->link($related->name, ['controller' => 'Events', 'action' => 'view', '?' => ['event' => $related->id]]) ?></td>
 					<td><?= __($related->event_type->name) ?></td>
 				</tr>
 

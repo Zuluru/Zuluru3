@@ -67,7 +67,7 @@ foreach ($field->game_slots as $slot):
 	if ($this->Authorize->can('view', $slot)):
 ?>
 					<td rowspan="<?= $rows ?>"><?= $this->Html->link($this->Time->time($slot->game_start),
-						['controller' => 'GameSlots', 'action' => 'view', 'slot' => $slot->id]) ?></td>
+						['controller' => 'GameSlots', 'action' => 'view', '?' => ['slot' => $slot->id]]) ?></td>
 <?php
 	else:
 ?>
@@ -94,10 +94,10 @@ foreach ($field->game_slots as $slot):
 ?>
 					<td rowspan="<?= $rows ?>" class="actions"><?php
 						echo $this->Html->iconLink('edit_24.png',
-							['controller' => 'GameSlots', 'action' => 'edit', 'slot' => $slot->id, 'return' => AppController::_return()],
+							['controller' => 'GameSlots', 'action' => 'edit', '?' => ['slot' => $slot->id, 'return' => AppController::_return()]],
 							['alt' => __('Edit'), 'title' => __('Edit')]);
 						echo $this->Form->iconPostLink('delete_24.png',
-							['controller' => 'GameSlots', 'action' => 'delete', 'slot' => $slot->id, 'return' => AppController::_return()],
+							['controller' => 'GameSlots', 'action' => 'delete', '?' => ['slot' => $slot->id, 'return' => AppController::_return()]],
 							['alt' => __('Delete'), 'title' => __('Delete')],
 							['confirm' => __('Are you sure you want to delete this slot?')]);
 					?></td>

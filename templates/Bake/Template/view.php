@@ -55,7 +55,7 @@ foreach ($fields as $field):
 		$details = $associationFields[$field];
 %>
 		<dt><?= __('<%= Inflector::humanize($details['property']) %>') ?></dt>
-		<dd><?= $<%= $singularVar %>->has('<%= $details['property'] %>') ? $this->Html->link($<%= $singularVar %>-><%= $details['property'] %>-><%= $details['displayField'] %>, ['controller' => '<%= $details['controller'] %>', 'action' => 'view', '<%= $details['property'] %>' => $<%= $singularVar %>-><%= $details['property'] %>-><%= $details['primaryKey'][0] %>]) : '' ?></dd>
+		<dd><?= $<%= $singularVar %>->has('<%= $details['property'] %>') ? $this->Html->link($<%= $singularVar %>-><%= $details['property'] %>-><%= $details['displayField'] %>, ['controller' => '<%= $details['controller'] %>', 'action' => 'view', '?' => ['<%= $details['property'] %>' => $<%= $singularVar %>-><%= $details['property'] %>-><%= $details['primaryKey'][0] %>]]) : '' ?></dd>
 <% else : %>
 		<dt><?= __('<%= Inflector::humanize($field) %>') ?></dt>
 <% if (in_array($type, ['integer', 'biginteger', 'decimal', 'float'])): %>
@@ -86,12 +86,12 @@ echo $this->Html->tag('li', $this->Html->iconLink('view_32.png',
 	['alt' => __('List'), 'title' => __('List <%= $pluralHumanName %>')]));
 if ($this->Authorize->can('edit', $<%= $singularVar %>)) {
 	echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
-		['action' => 'edit', '<%= $singularVar %>' => <%= $pk %>],
+		['action' => 'edit', '?' => ['<%= $singularVar %>' => <%= $pk %>]],
 		['alt' => __('Edit'), 'title' => __('Edit <%= $singularHumanName %>')]));
 }
 if ($this->Authorize->can('delete', $<%= $singularVar %>)) {
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-		['action' => 'delete', '<%= $singularVar %>' => <%= $pk %>],
+		['action' => 'delete', '?' => ['<%= $singularVar %>' => <%= $pk %>]],
 		['alt' => __('Delete'), 'title' => __('Delete <%= $singularHumanName %>')],
 		['confirm' => __('Are you sure you want to delete this <%= strtolower($singularHumanName) %>?')]));
 }
@@ -136,16 +136,16 @@ if (!empty($<%= $singularVar %>-><%= $details['property'] %>)):
 				<%- $otherPk = "\${$otherSingularVar}->{$details['primaryKey'][0]}"; %>
 					<td class="actions"><?php
 					echo $this->Html->iconLink('view_24.png',
-						['controller' => '<%= $details['controller'] %>', 'action' => 'view', '<%= $otherSingularVar %>' => <%= $otherPk %>],
+						['controller' => '<%= $details['controller'] %>', 'action' => 'view', '?' => ['<%= $otherSingularVar %>' => <%= $otherPk %>]],
 						['alt' => __('View'), 'title' => __('View')]);
 					if ($this->Authorize->can('edit', $<%= $otherSingularVar %>)) {
 						echo $this->Html->iconLink('edit_24.png',
-							['controller' => '<%= $details['controller'] %>', 'action' => 'edit', '<%= $otherSingularVar %>' => <%= $otherPk %>, 'return' => AppController::_return()],
+							['controller' => '<%= $details['controller'] %>', 'action' => 'edit', '?' => ['<%= $otherSingularVar %>' => <%= $otherPk %>, 'return' => AppController::_return()]],
 							['alt' => __('Edit'), 'title' => __('Edit')]);
 					}
 					if ($this->Authorize->can('delete', $<%= $otherSingularVar %>)) {
 						echo $this->Form->iconPostLink('delete_24.png',
-							['controller' => '<%= $details['controller'] %>', 'action' => 'delete', '<%= $otherSingularVar %>' => <%= $otherPk %>, 'return' => AppController::_return()],
+							['controller' => '<%= $details['controller'] %>', 'action' => 'delete', '?' => ['<%= $otherSingularVar %>' => <%= $otherPk %>, 'return' => AppController::_return()]],
 							['alt' => __('Delete'), 'title' => __('Delete')],
 							['confirm' => __('Are you sure you want to delete this <%= strtolower($otherSingularVar) %>?')]);
 					}

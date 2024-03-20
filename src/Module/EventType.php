@@ -169,7 +169,7 @@ class EventType {
 		// Default payment status to change the unreserved registration to. This may be updated later by processWaitingList.
 		// TODOTESTING: Can this bit go away? Is the payment status set correctly everywhere that might call this?
 		if (empty($options['from_expire_reservations']) && empty($options['from_unregister_dependencies']) && $registration->payment != 'Cancelled' && $registration->payment != 'Unpaid' && $registration->payment != 'Reserved' && $registration->total_amount > 0) {
-			\Cake\Log\Log::write('error', $registration);
+			\Cake\Log\Log::write('error', (string)$registration);
 			throw new ForbiddenRedirectException('This registration is not marked as unpaid. There is an unresolved issue around this. Details have been logged to assist with correcting it.',
 				['controller' => 'Registrations', 'action' => 'view', 'registration' => $registration->id], 'error');
 		}

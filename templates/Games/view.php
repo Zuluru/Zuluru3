@@ -121,7 +121,7 @@ endif;
 if ($this->Authorize->can('ratings_table', $game_context)):
 ?>
 		<dt><?= __('Ratings Table') ?></dt>
-		<dd><?= $this->Html->link(__('Click to view'), ['action' => 'ratings_table', 'game' => $game->id]) ?></dd>
+		<dd><?= $this->Html->link(__('Click to view'), ['action' => 'ratings_table', '?' => ['game' => $game->id]]) ?></dd>
 <?php
 endif;
 ?>
@@ -132,30 +132,30 @@ $actions = [];
 
 if ($this->Authorize->can('attendance', $game_context) && $game_context->team_id) {
 	$actions[] = $this->Html->iconLink('attendance_24.png',
-		['action' => 'attendance', 'team' => $game_context->team_id, 'game' => $game->id],
+		['action' => 'attendance', '?' => ['team' => $game_context->team_id, 'game' => $game->id]],
 		['alt' => __('Attendance'), 'title' => __('View Game Attendance Report')]);
 }
 
 if ($this->Authorize->can('note', $game_context)) {
-	$actions[] = $this->Html->link(__('Add Note'), ['action' => 'note', 'game' => $game->id]);
+	$actions[] = $this->Html->link(__('Add Note'), ['action' => 'note', '?' => ['game' => $game->id]]);
 }
 
 if ($this->Authorize->can('edit', $game)) {
 	$actions[] = $this->Html->iconLink('edit_24.png',
-		['action' => 'edit', 'game' => $game->id],
+		['action' => 'edit', '?' => ['game' => $game->id]],
 		['alt' => __('Edit Game'), 'title' => __('Edit Game')]);
 }
 
 if ($this->Authorize->can('delete', $game)) {
 	$actions[] = $this->Form->iconPostLink('delete_24.png',
-		['action' => 'delete', 'game' => $game->id],
+		['action' => 'delete', '?' => ['game' => $game->id]],
 		['alt' => __('Delete Game'), 'title' => __('Delete Game')],
 		['confirm' => __('Are you sure you want to delete this game?')]);
 }
 
 if ($this->Authorize->can('stats', $game_context)) {
 	$actions[] = $this->Html->iconLink('stats_24.png',
-		['action' => 'stats', 'game' => $game->id],
+		['action' => 'stats', '?' => ['game' => $game->id]],
 		['alt' => __('Game Stats'), 'title' => __('Game Stats')]);
 }
 
@@ -439,7 +439,7 @@ if (!empty($game->score_details)):
 <?php
 	if ($this->Authorize->can('edit_boxscore', $game)) {
 		echo $this->Html->iconLink('edit_24.png',
-			['action' => 'edit_boxscore', 'game' => $game->id],
+			['action' => 'edit_boxscore', '?' => ['game' => $game->id]],
 			['alt' => __('Edit Box Score'), 'title' => __('Edit Box Score')]);
 	}
 ?>
@@ -481,7 +481,7 @@ if (!in_array($game->status, Configure::read('unplayed_status'))):
 				<tr>
 					<td><?= $this->element('People/block', ['person' => $allstar]) ?></td>
 					<td><?= $allstar->_joinData->team_id == $game->home_team_id ? $game->home_team->name : $game->away_team->name ?></td>
-					<td class="actions"><?= $this->Html->link(__('Delete'), ['controller' => 'Allstars', 'action' => 'delete', 'allstar' => $allstar->_joinData->id], ['confirm' => __('Are you sure you want to delete this allstar?')]) ?></td>
+					<td class="actions"><?= $this->Html->link(__('Delete'), ['controller' => 'Allstars', 'action' => 'delete', '?' => ['allstar' => $allstar->_joinData->id]], ['confirm' => __('Are you sure you want to delete this allstar?')]) ?></td>
 				</tr>
 
 <?php
@@ -562,9 +562,9 @@ if (!empty($game->notes)):
 					<td><?= __(Configure::read("visibility.{$note->visibility}")) ?></td>
 					<td class="actions"><?php
 					if ($this->Authorize->getIdentity()->isMine($note)) {
-						echo $this->Html->link(__('Edit'), ['action' => 'note', 'game' => $note->game_id, 'note' => $note->id]);
+						echo $this->Html->link(__('Edit'), ['action' => 'note', '?' => ['game' => $note->game_id, 'note' => $note->id]]);
 						echo $this->Form->iconPostLink('delete_24.png',
-							['action' => 'delete_note', 'note' => $note->id],
+							['action' => 'delete_note', '?' => ['note' => $note->id]],
 							['alt' => __('Delete'), 'title' => __('Delete Note')],
 							['confirm' => __('Are you sure you want to delete this note?')]);
 					}

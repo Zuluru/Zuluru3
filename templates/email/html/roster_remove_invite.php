@@ -13,6 +13,6 @@ use Cake\Routing\Router;
 <p><?= __('{0} has removed the invitation to join the roster of the {1} team {2}.',
 	$captain,
 	Configure::read('organization.name'),
-	$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], true))
+	$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]], true))
 ) ?></p>
 <?= $this->element('Email/html/footer');

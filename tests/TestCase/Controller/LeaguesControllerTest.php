@@ -47,7 +47,7 @@ class LeaguesControllerTest extends ControllerTestCase {
 			'affiliate' => $affiliates[1],
 		]);
 
-		$dates = ['open' => FrozenDate::now()->subYear()->subMonth(), 'close' => FrozenDate::now()->subYear()->addMonth(), 'is_open' => false];
+		$dates = ['open' => FrozenDate::now()->subYears(1)->subMonths(1), 'close' => FrozenDate::now()->subYears(1)->addMonths(1), 'is_open' => false];
 		$this->loadFixtureScenario(LeagueScenario::class, [
 			'affiliate' => $affiliates[0],
 			'league_details' => $dates,

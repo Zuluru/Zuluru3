@@ -20,7 +20,7 @@ trait DateTimeCombinator {
 	public function _getEndTime() {
 		$end = $this->_time('end');
 		if ($end < $this->start_time) {
-			return $end->addDay();
+			return $end->addDays(1);
 		}
 		return $end;
 	}

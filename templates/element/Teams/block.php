@@ -21,7 +21,7 @@ if (Configure::read('feature.team_logo') && !empty($team->logo) && (!isset($show
 	echo $this->Html->image($team->logo) . ' ';
 }
 echo $this->Html->link($team->name,
-	['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
+	['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]],
 	$options);
 if (Configure::read('feature.shirt_colour') && isset($team->shirt_colour) && (!isset($show_shirt) || $show_shirt)) {
 	echo ' ' . $this->element('shirt', ['colour' => $team->shirt_colour]);

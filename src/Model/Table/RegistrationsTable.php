@@ -39,7 +39,7 @@ class RegistrationsTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('registrations');
@@ -89,7 +89,7 @@ class RegistrationsTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
@@ -121,7 +121,7 @@ class RegistrationsTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->existsIn(['person_id'], 'People'));
 		$rules->add($rules->existsIn(['event_id'], 'Events'));
 		$rules->add($rules->existsIn(['price_id'], 'Prices'));
@@ -164,7 +164,7 @@ class RegistrationsTable extends AppTable {
 	 * @param mixed $operation The operation (e.g. create, delete) about to be run
 	 * @return void
 	 */
-	public function beforeRules(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options, $operation) {
+	public function beforeRules(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options, $operation) {
 		if (!$entity->has('price') || $entity->price_id != $entity->price->id) {
 			$entity->price = $this->Prices->get($entity->price_id);
 			$entity->setDirty('price', false);
@@ -183,7 +183,7 @@ class RegistrationsTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the save method
 	 * @return bool
 	 */
-	public function beforeSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function beforeSave(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		// For any registration where the price point selection has changed, calculate the total price.
 		if (!$entity->has('price') || $entity->price_id != $entity->price->id) {
 			$entity->price = $this->Prices->get($entity->price_id);
@@ -249,7 +249,7 @@ class RegistrationsTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the save method
 	 * @return void
 	 */
-	public function afterSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function afterSave(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		$this->postProcess($entity, $options, $entity->isNew() ? null : $entity->getOriginal('payment'), $entity->payment);
 	}
 
@@ -261,7 +261,7 @@ class RegistrationsTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the delete method
 	 * @return bool
 	 */
-	public function beforeDelete(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function beforeDelete(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		$options['event'] = $entity->event;
 		return $this->preProcess($entity, $options, $entity->payment, null);
 	}
@@ -274,7 +274,7 @@ class RegistrationsTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the delete method
 	 * @return void
 	 */
-	public function afterDelete(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function afterDelete(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		$options['event'] = $entity->event;
 		$this->postProcess($entity, $options, $entity->payment, null);
 	}

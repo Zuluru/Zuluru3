@@ -25,7 +25,7 @@ echo $this->Form->control('task_end');
 	<ul class="nav nav-pills">
 <?php
 echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-	['action' => 'delete', 'slot' => $task_slot->id],
+	['action' => 'delete', '?' => ['slot' => $task_slot->id]],
 	['alt' => __('Delete'), 'title' => __('Delete Task Slot')],
 	['confirm' => __('Are you sure you want to delete this task slot?')]));
 ?>

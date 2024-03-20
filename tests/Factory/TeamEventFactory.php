@@ -34,8 +34,8 @@ class TeamEventFactory extends BaseFactory
 				'start' => FrozenTime::createFromTime(19),
 				'end'=> FrozenTime::createFromTime(21),
 				'location_name' => $faker->words(3, true),
-				'location_street' => $faker->streetAddress,
-				'location_city' => $faker->city,
+				'location_street' => $faker->streetAddress(),
+				'location_city' => $faker->city(),
 				'location_province' => 'Ontario',
 			];
 		});

@@ -32,7 +32,7 @@ foreach ($items as $item):
 		$home_attendance = $this->Authorize->can('attendance', new \App\Authorization\ContextResource($item, ['home_team' => $item->home_team]));
 		$away_attendance = $this->Authorize->can('attendance', new \App\Authorization\ContextResource($item, ['away_team' => $item->away_team]));
 ?>
-				<td class="splash_item"><?= $this->Html->link($this->Time->dateTimeRange($item->game_slot), ['controller' => 'Games', 'action' => 'view', 'game' => $item->id]) ?></td>
+				<td class="splash_item"><?= $this->Html->link($this->Time->dateTimeRange($item->game_slot), ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $item->id]]) ?></td>
 				<td class="splash_item"><?php
 					$item->readDependencies();
 					if ($item->home_team_id === null) {
@@ -44,7 +44,7 @@ foreach ($items as $item):
 						}
 						if ($home_attendance && !$item->game_slot->game_date->isPast()) {
 							echo $this->Html->iconLink('attendance_24.png',
-								['controller' => 'Games', 'action' => 'attendance', 'team' => $item->home_team->id, 'game' => $item->id],
+								['controller' => 'Games', 'action' => 'attendance', '?' => ['team' => $item->home_team->id, 'game' => $item->id]],
 								['alt' => __('Attendance'), 'title' => __('View Game Attendance Report')]);
 						}
 					}
@@ -57,7 +57,7 @@ foreach ($items as $item):
 								__(' ({0})', __('away'));
 							if ($away_attendance && !$item->game_slot->game_date->isPast()) {
 								echo $this->Html->iconLink('attendance_24.png',
-									['controller' => 'Games', 'action' => 'attendance', 'team' => $item->away_team->id, 'game' => $item->id],
+									['controller' => 'Games', 'action' => 'attendance', '?' => ['team' => $item->away_team->id, 'game' => $item->id]],
 									['alt' => __('Attendance'), 'title' => __('View Game Attendance Report')]);
 							}
 						}
@@ -147,7 +147,7 @@ foreach ($items as $item):
 					$time = $this->Time->day($item->date) . ', ' .
 							$this->Time->time($item->start) . '-' .
 							$this->Time->time($item->end);
-					echo $this->Html->link($time, ['controller' => 'TeamEvents', 'action' => 'view', 'event' => $item->id]);
+					echo $this->Html->link($time, ['controller' => 'TeamEvents', 'action' => 'view', '?' => ['event' => $item->id]]);
 				?></td>
 				<td class="splash_item"><?php
 					echo $this->element('Teams/block', ['team' => $item->team, 'show_shirt' => false]) . ' ' .
@@ -210,10 +210,10 @@ foreach ($items as $item):
 					$time = $this->Time->day($item->task_date) . ', ' .
 							$this->Time->time($item->task_start) . '-' .
 							$this->Time->time($item->task_end);
-					echo $this->Html->link($time, ['controller' => 'Tasks', 'action' => 'view', 'task' => $item->task->id]);
+					echo $this->Html->link($time, ['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $item->task->id]]);
 				?></td>
 				<td class="splash_item"><?php
-					echo $this->Html->link($item->task->translateField('name'), ['controller' => 'Tasks', 'action' => 'view', 'task' => $item->task->id]) .
+					echo $this->Html->link($item->task->translateField('name'), ['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $item->task->id]]) .
 						__(' ({0})', __('report to {0}', $this->element('People/block', ['person' => $item->task->person])));
 				?></td>
 				<td class="splash_item"><?php

@@ -28,7 +28,7 @@ use Cake\Routing\Router;
 	__('You can submit the score for this game at')
 ?>
 
-<?= Router::url(['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $team->id], true) ?>
+<?= Router::url(['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $team->id]], true) ?>
 
 
 <?php

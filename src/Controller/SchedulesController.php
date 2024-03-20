@@ -7,6 +7,7 @@ use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Event\Event as CakeEvent;
 use Cake\Event\EventManager;
+use Cake\Http\Response;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
 use Cake\I18n\Number;
@@ -30,7 +31,7 @@ class SchedulesController extends AppController {
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 		$this->loadModel('Divisions');
 	}
@@ -54,7 +55,7 @@ class SchedulesController extends AppController {
 	}
 
 	// TODO: Proper fix for black-holing of schedule deletion
-	public function beforeFilter(\Cake\Event\Event $event) {
+	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
 		if (isset($this->Security)) {
 			$this->Security->setConfig('unlockedActions', ['delete']);
@@ -855,7 +856,7 @@ class SchedulesController extends AppController {
 			if ($multi_day) {
 				$query->andWhere([
 					function ($exp) use ($query, $date) {
-						$end = $date->next(Configure::read('organization.first_day'))->subDay();
+						$end = $date->next(Configure::read('organization.first_day'))->subDays(1);
 						return $exp->between('GameSlots.game_date', $date, $end, 'date');
 					},
 				]);
@@ -1150,7 +1151,7 @@ class SchedulesController extends AppController {
 		if ($multi_day) {
 			$query->andWhere([
 				function ($exp) use ($query, $date) {
-					$end = (new FrozenDate($date))->next(Configure::read('organization.first_day'))->subDay();
+					$end = (new FrozenDate($date))->next(Configure::read('organization.first_day'))->subDays(1);
 					return $exp->between('GameSlots.game_date', $date, $end, 'date');
 				},
 			]);
@@ -1317,7 +1318,7 @@ class SchedulesController extends AppController {
 	/**
 	 * Override the redirect function; if it's a view and there's only one division, view the league instead
 	 */
-	public function redirect($url = null, $status = 302) {
+	public function redirect($url = null, int $status = 302): ?Response {
 		if (isset($url['action']) && $url['action'] == 'view' && isset($url['controller']) && $url['controller'] == 'Divisions') {
 			$league = $this->Divisions->league($url['division']);
 			if ($this->Divisions->find('byLeague', compact('league'))->count() == 1) {

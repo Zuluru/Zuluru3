@@ -22,14 +22,14 @@ if (!isset($i)) {
 	?></td>
 	<td class="actions"><?php
 	echo $this->Jquery->ajaxLink(__('Delete'), [
-		'url' => ['action' => 'delete_answer', 'answer' => $answer->id],
+		'url' => ['action' => 'delete_answer', '?' => ['answer' => $answer->id]],
 		'disposition' => 'remove_closest',
 		'selector' => 'tr',
 	]);
 	if ($answer->active) {
-		echo $this->Jquery->ajaxLink(__('Deactivate'), ['url' => ['controller' => 'Answers', 'action' => 'deactivate', 'answer' => $answer->id]]);
+		echo $this->Jquery->ajaxLink(__('Deactivate'), ['url' => ['controller' => 'Answers', 'action' => 'deactivate', '?' => ['answer' => $answer->id]]]);
 	} else {
-		echo $this->Jquery->ajaxLink(__('Activate'), ['url' => ['controller' => 'Answers', 'action' => 'activate', 'answer' => $answer->id]]);
+		echo $this->Jquery->ajaxLink(__('Activate'), ['url' => ['controller' => 'Answers', 'action' => 'activate', '?' => ['answer' => $answer->id]]]);
 	}
 	?></td>
 </tr>

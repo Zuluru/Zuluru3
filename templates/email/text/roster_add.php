@@ -28,7 +28,7 @@ use Cake\Routing\Router;
 
 <?= __('More details about {0} may be found at', $team->name) ?>
 
-<?= Router::url(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], true) ?>
+<?= Router::url(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]], true) ?>
 
 
 <?= __('If you believe that this has happened in error, please contact {0}.', $reply) ?>

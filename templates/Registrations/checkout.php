@@ -164,26 +164,26 @@ if (!empty($registrations)):
 					<td class="actions"><?php
 						if ($this->Authorize->can('edit', $registration)) {
 							echo $this->Html->iconLink('edit_32.png',
-								['action' => 'edit', 'registration' => $registration->id, 'return' => AppController::_return()],
+								['action' => 'edit', '?' => ['registration' => $registration->id, 'return' => AppController::_return()]],
 								['alt' => __('Edit'), 'title' => __('Edit Registration')]
 							);
 						}
 
 						if ($this->Authorize->can('unregister', $registration)) {
 							echo $this->Html->iconLink('delete_32.png',
-								['action' => 'unregister', 'registration' => $registration->id, 'return' => AppController::_return()],
+								['action' => 'unregister', '?' => ['registration' => $registration->id, 'return' => AppController::_return()]],
 								['alt' => __('Unregister'), 'title' => __('Unregister')],
 								['confirm' => __('Are you sure you want to unregister from this event? This will delete all of your preferences and you may lose the spot that is currently tentatively reserved for you.')]
 							);
 						}
 
 						if (!empty($credits)) {
-							echo $this->Html->link(__('Redeem Credit'), ['action' => 'redeem', 'registration' => $registration->id]);
+							echo $this->Html->link(__('Redeem Credit'), ['action' => 'redeem', '?' => ['registration' => $registration->id]]);
 						}
 					?></td>
 					<td><?= sprintf($order_id_format, $registration->id) ?></td>
 					<td><?php
-						echo $this->Html->link($registration->long_description, ['controller' => 'Events', 'action' => 'view', 'event' => $registration->event->id]);
+						echo $this->Html->link($registration->long_description, ['controller' => 'Events', 'action' => 'view', '?' => ['event' => $registration->event->id]]);
 						if ($registration->payment === 'Reserved') {
 							if ($registration->reservation_expires) {
 								$expiry = __('Reserved until {0}', $this->Time->datetime($registration->reservation_expires));
@@ -204,7 +204,7 @@ if (!empty($registrations)):
 				<tr>
 					<td class="actions"><?php
 						if (!empty($credits)) {
-							echo $this->Html->link(__('Redeem Credit'), ['action' => 'redeem', 'registration' => $registration->id]);
+							echo $this->Html->link(__('Redeem Credit'), ['action' => 'redeem', '?' => ['registration' => $registration->id]]);
 						}
 					?></td>
 					<td><?= sprintf($debit_id_format, $debit->id) ?></td>
@@ -263,19 +263,19 @@ if (!empty($other)):
 					<td class="actions"><?php
 						if (!empty($registration['change_price'])) {
 							echo $this->Html->link(__('Reregister'),
-									['action' => 'edit', 'registration' => $registration['registration']->id]);
+									['action' => 'edit', '?' => ['registration' => $registration['registration']->id]]);
 						}
 
 						if ($this->Authorize->can('unregister', $registration['registration'])) {
 							echo $this->Html->iconLink('delete_32.png',
-								['action' => 'unregister', 'registration' => $registration['registration']->id, 'return' => AppController::_return()],
+								['action' => 'unregister', '?' => ['registration' => $registration['registration']->id, 'return' => AppController::_return()]],
 								['alt' => __('Unregister'), 'title' => __('Unregister')],
 								['confirm' => __('Are you sure you want to unregister from this event? This will delete all of your preferences and you may lose the spot that is currently tentatively reserved for you.')]
 							);
 						}
 					?></td>
 					<td><?= sprintf($order_id_format, $registration['registration']->id) ?></td>
-					<td><?= $this->Html->link($registration['registration']->event->name, ['controller' => 'Events', 'action' => 'view', 'event' => $registration['registration']->event->id]) ?></td>
+					<td><?= $this->Html->link($registration['registration']->event->name, ['controller' => 'Events', 'action' => 'view', '?' => ['event' => $registration['registration']->event->id]]) ?></td>
 					<td><?= $this->Number->currency($cost + $tax1 + $tax2) ?></td>
 					<td><?= $registration['reason'] ?></td>
 				</tr>

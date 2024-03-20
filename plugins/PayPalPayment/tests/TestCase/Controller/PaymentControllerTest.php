@@ -2,6 +2,8 @@
 namespace PayPalPayment\Test\TestCase\Controller;
 
 use App\Test\TestCase\Controller\ControllerTestCase;
+use Cake\Controller\Controller;
+use Cake\Event\EventInterface;
 use Cake\ORM\TableRegistry;
 use PayPalPayment\Test\Mock;
 
@@ -48,7 +50,7 @@ class PaymentControllerTest extends ControllerTestCase {
 	/**
 	 * Set up the mock API object to avoid talking to the PayPal servers
 	 */
-	public function controllerSpy($event, $controller = null) {
+	public function controllerSpy(EventInterface $event, ?Controller $controller = null): void {
 		parent::controllerSpy($event, $controller);
 
 		if (isset($this->_controller)) {

@@ -47,12 +47,12 @@ foreach ($person->credits as $credit):
 					<td class="actions"><?php
 						if ($this->Authorize->can('view', $credit)) {
 							echo $this->Html->iconLink('view_24.png',
-								['action' => 'view', 'credit' => $credit->id],
+								['action' => 'view', '?' => ['credit' => $credit->id]],
 								['alt' => __('View'), 'title' => __('View')]);
 						}
 						if ($this->Authorize->can('edit', $credit)) {
 							echo $this->Html->iconLink('edit_24.png',
-								['controller' => 'Credits', 'action' => 'edit', 'credit' => $credit->id],
+								['controller' => 'Credits', 'action' => 'edit', '?' => ['credit' => $credit->id]],
 								['alt' => __('Edit'), 'title' => __('Edit')]);
 						}
 						if ($this->Authorize->can('delete', $credit)) {
@@ -61,13 +61,13 @@ foreach ($person->credits as $credit):
 								$confirm .= "\n\n" . __('Doing so will also delete the related refund, but will NOT change the payment status of the registration.');
 							}
 							echo $this->Form->iconPostLink('delete_24.png',
-								['controller' => 'Credits', 'action' => 'delete', 'credit' => $credit->id],
+								['controller' => 'Credits', 'action' => 'delete', '?' => ['credit' => $credit->id]],
 								['alt' => __('Delete'), 'title' => __('Delete')],
 								['confirm' => $confirm]);
 						}
 						if ($this->Authorize->can('transfer', $credit)) {
 							echo $this->Html->iconLink('move_24.png',
-								['controller' => 'Credits', 'action' => 'transfer', 'credit' => $credit->id],
+								['controller' => 'Credits', 'action' => 'transfer', '?' => ['credit' => $credit->id]],
 								['alt' => __('Transfer'), 'title' => __('Transfer')]);
 						}
 					?></td>

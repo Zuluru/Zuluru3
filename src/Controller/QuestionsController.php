@@ -15,7 +15,7 @@ use Cake\ORM\TableRegistry;
 class QuestionsController extends AppController {
 
 	// TODO: Eliminate this if we can find a way around black-holing caused by Ajax field adds
-	public function beforeFilter(\Cake\Event\Event $event) {
+	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
 		if (isset($this->Security)) {
 			$this->Security->setConfig('unlockedActions', ['edit']);
@@ -25,7 +25,7 @@ class QuestionsController extends AppController {
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$this->Authorization->authorize($this);
@@ -67,7 +67,7 @@ class QuestionsController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('question');
@@ -93,10 +93,10 @@ class QuestionsController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
-		$question = $this->Questions->newEntity();
+		$question = $this->Questions->newEmptyEntity();
 		$this->Authorization->authorize($this);
 		if ($this->getRequest()->is('post')) {
 			$question = $this->Questions->patchEntity($question, $this->getRequest()->getData());
@@ -116,7 +116,7 @@ class QuestionsController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('question');
@@ -158,7 +158,7 @@ class QuestionsController extends AppController {
 	/**
 	 * Activate method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
 	 */
 	public function activate() {
 		$this->getRequest()->allowMethod('ajax');
@@ -188,7 +188,7 @@ class QuestionsController extends AppController {
 	/**
 	 * Deactivate method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
 	 */
 	public function deactivate() {
 		$this->getRequest()->allowMethod('ajax');
@@ -218,7 +218,7 @@ class QuestionsController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -282,7 +282,7 @@ class QuestionsController extends AppController {
 		} else {
 			$sort = $question->answers[0]->sort + 1;
 		}
-		$answer = $this->Questions->Answers->newEntity();
+		$answer = $this->Questions->Answers->newEmptyEntity();
 		$answer = $this->Questions->Answers->patchEntity($answer, [
 			'question_id' => $id,
 			'sort' => $sort,

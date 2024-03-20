@@ -14,7 +14,7 @@ if (count($league->divisions) == 1):
 	if (!empty($league->divisions[0]->people) && $this->Identity->isLoggedIn()):
 		$links = [];
 		foreach ($league->divisions[0]->people as $coordinator) {
-			$links[] = $this->Html->link($coordinator->full_name, ['controller' => 'People', 'action' => 'view', 'person' => $coordinator->id]);
+			$links[] = $this->Html->link($coordinator->full_name, ['controller' => 'People', 'action' => 'view', '?' => ['person' => $coordinator->id]]);
 		}
 ?>
 	<dt><?= __('Coordinators') ?></dt>
@@ -35,11 +35,11 @@ else:
 			echo $division->name;
 		}
 	?>&nbsp;</dt>
-	<dd><?= $this->Html->link(__('Details'), ['controller' => 'Divisions', 'action' => 'view', 'division' => $division->id]) .
+	<dd><?= $this->Html->link(__('Details'), ['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $division->id]]) .
 		' / ' .
-		$this->Html->link(__('Schedule'), ['controller' => 'Divisions', 'action' => 'schedule', 'division' => $division->id]) .
+		$this->Html->link(__('Schedule'), ['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $division->id]]) .
 		' / ' .
-		$this->Html->link(__('Standings'), ['controller' => 'Divisions', 'action' => 'standings', 'division' => $division->id]);
+		$this->Html->link(__('Standings'), ['controller' => 'Divisions', 'action' => 'standings', '?' => ['division' => $division->id]]);
 	?></dd>
 <?php
 	endforeach;
@@ -49,11 +49,11 @@ endif;
 </dl>
 
 <p><?php
-	echo $this->Html->link(__('Details'), ['controller' => 'Leagues', 'action' => 'view', 'league' => $league->id]);
+	echo $this->Html->link(__('Details'), ['controller' => 'Leagues', 'action' => 'view', '?' => ['league' => $league->id]]);
 	if (count($league->divisions) == 1) {
 		echo ' / ' .
-			$this->Html->link(__('Schedule'), ['controller' => 'Divisions', 'action' => 'schedule', 'division' => $league->divisions[0]->id]) .
+			$this->Html->link(__('Schedule'), ['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $league->divisions[0]->id]]) .
 			' / ' .
-			$this->Html->link(__('Standings'), ['controller' => 'Divisions', 'action' => 'standings', 'division' => $league->divisions[0]->id]);
+			$this->Html->link(__('Standings'), ['controller' => 'Divisions', 'action' => 'standings', '?' => ['division' => $league->divisions[0]->id]]);
 	}
 ?></p>

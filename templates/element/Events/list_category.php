@@ -181,14 +181,14 @@ foreach ($events as $event) {
 		$can = $this->Authorize->can('register', $resource);
 		if ($can) {
 			$link = $this->Html->link(__('Register Now!'),
-				 ['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id],
+				 ['controller' => 'Registrations', 'action' => 'register', '?' => ['event' => $event->id]],
 				['class' => 'btn btn-primary']
 			);
 		} else if ($resource->context('notices')) {
 			$link = $this->element('messages', ['messages' => $resource->context('notices')]);
 		}
 	} else {
-		$link = $this->Html->link(__('View Event'), ['controller' => 'Events', 'action' => 'view', 'event' => $event->id]);
+		$link = $this->Html->link(__('View Event'), ['controller' => 'Events', 'action' => 'view', '?' => ['event' => $event->id]]);
 	}
 
 	echo $this->Html->tag('span', '', [
@@ -225,13 +225,13 @@ if ($this->Authorize->can('edit', $event)):
 			/** @var \App\Model\Entity\Event $event */
 			foreach ($class_events as $event):
 				$links = [
-					$this->Html->link(__('View Event'), ['action' => 'view', 'event' => $event->id]),
-					$this->Html->link(__('Edit Event'), ['action' => 'edit', 'event' => $event->id]),
+					$this->Html->link(__('View Event'), ['action' => 'view', '?' => ['event' => $event->id]]),
+					$this->Html->link(__('Edit Event'), ['action' => 'edit', '?' => ['event' => $event->id]]),
 				];
 				if ($event->division_id) {
-					$links[] = $this->Html->link(__('View Division'), ['controller' => 'Divisions', 'action' => 'view', 'division' => $event->division_id]);
-					$links[] = $this->Html->link(__('Edit Division'), ['controller' => 'Divisions', 'action' => 'edit', 'division' => $event->division_id]);
-					$links[] = $this->Html->link(__('Game Slots'), ['controller' => 'Divisions', 'action' => 'slots', 'division' => $event->division_id]);
+					$links[] = $this->Html->link(__('View Division'), ['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $event->division_id]]);
+					$links[] = $this->Html->link(__('Edit Division'), ['controller' => 'Divisions', 'action' => 'edit', '?' => ['division' => $event->division_id]]);
+					$links[] = $this->Html->link(__('Game Slots'), ['controller' => 'Divisions', 'action' => 'slots', '?' => ['division' => $event->division_id]]);
 				}
 ?>
 	<li><?= __('{0}: {1}', $event->name, implode(' / ', $links)) ?></li>

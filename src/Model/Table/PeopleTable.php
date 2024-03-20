@@ -52,7 +52,7 @@ class PeopleTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('people');
@@ -267,7 +267,7 @@ class PeopleTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator->setProvider('intl', \App\Validation\Intl::class);
 
 		$validator
@@ -544,7 +544,7 @@ class PeopleTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add(new InConfigRule(['key' => 'provinces', 'optional' => true]), 'validProvince', [
 			'errorField' => 'addr_prov',
 			'message' => __('Select a province/state from the list.'),
@@ -651,13 +651,13 @@ class PeopleTable extends AppTable {
 				switch ($group) {
 					case GROUP_PLAYER:
 						$validator = $this->getValidator('player');
-						$errors = $validator->errors($data, $entity->isNew());
+						$errors = $validator->validate($data, $entity->isNew());
 						$entity->setErrors($errors);
 						break;
 
 					case GROUP_COACH:
 						$validator = $this->getValidator('coach');
-						$errors = $validator->errors($data, $entity->isNew());
+						$errors = $validator->validate($data, $entity->isNew());
 						$entity->setErrors($errors);
 						break;
 				}
@@ -671,7 +671,7 @@ class PeopleTable extends AppTable {
 			$is_child = $entity->is_child || (!$entity->isNew() && !$entity->user_id);
 			if (!$is_child) {
 				$validator = $this->getValidator('contact');
-				$errors = $validator->errors($data, $entity->isNew());
+				$errors = $validator->validate($data, $entity->isNew());
 				$entity->setErrors($errors);
 			}
 
@@ -780,7 +780,7 @@ class PeopleTable extends AppTable {
 	 * @param mixed $operation The operation (e.g. create, delete) about to be run
 	 * @return void
 	 */
-	public function beforeRules(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options, $operation) {
+	public function beforeRules(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options, $operation) {
 		$user_cache = UserCache::getInstance();
 
 		if (!empty($options['manage_affiliates'])) {
@@ -829,7 +829,7 @@ class PeopleTable extends AppTable {
 	 * @param mixed $operation The operation (e.g. create, delete) about to be run
 	 * @return void
 	 */
-	public function afterRules(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options, $result, $operation) {
+	public function afterRules(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options, $result, $operation) {
 		if ($result && !$entity->complete) {
 			$entity->complete = true;
 		}
@@ -848,7 +848,7 @@ class PeopleTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the save method
 	 * @return void
 	 */
-	public function afterSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function afterSave(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		// Delete the cached data, so it's reloaded next time it's needed
 		$cache = UserCache::getInstance();
 		if (!$entity->isNew()) {
@@ -876,7 +876,7 @@ class PeopleTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the delete method
 	 * @return void
 	 */
-	public function afterDelete(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function afterDelete(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		UserCache::delete($entity->id);
 
 		// Send an event to any callback listeners
@@ -944,7 +944,7 @@ class PeopleTable extends AppTable {
 		return $duplicates;
 	}
 
-	public function delete(EntityInterface $entity, $options = []) {
+	public function delete(EntityInterface $entity, $options = []): bool {
 		$cache = UserCache::getInstance();
 
 		$user_model = Configure::read('Security.authModel');
@@ -982,7 +982,7 @@ class PeopleTable extends AppTable {
 		foreach ($new as $person) {
 			unset($person->_joinData->id);
 			unset($person->_joinData->relative_id);
-			$person->_joinData->isNew(true);
+			$person->_joinData->setNew(true);
 		}
 
 		// Since relationship associations have 'saveStrategy' => 'append', we don't need to merge in old people

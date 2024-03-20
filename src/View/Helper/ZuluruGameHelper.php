@@ -140,7 +140,7 @@ class ZuluruGameHelper extends Helper {
 							['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $team_id]);
 					}
 				}
-			} else if ($game->game_slot->end_time->subHour()->isPast()) {
+			} else if ($game->game_slot->end_time->subHours(1)->isPast()) {
 				if ($division->schedule_type !== 'competition') {
 					// Allow score submissions any time after an hour before the scheduled end time.
 					// Some people like to submit via mobile phone immediately, and games can end early.

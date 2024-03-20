@@ -28,7 +28,7 @@ class RegistrationsController extends AppController {
 	/**
 	 * Full list method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function full_list() {
 		$this->paginate['order'] = ['Registrations.payment' => 'DESC', 'Registrations.created' => 'DESC'];
@@ -301,7 +301,7 @@ class RegistrationsController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('registration');
@@ -360,7 +360,7 @@ class RegistrationsController extends AppController {
 	/**
 	 * Register method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function register() {
 		$this->Registrations->expireReservations();
@@ -423,7 +423,7 @@ class RegistrationsController extends AppController {
 		$event->mergeAutoQuestions($event_obj, $this->UserCache->currentId());
 
 		$data = $this->getRequest()->getData();
-		$registration = $this->Registrations->newEntity();
+		$registration = $this->Registrations->newEmptyEntity();
 		$force_save = false;
 		if (isset($price)) {
 			if (empty($event->questionnaire->questions) && !in_array($price->online_payment_option, [ONLINE_MINIMUM_DEPOSIT, ONLINE_SPECIFIC_DEPOSIT, ONLINE_NO_MINIMUM])) {
@@ -565,7 +565,7 @@ class RegistrationsController extends AppController {
 			}
 		}
 
-		$payment = $this->Registrations->Payments->newEntity();
+		$payment = $this->Registrations->Payments->newEmptyEntity();
 
 		if ($credit) {
 			$payment = $this->Registrations->Payments->patchEntity($payment, [
@@ -636,7 +636,7 @@ class RegistrationsController extends AppController {
 						return $q->where(['Credits.amount_used != Credits.amount']);
 					},
 				],
-				// TODOLATER: Include relatives, and allow us to pay for them too; see also All/splash.ctp
+				// TODOLATER: Include relatives, and allow us to pay for them too; see also All/splash.php
 				'Related' => [Configure::read('Security.authModel')],
 			]
 		]);
@@ -774,7 +774,7 @@ class RegistrationsController extends AppController {
 
 		$this->Authorization->authorize($registration);
 		$this->Configuration->loadAffiliate($registration->event->affiliate_id);
-		$payment = $this->Registrations->Payments->newEntity();
+		$payment = $this->Registrations->Payments->newEmptyEntity();
 
 		$this->set(compact('registration', 'payment'));
 
@@ -856,7 +856,7 @@ class RegistrationsController extends AppController {
 
 		$this->Authorization->authorize($payment);
 		$this->Configuration->loadAffiliate($registration->event->affiliate_id);
-		$refund = $this->Registrations->Payments->newEntity();
+		$refund = $this->Registrations->Payments->newEmptyEntity();
 
 		if ($payment->registration_audit_id) {
 			$api = $this->Registrations->Payments->RegistrationAudits->getAPI($payment->registration_audit);
@@ -880,7 +880,7 @@ class RegistrationsController extends AppController {
 	/**
 	 * Invoice method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function invoice() {
 		$id = $this->getRequest()->getQuery('registration');
@@ -941,7 +941,7 @@ class RegistrationsController extends AppController {
 
 		$this->Authorization->authorize($payment);
 		$this->Configuration->loadAffiliate($registration->event->affiliate_id);
-		$refund = $this->Registrations->Payments->newEntity();
+		$refund = $this->Registrations->Payments->newEmptyEntity();
 
 		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			$data = $this->getRequest()->getData();
@@ -961,7 +961,7 @@ class RegistrationsController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('registration');

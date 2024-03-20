@@ -3,10 +3,10 @@ namespace App\Mailer;
 
 use Cake\Core\Configure;
 use Cake\I18n\I18n;
-use Cake\Mailer\Email as CakeEmail;
+use Cake\Mailer\Mailer as CakeMailer;
 use Cake\Utility\Text;
 
-class Email extends CakeEmail {
+class Mailer extends CakeMailer {
 
 	/**
 	 * Locales to use for sending the email
@@ -143,9 +143,7 @@ class Email extends CakeEmail {
 			foreach ($locales as $locale) {
 				I18n::setLocale($locale);
 				foreach ($types as $type) {
-					// @todo Cake4: Just remove the setting of 'hasRendered'
-					$View->hasRendered = false;
-					$View->setTemplatePath('Email' . DIRECTORY_SEPARATOR . $type);
+					$View->setTemplatePath('email' . DIRECTORY_SEPARATOR . $type);
 					$View->enableAutoLayout(false);
 
 					$render = $View->render();
@@ -155,7 +153,7 @@ class Email extends CakeEmail {
 			}
 
 			foreach ($rendered as $type => $content) {
-				$View->setLayoutPath('Email' . DIRECTORY_SEPARATOR . $type);
+				$View->setLayoutPath('email' . DIRECTORY_SEPARATOR . $type);
 				$content = $View->renderLayout($content);
 				$rendered[$type] = $this->_wrap($content);
 				$rendered[$type] = implode("\n", $rendered[$type]);

@@ -113,7 +113,7 @@ if ($show_badges):
 				<td><?php
 	foreach ($person->badges as $badge) {
 		if ($this->Authorize->can('view', $badge)) {
-			echo $this->Html->iconLink("{$badge->icon}_32.png", ['controller' => 'Badges', 'action' => 'view', 'badge' => $badge->id],
+			echo $this->Html->iconLink("{$badge->icon}_32.png", ['controller' => 'Badges', 'action' => 'view', '?' => ['badge' => $badge->id]],
 				['alt' => $badge->name, 'title' => $badge->description]);
 		}
 	}
@@ -123,14 +123,14 @@ endif;
 ?>
 				<td class="actions"><?php
 				echo $this->Html->iconLink('view_24.png',
-					['action' => 'view', 'person' => $person->id],
+					['action' => 'view', '?' => ['person' => $person->id]],
 					['alt' => __('View'), 'title' => __('View')]);
 				echo $this->Html->iconLink('edit_24.png',
-					['action' => 'edit', 'person' => $person->id],
+					['action' => 'edit', '?' => ['person' => $person->id]],
 					['alt' => __('Edit'), 'title' => __('Edit')]);
-				echo $this->Html->link(__('Act As'), ['action' => 'act_as', 'person' => $person->id]);
+				echo $this->Html->link(__('Act As'), ['action' => 'act_as', '?' => ['person' => $person->id]]);
 				echo $this->Form->iconPostLink('delete_24.png',
-					['action' => 'delete', 'person' => $person->id],
+					['action' => 'delete', '?' => ['person' => $person->id]],
 					['alt' => __('Delete'), 'title' => __('Delete')],
 					['confirm' => __('Are you sure you want to delete this person?')]);
 				?></td>

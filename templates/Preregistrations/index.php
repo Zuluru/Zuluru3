@@ -65,13 +65,13 @@ foreach ($preregistrations as $preregistration):
 <?php
 	if (!isset($event)):
 ?>
-					<td><?= $this->Html->link($preregistration->event->name, ['controller' => 'Events', 'action' => 'view', 'event' => $preregistration->event->id]) ?></td>
+					<td><?= $this->Html->link($preregistration->event->name, ['controller' => 'Events', 'action' => 'view', '?' => ['event' => $preregistration->event->id]]) ?></td>
 <?php
 	endif;
 ?>
 					<td class="actions"><?php
 					echo $this->Form->iconPostLink('delete_24.png',
-						['action' => 'delete', 'preregistration' => $preregistration->id],
+						['action' => 'delete', '?' => ['preregistration' => $preregistration->id]],
 						['alt' => __('Delete'), 'title' => __('Delete')],
 						['confirm' => __('Are you sure you want to delete this preregistration?')]);
 					?></td>

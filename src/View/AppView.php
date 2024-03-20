@@ -42,12 +42,13 @@ class AppView extends View {
 	/**
 	 * Initialization hook method.
 	 *
-	 * For e.g. use this method to load a helper for all views:
-	 * `$this->loadHelper('Html');`
+	 * Use this method to add common initialization code like adding helpers.
+	 *
+	 * e.g. `$this->addHelper('Html');`
 	 *
 	 * @return void
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		$this->loadHelper('Authentication.Identity');
 		$this->loadHelper('Authorize');
 		$this->loadHelper('UserCache');

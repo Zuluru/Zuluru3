@@ -57,8 +57,10 @@ if (!$approved) {
 			'url' => [
 				'controller' => 'Teams',
 				'action' => 'roster_decline',
-				'team' => $roster->team_id,
-				'person' => $roster->person_id,
+				'?' => [
+					'team' => $roster->team_id,
+					'person' => $roster->person_id,
+				],
 			],
 			'confirm' => __('Are you sure you want to remove this {0}?', $type),
 			'disposition' => 'remove_closest',
@@ -69,8 +71,10 @@ if (!$approved) {
 			'url' => [
 				'controller' => 'Teams',
 				'action' => 'roster_accept',
-				'team' => $roster->team_id,
-				'person' => $roster->person_id,
+				'?' => [
+					'team' => $roster->team_id,
+					'person' => $roster->person_id,
+				],
 			],
 			'confirm' => __('Are you sure you want to accept this {0}?', $type),
 			'disposition' => 'replace_closest',
@@ -79,8 +83,10 @@ if (!$approved) {
 			'url' => [
 				'controller' => 'Teams',
 				'action' => 'roster_decline',
-				'team' => $roster->team_id,
-				'person' => $roster->person_id,
+				'?' => [
+					'team' => $roster->team_id,
+					'person' => $roster->person_id,
+				],
 			],
 			'confirm' => __('Are you sure you want to decline this {0}?', $type),
 			'disposition' => 'remove_closest',

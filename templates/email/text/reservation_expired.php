@@ -23,7 +23,7 @@ if ($registration->payment == 'Unpaid'):
 	__('You can check availability at')
 ?>
 
-<?= Router::url(['controller' => 'Events', 'action' => 'view', 'event' => $event->id], true) ?>
+<?= Router::url(['controller' => 'Events', 'action' => 'view', '?' => ['event' => $event->id]], true) ?>
 
 <?= __('or to confirm your position, pay for this registration at') ?>
 
@@ -35,7 +35,7 @@ if ($registration->payment == 'Unpaid'):
 
 <?= __('If you are no longer interested in participating in this event, please unregister at') ?>
 
-<?= Router::url(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => $registration->id], true) ?>
+<?= Router::url(['controller' => 'Registrations', 'action' => 'unregister', '?' => ['registration' => $registration->id]], true) ?>
 
 
 <?= ('This will help to ensure that those who are still interested get offered the spot promptly.') ?>
@@ -49,7 +49,7 @@ elseif ($registration->payment == 'Waiting'):
 
 <?= __('If you are no longer interested in participating in this event, please remove yourself from the waiting list at') ?>
 
-<?= Router::url(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => $registration->id], true) ?>
+<?= Router::url(['controller' => 'Registrations', 'action' => 'unregister', '?' => ['registration' => $registration->id]], true) ?>
 
 
 <?= ('This will help to ensure that those who are still interested get served promptly if and when a spot opens up.') ?>
@@ -62,7 +62,7 @@ else:
 	__('If you wish to be placed on the waiting list in case a spot opens up, you can re-register for this at')
 ?>
 
-<?= Router::url(['controller' => 'Events', 'action' => 'view', 'event' => $event->id], true) ?>
+<?= Router::url(['controller' => 'Events', 'action' => 'view', '?' => ['event' => $event->id]], true) ?>
 
 
 <?php

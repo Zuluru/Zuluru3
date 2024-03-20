@@ -66,11 +66,11 @@ if (isset($registrations)):
 		endif;
 ?>
 				<tr class="select_id_<?= $registration->id ?>">
-					<td><?= $this->Html->link($registration->event->name, ['controller' => 'Events', 'action' => 'view', 'event' => $registration->event->id]) ?></td>
+					<td><?= $this->Html->link($registration->event->name, ['controller' => 'Events', 'action' => 'view', '?' => ['event' => $registration->event->id]]) ?></td>
 					<td><?php
 					$order = sprintf(Configure::read('registration.order_id_format'), $registration->id);
 					if ($this->Authorize->can('view', $registration)) {
-						echo $this->Html->link($order, ['controller' => 'Registrations', 'action' => 'view', 'registration' => $registration->id]);
+						echo $this->Html->link($order, ['controller' => 'Registrations', 'action' => 'view', '?' => ['registration' => $registration->id]]);
 					} else {
 						echo $order;
 					}

@@ -52,7 +52,7 @@ class GamesTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('games');
@@ -157,7 +157,7 @@ class GamesTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator
 			->allowEmptyString('id', null, 'create')
 			->numeric('id')
@@ -310,7 +310,7 @@ class GamesTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->existsIn(['division_id'], 'Divisions', __('You must select a valid division.')));
 		$rules->add($rules->existsIn(['home_team_id'], 'HomeTeam'));
 		$rules->add($rules->existsIn(['away_team_id'], 'AwayTeam'));
@@ -735,7 +735,7 @@ class GamesTable extends AppTable {
 	 * @param mixed $operation The operation (e.g. create, delete) about to be run
 	 * @return void
 	 */
-	public function beforeRules(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options, $operation) {
+	public function beforeRules(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options, $operation) {
 		// If we're only saving a single game, none of this applies.
 		if ($options->offsetExists('games')) {
 			if ($entity->has('home_dependency_resolved') && !$entity->home_dependency_resolved && $options['games'][$entity->home_dependency_id]->id) {
@@ -782,7 +782,7 @@ class GamesTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the save method
 	 * @return void
 	 */
-	public function beforeSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function beforeSave(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		// If we're saving a batch of games, and the game slot formerly assigned to this game
 		// is now not assigned to any of this batch, we must free it up.
 		if ($options->offsetExists('games') && $entity->isDirty('game_slot_id') && !collection($options['games'])->firstMatch(['game_slot_id' => $entity->getOriginal('game_slot_id')])) {
@@ -909,7 +909,7 @@ class GamesTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the save method
 	 * @return void
 	 */
-	public function afterSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function afterSave(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		if ($entity->isFinalized()) {
 			$entity->updateDependencies();
 		}
@@ -944,7 +944,7 @@ class GamesTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the delete method
 	 * @return bool
 	 */
-	public function beforeDelete(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function beforeDelete(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		// If the game was finalized, we have to reverse the ratings change.
 		$entity->undoRatings();
 		if ($entity->isDirty('home_team')) {
@@ -980,7 +980,7 @@ class GamesTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the delete method
 	 * @return void
 	 */
-	public function afterDelete(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function afterDelete(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		if ($this->Attendances->getConnection()->transactional(function () use ($entity) {
 			foreach ($this->Attendances->find()->where(['game_id' => $entity->id]) as $attendance) {
 				$attendance->game_id = null;
@@ -1383,7 +1383,7 @@ class GamesTable extends AppTable {
 		foreach ($extra as $person) {
 			if (!array_key_exists($person->id, $new)) {
 				$person->attendances = [$person->_matchingData['Attendances']];
-				$person->unsetProperty('_matchingData');
+				$person->unset('_matchingData');
 				$person->_joinData = new TeamsPerson(['role' => 'none', 'status' => ROSTER_APPROVED]);
 				$new[$person->id] = $person;
 			} else {
@@ -1528,7 +1528,7 @@ class GamesTable extends AppTable {
 		if ($this->getConnection()->transactional(function () use ($attendance, $team, $date, $game_id, $copy_from_game_id) {
 			// Extract list of players on the roster as of this date.
 			$roster = collection($team->people)->filter(function ($person) use ($date) {
-				return $person->_joinData->created < $date->addDay() && $person->_joinData->status == ROSTER_APPROVED;
+				return $person->_joinData->created < $date->addDays(1) && $person->_joinData->status == ROSTER_APPROVED;
 			})->toArray();
 
 			// Go through the roster and make sure there are records for all players on this date.

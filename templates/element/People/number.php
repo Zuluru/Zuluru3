@@ -10,7 +10,7 @@ use App\Authorization\ContextResource;
 
 if ($this->Authorize->can('numbers', new ContextResource($team, ['division' => $division, 'roster' => $roster]))) {
 	$data = [
-		'url' => ['action' => 'numbers', 'team' => $team->id, 'person' => $person->id],
+		'url' => ['action' => 'numbers', '?' => ['team' => $team->id, 'person' => $person->id]],
 		'dialog' => 'number_entry_div',
 	];
 	if (!empty($roster->number) || $roster->number === '0') {

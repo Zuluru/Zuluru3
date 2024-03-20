@@ -26,17 +26,17 @@ if (!isset($i)) {
 		]);
 	?></td>
 	<td class="actions"><?php
-		echo $this->Html->link(__('Edit'), ['controller' => 'Questions', 'action' => 'edit', 'question' => $question->id, 'return' => AppController::_return()]);
+		echo $this->Html->link(__('Edit'), ['controller' => 'Questions', 'action' => 'edit', '?' => ['question' => $question->id, 'return' => AppController::_return()]]);
 		echo $this->Jquery->ajaxLink(__('Remove'), [
-			'url' => ['action' => 'remove_question', 'questionnaire' => $questionnaire->id, 'question' => $question->id],
+			'url' => ['action' => 'remove_question', '?' => ['questionnaire' => $questionnaire->id, 'question' => $question->id]],
 			'disposition' => 'remove_closest',
 			'selector' => 'tr',
 		]);
 
 		if ($question->active) {
-			echo $this->Jquery->ajaxLink(__('Deactivate'), ['url' => ['controller' => 'Questions', 'action' => 'deactivate', 'question' => $question->id]]);
+			echo $this->Jquery->ajaxLink(__('Deactivate'), ['url' => ['controller' => 'Questions', 'action' => 'deactivate', '?' => ['question' => $question->id]]]);
 		} else {
-			echo $this->Jquery->ajaxLink(__('Activate'), ['url' => ['controller' => 'Questions', 'action' => 'activate', 'question' => $question->id]]);
+			echo $this->Jquery->ajaxLink(__('Activate'), ['url' => ['controller' => 'Questions', 'action' => 'activate', '?' => ['question' => $question->id]]]);
 		}
 	?></td>
 </tr>

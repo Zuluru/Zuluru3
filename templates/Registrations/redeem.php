@@ -14,7 +14,7 @@ $this->Breadcrumbs->add(__('Redeem Credit'));
 $balance = $registration->balance;
 
 echo $this->Html->para(null, __('You have requested to redeem a credit towards payment of your registration for {0}. You have an outstanding balance of {1} on this registration.',
-	$this->Html->link($registration->event->name, ['controller' => 'Events', 'action' => 'view', 'event' => $registration->event->id]), $this->Number->currency($balance)));
+	$this->Html->link($registration->event->name, ['controller' => 'Events', 'action' => 'view', '?' => ['event' => $registration->event->id]]), $this->Number->currency($balance)));
 
 if (count($registration->person->credits) == 1):
 	$credit = $registration->person->credits[0]->balance;
@@ -26,7 +26,7 @@ if (count($registration->person->credits) == 1):
 		echo $this->Html->para(null, __('If you apply your credit, it will be used up, and you will still have a balance of {0} owing on the registration.', $this->Number->currency($balance - $credit)));
 	}
 	echo $this->Html->para(null, $this->Html->link(__('Apply the credit now'),
-		['action' => 'redeem', 'registration' => $registration->id, 'credit' => $registration->person->credits[0]->id],
+		['action' => 'redeem', '?' => ['registration' => $registration->id, 'credit' => $registration->person->credits[0]->id]],
 		['confirm' => __('Are you sure you want to apply this credit? This cannot be undone.')]
 	));
 
@@ -53,7 +53,7 @@ else:
 					<td><?= $this->Number->currency($credit->amount_used) ?></td>
 					<td class="actions"><?php
 					echo $this->Html->link(__('Apply credit'),
-						['action' => 'redeem', 'registration' => $registration->id, 'credit' => $credit->id],
+						['action' => 'redeem', '?' => ['registration' => $registration->id, 'credit' => $credit->id]],
 						['confirm' => __('Are you sure you want to apply this credit? This cannot be undone.')]
 					);
 					?></td>

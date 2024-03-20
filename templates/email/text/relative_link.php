@@ -26,7 +26,7 @@ use Cake\Routing\Router;
 
 <?= __('Accept the request here:') ?>
 
-<?= Router::url(['controller' => 'People', 'action' => 'approve_relative', 'person' => $relative->id, 'relative' => $person->id, 'code' => $code], true) ?>
+<?= Router::url(['controller' => 'People', 'action' => 'approve_relative', '?' => ['person' => $relative->id, 'relative' => $person->id, 'code' => $code]], true) ?>
 
 
 <?= __('If you decline, {0} will not have any additional access to your account.', $person->first_name) ?>
@@ -34,7 +34,7 @@ use Cake\Routing\Router;
 
 <?= __('Decline the request here:') ?>
 
-<?= Router::url(['controller' => 'People', 'action' => 'remove_relative', 'person' => $relative->id, 'relative' => $person->id, 'code' => $code], true) ?>
+<?= Router::url(['controller' => 'People', 'action' => 'remove_relative', '?' => ['person' => $relative->id, 'relative' => $person->id, 'code' => $code]], true) ?>
 
 
 <?= $this->element('Email/text/footer');

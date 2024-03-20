@@ -55,7 +55,7 @@ if (!empty($teams) || $past_teams > 0):
 <div class="actions columns">
 	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('Show Team History'), ['controller' => 'People', 'action' => 'teams', 'person' => $id]));
+echo $this->Html->tag('li', $this->Html->link(__('Show Team History'), ['controller' => 'People', 'action' => 'teams', '?' => ['person' => $id]]));
 ?>
 	</ul>
 </div>

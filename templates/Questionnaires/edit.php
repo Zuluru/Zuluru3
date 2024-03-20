@@ -51,7 +51,7 @@ endif;
 echo $this->Html->tag('li', $this->Html->link(__('List Questionnaires'), ['action' => 'index']));
 if (!$questionnaire->isNew()) {
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-		['action' => 'delete', 'questionnaire' => $questionnaire->id],
+		['action' => 'delete', '?' => ['questionnaire' => $questionnaire->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Questionnaire')],
 		['confirm' => __('Are you sure you want to delete this questionnaire?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',

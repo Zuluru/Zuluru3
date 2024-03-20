@@ -93,7 +93,7 @@ endforeach;
 	<td><?= isset($scores) ? implode(' - ', $scores) : '' ?></td>
 	<td><?php
 	echo $this->Jquery->ajaxLink($this->Html->iconImg('delete_24.png', ['alt' => __('Delete Score Detail'), 'title' => __('Delete Score Detail')]), [
-		'url' => ['action' => 'delete_score', 'game' => $game->id, 'detail' => $detail->id],
+		'url' => ['action' => 'delete_score', '?' => ['game' => $game->id, 'detail' => $detail->id]],
 		'confirm' => __('Are you sure you want to delete this score entry?'),
 		'disposition' => 'remove_closest',
 		'selector' => 'tr',

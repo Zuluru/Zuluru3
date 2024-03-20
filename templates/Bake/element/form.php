@@ -84,7 +84,7 @@ if ($<%= $singularVar %>->isNew()) {
 echo $this->Html->tag('li', $this->Html->link(__('List <%= $pluralHumanName %>'), ['action' => 'index']));
 if (!$<%= $singularVar %>->isNew()) {
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-		['action' => 'delete', '<%= $singularVar %>' => $<%= $singularVar %>-><%= $primaryKey[0] %>],
+		['action' => 'delete', '?' => ['<%= $singularVar %>' => $<%= $singularVar %>-><%= $primaryKey[0] %>]],
 		['alt' => __('Delete'), 'title' => __('Delete <%= $singularHumanName %>')],
 		['confirm' => __('Are you sure you want to delete this <%= strtolower($singularHumanName) %>?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',

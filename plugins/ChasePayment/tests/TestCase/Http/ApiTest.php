@@ -87,7 +87,7 @@ class ApiTest extends TestCase
 		$this->assertEquals("{\"transaction_type\":\"34\",\"transaction_tag\":\"{$this->transaction_id}\",\"authorization_num\":\"AB1234\",\"amount\":{$this->amount}}", $data);
 
 		$time = FrozenTime::now()->format('d M y h:i:s');
-		$exp = FrozenDate::now()->addMonth()->format('mY');
+		$exp = FrozenDate::now()->addMonths(1)->format('mY');
 		$string_amount = sprintf('%0.2f', $this->amount);
 
 		return json_encode([

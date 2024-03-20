@@ -34,7 +34,7 @@ if (Configure::read('registration.reservation_time') > 0) {
 
 <?= __('If you are no longer interested in participating in this event, please remove yourself from the waiting list at') ?>
 
-<?= Router::url(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => $registration->id], true) ?>
+<?= Router::url(['controller' => 'Registrations', 'action' => 'unregister', '?' => ['registration' => $registration->id]], true) ?>
 
 
 <?= ('This will help to ensure that those who are still interested get offered the spot promptly.') ?>

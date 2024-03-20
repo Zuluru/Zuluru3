@@ -47,7 +47,7 @@ if ($mailing_list->isNew()) {
 echo $this->Html->tag('li', $this->Html->link(__('List Mailing Lists'), ['action' => 'index']));
 if (!$mailing_list->isNew()) {
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-		['action' => 'delete', 'mailing_list' => $mailing_list->id],
+		['action' => 'delete', '?' => ['mailing_list' => $mailing_list->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Mailing List')],
 		['confirm' => __('Are you sure you want to delete this mailingList?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('mailing_list_add_32.png',

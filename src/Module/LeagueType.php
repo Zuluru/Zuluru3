@@ -85,7 +85,7 @@ abstract class LeagueType {
 	 */
 	public function addResults(Division $division, $spirit_obj) {
 		// Hopefully, everything we need is already cached
-		$results = Cache::remember("division/{$division->id}/standings", function () use ($division, $spirit_obj) {
+		$results = Cache::remember("division_{$division->id}_standings", function () use ($division, $spirit_obj) {
 			$divisions_table = TableRegistry::getTableLocator()->get('Divisions');
 
 			// Read the team list

@@ -24,7 +24,7 @@ if ($field->length > 0):
 ?>
 	<dt><?= __('Map') ?></dt>
 	<dd><?= $this->Html->link(__('Open in new window'),
-		['controller' => 'Maps', 'action' => 'view', 'field' => $field->id],
+		['controller' => 'Maps', 'action' => 'view', '?' => ['field' => $field->id]],
 		['target' => 'map']) ?></dd>
 <?php
 endif;

@@ -52,11 +52,13 @@ endif;
 
 <?php
 $url_array = [
-	'controller' => 'TeamEvents', 'action' => 'attendance_change',
-	'event' => $team_event->id, 'person' => $person->id, 'code' => $code];
+	'controller' => 'TeamEvents',
+	'action' => 'attendance_change',
+	'?' => ['event' => $team_event->id, 'person' => $person->id, 'code' => $code],
+];
 foreach (Configure::read('event_attendance_verb') as $check_status => $check_verb):
 	if ($attendance->status != $check_status && array_key_exists($check_status, $player_options)):
-		$url_array['status'] = $check_status;
+		$url_array['?']['status'] = $check_status;
 ?>
 <?= __('If you are {0} this event:', $check_verb) ?>
 

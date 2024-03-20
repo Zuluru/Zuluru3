@@ -8,5 +8,5 @@
 ) ?></p>
 <p><?= __('You may want to do this because you have an un-even number of teams in your division, or if some teams may have bye weeks.') ?></p>
 <p><?= __('If you never need this option, {0} and turn it off.',
-	(array_key_exists('division', $this->getRequest()->getQueryParams()) ? $this->Html->link(__('edit the division'), ['controller' => 'Divisions', 'action' => 'edit', 'division' => $this->getRequest()->getQuery('division')]) : '"' . __('edit the division') . '"')
+	(array_key_exists('division', $this->getRequest()->getQueryParams()) ? $this->Html->link(__('edit the division'), ['controller' => 'Divisions', 'action' => 'edit', '?' => ['division' => $this->getRequest()->getQuery('division')]]) : '"' . __('edit the division') . '"')
 ) ?></p>

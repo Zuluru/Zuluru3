@@ -54,9 +54,9 @@ class WaiversTableTest extends TableTestCase {
 
 		$signed = $this->WaiversTable::signed($person->waivers_people, FrozenDate::now());
 		$this->assertEquals(true, $signed);
-		$signed = $this->WaiversTable::signed($person->waivers_people, FrozenDate::now()->subYear());
+		$signed = $this->WaiversTable::signed($person->waivers_people, FrozenDate::now()->subYears(1));
 		$this->assertEquals(false, $signed);
-		$signed = $this->WaiversTable::signed($person->waivers_people, FrozenDate::now()->addYear());
+		$signed = $this->WaiversTable::signed($person->waivers_people, FrozenDate::now()->addYears(1));
 		$this->assertEquals(false, $signed);
 	}
 

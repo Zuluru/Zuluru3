@@ -26,10 +26,10 @@ class NewsletterFactory extends BaseFactory
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [
-				'name' => $faker->word,
+				'name' => $faker->word(),
 				'from_email' => $faker->email,
 				'to_email' => $faker->email,
-				'subject' => $faker->word,
+				'subject' => $faker->word(),
 				'reply_to' => $faker->email,
 				'target' => FrozenDate::now(),
 			];

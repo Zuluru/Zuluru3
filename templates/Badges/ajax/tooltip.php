@@ -17,5 +17,5 @@ echo $badge->name;
 </dl>
 
 <p><?php
-echo $this->Html->link(__('Details'), ['controller' => 'Badges', 'action' => 'view', 'badge' => $badge->id]);
+echo $this->Html->link(__('Details'), ['controller' => 'Badges', 'action' => 'view', '?' => ['badge' => $badge->id]]);
 ?></p>

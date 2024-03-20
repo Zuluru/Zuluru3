@@ -48,12 +48,12 @@ class PaymentController extends AppController {
 	 * @return void
 	 * @throws \Exception
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		parent::initialize();
 		$this->loadModel('Registrations');
 	}
 
-	public function beforeFilter(\Cake\Event\Event $event) {
+	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
 		if (isset($this->Security)) {
 			$this->Security->setConfig('unlockedActions', ['index']);

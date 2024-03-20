@@ -11,6 +11,6 @@ echo $this->Html->para(null, __(' Any selected registrations not listed here wer
 $list = [];
 foreach ($failed as $id => $name) {
 	$invnum = sprintf(Configure::read('registration.order_id_format'), $id);
-	$list[] = $this->Html->link("$name ($invnum)", ['controller' => 'Registrations', 'action' => 'view', 'registration' => $id], ['target' => '_new']);
+	$list[] = $this->Html->link("$name ($invnum)", ['controller' => 'Registrations', 'action' => 'view', '?' => ['registration' => $id]], ['target' => '_new']);
 }
 echo $this->Html->nestedList($list);

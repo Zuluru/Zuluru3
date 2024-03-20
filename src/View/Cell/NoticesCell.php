@@ -30,7 +30,7 @@ class NoticesCell extends Cell {
 		// Delete any old reminder requests
 		$this->NoticesPeople->deleteAll([
 			'NoticesPeople.remind' => true,
-			'NoticesPeople.created <' => FrozenDate::now()->subMonth(),
+			'NoticesPeople.created <' => FrozenDate::now()->subMonths(1),
 		]);
 
 		// Delete any annual recurring notices that are too old
@@ -39,7 +39,7 @@ class NoticesCell extends Cell {
 			->combine('id', 'id')
 			->toArray();
 		$this->NoticesPeople->deleteAll([
-			'NoticesPeople.created <' => FrozenDate::now()->subYear(),
+			'NoticesPeople.created <' => FrozenDate::now()->subYears(1),
 			'NoticesPeople.notice_id IN' => $annual,
 		]);
 

@@ -13,16 +13,16 @@ use Cake\Routing\Router;
 
 <p><?= __('Dear {0},', $captains) ?></p>
 <p><?= __('You have not submitted a score for the game between your team {0} and {1}, starting at {2} on {3} in {4}.',
-	$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], true)),
-	$opponent ? $this->Html->link($opponent->name, Router::url(['controller' => 'Teams', 'action' => 'view', 'team' => $opponent->id], true)) : __('your opponent'),
-	$this->Html->link($this->Time->time($game->game_slot->game_start), Router::url(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], true)),
+	$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]], true)),
+	$opponent ? $this->Html->link($opponent->name, Router::url(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $opponent->id]], true)) : __('your opponent'),
+	$this->Html->link($this->Time->time($game->game_slot->game_start), Router::url(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], true)),
 	$this->Time->date($game->game_slot->game_date),
 	$division->full_league_name
 ) ?></p>
 <p><?= __('Scores need to be submitted in a timely fashion by both teams to substantiate results and for optimal scheduling of future games.') . ' ' .
 	__('We ask you to please submit the score as soon as possible.') . ' ' .
 	__('You can submit the score for this game {0}.',
-		$this->Html->link(__('here'), Router::url(['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $team->id], true))
+		$this->Html->link(__('here'), Router::url(['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $team->id]], true))
 	)
 ?></p>
 <?php

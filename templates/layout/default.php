@@ -10,7 +10,7 @@
 @header('Pragma: no-cache');
 
 // Set up common default blocks
-$this->element('Layout/common_blocks');
+$this->element('layout/common_blocks');
 ?>
 <?= $this->fetch('html') ?>
 
@@ -26,7 +26,7 @@ $this->element('Layout/common_blocks');
 
 <?= $this->fetch('body_start') ?>
 
-	<?= $this->element('Layout/header') ?>
+	<?= $this->element('layout/header') ?>
 
 	<?= $this->Html->tag('div', $this->fetch('zuluru_content'), ['class' => 'zuluru container']) ?>
 
@@ -36,7 +36,7 @@ $this->element('Layout/common_blocks');
 
 	<?= $this->fetch('help') ?>
 
-	<?= $this->element('Layout/footer_script') ?>
+	<?= $this->element('layout/footer_script') ?>
 
 <?= $this->fetch('body_end') ?>
 

@@ -31,7 +31,7 @@ if ($this->Authorize->can('view_roster', \App\Controller\TeamsController::class)
 	$links = [];
 	foreach ($all_captains as $role => $captains) {
 		foreach ($captains as $captain) {
-			$link = $this->Html->link($captain->full_name, ['controller' => 'People', 'action' => 'view', 'person' => $captain->id]);
+			$link = $this->Html->link($captain->full_name, ['controller' => 'People', 'action' => 'view', '?' => ['person' => $captain->id]]);
 			if ($role == 'assistant') {
 				$link .= ' (A)';
 			}
@@ -47,14 +47,14 @@ endif;
 
 	<dt><?= __('Team') ?></dt>
 	<dd><?php
-		echo $this->Html->link(__('Details & roster'), ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id]);
+		echo $this->Html->link(__('Details & roster'), ['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]]);
 		if (!empty($team->division_id)) {
 			echo ' / ' .
-				$this->Html->link(__('Schedule'), ['controller' => 'Teams', 'action' => 'schedule', 'team' => $team->id]) .
+				$this->Html->link(__('Schedule'), ['controller' => 'Teams', 'action' => 'schedule', '?' => ['team' => $team->id]]) .
 				' / ' .
-				$this->Html->link(__('Standings'), ['controller' => 'Divisions', 'action' => 'standings', 'division' => $team->division_id, 'team' => $team->id]);
+				$this->Html->link(__('Standings'), ['controller' => 'Divisions', 'action' => 'standings', '?' => ['division' => $team->division_id, 'team' => $team->id]]);
 			if ($this->Authorize->can('stats', new ContextResource($team, ['league' => $team->division_id ? $team->division->league : null]))) {
-				echo ' / ' . $this->Html->link(__('Stats'), ['controller' => 'Teams', 'action' => 'stats', 'team' => $team->id]);
+				echo ' / ' . $this->Html->link(__('Stats'), ['controller' => 'Teams', 'action' => 'stats', '?' => ['team' => $team->id]]);
 			}
 		}
 		if (Configure::read('feature.urls') && !empty($team->website)) {
@@ -68,11 +68,11 @@ if (!empty($team->division_id)):
 	<dt><?= __('Division') ?></dt>
 	<dd><?php
 		$title = ['title' => $team->division->full_league_name];
-		echo $this->Html->link(__('Details'), ['controller' => 'Divisions', 'action' => 'view', 'division' => $team->division_id], $title) .
+		echo $this->Html->link(__('Details'), ['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $team->division_id]], $title) .
 			' / ' .
-			$this->Html->link(__('Schedule'), ['controller' => 'Divisions', 'action' => 'schedule', 'division' => $team->division_id]) .
+			$this->Html->link(__('Schedule'), ['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $team->division_id]]) .
 			' / ' .
-			$this->Html->link(__('Standings'), ['controller' => 'Divisions', 'action' => 'standings', 'division' => $team->division_id]);
+			$this->Html->link(__('Standings'), ['controller' => 'Divisions', 'action' => 'standings', '?' => ['division' => $team->division_id]]);
 	?></dd>
 <?php
 endif;

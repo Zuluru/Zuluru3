@@ -35,7 +35,7 @@ if (empty($task_slot->person_id)) {
 	} else {
 		echo $this->Html->tag('span',
 			$this->Jquery->ajaxLink(__('Sign up'), [
-				'url' => ['controller' => 'TaskSlots', 'action' => 'assign', 'slot' => $task_slot->id, 'person' => $this->Identity->getId()],
+				'url' => ['controller' => 'TaskSlots', 'action' => 'assign', '?' => ['slot' => $task_slot->id, 'person' => $this->Identity->getId()]],
 				// Need to replace the whole row
 				'disposition' => 'replace_closest',
 				'selector' => 'tr',
@@ -50,7 +50,7 @@ if (empty($task_slot->person_id)) {
 	} else if ($this->Authorize->can('approve', $task_slot)) {
 		echo $this->Html->tag('span',
 			$this->Jquery->ajaxLink(__('Approve'), [
-				'url' => ['controller' => 'TaskSlots', 'action' => 'approve', 'slot' => $task_slot->id],
+				'url' => ['controller' => 'TaskSlots', 'action' => 'approve', '?' => ['slot' => $task_slot->id]],
 				// Need to replace the .actions span
 				'disposition' => 'replace_closest',
 				'selector' => 'span',
@@ -63,14 +63,14 @@ if (empty($task_slot->person_id)) {
 	?></td>
 	<td class="actions"><?php
 	echo $this->Html->iconLink('view_24.png',
-		['controller' => 'TaskSlots', 'action' => 'view', 'slot' => $task_slot->id],
+		['controller' => 'TaskSlots', 'action' => 'view', '?' => ['slot' => $task_slot->id]],
 		['alt' => __('View'), 'title' => __('View')]);
 	if ($this->Authorize->can('edit', $task_slot)) {
 		echo $this->Html->iconLink('edit_24.png',
-			['controller' => 'TaskSlots', 'action' => 'edit', 'slot' => $task_slot->id],
+			['controller' => 'TaskSlots', 'action' => 'edit', '?' => ['slot' => $task_slot->id]],
 			['alt' => __('Edit'), 'title' => __('Edit')]);
 		echo $this->Form->iconPostLink('delete_24.png',
-			['controller' => 'TaskSlots', 'action' => 'delete', 'slot' => $task_slot->id],
+			['controller' => 'TaskSlots', 'action' => 'delete', '?' => ['slot' => $task_slot->id]],
 			['alt' => __('Delete'), 'title' => __('Delete')],
 			['confirm' => __('Are you sure you want to delete this task slot?')]);
 	}

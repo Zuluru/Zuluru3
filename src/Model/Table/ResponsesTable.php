@@ -24,7 +24,7 @@ class ResponsesTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('responses');
@@ -56,7 +56,7 @@ class ResponsesTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->existsIn(['event_id'], 'Events'));
 		$rules->add($rules->existsIn(['registration_id'], 'Registrations'));
 
@@ -99,7 +99,7 @@ class ResponsesTable extends AppTable {
 	 * @param \ArrayObject $options The options passed to the save method
 	 * @return void
 	 */
-	public function beforeSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function beforeSave(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		if (!empty($options['event']->questionnaire->questions)) {
 			$question = collection($options['event']->questionnaire->questions)->firstMatch(['id' => $entity->question_id]);
 			if ($question && $question->anonymous) {

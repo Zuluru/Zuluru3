@@ -40,16 +40,16 @@ foreach ($affiliates as $affiliate):
 				?></td>
 				<td class="actions"><?php
 				echo $this->Html->iconLink('view_24.png',
-					['action' => 'view', 'affiliate' => $affiliate->id],
+					['action' => 'view', '?' => ['affiliate' => $affiliate->id]],
 					['alt' => __('View'), 'title' => __('View')]);
 				echo $this->Html->iconLink('edit_24.png',
-					['action' => 'edit', 'affiliate' => $affiliate->id],
+					['action' => 'edit', '?' => ['affiliate' => $affiliate->id]],
 					['alt' => __('Edit'), 'title' => __('Edit')]);
 				echo $this->Html->iconLink('coordinator_add_24.png',
-					['action' => 'add_manager', 'affiliate' => $affiliate->id],
+					['action' => 'add_manager', '?' => ['affiliate' => $affiliate->id]],
 					['alt' => __('Add Manager'), 'title' => __('Add Manager')]);
 				echo $this->Form->iconPostLink('delete_24.png',
-					['action' => 'delete', 'affiliate' => $affiliate->id],
+					['action' => 'delete', '?' => ['affiliate' => $affiliate->id]],
 					['alt' => __('Delete'), 'title' => __('Delete')],
 					['confirm' => __('Are you sure you want to delete this affiliate?')]);
 				?></td>

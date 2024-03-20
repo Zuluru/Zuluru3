@@ -23,7 +23,7 @@ $this->Breadcrumbs->add(__('View'));
 			<dt><?= __('User ID') ?></dt>
 			<dd><?= $registration->person->id ?></dd>
 			<dt><?= __('Event') ?></dt>
-			<dd><?= $this->Html->link($registration->event->name, ['controller' => 'Events', 'action' => 'view', 'event' => $registration->event->id]) ?></dd>
+			<dd><?= $this->Html->link($registration->event->name, ['controller' => 'Events', 'action' => 'view', '?' => ['event' => $registration->event->id]]) ?></dd>
 			<dt><?= __('Total Amount') ?></dt>
 			<dd><?= $this->Number->currency($registration->total_amount) ?></dd>
 			<dt><?= __('Created') ?></dt>
@@ -129,8 +129,8 @@ if ($this->Authorize->getIdentity()->isManagerOf($registration->event)):
 	<div class="actions columns">
 		<ul class="nav nav-pills">
 <?php
-			echo $this->Html->tag('li', $this->Html->link(__('Issue Refund'), ['action' => 'refund_payment', 'payment' => $payment->id]));
-			echo $this->Html->tag('li', $this->Html->link(__('Issue Credit'), ['action' => 'credit_payment', 'payment' => $payment->id]));
+			echo $this->Html->tag('li', $this->Html->link(__('Issue Refund'), ['action' => 'refund_payment', '?' => ['payment' => $payment->id]]));
+			echo $this->Html->tag('li', $this->Html->link(__('Issue Credit'), ['action' => 'credit_payment', '?' => ['payment' => $payment->id]]));
 ?>
 		</ul>
 	</div>

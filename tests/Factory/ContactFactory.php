@@ -25,7 +25,7 @@ class ContactFactory extends BaseFactory
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [
-				'name' => $faker->word,
+				'name' => $faker->word(),
 				'email' => $faker->email,
 			];
 		});

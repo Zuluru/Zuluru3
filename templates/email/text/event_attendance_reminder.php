@@ -50,12 +50,12 @@ endif;
 ?>
 <?= __('If you are able to attend:') ?>
 
-<?= Router::url(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => $team_event->id, 'person' => $person->id, 'code' => $code, 'status' => ATTENDANCE_ATTENDING], true) ?>
+<?= Router::url(['controller' => 'TeamEvents', 'action' => 'attendance_change', '?' => ['event' => $team_event->id, 'person' => $person->id, 'code' => $code, 'status' => ATTENDANCE_ATTENDING]], true) ?>
 
 
 <?= __('If you are unavailable to attend:') ?>
 
-<?= Router::url(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => $team_event->id, 'person' => $person->id, 'code' => $code, 'status' => ATTENDANCE_ABSENT], true) ?>
+<?= Router::url(['controller' => 'TeamEvents', 'action' => 'attendance_change', '?' => ['event' => $team_event->id, 'person' => $person->id, 'code' => $code, 'status' => ATTENDANCE_ABSENT]], true) ?>
 
 
 <?= $this->element('Email/text/footer');

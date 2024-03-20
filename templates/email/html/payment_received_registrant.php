@@ -27,7 +27,7 @@ else:
 endif;
 ?>
 <p><?= __('Details of this registration can be {0}.',
-	$this->Html->link(__('viewed any time'), Router::url(['plugin' => false, 'controller' => 'Registrations', 'action' => 'invoice', 'registration' => $registration->id], true))
+	$this->Html->link(__('viewed any time'), Router::url(['plugin' => false, 'controller' => 'Registrations', 'action' => 'invoice', '?' => ['registration' => $registration->id]], true))
 ) ?></p>
 <p><?= __('If you have any questions or concerns about this, please contact {0}.',
 	$this->Html->link(Configure::read('email.admin_name'), 'mailto:' . Configure::read('email.admin_email'))

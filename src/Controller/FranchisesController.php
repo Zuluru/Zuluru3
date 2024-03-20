@@ -32,7 +32,7 @@ class FranchisesController extends AppController {
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$affiliate = $this->getRequest()->getQuery('affiliate');
@@ -96,7 +96,7 @@ class FranchisesController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('franchise');
@@ -124,12 +124,12 @@ class FranchisesController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
 		$this->Authorization->authorize($this);
 
-		$franchise = $this->Franchises->newEntity();
+		$franchise = $this->Franchises->newEmptyEntity();
 		if ($this->getRequest()->is('post')) {
 			$data = $this->getRequest()->getData();
 			$data['people'] = ['_ids' => [$this->UserCache->currentId()]];
@@ -150,7 +150,7 @@ class FranchisesController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('franchise');
@@ -186,7 +186,7 @@ class FranchisesController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -226,7 +226,7 @@ class FranchisesController extends AppController {
 	/**
 	 * Add team to franchise method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise
 	 */
 	public function add_team() {
 		$id = $this->getRequest()->getQuery('franchise');
@@ -274,7 +274,7 @@ class FranchisesController extends AppController {
 	/**
 	 * Remove team from franchise method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to view.
+	 * @return void|\Cake\Http\Response Redirects to view.
 	 */
 	public function remove_team() {
 		$this->getRequest()->allowMethod(['post']);
@@ -350,7 +350,7 @@ class FranchisesController extends AppController {
 	/**
 	 * Add owner to franchise method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise
 	 */
 	public function add_owner() {
 		$id = $this->getRequest()->getQuery('franchise');
@@ -413,7 +413,7 @@ class FranchisesController extends AppController {
 	/**
 	 * Remove owner from franchise method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to view.
+	 * @return void|\Cake\Http\Response Redirects to view.
 	 */
 	public function remove_owner() {
 		$this->getRequest()->allowMethod(['post']);

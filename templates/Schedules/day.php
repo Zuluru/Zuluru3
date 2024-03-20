@@ -83,7 +83,7 @@ else:
 ?>
 				<td><?php
 					if (!$same_slot) {
-						echo $this->Html->link($this->Time->timeRange($game->game_slot), ['controller' => 'Games', 'action' => 'view', 'game' => $game->id]);
+						echo $this->Html->link($this->Time->timeRange($game->game_slot), ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]]);
 					}
 				?></td>
 				<td><?= $same_slot ? '' : $this->element('Fields/block', ['field' => $game->game_slot->field]) ?></td>

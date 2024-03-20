@@ -15,7 +15,7 @@ use Cake\Routing\Router;
 __('You can edit the game here:')
 ?>
 
-<?= Router::url(['controller' => 'Games', 'action' => 'edit', 'game' => $game->id], true) ?>
+<?= Router::url(['controller' => 'Games', 'action' => 'edit', '?' => ['game' => $game->id]], true) ?>
 
 
 <?= __('Alternately, contact the coaches or captains, and whoever made a mistake with their entry can edit it themselves.');

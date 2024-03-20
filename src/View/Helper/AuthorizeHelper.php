@@ -36,7 +36,7 @@ class AuthorizeHelper extends Helper {
 	 * @param array $config The configuration settings provided to this helper.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		$this->_identity = $this->getView()->getRequest()->getAttribute('identity');
 		$this->_authorize = $this->getView()->getRequest()->getAttribute('authorization');
 
@@ -59,7 +59,7 @@ class AuthorizeHelper extends Helper {
 	 * @param mixed $resource The resource being operated on.
 	 * @return bool
 	 */
-	public function can($action, $resource) {
+	public function can(string $action, $resource): bool {
 		if (empty($this->_authorize)) {
 			return false;
 		}

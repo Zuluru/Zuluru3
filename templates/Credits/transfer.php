@@ -24,7 +24,7 @@ if (!empty($relatives)):
 	$items = [];
 	foreach ($relatives as $relative) {
 		$items[] = $this->element('People/block', ['person' => $relative]) . ' ' .
-			$this->Html->iconLink('move_24.png', ['controller' => 'Credits', 'action' => 'transfer', 'credit' => $credit->id, 'person' => $relative->id],
+			$this->Html->iconLink('move_24.png', ['controller' => 'Credits', 'action' => 'transfer', '?' => ['credit' => $credit->id, 'person' => $relative->id]],
 				['alt' => __('Transfer Credit'), 'title' => __('Transfer')],
 				['confirm' => __('Are you sure you want to transfer this credit to this person?')]
 			);
@@ -41,7 +41,7 @@ if (!empty($captains)):
 	$items = [];
 	foreach ($captains as $id => $captain) {
 		$items[] = $this->element('People/block', ['person' => $captain]) . ' ' .
-			$this->Html->iconLink('move_24.png', ['controller' => 'Credits', 'action' => 'transfer', 'credit' => $credit->id, 'person' => $captain->id],
+			$this->Html->iconLink('move_24.png', ['controller' => 'Credits', 'action' => 'transfer', '?' => ['credit' => $credit->id, 'person' => $captain->id]],
 				['alt' => __('Transfer Credit'), 'title' => __('Transfer')],
 				['confirm' => __('Are you sure you want to transfer this credit to this person?')]
 			);

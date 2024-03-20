@@ -70,7 +70,7 @@ if (Configure::read('feature.facility_preference') && !empty($team->facilities))
 		<dd><?php
 			$facilities = [];
 			foreach ($team->facilities as $facility) {
-				$facilities[] = $this->Html->link($facility->name, ['controller' => 'Facilities', 'action' => 'view', 'facility' => $facility->id]);
+				$facilities[] = $this->Html->link($facility->name, ['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $facility->id]]);
 			}
 			echo implode(', ', $facilities);
 		?></dd>
@@ -174,7 +174,7 @@ if (Configure::read('feature.franchises') && !empty($team->franchises)):
 		<dd><?php
 			$franchises = [];
 			foreach ($team->franchises as $franchise) {
-				$franchises[] = $this->Html->link($franchise->name, ['controller' => 'Franchises', 'action' => 'view', 'franchise' => $franchise->id]);
+				$franchises[] = $this->Html->link($franchise->name, ['controller' => 'Franchises', 'action' => 'view', '?' => ['franchise' => $franchise->id]]);
 			}
 			echo implode(', ', $franchises);
 		?></dd>
@@ -185,7 +185,7 @@ if ($team->has('affiliate')):
 ?>
 		<dt><?= __('Affiliated Team') ?></dt>
 		<dd><?php
-			echo $this->Html->link($team->affiliate->name, ['action' => 'view', 'team' => $team->affiliate->id]) .
+			echo $this->Html->link($team->affiliate->name, ['action' => 'view', '?' => ['team' => $team->affiliate->id]]) .
 				__(' ({0})', $this->element('Divisions/block', ['division' => $team->affiliate->division, 'field' => 'full_league_name']));
 		?></dd>
 <?php
@@ -221,13 +221,13 @@ if (!empty($team->notes)):
 					<td class="actions"><?php
 						if ($this->Authorize->can('edit_team', $note)) {
 							echo $this->Html->iconLink('edit_24.png',
-								['action' => 'note', 'note' => $note->id],
+								['action' => 'note', '?' => ['note' => $note->id]],
 								['alt' => __('Edit Note'), 'title' => __('Edit Note')]
 							);
 						}
 						if ($this->Authorize->can('delete_team', $note)) {
 							echo $this->Form->iconPostLink('delete_24.png',
-								['action' => 'delete_note', 'note' => $note->id],
+								['action' => 'delete_note', '?' => ['note' => $note->id]],
 								['alt' => __('Delete'), 'title' => __('Delete Note')],
 								['confirm' => __('Are you sure you want to delete this note?')]);
 						}
@@ -461,7 +461,7 @@ if (!empty($team->teams_people) && $this->Authorize->can('view_roster', \App\Con
 						<td><?php
 							foreach ($person->badges as $badge) {
 								if ($this->Authorize->can('view', $badge)) {
-									echo $this->Html->iconLink("{$badge->icon}_32.png", ['controller' => 'Badges', 'action' => 'view', 'badge' => $badge->id],
+									echo $this->Html->iconLink("{$badge->icon}_32.png", ['controller' => 'Badges', 'action' => 'view', '?' => ['badge' => $badge->id]],
 										['alt' => $badge->name, 'title' => $badge->description]);
 								}
 							}

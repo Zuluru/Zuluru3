@@ -23,7 +23,7 @@ foreach ($people as $person) {
 		$coordinator .= '&nbsp;' .
 			$this->Html->tag('span',
 				$this->Form->iconPostLink('coordinator_delete_24.png',
-					['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => $division->id, 'person' => $person->id],
+					['controller' => 'Divisions', 'action' => 'remove_coordinator', '?' => ['division' => $division->id, 'person' => $person->id]],
 					['alt' => __('Remove'), 'title' => __('Remove')]),
 				['class' => 'actions']);
 	}

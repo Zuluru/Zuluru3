@@ -65,7 +65,7 @@ class LeaguesTableTest extends TableTestCase {
 		])->persist();
 
 		// Make a variety of leagues
-		$ultimate_closed = LeagueFactory::make(['season' => 'Summer', 'open' => FrozenDate::now()->subYear()])
+		$ultimate_closed = LeagueFactory::make(['season' => 'Summer', 'open' => FrozenDate::now()->subYears(1)])
 			->with('Divisions.Days', ['id' => ChronosInterface::FRIDAY, 'name' => 'Friday'])
 			->with('Affiliates', $affiliates[0])
 			->persist();

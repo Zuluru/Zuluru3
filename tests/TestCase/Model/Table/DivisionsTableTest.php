@@ -110,7 +110,7 @@ class DivisionsTableTest extends TableTestCase {
 
 		/** @var \App\Model\Entity\League $old_league */
 		$old_league = $this->loadFixtureScenario(LeagueScenario::class, [
-			'affiliate' => $admin->affiliates[0], 'coordinator' => $volunteer, 'division_details' => ['is_open' => false, 'open' => FrozenDate::now()->subMonth()]
+			'affiliate' => $admin->affiliates[0], 'coordinator' => $volunteer, 'division_details' => ['is_open' => false, 'open' => FrozenDate::now()->subMonths(1)]
 		]);
 
 		$divisions = $this->DivisionsTable->readByPlayerId($volunteer->id);

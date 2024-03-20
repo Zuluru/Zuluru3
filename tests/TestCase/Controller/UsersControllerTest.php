@@ -127,7 +127,7 @@ class UsersControllerTest extends ControllerTestCase {
 				'email' => 'test@example.com',
 				'new_password' => 'password',
 				'confirm_password' => 'password',
-				'timestamp' => FrozenTime::now()->subMinute()->toUnixString(),
+				'timestamp' => FrozenTime::now()->subMinutes(1)->toUnixString(),
 				'person' => [
 					'groups' => ['_ids' => [GROUP_PLAYER]],
 					'affiliates' => [['id' => $affiliate->id]],
@@ -218,7 +218,7 @@ class UsersControllerTest extends ControllerTestCase {
 				'email' => 'test@example.com',
 				'new_password' => 'password',
 				'confirm_password' => 'password',
-				'timestamp' => FrozenTime::now()->subMinute()->toUnixString(),
+				'timestamp' => FrozenTime::now()->subMinutes(1)->toUnixString(),
 				'person' => [
 					'groups' => ['_ids' => [GROUP_PARENT]],
 					'affiliates' => [['id' => $affiliate->id]],
@@ -333,7 +333,7 @@ class UsersControllerTest extends ControllerTestCase {
 				'email' => 'test@example.com',
 				'new_password' => 'password',
 				'confirm_password' => 'password',
-				'timestamp' => FrozenTime::now()->subMinute()->toUnixString(),
+				'timestamp' => FrozenTime::now()->subMinutes(1)->toUnixString(),
 				'person' => [
 					'groups' => ['_ids' => [GROUP_PARENT]],
 					'affiliates' => [['id' => $affiliate->id]],
@@ -448,7 +448,7 @@ class UsersControllerTest extends ControllerTestCase {
 		$this->assertObjectHasAttribute('sub', $token_data);
 		$this->assertEquals($admin->user_id, $token_data->sub);
 		$this->assertObjectHasAttribute('exp', $token_data);
-		$this->assertEquals(FrozenTime::now()->addWeek()->toUnixString(), $token_data->exp);
+		$this->assertEquals(FrozenTime::now()->addWeeks(1)->toUnixString(), $token_data->exp);
 	}
 
 	/**

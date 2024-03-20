@@ -26,7 +26,7 @@ else:
 		foreach ($letters as $l) {
 			$l = strtoupper($l['letter']);
 			if ($l != $letter) {
-				$links[] = $this->Html->link($l, ['action' => 'letter', 'letter' => $l]);
+				$links[] = $this->Html->link($l, ['action' => 'letter', '?' => ['letter' => $l]]);
 			} else {
 				$links[] = $letter;
 			}
@@ -57,7 +57,7 @@ else:
 ?>
 				<tr>
 					<td><?php
-						echo $this->Html->link($franchise->name, ['action' => 'view', 'franchise' => $franchise->id]);
+						echo $this->Html->link($franchise->name, ['action' => 'view', '?' => ['franchise' => $franchise->id]]);
 						// TODO: Link to website, if any
 					?></td>
 					<td><?php
@@ -70,18 +70,18 @@ else:
 					<td class="actions"><?php
 						if ($this->Authorize->can('add_team', $franchise)) {
 							echo $this->Html->iconLink('team_add_24.png',
-								['action' => 'add_team', 'franchise' => $franchise->id],
+								['action' => 'add_team', '?' => ['franchise' => $franchise->id]],
 								['alt' => __('Add Team'), 'title' => __('Add Team')]);
 						}
 						if ($this->Authorize->can('edit', $franchise)) {
 							echo $this->Html->iconLink('edit_24.png',
-								['action' => 'edit', 'franchise' => $franchise->id, 'return' => AppController::_return()],
+								['action' => 'edit', '?' => ['franchise' => $franchise->id, 'return' => AppController::_return()]],
 								['alt' => __('Edit'), 'title' => __('Edit')]);
 							echo $this->Html->iconLink('move_24.png',
-								['action' => 'add_owner', 'franchise' => $franchise->id],
+								['action' => 'add_owner', '?' => ['franchise' => $franchise->id]],
 								['alt' => __('Add an Owner'), 'title' => __('Add an Owner')]);
 							echo $this->Form->iconPostLink('delete_24.png',
-								['action' => 'delete', 'franchise' => $franchise->id, 'return' => AppController::_return()],
+								['action' => 'delete', '?' => ['franchise' => $franchise->id, 'return' => AppController::_return()]],
 								['alt' => __('Delete'), 'title' => __('Delete')],
 								['confirm' => __('Are you sure you want to delete this franchise?')]);
 						}

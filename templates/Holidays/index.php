@@ -44,10 +44,10 @@ foreach ($holidays as $holiday):
 				<td><?= h($holiday->name) ?></td>
 				<td class="actions"><?php
 				echo $this->Html->iconLink('edit_24.png',
-					['action' => 'edit', 'holiday' => $holiday->id],
+					['action' => 'edit', '?' => ['holiday' => $holiday->id]],
 					['alt' => __('Edit'), 'title' => __('Edit')]);
 				echo $this->Form->iconPostLink('delete_24.png',
-					['action' => 'delete', 'holiday' => $holiday->id],
+					['action' => 'delete', '?' => ['holiday' => $holiday->id]],
 					['alt' => __('Delete'), 'title' => __('Delete')],
 					['confirm' => __('Are you sure you want to delete this holiday?')]);
 				?></td>

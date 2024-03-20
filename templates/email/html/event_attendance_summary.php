@@ -13,9 +13,9 @@ $link_address = strtr($address, ' ', '+');
 
 <p><?= __('Dear {0},', $captains) ?></p>
 <p><?= __('This is your attendance summary for the {0} event "{1}" at {2} ({3}) starting at {4} on {5}.',
-	$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], true)),
+	$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]], true)),
 	$this->Html->link($team_event->name,
-		Router::url(['controller' => 'TeamEvents', 'action' => 'view', 'event' => $team_event->id], true)),
+		Router::url(['controller' => 'TeamEvents', 'action' => 'view', '?' => ['event' => $team_event->id]], true)),
 	$team_event->location_name,
 	$this->Html->link($address, "https://maps.google.com/maps?q=$link_address"),
 	$this->Time->time($team_event->start),
@@ -36,7 +36,7 @@ foreach ($summary as $status => $genders) {
 ?>
 <p><?= __('You can {0}.',
 		$this->Html->link(__('update this or check up-to-the-minute details'),
-			Router::url(['controller' => 'TeamEvents', 'action' => 'view', 'event' => $team_event->id], true)
+			Router::url(['controller' => 'TeamEvents', 'action' => 'view', '?' => ['event' => $team_event->id]], true)
 		)
 	) . ' ' .
 	__('You need to be logged into the website to update this.')

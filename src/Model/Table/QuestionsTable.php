@@ -24,7 +24,7 @@ class QuestionsTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('questions');
@@ -59,7 +59,7 @@ class QuestionsTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
@@ -92,7 +92,7 @@ class QuestionsTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->existsIn(['affiliate_id'], 'Affiliates', __('You must select a valid affiliate.')));
 
 		$rules->add(new InConfigRule('options.question_types'), 'validType', [
@@ -112,7 +112,7 @@ class QuestionsTable extends AppTable {
 	 * @param mixed $operation The operation (e.g. create, delete) about to be run
 	 * @return void
 	 */
-	public function beforeRules(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options, $operation) {
+	public function beforeRules(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options, $operation) {
 		if ($entity->isNew()) {
 			$entity->active = true;
 		}

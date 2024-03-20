@@ -29,7 +29,7 @@ if (isset($pool)) {
 	echo $this->Html->para('warning-message', __('You have defined pool {0} with {1} teams but not yet scheduled games for it. Options below reflect your choices for scheduling this pool.', $pool->name, count($pool->pools_teams)));
 	echo $this->Html->para('warning-message', __('If your pool definitions are incorrect, you can {0} and then re-create them.',
 		$this->Html->link(__('delete all pools in this stage'),
-			['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => $division->id, 'stage' => $pool->stage],
+			['controller' => 'Divisions', 'action' => 'delete_stage', '?' => ['division' => $division->id, 'stage' => $pool->stage]],
 			['confirm' => __('Are you sure you want to delete this stage?')])
 	));
 	$division->_options->pool_id = $pool->id;
@@ -56,7 +56,7 @@ echo $this->Html->para(null, __('Select the type of game or games to add. Note t
 
 if (!$is_tournament) {
 	echo $this->Html->para(null, __('Alternately, you can {0}.',
-		$this->Html->link(__('create a playoff schedule'), ['division' => $division->id, 'playoff' => true])) .
+		$this->Html->link(__('create a playoff schedule'), ['?' => ['division' => $division->id, 'playoff' => true]])) .
 		$this->Html->help(['action' => 'schedules', 'playoffs'])
 	);
 }

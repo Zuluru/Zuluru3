@@ -174,7 +174,7 @@ class GamePolicy extends AppPolicy {
 		}
 
 		$game = $resource->resource();
-		if ($game->game_slot->end_time->subHour()->isFuture()) {
+		if ($game->game_slot->end_time->subHours(1)->isFuture()) {
 			throw new ForbiddenRedirectException(__('That game has not yet occurred!'));
 		}
 

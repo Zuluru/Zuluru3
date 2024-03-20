@@ -4,4 +4,4 @@
  * @var \App\Model\Entity\Answer $answer
  */
 
-echo $this->Jquery->ajaxLink(__('Deactivate'), ['url' => ['action' => 'deactivate', 'answer' => $answer->id]]);
+echo $this->Jquery->ajaxLink(__('Deactivate'), ['url' => ['action' => 'deactivate', '?' => ['answer' => $answer->id]]]);

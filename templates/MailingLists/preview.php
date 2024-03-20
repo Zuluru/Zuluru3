@@ -44,13 +44,13 @@ endif;
 <?php
 echo $this->Html->tag('li', $this->Html->link(__('List Mailing Lists'), ['action' => 'index']));
 echo $this->Html->tag('li', $this->Html->iconLink('view_32.png',
-	['action' => 'View', 'mailing_list' => $mailing_list->id],
+	['action' => 'View', '?' => ['mailing_list' => $mailing_list->id]],
 	['alt' => __('View'), 'title' => __('View')]));
 echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
-	['action' => 'edit', 'mailing_list' => $mailing_list->id, 'return' => AppController::_return()],
+	['action' => 'edit', '?' => ['mailing_list' => $mailing_list->id, 'return' => AppController::_return()]],
 	['alt' => __('Edit'), 'title' => __('Edit')]));
 echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-	['action' => 'delete', 'mailing_list' => $mailing_list->id],
+	['action' => 'delete', '?' => ['mailing_list' => $mailing_list->id]],
 	['alt' => __('Delete'), 'title' => __('Delete Mailing List')],
 	['confirm' => __('Are you sure you want to delete this mailingList?')]));
 echo $this->Html->tag('li', $this->Html->iconLink('mailing_list_add_32.png',

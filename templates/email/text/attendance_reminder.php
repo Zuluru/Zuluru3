@@ -30,7 +30,7 @@ if ($status == ATTENDANCE_UNKNOWN || $status == ATTENDANCE_INVITED) {
 	echo __('You have not yet indicated your attendance for the {0} game{1} at {2} from {3} to {4} on {5}.',
 		$team->name,
 		$opponent_text,
-		$game->game_slot->field->long_name . __(' ({0})', Router::url(['controller' => 'Facilities', 'action' => 'view', 'facility' => $game->game_slot->field->facility_id], true)),
+		$game->game_slot->field->long_name . __(' ({0})', Router::url(['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $game->game_slot->field->facility_id]], true)),
 		$this->Time->time($game->game_slot->game_start),
 		$this->Time->time($game->game_slot->display_game_end),
 		$this->Time->date($game->game_slot->game_date)
@@ -40,7 +40,7 @@ if ($status == ATTENDANCE_UNKNOWN || $status == ATTENDANCE_INVITED) {
 		Configure::read("attendance.$status"),
 		$team->name,
 		$opponent_text,
-		$game->game_slot->field->long_name . __(' ({0})', Router::url(['controller' => 'Facilities', 'action' => 'view', 'facility' => $game->game_slot->field->facility_id], true)),
+		$game->game_slot->field->long_name . __(' ({0})', Router::url(['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $game->game_slot->field->facility_id]], true)),
 		$this->Time->time($game->game_slot->game_start),
 		$this->Time->time($game->game_slot->display_game_end),
 		$this->Time->date($game->game_slot->game_date)
@@ -62,7 +62,7 @@ if ($status == ATTENDANCE_INVITED || in_array($person->_joinData->role, Configur
 ?>
 <?= __('If you are able to play:') ?>
 
-<?= Router::url(['controller' => 'Games', 'action' => 'attendance_change', 'team' => $team->id, 'game' => $game->id, 'person' => $person->id, 'code' => $code, 'status' => ATTENDANCE_ATTENDING], true) ?>
+<?= Router::url(['controller' => 'Games', 'action' => 'attendance_change', '?' => ['team' => $team->id, 'game' => $game->id, 'person' => $person->id, 'code' => $code, 'status' => ATTENDANCE_ATTENDING]], true) ?>
 
 
 <?php
@@ -70,7 +70,7 @@ elseif ($status != ATTENDANCE_ATTENDING && !in_array($person->_joinData->role, C
 ?>
 <?= __('If you are available to play:') ?>
 
-<?= Router::url(['controller' => 'Games', 'action' => 'attendance_change', 'team' => $team->id, 'game' => $game->id, 'person' => $person->id, 'code' => $code, 'status' => ATTENDANCE_AVAILABLE], true) ?>
+<?= Router::url(['controller' => 'Games', 'action' => 'attendance_change', '?' => ['team' => $team->id, 'game' => $game->id, 'person' => $person->id, 'code' => $code, 'status' => ATTENDANCE_AVAILABLE]], true) ?>
 
 
 <?php
@@ -78,7 +78,7 @@ endif;
 ?>
 <?= __('If you are unavailable to play:') ?>
 
-<?= Router::url(['controller' => 'Games', 'action' => 'attendance_change', 'team' => $team->id, 'game' => $game->id, 'person' => $person->id, 'code' => $code, 'status' => ATTENDANCE_ABSENT], true) ?>
+<?= Router::url(['controller' => 'Games', 'action' => 'attendance_change', '?' => ['team' => $team->id, 'game' => $game->id, 'person' => $person->id, 'code' => $code, 'status' => ATTENDANCE_ABSENT]], true) ?>
 
 
 <?= __('Note that you can {0}, giving your coach or captain advance notice of vacations or other planned absences.',
@@ -87,7 +87,7 @@ endif;
 	__('You need to be logged into the website to update this.')
 ?>
 
-<?= Router::url(['controller' => 'Teams', 'action' => 'attendance', 'team' => $team->id], true) ?>
+<?= Router::url(['controller' => 'Teams', 'action' => 'attendance', '?' => ['team' => $team->id]], true) ?>
 
 
 <?= $this->element('Email/text/footer');

@@ -49,7 +49,7 @@ echo $this->Form->control('person_id', [
 echo $this->Html->tag('li', $this->Html->link(__('List Tasks'), ['action' => 'index']));
 if (!$task->isNew()) {
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-		['action' => 'delete', 'task' => $task->id],
+		['action' => 'delete', '?' => ['task' => $task->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Task')],
 		['confirm' => __('Are you sure you want to delete this task?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',

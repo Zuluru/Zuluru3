@@ -65,7 +65,7 @@ else:
 ?>
 				<th class="actions"><?php
 					echo $this->Html->iconLink('edit_24.png',
-						['controller' => 'Affiliates', 'action' => 'edit', 'affiliate' => $league->affiliate_id, 'return' => AppController::_return()],
+						['controller' => 'Affiliates', 'action' => 'edit', '?' => ['affiliate' => $league->affiliate_id, 'return' => AppController::_return()]],
 						['alt' => __('Edit'), 'title' => __('Edit Affiliate')]);
 				?></th>
 <?php
@@ -181,7 +181,7 @@ if (!empty($years)):
 	<ul class="nav nav-pills">
 <?php
 foreach ($years as $year) {
-	echo $this->Html->tag('li', $this->Html->link($year, ['affiliate' => $affiliate, 'sport' => $sport, 'year' => $year]));
+	echo $this->Html->tag('li', $this->Html->link($year, ['?' => ['affiliate' => $affiliate, 'sport' => $sport, 'year' => $year]]));
 }
 ?>
 	</ul>

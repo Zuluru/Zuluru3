@@ -32,7 +32,7 @@ class TaskSlotsController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('slot');
@@ -88,7 +88,7 @@ class TaskSlotsController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
 		$id = $this->getRequest()->getQuery('task');
@@ -105,7 +105,7 @@ class TaskSlotsController extends AppController {
 		$this->Authorization->authorize($task, 'add_slots');
 		$this->Configuration->loadAffiliate($task->affiliate_id);
 
-		$task_slot = $this->TaskSlots->newEntity();
+		$task_slot = $this->TaskSlots->newEmptyEntity();
 		if ($this->getRequest()->is('post')) {
 			$task_slot = $this->TaskSlots->patchEntity($task_slot, array_merge($this->getRequest()->getData(), ['task_id' => $id]));
 			$date = $task_slot->task_date;
@@ -115,7 +115,7 @@ class TaskSlotsController extends AppController {
 						$slot = $this->TaskSlots->newEntity(array_merge($this->getRequest()->getData(), ['task_id' => $id, 'task_date' => $date]));
 						$this->TaskSlots->save($slot);
 					}
-					$date = $date->addDay();
+					$date = $date->addDays(1);
 				}
 				$this->Flash->success(__('The task slot(s) have been saved. You may create more similar task slots below.'));
 			} else {
@@ -130,7 +130,7 @@ class TaskSlotsController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('slot');
@@ -162,7 +162,7 @@ class TaskSlotsController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);

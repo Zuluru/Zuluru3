@@ -24,7 +24,7 @@ class ActivityLogsFixture extends TestFixture {
 		$this->records = [
 			[
 				'type' => 'email_score_reminder',
-				'created' => (new FrozenDate('last Monday 12:00:00'))->addDay(),
+				'created' => (new FrozenDate('last Monday 12:00:00'))->addDays(1),
 				'team_id' => TEAM_ID_RED,
 				'person_id' => null,
 				'game_id' => GAME_ID_LADDER_MATCHED_SCORES,
@@ -34,7 +34,7 @@ class ActivityLogsFixture extends TestFixture {
 			],
 			[
 				'type' => 'newsletter',
-				'created' => (new FrozenDate('last Monday 12:00:00'))->addDay(),
+				'created' => (new FrozenDate('last Monday 12:00:00'))->addDays(1),
 				'team_id' => null,
 				'person_id' => PERSON_ID_CHILD,
 				'game_id' => null,

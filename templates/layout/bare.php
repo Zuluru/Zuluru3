@@ -11,7 +11,7 @@
 $this->Html->meta(['name' => 'no_cms_wrapper'], null, ['block' => true]);
 
 // Set up common default blocks
-$this->element('Layout/common_blocks');
+$this->element('layout/common_blocks');
 ?>
 <?= $this->fetch('html') ?>
 
@@ -36,7 +36,7 @@ echo $this->fetch('javascript_variables');
 echo $this->fetch('zuluru_script');
 ?>
 
-	<?= $this->element('Layout/footer_script') ?>
+	<?= $this->element('layout/footer_script') ?>
 
 <?= $this->fetch('body_end') ?>
 

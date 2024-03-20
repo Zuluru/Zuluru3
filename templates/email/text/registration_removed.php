@@ -24,7 +24,7 @@ use Cake\Routing\Router;
 	__('If you wish to be placed on the waiting list in case a spot opens up, you can re-register for this at')
 ?>
 
-<?= Router::url(['controller' => 'Events', 'action' => 'view', 'event' => $event->id], true) ?>
+<?= Router::url(['controller' => 'Events', 'action' => 'view', '?' => ['event' => $event->id]], true) ?>
 
 
 <?= __('If you have any questions or concerns about this, please contact {0}.',

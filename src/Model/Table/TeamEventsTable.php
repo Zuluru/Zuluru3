@@ -24,7 +24,7 @@ class TeamEventsTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('team_events');
@@ -70,7 +70,7 @@ class TeamEventsTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
@@ -116,7 +116,7 @@ class TeamEventsTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->existsIn(['team_id'], 'Teams'));
 
 		$rules->add(new InConfigRule('provinces'), 'validProvince', [
@@ -250,7 +250,7 @@ class TeamEventsTable extends AppTable {
 
 		// Extract list of players on the roster as of this date
 		$roster = collection($team->people)->filter(function ($person) use ($date) {
-			return $person->_joinData->created < $date->addDay() && $person->_joinData->status == ROSTER_APPROVED;
+			return $person->_joinData->created < $date->addDays(1) && $person->_joinData->status == ROSTER_APPROVED;
 		})->toArray();
 
 		// Go through the roster and make sure there are records for all players on this date.

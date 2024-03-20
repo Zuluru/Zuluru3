@@ -30,7 +30,7 @@ class GameSlotsTable extends AppTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->setTable('game_slots');
@@ -91,7 +91,7 @@ class GameSlotsTable extends AppTable {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	public function validationDefault(Validator $validator) {
+	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
 		$validator = $this->validationCommon($validator);
 
 		$validator
@@ -143,7 +143,7 @@ class GameSlotsTable extends AppTable {
 	 * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
 	 * @return \Cake\ORM\RulesChecker
 	 */
-	public function buildRules(RulesChecker $rules) {
+	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
 		$rules->add($rules->existsIn(['field_id'], 'Fields', __('You must select a valid field.')));
 
 		$rules->addCreate(new InDateConfigRule('gameslot'), 'rangeGameDate', [
@@ -319,7 +319,7 @@ class GameSlotsTable extends AppTable {
 		} else if ($options['multi_day']) {
 			$query->where([
 				function ($exp) use ($options, $query) {
-					$end = (new FrozenDate($options['date']))->next(Configure::read('organization.first_day'))->subDay();
+					$end = (new FrozenDate($options['date']))->next(Configure::read('organization.first_day'))->subDays(1);
 					return $exp->between('GameSlots.game_date', $options['date'], $end, 'date');
 				},
 			]);

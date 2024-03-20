@@ -42,13 +42,13 @@ if (!empty($affiliate->people)):
 					<td><?= $this->element('People/block', ['person' => $person, 'display_field' => 'last_name']) ?></td>
 					<td class="actions"><?php
 						echo $this->Html->iconLink('view_24.png',
-							['controller' => 'People', 'action' => 'view', 'person' => $person->id],
+							['controller' => 'People', 'action' => 'view', '?' => ['person' => $person->id]],
 							['alt' => __('View'), 'title' => __('View')]);
 						echo $this->Html->iconLink('edit_24.png',
-							['controller' => 'People', 'action' => 'edit', 'person' => $person->id],
+							['controller' => 'People', 'action' => 'edit', '?' => ['person' => $person->id]],
 							['alt' => __('Edit'), 'title' => __('Edit')]);
 						echo $this->Form->iconPostLink('coordinator_delete_24.png',
-							['action' => 'remove_manager', 'affiliate' => $affiliate->id, 'person' => $person->id],
+							['action' => 'remove_manager', '?' => ['affiliate' => $affiliate->id, 'person' => $person->id]],
 							['alt' => __('Remove'), 'title' => __('Remove')],
 							['confirm' => __('Are you sure you want to remove {0} as a manager?', $person->full_name)]);
 					?></td>
@@ -73,13 +73,13 @@ echo $this->Html->tag('li', $this->Html->iconLink('view_32.png',
 	['action' => 'index'],
 	['alt' => __('List'), 'title' => __('List Affiliates')]));
 echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
-	['action' => 'edit', 'affiliate' => $affiliate->id],
+	['action' => 'edit', '?' => ['affiliate' => $affiliate->id]],
 	['alt' => __('Edit'), 'title' => __('Edit Affiliate')]));
 echo $this->Html->tag('li', $this->Html->iconLink('coordinator_add_32.png',
-	['action' => 'add_manager', 'affiliate' => $affiliate->id],
+	['action' => 'add_manager', '?' => ['affiliate' => $affiliate->id]],
 	['alt' => __('Add Manager'), 'title' => __('Add Manager')]));
 echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-	['action' => 'delete', 'affiliate' => $affiliate->id],
+	['action' => 'delete', '?' => ['affiliate' => $affiliate->id]],
 	['alt' => __('Delete'), 'title' => __('Delete Affiliate')],
 	['confirm' => __('Are you sure you want to delete this affiliate?')]));
 ?>

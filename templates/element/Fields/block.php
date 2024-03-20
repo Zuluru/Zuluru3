@@ -16,5 +16,5 @@ if (!isset($display_field)) {
 	$display_field = 'long_code';
 }
 echo $this->Html->link($field->$display_field,
-	['controller' => 'Facilities', 'action' => 'view', 'facility' => $field->facility_id],
+	['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $field->facility_id]],
 	$options);

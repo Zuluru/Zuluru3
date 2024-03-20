@@ -71,7 +71,7 @@ endforeach;
 	<ul class="nav nav-pills">
 <?php
 foreach ($years as $y) {
-	echo $this->Html->tag('li', $this->Html->link($y['year'], ['year' => $y['year']]));
+	echo $this->Html->tag('li', $this->Html->link($y['year'], ['?' => ['year' => $y['year']]]));
 }
 ?>
 	</ul>

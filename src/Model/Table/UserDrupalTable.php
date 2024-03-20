@@ -43,7 +43,7 @@ class UserDrupalTable extends UsersTable {
 	 * @param array $config The configuration for the Table.
 	 * @return void
 	 */
-	public function initialize(array $config) {
+	public function initialize(array $config): void {
 		parent::initialize($config);
 
 		$this->_initializeDrupal();
@@ -68,7 +68,7 @@ class UserDrupalTable extends UsersTable {
 	 * @param \ArrayObject $options The options passed to the delete method
 	 * @return bool
 	 */
-	public function beforeDelete(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function beforeDelete(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		// TODOSECOND: Delete users_roles record too
 	}
 
@@ -80,7 +80,7 @@ class UserDrupalTable extends UsersTable {
 	 * @param \ArrayObject $options The options passed to the save method
 	 * @return void
 	 */
-	public function beforeSave(CakeEvent $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+	public function beforeSave(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
 		if ($entity->isNew()) {
 			// Drupal doesn't use auto increment on the uid column.
 			// This hack is adapted from Drupal's methods...

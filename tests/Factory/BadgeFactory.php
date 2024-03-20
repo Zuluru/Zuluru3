@@ -26,12 +26,12 @@ class BadgeFactory extends BaseFactory
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [
-				'name' => $faker->word,
+				'name' => $faker->word(),
 				'description' => $faker->words,
 				'category' => 'assigned',
 				'active' => true,
 				'visibility' => BADGE_VISIBILITY_HIGH,
-				'icon' => $faker->word,
+				'icon' => $faker->word(),
 			];
 		});
 	}

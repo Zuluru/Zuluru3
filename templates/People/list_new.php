@@ -19,14 +19,14 @@ $rows = [];
 foreach ($new as $person) {
 	$links = [
 		$this->Html->iconLink('view_24.png',
-			['action' => 'view', 'person' => $person->id],
-			['alt' => __('View'), 'title' => __('View')]),
+			['action' => 'view', '?' => ['person' => $person->id],
+			['alt' => __('View'), 'title' => __('View')]]),
 		$this->Html->iconLink('edit_24.png',
-			['action' => 'edit', 'person' => $person->id, 'return' => AppController::_return()],
+			['action' => 'edit', '?' => ['person' => $person->id, 'return' => AppController::_return()]],
 			['alt' => __('Edit'), 'title' => __('Edit')]),
-		$this->Html->link(__('Approve'), ['action' => 'approve', 'person' => $person->id]),
+		$this->Html->link(__('Approve'), ['action' => 'approve', '?' => ['person' => $person->id]]),
 		$this->Form->iconPostLink('delete_24.png',
-			['action' => 'delete', 'person' => $person->id, 'return' => AppController::_return()],
+			['action' => 'delete', '?' => ['person' => $person->id, 'return' => AppController::_return()]],
 			['alt' => __('Delete'), 'title' => __('Delete')],
 			['confirm' => __('Are you sure you want to delete this person?')])
 	];

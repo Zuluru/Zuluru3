@@ -287,7 +287,7 @@ $this->Html->scriptBlock('zjQuery(".advanced").hide();', ['buffer' => true]);
 echo $this->Html->tag('li', $this->Html->link($tournaments ? __('List Leagues') : __('List Leagues'), ['action' => 'index']));
 if (!$league->isNew()) {
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-		['action' => 'delete', 'league' => $league->id],
+		['action' => 'delete', '?' => ['league' => $league->id]],
 		['alt' => __('Delete'), 'title' => $tournaments ? __('Delete League') : __('Delete League')],
 		['confirm' => __('Are you sure you want to delete this league?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',

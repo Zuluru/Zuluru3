@@ -33,7 +33,7 @@ endif;
 
 
 <?= __('Details of this registration can be {0}.',
-	$this->Html->link(__('viewed any time'), Router::url(['plugin' => false, 'controller' => 'Registrations', 'action' => 'invoice', 'registration' => $registration->id], true))
+	$this->Html->link(__('viewed any time'), Router::url(['plugin' => false, 'controller' => 'Registrations', 'action' => 'invoice', '?' => ['registration' => $registration->id]], true))
 ) ?>
 
 

@@ -39,7 +39,7 @@ foreach ($summary as $status => $genders) {
 ?>
 <?= __('You can update this or check up-to-the-minute details here:') ?>
 
-<?= Router::url(['controller' => 'TeamEvents', 'action' => 'view', 'event' => $team_event->id], true) ?>
+<?= Router::url(['controller' => 'TeamEvents', 'action' => 'view', '?' => ['event' => $team_event->id]], true) ?>
 
 
 <?= __('You need to be logged into the website to update this.') ?>

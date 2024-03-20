@@ -19,7 +19,7 @@ $min_text = ($min > 0 ? __(' (minimum of {0} rostered players)', $min) : '');
 <p><?= __('You invited {0} to join the roster of the {1} team {2} as a {3}.',
 	$person->full_name,
 	Configure::read('organization.name'),
-	$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], true)),
+	$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]], true)),
 	Configure::read("options.roster_role.{$roster->role}")
 ) ?></p>
 <p><?= __('This invitation has not yet been responded to by the player, and will expire {0} days from now. An email has been sent to remind them, but you might want to get in touch directly as well.',

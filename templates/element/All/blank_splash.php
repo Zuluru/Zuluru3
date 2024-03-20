@@ -29,7 +29,7 @@ if (isset($id)) {
 				echo $this->Html->para(null, __('You currently have {0} unpaid {1}. {2} to complete these registrations.',
 					$count,
 					__n('registration', 'registrations', $count),
-					$this->Html->link(__('Click here'), ['controller' => 'Registrations', 'action' => 'checkout', 'act_as' => $id])
+					$this->Html->link(__('Click here'), ['controller' => 'Registrations', 'action' => 'checkout', '?' => ['act_as' => $id]])
 				));
 			}
 		}

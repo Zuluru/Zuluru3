@@ -16,7 +16,7 @@ if ($opponent) {
 	} else {
 		$shirt_text = '';
 	}
-	$opponent_text = __(' against {0}', $this->Html->link($opponent->name, Router::url(['controller' => 'Teams', 'action' => 'view', 'team' => $opponent->id], true)) . $shirt_text);
+	$opponent_text = __(' against {0}', $this->Html->link($opponent->name, Router::url(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $opponent->id]], true)) . $shirt_text);
 } else {
 	$opponent_text = '';
 }
@@ -26,20 +26,20 @@ if ($opponent) {
 <p><?php
 if ($status == ATTENDANCE_UNKNOWN || $status == ATTENDANCE_INVITED) {
 	echo __('You have not yet indicated your attendance for the {0} game{1} at {2} from {3} to {4} on {5}.',
-		$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], true)),
+		$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]], true)),
 		$opponent_text,
-		$this->Html->link($game->game_slot->field->long_name, Router::url(['controller' => 'Facilities', 'action' => 'view', 'facility' => $game->game_slot->field->facility_id], true)),
-		$this->Html->link($this->Time->time($game->game_slot->game_start), Router::url(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], true)),
+		$this->Html->link($game->game_slot->field->long_name, Router::url(['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $game->game_slot->field->facility_id]], true)),
+		$this->Html->link($this->Time->time($game->game_slot->game_start), Router::url(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], true)),
 		$this->Time->time($game->game_slot->display_game_end),
 		$this->Time->date($game->game_slot->game_date)
 	);
 } else {
 	echo __('You are currently listed as {0} for the {1} game{2} at {3} from {4} to {5} on {6}.',
 		Configure::read("attendance.$status"),
-		$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], true)),
+		$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]], true)),
 		$opponent_text,
-		$this->Html->link($game->game_slot->field->long_name, Router::url(['controller' => 'Facilities', 'action' => 'view', 'facility' => $game->game_slot->field->facility_id], true)),
-		$this->Html->link($this->Time->time($game->game_slot->game_start), Router::url(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], true)),
+		$this->Html->link($game->game_slot->field->long_name, Router::url(['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $game->game_slot->field->facility_id]], true)),
+		$this->Html->link($this->Time->time($game->game_slot->game_start), Router::url(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], true)),
 		$this->Time->time($game->game_slot->display_game_end),
 		$this->Time->date($game->game_slot->game_date)
 	);
@@ -56,25 +56,25 @@ if ($status == ATTENDANCE_INVITED || in_array($person->_joinData->role, Configur
 ?>
 <p><?= __('If you are able to play, {0}.',
 	$this->Html->link(__('click here'),
-		Router::url(['controller' => 'Games', 'action' => 'attendance_change', 'team' => $team->id, 'game' => $game->id, 'person' => $person->id, 'code' => $code, 'status' => ATTENDANCE_ATTENDING], true))
+		Router::url(['controller' => 'Games', 'action' => 'attendance_change', '?' => ['team' => $team->id, 'game' => $game->id, 'person' => $person->id, 'code' => $code, 'status' => ATTENDANCE_ATTENDING]], true))
 ) ?></p>
 <?php
 elseif ($status != ATTENDANCE_ATTENDING && !in_array($person->_joinData->role, Configure::read('regular_roster_roles'))):
 ?>
 <p><?= __('If you are available to play, {0}.',
 	$this->Html->link(__('click here'),
-		Router::url(['controller' => 'Games', 'action' => 'attendance_change', 'team' => $team->id, 'game' => $game->id, 'person' => $person->id, 'code' => $code, 'status' => ATTENDANCE_AVAILABLE], true))
+		Router::url(['controller' => 'Games', 'action' => 'attendance_change', '?' => ['team' => $team->id, 'game' => $game->id, 'person' => $person->id, 'code' => $code, 'status' => ATTENDANCE_AVAILABLE]], true))
 ) ?></p>
 <?php
 endif;
 ?>
 <p><?= __('If you are unavailable to play, {0}.',
 	$this->Html->link(__('click here'),
-		Router::url(['controller' => 'Games', 'action' => 'attendance_change', 'team' => $team->id, 'game' => $game->id, 'person' => $person->id, 'code' => $code, 'status' => ATTENDANCE_ABSENT], true))
+		Router::url(['controller' => 'Games', 'action' => 'attendance_change', '?' => ['team' => $team->id, 'game' => $game->id, 'person' => $person->id, 'code' => $code, 'status' => ATTENDANCE_ABSENT]], true))
 ) ?></p>
 <p><?= __('Note that you can {0}, giving your coach or captain advance notice of vacations or other planned absences.',
 		$this->Html->link(__('set your attendance in advance'),
-			Router::url(['controller' => 'Teams', 'action' => 'attendance', 'team' => $team->id], true)
+			Router::url(['controller' => 'Teams', 'action' => 'attendance', '?' => ['team' => $team->id]], true)
 		)
 	) . ' ' .
 	__('You need to be logged into the website to update this.')

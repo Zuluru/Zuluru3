@@ -12,7 +12,7 @@ $this->Breadcrumbs->add($this->UserCache->read('Person.full_name'));
 
 <div class="all splash">
 <?php
-echo $this->element('Layout/announcement');
+echo $this->element('layout/announcement');
 
 if (isset($new_accounts) && $this->Authorize->can('list_new', \App\Controller\PeopleController::class)) {
 	echo $this->Html->para(null, __('There are {0} new {1}.', $new_accounts,

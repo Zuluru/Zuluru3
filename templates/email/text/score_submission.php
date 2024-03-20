@@ -29,12 +29,12 @@ use Cake\Routing\Router;
 	__('If the above score is correct, you can confirm it here:')
 ?>
 
-<?= Router::url(array_merge(['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $opponent->id], compact('status', 'score_for', 'score_against')), true) ?>
+<?= Router::url(['controller' => 'Games', 'action' => 'submit_score', '?' => array_merge(['game' => $game->id, 'team' => $opponent->id], compact('status', 'score_for', 'score_against'))], true) ?>
 
 
 <?= __('Otherwise, you can submit your score here:') ?>
 
-<?= Router::url(['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $opponent->id], true) ?>
+<?= Router::url(['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $opponent->id]], true) ?>
 
 
 <?php

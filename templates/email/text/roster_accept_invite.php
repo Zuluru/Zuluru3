@@ -23,7 +23,7 @@ use Cake\Routing\Router;
 
 <?= __('The {0} roster may be accessed at', $team->name) ?>
 
-<?= Router::url(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], true) ?>
+<?= Router::url(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]], true) ?>
 
 
 <?= __('You need to be logged into the website to update this.') ?>

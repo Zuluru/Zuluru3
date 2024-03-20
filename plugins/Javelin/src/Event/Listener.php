@@ -33,7 +33,7 @@ class Listener implements EventListenerInterface {
 
 	private $base_url = 'https://appjavelin.com/zuluru/';
 
-	public function implementedEvents() {
+	public function implementedEvents(): array {
 		return [
 			// Listeners to deal with overall plugin management
 			'Javelin.register' => 'register',

@@ -4,4 +4,4 @@
  * @var \App\Model\Entity\Questionnaire $questionnaire
  */
 
-echo $this->Jquery->ajaxLink(__('Activate'), ['url' => ['action' => 'activate', 'questionnaire' => $questionnaire->id]]);
+echo $this->Jquery->ajaxLink(__('Activate'), ['url' => ['action' => 'activate', '?' => ['questionnaire' => $questionnaire->id]]]);

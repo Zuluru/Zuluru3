@@ -17,12 +17,12 @@ $this->Breadcrumbs->add(__('{0} Distribution Report', __(Configure::read("sports
 if (isset($published)) {
 	echo $this->Html->para(null,
 		__('This report includes only games that are published. You may also see it {0}.',
-			$this->Html->link(__('including all games'), ['action' => 'fields', 'division' => $division->id]))
+			$this->Html->link(__('including all games'), ['action' => 'fields', '?' => ['division' => $division->id]]))
 	);
 } else {
 	echo $this->Html->para(null,
 		__('This report includes all games. You may also see it {0}.',
-			$this->Html->link(__('including only games that are published'), ['action' => 'fields', 'division' => $division->id, 'published' => true]))
+			$this->Html->link(__('including only games that are published'), ['action' => 'fields', '?' => ['division' => $division->id, 'published' => true]]))
 	);
 }
 
@@ -62,7 +62,7 @@ foreach ($game_slots as $game_slot) {
 		$count = 1;
 	}
 	$th = $this->Html->link($game_slot->field->facility->code,
-		['controller' => 'Facilities', 'action' => 'view', 'facility' => $game_slot->field->facility->id],
+		['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $game_slot->field->facility->id]],
 		['title' => $game_slot->field->facility->name]
 	) . ' ' . $this->Time->time($game_slot->game_start);
 	$heading[] = $th;

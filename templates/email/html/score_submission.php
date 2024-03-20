@@ -15,9 +15,9 @@ use Cake\Routing\Router;
 
 <p><?= __('Dear {0},', $captains) ?></p>
 <p><?= __('Your opponent has indicated that the game between your team {0} and {1}, starting at {2} on {3} in {4} was {5}.',
-	$this->Html->link($opponent->name, Router::url(['controller' => 'Teams', 'action' => 'view', 'team' => $opponent->id], true)),
-	$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], true)),
-	$this->Html->link($this->Time->time($game->game_slot->game_start), Router::url(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], true)),
+	$this->Html->link($opponent->name, Router::url(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $opponent->id]], true)),
+	$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]], true)),
+	$this->Html->link($this->Time->time($game->game_slot->game_start), Router::url(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], true)),
 	$this->Time->date($game->game_slot->game_date),
 	$division->full_league_name,
 	$opponent_status
@@ -26,9 +26,9 @@ use Cake\Routing\Router;
 	__('We ask you to please submit the score as soon as possible.') . ' ' .
 	__('If the above score is correct, you can confirm it {0}, otherwise you can submit your score {1}.',
 		$this->Html->link(__('here'),
-			Router::url(array_merge(['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $opponent->id], compact('status', 'score_for', 'score_against')), true)),
+			Router::url(['controller' => 'Games', 'action' => 'submit_score', '?' => array_merge(['game' => $game->id, 'team' => $opponent->id], compact('status', 'score_for', 'score_against'))], true)),
 		$this->Html->link(__('here'),
-			Router::url(['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $opponent->id], true))
+			Router::url(['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $opponent->id]], true))
 	)
 ?></p>
 <?php

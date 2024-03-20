@@ -16,11 +16,11 @@
 namespace App\Http\Middleware;
 
 use Cake\Http\Middleware\CsrfProtectionMiddleware as CakeCsrfProtectionMiddleware;
-use Cake\Http\Response;
-use Cake\Http\ServerRequest;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class CsrfProtectionMiddleware extends CakeCsrfProtectionMiddleware {
-	protected function _addTokenCookie($token, ServerRequest $request, Response $response) {
+	protected function _addTokenCookie(string $token, ServerRequestInterface $request, ResponseInterface $response): ResponseInterface {
 		// This call updates the local request only; the immutable one passed in is unchanged,
 		// so we don't need to reset the webroot afterwards.
 		$request = $request->withAttribute('webroot', '/' . trim($request->getAttribute('webroot'), '/'));

@@ -2,6 +2,8 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Badge[] $badges
+ * @var string[] $affiliates
+ * @var bool $active
  */
 
 use Cake\Core\Configure;
@@ -69,25 +71,25 @@ endif;
 ?>
 				<td class="actions"><?php
 				echo $this->Html->iconLink('view_24.png',
-					['action' => 'view', 'badge' => $badge->id],
+					['action' => 'view', '?' => ['badge' => $badge->id]],
 					['alt' => __('View'), 'title' => __('View')]);
 				if ($this->Authorize->can('edit', $badge)) {
 					echo $this->Html->iconLink('edit_24.png',
-						['action' => 'edit', 'badge' => $badge->id],
+						['action' => 'edit', '?' => ['badge' => $badge->id]],
 						['alt' => __('Edit'), 'title' => __('Edit')]);
 				}
 				if ($this->Authorize->can('delete', $badge)) {
 					echo $this->Form->iconPostLink('delete_24.png',
-						['action' => 'delete', 'badge' => $badge->id],
+						['action' => 'delete', '?' => ['badge' => $badge->id]],
 						['alt' => __('Delete'), 'title' => __('Delete')],
 						['confirm' => __('Are you sure you want to delete this badge?')]);
 				}
 
 				if ($this->Authorize->can('edit', $badge)) {
 					if ($badge->active) {
-						echo $this->Jquery->ajaxLink(__('Deactivate'), ['url' => ['action' => 'deactivate', 'badge' => $badge->id]]);
+						echo $this->Jquery->ajaxLink(__('Deactivate'), ['url' => ['action' => 'deactivate', '?' => ['badge' => $badge->id]]]);
 					} else {
-						echo $this->Jquery->ajaxLink(__('Activate'), ['url' => ['action' => 'activate', 'badge' => $badge->id]]);
+						echo $this->Jquery->ajaxLink(__('Activate'), ['url' => ['action' => 'activate', '?' => ['badge' => $badge->id]]]);
 					}
 				}
 
@@ -98,13 +100,13 @@ endif;
 						$action = __('Nominate');
 					}
 					if (isset($action)) {
-						echo $this->Html->link($action, ['controller' => 'People', 'action' => 'nominate_badge', 'badge' => $badge->id]);
+						echo $this->Html->link($action, ['controller' => 'People', 'action' => 'nominate_badge', '?' => ['badge' => $badge->id]]);
 					}
 				}
 
 				if (!in_array($badge->category, ['assigned', 'nominated', 'runtime', 'aggregate']) && $this->Authorize->can('edit', $badge)) {
 					echo $this->Html->iconLink('initialize_24.png',
-						['action' => 'initialize_awards', 'badge' => $badge->id],
+						['action' => 'initialize_awards', '?' => ['badge' => $badge->id]],
 						['alt' => __('Initialize'), 'title' => __('Initialize')],
 						['confirm' => __('Are you sure you want to initialize? This should only ever need to be done once when the badge system is introduced.')]);
 				}

@@ -73,8 +73,8 @@ class RatingsUsauRankings extends Ratings {
 				break;
 			}
 
-			//\Cake\Log\Log::write('error', $results);
-			//\Cake\Log\Log::write('error', $removable);
+			//\Cake\Log\Log::write('error', print_r($results, true));
+			//\Cake\Log\Log::write('error', print_r($removable, true));
 			break;
 		}
 

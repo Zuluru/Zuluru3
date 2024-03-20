@@ -15,9 +15,9 @@ $link_address = strtr($address, ' ', '+');
 if (empty($attendance->comment)) {
 	echo __('{0} has removed the comment from their attendance at the {1} event "{2}" at {3} ({4}) starting at {5} on {6}.',
 		$person->full_name,
-		$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], true)),
+		$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]], true)),
 		$this->Html->link($team_event->name,
-			Router::url(['controller' => 'TeamEvents', 'action' => 'view', 'event' => $team_event->id], true)),
+			Router::url(['controller' => 'TeamEvents', 'action' => 'view', '?' => ['event' => $team_event->id]], true)),
 		$team_event->location_name,
 		$this->Html->link($address, "https://maps.google.com/maps?q=$link_address"),
 		$this->Time->time($team_event->start),
@@ -26,9 +26,9 @@ if (empty($attendance->comment)) {
 } else {
 	echo __('{0} has added the following comment to their attendance at the {1} event "{2}" at {3} ({4}) starting at {5} on {6}.',
 		$person->full_name,
-		$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], true)),
+		$this->Html->link($team->name, Router::url(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]], true)),
 		$this->Html->link($team_event->name,
-			Router::url(['controller' => 'TeamEvents', 'action' => 'view', 'event' => $team_event->id], true)),
+			Router::url(['controller' => 'TeamEvents', 'action' => 'view', '?' => ['event' => $team_event->id]], true)),
 		$team_event->location_name,
 		$this->Html->link($address, "https://maps.google.com/maps?q=$link_address"),
 		$this->Time->time($team_event->start),

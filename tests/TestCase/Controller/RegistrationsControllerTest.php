@@ -6,8 +6,10 @@ use App\Test\Factory\CreditFactory;
 use App\Test\Factory\EventFactory;
 use App\Test\Scenario\DiverseRegistrationsScenario;
 use App\Test\Scenario\DiverseUsersScenario;
+use Cake\Controller\Controller;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\RecordNotFoundException;
+use Cake\Event\EventInterface;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
@@ -43,7 +45,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	/**
 	 * Set up mock API objects to avoid talking to various servers
 	 */
-	public function controllerSpy($event, $controller = null) {
+	public function controllerSpy(EventInterface $event, ?Controller $controller = null): void {
 		parent::controllerSpy($event, $controller);
 
 		$globalListeners = Configure::read('App.globalListeners');

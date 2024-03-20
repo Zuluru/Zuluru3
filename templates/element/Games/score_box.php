@@ -27,10 +27,10 @@ use Cake\Utility\Inflector;
 	</table>
 </div>
 <?php
-$url_up = ['controller' => 'Games', 'action' => 'score_up', 'game' => $game['Game']['id'], 'team' => $submitter];
-$url_down = ['controller' => 'Games', 'action' => 'score_down', 'game' => $game['Game']['id'], 'team' => $submitter];
-$url_timeout = ['controller' => 'Games', 'action' => 'timeout', 'game' => $game['Game']['id'], 'team' => $submitter];
-$url_other = ['controller' => 'Games', 'action' => 'play', 'game' => $game['Game']['id'], 'team' => $submitter];
+$url_up = ['controller' => 'Games', 'action' => 'score_up', '?' => ['game' => $game['Game']['id'], 'team' => $submitter]];
+$url_down = ['controller' => 'Games', 'action' => 'score_down', '?' => ['game' => $game['Game']['id'], 'team' => $submitter]];
+$url_timeout = ['controller' => 'Games', 'action' => 'timeout', '?' => ['game' => $game['Game']['id'], 'team' => $submitter]];
+$url_other = ['controller' => 'Games', 'action' => 'play', '?' => ['game' => $game['Game']['id'], 'team' => $submitter]];
 $score_options = Configure::read("sports.{$game->division->league->sport}.score_options");
 $other_options = Configure::read("sports.{$game->division->league->sport}.other_options");
 $spinner = $this->Html->iconImg('spinner.gif');

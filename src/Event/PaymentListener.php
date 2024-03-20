@@ -18,7 +18,7 @@ class PaymentListener implements EventListenerInterface {
 
 	use FlashTrait;
 
-	public function implementedEvents() {
+	public function implementedEvents(): array {
 		return [
 			'Model.Payment.afterSave' => 'afterSave',
 		];

@@ -4,4 +4,4 @@
  * @var \App\Model\Entity\Field $field
  */
 
-echo $this->Jquery->ajaxLink(__('Open'), ['url' => ['action' => 'open', 'field' => $field->id]]);
+echo $this->Jquery->ajaxLink(__('Open'), ['url' => ['action' => 'open', '?' => ['field' => $field->id]]]);

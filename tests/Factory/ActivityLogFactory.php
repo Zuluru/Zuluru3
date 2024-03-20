@@ -26,7 +26,7 @@ class ActivityLogFactory extends BaseFactory
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [
-				'type' => $faker->word,
+				'type' => $faker->word(),
 				'created' => FrozenTime::now(),
 			];
 		});

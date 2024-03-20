@@ -19,10 +19,10 @@ use Cake\Routing\Router;
 	$person->first_name
 ) ?></p>
 <p><?= $this->Html->link(__('Accept the request'),
-	Router::url(['controller' => 'People', 'action' => 'approve_relative', 'person' => $relative->id, 'relative' => $person->id, 'code' => $code], true)
+	Router::url(['controller' => 'People', 'action' => 'approve_relative', '?' => ['person' => $relative->id, 'relative' => $person->id, 'code' => $code]], true)
 ) ?></p>
 <p><?= __('If you decline, {0} will not have any additional access to your account.', $person->first_name) ?></p>
 <p><?= $this->Html->link(__('Decline the request'),
-	Router::url(['controller' => 'People', 'action' => 'remove_relative', 'person' => $relative->id, 'relative' => $person->id, 'code' => $code], true)
+	Router::url(['controller' => 'People', 'action' => 'remove_relative', '?' => ['person' => $relative->id, 'relative' => $person->id, 'code' => $code]], true)
 ) ?></p>
 <?= $this->element('Email/html/footer');

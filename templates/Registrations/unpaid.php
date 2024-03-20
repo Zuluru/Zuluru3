@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Registration[] $registrations
+ * @var int[] $affiliates
  */
 
 use Cake\Core\Configure;
@@ -45,7 +46,7 @@ foreach ($registrations as $registration):
 ?>
 
 				<tr>
-					<td><?= $this->Html->link($order_id, ['action' => 'view', 'registration' => $registration->id]) ?></td>
+					<td><?= $this->Html->link($order_id, ['action' => 'view', '?' => ['registration' => $registration->id]]) ?></td>
 					<td><?= $this->element('People/block', ['person' => $registration->person]) ?></td>
 					<td><?= $this->Time->datetime($registration->modified) ?></td>
 					<td><?= $registration->payment ?></td>
@@ -53,7 +54,7 @@ foreach ($registrations as $registration):
 				</tr>
 				<tr>
 					<td></td>
-					<td colspan="4"><?= $this->Html->link($registration->event->name, ['controller' => 'Events', 'action' => 'view', 'event' => $registration->event->id]) ?></td>
+					<td colspan="4"><?= $this->Html->link($registration->event->name, ['controller' => 'Events', 'action' => 'view', '?' => ['event' => $registration->event->id]]) ?></td>
 				</tr>
 <?php
 	if (!empty($registration->notes)):

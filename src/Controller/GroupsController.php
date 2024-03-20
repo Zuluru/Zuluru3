@@ -24,7 +24,7 @@ class GroupsController extends AppController {
 	/**
 	 * Activate group method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
 	 */
 	public function activate() {
 		$this->getRequest()->allowMethod('ajax');
@@ -54,7 +54,7 @@ class GroupsController extends AppController {
 	/**
 	 * Deactivate group method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on error, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on error, renders view otherwise.
 	 */
 	public function deactivate() {
 		$this->getRequest()->allowMethod('ajax');

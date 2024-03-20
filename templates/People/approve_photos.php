@@ -21,12 +21,12 @@ foreach ($photos as $photo):
 				<td><?= $this->element('People/player_photo', ['person' => $photo->person, 'photo' => $photo]) ?></td>
 				<td class="actions"><?php
 				echo $this->Jquery->ajaxLink(__('Approve'), [
-					'url' => ['controller' => 'People', 'action' => 'approve_photo', 'person' => $photo->person->id],
+					'url' => ['controller' => 'People', 'action' => 'approve_photo', '?' => ['person' => $photo->person->id]],
 					'disposition' => 'remove_closest',
 					'selector' => 'tr',
 				]);
 				echo $this->Jquery->ajaxLink(__('Delete'), [
-					'url' => ['controller' => 'People', 'action' => 'delete_photo', 'person' => $photo->person->id],
+					'url' => ['controller' => 'People', 'action' => 'delete_photo', '?' => ['person' => $photo->person->id]],
 					'disposition' => 'remove_closest',
 					'selector' => 'tr',
 				]);

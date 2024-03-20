@@ -37,13 +37,13 @@ foreach ($regions as $region):
 					<td><?= h($region->name) ?></td>
 					<td class="actions"><?php
 						echo $this->Html->iconLink('view_24.png',
-							['action' => 'view', 'region' => $region->id],
+							['action' => 'view', '?' => ['region' => $region->id]],
 							['alt' => __('View'), 'title' => __('View')]);
 						echo $this->Html->iconLink('edit_24.png',
-							['action' => 'edit', 'region' => $region->id],
+							['action' => 'edit', '?' => ['region' => $region->id]],
 							['alt' => __('Edit'), 'title' => __('Edit')]);
 						echo $this->Form->iconPostLink('delete_24.png',
-							['action' => 'delete', 'region' => $region->id],
+							['action' => 'delete', '?' => ['region' => $region->id]],
 							['alt' => __('Delete'), 'title' => __('Delete')],
 							['confirm' => __('Are you sure you want to delete this region?')]);
 					?></td>

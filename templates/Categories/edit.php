@@ -68,7 +68,7 @@ if ($category->isNew()) {
 echo $this->Html->tag('li', $this->Html->link(__('List Categories'), ['action' => 'index']));
 if (!$category->isNew()) {
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-		['action' => 'delete', 'category' => $category->id],
+		['action' => 'delete', '?' => ['category' => $category->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Category')],
 		['confirm' => __('Are you sure you want to delete this category?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',

@@ -46,17 +46,17 @@ foreach ($newsletters as $newsletter):
 					<td><?= $this->Time->date($newsletter->target) ?></td>
 					<td class="actions"><?php
 					echo $this->Html->iconLink('view_24.png',
-						['action' => 'view', 'newsletter' => $newsletter->id],
-						['alt' => __('Preview'), 'title' => __('Preview')]);
+						['action' => 'view', '?' => ['newsletter' => $newsletter->id],
+						['alt' => __('Preview'), 'title' => __('Preview')]]);
 					echo $this->Html->iconLink('edit_24.png',
-						['action' => 'edit', 'newsletter' => $newsletter->id],
-						['alt' => __('Edit'), 'title' => __('Edit')]);
-					echo $this->Html->link(__('Delivery Report'), ['action' => 'delivery', 'newsletter' => $newsletter->id]);
+						['action' => 'edit', '?' => ['newsletter' => $newsletter->id],
+						['alt' => __('Edit'), 'title' => __('Edit')]]);
+					echo $this->Html->link(__('Delivery Report'), ['action' => 'delivery', '?' => ['newsletter' => $newsletter->id]]);
 					echo $this->Html->iconLink('newsletter_send_24.png',
-						['action' => 'send', 'newsletter' => $newsletter->id],
+						['action' => 'send', '?' => ['newsletter' => $newsletter->id]],
 						['alt' => __('Send'), 'title' => __('Send')]);
 					echo $this->Form->iconPostLink('delete_24.png',
-						['action' => 'delete', 'newsletter' => $newsletter->id],
+						['action' => 'delete', '?' => ['newsletter' => $newsletter->id]],
 						['alt' => __('Delete'), 'title' => __('Delete')],
 						['confirm' => __('Are you sure you want to delete this newsletter?')]);
 					?></td>

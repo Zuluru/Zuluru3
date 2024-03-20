@@ -2,7 +2,9 @@
 namespace StripePayment\Test\TestCase\Controller;
 
 use App\Test\TestCase\Controller\ControllerTestCase;
+use Cake\Controller\Controller;
 use Cake\Core\Configure;
+use Cake\Event\EventInterface;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
 use StripePayment\Test\Mock;
@@ -50,7 +52,7 @@ class PaymentControllerTest extends ControllerTestCase {
 	/**
 	 * Set up the mock API object to avoid talking to the Stripe servers
 	 */
-	public function controllerSpy($event, $controller = null) {
+	public function controllerSpy(EventInterface $event, ?Controller $controller = null): void {
 		parent::controllerSpy($event, $controller);
 
 		if (isset($this->_controller)) {

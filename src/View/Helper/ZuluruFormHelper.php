@@ -28,11 +28,11 @@ class ZuluruFormHelper extends FormHelper {
 		parent::__construct($View, $config);
 	}
 
-	public function create($model = null, array $options = []) {
+	public function create($context = null, array $options = []): string {
 		// TODOLATER: Remove this once we're done with validation testing
 		$options['novalidate'] = true;
 
-		return parent::create($model, $options);
+		return parent::create($context, $options);
 	}
 
 	/**
@@ -41,7 +41,7 @@ class ZuluruFormHelper extends FormHelper {
 	 * Also, add popup help link, if available.
 	 * TODOLATER: Deal with new data format (_joinData, etc.): we don't need it for anything right now?
 	 */
-	public function control($fieldName, array $options = []) {
+	public function control(string $fieldName, array $options = []): string {
 		$options += ['secure' => true];
 
 		// Split into model and field name
@@ -120,7 +120,7 @@ class ZuluruFormHelper extends FormHelper {
 		// Check if there's online help for this field
 		$duplicate = !empty($options['duplicate_help']);
 		unset($options['duplicate_help']);
-		$help_file = APP . 'Template' . DS . 'Element' . DS . 'Help' . DS . $model . DS . 'edit' . DS . strtolower($shortFieldName) . '.ctp';
+		$help_file = ROOT . DS . 'templates' . DS . 'element' . DS . 'Help' . DS . $model . DS . 'edit' . DS . strtolower($shortFieldName) . '.php';
 		if (file_exists($help_file)) {
 			$help = ' ' . $this->Html->help(['action' => $model, 'edit', strtolower($shortFieldName)], $duplicate);
 
@@ -137,7 +137,7 @@ class ZuluruFormHelper extends FormHelper {
 		return parent::control($fieldName, $options);
 	}
 
-	public function iconPostLink($img, $url = null, array $imgOptions = [], array $linkOptions = []) {
+	public function iconPostLink($img, $url = null, array $imgOptions = [], array $linkOptions = []): string {
 		if (array_key_exists('class', $linkOptions)) {
 			if (is_array($linkOptions['class'])) {
 				$linkOptions[] = 'icon';

@@ -42,9 +42,9 @@ endif;
 <?php
 if ($newsletter->mailing_list->opt_out):
 	if ($newsletter->personalize) {
-		$unsubscribe_url = Router::url(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => $newsletter->mailing_list->id, 'person' => $person->id, 'code' => $code], true);
+		$unsubscribe_url = Router::url(['controller' => 'MailingLists', 'action' => 'unsubscribe', '?' => ['list' => $newsletter->mailing_list->id, 'person' => $person->id, 'code' => $code]], true);
 	} else {
-		$unsubscribe_url = Router::url(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => $newsletter->mailing_list->id], true);
+		$unsubscribe_url = Router::url(['controller' => 'MailingLists', 'action' => 'unsubscribe', '?' => ['list' => $newsletter->mailing_list->id]], true);
 	}
 ?>
 			<p><?php

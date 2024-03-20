@@ -50,14 +50,14 @@ else:
 				<td><?= h($contact->email) ?></td>
 				<td class="actions"><?php
 				echo $this->Html->iconLink('edit_24.png',
-					['action' => 'edit', 'contact' => $contact->id],
+					['action' => 'edit', '?' => ['contact' => $contact->id]],
 					['alt' => __('Edit'), 'title' => __('Edit')]);
 				echo $this->Form->iconPostLink('delete_24.png',
-					['action' => 'delete', 'contact' => $contact->id],
+					['action' => 'delete', '?' => ['contact' => $contact->id]],
 					['alt' => __('Delete'), 'title' => __('Delete')],
 					['confirm' => __('Are you sure you want to delete this contact?')]);
 				echo $this->Html->iconLink('email_24.png',
-					['action' => 'message', 'contact' => $contact->id],
+					['action' => 'message', '?' => ['contact' => $contact->id]],
 					['alt' => __('Message Contact'), 'title' => __('Message Contact')]);
 				?></td>
 			</tr>

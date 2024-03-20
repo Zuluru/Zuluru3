@@ -48,7 +48,7 @@ class LeaguesController extends AppController {
 	}
 
 	// TODO: Eliminate this if we can find a way around black-holing caused by Ajax field adds
-	public function beforeFilter(\Cake\Event\Event $event) {
+	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
 		if (isset($this->Security)) {
 			$this->Security->setConfig('unlockedActions', ['add', 'edit']);
@@ -58,7 +58,7 @@ class LeaguesController extends AppController {
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$year = $this->getRequest()->getQuery('year');
@@ -125,7 +125,7 @@ class LeaguesController extends AppController {
 			->toArray();
 		$years = array_unique(collection(array_merge($open, $close))->extract('year')->toArray());
 		$this->set(compact('years'));
-		$this->set('_serialize', ['league', 'years']);
+		$this->viewBuilder()->setOption('serialize', ['league', 'years']);
 	}
 
 	public function summary() {
@@ -155,7 +155,7 @@ class LeaguesController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('league') ?: $this->getRequest()->getQuery('tournament');
@@ -187,7 +187,7 @@ class LeaguesController extends AppController {
 		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 
 		$this->set(compact('league', 'league_obj', 'affiliates'));
-		$this->set('_serialize', ['league']);
+		$this->viewBuilder()->setOption('serialize', ['league']);
 	}
 
 	public function tooltip() {
@@ -271,11 +271,11 @@ class LeaguesController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
 		$this->Authorization->authorize($this);
-		$league = $this->Leagues->newEntity();
+		$league = $this->Leagues->newEmptyEntity();
 
 		if ($this->getRequest()->is('post')) {
 			$league = $this->Leagues->patchEntity($league, $this->getRequest()->getData(), [
@@ -326,7 +326,7 @@ class LeaguesController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('league') ?: $this->getRequest()->getQuery('tournament');
@@ -393,7 +393,7 @@ class LeaguesController extends AppController {
 	public function add_division() {
 		$this->getRequest()->allowMethod('ajax');
 		$this->Authorization->authorize($this, 'add_division_fields');
-		$league = $this->Leagues->newEntity();
+		$league = $this->Leagues->newEmptyEntity();
 		$this->set(compact('league'));
 		// TODO: Do we need to take the league ID, if there is one, as a parameter,
 		// and base this on the user's status in that league?
@@ -403,7 +403,7 @@ class LeaguesController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -442,7 +442,7 @@ class LeaguesController extends AppController {
 		$id = intval($this->getRequest()->getQuery('league') ?: $this->getRequest()->getQuery('tournament'));
 
 		// Hopefully, everything we need is already cached
-		$league = Cache::remember("league/{$id}/schedule", function () use ($id) {
+		$league = Cache::remember("league_{$id}_schedule", function () use ($id) {
 			try {
 				$league = $this->Leagues->get($id, [
 					'finder' => 'translations',
@@ -640,14 +640,14 @@ class LeaguesController extends AppController {
 
 		$league->games = collection($league->games)->indexBy('id')->toArray();
 		$this->set(compact('id', 'league', 'edit_date', 'game_slots', 'is_tournament', 'multi_day'));
-		$this->set('_serialize', ['league']);
+		$this->viewBuilder()->setOption('serialize', ['league']);
 	}
 
 	public function standings() {
 		$id = intval($this->getRequest()->getQuery('league') ?: $this->getRequest()->getQuery('tournament'));
 
 		// Hopefully, everything we need is already cached
-		$league = Cache::remember("league/{$id}/standings", function () use ($id) {
+		$league = Cache::remember("league_{$id}_standings", function () use ($id) {
 			try {
 				$league = $this->Leagues->get($id, [
 					'finder' => 'translations',
@@ -761,7 +761,7 @@ class LeaguesController extends AppController {
 		$spirit_obj = $league->hasSpirit() ? $this->moduleRegistry->load("Spirit:{$league->sotg_questions}") : null;
 
 		$this->set(compact('league', 'spirit_obj'));
-		$this->set('_serialize', ['league']);
+		$this->viewBuilder()->setOption('serialize', ['league']);
 	}
 
 	public function slots() {

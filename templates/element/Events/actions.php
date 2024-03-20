@@ -21,14 +21,14 @@ $more = new ArrayObject();
 
 if ($this->getRequest()->getParam('controller') != 'Events' || $this->getRequest()->getParam('action') != 'view') {
 	$links[] = $this->Html->iconLink("view_$size.png",
-		['controller' => 'Events', 'action' => 'view', 'event' => $event->id],
+		['controller' => 'Events', 'action' => 'view', '?' => ['event' => $event->id]],
 		['alt' => __('View'), 'title' => __('View')]);
 }
 
 if (Configure::read('registration.register_now')) {
 	if ($this->getRequest()->getParam('controller') != 'Registrations' || $this->getRequest()->getParam('action') != 'register') {
 		$links[] = $this->Html->link(__('Register Now!'),
-			['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id]);
+			['controller' => 'Registrations', 'action' => 'register', '?' => ['event' => $event->id]]);
 	}
 }
 
@@ -45,27 +45,27 @@ if ($this->getRequest()->getParam('controller') != 'Events' || $this->getRequest
 if ($this->Authorize->can('edit', $event)) {
 	if ($this->getRequest()->getParam('controller') != 'Events' || $this->getRequest()->getParam('action') != 'edit') {
 		$links[] = $this->Html->iconLink("edit_$size.png",
-			['controller' => 'Events', 'action' => 'edit', 'event' => $event->id, 'return' => AppController::_return()],
+			['controller' => 'Events', 'action' => 'edit', '?' => ['event' => $event->id, 'return' => AppController::_return()]],
 			['alt' => __('Edit'), 'title' => __('Edit')]);
 	}
 
 	if ($this->getRequest()->getParam('controller') != 'Events' || $this->getRequest()->getParam('action') != 'connections') {
 		$more[__('Manage Connections')] = [
-			'url' => ['controller' => 'Events', 'action' => 'connections', 'event' => $event->id],
+			'url' => ['controller' => 'Events', 'action' => 'connections', '?' => ['event' => $event->id]],
 		];
 	}
 
 	$more[__('Edit Questionnaire')] = [
-		'url' => ['controller' => 'Questionnaires', 'action' => 'edit', 'questionnaire' => $event->questionnaire_id, 'return' => AppController::_return()],
+		'url' => ['controller' => 'Questionnaires', 'action' => 'edit', '?' => ['questionnaire' => $event->questionnaire_id, 'return' => AppController::_return()]],
 	];
 
 	$more[__('Clone Event')] = [
-		'url' => ['controller' => 'Events', 'action' => 'add', 'event' => $event->id, 'return' => AppController::_return()],
+		'url' => ['controller' => 'Events', 'action' => 'add', '?' => ['event' => $event->id, 'return' => AppController::_return()]],
 	];
 
-	$url = ['controller' => 'Events', 'action' => 'delete', 'event' => $event->id];
+	$url = ['controller' => 'Events', 'action' => 'delete', '?' => ['event' => $event->id]];
 	if ($this->getRequest()->getParam('controller') != 'Events') {
-		$url['return'] = AppController::_return();
+		$url['?']['return'] = AppController::_return();
 	}
 	$more[__('Delete')] = [
 		'url' => $url,
@@ -74,36 +74,36 @@ if ($this->Authorize->can('edit', $event)) {
 	];
 
 	$more[__('Add Preregistration')] = [
-		'url' => ['controller' => 'Preregistrations', 'action' => 'add', 'event' => $event->id],
+		'url' => ['controller' => 'Preregistrations', 'action' => 'add', '?' => ['event' => $event->id]],
 	];
 
 	$more[__('List Preregistrations')] = [
-		'url' => ['controller' => 'Preregistrations', 'action' => 'index', 'event' => $event->id],
+		'url' => ['controller' => 'Preregistrations', 'action' => 'index', '?' => ['event' => $event->id]],
 	];
 }
 
 if ($this->Authorize->can('summary', $event)) {
 	if ($this->getRequest()->getParam('controller') != 'Registrations' || $this->getRequest()->getParam('action') != 'summary') {
 		$more[__('Registration Summary')] = [
-			'url' => ['controller' => 'Registrations', 'action' => 'summary', 'event' => $event->id],
+			'url' => ['controller' => 'Registrations', 'action' => 'summary', '?' => ['event' => $event->id]],
 		];
 	}
 
 	if ($this->getRequest()->getParam('controller') != 'Registrations' || $this->getRequest()->getParam('action') != 'full_list') {
 		$more[__('Detailed Registration List')] = [
-			'url' => ['controller' => 'Registrations', 'action' => 'full_list', 'event' => $event->id],
+			'url' => ['controller' => 'Registrations', 'action' => 'full_list', '?' => ['event' => $event->id]],
 		];
 	}
 
 	$more[__('Download Registration List')] = [
-		'url' => ['controller' => 'Registrations', 'action' => 'full_list', 'event' => $event->id, '_ext' => 'csv'],
+		'url' => ['controller' => 'Registrations', 'action' => 'full_list', '?' => ['event' => $event->id], '_ext' => 'csv'],
 	];
 }
 
 if ($this->Authorize->can('waiting', $event)) {
 	if ($this->getRequest()->getParam('controller') != 'Registrations' || $this->getRequest()->getParam('action') != 'summary') {
 		$more[__('Waiting List')] = [
-			'url' => ['controller' => 'Registrations', 'action' => 'waiting', 'event' => $event->id],
+			'url' => ['controller' => 'Registrations', 'action' => 'waiting', '?' => ['event' => $event->id]],
 		];
 	}
 }
@@ -111,7 +111,7 @@ if ($this->Authorize->can('waiting', $event)) {
 if ($this->Authorize->can('refund', $event)) {
 	if ($this->getRequest()->getParam('controller') != 'Events' || $this->getRequest()->getParam('action') != 'refund') {
 		$more[__('Bulk Refunds')] = [
-			'url' => ['controller' => 'Events', 'action' => 'refund', 'event' => $event->id],
+			'url' => ['controller' => 'Events', 'action' => 'refund', '?' => ['event' => $event->id]],
 		];
 	}
 }

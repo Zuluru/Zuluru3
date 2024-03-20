@@ -12,7 +12,7 @@ use Cake\ORM\TableRegistry;
 if ($this->Identity->isLoggedIn() && !empty($division->people)):
 	$links = [];
 	foreach ($division->people as $coordinator) {
-		$links[] = $this->Html->link($coordinator->full_name, ['controller' => 'People', 'action' => 'view', 'person' => $coordinator->id]);
+		$links[] = $this->Html->link($coordinator->full_name, ['controller' => 'People', 'action' => 'view', '?' => ['person' => $coordinator->id]]);
 	}
 
 	if (!empty($division->days)):
@@ -39,12 +39,12 @@ endif;
 
 <p><?php
 if (TableRegistry::getTableLocator()->get('Divisions')->find('byLeague', ['league' => $division->league_id])->count() == 1) {
-	echo $this->Html->link(__('Details'), ['controller' => 'Leagues', 'action' => 'view', 'league' => $division->league_id]);
+	echo $this->Html->link(__('Details'), ['controller' => 'Leagues', 'action' => 'view', '?' => ['league' => $division->league_id]]);
 } else {
-	echo $this->Html->link(__('Details'), ['controller' => 'Divisions', 'action' => 'view', 'division' => $division->id]);
+	echo $this->Html->link(__('Details'), ['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $division->id]]);
 }
 echo ' / ' .
-	$this->Html->link(__('Schedule'), ['controller' => 'Divisions', 'action' => 'schedule', 'division' => $division->id]) .
+	$this->Html->link(__('Schedule'), ['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $division->id]]) .
 	' / ' .
-	$this->Html->link(__('Standings'), ['controller' => 'Divisions', 'action' => 'standings', 'division' => $division->id]);
+	$this->Html->link(__('Standings'), ['controller' => 'Divisions', 'action' => 'standings', '?' => ['division' => $division->id]]);
 ?></p>

@@ -74,13 +74,13 @@ foreach ($categories as $i => $category):
 				echo $this->Form->hidden("$i.id", ['value' => $category->id]);
 				echo $this->Form->hidden("$i.sort", ['value' => $category->sort]);
 				echo $this->Html->iconLink('view_24.png',
-					['action' => 'view', 'category' => $category->id],
+					['action' => 'view', '?' => ['category' => $category->id]],
 					['alt' => __('View'), 'title' => __('View')]);
 				echo $this->Html->iconLink('edit_24.png',
-					['action' => 'edit', 'category' => $category->id],
+					['action' => 'edit', '?' => ['category' => $category->id]],
 					['alt' => __('Edit'), 'title' => __('Edit')]);
 				echo $this->Form->iconPostLink('delete_24.png',
-					['action' => 'delete', 'category' => $category->id],
+					['action' => 'delete', '?' => ['category' => $category->id]],
 					['alt' => __('Delete'), 'title' => __('Delete')],
 					['confirm' => __('Are you sure you want to delete this category?')]);
 				?></td>

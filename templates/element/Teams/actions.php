@@ -22,33 +22,33 @@ $more = new ArrayObject();
 
 if ($this->getRequest()->getParam('controller') != 'Teams' || $this->getRequest()->getParam('action') != 'view') {
 	$links[] = $this->Html->iconLink("view_$size.png",
-		['controller' => 'Teams', 'action' => 'view', 'team' => $team->id],
+		['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]],
 		['alt' => __('View'), 'title' => __('View')]);
 }
 
 if ($team->division_id) {
 	if ($this->getRequest()->getParam('controller') != 'Teams' || $this->getRequest()->getParam('action') != 'schedule') {
 		$links[] = $this->Html->iconLink("schedule_$size.png",
-			['controller' => 'Teams', 'action' => 'schedule', 'team' => $team->id],
+			['controller' => 'Teams', 'action' => 'schedule', '?' => ['team' => $team->id]],
 			['alt' => __('Schedule'), 'title' => __('Schedule')]);
 	}
 	if ($this->getRequest()->getParam('controller') != 'Divisions' || $this->getRequest()->getParam('action') != 'standings') {
 		$links[] = $this->Html->iconLink("standings_$size.png",
-			['controller' => 'Divisions', 'action' => 'standings', 'division' => $division->id, 'team' => $team->id],
+			['controller' => 'Divisions', 'action' => 'standings', '?' => ['division' => $division->id, 'team' => $team->id]],
 			['alt' => __('Standings'), 'title' => __('Standings')]);
 	}
 	if (($this->getRequest()->getParam('controller') != 'Teams' || $this->getRequest()->getParam('action') != 'stats') &&
 		isset($league) && $this->Authorize->can('stats', $league)
 	) {
 		$links[] = $this->Html->iconLink("summary_$size.png",
-			['controller' => 'Teams', 'action' => 'stats', 'team' => $team->id],
+			['controller' => 'Teams', 'action' => 'stats', '?' => ['team' => $team->id]],
 			['alt' => __('Stats'), 'title' => __('View Team Stats')]);
 	}
 }
 
 if ($this->Authorize->can('add_event', $team)) {
 	$more[__('Add a Team Event')] = [
-		'url' => ['controller' => 'TeamEvents', 'action' => 'add', 'team' => $team->id],
+		'url' => ['controller' => 'TeamEvents', 'action' => 'add', '?' => ['team' => $team->id]],
 	];
 }
 
@@ -56,13 +56,13 @@ if (($this->getRequest()->getParam('controller') != 'Teams' || $this->getRequest
 	$this->Authorize->can('attendance', $team)
 ) {
 	$links[] = $this->Html->iconLink("attendance_$size.png",
-		['controller' => 'Teams', 'action' => 'attendance', 'team' => $team->id],
+		['controller' => 'Teams', 'action' => 'attendance', '?' => ['team' => $team->id]],
 		['alt' => __('Attendance'), 'title' => __('View Season Attendance Report')]);
 }
 
 if ($this->Authorize->can('roster_request', new ContextResource($team, ['division' => isset($division) ? $division : null]))) {
 	$more[__('Join Team')] = [
-		'url' => ['controller' => 'Teams', 'action' => 'roster_request', 'team' => $team->id],
+		'url' => ['controller' => 'Teams', 'action' => 'roster_request', '?' => ['team' => $team->id]],
 	];
 }
 
@@ -70,7 +70,7 @@ if (($this->getRequest()->getParam('controller') != 'Teams' || $this->getRequest
 	$this->Authorize->can('edit', $team)
 ) {
 	$more[__('Edit Team')] = [
-		'url' => ['controller' => 'Teams', 'action' => 'edit', 'team' => $team->id, 'return' => AppController::_return()],
+		'url' => ['controller' => 'Teams', 'action' => 'edit', '?' => ['team' => $team->id, 'return' => AppController::_return()]],
 	];
 }
 
@@ -78,7 +78,7 @@ if (($this->getRequest()->getParam('controller') != 'Teams' || $this->getRequest
 	$this->Authorize->can('emails', $team)
 ) {
 	$more[__('Player Emails')] = [
-		'url' => ['controller' => 'Teams', 'action' => 'emails', 'team' => $team->id],
+		'url' => ['controller' => 'Teams', 'action' => 'emails', '?' => ['team' => $team->id]],
 	];
 }
 
@@ -86,26 +86,26 @@ if (($this->getRequest()->getParam('controller') != 'Teams' || $this->getRequest
 	$this->Authorize->can('add_player', new ContextResource($team, ['division' => isset($division) ? $division : null]))
 ) {
 	$more[__('Add Player')] = [
-		'url' => ['controller' => 'Teams', 'action' => 'add_player', 'team' => $team->id],
+		'url' => ['controller' => 'Teams', 'action' => 'add_player', '?' => ['team' => $team->id]],
 	];
 }
 
 if ($this->Authorize->can('spirit', $team)) {
 	$more[__('Spirit')] = [
-		'url' => ['controller' => 'Teams', 'action' => 'spirit', 'team' => $team->id],
+		'url' => ['controller' => 'Teams', 'action' => 'spirit', '?' => ['team' => $team->id]],
 	];
 }
 
 if ($this->Authorize->can('move', $team)) {
 	$more[__('Move Team')] = [
-		'url' => ['controller' => 'Teams', 'action' => 'move', 'team' => $team->id],
+		'url' => ['controller' => 'Teams', 'action' => 'move', '?' => ['team' => $team->id]],
 	];
 }
 
 if  ($this->Authorize->can('delete', $team)) {
-	$url = ['controller' => 'Teams', 'action' => 'delete', 'team' => $team->id];
+	$url = ['controller' => 'Teams', 'action' => 'delete', '?' => ['team' => $team->id]];
 	if ($this->getRequest()->getParam('controller') != 'Teams') {
-		$url['return'] = AppController::_return();
+		$url['?']['return'] = AppController::_return();
 	}
 	$more[__('Delete')] = [
 		'url' => $url,
@@ -116,7 +116,7 @@ if  ($this->Authorize->can('delete', $team)) {
 
 if ($this->Authorize->can('note', $team)) {
 	$more[__('Add Note')] = [
-		'url' => ['controller' => 'Teams', 'action' => 'note', 'team' => $team->id],
+		'url' => ['controller' => 'Teams', 'action' => 'note', '?' => ['team' => $team->id]],
 	];
 }
 

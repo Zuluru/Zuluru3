@@ -18,7 +18,7 @@ class GameListener implements EventListenerInterface {
 
 	use FlashTrait;
 
-	public function implementedEvents() {
+	public function implementedEvents(): array {
 		return [
 			'Model.Game.incidentReport' => 'incidentReport',
 			'Model.Game.scoreSubmission' => 'scoreSubmission',

@@ -29,7 +29,7 @@ foreach ($teams as $team) {
 
 	if (!in_array($team->id, $this->UserCache->read('TeamIDs'))) {
 		echo $this->Html->tag('li', $this->Html->link($team->name . __(' ({0})', $team->division->league_name),
-			['controller' => 'Teams', 'action' => 'roster_request', 'team' => $team->id]));
+			['controller' => 'Teams', 'action' => 'roster_request', '?' => ['team' => $team->id]]));
 	}
 }
 ?>

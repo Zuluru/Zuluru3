@@ -17,7 +17,7 @@ $this->Breadcrumbs->add(__('Preview'));
 		<dt><?= __('Subject') ?></dt>
 		<dd><?= h($newsletter->subject) ?></dd>
 		<dt><?= __('Mailing List') ?></dt>
-		<dd><?= $this->Html->link($newsletter->mailing_list->name, ['controller' => 'MailingLists', 'action' => 'view', 'mailing_list' => $newsletter->mailing_list->id]) ?></dd>
+		<dd><?= $this->Html->link($newsletter->mailing_list->name, ['controller' => 'MailingLists', 'action' => 'view', '?' => ['mailing_list' => $newsletter->mailing_list->id]]) ?></dd>
 		<dt><?= __('Target') ?></dt>
 		<dd><?= $this->Time->date($newsletter->target) ?></dd>
 <?php
@@ -56,15 +56,15 @@ endif;
 	<ul class="nav nav-pills">
 <?php
 echo $this->Html->tag('li', $this->Html->link(__('Delivery Report'),
-	['action' => 'delivery', 'newsletter' => $newsletter->id]));
+	['action' => 'delivery', '?' => ['newsletter' => $newsletter->id]]));
 echo $this->Html->tag('li', $this->Html->iconLink('newsletter_send_32.png',
-	['action' => 'send', 'newsletter' => $newsletter->id],
+	['action' => 'send', '?' => ['newsletter' => $newsletter->id]],
 	['alt' => __('Send'), 'title' => __('Send')]));
 echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
-	['action' => 'edit', 'newsletter' => $newsletter->id, 'return' => AppController::_return()],
+	['action' => 'edit', '?' => ['newsletter' => $newsletter->id, 'return' => AppController::_return()]],
 	['alt' => __('Edit'), 'title' => __('Edit Newsletter')]));
 echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-	['action' => 'delete', 'newsletter' => $newsletter->id],
+	['action' => 'delete', '?' => ['newsletter' => $newsletter->id]],
 	['alt' => __('Delete'), 'title' => __('Delete Newsletter')],
 	['confirm' => __('Are you sure you want to delete this newsletter?')]));
 echo $this->Html->tag('li', $this->Html->iconLink('view_32.png',

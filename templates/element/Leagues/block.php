@@ -28,4 +28,4 @@ if (!isset($name)) {
 if (!isset($tournaments)) {
 	$tournaments = false;
 }
-echo $this->Html->link($name, ['controller' => ($tournaments ? 'Tournaments' : 'Leagues'), 'action' => 'view', ($tournaments ? 'tournament' : 'league') => $league->id], $options);
+echo $this->Html->link($name, ['controller' => ($tournaments ? 'Tournaments' : 'Leagues'), 'action' => 'view', '?' => [($tournaments ? 'tournament' : 'league') => $league->id]], $options);

@@ -4,5 +4,5 @@
  * @var \App\Model\Entity\Plugin $plugin
  */
 
-echo $this->Html->link(__('Activate'), ['action' => 'activate', 'plugin_id' => $plugin->id]);
+echo $this->Html->link(__('Activate'), ['action' => 'activate', '?' => ['plugin_id' => $plugin->id]]);
 ?></td>

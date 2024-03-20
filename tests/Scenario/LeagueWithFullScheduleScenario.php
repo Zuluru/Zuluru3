@@ -129,7 +129,7 @@ class LeagueWithFullScheduleScenario implements FixtureScenarioInterface {
 				'division_id' => $division->id, 'home_team_id' => $red->id, 'away_team_id' => $green->id,
 				'status' => 'home_default', 'home_score' => 0, 'away_score' => 6, 'approved_by_id' => APPROVAL_AUTOMATIC_HOME,
 			])
-				->with('GameSlots', GameSlotFactory::make(['game_date' => $open->addWeek(), 'assigned' => true])
+				->with('GameSlots', GameSlotFactory::make(['game_date' => $open->addWeeks(1), 'assigned' => true])
 					->with('Fields', $fields[$key * 2])
 				)
 				->persist();
@@ -138,7 +138,7 @@ class LeagueWithFullScheduleScenario implements FixtureScenarioInterface {
 				'division_id' => $division->id, 'home_team_id' => $yellow->id, 'away_team_id' => $blue->id,
 				'status' => 'away_default', 'home_score' => 6, 'away_score' => 0, 'approved_by_id' => APPROVAL_AUTOMATIC_AWAY,
 			])
-				->with('GameSlots', GameSlotFactory::make(['game_date' => $open->addWeek(), 'assigned' => true])
+				->with('GameSlots', GameSlotFactory::make(['game_date' => $open->addWeeks(1), 'assigned' => true])
 					->with('Fields', $fields[$key * 2 + 1])
 				)
 				->persist();
@@ -147,7 +147,7 @@ class LeagueWithFullScheduleScenario implements FixtureScenarioInterface {
 				'division_id' => $division->id, 'home_team_id' => $orange->id, 'away_team_id' => $white->id,
 				'home_score' => 17, 'away_score' => 12, 'rating_points' => 10, 'approved_by_id' => APPROVAL_AUTOMATIC,
 			])
-				->with('GameSlots', GameSlotFactory::make(['game_date' => $open->addWeek(), 'game_start' => $late_start, 'game_end' => $late_end, 'assigned' => true])
+				->with('GameSlots', GameSlotFactory::make(['game_date' => $open->addWeeks(1), 'game_start' => $late_start, 'game_end' => $late_end, 'assigned' => true])
 					->with('Fields', $fields[$key * 2])
 				)
 				->persist();
@@ -156,7 +156,7 @@ class LeagueWithFullScheduleScenario implements FixtureScenarioInterface {
 				'division_id' => $division->id, 'home_team_id' => $black->id, 'away_team_id' => $purple->id,
 				'home_score' => 15, 'away_score' => 15, 'rating_points' => 0, 'approved_by_id' => APPROVAL_AUTOMATIC,
 			])
-				->with('GameSlots', GameSlotFactory::make(['game_date' => $open->addWeek(), 'game_start' => $late_start, 'game_end' => $late_end, 'assigned' => true])
+				->with('GameSlots', GameSlotFactory::make(['game_date' => $open->addWeeks(1), 'game_start' => $late_start, 'game_end' => $late_end, 'assigned' => true])
 					->with('Fields', $fields[$key * 2 + 1])
 				)
 				->persist();

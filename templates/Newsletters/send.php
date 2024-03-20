@@ -29,8 +29,10 @@ if ($execute) {
 	if ($test) {
 		echo $this->Html->para(null, __('Test email sent to') . ' ' . implode(', ', $emails));
 	}
-	echo $this->Html->para(null, __('To send yourself a test copy of this newsletter, {0}.', $this->Html->link(__('click here'), ['action' => 'send', 'newsletter' => $newsletter->id, 'test' => true])));
-	echo $this->Html->para(null, __('To initiate delivery of this newsletter, {0}.', $this->Html->link(__('click here'), ['action' => 'send', 'newsletter' => $newsletter->id, 'execute' => true])));
+	echo $this->Html->para(null, __('To send yourself a test copy of this newsletter, {0}.',
+		$this->Html->link(__('click here'), ['action' => 'send', '?' => ['newsletter' => $newsletter->id, 'test' => true]])));
+	echo $this->Html->para(null, __('To initiate delivery of this newsletter, {0}.',
+		$this->Html->link(__('click here'), ['action' => 'send', '?' => ['newsletter' => $newsletter->id, 'execute' => true]])));
 }
 ?>
 </div>

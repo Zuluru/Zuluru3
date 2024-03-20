@@ -38,7 +38,7 @@ endif;
 ?>
 <?= __('More details about {0} may be found at', $team->name) ?>
 
-<?= Router::url(['controller' => 'Teams', 'action' => 'view', 'team' => $team->id], true) ?>
+<?= Router::url(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]], true) ?>
 
 
 <?= __('We ask that you please accept or decline this invitation at your earliest convenience. The invitation will expire {0} days from now.', $days) ?>
@@ -52,7 +52,7 @@ endif;
 
 <?= __('Accept the invitation here:') ?>
 
-<?= Router::url(['controller' => 'Teams', 'action' => 'roster_accept', 'team' => $team->id, 'person' => $person->id, 'code' => $code], true) ?>
+<?= Router::url(['controller' => 'Teams', 'action' => 'roster_accept', '?' => ['team' => $team->id, 'person' => $person->id, 'code' => $code]], true) ?>
 
 
 <?= __('If you decline the invitation you will be removed from this team\'s roster and your contact information will not be made available to the coaches or captains. This protocol is in accordance with the {0} Privacy Policy.',
@@ -62,7 +62,7 @@ endif;
 
 <?= __('Decline the invitation here:') ?>
 
-<?= Router::url(['controller' => 'Teams', 'action' => 'roster_decline', 'team' => $team->id, 'person' => $person->id, 'code' => $code], true) ?>
+<?= Router::url(['controller' => 'Teams', 'action' => 'roster_decline', '?' => ['team' => $team->id, 'person' => $person->id, 'code' => $code]], true) ?>
 
 
 <?= __('Please be advised that players are NOT considered a part of a team roster until they have accepted the invitation to join. The {0} roster must be completed{1} by the team roster deadline ({2}), and all team members must have accepted the invitation.',

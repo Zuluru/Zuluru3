@@ -16,7 +16,7 @@ if (count($affiliates) > 1):
 ?>
 	<dl class="dl-horizontal">
 		<dt><?= __('Affiliate') ?></dt>
-		<dd><?= $this->Html->link($upload_type->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', 'affiliate' => $upload_type->affiliate->id]) ?></dd>
+		<dd><?= $this->Html->link($upload_type->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $upload_type->affiliate->id]]) ?></dd>
 	</dl>
 <?php
 endif;
@@ -30,10 +30,10 @@ echo $this->Html->tag('li', $this->Html->iconLink('view_32.png',
 	['action' => 'index'],
 	['alt' => __('List'), 'title' => __('List Upload Types')]));
 echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
-	['action' => 'edit', 'type' => $upload_type->id],
+	['action' => 'edit', '?' => ['type' => $upload_type->id]],
 	['alt' => __('Edit'), 'title' => __('Edit Upload Type')]));
 echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-	['action' => 'delete', 'type' => $upload_type->id],
+	['action' => 'delete', '?' => ['type' => $upload_type->id]],
 	['alt' => __('Delete'), 'title' => __('Delete Upload Type')],
 	['confirm' => __('Are you sure you want to delete this uploadType?')]));
 echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
@@ -77,14 +77,14 @@ if (!empty($upload_type->uploads)):
 		endif;
 ?>
 					<td class="actions"><?php
-						echo $this->Html->link(__('View'), ['controller' => 'People', 'action' => 'document', 'document' => $document->id], ['target' => 'preview']);
+						echo $this->Html->link(__('View'), ['controller' => 'People', 'action' => 'document', '?' => ['document' => $document->id]], ['target' => 'preview']);
 						if ($document['approved']) {
-							echo $this->Html->link(__('Edit'), ['controller' => 'People', 'action' => 'edit_document', 'document' => $document->id]);
+							echo $this->Html->link(__('Edit'), ['controller' => 'People', 'action' => 'edit_document', '?' => ['document' => $document->id]]);
 						} else {
-							echo $this->Html->link(__('Approve'), ['controller' => 'People', 'action' => 'approve_document', 'document' => $document->id]);
+							echo $this->Html->link(__('Approve'), ['controller' => 'People', 'action' => 'approve_document', '?' => ['document' => $document->id]]);
 						}
 						echo $this->Jquery->ajaxLink($this->Html->iconImg('delete_24.png', ['alt' => __('Delete'), 'title' => __('Delete')]), [
-							'url' => ['controller' => 'People', 'action' => 'delete_document', 'document' => $document->id],
+							'url' => ['controller' => 'People', 'action' => 'delete_document', '?' => ['document' => $document->id]],
 							'confirm' => __('Are you sure you want to delete this document?'),
 							'disposition' => 'remove_closest',
 							'selector' => 'tr',

@@ -113,7 +113,7 @@ echo $this->Html->para(null, __('Waivers that never expire have no expiry option
 echo $this->Html->tag('li', $this->Html->link(__('List Waivers'), ['action' => 'index']));
 if (!$waiver->isNew()) {
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-		['action' => 'delete', 'waiver' => $waiver->id],
+		['action' => 'delete', '?' => ['waiver' => $waiver->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Waiver')],
 		['confirm' => __('Are you sure you want to delete this waiver?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',

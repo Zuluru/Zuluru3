@@ -85,7 +85,7 @@ class ModuleRegistry extends ObjectRegistry implements EventDispatcherInterface 
 	 * @param string $class Partial classname to resolve.
 	 * @return string|false Either the correct classname or false.
 	 */
-	protected function _resolveClassName($class) {
+	protected function _resolveClassName(string $class): ?string {
 		list($class, $type) = $this->moduleSplit($class);
 		return App::className($class, 'Module', $type);
 	}
@@ -100,7 +100,7 @@ class ModuleRegistry extends ObjectRegistry implements EventDispatcherInterface 
 	 * @return void
 	 * @throws \App\Exception\MissingModuleException
 	 */
-	protected function _throwMissingClassError($class, $plugin) {
+	protected function _throwMissingClassError(string $class, ?string $plugin): void {
 		list($class, $type) = $this->moduleSplit($class);
 		throw new MissingModuleException([
 			'class' => $class . $type,

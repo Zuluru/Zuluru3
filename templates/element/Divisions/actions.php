@@ -42,19 +42,19 @@ if ($from_league_actions) {
 if (!$collapse) {
 	if ($this->getRequest()->getParam('controller') != 'Divisions' || $this->getRequest()->getParam('action') != 'view') {
 		$links[] = $this->Html->iconLink("view_$size.png",
-			['controller' => 'Divisions', 'action' => 'view', 'division' => $division->id],
+			['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $division->id]],
 			['alt' => __('Details'), 'title' => __('View Division Details')]);
 	}
 
 	if ($division->schedule_type != 'none') {
 		if ($this->getRequest()->getParam('controller') != 'Divisions' || $this->getRequest()->getParam('action') != 'schedule') {
 			$links[] = $this->Html->iconLink("schedule_$size.png",
-				['controller' => 'Divisions', 'action' => 'schedule', 'division' => $division->id],
+				['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $division->id]],
 				['alt' => __('Schedule'), 'title' => __('Schedule')]);
 		}
 		if ($this->getRequest()->getParam('controller') != 'Divisions' || $this->getRequest()->getParam('action') != 'standings') {
 			$links[] = $this->Html->iconLink("standings_$size.png",
-				['controller' => 'Divisions', 'action' => 'standings', 'division' => $division->id],
+				['controller' => 'Divisions', 'action' => 'standings', '?' => ['division' => $division->id]],
 				['alt' => __('Standings'), 'title' => __('Standings')]);
 		}
 	}
@@ -64,7 +64,7 @@ if (($this->getRequest()->getParam('controller') != 'Divisions' || $this->getReq
 	$this->Authorize->can('stats', $league)
 ) {
 	$links[] = $this->Html->iconLink("stats_$size.png",
-		['controller' => 'Divisions', 'action' => 'stats', 'division' => $division->id],
+		['controller' => 'Divisions', 'action' => 'stats', '?' => ['division' => $division->id]],
 		['alt' => __('Stats'), 'title' => __('Stats')]);
 }
 

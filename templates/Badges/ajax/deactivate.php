@@ -4,4 +4,4 @@
  * @var \App\Model\Entity\Badge $badge
  */
 
-echo $this->Jquery->ajaxLink(__('Activate'), ['url' => ['action' => 'activate', 'badge' => $badge->id]]);
+echo $this->Jquery->ajaxLink(__('Activate'), ['url' => ['action' => 'activate', '?' => ['badge' => $badge->id]]]);

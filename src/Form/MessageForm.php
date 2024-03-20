@@ -14,7 +14,7 @@ use App\Core\UserCache;
  */
 class MessageForm extends Form {
 
-	protected function _buildSchema(Schema $schema) {
+	protected function _buildSchema(Schema $schema): \Cake\Form\Schema {
 		return $schema->addField('contact_id', ['type' => 'int'])
 			->addField('subject', ['type' => 'string'])
 			->addField('message', ['type' => 'text'])

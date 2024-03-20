@@ -25,7 +25,7 @@ class WaiversController extends AppController {
 	}
 
 	// TODO: Proper fix for black-holing when we add/edit waivers
-	public function beforeFilter(\Cake\Event\Event $event) {
+	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
 		if (isset($this->Security)) {
 			$this->Security->setConfig('unlockedActions', ['add', 'edit']);
@@ -35,7 +35,7 @@ class WaiversController extends AppController {
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$this->Authorization->authorize($this);
@@ -55,7 +55,7 @@ class WaiversController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('waiver');
@@ -81,10 +81,10 @@ class WaiversController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
-		$waiver = $this->Waivers->newEntity();
+		$waiver = $this->Waivers->newEmptyEntity();
 		$this->Authorization->authorize($waiver);
 		if ($this->getRequest()->is('post')) {
 			$waiver = $this->Waivers->patchEntity($waiver, $this->getRequest()->getData());
@@ -104,7 +104,7 @@ class WaiversController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('waiver');
@@ -146,7 +146,7 @@ class WaiversController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);

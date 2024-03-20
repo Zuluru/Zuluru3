@@ -33,7 +33,7 @@ class TeamEventsController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('event');
@@ -67,7 +67,7 @@ class TeamEventsController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
 		$id = $this->getRequest()->getQuery('team');
@@ -90,7 +90,7 @@ class TeamEventsController extends AppController {
 			$this->Configuration->loadAffiliate($team->affiliate_id);
 		}
 
-		$team_event = $this->TeamEvents->newEntity();
+		$team_event = $this->TeamEvents->newEmptyEntity();
 
 		if ($this->getRequest()->is('post')) {
 			$team_event = $this->TeamEvents->patchEntity($team_event, array_merge($this->getRequest()->getData(), ['team_id' => $id, 'dates' => []]));
@@ -141,11 +141,11 @@ class TeamEventsController extends AppController {
 							// Calculate the date of the next event
 							switch ($this->getRequest()->getData('repeat_type')) {
 								case 'weekly':
-									$date = $date->addWeek();
+									$date = $date->addWeeks(1);
 									break;
 
 								case 'daily':
-									$date = $date->addDay();
+									$date = $date->addDays(1);
 									break;
 
 								// TODO: Confirm that the first day is a Monday
@@ -156,7 +156,7 @@ class TeamEventsController extends AppController {
 								// TODO: Confirm that the first day is a Saturday
 								case 'weekends':
 									do {
-										$date = $date->addDay();
+										$date = $date->addDays(1);
 									} while ($date->isWeekday());
 									break;
 							}
@@ -186,7 +186,7 @@ class TeamEventsController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('event');
@@ -226,7 +226,7 @@ class TeamEventsController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);

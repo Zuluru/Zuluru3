@@ -30,7 +30,7 @@ class UsersFixture extends TestFixture {
 				'password' => password_hash('amypassword', PASSWORD_DEFAULT),
 				'email' => 'amy@zuluru.org',
 				// TODO: Set the time for all tests instead of just some, then this can use FrozenTime instead of FrozenDate
-				'last_login' => FrozenDate::now()->subDay(),
+				'last_login' => FrozenDate::now()->subDays(1),
 				'client_ip' => '127.0.0.1',
 			],
 			[

@@ -65,7 +65,7 @@ class TeamsController extends AppController {
 	}
 
 	// TODO: Proper fix for black-holing of team management
-	public function beforeFilter(\Cake\Event\Event $event) {
+	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
 		if (isset($this->Security)) {
 			$this->Security->setConfig('unlockedActions', ['edit', 'add_from_team']);
@@ -75,7 +75,7 @@ class TeamsController extends AppController {
 	/**
 	 * Index method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function index() {
 		$affiliate = $this->getRequest()->getQuery('affiliate');
@@ -444,7 +444,7 @@ class TeamsController extends AppController {
 	/**
 	 * View method
 	 *
-	 * @return void|\Cake\Network\Response
+	 * @return void|\Cake\Http\Response
 	 */
 	public function view() {
 		$id = $this->getRequest()->getQuery('team');
@@ -701,7 +701,7 @@ class TeamsController extends AppController {
 		}
 
 		$this->set('team', $team);
-		$this->set('_serialize', ['team']);
+		$this->viewBuilder()->setOption('serialize', ['team']);
 	}
 
 	public function numbers() {
@@ -835,7 +835,7 @@ class TeamsController extends AppController {
 		$sport_obj = $this->moduleRegistry->load("Sport:{$team->division->league->sport}");
 
 		// Hopefully, everything we need is already cached
-		$stats = Cache::remember("team/{$id}/stats", function () use ($team, $sport_obj) {
+		$stats = Cache::remember("team_{$id}_stats", function () use ($team, $sport_obj) {
 			// Calculate some stats. We need to get stats from any team in this
 			// division, so that it properly handles subs and people who move teams.
 			$teams = $this->Teams->find()
@@ -950,11 +950,11 @@ class TeamsController extends AppController {
 	/**
 	 * Add method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful add, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */
 	public function add() {
 		$this->Authorization->authorize($this);
-		$team = $this->Teams->newEntity();
+		$team = $this->Teams->newEmptyEntity();
 
 		if ($this->getRequest()->is('post')) {
 			$data = $this->getRequest()->getData();
@@ -1038,7 +1038,7 @@ class TeamsController extends AppController {
 	/**
 	 * Edit method
 	 *
-	 * @return void|\Cake\Network\Response Redirects on successful edit, renders view otherwise.
+	 * @return void|\Cake\Http\Response Redirects on successful edit, renders view otherwise.
 	 */
 	public function edit() {
 		$id = $this->getRequest()->getQuery('team');
@@ -1172,7 +1172,7 @@ class TeamsController extends AppController {
 				$this->Flash->info(__('Invalid team.'));
 				return $this->redirect('/');
 			}
-			$note = $this->Teams->Notes->newEntity();
+			$note = $this->Teams->Notes->newEmptyEntity();
 			$note->team_id = $team->id;
 		}
 
@@ -1244,7 +1244,7 @@ class TeamsController extends AppController {
 	/**
 	 * Delete method
 	 *
-	 * @return void|\Cake\Network\Response Redirects to index.
+	 * @return void|\Cake\Http\Response Redirects to index.
 	 */
 	public function delete() {
 		$this->getRequest()->allowMethod(['post', 'delete']);
@@ -1427,7 +1427,7 @@ class TeamsController extends AppController {
 
 		$this->set(compact('team'));
 		$this->set('spirit_obj', $team->division->league->hasSpirit() ? $this->moduleRegistry->load("Spirit:{$team->division->league->sotg_questions}") : null);
-		$this->set('_serialize', ['team']);
+		$this->viewBuilder()->setOption('serialize', ['team']);
 	}
 
 	/**
@@ -1617,7 +1617,7 @@ class TeamsController extends AppController {
 			$days = array_unique(collection($team->division->days)->extract('id')->toArray());
 			if (!empty($days) && $team->division->schedule_type !== 'none') {
 				$play_day = min($days);
-				for ($date = $team->division->open; $date <= $team->division->close; $date = $date->addDay()) {
+				for ($date = $team->division->open; $date <= $team->division->close; $date = $date->addDays(1)) {
 					$day = $date->format('N');
 					// TODO: If it is a holiday, and the division plays on multiple days,
 					// try the other days to see if one is valid
@@ -1804,7 +1804,7 @@ class TeamsController extends AppController {
 				if (!empty($data['role']) && $data['role'] != 'none') {
 					$person = collection($old_team->people)->firstMatch(['id' => $player]);
 					if ($person) {
-						$person->unsetProperty('_joinData');
+						$person->unset('_joinData');
 						// TODO: If the team has numbers, take care of that here too
 						$result[$this->_setRosterRole($person, $team, ROSTER_INVITED, $data['role'], $data['position'])][] = $person;
 					}
@@ -1942,7 +1942,7 @@ class TeamsController extends AppController {
 				if (!empty($data['role']) && $data['role'] != 'none') {
 					$registration = collection($event->registrations)->firstMatch(['person_id' => $player]);
 					if ($registration) {
-						$registration->person->unsetProperty('_joinData');
+						$registration->person->unset('_joinData');
 						// TODO: If the team has numbers, take care of that here too
 						$result[$this->_setRosterRole($registration->person, $team, ROSTER_APPROVED, $data['role'], $data['position'])][] = $registration->person;
 					}

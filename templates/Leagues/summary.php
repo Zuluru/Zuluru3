@@ -88,7 +88,7 @@ foreach ($divisions as $division):
 						}
 					?></td>
 					<td><?php
-						echo $this->Html->link($division->league->name, ['action' => 'edit', 'league' => $division->league->id, 'return' => AppController::_return()]);
+						echo $this->Html->link($division->league->name, ['action' => 'edit', '?' => ['league' => $division->league->id, 'return' => AppController::_return()]]);
 					?></td>
 <?php
 if ($categories > 0):
@@ -196,12 +196,12 @@ foreach ($divisions as $division):
 					?></td>
 					<td><?php
 						if ($division->league->id != $league) {
-							echo $this->Html->link($division->league->name, ['action' => 'edit', 'league' => $division->league->id, 'return' => AppController::_return()]);
+							echo $this->Html->link($division->league->name, ['action' => 'edit', '?' => ['league' => $division->league->id, 'return' => AppController::_return()]]);
 							$league = $division->league->id;
 						}
 					?>
 					</td>
-					<td><?= $this->Html->link($division->name, ['controller' => 'Divisions', 'action' => 'edit', 'division' => $division->id, 'return' => AppController::_return()]) ?></td>
+					<td><?= $this->Html->link($division->name, ['controller' => 'Divisions', 'action' => 'edit', '?' => ['division' => $division->id, 'return' => AppController::_return()]]) ?></td>
 					<td><?= __(Inflector::humanize($division->schedule_type)) ?></td>
 					<td><?= $division->games_before_repeat ?></td>
 					<td><?= $this->Time->date($division->open) ?></td>

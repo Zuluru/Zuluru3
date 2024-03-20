@@ -54,10 +54,10 @@ if (isset($registrations)):
 				<tr>
 					<td><?= $this->Time->datetime($registration->created) ?></td>
 					<td><?= $this->Html->link(sprintf($order_fmt, $registration->id),
-						['controller' => 'Registrations', 'action' => 'view', 'registration' => $registration->id]) ?></td>
+						['controller' => 'Registrations', 'action' => 'view', '?' => ['registration' => $registration->id]]) ?></td>
 					<td><?= $registration->event->id ?></td>
 					<td><?= $this->Html->link($registration->event->name,
-						['controller' => 'Events', 'action' => 'view', 'event' => $registration->event->id]) ?></td>
+						['controller' => 'Events', 'action' => 'view', '?' => ['event' => $registration->event->id]]) ?></td>
 					<td><?= $registration->price->name ?></td>
 					<td><?= $registration->person->id ?></td>
 					<td><?= $this->element('People/block', ['person' => $registration->person, 'display_field' => 'first_name']) ?></td>
@@ -85,7 +85,7 @@ if (isset($registrations)):
 	<div class="actions columns">
 		<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('Download Registration Report'), ['action' => 'report', 'affiliate' => $affiliate, 'start_date' => $start_date, 'end_date' => $end_date, '_ext' => 'csv']));
+echo $this->Html->tag('li', $this->Html->link(__('Download Registration Report'), ['action' => 'report', '?' => ['affiliate' => $affiliate, 'start_date' => $start_date, 'end_date' => $end_date], '_ext' => 'csv']));
 ?>
 		</ul>
 	</div>

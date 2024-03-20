@@ -29,7 +29,7 @@ $this->Breadcrumbs->add(__('View'));
 				$games = [];
 				foreach ($game_slot->games as $game) {
 					$game->readDependencies();
-					$line = $this->Html->link($game->id, ['controller' => 'Games', 'action' => 'view', 'game' => $game->id]) . ': ';
+					$line = $this->Html->link($game->id, ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]]) . ': ';
 
 					if ($game->home_team_id === null) {
 						$line .= $game->home_dependency;
@@ -84,10 +84,10 @@ endif;
 	<ul class="nav nav-pills">
 <?php
 echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
-	['action' => 'edit', 'slot' => $game_slot->id],
+	['action' => 'edit', '?' => ['slot' => $game_slot->id]],
 	['alt' => __('Edit'), 'title' => __('Edit Game Slot')]));
 echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-	['action' => 'delete', 'slot' => $game_slot->id],
+	['action' => 'delete', '?' => ['slot' => $game_slot->id]],
 	['alt' => __('Delete'), 'title' => __('Delete Game Slot')],
 	['confirm' => __('Are you sure you want to delete this game_slot?')]));
 ?>

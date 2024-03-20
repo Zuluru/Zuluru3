@@ -58,7 +58,7 @@ class Waiver extends Entity {
 		}
 
 		// You can't sign a waiver more than a year in the future
-		if ($date > $now->addYear()) {
+		if ($date > $now->addYears(1)) {
 			return false;
 		}
 
@@ -76,10 +76,10 @@ class Waiver extends Entity {
 				$start = FrozenDate::createFromDate($date->year, $this->start_month, $this->start_day);
 				$end = FrozenDate::createFromDate($date->year, $this->end_month, $this->end_day);
 				while ($end < $date) {
-					$end = $end->addYear();
+					$end = $end->addYears(1);
 				}
 				if ($end < $start) {
-					$start = $start->subYear();
+					$start = $start->subYears(1);
 				}
 				if ($start <= $date && $date <= $end) {
 					return [$start, $end];

@@ -24,7 +24,7 @@ else:
 		foreach ($letters as $l) {
 			$l = strtoupper($l['letter']);
 			if ($l != $letter) {
-				$links[] = $this->Html->link($l, ['action' => 'letter', 'affiliate' => $affiliate, 'letter' => $l]);
+				$links[] = $this->Html->link($l, ['action' => 'letter', '?' => ['affiliate' => $affiliate, 'letter' => $l]]);
 			} else {
 				$links[] = $letter;
 			}

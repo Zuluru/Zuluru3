@@ -2,7 +2,9 @@
 namespace ChasePayment\Test\TestCase\Controller;
 
 use App\Test\TestCase\Controller\ControllerTestCase;
+use Cake\Controller\Controller;
 use Cake\Core\Configure;
+use Cake\Event\EventInterface;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
 
@@ -49,7 +51,7 @@ class PaymentControllerTest extends ControllerTestCase {
 	/**
 	 * Set up the mock API object to avoid talking to the Chase servers
 	 */
-	public function controllerSpy($event, $controller = null) {
+	public function controllerSpy(EventInterface $event, ?Controller $controller = null): void {
 		parent::controllerSpy($event, $controller);
 
 		if (isset($this->_controller)) {
@@ -80,7 +82,7 @@ class PaymentControllerTest extends ControllerTestCase {
 			'Bank_Resp_Code' => '000',
 			'Bank_Message' => 'APPROVED',
 			'CardHoldersName' => 'Crystal Captain',
-			'Expiry_Date' => FrozenTime::now()->addYear()->format('MMyy'),
+			'Expiry_Date' => FrozenTime::now()->addYears(1)->format('MMyy'),
 			'Card_Number' => '############1234',
 			'TransactionCardType' => 'VISA',
 			'x_response_code' => 1,

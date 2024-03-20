@@ -22,14 +22,14 @@ foreach ($documents as $document):
 					<td><?= $document->upload_type->name ?></td>
 					<td class="actions"><?php
 					echo $this->Html->link(__('View'),
-						['action' => 'document', 'document' => $document->id],
+						['action' => 'document', '?' => ['document' => $document->id]],
 						['target' => 'preview']
 					);
 					echo $this->Html->link(__('Approve'),
-						['action' => 'approve_document', 'document' => $document->id]
+						['action' => 'approve_document', '?' => ['document' => $document->id]]
 					);
 					echo $this->Jquery->ajaxLink(__('Delete'), [
-						'url' => ['action' => 'delete_document', 'document' => $document->id],
+						'url' => ['action' => 'delete_document', '?' => ['document' => $document->id]],
 						'dialog' => 'document_comment_div',
 						'disposition' => 'remove_closest',
 						'selector' => 'tr',

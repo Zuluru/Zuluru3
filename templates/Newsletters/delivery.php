@@ -47,7 +47,7 @@ endforeach;
 foreach ($people as $person):
 ?>
 				<tr class="letter letter_<?= strtoupper($person->last_name[0]) ?>">
-					<td><?= $this->Html->link($person->full_name, ['controller' => 'People', 'action' => 'view', 'person' => $person->id]) ?></td>
+					<td><?= $this->Html->link($person->full_name, ['controller' => 'People', 'action' => 'view', '?' => ['person' => $person->id]]) ?></td>
 					<td><?= $this->Time->date($newsletter->deliveries[$person->id]->created) ?></td>
 				</tr>
 <?php
@@ -61,13 +61,13 @@ endforeach;
 	<ul class="nav nav-pills">
 <?php
 echo $this->Html->tag('li', $this->Html->iconLink('newsletter_send_32.png',
-	['action' => 'send', 'newsletter' => $newsletter->id],
+	['action' => 'send', '?' => ['newsletter' => $newsletter->id]],
 	['alt' => __('Send'), 'title' => __('Send')]));
 echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
-	['action' => 'edit', 'newsletter' => $newsletter->id, 'return' => AppController::_return()],
+	['action' => 'edit', '?' => ['newsletter' => $newsletter->id, 'return' => AppController::_return()]],
 	['alt' => __('Edit'), 'title' => __('Edit')]));
 echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-	['action' => 'delete', 'newsletter' => $newsletter->id],
+	['action' => 'delete', '?' => ['newsletter' => $newsletter->id]],
 	['alt' => __('Delete'), 'title' => __('Delete Newsletter')],
 	['confirm' => __('Are you sure you want to delete this newsletter?')]));
 echo $this->Html->tag('li', $this->Html->link(__('List Newsletters'), ['action' => 'index']));

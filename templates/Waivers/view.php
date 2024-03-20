@@ -18,7 +18,7 @@ $this->Breadcrumbs->add(__('View'));
 if (count($affiliates) > 1):
 ?>
 		<dt><?= __('Affiliate') ?></dt>
-		<dd><?= $this->Html->link($waiver->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', 'affiliate' => $waiver->affiliate->id]) ?></dd>
+		<dd><?= $this->Html->link($waiver->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $waiver->affiliate->id]]) ?></dd>
 <?php
 endif;
 ?>
@@ -56,10 +56,10 @@ echo $this->Html->tag('li', $this->Html->iconLink('view_32.png',
 	['alt' => __('List'), 'title' => __('List Waivers')]));
 if ($this->Authorize->can('edit', $waiver)) {
 	echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
-		['action' => 'edit', 'waiver' => $waiver->id],
+		['action' => 'edit', '?' => ['waiver' => $waiver->id]],
 		['alt' => __('Edit'), 'title' => __('Edit Waiver')]));
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-		['action' => 'delete', 'waiver' => $waiver->id],
+		['action' => 'delete', '?' => ['waiver' => $waiver->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Waiver')],
 		['confirm' => __('Are you sure you want to delete this waiver?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('waiver_add_32.png',

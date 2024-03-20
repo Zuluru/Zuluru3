@@ -200,21 +200,21 @@ class Person extends Entity {
 		}
 
 		if (empty($this->user_id)) {
-			$this->_properties['user'] = null;
+			$this->_fields['user'] = null;
 		} else {
 			// Convoluted process to get the name of the property where user table data will be found
 			$user_model = Configure::read('Security.authModel');
 			$people_table = TableRegistry::getTableLocator()->get('People');
 			$property = $people_table->associations()->get($user_model)->getProperty();
-			if (!array_key_exists($property, $this->_properties)) {
+			if (!array_key_exists($property, $this->_fields)) {
 				$people_table->loadInto($this, [$user_model]);
 			}
 			if ($property != 'user') {
-				$this->_properties['user'] = $this->$property;
+				$this->_fields['user'] = $this->$property;
 			}
 		}
 
-		return $this->_properties['user'];
+		return $this->_fields['user'];
 	}
 
 	protected function _getUserName() {
@@ -325,7 +325,7 @@ class Person extends Entity {
 		if (empty($new->user_id)) {
 			$preserve_if_new_is_empty = array_merge($preserve_if_new_is_empty, ['home_phone', 'work_phone', 'mobile_phone', 'addr_street', 'addr_city', 'addr_prov', 'addr_country', 'addr_postalcode']);
 		}
-		foreach (array_keys($new->_properties) as $prop) {
+		foreach (array_keys($new->_fields) as $prop) {
 			if ($this->isAccessible($prop) && !in_array($prop, $preserve)) {
 				if (is_array($new->$prop)) {
 					if (!empty($new->$prop)) {

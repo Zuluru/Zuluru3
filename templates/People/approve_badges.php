@@ -40,12 +40,12 @@ foreach ($badges as $badge):
 					<td><?= $badge->_matchingData['BadgesPeople']->reason ?></td>
 					<td class="actions"><?php
 					echo $this->Jquery->ajaxLink(__('Approve'), [
-						'url' => ['action' => 'approve_badge', 'badge' => $badge->_matchingData['BadgesPeople']->id],
+						'url' => ['action' => 'approve_badge', '?' => ['badge' => $badge->_matchingData['BadgesPeople']->id]],
 						'disposition' => 'remove_closest',
 						'selector' => 'tr',
 					]);
 					echo $this->Jquery->ajaxLink(__('Delete'), [
-						'url' => ['action' => 'delete_badge', 'badge' => $badge->_matchingData['BadgesPeople']->id],
+						'url' => ['action' => 'delete_badge', '?' => ['badge' => $badge->_matchingData['BadgesPeople']->id]],
 						'dialog' => 'badge_comment_div',
 						'disposition' => 'remove_closest',
 						'selector' => 'tr',

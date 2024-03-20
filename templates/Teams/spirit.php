@@ -47,7 +47,7 @@ foreach ($team->games as $game) {
 				$from = $game->away_team;
 			}
 			$row = [
-				$this->Html->link($this->Time->date($game->game_slot->game_date), ['controller' => 'Games', 'action' => 'view', 'game' => $game->id]),
+				$this->Html->link($this->Time->date($game->game_slot->game_date), ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]]),
 				$this->element('Teams/block', ['team' => $from, 'show_shirt' => false]),
 			];
 			if ($team->division->league->numeric_sotg) {

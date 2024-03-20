@@ -72,7 +72,7 @@ echo $this->Form->control('icon', [
 echo $this->Html->tag('li', $this->Html->link(__('List Badges'), ['action' => 'index']));
 if (!$badge->isNew()) {
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-		['action' => 'delete', 'badge' => $badge->id],
+		['action' => 'delete', '?' => ['badge' => $badge->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Badge')],
 		['confirm' => __('Are you sure you want to delete this badge?')]));
 	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',

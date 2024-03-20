@@ -12,7 +12,7 @@ use App\Controller\AppController;
 
 class RegistrationListener implements EventListenerInterface {
 
-	public function implementedEvents() {
+	public function implementedEvents(): array {
 		return [
 			'Model.Registration.registrationRemoved' => 'registrationRemoved',
 			'Model.Registration.registrationWaitlisted' => 'registrationWaitlisted',

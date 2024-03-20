@@ -43,7 +43,7 @@ if (!$credit->isNew()) {
 		$confirm .= "\n\n" . __('Doing so will also delete the related refund, but will NOT change the payment status of the registration.');
 	}
 	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-		['action' => 'delete', 'credit' => $credit->id],
+		['action' => 'delete', '?' => ['credit' => $credit->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Credit')],
 		['confirm' => $confirm]));
 	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
