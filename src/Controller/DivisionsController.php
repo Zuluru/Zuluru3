@@ -180,7 +180,7 @@ class DivisionsController extends AppController {
 		$this->set(compact('division', 'sport_obj'));
 
 		if ($this->getRequest()->is('csv')) {
-			$this->getResponse()->withDownload("Stats - {$division->name}.csv");
+			$this->setResponse($this->getResponse()->withDownload("Stats - {$division->name}.csv"));
 		}
 	}
 
@@ -1394,7 +1394,7 @@ class DivisionsController extends AppController {
 		$this->set(compact('division', 'spirit_obj'));
 
 		if ($this->getRequest()->is('csv')) {
-			$this->getResponse()->withDownload("Spirit - {$division->full_league_name}.csv");
+			$this->setResponse($this->getResponse()->withDownload("Spirit - {$division->full_league_name}.csv"));
 		}
 	}
 

@@ -104,9 +104,9 @@ class PeopleController extends AppController {
 
 		if ($this->getRequest()->is('csv')) {
 			if ($group_id) {
-				$this->getResponse()->withDownload(Inflector::pluralize($group) . '.csv');
+				$this->setResponse($this->getResponse()->withDownload(Inflector::pluralize($group) . '.csv'));
 			} else {
-				$this->getResponse()->withDownload('People.csv');
+				$this->setResponse($this->getResponse()->withDownload('People.csv'));
 			}
 			$this->set('people', $query->contain(['Related']));
 			$this->render('rule_search');
@@ -2629,7 +2629,7 @@ class PeopleController extends AppController {
 					->where(['People.id IN' => $people]);
 
 				if ($this->getRequest()->is('csv')) {
-					$this->getResponse()->withDownload('Search results.csv');
+					$this->setResponse($this->getResponse()->withDownload('Search results.csv'));
 					$this->set('people', $query->contain(['Related'])->toArray());
 					$this->render('rule_search');
 				} else {
@@ -2895,7 +2895,7 @@ class PeopleController extends AppController {
 		$person->updateHidden($this->Authentication->getIdentity());
 
 		$this->set(compact('person'));
-		$this->getResponse()->withDownload("{$person->full_name}.vcf");
+		$this->setResponse($this->getResponse()->withDownload("{$person->full_name}.vcf"));
 	}
 
 	/**
@@ -2966,7 +2966,7 @@ class PeopleController extends AppController {
 
 		$this->set('calendar_type', 'Player Schedule');
 		$this->set('calendar_name', "{$person->full_name}'s schedule");
-		$this->getResponse()->withDownload("$id.ics");
+		$this->setResponse($this->getResponse()->withDownload("$id.ics"));
 		$this->RequestHandler->ext = 'ics';
 	}
 

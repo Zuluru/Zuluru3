@@ -97,7 +97,7 @@ class RegistrationsController extends AppController {
 				]]);
 			}
 			$this->set('registrations', $query);
-			$this->getResponse()->withDownload("Registrations - {$event->name}.csv");
+			$this->setResponse($this->getResponse()->withDownload("Registrations - {$event->name}.csv"));
 		} else {
 			$this->set('registrations', $this->paginate($query));
 		}
@@ -282,7 +282,7 @@ class RegistrationsController extends AppController {
 				])
 				->order(['Events.affiliate_id', 'Registrations.payment' => 'DESC', 'Registrations.created']);
 			$this->set('registrations', $query);
-			$this->getResponse()->withDownload("Registrations $start_date to $end_date.csv");
+			$this->setResponse($this->getResponse()->withDownload("Registrations $start_date to $end_date.csv"));
 		} else {
 			$query->order(['Events.affiliate_id']);
 			$this->paginate = [
