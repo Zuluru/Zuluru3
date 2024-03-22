@@ -13,4 +13,4 @@ use Cake\Core\Configure;
 	$relative->full_name,
 	Configure::read('organization.name')
 ) ?></p>
-<?= $this->element('Email/html/footer');
+<?= $this->element('email/html/footer');

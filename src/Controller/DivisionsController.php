@@ -353,7 +353,7 @@ class DivisionsController extends AppController {
 
 			if (!empty($person->divisions)) {
 				$this->Flash->info(__('{0} is already a coordinator of this division.', $person->full_name));
-				return $this->redirect(['action' => 'add_coordinator', 'division' => $id]);
+				return $this->redirect(['action' => 'add_coordinator', '?' => ['division' => $id]]);
 			} else {
 				$person->_joinData = new DivisionsPerson([
 					'position' => 'coordinator',
@@ -362,10 +362,10 @@ class DivisionsController extends AppController {
 					$this->UserCache->clear('Divisions', $person_id);
 					$this->UserCache->clear('DivisionIDs', $person_id);
 					$this->Flash->success(__('Added {0} as coordinator.', $person->full_name));
-					return $this->redirect(['action' => 'view', 'division' => $id]);
+					return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 				} else {
 					$this->Flash->warning(__('Failed to add {0} as coordinator.', $person->full_name));
-					return $this->redirect(['action' => 'add_coordinator', 'division' => $id]);
+					return $this->redirect(['action' => 'add_coordinator', '?' => ['division' => $id]]);
 				}
 			}
 		}
@@ -408,7 +408,7 @@ class DivisionsController extends AppController {
 
 		if (empty($division->people)) {
 			$this->Flash->warning(__('That person is not a coordinator of this division!'));
-			return $this->redirect(['action' => 'view', 'division' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 		}
 
 		$this->Divisions->People->unlink($division, $division->people, false);
@@ -416,7 +416,7 @@ class DivisionsController extends AppController {
 		$this->UserCache->clear('DivisionIDs', $person_id);
 		$this->Flash->success(__('Successfully removed coordinator.'));
 
-		return $this->redirect(['action' => 'view', 'division' => $id]);
+		return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 	}
 
 	/**
@@ -456,7 +456,7 @@ class DivisionsController extends AppController {
 				$division->setDirty('teams', true);
 				if ($this->Divisions->save($division)) {
 					$this->Flash->success(__('The teams have been saved.'));
-					return $this->redirect(['action' => 'view', 'division' => $id]);
+					return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 				} else {
 					$this->Flash->warning(__('The teams could not be saved. Please correct the errors below and try again.'));
 				}
@@ -502,7 +502,7 @@ class DivisionsController extends AppController {
 
 		if (empty($division->teams)) {
 			$this->Flash->info(__('Cannot adjust ratings for a division with no teams.'));
-			return $this->redirect(['action' => 'view', 'division' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 		}
 
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
@@ -514,7 +514,7 @@ class DivisionsController extends AppController {
 			// This recalculation will save all changes including initial rating adjustments
 			if ($rating_obj->recalculateRatings($division)) {
 				$this->Flash->success(__('The ratings have been saved.'));
-				return $this->redirect(['action' => 'view', 'division' => $id]);
+				return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 			} else {
 				$this->Flash->warning(__('The ratings could not be saved. Please correct the errors below and try again.'));
 			}
@@ -559,7 +559,7 @@ class DivisionsController extends AppController {
 
 		if (empty($division->teams)) {
 			$this->Flash->info(__('Cannot adjust seeds for a division with no teams.'));
-			return $this->redirect(['action' => 'view', 'division' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 		}
 
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
@@ -578,7 +578,7 @@ class DivisionsController extends AppController {
 				}
 				if ($this->Divisions->save($division)) {
 					$this->Flash->success(__('The seeds have been saved.'));
-					return $this->redirect(['action' => 'view', 'division' => $id]);
+					return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 				} else {
 					$this->Flash->warning(__('The seeds could not be saved. Please correct the errors below and try again.'));
 				}
@@ -790,7 +790,7 @@ class DivisionsController extends AppController {
 						$event = new Event('Model.afterSaveCommit', $this, [null]);
 						$this->getEventManager()->dispatch($event);
 
-						return $this->redirect(['action' => 'schedule', 'division' => $id]);
+						return $this->redirect(['action' => 'schedule', '?' => ['division' => $id]]);
 					}
 
 					$this->Flash->warning(__('The games could not be saved. Please correct the errors below and try again.'));
@@ -845,7 +845,7 @@ class DivisionsController extends AppController {
 		$spirit_obj = $division->league->hasSpirit() ? $this->moduleRegistry->load("Spirit:{$division->league->sotg_questions}") : null;
 		if (!$league_obj->addResults($division, $spirit_obj)) {
 			$this->Flash->info(__('Cannot generate standings for a division with no schedule.'));
-			return $this->redirect(['action' => 'view', 'division' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 		}
 
 		// If we're asking for "team" standings, only show the 5 teams above and 5 teams below this team.
@@ -1140,12 +1140,12 @@ class DivisionsController extends AppController {
 
 		if (empty($division->teams)) {
 			$this->Flash->info(__('Cannot generate status report for a division with no teams.'));
-			return $this->redirect(['action' => 'view', 'division' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 		}
 		// TODO: Use the league_obj to determine what functions are applicable instead of hard-coding the list
 		if (!in_array($division->schedule_type, ['roundrobin', 'ratings_ladder'])) {
 			$this->Flash->info(__('Cannot generate status report for a division with this schedule type.'));
-			return $this->redirect(['action' => 'view', 'division' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 		}
 
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
@@ -1171,7 +1171,7 @@ class DivisionsController extends AppController {
 
 		if (empty($division->games)) {
 			$this->Flash->info(__('Cannot generate status report for a division with no schedule.'));
-			return $this->redirect(['action' => 'view', 'division' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 		}
 
 		$regions = TableRegistry::getTableLocator()->get('Regions')->find()
@@ -1508,7 +1508,7 @@ class DivisionsController extends AppController {
 
 		if (!$division->is_playoff) {
 			$this->Flash->info(__('Only playoff divisions can be initialized.'));
-			return $this->redirect(['action' => 'view', 'division' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 		}
 
 		// Initialize all teams ratings with their regular season ratings
@@ -1516,7 +1516,7 @@ class DivisionsController extends AppController {
 			$affiliated_team = $team->_getAffiliatedTeam($division);
 			if (!$affiliated_team) {
 				$this->Flash->warning(__('{0} does not have a unique affiliated team in the correct division.', $team->name));
-				return $this->redirect(['action' => 'view', 'division' => $id]);
+				return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 			}
 			$team->rating = $team->initial_rating = $affiliated_team->rating;
 		}
@@ -1528,7 +1528,7 @@ class DivisionsController extends AppController {
 			$this->Flash->warning(__('Failed to initialize team ratings.'));
 		}
 
-		return $this->redirect(['action' => 'view', 'division' => $id]);
+		return $this->redirect(['action' => 'view', '?' => ['division' => $id]]);
 	}
 
 	/**
@@ -1600,7 +1600,7 @@ class DivisionsController extends AppController {
 		if ($pool) {
 			if (in_array($pool, $finalized_pools)) {
 				$this->Flash->warning(__('There are already games finalized in this pool. Unable to proceed.'));
-				return $this->redirect(['action' => 'schedule', 'division' => $id]);
+				return $this->redirect(['action' => 'schedule', '?' => ['division' => $id]]);
 			}
 			$conditions['Games.pool_id'] = $pool;
 		}
@@ -1631,7 +1631,7 @@ class DivisionsController extends AppController {
 		}
 		if (empty($games)) {
 			$this->Flash->warning(__('There are currently no dependencies to initialize in this division.'));
-			return $this->redirect(['action' => 'schedule', 'division' => $id]);
+			return $this->redirect(['action' => 'schedule', '?' => ['division' => $id]]);
 		}
 
 		$pools = array_unique(collection($games)->extract('pool_id')->toArray());
@@ -1648,7 +1648,7 @@ class DivisionsController extends AppController {
 								[
 									'type' => 'link',
 									'link' => __('initialize division ratings'),
-									'target' => ['action' => 'initialize_ratings', 'division' => $id],
+									'target' => ['action' => 'initialize_ratings', '?' => ['division' => $id]],
 								],
 							],
 						],
@@ -1656,7 +1656,7 @@ class DivisionsController extends AppController {
 				} else {
 					$this->Flash->warning($msg);
 				}
-				return $this->redirect(['action' => 'seeds', 'division' => $id]);
+				return $this->redirect(['action' => 'seeds', '?' => ['division' => $id]]);
 			}
 		}
 
@@ -1688,7 +1688,7 @@ class DivisionsController extends AppController {
 								$seed = $game->$pool_team->dependency_id;
 								if ($seed > count($division->teams)) {
 									$this->Flash->warning(__('Not enough teams in the division to fulfill all scheduled seeds.'));
-									return $this->redirect(['action' => 'schedule', 'division' => $id]);
+									return $this->redirect(['action' => 'schedule', '?' => ['division' => $id]]);
 								}
 								// The sort call above leaves the teams array indexed by id, but we don't want that here
 								$teams = array_values($division->teams);
@@ -1780,7 +1780,7 @@ class DivisionsController extends AppController {
 					}
 					if (empty($copy)) {
 						$this->Flash->warning(__('Failed to {0} game dependency.', __('locate')));
-						return $this->redirect(['action' => 'schedule', 'division' => $id]);
+						return $this->redirect(['action' => 'schedule', '?' => ['division' => $id]]);
 					}
 					$game = $this->Divisions->Games->patchEntity($game, [
 						'home_score' => $copy->$home,
@@ -1794,13 +1794,13 @@ class DivisionsController extends AppController {
 
 			if (!$this->Divisions->Games->save($game)) {
 				$this->Flash->warning(__('Failed to {0} game dependency.', __($operation)));
-				return $this->redirect(['action' => 'schedule', 'division' => $id]);
+				return $this->redirect(['action' => 'schedule', '?' => ['division' => $id]]);
 			}
 		}
 		$this->Flash->success(__('Dependencies have been {0}.', $reset ? __('reset') : __('resolved')));
 		$this->Divisions->clearCache($division, ['schedule', 'standings']);
 
-		return $this->redirect(['action' => 'schedule', 'division' => $id]);
+		return $this->redirect(['action' => 'schedule', '?' => ['division' => $id]]);
 	}
 
 	/**
@@ -1835,7 +1835,7 @@ class DivisionsController extends AppController {
 
 		if (empty($division->pools)) {
 			$this->Flash->warning(__('There are currently no pools to delete in this stage.'));
-			return $this->redirect(['controller' => 'Schedules', 'action' => 'add', 'division' => $id]);
+			return $this->redirect(['controller' => 'Schedules', 'action' => 'add', '?' => ['division' => $id]]);
 		}
 
 		if ($this->Divisions->Pools->getConnection()->transactional(function () use ($division, $stage) {
@@ -1851,7 +1851,7 @@ class DivisionsController extends AppController {
 			$this->Flash->warning(__('Pools in this stage were not deleted.'));
 		}
 
-		return $this->redirect(['controller' => 'Schedules', 'action' => 'add', 'division' => $id]);
+		return $this->redirect(['controller' => 'Schedules', 'action' => 'add', '?' => ['division' => $id]]);
 	}
 
 	/**
@@ -1859,9 +1859,9 @@ class DivisionsController extends AppController {
 	 */
 	public function redirect($url = null, int $status = 302): ?Response {
 		if (is_array($url) && in_array($url['action'], ['edit', 'view']) && (!array_key_exists('controller', $url) || $url['controller'] == 'Divisions')) {
-			$league = $this->Divisions->league($url['division']);
+			$league = $this->Divisions->league($url['?']['division']);
 			if ($this->Divisions->find('byLeague', compact('league'))->count() == 1) {
-				return parent::redirect(['controller' => 'Leagues', 'action' => $url['action'], 'league' => $league], $status);
+				return parent::redirect(['controller' => 'Leagues', 'action' => $url['action'], '?' => ['league' => $league]], $status);
 			}
 		}
 		return parent::redirect($url, $status);

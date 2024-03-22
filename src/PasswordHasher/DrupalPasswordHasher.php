@@ -17,12 +17,9 @@ use Cake\ORM\Entity;
 class DrupalPasswordHasher extends AbstractPasswordHasher implements PasswordHasherInterface {
 
 	/**
-	 * Generates password hash.
-	 *
-	 * @param string $password Plain text password to hash.
-	 * @return string Password hash
+	 * @inheritDoc
 	 */
-	public function hash($password) {
+	public function hash($password): string {
 		if (!defined('DRUPAL_ROOT')) {
 			define('DRUPAL_ROOT', Configure::read('Security.drupalRoot'));
 		}
@@ -32,7 +29,7 @@ class DrupalPasswordHasher extends AbstractPasswordHasher implements PasswordHas
 		return user_hash_password($password);
 	}
 
-	public function check($password, $hashedPassword) {
+	public function check($password, $hashedPassword): bool {
 		if (!defined('DRUPAL_ROOT')) {
 			define('DRUPAL_ROOT', Configure::read('Security.drupalRoot'));
 		}
@@ -44,7 +41,7 @@ class DrupalPasswordHasher extends AbstractPasswordHasher implements PasswordHas
 		return user_check_password($password, $account);
 	}
 
-	public function needsRehash($password) {
+	public function needsRehash($password): bool {
 		// TODO: Include Drupal-specific checks?
 		return false;
 	}

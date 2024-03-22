@@ -817,7 +817,7 @@ class PeopleController extends AppController {
 			// TODO: Need to fix the new user_id being set in the person record
 			if ($this->People->save($person)) {
 				$this->Flash->success(__('Your account has been created.'));
-				Cache::delete("person/{$id}", 'long_term');
+				Cache::delete("person_{$id}", 'long_term');
 				return $this->redirect('/');
 			}
 
@@ -968,11 +968,11 @@ class PeopleController extends AppController {
 			if (empty($note->note)) {
 				if ($note->isNew()) {
 					$this->Flash->warning(__('You entered no text, so no note was added.'));
-					return $this->redirect(['action' => 'view', 'person' => $person->id]);
+					return $this->redirect(['action' => 'view', '?' => ['person' => $person->id]]);
 				} else {
 					if ($this->People->Notes->delete($note)) {
 						$this->Flash->success(__('The note has been deleted.'));
-						return $this->redirect(['action' => 'view', 'person' => $person->id]);
+						return $this->redirect(['action' => 'view', '?' => ['person' => $person->id]]);
 					} else if ($note->getError('delete')) {
 						$this->Flash->warning(current($note->getError('delete')));
 					} else {
@@ -981,7 +981,7 @@ class PeopleController extends AppController {
 				}
 			} else if ($this->People->Notes->save($note)) {
 				$this->Flash->success(__('The note has been saved.'));
-				return $this->redirect(['action' => 'view', 'person' => $person->id]);
+				return $this->redirect(['action' => 'view', '?' => ['person' => $person->id]]);
 			} else {
 				$this->Flash->warning(__('The note could not be saved. Please correct the errors below and try again.'));
 			}
@@ -1015,7 +1015,7 @@ class PeopleController extends AppController {
 			$this->Flash->warning(__('The note could not be deleted. Please, try again.'));
 		}
 
-		return $this->redirect(['action' => 'view', 'person' => $note->person_id]);
+		return $this->redirect(['action' => 'view', '?' => ['person' => $note->person_id]]);
 	}
 
 	public function preferences() {
@@ -1181,7 +1181,7 @@ class PeopleController extends AppController {
 						return $this->redirect('/');
 					} else {
 						$this->Flash->warning(__('Failed to link {0} as relative.', $relative->full_name));
-						return $this->redirect(['action' => 'link_relative', 'person' => $person_id]);
+						return $this->redirect(['action' => 'link_relative', '?' => ['person' => $person_id]]);
 					}
 				}
 			}
@@ -1197,7 +1197,7 @@ class PeopleController extends AppController {
 		$relative_id = $this->getRequest()->getQuery('relative');
 		if ($relative_id === null || $person_id === null) {
 			$this->Flash->info(__('Invalid person.'));
-			return $this->redirect(['action' => 'view', 'person' => $person_id]);
+			return $this->redirect(['action' => 'view', '?' => ['person' => $person_id]]);
 		}
 
 		// The relation being updated is in the current user's Related list
@@ -1212,7 +1212,7 @@ class PeopleController extends AppController {
 		$people_people_table = TableRegistry::getTableLocator()->get('PeoplePeople');
 		if (!$people_people_table->save($relation->_joinData)) {
 			$this->Flash->warning(__('Failed to approve the relative request.'));
-			return $this->redirect(['action' => 'view', 'person' => $person_id]);
+			return $this->redirect(['action' => 'view', '?' => ['person' => $person_id]]);
 		}
 
 		$this->Flash->success(__('Approved the relative request.'));
@@ -1229,7 +1229,7 @@ class PeopleController extends AppController {
 			$this->Flash->warning(__('Error sending email to {0}.', $person->full_name));
 		}
 
-		return $this->redirect(['action' => 'view', 'person' => $relative_id]);
+		return $this->redirect(['action' => 'view', '?' => ['person' => $relative_id]]);
 	}
 
 	public function remove_relative() {
@@ -1239,7 +1239,7 @@ class PeopleController extends AppController {
 		$relative_id = $this->getRequest()->getQuery('relative');
 		if ($relative_id === null || $person_id === null) {
 			$this->Flash->info(__('Invalid person.'));
-			return $this->redirect(['action' => 'view', 'person' => $person_id]);
+			return $this->redirect(['action' => 'view', '?' => ['person' => $person_id]]);
 		}
 
 		// The relation being updated is in the relative's Related list
@@ -1252,7 +1252,7 @@ class PeopleController extends AppController {
 		// If the relative is only a profile, and this is the only remaining relation, don't allow it
 		if (empty($relative->user_id) && count($relations) == 1) {
 			$this->Flash->info(__('Youth profiles must always have a relative.'));
-			return $this->redirect(['action' => 'view', 'person' => $person_id]);
+			return $this->redirect(['action' => 'view', '?' => ['person' => $person_id]]);
 		}
 
 		// Either side of the relation may grant permission for this
@@ -1305,7 +1305,7 @@ class PeopleController extends AppController {
 				$this->Flash->warning(__('Error sending email.'));
 			}
 
-			return $this->redirect(['action' => 'view', 'person' => $person_id]);
+			return $this->redirect(['action' => 'view', '?' => ['person' => $person_id]]);
 		}
 	}
 
@@ -1667,7 +1667,7 @@ class PeopleController extends AppController {
 
 			if ($this->People->Uploads->save($upload)) {
 				$this->Flash->success(__('Document saved, you will receive an email when it has been approved.'));
-				return $this->redirect(['action' => 'view', 'person' => $person->id]);
+				return $this->redirect(['action' => 'view', '?' => ['person' => $person->id]]);
 			} else {
 				$this->Flash->warning(__('Failed to save your document.'));
 			}
@@ -1767,7 +1767,7 @@ class PeopleController extends AppController {
 				{
 					$this->Flash->warning(__('Error sending email to {0}.', $document->person->full_name));
 				}
-				return $this->redirect(['action' => 'view', 'person' => $document->person->id]);
+				return $this->redirect(['action' => 'view', '?' => ['person' => $document->person->id]]);
 			} else {
 				$this->Flash->warning(__('Failed to update the document.'));
 			}
@@ -1821,7 +1821,7 @@ class PeopleController extends AppController {
 			if (empty($this->getRequest()->getData('badge'))) {
 				$this->Flash->warning(__('You must select a badge!'));
 			} else {
-				return $this->redirect(['action' => 'nominate_badge', 'badge' => $this->getRequest()->getData('badge')]);
+				return $this->redirect(['action' => 'nominate_badge', '?' => ['badge' => $this->getRequest()->getData('badge')]]);
 			}
 		}
 
@@ -1930,10 +1930,10 @@ class PeopleController extends AppController {
 			if ($badge->active) {
 				// TODO: Allow multiple copies of the badge?
 				$this->Flash->info(__('This person already has this badge.'));
-				return $this->redirect(['action' => 'nominate_badge', 'badge' => $badge_id]);
+				return $this->redirect(['action' => 'nominate_badge', '?' => ['badge' => $badge_id]]);
 			} else {
 				$this->Flash->info(__('This person has already been nominated for this badge.'));
-				return $this->redirect(['action' => 'nominate_badge', 'badge' => $badge_id]);
+				return $this->redirect(['action' => 'nominate_badge', '?' => ['badge' => $badge_id]]);
 			}
 		}
 
@@ -2467,8 +2467,8 @@ class PeopleController extends AppController {
 	public function league_search() {
 		$this->Authorization->authorize($this);
 		[$params, $url] = $this->_extractSearchParams();
-		unset($url['league_id']);
-		unset($url['include_subs']);
+		unset($url['?']['league_id']);
+		unset($url['?']['include_subs']);
 		if (array_key_exists('league_id', $params)) {
 			if (!empty($params['include_subs'])) {
 				$subs = ',include_subs';
@@ -2583,7 +2583,7 @@ class PeopleController extends AppController {
 	protected function _handleRuleSearch($params, $url) {
 		$affiliates = $this->Authentication->applicableAffiliates();
 		$this->set(compact('url', 'affiliates'));
-		unset($url['rule']);
+		unset($url['?']['rule']);
 
 		// If a rule has been submitted through the form, ignore whatever might be saved in the URL
 		if (array_key_exists('rule', $params)) {
@@ -2602,7 +2602,7 @@ class PeopleController extends AppController {
 				return false;
 			}
 			if (!array_key_exists('rule64', $params)) {
-				$url['rule64'] = \App\Lib\base64_url_encode($params['rule']);
+				$url['?']['rule64'] = \App\Lib\base64_url_encode($params['rule']);
 			}
 			$this->set(compact('url', 'params'));
 
@@ -2854,15 +2854,15 @@ class PeopleController extends AppController {
 		// Clear any related cached information
 		// TODO: It's conceivable that there could also be stored teams, division, stats, etc. with the deleted person_id in them.
 		// For now, we'll just clear everything whenever this happens...
-		Cache::clear(false, 'long_term');
+		Cache::clear('long_term');
 		/*
-		Cache::delete("person/{$person->id}", 'long_term');
+		Cache::delete("person_{$person->id}", 'long_term');
 		foreach ($person->related as $relative) {
 			$this->UserCache->clear('Relatives', $relative->id);
 			$this->UserCache->clear('RelativeIDs', $relative->id);
 		}
 		if (isset($duplicate)) {
-			Cache::delete("person/{$duplicate->id}", 'long_term');
+			Cache::delete("person_{$duplicate->id}", 'long_term');
 			foreach ($duplicate->related as $relative) {
 				$this->UserCache->clear('Relatives', $relative->id);
 				$this->UserCache->clear('RelativeIDs', $relative->id);
@@ -2967,7 +2967,7 @@ class PeopleController extends AppController {
 		$this->set('calendar_type', 'Player Schedule');
 		$this->set('calendar_name', "{$person->full_name}'s schedule");
 		$this->getResponse()->withDownload("$id.ics");
-		$this->RequestHandler->ext = 'ics';
+		$this->viewBuilder()->setClassName('Ics');
 	}
 
 	public function registrations() {

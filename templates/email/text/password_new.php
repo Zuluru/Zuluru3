@@ -29,4 +29,4 @@ use Cake\Routing\Router;
 <?= __('If you didn\'t ask for this, don\'t worry. You are seeing this message, not \'them\'. If this was an error just log in with your new password.') ?>
 
 
-<?= $this->element('Email/text/footer');
+<?= $this->element('email/text/footer');

@@ -52,18 +52,18 @@ class PricesControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to delete prices
-		$this->assertPostAsAccessRedirect(['controller' => 'Prices', 'action' => 'delete', 'price' => $event->prices[0]->id],
-			$admin->id, [], ['controller' => 'Events', 'action' => 'view', 'event' => $event->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Prices', 'action' => 'delete', '?' => ['price' => $event->prices[0]->id]],
+			$admin->id, [], ['controller' => 'Events', 'action' => 'view', '?' => ['event' => $event->id]],
 			'The price point has been deleted.');
 
 		// But not the last price on an event
-		$this->assertPostAsAccessRedirect(['controller' => 'Prices', 'action' => 'delete', 'price' => $single_event->prices[0]->id],
-			$admin->id, [], ['controller' => 'Events', 'action' => 'view', 'event' => $single_event->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Prices', 'action' => 'delete', '?' => ['price' => $single_event->prices[0]->id]],
+			$admin->id, [], ['controller' => 'Events', 'action' => 'view', '?' => ['event' => $single_event->id]],
 			'You cannot delete the only price point on an event.');
 
 		// And not ones with dependencies
-		$this->assertPostAsAccessRedirect(['controller' => 'Prices', 'action' => 'delete', 'price' => $dependent_event->prices[0]->id],
-			$admin->id, [], ['controller' => 'Events', 'action' => 'view', 'event' => $dependent_event->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Prices', 'action' => 'delete', '?' => ['price' => $dependent_event->prices[0]->id]],
+			$admin->id, [], ['controller' => 'Events', 'action' => 'view', '?' => ['event' => $dependent_event->id]],
 			'#The following records reference this price point, so it cannot be deleted#');
 	}
 
@@ -88,12 +88,12 @@ class PricesControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Managers are allowed to delete prices in their affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'Prices', 'action' => 'delete', 'price' => $event->prices[0]->id],
-			$manager->id, [], ['controller' => 'Events', 'action' => 'view', 'event' => $event->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Prices', 'action' => 'delete', '?' => ['price' => $event->prices[0]->id]],
+			$manager->id, [], ['controller' => 'Events', 'action' => 'view', '?' => ['event' => $event->id]],
 			'The price point has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Prices', 'action' => 'delete', 'price' => $affiliate_event->prices[0]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Prices', 'action' => 'delete', '?' => ['price' => $affiliate_event->prices[0]->id]],
 			$manager->id);
 	}
 
@@ -113,11 +113,11 @@ class PricesControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Others are not allowed to delete prices
-		$this->assertPostAsAccessDenied(['controller' => 'Prices', 'action' => 'delete', 'price' => $event->prices[0]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Prices', 'action' => 'delete', '?' => ['price' => $event->prices[0]->id]],
 			$volunteer->id);
-		$this->assertPostAsAccessDenied(['controller' => 'Prices', 'action' => 'delete', 'price' => $event->prices[0]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Prices', 'action' => 'delete', '?' => ['price' => $event->prices[0]->id]],
 			$player->id);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Prices', 'action' => 'delete', 'price' => $event->prices[0]->id]);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Prices', 'action' => 'delete', '?' => ['price' => $event->prices[0]->id]]);
 	}
 
 }

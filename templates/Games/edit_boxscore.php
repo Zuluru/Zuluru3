@@ -119,7 +119,7 @@ endforeach;
 			<td></td>
 			<td><?php
 			echo $this->Jquery->ajaxButton($this->Html->iconImg('add_24.png', ['alt' => __('Add Score Detail'), 'title' => __('Add Score Detail')]), [
-				'url' => ['action' => 'add_score', 'game' => $game->id],
+				'url' => ['action' => 'add_score', '?' => ['game' => $game->id]],
 				'selector' => '#add_row',
 				'input-selector' => '#add_row :input',
 				'disposition' => 'before',

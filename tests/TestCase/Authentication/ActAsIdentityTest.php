@@ -25,7 +25,7 @@ class ActAsIdentityTest extends TestCase {
 	}
 
 	public function tearDown(): void {
-		Cache::clear(false, 'long_term');
+		Cache::clear('long_term');
 		parent::tearDown();
 	}
 

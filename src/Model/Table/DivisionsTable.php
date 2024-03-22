@@ -110,18 +110,18 @@ class DivisionsTable extends AppTable {
 			// validation will allow empty names; rules will limit this
 			->allowEmptyString('name')
 
-			->date('open', __('You must provide a valid date for the first game.'))
+			->date('open', ['ymd'], __('You must provide a valid date for the first game.'))
 			->requirePresence('open', 'create', __('You must provide a valid date for the first game.'))
 			->notEmptyDate('open', __('You must provide a valid date for the first game.'))
 
-			->date('close', __('You must provide a valid date for the last game.'))
+			->date('close', ['ymd'], __('You must provide a valid date for the last game.'))
 			->requirePresence('close', 'create', __('You must provide a valid date for the last game.'))
 			->notEmptyDate('close', __('You must provide a valid date for the last game.'))
 
 			->requirePresence('ratio_rule', 'create', __('You must select a valid ratio rule.'))
 			->notEmptyString('ratio_rule', __('You must select a valid ratio rule.'))
 
-			->date('roster_deadline', __('You must provide a valid roster deadline.'))
+			->date('roster_deadline', ['ymd'], __('You must provide a valid roster deadline.'))
 			->allowEmptyDate('roster_deadline')
 
 			->allowEmptyString('roster_rule')
@@ -530,17 +530,17 @@ class DivisionsTable extends AppTable {
 			$league_id = $this->league($division_id);
 		}
 		foreach ($keys as $key) {
-			Cache::delete("division/{$division_id}/{$key}", 'long_term');
-			Cache::delete("league/{$league_id}/{$key}", 'long_term');
+			Cache::delete("division_{$division_id}_{$key}", 'long_term');
+			Cache::delete("league_{$league_id}_{$key}", 'long_term');
 		}
 	}
 
 	public static function clearLocationsCache(array $divisions) {
 		foreach ($divisions as $division) {
 			if (is_int($division)) {
-				Cache::delete("division/{$division}/locations", 'long_term');
+				Cache::delete("division_{$division}_locations", 'long_term');
 			} else {
-				Cache::delete("division/{$division->id}/locations", 'long_term');
+				Cache::delete("division_{$division->id}_locations", 'long_term');
 			}
 		}
 	}

@@ -14,7 +14,7 @@ use App\Core\UserCache;
  */
 class MessageForm extends Form {
 
-	protected function _buildSchema(Schema $schema): \Cake\Form\Schema {
+	protected function _buildSchema(Schema $schema): Schema {
 		return $schema->addField('contact_id', ['type' => 'int'])
 			->addField('subject', ['type' => 'string'])
 			->addField('message', ['type' => 'text'])
@@ -27,7 +27,7 @@ class MessageForm extends Form {
 	 * @param \Cake\Validation\Validator $validator Validator instance.
 	 * @return \Cake\Validation\Validator
 	 */
-	protected function _buildValidator(Validator $validator) {
+	public function validationDefault(Validator $validator): Validator {
 		$validator
 			->requirePresence('subject', 'create')
 			->notEmptyString('subject', __('Subject must not be blank.'))
@@ -43,7 +43,7 @@ class MessageForm extends Form {
 		return $validator;
 	}
 
-	protected function _execute(array $data) {
+	protected function _execute(array $data): bool {
 		// If this throws an exception, it must be caught by the caller
 		$contact = TableRegistry::getTableLocator()->get('Contacts')->get($data['contact_id']);
 
@@ -57,7 +57,7 @@ class MessageForm extends Form {
 		]);
 	}
 
-	public function setError($field, $error) {
+	public function setError(string $field, string $error): void {
 		$this->_errors[$field] = $error;
 	}
 }

@@ -46,7 +46,7 @@ class TeamPolicy extends AppPolicy {
 		}
 
 		throw new ForbiddenRedirectException(__('You do not have access to download this team roster.'),
-			['action' => 'view', 'team' => $team->id]);
+			['action' => 'view', '?' => ['team' => $team->id]]);
 	}
 
 	public function canNumbers(IdentityInterface $identity, ContextResource $resource) {
@@ -54,7 +54,7 @@ class TeamPolicy extends AppPolicy {
 
 		if (!Configure::read('feature.shirt_numbers')) {
 			throw new ForbiddenRedirectException(__('Shirt numbers are not enabled on this site.'),
-				['controller' => 'Teams', 'action' => 'view', 'team' => $team->id]);
+				['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]]);
 		}
 
 		// TODO: Check roster deadline
@@ -74,11 +74,11 @@ class TeamPolicy extends AppPolicy {
 		if ($league === null) {
 			// TODO: Any situation where it makes sense to have stat tracking for a team not in a division?
 			throw new ForbiddenRedirectException(__('This team does not have stat tracking enabled.'),
-				['controller' => 'Teams', 'action' => 'view', 'team' => $team->id]);
+				['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]]);
 		}
 		if (!$league->hasStats()) {
 			throw new ForbiddenRedirectException(__('This league does not have stat tracking enabled.'),
-				['controller' => 'Teams', 'action' => 'view', 'team' => $team->id]);
+				['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]]);
 		}
 
 		return true;
@@ -254,7 +254,7 @@ class TeamPolicy extends AppPolicy {
 
 		$division = $resource->division;
 		if ($division && $division->roster_deadline_passed) {
-			throw new ForbiddenRedirectException(__('The roster deadline for this division has already passed.'), ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id]);
+			throw new ForbiddenRedirectException(__('The roster deadline for this division has already passed.'), ['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]]);
 		}
 
 		return true;
@@ -274,7 +274,7 @@ class TeamPolicy extends AppPolicy {
 
 		$division = $resource->division;
 		if ($division && $division->roster_deadline_passed) {
-			throw new ForbiddenRedirectException(__('The roster deadline for this division has already passed.'), ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id]);
+			throw new ForbiddenRedirectException(__('The roster deadline for this division has already passed.'), ['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]]);
 		}
 
 		return true;
@@ -289,7 +289,7 @@ class TeamPolicy extends AppPolicy {
 		$division = $resource->division;
 
 		if ($division && $division->roster_deadline_passed) {
-			throw new ForbiddenRedirectException(__('The roster deadline for this division has already passed.'), ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id]);
+			throw new ForbiddenRedirectException(__('The roster deadline for this division has already passed.'), ['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]]);
 		}
 
 		return $team->open_roster && $identity->isPlayer() && !$identity->isPlayerOn($team);
@@ -298,13 +298,13 @@ class TeamPolicy extends AppPolicy {
 	public function canRoster_accept(IdentityInterface $identity = null, ContextResource $resource) {
 		if (!$resource->has('person')) {
 			throw new ForbiddenRedirectException(__('This person has neither been invited nor requested to join this team.'),
-				['action' => 'view', 'team' => $resource->resource()->id]);
+				['action' => 'view', '?' => ['team' => $resource->resource()->id]]);
 		}
 
 		$roster = $resource->roster;
 		if ($roster->status == ROSTER_APPROVED) {
 			throw new ForbiddenRedirectException(__('This person has already been added to the roster.'),
-				['action' => 'view', 'team' => $roster->team_id]);
+				['action' => 'view', '?' => ['team' => $roster->team_id]]);
 		}
 
 		$team = $resource->resource();
@@ -319,11 +319,11 @@ class TeamPolicy extends AppPolicy {
 			$code = $resource->code;
 			if (!$this->_checkHash([$roster->id, $roster->team_id, $roster->person_id, $roster->role, $roster->created], $code)) {
 				throw new ForbiddenRedirectException(__('The authorization code is invalid.'),
-					['action' => 'view', 'team' => $roster->team_id], 'warning');
+					['action' => 'view', '?' => ['team' => $roster->team_id]], 'warning');
 			}
 
 			if ($division && $division->roster_deadline_passed) {
-				throw new ForbiddenRedirectException(__('The roster deadline for this division has already passed.'), ['controller' => 'Teams', 'action' => 'view', 'team' => $roster->team_id]);
+				throw new ForbiddenRedirectException(__('The roster deadline for this division has already passed.'), ['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $roster->team_id]]);
 			}
 
 			return true;
@@ -340,7 +340,7 @@ class TeamPolicy extends AppPolicy {
 			($roster->status == ROSTER_INVITED && ($identity->isMe($roster) || $identity->isRelative($roster)))
 		) {
 			if ($division && $division->roster_deadline_passed) {
-				throw new ForbiddenRedirectException(__('The roster deadline for this division has already passed.'), ['controller' => 'Teams', 'action' => 'view', 'team' => $roster->team_id]);
+				throw new ForbiddenRedirectException(__('The roster deadline for this division has already passed.'), ['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $roster->team_id]]);
 			}
 
 			return true;
@@ -349,20 +349,20 @@ class TeamPolicy extends AppPolicy {
 		throw new ForbiddenRedirectException(
 			__('You are not allowed to accept this roster {0}.',
 				($roster->status == ROSTER_INVITED) ? __('invitation') : __('request')),
-			['action' => 'view', 'team' => $roster->team_id], 'warning'
+			['action' => 'view', '?' => ['team' => $roster->team_id]], 'warning'
 		);
 	}
 
 	public function canRoster_decline(IdentityInterface $identity = null, ContextResource $resource) {
 		if (!$resource->has('person')) {
 			throw new ForbiddenRedirectException(__('This person has neither been invited nor requested to join this team.'),
-				['action' => 'view', 'team' => $resource->resource()->id]);
+				['action' => 'view', '?' => ['team' => $resource->resource()->id]]);
 		}
 
 		$roster = $resource->roster;
 		if ($roster->status == ROSTER_APPROVED) {
 			throw new ForbiddenRedirectException(__('This person has already been added to the roster.'),
-				['action' => 'view', 'team' => $roster->team_id]);
+				['action' => 'view', '?' => ['team' => $roster->team_id]]);
 		}
 
 		$team = $resource->resource();
@@ -377,11 +377,11 @@ class TeamPolicy extends AppPolicy {
 			$code = $resource->code;
 			if (!$this->_checkHash([$roster->id, $roster->team_id, $roster->person_id, $roster->role, $roster->created], $code)) {
 				throw new ForbiddenRedirectException(__('The authorization code is invalid.'),
-					['action' => 'view', 'team' => $roster->team_id], 'warning');
+					['action' => 'view', '?' => ['team' => $roster->team_id]], 'warning');
 			}
 
 			if ($division && $division->roster_deadline_passed) {
-				throw new ForbiddenRedirectException(__('The roster deadline for this division has already passed.'), ['controller' => 'Teams', 'action' => 'view', 'team' => $roster->team_id]);
+				throw new ForbiddenRedirectException(__('The roster deadline for this division has already passed.'), ['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $roster->team_id]]);
 			}
 
 			return true;
@@ -396,7 +396,7 @@ class TeamPolicy extends AppPolicy {
 		// or remove one that they made themselves.
 		if ($identity->isCaptainOf($roster) || $identity->isMe($roster) || $identity->isRelative($roster)) {
 			if ($division && $division->roster_deadline_passed) {
-				throw new ForbiddenRedirectException(__('The roster deadline for this division has already passed.'), ['controller' => 'Teams', 'action' => 'view', 'team' => $roster->team_id]);
+				throw new ForbiddenRedirectException(__('The roster deadline for this division has already passed.'), ['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $roster->team_id]]);
 			}
 
 			return true;
@@ -405,7 +405,7 @@ class TeamPolicy extends AppPolicy {
 		throw new ForbiddenRedirectException(
 			__('You are not allowed to decline this roster {0}.',
 				($roster->status == ROSTER_INVITED) ? __('invitation') : __('request')),
-			['action' => 'view', 'team' => $roster->team_id], 'warning'
+			['action' => 'view', '?' => ['team' => $roster->team_id]], 'warning'
 		);
 	}
 
@@ -433,7 +433,7 @@ class TeamPolicy extends AppPolicy {
 				$msg .= ' ' . __('As a member of this team, your permissions have been restricted to prevent accidental misuse.');
 			}
 
-			throw new ForbiddenRedirectException($msg, ['controller' => 'Teams', 'action' => 'view', 'team' => $team->id]);
+			throw new ForbiddenRedirectException($msg, ['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]]);
 		}
 
 		return false;

@@ -37,7 +37,7 @@ $this->Breadcrumbs->add($badge->name);
 		<div id="SearchResults" class="zuluru_pagination">
 
 <?php
-$extra_url = ['controller' => 'People', 'action' => 'nominate_badge_reason', 'badge' => $badge->id];
+$extra_url = ['controller' => 'People', 'action' => 'nominate_badge_reason', '?' => ['badge' => $badge->id]];
 if ($badge->category == 'assigned') {
 	$extra_url = [__('Assign badge') => $extra_url];
 } else {

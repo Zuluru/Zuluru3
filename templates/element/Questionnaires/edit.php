@@ -29,9 +29,9 @@ foreach ($questionnaire->questions as $question) {
 <div class="zuluru_dialog" id="AddQuestionDiv" title="Add Question">
 <p><?= __('Type part of the question you want') ?></p>
 <?= $this->Jquery->autocompleteInput('Add.question', 'AddQuestion', [
-	'url' => ['controller' => 'Questions', 'action' => 'autocomplete', 'affiliate' => $questionnaire->affiliate_id],
+	'url' => ['controller' => 'Questions', 'action' => 'autocomplete', '?' => ['affiliate' => $questionnaire->affiliate_id]],
 	'disposition' => 'ajax_add_row',
-	'add_url' => ['controller' => 'Questionnaires', 'action' => 'add_question', 'questionnaire' => $questionnaire->id, 'question' => '__id__'],
+	'add_url' => ['controller' => 'Questionnaires', 'action' => 'add_question', '?' => ['questionnaire' => $questionnaire->id, 'question' => '__id__']],
 	'add_selector' => '#Questions',
 ]) ?>
 

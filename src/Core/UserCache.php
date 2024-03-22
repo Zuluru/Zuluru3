@@ -562,7 +562,7 @@ class UserCache {
 	}
 
 	public static function delete($id) {
-		Cache::delete("person/$id", 'long_term');
+		Cache::delete("person_$id", 'long_term');
 	}
 
 	public function allActAs($for_menu = false, $field = 'full_name') {

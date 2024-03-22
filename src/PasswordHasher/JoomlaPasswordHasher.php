@@ -16,12 +16,9 @@ use Cake\Auth\AbstractPasswordHasher;
 class JoomlaPasswordHasher extends AbstractPasswordHasher implements PasswordHasherInterface {
 
 	/**
-	 * Generates password hash.
-	 *
-	 * @param string $password Plain text password to hash.
-	 * @return string Password hash
+	 * @inheritDoc
 	 */
-	public function hash($password) {
+	public function hash($password): string {
 		UserJoomlaTable::initializeJoomlaConfig();
 
 		require_once JPATH_BASE . '/includes/defines.php';
@@ -32,7 +29,7 @@ class JoomlaPasswordHasher extends AbstractPasswordHasher implements PasswordHas
 		return "$crypt:$salt";
 	}
 
-	public function check($password, $hashedPassword) {
+	public function check($password, $hashedPassword): bool {
 		UserJoomlaTable::initializeJoomlaConfig();
 
 		require_once JPATH_BASE . '/includes/defines.php';
@@ -47,7 +44,7 @@ class JoomlaPasswordHasher extends AbstractPasswordHasher implements PasswordHas
 		}
 	}
 
-	public function needsRehash($password) {
+	public function needsRehash($password): bool {
 		// TODO: Include Joomla-specific checks?
 		return false;
 	}

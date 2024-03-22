@@ -55,7 +55,7 @@ class TaskSlotsTable extends AppTable {
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
 
-			->date('task_date', __('You must provide a valid task date.'))
+			->date('task_date', ['ymd'], __('You must provide a valid task date.'))
 			->allowEmptyDate('task_date')
 
 			->time('task_start', __('You must select a valid start time.'))

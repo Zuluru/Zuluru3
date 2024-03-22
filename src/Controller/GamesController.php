@@ -275,7 +275,7 @@ class GamesController extends AppController {
 		$this->set('calendar_name', 'Game');
 		$this->getResponse()->withDownload("$game_id.ics");
 		$this->set(compact('game', 'team_id'));
-		$this->RequestHandler->ext = 'ics';
+		$this->viewBuilder()->setClassName('Ics');
 	}
 
 	/**
@@ -399,9 +399,9 @@ class GamesController extends AppController {
 				$this->Flash->success(__('The game has been saved.'));
 
 				if ($this->getRequest()->getQuery('stats')) {
-					return $this->redirect(['action' => 'submit_stats', 'game' => $id]);
+					return $this->redirect(['action' => 'submit_stats', '?' => ['game' => $id]]);
 				} else {
-					return $this->redirect(['action' => 'view', 'game' => $id]);
+					return $this->redirect(['action' => 'view', '?' => ['game' => $id]]);
 				}
 			} else {
 				$this->Flash->warning(__('The game could not be saved. Please correct the errors below and try again.'));
@@ -480,7 +480,7 @@ class GamesController extends AppController {
 
 			if ($this->Games->save($game)) {
 				$this->Flash->success(__('The score details have been saved.'));
-				return $this->redirect(['action' => 'view', 'game' => $game->id]);
+				return $this->redirect(['action' => 'view', '?' => ['game' => $game->id]]);
 			} else {
 				$this->Flash->warning(__('The score details could not be saved. Please correct the errors below and try again.'));
 			}
@@ -501,10 +501,10 @@ class GamesController extends AppController {
 			}
 		} catch (RecordNotFoundException $ex) {
 			$this->Flash->info(__('Invalid score detail.'));
-			return $this->redirect(['action' => 'edit_boxscore', 'game' => $game_id]);
+			return $this->redirect(['action' => 'edit_boxscore', '?' => ['game' => $game_id]]);
 		} catch (InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid score detail.'));
-			return $this->redirect(['action' => 'edit_boxscore', 'game' => $game_id]);
+			return $this->redirect(['action' => 'edit_boxscore', '?' => ['game' => $game_id]]);
 		}
 
 		$this->Authorization->authorize($detail->game);
@@ -549,10 +549,10 @@ class GamesController extends AppController {
 			]);
 		} catch (RecordNotFoundException $ex) {
 			$this->Flash->info(__('Invalid game.'));
-			return $this->redirect(['action' => 'edit_boxscore', 'game' => $game_id]);
+			return $this->redirect(['action' => 'edit_boxscore', '?' => ['game' => $game_id]]);
 		} catch (InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game.'));
-			return $this->redirect(['action' => 'edit_boxscore', 'game' => $game_id]);
+			return $this->redirect(['action' => 'edit_boxscore', '?' => ['game' => $game_id]]);
 		}
 
 		$this->Authorization->authorize($game);
@@ -564,7 +564,7 @@ class GamesController extends AppController {
 
 		if (!$this->Games->ScoreDetails->save($detail)) {
 			$this->Flash->warning(__('The score details could not be saved. Please correct the errors below and try again.'));
-			return $this->redirect(['action' => 'edit_boxscore', 'game' => $game_id]);
+			return $this->redirect(['action' => 'edit_boxscore', '?' => ['game' => $game_id]]);
 		}
 
 		$this->set(compact('game', 'detail'));
@@ -604,10 +604,10 @@ class GamesController extends AppController {
 				$this->Authorization->authorize($note, 'edit_game');
 			} catch (RecordNotFoundException $ex) {
 				$this->Flash->info(__('Invalid note.'));
-				return $this->redirect(['action' => 'view', 'game' => $game_id]);
+				return $this->redirect(['action' => 'view', '?' => ['game' => $game_id]]);
 			} catch (InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid note.'));
-				return $this->redirect(['action' => 'view', 'game' => $game_id]);
+				return $this->redirect(['action' => 'view', '?' => ['game' => $game_id]]);
 			}
 		} else {
 			$note = $this->Games->Notes->newEmptyEntity();
@@ -620,11 +620,11 @@ class GamesController extends AppController {
 			if (empty($note->note)) {
 				if ($note->isNew()) {
 					$this->Flash->warning(__('You entered no text, so no note was added.'));
-					return $this->redirect(['action' => 'view', 'game' => $game_id]);
+					return $this->redirect(['action' => 'view', '?' => ['game' => $game_id]]);
 				} else {
 					if ($this->Games->Notes->delete($note)) {
 						$this->Flash->success(__('The note has been deleted.'));
-						return $this->redirect(['action' => 'view', 'game' => $game_id]);
+						return $this->redirect(['action' => 'view', '?' => ['game' => $game_id]]);
 					} else if ($note->getError('delete')) {
 						$this->Flash->warning(current($note->getError('delete')));
 					} else {
@@ -687,7 +687,7 @@ class GamesController extends AppController {
 					}
 
 					$this->Flash->success(__('The note has been saved.'));
-					return $this->redirect(['action' => 'view', 'game' => $game_id]);
+					return $this->redirect(['action' => 'view', '?' => ['game' => $game_id]]);
 				} else {
 					$this->Flash->warning(__('The note could not be saved. Please correct the errors below and try again.'));
 				}
@@ -721,7 +721,7 @@ class GamesController extends AppController {
 		} else {
 			$this->Flash->warning(__('The note could not be deleted. Please, try again.'));
 		}
-		return $this->redirect(['action' => 'view', 'game' => $note->game_id]);
+		return $this->redirect(['action' => 'view', '?' => ['game' => $note->game_id]]);
 	}
 
 	/**
@@ -771,12 +771,12 @@ class GamesController extends AppController {
 						[
 							'type' => 'postLink',
 							'link' => __('click here'),
-							'target' => ['action' => 'delete', 'game' => $id, 'force' => true],
+							'target' => ['action' => 'delete', '?' => ['game' => $id, 'force' => true]],
 						],
 					],
 				],
 			]);
-			return $this->redirect(['action' => 'view', 'game' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['game' => $id]]);
 		}
 
 		// If the game isn't finalized, and there's no score entry, then there won't
@@ -784,13 +784,13 @@ class GamesController extends AppController {
 		// Wrap the whole thing in a transaction, for safety.
 		if ($this->Games->delete($game)) {
 			$this->Flash->success(__('The game has been deleted.'));
-			return $this->redirect(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $game->division_id]);
+			return $this->redirect(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $game->division_id]]);
 		} else if ($game->getError('delete')) {
 			$this->Flash->warning(current($game->getError('delete')));
-			return $this->redirect(['action' => 'view', 'game' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['game' => $id]]);
 		} else {
 			$this->Flash->warning(__('The game could not be deleted. Please, try again.'));
-			return $this->redirect(['action' => 'view', 'game' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['game' => $id]]);
 		}
 	}
 
@@ -1001,11 +1001,11 @@ class GamesController extends AppController {
 				if ($this->getRequest()->is('ajax')) {
 					$this->set('dedicated', $this->getRequest()->getQuery('dedicated'));
 				} else if (!$this->Authorization->can($team, 'attendance')) {
-					return $this->redirect(['controller' => 'Teams', 'action' => 'view', 'team' => $team_id]);
+					return $this->redirect(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team_id]]);
 				} else if ($id) {
-					return $this->redirect(['controller' => 'Games', 'action' => 'attendance', 'team' => $team_id, 'game' => $id]);
+					return $this->redirect(['controller' => 'Games', 'action' => 'attendance', '?' => ['team' => $team_id, 'game' => $id]]);
 				} else {
-					return $this->redirect(['controller' => 'Teams', 'action' => 'attendance', 'team' => $team_id]);
+					return $this->redirect(['controller' => 'Teams', 'action' => 'attendance', '?' => ['team' => $team_id]]);
 				}
 			}
 		}
@@ -1233,22 +1233,22 @@ class GamesController extends AppController {
 
 		if (!$game->home_team_id || !$game->away_team_id) {
 			$this->Flash->info(__('Dependencies for that game have not yet been resolved!'));
-			return $this->redirect(['action' => 'view', 'game' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['game' => $id]]);
 		}
 
 		if ($team_id && $team_id != $game->home_team_id && $team_id != $game->away_team_id) {
 			$this->Flash->info(__('That team did not play in that game!'));
-			return $this->redirect(['action' => 'view', 'game' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['game' => $id]]);
 		}
 
 		if ($game->isFinalized()) {
 			$this->Flash->info(__('The score for that game has already been finalized.'));
-			return $this->redirect(['action' => 'view', 'game' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['game' => $id]]);
 		}
 
 		if ($team_id && array_key_exists($team_id, $game['ScoreEntry']) && $game['ScoreEntry'][$team_id]['status'] != 'in_progress') {
 			$this->Flash->info(__('That team has already submitted a score for that game.'));
-			return $this->redirect(['action' => 'view', 'game' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['game' => $id]]);
 		}
 
 		$this->Configuration->loadAffiliate($game->division->league['affiliate_id']);
@@ -1260,7 +1260,7 @@ class GamesController extends AppController {
 			$opponent = $game->home_team;
 		} else {
 			$this->Flash->info(__('That team is not playing in this game.'));
-			return $this->redirect(['action' => 'view', 'game' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['game' => $id]]);
 		}
 
 		$this->set(compact('game', 'team', 'opponent'));
@@ -1958,7 +1958,7 @@ class GamesController extends AppController {
 
 		if (empty($game->home_team_id) || empty($game->away_team_id)) {
 			$this->Flash->info(__('The opponent for that game has not been determined, so a score cannot yet be submitted.'));
-			return $this->redirect(['action' => 'view', 'game' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['game' => $id]]);
 		}
 
 		if ($team_id == $game->home_team_id) {
@@ -1969,21 +1969,21 @@ class GamesController extends AppController {
 			$opponent = $game->home_team;
 		} else {
 			$this->Flash->info(__('That team is not playing in this game.'));
-			return $this->redirect(['action' => 'view', 'game' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['game' => $id]]);
 		}
 
 		$this->Authorization->authorize($team);
 
 		if ($game->isFinalized()) {
 			$this->Flash->info(__('The score for that game has already been finalized.'));
-			return $this->redirect(['action' => 'view', 'game' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['game' => $id]]);
 		}
 
 		$this->Configuration->loadAffiliate($game->division->league->affiliate_id);
 
 		if ($game->game_slot->end_time->subHours(1)->isFuture()) {
 			$this->Flash->info(__('That game has not yet occurred!'));
-			return $this->redirect(['action' => 'view', 'game' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['game' => $id]]);
 		}
 
 		$game->readDependencies();
@@ -2011,13 +2011,13 @@ class GamesController extends AppController {
 			if (!empty($game->score_entries) && !array_key_exists('id', $this->getRequest()->getData('score_entries.0'))) {
 				$this->Flash->warning(__('There is already a score submitted by your team for this game. To update this, use the "{0}" link.',
 					__('Edit Score')));
-				return $this->redirect(['action' => 'view', 'game' => $id]);
+				return $this->redirect(['action' => 'view', '?' => ['game' => $id]]);
 			}
 
 			if (!empty($game->spirit_entries) && !array_key_exists('id', $this->getRequest()->getData('spirit_entries.0'))) {
 				$this->Flash->warning(__('There is already a spirit score submitted by your team for this game. To update this, use the "{0}" link.',
 					__('Edit Score')));
-				return $this->redirect(['action' => 'view', 'game' => $id]);
+				return $this->redirect(['action' => 'view', '?' => ['game' => $id]]);
 			}
 
 			$game = $this->Games->patchEntity($game, $this->getRequest()->getData(), [
@@ -2037,7 +2037,7 @@ class GamesController extends AppController {
 
 			if ($this->Games->save($game, ['game' => $game, 'team_id' => $team_id])) {
 				if ($game->division->league->hasStats() && $this->getRequest()->getData('collect_stats')) {
-					return $this->redirect(['action' => 'submit_stats', 'game' => $id, 'team' => $team_id]);
+					return $this->redirect(['action' => 'submit_stats', '?' => ['game' => $id, 'team' => $team_id]]);
 				} else {
 					return $this->redirect('/');
 				}
@@ -2165,19 +2165,19 @@ class GamesController extends AppController {
 				return true;
 			})) {
 				if ($team_id) {
-					Cache::delete("team/{$team_id}/stats", 'long_term');
+					Cache::delete("team_{$team_id}_stats", 'long_term');
 				} else {
-					Cache::delete("team/{$game->home_team_id}/stats", 'long_term');
-					Cache::delete("team/{$game->away_team_id}/stats", 'long_term');
+					Cache::delete("team_{$game->home_team_id}_stats", 'long_term');
+					Cache::delete("team_{$game->away_team_id}_stats", 'long_term');
 				}
 				$this->Games->Divisions->clearCache($game->division, ['stats']);
 
-				return $this->redirect(['action' => 'view', 'game' => $id]);
+				return $this->redirect(['action' => 'view', '?' => ['game' => $id]]);
 			}
 
 			if (empty($data['stats'])) {
 				$this->Flash->info(__('You did not submit any stats. You can return to complete this at any time.'));
-				return $this->redirect(['action' => 'view', 'game' => $id]);
+				return $this->redirect(['action' => 'view', '?' => ['game' => $id]]);
 			}
 		} else {
 			// Extract counts of stats per player from the live scoring

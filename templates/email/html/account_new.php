@@ -19,4 +19,4 @@ use Cake\Routing\Router;
 	$this->Html->link(__('here'), Router::url(['controller' => 'People', 'action' => 'edit'], true)),
 	$this->Html->link(__('here'), Router::url(['controller' => 'Users', 'action' => 'change_password'], true))
 ) ?></p>
-<?= $this->element('Email/html/footer');
+<?= $this->element('email/html/footer');

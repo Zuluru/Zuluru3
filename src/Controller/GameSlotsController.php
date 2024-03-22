@@ -322,7 +322,7 @@ class GameSlotsController extends AppController {
 				$this->Flash->success(__('The game slot has been saved.'));
 				$this->GameSlots->Divisions->clearLocationsCache($diff);
 
-				return $this->redirect(['action' => 'view', 'slot' => $id]);
+				return $this->redirect(['action' => 'view', '?' => ['slot' => $id]]);
 			} else {
 				$this->Flash->warning(__('The game slot could not be saved. Please correct the errors below and try again.'));
 			}

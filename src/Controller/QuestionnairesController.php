@@ -114,7 +114,7 @@ class QuestionnairesController extends AppController {
 			$questionnaire = $this->Questionnaires->patchEntity($questionnaire, $this->getRequest()->getData());
 			if ($this->Questionnaires->save($questionnaire)) {
 				$this->Flash->success(__('The questionnaire has been saved.'));
-				return $this->redirect(['action' => 'edit', 'questionnaire' => $questionnaire->id]);
+				return $this->redirect(['action' => 'edit', '?' => ['questionnaire' => $questionnaire->id]]);
 			} else {
 				$this->Flash->warning(__('The questionnaire could not be saved. Please correct the errors below and try again.'));
 				$this->Configuration->loadAffiliate($questionnaire->affiliate_id);
@@ -301,7 +301,7 @@ class QuestionnairesController extends AppController {
 
 		if (!empty($questionnaire->questions)) {
 			$this->Flash->info(__('This question is already part of this questionnaire.'));
-			return $this->redirect(['action' => 'view', 'questionnaire' => $questionnaire_id]);
+			return $this->redirect(['action' => 'view', '?' => ['questionnaire' => $questionnaire_id]]);
 		}
 
 		$this->set(compact('question', 'questionnaire'));
@@ -348,7 +348,7 @@ class QuestionnairesController extends AppController {
 
 		if (empty($questionnaire->questions)) {
 			$this->Flash->info(__('This question is not part of this questionnaire.'));
-			return $this->redirect(['action' => 'view', 'questionnaire' => $questionnaire_id]);
+			return $this->redirect(['action' => 'view', '?' => ['questionnaire' => $questionnaire_id]]);
 		}
 
 		if (!empty($questionnaire->events)) {
@@ -370,7 +370,7 @@ class QuestionnairesController extends AppController {
 			$this->Questionnaires->Questions->unlink($questionnaire, [$question], false);
 		} else {
 			$this->Flash->info(__('This question has responses saved, and cannot be removed for historical purposes. You can deactivate it instead, so it will no longer be shown for new registrations.'));
-			return $this->redirect(['action' => 'view', 'questionnaire' => $questionnaire_id]);
+			return $this->redirect(['action' => 'view', '?' => ['questionnaire' => $questionnaire_id]]);
 		}
 	}
 

@@ -102,7 +102,7 @@ class QuestionsController extends AppController {
 			$question = $this->Questions->patchEntity($question, $this->getRequest()->getData());
 			if ($this->Questions->save($question)) {
 				$this->Flash->success(__('The question has been saved.'));
-				return $this->redirect(['action' => 'edit', 'question' => $question->id]);
+				return $this->redirect(['action' => 'edit', '?' => ['question' => $question->id]]);
 			} else {
 				$this->Flash->warning(__('The question could not be saved. Please correct the errors below and try again.'));
 				$this->Configuration->loadAffiliate($question->affiliate_id);
@@ -323,11 +323,11 @@ class QuestionsController extends AppController {
 		if ($count == 0) {
 			if (!$this->Questions->Answers->delete($answer)) {
 				$this->Flash->warning(__('Failed to remove this answer.'));
-				return $this->redirect(['action' => 'view', 'question' => $answer->question_id]);
+				return $this->redirect(['action' => 'view', '?' => ['question' => $answer->question_id]]);
 			}
 		} else {
 			$this->Flash->info(__('This answer has responses saved, and cannot be removed for historical purposes. You can deactivate it instead, so it will no longer be shown for new registrations.'));
-			return $this->redirect(['action' => 'view', 'question' => $answer->question_id]);
+			return $this->redirect(['action' => 'view', '?' => ['question' => $answer->question_id]]);
 		}
 	}
 

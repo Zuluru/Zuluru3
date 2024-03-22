@@ -19,4 +19,4 @@ use Cake\Routing\Router;
 	$this->Html->link(__('here'), Router::url(['controller' => 'Users', 'action' => 'change_password'], true))
 ) ?></p>
 <p><?= __('If you didn\'t ask for this, don\'t worry. You are seeing this message, not \'them\'. If this was an error just log in with your new password.') ?></p>
-<?= $this->element('Email/html/footer');
+<?= $this->element('email/html/footer');

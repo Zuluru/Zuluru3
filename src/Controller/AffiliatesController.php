@@ -206,7 +206,7 @@ class AffiliatesController extends AppController {
 
 			if (!empty($person->affiliates_people) && $person->affiliates_people[0]->position === 'manager') {
 				$this->Flash->info(__('{0} is already a manager of this affiliate.', $person->full_name));
-				return $this->redirect(['action' => 'view', 'affiliate' => $id]);
+				return $this->redirect(['action' => 'view', '?' => ['affiliate' => $id]]);
 			} else {
 				if (!empty($person->affiliates_people)) {
 					$person->affiliates_people[0]->position = 'manager';
@@ -218,7 +218,7 @@ class AffiliatesController extends AppController {
 
 				if ($success) {
 					$this->Flash->success(__('Added {0} as manager.', $person->full_name));
-					return $this->redirect(['action' => 'view', 'affiliate' => $id]);
+					return $this->redirect(['action' => 'view', '?' => ['affiliate' => $id]]);
 				} else {
 					$this->Flash->warning(__('Failed to add {0} as manager.', $person->full_name));
 				}
@@ -263,7 +263,7 @@ class AffiliatesController extends AppController {
 
 		if (empty($affiliate->affiliates_people)) {
 			$this->Flash->warning(__('That person is not a manager of this affiliate!'));
-			return $this->redirect(['action' => 'view', 'affiliate' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['affiliate' => $id]]);
 		}
 
 		$affiliate->affiliates_people[0]->position = 'player';
@@ -275,7 +275,7 @@ class AffiliatesController extends AppController {
 			$this->Flash->warning(__('Failed to remove manager!'));
 		}
 
-		return $this->redirect(['action' => 'view', 'affiliate' => $id]);
+		return $this->redirect(['action' => 'view', '?' => ['affiliate' => $id]]);
 	}
 
 	public function select() {

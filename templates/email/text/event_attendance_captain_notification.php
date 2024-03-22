@@ -57,4 +57,4 @@ if ($attendance->status == ATTENDANCE_AVAILABLE):
 <?php
 endif;
 ?>
-<?= $this->element('Email/text/footer');
+<?= $this->element('email/text/footer');

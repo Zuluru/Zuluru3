@@ -46,7 +46,7 @@ class GroupsControllerTest extends ControllerTestCase {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		// Admins are allowed to activate groups
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Groups', 'action' => 'activate', 'group' => GROUP_OFFICIAL],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Groups', 'action' => 'activate', '?' => ['group' => GROUP_OFFICIAL]],
 			$admin->id);
 		$this->assertResponseContains('/groups\\/deactivate?group=' . GROUP_OFFICIAL);
 	}
@@ -58,13 +58,13 @@ class GroupsControllerTest extends ControllerTestCase {
 		[$manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['manager', 'volunteer', 'player']);
 
 		// Others are not allowed to activate groups
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Groups', 'action' => 'activate', 'group' => GROUP_OFFICIAL],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Groups', 'action' => 'activate', '?' => ['group' => GROUP_OFFICIAL]],
 			$manager->id);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Groups', 'action' => 'activate', 'group' => GROUP_OFFICIAL],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Groups', 'action' => 'activate', '?' => ['group' => GROUP_OFFICIAL]],
 			$volunteer->id);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Groups', 'action' => 'activate', 'group' => GROUP_OFFICIAL],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Groups', 'action' => 'activate', '?' => ['group' => GROUP_OFFICIAL]],
 			$player->id);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Groups', 'action' => 'activate', 'group' => GROUP_OFFICIAL]);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Groups', 'action' => 'activate', '?' => ['group' => GROUP_OFFICIAL]]);
 	}
 
 	/**
@@ -74,7 +74,7 @@ class GroupsControllerTest extends ControllerTestCase {
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
 
 		// Admins are allowed to deactivate groups
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Groups', 'action' => 'deactivate', 'group' => GROUP_VOLUNTEER],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Groups', 'action' => 'deactivate', '?' => ['group' => GROUP_VOLUNTEER]],
 			$admin->id);
 		$this->assertResponseContains('/groups\\/activate?group=' . GROUP_VOLUNTEER);
 	}
@@ -86,13 +86,13 @@ class GroupsControllerTest extends ControllerTestCase {
 		[$manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['manager', 'volunteer', 'player']);
 
 		// Others are not allowed to deactivate groups
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Groups', 'action' => 'deactivate', 'group' => GROUP_VOLUNTEER],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Groups', 'action' => 'deactivate', '?' => ['group' => GROUP_VOLUNTEER]],
 			$manager->id);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Groups', 'action' => 'deactivate', 'group' => GROUP_VOLUNTEER],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Groups', 'action' => 'deactivate', '?' => ['group' => GROUP_VOLUNTEER]],
 			$volunteer->id);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Groups', 'action' => 'deactivate', 'group' => GROUP_VOLUNTEER],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Groups', 'action' => 'deactivate', '?' => ['group' => GROUP_VOLUNTEER]],
 			$player->id);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Groups', 'action' => 'deactivate', 'group' => GROUP_VOLUNTEER]);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Groups', 'action' => 'deactivate', '?' => ['group' => GROUP_VOLUNTEER]]);
 	}
 
 }

@@ -37,4 +37,4 @@ $min_text = ($min > 0 ? __(' (minimum of {0} rostered players)', $min) : '');
 ) ?>
 
 
-<?= $this->element('Email/text/footer');
+<?= $this->element('email/text/footer');

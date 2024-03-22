@@ -29,7 +29,7 @@ if ($division):
 ?>
 <?= __('{0} plays in the {1}.',
 	$team->name,
-	$this->element('Email/division')
+	$this->element('email/division')
 ) ?>
 
 
@@ -72,4 +72,4 @@ endif;
 ) ?>
 
 
-<?= $this->element('Email/text/footer');
+<?= $this->element('email/text/footer');

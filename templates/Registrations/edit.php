@@ -90,7 +90,7 @@ if (count($registration->event->prices) > 1 || ($registration->event->prices[0][
 		}
 		echo $this->Jquery->ajaxInput('price_id', [
 			'selector' => '#PaymentDetails',
-			'url' => ['action' => 'register_payment_fields', 'registration_id' => $registration->id, 'for_edit' => true],
+			'url' => ['action' => 'register_payment_fields', '?' => ['registration_id' => $registration->id, 'for_edit' => true]],
 		], [
 			'label' => __('Registration Options'),
 			'empty' => __('Select one:'),

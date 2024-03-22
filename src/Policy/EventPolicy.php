@@ -193,7 +193,7 @@ class EventPolicy extends AppPolicy {
 				'replacements' => [[
 					'type' => 'link',
 					'link' => __('reactivate your profile'),
-					'target' => ['controller' => 'People', 'action' => 'reactivate', 'return' => AppController::_return()],
+					'target' => ['controller' => 'People', 'action' => 'reactivate', '?' => ['return' => AppController::_return()]],
 				]],
 				'class' => 'warning-message',
 			]];
@@ -284,7 +284,7 @@ class EventPolicy extends AppPolicy {
 							'replacements' => [[
 								'type' => 'link',
 								'link' => __('continue with registration'),
-								'target' => ['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id, 'waiting' => true],
+								'target' => ['controller' => 'Registrations', 'action' => 'register', '?' => ['event' => $event->id, 'waiting' => true]],
 							]],
 							'class' => 'highlight-message'
 						];

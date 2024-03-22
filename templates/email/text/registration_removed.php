@@ -32,4 +32,4 @@ use Cake\Routing\Router;
 ) ?>
 
 
-<?= $this->element('Email/text/footer');
+<?= $this->element('email/text/footer');

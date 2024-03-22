@@ -30,4 +30,4 @@ $min_text = ($min > 0 ? __(' (minimum of {0} rostered players)', $min) : '');
 	$min_text,
 	$division ? $this->Time->date($division->rosterDeadline()) : __('TBD')
 ) ?></p>
-<?= $this->element('Email/html/footer');
+<?= $this->element('email/html/footer');

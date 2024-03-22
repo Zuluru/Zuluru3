@@ -66,7 +66,7 @@ class PaymentControllerTest extends ControllerTestCase {
 	 */
 	public function testIndexAsCaptain() {
 		// PayPal sends parameters in the URL.
-		$this->assertGetAsAccessOk(['plugin' => 'PayPalPayment', 'controller' => 'Payment', 'action' => 'index', 'token' => 'TESTING'], PERSON_ID_CAPTAIN);
+		$this->assertGetAsAccessOk(['plugin' => 'PayPalPayment', 'controller' => 'Payment', 'action' => 'index', '?' => ['token' => 'TESTING']], PERSON_ID_CAPTAIN);
 
 		$registration = TableRegistry::getTableLocator()->get('Registrations')->get(REGISTRATION_ID_CAPTAIN_MEMBERSHIP, [
 			'contain' => ['Payments']
@@ -84,7 +84,7 @@ class PaymentControllerTest extends ControllerTestCase {
 	 */
 	public function testIndexAsAnonymous() {
 		// PayPal sends parameters in the URL.
-		$this->assertGetAnonymousAccessDenied(['plugin' => 'PayPalPayment', 'controller' => 'Payment', 'action' => 'index', 'token' => 'TESTING']);
+		$this->assertGetAnonymousAccessDenied(['plugin' => 'PayPalPayment', 'controller' => 'Payment', 'action' => 'index', '?' => ['token' => 'TESTING']]);
 	}
 
 }

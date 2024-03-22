@@ -55,7 +55,9 @@ class ZuluruFormHelper extends FormHelper {
 			do {
 				$model = array_pop($parts);
 			} while (is_numeric($model));
-			$model = Inflector::tableize($model);
+			if ($model) {
+				$model = Inflector::tableize($model);
+			}
 		} else {
 			$model = Inflector::tableize($this->getView()->getRequest()->getParam('controller'));
 			$shortFieldName = $fieldName;
@@ -65,7 +67,7 @@ class ZuluruFormHelper extends FormHelper {
 		// If no options were provided, check if there's some configured
 		// TODO: Are there more places that we can use this feature?
 		if (!array_key_exists('type', $options) && !array_key_exists('options', $options) &&
-			Configure::read("options.$model.$shortFieldName") !== null)
+			$model && Configure::read("options.$model.$shortFieldName") !== null)
 		{
 			$options['options'] = Configure::read("options.$model.$shortFieldName");
 		}
@@ -118,19 +120,21 @@ class ZuluruFormHelper extends FormHelper {
 		}
 
 		// Check if there's online help for this field
-		$duplicate = !empty($options['duplicate_help']);
-		unset($options['duplicate_help']);
-		$help_file = ROOT . DS . 'templates' . DS . 'element' . DS . 'Help' . DS . $model . DS . 'edit' . DS . strtolower($shortFieldName) . '.php';
-		if (file_exists($help_file)) {
-			$help = ' ' . $this->Html->help(['action' => $model, 'edit', strtolower($shortFieldName)], $duplicate);
+		if ($model) {
+			$duplicate = !empty($options['duplicate_help']);
+			unset($options['duplicate_help']);
+			$help_file = ROOT . DS . 'templates' . DS . 'element' . DS . 'Help' . DS . $model . DS . 'edit' . DS . strtolower($shortFieldName) . '.php';
+			if (file_exists($help_file)) {
+				$help = ' ' . $this->Html->help(['action' => $model, 'edit', strtolower($shortFieldName)], $duplicate);
 
-			// If we have some help text, add this at the end of it.
-			if (array_key_exists('help', $options)) {
-				if ($options['help'] !== false) {
-					$options['help'] .= ' ' . $help;
+				// If we have some help text, add this at the end of it.
+				if (array_key_exists('help', $options)) {
+					if ($options['help'] !== false) {
+						$options['help'] .= ' ' . $help;
+					}
+				} else {
+					$options['help'] = $help;
 				}
-			} else {
-				$options['help'] = $help;
 			}
 		}
 

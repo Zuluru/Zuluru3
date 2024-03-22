@@ -72,4 +72,4 @@ endif;
 	) . ' ' .
 	__('You need to be logged into the website to update this.')
 ?></p>
-<?= $this->element('Email/html/footer');
+<?= $this->element('email/html/footer');

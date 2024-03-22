@@ -45,4 +45,4 @@ if (Configure::read('registration.reservation_time') > 0) {
 ) ?>
 
 
-<?= $this->element('Email/text/footer');
+<?= $this->element('email/text/footer');

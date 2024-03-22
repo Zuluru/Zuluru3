@@ -11,4 +11,4 @@
 <?= __('Your photo has been approved and is now visible to other members who are logged in to this site.') ?>
 
 
-<?= $this->element('Email/text/footer');
+<?= $this->element('email/text/footer');

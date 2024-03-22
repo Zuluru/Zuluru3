@@ -58,4 +58,4 @@ endif;
 <?= Router::url(['controller' => 'TeamEvents', 'action' => 'attendance_change', '?' => ['event' => $team_event->id, 'person' => $person->id, 'code' => $code, 'status' => ATTENDANCE_ABSENT]], true) ?>
 
 
-<?= $this->element('Email/text/footer');
+<?= $this->element('email/text/footer');

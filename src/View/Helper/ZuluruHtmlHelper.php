@@ -34,12 +34,14 @@ class ZuluruHtmlHelper extends HtmlHelper {
 	/**
 	 * Add a "buffer" option, which will result in the provided script being included in the jQuery ".ready" block
 	 */
-	public function scriptBlock($script, array $options = []): string {
+	public function scriptBlock(string $script, array $options = []): ?string {
 		if (!empty($options['buffer'])) {
 			if ($options['buffer'] === true) {
 				$options['buffer'] = 'footer_script';
 			}
 			$this->_View->append($options['buffer'], $script);
+
+			return null;
 		} else {
 			return parent::scriptBlock($script, $options);
 		}
@@ -185,7 +187,7 @@ class ZuluruHtmlHelper extends HtmlHelper {
 					if ($absolute_url) {
 						$url = Router::url($url, true);
 					} else {
-						$url['return'] = AppController::_return();
+						$url['?']['return'] = AppController::_return();
 					}
 					$message = str_replace($text, $this->link($text, $url), $message);
 				}

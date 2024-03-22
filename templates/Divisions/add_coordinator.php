@@ -28,7 +28,11 @@ if (!empty($division->people)) {
 
 	<div id="SearchResults" class="zuluru_pagination">
 
-<?= $this->element('People/search_results', ['extra_url' => [__('Add as coordinator') => ['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => $division->id, 'return' => false]]]) ?>
+<?= $this->element('People/search_results', [
+	'extra_url' => [
+		__('Add as coordinator') => ['controller' => 'Divisions', 'action' => 'add_coordinator', '?' => ['division' => $division->id, 'return' => false]]
+	]
+]) ?>
 
 	</div>
 </div>

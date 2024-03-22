@@ -12,6 +12,7 @@ use App\Middleware\AffiliateConfigurationLoader;
 use App\Middleware\ConfigurationLoader;
 use App\Http\Middleware\CookiePathMiddleware;
 use App\Http\Middleware\CsrfProtectionMiddleware;
+use App\Middleware\UnauthorizedHandler\RedirectFlashHandler;
 use App\Policy\TypeResolver;
 use Authentication\AuthenticationService;
 use Authentication\AuthenticationServiceInterface;
@@ -22,12 +23,14 @@ use Authentication\Middleware\AuthenticationMiddleware;
 use Authorization\AuthorizationService;
 use Authorization\AuthorizationServiceInterface;
 use Authorization\AuthorizationServiceProviderInterface;
+use Authorization\Exception\Exception;
 use Authorization\Exception\ForbiddenException;
 use Authorization\Exception\MissingIdentityException;
 use Authorization\Middleware\AuthorizationMiddleware;
+use Authorization\Middleware\UnauthorizedHandler\HandlerInterface;
 use Authorization\Policy\OrmResolver;
 use Authorization\Policy\ResolverCollection;
-use App\Middleware\LocalizationMiddleware;
+use Boronczyk\LocalizationMiddleware;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Core\Exception\MissingPluginException;
@@ -37,7 +40,6 @@ use Cake\Http\Middleware\BodyParserMiddleware;
 use Cake\Http\Middleware\EncryptedCookieMiddleware;
 use Cake\Http\MiddlewareQueue;
 use Cake\Http\Response;
-use Cake\Http\ServerRequest;
 use Cake\I18n\I18n;
 use Cake\I18n\Time;
 use Cake\ORM\TableRegistry;
@@ -138,7 +140,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 		if (Configure::read('feature.authenticate_through') == 'Zuluru') {
 			$loginAction = Router::url(Configure::read('App.urls.login'), true);
 		} else {
-			$loginAction = Router::url(['controller' => 'Leagues', 'action' => 'index'], true);
+			$loginAction = Router::url(['plugin' => null, 'controller' => 'Leagues', 'action' => 'index'], true);
 		}
 
 		$service = new AuthenticationService([
@@ -323,7 +325,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 			}
 		});
 
-		$cookie_localization = new LocalizationMiddleware($this->getLocales(), null);
+		$cookie_localization = new LocalizationMiddleware($this->getLocales(), 'en');
 		$cookie_localization->setSearchOrder([
 			LocalizationMiddleware::FROM_COOKIE,
 		]);
@@ -334,7 +336,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 			}
 		});
 
-		$user_localization = new LocalizationMiddleware($this->getLocales(), null);
+		$user_localization = new LocalizationMiddleware($this->getLocales(), 'en');
 		$user_localization->setSearchOrder([
 			LocalizationMiddleware::FROM_COOKIE,
 			LocalizationMiddleware::FROM_CALLBACK,
@@ -350,6 +352,8 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 					return $preference->value;
 				}
 			}
+
+			return 'en';
 		});
 		$user_localization->setLocaleCallback(function ($locale) {
 			if ($locale) {
@@ -388,11 +392,9 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 			): ResponseInterface {
 				$payment = ($request->getParam('controller') == 'Payment' && $request->getParam('action') == 'index');
 				if (!$payment && !$request->is('json')) {
-					$csrf = new CsrfProtectionMiddleware();
-
-					// This will invoke the CSRF middleware's `__invoke()` handler,
+					// This will invoke the CSRF middleware's handler,
 					// just like it would when being registered via `add()`.
-					return $csrf->process($request, $handler);
+					return (new CsrfProtectionMiddleware())->process($request, $handler);
 				}
 
 				return $handler->handle($request);
@@ -414,9 +416,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 			): ResponseInterface {
 				// Do not attempt authentication for the installer
 				if ($request->getParam('plugin') != 'Installer') {
-					$authentication = new AuthenticationMiddleware($this);
-
-					return $authentication->process($request, $handler);
+					return (new AuthenticationMiddleware($this))->process($request, $handler);
 				}
 
 				return $handler->handle($request);
@@ -478,19 +478,20 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 						'identityDecorator' => ActAsIdentity::class,
 						'requireAuthorizationCheck' => Configure::read('debug'),
 						'unauthorizedHandler' => [
-							'className' => 'RedirectFlash',
+							'className' => RedirectFlashHandler::class,
 							'unauthenticatedUrl' => Router::url(Configure::read('App.urls.login')),
 							'unauthorizedUrl' => Router::url('/'),
 							'exceptions' => [
-								MissingIdentityException::class => function($subject, $request, $response, $exception, $options) {
-									$subject->Flash('error', __('You must login to access full site functionality.'));
+								MissingIdentityException::class => function(HandlerInterface $subject, ServerRequestInterface $request, Exception $exception, array $options) {
+									$subject->Flash($request, 'error', __('You must login to access full site functionality.'));
 									$url = $subject->getUrl($request, array_merge($options, ['referrer' => true, 'unauthenticated' => true]));
+									$response = new Response();
 
 									return $response
 										->withHeader('Location', $url)
 										->withStatus($options['statusCode']);
 								},
-								ForbiddenRedirectException::class => function($subject, $request, $response, $exception, $options) {
+								ForbiddenRedirectException::class => function(HandlerInterface $subject, ServerRequestInterface $request, Exception $exception, array $options) {
 									$url = $exception->getUrl();
 									if (empty($url)) {
 										$url = $subject->getUrl($request, array_merge($options, ['referrer' => false]));
@@ -498,27 +499,30 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 										$url = Router::url($url);
 									}
 									if ($exception->getMessage()) {
-										$subject->Flash($exception->getClass(), $exception->getMessage(), $exception->getOptions());
+										$subject->Flash($request, $exception->getClass(), $exception->getMessage(), $exception->getOptions());
 									}
+									$response = new Response();
 
 									return $response
 										->withHeader('Location', $url)
 										->withStatus($options['statusCode']);
 								},
-								LockedIdentityException::class => function($subject, $request, $response, $exception, $options) {
-									$subject->Flash('error', __('Your profile is currently {0}, so you can continue to use the site, but may be limited in some areas. To reactivate, {1}.',
+								LockedIdentityException::class => function(HandlerInterface $subject, ServerRequestInterface $request, Exception $exception, array $options) {
+									$subject->Flash($request, 'error', __('Your profile is currently {0}, so you can continue to use the site, but may be limited in some areas. To reactivate, {1}.',
 										__(UserCache::getInstance()->read('Person.status')),
 										__('contact {0}', Configure::read('email.admin_name'))
 									));
 									$url = $subject->getUrl($request, array_merge($options, ['referrer' => false]));
+									$response = new Response();
 
 									return $response
 										->withHeader('Location', $url)
 										->withStatus($options['statusCode']);
 								},
-								ForbiddenException::class => function($subject, $request, $response, $exception, $options) {
-									$subject->Flash('error', __('You do not have permission to access that page.'));
+								ForbiddenException::class => function(HandlerInterface $subject, ServerRequestInterface $request, Exception $exception, array $options) {
+                                    $subject->Flash($request, 'error', __('You do not have permission to access that page.'));
 									$url = $subject->getUrl($request, array_merge($options, ['referrer' => false]));
+									$response = new Response();
 
 									return $response
 										->withHeader('Location', $url)

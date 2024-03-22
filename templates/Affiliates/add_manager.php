@@ -28,7 +28,12 @@ if (!empty($affiliate->people)) {
 
 	<div id="SearchResults" class="zuluru_pagination">
 
-<?= $this->element('People/search_results', ['extra_url' => [__('Add as manager') => ['controller' => 'Affiliates', 'action' => 'add_manager', 'affiliate' => $affiliate->id]]]) ?>
+<?= $this->element('People/search_results', [
+	'extra_url' => [
+		__('Add as manager') => ['controller' => 'Affiliates', 'action' => 'add_manager', '?' => ['affiliate' => $affiliate->id]]
+	]
+])
+?>
 
 	</div>
 </div>

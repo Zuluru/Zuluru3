@@ -202,10 +202,10 @@ class EventsTable extends AppTable {
 		$validator = $this->validationDefault($validator);
 
 		$validator
-			->date('membership_begins', __('You must select a valid beginning date.'))
+			->date('membership_begins', ['ymd'], __('You must select a valid beginning date.'))
 			->notEmptyDate('membership_begins', __('You must select a valid beginning date.'))
 
-			->date('membership_ends', __('You must select a valid ending date.'))
+			->date('membership_ends', ['ymd'], __('You must select a valid ending date.'))
 			->notEmptyDate('membership_ends', __('You must select a valid ending date.'))
 
 			->notEmptyString('membership_type', __('You must select a valid membership type.'))

@@ -19,8 +19,8 @@ $rows = [];
 foreach ($new as $person) {
 	$links = [
 		$this->Html->iconLink('view_24.png',
-			['action' => 'view', '?' => ['person' => $person->id],
-			['alt' => __('View'), 'title' => __('View')]]),
+			['action' => 'view', '?' => ['person' => $person->id]],
+			['alt' => __('View'), 'title' => __('View')]),
 		$this->Html->iconLink('edit_24.png',
 			['action' => 'edit', '?' => ['person' => $person->id, 'return' => AppController::_return()]],
 			['alt' => __('Edit'), 'title' => __('Edit')]),

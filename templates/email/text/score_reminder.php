@@ -55,4 +55,4 @@ if ($division->finalize_after > 0):
 <?php
 endif;
 ?>
-<?= $this->element('Email/text/footer');
+<?= $this->element('email/text/footer');

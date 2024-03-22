@@ -24,7 +24,11 @@ echo $this->element('People/search_form', ['affiliate_id' => $affiliate_id]);
 
 	<div id="SearchResults" class="zuluru_pagination">
 
-		<?= $this->element('People/search_results', ['extra_url' => [__('Add to team') => ['controller' => 'Teams', 'action' => 'roster_add', 'team' => $team->id]]]) ?>
+		<?= $this->element('People/search_results', [
+			'extra_url' => [
+				__('Add to team') => ['controller' => 'Teams', 'action' => 'roster_add', '?' => ['team' => $team->id]]
+			]
+		]) ?>
 
 	</div>
 	<p><?php
@@ -39,7 +43,7 @@ if (!empty($teams) && in_array($team->id, $this->UserCache->read('OwnedTeamIDs')
 			$options[$history->id] = "{$history->name} ({$history->division->full_league_name})";
 		}
 	}
-	echo $this->form->create(null, ['url' => ['action' => 'add_from_team', 'team' => $team->id], 'align' => 'horizontal']);
+	echo $this->form->create(null, ['url' => ['action' => 'add_from_team', '?' => ['team' => $team->id]], 'align' => 'horizontal']);
 	echo $this->Form->control('team', [
 		'label' => false,
 		'options' => $options,
@@ -57,7 +61,7 @@ if (!empty($events)) {
 	foreach ($events as $event) {
 		$options[$event->id] = $event->name;
 	}
-	echo $this->form->create(null, ['url' => ['action' => 'add_from_event', 'team' => $team->id], 'align' => 'horizontal']);
+	echo $this->form->create(null, ['url' => ['action' => 'add_from_event', '?' => ['team' => $team->id]], 'align' => 'horizontal']);
 	echo $this->Form->control('event', [
 		'label' => false,
 		'options' => $options,

@@ -35,7 +35,7 @@ class AnswersControllerTest extends ControllerTestCase {
 		$answer = AnswerFactory::make(['active' => false])->with('Questions', ['affiliate_id' => $affiliate->id])->persist();
 
 		// Admins are allowed to activate answers
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Answers', 'action' => 'activate', 'answer' => $answer->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Answers', 'action' => 'activate', '?' => ['answer' => $answer->id]],
 			$admin->id);
 		$this->assertResponseContains('/answers\\/deactivate?answer=' . $answer->id);
 	}
@@ -54,12 +54,12 @@ class AnswersControllerTest extends ControllerTestCase {
 		])->with('Answers', ['active' => false])->persist();
 
 		// Managers are allowed to activate answers
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Answers', 'action' => 'activate', 'answer' => $questions[0]->answers[0]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Answers', 'action' => 'activate', '?' => ['answer' => $questions[0]->answers[0]->id]],
 			$manager->id);
 		$this->assertResponseContains('/answers\\/deactivate?answer=' . $questions[0]->answers[0]->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Answers', 'action' => 'activate', 'answer' => $questions[1]->answers[0]->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Answers', 'action' => 'activate', '?' => ['answer' => $questions[1]->answers[0]->id]],
 			$manager->id);
 	}
 
@@ -73,11 +73,11 @@ class AnswersControllerTest extends ControllerTestCase {
 		$answer = AnswerFactory::make(['active' => false])->with('Questions', ['affiliate_id' => $affiliate->id])->persist();
 
 		// Others are not allowed to activate answers
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Answers', 'action' => 'activate', 'answer' => $answer->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Answers', 'action' => 'activate', '?' => ['answer' => $answer->id]],
 			$volunteer->id);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Answers', 'action' => 'activate', 'answer' => $answer->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Answers', 'action' => 'activate', '?' => ['answer' => $answer->id]],
 			$player->id);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Answers', 'action' => 'activate', 'answer' => $answer->id]);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Answers', 'action' => 'activate', '?' => ['answer' => $answer->id]]);
 	}
 
 	/**
@@ -89,7 +89,7 @@ class AnswersControllerTest extends ControllerTestCase {
 		$answer = AnswerFactory::make()->with('Questions', ['affiliate_id' => $affiliate->id])->persist();
 
 		// Admins are allowed to deactivate answers
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Answers', 'action' => 'deactivate', 'answer' => $answer->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Answers', 'action' => 'deactivate', '?' => ['answer' => $answer->id]],
 			$admin->id);
 		$this->assertResponseContains('/answers\\/activate?answer=' . $answer->id);
 	}
@@ -108,12 +108,12 @@ class AnswersControllerTest extends ControllerTestCase {
 		])->with('Answers')->persist();
 
 		// Managers are allowed to deactivate answers
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Answers', 'action' => 'deactivate', 'answer' => $questions[0]->answers[0]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Answers', 'action' => 'deactivate', '?' => ['answer' => $questions[0]->answers[0]->id]],
 			$manager->id);
 		$this->assertResponseContains('/answers\\/activate?answer=' . $questions[0]->answers[0]->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Answers', 'action' => 'deactivate', 'answer' => $questions[1]->answers[0]->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Answers', 'action' => 'deactivate', '?' => ['answer' => $questions[1]->answers[0]->id]],
 			$manager->id);
 	}
 
@@ -126,11 +126,11 @@ class AnswersControllerTest extends ControllerTestCase {
 		$answer = AnswerFactory::make()->with('Questions', ['affiliate_id' => $affiliate->id])->persist();
 
 		// Others are not allowed to deactivate answers
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Answers', 'action' => 'deactivate', 'answer' => $answer->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Answers', 'action' => 'deactivate', '?' => ['answer' => $answer->id]],
 			$volunteer->id);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Answers', 'action' => 'deactivate', 'answer' => $answer->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Answers', 'action' => 'deactivate', '?' => ['answer' => $answer->id]],
 			$player->id);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Answers', 'action' => 'deactivate', 'answer' => $answer->id]);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Answers', 'action' => 'deactivate', '?' => ['answer' => $answer->id]]);
 	}
 
 }

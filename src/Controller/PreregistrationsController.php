@@ -103,12 +103,12 @@ class PreregistrationsController extends AppController {
 				->count();
 			if ($found) {
 				$this->Flash->info(__('This person already has a preregistration for this event.'));
-				return $this->redirect(['action' => 'add', 'event' => $event_id]);
+				return $this->redirect(['action' => 'add', '?' => ['event' => $event_id]]);
 			}
 			$context = new ContextResource($event, ['person_id' => $person_id, 'ignore_date' => true, 'strict' => false]);
 			if (!$this->Authorization->can($context, 'register')) {
 				$this->Flash->html('{0}', ['params' => ['replacements' => $context->notices, 'class' => 'warning']]);
-				return $this->redirect(['action' => 'add', 'event' => $event_id]);
+				return $this->redirect(['action' => 'add', '?' => ['event' => $event_id]]);
 			}
 
 			$preregistration = $this->Preregistrations->newEntity($data);

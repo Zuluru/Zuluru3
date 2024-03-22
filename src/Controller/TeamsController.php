@@ -733,7 +733,7 @@ class TeamsController extends AppController {
 		if ($person_id) {
 			if (empty($team->people)) {
 				$this->Flash->info(__('That player is not on this team.'));
-				return $this->redirect(['action' => 'view', 'team' => $id]);
+				return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
 			}
 			$person = current($team->people);
 			$roster = $person->_joinData;
@@ -776,7 +776,7 @@ class TeamsController extends AppController {
 						$this->Flash->success(__('The numbers have been saved.'));
 					}
 					if (!$this->getRequest()->is('ajax')) {
-						return $this->redirect(['action' => 'view', 'team' => $id]);
+						return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
 					}
 				} else {
 					$this->Flash->warning(__('The {0} could not be saved. Please correct the errors below and try again.', __n('number', 'numbers', ($person_id ? 1 : 2))));
@@ -1189,11 +1189,11 @@ class TeamsController extends AppController {
 			if (empty($note->note)) {
 				if ($note->isNew()) {
 					$this->Flash->warning(__('You entered no text, so no note was added.'));
-					return $this->redirect(['action' => 'view', 'team' => $team->id]);
+					return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 				} else {
 					if ($this->Teams->Notes->delete($note)) {
 						$this->Flash->success(__('The note has been deleted.'));
-						return $this->redirect(['action' => 'view', 'team' => $team->id]);
+						return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 					} else if ($note->getError('delete')) {
 						$this->Flash->warning(current($note->getError('delete')));
 					} else {
@@ -1202,7 +1202,7 @@ class TeamsController extends AppController {
 				}
 			} else if ($this->Teams->Notes->save($note)) {
 				$this->Flash->success(__('The note has been saved.'));
-				return $this->redirect(['action' => 'view', 'team' => $team->id]);
+				return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 			} else {
 				$this->Flash->warning(__('The note could not be saved. Please correct the errors below and try again.'));
 			}
@@ -1238,7 +1238,7 @@ class TeamsController extends AppController {
 			$this->Flash->warning(__('The note could not be deleted. Please, try again.'));
 		}
 
-		return $this->redirect(['action' => 'view', 'team' => $note->team_id]);
+		return $this->redirect(['action' => 'view', '?' => ['team' => $note->team_id]]);
 	}
 
 	/**
@@ -1314,20 +1314,20 @@ class TeamsController extends AppController {
 				]);
 			} catch (RecordNotFoundException $ex) {
 				$this->Flash->info(__('Invalid division.'));
-				return $this->redirect(['action' => 'view', 'team' => $id]);
+				return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
 			} catch (InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid division.'));
-				return $this->redirect(['action' => 'view', 'team' => $id]);
+				return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
 			}
 			// Don't do division comparisons when the team being moved is not in a division
 			if ($team->division_id) {
 				if ($team->division->league_id != $division->league_id) {
 					$this->Flash->info(__('Cannot move a team to a different league.'));
-					return $this->redirect(['action' => 'view', 'team' => $id]);
+					return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
 				}
 				if ($division->ratio_rule != $team->division->ratio_rule) {
 					$this->Flash->info(__('Destination division must have the same ratio rule.'));
-					return $this->redirect(['action' => 'view', 'team' => $id]);
+					return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
 				}
 			}
 			$team->division_id = $this->getRequest()->getData('to');
@@ -1336,7 +1336,7 @@ class TeamsController extends AppController {
 			} else {
 				$this->Flash->warning(__('Failed to move the team!'));
 			}
-			return $this->redirect(['action' => 'view', 'team' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
 		}
 
 		$conditions = [
@@ -1361,7 +1361,7 @@ class TeamsController extends AppController {
 		// Make sure there's somewhere to move it to
 		if (empty($divisions)) {
 			$this->Flash->info(__('No similar division found to move this team to!'));
-			return $this->redirect(['action' => 'view', 'team' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
 		}
 
 		$this->set(compact('team', 'divisions'));
@@ -1409,7 +1409,7 @@ class TeamsController extends AppController {
 
 		if (empty($team->games)) {
 			$this->Flash->info(__('This team has no games scheduled yet.'));
-			return $this->redirect(['action' => 'view', 'team' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
 		}
 
 		// Sort games by date, time and field
@@ -1490,7 +1490,7 @@ class TeamsController extends AppController {
 		$this->set('team_id', $id);
 		$this->set('games', $games);
 		$this->set('events', $events);
-		$this->RequestHandler->ext = 'ics';
+		$this->viewBuilder()->setClassName('Ics');
 	}
 
 	public function spirit() {
@@ -1533,7 +1533,7 @@ class TeamsController extends AppController {
 			->toArray();
 		if (empty($team['games'])) {
 			$this->Flash->info(__('This team has no games scheduled yet.'));
-			return $this->redirect(['action' => 'view', 'team' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
 		}
 
 		// Sort games by date, time and field
@@ -1841,7 +1841,7 @@ class TeamsController extends AppController {
 				}
 			}
 			$this->Flash->{$class}(implode(' ', $msg));
-			return $this->redirect(['action' => 'view', 'team' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
 		}
 
 		foreach ($old_team->people as $person) {
@@ -1979,7 +1979,7 @@ class TeamsController extends AppController {
 				}
 			}
 			$this->Flash->{$class}(implode(' ', $msg));
-			return $this->redirect(['action' => 'view', 'team' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
 		}
 
 		foreach ($event->registrations as $registration) {
@@ -2003,7 +2003,7 @@ class TeamsController extends AppController {
 
 		if (empty($person)) {
 			$this->Flash->info(__('This person is not on this team.'));
-			return $this->redirect(['action' => 'view', 'team' => $team->id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 		}
 
 		$this->Authorization->authorize(new ContextResource($team, ['division' => $team->division, 'roster' => $person->_joinData]));
@@ -2014,7 +2014,7 @@ class TeamsController extends AppController {
 
 		if ($person->_joinData->status != ROSTER_APPROVED) {
 			$this->Flash->info(__('A player\'s role on a team cannot be changed until they have been approved on the roster.'));
-			return $this->redirect(['action' => 'view', 'team' => $team->id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 		}
 
 		// Check if this user is the only approved captain on the team
@@ -2029,7 +2029,7 @@ class TeamsController extends AppController {
 				})->toArray();
 				if (count($captains) == 1) {
 					$this->Flash->info(__('All teams must have at least one player as coach or captain.'));
-					return $this->redirect(['action' => 'view', 'team' => $team->id]);
+					return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 				}
 			}
 		}
@@ -2045,7 +2045,7 @@ class TeamsController extends AppController {
 					}
 				}
 			}
-			return $this->redirect(['action' => 'view', 'team' => $team->id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 		}
 	}
 
@@ -2061,7 +2061,7 @@ class TeamsController extends AppController {
 
 		if (empty($person)) {
 			$this->Flash->info(__('This person is not on this team.'));
-			return $this->redirect(['action' => 'view', 'team' => $team->id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 		}
 
 		$this->Authorization->authorize(new ContextResource($team, ['division' => $team->division, 'roster' => $person->_joinData]));
@@ -2073,7 +2073,7 @@ class TeamsController extends AppController {
 			$sport = current(Configure::read('options.sport'));
 		} else {
 			$this->Flash->info(__('A position cannot be assigned until this team is placed in a division.'));
-			return $this->redirect(['action' => 'view', 'team' => $team->id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 		}
 		$roster_position_options = Configure::read("sports.$sport.positions");
 		$this->set(compact('person', 'team', 'position', 'roster_position_options'));
@@ -2093,7 +2093,7 @@ class TeamsController extends AppController {
 					$this->Flash->warning(__('Failed to change the player\'s position.'));
 				}
 			}
-			return $this->redirect(['action' => 'view', 'team' => $team->id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 		}
 	}
 
@@ -2111,7 +2111,7 @@ class TeamsController extends AppController {
 
 		if (!empty($person)) {
 			$this->Flash->info(__('This person is already on this team.'));
-			return $this->redirect(['action' => 'view', 'team' => $team->id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 		}
 
 		// Read the bare player record
@@ -2134,7 +2134,7 @@ class TeamsController extends AppController {
 		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			if (!empty($this->getRequest()->getData('role'))) {
 				$this->_setRosterRole($person, $team, ROSTER_INVITED, $this->getRequest()->getData('role'), $this->getRequest()->getData('position'));
-				return $this->redirect(['action' => 'view', 'team' => $team->id]);
+				return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 			}
 			$this->Flash->info(__('You must select a role for this person.'));
 		}
@@ -2146,7 +2146,7 @@ class TeamsController extends AppController {
 			$can_invite = $this->_canInvite($person, $team);
 			if ($can_invite !== true) {
 				$this->Flash->warning($can_invite);
-				return $this->redirect(['action' => 'view', 'team' => $team->id]);
+				return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 			}
 		}
 
@@ -2169,7 +2169,7 @@ class TeamsController extends AppController {
 
 		if (!empty($person)) {
 			$this->Flash->info(__('You are already on this team.'));
-			return $this->redirect(['action' => 'view', 'team' => $team->id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 		}
 
 		// Read the bare player record
@@ -2189,7 +2189,7 @@ class TeamsController extends AppController {
 		$can_add = $this->_canAdd($person, $team);
 		if ($can_add !== true) {
 			$this->Flash->html('{0}', ['params' => ['class' => 'warning', 'replacements' => [$can_add]]]);
-			return $this->redirect(['action' => 'view', 'team' => $team->id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 		}
 
 		$roster_role_options = $this->_rosterRoleOptions('none', $team, $this->UserCache->currentId(), false);
@@ -2202,7 +2202,7 @@ class TeamsController extends AppController {
 			)) {
 				$this->UserCache->_deleteTeamData();
 			}
-			return $this->redirect(['action' => 'view', 'team' => $team->id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 		}
 
 		$this->set(compact('person', 'team', 'roster_role_options'));
@@ -2236,7 +2236,7 @@ class TeamsController extends AppController {
 			} else {
 				$this->Flash->html('{0}', ['params' => ['class' => 'warning', 'replacements' => [$can_add]]]);
 			}
-			return $this->redirect(['action' => 'view', 'team' => $team->id]);
+			return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 		}
 
 		$oldStatus = $person->_joinData->status;
@@ -2263,7 +2263,7 @@ class TeamsController extends AppController {
 			$this->Flash->warning(__('The database failed to save the acceptance of this roster {0}.',
 				($oldStatus == ROSTER_INVITED) ? __('invitation') : __('request')));
 		}
-		return $this->redirect(['action' => 'view', 'team' => $team->id]);
+		return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 	}
 
 	public function roster_decline() {
@@ -2297,7 +2297,7 @@ class TeamsController extends AppController {
 		if ($identity && $identity->isMe($person)) {
 			return $this->redirect('/');
 		}
-		return $this->redirect(['action' => 'view', 'team' => $team->id]);
+		return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 	}
 
 	protected function _initTeamForRosterChange($person_id) {
@@ -2367,7 +2367,7 @@ class TeamsController extends AppController {
 			case 'none':
 				if (!$team->open_roster) {
 					$this->Flash->info(__('Sorry, this team is not open for new players to join.'));
-					return $this->redirect(['action' => 'view', 'team' => $team->id]);
+					return $this->redirect(['action' => 'view', '?' => ['team' => $team->id]]);
 				}
 				// The "none" role means they're not on the team, so either they are being added
 				// by a captain or admin, or they are requesting to join and need to be confirmed

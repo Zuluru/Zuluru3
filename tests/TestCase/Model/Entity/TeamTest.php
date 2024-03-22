@@ -44,7 +44,7 @@ class TeamTest extends TestCase {
 
 	public function tearDown(): void {
 		parent::tearDown();
-		Cache::clear(false, 'long_term');
+		Cache::clear('long_term');
 	}
 
 	/**

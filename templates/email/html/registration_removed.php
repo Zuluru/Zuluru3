@@ -23,4 +23,4 @@ use Cake\Routing\Router;
 <p><?= __('If you have any questions or concerns about this, please contact {0}.',
 	$this->Html->link(Configure::read('email.admin_name'), 'mailto:' . Configure::read('email.admin_email'))
 ) ?></p>
-<?= $this->element('Email/html/footer');
+<?= $this->element('email/html/footer');

@@ -269,7 +269,7 @@ class NewslettersController extends AppController {
 			$rule_obj = $this->moduleRegistry->load('RuleEngine');
 			if (!$rule_obj->init($newsletter->mailing_list->rule)) {
 				$this->Flash->warning(__('Failed to parse the rule: {0}', $rule_obj->parse_error));
-				return $this->redirect(['action' => 'view', 'newsletter' => $id]);
+				return $this->redirect(['action' => 'view', '?' => ['newsletter' => $id]]);
 			}
 
 			$user_model = Configure::read('Security.authModel');
@@ -298,7 +298,7 @@ class NewslettersController extends AppController {
 				]);
 			} catch (RuleException $ex) {
 				$this->Flash->info($ex->getMessage());
-				return $this->redirect(['action' => 'view', 'newsletter' => $id]);
+				return $this->redirect(['action' => 'view', '?' => ['newsletter' => $id]]);
 			}
 
 			if (!empty($people)) {
@@ -320,11 +320,11 @@ class NewslettersController extends AppController {
 
 			if (empty($people)) {
 				$this->Flash->success(__('Finished sending newsletters.'));
-				return $this->redirect(['action' => 'delivery', 'newsletter' => $id]);
+				return $this->redirect(['action' => 'delivery', '?' => ['newsletter' => $id]]);
 			}
 
 			if (!$this->Lock->lock('newsletter', $newsletter->mailing_list->affiliate_id, 'newsletter delivery')) {
-				return $this->redirect(['action' => 'view', 'newsletter' => $id]);
+				return $this->redirect(['action' => 'view', '?' => ['newsletter' => $id]]);
 			}
 
 			$delay = $newsletter->delay * MINUTE;
@@ -383,7 +383,7 @@ class NewslettersController extends AppController {
 				$params['viewVars'] = compact('newsletter', 'person', 'code');
 
 				if ($newsletter->mailing_list->opt_out) {
-					$url = Router::url(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => $newsletter->mailing_list->id, 'person' => $person->id, 'code' => $code], true);
+					$url = Router::url(['controller' => 'MailingLists', 'action' => 'unsubscribe', '?' => ['list' => $newsletter->mailing_list->id, 'person' => $person->id, 'code' => $code]], true);
 					$params['header']['List-Unsubscribe'] = "<$url>";
 				}
 
@@ -405,7 +405,7 @@ class NewslettersController extends AppController {
 				$params['to'] = $newsletter->from_email;
 			}
 			if ($newsletter->mailing_list->opt_out) {
-				$url = Router::url(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => $newsletter->mailing_list->id], true);
+				$url = Router::url(['controller' => 'MailingLists', 'action' => 'unsubscribe', '?' => ['list' => $newsletter->mailing_list->id]], true);
 				$params['header']['List-Unsubscribe'] = "<$url>";
 			}
 			$params['viewVars'] = compact('newsletter');

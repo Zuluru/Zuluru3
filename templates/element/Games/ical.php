@@ -30,7 +30,7 @@ $field = "{$game->game_slot->field->long_name} ({$game->game_slot->field->facili
 $field_address = \App\Lib\ical_encode("{$game->game_slot->field->facility->location_street}, {$game->game_slot->field->facility->location_city}, {$game->game_slot->field->facility->location_province}");
 
 // generate field url
-$field_url = Router::url(['controller' => 'Facilities', 'action' => 'view', 'facility' => $game->game_slot->field->facility_id], true);
+$field_url = Router::url(['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $game->game_slot->field->facility_id]], true);
 
 // output game
 ?>

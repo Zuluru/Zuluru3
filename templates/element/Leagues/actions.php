@@ -78,7 +78,7 @@ if ($this->Authorize->can('edit', $league)) {
 
 	if ($this->getRequest()->getParam('controller') != 'Divisions' || $this->getRequest()->getParam('action') != 'add') {
 		$more[__('Add Division')] = [
-			'url' => ['controller' => 'Divisions', 'action' => 'add', 'league' => $league->id, 'return' => $return],
+			'url' => ['controller' => 'Divisions', 'action' => 'add', '?' => ['league' => $league->id, 'return' => $return]],
 		];
 	}
 }

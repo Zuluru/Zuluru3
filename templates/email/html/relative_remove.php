@@ -14,4 +14,4 @@ use Cake\Core\Configure;
 	Configure::read('organization.name')
 ) ?></p>
 <p><?= __('This is a notification only, there is no action required on your part.') ?></p>
-<?= $this->element('Email/html/footer');
+<?= $this->element('email/html/footer');

@@ -26,4 +26,4 @@ if (!empty($comment)):
 <?php
 endif;
 ?>
-<?= $this->element('Email/text/footer');
+<?= $this->element('email/text/footer');

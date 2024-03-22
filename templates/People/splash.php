@@ -60,7 +60,7 @@ else:
 ?>
 	<div id="tabs">
 		<ul>
-			<li><a href="<?= Router::url(['action' => 'schedule', 'person' => $this->UserCache->currentId()]) ?>"><?= $this->UserCache->read('Person.full_name') ?></a></li>
+			<li><a href="<?= Router::url(['action' => 'schedule', '?' => ['person' => $this->UserCache->currentId()]]) ?>"><?= $this->UserCache->read('Person.full_name') ?></a></li>
 <?php
 	$default_tab_index = 0;
 	$default_tab_id = null;
@@ -71,7 +71,7 @@ else:
 
 	foreach ($relatives as $i => $relative):
 ?>
-			<li><a href="<?= Router::url(['action' => 'schedule', 'person' => $relative->id]) ?>"><?= $relative->full_name ?></a></li>
+			<li><a href="<?= Router::url(['action' => 'schedule', '?' => ['person' => $relative->id]]) ?>"><?= $relative->full_name ?></a></li>
 <?php
 		if ($default_tab_id == $relative->id) {
 			$default_tab_index = $i + 1;

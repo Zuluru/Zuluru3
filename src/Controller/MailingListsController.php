@@ -102,7 +102,7 @@ class MailingListsController extends AppController {
 		$rule_obj = $this->moduleRegistry->load('RuleEngine');
 		if (!$rule_obj->init($mailing_list->rule)) {
 			$this->Flash->warning(__('Failed to parse the rule: {0}', $rule_obj->parse_error));
-			return $this->redirect(['action' => 'view', 'mailing_list' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['mailing_list' => $id]]);
 		}
 
 		$user_model = Configure::read('Security.authModel');
@@ -131,7 +131,7 @@ class MailingListsController extends AppController {
 			]);
 		} catch (RuleException $ex) {
 			$this->Flash->info($ex->getMessage());
-			return $this->redirect(['action' => 'view', 'mailing_list' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['mailing_list' => $id]]);
 		}
 
 		if (!empty($people)) {

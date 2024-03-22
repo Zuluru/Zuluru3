@@ -170,7 +170,7 @@ class UsersControllerTest extends ControllerTestCase {
 				],
 				'action' => 'create',
 			],
-			'/', 'Flash/account_created', 'Flash.flash.0.element'
+			'/', 'flash/account_created', 'Flash.flash.0.element'
 		);
 		$this->assertNotNull($this->_requestSession->read('Auth.id'));
 
@@ -267,7 +267,7 @@ class UsersControllerTest extends ControllerTestCase {
 				],
 				'action' => 'create',
 			],
-			'/', 'Flash/account_created', 'Flash.flash.0.element'
+			'/', 'flash/account_created', 'Flash.flash.0.element'
 		);
 		$this->assertNotNull($this->_requestSession->read('Auth.id'));
 
@@ -382,7 +382,7 @@ class UsersControllerTest extends ControllerTestCase {
 				],
 				'action' => 'continue',
 			],
-			['controller' => 'People', 'action' => 'add_relative'], 'Flash/account_created', 'Flash.flash.0.element'
+			['controller' => 'People', 'action' => 'add_relative'], 'flash/account_created', 'Flash.flash.0.element'
 		);
 		$this->assertNotNull($this->_requestSession->read('Auth.id'));
 	}

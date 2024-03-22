@@ -636,7 +636,7 @@ class EventsController extends AppController {
 
 			if ($this->Events->save($event)) {
 				$this->Flash->success(__('The connections have been saved.'));
-				return $this->redirect(['action' => 'view', 'event' => $id]);
+				return $this->redirect(['action' => 'view', '?' => ['event' => $id]]);
 			} else {
 				$this->Flash->warning(__('The connections could not be saved. Please correct the errors below and try again.'));
 			}

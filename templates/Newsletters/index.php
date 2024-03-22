@@ -10,9 +10,9 @@ $this->Breadcrumbs->add(__('List'));
 
 <div class="newsletters index">
 	<h2><?= $current ? __('Recent and Upcoming Newsletters List') : __('Complete Newsletters List') ?></h2>
-	<p><?= $this->Paginator->counter([
-		'format' => __('Page {{page}} of {{pages}}, showing {{current}} records out of {{count}} total, starting on record {{start}}, ending on {{end}}')
-	]) ?></p>
+	<p><?= $this->Paginator->counter(
+		__('Page {{page}} of {{pages}}, showing {{current}} records out of {{count}} total, starting on record {{start}}, ending on {{end}}')
+	) ?></p>
 	<div class="table-responsive">
 		<table class="table table-striped table-hover table-condensed">
 			<thead>
@@ -46,11 +46,11 @@ foreach ($newsletters as $newsletter):
 					<td><?= $this->Time->date($newsletter->target) ?></td>
 					<td class="actions"><?php
 					echo $this->Html->iconLink('view_24.png',
-						['action' => 'view', '?' => ['newsletter' => $newsletter->id],
-						['alt' => __('Preview'), 'title' => __('Preview')]]);
+						['action' => 'view', '?' => ['newsletter' => $newsletter->id]],
+						['alt' => __('Preview'), 'title' => __('Preview')]);
 					echo $this->Html->iconLink('edit_24.png',
-						['action' => 'edit', '?' => ['newsletter' => $newsletter->id],
-						['alt' => __('Edit'), 'title' => __('Edit')]]);
+						['action' => 'edit', '?' => ['newsletter' => $newsletter->id]],
+						['alt' => __('Edit'), 'title' => __('Edit')]);
 					echo $this->Html->link(__('Delivery Report'), ['action' => 'delivery', '?' => ['newsletter' => $newsletter->id]]);
 					echo $this->Html->iconLink('newsletter_send_24.png',
 						['action' => 'send', '?' => ['newsletter' => $newsletter->id]],

@@ -52,32 +52,32 @@ class MapsControllerTest extends ControllerTestCase {
 		$affiliate_fields = $affiliate_region->facilities[0]->fields;
 
 		// Anyone is allowed to view maps
-		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'view', 'field' => $fields[0]->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'view', 'field' => $fields[0]->id], $manager->id);
-		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'view', 'field' => $fields[0]->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'view', '?' => ['field' => $fields[0]->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'view', '?' => ['field' => $fields[0]->id]], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'view', '?' => ['field' => $fields[0]->id]], $volunteer->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'view', 'field' => $fields[0]->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'view', '?' => ['field' => $fields[0]->id]], $player->id);
 		$this->assertResponseContains('fields[' . $fields[0]->id . '] = {');
 		$this->assertResponseContains('fields[' . $fields[1]->id . '] = {');
 		$this->assertResponseNotContains('fields[' . $fields[2]->id . '] = {');
 		$this->assertResponseNotContains('fields[' . $fields[3]->id . '] = {');
 
 		// From any affiliate
-		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'view', 'field' => $affiliate_fields[0]->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'view', '?' => ['field' => $affiliate_fields[0]->id]], $player->id);
 
 		// But not maps that haven't been created yet
-		$this->assertGetAsAccessRedirect(['controller' => 'Maps', 'action' => 'view', 'field' => $fields[2]->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Maps', 'action' => 'view', '?' => ['field' => $fields[2]->id]],
 			$player->id, ['controller' => 'Facilities', 'action' => 'index'],
 			'That field has not yet been laid out.');
 
 		// When viewing closed fields, we get shown all fields at that facility, not just open ones
-		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'view', 'field' => $fields[3]->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'view', '?' => ['field' => $fields[3]->id]], $player->id);
 		$this->assertResponseContains('fields[' . $fields[0]->id . '] = {');
 		$this->assertResponseContains('fields[' . $fields[1]->id . '] = {');
 		$this->assertResponseNotContains('fields[' . $fields[2]->id . '] = {');
 		$this->assertResponseContains('fields[' . $fields[3]->id . '] = {');
 
-		$this->assertGetAnonymousAccessOk(['controller' => 'Maps', 'action' => 'view', 'field' => $fields[0]->id]);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Maps', 'action' => 'view', '?' => ['field' => $fields[0]->id]]);
 	}
 
 	/**
@@ -91,7 +91,7 @@ class MapsControllerTest extends ControllerTestCase {
 		$fields = $region->facilities[0]->fields;
 
 		// Admins are allowed to edit maps
-		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'edit', 'field' => $fields[0]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'edit', '?' => ['field' => $fields[0]->id]], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -107,7 +107,7 @@ class MapsControllerTest extends ControllerTestCase {
 		$fields = $region->facilities[0]->fields;
 
 		// Managers are allowed to edit maps
-		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'edit', 'field' => $fields[0]->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Maps', 'action' => 'edit', '?' => ['field' => $fields[0]->id]], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -123,9 +123,9 @@ class MapsControllerTest extends ControllerTestCase {
 		$fields = $region->facilities[0]->fields;
 
 		// Others are not allowed to edit maps
-		$this->assertGetAsAccessDenied(['controller' => 'Maps', 'action' => 'edit', 'field' => $fields[0]->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Maps', 'action' => 'edit', 'field' => $fields[0]->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Maps', 'action' => 'edit', 'field' => $fields[0]->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Maps', 'action' => 'edit', '?' => ['field' => $fields[0]->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Maps', 'action' => 'edit', '?' => ['field' => $fields[0]->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Maps', 'action' => 'edit', '?' => ['field' => $fields[0]->id]]);
 	}
 
 }

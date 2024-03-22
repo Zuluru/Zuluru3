@@ -622,7 +622,7 @@ class LeaguesController extends AppController {
 						$event = new Event('Model.afterSaveCommit', $this, [null]);
 						$this->getEventManager()->dispatch($event);
 
-						return $this->redirect (['action' => 'schedule', 'league' => $id]);
+						return $this->redirect (['action' => 'schedule', '?' => ['league' => $id]]);
 					}
 
 					$this->Flash->warning(__('The games could not be saved. Please correct the errors below and try again.'));

@@ -116,7 +116,7 @@ class ZuluruTimeHelper extends TimeHelper {
 	}
 
 	public static function iCal(ChronosInterface $time) {
-		return $time->timezone('UTC')->i18nFormat("yyyyMMdd'T'HHmmss'Z'");
+		return $time->setTimezone('UTC')->i18nFormat("yyyyMMdd'T'HHmmss'Z'");
 	}
 
 	public static function iCalDateTimeRange($obj) {

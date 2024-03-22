@@ -105,7 +105,7 @@ trait SettingsTrait {
 				// Reload the configuration right away, so it affects any rendering we do now,
 				// and rebuild the menu based on any changes.
 				if ($affiliate_id) {
-					Cache::delete("config/affiliate/$affiliate_id", 'long_term');
+					Cache::delete("config_affiliate_$affiliate_id", 'long_term');
 					$this->Configuration->loadAffiliate($affiliate_id);
 				} else {
 					Cache::delete('config', 'long_term');

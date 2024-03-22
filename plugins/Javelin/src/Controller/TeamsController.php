@@ -49,7 +49,7 @@ class TeamsController extends AppController {
 			$this->Flash->error(__('Failed to add your team to {0}. You can try again; if the problem persists, contact support.', 'Javelin'));
 		}
 
-		return $this->redirect(['plugin' => null, 'controller' => 'Teams', 'action' => 'view', 'team' => $id]);
+		return $this->redirect(['plugin' => null, 'controller' => 'Teams', 'action' => 'view', '?' => ['team' => $id]]);
 	}
 
 	public function leave() {
@@ -80,7 +80,7 @@ class TeamsController extends AppController {
 			$this->Flash->error(__('Failed to remove your team from {0}. You can try again; if the problem persists, contact support.', 'Javelin'));
 		}
 
-		return $this->redirect(['plugin' => null, 'controller' => 'Teams', 'action' => 'view', 'team' => $id]);
+		return $this->redirect(['plugin' => null, 'controller' => 'Teams', 'action' => 'view', '?' => ['team' => $id]]);
 	}
 
 }

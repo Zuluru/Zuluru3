@@ -46,7 +46,7 @@ else:
 	if (count($sports) > 1) {
 		echo $this->Selector->selector('Sport', $sports, false, [
 			'selector' => '#DivisionList',
-			'url' => ['controller' => 'Divisions', 'action' => 'select', 'affiliate' => $affiliate],
+			'url' => ['controller' => 'Divisions', 'action' => 'select', '?' => ['affiliate' => $affiliate]],
 			// The JavaScript will automatically pull in the month and year inputs along with the day
 			'additional-inputs' => '[name="game_date[day]"], input:checked[name="days[]"]',
 		]);
@@ -177,7 +177,7 @@ echo $this->Form->control('game_end', [
 ]);
 echo $this->Jquery->ajaxInput('game_date', [
 	'selector' => '#DivisionList',
-	'url' => ['controller' => 'Divisions', 'action' => 'select', 'affiliate' => $affiliate],
+	'url' => ['controller' => 'Divisions', 'action' => 'select', '?' => ['affiliate' => $affiliate]],
 	'additional-inputs' => '#sport, input:checked[name="days[]"]',
 ], [
 	'label' => __('First Date'),

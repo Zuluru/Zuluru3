@@ -32,4 +32,4 @@ if (Configure::read('scoring.missing_score_spirit_penalty') > 0):
 <?php
 endif;
 ?>
-<?= $this->element('Email/html/footer');
+<?= $this->element('email/html/footer');

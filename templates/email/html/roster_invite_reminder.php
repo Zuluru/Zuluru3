@@ -25,7 +25,7 @@ if ($division):
 ?>
 <p><?= __('{0} plays in the {1}.',
 	$team->name,
-	$this->element('Email/division')
+	$this->element('email/division')
 ) ?></p>
 <?php
 endif;
@@ -43,4 +43,4 @@ endif;
 	$min_text,
 	$division ? $this->Time->date($division->rosterDeadline()) : __('TBD')
 ) ?></p>
-<?= $this->element('Email/html/footer');
+<?= $this->element('email/html/footer');

@@ -90,4 +90,4 @@ endif;
 <?= Router::url(['controller' => 'Teams', 'action' => 'attendance', '?' => ['team' => $team->id]], true) ?>
 
 
-<?= $this->element('Email/text/footer');
+<?= $this->element('email/text/footer');

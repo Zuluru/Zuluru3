@@ -48,7 +48,7 @@ class FranchisePolicy extends AppPolicy {
 
 		if (count($people) == 1) {
 			throw new ForbiddenRedirectException(__('You cannot remove the only owner of a franchise!'),
-				['controller' => 'Franchises', 'action' => 'view', 'franchise' => $franchise->id], 'warning');
+				['controller' => 'Franchises', 'action' => 'view', '?' => ['franchise' => $franchise->id]], 'warning');
 		}
 
 		return $identity->isManagerOf($franchise) || $this->isOwnerOf($franchise);

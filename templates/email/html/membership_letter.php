@@ -27,4 +27,4 @@ if ($year_end != $year) {
 	$this->Html->link(Configure::read('email.admin_email'), 'mailto:' . Configure::read('email.admin_email'))
 ) ?></p>
 <p><?= __('Have a great season in {0}!', $year) ?></p>
-<?= $this->element('Email/html/footer');
+<?= $this->element('email/html/footer');

@@ -335,10 +335,10 @@ class Game extends Entity {
 					}
 
 					if ($this->home_team_id) {
-						Cache::delete("team/{$this->home_team_id}/stats", 'long_term');
+						Cache::delete("team_{$this->home_team_id}_stats", 'long_term');
 					}
 					if ($this->away_team_id) {
-						Cache::delete("team/{$this->away_team_id}/stats", 'long_term');
+						Cache::delete("team_{$this->away_team_id}_stats", 'long_term');
 					}
 					TableRegistry::getTableLocator()->get('Divisions')->clearCache($this->division, ['stats']);
 				}

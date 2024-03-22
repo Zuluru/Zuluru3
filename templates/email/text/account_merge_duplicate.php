@@ -26,4 +26,4 @@ if (!empty($existing->user_name)) {
 <?= __('To preserve historical information (registrations, team records, etc.) this old account has been merged with your new information. You will be able to access this account with your newly chosen username and password.') ?>
 
 
-<?= $this->element('Email/text/footer');
+<?= $this->element('email/text/footer');

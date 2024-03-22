@@ -154,71 +154,71 @@ class BadgesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Admins are allowed to view and edit badges
-		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => $badges[0]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', '?' => ['badge' => $badges[0]->id]], $admin->id);
 		$this->assertResponseContains('/badges/edit?badge=' . $badges[0]->id);
 		$this->assertResponseContains('/badges/delete?badge=' . $badges[0]->id);
 
 		// Admins are also allowed to view deactivated badges
-		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => $badges[3]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', '?' => ['badge' => $badges[3]->id]], $admin->id);
 		$this->assertResponseContains('/badges/edit?badge=' . $badges[3]->id);
 		$this->assertResponseContains('/badges/delete?badge=' . $badges[3]->id);
 
 		// Or anything with admin-only access
-		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => $badges[2]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', '?' => ['badge' => $badges[2]->id]], $admin->id);
 		$this->assertResponseContains('/badges/edit?badge=' . $badges[2]->id);
 		$this->assertResponseContains('/badges/delete?badge=' . $badges[2]->id);
 
 		// And badges from all affiliates
-		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => $badges[1]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', '?' => ['badge' => $badges[1]->id]], $admin->id);
 		$this->assertResponseContains('/badges/edit?badge=' . $badges[1]->id);
 		$this->assertResponseContains('/badges/delete?badge=' . $badges[1]->id);
 
 		// Managers are allowed to view and edit badges
-		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => $badges[0]->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', '?' => ['badge' => $badges[0]->id]], $manager->id);
 		$this->assertResponseContains('/badges/edit?badge=' . $badges[0]->id);
 		$this->assertResponseContains('/badges/delete?badge=' . $badges[0]->id);
 
 		// Managers are also allowed to view deactivated badges
-		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => $badges[3]->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', '?' => ['badge' => $badges[3]->id]], $manager->id);
 		$this->assertResponseContains('/badges/edit?badge=' . $badges[3]->id);
 		$this->assertResponseContains('/badges/delete?badge=' . $badges[3]->id);
 
 		// Or anything with admin-only access
-		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => $badges[2]->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', '?' => ['badge' => $badges[2]->id]], $manager->id);
 		$this->assertResponseContains('/badges/edit?badge=' . $badges[2]->id);
 		$this->assertResponseContains('/badges/delete?badge=' . $badges[2]->id);
 
 		// Managers have no edit options on ones in other affiliates
-		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => $badges[1]->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', '?' => ['badge' => $badges[1]->id]], $manager->id);
 		$this->assertResponseNotContains('/badges/edit?badge=' . $badges[1]->id);
 		$this->assertResponseNotContains('/badges/delete?badge=' . $badges[1]->id);
 
 		// Others are allowed to view badges
-		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => $badges[0]->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', '?' => ['badge' => $badges[0]->id]], $volunteer->id);
 		$this->assertResponseNotContains('/badges/edit?badge=' . $badges[0]->id);
 		$this->assertResponseNotContains('/badges/delete?badge=' . $badges[0]->id);
-		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', 'badge' => $badges[0]->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'view', '?' => ['badge' => $badges[0]->id]], $player->id);
 		$this->assertResponseNotContains('/badges/edit?badge=' . $badges[0]->id);
 		$this->assertResponseNotContains('/badges/delete?badge=' . $badges[0]->id);
 
 		// But they are not allowed to view deactivated badges
-		$this->assertGetAsAccessRedirect(['controller' => 'Badges', 'action' => 'view', 'badge' => $badges[3]->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Badges', 'action' => 'view', '?' => ['badge' => $badges[3]->id]],
 			$volunteer->id, ['controller' => 'Badges', 'action' => 'index'],
 			'Invalid badge.');
-		$this->assertGetAsAccessRedirect(['controller' => 'Badges', 'action' => 'view', 'badge' => $badges[3]->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Badges', 'action' => 'view', '?' => ['badge' => $badges[3]->id]],
 			$player->id, ['controller' => 'Badges', 'action' => 'index'],
 			'Invalid badge.');
 
 		// Or anything with admin-only access
-		$this->assertGetAsAccessRedirect(['controller' => 'Badges', 'action' => 'view', 'badge' => $badges[2]->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Badges', 'action' => 'view', '?' => ['badge' => $badges[2]->id]],
 			$volunteer->id, ['controller' => 'Badges', 'action' => 'index'],
 			'Invalid badge.');
-		$this->assertGetAsAccessRedirect(['controller' => 'Badges', 'action' => 'view', 'badge' => $badges[2]->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Badges', 'action' => 'view', '?' => ['badge' => $badges[2]->id]],
 			$player->id, ['controller' => 'Badges', 'action' => 'index'],
 			'Invalid badge.');
 
 		// Others are not allowed to view badges
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'view', 'badge' => $badges[0]->id]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'view', '?' => ['badge' => $badges[0]->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -234,8 +234,8 @@ class BadgesControllerTest extends ControllerTestCase {
 		$this->assertEquals(0, $badge->refresh_from);
 
 		// Admins are allowed to initialize the awarding of badges
-		$this->assertGetAsAccessRedirect(['controller' => 'Badges', 'action' => 'initialize_awards', 'badge' => $badge->id],
-			$admin->id, ['controller' => 'Badges', 'action' => 'view', 'badge' => $badge->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Badges', 'action' => 'initialize_awards', '?' => ['badge' => $badge->id]],
+			$admin->id, ['controller' => 'Badges', 'action' => 'view', '?' => ['badge' => $badge->id]],
 			'This badge has been scheduled for re-initialization.');
 
 		$badge = BadgeFactory::get($badge->id);
@@ -276,8 +276,8 @@ class BadgesControllerTest extends ControllerTestCase {
 		$badge = BadgeFactory::make(['category' => 'team', 'handler' => 'player_active', 'affiliate_id' => $affiliate->id])->persist();
 
 		// Managers are allowed to initialize awards
-		$this->assertGetAsAccessRedirect(['controller' => 'Badges', 'action' => 'initialize_awards', 'badge' => $badge->id],
-			$manager->id, ['controller' => 'Badges', 'action' => 'view', 'badge' => $badge->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Badges', 'action' => 'initialize_awards', '?' => ['badge' => $badge->id]],
+			$manager->id, ['controller' => 'Badges', 'action' => 'view', '?' => ['badge' => $badge->id]],
 			'This badge has been scheduled for re-initialization.');
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -292,8 +292,8 @@ class BadgesControllerTest extends ControllerTestCase {
 		$badge = BadgeFactory::make(['category' => 'team', 'handler' => 'player_active', 'affiliate_id' => $affiliate->id])->persist();
 
 		// Others are not allowed to initialize awards
-		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'initialize_awards', 'badge' => $badge->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'initialize_awards', 'badge' => $badge->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'initialize_awards', '?' => ['badge' => $badge->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'initialize_awards', '?' => ['badge' => $badge->id]]);
 	}
 
 	/**
@@ -309,50 +309,50 @@ class BadgesControllerTest extends ControllerTestCase {
 			['visibility' => BADGE_VISIBILITY_HIGH, 'affiliate_id' => $affiliates[0]->id, 'active' => false],
 		])->persist();
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => $badges[0]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', '?' => ['badge' => $badges[0]->id]],
 			$admin->id);
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => $badges[1]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', '?' => ['badge' => $badges[1]->id]],
 			$admin->id);
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => $badges[0]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', '?' => ['badge' => $badges[0]->id]],
 			$admin->id);
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => $badges[3]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', '?' => ['badge' => $badges[3]->id]],
 			$admin->id);
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => $badges[0]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', '?' => ['badge' => $badges[0]->id]],
 			$manager->id);
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => $badges[1]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', '?' => ['badge' => $badges[1]->id]],
 			$manager->id);
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => $badges[2]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', '?' => ['badge' => $badges[2]->id]],
 			$manager->id);
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => $badges[3]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', '?' => ['badge' => $badges[3]->id]],
 			$manager->id);
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => $badges[0]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', '?' => ['badge' => $badges[0]->id]],
 			$volunteer->id);
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => $badges[1]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', '?' => ['badge' => $badges[1]->id]],
 			$volunteer->id);
-		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => $badges[2]->id],
+		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Badges', 'action' => 'tooltip', '?' => ['badge' => $badges[2]->id]],
 			$volunteer->id, ['controller' => 'Badges', 'action' => 'index'],
 			'Invalid badge.');
-		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => $badges[3]->id],
+		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Badges', 'action' => 'tooltip', '?' => ['badge' => $badges[3]->id]],
 			$volunteer->id, ['controller' => 'Badges', 'action' => 'index'],
 			'Invalid badge.');
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => $badges[0]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', '?' => ['badge' => $badges[0]->id]],
 			$player->id);
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => $badges[1]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'tooltip', '?' => ['badge' => $badges[1]->id]],
 			$player->id);
-		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => $badges[2]->id],
+		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Badges', 'action' => 'tooltip', '?' => ['badge' => $badges[2]->id]],
 			$player->id, ['controller' => 'Badges', 'action' => 'index'],
 			'Invalid badge.');
-		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => $badges[3]->id],
+		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Badges', 'action' => 'tooltip', '?' => ['badge' => $badges[3]->id]],
 			$player->id, ['controller' => 'Badges', 'action' => 'index'],
 			'Invalid badge.');
 
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => $badges[0]->id]);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => $badges[1]->id]);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => $badges[2]->id]);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'tooltip', 'badge' => $badges[3]->id]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'tooltip', '?' => ['badge' => $badges[0]->id]]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'tooltip', '?' => ['badge' => $badges[1]->id]]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'tooltip', '?' => ['badge' => $badges[2]->id]]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'tooltip', '?' => ['badge' => $badges[3]->id]]);
 	}
 
 	/**
@@ -385,22 +385,22 @@ class BadgesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Admins are allowed to edit badges
-		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'edit', 'badge' => $badges[0]->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'edit', 'badge' => $badges[1]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'edit', '?' => ['badge' => $badges[0]->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'edit', '?' => ['badge' => $badges[1]->id]], $admin->id);
 
 		// Managers are allowed to edit badges
-		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'edit', 'badge' => $badges[0]->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Badges', 'action' => 'edit', '?' => ['badge' => $badges[0]->id]], $manager->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'edit', 'badge' => $badges[1]->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'edit', '?' => ['badge' => $badges[1]->id]], $manager->id);
 
 		// Others are not allowed to edit badges
-		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'edit', 'badge' => $badges[0]->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'edit', 'badge' => $badges[1]->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'edit', 'badge' => $badges[0]->id], $player->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'edit', 'badge' => $badges[1]->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'edit', 'badge' => $badges[0]->id]);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'edit', 'badge' => $badges[1]->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'edit', '?' => ['badge' => $badges[0]->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'edit', '?' => ['badge' => $badges[1]->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'edit', '?' => ['badge' => $badges[0]->id]], $player->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Badges', 'action' => 'edit', '?' => ['badge' => $badges[1]->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'edit', '?' => ['badge' => $badges[0]->id]]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'edit', '?' => ['badge' => $badges[1]->id]]);
 	}
 
 	/**
@@ -415,10 +415,10 @@ class BadgesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Admins are allowed to deactivate badges
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'deactivate', 'badge' => $badges[0]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'deactivate', '?' => ['badge' => $badges[0]->id]],
 			$admin->id);
 		$this->assertResponseContains('/badges\\/activate?badge=' . $badges[0]->id);
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'deactivate', 'badge' => $badges[1]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'deactivate', '?' => ['badge' => $badges[1]->id]],
 			$admin->id);
 		$this->assertResponseContains('/badges\\/activate?badge=' . $badges[1]->id);
 	}
@@ -437,12 +437,12 @@ class BadgesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Managers are allowed to deactivate badges
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'deactivate', 'badge' => $badges[0]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'deactivate', '?' => ['badge' => $badges[0]->id]],
 			$manager->id);
 		$this->assertResponseContains('/badges\\/activate?badge=' . $badges[0]->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Badges', 'action' => 'deactivate', 'badge' => $badges[1]->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Badges', 'action' => 'deactivate', '?' => ['badge' => $badges[1]->id]],
 			$manager->id);
 	}
 
@@ -458,12 +458,12 @@ class BadgesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Others are not allowed to deactivate badges
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Badges', 'action' => 'deactivate', 'badge' => $badges[0]->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Badges', 'action' => 'deactivate', '?' => ['badge' => $badges[0]->id]],
 			$player->id);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Badges', 'action' => 'deactivate', 'badge' => $badges[1]->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Badges', 'action' => 'deactivate', '?' => ['badge' => $badges[1]->id]],
 			$player->id);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'deactivate', 'badge' => $badges[0]->id]);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'deactivate', 'badge' => $badges[0]->id]);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'deactivate', '?' => ['badge' => $badges[0]->id]]);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'deactivate', '?' => ['badge' => $badges[0]->id]]);
 	}
 
 	/**
@@ -478,10 +478,10 @@ class BadgesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Admins are allowed to activate badges
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'activate', 'badge' => $badges[0]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'activate', '?' => ['badge' => $badges[0]->id]],
 			$admin->id);
 		$this->assertResponseContains('/badges\\/deactivate?badge=' . $badges[0]->id);
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'activate', 'badge' => $badges[1]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'activate', '?' => ['badge' => $badges[1]->id]],
 			$admin->id);
 		$this->assertResponseContains('/badges\\/deactivate?badge=' . $badges[1]->id);
 	}
@@ -500,12 +500,12 @@ class BadgesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Managers are allowed to activate badges
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'activate', 'badge' => $badges[0]->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Badges', 'action' => 'activate', '?' => ['badge' => $badges[0]->id]],
 			$manager->id);
 		$this->assertResponseContains('/badges\\/deactivate?badge=' . $badges[0]->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Badges', 'action' => 'activate', 'badge' => $badges[1]->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Badges', 'action' => 'activate', '?' => ['badge' => $badges[1]->id]],
 			$manager->id);
 	}
 
@@ -521,12 +521,12 @@ class BadgesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Others are not allowed to activate badges
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Badges', 'action' => 'activate', 'badge' => $badges[0]->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Badges', 'action' => 'activate', '?' => ['badge' => $badges[0]->id]],
 			$player->id);
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Badges', 'action' => 'activate', 'badge' => $badges[0]->id],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'Badges', 'action' => 'activate', '?' => ['badge' => $badges[0]->id]],
 			$player->id);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'activate', 'badge' => $badges[1]->id]);
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'activate', 'badge' => $badges[1]->id]);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'activate', '?' => ['badge' => $badges[1]->id]]);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'activate', '?' => ['badge' => $badges[1]->id]]);
 	}
 
 	/**
@@ -545,12 +545,12 @@ class BadgesControllerTest extends ControllerTestCase {
 		BadgesPersonFactory::make()->with('Badges', $badges[1])->persist();
 
 		// Admins are allowed to delete badges
-		$this->assertPostAsAccessRedirect(['controller' => 'Badges', 'action' => 'delete', 'badge' => $badges[0]->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Badges', 'action' => 'delete', '?' => ['badge' => $badges[0]->id]],
 			$admin->id, [], ['controller' => 'Badges', 'action' => 'index'],
 			'The badge has been deleted.');
 
 		// But not ones with dependencies
-		$this->assertPostAsAccessRedirect(['controller' => 'Badges', 'action' => 'delete', 'badge' => $badges[1]->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Badges', 'action' => 'delete', '?' => ['badge' => $badges[1]->id]],
 			$admin->id, [], ['controller' => 'Badges', 'action' => 'index'],
 			'#The following records reference this badge, so it cannot be deleted#');
 	}
@@ -572,12 +572,12 @@ class BadgesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Managers are allowed to delete badges
-		$this->assertPostAsAccessRedirect(['controller' => 'Badges', 'action' => 'delete', 'badge' => $badges[0]->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Badges', 'action' => 'delete', '?' => ['badge' => $badges[0]->id]],
 			$manager->id, [], ['controller' => 'Badges', 'action' => 'index'],
 			'The badge has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Badges', 'action' => 'delete', 'badge' => $badges[1]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Badges', 'action' => 'delete', '?' => ['badge' => $badges[1]->id]],
 			$manager->id);
 	}
 
@@ -596,12 +596,12 @@ class BadgesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Others are not allowed to delete badges
-		$this->assertPostAsAccessDenied(['controller' => 'Badges', 'action' => 'delete', 'badge' => $badges[0]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Badges', 'action' => 'delete', '?' => ['badge' => $badges[0]->id]],
 			$player->id);
-		$this->assertPostAsAccessDenied(['controller' => 'Badges', 'action' => 'delete', 'badge' => $badges[1]->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Badges', 'action' => 'delete', '?' => ['badge' => $badges[1]->id]],
 			$player->id);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'delete', 'badge' => $badges[0]->id]);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'delete', 'badge' => $badges[1]->id]);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'delete', '?' => ['badge' => $badges[0]->id]]);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Badges', 'action' => 'delete', '?' => ['badge' => $badges[1]->id]]);
 	}
 
 }

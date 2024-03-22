@@ -259,7 +259,7 @@ class FranchisesController extends AppController {
 				else {
 					if ($this->Franchises->Teams->link($franchise, [$team])) {
 						$this->Flash->success(__('The selected team has been added to this franchise.'));
-						return $this->redirect(['action' => 'view', 'franchise' => $id]);
+						return $this->redirect(['action' => 'view', '?' => ['franchise' => $id]]);
 					} else {
 						$this->Flash->warning(__('Failed to add the selected team to this franchise.'));
 					}
@@ -301,12 +301,12 @@ class FranchisesController extends AppController {
 		$team_id = $this->getRequest()->getQuery('team');
 		if (!$team_id) {
 			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect(['action' => 'view', 'franchise' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['franchise' => $id]]);
 		}
 
 		if (!collection($franchise->teams)->match(['id' => $team_id])) {
 			$this->Flash->info(__('That team is not part of this franchise.'));
-			return $this->redirect(['action' => 'view', 'franchise' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['franchise' => $id]]);
 		}
 
 		try {
@@ -317,15 +317,15 @@ class FranchisesController extends AppController {
 			]);
 		} catch (RecordNotFoundException $ex) {
 			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect(['action' => 'view', 'franchise' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['franchise' => $id]]);
 		} catch (InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect(['action' => 'view', 'franchise' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['franchise' => $id]]);
 		}
 
 		if (count($team->franchises) == 1) {
 			$this->Flash->info(__('All teams must be members of at least one franchise. Before you can remove this team from this franchise, you must first add it to another one.'));
-			return $this->redirect(['action' => 'view', 'franchise' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['franchise' => $id]]);
 		}
 
 		$this->Franchises->Teams->unlink($franchise, [$team], false);
@@ -344,7 +344,7 @@ class FranchisesController extends AppController {
 			$this->Flash->success(__('The selected team has been removed from this franchise.'));
 		}
 
-		return $this->redirect(['action' => 'view', 'franchise' => $id]);
+		return $this->redirect(['action' => 'view', '?' => ['franchise' => $id]]);
 	}
 
 	/**
@@ -395,14 +395,14 @@ class FranchisesController extends AppController {
 
 			if (!empty($person->franchises)) {
 				$this->Flash->info(__('{0} is already an owner of this franchise.', $person->full_name));
-				return $this->redirect(['action' => 'add_owner', 'franchise' => $id]);
+				return $this->redirect(['action' => 'add_owner', '?' => ['franchise' => $id]]);
 			} else {
 				if ($this->Franchises->People->link($franchise, [$person])) {
 					$this->Flash->success(__('Added {0} as owner.', $person->full_name));
-					return $this->redirect(['action' => 'view', 'franchise' => $id]);
+					return $this->redirect(['action' => 'view', '?' => ['franchise' => $id]]);
 				} else {
 					$this->Flash->warning(__('Failed to add {0} as owner.', $person->full_name));
-					return $this->redirect(['action' => 'add_owner', 'franchise' => $id]);
+					return $this->redirect(['action' => 'add_owner', '?' => ['franchise' => $id]]);
 				}
 			}
 		}
@@ -440,13 +440,13 @@ class FranchisesController extends AppController {
 		$franchise->people = collection($franchise->people)->match(['id' => $person_id])->toList();
 		if (empty($franchise->people)) {
 			$this->Flash->warning(__('That person is not an owner of this franchise!'));
-			return $this->redirect(['action' => 'view', 'franchise' => $id]);
+			return $this->redirect(['action' => 'view', '?' => ['franchise' => $id]]);
 		}
 
 		$this->Franchises->People->unlink($franchise, $franchise->people, false);
 		$this->Flash->success(__('Successfully removed owner.'));
 
-		return $this->redirect(['action' => 'view', 'franchise' => $id]);
+		return $this->redirect(['action' => 'view', '?' => ['franchise' => $id]]);
 	}
 
 }

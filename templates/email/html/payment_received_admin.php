@@ -28,4 +28,4 @@ endif;
 <p><?= __('Details of this registration can be {0}.',
 	$this->Html->link(__('viewed any time'), Router::url(['plugin' => false, 'controller' => 'Registrations', 'action' => 'view', '?' => ['registration' => $registration->id]], true))
 ) ?></p>
-<?= $this->element('Email/html/footer');
+<?= $this->element('email/html/footer');

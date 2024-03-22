@@ -72,7 +72,7 @@ function local_sunset_for_date(ChronosInterface $date) {
 	// Round down to nearest 5 minutes, and return a new Time object with that timestamp.
 	$round = 5 * MINUTE;
 	$sunset = floor($sunset / $round) * $round;
-	return (new FrozenTime($sunset))->timezone(Configure::read('App.timezone.name'));
+	return (new FrozenTime($sunset))->setTimezone(Configure::read('App.timezone.name'));
 }
 
 /**

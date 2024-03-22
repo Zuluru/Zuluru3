@@ -39,7 +39,7 @@ class PricesController extends AppController {
 		$dependencies = $this->Prices->dependencies($id);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this price point, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
-			return $this->redirect(['controller' => 'Events', 'action' => 'view', 'event' => $this->Prices->event($id)]);
+			return $this->redirect(['controller' => 'Events', 'action' => 'view', '?' => ['event' => $this->Prices->event($id)]]);
 		}
 
 		if ($this->Prices->delete($price)) {
@@ -50,7 +50,7 @@ class PricesController extends AppController {
 			$this->Flash->warning(__('The price point could not be deleted. Please, try again.'));
 		}
 
-		return $this->redirect(['controller' => 'Events', 'action' => 'view', 'event' => $price->event_id]);
+		return $this->redirect(['controller' => 'Events', 'action' => 'view', '?' => ['event' => $price->event_id]]);
 	}
 
 }

@@ -16,7 +16,7 @@ $this->Breadcrumbs->add(__('Register'));
 		$this->Html->link(__('email settings'), ['plugin' => false, 'controller' => 'Settings', 'action' => 'email'])
 	) ?></p>
 	<p><?= __('To register yourself as the primary contact, {0}. Otherwise, find the person with the form below and click the {1} icon.',
-		$this->Html->link(__('click here'), ['plugin' => 'Javelin', 'controller' => 'Register', 'action' => 'index', 'person' => $this->Identity->get()->person->id]),
+		$this->Html->link(__('click here'), ['plugin' => 'Javelin', 'controller' => 'Register', 'action' => 'index', '?' => ['person' => $this->Identity->get()->person->id]]),
 		'Javelin'
 	) ?></p>
 <?php // This, and the form processing, will need to change to accommodate affiliates ?>
@@ -24,7 +24,11 @@ $this->Breadcrumbs->add(__('Register'));
 
 	<div id="SearchResults" class="zuluru_pagination">
 
-<?= $this->element('People/search_results', ['extra_url' => [__('Register as contact') => ['plugin' => 'Javelin', 'controller' => 'Register', 'action' => 'index']]]) ?>
+<?= $this->element('People/search_results', [
+	'extra_url' => [
+		__('Register as contact') => ['plugin' => 'Javelin', 'controller' => 'Register', 'action' => 'index']
+	]
+]) ?>
 
 	</div>
 </div>

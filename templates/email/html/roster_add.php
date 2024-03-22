@@ -18,7 +18,7 @@ use Cake\Routing\Router;
 ) ?></p>
 <p><?= __('{0} plays in the {1}.',
 	$team->name,
-	$this->element('Email/division')
+	$this->element('email/division')
 ) ?></p>
 <p><?= __('If you believe that this has happened in error, please contact {0}.', $reply) ?></p>
-<?= $this->element('Email/html/footer');
+<?= $this->element('email/html/footer');

@@ -89,7 +89,7 @@ endforeach;
 </div>
 <?php
 $edit = __('Update profile');
-$edit_link = Router::url(['controller' => 'People', 'action' => 'edit', 'return' => AppController::_return()]);
+$edit_link = Router::url(['controller' => 'People', 'action' => 'edit', '?' => ['return' => AppController::_return()]]);
 $confirm = __('Confirm');
 $confirm_link = Router::url(['controller' => 'People', 'action' => 'confirm']);
 $this->Html->scriptBlock("

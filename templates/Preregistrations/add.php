@@ -46,7 +46,11 @@ else:
 		<?= $this->element('People/search_form', ['affiliate_id' => $event->affiliate_id, 'url' => ['event' => $event->id]]) ?>
 		<div id="SearchResults" class="zuluru_pagination">
 
-			<?= $this->element('People/search_results', ['extra_url' => [__('Add Preregistration') => ['controller' => 'Preregistrations', 'action' => 'add', 'event' => $event->id]]]) ?>
+			<?= $this->element('People/search_results', [
+				'extra_url' => [
+					__('Add Preregistration') => ['controller' => 'Preregistrations', 'action' => 'add', '?' => ['event' => $event->id]]
+				]
+			]) ?>
 
 		</div>
 	</fieldset>

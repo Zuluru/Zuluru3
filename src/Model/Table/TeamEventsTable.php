@@ -83,7 +83,7 @@ class TeamEventsTable extends AppTable {
 			->url('website', __('Enter a valid URL, or leave blank.'))
 			->allowEmptyString('website')
 
-			->date('date', __('You must provide a valid date.'))
+			->date('date', ['ymd'], __('You must provide a valid date.'))
 			->allowEmptyDate('date')
 
 			->time('start', __('You must select a valid start time.'))

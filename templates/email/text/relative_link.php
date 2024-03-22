@@ -37,4 +37,4 @@ use Cake\Routing\Router;
 <?= Router::url(['controller' => 'People', 'action' => 'remove_relative', '?' => ['person' => $relative->id, 'relative' => $person->id, 'code' => $code]], true) ?>
 
 
-<?= $this->element('Email/text/footer');
+<?= $this->element('email/text/footer');

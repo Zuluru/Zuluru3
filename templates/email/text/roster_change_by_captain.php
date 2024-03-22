@@ -29,4 +29,4 @@ use Cake\Core\Configure;
 <?= __('If you believe that this has happened in error, please contact {0}.', $reply) ?>
 
 
-<?= $this->element('Email/text/footer');
+<?= $this->element('email/text/footer');

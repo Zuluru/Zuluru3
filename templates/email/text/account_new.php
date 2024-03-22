@@ -31,4 +31,4 @@ use Cake\Routing\Router;
 <?= Router::url(['controller' => 'Users', 'action' => 'change_password'], true) ?>
 
 
-<?= $this->element('Email/text/footer');
+<?= $this->element('email/text/footer');

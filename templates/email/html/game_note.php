@@ -22,4 +22,4 @@ use Cake\Routing\Router;
 <p><?= __('To see all game details and notes, or add your own comment, see the {0}.',
 	$this->Html->link('game details page', Router::url(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], true))
 ) ?></p>
-<?= $this->element('Email/html/footer');
+<?= $this->element('email/html/footer');

@@ -57,11 +57,11 @@ class RuleRegistered extends Rule {
 			$events = array_values($this->events);
 		} else {
 			foreach ($this->events as $key => $event) {
-				$url = ['controller' => 'Events', 'action' => 'view', 'event' => $key];
+				$url = ['controller' => 'Events', 'action' => 'view', '?' => ['event' => $key]];
 				if ($absolute_url) {
 					$url = Router::url($url, true);
 				} else {
-					$url['return'] = AppController::_return();
+					$url['?']['return'] = AppController::_return();
 				}
 				$events[] = [
 					'type' => 'link',

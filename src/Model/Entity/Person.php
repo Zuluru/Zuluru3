@@ -659,7 +659,7 @@ class Person extends Entity {
 		if (!empty($photo)) {
 			$upload_dir = Configure::read('App.paths.uploads');
 			if (file_exists($upload_dir . DS . $photo->filename)) {
-				return Router::url(['controller' => 'People', 'action' => 'photo', 'person' => $photo->person_id], true);
+				return Router::url(['controller' => 'People', 'action' => 'photo', '?' => ['person' => $photo->person_id]], true);
 			}
 		} else if (Configure::read('feature.gravatar')) {
 			$url = 'https://www.gravatar.com/avatar/';

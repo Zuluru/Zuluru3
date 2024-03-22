@@ -29,9 +29,9 @@ p { margin: 1em 0; }
 </head>
 <body>
 <?php
-echo $this->element('Email/html/common_header');
+echo $this->element('email/html/common_header');
 echo $this->fetch('content');
-echo $this->element('Email/html/common_footer');
+echo $this->element('email/html/common_footer');
 ?>
 </body>
 </html>

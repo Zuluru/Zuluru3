@@ -141,7 +141,7 @@ class MapsController extends AppController {
 			$facility = $facilities_table->patchEntity($facility, $this->getRequest()->getData(), ['associated' => ['Fields']]);
 			if ($facilities_table->save($facility)) {
 				$this->Flash->warning(__('The {0} layout has been saved.', Configure::read('UI.field')));
-				return $this->redirect(['controller' => 'Maps', 'action' => 'view', 'field' => $id]);
+				return $this->redirect(['controller' => 'Maps', 'action' => 'view', '?' => ['field' => $id]]);
 			} else {
 				$this->Flash->warning(__('The {0} layout could not be saved. Please correct the errors below and try again.', Configure::read('UI.field')));
 			}

@@ -4,6 +4,7 @@ namespace App\Middleware\UnauthorizedHandler;
 use App\Event\FlashTrait;
 use Authorization\Exception\Exception;
 use Authorization\Middleware\UnauthorizedHandler\RedirectHandler;
+use Cake\Http\Response;
 use Cake\Routing\Router;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -32,9 +33,11 @@ class RedirectFlashHandler extends RedirectHandler {
 			}
 			if ($exception instanceof $class) {
 				if ($handler !== null) {
-					return call_user_func($handler, $this, $request, $response, $exception, $options);
+					return call_user_func($handler, $this, $request, $exception, $options);
 				} else {
 					$url = $this->getUrl($request, $options);
+
+					$response = new Response();
 
 					return $response
 						->withHeader('Location', $url)

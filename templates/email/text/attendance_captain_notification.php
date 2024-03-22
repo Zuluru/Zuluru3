@@ -76,4 +76,4 @@ endif;
 <?= __('You need to be logged into the website to update this.') ?>
 
 
-<?= $this->element('Email/text/footer');
+<?= $this->element('email/text/footer');

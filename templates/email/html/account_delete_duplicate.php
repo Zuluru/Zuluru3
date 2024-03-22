@@ -24,4 +24,4 @@ if (!empty($existing->user_name)) {
 	$this->Html->link(__('Forgot your password?'), Router::url(Configure::read('App.urls.resetPassword'), true))
 ) ?></p>
 <p><?= __('If the above email address is no longer correct, please reply to this message and request an address change.') ?></p>
-<?= $this->element('Email/html/footer');
+<?= $this->element('email/html/footer');

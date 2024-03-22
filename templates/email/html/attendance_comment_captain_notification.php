@@ -51,4 +51,4 @@ if (!empty($attendance->comment)):
 <?php
 endif;
 ?>
-<?= $this->element('Email/html/footer');
+<?= $this->element('email/html/footer');

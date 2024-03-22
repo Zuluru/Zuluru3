@@ -33,7 +33,7 @@ class ControllerTestCase extends TestCase {
 	}
 
 	public function tearDown(): void {
-		Cache::clear(false, 'long_term');
+		Cache::clear('long_term');
 		FrozenTime::setTestNow();
 		FrozenDate::setTestNow();
 		parent::tearDown();
@@ -218,6 +218,7 @@ class ControllerTestCase extends TestCase {
 	protected function assertGetAsAccessRedirect($url, $user, $redirect, $message = false, $key = 'Flash.flash.0.message') {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
 
+		$this->enableRetainFlashMessages();
 		$this->login($user);
 		$this->get($url);
 
@@ -228,10 +229,11 @@ class ControllerTestCase extends TestCase {
 			if ($message[0] === '#') {
 				$this->assertRegExp($message, $this->_requestSession->read($key));
 			} else {
-				$this->assertEquals($message, $this->_requestSession->read($key));
+				$this->assertSession($message, $key);
 			}
 		} else {
-			$this->assertNull($this->_requestSession->read($key));
+			$this->assertSessionNotHasKey($key);
+			$this->assertSession(null, $key);
 		}
 	}
 
@@ -248,6 +250,7 @@ class ControllerTestCase extends TestCase {
 	protected function assertGetAjaxAsAccessRedirect($url, $user, $redirect, $message = false, $class = 'info') {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
 
+		$this->enableRetainFlashMessages();
 		$this->login($user);
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
 		$this->get($url);
@@ -258,7 +261,7 @@ class ControllerTestCase extends TestCase {
 				0 => [
 					'message' => $message,
 					'key' => 'flash',
-					'element' => "Flash/$class",
+					'element' => "flash/$class",
 					'params' => [],
 				],
 			];
@@ -291,6 +294,7 @@ class ControllerTestCase extends TestCase {
 	protected function assertGetAnonymousAccessRedirect($url, $redirect, $message = false, $key = 'Flash.flash.0.message') {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
 
+		$this->enableRetainFlashMessages();
 		$this->logout();
 		$this->get($url);
 
@@ -301,10 +305,10 @@ class ControllerTestCase extends TestCase {
 			if ($message[0] === '#') {
 				$this->assertRegExp($message, $this->_requestSession->read($key));
 			} else {
-				$this->assertEquals($message, $this->_requestSession->read($key));
+				$this->assertSession($message, $key);
 			}
 		} else {
-			$this->assertNull($this->_requestSession->read($key));
+			$this->assertSessionNotHasKey($key);
 		}
 	}
 
@@ -319,6 +323,7 @@ class ControllerTestCase extends TestCase {
 	protected function assertGetAjaxAnonymousAccessRedirect($url, $redirect, $message = false, $class = 'info') {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
 
+		$this->enableRetainFlashMessages();
 		$this->logout();
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
 		$this->get($url);
@@ -329,7 +334,7 @@ class ControllerTestCase extends TestCase {
 				0 => [
 					'message' => $message,
 					'key' => 'flash',
-					'element' => "Flash/$class",
+					'element' => "flash/$class",
 					'params' => [],
 				],
 			];
@@ -364,6 +369,7 @@ class ControllerTestCase extends TestCase {
 	protected function assertPostAsAccessRedirect($url, $user, $data = [], $redirect, $message = false, $key = 'Flash.flash.0.message') {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
 
+		$this->enableRetainFlashMessages();
 		$this->login($user);
 		$this->post($url, $data);
 
@@ -374,10 +380,10 @@ class ControllerTestCase extends TestCase {
 			if ($message[0] === '#') {
 				$this->assertRegExp($message, $this->_requestSession->read($key));
 			} else {
-				$this->assertEquals($message, $this->_requestSession->read($key));
+				$this->assertSession($message, $key);
 			}
 		} else {
-			$this->assertNull($this->_requestSession->read($key));
+			$this->assertSessionNotHasKey($key);
 		}
 	}
 
@@ -404,7 +410,7 @@ class ControllerTestCase extends TestCase {
 				0 => [
 					'message' => $message,
 					'key' => 'flash',
-					'element' => "Flash/$class",
+					'element' => "flash/$class",
 					'params' => [],
 				],
 			];
@@ -438,6 +444,7 @@ class ControllerTestCase extends TestCase {
 	protected function assertPostAnonymousAccessRedirect($url, $data = [], $redirect, $message = false, $key = 'Flash.flash.0.message') {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
 
+		$this->enableRetainFlashMessages();
 		$this->logout();
 		$this->post($url, $data);
 
@@ -448,10 +455,10 @@ class ControllerTestCase extends TestCase {
 			if ($message[0] === '#') {
 				$this->assertRegExp($message, $this->_requestSession->read($key));
 			} else {
-				$this->assertEquals($message, $this->_requestSession->read($key));
+				$this->assertSession($message, $key);
 			}
 		} else {
-			$this->assertNull($this->_requestSession->read($key));
+			$this->assertSessionNotHasKey($key);
 		}
 	}
 
@@ -477,7 +484,7 @@ class ControllerTestCase extends TestCase {
 				0 => [
 					'message' => $message,
 					'key' => 'flash',
-					'element' => "Flash/$class",
+					'element' => "flash/$class",
 					'params' => [],
 				],
 			];
@@ -506,13 +513,14 @@ class ControllerTestCase extends TestCase {
 	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertGetAsAccessDenied($url, $user) {
+		$this->enableRetainFlashMessages();
 		$this->login($user);
 		$this->get($url);
 
 		$this->assertResponseCode(302);
 		$this->assertRedirectEquals('/');
-		$this->assertEquals('You do not have permission to access that page.', $this->_requestSession->read('Flash.flash.0.message'));
-		$this->assertEquals('Flash/error', $this->_requestSession->read('Flash.flash.0.element'));
+		$this->assertSession('You do not have permission to access that page.', 'Flash.flash.0.message');
+		$this->assertSession('flash/error', 'Flash.flash.0.element');
 	}
 
 	/**
@@ -535,7 +543,7 @@ class ControllerTestCase extends TestCase {
 				0 => [
 					'message' => 'You do not have permission to access that page.',
 					'key' => 'flash',
-					'element' => 'Flash/error',
+					'element' => 'flash/error',
 					'params' => [],
 				],
 			],
@@ -555,13 +563,14 @@ class ControllerTestCase extends TestCase {
 	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertGetAnonymousAccessDenied($url) {
+		$this->enableRetainFlashMessages();
 		$this->logout();
 		$this->get($url);
 
 		$this->assertResponseCode(302);
-		$this->assertRedirectEquals(['plugin' => false, 'controller' => 'Users', 'action' => 'login', 'redirect' => Router::url($url)]);
-		$this->assertEquals('You must login to access full site functionality.', $this->_requestSession->read('Flash.flash.0.message'));
-		$this->assertEquals('Flash/error', $this->_requestSession->read('Flash.flash.0.element'));
+		$this->assertRedirectEquals(['plugin' => false, 'controller' => 'Users', 'action' => 'login', '?' => ['redirect' => Router::url($url)]]);
+		$this->assertSession('You must login to access full site functionality.', 'Flash.flash.0.message');
+		$this->assertSession('flash/error', 'Flash.flash.0.element');
 	}
 
 	/**
@@ -583,12 +592,12 @@ class ControllerTestCase extends TestCase {
 				0 => [
 					'message' => 'You must login to access full site functionality.',
 					'key' => 'flash',
-					'element' => 'Flash/error',
+					'element' => 'flash/error',
 					'params' => [],
 				],
 			],
 			'_redirect' => [
-				'url' => Router::url(['controller' => 'Users', 'action' => 'login', 'redirect' => Router::url($url)]),
+				'url' => Router::url(['controller' => 'Users', 'action' => 'login', '?' => ['redirect' => Router::url($url)]]),
 				'status' => 302,
 			],
 		];
@@ -605,13 +614,14 @@ class ControllerTestCase extends TestCase {
 	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertPostAsAccessDenied($url, $user, $data = []) {
+		$this->enableRetainFlashMessages();
 		$this->login($user);
 		$this->post($url, $data);
 
 		$this->assertResponseCode(302);
 		$this->assertRedirectEquals('/');
-		$this->assertEquals('You do not have permission to access that page.', $this->_requestSession->read('Flash.flash.0.message'));
-		$this->assertEquals('Flash/error', $this->_requestSession->read('Flash.flash.0.element'));
+		$this->assertSession('You do not have permission to access that page.', 'Flash.flash.0.message');
+		$this->assertSession('flash/error', 'Flash.flash.0.element');
 	}
 
 	/**
@@ -635,7 +645,7 @@ class ControllerTestCase extends TestCase {
 				0 => [
 					'message' => 'You do not have permission to access that page.',
 					'key' => 'flash',
-					'element' => 'Flash/error',
+					'element' => 'flash/error',
 					'params' => [],
 				],
 			],
@@ -656,13 +666,14 @@ class ControllerTestCase extends TestCase {
 	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertPostAnonymousAccessDenied($url, $data = []) {
+		$this->enableRetainFlashMessages();
 		$this->logout();
 		$this->post($url, $data);
 
 		$this->assertResponseCode(302);
-		$this->assertRedirectEquals(['plugin' => false, 'controller' => 'Users', 'action' => 'login', 'redirect' => Router::url($url)]);
-		$this->assertEquals('You must login to access full site functionality.', $this->_requestSession->read('Flash.flash.0.message'));
-		$this->assertEquals('Flash/error', $this->_requestSession->read('Flash.flash.0.element'));
+		$this->assertRedirectEquals(['plugin' => false, 'controller' => 'Users', 'action' => 'login', '?' => ['redirect' => Router::url($url)]]);
+		$this->assertSession('You must login to access full site functionality.', 'Flash.flash.0.message');
+		$this->assertSession('flash/error', 'Flash.flash.0.element');
 	}
 
 	/**
@@ -685,12 +696,12 @@ class ControllerTestCase extends TestCase {
 				0 => [
 					'message' => 'You must login to access full site functionality.',
 					'key' => 'flash',
-					'element' => 'Flash/error',
+					'element' => 'flash/error',
 					'params' => [],
 				],
 			],
 			'_redirect' => [
-				'url' => Router::url(['controller' => 'Users', 'action' => 'login', 'redirect' => Router::url($url)]),
+				'url' => Router::url(['controller' => 'Users', 'action' => 'login', '?' => ['redirect' => Router::url($url)]]),
 				'status' => 302,
 			],
 		];

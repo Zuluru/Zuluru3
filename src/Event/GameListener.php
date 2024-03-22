@@ -110,7 +110,7 @@ class GameListener implements EventListenerInterface {
 					[
 						'type' => 'link',
 						'link' => __('edit the score'),
-						'target' => ['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $game->score_entries[0]->team_id],
+						'target' => ['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $game->score_entries[0]->team_id]],
 					],
 				],
 			],
@@ -168,7 +168,7 @@ class GameListener implements EventListenerInterface {
 					[
 						'type' => 'link',
 						'link' => __('edit their submission'),
-						'target' => ['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $game->score_entries[0]->team_id],
+						'target' => ['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $game->score_entries[0]->team_id]],
 					],
 				],
 			],

@@ -16,4 +16,4 @@ use Cake\Routing\Router;
 	Configure::read("options.roster_role.{$roster->role}")
 ) ?></p>
 <p><?= __('This request has not yet been responded to by a coach or captain, and will expire {0} days from now. An email has been sent to remind them, but you might want to get in touch directly as well.', $days) ?></p>
-<?= $this->element('Email/html/footer');
+<?= $this->element('email/html/footer');

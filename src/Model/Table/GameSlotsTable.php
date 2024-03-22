@@ -68,7 +68,7 @@ class GameSlotsTable extends AppTable {
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
 
-			->date('game_date', __('You must provide a valid game date.'))
+			->date('game_date', ['ymd'], __('You must provide a valid game date.'))
 			->notEmptyDate('game_date', __('You must provide a valid game date.'))
 
 			->time('game_start', __('You must provide a valid game start time.'))

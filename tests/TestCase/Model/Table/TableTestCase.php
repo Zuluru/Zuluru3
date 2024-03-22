@@ -32,7 +32,7 @@ class TableTestCase extends TestCase {
 	 * tearDown method
 	 */
 	public function tearDown(): void {
-		Cache::clear(false, 'long_term');
+		Cache::clear('long_term');
 		FrozenTime::setTestNow();
 		FrozenDate::setTestNow();
 		parent::tearDown();

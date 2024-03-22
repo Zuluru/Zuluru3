@@ -564,7 +564,7 @@ if ((in_array('relatives', $visible_properties)) && (!empty($person->relatives) 
 					<td class="actions"><?php
 						echo $this->Html->iconLink('view_24.png', ['controller' => 'People', 'action' => 'view', '?' => ['person' => $relative->id]]);
 						echo $this->Form->iconPostLink('delete_24.png',
-							['controller' => 'People', 'action' => 'remove_relative', 'person' => $person->id, '?' => ['relative' => $relative->id]],
+							['controller' => 'People', 'action' => 'remove_relative', '?' => ['person' => $person->id, 'relative' => $relative->id]],
 							['alt' => __('Remove'), 'title' => __('Remove Relation')],
 							['confirm' => __('Are you sure you want to remove this relation? This does not delete their profile, it only breaks the link between you.')]
 						);
@@ -586,7 +586,7 @@ if ((in_array('relatives', $visible_properties)) && (!empty($person->relatives) 
 				echo $this->Html->iconLink('view_24.png', ['controller' => 'People', 'action' => 'view', '?' => ['person' => $relative->id]]);
 				if ($this->Authorize->can('remove_relative', new ContextResource($person, ['relation' => $relative]))) {
 					echo $this->Form->iconPostLink('delete_24.png',
-						['controller' => 'People', 'action' => 'remove_relative', 'person' => $relative->id, '?' => ['relative' => $person->id]],
+						['controller' => 'People', 'action' => 'remove_relative', '?' => ['person' => $relative->id, 'relative' => $person->id]],
 						['alt' => __('Remove'), 'title' => __('Remove Relation')],
 						['confirm' => __('Are you sure you want to remove this relation? This does not delete their profile, it only breaks the link between you.')]
 					);
@@ -797,7 +797,7 @@ if ((in_array('registrations', $visible_properties)) && !empty($person->registra
 	<div class="actions columns">
 		<ul class="nav nav-pills">
 <?php
-	echo $this->Html->tag('li', $this->Html->link(__('Show Registration History'), ['controller' => 'People', 'action' => 'registrations', 'person' => $person->id]));
+	echo $this->Html->tag('li', $this->Html->link(__('Show Registration History'), ['controller' => 'People', 'action' => 'registrations', '?' => ['person' => $person->id]]));
 ?>
 		</ul>
 	</div>

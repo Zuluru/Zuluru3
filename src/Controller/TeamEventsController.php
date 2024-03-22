@@ -361,9 +361,9 @@ class TeamEventsController extends AppController {
 				if ($this->getRequest()->is('ajax')) {
 					$this->set('dedicated', $this->getRequest()->getQuery('dedicated'));
 				} else if (!$this->Authorization->can($team, 'attendance')) {
-					return $this->redirect(['controller' => 'Teams', 'action' => 'view', 'team' => $team_id]);
+					return $this->redirect(['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team_id]]);
 				} else {
-					return $this->redirect(['action' => 'view', 'event' => $id]);
+					return $this->redirect(['action' => 'view', '?' => ['event' => $id]]);
 				}
 			}
 		}

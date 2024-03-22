@@ -39,4 +39,4 @@ if ($year_end != $year) {
 <?= __('Have a great season in {0}!', $year) ?>
 
 
-<?= $this->element('Email/text/footer');
+<?= $this->element('email/text/footer');

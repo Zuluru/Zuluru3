@@ -20,4 +20,4 @@ use Cake\Core\Configure;
 <?= __('This is a notification only, there is no action required on your part.') ?>
 
 
-<?= $this->element('Email/text/footer');
+<?= $this->element('email/text/footer');

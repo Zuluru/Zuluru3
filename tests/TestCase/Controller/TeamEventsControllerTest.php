@@ -50,27 +50,27 @@ class TeamEventsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to view
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'view', 'event' => $events[0]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'view', '?' => ['event' => $events[0]->id]], $admin->id);
 
 		// Managers are allowed to view
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'view', 'event' => $events[0]->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'view', '?' => ['event' => $events[0]->id]], $manager->id);
 
 		// Captains from the team in question are allowed to view their team's events, with full edit permissions
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'view', 'event' => $events[0]->id], $captain->id);
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'view', '?' => ['event' => $events[0]->id]], $captain->id);
 		$this->assertResponseContains('/team_events/edit?event=' . $events[0]->id);
 		$this->assertResponseContains('/team_events/delete?event=' . $events[0]->id);
 
 		// But not other team's events
-		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'view', 'event' => $events[1]->id], $captain->id);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'view', '?' => ['event' => $events[1]->id]], $captain->id);
 
 		// Players are allowed to view their team's events, but have no edit permissions
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'view', 'event' => $events[0]->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'view', '?' => ['event' => $events[0]->id]], $player->id);
 		$this->assertResponseNotContains('/team_events/edit?event=' . $events[0]->id);
 		$this->assertResponseNotContains('/team_events/delete?event=' . $events[0]->id);
 
 		// Others are not allowed to view
-		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'view', 'event' => $events[0]->id], $volunteer->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'TeamEvents', 'action' => 'view', 'event' => $events[0]->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'view', '?' => ['event' => $events[0]->id]], $volunteer->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'TeamEvents', 'action' => 'view', '?' => ['event' => $events[0]->id]]);
 	}
 
 	/**
@@ -85,7 +85,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 		]);
 
 		// Admins are allowed to add events
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'add', 'team' => $game->home_team_id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'add', '?' => ['team' => $game->home_team_id]], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -102,7 +102,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 		]);
 
 		// Managers are allowed to add events
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'add', 'team' => $game->home_team_id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'add', '?' => ['team' => $game->home_team_id]], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -121,8 +121,8 @@ class TeamEventsControllerTest extends ControllerTestCase {
 		$captain = $game->home_team->people[0];
 
 		// Captains are allowed to add events to their own teams
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'add', 'team' => $game->home_team_id], $captain->id);
-		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'add', 'team' => $game->away_team_id], $captain->id);
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'add', '?' => ['team' => $game->home_team_id]], $captain->id);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'add', '?' => ['team' => $game->away_team_id]], $captain->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -140,9 +140,9 @@ class TeamEventsControllerTest extends ControllerTestCase {
 		]);
 
 		// Others are not allowed to add events
-		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'add', 'team' => $game->home_team_id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'add', 'team' => $game->home_team_id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'TeamEvents', 'action' => 'add', 'team' => $game->home_team_id]);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'add', '?' => ['team' => $game->home_team_id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'add', '?' => ['team' => $game->home_team_id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'TeamEvents', 'action' => 'add', '?' => ['team' => $game->home_team_id]]);
 	}
 
 	/**
@@ -163,8 +163,8 @@ class TeamEventsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to edit team events
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => $events[0]->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => $events[1]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'edit', '?' => ['event' => $events[0]->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'edit', '?' => ['event' => $events[1]->id]], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -192,10 +192,10 @@ class TeamEventsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Managers are allowed to edit team events in their affiliate
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => $event->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'edit', '?' => ['event' => $event->id]], $manager->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => $affiliate_event->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', '?' => ['event' => $affiliate_event->id]], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -220,8 +220,8 @@ class TeamEventsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Captains are allowed to edit their own team's events
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => $events[0]->id], $captain->id);
-		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => $events[1]->id], $captain->id);
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'edit', '?' => ['event' => $events[0]->id]], $captain->id);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', '?' => ['event' => $events[1]->id]], $captain->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -242,9 +242,9 @@ class TeamEventsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Others are not allowed to edit
-		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => $event->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => $event->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', 'event' => $event->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', '?' => ['event' => $event->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', '?' => ['event' => $event->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'TeamEvents', 'action' => 'edit', '?' => ['event' => $event->id]]);
 	}
 
 	/**
@@ -265,7 +265,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to delete team events
-		$this->assertPostAsAccessRedirect(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => $event->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'TeamEvents', 'action' => 'delete', '?' => ['event' => $event->id]],
 			$admin->id, [], '/',
 			'The team event has been deleted.');
 	}
@@ -296,12 +296,12 @@ class TeamEventsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Managers are allowed to delete team events in their affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => $event->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'TeamEvents', 'action' => 'delete', '?' => ['event' => $event->id]],
 			$manager->id, [], '/',
 			'The team event has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => $affiliate_event->id],
+		$this->assertPostAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'delete', '?' => ['event' => $affiliate_event->id]],
 			$manager->id);
 	}
 
@@ -328,11 +328,11 @@ class TeamEventsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Captains are allowed to delete their team's events
-		$this->assertPostAsAccessRedirect(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => $events[0]->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'TeamEvents', 'action' => 'delete', '?' => ['event' => $events[0]->id]],
 			$captain->id, [], '/',
 			'The team event has been deleted.');
 
-		$this->assertPostAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => $events[1]->id], $captain->id);
+		$this->assertPostAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'delete', '?' => ['event' => $events[1]->id]], $captain->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -357,11 +357,11 @@ class TeamEventsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Others are not allowed to delete team events
-		$this->assertPostAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => $event->id],
+		$this->assertPostAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'delete', '?' => ['event' => $event->id]],
 			$volunteer->id);
-		$this->assertPostAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => $event->id],
+		$this->assertPostAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'delete', '?' => ['event' => $event->id]],
 			$player->id);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'TeamEvents', 'action' => 'delete', 'event' => $event->id]);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'TeamEvents', 'action' => 'delete', '?' => ['event' => $event->id]]);
 	}
 
 	/**
@@ -384,7 +384,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to change attendance
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => $event->id, 'person' => $captain->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', '?' => ['event' => $event->id, 'person' => $captain->id]], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -409,7 +409,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Managers are allowed to change attendance
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => $event->id, 'person' => $captain->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', '?' => ['event' => $event->id, 'person' => $captain->id]], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -436,7 +436,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Coordinators are allowed to change attendance
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => $event->id, 'person' => $captain->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', '?' => ['event' => $event->id, 'person' => $captain->id]], $volunteer->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -465,8 +465,8 @@ class TeamEventsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Captains are allowed to change attendance
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => $event->id], $captain->id);
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => $event->id, 'person' => $player->id], $captain->id);
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', '?' => ['event' => $event->id]], $captain->id);
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', '?' => ['event' => $event->id, 'person' => $player->id]], $captain->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -494,16 +494,16 @@ class TeamEventsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Players are allowed to change attendance
-		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => $events[0]->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'TeamEvents', 'action' => 'attendance_change', '?' => ['event' => $events[0]->id]], $player->id);
 
 		// But not for teams they're not on at all
-		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => $events[1]->id], $player->id);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'attendance_change', '?' => ['event' => $events[1]->id]], $player->id);
 
 		// TODO: or only just invited to
 
 		// And not for long after the event
 		FrozenTime::setTestNow($events[0]->date->addDays(15));
-		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => $events[0]->id], $player->id);
+		$this->assertGetAsAccessDenied(['controller' => 'TeamEvents', 'action' => 'attendance_change', '?' => ['event' => $events[0]->id]], $player->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -523,7 +523,7 @@ class TeamEventsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Others are not allowed to change attendance
-		$this->assertGetAnonymousAccessDenied(['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => $event->id]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'TeamEvents', 'action' => 'attendance_change', '?' => ['event' => $event->id]]);
 	}
 
 }

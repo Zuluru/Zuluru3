@@ -16,7 +16,7 @@ class AjaxView extends View {
 	 *
 	 * @return void
 	 */
-	public function initialize() {
+	public function initialize(): void {
 		$this->loadHelper('Authentication.Identity');
 		$this->loadHelper('Authorize');
 		$this->loadHelper('Number');

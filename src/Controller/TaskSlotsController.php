@@ -82,7 +82,7 @@ class TaskSlotsController extends AppController {
 		$this->set('calendar_name', 'Task');
 		$this->getResponse()->withDownload("$id.ics");
 		$this->set(compact('task_slot'));
-		$this->RequestHandler->ext = 'ics';
+		$this->viewBuilder()->setClassName('Ics');
 	}
 
 	/**
@@ -222,10 +222,10 @@ class TaskSlotsController extends AppController {
 				$this->TaskSlots->People->get($person_id);
 			} catch (RecordNotFoundException $ex) {
 				$this->Flash->info(__('Invalid person.'));
-				return $this->redirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $task_slot->task->id]);
+				return $this->redirect(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task_slot->task->id]]);
 			} catch (InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid person.'));
-				return $this->redirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $task_slot->task->id]);
+				return $this->redirect(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task_slot->task->id]]);
 			}
 
 			try {
@@ -253,7 +253,7 @@ class TaskSlotsController extends AppController {
 					ZuluruTimeHelper::time($conflict->task_start),
 					ZuluruTimeHelper::time($conflict->task_end),
 					ZuluruTimeHelper::date($conflict->task_date)));
-				return $this->redirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $task_slot->task->id]);
+				return $this->redirect(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task_slot->task->id]]);
 			} catch (RecordNotFoundException $ex) {
 				// This is actually the situation that we want: no conflict!
 			}
@@ -280,7 +280,7 @@ class TaskSlotsController extends AppController {
 
 		if (!$this->TaskSlots->save($task_slot)) {
 			$this->Flash->info(__('Error assigning the task slot.'));
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $task_slot->task->id]);
+			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task_slot->task->id]]);
 		}
 
 		if ($task_slot->approved && $person_id) {
@@ -288,7 +288,7 @@ class TaskSlotsController extends AppController {
 		}
 		if (!$this->getRequest()->is('ajax')) {
 			$this->Flash->success(__('The assignment has been saved.'));
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $task_slot->task->id]);
+			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task_slot->task->id]]);
 		}
 
 		// Read some data required to correctly build the output
@@ -334,12 +334,12 @@ class TaskSlotsController extends AppController {
 
 		if (!$task_slot->person_id) {
 			$this->Flash->info(__('This task slot has not been assigned.'));
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $task_slot->task->id]);
+			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task_slot->task->id]]);
 		}
 
 		if ($task_slot->approved) {
 			$this->Flash->info(__('This task slot has already been approved.'));
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $task_slot->task->id]);
+			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task_slot->task->id]]);
 		}
 
 		$task_slot = $this->TaskSlots->patchEntity($task_slot, [
@@ -349,13 +349,13 @@ class TaskSlotsController extends AppController {
 
 		if (!$this->TaskSlots->save($task_slot)) {
 			$this->Flash->info(__('Error approving the task slot.'));
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $task_slot->task->id]);
+			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task_slot->task->id]]);
 		}
 
 		$this->UserCache->clear('Tasks', $task_slot->person_id);
 		if (!$this->getRequest()->is('ajax')) {
 			$this->Flash->success(__('The assignment has been approved.'));
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', 'task' => $task_slot->task->id]);
+			return $this->redirect(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task_slot->task->id]]);
 		}
 
 		// Read some data required to correctly build the output

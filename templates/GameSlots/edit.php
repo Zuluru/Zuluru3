@@ -18,7 +18,7 @@ $this->Breadcrumbs->add(__('Edit'));
 echo $this->Form->hidden('sport', ['id' => 'sport', 'value' => $game_slot->field->sport]);
 echo $this->Jquery->ajaxInput('game_date', [
 	'selector' => '#DivisionList',
-	'url' => ['controller' => 'Divisions', 'action' => 'select', 'affiliate' => $affiliate],
+	'url' => ['controller' => 'Divisions', 'action' => 'select', '?' => ['affiliate' => $affiliate]],
 	'additional-inputs' => '#sport',
 ], [
 	'minYear' => Configure::read('options.year.gameslot.min'),

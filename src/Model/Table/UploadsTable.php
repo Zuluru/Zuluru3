@@ -127,10 +127,10 @@ class UploadsTable extends AppTable {
 			->boolean('approved')
 			->allowEmptyString('approved')
 
-			->date('valid_from', __('You must provide a valid date.'))
+			->date('valid_from', ['ymd'], __('You must provide a valid date.'))
 			->allowEmptyDate('valid_from')
 
-			->date('valid_until', __('You must provide a valid date.'))
+			->date('valid_until', ['ymd'], __('You must provide a valid date.'))
 			->allowEmptyDate('valid_until')
 
 			;

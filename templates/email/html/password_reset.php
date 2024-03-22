@@ -17,4 +17,4 @@ use Cake\Routing\Router;
 	$this->Html->link(__('here'), Router::url(['controller' => 'Users', 'action' => 'reset_password', $user->id, $code], true))
 ) ?></p>
 <p><?= __('If you didn\'t ask for this, don\'t worry. Just delete this e-mail message and your password will remain unchanged.') ?></p>
-<?= $this->element('Email/html/footer');
+<?= $this->element('email/html/footer');

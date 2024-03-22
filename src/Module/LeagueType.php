@@ -647,7 +647,7 @@ abstract class LeagueType {
 					[
 						'type' => 'link',
 						'link' => __('{0} Availability Report', __(Configure::read("sports.{$division->league->sport}.field_cap"))),
-						'target' => ['controller' => 'Divisions', 'action' => 'slots', 'division' => $division->id, 'date' => $dates[0]->toDateString()],
+						'target' => ['controller' => 'Divisions', 'action' => 'slots', '?' => ['division' => $division->id, 'date' => $dates[0]->toDateString()]],
 					],
 				],
 			]);

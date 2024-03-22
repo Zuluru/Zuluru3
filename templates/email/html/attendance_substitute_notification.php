@@ -71,4 +71,4 @@ foreach (Configure::read('attendance_verb') as $check_status => $check_verb):
 	endif;
 endforeach;
 ?>
-<?= $this->element('Email/html/footer');
+<?= $this->element('email/html/footer');

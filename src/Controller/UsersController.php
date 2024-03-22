@@ -60,10 +60,7 @@ class UsersController extends AppController {
 
 		// Regardless of POST or GET, redirect if user is logged in
 		if ($result->isValid()) {
-			$redirect = $this->Authentication->getLoginRedirect();
-			if (!$redirect) {
-				$redirect = '/';
-			}
+			$redirect = $this->Authentication->getLoginRedirect() ?? '/';
 			return $this->redirect($redirect);
 		}
 

@@ -81,7 +81,7 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 
 		// Admins are allowed to view games, with full edit permissions
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $admin->id);
 		$this->assertResponseContains('currently rated');
 		$this->assertResponseContains('chance to win');
 		$this->assertResponseRegExp('#<dt>Game Status</dt>\s*<dd>Normal</dd>#ms');
@@ -103,7 +103,7 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertResponseRegExp('#<td>Away Score</td>\s*<td>12</td>\s*<td>12</td>#ms');
 		$this->assertResponseRegExp('#<td>Defaulted\?</td>\s*<td>no</td>\s*<td>no</td>#ms');
 
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $affiliate_game->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $affiliate_game->id]], $admin->id);
 		$this->assertResponseContains('chance to win');
 		$this->assertResponseContains('Captain Emails');
 		$this->assertResponseContains('Ratings Table');
@@ -112,7 +112,7 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertResponseNotContains('/games/stats?game=' . $affiliate_game->id);
 
 		// Managers are allowed to view games; the game view won't include a team ID, so no attendance link
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $manager->id);
 		$this->assertResponseContains('Captain Emails');
 		$this->assertResponseContains('Ratings Table');
 		$this->assertResponseNotContains('/games/attendance');
@@ -121,14 +121,14 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/games/delete?game=' . $game->id);
 
 		// But are not allowed to edit ones in other affiliates
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $affiliate_game->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $affiliate_game->id]], $manager->id);
 		$this->assertResponseNotContains('Captain Emails');
 		$this->assertResponseContains('Ratings Table');
 		$this->assertResponseNotContains('/games/edit?game=' . $affiliate_game->id);
 		$this->assertResponseNotContains('/games/delete?game=' . $affiliate_game->id);
 
 		// Coordinators are allowed to view games
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $volunteer->id);
 		$this->assertResponseContains('Captain Emails');
 		$this->assertResponseNotContains('/games/attendance');
 		$this->assertResponseContains('/games/note?game=' . $game->id);
@@ -136,7 +136,7 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/games/delete?game=' . $game->id);
 
 		// Captains are allowed to view games, perhaps with slightly more permission than players
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $home->people[0]->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $home->people[0]->id);
 		$this->assertResponseContains('Captain Emails');
 		$this->assertResponseContains('/games/attendance?team=' . $home->id . '&amp;game=' . $game->id);
 		$this->assertResponseContains('/games/note?game=' . $game->id);
@@ -144,14 +144,14 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertResponseNotContains('/games/delete?game=' . $game->id);
 
 		// Others are allowed to view games, but have no edit permissions
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $player->id);
 		$this->assertResponseNotContains('Captain Emails');
 		$this->assertResponseContains('/games/attendance?team=' . $home->id . '&amp;game=' . $game->id);
 		$this->assertResponseContains('/games/note?game=' . $game->id);
 		$this->assertResponseNotContains('/games/edit?game=' . $game->id);
 		$this->assertResponseNotContains('/games/delete?game=' . $game->id);
 
-		$this->assertGetAnonymousAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id]);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]]);
 
 		// TODO: All the different options for carbon flips, spirit, rating points, approved by.
 		//$this->assertResponseRegExp('#<dt>Carbon Flip</dt>\s*<dd>Red won</dd>#ms');
@@ -188,23 +188,23 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 
 		// Admins, managers and coordinators are allowed to view unpublished games, with full edit permissions
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $admin->id);
 		$this->assertResponseContains('/games/edit?game=' . $game->id);
 		$this->assertResponseContains('/games/delete?game=' . $game->id);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $manager->id);
 		$this->assertResponseContains('/games/edit?game=' . $game->id);
 		$this->assertResponseContains('/games/delete?game=' . $game->id);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $volunteer->id);
 		$this->assertResponseContains('/games/edit?game=' . $game->id);
 		$this->assertResponseContains('/games/delete?game=' . $game->id);
 
 		// Coordinators can't see unpublished ones in divisions they don't run
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'view', 'game' => $other_game->id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $other_game->id]], $volunteer->id);
 
 		// No viewing of unpublished games for anyone else
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $home->people[0]->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $player->id);
-		$this->assertGetAnonymousAccessRedirect(['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $home->people[0]->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $player->id);
+		$this->assertGetAnonymousAccessRedirect(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]],
 			'/', 'You do not have permission to access that page.');
 	}
 
@@ -223,7 +223,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'away_score' => 12,
 		]);
 
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $volunteer->id);
 		$this->assertResponseContains('<dt>Round</dt>');
 
 		// Round-robin games don't have ratings tables
@@ -244,7 +244,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'approved_by_id' => APPROVAL_AUTOMATIC,
 		]);
 
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $finalized_game->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $finalized_game->id]], $volunteer->id);
 		$this->assertResponseNotContains('chance to win');
 		$this->assertResponseNotContains('Ratings Table');
 		$home_name = Text::truncate($finalized_game->home_team->name, 28);
@@ -267,7 +267,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'division_details' => ['schedule_type' => 'tournament'],
 		]);
 
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $volunteer->id);
 		$this->assertResponseRegExp('#<dt>Home Team</dt>\s*<dd>A1 \[1st seed\]</dd>#ms');
 		$this->assertResponseRegExp('#<dt>Away Team</dt>\s*<dd>A4 \[4th seed\]</dd>#ms');
 		$this->assertResponseNotContains('currently rated');
@@ -293,35 +293,35 @@ class GamesControllerTest extends ControllerTestCase {
 		$facility = $game->game_slot->field->facility;
 
 		// Anyone is allowed to view game tooltips
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Games', 'action' => 'tooltip', 'game' => $game->id], $admin->id);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Games', 'action' => 'tooltip', '?' => ['game' => $game->id]], $admin->id);
 		$this->assertResponseContains('/facilities\\/view?facility=' . $facility->id);
 		$this->assertResponseContains('/teams\\/view?team=' . $game->home_team_id);
 		$this->assertResponseContains('/teams\\/view?team=' . $game->away_team_id);
 
-		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Games', 'action' => 'tooltip', 'game' => 0],
+		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Games', 'action' => 'tooltip', '?' => ['game' => 0]],
 			$admin->id, '/',
 			'Invalid game.');
 
 		// Anyone is allowed to view game tooltips
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Games', 'action' => 'tooltip', 'game' => $game->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Games', 'action' => 'tooltip', '?' => ['game' => $game->id]],
 			$manager->id);
 		$this->assertResponseContains('/facilities\\/view?facility=' . $facility->id);
 		$this->assertResponseContains('/teams\\/view?team=' . $game->home_team_id);
 		$this->assertResponseContains('/teams\\/view?team=' . $game->away_team_id);
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Games', 'action' => 'tooltip', 'game' => $game->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Games', 'action' => 'tooltip', '?' => ['game' => $game->id]],
 			$volunteer->id);
 		$this->assertResponseContains('/facilities\\/view?facility=' . $facility->id);
 		$this->assertResponseContains('/teams\\/view?team=' . $game->home_team_id);
 		$this->assertResponseContains('/teams\\/view?team=' . $game->away_team_id);
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Games', 'action' => 'tooltip', 'game' => $game->id],
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Games', 'action' => 'tooltip', '?' => ['game' => $game->id]],
 			$player->id);
 		$this->assertResponseContains('/facilities\\/view?facility=' . $facility->id);
 		$this->assertResponseContains('/teams\\/view?team=' . $game->home_team_id);
 		$this->assertResponseContains('/teams\\/view?team=' . $game->away_team_id);
 
-		$this->assertGetAjaxAnonymousAccessOk(['controller' => 'Games', 'action' => 'tooltip', 'game' => $game->id]);
+		$this->assertGetAjaxAnonymousAccessOk(['controller' => 'Games', 'action' => 'tooltip', '?' => ['game' => $game->id]]);
 		$this->assertResponseContains('/facilities\/view?facility=' . $facility->id);
 		$this->assertResponseContains('/teams\\/view?team=' . $game->home_team_id);
 		$this->assertResponseContains('/teams\\/view?team=' . $game->away_team_id);
@@ -340,13 +340,13 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 
 		// Anyone logged in is allowed to view ratings tables
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'ratings_table', 'game' => $game->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'ratings_table', 'game' => $game->id], $manager->id);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'ratings_table', 'game' => $game->id], $volunteer->id);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'ratings_table', 'game' => $game->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'ratings_table', '?' => ['game' => $game->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'ratings_table', '?' => ['game' => $game->id]], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'ratings_table', '?' => ['game' => $game->id]], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'ratings_table', '?' => ['game' => $game->id]], $player->id);
 
 		// Others are not allowed to ratings table
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'ratings_table', 'game' => $game->id]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'ratings_table', '?' => ['game' => $game->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -391,7 +391,7 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 
 		// Admins are allowed to edit
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit', 'game' => $game->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit', '?' => ['game' => $game->id]], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -409,7 +409,7 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 
 		// Managers are allowed to edit games
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit', 'game' => $game->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit', '?' => ['game' => $game->id]], $manager->id);
 
 		/** @var \App\Model\Entity\Game $affiliate_game */
 		$affiliate_game = $this->loadFixtureScenario(SingleGameScenario::class, [
@@ -417,7 +417,7 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', 'game' => $affiliate_game->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', '?' => ['game' => $affiliate_game->id]], $manager->id);
 	}
 
 	/**
@@ -434,7 +434,7 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 
 		// Coordinators are allowed to edit games
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit', 'game' => $game->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit', '?' => ['game' => $game->id]], $volunteer->id);
 
 		/** @var \App\Model\Entity\Game $other_game */
 		$other_game = $this->loadFixtureScenario(SingleGameScenario::class, [
@@ -442,7 +442,7 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 
 		// But not ones in divisions they don't run
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', 'game' => $other_game->id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', '?' => ['game' => $other_game->id]], $volunteer->id);
 	}
 
 	/**
@@ -461,10 +461,10 @@ class GamesControllerTest extends ControllerTestCase {
 		$captain = $game->home_team->people[0];
 
 		// Others are not allowed to edit games
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', 'game' => $game->id], $captain->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', 'game' => $game->id], [$captain->id, $admin->id]);
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', 'game' => $game->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'edit', 'game' => $game->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', '?' => ['game' => $game->id]], $captain->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', '?' => ['game' => $game->id]], [$captain->id, $admin->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit', '?' => ['game' => $game->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'edit', '?' => ['game' => $game->id]]);
 	}
 
 	/**
@@ -480,7 +480,7 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 
 		// Admins are allowed to edit boxscore
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => $game->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit_boxscore', '?' => ['game' => $game->id]], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -498,7 +498,7 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 
 		// Managers are allowed to edit boxscore
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => $game->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit_boxscore', '?' => ['game' => $game->id]], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -517,7 +517,7 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 
 		// Coordinators are allowed to edit boxscore
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => $game->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'edit_boxscore', '?' => ['game' => $game->id]], $volunteer->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -536,9 +536,9 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 
 		// Others are not allowed to edit boxscores
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => $game->id], $game->home_team->people[0]->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => $game->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'edit_boxscore', 'game' => $game->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit_boxscore', '?' => ['game' => $game->id]], $game->home_team->people[0]->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'edit_boxscore', '?' => ['game' => $game->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'edit_boxscore', '?' => ['game' => $game->id]]);
 	}
 
 	/**
@@ -564,7 +564,7 @@ class GamesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Admins are allowed to delete scores
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Games', 'action' => 'delete_score', 'detail' => $detail->id, 'game' => $game->id], $admin->id);
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Games', 'action' => 'delete_score', '?' => ['detail' => $detail->id, 'game' => $game->id]], $admin->id);
 
 		$this->expectException(RecordNotFoundException::class);
 		ScoreDetailFactory::get($detail->id);
@@ -593,7 +593,7 @@ class GamesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Managers are allowed to delete scores
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Games', 'action' => 'delete_score', 'detail' => $detail->id, 'game' => $game->id], $manager->id);
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Games', 'action' => 'delete_score', '?' => ['detail' => $detail->id, 'game' => $game->id]], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -622,7 +622,7 @@ class GamesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Coordinators are allowed to delete scores
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Games', 'action' => 'delete_score', 'detail' => $detail->id, 'game' => $game->id], $volunteer->id);
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Games', 'action' => 'delete_score', '?' => ['detail' => $detail->id, 'game' => $game->id]], $volunteer->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -651,11 +651,11 @@ class GamesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Others are not allowed to delete scores
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Games', 'action' => 'delete_score', 'detail' => $detail->id, 'game' => $game->id],
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Games', 'action' => 'delete_score', '?' => ['detail' => $detail->id, 'game' => $game->id]],
 			$game->home_team->people[0]->id);
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Games', 'action' => 'delete_score', 'detail' => $detail->id, 'game' => $game->id],
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Games', 'action' => 'delete_score', '?' => ['detail' => $detail->id, 'game' => $game->id]],
 			$player->id);
-		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Games', 'action' => 'delete_score', 'detail' => $detail->id, 'game' => $game->id]);
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Games', 'action' => 'delete_score', '?' => ['detail' => $detail->id, 'game' => $game->id]]);
 	}
 
 	/**
@@ -677,7 +677,7 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 
 		// Admins are allowed to add scores
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Games', 'action' => 'add_score', 'game' => $game->id],
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Games', 'action' => 'add_score', '?' => ['game' => $game->id]],
 			$admin->id, ['add_detail' => [
 				'team_id' => $game->home_team_id,
 				'created' => ['year' => $date->year, 'month' => $date->month, 'day' => $date->day, 'hour' => 19, 'minute' => 10],
@@ -706,7 +706,7 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 
 		// Managers are allowed to add scores
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Games', 'action' => 'add_score', 'game' => $game->id],
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Games', 'action' => 'add_score', '?' => ['game' => $game->id]],
 			$manager->id, ['add_detail' => [
 				'team_id' => $game->home_team_id,
 				'created' => ['year' => $date->year, 'month' => $date->month, 'day' => $date->day, 'hour' => 19, 'minute' => 10],
@@ -735,7 +735,7 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 
 		// Coordinators are allowed to add scores
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Games', 'action' => 'add_score', 'game' => $game->id],
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Games', 'action' => 'add_score', '?' => ['game' => $game->id]],
 			$volunteer->id, ['add_detail' => [
 				'team_id' => $game->home_team_id,
 				'created' => ['year' => $date->year, 'month' => $date->month, 'day' => $date->day, 'hour' => 19, 'minute' => 10],
@@ -761,11 +761,11 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 
 		// Others are not allowed to add scores
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Games', 'action' => 'add_score', 'game' => $game->id],
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Games', 'action' => 'add_score', '?' => ['game' => $game->id]],
 			$game->home_team->people[0]->id);
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Games', 'action' => 'add_score', 'game' => $game->id],
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Games', 'action' => 'add_score', '?' => ['game' => $game->id]],
 			$player->id);
-		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Games', 'action' => 'add_score', 'game' => $game->id]);
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Games', 'action' => 'add_score', '?' => ['game' => $game->id]]);
 	}
 
 	/**
@@ -791,47 +791,47 @@ class GamesControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Admins are allowed to add notes
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'note', 'game' => $game->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'note', '?' => ['game' => $game->id]], $admin->id);
 
 		// Empty notes don't get added
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => $game->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', '?' => ['game' => $game->id]],
 			$admin->id, [
 				'game_id' => $game->id,
 				'visibility' => VISIBILITY_PRIVATE,
 				'note' => '',
-			], ['action' => 'view', 'game' => $game->id], 'You entered no text, so no note was added.');
+			], ['action' => 'view', '?' => ['game' => $game->id]], 'You entered no text, so no note was added.');
 
 		// Add a private note
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => $game->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', '?' => ['game' => $game->id]],
 			$admin->id, [
 				'game_id' => $game->id,
 				'visibility' => VISIBILITY_PRIVATE,
 				'note' => 'This is a private note.',
-			], ['action' => 'view', 'game' => $game->id], 'The note has been saved.');
+			], ['action' => 'view', '?' => ['game' => $game->id]], 'The note has been saved.');
 
 		// Confirm there was no notification email
 		$this->assertNoMailSent();
 
 		// Add a note for all admins to see
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => $game->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', '?' => ['game' => $game->id]],
 			$admin->id, [
 				'game_id' => $game->id,
 				'visibility' => VISIBILITY_ADMIN,
 				'note' => 'This is an admin note.',
-			], ['action' => 'view', 'game' => $game->id], 'The note has been saved.');
+			], ['action' => 'view', '?' => ['game' => $game->id]], 'The note has been saved.');
 
 		// Confirm there was no notification email
 		$this->assertNoMailSent();
 
 		// Make sure they were added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $admin->id);
 		$this->assertResponseContains('This is a private note.');
 		$this->assertResponseContains('This is an admin note.');
 		// And the old one is still there
 		$this->assertResponseContains('Admin note from admin about game.');
 
 		// Check the manager can also see the admin one
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $manager->id);
 		$this->assertResponseNotContains('This is a private note.');
 		$this->assertResponseContains('This is an admin note.');
 	}
@@ -852,37 +852,37 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 
 		// Managers are allowed to add notes
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'note', 'game' => $game->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'note', '?' => ['game' => $game->id]], $manager->id);
 
 		// Add a private note
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => $game->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', '?' => ['game' => $game->id]],
 			$manager->id, [
 				'game_id' => $game->id,
 				'visibility' => VISIBILITY_PRIVATE,
 				'note' => 'This is a private note.',
-			], ['action' => 'view', 'game' => $game->id], 'The note has been saved.');
+			], ['action' => 'view', '?' => ['game' => $game->id]], 'The note has been saved.');
 
 		// Confirm there was no notification email
 		$this->assertNoMailSent();
 
 		// Add a note for all admins to see
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => $game->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', '?' => ['game' => $game->id]],
 			$manager->id, [
 				'game_id' => $game->id,
 				'visibility' => VISIBILITY_ADMIN,
 				'note' => 'This is an admin note.',
-			], ['action' => 'view', 'game' => $game->id], 'The note has been saved.');
+			], ['action' => 'view', '?' => ['game' => $game->id]], 'The note has been saved.');
 
 		// Confirm there was no notification email
 		$this->assertNoMailSent();
 
 		// Make sure they were added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $manager->id);
 		$this->assertResponseContains('This is a private note.');
 		$this->assertResponseContains('This is an admin note.');
 
 		// Check the admin can also see the admin one
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $admin->id);
 		$this->assertResponseNotContains('This is a private note.');
 		$this->assertResponseContains('This is an admin note.');
 	}
@@ -904,32 +904,32 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 
 		// Coordinators are allowed to add notes
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'note', 'game' => $game->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'note', '?' => ['game' => $game->id]], $volunteer->id);
 
 		// Add a private note
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => $game->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', '?' => ['game' => $game->id]],
 			$volunteer->id, [
 				'game_id' => $game->id,
 				'visibility' => VISIBILITY_PRIVATE,
 				'note' => 'This is a private note.',
-			], ['action' => 'view', 'game' => $game->id], 'The note has been saved.');
+			], ['action' => 'view', '?' => ['game' => $game->id]], 'The note has been saved.');
 
 		// Confirm there was no notification email
 		$this->assertNoMailSent();
 
 		// Add a note for all coordinators to see
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => $game->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', '?' => ['game' => $game->id]],
 			$volunteer->id, [
 				'game_id' => $game->id,
 				'visibility' => VISIBILITY_COORDINATOR,
 				'note' => 'This is a coordinator note.',
-			], ['action' => 'view', 'game' => $game->id], 'The note has been saved.');
+			], ['action' => 'view', '?' => ['game' => $game->id]], 'The note has been saved.');
 
 		// Confirm there was no notification email
 		$this->assertNoMailSent();
 
 		// Make sure they were added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $volunteer->id);
 		$this->assertResponseContains('This is a private note.');
 		$this->assertResponseContains('This is a coordinator note.');
 	}
@@ -967,15 +967,15 @@ class GamesControllerTest extends ControllerTestCase {
 		PeoplePersonFactory::make(['person_id' => $player->id, 'relative_id' => $child->id])->persist();
 
 		// Captains are allowed to add notes
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'note', 'game' => $game->id], $captain->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'note', '?' => ['game' => $game->id]], $captain->id);
 
 		// Add a note for all captains to see
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => $game->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', '?' => ['game' => $game->id]],
 			$captain->id, [
 				'game_id' => $game->id,
 				'visibility' => VISIBILITY_CAPTAINS,
 				'note' => 'This is a captain note.',
-			], ['action' => 'view', 'game' => $game->id], 'The note has been saved.');
+			], ['action' => 'view', '?' => ['game' => $game->id]], 'The note has been saved.');
 
 		// Confirm the notification email
 		$this->assertMailCount(1);
@@ -990,22 +990,22 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->cleanupEmailTrait();;
 
 		// Make sure it was added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $captain->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $captain->id);
 		$this->assertResponseContains('This is a captain note.');
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $captain2->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $captain2->id);
 		$this->assertResponseContains('This is a captain note.');
 
 		// But players can't see it
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], [$player->id, $child->id]);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], [$player->id, $child->id]);
 		$this->assertResponseNotContains('This is a captain note.');
 
 		// Add a note for the team to see
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => $game->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', '?' => ['game' => $game->id]],
 			$captain->id, [
 				'game_id' => $game->id,
 				'visibility' => VISIBILITY_TEAM,
 				'note' => 'This is a team note.',
-			], ['action' => 'view', 'game' => $game->id], 'The note has been saved.');
+			], ['action' => 'view', '?' => ['game' => $game->id]], 'The note has been saved.');
 
 		// Confirm the notification email
 		$this->assertMailCount(1);
@@ -1020,10 +1020,10 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertMailContains('This is a team note.');
 
 		// Make sure it was added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $captain->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $captain->id);
 		$this->assertResponseContains('This is a team note.');
 
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], [$player->id, $child->id]);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], [$player->id, $child->id]);
 		$this->assertResponseContains('This is a team note.');
 	}
 
@@ -1051,18 +1051,18 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 
 		// Players are only allowed to add notes on games they are playing in
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'note', 'game' => $game->id], $player->id);
-		$this->assertGetAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => $other_game->id],
-			$player->id, ['controller' => 'Games', 'action' => 'view', 'game' => $other_game->id],
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'note', '?' => ['game' => $game->id]], $player->id);
+		$this->assertGetAsAccessRedirect(['controller' => 'Games', 'action' => 'note', '?' => ['game' => $other_game->id]],
+			$player->id, ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $other_game->id]],
 			'You are not on the roster of a team playing in this game.');
 
 		// Add a note for all captains to see
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => $game->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', '?' => ['game' => $game->id]],
 			$player->id, [
 				'game_id' => $game->id,
 				'visibility' => VISIBILITY_CAPTAINS,
 				'note' => 'This is a captain note.',
-			], ['action' => 'view', 'game' => $game->id], 'The note has been saved.');
+			], ['action' => 'view', '?' => ['game' => $game->id]], 'The note has been saved.');
 
 		// Confirm the notification email
 		$this->assertMailCount(1);
@@ -1076,19 +1076,19 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->cleanupEmailTrait();
 
 		// Make sure it was added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $player->id);
 		$this->assertResponseContains('This is a captain note.');
 
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $game->home_team->people[0]->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $game->home_team->people[0]->id);
 		$this->assertResponseContains('This is a captain note.');
 
 		// Add a note for the team to see
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => $game->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'note', '?' => ['game' => $game->id]],
 			$player->id, [
 				'game_id' => $game->id,
 				'visibility' => VISIBILITY_TEAM,
 				'note' => 'This is a team note.',
-			], ['action' => 'view', 'game' => $game->id], 'The note has been saved.');
+			], ['action' => 'view', '?' => ['game' => $game->id]], 'The note has been saved.');
 
 		// Confirm the notification email
 		$this->assertMailCount(1);
@@ -1101,10 +1101,10 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertMailContains('This is a team note.');
 
 		// Make sure it was added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $player->id);
 		$this->assertResponseContains('This is a team note.');
 
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', 'game' => $game->id], $game->home_team->people[0]->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $game->home_team->people[0]->id);
 		$this->assertResponseContains('This is a team note.');
 	}
 
@@ -1124,10 +1124,10 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 
 		// Others are not allowed to add notes
-		$this->assertGetAsAccessRedirect(['controller' => 'Games', 'action' => 'note', 'game' => $game->id],
-			$player->id, ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Games', 'action' => 'note', '?' => ['game' => $game->id]],
+			$player->id, ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]],
 			'You are not on the roster of a team playing in this game.');
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'note', 'game' => $game->id]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'note', '?' => ['game' => $game->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1155,8 +1155,8 @@ class GamesControllerTest extends ControllerTestCase {
 			'created_person_id' => $admin->id,
 		])->persist();
 
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', 'note' => $note->id],
-			$admin->id, [], ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', '?' => ['note' => $note->id]],
+			$admin->id, [], ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]],
 			'The note has been deleted.');
 		$this->expectException(RecordNotFoundException::class);
 		NoteFactory::get($note->id);
@@ -1185,8 +1185,8 @@ class GamesControllerTest extends ControllerTestCase {
 			'created_person_id' => $volunteer->id,
 		])->persist();
 
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', 'note' => $note->id],
-			$admin->id, [], ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', '?' => ['note' => $note->id]],
+			$admin->id, [], ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]],
 			'The note has been deleted.');
 		$this->expectException(RecordNotFoundException::class);
 		NoteFactory::get($note->id);
@@ -1215,7 +1215,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'note' => 'Team note from captain about game.',
 			'created_person_id' => $game->home_team->people[0]->id,
 		])->persist();
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $captain_note->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', '?' => ['note' => $captain_note->id]],
 			$admin->id);
 
 		$player_note = NoteFactory::make([
@@ -1224,7 +1224,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'note' => 'Team note from player about game.',
 			'created_person_id' => $player->id,
 		])->persist();
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $player_note->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', '?' => ['note' => $player_note->id]],
 			$admin->id);
 
 		$other_note = NoteFactory::make([
@@ -1233,7 +1233,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'note' => 'Private note from volunteer about game.',
 			'created_person_id' => $volunteer->id,
 		])->persist();
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $other_note->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', '?' => ['note' => $other_note->id]],
 			$admin->id);
 	}
 
@@ -1260,8 +1260,8 @@ class GamesControllerTest extends ControllerTestCase {
 			'created_person_id' => $admin->id,
 		])->persist();
 
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', 'note' => $note->id],
-			$manager->id, [], ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', '?' => ['note' => $note->id]],
+			$manager->id, [], ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]],
 			'The note has been deleted.');
 		$this->expectException(RecordNotFoundException::class);
 		NoteFactory::get($note->id);
@@ -1290,8 +1290,8 @@ class GamesControllerTest extends ControllerTestCase {
 			'created_person_id' => $volunteer->id,
 		])->persist();
 
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', 'note' => $note->id],
-			$manager->id, [], ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', '?' => ['note' => $note->id]],
+			$manager->id, [], ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]],
 			'The note has been deleted.');
 		$this->expectException(RecordNotFoundException::class);
 		NoteFactory::get($note->id);
@@ -1320,7 +1320,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'note' => 'Team note from captain about game.',
 			'created_person_id' => $game->home_team->people[0]->id,
 		])->persist();
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $captain_note->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', '?' => ['note' => $captain_note->id]],
 			$manager->id);
 
 		$player_note = NoteFactory::make([
@@ -1329,7 +1329,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'note' => 'Team note from player about game.',
 			'created_person_id' => $player->id,
 		])->persist();
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $player_note->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', '?' => ['note' => $player_note->id]],
 			$manager->id);
 
 		$other_note = NoteFactory::make([
@@ -1338,7 +1338,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'note' => 'Private note from volunteer about game.',
 			'created_person_id' => $volunteer->id,
 		])->persist();
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $other_note->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', '?' => ['note' => $other_note->id]],
 			$manager->id);
 	}
 
@@ -1365,7 +1365,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'note' => 'Admin note from admin about game.',
 			'created_person_id' => $admin->id,
 		])->persist();
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $admin_note->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', '?' => ['note' => $admin_note->id]],
 			$volunteer->id);
 
 		$captain_note = NoteFactory::make([
@@ -1374,7 +1374,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'note' => 'Team note from captain about game.',
 			'created_person_id' => $game->home_team->people[0]->id,
 		])->persist();
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $captain_note->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', '?' => ['note' => $captain_note->id]],
 			$volunteer->id);
 
 		$player_note = NoteFactory::make([
@@ -1383,7 +1383,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'note' => 'Private note from player about game.',
 			'created_person_id' => $player->id,
 		])->persist();
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $player_note->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', '?' => ['note' => $player_note->id]],
 			$volunteer->id);
 
 		// But can delete coordinator notes
@@ -1394,8 +1394,8 @@ class GamesControllerTest extends ControllerTestCase {
 			'created_person_id' => $volunteer->id,
 		])->persist();
 
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', 'note' => $coordinator_note->id],
-			$volunteer->id, [], ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', '?' => ['note' => $coordinator_note->id]],
+			$volunteer->id, [], ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]],
 			'The note has been deleted.');
 		$this->expectException(RecordNotFoundException::class);
 		NoteFactory::get($coordinator_note->id);
@@ -1425,7 +1425,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'note' => 'Admin note from admin about game.',
 			'created_person_id' => $admin->id,
 		])->persist();
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $admin_note->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', '?' => ['note' => $admin_note->id]],
 			$captain->id);
 
 		$coordinator_note = NoteFactory::make([
@@ -1434,7 +1434,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'note' => 'Coordinator note from admin about game.',
 			'created_person_id' => $volunteer->id,
 		])->persist();
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $coordinator_note->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', '?' => ['note' => $coordinator_note->id]],
 			$captain->id);
 
 		$player_note = NoteFactory::make([
@@ -1443,7 +1443,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'note' => 'Private note from player about game.',
 			'created_person_id' => $player->id,
 		])->persist();
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $player_note->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', '?' => ['note' => $player_note->id]],
 			$captain->id);
 
 		// But can delete notes they created
@@ -1454,8 +1454,8 @@ class GamesControllerTest extends ControllerTestCase {
 			'created_person_id' => $captain->id,
 		])->persist();
 
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', 'note' => $captain_note->id],
-			$captain->id, [], ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', '?' => ['note' => $captain_note->id]],
+			$captain->id, [], ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]],
 			'The note has been deleted.');
 		$this->expectException(RecordNotFoundException::class);
 		NoteFactory::get($captain_note->id);
@@ -1484,7 +1484,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'note' => 'Admin note from admin about game.',
 			'created_person_id' => $admin->id,
 		])->persist();
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $admin_note->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', '?' => ['note' => $admin_note->id]],
 			$player->id);
 
 		$coordinator_note = NoteFactory::make([
@@ -1493,7 +1493,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'note' => 'Coordinator note from admin about game.',
 			'created_person_id' => $volunteer->id,
 		])->persist();
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $coordinator_note->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', '?' => ['note' => $coordinator_note->id]],
 			$player->id);
 
 		$captain_note = NoteFactory::make([
@@ -1502,7 +1502,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'note' => 'Team note from captain about game.',
 			'created_person_id' => $game->home_team->people[0]->id,
 		])->persist();
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', 'note' => $captain_note->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete_note', '?' => ['note' => $captain_note->id]],
 			$player->id);
 
 		// But can delete notes they created
@@ -1513,8 +1513,8 @@ class GamesControllerTest extends ControllerTestCase {
 			'created_person_id' => $player->id,
 		])->persist();
 
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', 'note' => $player_note->id],
-			$player->id, [], ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete_note', '?' => ['note' => $player_note->id]],
+			$player->id, [], ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]],
 			'The note has been deleted.');
 		$this->expectException(RecordNotFoundException::class);
 		NoteFactory::get($player_note->id);
@@ -1536,8 +1536,8 @@ class GamesControllerTest extends ControllerTestCase {
 			'affiliate' => $affiliates[0],
 		]);
 
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete', 'game' => $game->id],
-			$admin->id, [], ['controller' => 'Divisions', 'action' => 'schedule', 'division' => $game->division_id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete', '?' => ['game' => $game->id]],
+			$admin->id, [], ['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $game->division_id]],
 			'The game has been deleted.');
 
 		// But not ones with dependencies
@@ -1548,15 +1548,15 @@ class GamesControllerTest extends ControllerTestCase {
 			'away_score' => 10,
 		]);
 
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete', 'game' => $other_game->id],
-			$admin->id, [], ['controller' => 'Games', 'action' => 'view', 'game' => $other_game->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete', '?' => ['game' => $other_game->id]],
+			$admin->id, [], ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $other_game->id]],
 			'A score has already been submitted for this game.', 'Flash.flash.0.message.0');
 		$this->assertEquals('If you are absolutely sure that you want to delete it anyway, {0}. <b>This cannot be undone!</b>', $this->_requestSession->read('Flash.flash.0.message.1'));
-		$this->assertEquals(['action' => 'delete', 'game' => $other_game->id, 'force' => true], $this->_requestSession->read('Flash.flash.0.params.replacements.0.target'));
+		$this->assertEquals(['action' => 'delete', '?' => ['game' => $other_game->id, 'force' => true]], $this->_requestSession->read('Flash.flash.0.params.replacements.0.target'));
 
 		// Unless we force it
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete', 'game' => $other_game->id, 'force' => true],
-			$admin->id, [], ['controller' => 'Divisions', 'action' => 'schedule', 'division' => $other_game->division_id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete', '?' => ['game' => $other_game->id, 'force' => true]],
+			$admin->id, [], ['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $other_game->division_id]],
 			'The game has been deleted.');
 
 		// Make sure the score for the game was also deleted
@@ -1580,8 +1580,8 @@ class GamesControllerTest extends ControllerTestCase {
 			'affiliate' => $affiliates[0],
 		]);
 
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete', 'game' => $game->id],
-			$manager->id, [], ['controller' => 'Divisions', 'action' => 'schedule', 'division' => $game->division_id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete', '?' => ['game' => $game->id]],
+			$manager->id, [], ['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $game->division_id]],
 			'The game has been deleted.');
 
 		// But not ones in other affiliates
@@ -1590,7 +1590,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'affiliate' => $affiliates[1],
 		]);
 
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete', 'game' => $affiliate_game->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete', '?' => ['game' => $affiliate_game->id]],
 			$manager->id);
 	}
 
@@ -1611,8 +1611,8 @@ class GamesControllerTest extends ControllerTestCase {
 			'coordinator' => $volunteer,
 		]);
 
-		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete', 'game' => $game->id],
-			$volunteer->id, [], ['controller' => 'Divisions', 'action' => 'schedule', 'division' => $game->division_id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete', '?' => ['game' => $game->id]],
+			$volunteer->id, [], ['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $game->division_id]],
 			'The game has been deleted.');
 
 		// But not ones in other divisions
@@ -1621,7 +1621,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'affiliate' => $affiliates[0],
 		]);
 
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete', 'game' => $other_game->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete', '?' => ['game' => $other_game->id]],
 			$volunteer->id);
 	}
 
@@ -1641,9 +1641,9 @@ class GamesControllerTest extends ControllerTestCase {
 			'affiliate' => $affiliates[0],
 		]);
 
-		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete', 'game' => $game->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Games', 'action' => 'delete', '?' => ['game' => $game->id]],
 			$player->id);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Games', 'action' => 'delete', 'game' => $game->id]);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Games', 'action' => 'delete', '?' => ['game' => $game->id]]);
 	}
 
 	/**
@@ -1662,24 +1662,24 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 
 		// Admins are allowed to see attendance
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance', 'game' => $game->id, 'team' => $game->home_team_id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance', '?' => ['game' => $game->id, 'team' => $game->home_team_id]], $admin->id);
 
 		// Managers are allowed to see attendance
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance', 'game' => $game->id, 'team' => $game->home_team_id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance', '?' => ['game' => $game->id, 'team' => $game->home_team_id]], $manager->id);
 
 		// Coordinators are not allowed to see attendance
-		$this->assertGetAsAccessRedirect(['controller' => 'Games', 'action' => 'attendance', 'game' => $game->id, 'team' => $game->home_team_id],
-			$volunteer->id, ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Games', 'action' => 'attendance', '?' => ['game' => $game->id, 'team' => $game->home_team_id]],
+			$volunteer->id, ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]],
 			'You are not on the roster of a team playing in this game.');
 
 		// Captains are allowed to see attendance for their games
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance', 'game' => $game->id, 'team' => $game->home_team_id], $game->home_team->people[0]->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance', '?' => ['game' => $game->id, 'team' => $game->home_team_id]], $game->home_team->people[0]->id);
 
 		// Players are allowed to see attendance for their games
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance', 'game' => $game->id, 'team' => $game->home_team_id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance', '?' => ['game' => $game->id, 'team' => $game->home_team_id]], $player->id);
 
 		// Others are not allowed to see attendance
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'attendance', 'game' => $game->id, 'team' => $game->home_team_id]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'attendance', '?' => ['game' => $game->id, 'team' => $game->home_team_id]]);
 	}
 
 	/**
@@ -1760,7 +1760,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'status' => ATTENDANCE_ATTENDING,
 		])->persist();
 
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance_change', 'game' => $game->id, 'team' => $game->home_team_id, 'person' => $player->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance_change', '?' => ['game' => $game->id, 'team' => $game->home_team_id, 'person' => $player->id]], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1787,7 +1787,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'status' => ATTENDANCE_ATTENDING,
 		])->persist();
 
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance_change', 'game' => $game->id, 'team' => $game->home_team_id, 'person' => $player->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance_change', '?' => ['game' => $game->id, 'team' => $game->home_team_id, 'person' => $player->id]], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1816,7 +1816,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'status' => ATTENDANCE_ATTENDING,
 		])->persist();
 
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance_change', 'game' => $game->id, 'team' => $game->home_team_id, 'person' => $player->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance_change', '?' => ['game' => $game->id, 'team' => $game->home_team_id, 'person' => $player->id]], $volunteer->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1845,7 +1845,7 @@ class GamesControllerTest extends ControllerTestCase {
 			'status' => ATTENDANCE_ATTENDING,
 		])->persist();
 
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance_change', 'game' => $game->id, 'team' => $game->home_team_id], $captain->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance_change', '?' => ['game' => $game->id, 'team' => $game->home_team_id]], $captain->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1873,11 +1873,11 @@ class GamesControllerTest extends ControllerTestCase {
 			'status' => ATTENDANCE_ATTENDING,
 		])->persist();
 
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance_change', 'game' => $game->id, 'team' => $game->home_team_id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'attendance_change', '?' => ['game' => $game->id, 'team' => $game->home_team_id]], $player->id);
 
 		// But not more than 2 weeks after the game.
 		FrozenTime::setTestNow(FrozenDate::now()->addDays(15));
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'attendance_change', 'game' => $game->id, 'team' => $game->home_team_id], $player->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'attendance_change', '?' => ['game' => $game->id, 'team' => $game->home_team_id]], $player->id);
 
 		// And not for teams they're not on at all
 		/** @var \App\Model\Entity\Game $other_game */
@@ -1885,11 +1885,11 @@ class GamesControllerTest extends ControllerTestCase {
 			'affiliate' => $affiliates[0],
 		]);
 
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'attendance_change', 'game' => $other_game->id, 'team' => $other_game->home_team_id], $player->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'attendance_change', '?' => ['game' => $other_game->id, 'team' => $other_game->home_team_id]], $player->id);
 
 		// Or only just invited to
 		TeamsPersonFactory::make(['team_id' => $game->home_team_id, 'person_id' => $player->id, 'role' => 'player', 'status' => ROSTER_INVITED])->persist();
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'attendance_change', 'game' => $other_game->id, 'team' => $other_game->home_team_id], $player->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'attendance_change', '?' => ['game' => $other_game->id, 'team' => $other_game->home_team_id]], $player->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1909,8 +1909,8 @@ class GamesControllerTest extends ControllerTestCase {
 			'affiliate' => $affiliates[0],
 		]);
 
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'attendance_change', 'game' => $game->id, 'team' => $game->home_team_id], $volunteer->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'attendance_change', 'game' => $game->id, 'team' => $game->home_team_id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'attendance_change', '?' => ['game' => $game->id, 'team' => $game->home_team_id]], $volunteer->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'attendance_change', '?' => ['game' => $game->id, 'team' => $game->home_team_id]]);
 	}
 
 	/**
@@ -1932,20 +1932,20 @@ class GamesControllerTest extends ControllerTestCase {
 		LeaguesStatTypeFactory::make(['league_id' => $game->division->league_id, 'stat_type_id' => STAT_TYPE_ID_ULTIMATE_GOALS])->persist();
 
 		// Admins are allowed to see the stat sheet
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stat_sheet', 'game' => $game->id, 'team' => $game->home_team_id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stat_sheet', '?' => ['game' => $game->id, 'team' => $game->home_team_id]], $admin->id);
 
 		// Managers are allowed to see the stat sheet
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stat_sheet', 'game' => $game->id, 'team' => $game->home_team_id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stat_sheet', '?' => ['game' => $game->id, 'team' => $game->home_team_id]], $manager->id);
 
 		// Coordinators are allowed to see the stat sheet
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stat_sheet', 'game' => $game->id, 'team' => $game->home_team_id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stat_sheet', '?' => ['game' => $game->id, 'team' => $game->home_team_id]], $volunteer->id);
 
 		// Captains are allowed to see the stat sheet
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stat_sheet', 'game' => $game->id, 'team' => $game->home_team_id], $game->home_team->people[0]->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stat_sheet', '?' => ['game' => $game->id, 'team' => $game->home_team_id]], $game->home_team->people[0]->id);
 
 		// Others are not allowed to see the stat sheet
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'stat_sheet', 'game' => $game->id, 'team' => $game->home_team_id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'stat_sheet', 'game' => $game->id, 'team' => $game->home_team_id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'stat_sheet', '?' => ['game' => $game->id, 'team' => $game->home_team_id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'stat_sheet', '?' => ['game' => $game->id, 'team' => $game->home_team_id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -2306,7 +2306,7 @@ class GamesControllerTest extends ControllerTestCase {
 		// Scores can only be submitted after the game, so we need to set "today" for this test to be reliable
 		FrozenTime::setTestNow($game->game_slot->game_date->subDays(1));
 		$this->assertGetAsAccessRedirect($url,
-			$captain->id, ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
+			$captain->id, ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]],
 			'That game has not yet occurred!');
 
 		FrozenTime::setTestNow($game->game_slot->game_date->addDays(1));
@@ -2395,7 +2395,7 @@ class GamesControllerTest extends ControllerTestCase {
 		// Scores can only be submitted after the game, so we need to set "today" for this test to be reliable
 		FrozenTime::setTestNow($game->game_slot->game_date->subDays(1));
 		$this->assertGetAsAccessRedirect($url,
-			[$admin->id, $captain->id], ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
+			[$admin->id, $captain->id], ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]],
 			'That game has not yet occurred!');
 		FrozenTime::setTestNow($game->game_slot->game_date->addDays(1));
 		$this->assertGetAsAccessOk($url, $captain->id);
@@ -2782,11 +2782,11 @@ class GamesControllerTest extends ControllerTestCase {
 		FrozenTime::setTestNow($game->game_slot->game_date->addDays(1));
 
 		// Others are not allowed to submit scores
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $game->home_team_id], $admin->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $game->home_team_id], $manager->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $game->home_team_id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $game->home_team_id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $game->home_team_id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $game->home_team_id]], $admin->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $game->home_team_id]], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $game->home_team_id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $game->home_team_id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $game->home_team_id]]);
 	}
 
 	/**
@@ -2812,7 +2812,7 @@ class GamesControllerTest extends ControllerTestCase {
 		FrozenDate::setTestNow($game->game_slot->game_date->addDays(1));
 
 		// Admins are allowed to submit stats
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->home_team_id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', '?' => ['game' => $game->id, 'team' => $game->home_team_id]], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -2840,7 +2840,7 @@ class GamesControllerTest extends ControllerTestCase {
 		FrozenDate::setTestNow($game->game_slot->game_date->addDays(1));
 
 		// Managers are allowed to submit stats
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->home_team_id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', '?' => ['game' => $game->id, 'team' => $game->home_team_id]], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -2869,7 +2869,7 @@ class GamesControllerTest extends ControllerTestCase {
 		FrozenDate::setTestNow($game->game_slot->game_date->addDays(1));
 
 		// Coordinators are allowed to submit stats
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->home_team_id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', '?' => ['game' => $game->id, 'team' => $game->home_team_id]], $volunteer->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -2898,7 +2898,7 @@ class GamesControllerTest extends ControllerTestCase {
 		FrozenDate::setTestNow($game->game_slot->game_date->addDays(1));
 
 		// Captains are allowed to submit stats
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->home_team_id], $game->home_team->people[0]->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'submit_stats', '?' => ['game' => $game->id, 'team' => $game->home_team_id]], $game->home_team->people[0]->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -2926,8 +2926,8 @@ class GamesControllerTest extends ControllerTestCase {
 		FrozenDate::setTestNow($game->game_slot->game_date->addDays(1));
 
 		// Others are not allowed to submit stats
-		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->home_team_id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->home_team_id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Games', 'action' => 'submit_stats', '?' => ['game' => $game->id, 'team' => $game->home_team_id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'submit_stats', '?' => ['game' => $game->id, 'team' => $game->home_team_id]]);
 	}
 
 	/**
@@ -2954,20 +2954,20 @@ class GamesControllerTest extends ControllerTestCase {
 		FrozenDate::setTestNow($game->game_slot->game_date->addDays(1));
 
 		// Redirect when there are no stats yet
-		$this->assertGetAsAccessRedirect(['controller' => 'Games', 'action' => 'stats', 'game' => $game->id],
-			$admin->id, ['controller' => 'Games', 'action' => 'view', 'game' => $game->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Games', 'action' => 'stats', '?' => ['game' => $game->id]],
+			$admin->id, ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]],
 			'No stats have been entered for this game.');
 
 		StatFactory::make(['game_id' => $game->id, 'team_id' => $game->home_team_id, 'person_id' => $player->id, 'stat_type_id' => STAT_TYPE_ID_ULTIMATE_GOALS])->persist();
 
 		// Anyone logged in is allowed to see game stats
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stats', 'game' => $game->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stats', 'game' => $game->id], $manager->id);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stats', 'game' => $game->id], $volunteer->id);
-		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stats', 'game' => $game->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stats', '?' => ['game' => $game->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stats', '?' => ['game' => $game->id]], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stats', '?' => ['game' => $game->id]], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'stats', '?' => ['game' => $game->id]], $player->id);
 
 		// Others are not allowed to see game stats
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'stats', 'game' => $game->id]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Games', 'action' => 'stats', '?' => ['game' => $game->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}

@@ -22,4 +22,4 @@ use Cake\Utility\Text;
 ) ?>
 
 
-<?= $this->element('Email/text/footer');
+<?= $this->element('email/text/footer');

@@ -48,23 +48,23 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$division = $league->divisions[0];
 
 		// Anyone is allowed to view the index; admins, managers and coordinators have extra options
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => $division->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $division->id]], $admin->id);
 		$this->assertResponseContains('/divisions/edit?division=' . $division->id);
 		$this->assertResponseContains('/divisions/delete?division=' . $division->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => $division->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $division->id]], $manager->id);
 		$this->assertResponseContains('/divisions/edit?division=' . $division->id);
 		$this->assertResponseContains('/divisions/delete?division=' . $division->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => $division->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $division->id]], $volunteer->id);
 		$this->assertResponseContains('/divisions/edit?division=' . $division->id);
 		$this->assertResponseNotContains('/divisions/delete?division=' . $division->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => $division->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $division->id]], $player->id);
 		$this->assertResponseNotContains('/divisions/edit?division=' . $division->id);
 		$this->assertResponseNotContains('/divisions/delete?division=' . $division->id);
 
-		$this->assertGetAnonymousAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => $division->id]);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $division->id]]);
 		$this->assertResponseNotContains('/divisions/edit?division=' . $division->id);
 		$this->assertResponseNotContains('/divisions/delete?division=' . $division->id);
 
@@ -84,23 +84,23 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$division = $league->divisions[0];
 
 		// Anyone is allowed to view division tooltips
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => $division->id], $admin->id);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', '?' => ['division' => $division->id]], $admin->id);
 		$this->assertResponseContains('/divisions\\/standings?division=' . $division->id);
 
-		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => 0],
+		$this->assertGetAjaxAsAccessRedirect(['controller' => 'Divisions', 'action' => 'tooltip', '?' => ['division' => 0]],
 			$admin->id, ['controller' => 'Leagues', 'action' => 'index'],
 			'Invalid division.');
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => $division->id], $manager->id);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', '?' => ['division' => $division->id]], $manager->id);
 		$this->assertResponseContains('/divisions\\/standings?division=' . $division->id);
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => $division->id], $volunteer->id);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', '?' => ['division' => $division->id]], $volunteer->id);
 		$this->assertResponseContains('/divisions\\/standings?division=' . $division->id);
 
-		$this->assertGetAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => $division->id], $player->id);
+		$this->assertGetAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', '?' => ['division' => $division->id]], $player->id);
 		$this->assertResponseContains('/divisions\\/standings?division=' . $division->id);
 
-		$this->assertGetAjaxAnonymousAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', 'division' => $division->id]);
+		$this->assertGetAjaxAnonymousAccessOk(['controller' => 'Divisions', 'action' => 'tooltip', '?' => ['division' => $division->id]]);
 		$this->assertResponseContains('/divisions\\/standings?division=' . $division->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -119,29 +119,29 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$division = $league->divisions[0];
 
 		// Anyone is allowed to view the stats; admins, managers and coordinators have extra options
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => $division->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'stats', '?' => ['division' => $division->id]], $admin->id);
 		$this->assertResponseContains('/divisions/edit?division=' . $division->id);
 		$this->assertResponseContains('/divisions/delete?division=' . $division->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => $division->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'stats', '?' => ['division' => $division->id]], $manager->id);
 		$this->assertResponseContains('/divisions/edit?division=' . $division->id);
 		$this->assertResponseContains('/divisions/delete?division=' . $division->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => $division->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'stats', '?' => ['division' => $division->id]], $volunteer->id);
 		$this->assertResponseContains('/divisions/edit?division=' . $division->id);
 		$this->assertResponseNotContains('/divisions/delete?division=' . $division->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => $division->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'stats', '?' => ['division' => $division->id]], $player->id);
 		$this->assertResponseNotContains('/divisions/edit?division=' . $division->id);
 		$this->assertResponseNotContains('/divisions/delete?division=' . $division->id);
 
 		// Non-public sites, stats are not available unless logged in
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'stats', 'division' => $division->id]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'stats', '?' => ['division' => $division->id]]);
 
 		// With public sites, anyone is allowed to view the stats
-		Cache::clear(false, 'long_term');
+		Cache::clear('long_term');
 		TableRegistry::getTableLocator()->get('Settings')->updateAll(['value' => true], ['category' => 'feature', 'name' => 'public']);
-		$this->assertGetAnonymousAccessOk(['controller' => 'Divisions', 'action' => 'stats', 'division' => $division->id]);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Divisions', 'action' => 'stats', '?' => ['division' => $division->id]]);
 		$this->assertResponseNotContains('/divisions/edit?division=' . $division->id);
 		$this->assertResponseNotContains('/divisions/delete?division=' . $division->id);
 	}
@@ -163,11 +163,11 @@ class DivisionsControllerTest extends ControllerTestCase {
 		]);
 
 		// Admins are allowed to add new divisions anywhere
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add', 'league' => $league1->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add', 'league' => $league2->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add', '?' => ['league' => $league1->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add', '?' => ['league' => $league2->id]], $admin->id);
 
 		// If a division ID is given, we will clone that division
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add', 'league' => $league1->id, 'division' => $division1->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add', '?' => ['league' => $league1->id, 'division' => $division1->id]], $admin->id);
 		$this->assertResponseRegExp('#<input type="text" name="name"[^>]*value="' . $division1->name . '"#ms');
 		$this->assertResponseContains('<input type="checkbox" name="days[_ids][]" value="1" checked="checked" id="days-ids-1">Monday');
 		$this->assertResponseNotContains('<input type="checkbox" name="days[_ids][]" value="2" checked="checked" id="days-ids-2">Tuesday');
@@ -175,13 +175,13 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertResponseNotContains('<input type="checkbox" name="days[_ids][]" value="4" checked="checked" id="days-ids-4">Thursday');
 
 		// Managers are allowed to add new divisions in their own affiliate, but not others
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add', 'league' => $league1->id], $manager->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add', 'league' => $league2->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add', '?' => ['league' => $league1->id]], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add', '?' => ['league' => $league2->id]], $manager->id);
 
 		// Others are not allowed to add new divisions
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add', 'league' => $league1->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add', 'league' => $league1->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'add', 'league' => $league1->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add', '?' => ['league' => $league1->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add', '?' => ['league' => $league1->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'add', '?' => ['league' => $league1->id]]);
 	}
 
 	/**
@@ -203,27 +203,27 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$division2 = $league2->divisions[0];
 
 		// Admins are allowed to edit divisions anywhere
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division1a->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division1b->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division2->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'edit', '?' => ['division' => $division1a->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'edit', '?' => ['division' => $division1b->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'edit', '?' => ['division' => $division2->id]], $admin->id);
 
 		// Managers are allowed to edit divisions in their own affiliate, but not others
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division1a->id], $manager->id);
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division1b->id], $manager->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division2->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'edit', '?' => ['division' => $division1a->id]], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'edit', '?' => ['division' => $division1b->id]], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', '?' => ['division' => $division2->id]], $manager->id);
 
 		// Coordinators are allowed to edit their own divisions, but not others
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division1a->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division1b->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division2->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'edit', '?' => ['division' => $division1a->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', '?' => ['division' => $division1b->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', '?' => ['division' => $division2->id]], $volunteer->id);
 
 		// Others are not allowed to edit divisions
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division1a->id], $player->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division1b->id], $player->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division2->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division1a->id]);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division1b->id]);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'edit', 'division' => $division2->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', '?' => ['division' => $division1a->id]], $player->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', '?' => ['division' => $division1b->id]], $player->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'edit', '?' => ['division' => $division2->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'edit', '?' => ['division' => $division1a->id]]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'edit', '?' => ['division' => $division1b->id]]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'edit', '?' => ['division' => $division2->id]]);
 	}
 
 	/**
@@ -274,10 +274,10 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$division = $league->divisions[0];
 
 		// Admins are allowed to add coordinators
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => $division->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add_coordinator', '?' => ['division' => $division->id]], $admin->id);
 
 		// Try the search page
-		$this->assertPostAsAccessOk(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => $division->id],
+		$this->assertPostAsAccessOk(['controller' => 'Divisions', 'action' => 'add_coordinator', '?' => ['division' => $division->id]],
 			$admin->id, [
 				'affiliate_id' => $affiliate->id,
 				'first_name' => '',
@@ -289,12 +289,12 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/divisions/add_coordinator?person=' . $volunteer->id . '&amp;division=' . $division->id);
 
 		// Try to add the coordinator
-		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'add_coordinator', 'person' => $volunteer->id, 'division' => $division->id],
-			$admin->id, [], ['controller' => 'Leagues', 'action' => 'view', 'league' => $league->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'add_coordinator', '?' => ['person' => $volunteer->id, 'division' => $division->id]],
+			$admin->id, [], ['controller' => 'Leagues', 'action' => 'view', '?' => ['league' => $league->id]],
 			"Added {$volunteer->full_name} as coordinator.");
 
 		// Make sure they were added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', 'division' => $division->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $division->id]], $admin->id);
 		$this->assertResponseContains('/divisions/remove_coordinator?division=' . $division->id . '&amp;person=' . $volunteer->id);
 	}
 
@@ -311,12 +311,12 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$division = $league->divisions[0];
 
 		// Managers are allowed to add coordinators
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => $division->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add_coordinator', '?' => ['division' => $division->id]], $manager->id);
 
 		// Others are not allowed to add coordinators
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => $division->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => $division->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => $division->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add_coordinator', '?' => ['division' => $division->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add_coordinator', '?' => ['division' => $division->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'add_coordinator', '?' => ['division' => $division->id]]);
 	}
 
 	/**
@@ -335,8 +335,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$division = $league->divisions[0];
 
 		// Admins are allowed to remove coordinators
-		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => $division->id, 'person' => $volunteer->id],
-			$admin->id, [], ['controller' => 'Leagues', 'action' => 'view', 'league' => $league->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'remove_coordinator', '?' => ['division' => $division->id, 'person' => $volunteer->id]],
+			$admin->id, [], ['controller' => 'Leagues', 'action' => 'view', '?' => ['league' => $league->id]],
 			'Successfully removed coordinator.');
 	}
 
@@ -356,8 +356,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$division = $league->divisions[0];
 
 		// Managers are allowed to remove coordinators
-		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => $division->id, 'person' => $volunteer->id],
-			$manager->id, [], ['controller' => 'Leagues', 'action' => 'view', 'league' => $league->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'remove_coordinator', '?' => ['division' => $division->id, 'person' => $volunteer->id]],
+			$manager->id, [], ['controller' => 'Leagues', 'action' => 'view', '?' => ['league' => $league->id]],
 			'Successfully removed coordinator.');
 	}
 
@@ -377,11 +377,11 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$division = $league->divisions[0];
 
 		// Others are not allowed to remove coordinators
-		$this->assertPostAsAccessDenied(['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => $division->id, 'person' => $volunteer->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Divisions', 'action' => 'remove_coordinator', '?' => ['division' => $division->id, 'person' => $volunteer->id]],
 			$volunteer->id);
-		$this->assertPostAsAccessDenied(['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => $division->id, 'person' => $volunteer->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Divisions', 'action' => 'remove_coordinator', '?' => ['division' => $division->id, 'person' => $volunteer->id]],
 			$player->id);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'remove_coordinator', 'division' => $division->id, 'person' => $volunteer->id]);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'remove_coordinator', '?' => ['division' => $division->id, 'person' => $volunteer->id]]);
 	}
 
 	/**
@@ -397,17 +397,17 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$division = $league->divisions[0];
 
 		// Admins are allowed to add teams
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add_teams', 'division' => $division->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add_teams', '?' => ['division' => $division->id]], $admin->id);
 
 		// Managers are allowed to add teams
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add_teams', 'division' => $division->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add_teams', '?' => ['division' => $division->id]], $manager->id);
 
 		// Coordinators are allowed to add teams
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add_teams', 'division' => $division->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add_teams', '?' => ['division' => $division->id]], $volunteer->id);
 
 		// Captains are not allowed to add teams
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add_teams', 'division' => $division->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'add_teams', 'division' => $division->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'add_teams', '?' => ['division' => $division->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'add_teams', '?' => ['division' => $division->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -426,17 +426,17 @@ class DivisionsControllerTest extends ControllerTestCase {
 		TeamFactory::make()->with('Divisions', $division)->persist();
 
 		// Admins are allowed to change ratings
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'ratings', 'division' => $division->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'ratings', '?' => ['division' => $division->id]], $admin->id);
 
 		// Managers are allowed to change ratings
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'ratings', 'division' => $division->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'ratings', '?' => ['division' => $division->id]], $manager->id);
 
 		// Coordinators are allowed to change ratings
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'ratings', 'division' => $division->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'ratings', '?' => ['division' => $division->id]], $volunteer->id);
 
 		// Others are not allowed to change ratings
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'ratings', 'division' => $division->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'ratings', 'division' => $division->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'ratings', '?' => ['division' => $division->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'ratings', '?' => ['division' => $division->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -455,17 +455,17 @@ class DivisionsControllerTest extends ControllerTestCase {
 		TeamFactory::make()->with('Divisions', $division)->persist();
 
 		// Admins are allowed to update seeds
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'seeds', 'division' => $division->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'seeds', '?' => ['division' => $division->id]], $admin->id);
 
 		// Managers are allowed to update seeds
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'seeds', 'division' => $division->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'seeds', '?' => ['division' => $division->id]], $manager->id);
 
 		// Coordinators are allowed to update seeds
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'seeds', 'division' => $division->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'seeds', '?' => ['division' => $division->id]], $volunteer->id);
 
 		// Others are not allowed to update seeds
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'seeds', 'division' => $division->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'seeds', 'division' => $division->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'seeds', '?' => ['division' => $division->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'seeds', '?' => ['division' => $division->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -493,17 +493,17 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$division2 = $league2->divisions[0];
 
 		// Cannot delete divisions with dependencies
-		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete', 'division' => $division1a->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete', '?' => ['division' => $division1a->id]],
 			$admin->id, [], ['controller' => 'Leagues', 'action' => 'index'],
 			'#The following records reference this division, so it cannot be deleted#');
 
 		// Or the last division in a league
-		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete', 'division' => $division2->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete', '?' => ['division' => $division2->id]],
 			$admin->id, [], ['controller' => 'Leagues', 'action' => 'index'],
 			'You cannot delete the only division in a league.');
 
 		// But admins are allowed to delete divisions otherwise
-		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete', 'division' => $division1b->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete', '?' => ['division' => $division1b->id]],
 			$admin->id, [], ['controller' => 'Leagues', 'action' => 'index'],
 			'The division has been deleted.');
 	}
@@ -530,12 +530,12 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$division2 = $league2->divisions[0];
 
 		// Managers are allowed to delete divisions in their affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete', 'division' => $division1->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete', '?' => ['division' => $division1->id]],
 			$manager->id, [], ['controller' => 'Leagues', 'action' => 'index'],
 			'The division has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete', 'division' => $division2->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete', '?' => ['division' => $division2->id]],
 			$manager->id);
 	}
 
@@ -555,9 +555,9 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$division = $league->divisions[0];
 
 		// Others are not allowed to delete divisions
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete', 'division' => $division->id], $volunteer->id);
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete', 'division' => $division->id], $player->id);
-		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'delete', 'division' => $division->id]);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete', '?' => ['division' => $division->id]], $volunteer->id);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete', '?' => ['division' => $division->id]], $player->id);
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'delete', '?' => ['division' => $division->id]]);
 	}
 
 	private function gameRegex(int $game_id, string $time, Facility $facility, int $field, Team $home, Team $away, string $status, bool $edit, bool $submit = false): string {
@@ -602,7 +602,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $season->teams;
 
 		// Admins get the schedule with edit links
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $season->id]], $admin->id);
 
 		// First week of games
 		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $red, $yellow, '17 - 5', true));
@@ -640,7 +640,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		// Check for initialize dependencies link where appropriate
 		$date = FrozenDate::now()->next($day)->subWeeks(3)->addWeeks(9);
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $playoffs->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $playoffs->id]], $admin->id);
 		$this->assertResponseRegExp('#/divisions/initialize_dependencies\?division=' . $playoffs->id . '&amp;date=' . $date . '[^>]*\"#ms');
 		$this->assertResponseRegExp('#/divisions/initialize_dependencies\?division=' . $playoffs->id . '&amp;date=' . $date . '&amp;reset=1[^>]*\"#ms');
 
@@ -648,7 +648,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $affiliates[1], 'coordinator' => $volunteer]);
 		$season = $league->divisions[0];
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $season->id]], $admin->id);
 		$games = $season->games;
 		$facility = $games[0]->game_slot->field->facility_record;
 		[$bears, $lions] = $season->teams;
@@ -672,7 +672,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $season->teams;
 
 		// Managers get the schedule with edit links
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $season->id]], $manager->id);
 
 		// First week of games
 		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $red, $yellow, '17 - 5', true));
@@ -710,7 +710,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		// Check for initialize dependencies link where appropriate
 		$date = FrozenDate::now()->next($day)->subWeeks(3)->addWeeks(9);
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $playoffs->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $playoffs->id]], $manager->id);
 		$this->assertResponseRegExp('#/divisions/initialize_dependencies\?division=' . $playoffs->id . '&amp;date=' . $date . '[^>]*\"#ms');
 		$this->assertResponseRegExp('#/divisions/initialize_dependencies\?division=' . $playoffs->id . '&amp;date=' . $date . '&amp;reset=1[^>]*\"#ms');
 
@@ -718,7 +718,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $affiliates[1], 'coordinator' => $volunteer]);
 		$season = $league->divisions[0];
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $season->id]], $manager->id);
 		$games = $season->games;
 		$facility = $games[0]->game_slot->field->facility_record;
 		[$bears, $lions] = $season->teams;
@@ -743,7 +743,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $season->teams;
 
 		// Coordinators get the schedule with edit links
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $season->id]], $volunteer->id);
 
 		// First week of games
 		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $red, $yellow, '17 - 5', true));
@@ -781,7 +781,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		// Check for initialize dependencies link where appropriate
 		$date = FrozenDate::now()->next($day)->subWeeks(3)->addWeeks(9);
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $playoffs->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $playoffs->id]], $volunteer->id);
 		$this->assertResponseRegExp('#/divisions/initialize_dependencies\?division=' . $playoffs->id . '&amp;date=' . $date . '[^>]*\"#ms');
 		$this->assertResponseRegExp('#/divisions/initialize_dependencies\?division=' . $playoffs->id . '&amp;date=' . $date . '&amp;reset=1[^>]*\"#ms');
 
@@ -789,7 +789,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0]]);
 		$season = $league->divisions[0];
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $season->id]], $volunteer->id);
 		$games = $season->games;
 		$facility = $games[0]->game_slot->field->facility_record;
 		[$red, $yellow] = $season->teams;
@@ -802,7 +802,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $affiliates[1]]);
 		$season = $league->divisions[0];
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $season->id]], $volunteer->id);
 		$games = $season->games;
 		$facility = $games[0]->game_slot->field->facility_record;
 		[$bears, $lions] = $season->teams;
@@ -828,7 +828,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Captains get the schedule with score submission, attendance and game note links where appropriate
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $captain->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $season->id]], $captain->id);
 
 		// First week of games
 		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $red, $yellow, '17 - 5', false));
@@ -860,7 +860,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0]]);
 		$season = $league->divisions[0];
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $captain->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $season->id]], $captain->id);
 		$games = $season->games;
 		$facility = $games[0]->game_slot->field->facility_record;
 		[$red, $yellow] = $season->teams;
@@ -871,7 +871,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		/** @var \App\Model\Entity\League $league */
 		$league = $this->loadFixtureScenario(LeagueWithMinimalScheduleScenario::class, ['affiliate' => $affiliates[1]]);
 		$season = $league->divisions[0];
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $captain->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $season->id]], $captain->id);
 		$games = $season->games;
 		$facility = $games[0]->game_slot->field->facility_record;
 		[$bears, $lions] = $season->teams;
@@ -897,7 +897,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Players get the schedule with attendance and game note links where appropriate
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $season->id]], $player->id);
 
 		// First week of games
 		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $red, $yellow, '17 - 5', false));
@@ -940,7 +940,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $season->teams;
 
 		// Visitors get the schedule with minimal links
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $season->id]], $volunteer->id);
 
 		// First week of games
 		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $red, $yellow, '17 - 5', false));
@@ -981,7 +981,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 		[$red, $yellow, $green, $blue, $orange, $purple, $black, $white] = $season->teams;
 
 		// Anonymous browsers get the schedule with minimal links
-		$this->assertGetAnonymousAccessOk(['controller' => 'Divisions', 'action' => 'schedule', 'division' => $season->id]);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $season->id]]);
 
 		// First week of games
 		$this->assertResponseRegExp($this->gameRegex($games[0]->id, '7:00PM-9:00PM', $facility, 1, $red, $yellow, '17 - 5', false));
@@ -1023,11 +1023,11 @@ class DivisionsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Anyone logged in is allowed to view standings
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'standings', 'division' => $division->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'standings', 'division' => $division->id], $manager->id);
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'standings', 'division' => $division->id], $volunteer->id);
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'standings', 'division' => $division->id], $player->id);
-		$this->assertGetAnonymousAccessOk(['controller' => 'Divisions', 'action' => 'standings', 'division' => $division->id]);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'standings', '?' => ['division' => $division->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'standings', '?' => ['division' => $division->id]], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'standings', '?' => ['division' => $division->id]], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'standings', '?' => ['division' => $division->id]], $player->id);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Divisions', 'action' => 'standings', '?' => ['division' => $division->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1048,11 +1048,11 @@ class DivisionsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Anyone logged in is allowed to view scores
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'scores', 'division' => $division->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'scores', 'division' => $division->id], $manager->id);
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'scores', 'division' => $division->id], $volunteer->id);
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'scores', 'division' => $division->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'scores', 'division' => $division->id]);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'scores', '?' => ['division' => $division->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'scores', '?' => ['division' => $division->id]], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'scores', '?' => ['division' => $division->id]], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'scores', '?' => ['division' => $division->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'scores', '?' => ['division' => $division->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1069,17 +1069,17 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$division = $league->divisions[0];
 
 		// Admins are allowed to view the fields report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'fields', 'division' => $division->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'fields', '?' => ['division' => $division->id]], $admin->id);
 
 		// Managers are allowed to view the fields report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'fields', 'division' => $division->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'fields', '?' => ['division' => $division->id]], $manager->id);
 
 		// Coordinators are allowed to view the fields report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'fields', 'division' => $division->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'fields', '?' => ['division' => $division->id]], $volunteer->id);
 
 		// Others are not allowed to view the fields report
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'fields', 'division' => $division->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'fields', 'division' => $division->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'fields', '?' => ['division' => $division->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'fields', '?' => ['division' => $division->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1096,17 +1096,17 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$division = $league->divisions[0];
 
 		// Admins are allowed to view the slots report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'slots', 'division' => $division->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'slots', '?' => ['division' => $division->id]], $admin->id);
 
 		// Managers are allowed to view the slots report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'slots', 'division' => $division->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'slots', '?' => ['division' => $division->id]], $manager->id);
 
 		// Coordinators are allowed to view the slots report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'slots', 'division' => $division->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'slots', '?' => ['division' => $division->id]], $volunteer->id);
 
 		// Others are not allowed to view the slots report
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'slots', 'division' => $division->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'slots', 'division' => $division->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'slots', '?' => ['division' => $division->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'slots', '?' => ['division' => $division->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1123,17 +1123,17 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$division = $league->divisions[0];
 
 		// Admins are allowed to view the status report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'status', 'division' => $division->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'status', '?' => ['division' => $division->id]], $admin->id);
 
 		// Managers are allowed to view the status report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'status', 'division' => $division->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'status', '?' => ['division' => $division->id]], $manager->id);
 
 		// Coordinators are allowed to view the status report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'status', 'division' => $division->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'status', '?' => ['division' => $division->id]], $volunteer->id);
 
 		// Others are not allowed to view the status report
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'status', 'division' => $division->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'status', 'division' => $division->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'status', '?' => ['division' => $division->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'status', '?' => ['division' => $division->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1150,17 +1150,17 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$division = $league->divisions[0];
 
 		// Admins are allowed to view the allstars report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'allstars', 'division' => $division->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'allstars', '?' => ['division' => $division->id]], $admin->id);
 
 		// Managers are allowed to view the allstars report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'allstars', 'division' => $division->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'allstars', '?' => ['division' => $division->id]], $manager->id);
 
 		// Coordinators are allowed to view the allstars report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'allstars', 'division' => $division->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'allstars', '?' => ['division' => $division->id]], $volunteer->id);
 
 		// Others are not allowed to view the allstars report
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'allstars', 'division' => $division->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'allstars', 'division' => $division->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'allstars', '?' => ['division' => $division->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'allstars', '?' => ['division' => $division->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1177,17 +1177,17 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$division = $league->divisions[0];
 
 		// Admins are allowed to view emails
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'emails', 'division' => $division->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'emails', '?' => ['division' => $division->id]], $admin->id);
 
 		// Managers are allowed to view emails
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'emails', 'division' => $division->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'emails', '?' => ['division' => $division->id]], $manager->id);
 
 		// Coordinators are allowed to view emails
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'emails', 'division' => $division->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'emails', '?' => ['division' => $division->id]], $volunteer->id);
 
 		// Others are not allowed to view emails
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'emails', 'division' => $division->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'emails', 'division' => $division->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'emails', '?' => ['division' => $division->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'emails', '?' => ['division' => $division->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1204,17 +1204,17 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$division = $league->divisions[0];
 
 		// Admins are allowed to view the spirit report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'spirit', 'division' => $division->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'spirit', '?' => ['division' => $division->id]], $admin->id);
 
 		// Managers are allowed to view the spirit report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'spirit', 'division' => $division->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'spirit', '?' => ['division' => $division->id]], $manager->id);
 
 		// Coordinators are allowed to view the spirit report
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'spirit', 'division' => $division->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'spirit', '?' => ['division' => $division->id]], $volunteer->id);
 
 		// Others are not allowed to view the spirit report
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'spirit', 'division' => $division->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'spirit', 'division' => $division->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'spirit', '?' => ['division' => $division->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'spirit', '?' => ['division' => $division->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1231,17 +1231,17 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$division = $league->divisions[0];
 
 		// Admins are allowed to approve scores
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => $division->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'approve_scores', '?' => ['division' => $division->id]], $admin->id);
 
 		// Managers are allowed to approve scores
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => $division->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'approve_scores', '?' => ['division' => $division->id]], $manager->id);
 
 		// Coordinators are allowed to approve scores
-		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => $division->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'approve_scores', '?' => ['division' => $division->id]], $volunteer->id);
 
 		// Others are not allowed to approve scores
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => $division->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => $division->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'approve_scores', '?' => ['division' => $division->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'approve_scores', '?' => ['division' => $division->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1258,8 +1258,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$playoffs = $league->divisions[1];
 
 		// Admins are allowed to initialize ratings
-		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => $playoffs->id],
-			$admin->id, ['controller' => 'Divisions', 'action' => 'view', 'division' => $playoffs->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_ratings', '?' => ['division' => $playoffs->id]],
+			$admin->id, ['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $playoffs->id]],
 			'Team ratings have been initialized.');
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -1277,8 +1277,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$playoffs = $league->divisions[1];
 
 		// Managers are allowed to initialize ratings
-		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => $playoffs->id],
-			$manager->id, ['controller' => 'Divisions', 'action' => 'view', 'division' => $playoffs->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_ratings', '?' => ['division' => $playoffs->id]],
+			$manager->id, ['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $playoffs->id]],
 			'Team ratings have been initialized.');
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -1296,8 +1296,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$playoffs = $league->divisions[1];
 
 		// Coordinators are allowed to initialize ratings
-		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => $playoffs->id],
-			$volunteer->id, ['controller' => 'Divisions', 'action' => 'view', 'division' => $playoffs->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_ratings', '?' => ['division' => $playoffs->id]],
+			$volunteer->id, ['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $playoffs->id]],
 			'Team ratings have been initialized.');
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -1315,8 +1315,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$playoffs = $league->divisions[1];
 
 		// Others are not allowed to initialize ratings
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => $playoffs->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => $playoffs->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_ratings', '?' => ['division' => $playoffs->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_ratings', '?' => ['division' => $playoffs->id]]);
 	}
 
 	/**
@@ -1331,8 +1331,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$playoffs = $league->divisions[1];
 
 		// Admins are allowed to initialize dependencies
-		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => $playoffs->id],
-			$admin->id, ['controller' => 'Divisions', 'action' => 'schedule', 'division' => $playoffs->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_dependencies', '?' => ['division' => $playoffs->id]],
+			$admin->id, ['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $playoffs->id]],
 			'Dependencies have been resolved.');
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -1350,8 +1350,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$playoffs = $league->divisions[1];
 
 		// Managers are allowed to initialize dependencies
-		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => $playoffs->id],
-			$manager->id, ['controller' => 'Divisions', 'action' => 'schedule', 'division' => $playoffs->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_dependencies', '?' => ['division' => $playoffs->id]],
+			$manager->id, ['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $playoffs->id]],
 			'Dependencies have been resolved.');
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -1369,8 +1369,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$playoffs = $league->divisions[1];
 
 		// Coordinators are allowed to initialize dependencies
-		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => $playoffs->id],
-			$volunteer->id, ['controller' => 'Divisions', 'action' => 'schedule', 'division' => $playoffs->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'initialize_dependencies', '?' => ['division' => $playoffs->id]],
+			$volunteer->id, ['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $playoffs->id]],
 			'Dependencies have been resolved.');
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -1388,8 +1388,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$playoffs = $league->divisions[1];
 
 		// Others are not allowed to initialize dependencies
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => $playoffs->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_dependencies', 'division' => $playoffs->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_dependencies', '?' => ['division' => $playoffs->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'initialize_dependencies', '?' => ['division' => $playoffs->id]]);
 	}
 
 	/**
@@ -1407,8 +1407,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$playoffs = $league->divisions[1];
 
 		// Admins are allowed to delete stages
-		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => $playoffs->id, 'stage' => 2],
-			$admin->id, ['controller' => 'Schedules', 'action' => 'add', 'division' => $playoffs->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete_stage', '?' => ['division' => $playoffs->id, 'stage' => 2]],
+			$admin->id, ['controller' => 'Schedules', 'action' => 'add', '?' => ['division' => $playoffs->id]],
 			'The pools in this stage have been deleted.');
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -1429,8 +1429,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$playoffs = $league->divisions[1];
 
 		// Managers are allowed to delete stages
-		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => $playoffs->id, 'stage' => 2],
-			$manager->id, ['controller' => 'Schedules', 'action' => 'add', 'division' => $playoffs->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete_stage', '?' => ['division' => $playoffs->id, 'stage' => 2]],
+			$manager->id, ['controller' => 'Schedules', 'action' => 'add', '?' => ['division' => $playoffs->id]],
 			'The pools in this stage have been deleted.');
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -1451,8 +1451,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$playoffs = $league->divisions[1];
 
 		// Coordinators are allowed to delete stages
-		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => $playoffs->id, 'stage' => 2],
-			$volunteer->id, ['controller' => 'Schedules', 'action' => 'add', 'division' => $playoffs->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete_stage', '?' => ['division' => $playoffs->id, 'stage' => 2]],
+			$volunteer->id, ['controller' => 'Schedules', 'action' => 'add', '?' => ['division' => $playoffs->id]],
 			'The pools in this stage have been deleted.');
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -1473,8 +1473,8 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$playoffs = $league->divisions[1];
 
 		// Others are not allowed to delete stages
-		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => $playoffs->id, 'stage' => 2], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'delete_stage', 'division' => $playoffs->id, 'stage' => 2]);
+		$this->assertGetAsAccessDenied(['controller' => 'Divisions', 'action' => 'delete_stage', '?' => ['division' => $playoffs->id, 'stage' => 2]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'delete_stage', '?' => ['division' => $playoffs->id, 'stage' => 2]]);
 	}
 
 	/**
@@ -1498,23 +1498,23 @@ class DivisionsControllerTest extends ControllerTestCase {
 
 		// Admins are allowed to select
 		$now = FrozenDate::now();
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'select', 'affiliate' => $affiliates[0]->id],
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'select', '?' => ['affiliate' => $affiliates[0]->id]],
 			$admin->id, ['game_date' => ['year' => $now->year, 'month' => $now->month, 'day' => $now->day], 'sport' => 'ultimate']);
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'select', 'affiliate' => $affiliates[1]->id],
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'select', '?' => ['affiliate' => $affiliates[1]->id]],
 			$admin->id, ['game_date' => ['year' => $now->year, 'month' => $now->month, 'day' => $now->day], 'sport' => 'ultimate']);
 
 		// Managers are allowed to select
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'select', 'affiliate' => $affiliates[0]->id],
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'select', '?' => ['affiliate' => $affiliates[0]->id]],
 			$manager->id, ['game_date' => ['year' => $now->year, 'month' => $now->month, 'day' => $now->day], 'sport' => 'ultimate']);
 
 		// Coordinators are allowed to select
-		$this->assertPostAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'select', 'affiliate' => $affiliates[0]->id],
+		$this->assertPostAjaxAsAccessOk(['controller' => 'Divisions', 'action' => 'select', '?' => ['affiliate' => $affiliates[0]->id]],
 			$volunteer->id, ['game_date' => ['year' => $now->year, 'month' => $now->month, 'day' => $now->day], 'sport' => 'ultimate']);
 
 		// Others are not allowed to select
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'select', 'affiliate' => $affiliates[0]->id],
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Divisions', 'action' => 'select', '?' => ['affiliate' => $affiliates[0]->id]],
 			$player->id, ['game_date' => ['year' => $now->year, 'month' => $now->month, 'day' => $now->day], 'sport' => 'ultimate']);
-		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'select', 'affiliate' => $affiliates[0]->id],
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Divisions', 'action' => 'select', '?' => ['affiliate' => $affiliates[0]->id]],
 			['game_date' => ['year' => $now->year, 'month' => $now->month, 'day' => $now->day], 'sport' => 'ultimate']);
 	}
 

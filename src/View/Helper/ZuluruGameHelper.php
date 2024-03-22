@@ -44,7 +44,7 @@ class ZuluruGameHelper extends Helper {
 						if ($identity->can('submit_stats', new ContextResource($game, ['team_id' => $team_id, 'league' => $league, 'stat_types' => $league->stat_types]))) {
 							$links[] = $this->Html->link(
 								__('Submit Stats'),
-								['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $team_id]);
+								['controller' => 'Games', 'action' => 'submit_stats', '?' => ['game' => $game->id, 'team' => $team_id]]);
 						}
 					} catch (\Authorization\Exception\Exception $ex) {
 						// No problem, just don't show the link.
@@ -55,7 +55,7 @@ class ZuluruGameHelper extends Helper {
 							$this->getView()->getRequest()->getParam('action') !== 'stats') && $identity->can('stats', $league)
 						) {
 							$links[] = $this->ZuluruHtml->iconLink('stats_24.png',
-								['controller' => 'Games', 'action' => 'stats', 'game' => $game->id, 'team' => $show_score_for_team],
+								['controller' => 'Games', 'action' => 'stats', '?' => ['game' => $game->id, 'team' => $show_score_for_team]],
 								['alt' => __('Game Stats'), 'title' => __('Game Stats')]);
 						}
 					} catch (\Authorization\Exception\Exception $ex) {
@@ -91,15 +91,15 @@ class ZuluruGameHelper extends Helper {
 					if ($score_entry->status === 'in_progress') {
 						$links[] = $this->Html->link(
 							__('Live Score'),
-							['controller' => 'Games', 'action' => 'live_score', 'game' => $game->id, 'team' => $team_id]);
+							['controller' => 'Games', 'action' => 'live_score', '?' => ['game' => $game->id, 'team' => $team_id]]);
 					} else if ($score_entry->team_id == $team_id) {
 						$links[] = $this->Html->link(
 							__('Edit Score'),
-							['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $team_id]);
+							['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $team_id]]);
 					} else {
 						$links[] = $this->Html->link(
 							__('Submit'),
-							['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $team_id]);
+							['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $team_id]]);
 					}
 
 					// Check if someone is a captain on both teams that played each other
@@ -107,17 +107,17 @@ class ZuluruGameHelper extends Helper {
 					if ($second_team_id) {
 						$links[] = $this->Html->link(
 							__('Submit'),
-							['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $second_team_id]);
+							['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $second_team_id]]);
 					}
 				/* TODOLATER: Re-enable these options when live scoring is working again
 				} else if ($score_entry->status == 'in_progress' && $identity && $identity->can('live_score', $game)) {
 					$links[] = $this->Html->link(
 						__('Live Score'),
-						['controller' => 'Games', 'action' => 'live_score', 'game' => $game->id]);
+						['controller' => 'Games', 'action' => 'live_score', '?' => ['game' => $game->id]]);
 				} else if ($identity && $identity->can('edit', $game)) {
 					$links[] = $this->Html->link(
 						__('Edit Score'),
-						['controller' => 'Games', 'action' => 'edit', 'game' => $game->id]);
+						['controller' => 'Games', 'action' => 'edit', '?' => ['game' => $game->id]]);
 				*/
 				}
 
@@ -133,11 +133,11 @@ class ZuluruGameHelper extends Helper {
 					if ($score_entry->status === 'in_progress') {
 						$links[] = $this->Html->link(
 							__('Live Score'),
-							['controller' => 'Games', 'action' => 'live_score', 'game' => $game->id, 'team' => $team_id]);
+							['controller' => 'Games', 'action' => 'live_score', '?' => ['game' => $game->id, 'team' => $team_id]]);
 					} else {
 						$links[] = $this->Html->link(
 							__('Edit Score'),
-							['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $team_id]);
+							['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $team_id]]);
 					}
 				}
 			} else if ($game->game_slot->end_time->subHours(1)->isPast()) {
@@ -147,7 +147,7 @@ class ZuluruGameHelper extends Helper {
 					if ($team_id && $identity->can('submit_score', $game)) {
 						$links[] = $this->Html->link(
 							__('Submit'),
-							['controller' => 'Games', 'action' => 'submit_score', 'game' => $game->id, 'team' => $team_id]);
+							['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $team_id]]);
 					} else {
 						echo __('not entered') . "\n";
 					}
@@ -156,7 +156,7 @@ class ZuluruGameHelper extends Helper {
 						if ($identity->can('submit_score', $game)) {
 							$links[] = $this->Html->link(
 								__('Submit'),
-								['controller' => 'GameSlots', 'action' => 'submit_score', 'slot' => $game->game_slot_id]);
+								['controller' => 'GameSlots', 'action' => 'submit_score', '?' => ['slot' => $game->game_slot_id]]);
 						}
 					} catch (\Authorization\Exception\Exception $ex) {
 						// No problem, just don't show the link.
@@ -170,11 +170,11 @@ class ZuluruGameHelper extends Helper {
 					if ($team_id) {
 						$links[] = $this->Html->link(
 							__('Live Score'),
-							['controller' => 'Games', 'action' => 'live_score', 'game' => $game->id, 'team' => $team_id]);
+							['controller' => 'Games', 'action' => 'live_score', '?' => ['game' => $game->id, 'team' => $team_id]]);
 					} else if ($identity && $identity->can('live_score', $game)) {
 						$links[] = $this->Html->link(
 							__('Live Score'),
-							['controller' => 'Games', 'action' => 'live_score', 'game' => $game->id]);
+							['controller' => 'Games', 'action' => 'live_score', '?' => ['game' => $game->id]]);
 					}
 				}
 */
@@ -196,7 +196,7 @@ class ZuluruGameHelper extends Helper {
 		try {
 			if ($identity && $identity->can('edit', $game)) {
 				$links[] = $this->ZuluruHtml->iconLink('edit_24.png',
-					['controller' => 'Games', 'action' => 'edit', 'game' => $game->id, 'return' => AppController::_return()],
+					['controller' => 'Games', 'action' => 'edit', '?' => ['game' => $game->id, 'return' => AppController::_return()]],
 					['alt' => __('Edit'), 'title' => __('Edit')]);
 			}
 		} catch (\Authorization\Exception\Exception $ex) {

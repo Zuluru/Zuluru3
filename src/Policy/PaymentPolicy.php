@@ -24,11 +24,11 @@ class PaymentPolicy extends AppPolicy {
 		// Check whether we can even refund this
 		if ($payment->payment_amount == $payment->refunded_amount) {
 			throw new ForbiddenRedirectException(__('This payment has already been fully refunded.'),
-				['action' => 'view', 'registration' => $payment->registration_id]);
+				['action' => 'view', '?' => ['registration' => $payment->registration_id]]);
 		}
 		if (!in_array($payment->payment_type, Configure::read('payment_payment'))) {
 			throw new ForbiddenRedirectException(__('Only payments can be refunded.'),
-				['action' => 'view', 'registration' => $payment->registration_id]);
+				['action' => 'view', '?' => ['registration' => $payment->registration_id]]);
 		}
 
 		return true;
@@ -42,11 +42,11 @@ class PaymentPolicy extends AppPolicy {
 		// Check whether we can even credit this
 		if ($payment->payment_amount == $payment->refunded_amount) {
 			throw new ForbiddenRedirectException(__('This payment has already been fully refunded.'),
-				['action' => 'view', 'registration' => $payment->registration_id]);
+				['action' => 'view', '?' => ['registration' => $payment->registration_id]]);
 		}
 		if (!in_array($payment->payment_type, Configure::read('payment_payment'))) {
 			throw new ForbiddenRedirectException(__('Only payments can be credited.'),
-				['action' => 'view', 'registration' => $payment->registration_id]);
+				['action' => 'view', '?' => ['registration' => $payment->registration_id]]);
 		}
 
 		return true;

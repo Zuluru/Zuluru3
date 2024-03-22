@@ -16,4 +16,4 @@ if (!empty($person->user_name)):
 <?php
 endif;
 ?>
-<?= $this->element('Email/html/footer');
+<?= $this->element('email/html/footer');

@@ -97,22 +97,22 @@ class ContactsControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Admins are allowed to edit contacts
-		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'edit', 'contact' => $contacts[0]->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'edit', 'contact' => $contacts[1]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'edit', '?' => ['contact' => $contacts[0]->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'edit', '?' => ['contact' => $contacts[1]->id]], $admin->id);
 
 		// Managers are allowed to edit contacts
-		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'edit', 'contact' => $contacts[0]->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Contacts', 'action' => 'edit', '?' => ['contact' => $contacts[0]->id]], $manager->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'edit', 'contact' => $contacts[1]->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'edit', '?' => ['contact' => $contacts[1]->id]], $manager->id);
 
 		// Others are not allowed to edit contacts
-		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'edit', 'contact' => $contacts[0]->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'edit', 'contact' => $contacts[1]->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'edit', 'contact' => $contacts[0]->id], $player->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'edit', 'contact' => $contacts[1]->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Contacts', 'action' => 'edit', 'contact' => $contacts[0]->id]);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Contacts', 'action' => 'edit', 'contact' => $contacts[1]->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'edit', '?' => ['contact' => $contacts[0]->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'edit', '?' => ['contact' => $contacts[1]->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'edit', '?' => ['contact' => $contacts[0]->id]], $player->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Contacts', 'action' => 'edit', '?' => ['contact' => $contacts[1]->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Contacts', 'action' => 'edit', '?' => ['contact' => $contacts[0]->id]]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Contacts', 'action' => 'edit', '?' => ['contact' => $contacts[1]->id]]);
 	}
 
 	/**
@@ -130,7 +130,7 @@ class ContactsControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Admins are allowed to delete contacts
-		$this->assertPostAsAccessRedirect(['controller' => 'Contacts', 'action' => 'delete', 'contact' => $contacts[0]->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Contacts', 'action' => 'delete', '?' => ['contact' => $contacts[0]->id]],
 			$admin->id, [], ['controller' => 'Contacts', 'action' => 'index'],
 			'The contact has been deleted.');
 	}
@@ -152,12 +152,12 @@ class ContactsControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Managers are allowed to delete contacts in their affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'Contacts', 'action' => 'delete', 'contact' => $contacts[0]->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Contacts', 'action' => 'delete', '?' => ['contact' => $contacts[0]->id]],
 			$manager->id, [], ['controller' => 'Contacts', 'action' => 'index'],
 			'The contact has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Contacts', 'action' => 'delete', 'contact' => $contacts[1]->id], $manager->id);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Contacts', 'action' => 'delete', '?' => ['contact' => $contacts[1]->id]], $manager->id);
 	}
 
 	/**
@@ -175,10 +175,10 @@ class ContactsControllerTest extends ControllerTestCase {
 		])->persist();
 
 		// Others are not allowed to delete contacts
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Contacts', 'action' => 'delete', 'contact' => $contacts[0]->id], $player->id);
-		$this->assertPostAjaxAsAccessDenied(['controller' => 'Contacts', 'action' => 'delete', 'contact' => $contacts[1]->id], $player->id);
-		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Contacts', 'action' => 'delete', 'contact' => $contacts[0]->id]);
-		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Contacts', 'action' => 'delete', 'contact' => $contacts[1]->id]);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Contacts', 'action' => 'delete', '?' => ['contact' => $contacts[0]->id]], $player->id);
+		$this->assertPostAjaxAsAccessDenied(['controller' => 'Contacts', 'action' => 'delete', '?' => ['contact' => $contacts[1]->id]], $player->id);
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Contacts', 'action' => 'delete', '?' => ['contact' => $contacts[0]->id]]);
+		$this->assertPostAjaxAnonymousAccessDenied(['controller' => 'Contacts', 'action' => 'delete', '?' => ['contact' => $contacts[1]->id]]);
 	}
 
 	/**

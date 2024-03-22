@@ -6,7 +6,7 @@
 
 ?>
 <?= $this->element('BootstrapUI.Flash/default', [
-	'message' => $this->element('Email/debug', $params),
+	'message' => $this->element('email/debug', $params),
 	'params' => [
 		'class' => ['alert-email', 'alert', 'alert-dismissible', 'fade', 'in'],
 		'escape' => false,

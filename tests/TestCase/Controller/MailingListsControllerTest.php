@@ -69,23 +69,23 @@ class MailingListsControllerTest extends ControllerTestCase {
 		$affiliate_list = MailingListFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
 
 		// Admins are allowed to view mailing lists
-		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'view', 'mailing_list' => $list->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'view', '?' => ['mailing_list' => $list->id]], $admin->id);
 		$this->assertResponseContains('/mailing_lists/edit?mailing_list=' . $list->id);
 		$this->assertResponseContains('/mailing_lists/delete?mailing_list=' . $list->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'view', 'mailing_list' => $affiliate_list->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'view', '?' => ['mailing_list' => $affiliate_list->id]], $admin->id);
 		$this->assertResponseContains('/mailing_lists/edit?mailing_list=' . $affiliate_list->id);
 		$this->assertResponseContains('/mailing_lists/delete?mailing_list=' . $affiliate_list->id);
 
 		// Managers are allowed to view mailing lists
-		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'view', 'mailing_list' => $list->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'view', '?' => ['mailing_list' => $list->id]], $manager->id);
 		$this->assertResponseContains('/mailing_lists/edit?mailing_list=' . $list->id);
 		$this->assertResponseContains('/mailing_lists/delete?mailing_list=' . $list->id);
 
 		// Others are not allowed to view mailing lists
-		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'view', 'mailing_list' => $list->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'view', 'mailing_list' => $list->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'MailingLists', 'action' => 'view', 'mailing_list' => $list->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'view', '?' => ['mailing_list' => $list->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'view', '?' => ['mailing_list' => $list->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'MailingLists', 'action' => 'view', '?' => ['mailing_list' => $list->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -100,15 +100,15 @@ class MailingListsControllerTest extends ControllerTestCase {
 		$list = MailingListFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
 
 		// Admins are allowed to preview
-		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'preview', 'mailing_list' => $list->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'preview', '?' => ['mailing_list' => $list->id]], $admin->id);
 
 		// Managers are allowed to preview
-		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'preview', 'mailing_list' => $list->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'preview', '?' => ['mailing_list' => $list->id]], $manager->id);
 
 		// Others are not allowed to preview
-		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'preview', 'mailing_list' => $list->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'preview', 'mailing_list' => $list->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'MailingLists', 'action' => 'preview', 'mailing_list' => $list->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'preview', '?' => ['mailing_list' => $list->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'preview', '?' => ['mailing_list' => $list->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'MailingLists', 'action' => 'preview', '?' => ['mailing_list' => $list->id]]);
 	}
 
 	/**
@@ -164,8 +164,8 @@ class MailingListsControllerTest extends ControllerTestCase {
 		$affiliate_list = MailingListFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
 
 		// Admins are allowed to edit mailing lists
-		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => $list->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => $affiliate_list->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'edit', '?' => ['mailing_list' => $list->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'edit', '?' => ['mailing_list' => $affiliate_list->id]], $admin->id);
 	}
 
 	/**
@@ -179,10 +179,10 @@ class MailingListsControllerTest extends ControllerTestCase {
 		$affiliate_list = MailingListFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
 
 		// Managers are allowed to edit mailing lists
-		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => $list->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'MailingLists', 'action' => 'edit', '?' => ['mailing_list' => $list->id]], $manager->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => $affiliate_list->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'edit', '?' => ['mailing_list' => $affiliate_list->id]], $manager->id);
 	}
 
 	/**
@@ -195,9 +195,9 @@ class MailingListsControllerTest extends ControllerTestCase {
 		$list = MailingListFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
 
 		// Others are not allowed to edit mailing lists
-		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => $list->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => $list->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'MailingLists', 'action' => 'edit', 'mailing_list' => $list->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'edit', '?' => ['mailing_list' => $list->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'MailingLists', 'action' => 'edit', '?' => ['mailing_list' => $list->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'MailingLists', 'action' => 'edit', '?' => ['mailing_list' => $list->id]]);
 	}
 
 	/**
@@ -216,12 +216,12 @@ class MailingListsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to delete mailing lists
-		$this->assertPostAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'delete', 'mailing_list' => $list->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'delete', '?' => ['mailing_list' => $list->id]],
 			$admin->id, [], ['controller' => 'MailingLists', 'action' => 'index'],
 			'The mailing list has been deleted.');
 
 		// But not ones with dependencies
-		$this->assertPostAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'delete', 'mailing_list' => $dependency_list->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'delete', '?' => ['mailing_list' => $dependency_list->id]],
 			$admin->id, [], ['controller' => 'MailingLists', 'action' => 'index'],
 			'#The following records reference this mailing list, so it cannot be deleted#');
 	}
@@ -240,12 +240,12 @@ class MailingListsControllerTest extends ControllerTestCase {
 		$affiliate_list = MailingListFactory::make(['affiliate_id' => $affiliates[1]->id])->persist();
 
 		// Managers are allowed to delete mailing lists in their affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'delete', 'mailing_list' => $list->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'delete', '?' => ['mailing_list' => $list->id]],
 			$manager->id, [], ['controller' => 'MailingLists', 'action' => 'index'],
 			'The mailing list has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'MailingLists', 'action' => 'delete', 'mailing_list' => $affiliate_list->id],
+		$this->assertPostAsAccessDenied(['controller' => 'MailingLists', 'action' => 'delete', '?' => ['mailing_list' => $affiliate_list->id]],
 			$manager->id);
 	}
 
@@ -262,11 +262,11 @@ class MailingListsControllerTest extends ControllerTestCase {
 		$list = MailingListFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
 
 		// Others are not allowed to delete mailing lists
-		$this->assertPostAsAccessDenied(['controller' => 'MailingLists', 'action' => 'delete', 'mailing_list' => $list->id],
+		$this->assertPostAsAccessDenied(['controller' => 'MailingLists', 'action' => 'delete', '?' => ['mailing_list' => $list->id]],
 			$volunteer->id);
-		$this->assertPostAsAccessDenied(['controller' => 'MailingLists', 'action' => 'delete', 'mailing_list' => $list->id],
+		$this->assertPostAsAccessDenied(['controller' => 'MailingLists', 'action' => 'delete', '?' => ['mailing_list' => $list->id]],
 			$player->id);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'MailingLists', 'action' => 'delete', 'mailing_list' => $list->id]);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'MailingLists', 'action' => 'delete', '?' => ['mailing_list' => $list->id]]);
 	}
 
 	/**
@@ -282,10 +282,10 @@ class MailingListsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to unsubscribe
-		$this->assertGetAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => $list->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', '?' => ['list' => $list->id]],
 			$admin->id, '/',
 			$this->unsubscribeMessage);
-		$this->assertGetAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => $unsubscribed_list->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', '?' => ['list' => $unsubscribed_list->id]],
 			$admin->id, '/',
 			'You are not subscribed to this mailing list.');
 
@@ -302,7 +302,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 		$list = MailingListFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
 
 		// Managers are allowed to unsubscribe
-		$this->assertGetAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => $list->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', '?' => ['list' => $list->id]],
 			$manager->id, '/',
 			$this->unsubscribeMessage);
 
@@ -319,7 +319,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 		$list = MailingListFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
 
 		// Coordinators are allowed to unsubscribe
-		$this->assertGetAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => $list->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', '?' => ['list' => $list->id]],
 			$volunteer->id, '/',
 			$this->unsubscribeMessage);
 
@@ -336,7 +336,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 		$list = MailingListFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
 
 		// Players are allowed to unsubscribe
-		$this->assertGetAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => $list->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', '?' => ['list' => $list->id]],
 			$player->id, '/',
 			$this->unsubscribeMessage);
 
@@ -353,7 +353,7 @@ class MailingListsControllerTest extends ControllerTestCase {
 		$list = MailingListFactory::make(['affiliate_id' => $affiliates[0]->id])->persist();
 
 		// Others are allowed to unsubscribe
-		$this->assertGetAnonymousAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', 'list' => $list->id, 'person' => $player->id, 'code' => $this->_makeHash([$player->id, $list->id])],
+		$this->assertGetAnonymousAccessRedirect(['controller' => 'MailingLists', 'action' => 'unsubscribe', '?' => ['list' => $list->id, 'person' => $player->id, 'code' => $this->_makeHash([$player->id, $list->id])]],
 			'/', $this->unsubscribeMessage);
 
 		$this->markTestIncomplete('More scenarios to test above.');

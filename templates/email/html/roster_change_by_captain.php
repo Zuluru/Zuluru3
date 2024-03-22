@@ -22,4 +22,4 @@ use Cake\Routing\Router;
 ) ?></p>
 <p><?= __('This is a notification only, there is no action required on your part.') ?></p>
 <p><?= __('If you believe that this has happened in error, please contact {0}.', $reply) ?></p>
-<?= $this->element('Email/html/footer');
+<?= $this->element('email/html/footer');

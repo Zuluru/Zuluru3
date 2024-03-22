@@ -146,10 +146,10 @@ class BadgesController extends AppController {
 		$badge->refresh_from = 1;
 		if ($this->Badges->save($badge)) {
 			$this->Flash->info(__('This badge has been scheduled for re-initialization.'));
-			return $this->redirect(['action' => 'view', 'badge' => $badge->id]);
+			return $this->redirect(['action' => 'view', '?' => ['badge' => $badge->id]]);
 		} else {
 			$this->Flash->warning(__('Failed to schedule the badge for re-initialization.'));
-			return $this->redirect(['action' => 'view', 'badge' => $badge->id]);
+			return $this->redirect(['action' => 'view', '?' => ['badge' => $badge->id]]);
 		}
 	}
 

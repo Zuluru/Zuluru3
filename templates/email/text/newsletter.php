@@ -10,7 +10,7 @@ use Cake\Routing\Router;
 use Html2Text\Html2Text;
 ?>
 
-<?= $this->element('Email/text/newsletter_header'); ?>
+<?= $this->element('email/text/newsletter_header'); ?>
 
 <?php
 $text = $newsletter->text;
@@ -61,4 +61,4 @@ if ($newsletter->mailing_list->opt_out):
 endif;
 ?>
 
-<?= $this->element('Email/text/newsletter_footer') ?>
+<?= $this->element('email/text/newsletter_footer') ?>

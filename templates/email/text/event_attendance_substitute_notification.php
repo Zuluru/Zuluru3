@@ -69,4 +69,4 @@ foreach (Configure::read('event_attendance_verb') as $check_status => $check_ver
 	endif;
 endforeach;
 ?>
-<?= $this->element('Email/text/footer');
+<?= $this->element('email/text/footer');

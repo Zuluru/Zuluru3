@@ -17,4 +17,4 @@ use Cake\Core\Configure;
 ) ?>
 
 
-<?= $this->element('Email/text/footer');
+<?= $this->element('email/text/footer');

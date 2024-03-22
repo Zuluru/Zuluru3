@@ -76,11 +76,11 @@ class RuleHasDocument extends Rule {
 			if ($text_reason) {
 				$this->reason = __('have uploaded the {0}', $this->document);
 			} else {
-				$url = ['controller' => 'People', 'action' => 'document_upload', 'type' => $this->document_id];
+				$url = ['controller' => 'People', 'action' => 'document_upload', '?' => ['type' => $this->document_id]];
 				if ($absolute_url) {
 					$url = Router::url($url, true);
 				} else {
-					$url['return'] = AppController::_return();
+					$url['?']['return'] = AppController::_return();
 				}
 				$this->reason = [
 					'format' => 'have {0}',

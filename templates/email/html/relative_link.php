@@ -25,4 +25,4 @@ use Cake\Routing\Router;
 <p><?= $this->Html->link(__('Decline the request'),
 	Router::url(['controller' => 'People', 'action' => 'remove_relative', '?' => ['person' => $relative->id, 'relative' => $person->id, 'code' => $code]], true)
 ) ?></p>
-<?= $this->element('Email/html/footer');
+<?= $this->element('email/html/footer');

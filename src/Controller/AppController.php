@@ -70,6 +70,7 @@ class AppController extends Controller {
 		$this->loadComponent('Authentication', [
 			'logoutRedirect' => '/',
 			'loginRedirect' => '/',
+			'identityCheckEvent' => 'Controller.initialize',
 		]);
 
 		// Check what actions anyone (logged on or not) is allowed in this controller.
@@ -178,7 +179,7 @@ class AppController extends Controller {
 					($this->getRequest()->getParam('controller') != 'Teams' || !in_array($this->getRequest()->getQuery('team'), $response_required))
 				) {
 					$this->Flash->info(__('You have been invited to join a team, and must either accept or decline this invitation before proceeding. Before deciding, you have the ability to look at this team\'s roster, schedule, etc.'));
-					return $this->redirect(['plugin' => false, 'controller' => 'Teams', 'action' => 'view', 'team' => current($response_required)]);
+					return $this->redirect(['plugin' => false, 'controller' => 'Teams', 'action' => 'view', '?' => ['team' => current($response_required)]]);
 				}
 			}
 		}
@@ -1029,10 +1030,10 @@ class AppController extends Controller {
 		// Get ready and send it
 		try {
 			if (array_key_exists('content', $opts)) {
-				$email->send($opts['content']);
+				$email->deliver($opts['content']);
 			} else {
 				$email->viewBuilder()->setTemplate($opts['template']);
-				$email->send();
+				$email->deliver();
 			}
 		} catch (SocketException $ex) {
 			Log::write(LogLevel::ERROR, 'Mail delivery error: ' . $ex->getMessage());

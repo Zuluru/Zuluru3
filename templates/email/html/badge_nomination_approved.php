@@ -12,4 +12,4 @@
 	$person->full_name,
 	$badge->name
 ) ?></p>
-<?= $this->element('Email/html/footer');
+<?= $this->element('email/html/footer');

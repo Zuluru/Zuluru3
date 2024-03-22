@@ -54,14 +54,14 @@ class AffiliatesControllerTest extends ControllerTestCase {
 		$affiliate = $admin->affiliates[0];
 
 		// Admins are allowed to view affiliates
-		$this->assertGetAsAccessOk(['controller' => 'Affiliates', 'action' => 'view', 'affiliate' => $affiliate->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $affiliate->id]], $admin->id);
 		$this->assertResponseContains('/affiliates/edit?affiliate=' . $affiliate->id);
 		$this->assertResponseContains('/affiliates/delete?affiliate=' . $affiliate->id);
 
 		// Others are not allowed to view affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Affiliates', 'action' => 'view', 'affiliate' => $affiliate->id], $manager->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Affiliates', 'action' => 'view', 'affiliate' => $affiliate->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Affiliates', 'action' => 'view', 'affiliate' => $affiliate->id], $player->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $affiliate->id]], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $affiliate->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $affiliate->id]], $player->id);
 		$this->assertGetAnonymousAccessDenied(['controller' => 'Affiliates', 'action' => 'index']);
 	}
 
@@ -89,13 +89,13 @@ class AffiliatesControllerTest extends ControllerTestCase {
 		$affiliate = $admin->affiliates[0];
 
 		// Admins are allowed to edit affiliates
-		$this->assertGetAsAccessOk(['controller' => 'Affiliates', 'action' => 'edit', 'affiliate' => $affiliate->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Affiliates', 'action' => 'edit', '?' => ['affiliate' => $affiliate->id]], $admin->id);
 
 		// Others are not allowed to edit affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Affiliates', 'action' => 'edit', 'affiliate' => $affiliate->id], $manager->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Affiliates', 'action' => 'edit', 'affiliate' => $affiliate->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Affiliates', 'action' => 'edit', 'affiliate' => $affiliate->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Affiliates', 'action' => 'edit', 'affiliate' => $affiliate->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Affiliates', 'action' => 'edit', '?' => ['affiliate' => $affiliate->id]], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Affiliates', 'action' => 'edit', '?' => ['affiliate' => $affiliate->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Affiliates', 'action' => 'edit', '?' => ['affiliate' => $affiliate->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Affiliates', 'action' => 'edit', '?' => ['affiliate' => $affiliate->id]]);
 	}
 
 	/**
@@ -107,17 +107,17 @@ class AffiliatesControllerTest extends ControllerTestCase {
 
 		$affiliate = AffiliateFactory::make()->persist();
 		$admin = PersonFactory::make()->admin()->with('Affiliates', $affiliate)->persist();
-		$this->assertGetAsAccessOk(['controller' => 'Affiliates', 'action' => 'edit', 'affiliate' => $affiliate->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Affiliates', 'action' => 'edit', '?' => ['affiliate' => $affiliate->id]], $admin->id);
 
 		// Admins are allowed to delete affiliates
-		$this->assertPostAsAccessRedirect(['controller' => 'Affiliates', 'action' => 'delete', 'affiliate' => $affiliate->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Affiliates', 'action' => 'delete', '?' => ['affiliate' => $affiliate->id]],
 			$admin->id, [], ['controller' => 'Affiliates', 'action' => 'index'],
 			'The affiliate has been deleted.');
 		// TODOLATER: Add checks for success messages everywhere
 
 		// But not ones with dependencies
 		$affiliate = AffiliateFactory::make()->with('Leagues')->persist();
-		$this->assertPostAsAccessRedirect(['controller' => 'Affiliates', 'action' => 'delete', 'affiliate' => $affiliate->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Affiliates', 'action' => 'delete', '?' => ['affiliate' => $affiliate->id]],
 			$admin->id, [], ['controller' => 'Affiliates', 'action' => 'index'],
 			'#The following records reference this affiliate, so it cannot be deleted#');
 	}
@@ -133,10 +133,10 @@ class AffiliatesControllerTest extends ControllerTestCase {
 		$affiliate = $admin->affiliates[0];
 
 		// Others are not allowed to delete affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Affiliates', 'action' => 'delete', 'affiliate' => $affiliate->id], $manager->id);
-		$this->assertPostAsAccessDenied(['controller' => 'Affiliates', 'action' => 'delete', 'affiliate' => $affiliate->id], $volunteer->id);
-		$this->assertPostAsAccessDenied(['controller' => 'Affiliates', 'action' => 'delete', 'affiliate' => $affiliate->id], $player->id);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Affiliates', 'action' => 'delete', 'affiliate' => $affiliate->id]);
+		$this->assertPostAsAccessDenied(['controller' => 'Affiliates', 'action' => 'delete', '?' => ['affiliate' => $affiliate->id]], $manager->id);
+		$this->assertPostAsAccessDenied(['controller' => 'Affiliates', 'action' => 'delete', '?' => ['affiliate' => $affiliate->id]], $volunteer->id);
+		$this->assertPostAsAccessDenied(['controller' => 'Affiliates', 'action' => 'delete', '?' => ['affiliate' => $affiliate->id]], $player->id);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Affiliates', 'action' => 'delete', '?' => ['affiliate' => $affiliate->id]]);
 	}
 
 	/**
@@ -154,10 +154,10 @@ class AffiliatesControllerTest extends ControllerTestCase {
 		$volunteer = PersonFactory::make()->volunteer()->with('Affiliates', $affiliate)->persist();
 
 		// Admins are allowed to add managers
-		$this->assertGetAsAccessOk(['controller' => 'Affiliates', 'action' => 'add_manager', 'affiliate' => $affiliate->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Affiliates', 'action' => 'add_manager', '?' => ['affiliate' => $affiliate->id]], $admin->id);
 
 		// Try the search page for an ineligible person
-		$this->assertPostAsAccessOk(['controller' => 'Affiliates', 'action' => 'add_manager', 'affiliate' => $affiliate->id],
+		$this->assertPostAsAccessOk(['controller' => 'Affiliates', 'action' => 'add_manager', '?' => ['affiliate' => $affiliate->id]],
 			$admin->id, [
 				'affiliate_id' => $affiliate->id,
 				'first_name' => $volunteer->first_name,
@@ -169,7 +169,7 @@ class AffiliatesControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('showing 0 records out of 0 total');
 
 		// Try someone that is eligible
-		$this->assertPostAsAccessOk(['controller' => 'Affiliates', 'action' => 'add_manager', 'affiliate' => $affiliate->id],
+		$this->assertPostAsAccessOk(['controller' => 'Affiliates', 'action' => 'add_manager', '?' => ['affiliate' => $affiliate->id]],
 			$admin->id, [
 				'affiliate_id' => $affiliate->id,
 				'first_name' => $manager->first_name,
@@ -183,12 +183,12 @@ class AffiliatesControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/affiliates/add_manager?person=' . $manager->id . '&amp;return=' . $return . '&amp;affiliate=' . $affiliate->id);
 
 		// Try to add the manager
-		$this->assertGetAsAccessRedirect(['controller' => 'Affiliates', 'action' => 'add_manager', 'person' => $manager->id, 'affiliate' => $affiliate->id],
-			$admin->id, ['controller' => 'Affiliates', 'action' => 'view', 'affiliate' => $affiliate->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Affiliates', 'action' => 'add_manager', '?' => ['person' => $manager->id, 'affiliate' => $affiliate->id]],
+			$admin->id, ['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $affiliate->id]],
 			'Added ' . $manager->full_name . ' as manager.');
 
 		// Make sure they were added successfully
-		$this->assertGetAsAccessOk(['controller' => 'Affiliates', 'action' => 'view', 'affiliate' => $affiliate->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $affiliate->id]], $admin->id);
 		$this->assertResponseContains('/affiliates/remove_manager?affiliate=' . $affiliate->id . '&amp;person=' . $manager->id);
 	}
 
@@ -200,10 +200,10 @@ class AffiliatesControllerTest extends ControllerTestCase {
 		$affiliate = $admin->affiliates[0];
 
 		// Others are not allowed to add managers
-		$this->assertGetAsAccessDenied(['controller' => 'Affiliates', 'action' => 'add_manager', 'affiliate' => $affiliate->id], $manager->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Affiliates', 'action' => 'add_manager', 'affiliate' => $affiliate->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Affiliates', 'action' => 'add_manager', 'affiliate' => $affiliate->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Affiliates', 'action' => 'add_manager', 'affiliate' => $affiliate->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Affiliates', 'action' => 'add_manager', '?' => ['affiliate' => $affiliate->id]], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Affiliates', 'action' => 'add_manager', '?' => ['affiliate' => $affiliate->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Affiliates', 'action' => 'add_manager', '?' => ['affiliate' => $affiliate->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Affiliates', 'action' => 'add_manager', '?' => ['affiliate' => $affiliate->id]]);
 	}
 
 	/**
@@ -221,16 +221,16 @@ class AffiliatesControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to remove managers
-		$this->assertGetAsAccessOk(['controller' => 'Affiliates', 'action' => 'view', 'affiliate' => $affiliate->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $affiliate->id]], $admin->id);
 		$this->assertResponseContains('/affiliates/remove_manager?affiliate=' . $affiliate->id . '&amp;person=' . $manager->id);
 
-		$this->assertPostAsAccessRedirect(['controller' => 'Affiliates', 'action' => 'remove_manager', 'affiliate' => $affiliate->id, 'person' => $manager->id],
-			$admin->id, [], ['controller' => 'Affiliates', 'action' => 'view', 'affiliate' => $affiliate->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Affiliates', 'action' => 'remove_manager', '?' => ['affiliate' => $affiliate->id, 'person' => $manager->id]],
+			$admin->id, [], ['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $affiliate->id]],
 			'Successfully removed manager.');
 		$this->assertEquals('If this person is no longer going to be managing anything, you should also edit their profile and deselect the "Manager" option.', $this->_requestSession->read('Flash.flash.1.message'));
 
 		// Make sure they were removed successfully
-		$this->assertGetAsAccessOk(['controller' => 'Affiliates', 'action' => 'view', 'affiliate' => $affiliate->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $affiliate->id]], $admin->id);
 		$this->assertResponseNotContains('/affiliates/remove_manager?affiliate=' . $affiliate->id . '&amp;person=' . $manager->id);
 	}
 
@@ -245,10 +245,10 @@ class AffiliatesControllerTest extends ControllerTestCase {
 		$affiliate = $admin->affiliates[0];
 
 		// Others are not allowed to remove managers
-		$this->assertPostAsAccessDenied(['controller' => 'Affiliates', 'action' => 'remove_manager', 'affiliate' => $affiliate->id, 'person' => $manager->id], $manager->id);
-		$this->assertPostAsAccessDenied(['controller' => 'Affiliates', 'action' => 'remove_manager', 'affiliate' => $affiliate->id, 'person' => $manager->id], $volunteer->id);
-		$this->assertPostAsAccessDenied(['controller' => 'Affiliates', 'action' => 'remove_manager', 'affiliate' => $affiliate->id, 'person' => $manager->id], $player->id);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Affiliates', 'action' => 'remove_manager', 'affiliate' => $affiliate->id, 'person' => $manager->id]);
+		$this->assertPostAsAccessDenied(['controller' => 'Affiliates', 'action' => 'remove_manager', '?' => ['affiliate' => $affiliate->id, 'person' => $manager->id]], $manager->id);
+		$this->assertPostAsAccessDenied(['controller' => 'Affiliates', 'action' => 'remove_manager', '?' => ['affiliate' => $affiliate->id, 'person' => $manager->id]], $volunteer->id);
+		$this->assertPostAsAccessDenied(['controller' => 'Affiliates', 'action' => 'remove_manager', '?' => ['affiliate' => $affiliate->id, 'person' => $manager->id]], $player->id);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Affiliates', 'action' => 'remove_manager', '?' => ['affiliate' => $affiliate->id, 'person' => $manager->id]]);
 	}
 
 	/**

@@ -344,7 +344,7 @@ class RegistrationsController extends AppController {
 			// Try the invoice; if authorized, redirect there. Otherwise, throw the original exception.
 			try {
 				$this->Authorization->authorize($registration, 'invoice');
-				return $this->redirect(['action' => 'invoice', 'registration' => $id]);
+				return $this->redirect(['action' => 'invoice', '?' => ['registration' => $id]]);
 			} catch (ForbiddenException $ex2) {
 				throw $ex;
 			}
@@ -816,7 +816,7 @@ class RegistrationsController extends AppController {
 			// The registration is also passed as an option, so that the payment rules have easy access to it
 			if ($this->Registrations->save($registration, ['registration' => $registration, 'event' => $registration->event])) {
 				$this->Flash->success(__('The payment has been saved.'));
-				return $this->redirect(['action' => 'view', 'registration' => $registration->id]);
+				return $this->redirect(['action' => 'view', '?' => ['registration' => $registration->id]]);
 			} else {
 				$this->Flash->warning(__('The payment could not be saved. Please correct the errors below and try again.'));
 			}
@@ -870,7 +870,7 @@ class RegistrationsController extends AppController {
 			$refund = $this->Registrations->Payments->patchEntity($refund, $data, ['validate' => 'refund', 'registration' => $registration]);
 			if ($this->Registrations->refundPayment($registration->event, $registration, $payment, $refund, $data['mark_refunded'], $data['online_refund'] ?? false)) {
 				$this->Flash->success(__('The refund has been saved.'));
-				return $this->redirect(['action' => 'view', 'registration' => $registration->id]);
+				return $this->redirect(['action' => 'view', '?' => ['registration' => $registration->id]]);
 			}
 		}
 
@@ -951,7 +951,7 @@ class RegistrationsController extends AppController {
 			if ($this->Registrations->refundPayment($registration->event, $registration, $payment, $refund, $data['mark_refunded'], false, $data['credit_notes'])) {
 				$this->Flash->success(__('The credit has been saved.'));
 				$this->UserCache->clear('Credits', $registration->person_id);
-				return $this->redirect(['action' => 'view', 'registration' => $registration->id]);
+				return $this->redirect(['action' => 'view', '?' => ['registration' => $registration->id]]);
 			}
 		}
 
@@ -1050,7 +1050,7 @@ class RegistrationsController extends AppController {
 				return $this->redirect(['action' => 'checkout']);
 			} else {
 				$this->Flash->success(__('The registration has been saved.'));
-				return $this->redirect(['controller' => 'People', 'action' => 'registrations', 'person' => $registration->person->id]);
+				return $this->redirect(['controller' => 'People', 'action' => 'registrations', '?' => ['person' => $registration->person->id]]);
 			}
 		} else {
 			$this->Authorization->can(new ContextResource($registration->event, ['price' => $registration->price, 'for_edit' => $registration, 'all_rules' => true]), 'register');

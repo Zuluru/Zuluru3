@@ -18,9 +18,9 @@ elseif (isset($people)):
 	$this->Paginator->options([
 		'url' => $url,
 	]);
-	echo $this->Paginator->counter([
-		'format' => __('Page {{page}} of {{pages}}, showing {{current}} records out of {{count}} total, starting on record {{start}}, ending on {{end}}')
-	]);
+	echo $this->Paginator->counter(
+		__('Page {{page}} of {{pages}}, showing {{current}} records out of {{count}} total, starting on record {{start}}, ending on {{end}}')
+	);
 	?></p>
 	<div class="table-responsive">
 		<table class="table table-striped table-hover table-condensed">
@@ -96,27 +96,27 @@ elseif (isset($people)):
 					}
 					if (!empty($extra_url)) {
 						foreach ($extra_url as $title => $url_params) {
-							if (empty($url_params['url_parameter'])) {
+							if (empty($url_params['_url_parameter'])) {
 								$extra_url_parameter = 'person';
 							} else {
-								$extra_url_parameter = $url_params['url_parameter'];
-								unset($url_params['url_parameter']);
+								$extra_url_parameter = $url_params['_url_parameter'];
+								unset($url_params['_url_parameter']);
 							}
-							if (empty($url_params['url_field'])) {
+							if (empty($url_params['_url_field'])) {
 								$extra_url_field = 'id';
 							} else {
-								$extra_url_field = $url_params['url_field'];
-								unset($url_params['url_field']);
+								$extra_url_field = $url_params['_url_field'];
+								unset($url_params['_url_field']);
 							}
-							if (empty($url_params['link_opts'])) {
+							if (empty($url_params['_link_opts'])) {
 								$link_opts = [];
 							} else {
-								$link_opts = $url_params['link_opts'];
-								unset($url_params['link_opts']);
+								$link_opts = $url_params['_link_opts'];
+								unset($url_params['_link_opts']);
 							}
 
 							if (!empty($person[$extra_url_field])) {
-								$url_params = array_merge([$extra_url_parameter => $person[$extra_url_field], 'return' => AppController::_return()], $url_params);
+								$url_params['?'] = array_merge([$extra_url_parameter => $person[$extra_url_field], 'return' => AppController::_return()], $url_params['?']);
 								echo $this->Html->link($title, $url_params, $link_opts);
 							}
 						}

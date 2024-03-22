@@ -26,4 +26,4 @@ use Cake\Routing\Router;
 <?= __('If you didn\'t ask for this, don\'t worry. Just delete this e-mail message and your password will remain unchanged.') ?>
 
 
-<?= $this->element('Email/text/footer');
+<?= $this->element('email/text/footer');

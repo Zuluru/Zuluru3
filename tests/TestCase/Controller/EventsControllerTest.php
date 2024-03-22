@@ -187,34 +187,34 @@ class EventsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to view events, with full edit permissions
-		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => $league_team->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', '?' => ['event' => $league_team->id]], $admin->id);
 		$this->assertResponseContains('/events/edit?event=' . $league_team->id);
 		$this->assertResponseContains('/events/delete?event=' . $league_team->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => $affiliate_league_team->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', '?' => ['event' => $affiliate_league_team->id]], $admin->id);
 		$this->assertResponseContains('/events/edit?event=' . $affiliate_league_team->id);
 		$this->assertResponseContains('/events/delete?event=' . $affiliate_league_team->id);
 
 		// Managers are allowed to view events
-		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => $league_team->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', '?' => ['event' => $league_team->id]], $manager->id);
 		$this->assertResponseContains('/events/edit?event=' . $league_team->id);
 		$this->assertResponseContains('/events/delete?event=' . $league_team->id);
 
 		// But are not allowed to edit ones in other affiliates
-		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => $affiliate_league_team->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', '?' => ['event' => $affiliate_league_team->id]], $manager->id);
 		$this->assertResponseNotContains('/events/edit?event=' . $affiliate_league_team->id);
 		$this->assertResponseNotContains('/events/delete?event=' . $affiliate_league_team->id);
 
 		// Coordinators are allowed to view
-		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => $league_team->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', '?' => ['event' => $league_team->id]], $volunteer->id);
 
 		// Others are allowed to view events, but have no edit permissions
-		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => $league_team->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', '?' => ['event' => $league_team->id]], $player->id);
 		$this->assertResponseNotContains('/events/edit?event=' . $league_team->id);
 		$this->assertResponseNotContains('/events/delete?event=' . $league_team->id);
 
 		// Others are allowed to view
-		$this->assertGetAnonymousAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => $league_team->id]);
+		$this->assertGetAnonymousAccessOk(['controller' => 'Events', 'action' => 'view', '?' => ['event' => $league_team->id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -241,7 +241,7 @@ class EventsControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('<option value="' . $affiliates[1]->id . '">' . $affiliates[1]->name . '</option>');
 
 		// If an event ID is given, we will clone that event
-		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'add', 'event' => $membership->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'add', '?' => ['event' => $membership->id]], $admin->id);
 		$this->assertResponseRegExp('#<input type="text" name="name"[^>]*value="' . $membership->name . '"#ms');
 	}
 
@@ -262,7 +262,7 @@ class EventsControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('<input type="hidden" name="affiliate_id" value="' . $affiliates[0]->id . '"/>');
 		$this->assertResponseNotContains('<option value="' . $affiliates[1]->id . '">' . $affiliates[1]->name . '</option>');
 
-		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'add', 'event' => $membership->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'add', '?' => ['event' => $membership->id]], $manager->id);
 	}
 
 	/**
@@ -295,8 +295,8 @@ class EventsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Admins are allowed to edit events anywhere
-		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'edit', 'event' => $league_team->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'edit', 'event' => $affiliate_league_team->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'edit', '?' => ['event' => $league_team->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'edit', '?' => ['event' => $affiliate_league_team->id]], $admin->id);
 	}
 
 	/**
@@ -317,8 +317,8 @@ class EventsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Managers are allowed to edit events in their own affiliate, but not others
-		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'edit', 'event' => $league_team->id], $manager->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'edit', 'event' => $affiliate_league_team->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'edit', '?' => ['event' => $league_team->id]], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'edit', '?' => ['event' => $affiliate_league_team->id]], $manager->id);
 	}
 
 	/**
@@ -334,9 +334,9 @@ class EventsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Others are not allowed to edit events
-		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'edit', 'event' => $league_team->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'edit', 'event' => $league_team->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Events', 'action' => 'edit', 'event' => $league_team->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'edit', '?' => ['event' => $league_team->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'edit', '?' => ['event' => $league_team->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Events', 'action' => 'edit', '?' => ['event' => $league_team->id]]);
 	}
 
 	/**
@@ -410,7 +410,7 @@ class EventsControllerTest extends ControllerTestCase {
 		$this->assertEquals(1, $query->count());
 
 		// Admins are allowed to delete events
-		$this->assertPostAsAccessRedirect(['controller' => 'Events', 'action' => 'delete', 'event' => $league_teams[0]->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Events', 'action' => 'delete', '?' => ['event' => $league_teams[0]->id]],
 			$admin->id, [], ['controller' => 'Events', 'action' => 'index'],
 			'The event has been deleted.');
 
@@ -422,7 +422,7 @@ class EventsControllerTest extends ControllerTestCase {
 
 		// But not ones with dependencies
 		RegistrationFactory::make(['event_id' => $league_teams[1]->id, 'price_id' => $league_teams[1]->prices[0]->id, 'person_id' => $admin->id])->persist();
-		$this->assertPostAsAccessRedirect(['controller' => 'Events', 'action' => 'delete', 'event' => $league_teams[1]->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Events', 'action' => 'delete', '?' => ['event' => $league_teams[1]->id]],
 			$admin->id, [], ['controller' => 'Events', 'action' => 'index'],
 			'#The following records reference this event, so it cannot be deleted#');
 	}
@@ -448,12 +448,12 @@ class EventsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Managers are allowed to delete events in their affiliate
-		$this->assertPostAsAccessRedirect(['controller' => 'Events', 'action' => 'delete', 'event' => $league_team->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Events', 'action' => 'delete', '?' => ['event' => $league_team->id]],
 			$manager->id, [], ['controller' => 'Events', 'action' => 'index'],
 			'The event has been deleted.');
 
 		// But not ones in other affiliates
-		$this->assertPostAsAccessDenied(['controller' => 'Events', 'action' => 'delete', 'event' => $affiliate_league_team->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Events', 'action' => 'delete', '?' => ['event' => $affiliate_league_team->id]],
 			$manager->id);
 	}
 
@@ -473,11 +473,11 @@ class EventsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Others are not allowed to delete events
-		$this->assertPostAsAccessDenied(['controller' => 'Events', 'action' => 'delete', 'event' => $league_team->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Events', 'action' => 'delete', '?' => ['event' => $league_team->id]],
 			$volunteer->id);
-		$this->assertPostAsAccessDenied(['controller' => 'Events', 'action' => 'delete', 'event' => $league_team->id],
+		$this->assertPostAsAccessDenied(['controller' => 'Events', 'action' => 'delete', '?' => ['event' => $league_team->id]],
 			$player->id);
-		$this->assertPostAnonymousAccessDenied(['controller' => 'Events', 'action' => 'delete', 'event' => $league_team->id]);
+		$this->assertPostAnonymousAccessDenied(['controller' => 'Events', 'action' => 'delete', '?' => ['event' => $league_team->id]]);
 	}
 
 	/**
@@ -494,7 +494,7 @@ class EventsControllerTest extends ControllerTestCase {
 		EventsConnectionFactory::make(['event_id' => $league_teams[0]->id, 'connected_event_id' => $league_teams[1]->id])->persist();
 
 		// Admins are allowed to edit event connections
-		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'connections', 'event' => $league_teams[0]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'connections', '?' => ['event' => $league_teams[0]->id]], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -513,7 +513,7 @@ class EventsControllerTest extends ControllerTestCase {
 		EventsConnectionFactory::make(['event_id' => $league_teams[0]->id, 'connected_event_id' => $league_teams[1]->id])->persist();
 
 		// Managers are allowed to edit event connections
-		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'connections', 'event' => $league_teams[0]->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'connections', '?' => ['event' => $league_teams[0]->id]], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -532,9 +532,9 @@ class EventsControllerTest extends ControllerTestCase {
 		EventsConnectionFactory::make(['event_id' => $league_teams[0]->id, 'connected_event_id' => $league_teams[1]->id])->persist();
 
 		// Others are not allowed to edit event connections
-		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'connections', 'event' => $league_teams[0]->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'connections', 'event' => $league_teams[0]->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Events', 'action' => 'connections', 'event' => $league_teams[0]->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'connections', '?' => ['event' => $league_teams[0]->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Events', 'action' => 'connections', '?' => ['event' => $league_teams[0]->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Events', 'action' => 'connections', '?' => ['event' => $league_teams[0]->id]]);
 	}
 
 	/**
@@ -573,18 +573,18 @@ class EventsControllerTest extends ControllerTestCase {
 		];
 
 		// Admins are allowed to refund payments
-		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'refund', 'event' => $league_team->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'refund', '?' => ['event' => $league_team->id]], $admin->id);
 		$this->assertResponseContains('<input type="checkbox" name="mark_refunded" value="1"');
 
 		// Try to refund more than the paid amount
-		$this->assertPostAsAccessOk(['controller' => 'Events', 'action' => 'refund', 'event' => $league_team->id],
+		$this->assertPostAsAccessOk(['controller' => 'Events', 'action' => 'refund', '?' => ['event' => $league_team->id]],
 			$admin->id, $refund_data + ['payment_amount' => 1000]);
 		$this->assertResponseContains('This would refund more than the amount paid.');
 		$this->assertResponseContains('This registration has no payments recorded.');
 		$this->assertResponseContains('<input type="checkbox" name="mark_refunded" value="1"');
 
 		// Try to refund $0
-		$this->assertPostAsAccessOk(['controller' => 'Events', 'action' => 'refund', 'event' => $league_team->id],
+		$this->assertPostAsAccessOk(['controller' => 'Events', 'action' => 'refund', '?' => ['event' => $league_team->id]],
 			$admin->id, $refund_data + ['payment_amount' => 0]);
 		$this->assertResponseContains('Refund amounts must be positive.');
 		$this->assertResponseContains('This registration has no payments recorded.');
@@ -594,7 +594,7 @@ class EventsControllerTest extends ControllerTestCase {
 		$refund_data['registrations'] = [
 			$registrations[2]->id => true,
 		];
-		$this->assertPostAsAccessOk(['controller' => 'Events', 'action' => 'refund', 'event' => $league_team->id],
+		$this->assertPostAsAccessOk(['controller' => 'Events', 'action' => 'refund', '?' => ['event' => $league_team->id]],
 			$admin->id, $refund_data + ['payment_amount' => 10]);
 		$this->assertResponseContains('The refunds have been saved.');
 		/** @var \App\Model\Entity\Registration $registration */
@@ -627,7 +627,7 @@ class EventsControllerTest extends ControllerTestCase {
 
 		// Try to refund without selecting any registrations
 		unset($refund_data['registrations']);
-		$this->assertPostAsAccessOk(['controller' => 'Events', 'action' => 'refund', 'event' => $league_team->id],
+		$this->assertPostAsAccessOk(['controller' => 'Events', 'action' => 'refund', '?' => ['event' => $league_team->id]],
 			$admin->id, $refund_data);
 		$this->assertResponseContains('You didn&#039;t select any registrations to refund.');
 	}
@@ -654,7 +654,7 @@ class EventsControllerTest extends ControllerTestCase {
 		ResponseFactory::make(['event_id' => $league_team->id, 'registration_id' => $registration->id, 'question_id' => TEAM_ID_CREATED, 'answer_text' => $team->id])
 			->persist();
 
-		$this->assertPostAsAccessOk(['controller' => 'Events', 'action' => 'refund', 'event' => $league_team->id], $admin->id, [
+		$this->assertPostAsAccessOk(['controller' => 'Events', 'action' => 'refund', '?' => ['event' => $league_team->id]], $admin->id, [
 			'payment_type' => 'Refund',
 			'payment_method' => 'Other',
 			'payment_amount' => 10,
@@ -730,7 +730,7 @@ class EventsControllerTest extends ControllerTestCase {
 		];
 
 		// Try to credit just the right amount
-		$this->assertPostAsAccessOk(['controller' => 'Events', 'action' => 'refund', 'event' => $league_team->id],
+		$this->assertPostAsAccessOk(['controller' => 'Events', 'action' => 'refund', '?' => ['event' => $league_team->id]],
 			$admin->id, $refund_data + ['payment_amount' => 10]);
 		$this->assertResponseContains('The credits have been saved.');
 		/** @var \App\Model\Entity\Registration $registration */
@@ -788,11 +788,11 @@ class EventsControllerTest extends ControllerTestCase {
 			->with('Prices')
 			->persist();
 
-		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => $membership->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', '?' => ['event' => $membership->id]], $player->id);
 		$this->assertResponseContains('<h2>Membership</h2>');
 
 		SettingFactory::make(['person_id' => $player->id, 'category' => 'personal', 'name' => 'language', 'value' => 'fr'])->persist();
-		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', 'event' => $membership->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'Events', 'action' => 'view', '?' => ['event' => $membership->id]], $player->id);
 		$this->assertResponseContains('<h2>Adhésion</h2>');
 	}
 

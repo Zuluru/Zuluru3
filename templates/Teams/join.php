@@ -11,9 +11,9 @@ $this->Breadcrumbs->add(__('Join'));
 <div class="teams index" id="kick_start">
 	<h2><?= __('Join a Team') ?></h2>
 
-	<p><?= $this->Paginator->counter([
-			'format' => __('Page {{page}} of {{pages}}, showing {{current}} records out of {{count}} total, starting on record {{start}}, ending on {{end}}')
-		]) ?></p>
+	<p><?= $this->Paginator->counter(
+		__('Page {{page}} of {{pages}}, showing {{current}} records out of {{count}} total, starting on record {{start}}, ending on {{end}}')
+	) ?></p>
 
 	<div class="actions columns">
 		<ul>

@@ -74,33 +74,33 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$individual = $registrations[DiverseRegistrationsScenario::$INDIVIDUAL];
 
 		// Admins are allowed to see the full list of registrations
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'full_list', 'event' => $membership->event_id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'full_list', '?' => ['event' => $membership->event_id]], $admin->id);
 		$this->assertResponseContains('/registrations/view?registration=' . $membership->id);
 		$this->assertResponseContains('/registrations/edit?registration=' . $membership->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'full_list', 'event' => $membership->event_id, '_ext' => 'csv'], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'full_list', '?' => ['event' => $membership->event_id, '_ext' => 'csv']], $admin->id);
 		$this->assertResponseContains('Home Phone');
 		$this->assertResponseContains('Total Amount');
 
 		// Managers are allowed to see the full list of registrations
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'full_list', 'event' => $membership->event_id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'full_list', '?' => ['event' => $membership->event_id]], $manager->id);
 		$this->assertResponseContains('/registrations/view?registration=' . $membership->id);
 		$this->assertResponseContains('/registrations/edit?registration=' . $membership->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'full_list', 'event' => $membership->event_id, '_ext' => 'csv'], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'full_list', '?' => ['event' => $membership->event_id, '_ext' => 'csv']], $manager->id);
 		$this->assertResponseContains('Home Phone');
 		$this->assertResponseContains('Total Amount');
 
 		// Coordinators are not allowed to see the full list of registrations
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'full_list', 'event' => $membership->event_id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'full_list', '?' => ['event' => $membership->event_id]], $volunteer->id);
 
 		// Except that they are allowed to see the list of registrations for divisions they coordinate, but without registration view and edit links
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'full_list', 'event' => $individual->event_id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'full_list', '?' => ['event' => $individual->event_id]], $volunteer->id);
 		$this->assertResponseContains('/people/view?person=' . $player->id);
 		$this->assertResponseNotContains('/registrations/view?registration=' . $individual->id);
 		$this->assertResponseNotContains('/registrations/edit?registration=' . $individual->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'full_list', 'event' => $individual->event_id, '_ext' => 'csv'], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'full_list', '?' => ['event' => $individual->event_id, '_ext' => 'csv']], $volunteer->id);
 		$this->assertResponseNotContains('Home Phone');
 		$this->assertResponseNotContains('Work Phone');
 		$this->assertResponseNotContains('Work Ext');
@@ -108,8 +108,8 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('Total Amount');
 
 		// Others are not allowed to see the list of registrations
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'full_list', 'event' => $membership->event_id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'full_list', 'event' => $membership->event_id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'full_list', '?' => ['event' => $membership->event_id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'full_list', '?' => ['event' => $membership->event_id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -130,20 +130,20 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$individual = $registrations[DiverseRegistrationsScenario::$INDIVIDUAL];
 
 		// Admins are allowed to see the summary of registrations
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'summary', 'event' => $membership->event_id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'summary', '?' => ['event' => $membership->event_id]], $admin->id);
 
 		// Managers are allowed to see the summary of registrations
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'summary', 'event' => $membership->event_id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'summary', '?' => ['event' => $membership->event_id]], $manager->id);
 
 		// Coordinators are not allowed to see the summary of registrations
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'summary', 'event' => $membership->event_id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'summary', '?' => ['event' => $membership->event_id]], $volunteer->id);
 
 		// Except that they are allowed to see the summary of registrations for divisions they coordinate
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'summary', 'event' => $individual->event_id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'summary', '?' => ['event' => $individual->event_id]], $volunteer->id);
 
 		// Others are not allowed to see the summary of registrations
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'summary', 'event' => $membership->event_id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'summary', 'event' => $membership->event_id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'summary', '?' => ['event' => $membership->event_id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'summary', '?' => ['event' => $membership->event_id]]);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -252,34 +252,34 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$affiliate_team = $affiliate_registrations[DiverseRegistrationsScenario::$TEAM];
 
 		// Admins are allowed to view registrations, with full edit permissions
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'view', 'registration' => $membership->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'view', '?' => ['registration' => $membership->id]], $admin->id);
 		$this->assertResponseContains('/registrations/edit?registration=' . $membership->id);
 		// Paid registrations cannot be removed
 		$this->assertResponseNotContains('/registrations/unregister?registration=' . $membership->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'view', 'registration' => $individual->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'view', '?' => ['registration' => $individual->id]], $admin->id);
 		$this->assertResponseContains('/registrations/edit?registration=' . $individual->id);
 		$this->assertResponseContains('/registrations/unregister?registration=' . $individual->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'view', 'registration' => $affiliate_team->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'view', '?' => ['registration' => $affiliate_team->id]], $admin->id);
 		$this->assertResponseContains('/registrations/edit?registration=' . $affiliate_team->id);
 		$this->assertResponseContains('/registrations/unregister?registration=' . $affiliate_team->id);
 
 		// Managers are allowed to view registrations
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'view', 'registration' => $membership->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'view', '?' => ['registration' => $membership->id]], $manager->id);
 		$this->assertResponseContains('/registrations/edit?registration=' . $membership->id);
 		$this->assertResponseNotContains('/registrations/unregister?registration=' . $membership->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'view', 'registration' => $affiliate_team->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'view', '?' => ['registration' => $affiliate_team->id]], $manager->id);
 
 		// People who try to view their own registrations, if they are paid, get redirected to the invoice
-		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'view', 'registration' => $membership->id],
-			$player->id, ['controller' => 'Registrations', 'action' => 'invoice', 'registration' => $membership->id]);
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'view', '?' => ['registration' => $membership->id]],
+			$player->id, ['controller' => 'Registrations', 'action' => 'invoice', '?' => ['registration' => $membership->id]]);
 
 		// Others are not allowed to view registrations
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'view', 'registration' => $individual->id], $volunteer->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'view', 'registration' => $membership->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'view', '?' => ['registration' => $individual->id]], $volunteer->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'view', '?' => ['registration' => $membership->id]]);
 	}
 
 	/**
@@ -304,10 +304,10 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 		// Admins are allowed to register, within or somewhat before the date range
 		FrozenDate::setTestNow($now->subDays(30));
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', '?' => ['event' => $event->id]], $admin->id);
 
 		FrozenDate::setTestNow($now->subDays(45));
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', '?' => ['event' => $event->id]], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -334,10 +334,10 @@ class RegistrationsControllerTest extends ControllerTestCase {
 
 		// Managers are allowed to register, within or somewhat before the date range
 		FrozenDate::setTestNow($now->subDays(60));
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', '?' => ['event' => $event->id]], $manager->id);
 
 		FrozenDate::setTestNow($now->subDays(90));
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', '?' => ['event' => $event->id]], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -363,7 +363,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Coordinators are allowed to register, within the date range
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', '?' => ['event' => $event->id]], $volunteer->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -389,7 +389,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 			->persist();
 
 		// Players are allowed to register, within the date range
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'register', '?' => ['event' => $event->id]], $player->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -411,7 +411,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 				'close' => $now->addWeeks(4),
 			])
 			->persist();
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'register', 'event' => $event->id]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'register', '?' => ['event' => $event->id]]);
 	}
 
 	/**
@@ -467,7 +467,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		CreditFactory::make(['person_id' => $player->id, 'affiliate_id' => $admin->affiliates[0]->id])->persist();
 
 		// People are allowed to redeem their own credits
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'redeem', 'registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'redeem', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id]], $player->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -484,13 +484,13 @@ class RegistrationsControllerTest extends ControllerTestCase {
 			'teamPayment' => 'Paid',
 		]);
 
-		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'redeem', 'registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'redeem', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id]],
 			$player->id, ['controller' => 'Registrations', 'action' => 'checkout'],
 			'You have no available credits.');
 
 		CreditFactory::make(['person_id' => $player->id, 'affiliate_id' => $admin->affiliates[0]->id])->persist();
 
-		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'redeem', 'registration' => $registrations[DiverseRegistrationsScenario::$TEAM]->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'redeem', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$TEAM]->id]],
 			$player->id, ['controller' => 'Registrations', 'action' => 'checkout'],
 			'This registration is marked as Paid.');
 	}
@@ -510,9 +510,9 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		CreditFactory::make(['person_id' => $player->id, 'affiliate_id' => $admin->affiliates[0]->id])->persist();
 
 		// Even admins are not allowed to redeem credits on behalf of players
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'redeem', 'registration' => $membership->id], $admin->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'redeem', 'registration' => $membership->id], $manager->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'redeem', 'registration' => $membership->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'redeem', '?' => ['registration' => $membership->id]], $admin->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'redeem', '?' => ['registration' => $membership->id]], $manager->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'redeem', '?' => ['registration' => $membership->id]]);
 	}
 
 	/**
@@ -599,13 +599,13 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		]);
 
 		// Admins are allowed to unregister anyone
-		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id]],
 			$admin->id, '/',
 			'Successfully unregistered from this event.');
-		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => $registrations[DiverseRegistrationsScenario::$TEAM]->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$TEAM]->id]],
 			$admin->id, '/',
 			'Successfully unregistered from this event.');
-		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => $registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id]],
 			$admin->id, '/',
 			'Successfully unregistered from this event.');
 
@@ -625,13 +625,13 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		]);
 
 		// Managers are allowed to unregister anyone
-		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id]],
 			$manager->id, '/registrations/checkout',
 			'Successfully unregistered from this event.');
-		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => $registrations[DiverseRegistrationsScenario::$TEAM]->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$TEAM]->id]],
 			$manager->id, '/',
 			'Successfully unregistered from this event.');
-		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => $registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id]],
 			$manager->id, '/',
 			'Successfully unregistered from this event.');
 
@@ -651,12 +651,12 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		]);
 
 		// Coordinators are allowed to unregister themselves only
-		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => $registrations[DiverseRegistrationsScenario::$TEAM]->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$TEAM]->id]],
 			$volunteer->id, ['controller' => 'Registrations', 'action' => 'checkout'],
 			'Successfully unregistered from this event.');
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id],
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'unregister', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id]],
 			$volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => $registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id],
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'unregister', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id]],
 			$volunteer->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -675,12 +675,12 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		]);
 
 		// Players are allowed to unregister themselves only
-		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => $registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'unregister', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id]],
 			$player->id, ['controller' => 'Registrations', 'action' => 'checkout'],
 			'Successfully unregistered from this event.');
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id],
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'unregister', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id]],
 			$player->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'unregister', 'registration' => $registrations[DiverseRegistrationsScenario::$TEAM]->id],
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'unregister', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$TEAM]->id]],
 			$player->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
@@ -699,9 +699,9 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		]);
 
 		// Admins are allowed to add payments
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => $registrations[DiverseRegistrationsScenario::$TEAM]->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => $registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'add_payment', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'add_payment', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$TEAM]->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'add_payment', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id]], $admin->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -719,9 +719,9 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		]);
 
 		// Managers are allowed to add payments
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id], $manager->id);
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => $registrations[DiverseRegistrationsScenario::$TEAM]->id], $manager->id);
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => $registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'add_payment', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id]], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'add_payment', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$TEAM]->id]], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'add_payment', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id]], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -739,9 +739,9 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		]);
 
 		// Others are not allowed to add payments
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'add_payment', 'registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'add_payment', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'add_payment', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'add_payment', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id]]);
 	}
 
 	/**
@@ -771,12 +771,12 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		];
 
 		// Admins are allowed to refund payments
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'refund_payment', 'payment' => $payment->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'refund_payment', '?' => ['payment' => $payment->id]], $admin->id);
 		$this->assertResponseContains('<input type="checkbox" name="mark_refunded" value="1"');
 		$this->assertResponseContains('<input type="number" name="payment_amount" required="required" step="any" id="payment-amount" class="form-control" value="11.5"/>');
 
 		// Try to refund more than the paid amount
-		$this->assertPostAsAccessOk(['controller' => 'Registrations', 'action' => 'refund_payment', 'payment' => $payment->id],
+		$this->assertPostAsAccessOk(['controller' => 'Registrations', 'action' => 'refund_payment', '?' => ['payment' => $payment->id]],
 			$admin->id, $refund_data + ['payment_amount' => 1000]);
 		$this->assertResponseContains('The refund could not be saved. Please correct the errors below and try again.');
 		$this->assertResponseContains('This would refund more than the amount paid.');
@@ -784,7 +784,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('<input type="checkbox" name="mark_refunded" value="1"');
 
 		// Try to refund $0
-		$this->assertPostAsAccessOk(['controller' => 'Registrations', 'action' => 'refund_payment', 'payment' => $payment->id],
+		$this->assertPostAsAccessOk(['controller' => 'Registrations', 'action' => 'refund_payment', '?' => ['payment' => $payment->id]],
 			$admin->id, $refund_data + ['payment_amount' => 0]);
 		$this->assertResponseContains('The refund could not be saved. Please correct the errors below and try again.');
 		$this->assertResponseContains('Refund amounts must be positive.');
@@ -792,9 +792,9 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('<input type="checkbox" name="mark_refunded" value="1"');
 
 		// Try to refund just the right amount
-		$this->assertPostAsAccessRedirect(['controller' => 'Registrations', 'action' => 'refund_payment', 'payment' => $payment->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Registrations', 'action' => 'refund_payment', '?' => ['payment' => $payment->id]],
 			$admin->id, $refund_data + ['payment_amount' => 11.50],
-			['controller' => 'Registrations', 'action' => 'view', 'registration' => $membership->id],
+			['controller' => 'Registrations', 'action' => 'view', '?' => ['registration' => $membership->id]],
 			'The refund has been saved.');
 
 		/** @var Registration $registration */
@@ -841,7 +841,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$payment = $team->payments[0];
 		$team_id = $team->responses[0]->answer_text;
 
-		$this->assertPostAsAccessRedirect(['controller' => 'Registrations', 'action' => 'refund_payment', 'payment' => $payment->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Registrations', 'action' => 'refund_payment', '?' => ['payment' => $payment->id]],
 			$admin->id,
 			[
 				'registration_id' => $team->id,
@@ -851,7 +851,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 				'mark_refunded' => true,
 				'notes' => 'Full refund',
 			],
-			['controller' => 'Registrations', 'action' => 'view', 'registration' => $team->id],
+			['controller' => 'Registrations', 'action' => 'view', '?' => ['registration' => $team->id]],
 			'The refund has been saved.');
 
 		/** @var Registration $registration */
@@ -902,7 +902,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$payment = $membership->payments[0];
 
 		// Managers are allowed to refund payments
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'refund_payment', 'payment' => $payment->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'refund_payment', '?' => ['payment' => $payment->id]], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -922,9 +922,9 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$payment = $membership->payments[0];
 
 		// Others are not allowed to refund payments
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'refund_payment', 'payment' => $payment->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'refund_payment', 'payment' => $payment->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'refund_payment', 'payment' => $payment->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'refund_payment', '?' => ['payment' => $payment->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'refund_payment', '?' => ['payment' => $payment->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'refund_payment', '?' => ['payment' => $payment->id]]);
 	}
 
 	/**
@@ -955,12 +955,12 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		];
 
 		// Admins are allowed to credit payments
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'credit_payment', 'payment' => $payment->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'credit_payment', '?' => ['payment' => $payment->id]], $admin->id);
 		$this->assertResponseContains('<input type="checkbox" name="mark_refunded" value="1"');
 		$this->assertResponseContains('<input type="number" name="payment_amount" required="required" step="any" id="payment-amount" class="form-control" value="11.5"/>');
 
 		// Try to credit more than the paid amount
-		$this->assertPostAsAccessOk(['controller' => 'Registrations', 'action' => 'credit_payment', 'payment' => $payment->id],
+		$this->assertPostAsAccessOk(['controller' => 'Registrations', 'action' => 'credit_payment', '?' => ['payment' => $payment->id]],
 			$admin->id, $refund_data + ['payment_amount' => 1000]);
 		$this->assertResponseContains('The refund could not be saved. Please correct the errors below and try again.');
 		$this->assertResponseContains('This would refund more than the amount paid.');
@@ -968,7 +968,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('<input type="checkbox" name="mark_refunded" value="1"');
 
 		// Try to credit $0
-		$this->assertPostAsAccessOk(['controller' => 'Registrations', 'action' => 'credit_payment', 'payment' => $payment->id],
+		$this->assertPostAsAccessOk(['controller' => 'Registrations', 'action' => 'credit_payment', '?' => ['payment' => $payment->id]],
 			$admin->id, $refund_data + ['payment_amount' => 0]);
 		$this->assertResponseContains('The refund could not be saved. Please correct the errors below and try again.');
 		$this->assertResponseContains('Credit amounts must be positive.');
@@ -976,9 +976,9 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('<input type="checkbox" name="mark_refunded" value="1"');
 
 		// Try to credit just the right amount
-		$this->assertPostAsAccessRedirect(['controller' => 'Registrations', 'action' => 'credit_payment', 'payment' => $payment->id],
+		$this->assertPostAsAccessRedirect(['controller' => 'Registrations', 'action' => 'credit_payment', '?' => ['payment' => $payment->id]],
 			$admin->id, $refund_data + ['payment_amount' => 11.50],
-			['controller' => 'Registrations', 'action' => 'view', 'registration' => $membership->id],
+			['controller' => 'Registrations', 'action' => 'view', '?' => ['registration' => $membership->id]],
 			'The credit has been saved.');
 
 		/** @var Registration $registration */
@@ -1033,7 +1033,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$payment = $membership->payments[0];
 
 		// Managers are allowed to credit payments
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'credit_payment', 'payment' => $payment->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'credit_payment', '?' => ['payment' => $payment->id]], $manager->id);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -1053,9 +1053,9 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$payment = $membership->payments[0];
 
 		// Others are not allowed to credit payments
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'credit_payment', 'payment' => $payment->id], $volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'credit_payment', 'payment' => $payment->id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'credit_payment', 'payment' => $payment->id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'credit_payment', '?' => ['payment' => $payment->id]], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'credit_payment', '?' => ['payment' => $payment->id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'credit_payment', '?' => ['payment' => $payment->id]]);
 	}
 
 	/**
@@ -1075,9 +1075,9 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		]);
 
 		// Admins are allowed to edit registrations, with full edit permissions
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'edit', 'registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'edit', 'registration' => $registrations[DiverseRegistrationsScenario::$TEAM]->id], $admin->id);
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'edit', 'registration' => $affiliate_registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'edit', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'edit', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$TEAM]->id]], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'edit', '?' => ['registration' => $affiliate_registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id]], $admin->id);
 	}
 
 	/**
@@ -1097,11 +1097,11 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		]);
 
 		// Managers are allowed to edit registrations
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'edit', 'registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id], $manager->id);
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'edit', 'registration' => $registrations[DiverseRegistrationsScenario::$TEAM]->id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'edit', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id]], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'edit', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$TEAM]->id]], $manager->id);
 
 		// But not ones in other affiliates
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'edit', 'registration' => $affiliate_registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id], $manager->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'edit', '?' => ['registration' => $affiliate_registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id]], $manager->id);
 	}
 
 	/**
@@ -1117,19 +1117,19 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		]);
 
 		// Registrants are allowed to edit, if payments have not been made
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'edit', 'registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id], $player->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'edit', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id]], $player->id);
 
-		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'edit', 'registration' => $registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'edit', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id]],
 			$player->id, '/',
 			'You cannot edit a registration once a payment has been made.');
 
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'edit', 'registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id],
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'edit', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id]],
 			$volunteer->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'edit', 'registration' => $registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id],
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'edit', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id]],
 			$volunteer->id);
 
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'edit', 'registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id]);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'edit', 'registration' => $registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'edit', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$MEMBERSHIP]->id]]);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'edit', '?' => ['registration' => $registrations[DiverseRegistrationsScenario::$INDIVIDUAL]->id]]);
 	}
 
 	/**
@@ -1174,33 +1174,33 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$individual = $registrations[DiverseRegistrationsScenario::$INDIVIDUAL];
 
 		// Admins are allowed to see the waiting list
-		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'waiting', 'event' => $membership->event_id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'waiting', '?' => ['event' => $membership->event_id]],
 			$admin->id, '/',
 			'There is nobody on the waiting list for this event.');
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'waiting', 'event' => $individual->event_id], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'waiting', '?' => ['event' => $individual->event_id]], $admin->id);
 		$this->assertResponseContains('/registrations/view');
 		$this->assertResponseContains('/registrations/edit');
 
 		// Managers are allowed to see the waiting list
-		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'waiting', 'event' => $membership->event_id],
+		$this->assertGetAsAccessRedirect(['controller' => 'Registrations', 'action' => 'waiting', '?' => ['event' => $membership->event_id]],
 			$manager->id, '/',
 			'There is nobody on the waiting list for this event.');
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'waiting', 'event' => $individual->event_id], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'waiting', '?' => ['event' => $individual->event_id]], $manager->id);
 		$this->assertResponseContains('/registrations/view');
 		$this->assertResponseContains('/registrations/edit');
 
 		// Coordinators are not allowed to see the waiting list
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'waiting', 'event' => $membership->event_id], $volunteer->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'waiting', '?' => ['event' => $membership->event_id]], $volunteer->id);
 
 		// Except that they are allowed to see the waiting list for divisions they coordinate, but without registration view and edit links
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'waiting', 'event' => $individual->event_id], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'waiting', '?' => ['event' => $individual->event_id]], $volunteer->id);
 		$this->assertResponseNotContains('/registrations/view');
 		$this->assertResponseNotContains('/registrations/edit');
 
 		// Others are not allowed to see the waiting list
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'waiting', 'event' => $membership->event_id], $player->id);
-		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'waiting', 'event' => $individual->event_id], $player->id);
-		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'waiting', 'event' => $membership->event_id]);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'waiting', '?' => ['event' => $membership->event_id]], $player->id);
+		$this->assertGetAsAccessDenied(['controller' => 'Registrations', 'action' => 'waiting', '?' => ['event' => $individual->event_id]], $player->id);
+		$this->assertGetAnonymousAccessDenied(['controller' => 'Registrations', 'action' => 'waiting', '?' => ['event' => $membership->event_id]]);
 	}
 
 }

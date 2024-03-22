@@ -34,4 +34,4 @@ if (!empty($existing->user_name)) {
 <?= __('If the above email address is no longer correct, please reply to this message and request an address change.') ?>
 
 
-<?= $this->element('Email/text/footer');
+<?= $this->element('email/text/footer');

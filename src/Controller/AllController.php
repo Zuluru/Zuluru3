@@ -19,7 +19,7 @@ class AllController extends AppController {
 	public function clear_cache() {
 		$this->Authorization->authorize($this);
 
-		Cache::clear(false, 'long_term');
+		Cache::clear('long_term');
 		$this->Flash->success(__('The cache has been cleared.'));
 		return $this->redirect('/');
 	}

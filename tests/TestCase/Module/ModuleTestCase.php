@@ -26,7 +26,7 @@ class ModuleTestCase extends TestCase {
 
 	public function tearDown(): void {
 		parent::tearDown();
-		Cache::clear(false, 'long_term');
+		Cache::clear('long_term');
 		FrozenTime::setTestNow();
 		FrozenDate::setTestNow();
 	}

@@ -22,7 +22,7 @@ use Cake\Routing\Router;
 
 <?= __('{0} plays in the {1}.',
 	$team->name,
-	$this->element('Email/division')
+	$this->element('email/division')
 ) ?>
 
 
@@ -34,4 +34,4 @@ use Cake\Routing\Router;
 <?= __('If you believe that this has happened in error, please contact {0}.', $reply) ?>
 
 
-<?= $this->element('Email/text/footer');
+<?= $this->element('email/text/footer');

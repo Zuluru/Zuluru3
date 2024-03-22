@@ -21,7 +21,7 @@ if (empty($task_slot->person_id)) {
 	if ($this->Authorize->can('assign', new ContextResource($task_slot, ['task' => $task]))) {
 		echo $this->Jquery->ajaxInput("{$task_slot->id}.person_id", [
 			'selector' => 'tr',
-			'url' => ['controller' => 'TaskSlots', 'action' => 'assign', 'slot' => $task_slot->id],
+			'url' => ['controller' => 'TaskSlots', 'action' => 'assign', '?' => ['slot' => $task_slot->id]],
 			'disposition' => 'replace_closest',
 			'param-name' => 'person',
 		], [

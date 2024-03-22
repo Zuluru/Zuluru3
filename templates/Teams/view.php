@@ -250,13 +250,13 @@ endif;
 $extra = [];
 if ($this->Authorize->can('download', $team)) {
 	$extra[__('Download')] = [
-		'url' => ['action' => 'view', 'team' => $team->id, '_ext' => 'csv'],
+		'url' => ['action' => 'view', '?' => ['team' => $team->id, '_ext' => 'csv']],
 	];
 }
 
 if ($team->division_id && $this->Authorize->can('stat_sheet', $context)) {
 	$extra[__('Stat Sheet')] = [
-		'url' => ['action' => 'stat_sheet', 'team' => $team->id],
+		'url' => ['action' => 'stat_sheet', '?' => ['team' => $team->id]],
 	];
 }
 
@@ -267,7 +267,7 @@ if (Configure::read('feature.shirt_numbers') && !$has_numbers &&
 	$this->Authorize->can('numbers', $context)
 ) {
 	$extra[__('Jersey Numbers')] = [
-		'url' => ['action' => 'numbers', 'team' => $team->id],
+		'url' => ['action' => 'numbers', '?' => ['team' => $team->id]],
 	];
 }
 

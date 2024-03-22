@@ -9945,7 +9945,7 @@ msgstr ""
 msgid " and "
 msgstr ""
 
-#: Template/Element/Email/html/footer.ctp:5
+#: Template/Element/email/html/footer.ctp:5
 #: Template/Element/Email/text/footer.ctp:5
 msgid "Thanks,"
 msgstr ""

@@ -223,7 +223,7 @@ zjQuery(".uls-trigger").uls({
 		zjQuery(".uls-menu").css("left", "").css("right", right + "px");
 	},
 	onSelect : function (language) {
-		window.location = "' . $this->Url->build(['controller' => 'All', 'action' => 'language', 'return' => AppController::_return()], true) . '&lang=" + language;
+		window.location = "' . $this->Url->build(['controller' => 'All', 'action' => 'language', '?' => ['return' => AppController::_return()]], true) . '&lang=" + language;
 	},
 	languages: {' . Configure::read('available_translation_strings') . '}
 });

@@ -10,7 +10,7 @@ use Cake\Routing\Router;
 ?>
 
 <div id="newsletter">
-	<?= $this->element('Email/html/newsletter_header') ?>
+	<?= $this->element('email/html/newsletter_header') ?>
 	<div id="newsletter_body">
 <?php
 $text = $newsletter->text;
@@ -58,5 +58,5 @@ endif;
 ?>
 		</div>
 	</div>
-	<?= $this->element('Email/html/newsletter_footer') ?>
+	<?= $this->element('email/html/newsletter_footer') ?>
 </div>

@@ -79,22 +79,22 @@ if (($this->getRequest()->getParam('controller') != 'Divisions' || $this->getReq
 if ($this->Authorize->can('edit', $division)) {
 	if (!$collapse && ($this->getRequest()->getParam('controller') != 'Divisions' || $this->getRequest()->getParam('action') != 'edit')) {
 		$more[__('Edit Division')] = [
-			'url' => ['controller' => 'Divisions', 'action' => 'edit', 'division' => $division->id, 'return' => AppController::_return()],
+			'url' => ['controller' => 'Divisions', 'action' => 'edit', '?' => ['division' => $division->id, 'return' => AppController::_return()]],
 		];
 	}
 	if (!empty($division->is_playoff) && ($this->getRequest()->getParam('controller') != 'Divisions' || $this->getRequest()->getParam('action') != 'initialize_ratings')) {
 		$more[__('Initialize Ratings')] = [
-			'url' => ['controller' => 'Divisions', 'action' => 'initialize_ratings', 'division' => $division->id, 'return' => $return],
+			'url' => ['controller' => 'Divisions', 'action' => 'initialize_ratings', '?' => ['division' => $division->id, 'return' => $return]],
 		];
 	}
 	if ($division->schedule_type == 'tournament' && ($this->getRequest()->getParam('controller') != 'Divisions' || $this->getRequest()->getParam('action') != 'seeds')) {
 		$more[__('Initialize Seeds')] = [
-			'url' => ['controller' => 'Divisions', 'action' => 'seeds', 'division' => $division->id],
+			'url' => ['controller' => 'Divisions', 'action' => 'seeds', '?' => ['division' => $division->id]],
 		];
 	}
 	if ($this->getRequest()->getParam('controller') != 'Divisions' || $this->getRequest()->getParam('action') != 'emails') {
 		$more[__('Coach/Captain Emails')] = [
-			'url' => ['controller' => 'Divisions', 'action' => 'emails', 'division' => $division->id],
+			'url' => ['controller' => 'Divisions', 'action' => 'emails', '?' => ['division' => $division->id]],
 		];
 	}
 }
@@ -103,29 +103,29 @@ if (($this->getRequest()->getParam('controller') != 'Divisions' || $this->getReq
 	$this->Authorize->can('approve_scores', $division)
 ) {
 	$more[__('Approve Scores')] = [
-		'url' => ['controller' => 'Divisions', 'action' => 'approve_scores', 'division' => $division->id, 'return' => $return],
+		'url' => ['controller' => 'Divisions', 'action' => 'approve_scores', '?' => ['division' => $division->id, 'return' => $return]],
 	];
 }
 
 if ($this->Authorize->can('edit_schedule', $division)) {
 	if (($this->getRequest()->getParam('controller') != 'Schedules' || $this->getRequest()->getParam('action') != 'add')) {
 		$more[__('Add Games')] = [
-			'url' => ['controller' => 'Schedules', 'action' => 'add', 'division' => $division->id, 'return' => $return],
+			'url' => ['controller' => 'Schedules', 'action' => 'add', '?' => ['division' => $division->id, 'return' => $return]],
 		];
 	}
 	if ($this->getRequest()->getParam('controller') != 'Divisions' || $this->getRequest()->getParam('action') != 'fields') {
 		$more[__('{0} Distribution Report', __(Configure::read("sports.{$league->sport}.field_cap")))] = [
-			'url' => ['controller' => 'Divisions', 'action' => 'fields', 'division' => $division->id],
+			'url' => ['controller' => 'Divisions', 'action' => 'fields', '?' => ['division' => $division->id]],
 		];
 	}
 	if ($this->getRequest()->getParam('controller') != 'Divisions' || $this->getRequest()->getParam('action') != 'slots') {
 		$more[__('{0} Availability', __(Configure::read("sports.{$league->sport}.field_cap")))] = [
-			'url' => ['controller' => 'Divisions', 'action' => 'slots', 'division' => $division->id],
+			'url' => ['controller' => 'Divisions', 'action' => 'slots', '?' => ['division' => $division->id]],
 		];
 	}
 	if ($this->getRequest()->getParam('controller') != 'Divisions' || $this->getRequest()->getParam('action') != 'status') {
 		$more[__('Status Report')] = [
-			'url' => ['controller' => 'Divisions', 'action' => 'status', 'division' => $division->id],
+			'url' => ['controller' => 'Divisions', 'action' => 'status', '?' => ['division' => $division->id]],
 		];
 	}
 }
@@ -134,7 +134,7 @@ if (($this->getRequest()->getParam('controller') != 'Divisions' || $this->getReq
 	$this->Authorize->can('spirit', new ContextResource($division, ['league' => $league]))
 ) {
 	$more[__('Division Spirit Report')] = [
-		'url' => ['controller' => 'Divisions', 'action' => 'spirit', 'division' => $division->id],
+		'url' => ['controller' => 'Divisions', 'action' => 'spirit', '?' => ['division' => $division->id]],
 	];
 }
 
@@ -142,7 +142,7 @@ if (($this->getRequest()->getParam('controller') != 'Divisions' || $this->getReq
 	$this->Authorize->can('add_teams', $division)
 ) {
 	$more[__('Add Teams')] = [
-		'url' => ['controller' => 'Divisions', 'action' => 'add_teams', 'division' => $division->id, 'return' => $return],
+		'url' => ['controller' => 'Divisions', 'action' => 'add_teams', '?' => ['division' => $division->id, 'return' => $return]],
 	];
 }
 
@@ -150,7 +150,7 @@ if (($this->getRequest()->getParam('controller') != 'Divisions' || $this->getReq
 	$this->Authorize->can('add_coordinator', $division)
 ) {
 	$more[__('Add Coordinator')] = [
-		'url' => ['controller' => 'Divisions', 'action' => 'add_coordinator', 'division' => $division->id, 'return' => $return],
+		'url' => ['controller' => 'Divisions', 'action' => 'add_coordinator', '?' => ['division' => $division->id, 'return' => $return]],
 	];
 }
 
@@ -158,7 +158,7 @@ if (($this->getRequest()->getParam('controller') != 'Divisions' || $this->getReq
 	$this->Authorize->can('add_division', $league)
 ) {
 	$more[__('Clone Division')] = [
-		'url' => ['controller' => 'Divisions', 'action' => 'add', 'league' => $division->league_id, 'division' => $division->id, 'return' => $return],
+		'url' => ['controller' => 'Divisions', 'action' => 'add', '?' => ['league' => $division->league_id, 'division' => $division->id, 'return' => $return]],
 	];
 }
 
@@ -166,7 +166,7 @@ if (($this->getRequest()->getParam('controller') != 'Divisions' || $this->getReq
 	$this->Authorize->can('allstars', $division)
 ) {
 	$more[__('Allstars')] = [
-		'url' => ['controller' => 'Divisions', 'action' => 'allstars', 'division' => $division->id],
+		'url' => ['controller' => 'Divisions', 'action' => 'allstars', '?' => ['division' => $division->id]],
 	];
 }
 

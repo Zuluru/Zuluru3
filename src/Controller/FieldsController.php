@@ -48,7 +48,7 @@ class FieldsController extends AppController {
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
 
-		return $this->redirect(['controller' => 'Facilities', 'action' => 'view', 'facility' => $facility_id], Message::STATUS_MOVED_PERMANENTLY);
+		return $this->redirect(['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $facility_id]], Message::STATUS_MOVED_PERMANENTLY);
 	}
 
 	/**
