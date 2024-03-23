@@ -973,6 +973,7 @@ class GamesController extends AppController {
 		if ($code) {
 			// Fake the posted data array with the status from the URL
 			$data = ['status' => $this->getRequest()->getQuery('status')];
+			$this->setRequest($this->getRequest()->withData('status', $this->getRequest()->getQuery('status')));
 		} else {
 			$data = $this->getRequest()->getData();
 		}
