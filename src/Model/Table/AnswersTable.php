@@ -72,7 +72,7 @@ class AnswersTable extends AppTable {
 	public function affiliate($id) {
 		try {
 			return $this->Questions->affiliate($this->field('question_id', ['Answers.id' => $id]));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

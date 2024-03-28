@@ -169,10 +169,10 @@ class DivisionsControllerTest extends ControllerTestCase {
 		// If a division ID is given, we will clone that division
 		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add', '?' => ['league' => $league1->id, 'division' => $division1->id]], $admin->id);
 		$this->assertResponseRegExp('#<input type="text" name="name"[^>]*value="' . $division1->name . '"#ms');
-		$this->assertResponseContains('<input type="checkbox" name="days[_ids][]" value="1" checked="checked" id="days-ids-1">Monday');
-		$this->assertResponseNotContains('<input type="checkbox" name="days[_ids][]" value="2" checked="checked" id="days-ids-2">Tuesday');
-		$this->assertResponseNotContains('<input type="checkbox" name="days[_ids][]" value="3" checked="checked" id="days-ids-3">Wednesday');
-		$this->assertResponseNotContains('<input type="checkbox" name="days[_ids][]" value="4" checked="checked" id="days-ids-4">Thursday');
+		$this->assertResponseRegExp('#<input type="checkbox" name="days\[_ids\]\[\]" value="1" checked="checked" id="days-ids-1".*>Monday#ms');
+		$this->assertResponseRegExp('#<input type="checkbox" name="days\[_ids\]\[\]" value="2" id="days-ids-2".*>Tuesday#ms');
+		$this->assertResponseRegExp('#<input type="checkbox" name="days\[_ids\]\[\]" value="3" id="days-ids-3".*>Wednesday#ms');
+		$this->assertResponseRegExp('#<input type="checkbox" name="days\[_ids\]\[\]" value="4" id="days-ids-4".*>Thursday#ms');
 
 		// Managers are allowed to add new divisions in their own affiliate, but not others
 		$this->assertGetAsAccessOk(['controller' => 'Divisions', 'action' => 'add', '?' => ['league' => $league1->id]], $manager->id);
@@ -231,6 +231,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 */
 	public function testSchedulingFields(): void {
 		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$this->loadFixtureScenario(LeagueScenario::class, [
@@ -1489,6 +1490,7 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 */
 	public function testSelect(): void {
 		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$affiliates = $admin->affiliates;

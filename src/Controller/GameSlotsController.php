@@ -44,10 +44,7 @@ class GameSlotsController extends AppController {
 					'Divisions' => ['Leagues'],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid game slot.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game slot.'));
 			return $this->redirect('/');
 		}
@@ -84,10 +81,7 @@ class GameSlotsController extends AppController {
 				$field = $this->GameSlots->Fields->get($field, [
 					'contain' => ['Facilities' => ['Regions']],
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
-				return $this->redirect('/');
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 				return $this->redirect('/');
 			}
@@ -294,10 +288,7 @@ class GameSlotsController extends AppController {
 			$game_slot = $this->GameSlots->get($id, [
 				'contain' => ['Divisions', 'Fields']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid game slot.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game slot.'));
 			return $this->redirect('/');
 		}
@@ -352,10 +343,7 @@ class GameSlotsController extends AppController {
 			$game_slot = $this->GameSlots->get($this->getRequest()->getQuery('slot'), [
 				'contain' => ['Divisions']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid game slot.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game slot.'));
 			return $this->redirect('/');
 		}

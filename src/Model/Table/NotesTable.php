@@ -100,7 +100,7 @@ class NotesTable extends AppTable {
 				return $this->Fields->affiliate($note->field_id);
 			}
 			throw new \InvalidArgumentException('Note does not have a valid record associated.');
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

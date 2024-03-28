@@ -7,7 +7,7 @@
 use Cake\Core\Configure;
 
 // We intentionally do not echo the result of the create call. It is just to set up some defaults in the form helper.
-$this->form->create(null, ['align' => 'horizontal']);
+$this->Form->create(null, ['align' => 'horizontal']);
 
 $team_names = [
 	$game->home_team->id => $game->home_team->name,

@@ -9,7 +9,7 @@ $this->Breadcrumbs->add(__('Nominate'));
 ?>
 
 <div class="badges form">
-<?= $this->form->create(null, ['align' => 'horizontal']) ?>
+<?= $this->Form->create(null, ['align' => 'horizontal']) ?>
 	<fieldset>
 		<legend><?= __('Nominate for a Badge') ?></legend>
 <?php

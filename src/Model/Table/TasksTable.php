@@ -103,7 +103,7 @@ class TasksTable extends AppTable {
 	public function affiliate($id) {
 		try {
 			return $this->Categories->affiliate($this->field('category_id', ['Tasks.id' => $id]));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

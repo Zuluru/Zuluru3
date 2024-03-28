@@ -14,7 +14,7 @@ class InitializationListener implements EventListenerInterface {
 		];
 	}
 
-	public function beforeRender(EventInterface $event) {
+	public function beforeRender(EventInterface $event): void {
 		// Set the theme, if any
 		$theme = Configure::read('App.theme');
 		if (!empty($theme)) {

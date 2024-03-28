@@ -25,7 +25,7 @@ class LeaguesController extends AppController {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		return ['index', 'view', 'schedule', 'standings', 'tooltip'];
 	}
 
@@ -167,10 +167,7 @@ class LeaguesController extends AppController {
 					'Categories',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid league.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid league.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -208,10 +205,7 @@ class LeaguesController extends AppController {
 					],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid league.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid league.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -251,10 +245,7 @@ class LeaguesController extends AppController {
 			$league = $this->Leagues->get($id, [
 				'contain' => $contain,
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid league.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid league.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -296,10 +287,7 @@ class LeaguesController extends AppController {
 					$league = $this->Leagues->get($id, [
 						'contain' => ['Categories', 'Divisions' => ['Days']]
 					]);
-				} catch (RecordNotFoundException $ex) {
-					$this->Flash->info(__('Invalid league.'));
-					return $this->redirect(['action' => 'index']);
-				} catch (InvalidPrimaryKeyException $ex) {
+				} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 					$this->Flash->info(__('Invalid league.'));
 					return $this->redirect(['action' => 'index']);
 				}
@@ -319,7 +307,11 @@ class LeaguesController extends AppController {
 		$this->set('affiliates', $this->Authentication->applicableAffiliates(true));
 		$this->set('days', $this->Leagues->Divisions->Days->find('list'));
 		$this->set('categories', $this->Leagues->Categories->find('list')->where(['Categories.type' => 'Leagues'])->toArray());
-		$this->set('stat_types', $this->Leagues->StatTypes->findBySport($league->sport));
+		if ($league->sport) {
+			$this->set('stat_types', $this->Leagues->StatTypes->findBySport($league->sport));
+		} else {
+			$this->set('stat_types', []);
+		}
 		$this->render('edit');
 	}
 
@@ -345,10 +337,7 @@ class LeaguesController extends AppController {
 					'StatTypes',
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid league.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid league.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -411,10 +400,7 @@ class LeaguesController extends AppController {
 		$id = $this->getRequest()->getQuery('league') ?: $this->getRequest()->getQuery('tournament');
 		try {
 			$league = $this->Leagues->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid league.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid league.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -460,10 +446,7 @@ class LeaguesController extends AppController {
 						],
 					],
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid league.'));
-				return null;
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid league.'));
 				return null;
 			}
@@ -665,10 +648,7 @@ class LeaguesController extends AppController {
 						],
 					],
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid league.'));
-				return null;
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid league.'));
 				return null;
 			}
@@ -772,10 +752,7 @@ class LeaguesController extends AppController {
 					'Divisions',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid league.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid league.'));
 			return $this->redirect(['action' => 'index']);
 		}

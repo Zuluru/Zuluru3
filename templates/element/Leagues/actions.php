@@ -64,7 +64,7 @@ if (!empty($schedule_types) && ($schedule_types[0] != 'none' || count($schedule_
 if ($this->Authorize->can('edit', $league)) {
 	if ($this->getRequest()->getParam('controller') != 'Leagues' || $this->getRequest()->getParam('action') != 'edit') {
 		$more[$tournaments ? __('Edit Tournament') : __('Edit League')] = [
-			'url' => ['controller' => $controller, 'action' => 'edit', $model => $league->id, 'return' => AppController::_return()],
+			'url' => ['controller' => $controller, 'action' => 'edit', '?' => [$model => $league->id, 'return' => AppController::_return()]],
 		];
 	}
 
@@ -72,7 +72,7 @@ if ($this->Authorize->can('edit', $league)) {
 		$this->Authorize->can('add', LeaguesController::class)
 	) {
 		$more[$tournaments ? __('Clone Tournament') : __('Clone League')] = [
-			'url' => ['controller' => $controller, 'action' => 'add', $model => $league->id, 'return' => $return],
+			'url' => ['controller' => $controller, 'action' => 'add', '?' => [$model => $league->id, 'return' => $return]],
 		];
 	}
 
@@ -84,7 +84,7 @@ if ($this->Authorize->can('edit', $league)) {
 }
 
 if ($this->Authorize->can('delete', $league)) {
-	$url = ['controller' => $controller, 'action' => 'delete', $model => $league->id];
+	$url = ['controller' => $controller, 'action' => 'delete', '?' => [$model => $league->id]];
 	if ($this->getRequest()->getParam('controller') != 'Leagues') {
 		$url['return'] = AppController::_return();
 	}
@@ -99,7 +99,7 @@ if (($this->getRequest()->getParam('controller') != 'Leagues' || $this->getReque
 	$this->Authorize->can('participation', $league)
 ) {
 	$more[__('Participation Report')] = [
-		'url' => ['controller' => $controller, 'action' => 'participation', $model => $league->id]
+		'url' => ['controller' => $controller, 'action' => 'participation', '?' => [$model => $league->id]]
 	];
 }
 

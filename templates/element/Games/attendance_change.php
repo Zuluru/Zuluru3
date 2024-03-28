@@ -48,17 +48,17 @@ if ($team->track_attendance || (isset($force) && $force)) {
 	if ($this->Authorize->can('attendance_change', $context)) {
 		$identity = $this->Authorize->getIdentity();
 
-		$url = ['controller' => 'Games', 'action' => 'attendance_change', 'team' => $team->id];
+		$url = ['controller' => 'Games', 'action' => 'attendance_change', '?' => ['team' => $team->id]];
 		if (isset($game_date)) {
-			$url['date'] = $game_date->format('Y-m-d');
+			$url['?']['date'] = $game_date->format('Y-m-d');
 		} else if ($game->id) {
-			$url['game'] = $game->id;
+			$url['?']['game'] = $game->id;
 		} else {
-			$url['date'] = $game->game_slot->game_date->format('Y-m-d');
+			$url['?']['date'] = $game->game_slot->game_date->format('Y-m-d');
 		}
 
 		if (!$identity->isMe($person_id)) {
-			$url['person'] = $person_id;
+			$url['?']['person'] = $person_id;
 		}
 
 		$valid_options = array_keys(GamesTable::attendanceOptions($role, $status, !$context->future, in_array($team->id, $this->UserCache->read('OwnedTeamIDs'))));

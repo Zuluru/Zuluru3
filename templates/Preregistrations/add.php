@@ -19,7 +19,7 @@ if (isset($event)) {
 <div class="preregistrations form">
 <?php
 if (!isset($event)):
-	echo $this->form->create(null, ['align' => 'horizontal']);
+	echo $this->Form->create(null, ['align' => 'horizontal']);
 ?>
 	<fieldset>
 		<legend><?= __('Add Preregistration') ?></legend>

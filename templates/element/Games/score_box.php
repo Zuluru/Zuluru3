@@ -42,7 +42,7 @@ if (($has_stats && ($submitter == $team['id'] || $submitter === null)) || count(
 <div id="ScoreDetails<?= $team['id'] ?>" title="Scoring Play Details" class="form">
 <div class="zuluru">
 <?php
-echo $this->form->create(null, [
+echo $this->Form->create(null, [
 		'id' => "ScoreForm{$team['id']}",
 		'url' => $url_up,
 ]);
@@ -182,7 +182,7 @@ if (count($other_options) > 1):
 <div id="OtherDetails<?= $team['id'] ?>" title="<?= __('Other Details') ?>" class="form">
 <div class="zuluru">
 <?php
-	echo $this->form->create(null, [
+	echo $this->Form->create(null, [
 		'id' => "OtherForm{$team['id']}",
 		'url' => $url_other,
 	]);

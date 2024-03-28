@@ -1,10 +1,8 @@
 <?php
 namespace App\Controller;
 
-use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Http\Exception\MethodNotAllowedException;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 
@@ -87,10 +85,7 @@ class QuestionnairesController extends AppController {
 					'Events',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid questionnaire.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid questionnaire.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -137,10 +132,7 @@ class QuestionnairesController extends AppController {
 			$questionnaire = $this->Questionnaires->get($id, [
 				'contain' => ['Questions']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid questionnaire.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid questionnaire.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -175,10 +167,7 @@ class QuestionnairesController extends AppController {
 		$id = $this->getRequest()->getQuery('questionnaire');
 		try {
 			$questionnaire = $this->Questionnaires->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid questionnaire.'));
-			return $this->redirect(['controller' => 'Questionnaires']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid questionnaire.'));
 			return $this->redirect(['controller' => 'Questionnaires']);
 		}
@@ -205,10 +194,7 @@ class QuestionnairesController extends AppController {
 		$id = $this->getRequest()->getQuery('questionnaire');
 		try {
 			$questionnaire = $this->Questionnaires->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid questionnaire.'));
-			return $this->redirect(['controller' => 'Questionnaires']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid questionnaire.'));
 			return $this->redirect(['controller' => 'Questionnaires']);
 		}
@@ -235,10 +221,7 @@ class QuestionnairesController extends AppController {
 		$id = $this->getRequest()->getQuery('questionnaire');
 		try {
 			$questionnaire = $this->Questionnaires->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid questionnaire.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid questionnaire.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -268,10 +251,7 @@ class QuestionnairesController extends AppController {
 		$question_id = $this->getRequest()->getQuery('question');
 		try {
 			$question = $this->Questionnaires->Questions->get($question_id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid question.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid question.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -289,10 +269,7 @@ class QuestionnairesController extends AppController {
 					],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid questionnaire.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid questionnaire.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -314,10 +291,7 @@ class QuestionnairesController extends AppController {
 		$question_id = $this->getRequest()->getQuery('question');
 		try {
 			$question = $this->Questionnaires->Questions->get($question_id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid question.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid question.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -336,10 +310,7 @@ class QuestionnairesController extends AppController {
 					'Events',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid questionnaire.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid questionnaire.'));
 			return $this->redirect(['action' => 'index']);
 		}

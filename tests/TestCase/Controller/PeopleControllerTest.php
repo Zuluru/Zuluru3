@@ -1983,6 +1983,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 */
 	public function testDeleteBadgeAsAdmin(): void {
 		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 
@@ -2003,6 +2004,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 */
 	public function testDeleteBadgeAsManager(): void {
 		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
@@ -2023,6 +2025,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 */
 	public function testDeleteBadgeAsOthers(): void {
 		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
 

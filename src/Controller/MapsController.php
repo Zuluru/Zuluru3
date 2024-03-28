@@ -14,7 +14,7 @@ class MapsController extends AppController {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		return ['index', 'view'];
 	}
 
@@ -65,10 +65,7 @@ class MapsController extends AppController {
 		try {
 			$facilities_table = TableRegistry::getTableLocator()->get('Facilities');
 			$field = $facilities_table->Fields->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
-			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
@@ -113,10 +110,7 @@ class MapsController extends AppController {
 		try {
 			$facilities_table = TableRegistry::getTableLocator()->get('Facilities');
 			$field = $facilities_table->Fields->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
-			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}

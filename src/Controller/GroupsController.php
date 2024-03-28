@@ -32,10 +32,7 @@ class GroupsController extends AppController {
 		$id = $this->getRequest()->getQuery('group');
 		try {
 			$group = $this->Groups->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid group.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid group.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -62,10 +59,7 @@ class GroupsController extends AppController {
 		$id = $this->getRequest()->getQuery('group');
 		try {
 			$group = $this->Groups->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid group.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid group.'));
 			return $this->redirect(['action' => 'index']);
 		}

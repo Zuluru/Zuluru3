@@ -259,7 +259,7 @@ class UsersTable extends AppTable {
 		} else {
 			try {
 				$person_id = $this->People->field('id', ['People.user_id' => $entity->id]);
-			} catch (RecordNotFoundException $ex) {
+			} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 				// If there's no person record, then there's no cache to clear.
 				return;
 			}

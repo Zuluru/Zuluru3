@@ -73,11 +73,11 @@ class PricesTable extends AppTable {
 			->numeric('tax2', __('You must enter a valid tax amount.'))
 			->allowEmptyString('tax2', null, function () { return !Configure::read('payment.tax2_enable'); })
 
-			->dateTime('open', __('You must select a valid opening date.'))
+			->dateTime('open', ['ymd'], __('You must select a valid opening date.'))
 			->requirePresence('open', 'create', __('You must select a valid opening date.'))
 			->notEmptyDateTime('open', __('You must select a valid opening date.'))
 
-			->dateTime('close', __('You must select a valid closing date.'))
+			->dateTime('close', ['ymd'], __('You must select a valid closing date.'))
 			->requirePresence('close', 'create', __('You must select a valid closing date.'))
 			->notEmptyDateTime('close', __('You must select a valid closing date.'))
 
@@ -220,7 +220,7 @@ class PricesTable extends AppTable {
 	public function event($id) {
 		try {
 			return $this->field('event_id', ['Prices.id' => $id]);
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
@@ -228,7 +228,7 @@ class PricesTable extends AppTable {
 	public function affiliate($id) {
 		try {
 			return $this->Events->affiliate($this->event($id));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

@@ -1,6 +1,8 @@
 <?php
 namespace App\Model\Entity;
 
+use App\Core\ModuleRegistry;
+use App\Module\Spirit;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\RecordNotFoundException;
@@ -10,8 +12,7 @@ use Cake\I18n\FrozenTime;
 use Cake\I18n\Number;
 use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
-use App\Core\ModuleRegistry;
-use App\Module\Spirit;
+use InvalidArgumentException;
 
 /**
  * Game Entity.
@@ -94,9 +95,7 @@ class Game extends Entity {
 			$teams_table = TableRegistry::getTableLocator()->get('Teams');
 			try {
 				$team = $this->home_team = $teams_table->get($this->home_team_id);
-			} catch (RecordNotFoundException $ex) {
-				return null;
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				return null;
 			}
 		}
@@ -516,7 +515,7 @@ class Game extends Entity {
 						'created_team_id' => $team_id,
 					])
 					->firstOrFail();
-			} catch (RecordNotFoundException $ex) {
+			} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 				if (!$force) {
 					return false;
 				}

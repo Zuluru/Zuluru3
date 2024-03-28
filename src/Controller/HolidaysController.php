@@ -62,10 +62,7 @@ class HolidaysController extends AppController {
 		$id = $this->getRequest()->getQuery('holiday');
 		try {
 			$holiday = $this->Holidays->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid holiday.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid holiday.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -98,10 +95,7 @@ class HolidaysController extends AppController {
 		$id = $this->getRequest()->getQuery('holiday');
 		try {
 			$holiday = $this->Holidays->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid holiday.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid holiday.'));
 			return $this->redirect(['action' => 'index']);
 		}

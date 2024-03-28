@@ -107,7 +107,7 @@ class SpiritEntriesTable extends AppTable {
 	public function division($id) {
 		try {
 			return $this->Games->division($this->field('game_id', ['SpiritEntries.id' => $id]));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
@@ -115,7 +115,7 @@ class SpiritEntriesTable extends AppTable {
 	public function team($id) {
 		try {
 			return $this->field('created_team_id', ['SpiritEntries.id' => $id]);
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

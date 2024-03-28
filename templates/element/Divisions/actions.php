@@ -72,7 +72,7 @@ if (($this->getRequest()->getParam('controller') != 'Divisions' || $this->getReq
 	$this->Authorize->can('scores', $division)
 ) {
 	$more[__('Scores')] = [
-		'url' => ['controller' => 'Divisions', 'action' => 'scores', 'division' => $division->id]
+		'url' => ['controller' => 'Divisions', 'action' => 'scores', '?' => ['division' => $division->id]]
 	];
 }
 
@@ -171,7 +171,7 @@ if (($this->getRequest()->getParam('controller') != 'Divisions' || $this->getReq
 }
 
 if (!$collapse && $this->Authorize->can('delete', $division)) {
-	$url = ['controller' => 'Divisions', 'action' => 'delete', 'division' => $division->id];
+	$url = ['controller' => 'Divisions', 'action' => 'delete', '?' => ['division' => $division->id]];
 	if ($this->getRequest()->getParam('controller') != 'Divisions') {
 		$url['return'] = AppController::_return();
 	}

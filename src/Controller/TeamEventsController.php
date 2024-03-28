@@ -25,7 +25,7 @@ class TeamEventsController extends AppController {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		// Attendance updates may come from emailed links; people might not be logged in
 		return ['attendance_change'];
 	}
@@ -46,10 +46,7 @@ class TeamEventsController extends AppController {
 					],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team event.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team event.'));
 			return $this->redirect('/');
 		}
@@ -75,10 +72,7 @@ class TeamEventsController extends AppController {
 			$team = $this->TeamEvents->Teams->get($id, [
 				'contain' => ['Divisions' => ['Leagues']],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect('/');
 		}
@@ -198,10 +192,7 @@ class TeamEventsController extends AppController {
 					],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team event.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team event.'));
 			return $this->redirect('/');
 		}
@@ -234,10 +225,7 @@ class TeamEventsController extends AppController {
 		$id = $this->getRequest()->getQuery('event');
 		try {
 			$team_event = $this->TeamEvents->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team event.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team event.'));
 			return $this->redirect('/');
 		}

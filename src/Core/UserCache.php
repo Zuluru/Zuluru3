@@ -310,9 +310,7 @@ class UserCache {
 								],
 							]
 						]);
-					} catch (RecordNotFoundException $ex) {
-						$self->data[$id][$key] = [];
-					} catch (InvalidPrimaryKeyException $ex) {
+					} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 						$self->data[$id][$key] = [];
 					}
 					break;
@@ -399,9 +397,7 @@ class UserCache {
 							'contain' => ['Related'],
 						]);
 						$self->data[$id][$key] = $person->related;
-					} catch (RecordNotFoundException $ex) {
-						$self->data[$id][$key] = [];
-					} catch (InvalidPrimaryKeyException $ex) {
+					} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 						$self->data[$id][$key] = [];
 					}
 					break;
@@ -418,9 +414,7 @@ class UserCache {
 							'contain' => ['Relatives'],
 						]);
 						$self->data[$id][$key] = $person->relatives;
-					} catch (RecordNotFoundException $ex) {
-						$self->data[$id][$key] = [];
-					} catch (InvalidPrimaryKeyException $ex) {
+					} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 						$self->data[$id][$key] = [];
 					}
 					break;
@@ -474,9 +468,7 @@ class UserCache {
 							$user->person = TableRegistry::getTableLocator()->get('People')->get($id);
 							$self->data[$id][$key] = $user;
 						}
-					} catch (RecordNotFoundException $ex) {
-						$self->data[$id][$key] = [];
-					} catch (InvalidPrimaryKeyException $ex) {
+					} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 						$self->data[$id][$key] = [];
 					}
 					break;

@@ -19,7 +19,7 @@ if (empty($event->registrations)) {
 	echo $this->Html->para(null, __('All people registered for {0} are already on this roster.', $event->name));
 } else {
 	echo $this->Html->para(null, __('The following people have registered and paid for {0} but are not on the current roster:', $event->name));
-	echo $this->form->create(null, ['align' => 'horizontal']);
+	echo $this->Form->create(null, ['align' => 'horizontal']);
 	echo $this->Form->hidden('event', ['value' => $event->id]);
 
 	$cannot = [];

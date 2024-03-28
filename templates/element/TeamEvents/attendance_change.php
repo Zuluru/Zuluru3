@@ -46,9 +46,9 @@ if ($team->track_attendance) {
 	if ($this->Authorize->can('attendance_change', $context)) {
 		$identity = $this->Authorize->getIdentity();
 
-		$url = ['controller' => 'TeamEvents', 'action' => 'attendance_change', 'event' => $event->id];
+		$url = ['controller' => 'TeamEvents', 'action' => 'attendance_change', '?' => ['event' => $event->id]];
 		if (!$identity->isMe($person_id)) {
-			$url['person'] = $person_id;
+			$url['?']['person'] = $person_id;
 		}
 
 		$valid_options = array_keys(GamesTable::attendanceOptions($role, $status, !$context->future, in_array($team->id, $this->UserCache->read('OwnedTeamIDs'))));

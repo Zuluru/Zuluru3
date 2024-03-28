@@ -34,7 +34,6 @@ class TableTestCase extends TestCase {
 	public function tearDown(): void {
 		Cache::clear('long_term');
 		FrozenTime::setTestNow();
-		FrozenDate::setTestNow();
 		parent::tearDown();
 	}
 

@@ -1,14 +1,13 @@
 <?php
 namespace App;
 
-use Ajax\Middleware\AjaxMiddleware;
 use App\Authentication\ActAsIdentity;
 use App\Core\UserCache;
-use App\Event\FlashTrait;
 use App\Exception\ForbiddenRedirectException;
 use App\Exception\LockedIdentityException;
 use App\Http\Middleware\ActAsMiddleware;
 use App\Middleware\AffiliateConfigurationLoader;
+use App\Middleware\AjaxMiddleware;
 use App\Middleware\ConfigurationLoader;
 use App\Http\Middleware\CookiePathMiddleware;
 use App\Http\Middleware\CsrfProtectionMiddleware;
@@ -33,7 +32,6 @@ use Authorization\Policy\ResolverCollection;
 use Boronczyk\LocalizationMiddleware;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
-use Cake\Core\Exception\MissingPluginException;
 use Cake\Error\Middleware\ErrorHandlerMiddleware;
 use Cake\Http\BaseApplication;
 use Cake\Http\Middleware\BodyParserMiddleware;
@@ -60,8 +58,6 @@ use Psr\Http\Server\RequestHandlerInterface;
  */
 class Application extends BaseApplication implements AuthenticationServiceProviderInterface, AuthorizationServiceProviderInterface {
 
-	use FlashTrait;
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -83,13 +79,8 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 			$this->addPlugin('Installer', ['bootstrap' => true, 'routes' => true]);
 		} else {
 			if (PHP_SAPI === 'cli') {
-				try {
-					$this->addPlugin('Bake');
-					$this->addPlugin('Transifex');
-				} catch (MissingPluginException $e) {
-					// Do not halt if the plugin is missing
-				}
-
+				$this->addOptionalPlugin('Bake');
+				$this->addOptionalPlugin('Transifex');
 				$this->addPlugin('Scheduler', ['autoload' => true]);
 			}
 
@@ -98,15 +89,19 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 			 * Debug Kit should not be installed on a production system
 			 */
 			if (Configure::read('debug')) {
-				$this->addPlugin('DebugKit', ['bootstrap' => true]);
-				$this->addPlugin('CakephpFixtureFactories');
+				if (PHP_SAPI === 'cli') {
+					$this->addOptionalPlugin('CakephpFixtureFactories');
+				} else {
+					$this->addOptionalPlugin('DebugKit', ['bootstrap' => true]);
+				}
 			}
 
+			$this->addPlugin('Muffin/Footprint');
 			$this->addPlugin('Authentication');
 			$this->addPlugin('Authorization');
-			$this->addPlugin('Ajax');
+			$this->addPlugin('Ajax', ['bootstrap' => true]);
+			$this->addPlugin('Calendar');
 			$this->addPlugin('Josegonzalez/Upload');
-			$this->addPlugin('Muffin/Footprint');
 			$this->addPlugin('Cors', ['bootstrap' => true, 'routes' => false]);
 
 			$this->addPlugin('ZuluruBootstrap');
@@ -117,7 +112,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 			}
 		}
 
-		$this->addPlugin('Bootstrap', ['bootstrap' => true]);
+		$this->addPlugin('BootstrapUI', ['bootstrap' => true]);
 		$this->addPlugin('Migrations');
 
 		try {
@@ -185,7 +180,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 				'fields' => $fields,
 				'cookie' => [
 					'name' => 'ZuluruAuth',
-					'expire' => new Time('+1 year'),
+					'expires' => new Time('+1 year'),
 					'path' => '/' . trim($request->getAttribute('webroot'), '/'),
 				],
 			]);
@@ -422,6 +417,9 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 				return $handler->handle($request);
 			})
 
+			// Add Footprint middleware
+			->add('Muffin/Footprint.Footprint')
+
 			// Add unauthorized flash message
 			->add(function (
 				ServerRequestInterface $request,
@@ -430,7 +428,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 				try {
 					return $handler->handle($request);
 				} catch (UnauthenticatedException $ex) {
-					$this->Flash('error', __('You must login to access full site functionality.'));
+					$request->getFlash()->error(__('You must login to access full site functionality.'));
 					throw $ex;
 				}
 			})
@@ -483,7 +481,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 							'unauthorizedUrl' => Router::url('/'),
 							'exceptions' => [
 								MissingIdentityException::class => function(HandlerInterface $subject, ServerRequestInterface $request, Exception $exception, array $options) {
-									$subject->Flash($request, 'error', __('You must login to access full site functionality.'));
+									$request->getFlash()->error(__('You must login to access full site functionality.'));
 									$url = $subject->getUrl($request, array_merge($options, ['referrer' => true, 'unauthenticated' => true]));
 									$response = new Response();
 
@@ -499,7 +497,9 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 										$url = Router::url($url);
 									}
 									if ($exception->getMessage()) {
-										$subject->Flash($request, $exception->getClass(), $exception->getMessage(), $exception->getOptions());
+										$flashOptions = $exception->getOptions();
+										$flashOptions['element'] = $exception->getClass();
+										$request->getFlash()->set($exception->getMessage(), $flashOptions);
 									}
 									$response = new Response();
 
@@ -508,7 +508,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 										->withStatus($options['statusCode']);
 								},
 								LockedIdentityException::class => function(HandlerInterface $subject, ServerRequestInterface $request, Exception $exception, array $options) {
-									$subject->Flash($request, 'error', __('Your profile is currently {0}, so you can continue to use the site, but may be limited in some areas. To reactivate, {1}.',
+									$request->getFlash()->error(__('Your profile is currently {0}, so you can continue to use the site, but may be limited in some areas. To reactivate, {1}.',
 										__(UserCache::getInstance()->read('Person.status')),
 										__('contact {0}', Configure::read('email.admin_name'))
 									));
@@ -520,7 +520,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 										->withStatus($options['statusCode']);
 								},
 								ForbiddenException::class => function(HandlerInterface $subject, ServerRequestInterface $request, Exception $exception, array $options) {
-                                    $subject->Flash($request, 'error', __('You do not have permission to access that page.'));
+									$request->getFlash()->error(__('You do not have permission to access that page.'));
 									$url = $subject->getUrl($request, array_merge($options, ['referrer' => false]));
 									$response = new Response();
 

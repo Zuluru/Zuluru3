@@ -195,7 +195,7 @@ class UploadsTable extends AppTable {
 	public function affiliate($id) {
 		try {
 			return $this->UploadTypes->affiliate($this->field('type_id', ['Uploads.id' => $id]));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

@@ -10,8 +10,8 @@ use App\Model\Entity\Registration;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
-use Cake\Event\Event as CakeEvent;
 use Cake\Datasource\Exception\RecordNotFoundException;
+use Cake\Http\ServerRequest;
 use Cake\I18n\Number;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\RulesChecker;
@@ -30,8 +30,6 @@ use App\Core\ModuleRegistry;
  * @property \Cake\ORM\Association\HasMany $Responses
  */
 class RegistrationsTable extends AppTable {
-
-	use FlashTrait;
 
 	/**
 	 * Initialize method
@@ -421,10 +419,10 @@ class RegistrationsTable extends AppTable {
 		}
 	}
 
-	public function refund(Event $event, Registration $registration, $data) {
-		return $this->getConnection()->transactional(function () use ($event, $registration, $data) {
+	public function refund(ServerRequest $request, Event $event, Registration $registration, array $data) {
+		return $this->getConnection()->transactional(function () use ($request, $event, $registration, $data) {
 			if (empty($registration->payments)) {
-				$this->Flash('warning', __('This registration has no payments recorded. When receiving offline payments, be sure to use the "Add Payment" function, rather than just marking the registration as "Paid".'));
+				$request->getFlash()->warning(__('This registration has no payments recorded. When receiving offline payments, be sure to use the "Add Payment" function, rather than just marking the registration as "Paid".'));
 				return false;
 			}
 
@@ -455,11 +453,11 @@ class RegistrationsTable extends AppTable {
 					'payment_amount' => $refund_amount,
 				]), ['validate' => 'refund', 'registration' => $registration]);
 
-				return $this->refundPayment($event, $registration, $payment, $refund, $data['mark_refunded'], $data['online_refund'] ?? false, $credit_notes);
+				return $this->refundPayment($request, $event, $registration, $payment, $refund, $data['mark_refunded'], $data['online_refund'] ?? false, $credit_notes);
 			}
 
 			if ($refund_amount > round(collection($registration->payments)->sumOf('paid'), 2)) {
-				$this->Flash('warning', __('This would refund more than the amount paid.'));
+				$request->getFlash()->warning(__('This would refund more than the amount paid.'));
 				return false;
 			}
 
@@ -474,11 +472,11 @@ class RegistrationsTable extends AppTable {
 					'payment_amount' => $amount,
 				]), ['validate' => 'refund', 'registration' => $registration]);
 
-				if (!$this->refundPayment($event, $registration, $payment, $refund, $data['mark_refunded'], $data['online_refund'] ?? false, $credit_notes)) {
+				if (!$this->refundPayment($request, $event, $registration, $payment, $refund, $data['mark_refunded'], $data['online_refund'] ?? false, $credit_notes)) {
 					if ($payment->getErrors()) {
 						foreach ($payment->getErrors() as $errors) {
 							foreach ($errors as $error) {
-								$this->Flash('warning', $error);
+								$request->getFlash()->warning($error);
 							}
 						}
 					}
@@ -486,7 +484,7 @@ class RegistrationsTable extends AppTable {
 					if ($refund->getErrors()) {
 						foreach ($refund->getErrors() as $errors) {
 							foreach ($errors as $error) {
-								$this->Flash('warning', $error);
+								$request->getFlash()->warning($error);
 							}
 						}
 					}
@@ -502,7 +500,7 @@ class RegistrationsTable extends AppTable {
 		});
 	}
 
-	public function refundPayment(Event $event, Registration $registration, Payment $payment, Payment $refund, $mark_refunded, $online_refund, $credit_notes = null) {
+	public function refundPayment(ServerRequest $request, Event $event, Registration $registration, Payment $payment, Payment $refund, $mark_refunded, $online_refund, $credit_notes = null) {
 		// The form has a positive amount to be refunded, but the refund record has a negative amount.
 		$payment->refunded_amount = round($payment->refunded_amount - $refund->payment_amount, 2);
 		$registration->mark_refunded = $mark_refunded;
@@ -524,12 +522,12 @@ class RegistrationsTable extends AppTable {
 			$refund->setDirty('credits', true);
 		}
 
-		return $this->getConnection()->transactional(function () use ($event, $registration, $payment, $refund, $online_refund) {
+		return $this->getConnection()->transactional(function () use ($request, $event, $registration, $payment, $refund, $online_refund) {
 			$safe_payment = $registration->payment;
 
 			// The registration is also passed as an option, so that the payment rules have easy access to it
 			if (!$this->save($registration, ['registration' => $registration, 'event' => $event])) {
-				$this->Flash('warning', __('The refund could not be saved. Please correct the errors below and try again.'));
+				$request->getFlash()->warning(__('The refund could not be saved. Please correct the errors below and try again.'));
 
 				if ($payment->getError('payment_amount')) {
 					$refund->setErrors(['payment_amount' => $payment->getError('payment_amount')]);
@@ -574,7 +572,7 @@ class RegistrationsTable extends AppTable {
 							));
 						}
 					} catch (PaymentException $ex) {
-						$this->Flash('error', __('Failed to issue refund through online processor. ' .
+						$request->getFlash()->error(__('Failed to issue refund through online processor. ' .
 							'Refund data was NOT saved. ' .
 							'You can try again, or uncheck the "{0}" box and issue the refund manually.',
 							__('Issue refund through online payment provider')
@@ -615,7 +613,7 @@ class RegistrationsTable extends AppTable {
 	public function affiliate($id) {
 		try {
 			return $this->Events->affiliate($this->field('event_id', ['Registrations.id' => $id]));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

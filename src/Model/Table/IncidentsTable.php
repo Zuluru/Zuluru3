@@ -81,7 +81,7 @@ class IncidentsTable extends AppTable {
 	public function division($id) {
 		try {
 			return $this->Games->division($this->field('game_id', ['Incidents.id' => $id]));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
@@ -89,7 +89,7 @@ class IncidentsTable extends AppTable {
 	public function team($id) {
 		try {
 			return $this->field('team_id', ['Incidents.id' => $id]);
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

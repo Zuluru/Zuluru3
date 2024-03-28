@@ -80,19 +80,30 @@ elseif (isset($people)):
 	endif;
 ?>
 					<td class="actions"><?php
-					echo $this->Html->iconLink('view_24.png', ['controller' => 'People', 'action' => 'view', '?' => ['person' => $person->id, 'return' => AppController::_return()]], ['alt' => __('View Profile'), 'title' => __('View Profile')]);
+					echo $this->Html->iconLink('view_24.png',
+						['controller' => 'People', 'action' => 'view', '?' => ['person' => $person->id]],
+						['alt' => __('View Profile'), 'title' => __('View Profile')]);
 					if ($this->Authorize->can('vcf', $person)) {
-						echo $this->Html->link(__('VCF'), ['controller' => 'People', 'action' => 'vcf', '?' => ['person' => $person->id]]);
+						echo $this->Html->link(__('VCF'),
+							['controller' => 'People', 'action' => 'vcf', '?' => ['person' => $person->id]]);
 					}
 					if ($this->Authorize->can('note', $person)) {
-						echo $this->Html->link(__('Add Note'), ['controller' => 'People', 'action' => 'note', '?' => ['person' => $person->id, 'return' => AppController::_return()]]);
+						echo $this->Html->link(__('Add Note'),
+							['controller' => 'People', 'action' => 'note', '?' => ['person' => $person->id, 'return' => AppController::_return()]]);
 					}
 					if ($this->Authorize->can('edit', $person)) {
-						echo $this->Html->iconLink('edit_24.png', ['controller' => 'People', 'action' => 'edit', '?' => ['person' => $person->id, 'return' => AppController::_return()]], ['alt' => __('Edit Profile'), 'title' => __('Edit Profile')]);
+						echo $this->Html->iconLink('edit_24.png',
+							['controller' => 'People', 'action' => 'edit', '?' => ['person' => $person->id, 'return' => AppController::_return()]],
+							['alt' => __('Edit Profile'), 'title' => __('Edit Profile')]);
 						if (!$person->user_id) {
-							echo $this->Html->iconLink('add_24.png', ['controller' => 'People', 'action' => 'add_account', '?' => ['person' => $person->id, 'return' => AppController::_return()]], ['alt' => __('Create Login'), 'title' => __('Create Login')]);
+							echo $this->Html->iconLink('add_24.png',
+								['controller' => 'People', 'action' => 'add_account', '?' => ['person' => $person->id, 'return' => AppController::_return()]],
+								['alt' => __('Create Login'), 'title' => __('Create Login')]);
 						}
-						echo $this->Form->iconPostLink('delete_24.png', ['controller' => 'People', 'action' => 'delete', '?' => ['person' => $person->id]], ['alt' => __('Delete Player'), 'title' => __('Delete Player')], ['confirm' => __('Are you sure you want to delete this person?')]);
+						echo $this->Form->iconPostLink('delete_24.png',
+							['controller' => 'People', 'action' => 'delete', '?' => ['person' => $person->id]],
+							['alt' => __('Delete Player'), 'title' => __('Delete Player')],
+							['confirm' => __('Are you sure you want to delete this person?')]);
 					}
 					if (!empty($extra_url)) {
 						foreach ($extra_url as $title => $url_params) {
@@ -116,7 +127,15 @@ elseif (isset($people)):
 							}
 
 							if (!empty($person[$extra_url_field])) {
-								$url_params['?'] = array_merge([$extra_url_parameter => $person[$extra_url_field], 'return' => AppController::_return()], $url_params['?']);
+								$extra = [$extra_url_parameter => $person[$extra_url_field], 'return' => AppController::_return()];
+								if (array_key_exists('?', $url_params)) {
+									$url_params['?'] = array_merge($extra, $url_params['?']);
+								} else {
+									$url_params['?'] = $extra;
+								}
+								if ($url_params['?']['return'] === false) {
+									unset($url_params['?']['return']);
+								}
 								echo $this->Html->link($title, $url_params, $link_opts);
 							}
 						}

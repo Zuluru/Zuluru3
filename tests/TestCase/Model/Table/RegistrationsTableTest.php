@@ -105,6 +105,7 @@ class RegistrationsTableTest extends TableTestCase {
 	 */
 	public function testWaitingListWithRefund(): void {
 		$this->loadFixtures();
+		$this->loadRoutes();
 		ConfigurationLoader::loadConfiguration();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, [
@@ -164,6 +165,7 @@ class RegistrationsTableTest extends TableTestCase {
 	 */
 	public function testWaitingListCapRaised(): void {
 		$this->loadFixtures();
+		$this->loadRoutes();
 		ConfigurationLoader::loadConfiguration();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, [

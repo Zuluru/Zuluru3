@@ -83,10 +83,7 @@ class BadgesController extends AppController {
 		$id = $this->getRequest()->getQuery('badge');
 		try {
 			$badge = $this->Badges->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid badge.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -124,10 +121,7 @@ class BadgesController extends AppController {
 		$id = $this->getRequest()->getQuery('badge');
 		try {
 			$badge = $this->Badges->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid badge.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -165,10 +159,7 @@ class BadgesController extends AppController {
 					},
 				]],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid badge.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -211,10 +202,7 @@ class BadgesController extends AppController {
 		$id = $this->getRequest()->getQuery('badge');
 		try {
 			$badge = $this->Badges->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid badge.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -246,10 +234,7 @@ class BadgesController extends AppController {
 		$id = $this->getRequest()->getQuery('badge');
 		try {
 			$badge = $this->Badges->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid badge.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -275,10 +260,7 @@ class BadgesController extends AppController {
 		$id = $this->getRequest()->getQuery('badge');
 		try {
 			$badge = $this->Badges->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid badge.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -305,10 +287,7 @@ class BadgesController extends AppController {
 
 		try {
 			$badge = $this->Badges->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid badge.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['action' => 'index']);
 		}

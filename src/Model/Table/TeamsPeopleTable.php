@@ -206,7 +206,7 @@ class TeamsPeopleTable extends AppTable {
 		// Teams may be unassigned
 		try {
 			return $this->Teams->affiliate($this->team($id));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
@@ -214,7 +214,7 @@ class TeamsPeopleTable extends AppTable {
 	public function division($id) {
 		try {
 			return $this->Teams->division($this->team($id));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
@@ -222,7 +222,7 @@ class TeamsPeopleTable extends AppTable {
 	public function team($id) {
 		try {
 			return $this->field('team_id', ['TeamsPeople.id' => $id]);
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

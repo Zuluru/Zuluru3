@@ -32,7 +32,7 @@ class GamesController extends AppController {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		$actions = ['view', 'tooltip', 'ical', 'results',
 			// Attendance updates may come from emailed links; people might not be logged in
 			'attendance_change',
@@ -118,10 +118,7 @@ class GamesController extends AppController {
 					],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid game.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game.'));
 			return $this->redirect('/');
 		}
@@ -199,10 +196,7 @@ class GamesController extends AppController {
 					'Divisions' => ['Leagues'],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid game.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game.'));
 			return $this->redirect('/');
 		}
@@ -228,10 +222,7 @@ class GamesController extends AppController {
 					'AwayTeam',
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid game.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game.'));
 			return $this->redirect('/');
 		}
@@ -246,7 +237,6 @@ class GamesController extends AppController {
 
 	// This function takes the parameters the old-fashioned way, to try to be more third-party friendly
 	public function ical($game_id, $team_id) {
-		$this->viewBuilder()->setLayout('ical');
 		$game_id = intval($game_id);
 		$team_id = intval($team_id);
 		if (!$game_id || !$team_id) {
@@ -262,9 +252,7 @@ class GamesController extends AppController {
 					'Divisions',
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			throw new GoneException();
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			throw new GoneException();
 		}
 
@@ -275,7 +263,7 @@ class GamesController extends AppController {
 		$this->set('calendar_name', 'Game');
 		$this->getResponse()->withDownload("$game_id.ics");
 		$this->set(compact('game', 'team_id'));
-		$this->viewBuilder()->setClassName('Ics');
+		$this->viewBuilder()->setClassName('Ical');
 	}
 
 	/**
@@ -332,10 +320,7 @@ class GamesController extends AppController {
 					'Incidents',
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid game.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game.'));
 			return $this->redirect('/');
 		}
@@ -449,10 +434,7 @@ class GamesController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid game.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game.'));
 			return $this->redirect('/');
 		}
@@ -499,10 +481,7 @@ class GamesController extends AppController {
 			if ($detail->game_id != $game_id) {
 				throw new InvalidPrimaryKeyException('Invalid game id');
 			}
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid score detail.'));
-			return $this->redirect(['action' => 'edit_boxscore', '?' => ['game' => $game_id]]);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid score detail.'));
 			return $this->redirect(['action' => 'edit_boxscore', '?' => ['game' => $game_id]]);
 		}
@@ -547,10 +526,7 @@ class GamesController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid game.'));
-			return $this->redirect(['action' => 'edit_boxscore', '?' => ['game' => $game_id]]);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game.'));
 			return $this->redirect(['action' => 'edit_boxscore', '?' => ['game' => $game_id]]);
 		}
@@ -583,10 +559,7 @@ class GamesController extends AppController {
 					'GameSlots' => ['Fields' => ['Facilities']],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid game.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game.'));
 			return $this->redirect('/');
 		}
@@ -602,10 +575,7 @@ class GamesController extends AppController {
 				}
 
 				$this->Authorization->authorize($note, 'edit_game');
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid note.'));
-				return $this->redirect(['action' => 'view', '?' => ['game' => $game_id]]);
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid note.'));
 				return $this->redirect(['action' => 'view', '?' => ['game' => $game_id]]);
 			}
@@ -704,10 +674,7 @@ class GamesController extends AppController {
 
 		try {
 			$note = $this->Games->Notes->get($note_id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid note.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid note.'));
 			return $this->redirect('/');
 		}
@@ -743,10 +710,7 @@ class GamesController extends AppController {
 					'ScoreEntries',
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid game.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game.'));
 			return $this->redirect('/');
 		}
@@ -815,10 +779,7 @@ class GamesController extends AppController {
 					'GameSlots' => ['Fields' => ['Facilities']],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid game.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game.'));
 			return $this->redirect('/');
 		}
@@ -903,10 +864,7 @@ class GamesController extends AppController {
 						],
 					]
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid game.'));
-				return $this->redirect('/');
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid game.'));
 				return $this->redirect('/');
 			}
@@ -973,6 +931,7 @@ class GamesController extends AppController {
 		if ($code) {
 			// Fake the posted data array with the status from the URL
 			$data = ['status' => $this->getRequest()->getQuery('status')];
+			$this->setRequest($this->getRequest()->withData('status', $this->getRequest()->getQuery('status')));
 		} else {
 			$data = $this->getRequest()->getData();
 		}
@@ -1143,10 +1102,7 @@ class GamesController extends AppController {
 					'GameSlots' => ['Fields' => ['Facilities']],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid game.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game.'));
 			return $this->redirect('/');
 		}
@@ -1946,10 +1902,7 @@ class GamesController extends AppController {
 					'AwayPoolTeam' => ['DependencyPool'],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid game.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game.'));
 			return $this->redirect('/');
 		}
@@ -2084,10 +2037,7 @@ class GamesController extends AppController {
 					'Stats',
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid game.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game.'));
 			return $this->redirect('/');
 		}
@@ -2251,10 +2201,7 @@ class GamesController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid game.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid game.'));
 			return $this->redirect('/');
 		}

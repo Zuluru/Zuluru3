@@ -1938,12 +1938,12 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->assertPostAsAccessOk(['controller' => 'Teams', 'action' => 'add_from_team', '?' => ['team' => $team->id]],
 			$captain->id, ['team' => $other_team->id]);
 		$this->assertResponseContains('<span id="people_person_' .  $invitee->id . '" class="trigger">' . $invitee->full_name . '</span>');
-		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  $invitee->id . '\]\[role\]" value="captain" id="player-' .  $invitee->id . '-role-captain">\s*Captain#ms');
-		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  $invitee->id . '\]\[position\]" value="unspecified" id="player-' .  $invitee->id . '-position-unspecified" checked="checked">\s*Unspecified#ms');
+		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  $invitee->id . '\]\[role\]" value="captain" id="player-' .  $invitee->id . '-role-captain" class="form-check-input">.*Captain#ms');
+		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  $invitee->id . '\]\[position\]" value="unspecified" id="player-' .  $invitee->id . '-position-unspecified" checked="checked" class="form-check-input">.*Unspecified#ms');
 		$this->assertResponseContains('<span id="people_person_' .  $manager->id . '" class="trigger">' . $manager->full_name . '</span>');
 		// The manager is not a player, so doesn't get player options, just coach and none
-		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  $manager->id . '\]\[role\]" value="coach" id="player-' .  $manager->id . '-role-coach">\s*Non-playing coach#ms');
-		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  $manager->id . '\]\[position\]" value="unspecified" id="player-' .  $manager->id . '-position-unspecified" checked="checked">\s*Unspecified#ms');
+		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  $manager->id . '\]\[role\]" value="coach" id="player-' .  $manager->id . '-role-coach" class="form-check-input">.*Non-playing coach#ms');
+		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  $manager->id . '\]\[position\]" value="unspecified" id="player-' .  $manager->id . '-position-unspecified" checked="checked" class="form-check-input">.*Unspecified#ms');
 
 		// Submit the add form
 		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'add_from_team', '?' => ['team' => $team->id]],
@@ -2040,7 +2040,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->assertPostAsAccessOk(['controller' => 'Teams', 'action' => 'add_from_event', '?' => ['team' => $team->id]],
 			$admin->id, ['event' => $event->id]);
 		$this->assertResponseContains('<span id="people_person_' .  $player->id . '" class="trigger">' . $player->full_name . '</span>');
-		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  $player->id . '\]\[role\]" value="captain" id="player-' .  $player->id . '-role-captain">\s*Captain#ms');
+		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  $player->id . '\]\[role\]" value="captain" id="player-' .  $player->id . '-role-captain" class="form-check-input">.*Captain#ms');
 
 		// Submit the add form
 		$this->assertPostAsAccessRedirect(['controller' => 'Teams', 'action' => 'add_from_event', '?' => ['team' => $team->id]],
@@ -2138,7 +2138,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->assertPostAsAccessOk(['controller' => 'Teams', 'action' => 'add_from_event', '?' => ['team' => $team->id]],
 			$manager->id, ['event' => $event->id]);
 		$this->assertResponseContains('<span id="people_person_' .  $player->id . '" class="trigger">' . $player->full_name . '</span>');
-		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  $player->id . '\]\[role\]" value="captain" id="player-' .  $player->id . '-role-captain">\s*Captain#ms');
+		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  $player->id . '\]\[role\]" value="captain" id="player-' .  $player->id . '-role-captain" class="form-check-input">.*Captain#ms');
 
 		// But not to teams in other affiliates
 		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'add_from_event', '?' => ['team' => $affiliate_team->id]],
@@ -2181,7 +2181,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		$this->assertPostAsAccessOk(['controller' => 'Teams', 'action' => 'add_from_event', '?' => ['team' => $team->id]],
 			$volunteer->id, ['event' => $event->id]);
 		$this->assertResponseContains('<span id="people_person_' .  $player->id . '" class="trigger">' . $player->full_name . '</span>');
-		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  $player->id . '\]\[role\]" value="captain" id="player-' .  $player->id . '-role-captain">\s*Captain#ms');
+		$this->assertResponseRegExp('#<input type="radio" name="player\[' .  $player->id . '\]\[role\]" value="captain" id="player-' .  $player->id . '-role-captain" class="form-check-input">.*Captain#ms');
 
 		// But not other divisions
 		$this->assertPostAsAccessDenied(['controller' => 'Teams', 'action' => 'add_from_event', '?' => ['team' => $other_team->id]],
@@ -2947,8 +2947,14 @@ class TeamsControllerTest extends ControllerTestCase {
 
 		/** @var TeamsPerson $roster */
 		$roster = TableRegistry::getTableLocator()->get('TeamsPeople')->find()->where(['person_id' => $invitee->id, 'team_id' => $team->id])->firstOrFail();
-		$this->assertGetAnonymousAccessRedirect(['controller' => 'Teams', 'action' => 'roster_accept', 'person' => $invitee->id, 'team' => $team->id,
-			'code' => $this->_makeHash([$roster->id, $team->id, $invitee->id, $roster->role, $roster->created])],
+		$this->assertGetAnonymousAccessRedirect(
+			[
+				'controller' => 'Teams',
+				'action' => 'roster_accept',
+				'?' => [
+					'person' => $invitee->id, 'team' => $team->id, 'code' => $this->_makeHash([$roster->id, $team->id, $invitee->id, $roster->role, $roster->created])
+				],
+			],
 			['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]],
 			'You have accepted this roster invitation.');
 	}
@@ -3127,8 +3133,14 @@ class TeamsControllerTest extends ControllerTestCase {
 
 		/** @var TeamsPerson $roster */
 		$roster = TableRegistry::getTableLocator()->get('TeamsPeople')->find()->where(['person_id' => $invitee->id, 'team_id' => $team->id])->firstOrFail();
-		$this->assertGetAnonymousAccessRedirect(['controller' => 'Teams', 'action' => 'roster_decline', 'person' => $invitee->id, 'team' => $team->id,
-			'code' => $this->_makeHash([$roster->id, $team->id, $invitee->id, $roster->role, $roster->created])],
+		$this->assertGetAnonymousAccessRedirect(
+			[
+				'controller' => 'Teams',
+				'action' => 'roster_decline',
+				'?' => [
+					'person' => $invitee->id, 'team' => $team->id, 'code' => $this->_makeHash([$roster->id, $team->id, $invitee->id, $roster->role, $roster->created])
+				],
+			],
 			['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]],
 			'You have declined this roster invitation.');
 	}

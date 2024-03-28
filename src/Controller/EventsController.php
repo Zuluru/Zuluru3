@@ -27,7 +27,7 @@ class EventsController extends AppController {
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 * @throws \Cake\Http\Exception\MethodNotAllowedException if registration is not enabled
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		if (!Configure::read('feature.registration')) {
 			return [];
 		}
@@ -364,10 +364,7 @@ class EventsController extends AppController {
 					'Affiliates',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid event.'));
-			return $this->redirect(['action' => 'wizard']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid event.'));
 			return $this->redirect(['action' => 'wizard']);
 		}
@@ -442,10 +439,7 @@ class EventsController extends AppController {
 
 				$this->Authorization->authorize($event, 'edit');
 				$event = $this->Events->cloneWithoutIds($event);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid event.'));
-				return $this->redirect(['controller' => 'Events', 'action' => 'index']);
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid event.'));
 				return $this->redirect(['controller' => 'Events', 'action' => 'index']);
 			}
@@ -490,10 +484,7 @@ class EventsController extends AppController {
 					'Divisions',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid event.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid event.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -564,10 +555,7 @@ class EventsController extends AppController {
 		$id = $this->getRequest()->getQuery('event');
 		try {
 			$event = $this->Events->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid event.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid event.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -604,10 +592,7 @@ class EventsController extends AppController {
 					'Divisions',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid event.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid event.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -703,10 +688,7 @@ class EventsController extends AppController {
 					'Divisions',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid event.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid event.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -743,7 +725,7 @@ class EventsController extends AppController {
 					$failed = [];
 					foreach ($registrations as $registration) {
 						try {
-							$this->Events->Registrations->refund($event, $registration, $data);
+							$this->Events->Registrations->refund($this->getRequest(), $event, $registration, $data);
 						} catch (PaymentException $ex) {
 							$failed[$registration->id] = $registration->person->full_name;
 						}

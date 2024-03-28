@@ -74,7 +74,7 @@ class ScoreDetailStatsTable extends AppTable {
 	public function division($id) {
 		try {
 			return $this->ScoreDetails->division($this->field('score_detail_id', ['ScoreDetailStats.id' => $id]));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
@@ -82,7 +82,7 @@ class ScoreDetailStatsTable extends AppTable {
 	public function team($id) {
 		try {
 			return $this->ScoreDetails->team($this->field('score_detail_id', ['ScoreDetailStats.id' => $id]));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

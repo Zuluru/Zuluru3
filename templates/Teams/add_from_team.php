@@ -25,7 +25,7 @@ if (empty($old_team->people)) {
 	echo $this->Html->para(null, __('All people from {0} are already on your roster.', $old_team_name));
 } else {
 	echo $this->Html->para(null, __('The following people were on the roster for {0} but are not on your current roster:', $old_team_name));
-	echo $this->form->create(null, ['align' => 'horizontal']);
+	echo $this->Form->create(null, ['align' => 'horizontal']);
 	echo $this->Form->hidden('team', ['value' => $old_team->id]);
 
 	$cannot = [];

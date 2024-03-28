@@ -5,7 +5,6 @@ use App\Authorization\ContextResource;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Http\Exception\MethodNotAllowedException;
 use Cake\ORM\Query;
 use App\View\Helper\ZuluruTimeHelper;
 
@@ -21,7 +20,7 @@ class TaskSlotsController extends AppController {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		if (!Configure::read('feature.tasks')) {
 			return [];
 		}
@@ -44,10 +43,7 @@ class TaskSlotsController extends AppController {
 					'ApprovedBy',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid task slot.'));
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid task slot.'));
 			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
 		}
@@ -60,16 +56,13 @@ class TaskSlotsController extends AppController {
 
 	// This function takes the parameters the old-fashioned way, to try to be more third-party friendly
 	public function ical($id) {
-		$this->viewBuilder()->setLayout('ical');
 		try {
 			$task_slot = $this->TaskSlots->get($id, [
 				'contain' => [
 					'Tasks' => ['Categories', 'People'],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			return;
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			return;
 		}
 		if (!$task_slot->approved) {
@@ -82,7 +75,7 @@ class TaskSlotsController extends AppController {
 		$this->set('calendar_name', 'Task');
 		$this->getResponse()->withDownload("$id.ics");
 		$this->set(compact('task_slot'));
-		$this->viewBuilder()->setClassName('Ics');
+		$this->viewBuilder()->setClassName('Ical');
 	}
 
 	/**
@@ -94,10 +87,7 @@ class TaskSlotsController extends AppController {
 		$id = $this->getRequest()->getQuery('task');
 		try {
 			$task = $this->TaskSlots->Tasks->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid task.'));
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid task.'));
 			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
 		}
@@ -136,10 +126,7 @@ class TaskSlotsController extends AppController {
 		$id = $this->getRequest()->getQuery('slot');
 		try {
 			$task_slot = $this->TaskSlots->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid task slot.'));
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid task slot.'));
 			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
 		}
@@ -170,10 +157,7 @@ class TaskSlotsController extends AppController {
 		$id = $this->getRequest()->getQuery('slot');
 		try {
 			$task_slot = $this->TaskSlots->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid task slot.'));
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid task slot.'));
 			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
 		}
@@ -205,10 +189,7 @@ class TaskSlotsController extends AppController {
 			$task_slot = $this->TaskSlots->get($id, [
 				'contain' => ['Tasks' => ['Categories']]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid task slot.'));
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid task slot.'));
 			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
 		}
@@ -220,10 +201,7 @@ class TaskSlotsController extends AppController {
 		if (!empty($person_id)) {
 			try {
 				$this->TaskSlots->People->get($person_id);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid person.'));
-				return $this->redirect(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task_slot->task->id]]);
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid person.'));
 				return $this->redirect(['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task_slot->task->id]]);
 			}
@@ -322,10 +300,7 @@ class TaskSlotsController extends AppController {
 			$task_slot = $this->TaskSlots->get($id, [
 				'contain' => ['Tasks' => ['Categories']]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid task slot.'));
-			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid task slot.'));
 			return $this->redirect(['controller' => 'Tasks', 'action' => 'index']);
 		}

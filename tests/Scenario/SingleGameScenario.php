@@ -5,12 +5,8 @@ namespace App\Test\Scenario;
 
 use App\Model\Entity\Game;
 use App\Model\Entity\League;
-use App\Test\Factory\DivisionFactory;
-use App\Test\Factory\DivisionsDayFactory;
-use App\Test\Factory\DivisionsPersonFactory;
 use App\Test\Factory\GameFactory;
 use App\Test\Factory\GameSlotFactory;
-use App\Test\Factory\LeagueFactory;
 use App\Test\Factory\PersonFactory;
 use App\Test\Factory\PoolFactory;
 use App\Test\Factory\ScoreEntryFactory;

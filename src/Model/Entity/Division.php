@@ -4,10 +4,12 @@ namespace App\Model\Entity;
 use App\Model\Results\DivisionResults;
 use App\Model\Traits\TranslateFieldTrait;
 use Cake\Core\Configure;
+use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\I18n\I18n;
 use Cake\ORM\Behavior\Translate\TranslateTrait;
 use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
+use InvalidArgumentException;
 
 /**
  * Division Entity.
@@ -142,14 +144,18 @@ class Division extends Entity {
 
 	protected function _getPlayoffDivisions() {
 		if ($this->_playoff_divisions === false) {
-			$this->_playoff_divisions = TableRegistry::getTableLocator()->get('Divisions')->find()
-				->select('id')
-				->where([
-					'league_id' => $this->league_id,
-					'current_round' => 'playoff',
-				])
-				->extract('id')
-				->toArray();
+			try {
+				$this->_playoff_divisions = TableRegistry::getTableLocator()->get('Divisions')->find()
+					->select('id')
+					->where([
+						'league_id' => $this->league_id,
+						'current_round' => 'playoff',
+					])
+					->extract('id')
+					->toArray();
+			} catch (RecordNotFoundException|InvalidArgumentException $ex) {
+				$this->_playoff_divisions = [];
+			}
 		}
 
 		if ($this->current_round === 'playoff') {
@@ -161,13 +167,17 @@ class Division extends Entity {
 
 	protected function _getSeasonDivisions() {
 		if ($this->_season_divisions === false) {
-			$this->_season_divisions = TableRegistry::getTableLocator()->get('Divisions')->find()
-				->contain(['Days'])
-				->where([
-					'league_id' => $this->league_id,
-					'current_round !=' => 'playoff',
-				])
-				->toArray();
+			try {
+				$this->_season_divisions = TableRegistry::getTableLocator()->get('Divisions')->find()
+					->contain(['Days'])
+					->where([
+						'league_id' => $this->league_id,
+						'current_round !=' => 'playoff',
+					])
+					->toArray();
+			} catch (RecordNotFoundException|InvalidArgumentException $ex) {
+				$this->_season_divisions = [];
+			}
 		}
 
 		if ($this->current_round === 'playoff') {

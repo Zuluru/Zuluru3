@@ -9,7 +9,7 @@ $this->Breadcrumbs->add('Elavon');
 
 <div class="settings form">
 <?php
-echo $this->form->create(null, ['align' => 'horizontal']);
+echo $this->Form->create(null, ['align' => 'horizontal']);
 ?>
 <fieldset>
 	<legend><?= __('{0} Settings', 'Elavon') ?></legend>

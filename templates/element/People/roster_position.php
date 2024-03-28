@@ -16,9 +16,11 @@ if ($this->Authorize->can('roster_position', new ContextResource($team, ['divisi
 		'url' => [
 			'controller' => 'Teams',
 			'action' => 'roster_position',
-			'team' => $roster->team_id,
-			'person' => $roster->person_id,
-			'return' => AppController::_return(),
+			'?' => [
+				'team' => $roster->team_id,
+				'person' => $roster->person_id,
+				'return' => AppController::_return(),
+			],
 		],
 	]);
 } else {

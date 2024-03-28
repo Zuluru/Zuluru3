@@ -7,27 +7,23 @@
 /logs/*
 /tmp/*
 /plugins/*
-/vendor/admad/*
-/vendor/aura/*
 /vendor/autoload.php*
 /vendor/aws/*
 /vendor/bin/*
+/vendor/boronczyk/*
 /vendor/cakephp/*
 /vendor/cakephp-app-installer*
 /vendor/cakephp-plugins.php*
 /vendor/commerceguys/*
 /vendor/composer/*
 /vendor/dereuromark/*
-/vendor/dnoegel/*
 /vendor/doctrine/*
 /vendor/elboletaire/*
-/vendor/empty*
 /vendor/fakerphp*
 /vendor/firebase/*
 /vendor/friendsofcake/*
 /vendor/giggsey/*
 /vendor/guzzlehttp/*
-/vendor/jakub-onderka/*
 /vendor/jasny/*
 /vendor/jdorn/*
 /vendor/josegonzalez/*
@@ -42,15 +38,11 @@
 /vendor/nikic/*
 /vendor/oyejorge/*
 /vendor/ozee31/*
-/vendor/paragonie/*
 /vendor/phar-io/*
-/vendor/phpdocumentor/*
-/vendor/phpspec/*
 /vendor/phpunit/*
 /vendor/psr/*
 /vendor/psy/*
 /vendor/ralouphie/*
-/vendor/react/*
 /vendor/robmorgan/*
 /vendor/sebastian/*
 /vendor/seld/*
@@ -61,8 +53,6 @@
 /vendor/trentrichardson/*
 /vendor/twig/*
 /vendor/vierge-noire/*
-/vendor/webmozart/*
-/vendor/zendframework/*
 /vendor/zuluru/cakephp-bootstrap/*
 /vendor/zuluru/cakephp-jquery/*
 
@@ -89,6 +79,7 @@ Thumbs.db
 #######################
 # PHPUnit
 .phpunit.cache
+.phpunit.result.cache
 tests.sqlite
 # vim
 *~

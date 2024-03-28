@@ -61,10 +61,7 @@ class CategoriesController extends AppController {
 			$category = $this->Categories->get($id, [
 				'contain' => ['Affiliates', 'Leagues', 'Tasks' => ['People']]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid category.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid category.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -109,10 +106,7 @@ class CategoriesController extends AppController {
 		$id = $this->getRequest()->getQuery('category');
 		try {
 			$category = $this->Categories->get($id);
-		} catch (RecordNotFoundException  $ex) {
-			$this->Flash->info(__('Invalid category.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException  $ex) {
 			$this->Flash->info(__('Invalid category.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -143,10 +137,7 @@ class CategoriesController extends AppController {
 		$id = $this->getRequest()->getQuery('category');
 		try {
 			$category = $this->Categories->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid category.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid category.'));
 			return $this->redirect(['action' => 'index']);
 		}

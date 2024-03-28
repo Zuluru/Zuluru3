@@ -14,7 +14,7 @@ $this->Breadcrumbs->add($this->Time->date($date));
 <div class="schedules day form">
 	<h2><?= __('Daily Schedule') . ': ' . $this->Time->date($date) ?></h2>
 <?php
-echo $this->form->create(null, ['align' => 'horizontal']);
+echo $this->Form->create(null, ['align' => 'horizontal']);
 echo $this->Form->control('date', [
 	'label' => false,
 	'type' => 'date',

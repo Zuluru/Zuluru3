@@ -39,10 +39,7 @@ class RegionsController extends AppController {
 			$region = $this->Regions->get($id, [
 				'contain' => ['Affiliates', 'Facilities']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid region.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid region.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -86,10 +83,7 @@ class RegionsController extends AppController {
 		$id = $this->getRequest()->getQuery('region');
 		try {
 			$region = $this->Regions->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid region.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid region.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -121,10 +115,7 @@ class RegionsController extends AppController {
 		$id = $this->getRequest()->getQuery('region');
 		try {
 			$region = $this->Regions->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid region.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid region.'));
 			return $this->redirect(['action' => 'index']);
 		}

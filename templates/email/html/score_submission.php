@@ -5,6 +5,11 @@
  * @var \App\Model\Entity\Team $team
  * @var \App\Model\Entity\Team $opponent
  * @var \App\Model\Entity\Division $division
+ * @var string $captains
+ * @var string $opponent_status
+ * @var string $status
+ * @var int $score_for
+ * @var int $score_against
  */
 
 use Cake\Core\Configure;

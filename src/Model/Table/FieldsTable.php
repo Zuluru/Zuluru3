@@ -161,7 +161,7 @@ class FieldsTable extends AppTable {
 	public function affiliate($id) {
 		try {
 			return $this->Facilities->affiliate($this->field('facility_id', ['Fields.id' => $id]));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
@@ -169,7 +169,7 @@ class FieldsTable extends AppTable {
 	public function sport($id) {
 		try {
 			return $this->field('sport', ['Fields.id' => $id]);
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

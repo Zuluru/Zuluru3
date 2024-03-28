@@ -25,7 +25,7 @@ endif;
 		<dt><?= __('Active') ?></dt>
 		<dd><?= $questionnaire->active ? __('Yes') : __('No') ?></dd>
 	</dl>
-<?= $this->form->create(null) ?>
+<?= $this->Form->create(null) ?>
 	<fieldset>
 		<legend><?= __('Questionnaire Preview') ?></legend>
 <?= $this->element('Questionnaires/input', ['questionnaire' => $questionnaire, 'responses' => []]) ?>

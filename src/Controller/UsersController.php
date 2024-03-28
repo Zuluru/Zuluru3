@@ -7,7 +7,6 @@ use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Datasource\RulesChecker;
 use Cake\Http\Cookie\Cookie;
 use Cake\I18n\FrozenTime;
-use Cake\I18n\Time;
 use Cake\Http\Exception\UnauthorizedException;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Security;
@@ -25,7 +24,7 @@ class UsersController extends AppController {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		return ['login', 'logout', 'create_account', 'reset_password'];
 	}
 
@@ -479,10 +478,7 @@ class UsersController extends AppController {
 			$user = $users_table->get($id, [
 				'contain' => ['People']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid user.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid user.'));
 			return $this->redirect('/');
 		}
@@ -530,10 +526,7 @@ class UsersController extends AppController {
 				$user = $users_table->get($id, [
 					'contain' => ['People']
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid user.'));
-				return $this->redirect('/');
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid user.'));
 				return $this->redirect('/');
 			}

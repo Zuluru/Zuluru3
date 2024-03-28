@@ -275,7 +275,7 @@ class ScoreEntriesTable extends AppTable {
 	public function division($id) {
 		try {
 			return $this->Games->division($this->field('game_id', ['ScoreEntries.id' => $id]));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
@@ -283,7 +283,7 @@ class ScoreEntriesTable extends AppTable {
 	public function team($id) {
 		try {
 			return $this->field('team_id', ['ScoreEntries.id' => $id]);
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

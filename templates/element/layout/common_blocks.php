@@ -223,7 +223,7 @@ zjQuery(".uls-trigger").uls({
 		zjQuery(".uls-menu").css("left", "").css("right", right + "px");
 	},
 	onSelect : function (language) {
-		window.location = "' . $this->Url->build(['controller' => 'All', 'action' => 'language', '?' => ['return' => AppController::_return()]], true) . '&lang=" + language;
+		window.location = "' . $this->Url->build(['controller' => 'All', 'action' => 'language', '?' => ['return' => AppController::_return()]], ['fullBase' => true]) . '&lang=" + language;
 	},
 	languages: {' . Configure::read('available_translation_strings') . '}
 });
@@ -277,7 +277,9 @@ if (!isset($error)) {
 			'url' => [
 				'controller' => 'People',
 				'action' => 'act_as',
-				'return' => AppController::_return(),
+				'?' => [
+					'return' => AppController::_return(),
+				],
 			],
 		]);
 
@@ -286,7 +288,9 @@ if (!isset($error)) {
 			'url' => [
 				'controller' => 'People',
 				'action' => 'act_as',
-				'return' => AppController::_return(),
+				'?' => [
+					'return' => AppController::_return(),
+				],
 			],
 			'url-param' => 'person',
 		], __('Switch to:'));

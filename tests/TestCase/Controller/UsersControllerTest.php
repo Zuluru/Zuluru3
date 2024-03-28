@@ -423,6 +423,9 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test JSON API token generation
 	 */
 	public function testToken(): void {
+		$this->enableCsrfToken();
+		$this->enableSecurityToken();
+
 		$affiliate = AffiliateFactory::make()->persist();
 		$admin = PersonFactory::make()
 			->withGroup(GROUP_ADMIN)

@@ -6,7 +6,6 @@ use App\Event\FlashTrait;
 use Cake\Controller\Component;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Event\Event as CakeEvent;
 use Cake\ORM\TableRegistry;
 
 class LockComponent extends Component {
@@ -53,8 +52,7 @@ class LockComponent extends Component {
 			try {
 				$lock = $this->Locks->get($this->lock_id);
 				$this->Locks->delete($lock);
-			} catch (RecordNotFoundException $ex) {
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			}
 			$this->lock_id = null;
 		}

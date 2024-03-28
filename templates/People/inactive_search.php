@@ -16,7 +16,7 @@ $this->Breadcrumbs->add(__('Inactive Search'));
 if (Configure::read('feature.affiliates')):
 ?>
 	<div class="search form">
-		<?= $this->form->create(null, ['align' => 'horizontal']) ?>
+		<?= $this->Form->create(null, ['align' => 'horizontal']) ?>
 <?php
 	if (isset($affiliate_id)) {
 		echo $this->Form->hidden('affiliate_id', ['value' => $affiliate_id]);

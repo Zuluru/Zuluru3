@@ -126,7 +126,7 @@ class NewslettersTable extends AppTable {
 	public function affiliate($id) {
 		try {
 			return $this->MailingLists->affiliate($this->field('mailing_list_id', ['Newsletters.id' => $id]));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

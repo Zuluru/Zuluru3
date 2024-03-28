@@ -1,6 +1,10 @@
 <?php
+declare(strict_types=1);
+
 /**
  * @var \App\View\AppView $this
+ * @var string $calendar_type
+ * @var string $calendar_name
  */
 
 use Cake\Core\Configure;

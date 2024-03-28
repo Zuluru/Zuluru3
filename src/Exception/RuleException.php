@@ -1,8 +1,8 @@
 <?php
 namespace App\Exception;
 
-use Cake\Core\Exception\Exception;
+use Cake\Core\Exception\CakeException;
 
-class RuleException extends Exception {
+class RuleException extends CakeException {
 
 }

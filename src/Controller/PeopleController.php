@@ -42,7 +42,7 @@ class PeopleController extends AppController {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		// Relative approvals and removals may come from emailed links; people might not be logged in
 		return ['view', 'tooltip', 'approve_relative', 'remove_relative', 'vcf', 'ical'];
 	}
@@ -698,10 +698,7 @@ class PeopleController extends AppController {
 			}
 			$person->skills = $skills;
 			$person->setDirty('skills', false);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid person.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect('/');
 		}
@@ -840,10 +837,7 @@ class PeopleController extends AppController {
 		$id = $this->getRequest()->getQuery('person') ?: $this->UserCache->currentId();
 		try {
 			$person = $this->People->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid person.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect('/');
 		}
@@ -885,10 +879,7 @@ class PeopleController extends AppController {
 		$id = $this->getRequest()->getQuery('person') ?: $this->UserCache->currentId();
 		try {
 			$person = $this->People->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid person.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect('/');
 		}
@@ -938,10 +929,7 @@ class PeopleController extends AppController {
 				]);
 
 				$this->Authorization->authorize($note, 'edit_person');
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid note.'));
-				return $this->redirect('/');
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid note.'));
 				return $this->redirect('/');
 			}
@@ -949,10 +937,7 @@ class PeopleController extends AppController {
 		} else {
 			try {
 				$person = $this->People->get($this->getRequest()->getQuery('person'));
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid person.'));
-				return $this->redirect('/');
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid person.'));
 				return $this->redirect('/');
 			}
@@ -997,10 +982,7 @@ class PeopleController extends AppController {
 
 		try {
 			$note = $this->People->Notes->get($note_id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid note.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid note.'));
 			return $this->redirect('/');
 		}
@@ -1126,10 +1108,7 @@ class PeopleController extends AppController {
 		$person_id = $this->getRequest()->getQuery('person') ?: $this->UserCache->currentId();
 		try {
 			$person = $this->People->get($person_id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid person.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect('/');
 		}
@@ -1144,10 +1123,7 @@ class PeopleController extends AppController {
 			} else {
 				try {
 					$relative = $this->People->get($relative_id);
-				} catch (RecordNotFoundException $ex) {
-					$this->Flash->info(__('Invalid person.'));
-					return $this->redirect('/');
-				} catch (InvalidPrimaryKeyException $ex) {
+				} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 					$this->Flash->info(__('Invalid person.'));
 					return $this->redirect('/');
 				}
@@ -1517,10 +1493,7 @@ class PeopleController extends AppController {
 					'Uploads.type_id IS' => null,
 				])
 				->firstOrFail();
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid photo.'));
-			return $this->redirect(['action' => 'approve_photos']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid photo.'));
 			return $this->redirect(['action' => 'approve_photos']);
 		}
@@ -1558,10 +1531,7 @@ class PeopleController extends AppController {
 					'Uploads.type_id IS' => null,
 				])
 				->firstOrFail();
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid photo.'));
-			return $this->redirect(['action' => 'approve_photos']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid photo.'));
 			return $this->redirect(['action' => 'approve_photos']);
 		}
@@ -1586,10 +1556,7 @@ class PeopleController extends AppController {
 			$document = $this->People->Uploads->get($this->getRequest()->getQuery('document'), [
 				'contain' => ['People', 'UploadTypes']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid document.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid document.'));
 			return $this->redirect('/');
 		}
@@ -1621,10 +1588,7 @@ class PeopleController extends AppController {
 		if ($id) {
 			try {
 				$person = $this->People->get($id);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid person.'));
-				return $this->redirect('/');
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid person.'));
 				return $this->redirect('/');
 			}
@@ -1699,10 +1663,7 @@ class PeopleController extends AppController {
 			$document = $this->People->Uploads->get($this->getRequest()->getQuery('document'), [
 				'contain' => ['People' => [Configure::read('Security.authModel')], 'UploadTypes']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid document.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid document.'));
 			return $this->redirect('/');
 		}
@@ -1740,10 +1701,7 @@ class PeopleController extends AppController {
 			$document = $this->People->Uploads->get($this->getRequest()->getQuery('document'), [
 				'contain' => ['People' => [Configure::read('Security.authModel')], 'UploadTypes']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid document.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid document.'));
 			return $this->redirect('/');
 		}
@@ -1783,10 +1741,7 @@ class PeopleController extends AppController {
 			$document = $this->People->Uploads->get($this->getRequest()->getQuery('document'), [
 				'contain' => ['People' => [Configure::read('Security.authModel')], 'UploadTypes']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid document.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid document.'));
 			return $this->redirect('/');
 		}
@@ -1874,10 +1829,7 @@ class PeopleController extends AppController {
 			$badge = $this->People->Badges->get($badge_id, [
 				'contain' => ['Affiliates'],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid badge.'));
-			return $this->redirect(['controller' => 'Badges', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['controller' => 'Badges', 'action' => 'index']);
 		}
@@ -1916,10 +1868,7 @@ class PeopleController extends AppController {
 					'Affiliates',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid badge.'));
-			return $this->redirect(['controller' => 'Badges', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['controller' => 'Badges', 'action' => 'index']);
 		}
@@ -1939,10 +1888,7 @@ class PeopleController extends AppController {
 
 		try {
 			$person = $this->People->get($person_id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid person.'));
-			return $this->redirect(['controller' => 'Badges', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect(['controller' => 'Badges', 'action' => 'index']);
 		}
@@ -2032,10 +1978,7 @@ class PeopleController extends AppController {
 					'NominatedBy' => [Configure::read('Security.authModel')],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid badge.'));
-			return $this->redirect(['action' => 'approve_badges']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['action' => 'approve_badges']);
 		}
@@ -2092,10 +2035,7 @@ class PeopleController extends AppController {
 					'NominatedBy' => [Configure::read('Security.authModel')],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid badge.'));
-			return $this->redirect(['action' => 'approve_badges']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['action' => 'approve_badges']);
 		}
@@ -2149,10 +2089,7 @@ class PeopleController extends AppController {
 			$person = $this->People->get($id, [
 				'contain' => [Configure::read('Security.authModel')]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid person.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect('/');
 		}
@@ -2698,10 +2635,7 @@ class PeopleController extends AppController {
 		try {
 			/** @var Person $person */
 			$person = $this->People->get($id, ['contain' => $contain]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid person.'));
-			return $this->redirect(['action' => 'list_new']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect(['action' => 'list_new']);
 		}
@@ -2908,7 +2842,6 @@ class PeopleController extends AppController {
 	 * @throws \Cake\Http\Exception\GoneException When record not found.
 	 */
 	public function ical($id) {
-		$this->viewBuilder()->setLayout('ical');
 		$id = intval($id);
 
 		// Check that the person has enabled this option
@@ -2922,9 +2855,7 @@ class PeopleController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			throw new GoneException();
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			throw new GoneException();
 		}
 
@@ -2967,7 +2898,7 @@ class PeopleController extends AppController {
 		$this->set('calendar_type', 'Player Schedule');
 		$this->set('calendar_name', "{$person->full_name}'s schedule");
 		$this->getResponse()->withDownload("$id.ics");
-		$this->viewBuilder()->setClassName('Ics');
+		$this->viewBuilder()->setClassName('Ical');
 	}
 
 	public function registrations() {
@@ -3014,10 +2945,7 @@ class PeopleController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid person.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect('/');
 		}
@@ -3057,10 +2985,7 @@ class PeopleController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid person.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect('/');
 		}

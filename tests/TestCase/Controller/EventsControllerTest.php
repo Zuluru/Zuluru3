@@ -164,7 +164,9 @@ class EventsControllerTest extends ControllerTestCase {
 
 		// Wizard doesn't make sense for someone not logged in: it sends them to the event list instead
 		$this->assertGetAnonymousAccessRedirect(['controller' => 'Events', 'action' => 'wizard'],
-			['controller' => 'Events', 'action' => 'index']);
+			['controller' => 'Events', 'action' => 'index'],
+			'The registration wizard only works when you are logged in.'
+		);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -344,6 +346,7 @@ class EventsControllerTest extends ControllerTestCase {
 	 */
 	public function testEventTypeFields(): void {
 		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 

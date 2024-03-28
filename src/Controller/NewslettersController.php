@@ -72,10 +72,7 @@ class NewslettersController extends AppController {
 			$newsletter = $this->Newsletters->get($id, [
 				'contain' => ['MailingLists']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid newsletter.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid newsletter.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -131,10 +128,7 @@ class NewslettersController extends AppController {
 			$newsletter = $this->Newsletters->get($id, [
 				'contain' => ['MailingLists']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid newsletter.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid newsletter.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -172,10 +166,7 @@ class NewslettersController extends AppController {
 		$id = $this->getRequest()->getQuery('newsletter');
 		try {
 			$newsletter = $this->Newsletters->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid newsletter.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid newsletter.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -205,10 +196,7 @@ class NewslettersController extends AppController {
 			$newsletter = $this->Newsletters->get($id, [
 				'contain' => ['MailingLists', 'Deliveries']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid newsletter.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid newsletter.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -254,10 +242,7 @@ class NewslettersController extends AppController {
 						'Deliveries',
 					]
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid newsletter.'));
-				return $this->redirect(['action' => 'index']);
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid newsletter.'));
 				return $this->redirect(['action' => 'index']);
 			}
@@ -339,10 +324,7 @@ class NewslettersController extends AppController {
 						'Deliveries',
 					]
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid newsletter.'));
-				return $this->redirect(['action' => 'index']);
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid newsletter.'));
 				return $this->redirect(['action' => 'index']);
 			}

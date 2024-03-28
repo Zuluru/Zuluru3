@@ -12,7 +12,7 @@ $this->Breadcrumbs->add(__('Registration'));
 
 <div class="settings form">
 <?php
-echo $this->form->create(null, ['align' => 'horizontal']);
+echo $this->Form->create(null, ['align' => 'horizontal']);
 
 echo $this->element('Settings/banner');
 ?>

@@ -124,9 +124,7 @@ class Zuluru extends Validation {
 					}
 				]]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			return false;
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			return false;
 		}
 

@@ -21,7 +21,7 @@ class FranchisesController extends AppController {
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 * @throws \Cake\Http\Exception\MethodNotAllowedException if franchises are not enabled
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		if (!Configure::read('feature.franchises')) {
 			return [];
 		}
@@ -108,10 +108,7 @@ class FranchisesController extends AppController {
 					'Affiliates',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid franchise.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid franchise.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -158,10 +155,7 @@ class FranchisesController extends AppController {
 			$franchise = $this->Franchises->get($id, [
 				'contain' => ['People']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid franchise.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid franchise.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -196,10 +190,7 @@ class FranchisesController extends AppController {
 			$franchise = $this->Franchises->get($id, [
 				'contain' => ['People'],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid franchise.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid franchise.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -236,10 +227,7 @@ class FranchisesController extends AppController {
 					'Teams',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid franchise.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid franchise.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -287,10 +275,7 @@ class FranchisesController extends AppController {
 					'People',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid franchise.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid franchise.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -315,10 +300,7 @@ class FranchisesController extends AppController {
 					'Franchises',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid team.'));
-			return $this->redirect(['action' => 'view', '?' => ['franchise' => $id]]);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team.'));
 			return $this->redirect(['action' => 'view', '?' => ['franchise' => $id]]);
 		}
@@ -360,10 +342,7 @@ class FranchisesController extends AppController {
 					'People',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid franchise.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid franchise.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -385,10 +364,7 @@ class FranchisesController extends AppController {
 						],
 					],
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid person.'));
-				return $this->redirect(['action' => 'index']);
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid person.'));
 				return $this->redirect(['action' => 'index']);
 			}
@@ -426,10 +402,7 @@ class FranchisesController extends AppController {
 					'People',
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid franchise.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid franchise.'));
 			return $this->redirect(['action' => 'index']);
 		}

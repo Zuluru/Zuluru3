@@ -17,7 +17,7 @@ class FacilitiesController extends AppController {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		return ['index', 'view'];
 	}
 
@@ -107,10 +107,7 @@ class FacilitiesController extends AppController {
 					],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid facility.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid facility.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -186,10 +183,7 @@ class FacilitiesController extends AppController {
 					],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid facility.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid facility.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -247,10 +241,7 @@ class FacilitiesController extends AppController {
 		$id = $this->getRequest()->getQuery('facility');
 		try {
 			$facility = $this->Facilities->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid facility.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid facility.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -278,10 +269,7 @@ class FacilitiesController extends AppController {
 			$facility = $this->Facilities->get($id, [
 				'contain' => ['Fields'],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid facility.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid facility.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -313,10 +301,7 @@ class FacilitiesController extends AppController {
 
 		try {
 			$facility = $this->Facilities->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid facility.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid facility.'));
 			return $this->redirect(['action' => 'index']);
 		}

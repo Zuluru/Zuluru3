@@ -76,5 +76,4 @@ class RedirectFlashHandler extends RedirectHandler {
 
 		return $url;
 	}
-
 }

@@ -28,9 +28,7 @@ class RegisterController extends AppController {
 				} else {
 					$this->Flash->warning(__('Failed to register with {0}. Please try again. If you have continued problems, please contact {0} support}.', 'Javelin'));
 				}
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid person.'));
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid person.'));
 			}
 		}

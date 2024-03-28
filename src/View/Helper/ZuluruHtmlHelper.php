@@ -2,8 +2,8 @@
 namespace App\View\Helper;
 
 use App\Controller\AppController;
-use Cake\Core\Configure;
 use BootstrapUI\View\Helper\HtmlHelper as HtmlHelper;
+use Cake\Core\Configure;
 use Cake\Routing\Router;
 
 class ZuluruHtmlHelper extends HtmlHelper {

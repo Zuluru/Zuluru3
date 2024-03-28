@@ -63,10 +63,7 @@ class WaiversController extends AppController {
 			$waiver = $this->Waivers->get($id, [
 				'contain' => ['Affiliates']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid waiver.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid waiver.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -110,10 +107,7 @@ class WaiversController extends AppController {
 		$id = $this->getRequest()->getQuery('waiver');
 		try {
 			$waiver = $this->Waivers->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid waiver.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid waiver.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -154,10 +148,7 @@ class WaiversController extends AppController {
 		$id = $this->getRequest()->getQuery('waiver');
 		try {
 			$waiver = $this->Waivers->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid waiver.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid waiver.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -186,10 +177,7 @@ class WaiversController extends AppController {
 
 		try {
 			$waiver = $this->Waivers->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid waiver.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid waiver.'));
 			return $this->redirect('/');
 		}
@@ -209,10 +197,7 @@ class WaiversController extends AppController {
 					],
 				],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid person.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect('/');
 		}
@@ -248,10 +233,7 @@ class WaiversController extends AppController {
 		}
 		try {
 			$waiver = $this->Waivers->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid waiver.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid waiver.'));
 			return $this->redirect('/');
 		}

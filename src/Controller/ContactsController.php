@@ -1,7 +1,6 @@
 <?php
 namespace App\Controller;
 
-use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\Query;
@@ -76,10 +75,7 @@ class ContactsController extends AppController {
 		$id = $this->getRequest()->getQuery('contact');
 		try {
 			$contact = $this->Contacts->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid contact.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid contact.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -111,10 +107,7 @@ class ContactsController extends AppController {
 		$id = $this->getRequest()->getQuery('contact');
 		try {
 			$contact = $this->Contacts->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid contact.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid contact.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -183,10 +176,7 @@ class ContactsController extends AppController {
 				$contact = $this->Contacts->get($id, [
 					'contain' => ['Affiliates']
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid contact.'));
-				return $this->redirect('/');
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid contact.'));
 				return $this->redirect('/');
 			}

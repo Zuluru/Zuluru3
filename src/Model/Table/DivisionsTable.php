@@ -5,7 +5,7 @@ use App\Authorization\ContextResource;
 use ArrayObject;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
-use Cake\Core\Exception\Exception;
+use Cake\Core\Exception\CakeException;
 use Cake\Datasource\EntityInterface;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Event\Event as CakeEvent;
@@ -310,7 +310,7 @@ class DivisionsTable extends AppTable {
 				try {
 					$league_obj = ModuleRegistry::getInstance()->load("LeagueType:{$entity->schedule_type}");
 					return $league_obj->schedulingFieldsRules($entity);
-				} catch (Exception $ex) {
+				} catch (CakeException $ex) {
 				}
 				return true;
 			}
@@ -515,7 +515,7 @@ class DivisionsTable extends AppTable {
 	public function league($id) {
 		try {
 			return $this->field('league_id', ['Divisions.id' => $id]);
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

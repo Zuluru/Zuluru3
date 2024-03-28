@@ -13,7 +13,7 @@ $this->Breadcrumbs->add(__('Email Search'));
 	<h2><?= __('Search People') ?></h2>
 
 	<div class="search form">
-		<?= $this->form->create(null, ['align' => 'horizontal']) ?>
+		<?= $this->Form->create(null, ['align' => 'horizontal']) ?>
 <?php
 if (isset($affiliate_id)) {
 	echo $this->Form->hidden('affiliate_id', ['value' => $affiliate_id]);

@@ -6,6 +6,8 @@ use App\Core\UserCache;
 use App\Core\ModuleRegistry;
 use App\Model\Entity\Person;
 use App\Mailer\Mailer;
+use App\View\CsvView;
+use App\View\IcalView;
 use Cake\Controller\Controller;
 use Cake\Core\Configure;
 use Cake\Event\Event as CakeEvent;
@@ -20,6 +22,7 @@ use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 use Cake\Routing\Router;
 use Cake\Utility\Inflector;
+use Cake\View\JsonView;
 use Exception;
 use Psr\Log\LogLevel;
 
@@ -30,9 +33,10 @@ use Psr\Log\LogLevel;
  * @package       cake
  * @subpackage    cake.cake.libs.controller
  * @property \App\Controller\Component\AuthenticationComponent $Authentication
- * @property \Authorization\Controller\Component\AuthorizationComponent $Authorization
+ * @property \App\Controller\Component\AuthorizationComponent $Authorization
  * @property \Cake\Controller\Component\FlashComponent $Flash
  * @property \Cake\Controller\Component\RequestHandlerComponent $RequestHandler
+ * @property \Cake\Controller\Component\FormProtectionComponent $FormProtection
  * @property \App\Core\UserCache $UserCache
  * @property \App\Model\Table\ConfigurationTable $Configuration
  */
@@ -57,7 +61,16 @@ class AppController extends Controller {
 		}
 
 		$this->loadComponent('Flash');
-		$this->loadComponent('RequestHandler', ['enableBeforeRedirect' => false]);
+		$this->loadComponent('RequestHandler', [
+			'enableBeforeRedirect' => false,
+			'viewClassMap' => [
+				// @todo Cake4: See https://book.cakephp.org/4/en/controllers.html#controller-viewclasses for 4.4
+				'csv' => CsvView::class,
+				'ics' => IcalView::class,
+				'json' => JsonView::class,
+			]
+		]);
+		$this->loadComponent('FormProtection');
 
 		// Don't attempt to do anything database- or user-related during installation
 		if ($this->getPlugin() === 'Installer') {
@@ -77,7 +90,8 @@ class AppController extends Controller {
 		$allowed = $this->getRequest()->is('json') ? $this->_noAuthenticationJsonActions() : $this->_noAuthenticationActions();
 		$this->Authentication->allowUnauthenticated($allowed);
 
-		$this->loadComponent('Authorization.Authorization');
+		// @todo Cake4: Fix policies and revert this to 'Authorization.Authorization'
+		$this->loadComponent('Authorization');
 
 		// Footprint trait needs the _userModel set to whatever is being used for authentication
 		$this->_userModel = Configure::read('Security.authModel');
@@ -225,7 +239,7 @@ class AppController extends Controller {
 		]);
 	}
 
-	public function beforeRender(\Cake\Event\EventInterface $cakeEvent) {
+	public function beforeRender(\Cake\Event\EventInterface $cakeEvent): void {
 		parent::beforeRender($cakeEvent);
 
 		if ($this->getRequest()->is('json')) {
@@ -364,7 +378,7 @@ class AppController extends Controller {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		return [];
 	}
 

@@ -16,7 +16,7 @@ if ($affiliate) {
 } else {
 	$empty = false;
 }
-echo $this->form->create(null, ['align' => 'horizontal']);
+echo $this->Form->create(null, ['align' => 'horizontal']);
 
 echo $this->element('Settings/banner');
 ?>

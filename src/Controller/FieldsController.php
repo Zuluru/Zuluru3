@@ -21,7 +21,7 @@ class FieldsController extends AppController {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		return ['index', 'view', 'tooltip'];
 	}
 
@@ -66,10 +66,7 @@ class FieldsController extends AppController {
 					'Facilities' => ['Regions'],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
-			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
@@ -89,10 +86,7 @@ class FieldsController extends AppController {
 		$id = $this->getRequest()->getQuery('field');
 		try {
 			$field = $this->Fields->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
-			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
@@ -118,10 +112,7 @@ class FieldsController extends AppController {
 		$id = $this->getRequest()->getQuery('field');
 		try {
 			$field = $this->Fields->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
-			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
@@ -149,10 +140,7 @@ class FieldsController extends AppController {
 			$field = $this->Fields->get($id, [
 				'contain' => ['Facilities' => ['Fields']],
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
-			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}
@@ -193,13 +181,18 @@ class FieldsController extends AppController {
 		} else {
 			$conditions = ['is_open' => true];
 		}
+		$slot_conditions = [];
 
 		$query = TableRegistry::getTableLocator()->get('Divisions')->find();
 		$min_date = $query->select(['min' => $query->func()->min('open')])->where($conditions)->first()->min;
-		$slot_conditions = ['GameSlots.game_date >=' => $min_date];
+		if ($min_date) {
+			$slot_conditions['GameSlots.game_date >='] = $min_date;
+		}
 		if (!$this->Authentication->getIdentity()->isManager()) {
 			$max_date = $query->select(['max' => $query->func()->max('close')])->where($conditions)->first()->max;
-			$slot_conditions['GameSlots.game_date <='] = $max_date;
+			if ($max_date) {
+				$slot_conditions['GameSlots.game_date <='] = $max_date;
+			}
 		}
 
 		try {
@@ -226,10 +219,7 @@ class FieldsController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
-			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid {0}.', Configure::read('UI.field')));
 			return $this->redirect(['controller' => 'Facilities', 'action' => 'index']);
 		}

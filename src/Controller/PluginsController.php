@@ -1,12 +1,8 @@
 <?php
 namespace App\Controller;
 
-use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Http\Exception\MethodNotAllowedException;
-use Cake\ORM\Entity;
-use Cake\ORM\Query;
 
 /**
  * Plugins Controller
@@ -41,10 +37,7 @@ class PluginsController extends AppController {
 			$plugin = $this->Plugins->get($id, [
 				'contain' => []
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid plugin.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid plugin.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -72,10 +65,7 @@ class PluginsController extends AppController {
 			$plugin = $this->Plugins->get($id, [
 				'contain' => []
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid plugin.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid plugin.'));
 			return $this->redirect(['action' => 'index']);
 		}

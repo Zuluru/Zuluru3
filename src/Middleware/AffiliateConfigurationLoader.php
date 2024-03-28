@@ -1,25 +1,24 @@
 <?php
+declare(strict_types=1);
+
 namespace App\Middleware;
 
 use Cake\Core\Configure;
-use Cake\Http\Response;
-use Cake\Http\ServerRequest;
 use Cake\ORM\TableRegistry;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class AffiliateConfigurationLoader {
+class AffiliateConfigurationLoader implements MiddlewareInterface {
 
-	/**
-	 * @param \Cake\Http\ServerRequest $request The request.
-	 * @param \Cake\Http\Response $response The response.
-	 * @param callable $next The next middleware to call.
-	 * @return \Cake\Http\Response A response.
-	 */
-	public function __invoke(ServerRequest $request, Response $response, $next) {
+	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+	{
 		$this->loadConfiguration($request);
-		return $next($request, $response);
+		return $handler->handle($request);
 	}
 
-	public static function loadConfiguration(ServerRequest $request = null) {
+	public static function loadConfiguration(ServerRequestInterface $request = null): void {
 		if ($request && $request->getParam('plugin') != 'Installer' && $request->getAttribute('identity')) {
 			$identity = $request->getAttribute('identity');
 			if (Configure::read('feature.affiliates')) {

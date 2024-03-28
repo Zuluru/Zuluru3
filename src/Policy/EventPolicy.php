@@ -34,7 +34,7 @@ class EventPolicy extends AppPolicy {
 
 	public function canWizard(IdentityInterface $identity = null, $resource) {
 		if (!$identity || !$identity->isLoggedIn()) {
-			throw new ForbiddenRedirectException(null, ['controller' => 'Events', 'action' => 'index']);
+			throw new ForbiddenRedirectException(__('The registration wizard only works when you are logged in.'), ['controller' => 'Events', 'action' => 'index']);
 		}
 
 		return true;

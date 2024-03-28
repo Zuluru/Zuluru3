@@ -230,24 +230,24 @@ class GamePolicy extends AppPolicy {
 
 		if (empty($game->stats)) {
 			// Default redirect, if nothing better presents itself
-			$redirect = ['controller' => 'Games', 'action' => 'view', 'game' => $game->id];
+			$redirect = ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]];
 
 			// Redirect coordinators to the stats entry page with whatever parameters were used here
 			if ($identity && $identity->isCoordinatorOf($game)) {
-				$redirect = ['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $team_id];
+				$redirect = ['controller' => 'Games', 'action' => 'submit_stats', '?' => ['game' => $game->id, 'team' => $team_id]];
 			} else if (!$team_id) {
 				// If there was no team ID given, check if one of the two teams is captained by the current user
 				if ($game->home_team && $identity && $identity->isCaptainOf($game->home_team)) {
-					$redirect = ['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->home_team_id];
+					$redirect = ['controller' => 'Games', 'action' => 'submit_stats', '?' => ['game' => $game->id, 'team' => $game->home_team_id]];
 				} else if ($game->away_team && $identity && $identity->isCaptainOf($game->away_team)) {
-					$redirect = ['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->away_team_id];
+					$redirect = ['controller' => 'Games', 'action' => 'submit_stats', '?' => ['game' => $game->id, 'team' => $game->away_team_id]];
 				}
 			} else {
 				// If there was a team ID given, check if that team is captained by the current user
 				if ($team_id == $game->home_team_id && $identity && $identity->isCaptainOf($game->home_team)) {
-					$redirect = ['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->home_team_id];
+					$redirect = ['controller' => 'Games', 'action' => 'submit_stats', '?' => ['game' => $game->id, 'team' => $game->home_team_id]];
 				} else if ($team_id == $game->away_team_id && $identity && $identity->isCaptainOf($game->away_team)) {
-					$redirect = ['controller' => 'Games', 'action' => 'submit_stats', 'game' => $game->id, 'team' => $game->away_team_id];
+					$redirect = ['controller' => 'Games', 'action' => 'submit_stats', '?' => ['game' => $game->id, 'team' => $game->away_team_id]];
 				}
 			}
 

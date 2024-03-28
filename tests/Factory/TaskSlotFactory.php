@@ -28,8 +28,8 @@ class TaskSlotFactory extends BaseFactory
 		$this->setDefaultData(function(Generator $faker) {
 			return [
 				'task_date' => FrozenDate::now()->addDays(1),
-				'task_start' => '17:00:00',
-				'task_end' => '19:00:00',
+				'task_start' => FrozenTime::createFromTime(17),
+				'task_end' => FrozenTime::createFromTime(19),
 				'modified' => FrozenTime::now(),
 			];
 		});

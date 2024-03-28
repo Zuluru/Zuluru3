@@ -21,10 +21,7 @@ trait SettingsTrait {
 		if ($affiliate_id) {
 			try {
 				$affiliate = $this->Settings->Affiliates->get($affiliate_id);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid affiliate.'));
-				return $this->redirect('/');
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid affiliate.'));
 				return $this->redirect('/');
 			}

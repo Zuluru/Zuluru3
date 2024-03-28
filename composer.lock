@@ -4,61 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7a09e5d42ecff4addd526cd3e8434daa",
+    "content-hash": "80222ecc0db3b487ae44cd108261630b",
     "packages": [
-        {
-            "name": "aura/intl",
-            "version": "3.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/auraphp/Aura.Intl.git",
-                "reference": "642cab45c9c88a217f89b65c2d7219a8cd7f803b"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/auraphp/Aura.Intl/zipball/642cab45c9c88a217f89b65c2d7219a8cd7f803b",
-                "reference": "642cab45c9c88a217f89b65c2d7219a8cd7f803b",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^5.6 || ^7.0 || ^8.0"
-            },
-            "require-dev": {
-                "yoast/phpunit-polyfills": "~1.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Aura\\Intl\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Aura.Intl Contributors",
-                    "homepage": "https://github.com/auraphp/Aura.Intl/contributors"
-                }
-            ],
-            "description": "The Aura Intl package provides internationalization tools, specifically message translation.",
-            "homepage": "https://github.com/auraphp/Aura.Intl",
-            "keywords": [
-                "g11n",
-                "globalization",
-                "i18n",
-                "internationalization",
-                "intl",
-                "l10n",
-                "localization"
-            ],
-            "support": {
-                "issues": "https://github.com/auraphp/Aura.Intl/issues",
-                "source": "https://github.com/auraphp/Aura.Intl/tree/3.0.1"
-            },
-            "time": "2022-01-28T10:55:50+00:00"
-        },
         {
             "name": "aws/aws-crt-php",
             "version": "v1.2.4",
@@ -450,20 +397,19 @@
         },
         {
             "name": "cakephp/cakephp",
-            "version": "4.1.7",
+            "version": "4.2.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cakephp/cakephp.git",
-                "reference": "bba723770e6f8861ce5117650251f5848033193e"
+                "reference": "aa72cbb047431ab6bfb92e66a5a6d3382ab2385f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cakephp/cakephp/zipball/bba723770e6f8861ce5117650251f5848033193e",
-                "reference": "bba723770e6f8861ce5117650251f5848033193e",
+                "url": "https://api.github.com/repos/cakephp/cakephp/zipball/aa72cbb047431ab6bfb92e66a5a6d3382ab2385f",
+                "reference": "aa72cbb047431ab6bfb92e66a5a6d3382ab2385f",
                 "shasum": ""
             },
             "require": {
-                "aura/intl": "^3.0.0",
                 "cakephp/chronos": "^2.0",
                 "composer/ca-bundle": "^1.2",
                 "ext-intl": "*",
@@ -471,6 +417,7 @@
                 "ext-mbstring": "*",
                 "laminas/laminas-diactoros": "^2.2.2",
                 "laminas/laminas-httphandlerrunner": "^1.1",
+                "league/container": "^3.2",
                 "php": ">=7.2.0",
                 "psr/http-client": "^1.0",
                 "psr/http-server-handler": "^1.0",
@@ -499,7 +446,7 @@
                 "cakephp/cakephp-codesniffer": "^4.0",
                 "mikey179/vfsstream": "^1.6",
                 "paragonie/csp-builder": "^2.3",
-                "phpunit/phpunit": "~8.5.0"
+                "phpunit/phpunit": "^8.5 || ^9.3"
             },
             "suggest": {
                 "ext-curl": "To enable more efficient network calls in Http\\Client.",
@@ -549,7 +496,7 @@
                 "issues": "https://github.com/cakephp/cakephp/issues",
                 "source": "https://github.com/cakephp/cakephp"
             },
-            "time": "2020-12-13T00:27:30+00:00"
+            "time": "2023-01-07T00:52:30+00:00"
         },
         {
             "name": "cakephp/chronos",
@@ -1017,25 +964,26 @@
         },
         {
             "name": "dereuromark/cakephp-ajax",
-            "version": "2.0.0",
+            "version": "2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/dereuromark/cakephp-ajax.git",
-                "reference": "34f1c7572855b1dce333e55db581ed517e79c94d"
+                "reference": "99c9d039dc4420c5beb566790736ab49bd65b702"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dereuromark/cakephp-ajax/zipball/34f1c7572855b1dce333e55db581ed517e79c94d",
-                "reference": "34f1c7572855b1dce333e55db581ed517e79c94d",
+                "url": "https://api.github.com/repos/dereuromark/cakephp-ajax/zipball/99c9d039dc4420c5beb566790736ab49bd65b702",
+                "reference": "99c9d039dc4420c5beb566790736ab49bd65b702",
                 "shasum": ""
             },
             "require": {
-                "cakephp/cakephp": "^4.0.0",
-                "php": ">=7.2"
+                "cakephp/cakephp": "^4.2.0",
+                "php": ">=7.3"
             },
             "require-dev": {
                 "dereuromark/cakephp-tools": "^2.0.0",
-                "fig-r/psr2r-sniffer": "dev-master"
+                "fig-r/psr2r-sniffer": "dev-master",
+                "phpunit/phpunit": "^9.5"
             },
             "type": "cakephp-plugin",
             "autoload": {
@@ -1067,7 +1015,62 @@
                 "issues": "https://github.com/dereuromark/cakephp-ajax/issues",
                 "source": "https://github.com/dereuromark/cakephp-ajax"
             },
-            "time": "2020-03-30T00:07:21+00:00"
+            "time": "2022-08-05T01:35:23+00:00"
+        },
+        {
+            "name": "dereuromark/cakephp-calendar",
+            "version": "1.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dereuromark/cakephp-calendar.git",
+                "reference": "47d4a9d5697b5becdd2934577561f7c15a54794c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dereuromark/cakephp-calendar/zipball/47d4a9d5697b5becdd2934577561f7c15a54794c",
+                "reference": "47d4a9d5697b5becdd2934577561f7c15a54794c",
+                "shasum": ""
+            },
+            "require": {
+                "cakephp/cakephp": "^4.2.0",
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "fig-r/psr2r-sniffer": "dev-master",
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "cakephp-plugin",
+            "autoload": {
+                "psr-4": {
+                    "Calendar\\": "src/",
+                    "Calendar\\Test\\Fixture\\": "tests/Fixture/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mark Scherer",
+                    "homepage": "https://www.dereuromark.de",
+                    "role": "Maintainer"
+                }
+            ],
+            "description": "A CakePHP plugin to easily create calendars.",
+            "homepage": "https://github.com/dereuromark/cakephp-calendar",
+            "keywords": [
+                "cakephp",
+                "calendar",
+                "events",
+                "helper",
+                "plugin"
+            ],
+            "support": {
+                "issues": "https://github.com/dereuromark/cakephp-calendar/issues",
+                "source": "https://github.com/dereuromark/cakephp-calendar"
+            },
+            "time": "2023-07-24T10:44:43+00:00"
         },
         {
             "name": "doctrine/collections",
@@ -1348,6 +1351,62 @@
                 "source": "https://github.com/firebase/php-jwt/tree/v5.5.1"
             },
             "time": "2021-11-08T20:18:51+00:00"
+        },
+        {
+            "name": "friendsofcake/bootstrap-ui",
+            "version": "4.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/FriendsOfCake/bootstrap-ui.git",
+                "reference": "bd656983263adfee9888f7539bb4afa030659f13"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/FriendsOfCake/bootstrap-ui/zipball/bd656983263adfee9888f7539bb4afa030659f13",
+                "reference": "bd656983263adfee9888f7539bb4afa030659f13",
+                "shasum": ""
+            },
+            "require": {
+                "cakephp/cakephp": "^4.0"
+            },
+            "require-dev": {
+                "cakephp/bake": "^2.1",
+                "cakephp/cakephp-codesniffer": "^4.1",
+                "phpunit/phpunit": "^8.5 || ^9.3"
+            },
+            "type": "cakephp-plugin",
+            "autoload": {
+                "psr-4": {
+                    "BootstrapUI\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jad Bitar",
+                    "homepage": "http://jadb.io",
+                    "role": "Author"
+                },
+                {
+                    "name": "Others",
+                    "homepage": "https://github.com/friendsofcake/bootstrap-ui/graphs/contributors"
+                }
+            ],
+            "description": "Bootstrap front-end framework support for CakePHP",
+            "homepage": "http://github.com/friendsofcake/bootstrap-ui",
+            "keywords": [
+                "bootstrap",
+                "cakephp",
+                "front-end"
+            ],
+            "support": {
+                "issues": "http://github.com/friendsofcake/bootstrap-ui/issues",
+                "source": "http://github.com/friendsofcake/bootstrap-ui"
+            },
+            "time": "2023-03-12T15:10:19+00:00"
         },
         {
             "name": "giggsey/libphonenumber-for-php",
@@ -2207,6 +2266,85 @@
             ],
             "abandoned": true,
             "time": "2022-07-29T13:28:29+00:00"
+        },
+        {
+            "name": "league/container",
+            "version": "3.4.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/container.git",
+                "reference": "84ecbc2dbecc31bd23faf759a0e329ee49abddbd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thephpleague/container/zipball/84ecbc2dbecc31bd23faf759a0e329ee49abddbd",
+                "reference": "84ecbc2dbecc31bd23faf759a0e329ee49abddbd",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.0 || ^8.0",
+                "psr/container": "^1.0.0"
+            },
+            "provide": {
+                "psr/container-implementation": "^1.0"
+            },
+            "replace": {
+                "orno/di": "~2.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^6.0 || ^7.0",
+                "roave/security-advisories": "dev-latest",
+                "scrutinizer/ocular": "^1.8",
+                "squizlabs/php_codesniffer": "^3.5"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.x-dev",
+                    "dev-3.x": "3.x-dev",
+                    "dev-2.x": "2.x-dev",
+                    "dev-1.x": "1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "League\\Container\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Phil Bennett",
+                    "email": "philipobenito@gmail.com",
+                    "homepage": "http://www.philipobenito.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A fast and intuitive dependency injection container.",
+            "homepage": "https://github.com/thephpleague/container",
+            "keywords": [
+                "container",
+                "dependency",
+                "di",
+                "injection",
+                "league",
+                "provider",
+                "service"
+            ],
+            "support": {
+                "issues": "https://github.com/thephpleague/container/issues",
+                "source": "https://github.com/thephpleague/container/tree/3.4.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/philipobenito",
+                    "type": "github"
+                }
+            ],
+            "time": "2021-07-09T08:23:52+00:00"
         },
         {
             "name": "league/flysystem",
@@ -7754,6 +7892,7 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "zuluru/cakephp-jquery": 20,
+        "zuluru/cakephp-bootstrap": 20,
         "psy/psysh": 0
     },
     "prefer-stable": true,

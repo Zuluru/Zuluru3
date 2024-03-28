@@ -91,7 +91,7 @@ if (empty($game->score_details)):
 <div class="zuluru">
 <?php
 	$url = ['controller' => 'Games', 'action' => 'play', 'game' => $game->id, 'team' => $submitter];
-	echo $this->form->create(null, [
+	echo $this->Form->create(null, [
 		'id' => "StartForm{$team->id}",
 		'url' => $url,
 	]);

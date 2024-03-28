@@ -1,10 +1,8 @@
 <?php
 namespace App\Controller;
 
-use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Http\Exception\MethodNotAllowedException;
 
 /**
  * Answers Controller
@@ -24,10 +22,7 @@ class AnswersController extends AppController {
 		$id = $this->getRequest()->getQuery('answer');
 		try {
 			$answer = $this->Answers->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid answer.'));
-			return $this->redirect(['controller' => 'Questionnaires']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid answer.'));
 			return $this->redirect(['controller' => 'Questionnaires']);
 		}
@@ -54,10 +49,7 @@ class AnswersController extends AppController {
 		$id = $this->getRequest()->getQuery('answer');
 		try {
 			$answer = $this->Answers->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid answer.'));
-			return $this->redirect(['controller' => 'Questionnaires']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid answer.'));
 			return $this->redirect(['controller' => 'Questionnaires']);
 		}

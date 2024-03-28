@@ -21,7 +21,7 @@ class MailingListsController extends AppController {
 	 *
 	 * @return array of actions that can be taken even by visitors that are not logged in.
 	 */
-	protected function _noAuthenticationActions() {
+	protected function _noAuthenticationActions(): array {
 		return ['unsubscribe'];
 	}
 
@@ -56,10 +56,7 @@ class MailingListsController extends AppController {
 			$mailing_list = $this->MailingLists->get($id, [
 				'contain' => ['Affiliates', 'Newsletters']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid mailing list.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid mailing list.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -84,10 +81,7 @@ class MailingListsController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid mailing list.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid mailing list.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -185,10 +179,7 @@ class MailingListsController extends AppController {
 		$id = $this->getRequest()->getQuery('mailing_list');
 		try {
 			$mailing_list = $this->MailingLists->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid mailing list.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid mailing list.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -221,10 +212,7 @@ class MailingListsController extends AppController {
 		$id = $this->getRequest()->getQuery('mailing_list');
 		try {
 			$mailing_list = $this->MailingLists->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid mailing list.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid mailing list.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -252,10 +240,7 @@ class MailingListsController extends AppController {
 		$id = $this->getRequest()->getQuery('list');
 		try {
 			$mailing_list = $this->MailingLists->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid mailing list.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid mailing list.'));
 			return $this->redirect(['action' => 'index']);
 		}

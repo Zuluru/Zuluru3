@@ -16,6 +16,7 @@ use Cake\Routing\Router;
 use Cake\Validation\Validator;
 use App\Core\UserCache;
 use App\Model\Table\LeaguesTable;
+use InvalidArgumentException;
 
 /**
  * Teams Model
@@ -395,7 +396,7 @@ class TeamsTable extends AppTable {
 			} else {
 				return $this->field('affiliate_id', [$this->aliasField('id') => $id]);
 			}
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
@@ -403,7 +404,7 @@ class TeamsTable extends AppTable {
 	public function division($id) {
 		try {
 			return $this->field('division_id', [$this->aliasField('id') => $id]);
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
@@ -418,7 +419,7 @@ class TeamsTable extends AppTable {
 			} else {
 				return current(array_keys(Configure::read('options.sport')));
 			}
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

@@ -74,7 +74,7 @@ if (Configure::read('payment.popup')) {
 	$submit_options['onClick'] = 'open_payment_window_chase();';
 }
 
-echo $this->form->create(null, $form_options);
+echo $this->Form->create(null, $form_options);
 
 if (!function_exists('quick_hidden')) {
 	function quick_hidden($ths, $name, $value) {

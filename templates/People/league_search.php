@@ -11,7 +11,7 @@ $this->Breadcrumbs->add(__('League Search'));
 	<h2><?= __('Search People') ?></h2>
 
 	<div class="search form">
-		<?= $this->form->create(null, ['align' => 'horizontal']) ?>
+		<?= $this->Form->create(null, ['align' => 'horizontal']) ?>
 		<p><?= __('Select a league to show players from.') ?></p>
 <?php
 if (isset($affiliate_id)) {

@@ -20,6 +20,7 @@ use App\Model\Entity\TeamsPerson;
 use App\Model\Rule\InConfigRule;
 use App\Model\Rule\ValidScoreRule;
 use App\Model\Table\TeamsTable;
+use InvalidArgumentException;
 
 /**
  * Games Model
@@ -1286,9 +1287,7 @@ class GamesTable extends AppTable {
 				$team = $this->HomeTeam->get($team, [
 					'contain' => ['People', 'Divisions'],
 				]);
-			} catch (RecordNotFoundException $ex) {
-				return [];
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidArgumentException|InvalidPrimaryKeyException $ex) {
 				return [];
 			}
 		} else {
@@ -1410,9 +1409,7 @@ class GamesTable extends AppTable {
 				$game = $this->get($game_id, [
 					'contain' => ['GameSlots']
 				]);
-			} catch (RecordNotFoundException $ex) {
-				return;
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidArgumentException|InvalidPrimaryKeyException $ex) {
 				return;
 			}
 			if ($game->home_team_id != $team->id && $game->away_team_id != $team->id) {
@@ -1592,9 +1589,7 @@ class GamesTable extends AppTable {
 		// Find game details
 		try {
 			$game = $this->get($game_id);
-		} catch (RecordNotFoundException $ex) {
-			return [];
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException|InvalidPrimaryKeyException $ex) {
 			return [];
 		}
 		if ($game->home_team_id != $team->id && $game->away_team_id != $team->id) {
@@ -1690,7 +1685,7 @@ class GamesTable extends AppTable {
 	public function affiliate($id) {
 		try {
 			return $this->Divisions->affiliate($this->division($id));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
@@ -1698,7 +1693,7 @@ class GamesTable extends AppTable {
 	public function division($id) {
 		try {
 			return $this->field('division_id', ['Games.id' => $id]);
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

@@ -2,7 +2,6 @@
 namespace App\Controller;
 
 use App\Authorization\ContextResource;
-use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\I18n\FrozenDate;
@@ -44,10 +43,7 @@ class PreregistrationsController extends AppController {
 				$event = $this->Preregistrations->Events->get($event_id, [
 					'contain' => ['Affiliates'],
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid event.'));
-				return $this->redirect(['controller' => 'Events', 'action' => 'index']);
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid event.'));
 				return $this->redirect(['controller' => 'Events', 'action' => 'index']);
 			}
@@ -76,10 +72,7 @@ class PreregistrationsController extends AppController {
 				$event = $this->Preregistrations->Events->get($event_id, [
 					'contain' => ['EventTypes', 'Prices', 'Affiliates', 'Divisions'],
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid event.'));
-				return $this->redirect(['controller' => 'Events', 'action' => 'index']);
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid event.'));
 				return $this->redirect(['controller' => 'Events', 'action' => 'index']);
 			}
@@ -171,10 +164,7 @@ class PreregistrationsController extends AppController {
 		$id = $this->getRequest()->getQuery('preregistration');
 		try {
 			$preregistration = $this->Preregistrations->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid preregistration.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid preregistration.'));
 			return $this->redirect(['action' => 'index']);
 		}

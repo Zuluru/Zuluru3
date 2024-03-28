@@ -216,7 +216,7 @@ class PaymentsTable extends AppTable {
 	public function affiliate($id) {
 		try {
 			return $this->Registrations->affiliate($this->field('registration_id', ['Payments.id' => $id]));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

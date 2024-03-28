@@ -66,10 +66,7 @@ class CreditsController extends AppController {
 			$credit = $this->Credits->get($id, [
 				'contain' => ['People', 'Payments']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid credit.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid credit.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -92,10 +89,7 @@ class CreditsController extends AppController {
 			$credit->person = $this->Credits->People->get($id, [
 				'contain' => [Configure::read('Security.authModel')]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid person.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -141,10 +135,7 @@ class CreditsController extends AppController {
 					'Payments' => ['Payments'],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid credit.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid credit.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -176,10 +167,7 @@ class CreditsController extends AppController {
 					'People',
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid credit.'));
-			return $this->redirect('/');
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid credit.'));
 			return $this->redirect('/');
 		}
@@ -193,10 +181,7 @@ class CreditsController extends AppController {
 				$person = $this->Credits->People->get($person_id, [
 					'contain' => [Configure::read('Security.authModel')]
 				]);
-			} catch (RecordNotFoundException $ex) {
-				$this->Flash->info(__('Invalid person.'));
-				return $this->redirect('/');
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 				$this->Flash->info(__('Invalid person.'));
 				return $this->redirect('/');
 			}
@@ -306,10 +291,7 @@ class CreditsController extends AppController {
 			$credit = $this->Credits->get($id, [
 				'contain' => ['Payments' => ['Payments']]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid credit.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid credit.'));
 			return $this->redirect(['action' => 'index']);
 		}

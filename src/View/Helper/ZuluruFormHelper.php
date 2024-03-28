@@ -2,13 +2,15 @@
 
 namespace App\View\Helper;
 
+use BootstrapUI\View\Helper\FormHelper as FormHelper;
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 use Cake\View\View;
-use BootstrapUI\View\Helper\FormHelper as FormHelper;
 
 class ZuluruFormHelper extends FormHelper {
 	public $helpers = ['Url', 'Html' => ['className' => 'ZuluruHtml']];
+
+	protected array $formProtectorStack = [];
 
 	/**
 	 * An array of optional fields whose values must match if they are included.
@@ -32,7 +34,19 @@ class ZuluruFormHelper extends FormHelper {
 		// TODOLATER: Remove this once we're done with validation testing
 		$options['novalidate'] = true;
 
+		// We sometimes create forms inside of creating other forms, through blocks, so the two don't get nested
+		// @todo Cake4: sotg_questions is one such place. Are there others? Can we eliminate those?
+		$this->formProtectorStack[] = $this->formProtector;
+
 		return parent::create($context, $options);
+	}
+
+	public function end(array $secureAttributes = []): string {
+		$end = parent::end($secureAttributes);
+
+		$this->formProtector = array_pop($this->formProtectorStack);
+
+		return $end;
 	}
 
 	/**

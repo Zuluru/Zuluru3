@@ -154,7 +154,7 @@ class FacilitiesTable extends AppTable {
 	public function affiliate($id) {
 		try {
 			return $this->Regions->affiliate($this->field('region_id', ['Facilities.id' => $id]));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

@@ -78,7 +78,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/registrations/view?registration=' . $membership->id);
 		$this->assertResponseContains('/registrations/edit?registration=' . $membership->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'full_list', '?' => ['event' => $membership->event_id, '_ext' => 'csv']], $admin->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'full_list', '?' => ['event' => $membership->event_id], '_ext' => 'csv'], $admin->id);
 		$this->assertResponseContains('Home Phone');
 		$this->assertResponseContains('Total Amount');
 
@@ -87,7 +87,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/registrations/view?registration=' . $membership->id);
 		$this->assertResponseContains('/registrations/edit?registration=' . $membership->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'full_list', '?' => ['event' => $membership->event_id, '_ext' => 'csv']], $manager->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'full_list', '?' => ['event' => $membership->event_id], '_ext' => 'csv'], $manager->id);
 		$this->assertResponseContains('Home Phone');
 		$this->assertResponseContains('Total Amount');
 
@@ -100,7 +100,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		$this->assertResponseNotContains('/registrations/view?registration=' . $individual->id);
 		$this->assertResponseNotContains('/registrations/edit?registration=' . $individual->id);
 
-		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'full_list', '?' => ['event' => $individual->event_id, '_ext' => 'csv']], $volunteer->id);
+		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'full_list', '?' => ['event' => $individual->event_id], '_ext' => 'csv'], $volunteer->id);
 		$this->assertResponseNotContains('Home Phone');
 		$this->assertResponseNotContains('Work Phone');
 		$this->assertResponseNotContains('Work Ext');
@@ -419,6 +419,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 */
 	public function testRegisterPaymentFields(): void {
 		$this->enableCsrfToken();
+		$this->enableSecurityToken();
 
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 		$now = FrozenDate::now();
@@ -773,14 +774,14 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		// Admins are allowed to refund payments
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'refund_payment', '?' => ['payment' => $payment->id]], $admin->id);
 		$this->assertResponseContains('<input type="checkbox" name="mark_refunded" value="1"');
-		$this->assertResponseContains('<input type="number" name="payment_amount" required="required" step="any" id="payment-amount" class="form-control" value="11.5"/>');
+		$this->assertResponseRegExp('#<input type="number" name="payment_amount" required="required" [^>]*id="payment-amount" [^>]*class="form-control" value="11.5"#ms');
 
 		// Try to refund more than the paid amount
 		$this->assertPostAsAccessOk(['controller' => 'Registrations', 'action' => 'refund_payment', '?' => ['payment' => $payment->id]],
 			$admin->id, $refund_data + ['payment_amount' => 1000]);
 		$this->assertResponseContains('The refund could not be saved. Please correct the errors below and try again.');
 		$this->assertResponseContains('This would refund more than the amount paid.');
-		$this->assertResponseContains('<input type="number" name="payment_amount" required="required" step="any" id="payment-amount" class="form-control" value="1000"/>');
+		$this->assertResponseRegExp('#<input type="number" name="payment_amount" required="required" [^>]*id="payment-amount" [^>]*class="is-invalid form-control" value="1000"#ms');
 		$this->assertResponseContains('<input type="checkbox" name="mark_refunded" value="1"');
 
 		// Try to refund $0
@@ -788,7 +789,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 			$admin->id, $refund_data + ['payment_amount' => 0]);
 		$this->assertResponseContains('The refund could not be saved. Please correct the errors below and try again.');
 		$this->assertResponseContains('Refund amounts must be positive.');
-		$this->assertResponseContains('<input type="number" name="payment_amount" required="required" step="any" id="payment-amount" class="form-control" value="0"/>');
+		$this->assertResponseRegExp('#<input type="number" name="payment_amount" required="required" [^>]*id="payment-amount" [^>]*class="is-invalid form-control" value="0"#ms');
 		$this->assertResponseContains('<input type="checkbox" name="mark_refunded" value="1"');
 
 		// Try to refund just the right amount
@@ -957,14 +958,14 @@ class RegistrationsControllerTest extends ControllerTestCase {
 		// Admins are allowed to credit payments
 		$this->assertGetAsAccessOk(['controller' => 'Registrations', 'action' => 'credit_payment', '?' => ['payment' => $payment->id]], $admin->id);
 		$this->assertResponseContains('<input type="checkbox" name="mark_refunded" value="1"');
-		$this->assertResponseContains('<input type="number" name="payment_amount" required="required" step="any" id="payment-amount" class="form-control" value="11.5"/>');
+		$this->assertResponseRegExp('#<input type="number" name="payment_amount" required="required" [^>]*id="payment-amount" [^>]*class="form-control" value="11.5"#ms');
 
 		// Try to credit more than the paid amount
 		$this->assertPostAsAccessOk(['controller' => 'Registrations', 'action' => 'credit_payment', '?' => ['payment' => $payment->id]],
 			$admin->id, $refund_data + ['payment_amount' => 1000]);
 		$this->assertResponseContains('The refund could not be saved. Please correct the errors below and try again.');
 		$this->assertResponseContains('This would refund more than the amount paid.');
-		$this->assertResponseContains('<input type="number" name="payment_amount" required="required" step="any" id="payment-amount" class="form-control" value="1000"/>');
+		$this->assertResponseRegExp('#<input type="number" name="payment_amount" required="required" [^>]*id="payment-amount" [^>]*class="is-invalid form-control" value="1000"#ms');
 		$this->assertResponseContains('<input type="checkbox" name="mark_refunded" value="1"');
 
 		// Try to credit $0
@@ -972,7 +973,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 			$admin->id, $refund_data + ['payment_amount' => 0]);
 		$this->assertResponseContains('The refund could not be saved. Please correct the errors below and try again.');
 		$this->assertResponseContains('Credit amounts must be positive.');
-		$this->assertResponseContains('<input type="number" name="payment_amount" required="required" step="any" id="payment-amount" class="form-control" value="0"/>');
+		$this->assertResponseRegExp('#<input type="number" name="payment_amount" required="required" [^>]*id="payment-amount" [^>]*class="is-invalid form-control" value="0"#ms');
 		$this->assertResponseContains('<input type="checkbox" name="mark_refunded" value="1"');
 
 		// Try to credit just the right amount

@@ -119,7 +119,9 @@ class AllControllerTest extends ControllerTestCase {
 	 */
 	public function testAuth3aUnauthenticatedAccessToProtectedViewOfPublicResource(): void {
 		$this->assertGetAnonymousAccessRedirect(['controller' => 'Events', 'action' => 'wizard'],
-			['controller' => 'Events', 'action' => 'index']);
+			['controller' => 'Events', 'action' => 'index'],
+			'The registration wizard only works when you are logged in.'
+		);
 	}
 
 	/**

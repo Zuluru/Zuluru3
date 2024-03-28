@@ -1,10 +1,8 @@
 <?php
 namespace App\Controller;
 
-use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Http\Exception\MethodNotAllowedException;
 
 /**
  * UploadTypes Controller
@@ -43,10 +41,7 @@ class UploadTypesController extends AppController {
 					'Affiliates',
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid upload type.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid upload type.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -91,10 +86,7 @@ class UploadTypesController extends AppController {
 		$id = $this->getRequest()->getQuery('type');
 		try {
 			$upload_type = $this->UploadTypes->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid upload type.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid upload type.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -127,10 +119,7 @@ class UploadTypesController extends AppController {
 		$id = $this->getRequest()->getQuery('type');
 		try {
 			$upload_type = $this->UploadTypes->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid upload type.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid upload type.'));
 			return $this->redirect(['action' => 'index']);
 		}

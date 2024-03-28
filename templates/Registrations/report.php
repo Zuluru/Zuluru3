@@ -14,7 +14,7 @@ $this->Breadcrumbs->add(__('Report'));
 	<h2><?= __('Registration Report') ?></h2>
 
 <?php
-echo $this->form->create(null, ['align' => 'horizontal']);
+echo $this->Form->create(null, ['align' => 'horizontal']);
 ?>
 
 	<fieldset>

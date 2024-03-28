@@ -7,6 +7,7 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
 use App\Model\Rule\InConfigRule;
+use InvalidArgumentException;
 
 /**
  * TeamEvents Model
@@ -172,9 +173,7 @@ class TeamEventsTable extends AppTable {
 				$team = $this->Teams->get($team, [
 					'contain' => ['People'],
 				]);
-			} catch (RecordNotFoundException $ex) {
-				return [];
-			} catch (InvalidPrimaryKeyException $ex) {
+			} catch (RecordNotFoundException|InvalidArgumentException|InvalidPrimaryKeyException $ex) {
 				return [];
 			}
 		} else {
@@ -232,9 +231,7 @@ class TeamEventsTable extends AppTable {
 		// Find event details
 		try {
 			$event = $this->get($event_id);
-		} catch (RecordNotFoundException $ex) {
-			return;
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException|InvalidPrimaryKeyException $ex) {
 			return;
 		}
 		if ($event->team_id != $team->id) {
@@ -274,7 +271,7 @@ class TeamEventsTable extends AppTable {
 	public function affiliate($id) {
 		try {
 			return $this->Teams->affiliate($this->team($id));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
@@ -282,7 +279,7 @@ class TeamEventsTable extends AppTable {
 	public function team($id) {
 		try {
 			return $this->field('team_id', ['TeamEvents.id' => $id]);
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}

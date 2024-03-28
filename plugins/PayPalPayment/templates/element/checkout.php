@@ -111,7 +111,7 @@ if (is_array($response)) {
 		$form_options['target'] = 'payment_window_paypal';
 		$submit_options['onClick'] = 'open_payment_window_paypal();';
 	}
-	echo $this->form->create(null, $form_options);
+	echo $this->Form->create(null, $form_options);
 	echo $this->Form->submit('https://www.paypal.com/en_US/i/btn/btn_xpressCheckout.gif', $submit_options);
 	echo $this->Form->end();
 } else {

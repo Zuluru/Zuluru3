@@ -1,9 +1,9 @@
 <?php
 namespace App\Exception;
 
-use Cake\Core\Exception\Exception;
+use Cake\Core\Exception\CakeException;
 
-class ScheduleException extends Exception {
+class ScheduleException extends CakeException {
 	/**
 	 * Array of message strings that are passed in from the constructor, and
 	 * made available in the view when a development error is displayed.

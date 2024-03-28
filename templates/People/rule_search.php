@@ -11,7 +11,7 @@ $this->Breadcrumbs->add(__('Rule-based Search'));
 	<h2><?= __('Search People') ?></h2>
 
 	<div class="search form">
-		<?= $this->form->create(null, ['align' => 'horizontal']) ?>
+		<?= $this->Form->create(null, ['align' => 'horizontal']) ?>
 		<p><?= __('Enter a rule to find people who match.') ?>
 
 		<?= $this->Html->help(['action' => 'rules', 'rules']) ?>

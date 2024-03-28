@@ -1,7 +1,6 @@
 <?php
 namespace App\Controller;
 
-use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\Query;
@@ -75,10 +74,7 @@ class QuestionsController extends AppController {
 			$question = $this->Questions->get($id, [
 				'contain' => ['Affiliates', 'Questionnaires', 'Answers']
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid question.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid question.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -130,10 +126,7 @@ class QuestionsController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid question.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid question.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -166,10 +159,7 @@ class QuestionsController extends AppController {
 		$id = $this->getRequest()->getQuery('question');
 		try {
 			$question = $this->Questions->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid question.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid question.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -196,10 +186,7 @@ class QuestionsController extends AppController {
 		$id = $this->getRequest()->getQuery('question');
 		try {
 			$question = $this->Questions->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid question.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid question.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -226,10 +213,7 @@ class QuestionsController extends AppController {
 		$id = $this->getRequest()->getQuery('question');
 		try {
 			$question = $this->Questions->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid question.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid question.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -267,10 +251,7 @@ class QuestionsController extends AppController {
 					],
 				]
 			]);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid question.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid question.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -302,10 +283,7 @@ class QuestionsController extends AppController {
 		$id = $this->getRequest()->getQuery('answer');
 		try {
 			$answer = $this->Questions->Answers->get($id);
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid answer.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid answer.'));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -336,10 +314,7 @@ class QuestionsController extends AppController {
 
 		try {
 			$affiliate = TableRegistry::getTableLocator()->get('Affiliates')->get($this->getRequest()->getQuery('affiliate'));
-		} catch (RecordNotFoundException $ex) {
-			$this->Flash->info(__('Invalid affiliate.'));
-			return $this->redirect(['action' => 'index']);
-		} catch (InvalidPrimaryKeyException $ex) {
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid affiliate.'));
 			return $this->redirect(['action' => 'index']);
 		}

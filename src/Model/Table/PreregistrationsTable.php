@@ -66,7 +66,7 @@ class PreregistrationsTable extends AppTable {
 	public function affiliate($id) {
 		try {
 			return $this->Events->affiliate($this->field('event_id', ['Preregistrations.id' => $id]));
-		} catch (RecordNotFoundException $ex) {
+		} catch (RecordNotFoundException|InvalidArgumentException $ex) {
 			return null;
 		}
 	}
