@@ -345,7 +345,6 @@ class EventsControllerTest extends ControllerTestCase {
 	 * Test event_type_fields method
 	 */
 	public function testEventTypeFields(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -393,7 +392,6 @@ class EventsControllerTest extends ControllerTestCase {
 	 * Test delete method as an admin
 	 */
 	public function testDeleteAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -434,7 +432,6 @@ class EventsControllerTest extends ControllerTestCase {
 	 * Test delete method as a manager
 	 */
 	public function testDeleteAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
@@ -464,7 +461,6 @@ class EventsControllerTest extends ControllerTestCase {
 	 * Test delete method as others
 	 */
 	public function testDeleteAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -544,7 +540,6 @@ class EventsControllerTest extends ControllerTestCase {
 	 * Test refund method as an admin
 	 */
 	public function testRefundAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -639,7 +634,6 @@ class EventsControllerTest extends ControllerTestCase {
 	 * Test refunding of team events
 	 */
 	public function testRefundTeamEvent(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
@@ -705,7 +699,6 @@ class EventsControllerTest extends ControllerTestCase {
 	 * Test issuing bulk credits as an admin
 	 */
 	public function testCreditAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);

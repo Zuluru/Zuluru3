@@ -67,8 +67,8 @@ class TeamsController extends AppController {
 	// TODO: Proper fix for black-holing of team management
 	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
-		if (isset($this->Security)) {
-			$this->Security->setConfig('unlockedActions', ['edit', 'add_from_team']);
+		if (isset($this->FormProtection)) {
+			$this->FormProtection->setConfig('unlockedActions', ['edit', 'add_from_team']);
 		}
 	}
 
@@ -1446,7 +1446,7 @@ class TeamsController extends AppController {
 		$this->set('team_id', $id);
 		$this->set('games', $games);
 		$this->set('events', $events);
-		$this->viewBuilder()->setClassName('Ical');
+		$this->viewBuilder()->setLayoutPath('ics')->setClassName('Ical');
 	}
 
 	public function spirit() {

@@ -55,8 +55,8 @@ class GamesController extends AppController {
 	// TODO: Eliminate this if we can find a way around black-holing caused by Ajax field adds
 	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
-		if (isset($this->Security)) {
-			$this->Security->setConfig('unlockedActions', ['edit_boxscore']);
+		if (isset($this->FormProtection)) {
+			$this->FormProtection->setConfig('unlockedActions', ['edit_boxscore']);
 		}
 	}
 
@@ -263,7 +263,7 @@ class GamesController extends AppController {
 		$this->set('calendar_name', 'Game');
 		$this->getResponse()->withDownload("$game_id.ics");
 		$this->set(compact('game', 'team_id'));
-		$this->viewBuilder()->setClassName('Ical');
+		$this->viewBuilder()->setLayoutPath('ics')->setClassName('Ical');
 	}
 
 	/**

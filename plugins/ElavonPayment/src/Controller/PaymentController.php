@@ -55,8 +55,8 @@ class PaymentController extends AppController {
 
 	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
-		if (isset($this->Security)) {
-			$this->Security->setConfig('unlockedActions', ['index']);
+		if (isset($this->FormProtection)) {
+			$this->FormProtection->setConfig('unlockedActions', ['index']);
 		}
 	}
 

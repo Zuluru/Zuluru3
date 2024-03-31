@@ -230,7 +230,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test scheduling_fields method
 	 */
 	public function testSchedulingFields(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -263,7 +262,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test add_coordinator method as an admin
 	 */
 	public function testAddCoordinatorAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
@@ -324,7 +322,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test remove_coordinator method as an admin
 	 */
 	public function testRemoveCoordinatorAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
@@ -345,7 +342,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test remove_coordinator method as a manager
 	 */
 	public function testRemoveCoordinatorAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'volunteer']);
@@ -366,7 +362,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test remove_coordinator method as others
 	 */
 	public function testRemoveCoordinatorAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -475,7 +470,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test delete method as an admin
 	 */
 	public function testDeleteAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		$affiliates = AffiliateFactory::make(2)->persist();
@@ -513,7 +507,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test delete method as a manager
 	 */
 	public function testDeleteAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
@@ -544,7 +537,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test delete method as others
 	 */
 	public function testDeleteAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -1397,7 +1389,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test delete_stage method as an admin
 	 */
 	public function testDeleteStageAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
@@ -1419,7 +1410,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test delete_stage method as a manager
 	 */
 	public function testDeleteStageAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'volunteer']);
@@ -1441,7 +1431,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test delete_stage method as a coordinator
 	 */
 	public function testDeleteStageAsCoordinator(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
@@ -1463,7 +1452,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test delete_stage method as others
 	 */
 	public function testDeleteStageAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -1489,7 +1477,6 @@ class DivisionsControllerTest extends ControllerTestCase {
 	 * Test select method
 	 */
 	public function testSelect(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);

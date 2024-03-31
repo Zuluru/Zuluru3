@@ -10,7 +10,7 @@ use App\Middleware\AffiliateConfigurationLoader;
 use App\Middleware\AjaxMiddleware;
 use App\Middleware\ConfigurationLoader;
 use App\Http\Middleware\CookiePathMiddleware;
-use App\Http\Middleware\CsrfProtectionMiddleware;
+use App\Middleware\LocalizationMiddleware;
 use App\Middleware\UnauthorizedHandler\RedirectFlashHandler;
 use App\Policy\TypeResolver;
 use Authentication\AuthenticationService;
@@ -29,13 +29,13 @@ use Authorization\Middleware\AuthorizationMiddleware;
 use Authorization\Middleware\UnauthorizedHandler\HandlerInterface;
 use Authorization\Policy\OrmResolver;
 use Authorization\Policy\ResolverCollection;
-use Boronczyk\LocalizationMiddleware;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Error\Middleware\ErrorHandlerMiddleware;
 use Cake\Http\BaseApplication;
 use Cake\Http\Middleware\BodyParserMiddleware;
 use Cake\Http\Middleware\EncryptedCookieMiddleware;
+use Cake\Http\Middleware\SessionCsrfProtectionMiddleware;
 use Cake\Http\MiddlewareQueue;
 use Cake\Http\Response;
 use Cake\I18n\I18n;
@@ -381,19 +381,12 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 			->add(BodyParserMiddleware::class)
 
 			// Add CSRF protection middleware.
-			->add(function (
-				ServerRequestInterface $request,
-				RequestHandlerInterface $handler
-			): ResponseInterface {
-				$payment = ($request->getParam('controller') == 'Payment' && $request->getParam('action') == 'index');
-				if (!$payment && !$request->is('json')) {
-					// This will invoke the CSRF middleware's handler,
-					// just like it would when being registered via `add()`.
-					return (new CsrfProtectionMiddleware())->process($request, $handler);
-				}
-
-				return $handler->handle($request);
-			})
+			->add((new SessionCsrfProtectionMiddleware())
+				->skipCheckCallback(function (ServerRequestInterface $request) {
+					$payment = ($request->getParam('controller') === 'Payment' && $request->getParam('action') === 'index');
+					return $payment || $request->is('json');
+				})
+			)
 
 			// Add encrypted cookie middleware.
 			->add(new EncryptedCookieMiddleware(['ZuluruAuth'], Security::getSalt()))

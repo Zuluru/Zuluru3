@@ -116,7 +116,6 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test creating a player account
 	 */
 	public function testCreateAccountForPlayer(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		$affiliate = AffiliateFactory::make()->persist();
@@ -172,10 +171,10 @@ class UsersControllerTest extends ControllerTestCase {
 			],
 			'/', 'flash/account_created', 'Flash.flash.0.element'
 		);
-		$this->assertNotNull($this->_requestSession->read('Auth.id'));
+		$this->assertSession(1, 'Auth.id');
 
 		/** @var User $user */
-		$user = TableRegistry::getTableLocator()->get('Users')->get($this->_requestSession->read('Auth.id'), ['contain' => [
+		$user = TableRegistry::getTableLocator()->get('Users')->get(1, ['contain' => [
 			'People' => [
 				'Affiliates',
 				'Groups',
@@ -207,7 +206,6 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test creating a parent account
 	 */
 	public function testCreateAccountForParent(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		$affiliate = AffiliateFactory::make()->persist();
@@ -269,10 +267,10 @@ class UsersControllerTest extends ControllerTestCase {
 			],
 			'/', 'flash/account_created', 'Flash.flash.0.element'
 		);
-		$this->assertNotNull($this->_requestSession->read('Auth.id'));
+		$this->assertSession(1, 'Auth.id');
 
 		/** @var User $user */
-		$user = TableRegistry::getTableLocator()->get('Users')->get($this->_requestSession->read('Auth.id'), ['contain' => [
+		$user = TableRegistry::getTableLocator()->get('Users')->get(1, ['contain' => [
 			'People' => [
 				'Affiliates',
 				'Groups',
@@ -322,7 +320,6 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test creating a parent account, with continuation to add another child
 	 */
 	public function testCreateAccountForParentWithSecondChild(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		$affiliate = AffiliateFactory::make()->persist();
@@ -384,7 +381,7 @@ class UsersControllerTest extends ControllerTestCase {
 			],
 			['controller' => 'People', 'action' => 'add_relative'], 'flash/account_created', 'Flash.flash.0.element'
 		);
-		$this->assertNotNull($this->_requestSession->read('Auth.id'));
+		$this->assertSession(1, 'Auth.id');
 	}
 
 	/**
@@ -423,8 +420,6 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test JSON API token generation
 	 */
 	public function testToken(): void {
-		$this->enableCsrfToken();
-		$this->enableSecurityToken();
 
 		$affiliate = AffiliateFactory::make()->persist();
 		$admin = PersonFactory::make()

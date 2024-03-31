@@ -15,9 +15,9 @@ class CategoriesController extends AppController {
 
 	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
-		if (isset($this->Security)) {
+		if (isset($this->FormProtection)) {
 			// TODO: All the fields for sorting in the index page are hidden and hence by default locked
-			$this->Security->setConfig('unlockedActions', ['index']);
+			$this->FormProtection->setConfig('unlockedActions', ['index']);
 		}
 	}
 

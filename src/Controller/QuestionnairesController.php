@@ -16,8 +16,8 @@ class QuestionnairesController extends AppController {
 	// TODO: Proper fix for black-holing when we add questions to a questionnaire
 	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
-		if (isset($this->Security)) {
-			$this->Security->setConfig('unlockedActions', ['edit']);
+		if (isset($this->FormProtection)) {
+			$this->FormProtection->setConfig('unlockedActions', ['edit']);
 		}
 	}
 

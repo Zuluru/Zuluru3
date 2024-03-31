@@ -164,4 +164,31 @@ trait ZuluruEmailTrait {
 	{
 		$this->assertThat($expected, new LogicalNot(new MailSentWith(null, $parameter)), $message);
 	}
+
+	/**
+	 * Asserts an email contains the expected value within an Email getter
+	 *
+	 * @param array $expected Contents
+	 * @param string $parameter Email getter parameter (e.g. "cc", "subject")
+	 * @param string $message Message
+	 * @return void
+	 */
+	public function assertMailSentWithArray(array $expected, string $parameter, string $message = ''): void
+	{
+		$this->assertThat($expected, new MailSentWith(null, $parameter), $message);
+	}
+
+	/**
+	 * Asserts an email at a specific index contains the expected value within an Email getter
+	 *
+	 * @param int $at Email index
+	 * @param string $expected Contents
+	 * @param string $parameter Email getter parameter (e.g. "cc", "bcc")
+	 * @param string $message Message
+	 * @return void
+	 */
+	public function assertMailSentWithArrayAt(int $at, array $expected, string $parameter, string $message = ''): void
+	{
+		$this->assertThat($expected, new MailSentWith($at, $parameter), $message);
+	}
 }

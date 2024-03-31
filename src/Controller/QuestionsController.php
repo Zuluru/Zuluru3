@@ -16,8 +16,8 @@ class QuestionsController extends AppController {
 	// TODO: Eliminate this if we can find a way around black-holing caused by Ajax field adds
 	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
-		if (isset($this->Security)) {
-			$this->Security->setConfig('unlockedActions', ['edit']);
+		if (isset($this->FormProtection)) {
+			$this->FormProtection->setConfig('unlockedActions', ['edit']);
 		}
 	}
 

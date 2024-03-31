@@ -15,7 +15,9 @@ use Cake\TestSuite\TestEmailTransport;
 
 class ControllerTestCase extends TestCase {
 
-	use IntegrationTestTrait;
+	use IntegrationTestTrait {
+		_sendRequest as _parentSendRequest;
+	}
 
 	protected $_jsonOptions = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_PARTIAL_OUTPUT_ON_ERROR;
 
@@ -39,13 +41,22 @@ class ControllerTestCase extends TestCase {
 	}
 
 	/**
+	 * Clear the CSRF token flag after each request.
+	 *
+	 * @inheritDoc
+	 * @throws \PHPUnit\Exception
+	 * @throws \Throwable
+	 */
+	protected function _sendRequest($url, $method, $data = []): void {
+		$this->_parentSendRequest($url, $method, $data);
+		$this->_csrfToken = false;
+	}
+
+	/**
 	 * @param $personId int|int[]
 	 * @return void
 	 */
 	protected function login($personId) {
-		// Clear the request stack: they pile up when running multiple requests from a single test
-		while (Router::popRequest()) {};
-
 		if (is_array($personId)) {
 			[$personId, $actAs] = $personId;
 			$actAs = TableRegistry::getTableLocator()->get('People')->get($actAs);
@@ -72,9 +83,6 @@ class ControllerTestCase extends TestCase {
 	}
 
 	protected function logout() {
-		// Clear the request stack: they pile up when running multiple requests from a single test
-		while (Router::popRequest()) {};
-
 		// Clear session info, so that unauthenticated requests aren't mistakenly processed as the last logged-in user
 		$this->_session = [];
 		$this->_cookie = [];
@@ -152,6 +160,7 @@ class ControllerTestCase extends TestCase {
 	 */
 	protected function assertPostAsAccessOk($url, $user, $data) {
 		$this->login($user);
+		$this->enableCsrfToken();
 		$this->post($url, $data);
 
 		$this->assertResponseOk();
@@ -168,6 +177,7 @@ class ControllerTestCase extends TestCase {
 	protected function assertPostAjaxAsAccessOk($url, $user, $data = []) {
 		$this->login($user);
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->enableCsrfToken();
 		$this->post($url, $data);
 		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
 
@@ -184,6 +194,7 @@ class ControllerTestCase extends TestCase {
 	 */
 	protected function assertPostAnonymousAccessOk($url, $data) {
 		$this->logout();
+		$this->enableCsrfToken();
 		$this->post($url, $data);
 		$this->assertResponseOk();
 	}
@@ -198,6 +209,7 @@ class ControllerTestCase extends TestCase {
 	protected function assertPostAjaxAnonymousAccessOk($url, $data) {
 		$this->logout();
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->enableCsrfToken();
 		$this->post($url, $data);
 		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
 		$this->assertResponseOk();
@@ -217,7 +229,6 @@ class ControllerTestCase extends TestCase {
 	protected function assertGetAsAccessRedirect($url, $user, $redirect, $message = false, $key = 'Flash.flash.0.message') {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
 
-		$this->enableRetainFlashMessages();
 		$this->login($user);
 		$this->get($url);
 
@@ -249,7 +260,6 @@ class ControllerTestCase extends TestCase {
 	protected function assertGetAjaxAsAccessRedirect($url, $user, $redirect, $message = false, $class = 'info') {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
 
-		$this->enableRetainFlashMessages();
 		$this->login($user);
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
 		$this->get($url);
@@ -293,7 +303,6 @@ class ControllerTestCase extends TestCase {
 	protected function assertGetAnonymousAccessRedirect($url, $redirect, $message = false, $key = 'Flash.flash.0.message') {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
 
-		$this->enableRetainFlashMessages();
 		$this->logout();
 		$this->get($url);
 
@@ -322,7 +331,6 @@ class ControllerTestCase extends TestCase {
 	protected function assertGetAjaxAnonymousAccessRedirect($url, $redirect, $message = false, $class = 'info') {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
 
-		$this->enableRetainFlashMessages();
 		$this->logout();
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
 		$this->get($url);
@@ -368,8 +376,8 @@ class ControllerTestCase extends TestCase {
 	protected function assertPostAsAccessRedirect($url, $user, $data = [], $redirect, $message = false, $key = 'Flash.flash.0.message') {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
 
-		$this->enableRetainFlashMessages();
 		$this->login($user);
+		$this->enableCsrfToken();
 		$this->post($url, $data);
 
 		$this->assertResponseCode(302);
@@ -401,6 +409,7 @@ class ControllerTestCase extends TestCase {
 
 		$this->login($user);
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->enableCsrfToken();
 		$this->post($url, $data);
 		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
 
@@ -443,8 +452,8 @@ class ControllerTestCase extends TestCase {
 	protected function assertPostAnonymousAccessRedirect($url, $data = [], $redirect, $message = false, $key = 'Flash.flash.0.message') {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
 
-		$this->enableRetainFlashMessages();
 		$this->logout();
+		$this->enableCsrfToken();
 		$this->post($url, $data);
 
 		$this->assertResponseCode(302);
@@ -475,6 +484,7 @@ class ControllerTestCase extends TestCase {
 
 		$this->logout();
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->enableCsrfToken();
 		$this->post($url, $data);
 		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
 
@@ -512,7 +522,6 @@ class ControllerTestCase extends TestCase {
 	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertGetAsAccessDenied($url, $user) {
-		$this->enableRetainFlashMessages();
 		$this->login($user);
 		$this->get($url);
 
@@ -562,7 +571,6 @@ class ControllerTestCase extends TestCase {
 	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertGetAnonymousAccessDenied($url) {
-		$this->enableRetainFlashMessages();
 		$this->logout();
 		$this->get($url);
 
@@ -613,8 +621,8 @@ class ControllerTestCase extends TestCase {
 	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertPostAsAccessDenied($url, $user, $data = []) {
-		$this->enableRetainFlashMessages();
 		$this->login($user);
+		$this->enableCsrfToken();
 		$this->post($url, $data);
 
 		$this->assertResponseCode(302);
@@ -634,6 +642,7 @@ class ControllerTestCase extends TestCase {
 	protected function assertPostAjaxAsAccessDenied($url, $user, $data = []) {
 		$this->login($user);
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->enableCsrfToken();
 		$this->post($url, $data);
 		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
 
@@ -665,8 +674,8 @@ class ControllerTestCase extends TestCase {
 	 * @throws \PHPUnit\Exception
 	 */
 	protected function assertPostAnonymousAccessDenied($url, $data = []) {
-		$this->enableRetainFlashMessages();
 		$this->logout();
+		$this->enableCsrfToken();
 		$this->post($url, $data);
 
 		$this->assertResponseCode(302);
@@ -685,6 +694,7 @@ class ControllerTestCase extends TestCase {
 	protected function assertPostAjaxAnonymousAccessDenied($url, $data = []) {
 		$this->logout();
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+		$this->enableCsrfToken();
 		$this->post($url, $data);
 		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
 

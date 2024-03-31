@@ -27,12 +27,8 @@ class AllController extends AppController {
 	public function language() {
 		$lang = $this->getRequest()->getQuery('lang');
 		if (!empty($lang)) {
-			$this->setResponse($this->getResponse()->withCookie(new Cookie(
-				'ZuluruLocale',
-				$lang
-			)));
+			I18n::setLocale($lang);
 			if ($this->Authentication->getIdentity()) {
-				I18n::setLocale($lang);
 				$this->Flash->html(__('Your language has been changed for this session. To change it permanently, {0}.'), [
 					'params' => [
 						'replacements' => [

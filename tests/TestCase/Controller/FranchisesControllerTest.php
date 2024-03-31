@@ -270,7 +270,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * Test delete method as an admin
 	 */
 	public function testDeleteAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -302,7 +301,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * Test delete method as a manager
 	 */
 	public function testDeleteAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
@@ -327,7 +325,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * Test delete method as others
 	 */
 	public function testDeleteAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -354,7 +351,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testAddTeamAsOwner(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -410,7 +406,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * Test remove_team method as an admin
 	 */
 	public function testRemoveTeamAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -435,7 +430,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * Test remove_team method as a manager
 	 */
 	public function testRemoveTeamAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
@@ -460,7 +454,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * Test remove_team method as franchise owner
 	 */
 	public function testRemoveTeamAsOwner(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -487,7 +480,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * Test remove_team method as others
 	 */
 	public function testRemoveTeamAsOther(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -547,7 +539,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @throws \PHPUnit\Exception
 	 */
 	public function testAddOwnerAsOwner(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
@@ -604,7 +595,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * Test remove_owner method as an admin
 	 */
 	public function testRemoveOwnerAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -633,7 +623,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * Test remove_owner method as a manager
 	 */
 	public function testRemoveOwnerAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
@@ -657,7 +646,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * Test remove_owner method as franchise owner
 	 */
 	public function testRemoveOwnerAsOwner(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -679,7 +667,6 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * Test remove_owner method as others
 	 */
 	public function testRemoveOwnerAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);

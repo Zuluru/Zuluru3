@@ -545,7 +545,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test delete_score method as an admin
 	 */
 	public function testDeleteScoreAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -574,7 +573,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test delete_score method as a manager
 	 */
 	public function testDeleteScoreAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
@@ -602,7 +600,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test delete_score method as a coordinator
 	 */
 	public function testDeleteScoreAsCoordinator(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
@@ -631,7 +628,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test delete_score method as others
 	 */
 	public function testDeleteScoreAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
@@ -662,7 +658,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test add_score method as an admin
 	 */
 	public function testAddScoreAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -692,7 +687,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test add_score method as a manager
 	 */
 	public function testAddScoreAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
@@ -722,7 +716,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test add_score method as a coordinator
 	 */
 	public function testAddScoreAsCoordinator(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
@@ -752,7 +745,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test add_score method as others
 	 */
 	public function testAddScoreAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
@@ -776,7 +768,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test note method as an admin
 	 */
 	public function testNoteAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
@@ -844,7 +835,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test note method as a manager
 	 */
 	public function testNoteAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
@@ -895,7 +885,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test note method as a coordinator
 	 */
 	public function testNoteAsCoordinator(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
@@ -942,7 +931,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test note method as a captain
 	 */
 	public function testNoteAsCaptain(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
@@ -984,10 +972,10 @@ class GamesControllerTest extends ControllerTestCase {
 		// Confirm the notification email
 		$this->assertMailCount(1);
 		$this->assertMailSentFrom('admin@zuluru.org');
-		$this->assertMailSentWith([$captain->user->email => $captain->full_name], 'ReplyTo');
+		$this->assertMailSentWithArray([$captain->user->email => $captain->full_name], 'ReplyTo');
 		$this->assertMailSentTo($captain2->user->email);
 		$this->assertMailNotSentTo($player->user->email);
-		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWithArray([], 'CC');
 		$this->assertMailSentWith("{$game->home_team->name} game note", 'Subject');
 		$this->assertMailContains("{$captain->full_name} has added a note");
 		$this->assertMailContains('This is a captain note.');
@@ -1014,11 +1002,11 @@ class GamesControllerTest extends ControllerTestCase {
 		// Confirm the notification email
 		$this->assertMailCount(1);
 		$this->assertMailSentFrom('admin@zuluru.org');
-		$this->assertMailSentWith([$captain->user->email => $captain->full_name], 'ReplyTo');
+		$this->assertMailSentWithArray([$captain->user->email => $captain->full_name], 'ReplyTo');
 		$this->assertMailSentTo($captain2->user->email);
 		// Children don't have their own email addresses; test that the email goes to the parent
 		$this->assertMailSentTo($player->user->email);
-		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWithArray([], 'CC');
 		$this->assertMailSentWith("{$game->home_team->name} game note", 'Subject');
 		$this->assertMailContains("{$captain->full_name} has added a note");
 		$this->assertMailContains('This is a team note.');
@@ -1035,7 +1023,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test note method as a player
 	 */
 	public function testNoteAsPlayer(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
@@ -1071,9 +1058,9 @@ class GamesControllerTest extends ControllerTestCase {
 		// Confirm the notification email
 		$this->assertMailCount(1);
 		$this->assertMailSentFrom('admin@zuluru.org');
-		$this->assertMailSentWith([$player->user->email => $player->full_name], 'ReplyTo');
+		$this->assertMailSentWithArray([$player->user->email => $player->full_name], 'ReplyTo');
 		$this->assertMailSentTo($captain->user->email);
-		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWithArray([], 'CC');
 		$this->assertMailSentWith("{$game->home_team->name} game note", 'Subject');
 		$this->assertMailContains("{$player->full_name} has added a note");
 		$this->assertMailContains('This is a captain note.');
@@ -1097,9 +1084,9 @@ class GamesControllerTest extends ControllerTestCase {
 		// Confirm the notification email
 		$this->assertMailCount(1);
 		$this->assertMailSentFrom('admin@zuluru.org');
-		$this->assertMailSentWith([$player->user->email => $player->full_name], 'ReplyTo');
+		$this->assertMailSentWithArray([$player->user->email => $player->full_name], 'ReplyTo');
 		$this->assertMailSentTo($captain->user->email);
-		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWithArray([], 'CC');
 		$this->assertMailSentWith("{$game->home_team->name} game note", 'Subject');
 		$this->assertMailContains("{$player->full_name} has added a note");
 		$this->assertMailContains('This is a team note.');
@@ -1116,7 +1103,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test note method as others
 	 */
 	public function testNoteAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
@@ -1140,7 +1126,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test delete_note method as an admin
 	 */
 	public function testDeleteAdminNoteAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -1170,7 +1155,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test delete_note method as an admin
 	 */
 	public function testDeleteCoordinatorNoteAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
@@ -1200,7 +1184,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test delete_note method as an admin
 	 */
 	public function testDeleteOtherNoteAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -1245,7 +1228,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test delete_note method as a manager
 	 */
 	public function testDeleteAdminNoteAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
@@ -1275,7 +1257,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test delete_note method as a manager
 	 */
 	public function testDeleteCoordinatorNoteAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'volunteer']);
@@ -1305,7 +1286,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test delete_note method as a manager
 	 */
 	public function testDeleteOtherNoteAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1350,7 +1330,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test delete_note method as a coordinator
 	 */
 	public function testDeleteCoordinatorNoteAsCoordinator(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -1409,7 +1388,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test delete_note method as a captain
 	 */
 	public function testDeleteNoteAsCaptain(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -1469,7 +1447,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test delete_note method as a player
 	 */
 	public function testDeleteNoteAsPlayer(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -1528,7 +1505,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test delete method as an admin
 	 */
 	public function testDeleteAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
@@ -1572,7 +1548,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test delete method as a manager
 	 */
 	public function testDeleteAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager']);
@@ -1602,7 +1577,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test delete method as a coordinator
 	 */
 	public function testDeleteAsCoordinator(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer']);
@@ -1633,7 +1607,6 @@ class GamesControllerTest extends ControllerTestCase {
 	 * Test delete method as others
 	 */
 	public function testDeleteAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
@@ -2316,7 +2289,6 @@ class GamesControllerTest extends ControllerTestCase {
 		FrozenTime::setTestNow(new FrozenTime($game->game_slot->game_date->addDays(1)));
 		$this->assertGetAsAccessOk($url, $captain->id);
 
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 		$this->assertPostAsAccessRedirect($url,
 			$captain->id, [
@@ -2350,9 +2322,9 @@ class GamesControllerTest extends ControllerTestCase {
 
 		$this->assertMailCount(1);
 		$this->assertMailSentFrom('admin@zuluru.org');
-		$this->assertMailSentWith([$captain->user->email => $captain->full_name], 'ReplyTo');
+		$this->assertMailSentWithArray([$captain->user->email => $captain->full_name], 'ReplyTo');
 		$this->assertMailSentTo($game->away_team->people[0]->user->email);
-		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWithArray([], 'CC');
 		$this->assertMailSentWith('Opponent score submission', 'Subject');
 		$this->assertMailContains("Your opponent has indicated that the game between your team {$game->away_team->name} and {$game->home_team->name}, starting at 7:00PM on {$game->game_slot->game_date->format('M j, Y')} in {$game->division->full_league_name} was a 17-10 loss for your team.");
 
@@ -2404,7 +2376,6 @@ class GamesControllerTest extends ControllerTestCase {
 		FrozenTime::setTestNow(new FrozenTime($game->game_slot->game_date->addDays(1)));
 		$this->assertGetAsAccessOk($url, $captain->id);
 
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 		$this->assertPostAsAccessRedirect($url,
 			[$admin->id, $captain->id], [
@@ -2438,9 +2409,9 @@ class GamesControllerTest extends ControllerTestCase {
 
 		$this->assertMailCount(1);
 		$this->assertMailSentFrom('admin@zuluru.org');
-		$this->assertMailSentWith([$captain->user->email => $captain->full_name], 'ReplyTo');
+		$this->assertMailSentWithArray([$captain->user->email => $captain->full_name], 'ReplyTo');
 		$this->assertMailSentTo($game->away_team->people[0]->user->email);
-		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWithArray([], 'CC');
 		$this->assertMailSentWith('Opponent score submission', 'Subject');
 		$this->assertMailContains("Your opponent has indicated that the game between your team {$game->away_team->name} and {$game->home_team->name}, starting at 7:00PM on {$game->game_slot->game_date->format('M j, Y')} in {$game->division->full_league_name} was a 17-10 loss for your team.");
 
@@ -2501,7 +2472,6 @@ class GamesControllerTest extends ControllerTestCase {
 		FrozenTime::setTestNow(new FrozenTime($game->game_slot->game_date->addDays(1)));
 		$this->assertGetAsAccessOk($url, $captain->id);
 
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 		$this->assertPostAsAccessRedirect($url,
 			$captain->id, [
@@ -2592,7 +2562,6 @@ class GamesControllerTest extends ControllerTestCase {
 		FrozenTime::setTestNow(new FrozenTime($game->game_slot->game_date->addDays(1)));
 		$this->assertGetAsAccessOk($url, $captain->id);
 
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 		$this->assertPostAsAccessRedirect($url,
 			$captain->id, [
@@ -2626,14 +2595,14 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertMailCount(2);
 		$this->assertMailSentFromAt(0, 'admin@zuluru.org');
 		$this->assertMailSentToAt(0, $volunteer->user->email);
-		$this->assertMailSentWithAt(0, [], 'CC');
+		$this->assertMailSentWithArrayAt(0, [], 'CC');
 		$this->assertMailSentWithAt(0, 'Score entry mismatch', 'Subject');
 		$this->assertMailContainsAt(0, "The {$game->game_slot->game_date->format('M j, Y')} game between {$home->name} and {$away->name} in {$game->division->league->name} has score entries which do not match. You can edit the game here:");
 
 		$this->assertMailSentFromAt(1, 'admin@zuluru.org');
-		$this->assertMailSentWithAt(1, [$captain->user->email => $captain->full_name], 'ReplyTo');
+		$this->assertMailSentWithArrayAt(1, [$captain->user->email => $captain->full_name], 'ReplyTo');
 		$this->assertMailSentToAt(1, $game->away_team->people[0]->user->email);
-		$this->assertMailSentWithAt(1, [], 'CC');
+		$this->assertMailSentWithArrayAt(1, [], 'CC');
 		$this->assertMailSentWithAt(1, 'Opponent score submission', 'Subject');
 		$this->assertMailContainsAt(1, "Your opponent has indicated that the game between your team {$away->name} and {$home->name}, starting at 7:00PM on {$game->game_slot->game_date->format('M j, Y')} in {$game->division->full_league_name} was a 5-5 tie.");
 
@@ -2708,7 +2677,6 @@ class GamesControllerTest extends ControllerTestCase {
 		FrozenTime::setTestNow(new FrozenTime($game->game_slot->game_date->addDays(1)));
 		$this->assertGetAsAccessOk($url, $captain->id);
 
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 		$this->assertPostAsAccessRedirect($url,
 			$captain->id, [

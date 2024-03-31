@@ -94,8 +94,8 @@ class RegistrationsTableTest extends TableTestCase {
 	 * Test affiliate method
 	 */
 	public function testAffiliate(): void {
-        $affiliateId = mt_rand();
-        $event = RegistrationFactory::make()->with('Events', ['affiliate_id' => $affiliateId])->persist();
+		$affiliateId = mt_rand();
+		$event = RegistrationFactory::make()->with('Events', ['affiliate_id' => $affiliateId])->persist();
 		$this->assertEquals($affiliateId, $this->RegistrationsTable->affiliate($event->id));
 	}
 

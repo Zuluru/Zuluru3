@@ -418,7 +418,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * Test register_payment_fields method
 	 */
 	public function testRegisterPaymentFields(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -749,7 +748,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * Test refund_payment method as an admin
 	 */
 	public function testRefundPaymentAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
@@ -828,7 +826,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * Test refunding of team events
 	 */
 	public function testRefundTeamEvent(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
@@ -932,7 +929,6 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 * Test credit_payment method as an admin
 	 */
 	public function testCreditPaymentAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);

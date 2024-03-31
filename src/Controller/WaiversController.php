@@ -27,8 +27,8 @@ class WaiversController extends AppController {
 	// TODO: Proper fix for black-holing when we add/edit waivers
 	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
-		if (isset($this->Security)) {
-			$this->Security->setConfig('unlockedActions', ['add', 'edit']);
+		if (isset($this->FormProtection)) {
+			$this->FormProtection->setConfig('unlockedActions', ['add', 'edit']);
 		}
 	}
 

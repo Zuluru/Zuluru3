@@ -219,7 +219,6 @@ class PeopleController extends AppController {
 					'Skills.enabled' => true,
 					'People.status' => 'active',
 					'birthdate IS NOT' => null,
-					'birthdate !=' => '0000-00-00',
 				])
 				->group(['AffiliatesPeople.affiliate_id', 'Skills.sport', 'age_bucket'])
 				->order(['Affiliates.name', 'Skills.sport', 'age_bucket'])
@@ -2352,7 +2351,7 @@ class PeopleController extends AppController {
 			} else {
 				$this->Authorization->authorize($target);
 
-				$user = $this->Authentication->getIdentity()->actAs($this->getRequest(), $this->getResponse(), $target);
+				$user = $this->Authentication->getIdentity()->actAs($this->getRequest(), $target);
 				if ($user->real_person) {
 					$this->Flash->success(__('You are now acting as {0}.', $target->full_name));
 				} else {
@@ -2898,7 +2897,7 @@ class PeopleController extends AppController {
 		$this->set('calendar_type', 'Player Schedule');
 		$this->set('calendar_name', "{$person->full_name}'s schedule");
 		$this->getResponse()->withDownload("$id.ics");
-		$this->viewBuilder()->setClassName('Ical');
+		$this->viewBuilder()->setLayoutPath('ics')->setClassName('Ical');
 	}
 
 	public function registrations() {

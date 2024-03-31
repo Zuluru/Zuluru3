@@ -1117,9 +1117,9 @@ class LeagueTypeTournament extends LeagueType {
 			return $p->stage < $pool->stage;
 		})->extract('id')->toList();
 		if ($separate_days) {
-			$initial = new FrozenDate('0000-00-00');
+			$initial = new FrozenDate('0001-01-01');
 		} else {
-			$initial = new FrozenTime('0000-00-00 00:00:00');
+			$initial = new FrozenTime('0001-01-01 00:00:00');
 		}
 		$last_game = $initial;
 		foreach ($prior_pools as $prior_pool) {

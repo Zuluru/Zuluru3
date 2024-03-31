@@ -149,7 +149,9 @@ endforeach;
 <div class="actions columns">
 	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('Download'), array_merge($this->getRequest()->getQueryParams(), ['_ext' => 'csv'])));
+$params = $this->getRequest()->getQueryParams();
+unset($params['page']);
+echo $this->Html->tag('li', $this->Html->link(__('Download'), ['?' => $params, '_ext' => 'csv']));
 ?>
 	</ul>
 </div>

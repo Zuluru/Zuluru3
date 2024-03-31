@@ -49,8 +49,8 @@ class UsersController extends AppController {
 	// TODO: Proper fix for black-holing of logins
 	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
-		if (isset($this->Security)) {
-			$this->Security->setConfig('unlockedActions', ['login']);
+		if (isset($this->FormProtection)) {
+			$this->FormProtection->setConfig('unlockedActions', ['login', 'token']);
 		}
 	}
 
@@ -462,8 +462,8 @@ class UsersController extends AppController {
 					'exp' =>  FrozenTime::now()->addWeeks(1)->toUnixString()
 				], Security::getSalt())
 			],
-			'_serialize' => ['success', 'data']
 		]);
+		$this->viewBuilder()->setOption('serialize', ['success', 'data']);
 	}
 
 	public function change_password() {

@@ -57,8 +57,8 @@ class SchedulesController extends AppController {
 	// TODO: Proper fix for black-holing of schedule deletion
 	public function beforeFilter(\Cake\Event\EventInterface $event) {
 		parent::beforeFilter($event);
-		if (isset($this->Security)) {
-			$this->Security->setConfig('unlockedActions', ['delete']);
+		if (isset($this->FormProtection)) {
+			$this->FormProtection->setConfig('unlockedActions', ['delete']);
 		}
 	}
 

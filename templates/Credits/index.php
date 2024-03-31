@@ -95,7 +95,9 @@ if ($all) {
 } else {
 	echo $this->Html->tag('li', $this->Html->link(__('All Credits'), ['action' => 'index', '?' => ['all' => true]]));
 }
-echo $this->Html->tag('li', $this->Html->link(__('Download'), array_merge($this->getRequest()->getQueryParams(), ['_ext' => 'csv'])));
+$params = $this->getRequest()->getQueryParams();
+unset($params['page']);
+echo $this->Html->tag('li', $this->Html->link(__('Download'), ['?' => $params, '_ext' => 'csv']));
 ?>
 	</ul>
 </div>

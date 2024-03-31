@@ -102,7 +102,6 @@ class AffiliatesControllerTest extends ControllerTestCase {
 	 * Test delete method as an admin
 	 */
 	public function testDeleteAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		$affiliate = AffiliateFactory::make()->persist();
@@ -126,7 +125,6 @@ class AffiliatesControllerTest extends ControllerTestCase {
 	 * Test delete method as others
 	 */
 	public function testDeleteAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -143,7 +141,6 @@ class AffiliatesControllerTest extends ControllerTestCase {
 	 * Test add_manager method as an admin
 	 */
 	public function testAddManagerAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		// We don't use the DiverseUsersScenario here, as that creates the manager user already managing the affiliate
@@ -210,7 +207,6 @@ class AffiliatesControllerTest extends ControllerTestCase {
 	 * Test remove_manager method as an admin
 	 */
 	public function testRemoveManagerAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		$affiliate = AffiliateFactory::make()->persist();
@@ -238,7 +234,6 @@ class AffiliatesControllerTest extends ControllerTestCase {
 	 * Test remove_manager method as others
 	 */
 	public function testRemoveManagerAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -255,7 +250,6 @@ class AffiliatesControllerTest extends ControllerTestCase {
 	 * Test select method
 	 */
 	public function testSelect(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);

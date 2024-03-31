@@ -6,6 +6,7 @@ use App\Test\Factory\AffiliatesPersonFactory;
 use App\Test\Factory\ContactFactory;
 use App\Test\Factory\PersonFactory;
 use App\Test\Scenario\DiverseUsersScenario;
+use App\TestSuite\ZuluruEmailTrait;
 use Cake\TestSuite\EmailTrait;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
@@ -15,6 +16,7 @@ use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 class ContactsControllerTest extends ControllerTestCase {
 
 	use EmailTrait;
+	use ZuluruEmailTrait;
 	use ScenarioAwareTrait;
 
 	/**
@@ -119,7 +121,6 @@ class ContactsControllerTest extends ControllerTestCase {
 	 * Test delete method as an admin
 	 */
 	public function testDeleteAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		$affiliates = AffiliateFactory::make(2)->persist();
@@ -139,7 +140,6 @@ class ContactsControllerTest extends ControllerTestCase {
 	 * Test delete method as a manager
 	 */
 	public function testDeleteAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		$affiliates = AffiliateFactory::make(2)->persist();
@@ -164,7 +164,6 @@ class ContactsControllerTest extends ControllerTestCase {
 	 * Test delete method as others
 	 */
 	public function testDeleteAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		$affiliates = AffiliateFactory::make(2)->persist();
@@ -223,7 +222,6 @@ class ContactsControllerTest extends ControllerTestCase {
 	 * Test execute method
 	 */
 	public function testExecute(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		$player = PersonFactory::make()->player()->with('Affiliates')->persist();
@@ -240,7 +238,7 @@ class ContactsControllerTest extends ControllerTestCase {
 		$this->assertMailSentFrom('admin@zuluru.org');
 		$this->assertMailSentWith([$player->user->email => $player->full_name], 'ReplyTo');
 		$this->assertMailSentTo($contact->email);
-		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWithArray([], 'CC');
 		$this->assertMailSentWith('Test', 'Subject');
 		$this->assertMailContains('Testing');
 	}
@@ -249,7 +247,6 @@ class ContactsControllerTest extends ControllerTestCase {
 	 * Test execute with CC method
 	 */
 	public function testExecuteWithCC(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		$player = PersonFactory::make()->player()->with('Affiliates')->persist();

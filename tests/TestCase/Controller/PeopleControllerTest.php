@@ -13,10 +13,12 @@ use App\Test\Factory\PeoplePersonFactory;
 use App\Test\Factory\PersonFactory;
 use App\Test\Factory\SettingFactory;
 use App\Test\Factory\SkillFactory;
+use App\Test\Factory\TaskFactory;
 use App\Test\Factory\UploadFactory;
 use App\Test\Scenario\DiverseUsersScenario;
 use App\Test\Scenario\LeagueWithRostersScenario;
 use App\Test\Scenario\SingleGameScenario;
+use App\TestSuite\ZuluruEmailTrait;
 use Cake\Core\Configure;
 use Cake\Filesystem\Folder;
 use Cake\I18n\FrozenDate;
@@ -31,6 +33,7 @@ use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 class PeopleControllerTest extends ControllerTestCase {
 
 	use EmailTrait;
+	use ZuluruEmailTrait;
 	use ScenarioAwareTrait;
 
 	/**
@@ -451,7 +454,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test edit method as a player
 	 */
 	public function testEditAsPlayer(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -492,14 +494,14 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test deactivate method as an admin
 	 */
 	public function testDeactivateAsAdmin(): void {
+		$this->enableSecurityToken();
+
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
 
 		// Admins are allowed to deactivate people
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'deactivate', '?' => ['person' => $player->id]], $admin->id);
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'deactivate'], $admin->id);
 
-		$this->enableCsrfToken();
-		$this->enableSecurityToken();
 		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'deactivate'],
 			$admin->id, [], '/', 'Your profile has been deactivated; sorry to see you go. If you ever change your mind, you can just return to the site and reactivate your profile; we\'ll be happy to have you back!');
 
@@ -658,7 +660,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test note method as an admin
 	 */
 	public function testNoteAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'player']);
@@ -751,13 +752,13 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test note method as a manager
 	 */
 	public function testNoteAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'manager', 'player']);
 
 		// Managers are allowed to add notes
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'note', '?' => ['person' => $player->id]], $manager->id);
+
 		// Add a private note
 		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'note', '?' => ['person' => $player->id]],
 			$manager->id, [
@@ -795,7 +796,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test note method as a coordinator
 	 */
 	public function testNoteAsCoordinator(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer', 'player']);
@@ -847,7 +847,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test delete_note method as an admin
 	 */
 	public function testDeleteNoteAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -899,7 +898,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test delete_note method as a manager
 	 */
 	public function testDeleteNoteAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -954,7 +952,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test delete_note method as a player
 	 */
 	public function testDeleteNoteAsPlayer(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -1006,7 +1003,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test delete_note method without being logged in
 	 */
 	public function testDeleteNoteAsAnonymous(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
@@ -1041,9 +1037,8 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// Players are allowed to edit their preferences
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'preferences'], $player->id);
-		$this->assertCookieNotSet('ZuluruLocale');
+		$this->assertCookie('en', 'ZuluruLocale');
 
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		$this->assertPostAsAccessOk(['controller' => 'People', 'action' => 'preferences'],
@@ -1062,7 +1057,7 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		// A request for some other person doesn't set the cookie
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'preferences'], $admin->id);
-		$this->assertCookieNotSet('ZuluruLocale');
+		$this->assertCookie('en', 'ZuluruLocale');
 
 		// Another request for the person with the preference does set it
 		$this->assertGetAsAccessOk(['controller' => 'People', 'action' => 'preferences'], $player->id);
@@ -1077,7 +1072,7 @@ class PeopleControllerTest extends ControllerTestCase {
 					'value' => '',
 				],
 			]);
-		$this->assertCookieNotSet('ZuluruLocale');
+		$this->assertCookie('en', 'ZuluruLocale');
 		$this->assertResponseContains('The preferences have been saved.');
 
 		// Others are allowed to edit their preferences
@@ -1090,7 +1085,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test add_relative method
 	 */
 	public function testAddRelative(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		/** @var Person $parent */
@@ -1158,7 +1152,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test link_relative method
 	 */
 	public function testLinkRelative(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -1186,9 +1179,9 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Confirm the notification email
 		$this->assertMailCount(1);
 		$this->assertMailSentFrom('admin@zuluru.org');
-		$this->assertMailSentWith([$player->email => $player->full_name], 'ReplyTo');
+		$this->assertMailSentWithArray([$player->email => $player->full_name], 'ReplyTo');
 		$this->assertMailSentTo($volunteer->email);
-		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWithArray([], 'CC');
 		$this->assertMailSentWith('You have been linked as a relative', 'Subject');
 		$this->assertMailContains("{$player->full_name} has indicated on the Test Zuluru Affiliate web site that you are related to them.");
 		$this->assertMailContains("If you accept, {$player->first_name} will be granted access");
@@ -1231,9 +1224,9 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Confirm the notification email
 		$this->assertMailCount(1);
 		$this->assertMailSentFrom('admin@zuluru.org');
-		$this->assertMailSentWith([$volunteer->email => $volunteer->full_name], 'ReplyTo');
+		$this->assertMailSentWithArray([$volunteer->email => $volunteer->full_name], 'ReplyTo');
 		$this->assertMailSentTo($player->email);
-		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWithArray([], 'CC');
 		$this->assertMailSentWith("{$volunteer->full_name} approved your relative request", 'Subject');
 		$this->assertMailContains("Your relative request to {$volunteer->full_name} on the Test Zuluru Affiliate web site has been approved.");
 
@@ -1262,9 +1255,9 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Confirm the notification email
 		$this->assertMailCount(1);
 		$this->assertMailSentFrom('admin@zuluru.org');
-		$this->assertMailSentWith([$player->email => $player->full_name], 'ReplyTo');
+		$this->assertMailSentWithArray([$player->email => $player->full_name], 'ReplyTo');
 		$this->assertMailSentTo($volunteer->email);
-		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWithArray([], 'CC');
 		$this->assertMailSentWith("{$player->full_name} removed your relation", 'Subject');
 		$this->assertMailContains("{$player->full_name} has removed you as a relative on the Test Zuluru Affiliate web site.");
 
@@ -1290,9 +1283,9 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Confirm the notification email
 		$this->assertMailCount(1);
 		$this->assertMailSentFrom('admin@zuluru.org');
-		$this->assertMailSentWith([$volunteer->email => $volunteer->full_name], 'ReplyTo');
+		$this->assertMailSentWithArray([$volunteer->email => $volunteer->full_name], 'ReplyTo');
 		$this->assertMailSentTo($player->email);
-		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWithArray([], 'CC');
 		$this->assertMailSentWith("{$volunteer->full_name} removed your relation", 'Subject');
 		$this->assertMailContains("{$volunteer->full_name} has removed you as a relative on the Test Zuluru Affiliate web site.");
 
@@ -1982,7 +1975,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test delete_badge method as an admin
 	 */
 	public function testDeleteBadgeAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -2003,7 +1995,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test delete_badge method as a manager
 	 */
 	public function testDeleteBadgeAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
@@ -2024,7 +2015,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test delete_badge method as others
 	 */
 	public function testDeleteBadgeAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'volunteer', 'player']);
@@ -2047,7 +2037,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test delete method as an admin
 	 */
 	public function testDeleteAsAdmin(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
@@ -2064,7 +2053,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test delete method as a manager
 	 */
 	public function testDeleteAsManager(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$manager, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['manager', 'player']);
@@ -2081,7 +2069,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test delete method as others
 	 */
 	public function testDeleteAsOthers(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer', 'player']);
@@ -2136,6 +2123,20 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('Recent and Upcoming Schedule');
 
 		$this->markTestIncomplete('More scenarios to test above.');
+	}
+
+	public function testSplashTasks(): void {
+		[$volunteer] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['volunteer']);
+		Configure::write('feature.tasks', true);
+		$task = TaskFactory::make()
+			->with('TaskSlots', [
+				'person_id' => $volunteer->id,
+				'approved' => true,
+			])
+			->with('Categories')
+			->persist();
+		$this->assertGetAjaxAsAccessOk(['controller' => 'People', 'action' => 'schedule'], $volunteer->id);
+		$this->assertResponseContains("\\/task_slots\\/ical\\/{$task->task_slots[0]->id}\\/task.ics");
 	}
 
 	/**
@@ -2266,7 +2267,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	public function testSearch(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
 
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		// Anyone logged in is allowed to search
@@ -2417,7 +2417,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test approve method as an admin, approving a duplicate
 	 */
 	public function testApproveAsAdminApprove(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
@@ -2431,9 +2430,9 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Confirm the notification email
 		$this->assertMailCount(1);
 		$this->assertMailSentFrom('admin@zuluru.org');
-		$this->assertMailSentWith([], 'ReplyTo');
+		$this->assertMailSentWithArray([], 'ReplyTo');
 		$this->assertMailSentTo($new->email);
-		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWithArray([], 'CC');
 		$this->assertMailSentWith('Test Zuluru Affiliate Account Activation for ' . $new->user->user_name, 'Subject');
 		$this->assertMailContains('Your TZA account has been approved.');
 
@@ -2456,7 +2455,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test approve method as an admin, silently deleting the duplicate
 	 */
 	public function testApproveAsAdminDeleteSilently(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
@@ -2486,7 +2484,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test approve method as an admin, deleting the duplicate with notice
 	 */
 	public function testApproveAsAdminDeleteNotice(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
@@ -2500,10 +2497,10 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Confirm the notification email
 		$this->assertMailCount(1);
 		$this->assertMailSentFrom('admin@zuluru.org');
-		$this->assertMailSentWith([], 'ReplyTo');
+		$this->assertMailSentWithArray([], 'ReplyTo');
 		$this->assertMailSentTo($player->email);
 		$this->assertMailSentTo($new->email);
-		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWithArray([], 'CC');
 		$this->assertMailSentWith('Test Zuluru Affiliate Account Update', 'Subject');
 		$this->assertMailContains('You seem to have created a duplicate TZA account. You already have an account.');
 		$this->assertMailContains('Your second account has been deleted.');
@@ -2524,7 +2521,6 @@ class PeopleControllerTest extends ControllerTestCase {
 	 * Test approve method as an admin, merging the duplicate with another
 	 */
 	public function testApproveAsAdminMerge(): void {
-		$this->enableCsrfToken();
 		$this->enableSecurityToken();
 
 		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
@@ -2538,10 +2534,10 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Confirm the notification email
 		$this->assertMailCount(1);
 		$this->assertMailSentFrom('admin@zuluru.org');
-		$this->assertMailSentWith([], 'ReplyTo');
+		$this->assertMailSentWithArray([], 'ReplyTo');
 		$this->assertMailSentTo($player->email);
 		$this->assertMailSentTo($new->email);
-		$this->assertMailSentWith([], 'CC');
+		$this->assertMailSentWithArray([], 'CC');
 		$this->assertMailSentWith('Test Zuluru Affiliate Account Update', 'Subject');
 		$this->assertMailContains('You seem to have created a duplicate TZA account. You already have an account.');
 		$this->assertMailContains('this old account has been merged with your new information');

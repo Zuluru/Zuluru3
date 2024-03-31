@@ -110,7 +110,7 @@ class LeagueTest extends TestCase {
         $leagues = LeagueFactory::make([
             ['name' => 'Monday Night', 'season' => 'Summer', 'open' => FrozenDate::now()],
             ['name' => $year . ' Monday Night', 'season' => 'Summer', 'open' => FrozenDate::now()],
-            ['name' => 'Tuesday Night', 'season' => 'Summer', 'open' => '0000-00-00'],
+            ['name' => 'Tuesday Night', 'season' => 'Summer', 'open' => null],
         ])->getEntities();
 
 		Configure::write('options.sport', ['ultimate', 'baseball']);
@@ -127,8 +127,8 @@ class LeagueTest extends TestCase {
         $leagues = LeagueFactory::make([
             ['season' => 'Summer', 'open' => FrozenDate::now()],
             ['season' => 'None', 'open' => FrozenDate::now()],
-            ['season' => 'Summer', 'open' => '0000-00-00'],
-            ['season' => null, 'open' => '0000-00-00'],
+            ['season' => 'Summer', 'open' => null],
+            ['season' => null, 'open' => null],
         ])->getEntities();
 
 		$this->assertEquals("$year Summer", $leagues[0]->long_season);

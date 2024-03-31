@@ -6,6 +6,7 @@ use Cake\Core\Configure;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Event\Event as CakeEvent;
 use Cake\ORM\RulesChecker;
+use Cake\Routing\Router;
 use Cake\Validation\Validator;
 
 /**
@@ -116,7 +117,7 @@ class NewslettersTable extends AppTable {
 	 * @param ArrayObject $options Unused
 	 */
 	public function beforeMarshal(CakeEvent $cakeEvent, ArrayObject $data, ArrayObject $options) {
-		$server = Configure::read('App.fullBaseUrl');
+		$server = Router::fullBaseUrl();
 		$data['text'] = strtr($data['text'], [
 			'src="/' => "src=\"{$server}/",
 			'href="/' => "href=\"{$server}/",

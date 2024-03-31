@@ -4,7 +4,6 @@
  * @var array $items
  */
 
-
 use App\Authorization\ContextResource;
 use Cake\Core\Configure;
 

@@ -9,7 +9,8 @@ use Cake\View\Helper;
 class ZuluruGameHelper extends Helper {
 	public $helpers = ['Html', 'ZuluruHtml', 'Session', 'UserCache', 'Authorize'];
 
-	public function displayScore($game, $division, $league, $show_score_for_team = false) {
+	public function displayScore($game, $division, $league, $show_score_for_team = false): string {
+		$text = '';
 		$identity = $this->Authorize->getIdentity();
 
 		// Check if one of the teams involved in the game is a team the current user is a captain of
@@ -19,10 +20,10 @@ class ZuluruGameHelper extends Helper {
 		$links = [];
 		if ($game->isFinalized()) {
 			if (in_array($game->status, Configure::read('unplayed_status'))) {
-				echo __($game->status) . "\n";
+				$text .= __($game->status) . "\n";
 			} else {
 				if ($division->schedule_type === 'competition') {
-					echo $game->home_score . "\n";
+					$text .= $game->home_score . "\n";
 				} else {
 					// If scores are being shown from a particular team's perspective,
 					// we may need to swap the home and away scores.
@@ -33,10 +34,10 @@ class ZuluruGameHelper extends Helper {
 						$first_score = $game->home_score;
 						$second_score = $game->away_score;
 					}
-					echo "{$first_score} - {$second_score}\n";
+					$text .= "{$first_score} - {$second_score}\n";
 				}
 				if (strpos($game->status, 'default') !== false) {
-					echo __(' ({0})', __('default')) . "\n";
+					$text .= __(' ({0})', __('default')) . "\n";
 				}
 
 				if ($identity) {
@@ -67,10 +68,10 @@ class ZuluruGameHelper extends Helper {
 			$score_entry = $game->getBestScoreEntry();
 			if (!empty($score_entry)) {
 				if (in_array($score_entry->status, Configure::read('unplayed_status'))) {
-					echo __($score_entry->status) . "\n";
+					$text .= __($score_entry->status) . "\n";
 				} else {
 					if ($division->schedule_type === 'competition') {
-						echo $score_entry->score_for . "\n";
+						$text .= $score_entry->score_for . "\n";
 					} else {
 						// If scores are being shown from a particular team's perspective,
 						// we may need to swap the home and away scores.
@@ -83,7 +84,7 @@ class ZuluruGameHelper extends Helper {
 							$first_score = $score_entry->score_against;
 							$second_score = $score_entry->score_for;
 						}
-						echo "{$first_score} - {$second_score}\n";
+						$text .= "{$first_score} - {$second_score}\n";
 					}
 				}
 
@@ -122,12 +123,12 @@ class ZuluruGameHelper extends Helper {
 				}
 
 				if ($score_entry->status === 'in_progress') {
-					echo __(' ({0})', __('in progress')) . "\n";
+					$text .= __(' ({0})', __('in progress')) . "\n";
 				} else {
-					echo __(' ({0})', __('unofficial')) . "\n";
+					$text .= __(' ({0})', __('unofficial')) . "\n";
 				}
 			} else if ($score_entry === null) {
-				echo __('score mismatch') . "\n";
+				$text .= __('score mismatch') . "\n";
 
 				if ($team_id) {
 					if ($score_entry->status === 'in_progress') {
@@ -149,7 +150,7 @@ class ZuluruGameHelper extends Helper {
 							__('Submit'),
 							['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $team_id]]);
 					} else {
-						echo __('not entered') . "\n";
+						$text .= __('not entered') . "\n";
 					}
 				} else if ($identity) {
 					try {
@@ -203,7 +204,8 @@ class ZuluruGameHelper extends Helper {
 			// No problem, just don't show the link.
 		}
 
-		echo $this->Html->tag('span', implode("\n", $links), ['class' => 'actions']);
+		$text .= $this->Html->tag('span', implode("\n", $links), ['class' => 'actions']);
 
+		return $text;
 	}
 }

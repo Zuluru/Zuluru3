@@ -48,7 +48,7 @@ class RuleTeamCount extends Rule implements RuleHaving {
 				$this->parse_error = __('Invalid date: {0}', $to);
 				return false;
 			}
-			$this->range = [new FrozenDate('0000-00-00'), $to];
+			$this->range = [new FrozenDate('0001-01-01'), $to];
 		} else if ($config[0] == '>') {
 			$from = substr($config, 1);
 			try {

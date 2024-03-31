@@ -1,8 +1,14 @@
 <?php
+declare(strict_types=1);
+
 namespace App\Http\Middleware;
 
 use Cake\Http\Response;
 use Cake\Http\ServerRequest;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 /**
  * Trims trailing slashes off of cookie paths. Systems like Joomla and Drupal
@@ -11,15 +17,14 @@ use Cake\Http\ServerRequest;
  * that standards-compliant browsers (Firefox has a bug in this area) will
  * not send CSRF and Auth cookies to the dashboard, which causes problems.
  */
-class CookiePathMiddleware {
+class CookiePathMiddleware implements MiddlewareInterface {
 
 	/**
-	 * @param \Cake\Http\ServerRequest $request The request.
-	 * @param \Cake\Http\Response $response The response.
-	 * @param callable $next The next middleware to call.
-	 * @return \Cake\Http\Response A response.
+	 * @inheritDoc
 	 */
-	public function __invoke(ServerRequest $request, Response $response, $next) {
+	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
+		$response = $handler->handle($request);
+
 		$webroot = $request->getAttribute('webroot');
 		$newpath = '/' . trim($webroot, '/');
 		if ($newpath != $webroot) {
@@ -30,10 +35,10 @@ class CookiePathMiddleware {
 			}
 		}
 
-		return $next($request, $response);
+		return $response;
 	}
 
-	protected function fixCookies(array $cookies, $oldpath, $newpath) {
+	protected function fixCookies(array $cookies, string $oldpath, string $newpath): array {
 		foreach ($cookies as $i => $cookie) {
 			$cookies[$i] = str_replace("Path=$oldpath", "Path=$newpath", $cookie);
 		}
