@@ -169,8 +169,9 @@ class UsersControllerTest extends ControllerTestCase {
 				],
 				'action' => 'create',
 			],
-			'/', 'flash/account_created', 'Flash.flash.0.element'
+			'/'
 		);
+		$this->assertFlashElement('flash/account_created');
 		$this->assertSession(1, 'Auth.id');
 
 		/** @var User $user */
@@ -265,8 +266,9 @@ class UsersControllerTest extends ControllerTestCase {
 				],
 				'action' => 'create',
 			],
-			'/', 'flash/account_created', 'Flash.flash.0.element'
+			'/'
 		);
+		$this->assertFlashElement('flash/account_created');
 		$this->assertSession(1, 'Auth.id');
 
 		/** @var User $user */
@@ -379,8 +381,9 @@ class UsersControllerTest extends ControllerTestCase {
 				],
 				'action' => 'continue',
 			],
-			['controller' => 'People', 'action' => 'add_relative'], 'flash/account_created', 'Flash.flash.0.element'
+			['controller' => 'People', 'action' => 'add_relative']
 		);
+		$this->assertFlashElement('flash/account_created');
 		$this->assertSession(1, 'Auth.id');
 	}
 

@@ -236,7 +236,7 @@ class ContactsControllerTest extends ControllerTestCase {
 			], '/', 'Your message has been sent.');
 		$this->assertMailCount(1);
 		$this->assertMailSentFrom('admin@zuluru.org');
-		$this->assertMailSentWith([$player->user->email => $player->full_name], 'ReplyTo');
+		$this->assertMailSentWithArray([$player->user->email => $player->full_name], 'ReplyTo');
 		$this->assertMailSentTo($contact->email);
 		$this->assertMailSentWithArray([], 'CC');
 		$this->assertMailSentWith('Test', 'Subject');
@@ -261,9 +261,9 @@ class ContactsControllerTest extends ControllerTestCase {
 			], '/', 'Your message has been sent.');
 		$this->assertMailCount(1);
 		$this->assertMailSentFrom('admin@zuluru.org');
-		$this->assertMailSentWith([$player->user->email => $player->full_name], 'ReplyTo');
+		$this->assertMailSentWithArray([$player->user->email => $player->full_name], 'ReplyTo');
 		$this->assertMailSentTo($contact->email);
-		$this->assertMailSentWith([$player->user->email => $player->full_name], 'CC');
+		$this->assertMailSentWithArray([$player->user->email => $player->full_name], 'CC');
 		$this->assertMailSentWith('Test', 'Subject');
 		$this->assertMailContains('Testing');
 	}

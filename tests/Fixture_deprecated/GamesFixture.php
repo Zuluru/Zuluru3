@@ -22,7 +22,7 @@ class GamesFixture extends TestFixture {
 	/**
 	 * Initialize function: Mostly, set up records
 	 */
-	public function init() {
+	public function init(): void {
 		$this->records = [
 			[
 				'division_id' => DIVISION_ID_MONDAY_LADDER,

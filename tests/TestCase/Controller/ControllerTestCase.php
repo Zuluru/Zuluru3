@@ -2,10 +2,10 @@
 namespace App\Test\TestCase\Controller;
 
 use App\Core\UserCache;
+use App\TestSuite\ZuluruIntegrationTestTrait;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Event\EventManager;
-use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
 use Cake\Routing\Router;
@@ -18,6 +18,7 @@ class ControllerTestCase extends TestCase {
 	use IntegrationTestTrait {
 		_sendRequest as _parentSendRequest;
 	}
+	use ZuluruIntegrationTestTrait;
 
 	protected $_jsonOptions = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_PARTIAL_OUTPUT_ON_ERROR;
 
@@ -527,8 +528,8 @@ class ControllerTestCase extends TestCase {
 
 		$this->assertResponseCode(302);
 		$this->assertRedirectEquals('/');
-		$this->assertSession('You do not have permission to access that page.', 'Flash.flash.0.message');
-		$this->assertSession('flash/error', 'Flash.flash.0.element');
+		$this->assertFlashMessage('You do not have permission to access that page.');
+		$this->assertFlashElement('flash/error');
 	}
 
 	/**
@@ -576,8 +577,8 @@ class ControllerTestCase extends TestCase {
 
 		$this->assertResponseCode(302);
 		$this->assertRedirectEquals(['plugin' => false, 'controller' => 'Users', 'action' => 'login', '?' => ['redirect' => Router::url($url)]]);
-		$this->assertSession('You must login to access full site functionality.', 'Flash.flash.0.message');
-		$this->assertSession('flash/error', 'Flash.flash.0.element');
+		$this->assertFlashMessage('You must login to access full site functionality.');
+		$this->assertFlashElement('flash/error');
 	}
 
 	/**
@@ -627,8 +628,8 @@ class ControllerTestCase extends TestCase {
 
 		$this->assertResponseCode(302);
 		$this->assertRedirectEquals('/');
-		$this->assertSession('You do not have permission to access that page.', 'Flash.flash.0.message');
-		$this->assertSession('flash/error', 'Flash.flash.0.element');
+		$this->assertFlashMessage('You do not have permission to access that page.');
+		$this->assertFlashElement('flash/error');
 	}
 
 	/**
@@ -680,8 +681,8 @@ class ControllerTestCase extends TestCase {
 
 		$this->assertResponseCode(302);
 		$this->assertRedirectEquals(['plugin' => false, 'controller' => 'Users', 'action' => 'login', '?' => ['redirect' => Router::url($url)]]);
-		$this->assertSession('You must login to access full site functionality.', 'Flash.flash.0.message');
-		$this->assertSession('flash/error', 'Flash.flash.0.element');
+		$this->assertFlashMessage('You must login to access full site functionality.');
+		$this->assertFlashElement('flash/error');
 	}
 
 	/**

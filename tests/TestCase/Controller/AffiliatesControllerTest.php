@@ -223,7 +223,7 @@ class AffiliatesControllerTest extends ControllerTestCase {
 		$this->assertPostAsAccessRedirect(['controller' => 'Affiliates', 'action' => 'remove_manager', '?' => ['affiliate' => $affiliate->id, 'person' => $manager->id]],
 			$admin->id, [], ['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $affiliate->id]],
 			'Successfully removed manager.');
-		$this->assertEquals('If this person is no longer going to be managing anything, you should also edit their profile and deselect the "Manager" option.', $this->_requestSession->read('Flash.flash.1.message'));
+		$this->assertFlashMessage('If this person is no longer going to be managing anything, you should also edit their profile and deselect the "Manager" option.');
 
 		// Make sure they were removed successfully
 		$this->assertGetAsAccessOk(['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $affiliate->id]], $admin->id);

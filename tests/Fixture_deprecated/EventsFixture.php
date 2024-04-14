@@ -21,7 +21,7 @@ class EventsFixture extends TestFixture {
 	/**
 	 * Initialize function: Mostly, set up records
 	 */
-	public function init() {
+	public function init(): void {
 		$this->records = [
 			[
 				'name' => 'Membership',

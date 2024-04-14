@@ -27,7 +27,7 @@ class TeamsPeopleFixture extends TestFixture {
 	/**
 	 * Initialize function: Mostly, set up records
 	 */
-	public function init() {
+	public function init(): void {
 		$this->records = [
 			[
 				'team_id' => TEAM_ID_RED_PAST,

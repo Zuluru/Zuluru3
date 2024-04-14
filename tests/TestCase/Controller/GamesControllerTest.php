@@ -1530,9 +1530,8 @@ class GamesControllerTest extends ControllerTestCase {
 
 		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete', '?' => ['game' => $other_game->id]],
 			$admin->id, [], ['controller' => 'Games', 'action' => 'view', '?' => ['game' => $other_game->id]],
-			'A score has already been submitted for this game.', 'Flash.flash.0.message.0');
-		$this->assertEquals('If you are absolutely sure that you want to delete it anyway, {0}. <b>This cannot be undone!</b>', $this->_requestSession->read('Flash.flash.0.message.1'));
-		$this->assertEquals(['action' => 'delete', '?' => ['game' => $other_game->id, 'force' => true]], $this->_requestSession->read('Flash.flash.0.params.replacements.0.target'));
+			['A score has already been submitted for this game.', 'If you are absolutely sure that you want to delete it anyway, {0}. <b>This cannot be undone!</b>']);
+		$this->assertSession(['action' => 'delete', '?' => ['game' => (string)$other_game->id, 'force' => true]], 'Flash.flash.0.params.replacements.0.target');
 
 		// Unless we force it
 		$this->assertPostAsAccessRedirect(['controller' => 'Games', 'action' => 'delete', '?' => ['game' => $other_game->id, 'force' => true]],
@@ -2318,7 +2317,7 @@ class GamesControllerTest extends ControllerTestCase {
 				'has_incident' => false,
 			], '/', 'This score has been saved. Once your opponent has entered their score, it will be officially posted. The score you have submitted indicates that this game was {0}. If this is incorrect, you can {1} to correct it.'
 		);
-		$this->assertEquals('a win for your team', $this->_requestSession->read('Flash.flash.0.params.replacements.0.text'));
+		$this->assertSession('a win for your team', 'Flash.flash.0.params.replacements.0.text');
 
 		$this->assertMailCount(1);
 		$this->assertMailSentFrom('admin@zuluru.org');
@@ -2405,7 +2404,7 @@ class GamesControllerTest extends ControllerTestCase {
 				'has_incident' => false,
 			], '/', 'This score has been saved. Once your opponent has entered their score, it will be officially posted. The score you have submitted indicates that this game was {0}. If this is incorrect, you can {1} to correct it.'
 		);
-		$this->assertEquals('a win for your team', $this->_requestSession->read('Flash.flash.0.params.replacements.0.text'));
+		$this->assertSession('a win for your team', 'Flash.flash.0.params.replacements.0.text');
 
 		$this->assertMailCount(1);
 		$this->assertMailSentFrom('admin@zuluru.org');

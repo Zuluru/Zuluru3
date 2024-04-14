@@ -27,7 +27,7 @@ class BadgesPeopleFixture extends TestFixture {
 	/**
 	 * Initialize function: Mostly, set up records
 	 */
-	public function init() {
+	public function init(): void {
 		$this->records = [
 			[
 				'badge_id' => BADGE_ID_ACTIVE_PLAYER,

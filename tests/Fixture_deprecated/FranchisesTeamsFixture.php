@@ -19,7 +19,7 @@ class FranchisesTeamsFixture extends TestFixture {
 	/**
 	 * Initialize function: Mostly, set up records
 	 */
-	public function init() {
+	public function init(): void {
 		$this->records = [
 			[
 				'franchise_id' => FRANCHISE_ID_RED,

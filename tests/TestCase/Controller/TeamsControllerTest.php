@@ -1944,7 +1944,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		// Confirm the roster email
 		$this->assertMailCount(1);
 		$this->assertMailSentFrom('admin@zuluru.org');
-		$this->assertMailSentWith([$captain->user->email => $captain->full_name], 'ReplyTo');
+		$this->assertMailSentWithArray([$captain->user->email => $captain->full_name], 'ReplyTo');
 		$this->assertMailSentTo($invitee->user->email);
 		$this->assertMailSentWithArray([], 'CC');
 		$this->assertMailSentWith('Invitation to join ' . $team->name, 'Subject');

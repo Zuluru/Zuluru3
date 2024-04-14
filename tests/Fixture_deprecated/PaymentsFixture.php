@@ -20,7 +20,7 @@ class PaymentsFixture extends TestFixture {
 	/**
 	 * Initialize function: Mostly, set up records
 	 */
-	public function init() {
+	public function init(): void {
 		$this->records = [
 			[
 				'registration_id' => REGISTRATION_ID_PLAYER_MEMBERSHIP,

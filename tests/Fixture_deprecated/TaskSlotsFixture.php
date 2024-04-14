@@ -21,7 +21,7 @@ class TaskSlotsFixture extends TestFixture {
 	/**
 	 * Initialize function: Mostly, set up records
 	 */
-	public function init() {
+	public function init(): void {
 		$this->records = [
 			[
 				'task_id' => TASK_ID_CAPTAINS_MEETING,

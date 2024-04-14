@@ -19,7 +19,7 @@ class LeaguesStatTypesFixture extends TestFixture {
 	/**
 	 * Initialize function: Mostly, set up records
 	 */
-	public function init() {
+	public function init(): void {
 		$this->records = [
 			[
 				'league_id' => LEAGUE_ID_THURSDAY,

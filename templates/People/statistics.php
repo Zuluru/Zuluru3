@@ -1,6 +1,14 @@
 <?php
 /**
  * @var \App\View\AppView $this
+ * @var int[] $affiliates
+ * @var \Cake\ORM\Entity[] $status_count
+ * @var \Cake\ORM\Entity[] $group_count
+ * @var \Cake\ORM\Entity[] $gender_count
+ * @var \Cake\ORM\Entity[] $age_count
+ * @var \Cake\ORM\Entity[] $started_count
+ * @var \Cake\ORM\Entity[] $skill_count
+ * @var \Cake\ORM\Entity[] $city_count
  */
 
 use Cake\Core\Configure;

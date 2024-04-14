@@ -19,7 +19,7 @@ class EventsConnectionsFixture extends TestFixture {
 	/**
 	 * Initialize function: Mostly, set up records
 	 */
-	public function init() {
+	public function init(): void {
 		$this->records = [
 			[
 				'event_id' => EVENT_ID_LEAGUE_TEAM,

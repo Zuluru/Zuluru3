@@ -20,7 +20,7 @@ class UploadsFixture extends TestFixture {
 	/**
 	 * Initialize function: Mostly, set up records
 	 */
-	public function init() {
+	public function init(): void {
 		if (!defined('UPLOAD_ID_CAPTAIN_PHOTO')) {
 			$i = 0;
 			define('UPLOAD_ID_CAPTAIN_PHOTO', ++$i);

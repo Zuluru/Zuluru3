@@ -19,7 +19,7 @@ class FieldRankingStatsFixture extends TestFixture {
 	/**
 	 * Initialize function: Mostly, set up records
 	 */
-	public function init() {
+	public function init(): void {
 		$this->records = [
 			[
 				'game_id' => GAME_ID_LADDER_MATCHED_SCORES,

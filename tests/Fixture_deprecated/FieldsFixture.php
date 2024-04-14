@@ -19,7 +19,7 @@ class FieldsFixture extends TestFixture {
 	/**
 	 * Initialize function: Mostly, set up records
 	 */
-	public function init() {
+	public function init(): void {
 		$this->records = [
 			[
 				'num' => 'Field Hockey 1',

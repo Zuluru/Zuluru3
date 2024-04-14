@@ -23,7 +23,7 @@ class GameSlotsFixture extends TestFixture {
 	/**
 	 * Initialize function: Mostly, set up records
 	 */
-	public function init() {
+	public function init(): void {
 		// Build the game slot records, based on trait's definitions
 		$records = new \ArrayObject();
 		$this->__process(function ($context, $id, $field_id, $division_ids, FrozenDate $date, FrozenTime $start, FrozenTime $end, $name) {
