@@ -218,6 +218,7 @@ class TeamsController extends AppController {
 			->where($conditions)
 			->group(['Divisions.id'])
 			->enableAutoFields(true)
+			->all()
 			->indexBy('id')
 			->toArray();
 
@@ -829,6 +830,7 @@ class TeamsController extends AppController {
 			// division, so that it properly handles subs and people who move teams.
 			$teams = $this->Teams->find()
 				->where(['division_id' => $team->division_id])
+				->all()
 				->combine('id', 'name')
 				->toArray();
 			if (empty($teams) || empty($team->people)) {
@@ -1827,6 +1829,7 @@ class TeamsController extends AppController {
 				->where([
 					'league_id' => $team->division->league_id,
 				])
+				->all()
 				->extract('teams.{*}.people.{*}.id')
 				->toList();
 		} else {

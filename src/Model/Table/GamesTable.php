@@ -1036,35 +1036,15 @@ class GamesTable extends AppTable {
 				'HomeTeam',
 				// TODO: Not everything that uses this function needs both DependencyPool and Pools
 				'HomePoolTeam' => [
-					'DependencyPool' => [
-						'queryBuilder' => function (Query $q) {
-							return $q->find('translations');
-						},
-					],
-					'Pools' => [
-						'queryBuilder' => function (Query $q) {
-							return $q->find('translations');
-						},
-					],
+					'DependencyPool',
+					'Pools',
 				],
 				'AwayTeam',
 				'AwayPoolTeam' => [
-					'DependencyPool' => [
-						'queryBuilder' => function (Query $q) {
-							return $q->find('translations');
-						},
-					],
-					'Pools' => [
-						'queryBuilder' => function (Query $q) {
-							return $q->find('translations');
-						},
-					],
+					'DependencyPool',
+					'Pools',
 				],
-				'Pools' => [
-					'queryBuilder' => function (Query $q) {
-						return $q->find('translations');
-					},
-				],
+				'Pools',
 			])
 			->where(['OR' => $conditions]);
 	}
@@ -1452,6 +1432,7 @@ class GamesTable extends AppTable {
 						'Games.id !=' => $game_id,
 					])
 					->order(['GameSlots.game_date', 'GameSlots.game_start'])
+					->all()
 					->extract('id')
 					->toArray();
 

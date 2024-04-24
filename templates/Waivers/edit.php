@@ -20,7 +20,7 @@ if ($waiver->isNew()) {
 	<fieldset>
 		<legend><?= $waiver->isNew() ? __('Create Waiver') : __('Edit Waiver') ?></legend>
 <?php
-echo $this->Form->control('name', [
+echo $this->Form->i18nControls('name', [
 	'size' => 60,
 	'help' => __('Full name of this waiver.'),
 ]);
@@ -31,12 +31,12 @@ if ($waiver->isNew()) {
 		'empty' => '---',
 	]);
 }
-echo $this->Form->control('description', [
+echo $this->Form->i18nControls('description', [
 	'size' => 60,
 	'help' => __('An extended description, shown solely to administrators, for example to differentiate between various "Membership" waivers.'),
 ]);
 if (!isset($can_edit_text) || $can_edit_text) {
-	echo $this->Form->control('text', [
+	echo $this->Form->i18nControls('text', [
 		'cols' => 60,
 		'rows' => 30,
 		'help' => __('Complete waiver text, HTML is allowed.'),

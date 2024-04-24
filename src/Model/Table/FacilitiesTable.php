@@ -41,10 +41,13 @@ class FacilitiesTable extends AppTable {
 				'location_city' => 'proper_case_format',
 			],
 		]);
-		$this->addBehavior('Translate', ['fields' => [
-			'name', 'code', 'driving_directions', 'parking_details', 'transit_directions', 'biking_directions',
-			'washrooms', 'public_instructions', 'site_instructions', 'sponsor',
-		]]);
+		$this->addBehavior('Translate', [
+			'strategyClass' => \Cake\ORM\Behavior\Translate\ShadowTableStrategy::class,
+			'fields' => [
+				'name', 'code', 'driving_directions', 'parking_details', 'transit_directions', 'biking_directions',
+				'washrooms', 'public_instructions', 'site_instructions', 'sponsor',
+			],
+		]);
 
 		$this->belongsTo('Regions', [
 			'foreignKey' => 'region_id',

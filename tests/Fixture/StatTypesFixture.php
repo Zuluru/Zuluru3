@@ -9,13 +9,6 @@ class StatTypesFixture extends TestFixture {
 	use SeedFixtureTrait;
 
 	/**
-	 * Import
-	 *
-	 * @var array
-	 */
-	public $import = ['table' => 'stat_types'];
-
-	/**
 	 * Seed name to use
 	 */
 	public $seed = StatTypesSeed::class;

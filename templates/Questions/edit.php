@@ -15,11 +15,11 @@ $this->Breadcrumbs->add(__('Edit'));
 	<fieldset>
 		<legend><?= __('Edit Question') ?></legend>
 <?php
-echo $this->Form->control('name', [
+echo $this->Form->i18nControls('name', [
 	'size' => 60,
 	'help' => __('A short name for this question, to be used as a heading in administrative reports.'),
 ]);
-echo $this->Form->control('question', [
+echo $this->Form->i18nControls('question', [
 	'cols' => 60,
 	'help' => __('The full text of the question, to be shown to users.'),
 	'class' => 'wysiwyg_advanced',

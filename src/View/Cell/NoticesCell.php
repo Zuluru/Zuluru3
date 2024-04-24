@@ -36,6 +36,7 @@ class NoticesCell extends Cell {
 		// Delete any annual recurring notices that are too old
 		$annual = $this->Notices->find()
 			->where(['Notices.repeat_on' => 'annual'])
+			->all()
 			->combine('id', 'id')
 			->toArray();
 		$this->NoticesPeople->deleteAll([
@@ -46,6 +47,7 @@ class NoticesCell extends Cell {
 		// Find the list of all notices the user has seen
 		$notices = $this->NoticesPeople->find()
 			->where(['NoticesPeople.person_id' => $identity->getIdentifier()])
+            ->all()
 			->combine('notice_id', 'created')
 			->toArray();
 

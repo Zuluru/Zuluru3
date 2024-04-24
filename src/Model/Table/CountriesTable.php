@@ -21,7 +21,10 @@ class CountriesTable extends AppTable {
 		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
-		$this->addBehavior('Translate', ['fields' => ['name']]);
+		$this->addBehavior('Translate', [
+			'strategyClass' => \Cake\ORM\Behavior\Translate\ShadowTableStrategy::class,
+			'fields' => ['name'],
+		]);
 	}
 
 }

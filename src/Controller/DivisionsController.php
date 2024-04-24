@@ -161,6 +161,7 @@ class DivisionsController extends AppController {
 						'TeamsPeople.status' => ROSTER_APPROVED,
 					])
 					->order(['People.' . Configure::read('gender.column') => Configure::read('gender.order'), 'People.last_name', 'People.first_name'])
+					->all()
 					->indexBy('id')
 					->toArray(),
 			];
@@ -609,9 +610,6 @@ class DivisionsController extends AppController {
 						],
 						'Teams',
 						'Leagues' => [
-							'queryBuilder' => function (Query $q) {
-								return $q->find('translations');
-							},
 							'StatTypes' => [
 								'queryBuilder' => function (Query $q) {
 									return $q->where(['StatTypes.type' => 'entered']);
@@ -629,38 +627,19 @@ class DivisionsController extends AppController {
 							},
 							'GameSlots' => [
 								'Fields' => [
-									'queryBuilder' => function (Query $q) {
-										return $q->find('translations');
-									},
-									'Facilities' => [
-										'queryBuilder' => function (Query $q) {
-											return $q->find('translations');
-										},
-									],
+									'Facilities',
 								],
 							],
 							'ScoreEntries',
 							'HomeTeam',
 							'HomePoolTeam' => [
-								'DependencyPool' => [
-									'queryBuilder' => function (Query $q) {
-										return $q->find('translations');
-									},
-								],
+								'DependencyPool',
 							],
 							'AwayTeam',
 							'AwayPoolTeam' => [
-								'DependencyPool' => [
-									'queryBuilder' => function (Query $q) {
-										return $q->find('translations');
-									},
-								],
+								'DependencyPool',
 							],
-							'Pools' => [
-								'queryBuilder' => function (Query $q) {
-									return $q->find('translations');
-								},
-							],
+							'Pools',
 						],
 					],
 				]);
@@ -998,6 +977,7 @@ class DivisionsController extends AppController {
 				return $q->where(['Divisions.id' => $id]);
 			})
 			->order(['GameSlots.game_date'])
+			->all()
 			->extract('game_date')
 			->toArray();
 
@@ -1123,12 +1103,14 @@ class DivisionsController extends AppController {
 		$regions = TableRegistry::getTableLocator()->get('Regions')->find()
 			->enableHydration(false)
 			->where(['affiliate_id' => $division->league->affiliate_id])
+			->all()
 			->combine('id', 'name')
 			->toArray();
 
 		$fields = TableRegistry::getTableLocator()->get('Fields')->find()
 			->contain(['Facilities'])
 			->where(['Facilities.region_id IN' => array_keys($regions)])
+			->all()
 			->indexBy('id')
 			->toArray();
 
@@ -1316,6 +1298,7 @@ class DivisionsController extends AppController {
 				]],
 			])
 			->order(['Games.id'])
+			->all()
 			->filter(function (Game $game) {
 				return !empty($game->spirit_entries);
 			})
@@ -1809,7 +1792,7 @@ class DivisionsController extends AppController {
 			$query->where(['Leagues.sport' => $sport]);
 		}
 
-		$this->set('divisions', $query->combine('id', 'full_league_name')->toArray());
+		$this->set('divisions', $query->all()->combine('id', 'full_league_name')->toArray());
 	}
 
 }

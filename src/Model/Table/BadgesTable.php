@@ -27,7 +27,10 @@ class BadgesTable extends AppTable {
 		$this->setDisplayField('name');
 		$this->setPrimaryKey('id');
 
-		$this->addBehavior('Translate', ['fields' => ['name', 'description']]);
+		$this->addBehavior('Translate', [
+			'strategyClass' => \Cake\ORM\Behavior\Translate\ShadowTableStrategy::class,
+			'fields' => ['name', 'description'],
+		]);
 
 		$this->belongsTo('Affiliates', [
 			'foreignKey' => 'affiliate_id',

@@ -2,7 +2,6 @@
 namespace App\Policy;
 
 use App\Authorization\ContextResource;
-use App\Event\FlashTrait;
 use App\Exception\ForbiddenRedirectException;
 use App\Model\Entity\Division;
 use App\Model\Entity\Team;
@@ -15,7 +14,6 @@ use Cake\I18n\FrozenDate;
 
 class TeamPolicy extends AppPolicy {
 
-	use FlashTrait;
 	use HasherTrait;
 
 	/**

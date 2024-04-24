@@ -146,11 +146,11 @@ class FacilitiesController extends AppController {
 		}
 
 		$affiliates = $this->Authentication->applicableAffiliates(true);
-		$regions = $this->Facilities->Regions->find('all', [
-			'conditions' => ['Regions.affiliate_id IN' => array_keys($affiliates)],
-			'contain' => ['Affiliates'],
-			'order' => ['Affiliates.name', 'Regions.name'],
-		]);
+		$regions = $this->Facilities->Regions->find()
+			->contain(['Affiliates'])
+			->where(['Regions.affiliate_id IN' => array_keys($affiliates)])
+			->order(['Affiliates.name', 'Regions.name'])
+			->all();
 		if ($regions->isEmpty()) {
 			$this->Flash->info(__('You must first create at least one region for facilities to be located in.'));
 			return $this->redirect('/');

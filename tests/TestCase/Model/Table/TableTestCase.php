@@ -5,10 +5,10 @@ use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Event\EventList;
 use Cake\Event\EventManager;
-use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
 use Cake\TestSuite\IntegrationTestTrait;
 use Cake\TestSuite\TestCase;
+use CakephpTestSuiteLight\Fixture\TruncateDirtyTables;
 
 /**
  * Base class for all table tests
@@ -16,6 +16,7 @@ use Cake\TestSuite\TestCase;
 class TableTestCase extends TestCase {
 
 	use IntegrationTestTrait;
+	use TruncateDirtyTables;
 
 	/**
 	 * setUp method

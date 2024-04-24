@@ -639,6 +639,7 @@ class EventsController extends AppController {
 				'Events.affiliate_id IN' => $event->affiliate_id,
 			])
 			->order(['Events.event_type_id', 'Events.open', 'Events.close', 'Events.id'])
+			->all()
 			->indexBy('id')
 			->toArray();
 

@@ -108,6 +108,7 @@ class NewslettersController extends AppController {
 			->contain(['Affiliates'])
 			->where(['MailingLists.affiliate_id IN' => $affiliates])
 			->order(['Affiliates.name', 'MailingLists.name'])
+			->all()
 			->combine('id', 'name', 'affiliate.name')
 			->toArray();
 		if (count($affiliates) == 1) {

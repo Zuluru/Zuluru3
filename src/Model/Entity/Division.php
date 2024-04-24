@@ -151,6 +151,7 @@ class Division extends Entity {
 						'league_id' => $this->league_id,
 						'current_round' => 'playoff',
 					])
+					->all()
 					->extract('id')
 					->toArray();
 			} catch (RecordNotFoundException|InvalidArgumentException $ex) {

@@ -126,7 +126,7 @@ class PersonTest extends TestCase {
 	 * Test merge method for two users
 	 */
 	public function testMergeUserWithUser(): void {
-		$this->loadFixtures();
+		$this->setupFixtures();
 
 		[$user1, $user2] = PersonFactory::make([
 			['gender' => 'Woman'],
@@ -145,7 +145,7 @@ class PersonTest extends TestCase {
 	 * Test merge method for a user and a profile
 	 */
 	public function testMergeUserWithProfile(): void {
-		$this->loadFixtures();
+		$this->setupFixtures();
 
 		$user1 = PersonFactory::make(['gender' => 'Woman'])->player()->persist();
 		$user2 = PersonFactory::make(['gender' => 'Man'])->child()->persist();
@@ -163,7 +163,7 @@ class PersonTest extends TestCase {
 	 * Test merge method for a profile and a user
 	 */
 	public function testMergeProfileWithUser(): void {
-		$this->loadFixtures();
+		$this->setupFixtures();
 
 		/** @var Person $user1 */
 		$user1 = PersonFactory::make(['gender' => 'Man'])->withGroup(GROUP_PLAYER)->persist();

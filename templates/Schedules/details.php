@@ -43,7 +43,7 @@ for ($i = 1; $i <= $pools; ++ $i):
 ?>
 					<tr>
 						<td><?= $i ?>.</td>
-						<td><?= $this->Form->control("_options.pools.$i.name", [
+						<td><?= $this->Form->i18nControls("_options.pools.$i.name", [
 							'label' => false,
 							'maxlength' => 2,
 							'size' => 5,

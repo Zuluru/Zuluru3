@@ -36,7 +36,10 @@ class PricesTable extends AppTable {
 		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
-		$this->addBehavior('Translate', ['fields' => ['name', 'description']]);
+		$this->addBehavior('Translate', [
+			'strategyClass' => \Cake\ORM\Behavior\Translate\ShadowTableStrategy::class,
+			'fields' => ['name', 'description'],
+		]);
 
 		$this->belongsTo('Events', [
 			'foreignKey' => 'event_id',

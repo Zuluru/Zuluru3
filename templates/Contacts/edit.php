@@ -18,7 +18,7 @@ if ($contact->isNew()) {
 	<fieldset>
 		<legend><?= $contact->isNew() ? __('Create Contact') : __('Edit Contact') ?></legend>
 <?php
-echo $this->Form->control('name', [
+echo $this->Form->i18nControls('name', [
 	'help' => __('The name of your contact.'),
 ]);
 echo $this->Form->control('email', [

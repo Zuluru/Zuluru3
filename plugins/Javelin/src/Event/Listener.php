@@ -7,7 +7,6 @@ namespace Javelin\Event;
 
 use App\Authorization\ContextResource;
 use App\Core\UserCache;
-use App\Event\FlashTrait;
 use App\Model\Entity\Attendance;
 use App\Model\Entity\Division;
 use App\Model\Entity\Game;
@@ -28,8 +27,6 @@ use Cake\ORM\TableRegistry;
 use Cake\Routing\Router;
 
 class Listener implements EventListenerInterface {
-
-	use FlashTrait;
 
 	private $base_url = 'https://appjavelin.com/zuluru/';
 

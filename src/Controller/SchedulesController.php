@@ -865,7 +865,7 @@ class SchedulesController extends AppController {
 			$pool = null;
 		}
 
-		if ($query->isEmpty()) {
+		if ($query->all()->isEmpty()) {
 			$this->Flash->warning(__('There are no games to delete on that date.'));
 			if ($division_id) {
 				return $this->redirect(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $division_id]]);
@@ -1039,6 +1039,7 @@ class SchedulesController extends AppController {
 				'DivisionsGameslots.division_id' => $id,
 			])
 			->order(['GameSlots.game_date'])
+			->all()
 			->extract('game_slot.game_date')
 			->toArray();
 		if (empty($dates)) {
@@ -1245,6 +1246,7 @@ class SchedulesController extends AppController {
 					'Divisions.open <=' => $date,
 					'Divisions.close >=' => $date,
 				])
+				->all()
 				->extract('id')
 				->toList();
 

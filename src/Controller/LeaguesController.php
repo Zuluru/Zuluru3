@@ -97,6 +97,7 @@ class LeaguesController extends AppController {
 				],
 			])
 			->where($conditions)
+			->all()
 			->reject(function (League $league) {
 				return empty($league->divisions);
 			})
@@ -434,14 +435,7 @@ class LeaguesController extends AppController {
 					'finder' => 'translations',
 					'contain' => [
 						'Divisions' => [
-							'queryBuilder' => function (Query $q) {
-								return $q->find('translations');
-							},
-							'Days' => [
-								'queryBuilder' => function (Query $q) {
-									return $q->order(['DivisionsDays.day_id']);
-								},
-							],
+							'Days',
 							'Teams',
 						],
 					],
@@ -464,38 +458,19 @@ class LeaguesController extends AppController {
 						},
 						'GameSlots' => [
 							'Fields' => [
-								'queryBuilder' => function (Query $q) {
-									return $q->find('translations');
-								},
-								'Facilities' => [
-									'queryBuilder' => function (Query $q) {
-										return $q->find('translations');
-									},
-								],
+								'Facilities',
 							],
 						],
 						'ScoreEntries',
 						'HomeTeam',
 						'HomePoolTeam' => [
-							'DependencyPool' => [
-								'queryBuilder' => function (Query $q) {
-									return $q->find('translations');
-								},
-							],
+							'DependencyPool',
 						],
 						'AwayTeam',
 						'AwayPoolTeam' => [
-							'DependencyPool' => [
-								'queryBuilder' => function (Query $q) {
-									return $q->find('translations');
-								},
-							],
+							'DependencyPool',
 						],
-						'Pools' => [
-							'queryBuilder' => function (Query $q) {
-								return $q->find('translations');
-							},
-						],
+						'Pools',
 					],
 				])
 				->where(['Divisions.id IN' => collection($league->divisions)->extract('id')->toArray()])
@@ -636,14 +611,7 @@ class LeaguesController extends AppController {
 					'finder' => 'translations',
 					'contain' => [
 						'Divisions' => [
-							'queryBuilder' => function (Query $q) {
-								return $q->find('translations');
-							},
-							'Days' => [
-								'queryBuilder' => function (Query $q) {
-									return $q->order(['DivisionsDays.day_id']);
-								},
-							],
+							'Days',
 							'Teams',
 						],
 					],
@@ -678,28 +646,12 @@ class LeaguesController extends AppController {
 					->contain([
 						'GameSlots',
 						'HomePoolTeam' => [
-							'Pools' => [
-								'queryBuilder' => function (Query $q) {
-									return $q->find('translations');
-								},
-							],
-							'DependencyPool' => [
-								'queryBuilder' => function (Query $q) {
-									return $q->find('translations');
-								},
-							],
+							'Pools',
+							'DependencyPool',
 						],
 						'AwayPoolTeam' => [
-							'Pools' => [
-								'queryBuilder' => function (Query $q) {
-									return $q->find('translations');
-								},
-							],
-							'DependencyPool' => [
-								'queryBuilder' => function (Query $q) {
-									return $q->find('translations');
-								},
-							],
+							'Pools',
+							'DependencyPool',
 						],
 						'ScoreEntries',
 						'SpiritEntries',
@@ -770,6 +722,7 @@ class LeaguesController extends AppController {
 				return $q->where(['Divisions.id IN' => $divisions]);
 			})
 			->order(['GameSlots.game_date'])
+			->all()
 			->extract('game_date')
 			->toArray();
 

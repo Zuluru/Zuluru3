@@ -202,12 +202,12 @@ class PeopleController extends AppController {
 			$query = $this->People->find();
 			$this->set('age_count', $query
 				->select([
-					// TODO: Use a query function for the age bucket
-					'age_bucket' => 'FLOOR((YEAR(NOW()) - YEAR(birthdate)) / 5) * 5',
+					'age_bucket' => $query->func()->floor(['(YEAR(NOW()) - YEAR(birthdate)) / 5' => 'identifier']),
 					'person_count' => $query->func()->count('People.id'),
+					'Skills.sport',
 				])
 				->select($this->People->Affiliates)
-				->select($this->People->Skills)
+				->select($this->People->Groups)
 				->matching('Affiliates', function (Query $q) use ($affiliates) {
 					return $q->where(['Affiliates.id IN' => $affiliates]);
 				})
@@ -218,7 +218,7 @@ class PeopleController extends AppController {
 				->where([
 					'Skills.enabled' => true,
 					'People.status' => 'active',
-					'birthdate IS NOT' => null,
+					'People.birthdate IS NOT' => null,
 				])
 				->group(['AffiliatesPeople.affiliate_id', 'Skills.sport', 'age_bucket'])
 				->order(['Affiliates.name', 'Skills.sport', 'age_bucket'])
@@ -1473,7 +1473,7 @@ class PeopleController extends AppController {
 				'approved' => false,
 				'type_id IS' => null,
 			]);
-		if ($photos->isEmpty()) {
+		if ($photos->all()->isEmpty()) {
 			$this->Flash->info(__('There are no photos to approve.'));
 			return $this->redirect('/');
 		}
@@ -1601,6 +1601,7 @@ class PeopleController extends AppController {
 			->contain(['Affiliates'])
 			->where(['UploadTypes.affiliate_id IN' => $affiliates])
 			->order(['Affiliates.name', 'UploadTypes.name'])
+			->all()
 			->combine('id', 'name', 'affiliate.name')
 			->toArray();
 		if (count($affiliates) == 1) {
@@ -1957,7 +1958,7 @@ class PeopleController extends AppController {
 				'BadgesPeople.approved' => false,
 				'Badges.affiliate_id IN' => $affiliates,
 			]);
-		if ($badges->isEmpty()) {
+		if ($badges->all()->isEmpty()) {
 			$this->Flash->info(__('There are no badges to approve.'));
 			return $this->redirect('/');
 		}
@@ -2124,7 +2125,7 @@ class PeopleController extends AppController {
 
 		if (Configure::read('feature.affiliates') && $this->UserCache->read('Person.status') != 'locked') {
 			$affiliates_table = TableRegistry::getTableLocator()->get('Affiliates');
-			$affiliates = $affiliates_table->find('active')->indexBy('id')->toArray();
+			$affiliates = $affiliates_table->find('active')->all()->indexBy('id')->toArray();
 			if ($this->Authorization->can(current($affiliates), 'add_manager')) {
 				$unmanaged = $affiliates_table->find('active')
 					->contain([

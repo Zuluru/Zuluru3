@@ -97,7 +97,7 @@ class League extends Entity {
 
 	protected function _getLongSeason() {
 		if (!empty($this->open)) {
-			$year = $this->open->year;
+			$year = (string)$this->open->year;
 			if (!empty($this->season) && $this->season != 'None') {
 				$long_season = $year . ' ' . __($this->season);
 			} else {

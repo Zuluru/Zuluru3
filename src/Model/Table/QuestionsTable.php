@@ -32,7 +32,10 @@ class QuestionsTable extends AppTable {
 		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
-		$this->addBehavior('Translate', ['fields' => ['name', 'question']]);
+		$this->addBehavior('Translate', [
+			'strategyClass' => \Cake\ORM\Behavior\Translate\ShadowTableStrategy::class,
+			'fields' => ['name', 'question'],
+		]);
 
 		$this->belongsTo('Affiliates', [
 			'foreignKey' => 'affiliate_id',

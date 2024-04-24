@@ -18,7 +18,7 @@ $collapsed = (empty($errors) && !$facility->isNew());
 <div class="panel panel-default">
 	<div class="panel-heading" role="tab" id="FieldHeading<?= $index ?>">
 		<h4 class="panel-title"><a role="button" class="accordion-toggle<?= $collapsed ? ' collapsed' : '' ?>" data-toggle="collapse" data-parent="#accordion" href="#FieldDetails<?= $index ?>" aria-expanded="<?= $collapsed ? 'true' : 'false' ?>" aria-controls="FieldDetails<?= $index ?>"><?= __('{0} Details', Configure::read('UI.field_cap')) ?>:</a>
-			<?= $this->Form->control("fields.$index.num", [
+			<?= $this->Form->i18nControls("fields.$index.num", [
 				'label' => __('Number'),
 				'placeholder' => __('{0} Number', Configure::read('UI.field_cap')),
 				'duplicate_help' => true,

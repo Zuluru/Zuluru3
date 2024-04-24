@@ -27,8 +27,8 @@ if ($facility->isNew()) {
 				<div id="FacilityDetails" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="FacilityHeading">
 					<div class="panel-body">
 <?php
-echo $this->Form->control('name');
-echo $this->Form->control('code');
+echo $this->Form->i18nControls('name');
+echo $this->Form->i18nControls('code');
 echo $this->Form->control('sport', [
 	'options' => Configure::read('options.sport'),
 	'hide_single' => true,
@@ -49,14 +49,14 @@ echo $this->Form->control('location_province', [
 	'default' => Configure::read('organization.province'),
 ]);
 echo $this->Form->control('region_id', ['hide_single' => true, 'default' => $region]);
-echo $this->Form->control('driving_directions', ['cols' => 70, 'class' => 'wysiwyg_simple']);
-echo $this->Form->control('parking_details', ['cols' => 70, 'class' => 'wysiwyg_simple']);
-echo $this->Form->control('transit_directions', ['cols' => 70, 'class' => 'wysiwyg_simple']);
-echo $this->Form->control('biking_directions', ['cols' => 70, 'class' => 'wysiwyg_simple']);
-echo $this->Form->control('washrooms', ['cols' => 70, 'class' => 'wysiwyg_simple']);
-echo $this->Form->control('public_instructions', ['cols' => 70, 'class' => 'wysiwyg_simple']);
-echo $this->Form->control('site_instructions', ['cols' => 70, 'class' => 'wysiwyg_advanced']);
-echo $this->Form->control('sponsor', ['cols' => 70, 'class' => 'wysiwyg_advanced']);
+echo $this->Form->i18nControls('driving_directions', ['cols' => 70, 'class' => 'wysiwyg_simple']);
+echo $this->Form->i18nControls('parking_details', ['cols' => 70, 'class' => 'wysiwyg_simple']);
+echo $this->Form->i18nControls('transit_directions', ['cols' => 70, 'class' => 'wysiwyg_simple']);
+echo $this->Form->i18nControls('biking_directions', ['cols' => 70, 'class' => 'wysiwyg_simple']);
+echo $this->Form->i18nControls('washrooms', ['cols' => 70, 'class' => 'wysiwyg_simple']);
+echo $this->Form->i18nControls('public_instructions', ['cols' => 70, 'class' => 'wysiwyg_simple']);
+echo $this->Form->i18nControls('site_instructions', ['cols' => 70, 'class' => 'wysiwyg_advanced']);
+echo $this->Form->i18nControls('sponsor', ['cols' => 70, 'class' => 'wysiwyg_advanced']);
 ?>
 					</div>
 				</div>

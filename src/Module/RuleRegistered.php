@@ -40,6 +40,7 @@ class RuleRegistered extends Rule {
 		$this->events = $model->find()
 			->enableHydration(false)
 			->where(['Events.id IN' => $this->event_ids])
+			->all()
 			->combine('id', 'name')
 			->toArray();
 		if (count($this->events) != count($this->event_ids)) {

@@ -12,7 +12,7 @@ if (!isset($i)) {
 	<td class="handle"><?php
 	echo $this->Form->hidden("answers.$i.id", ['value' => $answer->id]);
 	echo $this->Form->hidden("answers.$i.sort", ['value' => $answer->sort]);
-	echo $this->Form->control("answers.$i.answer", [
+	echo $this->Form->i18nControls("answers.$i.answer", [
 		'div' => false,
 		'label' => false,
 		'type' => 'text',

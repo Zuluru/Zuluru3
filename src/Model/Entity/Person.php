@@ -302,7 +302,7 @@ class Person extends Entity {
 		} else {
 			$display = __($this->gender);
 		}
-		if (Configure::read('gender.column') === 'roster_designation') {
+		if (Configure::read('gender.column') === 'roster_designation' && $this->roster_designation) {
 			$display .= __(' ({0}: {1})', __('Roster Designation'), __($this->roster_designation));
 		}
 

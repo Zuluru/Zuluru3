@@ -10,13 +10,6 @@ use Cake\TestSuite\Fixture\TestFixture;
 class SettingsFixture extends TestFixture {
 
 	/**
-	 * Import
-	 *
-	 * @var array
-	 */
-	public $import = ['table' => 'settings'];
-
-	/**
 	 * Initialize function: Mostly, set up records
 	 */
 	public function init(): void {

@@ -8,8 +8,11 @@ use Cake\Event\EventManager;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
 use Cake\TestSuite\TestCase;
+use CakephpTestSuiteLight\Fixture\TruncateDirtyTables;
 
 class ModuleTestCase extends TestCase {
+
+	use TruncateDirtyTables;
 
 	/**
 	 * setUp method

@@ -27,7 +27,7 @@ if ($event->isNew()) {
 				<div id="EventDetails" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="EventHeading">
 					<div class="panel-body">
 <?php
-echo $this->Form->control('name', [
+echo $this->Form->i18nControls('name', [
 	'size' => 70,
 	'help' => __('Full name of this registration event.'),
 ]);
@@ -40,7 +40,7 @@ if ($event->isNew()) {
 } else {
 	echo $this->Form->hidden('affiliate_id');
 }
-echo $this->Form->control('description', [
+echo $this->Form->i18nControls('description', [
 	'cols' => 70,
 	'rows' => 5,
 	'help' => __('Complete description of the event, HTML is allowed.'),

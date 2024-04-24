@@ -105,7 +105,7 @@ class AppTable extends Table {
 			}
 
 			if (in_array($class, $ignoreDeep) || array_key_exists($class, $ignoreDeep)) {
-				foreach ($dependent->extract($association->getPrimaryKey())->toArray() as $deepId) {
+				foreach ($dependent->all()->extract($association->getPrimaryKey())->toArray() as $deepId) {
 					if (array_key_exists($class, $ignoreDeep)) {
 						$deep = $association->dependencies($deepId, $ignoreDeep[$class]);
 					} else {

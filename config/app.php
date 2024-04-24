@@ -1,9 +1,16 @@
 <?php
 
 use Cake\Cache\Engine\FileEngine;
+use Cake\Controller\Exception\MissingActionException;
 use Cake\Database\Connection;
+use Cake\Error\ExceptionRenderer;
+use Cake\Http\Exception\GoneException;
+use Cake\Http\Exception\InvalidCsrfTokenException;
 use Cake\Log\Engine\FileLog;
+use Cake\Routing\Exception\MissingControllerException;
+use Cake\Routing\Exception\MissingRouteException;
 use Cake\Utility\Inflector;
+use Cake\View\Exception\MissingElementException;
 
 /*
  * This file contains system settings, but should not be changed. Anything
@@ -128,7 +135,7 @@ return [
 		'paths' => [
 			'plugins' => [ROOT . DS . 'plugins' . DS],
 			'templates' => [ROOT . DS . 'templates' . DS],
-			'locales' => [ROOT . DS . 'resources' . DS . 'locales' . DS],
+			'locales' => [RESOURCES . 'locales' . DS],
 			'files' => WWW_ROOT . 'files',
 			'imgBase' => WWW_ROOT . 'img',
 			'uploads' => ROOT . DS . 'upload',
@@ -228,6 +235,20 @@ return [
 		],
 
 		/*
+		 * Configure the cache for routes. The cached routes collection is built the
+		 * first time the routes are processed through `config/routes.php`.
+		 * Duration will be set to '+2 seconds' in bootstrap.php when debug = true
+		 */
+		'_cake_routes_' => [
+			'className' => FileEngine::class,
+			'prefix' => 'myapp_cake_routes_',
+			'path' => CACHE,
+			'serialize' => true,
+			'duration' => '+1 years',
+			'url' => env('CACHE_CAKEROUTES_URL', null),
+		],
+
+		/*
 		 * Configure the cache for long-term Zuluru data. This cache configuration
 		 * is used to store player, league and division data that changes infrequently
 		 * and is heavy to load from the database and/or requires intensive calculations
@@ -294,15 +315,15 @@ return [
 	 */
 	'Error' => [
 		'errorLevel' => E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED,
-		'exceptionRenderer' => 'Cake\Error\ExceptionRenderer',
+		'exceptionRenderer' => ExceptionRenderer::class,
 		'skipLog' => [
-			'Cake\Http\Exception\GoneException',
-			'Cake\Routing\Exception\MissingControllerException',
-			'Cake\Routing\Exception\MissingRouteException',
-			'Cake\Controller\Exception\MissingActionException',
-			'Cake\View\Exception\MissingElementException',
-			'Cake\Http\Exception\InvalidCsrfTokenException',
-			'InvalidArgumentException',
+			GoneException::class,
+			MissingControllerException::class,
+			MissingRouteException::class,
+			MissingActionException::class,
+			MissingElementException::class,
+			InvalidCsrfTokenException::class,
+			InvalidArgumentException::class,
 		],
 		'log' => true,
 		'trace' => true,
@@ -523,7 +544,7 @@ return [
 			'path' => LOGS,
 			'file' => 'debug',
 			'url' => env('LOG_DEBUG_URL', null),
-			'scopes' => null,
+			'scopes' => false,
 			'levels' => ['notice', 'info', 'debug'],
 		],
 		'error' => [
@@ -531,7 +552,7 @@ return [
 			'path' => LOGS,
 			'file' => 'error',
 			'url' => env('LOG_ERROR_URL', null),
-			'scopes' => null,
+			'scopes' => false,
 			'levels' => ['warning', 'error', 'critical', 'alert', 'emergency'],
 		],
 		// To enable this dedicated query log, you need to set your datasource's log flag to true
@@ -540,7 +561,7 @@ return [
 			'path' => LOGS,
 			'file' => 'queries',
 			'url' => env('LOG_QUERIES_URL', null),
-			'scopes' => ['cake.database.queries'],
+			'scopes' => ['queriesLog'],
 		],
 		'rules' => [
 			'className' => FileLog::class,

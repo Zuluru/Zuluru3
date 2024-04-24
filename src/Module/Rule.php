@@ -188,7 +188,7 @@ abstract class Rule {
 
 		if ($this->buildQuery($query, $affiliate)) {
 			try {
-				$people = $query->extract('id')->toArray();
+				$people = $query->all()->extract('id')->toArray();
 				return array_unique($people);
 			} catch (PDOException $ex) {
 				throw new RuleException(__('Database query error: Probably an invalid attribute.'));

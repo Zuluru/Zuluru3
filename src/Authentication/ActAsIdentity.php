@@ -119,6 +119,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 					if ($this->identity->person->status != 'locked') {
 						$this->_isAdmin = $this->_isManager = true;
 						$this->_managedAffiliateIds = TableRegistry::getTableLocator()->get('Affiliates')->find()
+							->all()
 							->extract('id')
 							->toArray();
 					}
@@ -643,6 +644,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 				return $affiliates_table->find()
 					->enableHydration(false)
 					->where(['Affiliates.id' => $affiliate])
+					->all()
 					->combine('id', 'name')
 					->toArray();
 			}
@@ -669,8 +671,9 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 		// Anyone not logged in, and admins, get the full list
 		return $affiliates_table->find()
 			->enableHydration(false)
-			->where(['active' => true])
-			->order('name')
+			->where(['Affiliates.active' => true])
+			->order('Affiliates.name')
+			->all()
 			->combine('id', 'name')
 			->toArray();
 	}
@@ -719,8 +722,9 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 		// Anyone not logged in, and admins, get the full list
 		return array_keys(TableRegistry::getTableLocator()->get('Affiliates')->find()
 			->enableHydration(false)
-			->where(['active' => true])
-			->order('name')
+			->where(['Affiliates.active' => true])
+			->order('Affiliates.name')
+			->all()
 			->combine('id', 'name')
 			->toArray()
 		);

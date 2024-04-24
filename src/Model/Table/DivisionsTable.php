@@ -51,7 +51,10 @@ class DivisionsTable extends AppTable {
 		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
-		$this->addBehavior('Translate', ['fields' => ['name', 'header', 'footer']]);
+		$this->addBehavior('Translate', [
+			'strategyClass' => \Cake\ORM\Behavior\Translate\ShadowTableStrategy::class,
+			'fields' => ['name', 'header', 'footer'],
+		]);
 
 		$this->belongsTo('Leagues', [
 			'foreignKey' => 'league_id',
@@ -401,7 +404,7 @@ class DivisionsTable extends AppTable {
 					'Badges.active' => true,
 				]);
 
-			if (!$badges->isEmpty()) {
+			if (!$badges->all()->isEmpty()) {
 				$badge_obj = ModuleRegistry::getInstance()->load('Badge');
 
 				$this->loadInto($entity, ['Teams']);

@@ -18,7 +18,7 @@ if ($affiliate->isNew()) {
 	<fieldset>
 		<legend><?= $affiliate->isNew() ? __('Create Affiliate') : __('Edit Affiliate') ?></legend>
 <?php
-echo $this->Form->control('name', [
+echo $this->Form->i18nControls('name', [
 	'size' => 70,
 ]);
 if (!$affiliate->isNew()) {

@@ -9,11 +9,11 @@ use Authorization\Controller\Component\AuthorizationComponent as CakeAuthorizati
 
 class AuthorizationComponent extends CakeAuthorizationComponent
 {
-    public function can($resource, ?string $action = null): bool {
-        try {
-            return $this->performCheck($resource, $action);
-        } catch (ForbiddenException|MissingIdentityException $ex) {
-            return false;
-        }
-    }
+	public function can($resource, ?string $action = null): bool {
+		try {
+			return $this->performCheck($resource, $action);
+		} catch (ForbiddenException|MissingIdentityException $ex) {
+			return false;
+		}
+	}
 }

@@ -158,16 +158,16 @@ class ContactsController extends AppController {
 				->contain(['Affiliates'])
 				->where(['Contacts.affiliate_id IN' => $affiliates])
 				->order(['Affiliates.name', 'Contacts.name']);
-			if ($contacts->isEmpty()) {
+			if ($contacts->all()->isEmpty()) {
 				$this->Flash->info(__('No contacts have been set up yet on this site.'));
 				return $this->redirect('/');
 			} else if ($contacts->count() == 1) {
 				$this->set('contact', $contacts->first());
 			} else {
 				if (count($affiliates) > 1) {
-					$contacts = $contacts->combine('id', 'name', 'affiliate.name')->toArray();
+					$contacts = $contacts->all()->combine('id', 'name', 'affiliate.name')->toArray();
 				} else {
-					$contacts = $contacts->combine('id', 'name')->toArray();
+					$contacts = $contacts->all()->combine('id', 'name')->toArray();
 				}
 				$this->set(compact('contacts'));
 			}

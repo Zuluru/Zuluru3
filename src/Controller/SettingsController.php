@@ -19,7 +19,7 @@ class SettingsController extends AppController {
 		$result = $this->_process();
 		if ($result === true) {
 			// For things like language and plugin settings to be recognized, we need to start a new request
-			return $this->redirect(['action' => 'edit', '?' => [$section]]);
+			return $this->redirect(['action' => 'edit', $section]);
 		} else if (is_object($result)) {
 			return $result;
 		}

@@ -57,7 +57,7 @@ $advanced = [
 				<div id="LeagueDetails" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="LeagueHeading">
 					<div class="panel-body">
 <?php
-echo $this->Form->control('name', [
+echo $this->Form->i18nControls('name', [
 	'size' => 70,
 	'help' => $tournaments ? __('The full name of the tournament.') : __('The full name of the league. Year and season will be automatically added.'),
 ]);

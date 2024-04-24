@@ -39,7 +39,7 @@ class CreditsController extends AppController {
 				'People' => [Configure::read('Security.authModel')],
 			])
 			->order(['Credits.affiliate_id', 'Credits.created']);
-		if ($credits->isEmpty()) {
+		if ($credits->all()->isEmpty()) {
 			$this->Flash->info($all ? __('There are no credits.') : __('There are no unused credits.'));
 			return $this->redirect('/');
 		}
@@ -252,6 +252,7 @@ class CreditsController extends AppController {
 				'Teams.division_id IS NOT' => null,
 				'Divisions.close >' => FrozenDate::now()->subMonths(3),
 			])
+			->all()
 			->extract('id')
 			->toArray();
 		if (!empty($teams)) {

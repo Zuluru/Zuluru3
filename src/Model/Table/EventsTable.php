@@ -1,6 +1,7 @@
 <?php
 namespace App\Model\Table;
 
+use App\Model\Entity\Event;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
@@ -41,7 +42,10 @@ class EventsTable extends AppTable {
 		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
-		$this->addBehavior('Translate', ['fields' => ['name', 'description']]);
+		$this->addBehavior('Translate', [
+			'strategyClass' => \Cake\ORM\Behavior\Translate\ShadowTableStrategy::class,
+			'fields' => ['name', 'description'],
+		]);
 
 		$this->belongsTo('EventTypes', [
 			'foreignKey' => 'event_type_id',
@@ -60,9 +64,11 @@ class EventsTable extends AppTable {
 
 		$this->hasMany('Preregistrations', [
 			'foreignKey' => 'event_id',
+			'dependent' => true,
 		]);
 		$this->hasMany('Prices', [
 			'foreignKey' => 'event_id',
+			'dependent' => true,
 		]);
 		$this->hasMany('Registrations', [
 			'foreignKey' => 'event_id',
@@ -253,11 +259,30 @@ class EventsTable extends AppTable {
 	 * @return \Cake\ORM\RulesChecker
 	 */
 	public function buildRules(RulesChecker $rules): \Cake\ORM\RulesChecker {
-		$rules->add($rules->isUnique(['name'], __('An event with that name already exists.')));
 		$rules->add($rules->existsIn(['event_type_id'], 'EventTypes', __('You must select a valid event type.')));
 		$rules->add($rules->existsIn(['questionnaire_id'], 'Questionnaires', __('You must select a valid questionnaire.')));
 		$rules->add($rules->existsIn(['division_id'], 'Divisions', __('You must select a valid division.')));
 		$rules->add($rules->existsIn(['affiliate_id'], 'Affiliates', __('You must select a valid affiliate.')));
+
+		$rules->add(function (EntityInterface $entity, array $options) {
+			/** @var Event $entity */
+			$others = $this->find()
+				->where([
+					'name' => $entity->name,
+					'event_type_id' => $entity->event_type_id,
+					'close >=' => $entity->open,
+					'open <=' => $entity->close,
+				]);
+
+			if (!$entity->isNew()) {
+				$others->where(['id !=' => $entity->id]);
+			}
+
+			return $others->count() === 0;
+		}, 'validName', [
+			'errorField' => 'name',
+			'message' => __('There is already an event of this type open at the same time with the same name.'),
+		]);
 
 		return $rules;
 	}

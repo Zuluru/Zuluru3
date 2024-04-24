@@ -155,6 +155,36 @@ class ZuluruFormHelper extends FormHelper {
 		return parent::control($fieldName, $options);
 	}
 
+	public function i18nControls(string $fieldName, array $options = []): string {
+		$locales = Configure::read('App.locales');
+		if (empty($locales) || count($locales) < 2) {
+			return $this->control($fieldName, $options);
+		}
+
+		// Split into model and field name
+		$pos = strpos($fieldName, '.');
+		if ($pos !== false) {
+			$prefix = substr($fieldName, 0, $pos);
+			$fieldName = substr($fieldName, $pos + 1);
+		} else {
+			$prefix = '';
+		}
+
+		$controls = [];
+		$default = Configure::read('App.defaultLocale');
+		foreach ($locales as $locale) {
+			if ($locale === $default) {
+				$controls[] = $this->control($prefix . $fieldName, ['label' => $locale] + $options);
+			} else {
+				$controls[] = $this->control("{$prefix}_translations.{$locale}.{$fieldName}", ['label' => $locale] + $options);
+			}
+		}
+
+		return $this->Html->tag('fieldset',
+			$this->Html->tag('legend', __(Inflector::humanize($fieldName))) . implode('', $controls)
+		);
+	}
+
 	public function iconPostLink($img, $url = null, array $imgOptions = [], array $linkOptions = []): string {
 		if (array_key_exists('class', $linkOptions)) {
 			if (is_array($linkOptions['class'])) {

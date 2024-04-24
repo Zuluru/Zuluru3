@@ -104,7 +104,7 @@ class RegistrationsTableTest extends TableTestCase {
 	 * @throws \Exception
 	 */
 	public function testWaitingListWithRefund(): void {
-		$this->loadFixtures();
+		$this->setupFixtures();
 		$this->loadRoutes();
 		ConfigurationLoader::loadConfiguration();
 
@@ -164,7 +164,7 @@ class RegistrationsTableTest extends TableTestCase {
 	 * @throws \Exception
 	 */
 	public function testWaitingListCapRaised(): void {
-		$this->loadFixtures();
+		$this->setupFixtures();
 		$this->loadRoutes();
 		ConfigurationLoader::loadConfiguration();
 

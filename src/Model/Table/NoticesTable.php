@@ -22,7 +22,10 @@ class NoticesTable extends AppTable {
 		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Timestamp');
-		$this->addBehavior('Translate', ['fields' => ['notice']]);
+		$this->addBehavior('Translate', [
+			'strategyClass' => \Cake\ORM\Behavior\Translate\ShadowTableStrategy::class,
+			'fields' => ['notice'],
+		]);
 
 		$this->belongsToMany('People', [
 			'foreignKey' => 'notice_id',

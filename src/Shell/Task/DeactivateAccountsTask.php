@@ -20,7 +20,8 @@ class DeactivateAccountsTask extends Shell {
 		$recent_date = FrozenDate::now()->subYears(2);
 		$divisions = $people_table->Divisions->find()
 			->contain(['People'])
-			->where(['Divisions.close >' => $recent_date]);
+			->where(['Divisions.close >' => $recent_date])
+			->all();
 		$division_ids = $divisions->extract('id')->toList();
 		if (empty($division_ids)) {
 			$division_ids = [-1];

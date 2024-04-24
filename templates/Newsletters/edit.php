@@ -20,7 +20,7 @@ if ($newsletter->isNew()) {
 	<fieldset>
 		<legend><?= $newsletter->isNew() ? __('Create Newsletter') : __('Edit Newsletter') ?></legend>
 <?php
-	echo $this->Form->control('name', [
+	echo $this->Form->i18nControls('name', [
 		'size' => 60,
 		'help' => __('A short name for this newsletter, to be used as a heading in administrative reports.'),
 	]);
@@ -37,11 +37,11 @@ if ($newsletter->isNew()) {
 		'size' => 60,
 		'help' => __('Email address that replies to this newsletter should be sent to, if different than the From address.'),
 	]);
-	echo $this->Form->control('subject', [
+	echo $this->Form->i18nControls('subject', [
 		'size' => 60,
 		'help' => __('Subject line for emailing this newsletter.'),
 	]);
-	echo $this->Form->control('text', [
+	echo $this->Form->i18nControls('text', [
 		'cols' => 60,
 		'rows' => 30,
 		'help' => __('The full text of the newsletter.'),

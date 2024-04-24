@@ -40,7 +40,7 @@ $advanced = [
 		<legend><?= __('Division Information') ?></legend>
 <?php
 echo $this->Form->hidden('league_id');
-echo $this->Form->control('name', [
+echo $this->Form->i18nControls('name', [
 	'size' => 70,
 	'help' => __('The name of the division.'),
 ]);
@@ -56,14 +56,14 @@ echo $this->Form->control('capt_list', [
 	'size' => 70,
 	'help' => __('An email alias for all coaches and captains of this division.'),
 ]);
-echo $this->Form->control('header', [
+echo $this->Form->i18nControls('header', [
 	'templates' => $advanced,
 	'cols' => 70,
 	'rows' => 5,
 	'help' => __('A short blurb to be displayed at the top of schedule and standings pages, HTML is allowed.'),
 	'class' => 'wysiwyg_advanced',
 ]);
-echo $this->Form->control('footer', [
+echo $this->Form->i18nControls('footer', [
 	'templates' => $advanced,
 	'cols' => 70,
 	'rows' => 5,

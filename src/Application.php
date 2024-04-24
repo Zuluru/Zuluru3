@@ -38,8 +38,8 @@ use Cake\Http\Middleware\EncryptedCookieMiddleware;
 use Cake\Http\Middleware\SessionCsrfProtectionMiddleware;
 use Cake\Http\MiddlewareQueue;
 use Cake\Http\Response;
+use Cake\I18n\FrozenTime;
 use Cake\I18n\I18n;
-use Cake\I18n\Time;
 use Cake\ORM\TableRegistry;
 use Cake\Routing\Middleware\AssetMiddleware;
 use Cake\Routing\Middleware\RoutingMiddleware;
@@ -180,7 +180,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 				'fields' => $fields,
 				'cookie' => [
 					'name' => 'ZuluruAuth',
-					'expires' => new Time('+1 year'),
+					'expires' => new FrozenTime('+1 year'),
 					'path' => '/' . trim($request->getAttribute('webroot'), '/'),
 				],
 			]);

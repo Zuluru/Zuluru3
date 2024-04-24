@@ -6,7 +6,6 @@
 namespace App\Event;
 
 use App\Controller\AppController;
-use App\Core\UserCache;
 use App\Model\Entity\Event;
 use App\Model\Entity\Payment;
 use App\Model\Entity\Registration;
@@ -15,8 +14,6 @@ use Cake\Event\Event as CakeEvent;
 use Cake\Event\EventListenerInterface;
 
 class PaymentListener implements EventListenerInterface {
-
-	use FlashTrait;
 
 	public function implementedEvents(): array {
 		return [

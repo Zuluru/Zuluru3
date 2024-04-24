@@ -279,6 +279,7 @@ class TaskSlotsController extends AppController {
 				return $q->where(['Affiliates.id IN' => array_keys($affiliates)]);
 			})
 			->order(['People.first_name', 'People.last_name'])
+			->all()
 			->combine('id', 'full_name')
 			->toArray();
 

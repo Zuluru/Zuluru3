@@ -28,7 +28,10 @@ class TasksTable extends AppTable {
 		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
-		$this->addBehavior('Translate', ['fields' => ['name', 'description', 'notes']]);
+		$this->addBehavior('Translate', [
+			'strategyClass' => \Cake\ORM\Behavior\Translate\ShadowTableStrategy::class,
+			'fields' => ['name', 'description', 'notes'],
+		]);
 
 		$this->belongsTo('Categories', [
 			'foreignKey' => 'category_id',

@@ -33,7 +33,7 @@ if ($multiple_types) {
 		'value' => array_key_first($types),
 	]);
 }
-echo $this->Form->control('name', [
+echo $this->Form->i18nControls('name', [
 	'size' => 100,
 ]);
 echo $this->Form->control('slug', [

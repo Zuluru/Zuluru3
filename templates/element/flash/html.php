@@ -24,7 +24,7 @@ if (isset($params['class']) && is_string($params['class'])) {
 	$class = 'alert-success';
 }
 
-echo $this->element('BootstrapUI.Flash/default', [
+echo $this->element('BootstrapUI.flash/default', [
 	'message' => $message,
 	'params' => [
 		'class' => [$class, 'alert', 'alert-dismissible', 'fade', 'in'],

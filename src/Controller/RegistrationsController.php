@@ -217,12 +217,11 @@ class RegistrationsController extends AppController {
 
 		$years = $this->Registrations->Events->find()
 			->enableHydration(false)
-			// TODO: Use a query object here
-			->select(['year' => 'YEAR(open)'])
-			->distinct(['year' => 'YEAR(open)'])
-			->matching('Affiliates', function (Query $q) use ($affiliates) {
-				return $q->where(['Affiliates.id IN' => $affiliates]);
-			})
+			->select(['year' => 'DISTINCT YEAR(Events.open)'])
+			->where([
+				'YEAR(Events.open) !=' => 0,
+				'Events.affiliate_id IN' => $affiliates,
+			])
 			->order(['year'])
 			->toArray();
 

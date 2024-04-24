@@ -43,7 +43,7 @@ trait SettingsTrait {
 		if (!empty($conditions)) {
 			$defaults = $defaults->andWhere($conditions);
 		}
-		$defaults->indexBy('id')->toArray();
+		$defaults->all()->indexBy('id')->toArray();
 		$this->set(compact('affiliate', 'settings', 'defaults'));
 
 		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
@@ -79,7 +79,7 @@ trait SettingsTrait {
 				return $setting->has('id') && in_array($setting->id, $to_delete);
 			})->toArray();
 
-			if ($this->Settings->getConnection()->transactional(function () use ($settings, $to_delete, $affiliate_id) {
+			if ($this->Settings->getConnection()->transactional(function () use ($settings, $data, $to_delete, $affiliate_id) {
 				if (!empty($data)) {
 					$settings = $this->Settings->patchEntities($settings, $data, ['validate' => false]);
 					foreach ($settings as $setting) {

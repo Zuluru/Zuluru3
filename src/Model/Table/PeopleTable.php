@@ -913,6 +913,7 @@ class PeopleTable extends AppTable {
 			// This has to be a separate query, to handle situations where the user table is in a separate database
 			$duplicate_users = $this->$user_model->find()
 				->where([$email_field => $person->email])
+				->all()
 				->extract($this->$user_model->getPrimaryKey())
 				->toArray();
 			if (!empty($duplicate_users)) {

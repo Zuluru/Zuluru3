@@ -20,7 +20,7 @@ if ($badge->isNew()) {
 	<fieldset>
 		<legend><?= $badge->isNew() ? __('Create Badge') : __('Edit Badge') ?></legend>
 <?php
-echo $this->Form->control('name', [
+echo $this->Form->i18nControls('name', [
 	'size' => 70,
 	'help' => __('The full name of the badge, to be used as title text on the icon.'),
 ]);
@@ -31,7 +31,7 @@ if ($badge->isNew()) {
 		'empty' => '---',
 	]);
 }
-echo $this->Form->control('description', [
+echo $this->Form->i18nControls('description', [
 	'size' => 70,
 	'help' => __('A detailed description of this badge, which should explain how to earn it, what it denotes, and/or what the benefits are.'),
 ]);

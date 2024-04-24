@@ -67,16 +67,6 @@ Chronos::setTestNow(Chronos::now());
 session_id('cli');
 
 // Use migrations to build test database schema.
-//
-// Will rebuild the database if the migration state differs
-// from the migration history in files.
-//
-// If you are not using CakePHP's migrations you can
-// hook into your migration tool of choice here or
-// load schema from a SQL dump file with
-// @todo Cake4
-// use Cake\TestSuite\Fixture\SchemaLoader;
-// (new SchemaLoader())->loadSqlFiles('./tests/schema.sql', 'test');
 (new Migrator())->run();
 
 // When testing controllers, set notice frequency to something under 0 so we don't need the fixture everywhere.

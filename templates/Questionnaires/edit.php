@@ -18,7 +18,7 @@ if ($questionnaire->isNew()) {
 	<fieldset>
 		<legend><?= $questionnaire->isNew() ? __('Create Questionnaire') : __('Edit Questionnaire') ?></legend>
 <?php
-echo $this->Form->control('name', ['size' => 60]);
+echo $this->Form->i18nControls('name', ['size' => 60]);
 if ($questionnaire->isNew()) {
 	echo $this->Form->control('affiliate_id', [
 		'options' => $affiliates,

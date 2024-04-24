@@ -18,7 +18,7 @@ if ($mailing_list->isNew()) {
 	<fieldset>
 		<legend><?= $mailing_list->isNew() ? __('Create Mailing List') : __('Edit Mailing List') ?></legend>
 <?php
-	echo $this->Form->control('name', [
+	echo $this->Form->i18nControls('name', [
 		'size' => 60,
 	]);
 	if ($mailing_list->isNew()) {

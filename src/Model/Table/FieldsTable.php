@@ -31,7 +31,10 @@ class FieldsTable extends AppTable {
 		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
-		$this->addBehavior('Translate', ['fields' => ['num']]);
+		$this->addBehavior('Translate', [
+			'strategyClass' => \Cake\ORM\Behavior\Translate\ShadowTableStrategy::class,
+			'fields' => ['num'],
+		]);
 
 		$this->belongsTo('Facilities', [
 			'foreignKey' => 'facility_id',

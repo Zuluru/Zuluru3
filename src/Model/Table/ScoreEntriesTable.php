@@ -13,6 +13,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Model\Rule\InConfigRule;
 use App\Model\Rule\ValidScoreRule;
+use InvalidArgumentException;
 
 /**
  * ScoreEntries Model

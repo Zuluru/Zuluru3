@@ -33,7 +33,10 @@ class WaiversTable extends AppTable {
 		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
-		$this->addBehavior('Translate', ['fields' => ['name', 'description', 'text']]);
+		$this->addBehavior('Translate', [
+			'strategyClass' => \Cake\ORM\Behavior\Translate\ShadowTableStrategy::class,
+			'fields' => ['name', 'description', 'text'],
+		]);
 
 		$this->belongsTo('Affiliates', [
 			'foreignKey' => 'affiliate_id',

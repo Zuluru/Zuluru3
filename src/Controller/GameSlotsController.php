@@ -144,6 +144,7 @@ class GameSlotsController extends AppController {
 				$this->loadModel('Holidays');
 				$holidays = $this->Holidays->find()
 					->where(['affiliate_id' => $affiliate])
+					->all()
 					->combine('date_string', 'name')
 					->toArray();
 
@@ -270,6 +271,7 @@ class GameSlotsController extends AppController {
 			->where(['Leagues.affiliate_id' => $affiliate])
 			->where(['Leagues.sport' => ($field ? $field->sport : $game_slot->sport)])
 			->order(['Divisions.id'])
+			->all()
 			->combine('id', 'full_league_name')
 			->toArray();
 
@@ -325,6 +327,7 @@ class GameSlotsController extends AppController {
 			->where(['Leagues.affiliate_id' => $affiliate])
 			->where(['Leagues.sport' => $this->GameSlots->sport($id)])
 			->order(['Divisions.id'])
+			->all()
 			->combine('id', 'full_league_name')
 			->toArray();
 

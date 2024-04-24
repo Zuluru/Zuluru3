@@ -5,7 +5,6 @@
  */
 namespace App\Core;
 
-use App\Event\FlashTrait;
 use App\Model\Entity\User;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
@@ -18,8 +17,6 @@ use App\Controller\AppController;
 use Cake\Routing\Router;
 
 class UserCache {
-
-	use FlashTrait;
 
 	private static $instance = null;
 	private static $identity = null;
@@ -191,6 +188,7 @@ class UserCache {
 								return $q
 									->where(['People.id IN' => $relatives]);
 							})
+							->all()
 							->combine('id', 'id')
 							->toArray();
 					}

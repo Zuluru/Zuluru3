@@ -32,7 +32,10 @@ class NewslettersTable extends AppTable {
 
 		$this->addBehavior('Trim');
 		$this->addBehavior('Timestamp');
-		$this->addBehavior('Translate', ['fields' => ['name', 'subject', 'text']]);
+		$this->addBehavior('Translate', [
+			'strategyClass' => \Cake\ORM\Behavior\Translate\ShadowTableStrategy::class,
+			'fields' => ['name', 'subject', 'text'],
+		]);
 
 		$this->belongsTo('MailingLists', [
 			'foreignKey' => 'mailing_list_id',

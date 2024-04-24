@@ -26,7 +26,10 @@ class AnswersTable extends AppTable {
 		$this->setDisplayField('id');
 		$this->setPrimaryKey('id');
 
-		$this->addBehavior('Translate', ['fields' => ['answer']]);
+		$this->addBehavior('Translate', [
+			'strategyClass' => \Cake\ORM\Behavior\Translate\ShadowTableStrategy::class,
+			'fields' => ['answer'],
+		]);
 
 		$this->belongsTo('Questions', [
 			'foreignKey' => 'question_id',

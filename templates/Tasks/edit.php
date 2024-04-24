@@ -18,14 +18,14 @@ if ($task->isNew()) {
 	<fieldset>
 		<legend><?= $task->isNew() ? __('Create Task') : __('Edit Task') ?></legend>
 <?php
-echo $this->Form->control('name', [
+echo $this->Form->i18nControls('name', [
 	'size' => 100,
 ]);
 echo $this->Form->control('category_id');
-echo $this->Form->control('description', [
+echo $this->Form->i18nControls('description', [
 	'help' => __('This description will be visible to people assigned to the task.'),
 ]);
-echo $this->Form->control('notes', [
+echo $this->Form->i18nControls('notes', [
 	'help' => __('Notes will only be visible administrators.'),
 ]);
 echo $this->Form->control('auto_approve', [

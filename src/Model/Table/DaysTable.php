@@ -28,7 +28,10 @@ class DaysTable extends AppTable {
 		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
-		$this->addBehavior('Translate', ['fields' => ['name', 'short_name']]);
+		$this->addBehavior('Translate', [
+			'strategyClass' => \Cake\ORM\Behavior\Translate\ShadowTableStrategy::class,
+			'fields' => ['name', 'short_name'],
+		]);
 
 		$this->belongsToMany('Divisions', [
 			'foreignKey' => 'day_id',

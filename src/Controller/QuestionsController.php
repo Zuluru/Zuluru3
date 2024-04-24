@@ -325,12 +325,13 @@ class QuestionsController extends AppController {
 			->where([
 				'OR' => [
 					'Questions.question LIKE' => '%' . $this->getRequest()->getQuery('term') . '%',
-					'Questions_question_translation.content LIKE' => '%' . $this->getRequest()->getQuery('term') . '%',
+					'QuestionsTranslation.question LIKE' => '%' . $this->getRequest()->getQuery('term') . '%',
 				],
 				'Questions.active' => true,
 				'Questions.affiliate_id' => $affiliate->id,
 			])
 			->order('Questions.question')
+			->all()
 			->combine('id', 'question')
 			->toArray());
 	}

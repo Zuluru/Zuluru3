@@ -18,7 +18,7 @@ $collapsed = (empty($errors) && !$event->isNew());
 <div class="panel panel-default">
 	<div class="panel-heading" role="tab" id="PriceHeading<?= $index ?>">
 		<h4 class="panel-title"><a role="button" class="accordion-toggle<?= $collapsed ? ' collapsed' : '' ?>" data-toggle="collapse" data-parent="#accordion" href="#PriceDetails<?= $index ?>" aria-expanded="<?= $collapsed ? 'true' : 'false' ?>" aria-controls="PriceDetails<?= $index ?>"><?= __('Price Point Details') ?>:</a>
-			<?= $this->Form->control("prices.$index.name", [
+			<?= $this->Form->i18nControls("prices.$index.name", [
 				'placeholder' => __('Price Point Name'),
 			]) ?>
 		</h4>
@@ -29,7 +29,7 @@ $collapsed = (empty($errors) && !$event->isNew());
 if (!$new) {
 	echo $this->Form->control("prices.$index.id");
 }
-echo $this->Form->control("prices.$index.description", [
+echo $this->Form->i18nControls("prices.$index.description", [
 	'cols' => 70,
 	'rows' => 5,
 	'help' => __('Complete description of the price point, HTML is allowed, may be blank if it\'s self-explanatory or if you only have one price for the event.'),

@@ -82,6 +82,7 @@ if ($identity->isManager()):
 						return $q->where(['Fields.is_open' => true]);
 					},
 				]])
+				->all()
 				->filter(function ($facility) { return empty($facility->fields); })
 				->toList();
 			if (!empty($facilities)):

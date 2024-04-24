@@ -38,7 +38,10 @@ class LeaguesTable extends AppTable {
 		$this->setPrimaryKey('id');
 
 		$this->addBehavior('Trim');
-		$this->addBehavior('Translate', ['fields' => ['name']]);
+		$this->addBehavior('Translate', [
+			'strategyClass' => \Cake\ORM\Behavior\Translate\ShadowTableStrategy::class,
+			'fields' => ['name'],
+		]);
 
 		$this->belongsTo('Affiliates', [
 			'foreignKey' => 'affiliate_id',
@@ -376,6 +379,7 @@ class LeaguesTable extends AppTable {
 		return $this->Divisions->find()
 			->enableHydration(false)
 			->where(compact('league_id'))
+			->all()
 			->combine('id', 'id')
 			->toArray();
 	}

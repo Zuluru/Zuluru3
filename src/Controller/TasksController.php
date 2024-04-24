@@ -99,6 +99,7 @@ class TasksController extends AppController {
 					return $q->where(['Affiliates.id IN' => array_keys($affiliates)]);
 				})
 				->order(['People.first_name', 'People.last_name'])
+				->all()
 				->combine('id', 'full_name')
 				->toArray();
 		}
@@ -135,6 +136,7 @@ class TasksController extends AppController {
 				return $q->where(['Affiliates.id IN' => array_keys($affiliates)]);
 			})
 			->order(['People.first_name', 'People.last_name'])
+			->all()
 			->combine('id', 'full_name')
 			->toArray();
 		$this->set(compact('task', 'affiliates', 'categories', 'people'));
@@ -179,6 +181,7 @@ class TasksController extends AppController {
 				return $q->where(['Affiliates.id IN' => array_keys($affiliates)]);
 			})
 			->order(['People.first_name', 'People.last_name'])
+			->all()
 			->combine('id', 'full_name')
 			->toArray();
 		$this->set(compact('task', 'affiliates', 'categories', 'people'));

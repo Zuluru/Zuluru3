@@ -1,7 +1,6 @@
 <?php
 namespace App\Model\Table;
 
-use App\Event\FlashTrait;
 use App\Exception\PaymentException;
 use App\Http\API;
 use App\Model\Entity\Event;

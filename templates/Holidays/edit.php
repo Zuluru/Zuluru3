@@ -18,7 +18,7 @@ if ($holiday->isNew()) {
 	<fieldset>
 		<legend><?= $holiday->isNew() ? __('Create Holiday') : __('Edit Holiday') ?></legend>
 <?php
-echo $this->Form->control('name');
+echo $this->Form->i18nControls('name');
 if ($holiday->isNew()) {
 	echo $this->Form->control('affiliate_id', [
 		'options' => $affiliates,

@@ -244,7 +244,7 @@ class AppController extends Controller {
 
 		if ($this->getRequest()->is('json')) {
 			// We don't have our own JSON view class to set these overrides
-			$this->viewBuilder()->setHelpers([
+			$this->viewBuilder()->addHelpers([
 				'Html' => ['className' => 'ZuluruHtml'],
 				'Time' => ['className' => 'ZuluruTime'],
 			]);
@@ -536,6 +536,7 @@ class AppController extends Controller {
 					return $q->where(['Divisions.schedule_type' => 'tournament']);
 				})
 				->order(['Leagues.open', 'Leagues.close', 'Leagues.id'])
+				->all()
 				->combine('id', 'name')
 				->toArray();
 		}, 'today', I18n::getLocale());
@@ -627,6 +628,7 @@ class AppController extends Controller {
 					],
 				])
 				->order(['Groups.level', 'Groups.id'])
+				->all()
 				->combine('id', 'name')
 				->toArray();
 			foreach ($groups as $group => $name) {
@@ -1035,7 +1037,7 @@ class AppController extends Controller {
 			$email->setAttachments($attachments);
 		}
 
-		$email->viewBuilder()->setHelpers([
+		$email->viewBuilder()->addHelpers([
 			'Number', 'Text',
 			'Html' => ['className' => 'ZuluruHtml'],
 			'Time' => ['className' => 'ZuluruTime'],
@@ -1222,6 +1224,7 @@ class AppController extends Controller {
 						->matching('Groups', function (Query $q) {
 							return $q->where(['Groups.id' => GROUP_ADMIN]);
 						})
+						->all()
 						->extract('id')
 						->toArray();
 					$query->matching('Affiliates')

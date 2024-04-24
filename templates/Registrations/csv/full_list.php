@@ -86,7 +86,7 @@ foreach ($event->questionnaire->questions as $question) {
 	}
 }
 
-list($header1, $header2, $player_fields, $contact_fields) = \App\Lib\csvFields($registrations->extract('person'), $fields, $is_manager);
+list($header1, $header2, $player_fields, $contact_fields) = \App\Lib\csvFields($registrations->all()->extract('person'), $fields, $is_manager);
 if (!empty($header1)) {
 	fputcsv($fp, $header1);
 }
