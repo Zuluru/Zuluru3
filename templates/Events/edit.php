@@ -19,14 +19,9 @@ if ($event->isNew()) {
 	<?= $this->Form->create($event, ['align' => 'horizontal']) ?>
 	<fieldset>
 		<legend><?= $event->isNew() ? __('Create Event') : __('Edit Event') ?></legend>
-		<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
-			<div class="panel panel-default">
-				<div class="panel-heading" role="tab" id="EventHeading">
-					<h4 class="panel-title"><a role="button" class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#EventDetails" aria-expanded="true" aria-controls="EventDetails">Event Details</a></h4>
-				</div>
-				<div id="EventDetails" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="EventHeading">
-					<div class="panel-body">
 <?php
+$this->start('event_details');
+
 echo $this->Form->i18nControls('name', [
 	'size' => 70,
 	'help' => __('Full name of this registration event.'),
@@ -75,10 +70,16 @@ if (isset($event_obj)) {
 }
 ?>
 						</div>
-					</div>
-				</div>
-			</div>
 <?php
+$this->end();
+
+$this->start('panels');
+
+echo $this->Accordion->panel(
+	$this->Accordion->panelHeading('Event', __('Event Details'), ['collapsed' => false]),
+	$this->Accordion->panelContent('Event', $this->fetch('event_details'), ['collapsed' => false])
+);
+
 if (empty($event->prices)) {
 	echo $this->element('Events/price', ['index' => 0]);
 } else {
@@ -86,8 +87,10 @@ if (empty($event->prices)) {
 		echo $this->element('Events/price', compact('index'));
 	}
 }
+
+$this->end();
+echo $this->Accordion->accordion($this->fetch('panels'));
 ?>
-		</div>
 		<div class="actions columns">
 			<ul class="nav nav-pills">
 <?php

@@ -231,9 +231,8 @@ class RegistrationsController extends AppController {
 	public function report() {
 		$this->Authorization->authorize($this);
 		if ($this->getRequest()->is('post')) {
-			// Deconstruct dates
-			$start_date = sprintf('%04d-%02d-%02d', $this->getRequest()->getData('start_date.year'), $this->getRequest()->getData('start_date.month'), $this->getRequest()->getData('start_date.day'));
-			$end_date = sprintf('%04d-%02d-%02d', $this->getRequest()->getData('end_date.year'), $this->getRequest()->getData('end_date.month'), $this->getRequest()->getData('end_date.day'));
+			$start_date = $this->getRequest()->getData('start_date');
+			$end_date = $this->getRequest()->getData('end_date');
 		} else {
 			$start_date = $this->getRequest()->getQuery('start_date');
 			$end_date = $this->getRequest()->getQuery('end_date');

@@ -67,5 +67,7 @@ if (isset($price) && (($price->canRegister && $price->canRegister['allowed']) ||
 }
 
 // We always need to unlock these inputs so that the form security component is happy.
-$this->Form->unlockField('payment_type');
-$this->Form->unlockField('deposit_amount');
+if ($this->Form->hasFormProtector()) {
+	$this->Form->unlockField('payment_type');
+	$this->Form->unlockField('deposit_amount');
+}

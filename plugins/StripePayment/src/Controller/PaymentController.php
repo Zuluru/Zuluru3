@@ -51,7 +51,7 @@ class PaymentController extends AppController {
 	 */
 	public function initialize(): void {
 		parent::initialize();
-		$this->loadModel('Registrations');
+		$this->Registrations = $this->fetchTable('Registrations');
 	}
 
 	public function beforeFilter(\Cake\Event\EventInterface $event) {

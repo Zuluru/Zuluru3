@@ -12,7 +12,7 @@ $this->Breadcrumbs->add('Elavon');
 echo $this->Form->create(null, ['align' => 'horizontal']);
 ?>
 <fieldset>
-	<legend><?= __('{0} Settings', 'Elavon') ?></legend>
+	<legend class="border-bottom"><?= __('{0} Settings', 'Elavon') ?></legend>
 	<p><?= __('To configure {0} to work with {1}, log into their {2}, go to {3} -> {4} -> {5}, then:',
 		'Elavon', ZULURU,
 			$this->Html->link(__('Payment Portal'), 'https://www.convergepay.com/converge-webapp/#!/login'),

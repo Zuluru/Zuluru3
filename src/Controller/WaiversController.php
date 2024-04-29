@@ -43,7 +43,7 @@ class WaiversController extends AppController {
 
 		$this->paginate = [
 			'contain' => ['Affiliates'],
-			'order' => ['Waivers.id'],
+			'order' => ['Waivers.id' => 'ASC'],
 			'conditions' => ['Waivers.affiliate_id IN' => $affiliates],
 		];
 		$query = $this->Waivers->find()

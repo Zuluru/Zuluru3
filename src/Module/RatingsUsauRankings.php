@@ -36,12 +36,14 @@ class RatingsUsauRankings extends Ratings {
 				$winner->current_rating - $loser->current_rating > 600;
 
 			$winner->points_list[] = [
+				'differential' => $differential,
 				'points' => $loser->current_rating + $differential,
 				'score_weight' => $score_weight,
 				'can_ignore' => $can_ignore,
 			];
 
 			$loser->points_list[] = [
+				'differential' => $differential,
 				'points' => $winner->current_rating - $differential,
 				'score_weight' => $score_weight,
 				'can_ignore' => $can_ignore,
@@ -50,7 +52,7 @@ class RatingsUsauRankings extends Ratings {
 
 		foreach ($this->teams as $team) {
 			if (!empty($team->points_list)) {
-				$team->current_rating = $this->consolidate($team->points_list);
+				$team->current_rating = $this->consolidate($team->points_list, $team->id);
 				//\Cake\Log\Log::write('error', "{$team->current_rating} {$team->name}");
 			}
 		}
@@ -66,7 +68,7 @@ class RatingsUsauRankings extends Ratings {
 		return 125 + intval(round(475 * sin($m) / sin(0.4 * M_PI)));
 	}
 
-	protected function consolidate(array $results) {
+	protected function consolidate(array $results, $id) {
 		while (count($results) > 5) {
 			$removable = collection($results)->match(['can_ignore' => true])->toArray();
 			if (empty($removable)) {
@@ -79,10 +81,12 @@ class RatingsUsauRankings extends Ratings {
 		}
 
 		$date_weight = 0.5;
-		$date_multiple = pow(2, 1 / (count($results) - 1));
-
-		//$date_weight = 1;
-		//$date_multiple = 1;
+		if (count($results) > 1) {
+			$date_multiple = pow(2, 1 / (count($results) - 1));
+		} else {
+			$date_weight = 1;
+			$date_multiple = 1;
+		}
 
 		$sum = $divisor = 0;
 		foreach ($results as $result) {

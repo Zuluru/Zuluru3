@@ -84,7 +84,7 @@ class PersonFactory extends BaseFactory
 		return $this
 			->patchData($data)
 			->withGroup(GROUP_ADMIN)
-			->with('Users');
+			->with('Users', ['password' => 'test123']);
 	}
 
 	public function manager(array $data = []): self {

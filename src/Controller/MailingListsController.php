@@ -138,8 +138,8 @@ class MailingListsController extends AppController {
 				],
 				// TODO: Multiple default sort fields break pagination links.
 				// https://github.com/cakephp/cakephp/issues/7324 has related info.
-				//'order' => ['People.first_name', 'People.last_name'],
-				'order' => ['People.first_name'],
+				//'order' => ['People.first_name' => 'ASC', 'People.last_name' => 'ASC'],
+				'order' => ['People.first_name' => 'ASC'],
 				'limit' => 100,
 			];
 			$this->set('people', $this->paginate('People'));

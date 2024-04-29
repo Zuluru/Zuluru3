@@ -141,7 +141,7 @@ class GameSlotsController extends AppController {
 				}
 			} else {
 				// Find the list of holidays to avoid
-				$this->loadModel('Holidays');
+				$this->Holidays = $this->fetchTable('Holidays');
 				$holidays = $this->Holidays->find()
 					->where(['affiliate_id' => $affiliate])
 					->all()

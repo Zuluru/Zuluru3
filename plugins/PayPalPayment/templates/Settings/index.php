@@ -11,7 +11,7 @@ $this->Breadcrumbs->add('PayPal');
 echo $this->Form->create(null, ['align' => 'horizontal']);
 ?>
 <fieldset>
-	<legend><?= __('{0} Settings', 'PayPal') ?></legend>
+	<legend class="border-bottom"><?= __('{0} Settings', 'PayPal') ?></legend>
 	<p><?= __('To find this information, log in to {0}, then go to Profile -> Profile and settings -> My selling tools -> Selling online -> API access -> Update, then Manage API Credentials or {1}.',
 		$this->Html->link('PayPal', 'https://paypal.com/'),
 		$this->Html->link(__('View API signature'), 'https://www.paypal.com/ca/cgi-bin/webscr?cmd=_profile-api-signature')

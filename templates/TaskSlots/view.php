@@ -10,24 +10,24 @@ $this->Breadcrumbs->add(__('View'));
 
 <div class="task_slots view">
 	<h2><?= __('Task Slot') ?></h2>
-	<dl class="dl-horizontal">
-		<dt><?= __('Task') ?></dt>
-		<dd><?= $this->Html->link($task_slot->task->name, ['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task_slot->task->id]]) ?></dd>
-		<dt><?= __('Task Date') ?></dt>
-		<dd><?= $this->Time->date($task_slot->task_date) ?></dd>
-		<dt><?= __('Task Start') ?></dt>
-		<dd><?= $this->Time->time($task_slot->task_start) ?></dd>
-		<dt><?= __('Task End') ?></dt>
-		<dd><?= $this->Time->time($task_slot->task_end) ?></dd>
-		<dt><?= __('Assigned To') ?></dt>
-		<dd><?= $this->element('People/block', ['person' => $task_slot->person]) ?></dd>
-		<dt><?= __('Approved') ?></dt>
-		<dd><?= $task_slot->approved ? __('Yes') : __('No') ?></dd>
+	<dl class="row">
+		<dt class="col-sm-2 text-end"><?= __('Task') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->Html->link($task_slot->task->name, ['controller' => 'Tasks', 'action' => 'view', '?' => ['task' => $task_slot->task->id]]) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Task Date') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->Time->date($task_slot->task_date) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Task Start') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->Time->time($task_slot->task_start) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Task End') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->Time->time($task_slot->task_end) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Assigned To') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->element('People/block', ['person' => $task_slot->person]) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Approved') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $task_slot->approved ? __('Yes') : __('No') ?></dd>
 <?php
 if ($task_slot->approved):
 ?>
-		<dt><?= __('Approved By') ?></dt>
-		<dd><?= $this->element('People/block', ['person' => $task_slot->approved_by]) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Approved By') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->element('People/block', ['person' => $task_slot->approved_by]) ?></dd>
 <?php
 endif;
 ?>

@@ -17,13 +17,13 @@ $this->Breadcrumbs->add(__('View'));
 <?php
 if ($this->Authorize->can('edit', $badge)):
 ?>
-	<dl class="dl-horizontal">
-		<dt><?= __('Category') ?></dt>
-		<dd><?= Configure::read("options.category.{$badge->category}") ?></dd>
-		<dt><?= __('Active') ?></dt>
-		<dd><?= $badge->active ? __('Yes') : __('No') ?></dd>
-		<dt><?= __('Visibility') ?></dt>
-		<dd><?= Configure::read("options.visibility.{$badge->visibility}") ?></dd>
+	<dl class="row">
+		<dt class="col-sm-2 text-end"><?= __('Category') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= Configure::read("options.category.{$badge->category}") ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Active') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $badge->active ? __('Yes') : __('No') ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Visibility') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= Configure::read("options.visibility.{$badge->visibility}") ?></dd>
 	</dl>
 <?php
 endif;

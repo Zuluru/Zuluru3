@@ -20,6 +20,9 @@ use Cake\View\Exception\MissingElementException;
  * copying app_local.example.php to app_local.php and make your changes there.
  */
 $domain = env('HTTP_HOST') ?? '';
+if (!array_key_exists('HTTP_HOST', $_SERVER)) {
+	$_SERVER['HTTP_HOST'] = $domain;
+}
 if (strpos($domain, 'www.') === 0) {
 	$domain = substr($domain, 4);
 }
@@ -127,6 +130,7 @@ return [
 		'dir' => 'src',
 		'webroot' => 'webroot',
 		'wwwRoot' => WWW_ROOT,
+		//'baseUrl' => env('SCRIPT_NAME'),
 		'fullBaseUrl' => false,
 		'imageBaseUrl' => 'img/',
 		'cssBaseUrl' => 'css/',
@@ -344,6 +348,10 @@ return [
 	 */
 	'Debugger' => [
 		'editor' => 'phpstorm',
+	],
+
+	'DebugKit' => [
+		'ignoreAuthorization' => true,
 	],
 
 	/*

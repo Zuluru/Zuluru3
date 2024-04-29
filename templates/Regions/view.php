@@ -16,9 +16,9 @@ $this->Breadcrumbs->add(__('View'));
 <?php
 if (count($affiliates) > 1):
 ?>
-	<dl class="dl-horizontal">
-		<dt><?= __('Affiliate') ?></dt>
-		<dd><?= $this->Html->link($region->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $region->affiliate->id]]) ?></dd>
+	<dl class="row">
+		<dt class="col-sm-2 text-end"><?= __('Affiliate') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->Html->link($region->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $region->affiliate->id]]) ?></dd>
 	</dl>
 <?php
 endif;

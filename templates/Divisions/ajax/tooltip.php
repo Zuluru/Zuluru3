@@ -7,7 +7,7 @@
 use Cake\ORM\TableRegistry;
 ?>
 <h2><?= h($division->full_league_name) ?></h2>
-<dl class="dl-horizontal">
+<dl class="row">
 <?php
 if ($this->Identity->isLoggedIn() && !empty($division->people)):
 	$links = [];
@@ -17,8 +17,8 @@ if ($this->Identity->isLoggedIn() && !empty($division->people)):
 
 	if (!empty($division->days)):
 ?>
-	<dt><?= __n('Day', 'Days', count($division->days)) ?></dt>
-	<dd><?php
+	<dt class="col-sm-2 text-end"><?= __n('Day', 'Days', count($division->days)) ?></dt>
+	<dd class="col-sm-10 mb-0"><?php
 		$days = [];
 		foreach ($division->days as $day) {
 			$days[] = __($day->name);
@@ -28,13 +28,13 @@ if ($this->Identity->isLoggedIn() && !empty($division->people)):
 <?php
 	endif;
 ?>
-	<dt><?= __('Coordinators') ?></dt>
-	<dd><?= implode(', ', $links) ?></dd>
+	<dt class="col-sm-2 text-end"><?= __('Coordinators') ?></dt>
+	<dd class="col-sm-10 mb-0"><?= implode(', ', $links) ?></dd>
 <?php
 endif;
 ?>
-	<dt><?= __('Teams') ?></dt>
-	<dd><?= count($division->teams) ?></dd>
+	<dt class="col-sm-2 text-end"><?= __('Teams') ?></dt>
+	<dd class="col-sm-10 mb-0"><?= count($division->teams) ?></dd>
 </dl>
 
 <p><?php

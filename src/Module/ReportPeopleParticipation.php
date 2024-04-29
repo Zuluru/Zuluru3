@@ -34,6 +34,7 @@ class ReportPeopleParticipation extends Report {
 			->contain(['EventTypes'])
 			->where(['EventTypes.type' => 'membership'])
 			->order(['Events.open', 'Events.close', 'Events.id'])
+			->all()
 			->indexBy('id')
 			->toArray();
 		$event_names = [];

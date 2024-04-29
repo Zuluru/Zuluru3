@@ -817,6 +817,8 @@ $sports['sports'] = [
 	],
 ];
 
+$sports['sports']['softball'] = $sports['sports']['baseball'];
+
 foreach (array_keys($sports['sports']) as $sport) {
 	if (file_exists(ZULURU_CONFIG . 'sport/' . $sport . '_custom.php')) {
 		include(ZULURU_CONFIG . 'sport/' . $sport . '_custom.php');

@@ -39,7 +39,6 @@ use App\Event\RegistrationListener;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Core\Configure\Engine\PhpConfig;
-use Cake\Database\Type;
 use Cake\Datasource\ConnectionManager;
 use Cake\Error\ConsoleErrorHandler;
 use Cake\Error\ErrorHandler;
@@ -209,23 +208,6 @@ ServerRequest::addDetector('tablet', function ($request) {
 	$detector = new MobileDetect();
 	return $detector->isTablet();
 });
-
-/*
- * Enable default locale format parsing.
- * This enables the automatic conversion of locale specific date formats. For details see
- * @link https://book.cakephp.org/5/en/core-libraries/internationalization-and-localization.html#parsing-localized-datetime-data
- */
-\Cake\Database\TypeFactory::build('datetime')
-	->useLocaleParser();
-
-/*
- * Custom Inflector rules, can be set to correctly pluralize or singularize
- * table, model, controller names or whatever other string is passed to the
- * inflection functions.
- */
-//Inflector::rules('plural', ['/^(inflect)or$/i' => '\1ables']);
-//Inflector::rules('irregular', ['red' => 'redlings']);
-//Inflector::rules('uninflected', ['dontinflectme']);
 
 /*
  * Create and register all the required listener objects

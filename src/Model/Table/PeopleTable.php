@@ -81,6 +81,7 @@ class PeopleTable extends AppTable {
 		$user_model = Configure::read('Security.authModel');
 		$this->belongsTo(Configure::read('Security.authPlugin') . $user_model, [
 			'foreignKey' => 'user_id',
+			// TODO: Base this on the table in question
 			'strategy' => 'select',
 		]);
 

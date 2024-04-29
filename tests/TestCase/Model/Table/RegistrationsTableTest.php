@@ -176,7 +176,7 @@ class RegistrationsTableTest extends TableTestCase {
 
 		$event = EventFactory::make(['event_type_id' => EVENT_TYPE_ID_CLINICS, 'open_cap' => 0, 'women_cap' => 1])
 			->with('Affiliates')
-			->with('Prices', ['cost' => 10, 'tax1' => 1.50, 'tax2' => 0])
+			->with('Prices', ['cost' => 10, 'tax1' => 1.50, 'tax2' => 0, 'allow_reservations' => true])
 			->persist();
 		$price = $event->prices[0];
 

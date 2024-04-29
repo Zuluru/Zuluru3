@@ -2,6 +2,8 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Facility $facility
+ * @var string[] $provinces
+ * @var int $region
  */
 
 use Cake\Core\Configure;
@@ -19,14 +21,9 @@ if ($facility->isNew()) {
 	<?= $this->Form->create($facility, ['align' => 'horizontal']) ?>
 	<fieldset>
 		<legend><?= $facility->isNew() ? __('Create Facility') : __('Edit Facility') ?></legend>
-		<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
-			<div class="panel panel-default">
-				<div class="panel-heading" role="tab" id="FacilityHeading">
-					<h4 class="panel-title"><a role="button" class="accordion-toggle" class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#FacilityDetails" aria-expanded="true" aria-controls="FacilityDetails">Facility Details</a></h4>
-				</div>
-				<div id="FacilityDetails" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="FacilityHeading">
-					<div class="panel-body">
 <?php
+$this->start('facility_details');
+
 echo $this->Form->i18nControls('name');
 echo $this->Form->i18nControls('code');
 echo $this->Form->control('sport', [
@@ -57,11 +54,16 @@ echo $this->Form->i18nControls('washrooms', ['cols' => 70, 'class' => 'wysiwyg_s
 echo $this->Form->i18nControls('public_instructions', ['cols' => 70, 'class' => 'wysiwyg_simple']);
 echo $this->Form->i18nControls('site_instructions', ['cols' => 70, 'class' => 'wysiwyg_advanced']);
 echo $this->Form->i18nControls('sponsor', ['cols' => 70, 'class' => 'wysiwyg_advanced']);
-?>
-					</div>
-				</div>
-			</div>
-<?php
+
+$this->end();
+
+$this->start('panels');
+
+echo $this->Accordion->panel(
+	$this->Accordion->panelHeading('Facility', __('Facility Details'), ['collapsed' => false]),
+	$this->Accordion->panelContent('Facility', $this->fetch('facility_details'), ['collapsed' => false])
+);
+
 if (empty($facility->fields)) {
 	echo $this->element('Facilities/field', ['index' => 0]);
 } else {
@@ -69,8 +71,10 @@ if (empty($facility->fields)) {
 		echo $this->element('Facilities/field', compact('index'));
 	}
 }
+
+$this->end();
+echo $this->Accordion->accordion($this->fetch('panels'));
 ?>
-		</div>
 		<div class="actions columns">
 			<ul class="nav nav-pills">
 <?php

@@ -329,7 +329,19 @@
 }
 
 /* Extra dropdown menu formatting */
-.dropdown-menu > li.menu_section > a
+.navbar a
+{
+	font-size: 90%;
+}
+.navbar .nav-link
+{
+	padding: 12px !important;
+}
+.navbar-light .navbar-nav a.nav-link.active
+{
+	background-color: #E7E7E7;
+}
+.dropdown-menu > li.dropdown-item > a
 {
 	font-weight: bold;
 }
@@ -341,7 +353,8 @@
 	color: #A94442;
 }
 
-.zuluru .panel-heading .accordion-toggle:before {
+.zuluru .panel-heading .accordion-toggle:before
+{
 	/* symbol for "opening" panels */
 	font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
 	content: "\e114";    /* adjust as needed, taken from bootstrap.css */
@@ -349,15 +362,21 @@
 	padding-right: 0.5em;
 }
 
-.zuluru .panel-heading .accordion-toggle.collapsed:before {
+.zuluru .panel-heading .accordion-toggle.collapsed:before
+{
 	/* symbol for "collapsed" panels */
 	content: "\e080";    /* adjust as needed, taken from bootstrap.css */
 }
 
+.zuluru a.accordion-button
+{
+	color: inherit;
+}
+
 .zuluru .form-group.checkbox
 {
-	margin-top: -15px;
-	margin-bottom: 15px;
+	margin-top: -5px;
+	margin-bottom: 5px;
 	padding-top: 0px;
 }
 

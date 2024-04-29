@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use App\Model\Entity\Person;
 use App\Model\Entity\User;
 use App\Test\Factory\AffiliateFactory;
 use App\Test\Factory\PersonFactory;
@@ -35,7 +36,32 @@ class UsersControllerTest extends ControllerTestCase {
 	 * Test login method
 	 */
 	public function testLogin(): void {
-		$this->markTestIncomplete('Not implemented yet.');
+		/** @var Person $admin */
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
+
+		$this->assertGetAnonymousAccessOk(['controller' => 'Users', 'action' => 'login']);
+		$this->assertPostAnonymousAccessRedirect(['controller' => 'Users', 'action' => 'login'], [
+			'user_name' => $admin->user->user_name,
+			'password' => 'test123', // Hardcoded password for admin in the PersonFactory
+		],
+		'/');
+	}
+
+	/**
+	 * Test login method with remember me
+	 */
+	public function testLoginRememberMe(): void {
+		/** @var Person $admin */
+		[$admin] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin']);
+
+		$this->assertGetAnonymousAccessOk(['controller' => 'Users', 'action' => 'login']);
+		$this->assertPostAnonymousAccessRedirect(['controller' => 'Users', 'action' => 'login'], [
+			'user_name' => $admin->user->user_name,
+			'password' => 'test123', // Hardcoded password for admin in the PersonFactory
+			'remember_me' => true,
+		],
+		'/');
+		$this->assertHeaderContains('Set-Cookie', 'ZuluruAuth=');
 	}
 
 	/**

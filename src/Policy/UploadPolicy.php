@@ -24,6 +24,7 @@ class UploadPolicy extends AppPolicy {
 			return $identity->isManagerOf($upload);
 		}
 
+		// TODO: This needs to check manager of the person, not just manager. Add unit test for this case.
 		return $identity->isManager();
 	}
 

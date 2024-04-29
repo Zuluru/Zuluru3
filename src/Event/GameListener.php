@@ -125,6 +125,7 @@ class GameListener implements EventListenerInterface {
 		}
 
 		// Email opposing captains with this score and an easy link
+		// TODO: This isn't really the right condition to test on. Goal is to not email captains about anything when officials are involved.
 		if ($game->division->email_after) {
 			$captains = collection($opponent->people)->filter(function ($player) {
 				return in_array($player->_joinData->role, Configure::read('privileged_roster_roles')) && $player->_joinData->status == ROSTER_APPROVED;

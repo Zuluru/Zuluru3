@@ -11,7 +11,7 @@ if (isset($registrations)):
 <div class="index">
 	<p><?php
 	$this->Paginator->options([
-		'url' => compact('start_date', 'end_date'),
+		'url' => ['?' => compact('start_date', 'end_date')],
 	]);
 	echo $this->Paginator->counter(
 		__('Page {{page}} of {{pages}}, showing {{current}} records out of {{count}} total, starting on record {{start}}, ending on {{end}}')

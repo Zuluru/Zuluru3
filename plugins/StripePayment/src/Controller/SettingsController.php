@@ -26,7 +26,7 @@ class SettingsController extends AppController {
 	 */
 	public function initialize(): void {
 		parent::initialize();
-		$this->loadModel('Settings');
+		$this->Settings = $this->fetchTable('Settings');
 	}
 
 	/**

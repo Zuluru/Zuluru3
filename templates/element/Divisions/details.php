@@ -13,8 +13,8 @@ use Cake\Utility\Inflector;
 <?php
 if (!empty($people)):
 ?>
-<dt><?= __n('Coordinator', 'Coordinators', count($people)) ?></dt>
-<dd>
+<dt class="col-sm-2 text-end"><?= __n('Coordinator', 'Coordinators', count($people)) ?></dt>
+<dd class="col-sm-10 mb-0">
 <?php
 $coordinators = [];
 foreach ($people as $person) {
@@ -36,42 +36,42 @@ endif;
 
 if (!empty($division->coord_list)):
 ?>
-<dt><?= __('Coordinator Email List') ?></dt>
-<dd><?= $this->Html->link($division->coord_list, "mailto:{$division->coord_list}") ?></dd>
+<dt class="col-sm-2 text-end"><?= __('Coordinator Email List') ?></dt>
+<dd class="col-sm-10 mb-0"><?= $this->Html->link($division->coord_list, "mailto:{$division->coord_list}") ?></dd>
 <?php
 endif;
 
 if (!empty($division->capt_list)):
 ?>
-<dt><?= __('Coach/Captain Email List') ?></dt>
-<dd><?= $this->Html->link($division->capt_list, "mailto:{$division->capt_list}") ?></dd>
+<dt class="col-sm-2 text-end"><?= __('Coach/Captain Email List') ?></dt>
+<dd class="col-sm-10 mb-0"><?= $this->Html->link($division->capt_list, "mailto:{$division->capt_list}") ?></dd>
 <?php
 endif;
 ?>
-<dt><?= __('Status') ?></dt>
-<dd><?= $division->is_open ? __('Open') : ($division->open->isFuture() ? __('Opening Soon') : __('Closed')) ?></dd>
+<dt class="col-sm-2 text-end"><?= __('Status') ?></dt>
+<dd class="col-sm-10 mb-0"><?= $division->is_open ? __('Open') : ($division->open->isFuture() ? __('Opening Soon') : __('Closed')) ?></dd>
 <?php
 if ($division->open != '0000-00-00'):
 ?>
-<dt><?= __('First Game') ?></dt>
-<dd><?= $this->Time->date($division->open) ?></dd>
+<dt class="col-sm-2 text-end"><?= __('First Game') ?></dt>
+<dd class="col-sm-10 mb-0"><?= $this->Time->date($division->open) ?></dd>
 <?php
 endif;
 
 if ($division->close != '0000-00-00'):
 ?>
-<dt><?= __('Last Game') ?></dt>
-<dd><?= $this->Time->date($division->close) ?></dd>
+<dt class="col-sm-2 text-end"><?= __('Last Game') ?></dt>
+<dd class="col-sm-10 mb-0"><?= $this->Time->date($division->close) ?></dd>
 <?php
 endif;
 ?>
-<dt><?= __('Roster Deadline') ?></dt>
-<dd><?= $this->Time->date($division->rosterDeadline()) ?></dd>
+<dt class="col-sm-2 text-end"><?= __('Roster Deadline') ?></dt>
+<dd class="col-sm-10 mb-0"><?= $this->Time->date($division->rosterDeadline()) ?></dd>
 <?php
 if (!empty($division->days)):
 ?>
-<dt><?= __n('Day', 'Days', count($division->days)) ?></dt>
-<dd><?php
+<dt class="col-sm-2 text-end"><?= __n('Day', 'Days', count($division->days)) ?></dt>
+<dd class="col-sm-10 mb-0"><?php
 	$days = [];
 	foreach ($division->days as $day) {
 		$days[] = __($day->name);
@@ -83,22 +83,22 @@ endif;
 
 if (!empty($division->ratio_rule)):
 ?>
-<dt><?= __('Ratio Rule') ?></dt>
-<dd><?= __(Inflector::Humanize($division->ratio_rule)) ?></dd>
+<dt class="col-sm-2 text-end"><?= __('Ratio Rule') ?></dt>
+<dd class="col-sm-10 mb-0"><?= __(Inflector::Humanize($division->ratio_rule)) ?></dd>
 <?php
 endif;
 
 if ($this->Authorize->can('edit', $division)):
 ?>
-<dt><?= __('Roster Rule') ?></dt>
-<dd><?= $this->Html->tag('pre', $division->roster_rule . '&nbsp;') ?></dd>
-<dt><?= __('Roster Method') ?></dt>
-<dd><?= Configure::read("options.roster_methods.{$division->roster_method}") ?></dd>
+<dt class="col-sm-2 text-end"><?= __('Roster Rule') ?></dt>
+<dd class="col-sm-10 mb-0"><?= $this->Html->tag('pre', $division->roster_rule . '&nbsp;') ?></dd>
+<dt class="col-sm-2 text-end"><?= __('Roster Method') ?></dt>
+<dd class="col-sm-10 mb-0"><?= Configure::read("options.roster_methods.{$division->roster_method}") ?></dd>
 <?php
 endif;
 ?>
-<dt><?= __('Schedule Type') ?></dt>
-<dd><?php
+<dt class="col-sm-2 text-end"><?= __('Schedule Type') ?></dt>
+<dd class="col-sm-10 mb-0"><?php
 	echo __(Inflector::Humanize($division->schedule_type));
 	echo '&nbsp;' . $this->Html->help(['action' => 'divisions', 'edit', 'schedule_type', $division->schedule_type]);
 ?></dd>
@@ -106,59 +106,59 @@ endif;
 $fields = $league_obj->schedulingFields($this->Authorize->can('scheduling_fields', DivisionsController::class));
 foreach ($fields as $field => $options):
 ?>
-<dt><?= __($options['label']) ?></dt>
-<dd><?php
+<dt class="col-sm-2 text-end"><?= __($options['label']) ?></dt>
+<dd class="col-sm-10 mb-0"><?php
 	echo $division[$field];
 	echo '&nbsp;' . $this->Html->help(['action' => 'divisions', 'edit', $field]);
 ?></dd>
 <?php
 endforeach;
 ?>
-<dt><?= __('Rating Calculator') ?></dt>
-<dd><?php
+<dt class="col-sm-2 text-end"><?= __('Rating Calculator') ?></dt>
+<dd class="col-sm-10 mb-0"><?php
 	echo __(Configure::read("options.rating_calculator.{$division->rating_calculator}"));
 	echo '&nbsp;' . $this->Html->help(['action' => 'divisions', 'edit', 'rating_calculator', $division->rating_calculator]);
 ?></dd>
 <?php
 if ($this->Authorize->can('edit', $division)):
 ?>
-<dt><?= __('Exclude Teams') ?></dt>
-<dd><?php
+<dt class="col-sm-2 text-end"><?= __('Exclude Teams') ?></dt>
+<dd class="col-sm-10 mb-0"><?php
 	echo $division->exclude_teams ? __('Yes') : __('No');
 	echo '&nbsp;' . $this->Html->help(['action' => 'divisions', 'edit', 'exclude_teams']);
 ?></dd>
 <?php
 	if ($division->email_after != 0):
 ?>
-<dt><?= __('Scoring reminder delay') ?></dt>
-<dd><?= $division->email_after . ' ' . __('hours') ?></dd>
+<dt class="col-sm-2 text-end"><?= __('Scoring reminder delay') ?></dt>
+<dd class="col-sm-10 mb-0"><?= $division->email_after . ' ' . __('hours') ?></dd>
 <?php
 	endif;
 
 	if ($division->finalize_after != 0):
 ?>
-<dt><?= __('Game finalization delay') ?></dt>
-<dd><?= $division->finalize_after . ' ' . __('hours') ?></dd>
+<dt class="col-sm-2 text-end"><?= __('Game finalization delay') ?></dt>
+<dd class="col-sm-10 mb-0"><?= $division->finalize_after . ' ' . __('hours') ?></dd>
 <?php
 	endif;
 endif;
 
 if (Configure::read('scoring.allstars')):
 ?>
-<dt><?= __('All-star nominations') ?></dt>
-<dd><?= __(Inflector::Humanize($division->allstars)) ?></dd>
+<dt class="col-sm-2 text-end"><?= __('All-star nominations') ?></dt>
+<dd class="col-sm-10 mb-0"><?= __(Inflector::Humanize($division->allstars)) ?></dd>
 <?php
 	if ($division->allstars != 'never'):
 ?>
-<dt><?= __('All-star nominations from') ?></dt>
-<dd><?= __(Inflector::Humanize($division->allstars_from)) ?></dd>
+<dt class="col-sm-2 text-end"><?= __('All-star nominations from') ?></dt>
+<dd class="col-sm-10 mb-0"><?= __(Inflector::Humanize($division->allstars_from)) ?></dd>
 <?php
 	endif;
 endif;
 
 if (Configure::read('scoring.most_spirited')):
 ?>
-<dt><?= __('Most spirited player') ?></dt>
-<dd><?= __(Inflector::Humanize($division->most_spirited)) ?></dd>
+<dt class="col-sm-2 text-end"><?= __('Most spirited player') ?></dt>
+<dd class="col-sm-10 mb-0"><?= __(Inflector::Humanize($division->most_spirited)) ?></dd>
 <?php
 endif;

@@ -24,26 +24,26 @@ if ($team->division_id) {
 		echo " ({$team->short_name})";
 	}
 	?></h2>
-	<dl class="dl-horizontal">
+	<dl class="row">
 <?php
 if (Configure::read('feature.urls') && !empty($team->website)):
 ?>
-		<dt><?= __('Website') ?></dt>
-		<dd><?= $this->Html->link($team->website, $team->website) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Website') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->Html->link($team->website, $team->website) ?></dd>
 <?php
 endif;
 
 if (Configure::read('feature.twitter') && !empty($team->twitter_user)):
 ?>
-		<dt>Twitter</dt>
-		<dd><?= $this->Html->link("@{$team->twitter_user}", "https://twitter.com/{$team->twitter_user}") ?></dd>
+		<dt class="col-sm-2 text-end">Twitter</dt>
+		<dd class="col-sm-10 mb-0"><?= $this->Html->link("@{$team->twitter_user}", "https://twitter.com/{$team->twitter_user}") ?></dd>
 <?php
 endif;
 
 if (Configure::read('feature.shirt_colour')):
 ?>
-		<dt><?= __('Shirt Colour') ?></dt>
-		<dd><?php
+		<dt class="col-sm-2 text-end"><?= __('Shirt Colour') ?></dt>
+		<dd class="col-sm-10 mb-0"><?php
 			echo __($team->shirt_colour);
 			echo ' ' . $this->Html->help(['action' => 'teams', 'edit', 'shirt_colour']);
 		?></dd>
@@ -52,22 +52,22 @@ endif;
 
 if ($team->division_id):
 ?>
-		<dt><?= __('Division') ?></dt>
-		<dd><?= $this->element('Divisions/block', ['division' => $team->division, 'field' => 'full_league_name']) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Division') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->element('Divisions/block', ['division' => $team->division, 'field' => 'full_league_name']) ?></dd>
 <?php
 endif;
 
 if (Configure::read('feature.home_field') && !empty($team->home_field_id)):
 ?>
-		<dt><?= __('Home Field') ?></dt>
-		<dd><?= $this->element('Fields/block', ['field' => $team->field, 'display_field' => 'long_name']) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Home Field') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->element('Fields/block', ['field' => $team->field, 'display_field' => 'long_name']) ?></dd>
 <?php
 endif;
 
 if (Configure::read('feature.facility_preference') && !empty($team->facilities)):
 ?>
-		<dt><?= __('Facility Preference') ?></dt>
-		<dd><?php
+		<dt class="col-sm-2 text-end"><?= __('Facility Preference') ?></dt>
+		<dd class="col-sm-10 mb-0"><?php
 			$facilities = [];
 			foreach ($team->facilities as $facility) {
 				$facilities[] = $this->Html->link($facility->name, ['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $facility->id]]);
@@ -79,26 +79,26 @@ endif;
 
 if (Configure::read('feature.region_preference') && !empty($team->region_preference_id)):
 ?>
-		<dt><?= __('Region Preference') ?></dt>
-		<dd><?= __($team->region->name) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Region Preference') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= __($team->region->name) ?></dd>
 <?php
 endif;
 ?>
-		<dt><?= __('Roster Status') ?></dt>
-		<dd><?php
+		<dt class="col-sm-2 text-end"><?= __('Roster Status') ?></dt>
+		<dd class="col-sm-10 mb-0"><?php
 			echo $team->open_roster ? __('Open') : __('Closed');
 			echo ' ' . $this->Html->help(['action' => 'teams', 'edit', 'open_roster']);
 		?></dd>
-		<dt><?= __('Track Attendance') ?></dt>
-		<dd><?php
+		<dt class="col-sm-2 text-end"><?= __('Track Attendance') ?></dt>
+		<dd class="col-sm-10 mb-0"><?php
 			echo $team->track_attendance ? __('Yes') : __('No');
 			echo ' ' . $this->Html->help(['action' => 'teams', 'edit', 'track_attendance']);
 		?></dd>
 <?php
 if ($team->track_attendance):
 ?>
-		<dt><?= __('Attendance Reminder') ?></dt>
-		<dd><?php
+		<dt class="col-sm-2 text-end"><?= __('Attendance Reminder') ?></dt>
+		<dd class="col-sm-10 mb-0"><?php
 			switch ($team->attendance_reminder) {
 				case -1:
 					echo __('disabled');
@@ -117,8 +117,8 @@ if ($team->track_attendance):
 					break;
 			}
 		?></dd>
-		<dt><?= __('Attendance Summary') ?></dt>
-		<dd><?php
+		<dt class="col-sm-2 text-end"><?= __('Attendance Summary') ?></dt>
+		<dd class="col-sm-10 mb-0"><?php
 		switch ($team->attendance_summary) {
 			case -1:
 				echo __('disabled');
@@ -137,8 +137,8 @@ if ($team->track_attendance):
 				break;
 		}
 		?></dd>
-		<dt><?= __('Attendance Notification') ?></dt>
-		<dd><?php
+		<dt class="col-sm-2 text-end"><?= __('Attendance Notification') ?></dt>
+		<dd class="col-sm-10 mb-0"><?php
 		switch ($team->attendance_notification) {
 			case -1:
 				echo __('disabled');
@@ -163,15 +163,15 @@ endif;
 // TODO: Use an element to output this, for greater flexibility. Show the seed where appropriate.
 if ($team->division_id && $team->division->schedule_type == 'ratings_ladder'):
 ?>
-		<dt><?= __('Rating') ?></dt>
-		<dd><?= $team->rating ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Rating') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $team->rating ?></dd>
 <?php
 endif;
 
 if (Configure::read('feature.franchises') && !empty($team->franchises)):
 ?>
-		<dt><?= __n('Franchise', 'Franchises', count($team->franchises)) ?></dt>
-		<dd><?php
+		<dt class="col-sm-2 text-end"><?= __n('Franchise', 'Franchises', count($team->franchises)) ?></dt>
+		<dd class="col-sm-10 mb-0"><?php
 			$franchises = [];
 			foreach ($team->franchises as $franchise) {
 				$franchises[] = $this->Html->link($franchise->name, ['controller' => 'Franchises', 'action' => 'view', '?' => ['franchise' => $franchise->id]]);
@@ -183,8 +183,8 @@ endif;
 
 if ($team->has('affiliate')):
 ?>
-		<dt><?= __('Affiliated Team') ?></dt>
-		<dd><?php
+		<dt class="col-sm-2 text-end"><?= __('Affiliated Team') ?></dt>
+		<dd class="col-sm-10 mb-0"><?php
 			echo $this->Html->link($team->affiliate->name, ['action' => 'view', '?' => ['team' => $team->affiliate->id]]) .
 				__(' ({0})', $this->element('Divisions/block', ['division' => $team->affiliate->division, 'field' => 'full_league_name']));
 		?></dd>

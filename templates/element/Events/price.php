@@ -13,19 +13,9 @@ if ($event->has('prices') && array_key_exists($index, $event->prices)) {
 	$new = true;
 }
 $collapsed = (empty($errors) && !$event->isNew());
-?>
 
-<div class="panel panel-default">
-	<div class="panel-heading" role="tab" id="PriceHeading<?= $index ?>">
-		<h4 class="panel-title"><a role="button" class="accordion-toggle<?= $collapsed ? ' collapsed' : '' ?>" data-toggle="collapse" data-parent="#accordion" href="#PriceDetails<?= $index ?>" aria-expanded="<?= $collapsed ? 'true' : 'false' ?>" aria-controls="PriceDetails<?= $index ?>"><?= __('Price Point Details') ?>:</a>
-			<?= $this->Form->i18nControls("prices.$index.name", [
-				'placeholder' => __('Price Point Name'),
-			]) ?>
-		</h4>
-	</div>
-	<div id="PriceDetails<?= $index ?>" class="panel-collapse collapse<?= $collapsed ? '' : ' in' ?>" role="tabpanel" aria-labelledby="PriceHeading<?= $index ?>">
-		<div class="panel-body">
-<?php
+$this->start('price_details');
+
 if (!$new) {
 	echo $this->Form->control("prices.$index.id");
 }
@@ -119,7 +109,12 @@ echo $this->Form->control("prices.$index.reservation_duration", [
 	'help' => __('If enabled above, the time in minutes that a reservation will be held before reverting to "Unpaid" status. One day = 1440 minutes.'),
 	'secure' => false,
 ]);
-?>
-		</div>
-	</div>
-</div>
+
+$this->end();
+
+echo $this->Accordion->panel(
+	$this->Accordion->panelHeading("Price{$index}", __('Price Point Details'), [
+		'extraContent' => $this->Form->i18nControls("prices.$index.name", ['placeholder' => __('Price Point Name')])
+	]),
+	$this->Accordion->panelContent("Price{$index}", $this->fetch('price_details'))
+);

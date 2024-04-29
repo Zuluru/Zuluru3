@@ -10,8 +10,8 @@ use App\View\Helper\ZuluruGameHelper;
 use App\View\Helper\ZuluruHtmlHelper;
 use App\View\Helper\ZuluruTimeHelper;
 use Authentication\View\Helper\IdentityHelper;
-use BootstrapUI\View\Helper\FlashHelper;
 use BootstrapUI\View\Helper\PaginatorHelper;
+use BootstrapUI\View\UIViewTrait;
 use Cake\View\Helper\NumberHelper;
 use Cake\View\Helper\TextHelper;
 use Cake\View\View;
@@ -32,39 +32,40 @@ use ZuluruJquery\View\Helper\JqueryHelper;
  * @property ZuluruBreadcrumbsHelper $Breadcrumbs
  * @property ZuluruTimeHelper $Time
  * @property ZuluruGameHelper $Game
- * @property FlashHelper $Flash
  * @property PaginatorHelper $Paginator
  * @property AccordionHelper $Accordion
  * @property JqueryHelper $Jquery
  */
 class AppView extends View {
 
+	use UIViewTrait;
+
 	/**
 	 * Initialization hook method.
-	 *
-	 * Use this method to add common initialization code like adding helpers.
-	 *
-	 * e.g. `$this->addHelper('Html');`
-	 *
-	 * @return void
 	 */
 	public function initialize(): void {
-		$this->loadHelper('Authentication.Identity');
-		$this->loadHelper('Authorize');
-		$this->loadHelper('UserCache');
-		$this->loadHelper('Number');
-		$this->loadHelper('Text');
-		$this->loadHelper('Selector');
-		$this->loadHelper('Html', ['className' => 'ZuluruHtml']);
-		$this->loadHelper('Form', ['className' => 'ZuluruForm']);
-		$this->loadHelper('Breadcrumbs', ['className' => 'ZuluruBreadcrumbs']);
-		$this->loadHelper('Time', ['className' => 'ZuluruTime']);
-		$this->loadHelper('Game', ['className' => 'ZuluruGame']);
-		$this->loadHelper('BootstrapUI.Flash');
-		$this->loadHelper('BootstrapUI.Paginator', ['templates' => 'paginator-templates']);
-		$this->loadHelper('ZuluruBootstrap.Accordion');
-		$this->loadHelper('ZuluruJquery.Jquery');
-		//$this->loadHelper('Less.Less'); // required for parsing less files
+		parent::initialize();
+
+		$this->helpers = [
+			'Identity' => ['className' => 'Authentication.Identity'],
+			'Authorize',
+			'UserCache',
+			'Number',
+			'Text',
+			'Selector',
+			'Html' => ['className' => 'ZuluruHtml'],
+			'Form' => ['className' => 'ZuluruForm'],
+			'Breadcrumbs' => ['className' => 'ZuluruBreadcrumbs'],
+			'Time' => ['className' => 'ZuluruTime'],
+			'Game' => ['className' => 'ZuluruGame'],
+			'Paginator' => ['className' => 'BootstrapUI.Paginator', 'config' => ['templates' => 'paginator-templates']],
+			'Accordion' => ['className' => 'ZuluruBootstrap.Accordion'],
+			'Jquery' => ['className' => 'ZuluruJquery.Jquery'],
+			//'Less' => ['className' => 'Less.Less'], // required for parsing less files
+		];
+
+		// Call the initializeUI method from UIViewTrait
+		$this->initializeUI(['layout' => false]);
 	}
 
 }

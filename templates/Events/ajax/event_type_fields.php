@@ -15,7 +15,9 @@ foreach (ModuleRegistry::getModuleList('EventType') as $type) {
 	$other_fields = $other->configurationFields();
 	foreach ($other_fields as $field) {
 		if (!in_array($field, $fields)) {
-			$this->Form->unlockField($field);
+			if ($this->Form->hasFormProtector()) {
+				$this->Form->unlockField($field);
+			}
 			$fields[] = $field;
 		}
 	}

@@ -17,18 +17,18 @@ $this->Breadcrumbs->add(__('Stats'));
 <div class="games stats">
 	<h2><?= __('Game Stats') ?></h2>
 
-	<dl class="dl-horizontal">
-		<dt><?= __('League') . '/' . __('Division') ?></dt>
-		<dd><?= $this->element('Divisions/block', ['division' => $game->division, 'field' => 'full_league_name']) ?></dd>
-		<dt><?= __('Home Team') ?></dt>
-		<dd><?php
+	<dl class="row">
+		<dt class="col-sm-2 text-end"><?= __('League') . '/' . __('Division') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->element('Divisions/block', ['division' => $game->division, 'field' => 'full_league_name']) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Home Team') ?></dt>
+		<dd class="col-sm-10 mb-0"><?php
 			echo $this->element('Teams/block', ['team' => $game->home_team]);
 			if ($game->has('home_dependency')) {
 				echo " ({$game->home_dependency})";
 			}
 		?></dd>
-		<dt><?= __('Away Team') ?></dt>
-		<dd><?php
+		<dt class="col-sm-2 text-end"><?= __('Away Team') ?></dt>
+		<dd class="col-sm-10 mb-0"><?php
 			echo $this->element('Teams/block', ['team' => $game->away_team]);
 			if ($game->has('away_dependency')) {
 				echo " ({$game->away_dependency})";
@@ -37,15 +37,15 @@ $this->Breadcrumbs->add(__('Stats'));
 <?php
 if ($game->isFinalized()):
 ?>
-		<dt><?= __('Score') ?></dt>
-		<dd><?= $this->Game->displayScore($game, $game->division, $game->division->league) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Score') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->Game->displayScore($game, $game->division, $game->division->league) ?></dd>
 <?php
 endif;
 ?>
-		<dt><?= __('Date and Time') ?></dt>
-		<dd><?= $this->Time->dateTimeRange($game->game_slot) ?></dd>
-		<dt><?= __('Location') ?></dt>
-		<dd><?= $this->element('Fields/block', ['field' => $game->game_slot->field, 'display_field' => 'long_name']) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Date and Time') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->Time->dateTimeRange($game->game_slot) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Location') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->element('Fields/block', ['field' => $game->game_slot->field, 'display_field' => 'long_name']) ?></dd>
 	</dl>
 </div>
 

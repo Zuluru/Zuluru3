@@ -16,7 +16,7 @@ elseif (isset($people)):
 ?>
 	<p><?php
 	$this->Paginator->options([
-		'url' => $url,
+		'url' => ['?' => $url],
 	]);
 	echo $this->Paginator->counter(
 		__('Page {{page}} of {{pages}}, showing {{current}} records out of {{count}} total, starting on record {{start}}, ending on {{end}}')

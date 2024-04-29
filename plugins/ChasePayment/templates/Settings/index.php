@@ -11,9 +11,9 @@ $this->Breadcrumbs->add('Chase Paymentech');
 echo $this->Form->create(null, ['align' => 'horizontal']);
 ?>
 <fieldset>
-	<legend><?= __('{0} Settings', 'Chase Paymentech') ?></legend>
+	<legend class="border-bottom"><?= __('{0} Settings', 'Chase Paymentech') ?></legend>
 	<fieldset>
-		<legend><?= __('Live Payments') ?></legend>
+		<legend class="border-bottom"><?= __('Live Payments') ?></legend>
 <?php
 echo $this->element('Settings/input', [
 	'category' => 'payment',
@@ -53,7 +53,7 @@ echo $this->element('Settings/input', [
 ?>
 	</fieldset>
 	<fieldset>
-		<legend><?= __('Test Payments') ?></legend>
+		<legend class="border-bottom"><?= __('Test Payments') ?></legend>
 		<p><strong><?= __('These test settings are only required if you are doing test payments through {0}', $this->Html->link('rpm.demo.e-xact.com', 'https://rpm.demo.e-xact.com/')) ?></strong></p>
 <?php
 echo $this->element('Settings/input', [
@@ -94,7 +94,7 @@ echo $this->element('Settings/input', [
 ?>
 	</fieldset>
 	<fieldset>
-		<legend><?= __('Other Settings') ?></legend>
+		<legend class="border-bottom"><?= __('Other Settings') ?></legend>
 <?php
 echo $this->element('Settings/input', [
 	'category' => 'payment',

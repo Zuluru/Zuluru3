@@ -42,7 +42,7 @@ class FranchisesController extends AppController {
 		$this->paginate = [
 			'conditions' => ['Franchises.affiliate_id IN' => $affiliates],
 			'contain' => ['People', 'Affiliates'],
-			'order' => ['Franchises.name'],
+			'order' => ['Franchises.name' => 'ASC'],
 			'limit' => Configure::read('feature.items_per_page'),
 		];
 

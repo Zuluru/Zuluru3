@@ -8,16 +8,16 @@ use Cake\Core\Configure;
 ?>
 
 <h2><?= __('Game {0}', $game->id) ?></h2>
-<dl class="dl-horizontal">
-	<dt><?= __('Date') ?></dt>
-	<dd><?= $this->Time->date($game->game_slot->game_date) ?></dd>
-	<dt><?= __('Time') ?></dt>
-	<dd><?= $this->Time->TimeRange($game->game_slot) ?></dd>
-	<dt><?= Configure::read('UI.field_cap') ?></dt>
-	<dd><?= $this->Html->link($game->game_slot->field->long_name,
+<dl class="row">
+	<dt class="col-sm-2 text-end"><?= __('Date') ?></dt>
+	<dd class="col-sm-10 mb-0"><?= $this->Time->date($game->game_slot->game_date) ?></dd>
+	<dt class="col-sm-2 text-end"><?= __('Time') ?></dt>
+	<dd class="col-sm-10 mb-0"><?= $this->Time->TimeRange($game->game_slot) ?></dd>
+	<dt class="col-sm-2 text-end"><?= Configure::read('UI.field_cap') ?></dt>
+	<dd class="col-sm-10 mb-0"><?= $this->Html->link($game->game_slot->field->long_name,
 		['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $game->game_slot->field->facility_id]]) ?></dd>
-	<dt><?= $game->division->schedule_type == 'competition' ? __('Team') : __('Home Team') ?></dt>
-	<dd><?php
+	<dt class="col-sm-2 text-end"><?= $game->division->schedule_type == 'competition' ? __('Team') : __('Home Team') ?></dt>
+	<dd class="col-sm-10 mb-0"><?php
 		echo $this->Html->link($game->home_team->name,
 			['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $game->home_team->id]]);
 		if (Configure::read('feature.shirt_colour') && !empty($game->home_team->shirt_colour)) {
@@ -27,8 +27,8 @@ use Cake\Core\Configure;
 <?php
 if ($game->division->schedule_type != 'competition'):
 ?>
-	<dt><?= __('Away Team') ?></dt>
-	<dd><?php
+	<dt class="col-sm-2 text-end"><?= __('Away Team') ?></dt>
+	<dd class="col-sm-10 mb-0"><?php
 		echo $this->Html->link($game->away_team->name,
 			['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $game->away_team->id]]);
 		if (Configure::read('feature.shirt_colour') && !empty($game->away_team->shirt_colour)) {

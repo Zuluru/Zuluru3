@@ -6,9 +6,9 @@
 
 ?>
 <h2><?= $league->full_name ?></h2>
-<dl class="dl-horizontal">
-	<dt><?= __('Season') ?></dt>
-	<dd><?= __($league->season) ?></dd>
+<dl class="row">
+	<dt class="col-sm-2 text-end"><?= __('Season') ?></dt>
+	<dd class="col-sm-10 mb-0"><?= __($league->season) ?></dd>
 <?php
 if (count($league->divisions) == 1):
 	if (!empty($league->divisions[0]->people) && $this->Identity->isLoggedIn()):
@@ -17,25 +17,25 @@ if (count($league->divisions) == 1):
 			$links[] = $this->Html->link($coordinator->full_name, ['controller' => 'People', 'action' => 'view', '?' => ['person' => $coordinator->id]]);
 		}
 ?>
-	<dt><?= __('Coordinators') ?></dt>
-	<dd><?= implode(', ', $links) ?></dd>
+	<dt class="col-sm-2 text-end"><?= __('Coordinators') ?></dt>
+	<dd class="col-sm-10 mb-0"><?= implode(', ', $links) ?></dd>
 <?php
 	endif;
 ?>
-	<dt><?= __('Teams') ?></dt>
-	<dd><?= count($league->divisions[0]->teams) ?></dd>
+	<dt class="col-sm-2 text-end"><?= __('Teams') ?></dt>
+	<dd class="col-sm-10 mb-0"><?= count($league->divisions[0]->teams) ?></dd>
 <?php
 else:
 	foreach ($league->divisions as $division):
 ?>
-	<dt><?php
+	<dt class="col-sm-2 text-end"><?php
 		if (strlen($division->name) > 12) {
 			echo $this->Html->tag('span', $this->Text->truncate($division->name, 12), ['title' => $division->name]);
 		} else {
 			echo $division->name;
 		}
 	?>&nbsp;</dt>
-	<dd><?= $this->Html->link(__('Details'), ['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $division->id]]) .
+	<dd class="col-sm-10 mb-0"><?= $this->Html->link(__('Details'), ['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $division->id]]) .
 		' / ' .
 		$this->Html->link(__('Schedule'), ['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $division->id]]) .
 		' / ' .

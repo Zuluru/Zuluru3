@@ -279,6 +279,7 @@ class LeagueWithFullScheduleScenario implements FixtureScenarioInterface {
 					FranchisesTeamFactory::make(['franchise_id' => $franchise->id, 'team_id' => $playoffs->teams[$fkey]->id])->persist();
 				}
 
+				// TODO: Can we do these bits in common with LeagueScenario?
 				DivisionsDayFactory::make(['day_id' => $args['day_id'], 'division_id' => $playoffs->id])->persist();
 				if (array_key_exists('coordinator', $args)) {
 					DivisionsPersonFactory::make(['person_id' => $args['coordinator']->id, 'division_id' => $playoffs->id])->persist();

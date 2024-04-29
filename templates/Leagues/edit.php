@@ -10,7 +10,7 @@
  */
 
 use App\Model\Entity\Division;
-use Cake\Core\Configure;
+use Cake\Core\Configure;use Cake\Utility\Inflector;
 
 if (!isset($tournaments)) {
 	if ($league->has('divisions')) {
@@ -33,8 +33,8 @@ if ($league->isNew()) {
 // template set from the Bootstrap FormHelper, not the default templates from Bootstrap FormHelper
 // or default templates from CakePHP FormHelper.
 $advanced = [
-	'inputContainer' => '<div class="form-group advanced {{type}}{{required}}">{{content}}</div>',
-	'inputContainerError' => '<div class="form-group advanced {{type}}{{required}} has-error">{{content}}</div>',
+	'inputContainer' => '<div class="mb-3 form-group row advanced {{type}}{{required}}">{{content}}</div>',
+	'inputContainerError' => '<div class="mb-3 form-group row advanced {{type}}{{required}} has-error">{{content}}</div>',
 ];
 ?>
 
@@ -49,14 +49,9 @@ $advanced = [
 	) ?></p>
 	<fieldset>
 		<legend><?= $league->isNew() ? ($tournaments ? __('Create Tournament') : __('Create League')) : ($tournaments ? __('Edit Tournament') : __('Edit League')) ?></legend>
-		<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="false">
-			<div class="panel panel-default">
-				<div class="panel-heading" role="tab" id="LeagueHeading">
-					<h4 class="panel-title"><a role="button" class="accordion-toggle" class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#LeagueDetails" aria-expanded="true" aria-controls="LeagueDetails"><?= $tournaments ? __('Tournament Details') : __('League Details') ?></a></h4>
-				</div>
-				<div id="LeagueDetails" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="LeagueHeading">
-					<div class="panel-body">
 <?php
+$this->start('league_details');
+
 echo $this->Form->i18nControls('name', [
 	'size' => 70,
 	'help' => $tournaments ? __('The full name of the tournament.') : __('The full name of the league. Year and season will be automatically added.'),
@@ -112,6 +107,13 @@ echo $this->Form->control('schedule_attempts', [
 						<fieldset<?= (Configure::read('feature.spirit') && !Configure::read("sports.{$league->sport}.competition")) || Configure::read('scoring.stat_tracking') ? '' : ' class="advanced"' ?>>
 							<legend><?= __('Scoring') ?></legend>
 <?php
+echo $this->Form->control('expected_max_score', [
+	'div' => 'input advanced',
+	'size' => 5,
+	'default' => 17,
+	'help' => __('Used as the size of the ratings table.'),
+]);
+
 $tie_breakers = Configure::read('options.tie_breaker');
 if (Configure::read('feature.spirit') && !Configure::read("sports.{$league->sport}.competition")) {
 	echo $this->Html->para('warning-message', $tournaments ?
@@ -178,13 +180,6 @@ $this->Html->css('jquery.asmselect.css', ['block' => true]);
 $this->Html->script('jquery.asmselect.js', ['block' => true]);
 $this->Html->scriptBlock('zjQuery("select[multiple]").asmSelect({sortable:true});', ['buffer' => true]);
 
-echo $this->Form->control('expected_max_score', [
-	'div' => 'input advanced',
-	'size' => 5,
-	'default' => 17,
-	'help' => __('Used as the size of the ratings table.'),
-]);
-
 if (Configure::read('scoring.stat_tracking')):
 	echo $this->Jquery->toggleInput('stat_tracking', [
 		'options' => Configure::read('options.stat_tracking'),
@@ -239,10 +234,16 @@ if (Configure::read('scoring.stat_tracking')):
 endif;
 ?>
 						</fieldset>
-					</div>
-				</div>
-			</div>
 <?php
+$this->end();
+
+$this->start('panels');
+
+echo $this->Accordion->panel(
+	$this->Accordion->panelHeading('League', $tournaments ? __('Tournament Details') : __('League Details'), ['collapsed' => false]),
+	$this->Accordion->panelContent('League', $this->fetch('league_details'), ['collapsed' => false])
+);
+
 if (empty($league->divisions)) {
 	echo $this->element('Leagues/division', ['index' => 0]);
 } else {
@@ -250,8 +251,10 @@ if (empty($league->divisions)) {
 		echo $this->element('Leagues/division', compact('index'));
 	}
 }
+
+$this->end();
+echo $this->Accordion->accordion($this->fetch('panels'));
 ?>
-		</div>
 		<div class="actions columns">
 			<ul class="nav nav-pills">
 <?php

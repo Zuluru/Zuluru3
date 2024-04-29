@@ -33,7 +33,7 @@ class SchedulesController extends AppController {
 	 */
 	public function initialize(): void {
 		parent::initialize();
-		$this->loadModel('Divisions');
+		$this->Divisions = $this->fetchTable('Divisions');
 	}
 
 	/**
@@ -1216,7 +1216,7 @@ class SchedulesController extends AppController {
 
 	public function day() {
 		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
-			$date = $this->getRequest()->getData('date.year') . '-' . $this->getRequest()->getData('date.month') . '-' . $this->getRequest()->getData('date.day');
+			$date = $this->getRequest()->getData('date');
 		} else {
 			$date = $this->getRequest()->getQuery('date');
 		}

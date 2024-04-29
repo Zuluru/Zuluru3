@@ -13,43 +13,43 @@ $this->Breadcrumbs->add(__('Preview'));
 
 <div class="newsletters view">
 	<h2><?= h($newsletter->name) . __(' ({0})', __('Preview')) ?></h2>
-	<dl class="dl-horizontal">
-		<dt><?= __('Subject') ?></dt>
-		<dd><?= h($newsletter->subject) ?></dd>
-		<dt><?= __('Mailing List') ?></dt>
-		<dd><?= $this->Html->link($newsletter->mailing_list->name, ['controller' => 'MailingLists', 'action' => 'view', '?' => ['mailing_list' => $newsletter->mailing_list->id]]) ?></dd>
-		<dt><?= __('Target') ?></dt>
-		<dd><?= $this->Time->date($newsletter->target) ?></dd>
+	<dl class="row">
+		<dt class="col-sm-2 text-end"><?= __('Subject') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= h($newsletter->subject) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Mailing List') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->Html->link($newsletter->mailing_list->name, ['controller' => 'MailingLists', 'action' => 'view', '?' => ['mailing_list' => $newsletter->mailing_list->id]]) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Target') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->Time->date($newsletter->target) ?></dd>
 <?php
 if (!empty($newsletter->from_email)):
 ?>
-		<dt><?= __('From') ?></dt>
-		<dd><?= h($newsletter->from_email) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('From') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= h($newsletter->from_email) ?></dd>
 <?php
 endif;
 
 if (!empty($newsletter->to_email)):
 ?>
-		<dt><?= __('To') ?></dt>
-		<dd><?= h($newsletter->to_email) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('To') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= h($newsletter->to_email) ?></dd>
 <?php
 endif;
 
 if (!empty($newsletter->reply_to)):
 ?>
-		<dt><?= __('Reply To') ?></dt>
-		<dd><?= h($newsletter->reply_to) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Reply To') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= h($newsletter->reply_to) ?></dd>
 <?php
 endif;
 ?>
-		<dt><?= __('Delay') ?></dt>
-		<dd><?= $this->Number->format($newsletter->delay) . ' ' . __('minutes') ?></dd>
-		<dt><?= __('Batch Size') ?></dt>
-		<dd><?= $this->Number->format($newsletter->batch_size) ?></dd>
-		<dt><?= __('Personalize') ?></dt>
-		<dd><?= $newsletter->personalize ? __('Yes') : __('No') ?></dd>
-		<dt><?= __('Text') ?></dt>
-		<dd><?= $newsletter->text ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Delay') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->Number->format($newsletter->delay) . ' ' . __('minutes') ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Batch Size') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->Number->format($newsletter->batch_size) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Personalize') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $newsletter->personalize ? __('Yes') : __('No') ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Text') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $newsletter->text ?></dd>
 	</dl>
 </div>
 <div class="actions columns">

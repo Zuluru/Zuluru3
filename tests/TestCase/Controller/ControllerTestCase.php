@@ -2,6 +2,7 @@
 namespace App\Test\TestCase\Controller;
 
 use App\Core\UserCache;
+use App\TestSuite\Constraint\Session\SessionRegExp;
 use App\TestSuite\ZuluruIntegrationTestTrait;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
@@ -22,7 +23,8 @@ class ControllerTestCase extends TestCase {
 	use ZuluruIntegrationTestTrait;
 	use TruncateDirtyTables;
 
-	protected $_jsonOptions = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_PARTIAL_OUTPUT_ON_ERROR;
+	protected int $jsonOptions = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_PARTIAL_OUTPUT_ON_ERROR;
+	protected string $flashKey = 'Flash.flash.0.message';
 
 	/**
 	 * setUp method
@@ -226,10 +228,9 @@ class ControllerTestCase extends TestCase {
 	 * @param $user int|int[] User ID
 	 * @param $redirect string|array
 	 * @param $message string|boolean
-	 * @param $key string
 	 * @throws \PHPUnit\Exception
 	 */
-	protected function assertGetAsAccessRedirect($url, $user, $redirect, $message = false, $key = 'Flash.flash.0.message') {
+	protected function assertGetAsAccessRedirect($url, $user, $redirect, $message = false) {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
 
 		$this->login($user);
@@ -240,13 +241,14 @@ class ControllerTestCase extends TestCase {
 
 		if ($message) {
 			if ($message[0] === '#') {
-				$this->assertRegExp($message, $this->_requestSession->read($key));
+				$this->assertThat($message, new SessionRegExp($this->flashKey));
+			} else if (is_array($message)) {
+				$this->assertFlashMessages($message);
 			} else {
-				$this->assertSession($message, $key);
+				$this->assertFlashMessage($message);
 			}
 		} else {
-			$this->assertSessionNotHasKey($key);
-			$this->assertSession(null, $key);
+			$this->assertSessionNotHasKey($this->flashKey);
 		}
 	}
 
@@ -291,7 +293,7 @@ class ControllerTestCase extends TestCase {
 			],
 		];
 		$this->assertResponseOk();
-		$this->assertEquals(json_encode($error, $this->_jsonOptions), (string)$this->_response->getBody());
+		$this->assertEquals(json_encode($error, $this->jsonOptions), (string)$this->_response->getBody());
 	}
 
 	/**
@@ -300,10 +302,9 @@ class ControllerTestCase extends TestCase {
 	 * @param $url array
 	 * @param $redirect string|array
 	 * @param $message string|boolean
-	 * @param $key string
 	 * @throws \PHPUnit\Exception
 	 */
-	protected function assertGetAnonymousAccessRedirect($url, $redirect, $message = false, $key = 'Flash.flash.0.message') {
+	protected function assertGetAnonymousAccessRedirect($url, $redirect, $message = false) {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
 
 		$this->logout();
@@ -314,12 +315,14 @@ class ControllerTestCase extends TestCase {
 
 		if ($message) {
 			if ($message[0] === '#') {
-				$this->assertRegExp($message, $this->_requestSession->read($key));
+				$this->assertThat($message, new SessionRegExp($this->flashKey));
+			} else if (is_array($message)) {
+				$this->assertFlashMessages($message);
 			} else {
-				$this->assertSession($message, $key);
+				$this->assertFlashMessage($message);
 			}
 		} else {
-			$this->assertSessionNotHasKey($key);
+			$this->assertSessionNotHasKey($this->flashKey);
 		}
 	}
 
@@ -362,7 +365,7 @@ class ControllerTestCase extends TestCase {
 			],
 		];
 		$this->assertResponseOk();
-		$this->assertEquals(json_encode($error, $this->_jsonOptions), (string)$this->_response->getBody());
+		$this->assertEquals(json_encode($error, $this->jsonOptions), (string)$this->_response->getBody());
 	}
 
 	/**
@@ -373,10 +376,9 @@ class ControllerTestCase extends TestCase {
 	 * @param $data string|mixed[]
 	 * @param $redirect string|array
 	 * @param $message string|boolean
-	 * @param $key string
 	 * @throws \PHPUnit\Exception
 	 */
-	protected function assertPostAsAccessRedirect($url, $user, $data = [], $redirect, $message = false, $key = 'Flash.flash.0.message') {
+	protected function assertPostAsAccessRedirect($url, $user, $data = [], $redirect, $message = false) {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
 
 		$this->login($user);
@@ -388,12 +390,14 @@ class ControllerTestCase extends TestCase {
 
 		if ($message) {
 			if ($message[0] === '#') {
-				$this->assertRegExp($message, $this->_requestSession->read($key));
+				$this->assertThat($message, new SessionRegExp($this->flashKey));
+			} else if (is_array($message)) {
+				$this->assertFlashMessages($message);
 			} else {
-				$this->assertSession($message, $key);
+				$this->assertFlashMessage($message);
 			}
 		} else {
-			$this->assertSessionNotHasKey($key);
+			$this->assertSessionNotHasKey($this->flashKey);
 		}
 	}
 
@@ -439,7 +443,7 @@ class ControllerTestCase extends TestCase {
 			],
 		];
 		$this->assertResponseOk();
-		$this->assertEquals(json_encode($error, $this->_jsonOptions), (string)$this->_response->getBody());
+		$this->assertEquals(json_encode($error, $this->jsonOptions), (string)$this->_response->getBody());
 	}
 
 	/**
@@ -449,10 +453,9 @@ class ControllerTestCase extends TestCase {
 	 * @param $data string|mixed[]
 	 * @param $redirect string|array
 	 * @param $message string|boolean
-	 * @param $key string
 	 * @throws \PHPUnit\Exception
 	 */
-	protected function assertPostAnonymousAccessRedirect($url, $data = [], $redirect, $message = false, $key = 'Flash.flash.0.message') {
+	protected function assertPostAnonymousAccessRedirect($url, $data = [], $redirect, $message = false) {
 		$this->assertNotEmpty($redirect, 'Redirect parameter cannot be empty.');
 
 		$this->logout();
@@ -464,12 +467,14 @@ class ControllerTestCase extends TestCase {
 
 		if ($message) {
 			if ($message[0] === '#') {
-				$this->assertRegExp($message, $this->_requestSession->read($key));
+				$this->assertThat($message, new SessionRegExp($this->flashKey));
+			} else if (is_array($message)) {
+				$this->assertFlashMessages($message);
 			} else {
-				$this->assertSession($message, $key);
+				$this->assertFlashMessage($message);
 			}
 		} else {
-			$this->assertSessionNotHasKey($key);
+			$this->assertSessionNotHasKey($this->flashKey);
 		}
 	}
 
@@ -514,7 +519,7 @@ class ControllerTestCase extends TestCase {
 			],
 		];
 		$this->assertResponseOk();
-		$this->assertEquals(json_encode($error, $this->_jsonOptions), (string)$this->_response->getBody());
+		$this->assertEquals(json_encode($error, $this->jsonOptions), (string)$this->_response->getBody());
 	}
 
 	/**
@@ -564,7 +569,7 @@ class ControllerTestCase extends TestCase {
 			],
 		];
 		$this->assertResponseOk();
-		$this->assertEquals(json_encode($error, $this->_jsonOptions), (string)$this->_response->getBody());
+		$this->assertEquals(json_encode($error, $this->jsonOptions), (string)$this->_response->getBody());
 	}
 
 	/**
@@ -612,7 +617,7 @@ class ControllerTestCase extends TestCase {
 			],
 		];
 		$this->assertResponseOk();
-		$this->assertEquals(json_encode($error, $this->_jsonOptions), (string)$this->_response->getBody());
+		$this->assertEquals(json_encode($error, $this->jsonOptions), (string)$this->_response->getBody());
 	}
 
 	/**
@@ -666,7 +671,7 @@ class ControllerTestCase extends TestCase {
 			],
 		];
 		$this->assertResponseOk();
-		$this->assertEquals(json_encode($error, $this->_jsonOptions), (string)$this->_response->getBody());
+		$this->assertEquals(json_encode($error, $this->jsonOptions), (string)$this->_response->getBody());
 	}
 
 	/**
@@ -718,7 +723,7 @@ class ControllerTestCase extends TestCase {
 			],
 		];
 		$this->assertResponseOk();
-		$this->assertEquals(json_encode($error, $this->_jsonOptions), (string)$this->_response->getBody());
+		$this->assertEquals(json_encode($error, $this->jsonOptions), (string)$this->_response->getBody());
 	}
 
 	protected function debugResponse(): void {

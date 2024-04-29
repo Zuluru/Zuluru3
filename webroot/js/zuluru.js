@@ -1488,8 +1488,8 @@ zjQuery(function($) {
 	 */
 	$('.dynamic-load').on('shown.bs.collapse', function (e) {
 		var trigger = $(e.target);
-		trigger.closest('.panel').find('.refresh').first().show();
-		var container = trigger.children('.panel-body').first();
+		trigger.closest('.accordion-item').find('.refresh').first().show();
+		var container = trigger.children('.accordion-body').first();
 		if (container.html() != '') {
 			return;
 		}
@@ -1497,15 +1497,15 @@ zjQuery(function($) {
 	});
 	$('.dynamic-load').on('hidden.bs.collapse', function (e) {
 		var trigger = $(e.target);
-		trigger.closest('.panel').find('.refresh').first().hide();
+		trigger.closest('.accordion-item').find('.refresh').first().hide();
 	});
 
 	/**
 	 * Add refresh event handlers for accordion panels.
 	 */
-	$('body').on('click', '.panel-heading .refresh', function() {
+	$('body').on('click', '.accordion-heading .refresh', function() {
 		var trigger = $(this);
-		var container = trigger.children('.panel-body').first();
+		var container = trigger.children('.accordion-body').first();
 		handleAjaxTrigger(trigger, trigger, null, 'replace_content', false, null);
 
 		// Don't bubble the event up any further
@@ -1515,15 +1515,20 @@ zjQuery(function($) {
 	/**
 	 * Scroll selected accordion headings to the top of the page, if they are off the top.
 	 * We have some long panels, and this increases usability.
-	 * Adapted from http://stackoverflow.com/questions/21958933/bootstrap-accordion-scroll-to-top-of-active-panel-heading
+	 * From https://stackoverflow.com/questions/35992900/bootstrap-accordion-scroll-to-top-of-active-open-accordion-on-click
 	 */
-	$('#accordion').on('shown.bs.collapse', function (e) {
-		var offset = $(e.target).prev('.panel-heading');
-		if (offset && ($(offset).offset().top < $(window).scrollTop())) {
-			$('html,body').animate({
-				scrollTop: $(offset).offset().top
-			}, 500);
+	$('.collapse').on('shown.bs.collapse', function (e) {
+		var $card = $(this).closest('.accordion-item');
+		var $open = $($(this).data('parent')).find('.collapse.show');
+
+		var additionalOffset = 0;
+		if($card.prevAll().filter($open.closest('.accordion-item')).length !== 0)
+		{
+			additionalOffset =  $open.height();
 		}
+		$('html,body').animate({
+			scrollTop: $card.offset().top - additionalOffset
+		}, 500);
 	});
 
 	/**

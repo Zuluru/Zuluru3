@@ -35,6 +35,7 @@ class EnhanceCategories extends AbstractMigration {
 			])
 			->update();
 
+		// TODO: Delete non-task categories if migrating down. i18n too...
 		$this->execute('UPDATE categories SET type = "Tasks"');
 
 		$this->table('leagues_categories')

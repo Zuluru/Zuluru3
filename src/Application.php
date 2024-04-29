@@ -6,11 +6,12 @@ use App\Core\UserCache;
 use App\Exception\ForbiddenRedirectException;
 use App\Exception\LockedIdentityException;
 use App\Http\Middleware\ActAsMiddleware;
+use App\Http\Middleware\CookiePathMiddleware;
 use App\Middleware\AffiliateConfigurationLoader;
 use App\Middleware\AjaxMiddleware;
 use App\Middleware\ConfigurationLoader;
-use App\Http\Middleware\CookiePathMiddleware;
 use App\Middleware\LocalizationMiddleware;
+use App\Middleware\NamedRoutingMiddleware;
 use App\Middleware\UnauthorizedHandler\RedirectFlashHandler;
 use App\Policy\TypeResolver;
 use Authentication\AuthenticationService;
@@ -31,6 +32,8 @@ use Authorization\Policy\OrmResolver;
 use Authorization\Policy\ResolverCollection;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
+use Cake\Core\ContainerInterface;
+use Cake\Datasource\FactoryLocator;
 use Cake\Error\Middleware\ErrorHandlerMiddleware;
 use Cake\Http\BaseApplication;
 use Cake\Http\Middleware\BodyParserMiddleware;
@@ -40,6 +43,7 @@ use Cake\Http\MiddlewareQueue;
 use Cake\Http\Response;
 use Cake\I18n\FrozenTime;
 use Cake\I18n\I18n;
+use Cake\ORM\Locator\TableLocator;
 use Cake\ORM\TableRegistry;
 use Cake\Routing\Middleware\AssetMiddleware;
 use Cake\Routing\Middleware\RoutingMiddleware;
@@ -79,9 +83,12 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 			$this->addPlugin('Installer', ['bootstrap' => true, 'routes' => true]);
 		} else {
 			if (PHP_SAPI === 'cli') {
-				$this->addOptionalPlugin('Bake');
-				$this->addOptionalPlugin('Transifex');
-				$this->addPlugin('Scheduler', ['autoload' => true]);
+				$this->bootstrapCli();
+			} else {
+				FactoryLocator::add(
+					'Table',
+					(new TableLocator())->allowFallbackClass(false)
+				);
 			}
 
 			/*
@@ -89,13 +96,10 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 			 * Debug Kit should not be installed on a production system
 			 */
 			if (Configure::read('debug')) {
-				if (PHP_SAPI === 'cli') {
-					$this->addOptionalPlugin('CakephpFixtureFactories');
-				} else {
-					$this->addOptionalPlugin('DebugKit', ['bootstrap' => true]);
-				}
+				$this->addOptionalPlugin('DebugKit', ['bootstrap' => true]);
 			}
 
+			// Load more plugins here
 			$this->addPlugin('Muffin/Footprint');
 			$this->addPlugin('Authentication');
 			$this->addPlugin('Authorization');
@@ -110,10 +114,11 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 			if (Configure::read('App.theme') && (!defined('DOMAIN_PLUGIN') || Configure::read('App.theme') != DOMAIN_PLUGIN)) {
 				$this->addPlugin(Configure::read('App.theme'), ['bootstrap' => false, 'routes' => false]);
 			}
+
+			$this->addPlugin('Invoices', ['bootstrap' => false, 'routes' => true]);
 		}
 
 		$this->addPlugin('BootstrapUI', ['bootstrap' => true]);
-		$this->addPlugin('Migrations');
 
 		try {
 			foreach (TableRegistry::getTableLocator()->get('Plugins')->find()->where(['enabled' => true])->order('Plugins.name') as $plugin) {
@@ -292,7 +297,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 	}
 
 	/**
-	 * Setup the middleware queue your application will use.
+	 * Set up the middleware queue your application will use.
 	 *
 	 * @param \Cake\Http\MiddlewareQueue $middlewareQueue The middleware queue to setup.
 	 * @return \Cake\Http\MiddlewareQueue The updated middleware queue.
@@ -359,7 +364,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 		$middlewareQueue
 			// Catch any exceptions in the lower layers,
 			// and make an error page/response
-			->add(ErrorHandlerMiddleware::class)
+			->add(new ErrorHandlerMiddleware(Configure::read('Error')))
 
 			// Handle plugin/theme assets like CakePHP normally does.
 			->add(new AssetMiddleware([
@@ -372,15 +377,23 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 			->add($cookie_localization)
 
 			// Add routing middleware.
-			// Routes collection cache enabled by default, to disable route caching
-			// pass null as cacheConfig, example: `new RoutingMiddleware($this)`
-			// you might want to disable this cache in case your routing is extremely simple
+			// If you have a large number of routes connected, turning on routes
+			// caching in production could improve performance. For that when
+			// creating the middleware instance specify the cache config name by
+			// using it's second constructor argument:
+			// `new RoutingMiddleware($this, '_cake_routes_')`
 			->add(new RoutingMiddleware($this))
 
-			// Parse request bodies, allowing for JSON data in authentication
-			->add(BodyParserMiddleware::class)
+			// Backward compatibility with old CakePHP-style named URLs
+			->add(new NamedRoutingMiddleware())
 
-			// Add CSRF protection middleware.
+			// Parse various types of encoded request bodies so that they are
+			// available as array through $request->getData()
+			// https://book.cakephp.org/4/en/controllers/middleware.html#body-parser-middleware
+			->add(new BodyParserMiddleware())
+
+			// Cross Site Request Forgery (CSRF) Protection Middleware
+			// https://book.cakephp.org/4/en/controllers/middleware.html#cross-site-request-forgery-csrf-middleware
 			->add((new SessionCsrfProtectionMiddleware())
 				->skipCheckCallback(function (ServerRequestInterface $request) {
 					$payment = ($request->getParam('controller') === 'Payment' && $request->getParam('action') === 'index');
@@ -446,9 +459,10 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 						}
 
 						// We need to update the identity, so that the new person ID is in the in-memory record
-						$result = $request->getAttribute('authentication')->persistIdentity($request, $response, $user);
+						// The Response object is not used; the Authentication middleware takes care of adding anything
+						// that's needed in there.
+						$result = $request->getAttribute('authentication')->persistIdentity($request, new Response(), $user);
 						$request = $result['request'];
-						$response = $result['response'];
 					}
 				}
 
@@ -536,16 +550,40 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 			->add(AffiliateConfigurationLoader::class)
 		;
 
+		return $middlewareQueue;
+	}
+
+	/**
+	 * Register application container services.
+	 *
+	 * @param \Cake\Core\ContainerInterface $container The Container to update.
+	 * @return void
+	 * @link https://book.cakephp.org/4/en/development/dependency-injection.html#dependency-injection
+	 */
+	public function services(ContainerInterface $container): void
+	{
+	}
+
+	/**
+	 * Bootstrapping for CLI application.
+	 *
+	 * That is when running commands.
+	 *
+	 * @return void
+	 */
+	protected function bootstrapCli(): void
+	{
+		$this->addOptionalPlugin('Cake/Repl');
+		$this->addOptionalPlugin('Bake');
+
 		if (Configure::read('debug')) {
-			// Disable authz for debugkit
-			$middlewareQueue->add(function ($req, $res, $next) {
-				if ($req->getParam('plugin') === 'DebugKit') {
-					$req->getAttribute('authorization')->skipAuthorization();
-				}
-				return $next($req, $res);
-			});
+			$this->addOptionalPlugin('CakephpFixtureFactories');
 		}
 
-		return $middlewareQueue;
+		$this->addPlugin('Migrations');
+
+		// Load more plugins here
+		$this->addOptionalPlugin('Transifex');
+		$this->addPlugin('Scheduler', ['autoload' => true]);
 	}
 }

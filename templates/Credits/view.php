@@ -10,28 +10,28 @@ $this->Breadcrumbs->add(__('View'));
 ?>
 
 <div class="credits view">
-	<dl class="dl-horizontal">
-		<dt><?= __('Owner') ?></dt>
-		<dd><?= $this->element('People/block', ['person' => $credit->person]) ?></dd>
-		<dt><?= __('Date') ?></dt>
-		<dd><?= $this->Time->date($credit->created) ?></dd>
-		<dt><?= __('Initial Amount') ?></dt>
-		<dd><?= $this->Number->currency($credit->amount) ?></dd>
-		<dt><?= __('Amount Used') ?></dt>
-		<dd><?= $this->Number->currency($credit->amount_used) ?></dd>
+	<dl class="row">
+		<dt class="col-sm-2 text-end"><?= __('Owner') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->element('People/block', ['person' => $credit->person]) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Date') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->Time->date($credit->created) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Initial Amount') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->Number->currency($credit->amount) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Amount Used') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->Number->currency($credit->amount_used) ?></dd>
 <?php
 if ($credit->payment_id):
 ?>
-		<dt><?= __('Registration') ?></dt>
-		<dd><?php
+		<dt class="col-sm-2 text-end"><?= __('Registration') ?></dt>
+		<dd class="col-sm-10 mb-0"><?php
 			$invnum = sprintf(Configure::read('registration.order_id_format'), $credit->payment->registration_id);
 			echo $this->Html->link($invnum, ['controller' => 'Registrations', 'action' => 'view', '?' => ['registration' => $credit->payment->registration_id]]);
 		?></dd>
 <?php
 endif;
 ?>
-		<dt><?= __('Notes') ?></dt>
-		<dd><?= $this->Text->autoParagraph(h($credit->notes)) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Notes') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->Text->autoParagraph(h($credit->notes)) ?></dd>
 	</dl>
 </div>
 

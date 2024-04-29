@@ -14,9 +14,7 @@ use Cake\ORM\Query;
 class BadgesController extends AppController {
 
 	public $paginate = [
-		'order' => [
-			'Badges.affiliate_id', 'Badges.name',
-		]
+		'order' => ['Badges.affiliate_id' => 'ASC', 'Badges.name' => 'ASC']
 	];
 
 	/**
@@ -93,8 +91,8 @@ class BadgesController extends AppController {
 
 		// TODO: Multiple default sort fields break pagination links.
 		// https://github.com/cakephp/cakephp/issues/7324 has related info.
-		//$this->paginate['order'] = ['People.first_name', 'People.last_name'];
-		$this->paginate['order'] = ['People.last_name'];
+		//$this->paginate['order'] = ['People.first_name' => 'ASC', 'People.last_name' => 'ASC'];
+		$this->paginate['order'] = ['People.last_name' => 'ASC'];
 		$query = $this->Badges->People->find()
 			->distinct(['People.id'])
 			->contain([

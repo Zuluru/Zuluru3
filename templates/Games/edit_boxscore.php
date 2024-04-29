@@ -123,7 +123,7 @@ endforeach;
 				'selector' => '#add_row',
 				'input-selector' => '#add_row :input',
 				'disposition' => 'before',
-			]);
+			], ['escapeTitle' => false]);
 			?></td>
 		</tr>
 	</tbody>

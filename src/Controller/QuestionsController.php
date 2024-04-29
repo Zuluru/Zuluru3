@@ -35,7 +35,7 @@ class QuestionsController extends AppController {
 				'Questions.affiliate_id IN' => $affiliates,
 			],
 			'contain' => ['Affiliates'],
-			'order' => ['Questions.question'],
+			'order' => ['Questions.question' => 'ASC'],
 		];
 		$query = $this->Questions->find()
 			->order(['Affiliates.name']);

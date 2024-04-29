@@ -247,6 +247,7 @@ class RegistrationsTable extends AppTable {
 	 * @return void
 	 */
 	public function afterSave(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
+		// TODO: If something fails later in the process (e.g. online refund processing), this has already happened and maybe sent emails
 		$this->postProcess($entity, $options, $entity->isNew() ? null : $entity->getOriginal('payment'), $entity->payment);
 	}
 

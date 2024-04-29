@@ -15,8 +15,8 @@ class ContactsController extends AppController {
 
 	public $paginate = [
 		'order' => [
-			'Affiliates.name',
-			'Contacts.name',
+			'Affiliates.name' => 'ASC',
+			'Contacts.name' => 'ASC',
 		]
 	];
 

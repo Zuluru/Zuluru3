@@ -2,6 +2,8 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Division $division
+ * @var string $desc
+ * @var int[] $required_field_counts
  */
 
 use Cake\Core\Configure;

@@ -47,8 +47,8 @@ if ($this->Authorize->getIdentity()->isManagerOf($registration->event)) {
 	]);
 	echo $this->Form->control('reservation_expires', [
 		'templates' => [
-			'inputContainer' => '<div class="form-group reserved {{type}}{{required}}">{{content}}</div>',
-			'inputContainerError' => '<div class="form-group reserved {{type}}{{required}} has-error">{{content}}</div>',
+			'inputContainer' => '<div class="mb-3 form-group row reserved {{type}}{{required}}">{{content}}</div>',
+			'inputContainerError' => '<div class="mb-3 form-group row reserved {{type}}{{required}} has-error">{{content}}</div>',
 		],
 		'secure' => false,
 	]);

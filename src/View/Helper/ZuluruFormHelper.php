@@ -5,30 +5,11 @@ namespace App\View\Helper;
 use BootstrapUI\View\Helper\FormHelper as FormHelper;
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
-use Cake\View\View;
 
 class ZuluruFormHelper extends FormHelper {
 	public $helpers = ['Url', 'Html' => ['className' => 'ZuluruHtml']];
 
 	protected array $formProtectorStack = [];
-
-	/**
-	 * An array of optional fields whose values must match if they are included.
-	 * This is for things like IDs of records that might be removed from the
-	 * POSTed data by JavaScript.
-	 *
-	 * @var array
-	 */
-	protected $_optionalFields = [];
-
-	public function __construct(View $View, array $config = []) {
-		// Set the date widget to month-day-year instead of year-month-day. TODOSECOND: Locale specific setting.
-		$this->_templateSet['horizontal'] = array_merge($this->_templateSet['horizontal'], [
-			'dateWidget' => '{{month}}{{day}}{{year}}{{hour}}{{minute}}{{second}}{{meridian}}',
-		]);
-
-		parent::__construct($View, $config);
-	}
 
 	public function create($context = null, array $options = []): string {
 		// TODOLATER: Remove this once we're done with validation testing
@@ -47,6 +28,10 @@ class ZuluruFormHelper extends FormHelper {
 		$this->formProtector = array_pop($this->formProtectorStack);
 
 		return $end;
+	}
+
+	public function hasFormProtector(): bool {
+		return (bool)$this->formProtector;
 	}
 
 	/**
@@ -162,9 +147,9 @@ class ZuluruFormHelper extends FormHelper {
 		}
 
 		// Split into model and field name
-		$pos = strpos($fieldName, '.');
+		$pos = strrpos($fieldName, '.');
 		if ($pos !== false) {
-			$prefix = substr($fieldName, 0, $pos);
+			$prefix = substr($fieldName, 0, $pos + 1);
 			$fieldName = substr($fieldName, $pos + 1);
 		} else {
 			$prefix = '';
@@ -172,17 +157,17 @@ class ZuluruFormHelper extends FormHelper {
 
 		$controls = [];
 		$default = Configure::read('App.defaultLocale');
-		foreach ($locales as $locale) {
+		foreach ($locales as $locale => $language) {
 			if ($locale === $default) {
-				$controls[] = $this->control($prefix . $fieldName, ['label' => $locale] + $options);
+				$inputName = $prefix . $fieldName;
 			} else {
-				$controls[] = $this->control("{$prefix}_translations.{$locale}.{$fieldName}", ['label' => $locale] + $options);
+				$inputName = "{$prefix}_translations.{$locale}.{$fieldName}";
 			}
+
+			$controls[] = $this->control($inputName, ['label' => __(Inflector::humanize($fieldName)) . ' (' . $language . ')'] + $options);
 		}
 
-		return $this->Html->tag('fieldset',
-			$this->Html->tag('legend', __(Inflector::humanize($fieldName))) . implode('', $controls)
-		);
+		return implode('', $controls);
 	}
 
 	public function iconPostLink($img, $url = null, array $imgOptions = [], array $linkOptions = []): string {

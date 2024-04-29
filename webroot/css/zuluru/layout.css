@@ -131,6 +131,10 @@ TODOBOOTSTRAP: Fix the below for the games view page
 	display: block;
 	border: 1px solid red;
 }
+.zuluru .form-horizontal .col-form-label
+{
+	text-align: right;
+}
 .zuluru p.help-block
 {
 	margin-top: 5px;

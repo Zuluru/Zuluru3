@@ -21,22 +21,22 @@ $display_gender = $this->Authorize->can('display_gender', new ContextResource($t
 
 <div class="games attendance">
 <h2><?= __('Attendance') ?></h2>
-	<dl class="dl-horizontal">
-		<dt><?= __('League') . '/' . __('Division') ?></dt>
-		<dd><?= $this->element('Divisions/block', ['division' => $game->division, 'field' => 'full_league_name']) ?></dd>
-		<dt><?= __('Date and Time') ?></dt>
-		<dd><?= $this->Html->link($this->Time->dateTimeRange($game->game_slot), ['action' => 'view', '?' => ['game' => $game->id]]) ?></dd>
-		<dt><?= __('Team') ?></dt>
-		<dd><?= $this->element('Teams/block', ['team' => $team]) ?></dd>
-		<dt><?= __('Opponent') ?></dt>
-		<dd><?= $this->element('Teams/block', ['team' => $opponent]) ?></dd>
-		<dt><?= __('Location') ?></dt>
-		<dd><?= $this->element('Fields/block', ['field' => $game->game_slot->field, 'display_field' => 'long_name']) ?></dd>
+	<dl class="row">
+		<dt class="col-sm-2 text-end"><?= __('League') . '/' . __('Division') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->element('Divisions/block', ['division' => $game->division, 'field' => 'full_league_name']) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Date and Time') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->Html->link($this->Time->dateTimeRange($game->game_slot), ['action' => 'view', '?' => ['game' => $game->id]]) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Team') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->element('Teams/block', ['team' => $team]) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Opponent') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->element('Teams/block', ['team' => $opponent]) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Location') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->element('Fields/block', ['field' => $game->game_slot->field, 'display_field' => 'long_name']) ?></dd>
 <?php
 if ($display_gender):
 ?>
-		<dt><?= __('Totals') ?></dt>
-		<dd><?php
+		<dt class="col-sm-2 text-end"><?= __('Totals') ?></dt>
+		<dd class="col-sm-10 mb-0"><?php
 		// Build the totals
 		$statuses = Configure::read('attendance');
 		$alt = Configure::read('attendance_alt');

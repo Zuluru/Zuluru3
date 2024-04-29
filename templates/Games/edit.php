@@ -35,19 +35,19 @@ if ($game->division->league->hasCarbonFlip()) {
 <div class="games form">
 	<h2><?= __('Edit Game') ?></h2>
 	<?= $this->Form->create($game, ['align' => 'horizontal']) ?>
-	<dl class="dl-horizontal">
-		<dt><?= __('League') ?></dt>
-		<dd><?= $this->element('Leagues/block', ['league' => $game->division->league]) ?></dd>
+	<dl class="row">
+		<dt class="col-sm-2 text-end"><?= __('League') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->element('Leagues/block', ['league' => $game->division->league]) ?></dd>
 <?php
 if (TableRegistry::getTableLocator()->get('Divisions')->find('byLeague', ['league' => $game->division->league_id])->count() != 1):
 ?>
-		<dt><?= __('Division') ?></dt>
-		<dd><?= $this->element('Divisions/block', ['league' => $game->division->league, 'division' => $game->division]) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Division') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->element('Divisions/block', ['league' => $game->division->league, 'division' => $game->division]) ?></dd>
 <?php
 endif;
 ?>
-		<dt><?= __('Home Team') ?></dt>
-		<dd><?php
+		<dt class="col-sm-2 text-end"><?= __('Home Team') ?></dt>
+		<dd class="col-sm-10 mb-0"><?php
 			if ($game->home_team_id === null) {
 				if ($game->has('home_dependency')) {
 					echo $game->home_dependency;
@@ -69,8 +69,8 @@ endif;
 <?php
 if ($game->division->schedule_type !== 'competition'):
 ?>
-		<dt><?= __('Away Team') ?></dt>
-		<dd><?php
+		<dt class="col-sm-2 text-end"><?= __('Away Team') ?></dt>
+		<dd class="col-sm-10 mb-0"><?php
 			if ($game->away_team_id === null) {
 				if ($game->has('away_dependency')) {
 					echo $game->away_dependency;
@@ -92,12 +92,12 @@ if ($game->division->schedule_type !== 'competition'):
 <?php
 endif;
 ?>
-		<dt><?= __('Date and Time') ?></dt>
-		<dd><?= $this->Time->dateTimeRange($game->game_slot) ?></dd>
-		<dt><?= __('Location') ?></dt>
-		<dd><?= $this->element('Fields/block', ['field' => $game->game_slot->field, 'display_field' => 'long_name']) ?></dd>
-		<dt><?= __('Game Status') ?></dt>
-		<dd><?= $this->Jquery->toggleInput('status', [
+		<dt class="col-sm-2 text-end"><?= __('Date and Time') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->Time->dateTimeRange($game->game_slot) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Location') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->element('Fields/block', ['field' => $game->game_slot->field, 'display_field' => 'long_name']) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Game Status') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->Jquery->toggleInput('status', [
 			'id' => 'Status',
 			'div' => false,
 			'label' => false,
@@ -115,8 +115,8 @@ endif;
 <?php
 if ($game->division->schedule_type === 'roundrobin' && $game->round):
 ?>
-		<dt><?= __('Round') ?></dt>
-		<dd><?= $game->round ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Round') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $game->round ?></dd>
 <?php
 endif;
 
@@ -133,8 +133,8 @@ $captains = collection($captains)->filter(function ($player) {
 })->toArray();
 if (!empty($captains)):
 ?>
-		<dt><?= __('Coach/Captain Emails') ?></dt>
-		<dd><?= $this->Html->link(__('Email all coaches and captains'), 'mailto:' . implode(',', AppController::_extractEmails($captains, false, false, true))) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Coach/Captain Emails') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->Html->link(__('Email all coaches and captains'), 'mailto:' . implode(',', AppController::_extractEmails($captains, false, false, true))) ?></dd>
 <?php
 endif;
 ?>
@@ -185,12 +185,12 @@ if ($awayScoreEntry->id) {
 if ($game->isFinalized()):
 	$league_obj = ModuleRegistry::getInstance()->load("LeagueType:{$game->division->schedule_type}");
 ?>
-		<dl class="dl-horizontal">
+		<dl class="row">
 <?php
 	echo $this->element("Leagues/game/{$league_obj->render_element}/score", compact('game'));
 ?>
-			<dt><?= __('Score Approved By') ?></dt>
-			<dd><?php
+			<dt class="col-sm-2 text-end"><?= __('Score Approved By') ?></dt>
+			<dd class="col-sm-10 mb-0"><?php
 				if ($game->approved_by_id < 0) {
 					$approved = Configure::read('approved_by');
 					echo __($approved[$game->approved_by_id]);
@@ -344,7 +344,7 @@ endif;
 
 if (!$preliminary):
 ?>
-		<dl class="dl-horizontal">
+		<dl class="row">
 			<dt class="normal default"><?= $this->Text->truncate($game->home_team->name, 28) ?></dt>
 			<dd class="normal default"><?= $this->Form->control('home_score', [
 				'id' => 'ScoreHome',

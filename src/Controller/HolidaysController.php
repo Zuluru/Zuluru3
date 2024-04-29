@@ -22,7 +22,7 @@ class HolidaysController extends AppController {
 		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		$this->paginate['contain'] = ['Affiliates'];
 		$this->paginate['conditions'] = ['Holidays.affiliate_id IN' => $affiliates];
-		$this->paginate['order'] = ['date'];
+		$this->paginate['order'] = ['date' => 'ASC'];
 		$holidays = $this->paginate($this->Holidays);
 
 		$this->set(compact('holidays', 'affiliates'));

@@ -13,25 +13,25 @@ $this->Breadcrumbs->add(__('View'));
 
 <div class="tasks view">
 	<h2><?= h($task->name) ?></h2>
-	<dl class="dl-horizontal">
-		<dt><?= __('Category') ?></dt>
-		<dd><?= $this->Html->link($task->category->name, ['controller' => 'Categories', 'action' => 'view', '?' => ['category' => $task->category->id]]) ?></dd>
-		<dt><?= __('Description') ?></dt>
-		<dd><?= $task->description ?></dd>
+	<dl class="row">
+		<dt class="col-sm-2 text-end"><?= __('Category') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->Html->link($task->category->name, ['controller' => 'Categories', 'action' => 'view', '?' => ['category' => $task->category->id]]) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Description') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $task->description ?></dd>
 <?php
 if ($this->Authorize->can('edit', $task)):
 ?>
-		<dt><?= __('Notes') ?></dt>
-		<dd><?= $task->notes ?></dd>
-		<dt><?= __('Auto-Approve') ?></dt>
-		<dd><?= $task->auto_approve ? __('Yes') : __('No') ?></dd>
-		<dt><?= __('Allow Signup') ?></dt>
-		<dd><?= $task->allow_signup ? __('Yes') : __('No') ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Notes') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $task->notes ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Auto-Approve') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $task->auto_approve ? __('Yes') : __('No') ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Allow Signup') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $task->allow_signup ? __('Yes') : __('No') ?></dd>
 <?php
 endif;
 ?>
-		<dt><?= __('Reporting To') ?></dt>
-		<dd><?= $this->element('People/block', ['person' => $task->person]) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Reporting To') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->element('People/block', ['person' => $task->person]) ?></dd>
 	</dl>
 </div>
 

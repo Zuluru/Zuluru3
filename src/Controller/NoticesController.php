@@ -30,7 +30,7 @@ class NoticesController extends AppController {
 			return;
 		}
 
-		$this->loadModel('NoticesPeople');
+		$this->NoticesPeople = $this->fetchTable('NoticesPeople');
 		$this->NoticesPeople->save($this->NoticesPeople->newEntity([
 			'notice_id' => $id,
 			'person_id' => $this->UserCache->currentId(),

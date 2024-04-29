@@ -12,11 +12,13 @@ use Cake\Controller\Controller;
 use Cake\Core\Configure;
 use Cake\Event\Event as CakeEvent;
 use Cake\Event\EventManager;
+use Cake\Http\Exception\BadRequestException;
 use Cake\Http\Response;
 use Cake\I18n\FrozenTime;
 use Cake\I18n\I18n;
 use Cake\I18n\Number;
 use Cake\Log\Log;
+use Cake\Mailer\Message;
 use Cake\Network\Exception\SocketException;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
@@ -54,12 +56,6 @@ class AppController extends Controller {
 	public function initialize(): void {
 		parent::initialize();
 
-		// TODO: Find a better solution for black-holing of Ajax requests?
-		if (!$this->getRequest()->is('ajax') && !$this->getRequest()->is('json')) {
-			$this->loadComponent('Security');
-			$this->Security->setConfig('blackHoleCallback', '_blackhole');
-		}
-
 		$this->loadComponent('Flash');
 		$this->loadComponent('RequestHandler', [
 			'enableBeforeRedirect' => false,
@@ -70,7 +66,16 @@ class AppController extends Controller {
 				'json' => JsonView::class,
 			]
 		]);
-		$this->loadComponent('FormProtection');
+
+		// TODO: Find a better solution for black-holing of Ajax requests?
+		if (!$this->getRequest()->is('ajax') && !$this->getRequest()->is('json')) {
+			$this->loadComponent('FormProtection', [
+				'validate' => false,
+				'validationFailureCallback' => function (BadRequestException $exception) {
+					throw $exception;
+				},
+			]);
+		}
 
 		// Don't attempt to do anything database- or user-related during installation
 		if ($this->getPlugin() === 'Installer') {
@@ -136,12 +141,7 @@ class AppController extends Controller {
 			return;
 		}
 
-		// Backward compatibility with old CakePHP-style named URLs
-		// TODO: Remove this in maybe 2020, once there's been a good time to update links
-		$this->request = Router::parseNamedParams($this->request);
-		$this->request = $this->request->withQueryParams(array_merge($this->request->getQueryParams(), $this->request->getParam('named')));
-
-		$this->loadModel('Configuration');
+		$this->Configuration = $this->fetchTable('Configuration');
 		$this->_setLanguage();
 
 		// Load configuration from database or cache
@@ -203,16 +203,16 @@ class AppController extends Controller {
 		$this->_initMenu();
 	}
 
-	public function flashEmail(CakeEvent $event, Mailer $email, $result) {
+	public function flashEmail(CakeEvent $event, Message $email, $result) {
 		$this->Flash->email(null, [
 			'params' => [
 				'saved' => true,
-				'to' => $email->to(),
-				'from' => $email->from(),
-				'replyTo' => $email->replyTo(),
-				'cc' => $email->cc(),
-				'bcc' => $email->bcc(),
-				'subject' => $email->subject(),
+				'to' => $email->getTo(),
+				'from' => $email->getFrom(),
+				'replyTo' => $email->getReplyTo(),
+				'cc' => $email->getCc(),
+				'bcc' => $email->getBcc(),
+				'subject' => $email->getSubject(),
 				'result' => $result,
 			],
 			'key' => 'email',
@@ -353,7 +353,7 @@ class AppController extends Controller {
 	 * Read and set variables for the database-based affiliate options.
 	 */
 	protected function _loadAffiliateOptions() {
-		$this->loadModel('Affiliates');
+		$this->Affiliates = $this->fetchTable('Affiliates');
 
 		$conditions = [
 			'Affiliates.active' => true,
@@ -424,7 +424,7 @@ class AppController extends Controller {
 		}
 
 		if ($identity && $identity->isLoggedIn()) {
-			$this->_addMenuItem(__('My Profile'), ['plugin' => false, 'controller' => 'People', 'action' => 'view']);
+			//$this->_addMenuItem(__('My Profile'), ['plugin' => false, 'controller' => 'People', 'action' => 'view']);
 			$this->_addMenuItem(__('View'), ['plugin' => false, 'controller' => 'People', 'action' => 'view'], __('My Profile'));
 			$this->_addMenuItem(__('Edit'), ['plugin' => false, 'controller' => 'People', 'action' => 'edit'], __('My Profile'));
 			if (!$identity->getOriginalData()->person->user_id) {
@@ -463,7 +463,7 @@ class AppController extends Controller {
 		if (Configure::read('feature.registration')) {
 			// Parents always get the registration menu items
 			if (!Configure::read('feature.minimal_menus') && ($this->Authorization->can(\App\Controller\PeopleController::class, 'show_registration'))) {
-				$this->_addMenuItem(__('Registration'), ['plugin' => false, 'controller' => 'Events', 'action' => 'wizard']);
+				//$this->_addMenuItem(__('Registration'), ['plugin' => false, 'controller' => 'Events', 'action' => 'wizard']);
 				$this->_addMenuItem(__('Wizard'), ['plugin' => false, 'controller' => 'Events', 'action' => 'wizard'], __('Registration'));
 				$this->_addMenuItem(__('All Events'), ['plugin' => false, 'controller' => 'Events', 'action' => 'index'], __('Registration'));
 				if ($identity && $identity->isLoggedIn() && !empty($this->UserCache->read('Registrations'))) {
@@ -495,14 +495,14 @@ class AppController extends Controller {
 		}
 
 		if ($identity && $identity->isLoggedIn()) {
-			$this->_addMenuItem(__('Teams'), ['plugin' => false, 'controller' => 'Teams', 'action' => 'index']);
+			//$this->_addMenuItem(__('Teams'), ['plugin' => false, 'controller' => 'Teams', 'action' => 'index']);
 			$this->_addMenuItem(__('List'), ['plugin' => false, 'controller' => 'Teams', 'action' => 'index'], __('Teams'));
 			// If registrations are enabled, it takes care of team creation
 			if (($identity && $identity->isManager()) || !Configure::read('feature.registration')) {
 				$this->_addMenuItem(__('Create Team'), ['plugin' => false, 'controller' => 'Teams', 'action' => 'add'], __('Teams'));
 			}
 			if (!Configure::read('feature.minimal_menus') && $identity && $identity->isManager()) {
-				$this->loadModel('Teams');
+				$this->Teams = $this->fetchTable('Teams');
 				$new = $this->Teams->find()
 					->where([
 						'division_id IS' => null,
@@ -523,7 +523,7 @@ class AppController extends Controller {
 			$this->_addMenuItem(__('Create Franchise'), ['plugin' => false, 'controller' => 'Franchises', 'action' => 'add'], [__('Teams'), __('Franchises')]);
 		}
 
-		$this->_addMenuItem(__('Leagues'), ['plugin' => false, 'controller' => 'Leagues', 'action' => 'index']);
+		//$this->_addMenuItem(__('Leagues'), ['plugin' => false, 'controller' => 'Leagues', 'action' => 'index']);
 		$this->_addMenuItem(__('List'), ['plugin' => false, 'controller' => 'Leagues', 'action' => 'index'], __('Leagues'));
 		if ($identity && $identity->isManager()) {
 			$this->_addMenuItem(__('League Summary'), ['plugin' => false, 'controller' => 'Leagues', 'action' => 'summary'], __('Leagues'));
@@ -548,7 +548,7 @@ class AppController extends Controller {
 			}
 		}
 
-		$this->_addMenuItem(Configure::read('UI.fields_cap'), ['plugin' => false, 'controller' => 'Facilities', 'action' => 'index']);
+		//$this->_addMenuItem(Configure::read('UI.fields_cap'), ['plugin' => false, 'controller' => 'Facilities', 'action' => 'index']);
 		$this->_addMenuItem(__('List'), ['plugin' => false, 'controller' => 'Facilities', 'action' => 'index'], Configure::read('UI.fields_cap'));
 		$this->_addMenuItem(__('Map of All {0}', Configure::read('UI.fields_cap')), ['plugin' => false, 'controller' => 'Maps', 'action' => 'index'], Configure::read('UI.fields_cap'), null, ['target' => 'map']);
 		if ($identity && $identity->isManager()) {
@@ -569,7 +569,7 @@ class AppController extends Controller {
 			$this->_addMenuItem(__('List'), ['plugin' => false, 'controller' => 'Regions', 'action' => 'index'], [Configure::read('UI.fields_cap'), __('Regions')]);
 			$this->_addMenuItem(__('Create Region'), ['plugin' => false, 'controller' => 'Regions', 'action' => 'add'], [Configure::read('UI.fields_cap'), __('Regions')]);
 
-			$this->loadModel('People');
+			$this->People = $this->fetchTable('People');
 			if (!Configure::read('feature.minimal_menus')) {
 				$new = $this->People->find()
 					->distinct(['People.id'])
@@ -642,7 +642,7 @@ class AppController extends Controller {
 				$this->_addMenuItem(__('Badges'), ['plugin' => false, 'controller' => 'Badges', 'action' => 'index'], __('People'));
 				$this->_addMenuItem(__('Nominate'), ['plugin' => false, 'controller' => 'People', 'action' => 'nominate'], [__('People'), __('Badges')]);
 				if (!Configure::read('feature.minimal_menus') && $identity && $identity->isManager()) {
-					$this->loadModel('People');
+					$this->People = $this->fetchTable('People');
 					$new = $this->People->Badges->find()
 						->matching('People')
 						->where([
@@ -1190,10 +1190,10 @@ class AppController extends Controller {
 				// Set the default pagination order; query params may override it.
 				// TODO: Multiple default sort fields break pagination links.
 				// https://github.com/cakephp/cakephp/issues/7324 has related info.
-				//$this->paginate['order'] = ['People.last_name', 'People.first_name', 'People.id'];
-				$this->paginate['order'] = ['People.last_name'];
+				//$this->paginate['order'] = ['People.last_name' => 'ASC', 'People.first_name' => 'ASC', 'People.id' => 'ASC'];
+				$this->paginate['order'] = ['People.last_name' => 'ASC'];
 
-				$this->loadModel('People');
+				$this->People = $this->fetchTable('People');
 				$query = $this->People->find()
 					->distinct(['People.id'])
 					->contain(['Affiliates', 'Groups']);
@@ -1249,13 +1249,14 @@ class AppController extends Controller {
 
 	protected function _extractSearchParams(array $url_params = []) {
 		if ($this->getRequest()->is('post')) {
-			$params = $url = array_merge($this->getRequest()->getData(), $this->getRequest()->getQueryParams());
+			$params = array_merge($this->getRequest()->getData(), $this->getRequest()->getQueryParams());
 		} else {
-			$params = $url = $this->getRequest()->getQueryParams();
+			$params = $this->getRequest()->getQueryParams();
 		}
 		foreach (['sort', 'direction', 'page'] as $pagination) {
 			unset($params[$pagination]);
 		}
+		$url = $params;
 		foreach ($url_params as $param) {
 			unset($params[$param]);
 		}

@@ -15,7 +15,7 @@ $this->Breadcrumbs->add('Stripe');
 echo $this->Form->create(null, ['align' => 'horizontal']);
 ?>
 <fieldset>
-	<legend><?= __('{0} Settings', 'Stripe') ?></legend>
+	<legend class="border-bottom"><?= __('{0} Settings', 'Stripe') ?></legend>
 	<p><?= __('To find this information, log in to the {0} dashboard, then click "Get your live API keys".',
 		$this->Html->link('Stripe', 'https://dashboard.stripe.com/test/dashboard', ['target' => '_new'])
 	) ?></p>

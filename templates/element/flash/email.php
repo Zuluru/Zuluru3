@@ -5,10 +5,15 @@
  */
 
 ?>
-<?= $this->element('BootstrapUI.Flash/default', [
+<?= $this->element('BootstrapUI.flash/default', [
 	'message' => $this->element('email/debug', $params),
 	'params' => [
-		'class' => ['alert-email', 'alert', 'alert-dismissible', 'fade', 'in'],
+        'icon' => 'mailbox',
+        'iconOptions' => [
+            'size' => 'xl',
+            'class' => 'me-2',
+        ],
+		'class' => ['alert-email', 'alert', 'alert-dismissible', 'fade', 'show', 'd-flex', 'align-items-center'],
 		'escape' => false,
 		'attributes' => ['role' => 'alert'],
 	],

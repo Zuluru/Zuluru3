@@ -397,7 +397,7 @@ if (Configure::read('profile.birthdate')):
 <?php
 		endif;
 ?>
-					<td><?= $age->age_bucket . ' to ' . ($age->age_bucket + 4) ?></td>
+					<td><?= $age->age_bucket * 5 . ' to ' . ($age->age_bucket * 5 + 4) ?></td>
 					<td><?= $age->person_count ?></td>
 				</tr>
 <?php

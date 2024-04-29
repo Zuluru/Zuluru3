@@ -14,7 +14,7 @@ class TeamsController extends AppController {
 
 	public function join() {
 		$id = $this->getRequest()->getQuery('team');
-		$this->loadModel('Teams');
+		$this->Teams = $this->fetchTable('Teams');
 
 		try {
 			$team = $this->Teams->get($id, [
@@ -50,7 +50,7 @@ class TeamsController extends AppController {
 
 	public function leave() {
 		$id = $this->getRequest()->getQuery('team');
-		$this->loadModel('Teams');
+		$this->Teams = $this->fetchTable('Teams');
 
 		try {
 			$team = $this->Teams->get($id, [

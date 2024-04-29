@@ -13,7 +13,6 @@ echo $this->Form->control('membership_begins', [
 	'help' => __('First date that this registration will confer membership for (e.g. beginning of the membership year).'),
 	'secure' => false,
 ]);
-$this->Form->unlockField('membership_begins');
 
 echo $this->Form->control('membership_ends', [
 	'type' => 'date',
@@ -23,7 +22,6 @@ echo $this->Form->control('membership_ends', [
 	'help' => __('Last date that this registration will confer membership for (e.g. end of the membership year).'),
 	'secure' => false,
 ]);
-$this->Form->unlockField('membership_ends');
 
 echo $this->Form->control('membership_type', [
 	'options' => Configure::read('options.membership_types'),
@@ -32,4 +30,9 @@ echo $this->Form->control('membership_type', [
 	'help' => __('Different membership types may come with limitations (e.g. play on a limited number of teams).'),
 	'secure' => false,
 ]);
-$this->Form->unlockField('membership_type');
+
+if ($this->Form->hasFormProtector()) {
+	$this->Form->unlockField('membership_begins');
+	$this->Form->unlockField('membership_ends');
+	$this->Form->unlockField('membership_type');
+}

@@ -10,36 +10,36 @@ use Cake\Core\Configure;
 <h2><?php
 echo $field->long_name;
 ?></h2>
-<dl class="dl-horizontal">
-	<dt><?= __('Address') ?></dt>
-	<dd><?= $field->facility->location_street ?></dd>
-	<dt><?= __('City') ?></dt>
-	<dd><?= $field->facility->location_city ?></dd>
-	<dt><?= __('Region') ?></dt>
-	<dd><?= $field->facility->region->name ?></dd>
-	<dt><?= __('Surface') ?></dt>
-	<dd><?= __(Configure::read("options.surface.{$field->surface}")) ?></dd>
+<dl class="row">
+	<dt class="col-sm-2 text-end"><?= __('Address') ?></dt>
+	<dd class="col-sm-10 mb-0"><?= $field->facility->location_street ?></dd>
+	<dt class="col-sm-2 text-end"><?= __('City') ?></dt>
+	<dd class="col-sm-10 mb-0"><?= $field->facility->location_city ?></dd>
+	<dt class="col-sm-2 text-end"><?= __('Region') ?></dt>
+	<dd class="col-sm-10 mb-0"><?= $field->facility->region->name ?></dd>
+	<dt class="col-sm-2 text-end"><?= __('Surface') ?></dt>
+	<dd class="col-sm-10 mb-0"><?= __(Configure::read("options.surface.{$field->surface}")) ?></dd>
 <?php
 if ($field->length > 0):
 ?>
-	<dt><?= __('Map') ?></dt>
-	<dd><?= $this->Html->link(__('Open in new window'),
+	<dt class="col-sm-2 text-end"><?= __('Map') ?></dt>
+	<dd class="col-sm-10 mb-0"><?= $this->Html->link(__('Open in new window'),
 		['controller' => 'Maps', 'action' => 'view', '?' => ['field' => $field->id]],
 		['target' => 'map']) ?></dd>
 <?php
 endif;
 
 if (!empty($field->layout_url)): ?>
-	<dt><?= __('Layout') ?></dt>
-	<dd><?= $this->Html->link(__('Open in new window'),
+	<dt class="col-sm-2 text-end"><?= __('Layout') ?></dt>
+	<dd class="col-sm-10 mb-0"><?= $this->Html->link(__('Open in new window'),
 		$field->layout_url,
 		['target' => 'map']) ?></dd>
 <?php
 endif;
 
 if (!empty($field->facility->permit_url)): ?>
-	<dt><?= __('Permit') ?></dt>
-	<dd><?= $this->Html->link($field->facility->permit_name, $field->facility->permit_url) ?></dd>
+	<dt class="col-sm-2 text-end"><?= __('Permit') ?></dt>
+	<dd class="col-sm-10 mb-0"><?= $this->Html->link($field->facility->permit_name, $field->facility->permit_url) ?></dd>
 <?php
 endif;
 ?>

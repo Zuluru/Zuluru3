@@ -17,19 +17,19 @@ $multiple_types = (count($types) > 1);
 
 <div class="categories view">
 	<h2><?= h($category->name) ?></h2>
-	<dl class="dl-horizontal">
+	<dl class="row">
 <?php
 if (count($affiliates) > 1):
 ?>
-		<dt><?= __('Affiliate') ?></dt>
-		<dd><?= $this->Html->link($category->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $category->affiliate->id]]) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Affiliate') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $this->Html->link($category->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $category->affiliate->id]]) ?></dd>
 <?php
 endif;
 
 if ($multiple_types):
 ?>
-		<dt><?= __('Type') ?></dt>
-		<dd><?= $types[$category->type] ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Type') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $types[$category->type] ?></dd>
 <?php
 endif;
 
@@ -39,21 +39,21 @@ if ($category->slug):
 		$url = ['controller' => 'Events', 'action' => 'index', $category->slug];
 	}
 ?>
-		<dt><?= __('Slug') ?></dt>
-		<dd><?= $url ? $this->Html->link($category->slug, $url) : h($category->slug) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Slug') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $url ? $this->Html->link($category->slug, $url) : h($category->slug) ?></dd>
 <?php
 endif;
 
 // TODO: Display the actual image
 if ($category->image_url):
 ?>
-		<dt><?= __('Image URL') ?></dt>
-		<dd><?= h($category->image_url) ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Image URL') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= h($category->image_url) ?></dd>
 <?php
 endif;
 ?>
-		<dt><?= __('Description') ?></dt>
-		<dd><?= $category->description ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('Description') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $category->description ?></dd>
 	</dl>
 </div>
 <div class="related row">

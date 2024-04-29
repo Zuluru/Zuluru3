@@ -182,7 +182,7 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 		}
 		$this->_initializeGroups();
 
-		$request->getAttribute('authentication')->persistIdentity($request, $response, $this->identity);
+		$request->getAttribute('authentication')->persistIdentity($request, new Response(), $this->identity);
 
 		return $this->identity;
 	}

@@ -27,6 +27,7 @@ class AjaxView extends View {
 		$this->loadHelper('Game', ['className' => 'ZuluruGame']);
 		$this->loadHelper('BootstrapUI.Flash');
 		$this->loadHelper('BootstrapUI.Paginator', ['templates' => 'paginator-templates']);
+		$this->loadHelper('Accordion', ['className' => 'ZuluruBootstrap.Accordion']);
 		$this->loadHelper('ZuluruJquery.Jquery');
 	}
 

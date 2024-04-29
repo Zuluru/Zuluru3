@@ -24,8 +24,8 @@ class NoticesCell extends Cell {
 			return;
 		}
 
-		$this->loadModel('Notices');
-		$this->loadModel('NoticesPeople');
+		$this->Notices = $this->fetchTable('Notices');
+		$this->NoticesPeople = $this->fetchTable('NoticesPeople');
 
 		// Delete any old reminder requests
 		$this->NoticesPeople->deleteAll([
@@ -47,7 +47,7 @@ class NoticesCell extends Cell {
 		// Find the list of all notices the user has seen
 		$notices = $this->NoticesPeople->find()
 			->where(['NoticesPeople.person_id' => $identity->getIdentifier()])
-            ->all()
+			->all()
 			->combine('notice_id', 'created')
 			->toArray();
 

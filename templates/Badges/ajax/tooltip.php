@@ -11,9 +11,9 @@ echo $this->Html->iconImg("{$badge->icon}_64.png",
 echo $badge->name;
 ?></h2>
 <p><?= $badge->description ?></p>
-<dl class="dl-horizontal">
-<dt><?= __('Awarded to') ?></dt>
-<dd><?= count($badge->people) . ' ' . __('people') ?></dd>
+<dl class="row">
+<dt class="col-sm-2 text-end"><?= __('Awarded to') ?></dt>
+<dd class="col-sm-10 mb-0"><?= count($badge->people) . ' ' . __('people') ?></dd>
 </dl>
 
 <p><?php

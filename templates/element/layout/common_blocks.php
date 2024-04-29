@@ -54,7 +54,9 @@ if (!$this->fetch('third_party_css')) {
 	$this->start('third_party_css');
 	echo $this->Html->css([
 		'https://code.jquery.com/ui/1.10.3/themes/redmond/jquery-ui.css',
-		'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css',
+		'BootstrapUI./css/bootstrap.min',
+		'BootstrapUI./font/bootstrap-icons',
+		'BootstrapUI./font/bootstrap-icon-sizes',
 	]);
 	$this->end();
 }
@@ -171,8 +173,8 @@ if (!$this->fetch('javascript_variables') && method_exists($this->Html, 'iconImg
 		'zuluru_close' => addslashes(__('Close')),
 		'zuluru_open_help' => addslashes(__('Open this help page in a new window')),
 	];
-	if ($this->getRequest()->getParam('_csrfToken')) {
-		$vars['zuluru_csrf_token'] = $this->getRequest()->getParam('_csrfToken');
+	if ($this->getRequest()->getAttribute('csrfToken')) {
+		$vars['zuluru_csrf_token'] = $this->getRequest()->getAttribute('csrfToken');
 	}
 
 	echo $this->Html->scriptBlock(implode("\n", array_map(function ($var, $value) {
@@ -189,8 +191,8 @@ if (!$this->fetch('javascript_variables') && method_exists($this->Html, 'iconImg
 if (!$this->fetch('bootstrap_scripts')) {
 	$this->start('bootstrap_scripts');
 	echo $this->Html->script([
-		//'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js',
-		'bootstrap.min.js',
+		'BootstrapUI./js/popper.min',
+		'BootstrapUI./js/bootstrap.min',
 	]);
 	$this->end();
 }
@@ -360,7 +362,7 @@ endif;
  */
 $this->start('zuluru_content');
 echo $this->fetch('zuluru_menu');
-echo $this->Breadcrumbs->render(['class' => 'breadcrumb']);
+echo $this->Breadcrumbs->render(['class' => 'breadcrumb bg-light p-2']);
 if (!isset($error)) {
 	echo $this->fetch('zuluru_session');
 	echo $this->cell('Notices::next')->render();

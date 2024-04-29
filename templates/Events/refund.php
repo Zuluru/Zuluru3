@@ -26,7 +26,7 @@ $this->Breadcrumbs->add(__('Refund'));
 	<?= $this->Form->create($refund, ['align' => 'horizontal']) ?>
 
 	<fieldset>
-		<legend><?= __('Refund Details') ?></legend>
+		<legend class="border-bottom"><?= __('Refund Details') ?></legend>
 <?php
 echo $this->Jquery->toggleInput('payment_type', [
 	'label' => __('Refund Method'),

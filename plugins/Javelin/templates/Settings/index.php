@@ -21,7 +21,7 @@ echo $this->Form->create(null, ['align' => 'horizontal']);
 echo $this->element('Settings/banner');
 ?>
 <fieldset>
-	<legend><?= __('{0} Settings', 'Javelin') ?></legend>
+	<legend class="border-bottom"><?= __('{0} Settings', 'Javelin') ?></legend>
 <?php
 echo $this->element('Settings/input', [
 	'category' => 'javelin',

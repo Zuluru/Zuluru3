@@ -726,6 +726,7 @@ class EventsController extends AppController {
 					$failed = [];
 					foreach ($registrations as $registration) {
 						try {
+							// @todo: A service class would be cleaner
 							$this->Events->Registrations->refund($this->getRequest(), $event, $registration, $data);
 						} catch (PaymentException $ex) {
 							$failed[$registration->id] = $registration->person->full_name;

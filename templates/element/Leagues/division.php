@@ -20,22 +20,12 @@ $collapsed = (empty($errors) && !$league->isNew());
 // template set from the Bootstrap FormHelper, not the default templates from Bootstrap FormHelper
 // or default templates from CakePHP FormHelper.
 $advanced = [
-	'inputContainer' => '<div class="form-group advanced {{type}}{{required}}">{{content}}</div>',
-	'inputContainerError' => '<div class="form-group advanced {{type}}{{required}} has-error">{{content}}</div>',
+	'inputContainer' => '<div class="mb-3 form-group row advanced {{type}}{{required}}">{{content}}</div>',
+	'inputContainerError' => '<div class="mb-3 form-group row advanced {{type}}{{required}} has-error">{{content}}</div>',
 ];
-?>
 
-<div class="panel panel-default">
-	<div class="panel-heading" role="tab" id="DivisionHeading<?= $index ?>">
-		<h4 class="panel-title"><a role="button" class="accordion-toggle<?= $collapsed ? ' collapsed' : '' ?>" data-toggle="collapse" data-parent="#accordion" href="#DivisionDetails<?= $index ?>" aria-expanded="<?= $collapsed ? 'true' : 'false' ?>" aria-controls="DivisionDetails<?= $index ?>"><?= __('Division Details') ?>:</a>
-			<?= $this->Form->control("divisions.$index.name", [
-				'placeholder' => __('Division Name'),
-			]) ?>
-		</h4>
-	</div>
-	<fieldset id="DivisionDetails<?= $index ?>" class="panel-collapse collapse<?= $collapsed ? '' : ' in' ?>" role="tabpanel" aria-labelledby="DivisionHeading<?= $index ?>">
-		<fieldset class="panel-body">
-<?php
+$this->start('division_details');
+
 if (!$new) {
 	echo $this->Form->control("divisions.$index.id");
 }
@@ -51,14 +41,14 @@ echo $this->Form->control("divisions.$index.capt_list", [
 	'size' => 70,
 	'help' => __('An email alias for all coaches and captains of this division.'),
 ]);
-echo $this->Form->control("divisions.$index.header", [
+echo $this->Form->i18nControls("divisions.$index.header", [
 	'templates' => $advanced,
 	'cols' => 70,
 	'rows' => 5,
 	'help' => __('A short blurb to be displayed at the top of schedule and standings pages, HTML is allowed.'),
 	'class' => 'wysiwyg_advanced',
 ]);
-echo $this->Form->control("divisions.$index.footer", [
+echo $this->Form->i18nControls("divisions.$index.footer", [
 	'templates' => $advanced,
 	'cols' => 70,
 	'rows' => 5,
@@ -252,6 +242,12 @@ if (Configure::read('scoring.most_spirited')) {
 }
 ?>
 			</fieldset>
-		</fieldset>
-	</fieldset>
-</div>
+<?php
+$this->end();
+
+echo $this->Accordion->panel(
+	$this->Accordion->panelHeading("Division{$index}", __('Division Details'), [
+		'extraContent' => $this->Form->i18nControls("divisions.$index.name", ['placeholder' => __('Division Name')]),
+	]),
+	$this->Accordion->panelContent("Division{$index}", $this->fetch('division_details'))
+);

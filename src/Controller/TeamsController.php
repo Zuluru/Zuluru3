@@ -33,9 +33,7 @@ class TeamsController extends AppController {
 	use HasherTrait;
 
 	public $paginate = [
-		'order' => [
-			'Teams.name' => 'asc',
-		]
+		'order' => ['Teams.name' => 'ASC']
 	];
 
 	/**
@@ -1838,7 +1836,7 @@ class TeamsController extends AppController {
 
 		// Read the event
 		try {
-			$this->loadModel('Events');
+			$this->Events = $this->fetchTable('Events');
 			$event = $this->Events->get($this->getRequest()->getData('event'), [
 				'contain' => [
 					'Registrations' => [

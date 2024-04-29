@@ -13,21 +13,9 @@ if ($facility->has('fields') && array_key_exists($index, $facility->fields)) {
 	$new = true;
 }
 $collapsed = (empty($errors) && !$facility->isNew());
-?>
 
-<div class="panel panel-default">
-	<div class="panel-heading" role="tab" id="FieldHeading<?= $index ?>">
-		<h4 class="panel-title"><a role="button" class="accordion-toggle<?= $collapsed ? ' collapsed' : '' ?>" data-toggle="collapse" data-parent="#accordion" href="#FieldDetails<?= $index ?>" aria-expanded="<?= $collapsed ? 'true' : 'false' ?>" aria-controls="FieldDetails<?= $index ?>"><?= __('{0} Details', Configure::read('UI.field_cap')) ?>:</a>
-			<?= $this->Form->i18nControls("fields.$index.num", [
-				'label' => __('Number'),
-				'placeholder' => __('{0} Number', Configure::read('UI.field_cap')),
-				'duplicate_help' => true,
-			]) ?>
-		</h4>
-	</div>
-	<div id="FieldDetails<?= $index ?>" class="panel-collapse collapse<?= $collapsed ? '' : ' in' ?>" role="tabpanel" aria-labelledby="FieldHeading<?= $index ?>">
-		<div class="panel-body">
-<?php
+$this->start('field_details');
+
 if (!$new) {
 	echo $this->Form->control("fields.$index.id");
 }
@@ -69,7 +57,16 @@ echo $this->Form->control("fields.$index.layout_url", [
 	'help' => __('Optional link to a page (probably an image) with a view of the layout. Intended to be used only if the built-in layout editor is insufficient.'),
 	'duplicate_help' => true,
 ]);
-?>
-		</div>
-	</div>
-</div>
+
+$this->end();
+
+echo $this->Accordion->panel(
+	$this->Accordion->panelHeading("Field{$index}", __('{0} Details', Configure::read('UI.field_cap')), [
+		'extraContent' => $this->Form->i18nControls("fields.$index.num", [
+			'label' => __('Number'),
+			'placeholder' => __('{0} Number', Configure::read('UI.field_cap')),
+			'duplicate_help' => true,
+		]),
+	]),
+	$this->Accordion->panelContent("Field{$index}", $this->fetch('field_details'))
+);

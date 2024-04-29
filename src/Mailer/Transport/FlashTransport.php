@@ -18,8 +18,8 @@ namespace App\Mailer\Transport;
 
 use Cake\Event\Event as CakeEvent;
 use Cake\Event\EventManager;
+use Cake\Mailer\Message;
 use Cake\Mailer\Transport\DebugTransport;
-use Cake\Mailer\Email;
 
 /**
  * Flash Transport class, used during development to display the email in a flash message
@@ -27,14 +27,12 @@ use Cake\Mailer\Email;
 class FlashTransport extends DebugTransport {
 
 	/**
-	 * Send mail
-	 *
-	 * @param \Cake\Mailer\Email $email Cake Email
-	 * @return array
+	 * @inheritDoc
 	 */
-	public function send(Email $email) {
-		$result = parent::send($email);
-		$event = new CakeEvent('Mailer.Transport.flash', $this, [$email, $result]);
+	public function send(Message $message): array {
+		$result = parent::send($message);
+		$event = new CakeEvent('Mailer.Transport.flash', $this, [$message, $result]);
 		EventManager::instance()->dispatch($event);
+		return [];
 	}
 }

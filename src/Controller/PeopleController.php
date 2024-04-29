@@ -78,8 +78,8 @@ class PeopleController extends AppController {
 
 		// TODO: Multiple default sort fields break pagination links.
 		// https://github.com/cakephp/cakephp/issues/7324 has related info.
-		//$this->paginate['order'] = ['People.last_name', 'People.first_name', 'People.id'];
-		$this->paginate['order'] = ['People.last_name'];
+		//$this->paginate['order'] = ['People.last_name' => 'ASC', 'People.first_name' => 'ASC', 'People.id' => 'ASC'];
+		$this->paginate['order'] = ['People.last_name' => 'ASC'];
 
 		$query = $this->People->find()
 			->distinct(['People.id'])
@@ -131,6 +131,11 @@ class PeopleController extends AppController {
 		$this->Authorization->authorize($this);
 		$affiliates = $this->Authentication->applicableAffiliateIDs(true);
 		$this->set(compact('affiliates'));
+
+		// @todo Cake4: With the default strategy, the queries below all generate "Unable to load association. Ensure foreign key is selected." errors
+		$this->People->Affiliates->setStrategy('subquery');
+		$this->People->AffiliatesPeople->setStrategy('subquery');
+		$this->People->Groups->setStrategy('subquery');
 
 		// Get the list of accounts by status
 		$query = $this->People->find();
@@ -199,6 +204,12 @@ class PeopleController extends AppController {
 
 		// Get the list of players by age
 		if (Configure::read('profile.birthdate')) {
+			// @todo Cake4: Better solution for all of this; the toArray call can go away when the behavior mods do
+			$groupConfig = $this->People->Groups->getBehavior('Translate')->getConfig();
+			$affiliateConfig = $this->People->Affiliates->getBehavior('Translate')->getConfig();
+			$this->People->Groups->removeBehavior('Translate');
+			$this->People->Affiliates->removeBehavior('Translate');
+
 			$query = $this->People->find();
 			$this->set('age_count', $query
 				->select([
@@ -222,7 +233,11 @@ class PeopleController extends AppController {
 				])
 				->group(['AffiliatesPeople.affiliate_id', 'Skills.sport', 'age_bucket'])
 				->order(['Affiliates.name', 'Skills.sport', 'age_bucket'])
+				->toArray()
 			);
+
+			$this->People->Groups->addBehavior('Translate', $groupConfig);
+			$this->People->Affiliates->addBehavior('Translate', $affiliateConfig);
 		}
 
 		// Get the list of players by year started for each sport
@@ -437,7 +452,7 @@ class PeopleController extends AppController {
 				$this->Flash->warning(__('Failed to queue your report request.'));
 			} else {
 				$this->Flash->success(__('Your report request has been queued; the report should be emailed to you in a few minutes.'));
-				$this->redirect('/');
+				return $this->redirect('/');
 			}
 		}
 	}
@@ -471,7 +486,7 @@ class PeopleController extends AppController {
 				$this->Flash->warning(__('Failed to queue your report request.'));
 			} else {
 				$this->Flash->success(__('Your report request has been queued; the report should be emailed to you in a few minutes.'));
-				$this->redirect('/');
+				return $this->redirect('/');
 			}
 		}
 	}
@@ -663,7 +678,7 @@ class PeopleController extends AppController {
 		$this->set('groups', $this->People->Groups->find('options', ['Groups.require_player' => true])->toArray());
 		$this->_loadAffiliateOptions();
 
-		$users_table = $this->loadModel(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'));
+		$users_table = $this->fetchTable(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'));
 		try {
 			$contain = $associated = ['Affiliates', 'Skills', 'Groups'];
 			if ($users_table->manageUsers) {
@@ -2555,8 +2570,8 @@ class PeopleController extends AppController {
 				// Set the default pagination order; query params may override it.
 				// TODO: Multiple default sort fields break pagination links.
 				// https://github.com/cakephp/cakephp/issues/7324 has related info.
-				//$this->paginate['order'] = ['People.last_name', 'People.first_name', 'People.id'];
-				$this->paginate['order'] = ['People.last_name'];
+				//$this->paginate['order'] = ['People.last_name' => 'ASC', 'People.first_name' => 'ASC', 'People.id' => 'ASC'];
+				$this->paginate['order'] = ['People.last_name' => 'ASC'];
 
 				$query = $this->People->find()
 					->contain([

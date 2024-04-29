@@ -2,6 +2,7 @@
 namespace App\Model\Table;
 
 use App\Model\Entity\Event;
+use App\Model\Entity\Price;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
@@ -282,6 +283,21 @@ class EventsTable extends AppTable {
 		}, 'validName', [
 			'errorField' => 'name',
 			'message' => __('There is already an event of this type open at the same time with the same name.'),
+		]);
+
+		$rules->add(function (EntityInterface $entity, array $options) {
+			/** @var Event $entity */
+			if ($entity->open_cap == CAP_UNLIMITED) {
+				return true;
+			}
+
+			return collection($entity->prices ?? [])
+				->every(function (Price $price) {
+					return $price->allow_reservations;
+				});
+		}, 'validReservation', [
+			'errorField' => 'open_cap',
+			'message' => __('Any event with a cap must enable reservations on all price points.'),
 		]);
 
 		return $rules;

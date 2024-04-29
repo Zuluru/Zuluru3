@@ -329,8 +329,8 @@ if (Configure::read('profile.birthdate')) {
 			'templates' => [
 				'dateWidget' => '{{year}}',
 				// Change the input container template, removing the "date" class, so it doesn't get a date picker added
-				'inputContainer' => '<div class="form-group {{required}}">{{content}}</div>',
-				'inputContainerError' => '<div class="form-group {{required}} has-error">{{content}}</div>',
+				'inputContainer' => '<div class="mb-3 form-group row {{required}}">{{content}}</div>',
+				'inputContainerError' => '<div class="mb-3 form-group row {{required}} has-error">{{content}}</div>',
 			],
 			'minYear' => Configure::read('options.year.born.min'),
 			'maxYear' => Configure::read('options.year.born.max'),
@@ -427,8 +427,8 @@ if (array_key_exists(GROUP_PARENT, $groups)):
 				'templates' => [
 					'dateWidget' => '{{year}}',
 					// Change the input container template, removing the "date" class, so it doesn't get a date picker added
-					'inputContainer' => '<div class="form-group {{required}}">{{content}}</div>',
-					'inputContainerError' => '<div class="form-group {{required}} has-error">{{content}}</div>',
+					'inputContainer' => '<div class="mb-3 form-group row {{required}}">{{content}}</div>',
+					'inputContainerError' => '<div class="mb-3 form-group row {{required}} has-error">{{content}}</div>',
 				],
 				'minYear' => Configure::read('options.year.born.min'),
 				'maxYear' => Configure::read('options.year.born.max'),

@@ -22,8 +22,8 @@ if ($division->isNew()) {
 // template set from the Bootstrap FormHelper, not the default templates from Bootstrap FormHelper
 // or default templates from CakePHP FormHelper.
 $advanced = [
-	'inputContainer' => '<div class="form-group advanced {{type}}{{required}}">{{content}}</div>',
-	'inputContainerError' => '<div class="form-group advanced {{type}}{{required}} has-error">{{content}}</div>',
+	'inputContainer' => '<div class="mb-3 form-group row advanced {{type}}{{required}}">{{content}}</div>',
+	'inputContainerError' => '<div class="mb-3 form-group row advanced {{type}}{{required}} has-error">{{content}}</div>',
 ];
 ?>
 

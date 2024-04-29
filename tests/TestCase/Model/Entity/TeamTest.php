@@ -147,6 +147,10 @@ class TeamTest extends TestCase {
 		$playoff_team = TeamFactory::make(['name' => $team->name])->with('Divisions', ['current_round' => 'playoff', 'league_id' => $team->division->league_id])->persist();
 		$this->assertNotNull($playoff_team->affiliated_team);
 		$this->assertEquals($team->id, $playoff_team->affiliated_team->id);
+
+		// TODO: Test with franchises
+		//Configure::write('feature.franchises', true);
+		//$franchise = FranchiseFactory::...
 	}
 
 }

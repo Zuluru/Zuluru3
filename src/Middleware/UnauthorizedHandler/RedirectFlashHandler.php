@@ -1,7 +1,6 @@
 <?php
 namespace App\Middleware\UnauthorizedHandler;
 
-use App\Event\FlashTrait;
 use Authorization\Exception\Exception;
 use Authorization\Middleware\UnauthorizedHandler\RedirectHandler;
 use Cake\Http\Response;
@@ -13,10 +12,6 @@ use Psr\Http\Message\ServerRequestInterface;
  * This handler will add a flash message and redirect the response if one of configured exception classes is encountered.
  */
 class RedirectFlashHandler extends RedirectHandler {
-
-	// This isn't called anywhere in here, but the exception handlers registered in the
-	// handler setup use it.
-	use FlashTrait;
 
 	/**
 	 * Return a response with a location header set if an exception matches.

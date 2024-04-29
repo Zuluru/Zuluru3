@@ -3,8 +3,8 @@
 * @var \App\Model\Entity\Game $game
 */
 ?>
-			<dt><?= __('Rating Points') ?></dt>
-			<dd>
+			<dt class="col-sm-2 text-end"><?= __('Rating Points') ?></dt>
+			<dd class="col-sm-10 mb-0">
 <?php
 if ($game->home_score == $game->away_score && $game->rating_points == 0) {
 	echo __('No points were transferred between teams');

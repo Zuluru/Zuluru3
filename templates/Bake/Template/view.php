@@ -44,7 +44,7 @@ $this->Breadcrumbs->add(__('View'));
 
 <div class="<%= $pluralVar %> view">
 	<h2><?= h($<%= $singularVar %>-><%= $displayField %>) ?></h2>
-	<dl class="dl-horizontal">
+	<dl class="row">
 <%
 foreach ($fields as $field):
 	if (in_array($field, $primaryKey) || $field == $displayField) {
@@ -54,24 +54,24 @@ foreach ($fields as $field):
 	if (isset($associationFields[$field])):
 		$details = $associationFields[$field];
 %>
-		<dt><?= __('<%= Inflector::humanize($details['property']) %>') ?></dt>
-		<dd><?= $<%= $singularVar %>->has('<%= $details['property'] %>') ? $this->Html->link($<%= $singularVar %>-><%= $details['property'] %>-><%= $details['displayField'] %>, ['controller' => '<%= $details['controller'] %>', 'action' => 'view', '?' => ['<%= $details['property'] %>' => $<%= $singularVar %>-><%= $details['property'] %>-><%= $details['primaryKey'][0] %>]]) : '' ?></dd>
+		<dt class="col-sm-2 text-end"><?= __('<%= Inflector::humanize($details['property']) %>') ?></dt>
+		<dd class="col-sm-10 mb-0"><?= $<%= $singularVar %>->has('<%= $details['property'] %>') ? $this->Html->link($<%= $singularVar %>-><%= $details['property'] %>-><%= $details['displayField'] %>, ['controller' => '<%= $details['controller'] %>', 'action' => 'view', '?' => ['<%= $details['property'] %>' => $<%= $singularVar %>-><%= $details['property'] %>-><%= $details['primaryKey'][0] %>]]) : '' ?></dd>
 <% else : %>
-		<dt><?= __('<%= Inflector::humanize($field) %>') ?></dt>
+		<dt class="col-sm-2 text-end"><?= __('<%= Inflector::humanize($field) %>') ?></dt>
 <% if (in_array($type, ['integer', 'biginteger', 'decimal', 'float'])): %>
-		<dd><?= $this->Number->format($<%= $singularVar %>-><%= $field %>) ?></dd>
+		<dd class="col-sm-10 mb-0"><?= $this->Number->format($<%= $singularVar %>-><%= $field %>) ?></dd>
 <% elseif ($type == 'date'): %>
-		<dd><?= $this->Time->date($<%= $singularVar %>-><%= $field %>) ?></dd>
+		<dd class="col-sm-10 mb-0"><?= $this->Time->date($<%= $singularVar %>-><%= $field %>) ?></dd>
 <% elseif ($type == 'time'): %>
-		<dd><?= $this->Time->time($<%= $singularVar %>-><%= $field %>) ?></dd>
+		<dd class="col-sm-10 mb-0"><?= $this->Time->time($<%= $singularVar %>-><%= $field %>) ?></dd>
 <% elseif (in_array($type, ['datetime', 'timestamp'])): %>
-		<dd><?= $this->Time->datetime($<%= $singularVar %>-><%= $field %>) ?></dd>
+		<dd class="col-sm-10 mb-0"><?= $this->Time->datetime($<%= $singularVar %>-><%= $field %>) ?></dd>
 <% elseif ($type == 'boolean'): %>
-		<dd><?= $<%= $singularVar %>-><%= $field %> ? __('Yes') : __('No') ?></dd>
+		<dd class="col-sm-10 mb-0"><?= $<%= $singularVar %>-><%= $field %> ? __('Yes') : __('No') ?></dd>
 <% elseif ($type == 'text'): %>
 		<?= $this->Text->autoParagraph(h($<%= $singularVar %>-><%= $field %>)) ?>
 <% else : %>
-		<dd><?= h($<%= $singularVar %>-><%= $field %>) ?>&nbsp;</dd>
+		<dd class="col-sm-10 mb-0"><?= h($<%= $singularVar %>-><%= $field %>) ?>&nbsp;</dd>
 <% endif; %>
 <% endif; %>
 <% endforeach; %>

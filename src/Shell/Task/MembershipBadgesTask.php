@@ -26,7 +26,7 @@ class MembershipBadgesTask extends Shell {
 				'Badges.category' => 'registration',
 				'Badges.active' => true,
 			]);
-		if ($badges->isEmpty()) {
+		if ($badges->all()->isEmpty()) {
 			return;
 		}
 
@@ -38,16 +38,11 @@ class MembershipBadgesTask extends Shell {
 		// Find all membership events for which the membership has started,
 		// but we haven't opened it. The only ones that can possibly be
 		// opened are ones that are closed, but not even all of those will be.
-		// TODO: Improve this query
 		$events = $events_table->find()
+			->contain(['EventTypes'])
 			->where([
-				'open <=' => FrozenDate::now(),
-				'affiliate_id IN' => AppController::_applicableAffiliateIDs(),
-				'event_type_id IN' => $events_table->EventTypes->find('list', [
-					'conditions' => ['type' => 'membership'],
-					'keyFields' => 'id',
-					'valueField' => 'id',
-				]),
+				'Events.open <=' => FrozenDate::now(),
+				'EventTypes.type' => 'membership',
 			]);
 
 		$opened = $logs_table->find('list', [
@@ -55,8 +50,8 @@ class MembershipBadgesTask extends Shell {
 			'keyFields' => 'id',
 			'valueField' => 'custom',
 		]);
-		if (!$opened->isEmpty()) {
-			$events->andWhere(['NOT' => ['id IN' => $opened->toArray()]]);
+		if (!$opened->all()->isEmpty()) {
+			$events->andWhere(['Events.id NOT IN' => $opened->toArray()]);
 		}
 
 		// Add membership badges for each of those events.
@@ -64,7 +59,6 @@ class MembershipBadgesTask extends Shell {
 			if ($event->membership_begins <= $today) {
 				// TODO: This method is super slow. Any way to improve on it?
 				$events_table->loadInto($event, [
-					'EventTypes',
 					'Registrations' => [
 						'queryBuilder' => function (Query $q) {
 							return $q->where(['Registrations.payment IN' => Configure::read('registration_paid')]);
@@ -85,14 +79,10 @@ class MembershipBadgesTask extends Shell {
 		// but we haven't closed it. The only ones that can possibly be
 		// ended are ones that are closed, but not even all of those will be.
 		$events = $events_table->find()
+			->contain(['EventTypes'])
 			->where([
-				'close <' => FrozenDate::now(),
-				'affiliate_id IN' => AppController::_applicableAffiliateIDs(),
-				'event_type_id IN' => $events_table->EventTypes->find('list', [
-					'conditions' => ['type' => 'membership'],
-					'keyFields' => 'id',
-					'valueField' => 'id',
-				]),
+				'Events.close <' => FrozenDate::now(),
+				'EventTypes.type' => 'membership',
 			]);
 
 		$closed = $logs_table->find('list', [
@@ -100,14 +90,13 @@ class MembershipBadgesTask extends Shell {
 			'keyFields' => 'id',
 			'valueField' => 'custom',
 		]);
-		if (!$closed->isEmpty()) {
-			$events->andWhere(['NOT' => ['id IN' => $closed->toArray()]]);
+		if (!$closed->all()->isEmpty()) {
+			$events->andWhere(['Events.id NOT IN' => $closed->toArray()]);
 		}
 
 		foreach ($events as $event) {
 			if ($event->membership_ends <= $today) {
 				$events_table->loadInto($event, [
-					'EventTypes',
 					'Registrations' => [
 						'queryBuilder' => function (Query $q) {
 							return $q->where(['Registrations.payment IN' => Configure::read('registration_paid')]);

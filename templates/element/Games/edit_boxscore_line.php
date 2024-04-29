@@ -26,7 +26,9 @@ if ($detail->play == 'Start') {
 		'value' => $detail->id,
 	]);
 	// TODO: Add security to this, somehow. Low priority, as it's already restricted by permissions to people we purportedly trust.
-	$this->Form->unlockField("score_details.{$detail->id}.id");
+	if ($this->Form->hasFormProtector()) {
+		$this->Form->unlockField("score_details.{$detail->id}.id");
+	}
 	// TODO: When the team is changed, change the player options. In the meantime, just make it fixed.
 	if ($stats) {
 		echo $team_names[$detail->team_id];
@@ -34,7 +36,9 @@ if ($detail->play == 'Start') {
 			'value' => $detail->team_id,
 		]);
 		// TODO: Add security to this, somehow. Low priority, as it's already restricted by permissions to people we purportedly trust.
-		$this->Form->unlockField("score_details.{$detail->id}.team_id");
+		if ($this->Form->hasFormProtector()) {
+			$this->Form->unlockField("score_details.{$detail->id}.team_id");
+		}
 	} else {
 		echo $this->Form->control("score_details.{$detail->id}.team_id", [
 			'type' => 'select',
@@ -56,10 +60,11 @@ if ($detail->play == 'Start') {
 		'value' => $day,
 	]);
 	// TODO: Add security to this, somehow. Low priority, as it's already restricted by permissions to people we purportedly trust.
-	$this->Form->unlockField("score_details.{$detail->id}.created.year");
-	$this->Form->unlockField("score_details.{$detail->id}.created.month");
-	$this->Form->unlockField("score_details.{$detail->id}.created.day");
-
+	if ($this->Form->hasFormProtector()) {
+		$this->Form->unlockField("score_details.{$detail->id}.created.year");
+		$this->Form->unlockField("score_details.{$detail->id}.created.month");
+		$this->Form->unlockField("score_details.{$detail->id}.created.day");
+	}
 	echo $this->Form->control("score_details.{$detail->id}.created", [
 		'type' => 'time',
 		'value' => $detail->created,

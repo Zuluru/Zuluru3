@@ -2,7 +2,7 @@
 
 namespace App\View\Helper;
 
-use Cake\View\Helper\BreadcrumbsHelper;
+use BootstrapUI\View\Helper\BreadcrumbsHelper;
 
 class ZuluruBreadcrumbsHelper extends BreadcrumbsHelper
 {
