@@ -126,9 +126,10 @@ class NewslettersController extends AppController {
 	public function edit() {
 		$id = $this->getRequest()->getQuery('newsletter');
 		try {
-			$newsletter = $this->Newsletters->get($id, [
-				'contain' => ['MailingLists']
-			]);
+			$newsletter = $this->Newsletters->find('translations')
+				->contain(['MailingLists'])
+				->where(['Newsletters.id' => $id])
+				->firstOrFail();
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid newsletter.'));
 			return $this->redirect(['action' => 'index']);

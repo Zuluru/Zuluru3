@@ -8,6 +8,7 @@ use Cake\Event\Event as CakeEvent;
 use Cake\ORM\RulesChecker;
 use Cake\Routing\Router;
 use Cake\Validation\Validator;
+use InvalidArgumentException;
 
 /**
  * Newsletters Model

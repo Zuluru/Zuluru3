@@ -7,6 +7,7 @@ use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
 use Cake\Core\Configure;
 use App\Model\Rule\InConfigRule;
+use InvalidArgumentException;
 
 /**
  * Fields Model

@@ -4,6 +4,7 @@ namespace App\Model\Table;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
+use InvalidArgumentException;
 
 /**
  * UploadTypes Model

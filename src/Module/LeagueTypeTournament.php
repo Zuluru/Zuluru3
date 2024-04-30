@@ -1150,9 +1150,8 @@ class LeagueTypeTournament extends LeagueType {
 		foreach ($games as $game) {
 			if (empty($game->home_dependency_type) || $game->home_dependency_type != 'copy') {
 				if (is_array($division->_options->start_date)) {
-					// TODO: See discussion of CakePHP bug in templates/Schedules/date.php
-					$date = new FrozenDate($division->_options->start_date["round{$game->round}"]);
-					$time = new FrozenTime($division->_options->start_date["round{$game->round}"]);
+					$date = new FrozenDate($division->_options->start_date[$game->round]);
+					$time = new FrozenTime($division->_options->start_date[$game->round]);
 					$game_slot = $this->selectRoundGameslot($division, $date, $time->i18nFormat('HH:mm'), $game->round, false);
 				} else {
 					// '0' is a non-blank string which collection::filter can compare to, but will always be less than any actual time

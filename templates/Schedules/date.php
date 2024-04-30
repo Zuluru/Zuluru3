@@ -96,10 +96,7 @@ else:
 <?php
 		$dates = array_map([$this->Time, 'fulldatetime'], $dates);
 		foreach (array_keys($preview) as $round) {
-			// TODO: Seems there's a CakePHP bug where just using .$round causes the submission from the confirm page to be black-holed;
-			// numeric keyed hidden inputs aren't handled correctly. When that's fixed, we can change ".round$round" to just ".$round",
-			// and make the corresponding change in LeagueTypeTournament::assignFieldsByRound.
-			echo $this->Form->control("_options.start_date.round$round", [
+			echo $this->Form->control("_options.start_date.$round", [
 				'label' => __('Round {0}', $round),
 				'options' => $dates,
 			]);

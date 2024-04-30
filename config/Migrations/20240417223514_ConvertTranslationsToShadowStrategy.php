@@ -55,7 +55,7 @@ class ConvertTranslationsToShadowStrategy extends AbstractMigration
 
 			// Create the new table
 			$newTable = $this->table("{$tableName}_translations", [
-				'id' => false, 'primary_key' => ['id', 'locale']
+				'id' => false, 'primary_key' => ['id', 'locale'], 'collation' => 'utf8mb4_unicode_ci',
 			])
 				->addColumn('id', 'integer', [
 					'default' => null,
@@ -79,6 +79,10 @@ class ConvertTranslationsToShadowStrategy extends AbstractMigration
 			if ($table->hasBehavior('Timestamp')) {
 				$table->removeBehavior('Timestamp');
 			}
+
+			$table->getEventManager()->off('Model.beforeSave');
+			$table->getEventManager()->off('Model.afterSave');
+			$table->getEventManager()->off('Model.afterSaveCommit');
 
 			foreach ($locales as $locale) {
 				// Load all the existing translations
@@ -112,7 +116,7 @@ class ConvertTranslationsToShadowStrategy extends AbstractMigration
 						// Create shadow table records
 						if (!empty($translation)) {
 							$record = $shadow->newEntity(compact('id', 'locale') + $translation);
-							$shadow->save($record);
+							$shadow->save($record, ['checkRules' => false]);
 						}
 					}
 				}

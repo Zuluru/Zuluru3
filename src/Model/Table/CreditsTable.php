@@ -8,6 +8,7 @@ use Cake\Event\Event;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
+use InvalidArgumentException;
 
 /**
  * Credits Model

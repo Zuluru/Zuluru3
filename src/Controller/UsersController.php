@@ -459,8 +459,8 @@ class UsersController extends AppController {
 			'data' => [
 				'token' => JWT::encode([
 					'sub' => $user[TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'))->getPrimaryKey()],
-					'exp' =>  FrozenTime::now()->addWeeks(1)->toUnixString()
-				], Security::getSalt())
+					'exp' =>  FrozenTime::now()->addWeeks(1)->toUnixString(),
+				], Security::getSalt(), 'HS256')
 			],
 		]);
 		$this->viewBuilder()->setOption('serialize', ['success', 'data']);

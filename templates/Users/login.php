@@ -1,6 +1,11 @@
 <?php
 /**
  * @var \App\View\AppView $this
+ * @var string $user_field
+ * @var string $pwd_field
+ * @var bool $failed
+ * @var array|string|null $redirect
+ *
  */
 
 use Cake\Core\Configure;

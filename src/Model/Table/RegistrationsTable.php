@@ -18,6 +18,7 @@ use Cake\Validation\Validator;
 use App\Controller\AppController;
 use App\Core\UserCache;
 use App\Core\ModuleRegistry;
+use InvalidArgumentException;
 
 /**
  * Registrations Model

@@ -17,6 +17,7 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
 use App\Core\UserCache;
+use InvalidArgumentException;
 
 /**
  * Users Model

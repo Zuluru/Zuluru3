@@ -7,6 +7,7 @@ use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Event\Event as CakeEvent;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
+use InvalidArgumentException;
 
 /**
  * Questionnaires Model

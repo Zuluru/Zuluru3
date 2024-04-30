@@ -61,7 +61,9 @@ class HolidaysController extends AppController {
 	public function edit() {
 		$id = $this->getRequest()->getQuery('holiday');
 		try {
-			$holiday = $this->Holidays->get($id);
+			$holiday = $this->Holidays->find('translations')
+				->where(['Holidays.id' => $id])
+				->firstOrFail();
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid holiday.'));
 			return $this->redirect(['action' => 'index']);

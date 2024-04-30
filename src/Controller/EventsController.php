@@ -473,17 +473,18 @@ class EventsController extends AppController {
 	public function edit() {
 		$id = $this->getRequest()->getQuery('event');
 		try {
-			$event = $this->Events->get($id, [
-				'contain' => [
+			$event = $this->Events->find('translations')
+				->contain([
 					'EventTypes',
 					'Prices' => [
 						'queryBuilder' => function ($q) {
-							return $q->order(['Prices.open', 'Prices.close', 'Prices.id']);
+							return $q->find('translations')->order(['Prices.open', 'Prices.close', 'Prices.id']);
 						},
 					],
 					'Divisions',
-				],
-			]);
+				])
+				->where(['Events.id' => $id])
+				->firstOrFail();
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid event.'));
 			return $this->redirect(['action' => 'index']);

@@ -312,20 +312,10 @@ class TeamsTable extends AppTable {
 		$teams = $this->find()
 			->contain([
 				'Divisions' => [
-					'queryBuilder' => function (Query $q) {
-						return $q->find('translations');
-					},
 					'Leagues' => [
-						'queryBuilder' => function (Query $q) {
-							return $q->find('translations');
-						},
 						'Affiliates',
 					],
-					'Days' => [
-						'queryBuilder' => function (Query $q) {
-							return $q->find('translations');
-						},
-					],
+					'Days',
 				],
 				'Franchises',
 			])

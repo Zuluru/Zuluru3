@@ -10,6 +10,7 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
 use App\Model\Rule\InConfigRule;
+use InvalidArgumentException;
 
 /**
  * Waivers Model

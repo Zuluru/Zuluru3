@@ -117,15 +117,16 @@ class QuestionsController extends AppController {
 	public function edit() {
 		$id = $this->getRequest()->getQuery('question');
 		try {
-			$question = $this->Questions->get($id, [
-				'contain' => [
+			$question = $this->Questions->find('translations')
+				->contain([
 					'Answers' => [
 						'queryBuilder' => function (Query $q) {
-							return $q->order(['Answers.sort']);
+							return $q->find('translations')->order(['Answers.sort']);
 						},
 					],
-				]
-			]);
+				])
+				->where(['Questions.id' => $id])
+				->firstOrFail();
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid question.'));
 			return $this->redirect(['action' => 'index']);
@@ -322,10 +323,11 @@ class QuestionsController extends AppController {
 		$this->Authorization->authorize($affiliate);
 
 		$this->set('questions', $this->Questions->find()
+			->leftJoinWith('QuestionsTranslations')
 			->where([
 				'OR' => [
 					'Questions.question LIKE' => '%' . $this->getRequest()->getQuery('term') . '%',
-					'QuestionsTranslation.question LIKE' => '%' . $this->getRequest()->getQuery('term') . '%',
+					'QuestionsTranslations.question LIKE' => '%' . $this->getRequest()->getQuery('term') . '%',
 				],
 				'Questions.active' => true,
 				'Questions.affiliate_id' => $affiliate->id,

@@ -10,6 +10,7 @@ use Cake\ORM\RulesChecker;
 use Cake\Routing\Router;
 use Cake\Validation\Validator;
 use App\Model\Rule\InConfigRule;
+use InvalidArgumentException;
 
 /**
  * Payments Model

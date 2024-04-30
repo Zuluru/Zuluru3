@@ -178,7 +178,9 @@ class MailingListsController extends AppController {
 	public function edit() {
 		$id = $this->getRequest()->getQuery('mailing_list');
 		try {
-			$mailing_list = $this->MailingLists->get($id);
+			$mailing_list = $this->MailingLists->find('translations')
+				->where(['MailingLists.id' => $id])
+				->firstOrFail();
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid mailing list.'));
 			return $this->redirect(['action' => 'index']);

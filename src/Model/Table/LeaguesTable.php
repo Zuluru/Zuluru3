@@ -13,6 +13,7 @@ use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
 use App\Core\UserCache;
 use App\Model\Rule\InConfigRule;
+use InvalidArgumentException;
 
 /**
  * Leagues Model

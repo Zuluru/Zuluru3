@@ -35,7 +35,7 @@
         "ozee31/cakephp-cors": "^2.0",
         "cakephp/authentication": "^2.9",
         "cakephp/authorization": "^2.4",
-        "firebase/php-jwt": "^5.0",
+        "firebase/php-jwt": "^6",
         "stripe/stripe-php": "^7.39",
         "symfony/yaml": "3.4.37",
         "cakephp/plugin-installer": "^1.3",

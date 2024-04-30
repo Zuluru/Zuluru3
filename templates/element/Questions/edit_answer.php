@@ -17,7 +17,7 @@ if (!isset($i)) {
 		'label' => false,
 		'type' => 'text',
 		'size' => 60,
-		'value' => $answer->answer,
+		'values' => $answer,
 	]);
 	?></td>
 	<td class="actions"><?php

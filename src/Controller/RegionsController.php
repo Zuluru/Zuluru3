@@ -82,7 +82,9 @@ class RegionsController extends AppController {
 	public function edit() {
 		$id = $this->getRequest()->getQuery('region');
 		try {
-			$region = $this->Regions->get($id);
+			$region = $this->Regions->find('translations')
+				->where(['Regions.id' => $id])
+				->firstOrFail();
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid region.'));
 			return $this->redirect(['action' => 'index']);

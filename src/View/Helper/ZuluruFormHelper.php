@@ -155,13 +155,27 @@ class ZuluruFormHelper extends FormHelper {
 			$prefix = '';
 		}
 
+		if (isset($options['values'])) {
+			$valueEntity = $options['values'];
+			unset($options['values']);
+		}
+
 		$controls = [];
 		$default = Configure::read('App.defaultLocale');
 		foreach ($locales as $locale => $language) {
 			if ($locale === $default) {
 				$inputName = $prefix . $fieldName;
+				if (isset($valueEntity)) {
+					$options['value'] = $valueEntity->{$fieldName};
+				}
 			} else {
 				$inputName = "{$prefix}_translations.{$locale}.{$fieldName}";
+				if (isset($valueEntity)) {
+					$translation = $valueEntity->translation($locale);
+					if ($translation->{$fieldName}) {
+						$options['value'] = $translation->{$fieldName};
+					}
+				}
 			}
 
 			$controls[] = $this->control($inputName, ['label' => __(Inflector::humanize($fieldName)) . ' (' . $language . ')'] + $options);

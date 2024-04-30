@@ -12,6 +12,7 @@ use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 /**
  * App\Controller\UsersController Test Case
@@ -471,7 +472,7 @@ class UsersControllerTest extends ControllerTestCase {
 		$this->assertTrue($response['success']);
 		$this->assertArrayHasKey('data', $response);
 		$this->assertArrayHasKey('token', $response['data']);
-		$token_data = JWT::decode($response['data']['token'], \Cake\Utility\Security::getSalt(), ['HS256']);
+		$token_data = JWT::decode($response['data']['token'], new Key(\Cake\Utility\Security::getSalt(), 'HS256'));
 		$this->assertObjectHasAttribute('sub', $token_data);
 		$this->assertEquals($admin->user_id, $token_data->sub);
 		$this->assertObjectHasAttribute('exp', $token_data);

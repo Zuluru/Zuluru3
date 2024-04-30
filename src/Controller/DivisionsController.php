@@ -234,9 +234,10 @@ class DivisionsController extends AppController {
 	public function edit() {
 		$id = intval($this->getRequest()->getQuery('division'));
 		try {
-			$division = $this->Divisions->get($id, [
-				'contain' => ['Leagues', 'Days'],
-			]);
+			$division = $this->Divisions->find('translations')
+				->contain(['Leagues', 'Days'])
+				->where(['Divisions.id' => $id])
+				->firstOrFail();
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid division.'));
 			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
@@ -597,71 +598,61 @@ class DivisionsController extends AppController {
 	public function schedule() {
 		$id = intval($this->getRequest()->getQuery('division'));
 
-		// Hopefully, everything we need is already cached
-		$division = Cache::remember("division_{$id}_schedule", function () use ($id) {
-			try {
-				$division = $this->Divisions->get($id, [
-					'finder' => 'translations',
-					'contain' => [
-						'Days' => [
+		try {
+			$division = $this->Divisions->get($id, [
+				'contain' => [
+					'Days' => [
+						'queryBuilder' => function (Query $q) {
+							return $q->order(['DivisionsDays.day_id']);
+						},
+					],
+					'Teams',
+					'Leagues' => [
+						'StatTypes' => [
 							'queryBuilder' => function (Query $q) {
-								return $q->order(['DivisionsDays.day_id']);
+								return $q->where(['StatTypes.type' => 'entered']);
 							},
-						],
-						'Teams',
-						'Leagues' => [
-							'StatTypes' => [
-								'queryBuilder' => function (Query $q) {
-									return $q->where(['StatTypes.type' => 'entered']);
-								},
-							],
-						],
-						'Games' => [
-							'queryBuilder' => function (Query $q) {
-								return $q->where([
-									'OR' => [
-										'Games.home_dependency_type !=' => 'copy',
-										'Games.home_dependency_type IS' => null,
-									],
-								]);
-							},
-							'GameSlots' => [
-								'Fields' => [
-									'Facilities',
-								],
-							],
-							'ScoreEntries',
-							'HomeTeam',
-							'HomePoolTeam' => [
-								'DependencyPool',
-							],
-							'AwayTeam',
-							'AwayPoolTeam' => [
-								'DependencyPool',
-							],
-							'Pools',
 						],
 					],
-				]);
-			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
-				$this->Flash->info(__('Invalid division.'));
-				return null;
-			}
-
-			if (empty($division->games)) {
-				$this->Flash->info(__('This division has no games scheduled yet.'));
-				return null;
-			}
-
-			// Sort games by date, time and field
-			usort($division->games, [GamesTable::class, 'compareDateAndField']);
-
-			return $division;
-		}, 'long_term');
-
-		if (!$division) {
-			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
+					'Games' => [
+						'queryBuilder' => function (Query $q) {
+							return $q->where([
+								'OR' => [
+									'Games.home_dependency_type !=' => 'copy',
+									'Games.home_dependency_type IS' => null,
+								],
+							]);
+						},
+						'GameSlots' => [
+							'Fields' => [
+								'Facilities',
+							],
+						],
+						'ScoreEntries',
+						'HomeTeam',
+						'HomePoolTeam' => [
+							'DependencyPool',
+						],
+						'AwayTeam',
+						'AwayPoolTeam' => [
+							'DependencyPool',
+						],
+						'Pools',
+					],
+				]
+			]);
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
+			$this->Flash->info(__('Invalid division.'));
+			return null;
 		}
+
+		if (empty($division->games)) {
+			$this->Flash->info(__('This division has no games scheduled yet.'));
+			return null;
+		}
+
+		// Sort games by date, time and field
+		usort($division->games, [GamesTable::class, 'compareDateAndField']);
 
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 

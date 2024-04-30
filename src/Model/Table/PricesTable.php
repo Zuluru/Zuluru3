@@ -13,6 +13,7 @@ use App\Model\Rule\GreaterDateRule;
 use App\Model\Rule\InConfigRule;
 use App\Model\Rule\InDateConfigRule;
 use App\Model\Rule\RuleSyntaxRule;
+use InvalidArgumentException;
 
 /**
  * Prices Model

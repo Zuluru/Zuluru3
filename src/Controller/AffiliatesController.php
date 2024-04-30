@@ -91,7 +91,9 @@ class AffiliatesController extends AppController {
 	public function edit() {
 		$id = $this->getRequest()->getQuery('affiliate');
 		try {
-			$affiliate = $this->Affiliates->get($id);
+			$affiliate = $this->Affiliates->find('translations')
+				->where(['Affiliates.id' => $id])
+				->firstOrFail();
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid affiliate.'));
 			return $this->redirect(['action' => 'index']);

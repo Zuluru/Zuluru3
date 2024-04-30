@@ -105,7 +105,9 @@ class CategoriesController extends AppController {
 	public function edit() {
 		$id = $this->getRequest()->getQuery('category');
 		try {
-			$category = $this->Categories->get($id);
+			$category = $this->Categories->find('translations')
+				->where(['Categories.id' => $id])
+				->firstOrFail();
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException  $ex) {
 			$this->Flash->info(__('Invalid category.'));
 			return $this->redirect(['action' => 'index']);

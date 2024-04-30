@@ -5,6 +5,7 @@ use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
 use App\Model\Rule\ValidPlayRule;
+use InvalidArgumentException;
 
 /**
  * ScoreDetails Model

@@ -85,7 +85,9 @@ class UploadTypesController extends AppController {
 	public function edit() {
 		$id = $this->getRequest()->getQuery('type');
 		try {
-			$upload_type = $this->UploadTypes->get($id);
+			$upload_type = $this->UploadTypes->find('translations')
+				->where(['UploadTypes.id' => $id])
+				->firstOrFail();
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid upload type.'));
 			return $this->redirect(['action' => 'index']);

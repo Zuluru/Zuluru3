@@ -5,6 +5,7 @@ use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
 use App\Model\Entity\League;
+use InvalidArgumentException;
 
 /**
  * SpiritEntries Model

@@ -74,7 +74,9 @@ class ContactsController extends AppController {
 	public function edit() {
 		$id = $this->getRequest()->getQuery('contact');
 		try {
-			$contact = $this->Contacts->get($id);
+			$contact = $this->Contacts->find('translations')
+				->where(['Contacts.id' => $id])
+				->firstOrFail();
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid contact.'));
 			return $this->redirect(['action' => 'index']);

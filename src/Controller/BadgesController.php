@@ -199,7 +199,9 @@ class BadgesController extends AppController {
 	public function edit() {
 		$id = $this->getRequest()->getQuery('badge');
 		try {
-			$badge = $this->Badges->get($id);
+			$badge = $this->Badges->find('translations')
+				->where(['Badges.id' => $id])
+				->firstOrFail();
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid badge.'));
 			return $this->redirect(['action' => 'index']);

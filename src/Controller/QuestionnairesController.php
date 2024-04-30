@@ -129,9 +129,10 @@ class QuestionnairesController extends AppController {
 	public function edit() {
 		$id = $this->getRequest()->getQuery('questionnaire');
 		try {
-			$questionnaire = $this->Questionnaires->get($id, [
-				'contain' => ['Questions']
-			]);
+			$questionnaire = $this->Questionnaires->find('translations')
+				->contain(['Questions'])
+				->where(['Questionnaires.id' => $id])
+				->firstOrFail();
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid questionnaire.'));
 			return $this->redirect(['action' => 'index']);

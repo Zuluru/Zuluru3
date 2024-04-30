@@ -167,6 +167,19 @@ TODOBOOTSTRAP: Fix the below for the games view page
 	padding: 2px 4px;
 }
 
+/* From https://github.com/heartcombo/simple_form-bootstrap/blob/main/app/assets/stylesheets/simple_form-bootstrap/_form_legend_clear.scss
+   In bootstrap 5 legend floats left and requires the following element
+   to be cleared. In a radio button or checkbox group the element after
+   the legend will be the automatically generated hidden input; the fix
+   in https://github.com/twbs/bootstrap/pull/30345 applies to the hidden
+   input and has no visual effect. Here we try to fix matters by
+   applying the clear to the div wrapping the first following radio button
+   or checkbox.
+ */
+legend ~ div.form-group:first-of-type {
+   clear: left;
+}
+
 /** Notices and Errors **/
 .zuluru div.error-message
 {

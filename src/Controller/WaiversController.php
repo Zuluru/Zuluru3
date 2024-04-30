@@ -106,7 +106,9 @@ class WaiversController extends AppController {
 	public function edit() {
 		$id = $this->getRequest()->getQuery('waiver');
 		try {
-			$waiver = $this->Waivers->get($id);
+			$waiver = $this->Waivers->find('translations')
+				->where(['Waivers.id' => $id])
+				->firstOrFail();
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid waiver.'));
 			return $this->redirect(['action' => 'index']);

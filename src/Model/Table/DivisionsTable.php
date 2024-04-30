@@ -22,6 +22,7 @@ use App\Model\Rule\InConfigRule;
 use App\Model\Rule\InDateConfigRule;
 use App\Model\Rule\LesserDateRule;
 use App\Model\Rule\RuleSyntaxRule;
+use InvalidArgumentException;
 
 /**
  * Divisions Model
@@ -488,18 +489,12 @@ class DivisionsTable extends AppTable {
 			];
 		}
 
-		$contain = [
-			'Leagues' => [
-				'queryBuilder' => function (Query $q) {
-					return $q->find('translations');
-				},
-			]
-		];
+		$contain = ['Leagues'];
 		if ($teams) {
 			$contain[] = 'Teams';
 		}
 
-		$divisions = $this->find('translations')
+		$divisions = $this->find()
 			->contain($contain)
 			->where($conditions)
 			->matching('People', function (Query $q) use ($id) {

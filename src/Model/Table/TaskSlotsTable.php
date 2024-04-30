@@ -7,6 +7,7 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
 use App\Model\Rule\InDateConfigRule;
+use InvalidArgumentException;
 
 /**
  * TaskSlots Model
@@ -100,14 +101,7 @@ class TaskSlotsTable extends AppTable {
 		return $query
 			->contain([
 				'Tasks' => [
-					'queryBuilder' => function (Query $q) {
-						return $q->find('translations');
-					},
-					'Categories' => [
-						'queryBuilder' => function (Query $q) {
-							return $q->find('translations');
-						},
-					],
+					'Categories',
 					'People',
 				],
 				'People',

@@ -324,9 +324,12 @@ class LeaguesController extends AppController {
 	public function edit() {
 		$id = $this->getRequest()->getQuery('league') ?: $this->getRequest()->getQuery('tournament');
 		try {
-			$league = $this->Leagues->get($id, [
-				'contain' => [
+			$league = $this->Leagues->find('translations')
+				->contain([
 					'Divisions' => [
+						'queryBuilder' => function (Query $q) {
+							return $q->find('translations');
+						},
 						'People',
 						'Days' => [
 							'queryBuilder' => function (Query $q) {
@@ -336,8 +339,9 @@ class LeaguesController extends AppController {
 					],
 					'Categories',
 					'StatTypes',
-				]
-			]);
+				])
+				->where(['Leagues.id' => $id])
+				->firstOrFail();
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid league.'));
 			return $this->redirect(['action' => 'index']);
@@ -428,79 +432,69 @@ class LeaguesController extends AppController {
 	public function schedule() {
 		$id = intval($this->getRequest()->getQuery('league') ?: $this->getRequest()->getQuery('tournament'));
 
-		// Hopefully, everything we need is already cached
-		$league = Cache::remember("league_{$id}_schedule", function () use ($id) {
-			try {
-				$league = $this->Leagues->get($id, [
-					'finder' => 'translations',
-					'contain' => [
-						'Divisions' => [
-							'Days',
-							'Teams',
-						],
+		try {
+			$league = $this->Leagues->get($id, [
+				'contain' => [
+					'Divisions' => [
+						'Days',
+						'Teams',
 					],
-				]);
-			} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
-				$this->Flash->info(__('Invalid league.'));
-				return null;
-			}
+				],
+			]);
+		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
+			$this->Flash->info(__('Invalid league.'));
+			return null;
+		}
 
-			$divisions = $this->Leagues->Divisions->find()
-				->contain([
-					'Games' => [
-						'queryBuilder' => function (Query $q) {
-							return $q->where([
-								'OR' => [
-									'Games.home_dependency_type !=' => 'copy',
-									'Games.home_dependency_type IS' => null,
-								],
-							]);
-						},
-						'GameSlots' => [
-							'Fields' => [
-								'Facilities',
+		$divisions = $this->Leagues->Divisions->find()
+			->contain([
+				'Games' => [
+					'queryBuilder' => function (Query $q) {
+						return $q->where([
+							'OR' => [
+								'Games.home_dependency_type !=' => 'copy',
+								'Games.home_dependency_type IS' => null,
 							],
+						]);
+					},
+					'GameSlots' => [
+						'Fields' => [
+							'Facilities',
 						],
-						'ScoreEntries',
-						'HomeTeam',
-						'HomePoolTeam' => [
-							'DependencyPool',
-						],
-						'AwayTeam',
-						'AwayPoolTeam' => [
-							'DependencyPool',
-						],
-						'Pools',
 					],
-				])
-				->where(['Divisions.id IN' => collection($league->divisions)->extract('id')->toArray()])
-				->toArray();
+					'ScoreEntries',
+					'HomeTeam',
+					'HomePoolTeam' => [
+						'DependencyPool',
+					],
+					'AwayTeam',
+					'AwayPoolTeam' => [
+						'DependencyPool',
+					],
+					'Pools',
+				],
+			])
+			->where(['Divisions.id IN' => collection($league->divisions)->extract('id')->toArray()])
+			->toArray();
 
-			$league->games = [];
-			foreach ($divisions as $division) {
-				$raw_division = $division;
-				$games = $division->games;
-				unset($raw_division->games);
-				foreach ($games as $game) {
-					$game->division = $raw_division;
-					$game->setDirty('division', false);
-					$league->games[] = $game;
-				}
+		$league->games = [];
+		foreach ($divisions as $division) {
+			$raw_division = $division;
+			$games = $division->games;
+			unset($raw_division->games);
+			foreach ($games as $game) {
+				$game->division = $raw_division;
+				$game->setDirty('division', false);
+				$league->games[] = $game;
 			}
-			if (empty($league->games)) {
-				$this->Flash->info(__('This league has no games scheduled yet.'));
-				return null;
-			}
-
-			// Sort games by date, time and field
-			usort($league->games, [GamesTable::class, 'compareDateAndField']);
-
-			return $league;
-		}, 'long_term');
-
-		if (!$league) {
+		}
+		if (empty($league->games)) {
+			$this->Flash->info(__('This league has no games scheduled yet.'));
 			return $this->redirect(['action' => 'index']);
 		}
+
+		// Sort games by date, time and field
+		usort($league->games, [GamesTable::class, 'compareDateAndField']);
 
 		$this->Configuration->loadAffiliate($league->affiliate_id);
 
@@ -608,7 +602,6 @@ class LeaguesController extends AppController {
 		$league = Cache::remember("league_{$id}_standings", function () use ($id) {
 			try {
 				$league = $this->Leagues->get($id, [
-					'finder' => 'translations',
 					'contain' => [
 						'Divisions' => [
 							'Days',

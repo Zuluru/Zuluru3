@@ -12,6 +12,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Core\ModuleRegistry;
 use App\Model\Rule\InConfigRule;
+use InvalidArgumentException;
 
 /**
  * TeamsPeople Model

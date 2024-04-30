@@ -11,6 +11,7 @@ use Cake\Validation\Validator;
 use App\Core\UserCache;
 use App\Model\Rule\GreaterDateRule;
 use App\Model\Rule\InDateConfigRule;
+use InvalidArgumentException;
 
 /**
  * Uploads Model

@@ -8,6 +8,7 @@ use Cake\Event\Event as CakeEvent;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
 use App\Model\Rule\InConfigRule;
+use InvalidArgumentException;
 
 /**
  * Questions Model

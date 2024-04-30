@@ -6,7 +6,6 @@ namespace App\Authentication;
 use App\Controller\AppController;
 use App\Core\UserCache;
 use App\Model\Entity\User;
-use Authentication\IdentityInterface;
 use Authentication\IdentityInterface as AuthenticationInterface;
 use Authorization\AuthorizationService;
 use Authorization\Exception\Exception;
@@ -19,7 +18,6 @@ use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
 use Cake\Routing\Router;
 use InvalidArgumentException;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {

@@ -14,6 +14,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use App\Model\Rule\InConfigRule;
 use App\Model\Rule\InDateConfigRule;
+use InvalidArgumentException;
 
 /**
  * GameSlots Model

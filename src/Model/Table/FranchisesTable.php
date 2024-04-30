@@ -9,6 +9,7 @@ use Cake\Event\Event as CakeEvent;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
+use InvalidArgumentException;
 
 /**
  * Franchises Model

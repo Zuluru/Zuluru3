@@ -45,17 +45,18 @@ class TasksController extends AppController {
 				->toArray();
 			$this->getResponse()->withDownload('Tasks.csv');
 		} else {
-			$conditions = ['Categories.affiliate_id IN' => $affiliates];
-			if (!$this->Authentication->getIdentity()->isManager()) {
-				$conditions['Tasks.allow_signup'] = true;
-			}
 			$tasks = $this->Tasks->find()
 				->contain([
 					'Categories',
 					'People',
 				])
-				->where($conditions)
-				->order(['Categories.name', 'Tasks.name'])
+				->where(['Categories.affiliate_id IN' => $affiliates]);
+
+			if (!$this->Authentication->getIdentity()->isManager()) {
+				$tasks->where(['Tasks.allow_signup' => true]);
+			}
+
+			$tasks = $tasks->order(['Categories.name', 'Tasks.name'])
 				->toArray();
 		}
 
@@ -127,7 +128,9 @@ class TasksController extends AppController {
 		}
 
 		$affiliates = $this->Authentication->applicableAffiliates(true);
-		$categories = $this->Tasks->Categories->find('list', ['order' => 'Categories.name']);
+		$categories = $this->Tasks->Categories->find('list')
+			->where(['Categories.type' => 'Tasks'])
+			->order(['Categories.name']);
 		$people = $this->Tasks->People->find()
 			->matching('Groups', function (Query $q) {
 				return $q->where(['Groups.id IN' => [GROUP_VOLUNTEER, GROUP_OFFICIAL, GROUP_MANAGER, GROUP_ADMIN]]);
@@ -151,9 +154,10 @@ class TasksController extends AppController {
 	public function edit() {
 		$id = $this->getRequest()->getQuery('task');
 		try {
-			$task = $this->Tasks->get($id, [
-				'contain' => ['Categories']
-			]);
+			$task = $this->Tasks->find('translations')
+				->contain(['Categories'])
+				->where(['Tasks.id' => $id])
+				->firstOrFail();
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid task.'));
 			return $this->redirect(['action' => 'index']);
@@ -172,7 +176,9 @@ class TasksController extends AppController {
 			}
 		}
 		$affiliates = $this->Authentication->applicableAffiliates(true);
-		$categories = $this->Tasks->Categories->find('list', ['order' => 'Categories.name']);
+		$categories = $this->Tasks->Categories->find('list')
+			->where(['Categories.type' => 'Tasks'])
+			->order(['Categories.name']);
 		$people = $this->Tasks->People->find()
 			->matching('Groups', function (Query $q) {
 				return $q->where(['Groups.id IN' => [GROUP_VOLUNTEER, GROUP_OFFICIAL, GROUP_MANAGER, GROUP_ADMIN]]);

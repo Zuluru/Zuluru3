@@ -5,6 +5,7 @@ use App\Model\Rule\InConfigRule;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
+use InvalidArgumentException;
 
 /**
  * Categories Model
@@ -33,7 +34,7 @@ class CategoriesTable extends AppTable {
 		$this->addBehavior('Trim');
 		$this->addBehavior('Translate', [
 			'strategyClass' => \Cake\ORM\Behavior\Translate\ShadowTableStrategy::class,
-			'fields' => ['name'],
+			'fields' => ['name', 'description'],
 		]);
 
 		$this->belongsTo('Affiliates', [

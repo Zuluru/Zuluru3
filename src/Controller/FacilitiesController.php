@@ -173,16 +173,17 @@ class FacilitiesController extends AppController {
 	public function edit() {
 		$id = $this->getRequest()->getQuery('facility');
 		try {
-			$facility = $this->Facilities->get($id, [
-				'contain' => [
+			$facility = $this->Facilities->find('translations')
+				->contain([
 					'Regions',
 					'Fields' => [
 						'queryBuilder' => function (Query $q) {
-							return $q->order(['Fields.num']);
+							return $q->find('translations')->order(['Fields.num']);
 						},
 					],
-				],
-			]);
+				])
+				->where(['Facilities.id' => $id])
+				->firstOrFail();
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid facility.'));
 			return $this->redirect(['action' => 'index']);

@@ -45,7 +45,7 @@ echo $this->Form->control('image_url', [
 	'size' => 255,
 	'help' => __('URL of the image to use for this category.'),
 ]);
-echo $this->Form->control('description', [
+echo $this->Form->i18nControls('description', [
 	'cols' => 70,
 	'rows' => 5,
 	'class' => 'wysiwyg_advanced',

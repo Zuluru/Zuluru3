@@ -6,6 +6,7 @@ use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Rule\ExistsIn;
 use Cake\Validation\Validator;
+use InvalidArgumentException;
 
 /**
  * Stats Model
