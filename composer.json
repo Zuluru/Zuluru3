@@ -27,8 +27,8 @@
         "josegonzalez/cakephp-upload": "^5.0",
         "league/flysystem-aws-s3-v3": "^1.0",
         "soundasleep/html2text": "~0.2",
-        "zuluru/cakephp-jquery": "dev-2.next",
-        "zuluru/cakephp-bootstrap": "dev-master",
+        "zuluru/cakephp-jquery": "dev-cake4",
+        "zuluru/cakephp-bootstrap": "dev-cake4",
         "trentrichardson/cakephp-scheduler": "^3.0",
         "josegonzalez/dotenv": "^3.2",
         "cakephp-app-installer/installer": "dev-master#de2ce42",
@@ -51,6 +51,16 @@
         "vierge-noire/cakephp-test-migrator": "^2.5",
         "dereuromark/cakephp-transifex": "^1.2"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:Zuluru/cakephp-jquery.git"
+        },
+        {
+            "type": "vcs",
+            "url": "git@github.com:Zuluru/cakephp-bootstrap.git"
+        }
+    ],
     "suggest": {
         "phpunit/phpunit": "Allows automated tests to be run without system-wide install.",
         "cakephp/cakephp-codesniffer": "Allows to check the code against the coding standards used in CakePHP."

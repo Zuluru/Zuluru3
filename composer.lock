@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "aec42c6f5612a1da946010d6d152acdf",
+    "content-hash": "3c0bb22569d7754092a7c362901ec4a2",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -5011,16 +5011,16 @@
         },
         {
             "name": "zuluru/cakephp-bootstrap",
-            "version": "dev-master",
+            "version": "dev-cake4",
             "source": {
                 "type": "git",
-                "url": "https://github.com/CakeDC/cakephp-bootstrap.git",
-                "reference": "a7b378c8c27042238d80ae0329ba57469769ff2f"
+                "url": "https://github.com/Zuluru/cakephp-bootstrap.git",
+                "reference": "0c45f634b02c137da54f660df06af1b99c0d9960"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CakeDC/cakephp-bootstrap/zipball/a7b378c8c27042238d80ae0329ba57469769ff2f",
-                "reference": "a7b378c8c27042238d80ae0329ba57469769ff2f",
+                "url": "https://api.github.com/repos/Zuluru/cakephp-bootstrap/zipball/0c45f634b02c137da54f660df06af1b99c0d9960",
+                "reference": "0c45f634b02c137da54f660df06af1b99c0d9960",
                 "shasum": ""
             },
             "require": {
@@ -5052,16 +5052,16 @@
         },
         {
             "name": "zuluru/cakephp-jquery",
-            "version": "dev-2.next",
+            "version": "dev-cake4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Zuluru/cakephp-jquery.git",
-                "reference": "ba13f698cc2ba4e09ae1c708755ad60304bc2df9"
+                "reference": "3002461ebf3df7096847f0db98c4f69345be26e7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Zuluru/cakephp-jquery/zipball/ba13f698cc2ba4e09ae1c708755ad60304bc2df9",
-                "reference": "ba13f698cc2ba4e09ae1c708755ad60304bc2df9",
+                "url": "https://api.github.com/repos/Zuluru/cakephp-jquery/zipball/3002461ebf3df7096847f0db98c4f69345be26e7",
+                "reference": "3002461ebf3df7096847f0db98c4f69345be26e7",
                 "shasum": ""
             },
             "require": {
