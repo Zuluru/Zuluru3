@@ -1,5 +1,6 @@
 <?php
 /**
+ * @var \App\View\AppView $this
  * @var string $category
  * @var string $name
  * @var string[] $options

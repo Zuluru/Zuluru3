@@ -1,5 +1,6 @@
 <?php
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\Division $division
  * @var bool $multi_day
  * @var \Cake\I18n\FrozenDate $edit_date

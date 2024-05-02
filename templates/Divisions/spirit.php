@@ -1,12 +1,12 @@
 <?php
-
-use App\Model\Table\SpiritEntriesTable;
-use Cake\Core\Configure;
-
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\Division $division
  * @var \App\Module\Spirit $spirit_obj
  */
+
+use App\Model\Table\SpiritEntriesTable;
+use Cake\Core\Configure;
 
 $this->Breadcrumbs->add(__('Divisions'));
 $this->Breadcrumbs->add($division->full_league_name);

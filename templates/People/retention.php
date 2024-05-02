@@ -1,9 +1,10 @@
 <?php
-use Cake\I18n\FrozenTime;
-
 /**
+ * @var \App\View\AppView $this
  * @var int $min
  */
+
+use Cake\I18n\FrozenTime;
 
 $this->Breadcrumbs->add(__('People'));
 $this->Breadcrumbs->add(__('Membership Retention Statistics'));

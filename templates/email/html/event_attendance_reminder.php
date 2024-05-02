@@ -1,13 +1,14 @@
 <?php
-use Cake\Core\Configure;
-use Cake\Routing\Router;
-
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\Team $team
  * @var \App\Model\Entity\TeamEvent $team_event
  * @var \App\Model\Entity\Person $person
  * @var int $status
  */
+
+use Cake\Core\Configure;
+use Cake\Routing\Router;
 
 $address = "{$team_event->location_street}, {$team_event->location_city}, {$team_event->location_province}";
 $link_address = strtr($address, ' ', '+');

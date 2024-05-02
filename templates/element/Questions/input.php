@@ -1,10 +1,11 @@
 <?php
-use Cake\Utility\Hash;
-
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\Question $question
  * @var int $key
  */
+
+use Cake\Utility\Hash;
 
 // There may be multiple checkboxes with the same key, but we need separate indices for them
 $key *= 100;

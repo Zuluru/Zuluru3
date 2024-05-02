@@ -1,5 +1,6 @@
 <?php
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\Game $game
  * @var int $team_id
  * @var \App\Model\Entity\ScoreEntry $opponent_score

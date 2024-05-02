@@ -1,8 +1,6 @@
 <?php
-use Cake\Core\Configure;
-use Cake\Routing\Router;
-
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\Person $person
  * @var \App\Model\Entity\Team $team
  * @var string $captains
@@ -10,6 +8,9 @@ use Cake\Routing\Router;
  * @var string $role
  * @var string $reply
  */
+
+use Cake\Core\Configure;
+use Cake\Routing\Router;
 ?>
 
 <p><?= __('Dear {0},', $captains) ?></p>

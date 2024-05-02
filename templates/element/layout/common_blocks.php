@@ -2,7 +2,8 @@
 /**
  * Create a number of commonly-needed blocks that the various layouts can then use as required.
  * This element will not change any of the standard blocks: meta, css, script, content, etc.
-
+ *
+ * @var \App\View\AppView $this
  * @var \Cake\View\View $this
  * @var string $menu_element
  * @var array $menu_items

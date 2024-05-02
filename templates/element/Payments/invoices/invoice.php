@@ -1,5 +1,6 @@
 <?php
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\Registration[] $registrations
  * @var \App\Model\Entity\RegistrationAudit|null $audit
  */

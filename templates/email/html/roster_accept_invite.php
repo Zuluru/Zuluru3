@@ -1,13 +1,14 @@
 <?php
-use Cake\Core\Configure;
-use Cake\Routing\Router;
-
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\Person $person
  * @var \App\Model\Entity\Team $team
  * @var string $captains
  * @var string $role
  */
+
+use Cake\Core\Configure;
+use Cake\Routing\Router;
 ?>
 
 <p><?= __('Dear {0},', $captains) ?></p>

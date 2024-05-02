@@ -1,13 +1,14 @@
 <?php
-use Cake\Core\Configure;
-use Cake\Routing\Router;
-
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\Team $team
  * @var \App\Model\Entity\Team $opponent
  * @var \App\Model\Entity\Game $game
  * @var string[][][] $summary
  */
+
+use Cake\Core\Configure;
+use Cake\Routing\Router;
 
 if ($opponent) {
 	if (Configure::read('feature.shirt_colour') && !empty($opponent->shirt_colour)) {

@@ -1,5 +1,6 @@
 <?php
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\Credit[] $credits
  * @var \App\Model\Entity\Affiliate[] $affiliates
  * @var bool $all

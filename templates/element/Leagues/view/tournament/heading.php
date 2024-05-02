@@ -1,5 +1,6 @@
 <?php
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\Division $division
  * @var \App\Model\Entity\League $league
  * @var bool $can_edit

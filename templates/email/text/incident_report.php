@@ -1,7 +1,6 @@
 <?php
-use Cake\Core\Configure;
-
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\Incident $incident
  * @var \App\Model\Entity\Game $game
  * @var \App\Model\Entity\Division $division
@@ -10,6 +9,8 @@ use Cake\Core\Configure;
  * @var \App\Model\Entity\Team $home_team
  * @var \App\Model\Entity\Team $away_team
  */
+
+use Cake\Core\Configure;
 ?>
 
 <?= __('The following incident report was submitted:') ?>

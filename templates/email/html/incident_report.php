@@ -1,8 +1,6 @@
 <?php
-use Cake\Core\Configure;
-use Cake\Routing\Router;
-
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\Incident $incident
  * @var \App\Model\Entity\Game $game
  * @var \App\Model\Entity\Division $division
@@ -11,6 +9,9 @@ use Cake\Routing\Router;
  * @var \App\Model\Entity\Team $home_team
  * @var \App\Model\Entity\Team $away_team
  */
+
+use Cake\Core\Configure;
+use Cake\Routing\Router;
 ?>
 
 <p><?= __('The following incident report was submitted:') ?></p>

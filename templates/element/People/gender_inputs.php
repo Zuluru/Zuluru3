@@ -1,5 +1,6 @@
 <?php
 /**
+ * @var \App\View\AppView $this
  * @var string $prefix
  * @var \App\Model\Entity\Person $person
  * @var bool $secure

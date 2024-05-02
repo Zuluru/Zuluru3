@@ -1,13 +1,14 @@
 <?php
-use Cake\Core\Configure;
-
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\Person $person
  * @var \App\Model\Entity\Team $team
  * @var string $captain
  * @var string $old_role
  * @var string $reply
  */
+
+use Cake\Core\Configure;
 ?>
 
 <?= __('Dear {0},', $person->first_name) ?>

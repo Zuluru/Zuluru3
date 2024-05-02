@@ -1,5 +1,6 @@
 <?php
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\League[] $leagues
  * @var string $sport
  * @var bool $tournaments

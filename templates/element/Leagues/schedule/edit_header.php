@@ -1,5 +1,6 @@
 <?php
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\League $league
  * @var bool $competition
  * @var bool $multi_day

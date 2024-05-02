@@ -22,6 +22,7 @@ $fields = collection($fields)
 %>
 <?php
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\<%= $singularHumanName %>[] $<%= $pluralVar %>
  */
 

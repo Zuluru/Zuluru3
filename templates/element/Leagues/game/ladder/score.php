@@ -1,7 +1,8 @@
 <?php
 /**
-* @var \App\Model\Entity\Game $game
-*/
+ * @var \App\View\AppView $this
+ * @var \App\Model\Entity\Game $game
+ */
 ?>
 			<dt class="col-sm-2 text-end"><?= __('Rating Points') ?></dt>
 			<dd class="col-sm-10 mb-0">

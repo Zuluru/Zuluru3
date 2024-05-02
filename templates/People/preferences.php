@@ -1,5 +1,6 @@
 <?php
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\Person $person
  * @var int $id
  * @var ArrayObject $plugin_elements

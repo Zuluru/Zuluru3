@@ -1,7 +1,6 @@
 <?php
-use Cake\Core\Configure;
-
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\Person $person
  * @var \App\Model\Entity\Division $division
  * @var \App\Model\Entity\Team $team
@@ -9,6 +8,8 @@ use Cake\Core\Configure;
  * @var string $captains
  * @var string $sport
  */
+
+use Cake\Core\Configure;
 
 $min = $division ? Configure::read("sports.{$sport}.roster_requirements.{$division->ratio_rule}") : 0;
 $min_text = ($min > 0 ? __(' (minimum of {0} rostered players)', $min) : '');

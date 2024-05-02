@@ -1,5 +1,6 @@
 <?php
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\Credit $credit
  * @var \App\Model\Entity\Person[] $relatives
  * @var \App\Model\Entity\Person[] $captains

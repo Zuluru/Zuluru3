@@ -3,10 +3,13 @@
 use App\Model\Table\GameSlotsTable;
 
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\Division $division
  * @var \App\Model\Entity\League $league
  * @var bool $multi_day
+ * @var bool $is_tournament
  * @var \Cake\I18n\FrozenDate $edit_date
+ * @var \App\Model\Entity\GameSlot[] $game_slots
  * @var \Cake\I18n\FrozenDate[] $week
  */
 

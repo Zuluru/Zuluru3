@@ -34,6 +34,7 @@ $pk = "\$$singularVar->{$primaryKey[0]}";
 %>
 <?php
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\<%= $singularHumanName %> $<%= $singularVar %>
  */
 

@@ -1,5 +1,6 @@
 <?php
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\Event $event
  * @var \App\Model\Entity\GameSlot[] $times
  * @var \App\Model\Entity\Affiliate[] $affiliates

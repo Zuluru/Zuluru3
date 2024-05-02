@@ -1,5 +1,6 @@
 <?php
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\Team $team
  * @var \App\Model\Entity\Person $person
  * @var \App\Model\Entity\Attendance $attendance

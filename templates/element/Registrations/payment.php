@@ -1,5 +1,6 @@
 <?php
 /**
+ * @var \App\View\AppView $this
  * @var bool $result
  * @var string[] $errors
  * @var \App\Model\Entity\RegistrationAudit $audit

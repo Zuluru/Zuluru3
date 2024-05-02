@@ -1,8 +1,11 @@
 <?php
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\League $league
  * @var bool $multi_day
+ * @var bool $is_tournament
  * @var \Cake\I18n\FrozenDate $edit_date
+ * @var \App\Model\Entity\GameSlot[] $game_slots
  */
 
 use App\Model\Entity\Division;
@@ -102,7 +105,7 @@ if (!empty($league->games)):
 <?php
 	foreach ($weeks as $week) {
 		if ($edit_date >= $week[0] && $edit_date <= $week[1]) {
-			echo $this->element('Leagues/schedule/week_edit', compact('league', 'week', 'multi_day', 'slots', 'is_tournament'));
+			echo $this->element('Leagues/schedule/week_edit', compact('league', 'week', 'multi_day', 'game_slots', 'is_tournament'));
 		} else {
 			echo $this->element('Leagues/schedule/week_view', compact('league', 'week', 'multi_day'));
 		}

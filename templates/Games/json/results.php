@@ -1,9 +1,10 @@
 <?php
-use Cake\Core\Configure;
-
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\Game[] $games
  */
+
+use Cake\Core\Configure;
 
 $return = [];
 foreach ($games as $game) {

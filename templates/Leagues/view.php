@@ -1,5 +1,6 @@
 <?php
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\League $league
  * @var \App\Module\LeagueType $league_obj
  * @var int[] $affiliates

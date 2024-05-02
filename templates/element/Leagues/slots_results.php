@@ -1,5 +1,6 @@
 <?php
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\League $league
  * @var string $date
  * @var \App\Model\Entity\GameSlot[] $slots

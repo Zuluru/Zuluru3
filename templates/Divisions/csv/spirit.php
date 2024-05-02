@@ -1,10 +1,11 @@
 <?php
-use Cake\Core\Configure;
-
 /**
+ * @var \App\View\AppView $this
  * @var \App\Model\Entity\Division $division
  * @var \App\Module\Spirit $spirit_obj
  */
+
+use Cake\Core\Configure;
 
 $fp = fopen('php://output','w+');
 $header = [
