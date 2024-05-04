@@ -18,8 +18,8 @@ echo $team->name;
 <?php
 if (Configure::read('feature.shirt_colour') && !empty($team->shirt_colour)):
 ?>
-	<dt class="col-sm-2 text-end"><?= __('Shirt Colour') ?></dt>
-	<dd class="col-sm-10 mb-0"><?= $team->shirt_colour ?></dd>
+	<dt class="col-sm-3 text-end"><?= __('Shirt Colour') ?></dt>
+	<dd class="col-sm-9 mb-0"><?= $team->shirt_colour ?></dd>
 <?php
 endif;
 
@@ -39,14 +39,14 @@ if ($this->Authorize->can('view_roster', \App\Controller\TeamsController::class)
 		}
 	}
 ?>
-	<dt class="col-sm-2 text-end"><?= __('Coaches/Captains') ?></dt>
-	<dd class="col-sm-10 mb-0"><?= implode(', ', $links) ?></dd>
+	<dt class="col-sm-3 text-end"><?= __('Coaches/Captains') ?></dt>
+	<dd class="col-sm-9 mb-0"><?= implode(', ', $links) ?></dd>
 <?php
 endif;
 ?>
 
-	<dt class="col-sm-2 text-end"><?= __('Team') ?></dt>
-	<dd class="col-sm-10 mb-0"><?php
+	<dt class="col-sm-3 text-end"><?= __('Team') ?></dt>
+	<dd class="col-sm-9 mb-0"><?php
 		echo $this->Html->link(__('Details & roster'), ['controller' => 'Teams', 'action' => 'view', '?' => ['team' => $team->id]]);
 		if (!empty($team->division_id)) {
 			echo ' / ' .
@@ -65,8 +65,8 @@ endif;
 <?php
 if (!empty($team->division_id)):
 ?>
-	<dt class="col-sm-2 text-end"><?= __('Division') ?></dt>
-	<dd class="col-sm-10 mb-0"><?php
+	<dt class="col-sm-3 text-end"><?= __('Division') ?></dt>
+	<dd class="col-sm-9 mb-0"><?php
 		$title = ['title' => $team->division->full_league_name];
 		echo $this->Html->link(__('Details'), ['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $team->division_id]], $title) .
 			' / ' .
@@ -79,8 +79,8 @@ endif;
 
 if (!empty($team->notes)):
 ?>
-	<dt class="col-sm-2 text-end"><?= __('Notes') ?></dt>
-	<dd class="col-sm-10 mb-0"><?php
+	<dt class="col-sm-3 text-end"><?= __('Notes') ?></dt>
+	<dd class="col-sm-9 mb-0"><?php
 		foreach ($team->notes as $note) {
 			echo $note->note;
 		}

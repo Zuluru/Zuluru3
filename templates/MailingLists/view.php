@@ -18,15 +18,15 @@ $this->Breadcrumbs->add(__('View'));
 <?php
 if (count($affiliates) > 1):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Affiliate') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Html->link($mailing_list->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $mailing_list->affiliate->id]]) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Affiliate') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Html->link($mailing_list->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $mailing_list->affiliate->id]]) ?></dd>
 <?php
 endif;
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Opt Out') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $mailing_list->opt_out ? __('Yes') : __('No') ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Rule') ?></dt>
-		<dd class="col-sm-10 mb-0"><pre><?= $mailing_list->rule ?></pre></dd>
+		<dt class="col-sm-3 text-end"><?= __('Opt Out') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $mailing_list->opt_out ? __('Yes') : __('No') ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Rule') ?></dt>
+		<dd class="col-sm-9 mb-0"><pre><?= $mailing_list->rule ?></pre></dd>
 	</dl>
 </div>
 <div class="actions columns">

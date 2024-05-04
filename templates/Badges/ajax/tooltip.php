@@ -12,8 +12,8 @@ echo $badge->name;
 ?></h2>
 <p><?= $badge->description ?></p>
 <dl class="row">
-<dt class="col-sm-2 text-end"><?= __('Awarded to') ?></dt>
-<dd class="col-sm-10 mb-0"><?= count($badge->people) . ' ' . __('people') ?></dd>
+<dt class="col-sm-3 text-end"><?= __('Awarded to') ?></dt>
+<dd class="col-sm-9 mb-0"><?= count($badge->people) . ' ' . __('people') ?></dd>
 </dl>
 
 <p><?php

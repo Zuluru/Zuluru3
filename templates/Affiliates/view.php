@@ -14,8 +14,8 @@ $this->Breadcrumbs->add(__('View'));
 <div class="affiliates view">
 	<h2><?= h($affiliate->name) ?></h2>
 	<dl class="row">
-		<dt class="col-sm-2 text-end"><?= __('Active') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $affiliate->active ? __('Yes') : __('No') ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Active') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $affiliate->active ? __('Yes') : __('No') ?></dd>
 	</dl>
 </div>
 <div class="related row">

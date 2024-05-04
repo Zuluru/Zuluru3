@@ -2,6 +2,7 @@
 namespace App\Test\TestCase\Controller;
 
 use App\Model\Entity\Facility;
+use App\Model\Entity\GameSlot;
 use App\Model\Entity\Team;
 use App\Test\Factory\AffiliateFactory;
 use App\Test\Factory\PersonFactory;
@@ -1398,10 +1399,32 @@ class DivisionsControllerTest extends ControllerTestCase {
 		$league = $this->loadFixtureScenario(LeagueWithFullScheduleScenario::class, ['affiliate' => $affiliates[0], 'coordinator' => $volunteer, 'playoffs' => true]);
 		$playoffs = $league->divisions[1];
 
+		$poolsTable = $this->fetchTable('Pools');
+		$gamesTable = $this->fetchTable('Games');
+
+		$pools = $poolsTable->find()->order('stage')->toArray();
+		$this->assertCount(2, $pools);
+
 		// Admins are allowed to delete stages
 		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete_stage', '?' => ['division' => $playoffs->id, 'stage' => 2]],
 			$admin->id, ['controller' => 'Schedules', 'action' => 'add', '?' => ['division' => $playoffs->id]],
 			'The pools in this stage have been deleted.');
+
+		$this->assertNull($poolsTable->find()->where(['id' => $pools[1]->id])->first());
+
+		$poolGames = $gamesTable->find()->where(['pool_id' => $pools[0]->id])->toArray();
+		$this->assertCount(1, $poolGames);
+
+		$this->assertGetAsAccessRedirect(['controller' => 'Divisions', 'action' => 'delete_stage', '?' => ['division' => $playoffs->id, 'stage' => 1]],
+			$admin->id, ['controller' => 'Schedules', 'action' => 'add', '?' => ['division' => $playoffs->id]],
+			'The pools in this stage have been deleted.');
+
+		$this->assertNull($poolsTable->find()->where(['id' => $poolGames[0]->id])->first());
+		$this->assertNull($gamesTable->find()->where(['id' => $poolGames[0]->id])->first());
+
+		/** @var GameSlot $slot */
+		$slot = $gamesTable->GameSlots->get($poolGames[0]->game_slot_id);
+		$this->assertFalse($slot->assigned);
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}

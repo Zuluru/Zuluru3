@@ -13,16 +13,16 @@ $this->Breadcrumbs->add(__('View'));
 <div class="gameSlots view">
 	<h2><?= __('Game Slot') ?></h2>
 	<dl class="row">
-		<dt class="col-sm-2 text-end"><?= Configure::read('UI.field_cap') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->element('Fields/block', ['field' => $game_slot->field, 'display_field' => 'long_name']) ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Game Date') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Time->date($game_slot->game_date) ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Game Start') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Time->time($game_slot->game_start) ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Game End') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Time->time($game_slot->display_game_end) ?></dd>
-		<dt class="col-sm-2 text-end"><?= __n('Game', 'Games', count($game_slot->games)) ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= Configure::read('UI.field_cap') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->element('Fields/block', ['field' => $game_slot->field, 'display_field' => 'long_name']) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Game Date') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Time->date($game_slot->game_date) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Game Start') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Time->time($game_slot->game_start) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Game End') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Time->time($game_slot->display_game_end) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __n('Game', 'Games', count($game_slot->games)) ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			if (empty($game_slot->games)) {
 				echo __('Unassigned');
 			} else {

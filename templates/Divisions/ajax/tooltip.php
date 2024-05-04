@@ -17,8 +17,8 @@ if ($this->Identity->isLoggedIn() && !empty($division->people)):
 
 	if (!empty($division->days)):
 ?>
-	<dt class="col-sm-2 text-end"><?= __n('Day', 'Days', count($division->days)) ?></dt>
-	<dd class="col-sm-10 mb-0"><?php
+	<dt class="col-sm-3 text-end"><?= __n('Day', 'Days', count($division->days)) ?></dt>
+	<dd class="col-sm-9 mb-0"><?php
 		$days = [];
 		foreach ($division->days as $day) {
 			$days[] = __($day->name);
@@ -28,13 +28,13 @@ if ($this->Identity->isLoggedIn() && !empty($division->people)):
 <?php
 	endif;
 ?>
-	<dt class="col-sm-2 text-end"><?= __('Coordinators') ?></dt>
-	<dd class="col-sm-10 mb-0"><?= implode(', ', $links) ?></dd>
+	<dt class="col-sm-3 text-end"><?= __('Coordinators') ?></dt>
+	<dd class="col-sm-9 mb-0"><?= implode(', ', $links) ?></dd>
 <?php
 endif;
 ?>
-	<dt class="col-sm-2 text-end"><?= __('Teams') ?></dt>
-	<dd class="col-sm-10 mb-0"><?= count($division->teams) ?></dd>
+	<dt class="col-sm-3 text-end"><?= __('Teams') ?></dt>
+	<dd class="col-sm-9 mb-0"><?= count($division->teams) ?></dd>
 </dl>
 
 <p><?php

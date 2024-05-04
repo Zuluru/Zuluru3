@@ -17,10 +17,10 @@ if ($note->isNew()) {
 <div class="games view">
 	<h2><?= __('Game Note') ?></h2>
 	<dl class="row">
-		<dt class="col-sm-2 text-end"><?= __('League') . '/' . __('Division') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->element('Divisions/block', ['division' => $game->division, 'field' => 'full_league_name']) ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Home Team') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('League') . '/' . __('Division') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->element('Divisions/block', ['division' => $game->division, 'field' => 'full_league_name']) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Home Team') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			if ($game->home_team_id === null) {
 				if ($game->has('home_dependency')) {
 					echo $game->home_dependency;
@@ -34,8 +34,8 @@ if ($note->isNew()) {
 				}
 			}
 		?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Away Team') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Away Team') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			if ($game->away_team_id === null) {
 				if ($game->has('away_dependency')) {
 					echo $game->away_dependency;
@@ -49,10 +49,10 @@ if ($note->isNew()) {
 				}
 			}
 		?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Date and Time') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Time->dateTimeRange($game->game_slot) ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Location') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->element('Fields/block', ['field' => $game->game_slot->field, 'display_field' => 'long_name']) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Date and Time') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Time->dateTimeRange($game->game_slot) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Location') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->element('Fields/block', ['field' => $game->game_slot->field, 'display_field' => 'long_name']) ?></dd>
 	</dl>
 </div>
 

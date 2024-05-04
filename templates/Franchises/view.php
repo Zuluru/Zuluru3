@@ -19,13 +19,13 @@ $this->Breadcrumbs->add(__('View'));
 <?php
 if (count($affiliates) > 1):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Affiliate') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Html->link($franchise->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $franchise->affiliate->id]]) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Affiliate') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Html->link($franchise->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $franchise->affiliate->id]]) ?></dd>
 <?php
 endif;
 ?>
-		<dt class="col-sm-2 text-end"><?= __n('Owner', 'Owners', count($franchise->people)) ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __n('Owner', 'Owners', count($franchise->people)) ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 		$owners = [];
 		foreach ($franchise->people as $person) {
 			$owner = $this->element('People/block', compact('person'));
@@ -44,8 +44,8 @@ endif;
 <?php
 if (Configure::read('feature.urls') && !empty($franchise->website)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Website') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Html->link($franchise->website, $franchise->website) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Website') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Html->link($franchise->website, $franchise->website) ?></dd>
 <?php
 endif;
 ?>

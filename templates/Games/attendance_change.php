@@ -20,26 +20,26 @@ $this->Breadcrumbs->add(h($team->name));
 <div class="games form">
 <h2><?= __('Attendance Change') ?></h2>
 	<dl class="row">
-		<dt class="col-sm-2 text-end"><?= __('Team') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->element('Teams/block', ['team' => $team]) ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Game Date') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Team') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->element('Teams/block', ['team' => $team]) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Game Date') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 		if (!$game->isNew()) {
 			echo $this->Time->date($game->game_slot->game_date);
 		} else {
 			echo $this->Time->date($game_date);
 		}
 		?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Game Time') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Game Time') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 		if (!$game->isNew()) {
 			echo $this->Time->time($game->game_slot->game_start);
 		} else {
 			echo __('TBD');
 		}
 		?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Opponent') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Opponent') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 		if (isset($opponent)) {
 			echo $this->element('Teams/block', ['team' => $opponent]);
 		} else {

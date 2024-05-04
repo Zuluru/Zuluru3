@@ -17,8 +17,8 @@ $this->Breadcrumbs->add(__('Preview'));
 if (count($affiliates) > 1):
 ?>
 	<dl class="row">
-		<dt class="col-sm-2 text-end"><?= __('Affiliate') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Html->link($question->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $question->affiliate->id]]) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Affiliate') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Html->link($question->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $question->affiliate->id]]) ?></dd>
 	</dl>
 <?php
 endif;

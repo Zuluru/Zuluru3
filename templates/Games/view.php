@@ -33,10 +33,10 @@ $carbon_flip_options = [
 <div class="games view">
 	<h2><?= __('View Game') ?></h2>
 	<dl class="row">
-		<dt class="col-sm-2 text-end"><?= __('League') . '/' . __('Division') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->element('Divisions/block', ['division' => $game->division, 'field' => 'full_league_name']) ?></dd>
-		<dt class="col-sm-2 text-end"><?= $game->division->schedule_type == 'competition' ? __('Team') : __('Home Team') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('League') . '/' . __('Division') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->element('Divisions/block', ['division' => $game->division, 'field' => 'full_league_name']) ?></dd>
+		<dt class="col-sm-3 text-end"><?= $game->division->schedule_type == 'competition' ? __('Team') : __('Home Team') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			if ($game->home_team_id === null) {
 				if ($game->has('home_dependency')) {
 					echo $game->home_dependency;
@@ -59,8 +59,8 @@ $carbon_flip_options = [
 <?php
 if ($game->division->schedule_type != 'competition'):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Away Team') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Away Team') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			if ($game->away_team_id === null) {
 				if ($game->has('away_dependency')) {
 					echo $game->away_dependency;
@@ -85,20 +85,20 @@ endif;
 
 if ($game->home_dependency_type != 'copy'):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Date and Time') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Time->dateTimeRange($game->game_slot) ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Location') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->element('Fields/block', ['field' => $game->game_slot->field, 'display_field' => 'long_name']) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Date and Time') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Time->dateTimeRange($game->game_slot) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Location') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->element('Fields/block', ['field' => $game->game_slot->field, 'display_field' => 'long_name']) ?></dd>
 <?php
 endif;
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Game Status') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= __(Inflector::humanize ($game->status)) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Game Status') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= __(Inflector::humanize ($game->status)) ?></dd>
 <?php
 if ($game->division->schedule_type == 'roundrobin' && $game->round):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Round') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $game->round ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Round') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $game->round ?></dd>
 <?php
 endif;
 
@@ -113,16 +113,16 @@ if ($this->Authorize->can('email_captains', $game)):
 	}
 	if (!empty($captains)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Captain Emails') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Html->link(__('Email all coaches/captains'), 'mailto:' . implode(',', AppController::_extractEmails($captains, false, false, true))) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Captain Emails') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Html->link(__('Email all coaches/captains'), 'mailto:' . implode(',', AppController::_extractEmails($captains, false, false, true))) ?></dd>
 <?php
 	endif;
 endif;
 
 if ($this->Authorize->can('ratings_table', $game_context)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Ratings Table') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Html->link(__('Click to view'), ['action' => 'ratings_table', '?' => ['game' => $game->id]]) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Ratings Table') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Html->link(__('Click to view'), ['action' => 'ratings_table', '?' => ['game' => $game->id]]) ?></dd>
 <?php
 endif;
 ?>
@@ -197,8 +197,8 @@ if ($game->isFinalized()):
 <?php
 	if (!in_array($game->status, Configure::read('unplayed_status'))):
 ?>
-			<dt class="col-sm-2 text-end"><?= $this->Text->truncate($game->home_team->name, 28) ?></dt>
-			<dd class="col-sm-10 mb-0"><?php
+			<dt class="col-sm-3 text-end"><?= $this->Text->truncate($game->home_team->name, 28) ?></dt>
+			<dd class="col-sm-9 mb-0"><?php
 				echo $game->home_score;
 				if ($game->division->women_present && isset($homeScoreEntry) && $homeScoreEntry->women_present) {
 					echo __(' ({0})', $homeScoreEntry->women_present);
@@ -207,8 +207,8 @@ if ($game->isFinalized()):
 <?php
 		if ($game->division->schedule_type != 'competition'):
 ?>
-			<dt class="col-sm-2 text-end"><?= $this->Text->truncate($game->away_team->name, 28) ?></dt>
-			<dd class="col-sm-10 mb-0"><?php
+			<dt class="col-sm-3 text-end"><?= $this->Text->truncate($game->away_team->name, 28) ?></dt>
+			<dd class="col-sm-9 mb-0"><?php
 				echo $game->away_score;
 				if ($game->division->women_present && isset($awayScoreEntry) && $awayScoreEntry->women_present) {
 					echo __(' ({0})', $awayScoreEntry->women_present);
@@ -219,22 +219,22 @@ if ($game->isFinalized()):
 
 		if ($game->division->league->hasCarbonFlip() && $game->status == 'normal'):
 ?>
-			<dt class="col-sm-2 text-end"><?= __('Carbon Flip') ?></dt>
-			<dd class="col-sm-10 mb-0"><?= $carbon_flip_options[$game->home_carbon_flip] ?></dd>
+			<dt class="col-sm-3 text-end"><?= __('Carbon Flip') ?></dt>
+			<dd class="col-sm-9 mb-0"><?= $carbon_flip_options[$game->home_carbon_flip] ?></dd>
 <?php
 		endif;
 
 		if ($show_spirit):
 ?>
-			<dt class="col-sm-2 text-end"><?= __('Spirit for {0}', $this->Text->truncate($game->home_team->name, 18)) ?></dt>
-			<dd class="col-sm-10 mb-0"><?= $this->element('Spirit/symbol', [
+			<dt class="col-sm-3 text-end"><?= __('Spirit for {0}', $this->Text->truncate($game->home_team->name, 18)) ?></dt>
+			<dd class="col-sm-9 mb-0"><?= $this->element('Spirit/symbol', [
 				'spirit_obj' => $spirit_obj,
 				'league' => $game->division->league,
 				'show_spirit_scores' => $show_spirit_scores,
 				'entry' => $awaySpiritEntry,
 			]) ?></dd>
-			<dt class="col-sm-2 text-end"><?= __('Spirit for {0}', $this->Text->truncate($game->away_team->name, 18)) ?></dt>
-			<dd class="col-sm-10 mb-0"><?= $this->element('Spirit/symbol', [
+			<dt class="col-sm-3 text-end"><?= __('Spirit for {0}', $this->Text->truncate($game->away_team->name, 18)) ?></dt>
+			<dd class="col-sm-9 mb-0"><?= $this->element('Spirit/symbol', [
 				'spirit_obj' => $spirit_obj,
 				'league' => $game->division->league,
 				'show_spirit_scores' => $show_spirit_scores,
@@ -248,8 +248,8 @@ if ($game->isFinalized()):
 		echo $this->element("Leagues/game/{$league_obj->render_element}/score", compact('game'));
 	}
 ?>
-			<dt class="col-sm-2 text-end"><?= __('Score Approved By') ?></dt>
-			<dd class="col-sm-10 mb-0"><?php
+			<dt class="col-sm-3 text-end"><?= __('Score Approved By') ?></dt>
+			<dd class="col-sm-9 mb-0"><?php
 				if ($game->approved_by_id < 0) {
 					$approved = Configure::read('approved_by');
 					echo __($approved[$game->approved_by_id]);
@@ -388,10 +388,10 @@ else:
 			}
 		?></p>
 		<dl class="row">
-			<dt class="col-sm-2 text-end"><?= $this->Text->truncate($game->home_team->name, 28) ?></dt>
-			<dd class="col-sm-10 mb-0"><?= ($entry->team_id != $game->away_team_id ? $entry->score_for : $entry->score_against) ?></dd>
-			<dt class="col-sm-2 text-end"><?= $this->Text->truncate($game->away_team->name, 28) ?></dt>
-			<dd class="col-sm-10 mb-0"><?= ($entry->team_id == $game->away_team_id ? $entry->score_for : $entry->score_against) ?></dd>
+			<dt class="col-sm-3 text-end"><?= $this->Text->truncate($game->home_team->name, 28) ?></dt>
+			<dd class="col-sm-9 mb-0"><?= ($entry->team_id != $game->away_team_id ? $entry->score_for : $entry->score_against) ?></dd>
+			<dt class="col-sm-3 text-end"><?= $this->Text->truncate($game->away_team->name, 28) ?></dt>
+			<dd class="col-sm-9 mb-0"><?= ($entry->team_id == $game->away_team_id ? $entry->score_for : $entry->score_against) ?></dd>
 		</dl>
 <?php
 	endif;

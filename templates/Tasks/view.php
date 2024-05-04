@@ -14,24 +14,24 @@ $this->Breadcrumbs->add(__('View'));
 <div class="tasks view">
 	<h2><?= h($task->name) ?></h2>
 	<dl class="row">
-		<dt class="col-sm-2 text-end"><?= __('Category') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Html->link($task->category->name, ['controller' => 'Categories', 'action' => 'view', '?' => ['category' => $task->category->id]]) ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Description') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $task->description ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Category') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Html->link($task->category->name, ['controller' => 'Categories', 'action' => 'view', '?' => ['category' => $task->category->id]]) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Description') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $task->description ?></dd>
 <?php
 if ($this->Authorize->can('edit', $task)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Notes') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $task->notes ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Auto-Approve') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $task->auto_approve ? __('Yes') : __('No') ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Allow Signup') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $task->allow_signup ? __('Yes') : __('No') ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Notes') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $task->notes ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Auto-Approve') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $task->auto_approve ? __('Yes') : __('No') ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Allow Signup') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $task->allow_signup ? __('Yes') : __('No') ?></dd>
 <?php
 endif;
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Reporting To') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->element('People/block', ['person' => $task->person]) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Reporting To') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->element('People/block', ['person' => $task->person]) ?></dd>
 	</dl>
 </div>
 

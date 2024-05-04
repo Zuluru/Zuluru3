@@ -33,13 +33,13 @@ $identity = $this->Authorize->getIdentity();
 	<?= $this->element('Registrations/relative_notice') ?>
 	<?= $event->description ?>
 	<dl class="row">
-		<dt class="col-sm-2 text-end"><?= __('Event Type') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= __($event->event_type->name) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Event Type') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= __($event->event_type->name) ?></dd>
 <?php
 if ($event->has('level_of_play') && !empty($event->level_of_play)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Level of Play') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $event->level_of_play ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Level of Play') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $event->level_of_play ?></dd>
 <?php
 endif;
 
@@ -50,20 +50,20 @@ if (!empty($event->division_id)):
 			$facility_links[] = $this->Html->link($facility_name, ['controller' => 'Facilities', 'action' => 'view', '?' => ['facility' => $facility_id]]);
 		}
 ?>
-		<dt class="col-sm-2 text-end"><?= __n('Location', 'Locations', count($facilities)) ?></dt>
-		<dd class="col-sm-10 mb-0"><?= implode(', ', $facility_links) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __n('Location', 'Locations', count($facilities)) ?></dt>
+		<dd class="col-sm-9 mb-0"><?= implode(', ', $facility_links) ?></dd>
 <?php
 	endif;
 ?>
-		<dt class="col-sm-2 text-end"><?= __('First Game') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Time->date($event->division->open) ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Last Game') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Time->date($event->division->close) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('First Game') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Time->date($event->division->open) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Last Game') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Time->date($event->division->close) ?></dd>
 <?php
 	if (!empty($event->division->days)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __n('Day', 'Days', count($event->division->days)) ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __n('Day', 'Days', count($event->division->days)) ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			$days = [];
 			foreach ($event->division->days as $day) {
 				$days[] = __($day->name);
@@ -83,47 +83,47 @@ if (!empty($event->division_id)):
 			}
 		}
 ?>
-		<dt class="col-sm-2 text-end"><?= __n('Game Time', 'Game Times', count($times)) ?></dt>
-		<dd class="col-sm-10 mb-0"><?= implode(', ', $time_list) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __n('Game Time', 'Game Times', count($times)) ?></dt>
+		<dd class="col-sm-9 mb-0"><?= implode(', ', $time_list) ?></dd>
 <?php
 	endif;
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Ratio Rule') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= __(Inflector::Humanize($event->division->ratio_rule)) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Ratio Rule') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= __(Inflector::Humanize($event->division->ratio_rule)) ?></dd>
 <?php
 endif;
 
 if (!empty($event->membership_begins)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Membership Begins') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Time->date($event->membership_begins) ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Membership Ends') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Time->date($event->membership_ends) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Membership Begins') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Time->date($event->membership_begins) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Membership Ends') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Time->date($event->membership_ends) ?></dd>
 <?php
 endif;
 
 if ($event->women_cap == CAP_COMBINED && $event->open_cap > 0):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Registration Cap') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $event->open_cap ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Registration Cap') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $event->open_cap ?></dd>
 <?php
 else:
 	if ($event->open_cap > 0):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Open Cap') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $event->open_cap ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Open Cap') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $event->open_cap ?></dd>
 <?php
 	endif;
 	if ($event->women_cap > 0):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Women Cap') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $event->women_cap ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Women Cap') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $event->women_cap ?></dd>
 <?php
 	endif;
 endif;
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Multiples') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $event->multiple ? __('Allowed') : __('Not allowed') ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Multiples') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $event->multiple ? __('Allowed') : __('Not allowed') ?></dd>
 
 <?php
 if (count($event->prices) == 1):
@@ -131,14 +131,14 @@ if (count($event->prices) == 1):
 		$admin_register = true;
 	}
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Registration Opens') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Time->datetime($event->prices[0]->open) ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Registration Closes') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Time->datetime($event->prices[0]->close) ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Reservations') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= ($event->prices[0]->allow_reservations ? PricesTable::duration($event->prices[0]->reservation_duration) : __('No')) ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Cost') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Registration Opens') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Time->datetime($event->prices[0]->open) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Registration Closes') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Time->datetime($event->prices[0]->close) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Reservations') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= ($event->prices[0]->allow_reservations ? PricesTable::duration($event->prices[0]->reservation_duration) : __('No')) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Cost') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			$cost = $event->prices[0]->total;
 			if ($cost > 0) {
 				echo $this->Number->currency($cost);
@@ -149,8 +149,8 @@ if (count($event->prices) == 1):
 <?php
 	if ($deposit):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Deposit') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Deposit') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			echo $this->Number->currency($event->prices[0]->minimum_deposit);
 			if (!$event->prices[0]->fixed_deposit) {
 				echo '+';

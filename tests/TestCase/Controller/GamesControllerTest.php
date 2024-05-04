@@ -84,8 +84,8 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $admin->id);
 		$this->assertResponseContains('currently rated');
 		$this->assertResponseContains('chance to win');
-		$this->assertResponseRegExp('#<dt class="col-sm-2 text-end">Game Status</dt>\s*<dd class="col-sm-10 mb-0">Normal</dd>#ms');
-		$this->assertResponseNotContains('<dt class="col-sm-2 text-end">Round</dt>');
+		$this->assertResponseRegExp('#<dt class="col-sm-3 text-end">Game Status</dt>\s*<dd class="col-sm-9 mb-0">Normal</dd>#ms');
+		$this->assertResponseNotContains('<dt class="col-sm-3 text-end">Round</dt>');
 		$this->assertResponseContains('Captain Emails');
 		$this->assertResponseContains('Ratings Table');
 		$this->assertResponseNotContains('/games/attendance');
@@ -93,7 +93,7 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('/games/edit?game=' . $game->id);
 		$this->assertResponseContains('/games/delete?game=' . $game->id);
 		$this->assertResponseNotContains('/games/stats?game=' . $game->id);
-		$this->assertResponseNotContains('<dt class="col-sm-2 text-end">Score Approved By</dt>');
+		$this->assertResponseNotContains('<dt class="col-sm-3 text-end">Score Approved By</dt>');
 		$this->assertResponseContains('<p>The score of this game has not yet been finalized.</p>');
 		$this->assertResponseContains('Score as entered');
 		$home_name = Text::truncate($home->name, 23);
@@ -154,8 +154,8 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertGetAnonymousAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]]);
 
 		// TODO: All the different options for carbon flips, spirit, rating points, approved by.
-		//$this->assertResponseRegExp('#<dt class="col-sm-2 text-end">Carbon Flip</dt>\s*<dd class="col-sm-10 mb-0">Red won</dd>#ms');
-		//$this->assertResponseRegExp('#<dt class="col-sm-2 text-end">Rating Points</dt>\s*<dd class="col-sm-10 mb-0">.*gain 5 points\s*</dd>#ms');
+		//$this->assertResponseRegExp('#<dt class="col-sm-3 text-end">Carbon Flip</dt>\s*<dd class="col-sm-9 mb-0">Red won</dd>#ms');
+		//$this->assertResponseRegExp('#<dt class="col-sm-3 text-end">Rating Points</dt>\s*<dd class="col-sm-9 mb-0">.*gain 5 points\s*</dd>#ms');
 
 		$this->markTestIncomplete('More scenarios to test above.');
 	}
@@ -224,7 +224,7 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $volunteer->id);
-		$this->assertResponseContains('<dt class="col-sm-2 text-end">Round</dt>');
+		$this->assertResponseContains('<dt class="col-sm-3 text-end">Round</dt>');
 
 		// Round-robin games don't have ratings tables
 		$this->assertResponseNotContains('Ratings Table');
@@ -249,9 +249,9 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertResponseNotContains('Ratings Table');
 		$home_name = Text::truncate($finalized_game->home_team->name, 28);
 		$away_name = Text::truncate($finalized_game->away_team->name, 28);
-		$this->assertResponseRegExp('#<dt class="col-sm-2 text-end">' . $home_name . '</dt>\s*<dd class="col-sm-10 mb-0">15</dd>#ms');
-		$this->assertResponseRegExp('#<dt class="col-sm-2 text-end">' . $away_name . '</dt>\s*<dd class="col-sm-10 mb-0">14</dd>#ms');
-		$this->assertResponseRegExp('#<dt class="col-sm-2 text-end">Score Approved By</dt>\s*<dd class="col-sm-10 mb-0">automatic approval</dd>#ms');
+		$this->assertResponseRegExp('#<dt class="col-sm-3 text-end">' . $home_name . '</dt>\s*<dd class="col-sm-9 mb-0">15</dd>#ms');
+		$this->assertResponseRegExp('#<dt class="col-sm-3 text-end">' . $away_name . '</dt>\s*<dd class="col-sm-9 mb-0">14</dd>#ms');
+		$this->assertResponseRegExp('#<dt class="col-sm-3 text-end">Score Approved By</dt>\s*<dd class="col-sm-9 mb-0">automatic approval</dd>#ms');
 	}
 
 	/**
@@ -268,8 +268,8 @@ class GamesControllerTest extends ControllerTestCase {
 		]);
 
 		$this->assertGetAsAccessOk(['controller' => 'Games', 'action' => 'view', '?' => ['game' => $game->id]], $volunteer->id);
-		$this->assertResponseRegExp('#<dt class="col-sm-2 text-end">Home Team</dt>\s*<dd class="col-sm-10 mb-0">A1 \[1st seed\]</dd>#ms');
-		$this->assertResponseRegExp('#<dt class="col-sm-2 text-end">Away Team</dt>\s*<dd class="col-sm-10 mb-0">A4 \[4th seed\]</dd>#ms');
+		$this->assertResponseRegExp('#<dt class="col-sm-3 text-end">Home Team</dt>\s*<dd class="col-sm-9 mb-0">A1 \[1st seed\]</dd>#ms');
+		$this->assertResponseRegExp('#<dt class="col-sm-3 text-end">Away Team</dt>\s*<dd class="col-sm-9 mb-0">A4 \[4th seed\]</dd>#ms');
 		$this->assertResponseNotContains('currently rated');
 		$this->assertResponseNotContains('chance to win');
 		$this->assertResponseNotContains('Captain Emails');

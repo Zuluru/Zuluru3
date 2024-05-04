@@ -45,6 +45,8 @@ class PoolsTable extends AppTable {
 		$this->hasMany('Games', [
 			'foreignKey' => 'pool_id',
 			'dependent' => true,
+			// Required to free up assigned game slots
+			'cascadeCallbacks' => true,
 		]);
 
 		$this->belongsToMany('Teams', [

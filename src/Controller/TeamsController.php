@@ -3,7 +3,9 @@ namespace App\Controller;
 
 use App\Authorization\ContextResource;
 use App\Exception\ForbiddenRedirectException;
+use App\Model\Entity\Division;
 use App\Model\Entity\Registration;
+use App\Model\Entity\Team;
 use App\View\Helper\ZuluruHtmlHelper;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
@@ -252,8 +254,8 @@ class TeamsController extends AppController {
 				$short->sub_count = $this->Teams->TeamsPeople->find()
 					->where([
 						'TeamsPeople.team_id' => $short->id,
-						// TODO: Use the configuration settings for non-player roles
-						'TeamsPeople.role' => 'substitute',
+						'TeamsPeople.role NOT IN' => Configure::read('regular_roster_roles'),
+						'TeamsPeople.status' => ROSTER_APPROVED,
 					])
 					->count();
 
@@ -478,6 +480,7 @@ class TeamsController extends AppController {
 		}
 
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => $contain
 			]);
@@ -717,6 +720,7 @@ class TeamsController extends AppController {
 
 		$id = $this->getRequest()->getQuery('team');
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => [
 					'Divisions' => ['Leagues'],
@@ -752,6 +756,7 @@ class TeamsController extends AppController {
 				$data['people'][0]['id'] = $person_id;
 			}
 
+			/** @var Team $team */
 			$team = $this->Teams->patchEntity($team, $data, [
 				'associated' => ['People._joinData']
 			]);
@@ -818,6 +823,7 @@ class TeamsController extends AppController {
 		}
 
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, compact('contain'));
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid team.'));
@@ -870,6 +876,7 @@ class TeamsController extends AppController {
 	public function stat_sheet() {
 		$id = $this->getRequest()->getQuery('team');
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => [
 					'Divisions' => [
@@ -900,6 +907,7 @@ class TeamsController extends AppController {
 		$id = $this->getRequest()->getQuery('team');
 
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => [
 					// Get the list of captains
@@ -944,6 +952,7 @@ class TeamsController extends AppController {
 	 */
 	public function add() {
 		$this->Authorization->authorize($this);
+		/** @var Team $team */
 		$team = $this->Teams->newEmptyEntity();
 
 		if ($this->getRequest()->is('post')) {
@@ -1033,6 +1042,7 @@ class TeamsController extends AppController {
 	public function edit() {
 		$id = $this->getRequest()->getQuery('team');
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => [
 					'Facilities',
@@ -1146,6 +1156,7 @@ class TeamsController extends AppController {
 			$team = $note->team;
 		} else {
 			try {
+				/** @var Team $team */
 				$team = $this->Teams->get($this->getRequest()->getQuery('team'), [
 					'contain' => ['Divisions' => ['Leagues']]
 				]);
@@ -1229,6 +1240,7 @@ class TeamsController extends AppController {
 
 		$id = $this->getRequest()->getQuery('team');
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => ['Divisions']
 			]);
@@ -1262,7 +1274,9 @@ class TeamsController extends AppController {
 	// TODO: Method for moving multiple teams at once; jQuery "left and right" boxes?
 	public function move() {
 		$id = $this->getRequest()->getQuery('team');
+		$loose = $this->getRequest()->getQuery('loose');
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => ['Divisions' => ['Leagues', 'People']]
 			]);
@@ -1281,6 +1295,7 @@ class TeamsController extends AppController {
 
 		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
 			try {
+				/** @var Division $division */
 				$division = $this->Teams->Divisions->get($this->getRequest()->getData('to'), [
 					'contain' => ['Leagues']
 				]);
@@ -1290,13 +1305,19 @@ class TeamsController extends AppController {
 			}
 			// Don't do division comparisons when the team being moved is not in a division
 			if ($team->division_id) {
-				if ($team->division->league_id != $division->league_id) {
-					$this->Flash->info(__('Cannot move a team to a different league.'));
+				if ($team->division->league->sport !== $division->league->sport) {
+					$this->Flash->info(__('Cannot move a team to a different sport.'));
 					return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
 				}
-				if ($division->ratio_rule != $team->division->ratio_rule) {
-					$this->Flash->info(__('Destination division must have the same ratio rule.'));
-					return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
+				if (!$loose) {
+					if ($team->division->league_id !== $division->league_id) {
+						$this->Flash->info(__('Cannot move a team to a different league.'));
+						return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
+					}
+					if ($team->division->ratio_rule !== $division->ratio_rule) {
+						$this->Flash->info(__('Destination division must have the same ratio rule.'));
+						return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
+					}
 				}
 			}
 			$team->division_id = $this->getRequest()->getData('to');
@@ -1318,9 +1339,12 @@ class TeamsController extends AppController {
 		if ($team->division_id) {
 			$conditions += [
 				'Divisions.id !=' => $team->division_id,
-				'Divisions.league_id' => $team->division->league_id,
+				'Leagues.sport' => $team->division->league->sport,
 				'Divisions.ratio_rule' => $team->division->ratio_rule,
 			];
+			if (!$loose) {
+				$conditions['Divisions.league_id'] = $team->division->league_id;
+			}
 		}
 		$divisions = $this->Teams->Divisions->find()
 			->contain(['Leagues'])
@@ -1333,12 +1357,13 @@ class TeamsController extends AppController {
 			return $this->redirect(['action' => 'view', '?' => ['team' => $id]]);
 		}
 
-		$this->set(compact('team', 'divisions'));
+		$this->set(compact('team', 'divisions', 'loose'));
 	}
 
 	public function schedule() {
 		$id = $this->getRequest()->getQuery('team');
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => [
 					'People',
@@ -1408,6 +1433,7 @@ class TeamsController extends AppController {
 	public function ical($id) {
 		$id = intval($id);
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => ['Divisions' => ['Leagues']]
 			]);
@@ -1459,6 +1485,7 @@ class TeamsController extends AppController {
 	public function spirit() {
 		$id = $this->getRequest()->getQuery('team');
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => ['Divisions' => ['Leagues']]
 			]);
@@ -1506,6 +1533,7 @@ class TeamsController extends AppController {
 	public function attendance() {
 		$id = $this->getRequest()->getQuery('team');
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => [
 					'Divisions' => ['Days', 'Leagues'],
@@ -1602,6 +1630,7 @@ class TeamsController extends AppController {
 	public function emails() {
 		$id = $this->getRequest()->getQuery('team');
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => [
 					'People' => [
@@ -1638,6 +1667,7 @@ class TeamsController extends AppController {
 	public function add_player() {
 		$id = $this->getRequest()->getQuery('team');
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => [
 					'Divisions' => ['Leagues'],
@@ -1698,6 +1728,7 @@ class TeamsController extends AppController {
 
 		// Read the current team roster
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => [
 					'People',
@@ -1804,6 +1835,7 @@ class TeamsController extends AppController {
 		$id = $this->getRequest()->getQuery('team');
 
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($id, [
 				'contain' => [
 					'People',
@@ -2237,6 +2269,7 @@ class TeamsController extends AppController {
 	protected function _initTeamForRosterChange($person_id) {
 		$team_id = $this->getRequest()->getQuery('team');
 		try {
+			/** @var Team $team */
 			$team = $this->Teams->get($team_id, [
 				'contain' => [
 					'People' => [Configure::read('Security.authModel')],

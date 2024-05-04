@@ -22,8 +22,8 @@ endif;
 <div class="divisions view">
 	<h2><?= h($division->name) ?></h2>
 	<dl class="row">
-		<dt class="col-sm-2 text-end"><?= __('League') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('League') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			echo $this->element('Leagues/block', ['league' => $division->league]);
 			echo $this->Html->iconLink('view_24.png', ['controller' => 'Leagues', 'action' => 'view', '?' => ['league' => $division->league_id]], ['id' => 'LeagueDetailsIcon']);
 			$this->Html->scriptBlock('zjQuery("#LeagueDetailsIcon").bind("click", function (event) { zjQuery("#LeagueDetails").toggle(); return false; });', ['buffer' => true]);
@@ -31,23 +31,23 @@ endif;
 		<fieldset id="LeagueDetails" style="display:none;">
 			<legend><?= __('League Details') ?></legend>
 			<dl class="row">
-				<dt class="col-sm-2 text-end"><?= __('Season') ?></dt>
-				<dd class="col-sm-10 mb-0"><?= __($division->league->season) ?></dd>
+				<dt class="col-sm-3 text-end"><?= __('Season') ?></dt>
+				<dd class="col-sm-9 mb-0"><?= __($division->league->season) ?></dd>
 <?php
 if ($this->Authorize->can('edit', $division)):
 	if ($division->league->hasSpirit()):
 ?>
-				<dt class="col-sm-2 text-end"><?= __('Spirit Questionnaire') ?></dt>
-				<dd class="col-sm-10 mb-0"><?= __(Configure::read("options.spirit_questions.{$division->league->sotg_questions}")) ?></dd>
-				<dt class="col-sm-2 text-end"><?= __('Spirit Numeric Entry') ?></dt>
-				<dd class="col-sm-10 mb-0"><?= $division->league->numeric_sotg ? __('Yes') : __('No') ?></dd>
-				<dt class="col-sm-2 text-end"><?= __('Spirit Display') ?></dt>
-				<dd class="col-sm-10 mb-0"><?= __(Inflector::Humanize($division->league->display_sotg)) ?></dd>
+				<dt class="col-sm-3 text-end"><?= __('Spirit Questionnaire') ?></dt>
+				<dd class="col-sm-9 mb-0"><?= __(Configure::read("options.spirit_questions.{$division->league->sotg_questions}")) ?></dd>
+				<dt class="col-sm-3 text-end"><?= __('Spirit Numeric Entry') ?></dt>
+				<dd class="col-sm-9 mb-0"><?= $division->league->numeric_sotg ? __('Yes') : __('No') ?></dd>
+				<dt class="col-sm-3 text-end"><?= __('Spirit Display') ?></dt>
+				<dd class="col-sm-9 mb-0"><?= __(Inflector::Humanize($division->league->display_sotg)) ?></dd>
 <?php
 	endif;
 ?>
-				<dt class="col-sm-2 text-end"><?= __('Expected Max Score') ?></dt>
-				<dd class="col-sm-10 mb-0"><?= $division->league->expected_max_score ?></dd>
+				<dt class="col-sm-3 text-end"><?= __('Expected Max Score') ?></dt>
+				<dd class="col-sm-9 mb-0"><?= $division->league->expected_max_score ?></dd>
 <?php
 endif;
 ?>

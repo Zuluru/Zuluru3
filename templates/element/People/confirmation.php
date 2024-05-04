@@ -55,8 +55,8 @@ echo $this->Html->para(null, __('Please either update or confirm the information
 foreach ($fields as $field):
 ?>
 
-			<dt class="col-sm-2 text-end"><?= __(Inflector::humanize($field)) ?>:</dt>
-			<dd class="col-sm-10 mb-0"><?php
+			<dt class="col-sm-3 text-end"><?= __(Inflector::humanize($field)) ?>:</dt>
+			<dd class="col-sm-9 mb-0"><?php
 			switch ($field) {
 				case 'height':
 					echo $person->$field . ' ' . (Configure::read('feature.units') == 'Metric' ? __('cm') : __('inches'));

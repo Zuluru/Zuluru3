@@ -34,58 +34,58 @@ endif;
 <?php
 if (count($affiliates) > 1):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Affiliate') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Html->link($league->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $league->affiliate->id]]) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Affiliate') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Html->link($league->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $league->affiliate->id]]) ?></dd>
 <?php
 endif;
 
 if (!empty($league->categories)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Categories') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= h(implode(', ', collection($league->categories)->extract('name')->toArray())) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Categories') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= h(implode(', ', collection($league->categories)->extract('name')->toArray())) ?></dd>
 <?php
 endif;
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Season') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= __($league->season) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Season') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= __($league->season) ?></dd>
 <?php
 if ($this->Authorize->can('edit_schedule', $league)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Schedule Attempts') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $league->schedule_attempts ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Schedule Attempts') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $league->schedule_attempts ?></dd>
 <?php
 	if (Configure::read('feature.spirit') && !Configure::read("sports.{$league->sport}.competition")):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Spirit Questionnaire') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= __(Configure::read("options.spirit_questions.{$league->sotg_questions}")) ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Spirit Numeric Entry') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $league->numeric_sotg ? __('Yes') : __('No') ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Spirit Display') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= __(Inflector::Humanize($league->display_sotg)) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Spirit Questionnaire') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= __(Configure::read("options.spirit_questions.{$league->sotg_questions}")) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Spirit Numeric Entry') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $league->numeric_sotg ? __('Yes') : __('No') ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Spirit Display') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= __(Inflector::Humanize($league->display_sotg)) ?></dd>
 <?php
 	endif;
 
 	if (Configure::read('scoring.carbon_flip')):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Carbon Flip') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $league->carbon_flip ? __('Yes') : __('No') ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Carbon Flip') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $league->carbon_flip ? __('Yes') : __('No') ?></dd>
 <?php
 	endif;
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Expected Max Score') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Number->format($league->expected_max_score) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Expected Max Score') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Number->format($league->expected_max_score) ?></dd>
 <?php
 endif;
 
 if (Configure::read('scoring.stat_tracking')):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Stat Tracking') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= __(Inflector::Humanize($league->stat_tracking)) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Stat Tracking') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= __(Inflector::Humanize($league->stat_tracking)) ?></dd>
 <?php
 endif;
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Tie Breaker') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Tie Breaker') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			$tie_breakers = [];
 			foreach ($league->tie_breakers as $tie_breaker) {
 				$tie_breakers[] = Configure::read("options.tie_breaker.{$tie_breaker}");

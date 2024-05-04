@@ -18,13 +18,13 @@ $this->Breadcrumbs->add(__('View'));
 <?php
 if (count($affiliates) > 1):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Affiliate') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Html->link($questionnaire->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $questionnaire->affiliate->id]]) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Affiliate') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Html->link($questionnaire->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $questionnaire->affiliate->id]]) ?></dd>
 <?php
 endif;
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Active') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $questionnaire->active ? __('Yes') : __('No') ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Active') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $questionnaire->active ? __('Yes') : __('No') ?></dd>
 	</dl>
 <?= $this->Form->create(null) ?>
 	<fieldset>

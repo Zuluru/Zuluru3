@@ -37,18 +37,18 @@ if ($game->division->league->hasCarbonFlip()) {
 	<h2><?= __('Edit Game') ?></h2>
 	<?= $this->Form->create($game, ['align' => 'horizontal']) ?>
 	<dl class="row">
-		<dt class="col-sm-2 text-end"><?= __('League') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->element('Leagues/block', ['league' => $game->division->league]) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('League') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->element('Leagues/block', ['league' => $game->division->league]) ?></dd>
 <?php
 if (TableRegistry::getTableLocator()->get('Divisions')->find('byLeague', ['league' => $game->division->league_id])->count() != 1):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Division') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->element('Divisions/block', ['league' => $game->division->league, 'division' => $game->division]) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Division') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->element('Divisions/block', ['league' => $game->division->league, 'division' => $game->division]) ?></dd>
 <?php
 endif;
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Home Team') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Home Team') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			if ($game->home_team_id === null) {
 				if ($game->has('home_dependency')) {
 					echo $game->home_dependency;
@@ -70,8 +70,8 @@ endif;
 <?php
 if ($game->division->schedule_type !== 'competition'):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Away Team') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Away Team') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			if ($game->away_team_id === null) {
 				if ($game->has('away_dependency')) {
 					echo $game->away_dependency;
@@ -93,12 +93,12 @@ if ($game->division->schedule_type !== 'competition'):
 <?php
 endif;
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Date and Time') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Time->dateTimeRange($game->game_slot) ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Location') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->element('Fields/block', ['field' => $game->game_slot->field, 'display_field' => 'long_name']) ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Game Status') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Jquery->toggleInput('status', [
+		<dt class="col-sm-3 text-end"><?= __('Date and Time') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Time->dateTimeRange($game->game_slot) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Location') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->element('Fields/block', ['field' => $game->game_slot->field, 'display_field' => 'long_name']) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Game Status') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Jquery->toggleInput('status', [
 			'id' => 'Status',
 			'div' => false,
 			'label' => false,
@@ -116,8 +116,8 @@ endif;
 <?php
 if ($game->division->schedule_type === 'roundrobin' && $game->round):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Round') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $game->round ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Round') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $game->round ?></dd>
 <?php
 endif;
 
@@ -134,8 +134,8 @@ $captains = collection($captains)->filter(function ($player) {
 })->toArray();
 if (!empty($captains)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Coach/Captain Emails') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Html->link(__('Email all coaches and captains'), 'mailto:' . implode(',', AppController::_extractEmails($captains, false, false, true))) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Coach/Captain Emails') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Html->link(__('Email all coaches and captains'), 'mailto:' . implode(',', AppController::_extractEmails($captains, false, false, true))) ?></dd>
 <?php
 endif;
 ?>
@@ -190,8 +190,8 @@ if ($game->isFinalized()):
 <?php
 	echo $this->element("Leagues/game/{$league_obj->render_element}/score", compact('game'));
 ?>
-			<dt class="col-sm-2 text-end"><?= __('Score Approved By') ?></dt>
-			<dd class="col-sm-10 mb-0"><?php
+			<dt class="col-sm-3 text-end"><?= __('Score Approved By') ?></dt>
+			<dd class="col-sm-9 mb-0"><?php
 				if ($game->approved_by_id < 0) {
 					$approved = Configure::read('approved_by');
 					echo __($approved[$game->approved_by_id]);

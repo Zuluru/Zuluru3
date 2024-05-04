@@ -18,31 +18,31 @@ $this->Breadcrumbs->add(__('View'));
 <?php
 if (count($affiliates) > 1):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Affiliate') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Html->link($waiver->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $waiver->affiliate->id]]) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Affiliate') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Html->link($waiver->affiliate->name, ['controller' => 'Affiliates', 'action' => 'view', '?' => ['affiliate' => $waiver->affiliate->id]]) ?></dd>
 <?php
 endif;
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Description') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= h($waiver->description) ?>&nbsp;</dd>
-		<dt class="col-sm-2 text-end"><?= __('Text') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $waiver->text ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Active') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $waiver->active ? __('Yes') : __('No') ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Expiry Type') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= __(Configure::read("options.waivers.expiry_type.{$waiver->expiry_type}")) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Description') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= h($waiver->description) ?>&nbsp;</dd>
+		<dt class="col-sm-3 text-end"><?= __('Text') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $waiver->text ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Active') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $waiver->active ? __('Yes') : __('No') ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Expiry Type') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= __(Configure::read("options.waivers.expiry_type.{$waiver->expiry_type}")) ?></dd>
 <?php
 if ($waiver->expiry_type == 'fixed_dates'):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Start') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Time->format(mktime(12, 0, 0, $waiver->start_month), 'MMM') . ' ' . $waiver->start_day ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('End') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Time->format(mktime(12, 0, 0, $waiver->end_month), 'MMM') . ' ' . $waiver->end_day ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Start') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Time->format(mktime(12, 0, 0, $waiver->start_month), 'MMM') . ' ' . $waiver->start_day ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('End') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Time->format(mktime(12, 0, 0, $waiver->end_month), 'MMM') . ' ' . $waiver->end_day ?></dd>
 <?php
 elseif ($waiver->expiry_type == 'elapsed_time'):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('End') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $waiver->duration . ' ' . __('days') ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('End') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $waiver->duration . ' ' . __('days') ?></dd>
 <?php
 endif;
 ?>

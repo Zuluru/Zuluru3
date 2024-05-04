@@ -21,18 +21,18 @@ $this->Breadcrumbs->add($team->name);
 <div class="team_events form">
 <h2><?= __('Attendance Change') ?></h2>
 	<dl class="row">
-		<dt class="col-sm-2 text-end"><?= __('Team') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->element('Teams/block', ['team' => $team]) ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Event') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $event->name ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Description') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $event->description ?>&nbsp;</dd>
-		<dt class="col-sm-2 text-end"><?= __('Date') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Time->date($event->date) ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Start Time') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Time->time($event->start) ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('End Time') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Time->time($event->end) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Team') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->element('Teams/block', ['team' => $team]) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Event') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $event->name ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Description') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $event->description ?>&nbsp;</dd>
+		<dt class="col-sm-3 text-end"><?= __('Date') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Time->date($event->date) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Start Time') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Time->time($event->start) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('End Time') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Time->time($event->end) ?></dd>
 	</dl>
 
 <?php

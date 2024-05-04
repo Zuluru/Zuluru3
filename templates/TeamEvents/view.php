@@ -20,36 +20,36 @@ $display_gender = $this->Authorize->can('display_gender', new ContextResource($t
 <div class="team_events view">
 	<h2><?= h($team_event->team->name) . ': ' . h($team_event->name) ?></h2>
 	<dl class="row">
-		<dt class="col-sm-2 text-end"><?= __('Team') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->element('Teams/block', ['team' => $team_event->team, 'show_shirt' => false]) ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Event') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $team_event->name ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Team') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->element('Teams/block', ['team' => $team_event->team, 'show_shirt' => false]) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Event') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $team_event->name ?></dd>
 <?php
 if (!empty($team_event->description)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Description') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $team_event->description ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Description') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $team_event->description ?></dd>
 <?php
 endif;
 ?>
 <?php
 if (Configure::read('feature.urls') && !empty($team_event->website)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Website') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Html->link($team_event->website, $team_event->website) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Website') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Html->link($team_event->website, $team_event->website) ?></dd>
 <?php
 endif;
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Date') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Time->date($team_event->date) ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Start') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Time->time($team_event->start) ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('End') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Time->time($team_event->end) ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Location') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= h($team_event->location_name) ?></dd>
-		<dt class="col-sm-2 text-end"><?= __('Address') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Date') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Time->date($team_event->date) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Start') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Time->time($team_event->start) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('End') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Time->time($team_event->end) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Location') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= h($team_event->location_name) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Address') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			$address = "{$team_event->location_street}, {$team_event->location_city}, {$team_event->location_province}";
 			$link_address = strtr($address, ' ', '+');
 			echo $this->Html->link($address, "https://maps.google.com/maps?q=$link_address");
@@ -57,8 +57,8 @@ endif;
 <?php
 if ($display_gender):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Totals') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Totals') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			// Build the totals
 			$statuses = Configure::read('attendance');
 			$alt = Configure::read('attendance_alt');

@@ -33,8 +33,8 @@ $can_edit = $this->Authorize->can('edit', $facility);
 if (count(Configure::read('options.sport')) > 1):
 	$sports = $sports_list = array_unique(collection($facility->fields)->extract('sport')->toArray());
 ?>
-		<dt class="col-sm-2 text-end"><?= __n('Sport', 'Sports', count($sports)) ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __n('Sport', 'Sports', count($sports)) ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			if (count($sports) > 1) {
 				if (!empty($facility->sport)) {
 					echo Inflector::humanize(__($facility->sport));
@@ -55,8 +55,8 @@ else:
 	$sports = [];
 endif;
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Region') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Region') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			if ($this->Authorize->can('view', $facility->region)) {
 				echo $this->Html->link($facility->region->name, ['controller' => 'Regions', 'action' => 'view', '?' => ['region' => $facility->region->id]]);
 			} else {
@@ -66,20 +66,20 @@ endif;
 <?php
 if (!empty($facility->location_street)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Address') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= h($facility->location_street) . ', ' . h($facility->location_city) . ', ' . h($facility->location_province) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Address') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= h($facility->location_street) . ', ' . h($facility->location_city) . ', ' . h($facility->location_province) ?></dd>
 <?php
 endif;
 
 if (!empty($surfaces)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __n('Surface', 'Surfaces', count($surfaces)) ?></dt>
-		<dd class="col-sm-10 mb-0"><?= implode(', ', $surfaces) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __n('Surface', 'Surfaces', count($surfaces)) ?></dt>
+		<dd class="col-sm-9 mb-0"><?= implode(', ', $surfaces) ?></dd>
 <?php
 endif;
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Status') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $facility->is_open ? __('Open') : __('Closed') ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Status') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $facility->is_open ? __('Open') : __('Closed') ?></dd>
 <?php
 $permit_lines = [];
 foreach ($facility->permits as $season => $permit) {
@@ -97,57 +97,57 @@ foreach ($facility->permits as $season => $permit) {
 
 if (!empty($permit_lines)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __n('Permit', 'Permits', count($facility->permits)) ?></dt>
-		<dd class="col-sm-10 mb-0"><?= implode('<br/>', $permit_lines) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __n('Permit', 'Permits', count($facility->permits)) ?></dt>
+		<dd class="col-sm-9 mb-0"><?= implode('<br/>', $permit_lines) ?></dd>
 <?php
 endif;
 
 if (!empty($facility->driving_directions)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Driving Directions') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $facility->driving_directions ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Driving Directions') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $facility->driving_directions ?></dd>
 <?php
 endif;
 
 if (!empty($facility->parking_details)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Parking Details') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $facility->parking_details ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Parking Details') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $facility->parking_details ?></dd>
 <?php
 endif;
 
 if (!empty($facility->transit_directions)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Transit Directions') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $facility->transit_directions ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Transit Directions') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $facility->transit_directions ?></dd>
 <?php
 endif;
 
 if (!empty($facility->biking_directions)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Biking Directions') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $facility->biking_directions ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Biking Directions') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $facility->biking_directions ?></dd>
 <?php
 endif;
 
 if (!empty($facility->washrooms)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Washrooms') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $facility->washrooms ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Washrooms') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $facility->washrooms ?></dd>
 <?php
 endif;
 
 if (!empty($facility->public_instructions)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Special Instructions') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $facility->public_instructions ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Special Instructions') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $facility->public_instructions ?></dd>
 <?php
 endif;
 
 if (!empty($facility->site_instructions)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Private Instructions') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Private Instructions') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			if ($this->Identity->isLoggedIn()) {
 				echo $facility->site_instructions;
 			} else {

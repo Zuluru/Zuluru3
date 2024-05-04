@@ -35,51 +35,51 @@ $identity = $this->Authorize->getIdentity();
 if ($person->user_id):
 	if (in_array('user_name', $visible_properties)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Username') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $person->user_name ?>&nbsp;</dd>
+		<dt class="col-sm-3 text-end"><?= __('Username') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $person->user_name ?>&nbsp;</dd>
 <?php
 	endif;
 
 	if (in_array('user_id', $visible_properties)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('{0} User Id', Configure::read('feature.authenticate_through')) ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $person->user_id ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('{0} User Id', Configure::read('feature.authenticate_through')) ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $person->user_id ?></dd>
 <?php
 	endif;
 
 	if (in_array('id', $visible_properties)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Zuluru Id') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $person->id ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Zuluru Id') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $person->id ?></dd>
 <?php
 	endif;
 endif;
 
 if (in_array('last_login', $visible_properties) && !empty($person->last_login)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Last Login') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $this->Time->datetime($person->last_login) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Last Login') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $this->Time->datetime($person->last_login) ?></dd>
 <?php
 endif;
 
 if (in_array('client_ip', $visible_properties) && !empty($person->client_ip)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('IP Address') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $person->client_ip ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('IP Address') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $person->client_ip ?></dd>
 <?php
 endif;
 
 if (!empty($person->legal_name) && in_array('legal_name', $visible_properties)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Legal Name') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $person->legal_name ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Legal Name') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $person->legal_name ?></dd>
 <?php
 endif;
 
 if (in_array('email', $visible_properties) && !empty($person->email)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Email Address') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Email Address') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			$has_visible_contact = true;
 			echo $this->Html->link($person->email, "mailto:{$person->email}");
 			echo __(' ({0})', $person->publish_email ? __('published') : __('private'));
@@ -89,8 +89,8 @@ endif;
 
 if (in_array('alternate_email', $visible_properties) && !empty($person->alternate_email)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Alternate Email Address') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Alternate Email Address') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			$has_visible_contact = true;
 			echo $this->Html->link($person->alternate_email, "mailto:{$person->alternate_email}");
 			echo __(' ({0})', $person->publish_alternate_email ? __('published') : __('private'));
@@ -100,8 +100,8 @@ endif;
 
 if (in_array('home_phone', $visible_properties) && !empty($person->home_phone)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Phone (home)') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Phone (home)') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			$has_visible_contact = true;
 			echo $person->home_phone;
 			echo __(' ({0})', $person->publish_home_phone ? __('published') : __('private'));
@@ -111,8 +111,8 @@ endif;
 
 if (in_array('work_phone', $visible_properties) && !empty($person->work_phone)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Phone (work)') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Phone (work)') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			$has_visible_contact = true;
 			echo $person->work_phone;
 			if (!empty($person->work_ext)) {
@@ -125,8 +125,8 @@ endif;
 
 if (in_array('mobile_phone', $visible_properties) && !empty($person->mobile_phone)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Phone (mobile)') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Phone (mobile)') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			$has_visible_contact = true;
 			echo $person->mobile_phone;
 			echo __(' ({0})', $person->publish_mobile_phone ? __('published') : __('private'));
@@ -136,15 +136,15 @@ endif;
 
 if (in_array('alternate_full_name', $visible_properties) && !empty($person->alternate_full_name)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Alternate Contact') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $person->alternate_full_name ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Alternate Contact') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $person->alternate_full_name ?></dd>
 <?php
 endif;
 
 if (in_array('alternate_work_phone', $visible_properties) && !empty($person->alternate_work_phone)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Phone (work)') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Phone (work)') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			$has_visible_contact = true;
 			echo $person->alternate_work_phone;
 			if (!empty($person->alternate_work_ext)) {
@@ -157,8 +157,8 @@ endif;
 
 if (in_array('alternate_mobile_phone', $visible_properties) && !empty($person->alternate_mobile_phone)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Phone (mobile)') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Phone (mobile)') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			$has_visible_contact = true;
 			echo $person->alternate_mobile_phone;
 			echo __(' ({0})', $person->publish_alternate_mobile_phone ? __('published') : __('private'));
@@ -169,8 +169,8 @@ endif;
 $label = __('Address');
 if (in_array('addr_street', $visible_properties) && !empty($person->addr_street)):
 ?>
-		<dt class="col-sm-2 text-end"><?= $label ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= $label ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			echo $person->addr_street;
 			$label = '&nbsp;';
 		?></dd>
@@ -189,23 +189,23 @@ if (in_array('addr_country', $visible_properties) && !empty($person->addr_countr
 }
 if (!empty($addr)):
 ?>
-		<dt class="col-sm-2 text-end"><?= $label ?></dt>
-		<dd class="col-sm-10 mb-0"><?= implode(', ', $addr) ?></dd>
+		<dt class="col-sm-3 text-end"><?= $label ?></dt>
+		<dd class="col-sm-9 mb-0"><?= implode(', ', $addr) ?></dd>
 <?php
 	$label = '&nbsp;';
 endif;
 
 if (in_array('addr_postalcode', $visible_properties) && !empty($person->addr_postalcode)):
 ?>
-		<dt class="col-sm-2 text-end"><?= $label ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $person->addr_postalcode ?></dd>
+		<dt class="col-sm-3 text-end"><?= $label ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $person->addr_postalcode ?></dd>
 <?php
 endif;
 
 if (in_array('birthdate', $visible_properties)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Birthdate') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Birthdate') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			if (Configure::read('feature.birth_year_only')) {
 				if (empty($person->birthdate) || $person->birthdate->year == 0) {
 					echo __('unknown');
@@ -221,8 +221,8 @@ endif;
 
 if (in_array('gender_display', $visible_properties)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Gender Identification') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Gender Identification') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			echo __($person->gender_display);
 			echo __(' ({0})', $person->publish_gender ? __('published') : __('private'));
 		?>&nbsp;</dd>
@@ -231,8 +231,8 @@ endif;
 
 if (in_array('pronouns', $visible_properties)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Pronouns') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Pronouns') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			echo $person->pronouns;
 			echo __(' ({0})', $person->publish_pronouns ? __('published') : __('private'));
 		?>&nbsp;</dd>
@@ -241,23 +241,23 @@ endif;
 
 if (in_array('height', $visible_properties) && !empty($person->height)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Height') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $person->height . ' ' . (Configure::read('feature.units') == 'Metric' ? __('cm') : __('inches')) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Height') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $person->height . ' ' . (Configure::read('feature.units') == 'Metric' ? __('cm') : __('inches')) ?></dd>
 <?php
 endif;
 
 if (in_array('shirt_size', $visible_properties) && !empty($person->shirt_size)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Shirt Size') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= __($person->shirt_size) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Shirt Size') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= __($person->shirt_size) ?></dd>
 <?php
 endif;
 
 if (in_array('skills', $visible_properties) && !empty($person->skills)):
 	if (Configure::read('profile.skill_level')):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Skill Level') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Skill Level') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			$sports = [];
 			$sport_count = count(Configure::read('options.sport'));
 			foreach ($person->skills as $skill) {
@@ -274,8 +274,8 @@ if (in_array('skills', $visible_properties) && !empty($person->skills)):
 
 	if (Configure::read('profile.year_started')):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Year Started') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Year Started') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			$sports = [];
 			$sport_count = count(Configure::read('options.sport'));
 			foreach ($person->skills as $skill) {
@@ -293,8 +293,8 @@ endif;
 
 if (in_array('groups', $visible_properties)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __n('Account Class', 'Account Classes', count($person->groups)) ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __n('Account Class', 'Account Classes', count($person->groups)) ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			$names = [];
 			foreach ($person->groups as $group) {
 				$names[] = $group->translateField('name');
@@ -310,22 +310,22 @@ endif;
 
 if (in_array('status', $visible_properties)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Account Status') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= __($person->status) ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Account Status') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= __($person->status) ?></dd>
 <?php
 endif;
 
 if (in_array('has_dog', $visible_properties)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Has Dog') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $person->has_dog ? __('Yes') : __('No') ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Has Dog') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $person->has_dog ? __('Yes') : __('No') ?></dd>
 <?php
 endif;
 
 if (in_array('contact_for_feedback', $visible_properties)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Contact for Feedback') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $person->contact_for_feedback ? __('Yes') : __('No') ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Contact for Feedback') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $person->contact_for_feedback ? __('Yes') : __('No') ?></dd>
 <?php
 endif;
 ?>
@@ -443,13 +443,13 @@ if (in_array('related_to', $visible_properties) && AppController::_isChild($pers
 	foreach ($person->related_to as $relative):
 		if ($relative->_joinData->approved):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Name') ?></dt>
-		<dd class="col-sm-10 mb-0"><?= $relative->full_name ?></dd>
+		<dt class="col-sm-3 text-end"><?= __('Name') ?></dt>
+		<dd class="col-sm-9 mb-0"><?= $relative->full_name ?></dd>
 <?php
 			if (!empty($relative->email)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Email Address') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Email Address') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			echo $this->Html->link($relative->email, "mailto:{$relative->email}");
 			echo __(' ({0})', $relative->publish_email ? __('published') : __('private'));
 		?></dd>
@@ -458,8 +458,8 @@ if (in_array('related_to', $visible_properties) && AppController::_isChild($pers
 
 			if (!empty($relative->alternate_email)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Alternate Email Address') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Alternate Email Address') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			echo $this->Html->link($relative->alternate_email, "mailto:{$relative->alternate_email}");
 			echo __(' ({0})', $relative->publish_alternate_email ? __('published') : __('private'));
 		?></dd>
@@ -468,8 +468,8 @@ if (in_array('related_to', $visible_properties) && AppController::_isChild($pers
 
 			if (in_array('home_phone', $visible_properties) && !empty($relative->home_phone)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Phone (home)') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Phone (home)') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			echo $relative->home_phone;
 			echo __(' ({0})', $relative->publish_home_phone ? __('published') : __('private'));
 		?></dd>
@@ -478,8 +478,8 @@ if (in_array('related_to', $visible_properties) && AppController::_isChild($pers
 
 			if (in_array('work_phone', $visible_properties) && !empty($relative->work_phone)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Phone (work)') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Phone (work)') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			echo $relative->work_phone;
 			if (!empty($relative->work_ext)) {
 				echo ' x' . $relative->work_ext;
@@ -491,8 +491,8 @@ if (in_array('related_to', $visible_properties) && AppController::_isChild($pers
 
 			if (in_array('mobile_phone', $visible_properties) && !empty($relative->mobile_phone)):
 ?>
-		<dt class="col-sm-2 text-end"><?= __('Phone (mobile)') ?></dt>
-		<dd class="col-sm-10 mb-0"><?php
+		<dt class="col-sm-3 text-end"><?= __('Phone (mobile)') ?></dt>
+		<dd class="col-sm-9 mb-0"><?php
 			echo $relative->mobile_phone;
 			echo __(' ({0})', $relative->publish_mobile_phone ? __('published') : __('private'));
 		?></dd>
