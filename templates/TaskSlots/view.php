@@ -35,15 +35,17 @@ endif;
 </div>
 
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
-	['action' => 'edit', '?' => ['slot' => $task_slot->id]],
-	['alt' => __('Edit'), 'title' => __('Edit Task Slot')]));
-echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-	['action' => 'delete', '?' => ['slot' => $task_slot->id]],
-	['alt' => __('Delete'), 'title' => __('Delete Task Slot')],
-	['confirm' => __('Are you sure you want to delete this task slot?')]));
+echo $this->Bootstrap->navPills([
+	$this->Html->iconLink('edit_32.png',
+		['action' => 'edit', '?' => ['slot' => $task_slot->id]],
+		['alt' => __('Edit'), 'title' => __('Edit Task Slot')]
+	),
+	$this->Form->iconPostLink('delete_32.png',
+		['action' => 'delete', '?' => ['slot' => $task_slot->id]],
+		['alt' => __('Delete'), 'title' => __('Delete Task Slot')],
+		['confirm' => __('Are you sure you want to delete this task slot?')]
+	),
+]);
 ?>
-	</ul>
 </div>

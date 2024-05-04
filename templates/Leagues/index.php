@@ -4,7 +4,7 @@
  * @var \App\Model\Entity\League[] $leagues
  * @var string $sport
  * @var bool $tournaments
- * @var int[] $affiliates
+ * @var string[] $affiliates
  * @var int $affiliate
  * @var int[] $years
  */
@@ -179,13 +179,13 @@ endif;
 if (!empty($years)):
 ?>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
+$links = [];
 foreach ($years as $year) {
-	echo $this->Html->tag('li', $this->Html->link($year, ['?' => ['affiliate' => $affiliate, 'sport' => $sport, 'year' => $year]]));
+	$links[] = $this->Html->link($year, ['?' => ['affiliate' => $affiliate, 'sport' => $sport, 'year' => $year]], ['class' => $this->Bootstrap->navPillLinkClasses()]);
 }
+echo $this->Bootstrap->navPills($links);
 ?>
-	</ul>
 </div>
 <?php
 endif;

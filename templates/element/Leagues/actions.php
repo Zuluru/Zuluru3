@@ -145,6 +145,6 @@ if ($collapse && !$from_division_actions) {
 	if ($format == 'links') {
 		echo implode("\n", $links->getArrayCopy());
 	} else {
-		echo $this->Html->nestedList($links->getArrayCopy(), ['class' => 'nav nav-pills']);
+		echo $this->Bootstrap->navPills($links->getArrayCopy());
 	}
 }

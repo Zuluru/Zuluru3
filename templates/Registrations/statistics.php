@@ -82,12 +82,11 @@ endforeach;
 	</div>
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
+$links = [];
 foreach ($years as $year) {
-	echo $this->Html->tag('li', $this->Html->link($year['year'], ['action' => 'statistics', '?' => ['year' => $year['year']]]));
+	$links[] = $this->Html->link($year['year'], ['action' => 'statistics', '?' => ['year' => $year['year']]], ['class' => $this->Bootstrap->navPillLinkClasses()]);
 }
+echo $this->Bootstrap->navPills($links);
 ?>
-
-	</ul>
 </div>

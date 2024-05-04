@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Question $question
+ * @var string[] $affiliates
  */
 
 use App\Controller\AppController;
@@ -29,20 +30,23 @@ $key = 0;
 </div>
 
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->iconLink('view_32.png',
-	['action' => 'index'],
-	['alt' => __('List'), 'title' => __('List Questions')]));
-echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
-	['action' => 'edit', '?' => ['question' => $question->id, 'return' => AppController::_return()]],
-	['alt' => __('Edit'), 'title' => __('Edit Question')]));
-echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-	['action' => 'delete', '?' => ['question' => $question->id, 'return' => AppController::_return()]],
-	['alt' => __('Delete'), 'title' => __('Delete Question')],
-	['confirm' => __('Are you sure you want to delete this question?')]));
+echo $this->Bootstrap->navPills([
+	$this->Html->iconLink('view_32.png',
+		['action' => 'index'],
+		['alt' => __('List'), 'title' => __('List Questions')]
+	),
+	$this->Html->iconLink('edit_32.png',
+		['action' => 'edit', '?' => ['question' => $question->id, 'return' => AppController::_return()]],
+		['alt' => __('Edit'), 'title' => __('Edit Question')]
+	),
+	$this->Form->iconPostLink('delete_32.png',
+		['action' => 'delete', '?' => ['question' => $question->id, 'return' => AppController::_return()]],
+		['alt' => __('Delete'), 'title' => __('Delete Question')],
+		['confirm' => __('Are you sure you want to delete this question?')]
+	),
+]);
 ?>
-	</ul>
 </div>
 <div class="related row">
 	<div class="column">
@@ -88,12 +92,13 @@ endif;
 	</div>
 
 	<div class="actions columns">
-		<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
-	['controller' => 'Questionnaires', 'action' => 'add'],
-	['alt' => __('Add'), 'title' => __('Add Questionnaire')]));
+echo $this->Bootstrap->navPills([
+	$this->Html->iconLink('add_32.png',
+		['controller' => 'Questionnaires', 'action' => 'add'],
+		['alt' => __('Add'), 'title' => __('Add Questionnaire')]
+	)
+]);
 ?>
-		</ul>
 	</div>
 </div>

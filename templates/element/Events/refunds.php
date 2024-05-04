@@ -9,9 +9,9 @@ use Cake\Core\Configure;
 ?>
 
 <div class="actions columns">
-	<ul class="nav nav-pills">
-<?= $this->Html->tag('li', $this->Jquery->selectAll('#RegistrationList')) ?>
-	</ul>
+<?= $this->Bootstrap->navPills([
+	$this->Jquery->selectAll('#RegistrationList', null, $this->Bootstrap->navPillLinkClasses()),
+]) ?>
 </div>
 <div class="index">
 	<p><?php

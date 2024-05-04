@@ -273,7 +273,7 @@ class SchedulesController extends AppController {
 			}
 
 			if ($type != 'snake' && array_sum(collection($division->_options->pools)->extract('count')->toList()) != $this->_numTeams($division)) {
-				$division->_options->pools[1]->setErrors('count', __('Number of teams must add up to {0}.', $this->_numTeams($division)));
+				$division->_options->pools[1]->setError('count', __('Number of teams must add up to {0}.', $this->_numTeams($division)));
 			}
 
 			if (!$division->getErrors()) {

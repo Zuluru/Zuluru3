@@ -104,6 +104,8 @@ class TeamsController extends AppController {
 				'Affiliates.id IN' => $affiliates,
 			])
 			->order(['letter'])
+			->all()
+			->extract('letter')
 			->toArray();
 
 		$leagues = $this->Teams->Divisions->Leagues->find()
@@ -148,6 +150,8 @@ class TeamsController extends AppController {
 				'Affiliates.id IN' => $affiliates,
 			])
 			->order(['letter'])
+			->all()
+			->extract('letter')
 			->toArray();
 
 		$this->set(compact('affiliates', 'affiliate', 'teams', 'letters', 'letter'));
@@ -412,9 +416,12 @@ class TeamsController extends AppController {
 		}
 
 		$years = $this->Teams->Divisions->find()
+			->enableHydration(false)
 			->select(['year' => 'DISTINCT YEAR(open)'])
 			->where(['YEAR(open) !=' => 0])
 			->order(['year'])
+			->all()
+			->extract('year')
 			->toArray();
 
 		$this->set(compact('year', 'years', 'divisions'));

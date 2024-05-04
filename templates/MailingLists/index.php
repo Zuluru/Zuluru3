@@ -60,13 +60,14 @@ endforeach;
 if ($this->Authorize->can('add', \App\Controller\MailingListsController::class)):
 ?>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->iconLink('mailing_list_add_32.png',
-	['action' => 'add'],
-	['alt' => __('Add'), 'title' => __('Add Mailing List')]));
+echo $this->Bootstrap->navPills([
+	$this->Html->iconLink('mailing_list_add_32.png',
+		['action' => 'add'],
+		['alt' => __('Add'), 'title' => __('Add Mailing List')]
+	),
+]);
 ?>
-	</ul>
 </div>
 <?php
 endif;

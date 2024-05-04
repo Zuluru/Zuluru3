@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Person[] $people
+ * @var string[] $affiliates
  */
 
 use Cake\Core\Configure;
@@ -147,11 +148,11 @@ endforeach;
 	</ul></nav>
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
 $params = $this->getRequest()->getQueryParams();
 unset($params['page']);
-echo $this->Html->tag('li', $this->Html->link(__('Download'), ['?' => $params, '_ext' => 'csv']));
+echo $this->Bootstrap->navPills([
+	$this->Html->link(__('Download'), ['?' => $params, '_ext' => 'csv'], ['class' => $this->Bootstrap->navPillLinkClasses()]),
+]);
 ?>
-	</ul>
 </div>

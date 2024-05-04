@@ -112,9 +112,9 @@ echo $this->Form->control("prices.$index.reservation_duration", [
 
 $this->end();
 
-echo $this->Accordion->panel(
-	$this->Accordion->panelHeading("Price{$index}", __('Price Point Details'), [
+echo $this->Bootstrap->panel(
+	$this->Bootstrap->panelHeading("Price{$index}", __('Price Point Details'), [
 		'extraContent' => $this->Form->i18nControls("prices.$index.name", ['placeholder' => __('Price Point Name')])
 	]),
-	$this->Accordion->panelContent("Price{$index}", $this->fetch('price_details'))
+	$this->Bootstrap->panelContent("Price{$index}", $this->fetch('price_details'))
 );

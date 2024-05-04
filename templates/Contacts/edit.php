@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Contact $contact
+ * @var string[] $affiliates
  */
 
 $this->Breadcrumbs->add(__('Contacts'));
@@ -37,18 +38,19 @@ if ($contact->isNew()) {
 	<?= $this->Form->end() ?>
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('List Contacts'), ['action' => 'index']));
+$links = [$this->Html->link(__('List Contacts'), ['action' => 'index'], ['class' => $this->Bootstrap->navPillLinkClasses()])];
 if (!$contact->isNew()) {
-	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
+	$links[] = $this->Form->iconPostLink('delete_32.png',
 		['action' => 'delete', '?' => ['contact' => $contact->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Contact')],
-		['confirm' => __('Are you sure you want to delete this contact?')]));
-	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
+		['confirm' => __('Are you sure you want to delete this contact?')]
+	);
+	$links[] = $this->Html->iconLink('add_32.png',
 		['action' => 'add'],
-		['alt' => __('Add'), 'title' => __('Add Contact')]));
+		['alt' => __('Add'), 'title' => __('Add Contact')]
+	);
 }
+echo $this->Bootstrap->navPills($links);
 ?>
-	</ul>
 </div>

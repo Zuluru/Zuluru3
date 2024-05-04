@@ -151,7 +151,7 @@ class CreditsController extends AppController {
 				$this->Flash->warning(__('The credit could not be saved. Please correct the errors below and try again.'));
 
 				if ($credit->payment && $credit->payment->getError('payment_amount')) {
-					$credit->setErrors(['amount' => $credit->payment->getError('payment_amount')]);
+					$credit->setError('amount', $credit->payment->getError('payment_amount'));
 				}
 			}
 		}

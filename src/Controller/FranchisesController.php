@@ -57,6 +57,8 @@ class FranchisesController extends AppController {
 				'Franchises.affiliate_id IN' => $affiliates,
 			])
 			->order(['letter'])
+			->all()
+			->extract('letter')
 			->toArray();
 		$this->set(compact('letters'));
 	}
@@ -88,6 +90,8 @@ class FranchisesController extends AppController {
 				'Franchises.affiliate_id IN' => $affiliates,
 			])
 			->order(['letter'])
+			->all()
+			->extract('letter')
 			->toArray();
 
 		$this->set(compact('franchises', 'letters', 'letter'));

@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Badge $badge
+ * @var string[] $affiliates
  */
 
 use Cake\Core\Configure;
@@ -67,18 +68,19 @@ echo $this->Form->control('icon', [
 	<?= $this->Form->end() ?>
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('List Badges'), ['action' => 'index']));
+$links = [$this->Html->link(__('List Badges'), ['action' => 'index'], ['class' => $this->Bootstrap->navPillLinkClasses()])];
 if (!$badge->isNew()) {
-	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
+	$links[] = $this->Form->iconPostLink('delete_32.png',
 		['action' => 'delete', '?' => ['badge' => $badge->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Badge')],
-		['confirm' => __('Are you sure you want to delete this badge?')]));
-	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
+		['confirm' => __('Are you sure you want to delete this badge?')]
+	);
+	$links[] = $this->Html->iconLink('add_32.png',
 		['action' => 'add'],
-		['alt' => __('Add'), 'title' => __('Add Badge')]));
+		['alt' => __('Add'), 'title' => __('Add Badge')]
+	);
 }
+echo $this->Bootstrap->navPills($links);
 ?>
-	</ul>
 </div>

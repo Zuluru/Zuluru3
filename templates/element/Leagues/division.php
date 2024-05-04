@@ -245,9 +245,9 @@ if (Configure::read('scoring.most_spirited')) {
 <?php
 $this->end();
 
-echo $this->Accordion->panel(
-	$this->Accordion->panelHeading("Division{$index}", __('Division Details'), [
+echo $this->Bootstrap->panel(
+	$this->Bootstrap->panelHeading("Division{$index}", __('Division Details'), [
 		'extraContent' => $this->Form->i18nControls("divisions.$index.name", ['placeholder' => __('Division Name')]),
 	]),
-	$this->Accordion->panelContent("Division{$index}", $this->fetch('division_details'))
+	$this->Bootstrap->panelContent("Division{$index}", $this->fetch('division_details'))
 );

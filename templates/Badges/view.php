@@ -100,33 +100,50 @@ endif;
 ?>
 
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-if ($badge->category == 'nominated') {
-	echo $this->Html->tag('li', $this->Html->link(__('Nominate'), ['controller' => 'People', 'action' => 'nominate_badge', '?' => ['badge' => $badge->id]]));
+$links = [
+	$this->Html->iconLink('view_32.png',
+		['action' => 'index'],
+		['alt' => __('List'), 'title' => __('List Badges')]
+	),
+];
+if ($badge->category === 'nominated') {
+	$links[] = $this->Html->link(
+		__('Nominate'),
+		['controller' => 'People', 'action' => 'nominate_badge', '?' => ['badge' => $badge->id]],
+		['class' => $this->Bootstrap::navPillLinkClasses()]
+	);
 }
 if ($this->Authorize->can('edit', $badge)) {
-	if ($badge->category == 'assigned') {
-		echo $this->Html->tag('li', $this->Html->link(__('Assign'), ['controller' => 'People', 'action' => 'nominate_badge', '?' => ['badge' => $badge->id]]));
+	if ($badge->category === 'assigned') {
+		$links[] = $this->Html->link(
+			__('Assign'),
+			['controller' => 'People', 'action' => 'nominate_badge', '?' => ['badge' => $badge->id]],
+			['class' => $this->Bootstrap::navPillLinkClasses()]
+		);
 	} else if (!in_array($badge->category, ['nominated', 'runtime', 'aggregate'])) {
-		echo $this->Html->tag('li', $this->Html->iconLink('initialize_32.png',
+		$links[] = $this->Html->iconLink('initialize_32.png',
 			['action' => 'initialize_awards', '?' => ['badge' => $badge->id]],
 			['alt' => __('Initialize'), 'title' => __('Initialize')],
-			['confirm' => __('Are you sure you want to initialize? This should only ever need to be done once when the badge system is introduced.')]));
+			['confirm' => __('Are you sure you want to initialize? This should only ever need to be done once when the badge system is introduced.')]
+		);
 	}
-	echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
+	$links[] = $this->Html->iconLink('edit_32.png',
 		['action' => 'edit', '?' => ['badge' => $badge->id]],
-		['alt' => __('Edit'), 'title' => __('Edit Badge')]));
-	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
+		['alt' => __('Edit'), 'title' => __('Edit Badge')]
+	);
+	$links[] = $this->Form->iconPostLink('delete_32.png',
 		['action' => 'delete', '?' => ['badge' => $badge->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Badge')],
-		['confirm' => __('Are you sure you want to delete this badge?')]));
-	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
+		['confirm' => __('Are you sure you want to delete this badge?')]
+	);
+	$links[] = $this->Html->iconLink('add_32.png',
 		['action' => 'add'],
-		['alt' => __('Add'), 'title' => __('Add Badge')]));
+		['alt' => __('Add'), 'title' => __('Add Badge')]
+	);
 }
+echo $this->Bootstrap->navPills($links);
 ?>
-	</ul>
 </div>
 
 <?= $this->element('People/badge_div', [

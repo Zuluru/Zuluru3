@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\TeamEvent $team_event
+ * @var string[] $provinces
  */
 
 use Cake\Core\Configure;
@@ -76,17 +77,19 @@ echo $this->Form->control('location_province', [
 	<?= $this->Form->end() ?>
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
 if (!$team_event->isNew()) {
-	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-		['action' => 'delete', '?' => ['event' => $team_event->id]],
-		['alt' => __('Delete'), 'title' => __('Delete Team Event')],
-		['confirm' => __('Are you sure you want to delete this team_event?')]));
-	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
-		['action' => 'add'],
-		['alt' => __('Add'), 'title' => __('Add Team Event')]));
+	echo $this->Bootstrap->navPills([
+		$this->Form->iconPostLink('delete_32.png',
+			['action' => 'delete', '?' => ['event' => $team_event->id]],
+			['alt' => __('Delete'), 'title' => __('Delete Team Event')],
+			['confirm' => __('Are you sure you want to delete this team_event?')]
+		),
+		$this->Html->iconLink('add_32.png',
+			['action' => 'add'],
+			['alt' => __('Add'), 'title' => __('Add Team Event')]
+		),
+	]);
 }
 ?>
-	</ul>
 </div>

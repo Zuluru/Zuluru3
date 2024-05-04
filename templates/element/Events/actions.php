@@ -29,12 +29,17 @@ if ($this->getRequest()->getParam('controller') != 'Events' || $this->getRequest
 if (Configure::read('registration.register_now')) {
 	if ($this->getRequest()->getParam('controller') != 'Registrations' || $this->getRequest()->getParam('action') != 'register') {
 		$links[] = $this->Html->link(__('Register Now!'),
-			['controller' => 'Registrations', 'action' => 'register', '?' => ['event' => $event->id]]);
+			['controller' => 'Registrations', 'action' => 'register', '?' => ['event' => $event->id]],
+			['class' => $this->Bootstrap->navPillLinkClasses()]
+		);
 	}
 }
 
 if (!empty($event->division_id)) {
-	$links[] = $this->element('Divisions/block', ['division' => $event->division, 'link_text' => __('View Division')]);
+	$links[] = $this->Html->link(__('View Division'),
+		['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $event->division->id]],
+		['class' => $this->Bootstrap->navPillLinkClasses()]
+	);
 }
 
 if ($this->getRequest()->getParam('controller') != 'Events' || $this->getRequest()->getParam('action') != 'index') {
@@ -147,5 +152,5 @@ if ($more->count() != 0) {
 if ($format == 'links') {
 	echo implode("\n", $links->getArrayCopy());
 } else {
-	echo $this->Html->nestedList($links->getArrayCopy(), ['class' => 'nav nav-pills']);
+	echo $this->Bootstrap->navPills($links->getArrayCopy());
 }

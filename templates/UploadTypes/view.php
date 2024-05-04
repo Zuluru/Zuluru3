@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\UploadType $upload_type
+ * @var string[] $affiliates
  */
 
 $this->Breadcrumbs->add(__('Upload Type'));
@@ -24,23 +25,27 @@ endif;
 </div>
 
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->iconLink('view_32.png',
-	['action' => 'index'],
-	['alt' => __('List'), 'title' => __('List Upload Types')]));
-echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
-	['action' => 'edit', '?' => ['type' => $upload_type->id]],
-	['alt' => __('Edit'), 'title' => __('Edit Upload Type')]));
-echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-	['action' => 'delete', '?' => ['type' => $upload_type->id]],
-	['alt' => __('Delete'), 'title' => __('Delete Upload Type')],
-	['confirm' => __('Are you sure you want to delete this uploadType?')]));
-echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
-	['action' => 'add'],
-	['alt' => __('Add'), 'title' => __('Add Upload Type')]));
+echo $this->Bootstrap->navPills([
+	$this->Html->iconLink('view_32.png',
+		['action' => 'index'],
+		['alt' => __('List'), 'title' => __('List Upload Types')]
+	),
+	$this->Html->iconLink('edit_32.png',
+		['action' => 'edit', '?' => ['type' => $upload_type->id]],
+		['alt' => __('Edit'), 'title' => __('Edit Upload Type')]
+	),
+	$this->Form->iconPostLink('delete_32.png',
+		['action' => 'delete', '?' => ['type' => $upload_type->id]],
+		['alt' => __('Delete'), 'title' => __('Delete Upload Type')],
+		['confirm' => __('Are you sure you want to delete this uploadType?')]
+	),
+	$this->Html->iconLink('add_32.png',
+		['action' => 'add'],
+		['alt' => __('Add'), 'title' => __('Add Upload Type')]
+	),
+]);
 ?>
-	</ul>
 </div>
 
 <div class="related">

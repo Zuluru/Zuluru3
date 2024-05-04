@@ -205,6 +205,11 @@ class GameSlotsTable extends AppTable {
 		]);
 
 		$rules->add(function (EntityInterface $entity, array $options) {
+			if (empty($entity->field_id) || empty($entity->game_date) || empty($entity->game_start) || empty($entity->game_end)) {
+				// It's not a valid entity, but it will fail for other reasons. These things being empty will crash the query below.
+				return true;
+			}
+
 			$sunset = \App\Lib\local_sunset_for_date($entity->game_date);
 			if (empty($entity->game_end)) {
 				$game_end = $sunset;

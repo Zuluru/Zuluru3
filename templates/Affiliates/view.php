@@ -67,21 +67,25 @@ endif;
 </div>
 
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->iconLink('view_32.png',
-	['action' => 'index'],
-	['alt' => __('List'), 'title' => __('List Affiliates')]));
-echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
-	['action' => 'edit', '?' => ['affiliate' => $affiliate->id]],
-	['alt' => __('Edit'), 'title' => __('Edit Affiliate')]));
-echo $this->Html->tag('li', $this->Html->iconLink('coordinator_add_32.png',
-	['action' => 'add_manager', '?' => ['affiliate' => $affiliate->id]],
-	['alt' => __('Add Manager'), 'title' => __('Add Manager')]));
-echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-	['action' => 'delete', '?' => ['affiliate' => $affiliate->id]],
-	['alt' => __('Delete'), 'title' => __('Delete Affiliate')],
-	['confirm' => __('Are you sure you want to delete this affiliate?')]));
+echo $this->Bootstrap->navPills([
+	$this->Html->iconLink('view_32.png',
+		['action' => 'index'],
+		['alt' => __('List'), 'title' => __('List Affiliates')]
+	),
+	$this->Html->iconLink('edit_32.png',
+		['action' => 'edit', '?' => ['affiliate' => $affiliate->id]],
+		['alt' => __('Edit'), 'title' => __('Edit Affiliate')]
+	),
+	$this->Html->iconLink('coordinator_add_32.png',
+		['action' => 'add_manager', '?' => ['affiliate' => $affiliate->id]],
+		['alt' => __('Add Manager'), 'title' => __('Add Manager')]
+	),
+	$this->Form->iconPostLink('delete_32.png',
+		['action' => 'delete', '?' => ['affiliate' => $affiliate->id]],
+		['alt' => __('Delete'), 'title' => __('Delete Affiliate')],
+		['confirm' => __('Are you sure you want to delete this affiliate?')]
+	),
+]);
 ?>
-	</ul>
 </div>

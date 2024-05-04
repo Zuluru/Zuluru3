@@ -2,6 +2,10 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Team[] $teams
+ * @var string[] $letters
+ * @var string[] $affiliates
+ * @var int $affiliate
+ * @var int $leagues
  */
 
 use Cake\Core\Configure;
@@ -23,7 +27,7 @@ else:
 		echo __('Locate by letter: ');
 		$links = [];
 		foreach ($letters as $l) {
-			$l = strtoupper($l['letter']);
+			$l = strtoupper($l);
 			$links[] = $this->Html->link($l, ['action' => 'letter', '?' => ['affiliate' => $affiliate, 'letter' => $l]], ['rel' => 'nofollow']);
 		}
 		echo implode('&nbsp;&nbsp;', $links);

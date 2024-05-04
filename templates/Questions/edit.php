@@ -55,17 +55,21 @@ if ($question->type == 'radio' || $question->type == 'select' || $question->type
 		</table>
 
 		<div class="actions columns">
-			<ul class="nav nav-pills">
 <?php
 	if (in_array($question->type, ['select', 'radio'])) {
-		echo $this->Html->tag('li', $this->Jquery->ajaxLink(__('Add an answer to this question'), [
-			'url' => ['action' => 'add_answer', '?' => ['question' => $question->id]],
-			'disposition' => 'append',
-			'selector' => '#Answers > tbody',
-		]));
+		echo $this->Bootstrap->navPills([
+			$this->Jquery->ajaxLink(
+				__('Add an answer to this question'),
+				[
+					'url' => ['action' => 'add_answer', '?' => ['question' => $question->id]],
+					'disposition' => 'append',
+					'selector' => '#Answers > tbody',
+				],
+				['class' => $this->Bootstrap->navPillLinkClasses()]
+			),
+		]);
 	}
 ?>
-			</ul>
 		</div>
 <?php
 endif;

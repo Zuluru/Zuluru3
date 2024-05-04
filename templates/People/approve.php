@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Person $person
+ * @var \App\Model\Entity\Person[] $duplicates
  */
 
 use Cake\Core\Configure;
@@ -181,10 +182,13 @@ if ($duplicates->count() > 0) {
 
 		$dispositions["merge_duplicate:{$duplicate->id}"] = __('Merged backwards into {0} ({1})', $duplicate->full_name, $duplicate->id);
 		$dispositions["delete_duplicate:{$duplicate->id}"] = __('Deleted as duplicate of {0} ({1})', $duplicate->full_name, $duplicate->id);
-		$compare[] = $this->Jquery->toggleLink("{$duplicate->full_name} ({$duplicate->id})", [
-			'hide' => '.duplicate',
-			'show' => ".player_id_{$duplicate->id}",
-		]);
+		$compare[] = $this->Jquery->toggleLink("{$duplicate->full_name} ({$duplicate->id})",
+			[
+				'hide' => '.duplicate',
+				'show' => ".player_id_{$duplicate->id}",
+			],
+			['class' => $this->Bootstrap->navPillLinkClasses()]
+		);
 
 		$i = 0;
 		foreach ($rows as $key => $data) {
@@ -239,7 +243,7 @@ if ($duplicates->count() > 0) {
 			++ $i;
 		}
 	}
-	echo $this->Html->nestedList($compare, ['class' => 'nav nav-pills']);
+	echo $this->Bootstrap->navPills($compare);
 }
 
 $dispositions['delete'] = __('Deleted silently');

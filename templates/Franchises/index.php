@@ -2,10 +2,11 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Franchise[] $franchises
+ * @var string[] $affiliates
+ * @var string[] $letters
  */
 
 use App\Controller\AppController;
-use Cake\Core\Configure;
 
 $this->Breadcrumbs->add(__('Franchises'));
 $this->Breadcrumbs->add(__('List'));
@@ -24,7 +25,7 @@ else:
 		echo __('Locate by letter: ');
 		$links = [];
 		foreach ($letters as $l) {
-			$l = strtoupper($l['letter']);
+			$l = strtoupper($l);
 			$links[] = $this->Html->link($l, ['action' => 'letter', '?' => ['letter' => $l]], ['rel' => 'nofollow']);
 		}
 		echo implode('&nbsp;&nbsp;', $links);
@@ -113,13 +114,14 @@ endif;
 if ($this->Authorize->can('add', \App\Controller\FranchisesController::class)):
 ?>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
-	['action' => 'add'],
-	['alt' => __('Add'), 'title' => __('Add Franchise')]));
+echo $this->Bootstrap->navPills([
+	$this->Html->iconLink('add_32.png',
+		['action' => 'add'],
+		['alt' => __('Add'), 'title' => __('Add Franchise')]
+	),
+]);
 ?>
-	</ul>
 </div>
 <?php
 endif;

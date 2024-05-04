@@ -152,7 +152,10 @@ elseif ($empty && $isPlayer):
 	$actions = [];
 
 	if (empty($signed_waivers) && count($waivers) == 1 && in_array($waivers[0]->expiry_type, ['elapsed_time', 'never'])) {
-		$actions[] = $this->Html->link(__('Sign the waiver'), ['controller' => 'Waivers', 'action' => 'sign', '?' => ['waiver' => $waivers[0]->id, 'date' => FrozenDate::now()->toDateString(), 'act_as' => $act_as]]);
+		$actions[] = $this->Html->link(__('Sign the waiver'),
+			['controller' => 'Waivers', 'action' => 'sign', '?' => ['waiver' => $waivers[0]->id, 'date' => FrozenDate::now()->toDateString(), 'act_as' => $act_as]],
+			['class' => $this->Bootstrap->navPillLinkClasses()]
+		);
 	} else {
 		$options = [];
 		if ($membership_events) {
@@ -163,20 +166,29 @@ elseif ($empty && $isPlayer):
 		}
 
 		if (!empty($options)) {
-			$actions[] = $this->Html->link(__('Register for') . ' ' . implode(' ' . __('or') . ' ', $options), ['controller' => 'Events', 'action' => 'wizard', '?' => ['act_as' => $act_as]]);
+			$actions[] = $this->Html->link(__('Register for') . ' ' . implode(' ' . __('or') . ' ', $options),
+				['controller' => 'Events', 'action' => 'wizard', '?' => ['act_as' => $act_as]],
+				['class' => $this->Bootstrap->navPillLinkClasses()]
+			);
 		}
 	}
 
 	if ($open_teams) {
-		$actions[] = $this->Html->link(__('Join an existing team'), ['controller' => 'Teams', 'action' => 'join', '?' => ['act_as' => $act_as]]);
+		$actions[] = $this->Html->link(__('Join an existing team'),
+			['controller' => 'Teams', 'action' => 'join', '?' => ['act_as' => $act_as]],
+			['class' => $this->Bootstrap->navPillLinkClasses()]
+		);
 	}
 
 	if ($leagues) {
-		$actions[] = $this->Html->link(__('Check out the leagues we are currently offering'), ['controller' => 'Leagues']);
+		$actions[] = $this->Html->link(__('Check out the leagues we are currently offering'),
+			['controller' => 'Leagues'],
+			['class' => $this->Bootstrap->navPillLinkClasses()]
+		);
 	}
 
 	if (!empty($actions)) {
-		echo $this->Html->tag('div', $this->Html->nestedList($actions, ['class' => 'nav nav-pills']), ['class' => 'actions columns']);
+		echo $this->Html->tag('div', $this->Bootstrap->navPills($actions), ['class' => 'actions columns']);
 	}
 endif;
 

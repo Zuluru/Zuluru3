@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\MailingList $mailing_list
+ * @var string[] $affiliates
  */
 
 $this->Breadcrumbs->add(__('Mailing List'));
@@ -42,18 +43,19 @@ if ($mailing_list->isNew()) {
 	<?= $this->Form->end() ?>
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('List Mailing Lists'), ['action' => 'index']));
+$links = [$this->Html->link(__('List Mailing Lists'), ['action' => 'index'], ['class' => $this->Bootstrap->navPillLinkClasses()])];
 if (!$mailing_list->isNew()) {
-	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
+	$links[] = $this->Form->iconPostLink('delete_32.png',
 		['action' => 'delete', '?' => ['mailing_list' => $mailing_list->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Mailing List')],
-		['confirm' => __('Are you sure you want to delete this mailingList?')]));
-	echo $this->Html->tag('li', $this->Html->iconLink('mailing_list_add_32.png',
+		['confirm' => __('Are you sure you want to delete this mailingList?')]
+	);
+	$links[] = $this->Html->iconLink('mailing_list_add_32.png',
 		['action' => 'add'],
-		['alt' => __('Add'), 'title' => __('Add Mailing List')]));
+		['alt' => __('Add'), 'title' => __('Add Mailing List')]
+	);
 }
+echo $this->Bootstrap->navPills($links);
 ?>
-	</ul>
 </div>

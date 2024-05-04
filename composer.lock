@@ -5015,22 +5015,21 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Zuluru/cakephp-bootstrap.git",
-                "reference": "0c45f634b02c137da54f660df06af1b99c0d9960"
+                "reference": "a8c717fc12e8c0ec09dcadbdadec0f7e59d45bc6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Zuluru/cakephp-bootstrap/zipball/0c45f634b02c137da54f660df06af1b99c0d9960",
-                "reference": "0c45f634b02c137da54f660df06af1b99c0d9960",
+                "url": "https://api.github.com/repos/Zuluru/cakephp-bootstrap/zipball/a8c717fc12e8c0ec09dcadbdadec0f7e59d45bc6",
+                "reference": "a8c717fc12e8c0ec09dcadbdadec0f7e59d45bc6",
                 "shasum": ""
             },
             "require": {
-                "cakephp/cakephp": "^4.0",
+                "cakephp/cakephp": "^4.1",
                 "php": ">=7.4"
             },
             "require-dev": {
                 "phpunit/phpunit": "*"
             },
-            "default-branch": true,
             "type": "cakephp-plugin",
             "autoload": {
                 "psr-4": {
@@ -5045,10 +5044,10 @@
             },
             "description": "Zuluru Bootstrap plugin for CakePHP",
             "support": {
-                "source": "https://github.com/CakeDC/cakephp-bootstrap/tree/master"
+                "source": "https://github.com/Zuluru/cakephp-bootstrap/tree/cake4",
+                "issues": "https://github.com/Zuluru/cakephp-bootstrap/issues"
             },
-            "abandoned": true,
-            "time": "2021-09-01T20:04:41+00:00"
+            "time": "2024-05-04T13:33:44+00:00"
         },
         {
             "name": "zuluru/cakephp-jquery",
@@ -5056,12 +5055,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Zuluru/cakephp-jquery.git",
-                "reference": "3002461ebf3df7096847f0db98c4f69345be26e7"
+                "reference": "2973cde8ae83bf70c03948352cd7337bee950ecc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Zuluru/cakephp-jquery/zipball/3002461ebf3df7096847f0db98c4f69345be26e7",
-                "reference": "3002461ebf3df7096847f0db98c4f69345be26e7",
+                "url": "https://api.github.com/repos/Zuluru/cakephp-jquery/zipball/2973cde8ae83bf70c03948352cd7337bee950ecc",
+                "reference": "2973cde8ae83bf70c03948352cd7337bee950ecc",
                 "shasum": ""
             },
             "require": {
@@ -5077,13 +5076,18 @@
                     "ZuluruJquery\\": "src"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "ZuluruJquery\\Test\\": "tests",
+                    "Cake\\Test\\": "./vendor/cakephp/cakephp/tests"
+                }
+            },
             "description": "Zuluru jQuery plugin for CakePHP",
             "support": {
-                "issues": "https://github.com/Zuluru/cakephp-jquery/issues",
-                "source": "https://github.com/Zuluru/cakephp-jquery/tree/2.next"
+                "source": "https://github.com/Zuluru/cakephp-jquery/tree/cake4",
+                "issues": "https://github.com/Zuluru/cakephp-jquery/issues"
             },
-            "time": "2023-12-02T20:56:35+00:00"
+            "time": "2024-05-04T13:32:51+00:00"
         }
     ],
     "packages-dev": [

@@ -2,8 +2,8 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\TeamEvent $team_event
+ * @var \App\Model\Entity\Attendance[] $attendance
  */
-
 
 use App\Authorization\ContextResource;
 use App\Controller\AppController;
@@ -99,20 +99,23 @@ endif;
 if ($this->Authorize->can('edit', $team_event)):
 ?>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
-	['action' => 'edit', '?' => ['event' => $team_event->id, 'return' => AppController::_return()]],
-	['alt' => __('Edit'), 'title' => __('Edit Event')]));
-echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-	['action' => 'delete', '?' => ['event' => $team_event->id]],
-	['alt' => __('Delete'), 'title' => __('Delete Event')],
-	['confirm' => __('Are you sure you want to delete this team_event?')]));
-echo $this->Html->tag('li', $this->Html->iconLink('team_event_add_32.png',
-	['action' => 'add', '?' => ['team' => $team_event->team_id]],
-	['alt' => __('Add'), 'title' => __('Add Event')]));
+echo $this->Bootstrap->navPills([
+	$this->Html->iconLink('edit_32.png',
+		['action' => 'edit', '?' => ['event' => $team_event->id, 'return' => AppController::_return()]],
+		['alt' => __('Edit'), 'title' => __('Edit Event')]
+	),
+	$this->Form->iconPostLink('delete_32.png',
+		['action' => 'delete', '?' => ['event' => $team_event->id]],
+		['alt' => __('Delete'), 'title' => __('Delete Event')],
+		['confirm' => __('Are you sure you want to delete this team_event?')]
+	),
+	$this->Html->iconLink('team_event_add_32.png',
+		['action' => 'add', '?' => ['team' => $team_event->team_id]],
+		['alt' => __('Add'), 'title' => __('Add Event')]
+	),
+]);
 ?>
-	</ul>
 </div>
 <?php
 endif;

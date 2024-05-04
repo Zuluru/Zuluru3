@@ -4,6 +4,7 @@
  * @var \App\Model\Entity\Team[] $teams
  * @var string $letter
  * @var string[] $letters
+ * @var int $affiliate
  */
 
 $this->Breadcrumbs->add(__('Teams'));
@@ -22,7 +23,7 @@ else:
 	<p><?= __('Locate by letter: ');
 		$links = [];
 		foreach ($letters as $l) {
-			$l = strtoupper($l['letter']);
+			$l = strtoupper($l);
 			if ($l != $letter) {
 				$links[] = $this->Html->link($l, ['action' => 'letter', '?' => ['affiliate' => $affiliate, 'letter' => $l]]);
 			} else {

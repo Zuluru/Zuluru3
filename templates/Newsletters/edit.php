@@ -68,19 +68,20 @@ if ($newsletter->isNew()) {
 	<?= $this->Form->end() ?>
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('List Newsletters'), ['action' => 'index']));
+$links = [$this->Html->link(__('List Newsletters'), ['action' => 'index'], ['class' => $this->Bootstrap->navPillLinkClasses()])];
 if (!$newsletter->isNew()) {
-	echo $this->Html->tag('li', $this->Html->link(__('Delivery Report'), ['action' => 'delivery', '?' => ['newsletter' => $newsletter->id]]));
-	echo $this->Html->tag('li', $this->Html->iconLink('newsletter_send_32.png',
+	$links[] = $this->Html->link(__('Delivery Report'), ['action' => 'delivery', '?' => ['newsletter' => $newsletter->id]]);
+	$links[] = $this->Html->iconLink('newsletter_send_32.png',
 		['action' => 'send', '?' => ['newsletter' => $newsletter->id]],
-		['alt' => __('Send'), 'title' => __('Send')]));
-	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
+		['alt' => __('Send'), 'title' => __('Send')]
+	);
+	$links[] = $this->Form->iconPostLink('delete_32.png',
 		['action' => 'delete', '?' => ['newsletter' => $newsletter->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Newsletter')],
-		['confirm' => __('Are you sure you want to delete this newsletter?')]));
+		['confirm' => __('Are you sure you want to delete this newsletter?')]
+	);
 }
+echo $this->Bootstrap->navPills($links);
 ?>
-	</ul>
 </div>

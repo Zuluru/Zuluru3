@@ -165,13 +165,14 @@ endif;
 if ($this->Authorize->can('add', \App\Controller\FacilitiesController::class)):
 ?>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
-	['action' => 'add'],
-	['alt' => __('Add'), 'title' => __('Add Facility')]));
+echo $this->Bootstrap->navPills([
+	$this->Html->iconLink('add_32.png',
+		['action' => 'add'],
+		['alt' => __('Add'), 'title' => __('Add Facility')]
+	),
+]);
 ?>
-	</ul>
 </div>
 <?php
 endif;

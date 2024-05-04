@@ -80,24 +80,28 @@ foreach ($fields as $field):
 </div>
 
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->iconLink('view_32.png',
-	['action' => 'index'],
-	['alt' => __('List'), 'title' => __('List <%= $pluralHumanName %>')]));
+$links = [
+	$this->Html->iconLink('view_32.png',
+		['action' => 'index'],
+		['alt' => __('List'), 'title' => __('List <%= $pluralHumanName %>')]
+	),
+];
 if ($this->Authorize->can('edit', $<%= $singularVar %>)) {
-	echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
+	$links[] = $this->Html->iconLink('edit_32.png',
 		['action' => 'edit', '?' => ['<%= $singularVar %>' => <%= $pk %>]],
-		['alt' => __('Edit'), 'title' => __('Edit <%= $singularHumanName %>')]));
+		['alt' => __('Edit'), 'title' => __('Edit <%= $singularHumanName %>')]
+	);
 }
 if ($this->Authorize->can('delete', $<%= $singularVar %>)) {
-	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
+	$links[] = $this->Form->iconPostLink('delete_32.png',
 		['action' => 'delete', '?' => ['<%= $singularVar %>' => <%= $pk %>]],
 		['alt' => __('Delete'), 'title' => __('Delete <%= $singularHumanName %>')],
-		['confirm' => __('Are you sure you want to delete this <%= strtolower($singularHumanName) %>?')]));
+		['confirm' => __('Are you sure you want to delete this <%= strtolower($singularHumanName) %>?')]
+	);
 }
+echo $this->Bootstrap->navPills($links);
 ?>
-	</ul>
 </div>
 <%
 $relations = $associations['HasMany'] + $associations['BelongsToMany'];

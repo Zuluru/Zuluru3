@@ -53,26 +53,33 @@ endif;
 	</dl>
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('Delivery Report'),
-	['action' => 'delivery', '?' => ['newsletter' => $newsletter->id]]));
-echo $this->Html->tag('li', $this->Html->iconLink('newsletter_send_32.png',
-	['action' => 'send', '?' => ['newsletter' => $newsletter->id]],
-	['alt' => __('Send'), 'title' => __('Send')]));
-echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
-	['action' => 'edit', '?' => ['newsletter' => $newsletter->id, 'return' => AppController::_return()]],
-	['alt' => __('Edit'), 'title' => __('Edit Newsletter')]));
-echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-	['action' => 'delete', '?' => ['newsletter' => $newsletter->id]],
-	['alt' => __('Delete'), 'title' => __('Delete Newsletter')],
-	['confirm' => __('Are you sure you want to delete this newsletter?')]));
-echo $this->Html->tag('li', $this->Html->iconLink('view_32.png',
-	['action' => 'index'],
-	['alt' => __('List'), 'title' => __('List Newsletters')]));
-echo $this->Html->tag('li', $this->Html->iconLink('newsletter_add_32.png',
-	['action' => 'add'],
-	['alt' => __('Add'), 'title' => __('Add Newsletter')]));
+echo $this->Bootstrap->navPills([
+	$this->Html->link(__('Delivery Report'),
+		['action' => 'delivery', '?' => ['newsletter' => $newsletter->id]],
+		['class' => $this->Bootstrap->navPillLinkClasses()]
+	),
+	$this->Html->iconLink('newsletter_send_32.png',
+		['action' => 'send', '?' => ['newsletter' => $newsletter->id]],
+		['alt' => __('Send'), 'title' => __('Send')]
+	),
+	$this->Html->iconLink('edit_32.png',
+		['action' => 'edit', '?' => ['newsletter' => $newsletter->id, 'return' => AppController::_return()]],
+		['alt' => __('Edit'), 'title' => __('Edit Newsletter')]
+	),
+	$this->Form->iconPostLink('delete_32.png',
+		['action' => 'delete', '?' => ['newsletter' => $newsletter->id]],
+		['alt' => __('Delete'), 'title' => __('Delete Newsletter')],
+		['confirm' => __('Are you sure you want to delete this newsletter?')]
+	),
+	$this->Html->iconLink('view_32.png',
+		['action' => 'index'],
+		['alt' => __('List'), 'title' => __('List Newsletters')]
+	),
+	$this->Html->iconLink('newsletter_add_32.png',
+		['action' => 'add'],
+		['alt' => __('Add'), 'title' => __('Add Newsletter')]
+	),
+]);
 ?>
-	</ul>
 </div>

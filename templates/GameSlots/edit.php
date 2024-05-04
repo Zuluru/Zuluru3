@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\GameSlot $game_slot
+ * @var int $affiliate
  */
 
 use Cake\Core\Configure;
@@ -57,12 +58,13 @@ if (empty($divisions)) {
 	<?= $this->Form->end() ?>
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-	['action' => 'delete', '?' => ['gameSlot' => $game_slot->id]],
-	['alt' => __('Delete'), 'title' => __('Delete Game Slot')],
-	['confirm' => __('Are you sure you want to delete this game_slot?')]));
+echo $this->Bootstrap->navPills([
+	$this->Form->iconPostLink('delete_32.png',
+		['action' => 'delete', '?' => ['gameSlot' => $game_slot->id]],
+		['alt' => __('Delete'), 'title' => __('Delete Game Slot')],
+		['confirm' => __('Are you sure you want to delete this game_slot?')]
+	),
+]);
 ?>
-	</ul>
 </div>

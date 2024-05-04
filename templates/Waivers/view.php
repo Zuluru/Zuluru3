@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Waiver $waiver
+ * @var string[] $affiliates
  */
 
 use Cake\Core\Configure;
@@ -49,23 +50,28 @@ endif;
 </div>
 
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->iconLink('view_32.png',
-	['action' => 'index'],
-	['alt' => __('List'), 'title' => __('List Waivers')]));
+$links = [
+	$this->Html->iconLink('view_32.png',
+		['action' => 'index'],
+		['alt' => __('List'), 'title' => __('List Waivers')]
+	),
+];
 if ($this->Authorize->can('edit', $waiver)) {
-	echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
+	$links[] = $this->Html->iconLink('edit_32.png',
 		['action' => 'edit', '?' => ['waiver' => $waiver->id]],
-		['alt' => __('Edit'), 'title' => __('Edit Waiver')]));
-	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
+		['alt' => __('Edit'), 'title' => __('Edit Waiver')]
+	);
+	$links[] = $this->Form->iconPostLink('delete_32.png',
 		['action' => 'delete', '?' => ['waiver' => $waiver->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Waiver')],
-		['confirm' => __('Are you sure you want to delete this waiver?')]));
-	echo $this->Html->tag('li', $this->Html->iconLink('waiver_add_32.png',
+		['confirm' => __('Are you sure you want to delete this waiver?')]
+	);
+	$links[] = $this->Html->iconLink('waiver_add_32.png',
 		['action' => 'add'],
-		['alt' => __('Add'), 'title' => __('Add Waiver')]));
+		['alt' => __('Add'), 'title' => __('Add Waiver')]
+	);
 }
+echo $this->Bootstrap->navPills($links);
 ?>
-	</ul>
 </div>

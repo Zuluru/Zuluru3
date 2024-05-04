@@ -38,13 +38,14 @@ foreach ($questionnaire->questions as $question) {
 </div>
 
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('Add an existing question to this questionnaire'), '#', [
-	'onclick' => 'return addQuestion();'
-]));
+echo $this->Bootstrap->navPills([
+	$this->Html->link(__('Add an existing question to this questionnaire'),
+		'#',
+		['onclick' => 'return addQuestion();', 'class' => $this->Bootstrap->navPillLinkClasses()]
+	),
+]);
 ?>
-	</ul>
 </div>
 
 <?php

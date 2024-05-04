@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Event $event
+ * @var string[] $affiliates
  */
 
 use Cake\Core\Configure;
@@ -75,9 +76,9 @@ $this->end();
 
 $this->start('panels');
 
-echo $this->Accordion->panel(
-	$this->Accordion->panelHeading('Event', __('Event Details'), ['collapsed' => false]),
-	$this->Accordion->panelContent('Event', $this->fetch('event_details'), ['collapsed' => false])
+echo $this->Bootstrap->panel(
+	$this->Bootstrap->panelHeading('Event', __('Event Details'), ['collapsed' => false]),
+	$this->Bootstrap->panelContent('Event', $this->fetch('event_details'), ['collapsed' => false])
 );
 
 if (empty($event->prices)) {
@@ -89,21 +90,25 @@ if (empty($event->prices)) {
 }
 
 $this->end();
-echo $this->Accordion->accordion($this->fetch('panels'));
+echo $this->Bootstrap->accordion($this->fetch('panels'));
 ?>
 		<div class="actions columns">
-			<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Jquery->ajaxLink($this->Html->iconImg('add_32.png', ['alt' => __('Add Price Point'), 'title' => __('Add Price Point')]), [
-	'url' => ['action' => 'add_price'],
-	'disposition' => 'append',
-	'selector' => '#accordion',
-], [
-	'class' => 'icon',
-	'escape' => false,
-]));
+echo $this->Bootstrap->navPills([
+	$this->Jquery->ajaxLink(
+		$this->Html->iconImg('add_32.png', ['alt' => __('Add Price Point'), 'title' => __('Add Price Point')]),
+		[
+			'url' => ['action' => 'add_price'],
+			'disposition' => 'append',
+			'selector' => '#accordion',
+		],
+		[
+			'class' => 'icon',
+			'escape' => false,
+		]
+	)
+]);
 ?>
-			</ul>
 		</div>
 	</fieldset>
 	<?= $this->Form->button(__('Submit'), ['class' => 'btn-success']) ?>

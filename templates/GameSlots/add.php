@@ -55,27 +55,29 @@ else:
 	}
 ?>
 			<div class="actions columns clear-float">
-				<ul class="nav nav-pills">
 <?php
-	foreach ($regions as $key => $region):
+	$links = [];
+	$pillClasses = $this->Bootstrap->navPillLinkClasses();
+	foreach ($regions as $key => $region) {
 		$ids = collection($region->facilities)->extract('fields.{*}.id')->toList();
 		if (empty($ids)) {
 			unset($regions[$key]);
 			continue;
 		}
 
-		$classes = collection($region->facilities)->extract(function (Facility $facility) { return "select_id_{$facility->id}"; })->toArray();
+		$classes = collection($region->facilities)->extract(function (Facility $facility) {
+			return "select_id_{$facility->id}";
+		})->toArray();
 
-		echo $this->Html->tag('li',
-			$this->Jquery->toggleLink($region->name, "#region{$region->id}", [
-				'class' => implode(' ', $classes),
-			], [
-				'toggle_text' => true,
-			])
-		);
-	endforeach;
+		$links[] = $this->Jquery->toggleLink($region->name, "#region{$region->id}", [
+			'class' => implode(' ', array_merge($pillClasses, $classes)),
+		], [
+			'toggle_text' => true,
+		]);
+	}
+
+	echo $this->Bootstrap->navPills($links);
 ?>
-				</ul>
 			</div>
 
 <?php
@@ -86,12 +88,11 @@ else:
 				<legend><?= __($region->name) ?></legend>
 				<div class="columns">
 					<div class="actions">
-						<ul class="nav nav-pills">
 <?php
-		// TODOBOOTSTRAP: This pushes the first facility checkbox to the right
-		echo $this->Html->tag('li', $this->Jquery->selectAll("#region{$region->id}"));
+		echo $this->Bootstrap->navPills([
+			$this->Jquery->selectAll("#region{$region->id}", null, $pillClasses),
+		]);
 ?>
-						</ul>
 					</div>
 <?php
 		foreach ($region->facilities as $facility):

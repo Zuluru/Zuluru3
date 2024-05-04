@@ -269,22 +269,26 @@ endif;
 ?>
 
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->iconLink('view_32.png',
-	['action' => 'index'],
-	['alt' => __('List'), 'title' => __('List Facilities')]));
+$links = [
+	$this->Html->iconLink('view_32.png',
+		['action' => 'index'],
+		['alt' => __('List'), 'title' => __('List Facilities')]
+	),
+];
 if ($can_edit) {
-	echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
+	$links[] = $this->Html->iconLink('edit_32.png',
 		['action' => 'edit', '?' => ['facility' => $facility->id, 'return' => AppController::_return()]],
-		['alt' => __('Edit'), 'title' => __('Edit Facility')]));
-	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
+		['alt' => __('Edit'), 'title' => __('Edit Facility')]
+	);
+	$links[] = $this->Form->iconPostLink('delete_32.png',
 		['action' => 'delete', '?' => ['facility' => $facility->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Facility')],
-		['confirm' => __('Are you sure you want to delete this facility?')]));
+		['confirm' => __('Are you sure you want to delete this facility?')]
+	);
 }
+echo $this->Bootstrap->navPills($links);
 ?>
-	</ul>
 </div>
 <?php
 // Make the field table sortable

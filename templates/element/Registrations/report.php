@@ -2,6 +2,10 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Registration[] $registrations
+ * @var string[] $affiliates
+ * @var int $affiliate
+ * @var string $start_date
+ * @var string $end_date
  */
 
 use Cake\Core\Configure;
@@ -83,11 +87,14 @@ if (isset($registrations)):
 ?>
 
 	<div class="actions columns">
-		<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('Download Registration Report'), ['action' => 'report', '?' => ['affiliate' => $affiliate, 'start_date' => $start_date, 'end_date' => $end_date], '_ext' => 'csv']));
+echo $this->Bootstrap->navPills([
+	$this->Html->link(__('Download Registration Report'),
+		['action' => 'report', '?' => ['affiliate' => $affiliate, 'start_date' => $start_date, 'end_date' => $end_date], '_ext' => 'csv'],
+		['class' => $this->Bootstrap->navPillLinkClasses()]
+	),
+]);
 ?>
-		</ul>
 	</div>
 
 <?php

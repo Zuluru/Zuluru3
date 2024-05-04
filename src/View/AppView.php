@@ -15,7 +15,7 @@ use BootstrapUI\View\UIViewTrait;
 use Cake\View\Helper\NumberHelper;
 use Cake\View\Helper\TextHelper;
 use Cake\View\View;
-use ZuluruBootstrap\View\Helper\AccordionHelper;
+use ZuluruBootstrap\View\Helper\BootstrapHelper;
 use ZuluruJquery\View\Helper\JqueryHelper;
 
 /**
@@ -33,7 +33,7 @@ use ZuluruJquery\View\Helper\JqueryHelper;
  * @property ZuluruTimeHelper $Time
  * @property ZuluruGameHelper $Game
  * @property PaginatorHelper $Paginator
- * @property AccordionHelper $Accordion
+ * @property BootstrapHelper $Bootstrap
  * @property JqueryHelper $Jquery
  */
 class AppView extends View {
@@ -59,7 +59,7 @@ class AppView extends View {
 			'Time' => ['className' => 'ZuluruTime'],
 			'Game' => ['className' => 'ZuluruGame'],
 			'Paginator' => ['className' => 'BootstrapUI.Paginator', 'config' => ['templates' => 'paginator-templates']],
-			'Accordion' => ['className' => 'ZuluruBootstrap.Accordion'],
+			'Bootstrap' => ['className' => 'ZuluruBootstrap.Bootstrap'],
 			'Jquery' => ['className' => 'ZuluruJquery.Jquery'],
 			//'Less' => ['className' => 'Less.Less'], // required for parsing less files
 		];

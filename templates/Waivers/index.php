@@ -92,10 +92,12 @@ endforeach;
 	</ul></nav>
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
-<?= $this->Html->tag('li', $this->Html->iconLink('waiver_add_32.png',
-	['action' => 'add'],
-	['alt' => __('Add'), 'title' => __('Add Waiver')]));
+<?php
+echo $this->Bootstrap->navPills([
+	$this->Html->iconLink('waiver_add_32.png',
+		['action' => 'add'],
+		['alt' => __('Add'), 'title' => __('Add Waiver')]
+	),
+]);
 ?>
-	</ul>
 </div>

@@ -81,15 +81,17 @@ endforeach;
 endif;
 ?>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
-	['action' => 'edit', '?' => ['slot' => $game_slot->id]],
-	['alt' => __('Edit'), 'title' => __('Edit Game Slot')]));
-echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-	['action' => 'delete', '?' => ['slot' => $game_slot->id]],
-	['alt' => __('Delete'), 'title' => __('Delete Game Slot')],
-	['confirm' => __('Are you sure you want to delete this game_slot?')]));
+echo $this->Bootstrap->navPills([
+	$this->Html->iconLink('edit_32.png',
+		['action' => 'edit', '?' => ['slot' => $game_slot->id]],
+		['alt' => __('Edit'), 'title' => __('Edit Game Slot')]
+	),
+	$this->Form->iconPostLink('delete_32.png',
+		['action' => 'delete', '?' => ['slot' => $game_slot->id]],
+		['alt' => __('Delete'), 'title' => __('Delete Game Slot')],
+		['confirm' => __('Are you sure you want to delete this game_slot?')]
+	),
+]);
 ?>
-	</ul>
 </div>

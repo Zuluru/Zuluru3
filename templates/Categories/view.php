@@ -142,21 +142,25 @@ endif;
 </div>
 
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->iconLink('view_32.png',
-	['action' => 'index'],
-	['alt' => __('List'), 'title' => __('List Categories')]));
-echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
-	['action' => 'edit', '?' => ['category' => $category->id]],
-	['alt' => __('Edit'), 'title' => __('Edit Category')]));
-echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-	['action' => 'delete', '?' => ['category' => $category->id]],
-	['alt' => __('Delete'), 'title' => __('Delete Category')],
-	['confirm' => __('Are you sure you want to delete this category?')]));
-echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
-	['action' => 'add'],
-	['alt' => __('Add'), 'title' => __('Add Category')]));
+echo $this->Bootstrap->navPills([
+	$this->Html->iconLink('view_32.png',
+		['action' => 'index'],
+		['alt' => __('List'), 'title' => __('List Categories')]
+	),
+	$this->Html->iconLink('edit_32.png',
+		['action' => 'edit', '?' => ['category' => $category->id]],
+		['alt' => __('Edit'), 'title' => __('Edit Category')]
+	),
+	$this->Form->iconPostLink('delete_32.png',
+		['action' => 'delete', '?' => ['category' => $category->id]],
+		['alt' => __('Delete'), 'title' => __('Delete Category')],
+		['confirm' => __('Are you sure you want to delete this category?')]
+	),
+	$this->Html->iconLink('add_32.png',
+		['action' => 'add'],
+		['alt' => __('Add'), 'title' => __('Add Category')]
+	),
+]);
 ?>
-	</ul>
 </div>

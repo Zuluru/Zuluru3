@@ -158,12 +158,13 @@ elseif (isset($people)):
 	if (in_array($this->getRequest()->getParam('action'), ['rule_search', 'league_search', 'inactive_search'])):
 ?>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('Download'), array_merge($url, ['_ext' => 'csv'])));
-?>
-	</ul>
-<?php
+		echo $this->Bootstrap->navPills([
+			$this->Html->link(__('Download'),
+				array_merge($url, ['_ext' => 'csv']),
+				['class' => $this->Bootstrap->navPillLinkClasses()]
+			),
+		]);
 	endif;
 endif;
 ?>

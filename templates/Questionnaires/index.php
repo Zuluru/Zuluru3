@@ -70,16 +70,18 @@ endforeach;
 	</ul></nav>
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
-	['action' => 'add'],
-	['alt' => __('Add'), 'title' => __('Add Questionnaire')]));
-if ($this->getRequest()->getParam('action') == 'index') {
-	echo $this->Html->tag('li', $this->Html->link(__('Deactivated'), ['action' => 'deactivated']));
+$links = [
+    $this->Html->iconLink('add_32.png',
+	    ['action' => 'add'],
+	    ['alt' => __('Add'), 'title' => __('Add Questionnaire')]
+    ),
+];
+if ($this->getRequest()->getParam('action') === 'index') {
+	$links[] = $this->Html->link(__('Deactivated'), ['action' => 'deactivated'], ['class' => $this->Bootstrap->navPillLinkClasses()]);
 } else {
-	echo $this->Html->tag('li', $this->Html->link(__('List'), ['action' => 'index']));
+	$links[] = $this->Html->link(__('List'), ['action' => 'index'], ['class' => $this->Bootstrap->navPillLinkClasses()]);
 }
+echo $this->Bootstrap->navPills($links);
 ?>
-	</ul>
 </div>

@@ -402,10 +402,13 @@ endif;
 
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-$params = $this->getRequest()->getQueryParams();
-echo $this->Html->tag('li', $this->Html->link(__('Download'), ['?' => $params, '_ext' => 'csv']));
+echo $this->Bootstrap->navPills([
+	$this->Html->link(
+		__('Download'),
+		['?' => $this->getRequest()->getQueryParams(), '_ext' => 'csv'],
+		['class' => $this->Bootstrap->navPillLinkClasses()]
+	),
+]);
 ?>
-	</ul>
 </div>

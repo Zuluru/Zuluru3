@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Holiday $holiday
+ * @var string[] $affiliates
  */
 
 $this->Breadcrumbs->add(__('Holiday'));
@@ -33,18 +34,19 @@ echo $this->Form->control('date');
 	<?= $this->Form->end() ?>
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('List Holidays'), ['action' => 'index']));
+$links = [$this->Html->link(__('List Holidays'), ['action' => 'index'], ['class' => $this->Bootstrap->navPillLinkClasses()])];
 if (!$holiday->isNew()) {
-	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
+	$links[] = $this->Form->iconPostLink('delete_32.png',
 		['action' => 'delete', '?' => ['holiday' => $holiday->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Holiday')],
-		['confirm' => __('Are you sure you want to delete this holiday?')]));
-	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
+		['confirm' => __('Are you sure you want to delete this holiday?')]
+	);
+	$links[] = $this->Html->iconLink('add_32.png',
 		['action' => 'add'],
-		['alt' => __('Add'), 'title' => __('Add Holiday')]));
+		['alt' => __('Add'), 'title' => __('Add Holiday')]
+	);
 }
+echo $this->Bootstrap->navPills($links);
 ?>
-	</ul>
 </div>

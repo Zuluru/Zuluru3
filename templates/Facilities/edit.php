@@ -59,9 +59,9 @@ $this->end();
 
 $this->start('panels');
 
-echo $this->Accordion->panel(
-	$this->Accordion->panelHeading('Facility', __('Facility Details'), ['collapsed' => false]),
-	$this->Accordion->panelContent('Facility', $this->fetch('facility_details'), ['collapsed' => false])
+echo $this->Bootstrap->panel(
+	$this->Bootstrap->panelHeading('Facility', __('Facility Details'), ['collapsed' => false]),
+	$this->Bootstrap->panelContent('Facility', $this->fetch('facility_details'), ['collapsed' => false])
 );
 
 if (empty($facility->fields)) {
@@ -73,39 +73,44 @@ if (empty($facility->fields)) {
 }
 
 $this->end();
-echo $this->Accordion->accordion($this->fetch('panels'));
+echo $this->Bootstrap->accordion($this->fetch('panels'));
 ?>
 		<div class="actions columns">
-			<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Jquery->ajaxLink($this->Html->iconImg('add_32.png', ['alt' => __('Add {0}', Configure::read('UI.field')), 'title' => __('Add {0}', Configure::read('UI.field'))]), [
-	'url' => ['action' => 'add_field'],
-	'disposition' => 'append',
-	'selector' => '#accordion',
-], [
-	'class' => 'icon',
-	'escape' => false,
-]));
+echo $this->Bootstrap->navPills([
+	$this->Jquery->ajaxLink(
+		$this->Html->iconImg('add_32.png', ['alt' => __('Add {0}', Configure::read('UI.field')), 'title' => __('Add {0}', Configure::read('UI.field'))]),
+		[
+			'url' => ['action' => 'add_field'],
+			'disposition' => 'append',
+			'selector' => '#accordion',
+		],
+		[
+			'class' => 'icon',
+			'escape' => false,
+		]
+	)
+]);
 ?>
-			</ul>
 		</div>
 	</fieldset>
 	<?= $this->Form->button(__('Submit'), ['class' => 'btn-success']) ?>
 	<?= $this->Form->end() ?>
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('List Facilities'), ['action' => 'index']));
+$links = [$this->Html->link(__('List Facilities'), ['action' => 'index'], ['class' => $this->Bootstrap->navPillLinkClasses()])];
 if (!$facility->isNew()) {
-	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
+	$links[] = $this->Form->iconPostLink('delete_32.png',
 		['action' => 'delete', '?' => ['facility' => $facility->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Facility')],
-		['confirm' => __('Are you sure you want to delete this facility?')]));
-	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
+		['confirm' => __('Are you sure you want to delete this facility?')]
+	);
+	$links[] = $this->Html->iconLink('add_32.png',
 		['action' => 'add'],
-		['alt' => __('Add'), 'title' => __('Add Facility')]));
+		['alt' => __('Add'), 'title' => __('Add Facility')]
+	);
 }
+echo $this->Bootstrap->navPills($links);
 ?>
-	</ul>
 </div>

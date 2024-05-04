@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\MailingList $mailing_list
+ * @var string[] $affiliates
  */
 
 use App\Controller\AppController;
@@ -29,24 +30,28 @@ endif;
 	</dl>
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('List Mailing Lists'), ['action' => 'index']));
-echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
-	['action' => 'edit', '?' => ['mailing_list' => $mailing_list->id, 'return' => AppController::_return()]],
-	['alt' => __('Edit'), 'title' => __('Edit Mailing List')]));
-echo $this->Html->tag('li', $this->Html->iconLink('email_32.png',
-	['action' => 'preview', '?' => ['mailing_list' => $mailing_list->id]],
-	['alt' => __('Preview'), 'title' => __('Preview')]));
-echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-	['action' => 'delete', '?' => ['mailing_list' => $mailing_list->id]],
-	['alt' => __('Delete'), 'title' => __('Delete Mailing List')],
-	['confirm' => __('Are you sure you want to delete this mailingList?')]));
-echo $this->Html->tag('li', $this->Html->iconLink('mailing_list_add_32.png',
-	['action' => 'add'],
-	['alt' => __('Add'), 'title' => __('Add Mailing List')]));
+echo $this->Bootstrap->navPills([
+	$this->Html->link(__('List Mailing Lists'), ['action' => 'index'], ['class' => $this->Bootstrap->navPillLinkClasses()]),
+	$this->Html->iconLink('edit_32.png',
+		['action' => 'edit', '?' => ['mailing_list' => $mailing_list->id, 'return' => AppController::_return()]],
+		['alt' => __('Edit'), 'title' => __('Edit Mailing List')]
+	),
+	$this->Html->iconLink('email_32.png',
+		['action' => 'preview', '?' => ['mailing_list' => $mailing_list->id]],
+		['alt' => __('Preview'), 'title' => __('Preview')]
+	),
+	$this->Form->iconPostLink('delete_32.png',
+		['action' => 'delete', '?' => ['mailing_list' => $mailing_list->id]],
+		['alt' => __('Delete'), 'title' => __('Delete Mailing List')],
+		['confirm' => __('Are you sure you want to delete this mailingList?')]
+	),
+	$this->Html->iconLink('mailing_list_add_32.png',
+		['action' => 'add'],
+		['alt' => __('Add'), 'title' => __('Add Mailing List')]
+	),
+]);
 ?>
-	</ul>
 </div>
 <div class="related row">
 	<div class="column">

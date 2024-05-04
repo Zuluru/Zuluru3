@@ -75,19 +75,20 @@ endif;
 	</dl>
 
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
+$links = [];
 if ($this->Authorize->can('note', new ContextResource($game, ['home_team' => $game->home_team, 'away_team' => $game->away_team]))) {
-	echo $this->Html->tag('li', $this->Html->link(__('Add Note'), ['action' => 'note', '?' => ['game' => $game->id]]));
+	$links[] = $this->Html->link(__('Add Note'), ['action' => 'note', '?' => ['game' => $game->id]], ['class' => $this->Bootstrap->navPillLinkClasses()]);
 }
 if ($this->Authorize->can('stat_sheet', new ContextResource($team, ['league' => $game->division->league, 'stat_types' => $game->division->league->stat_types]))) {
-	echo $this->Html->tag('li', $this->Html->iconLink('pdf_32.png',
+	$links[] = $this->Html->iconLink('pdf_32.png',
 		['controller' => 'Games', 'action' => 'stat_sheet', '?' => ['team' => $team->id, 'game' => $game->id]],
 		['alt' => __('Stat Sheet'), 'title' => __('Stat Sheet')],
-		['confirm' => __('This stat sheet will only include players who have indicated that they are playing, plus a couple of blank lines.\n\nFor a stat sheet with your full roster, use the link from the team view page.')]));
+		['confirm' => __('This stat sheet will only include players who have indicated that they are playing, plus a couple of blank lines.\n\nFor a stat sheet with your full roster, use the link from the team view page.')]
+	);
 }
+echo $this->Bootstrap->navPills($links);
 ?>
-	</ul>
 </div>
 
 <div class="related">

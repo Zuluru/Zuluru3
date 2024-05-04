@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Region $region
+ * @var string[] $affiliates
  */
 
 use App\Controller\AppController;
@@ -75,22 +76,29 @@ endif;
 </div>
 
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('Add Facility'),
-	['controller' => 'Facilities', 'action' => 'add', '?' => ['region' => $region->id]]));
-echo $this->Html->tag('li', $this->Html->link(__('List Regions'),
-	['action' => 'index']));
-echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
-	['action' => 'edit', '?' => ['region' => $region->id, 'return' => AppController::_return()]],
-	['alt' => __('Edit'), 'title' => __('Edit Region')]));
-echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-	['action' => 'delete', '?' => ['region' => $region->id]],
-	['alt' => __('Delete'), 'title' => __('Delete Region')],
-	['confirm' => __('Are you sure you want to delete this region?')]));
-echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
-	['action' => 'add'],
-	['alt' => __('Add'), 'title' => __('Add Region')]));
+echo $this->Bootstrap->navPills([
+	$this->Html->link(__('Add Facility'),
+		['controller' => 'Facilities', 'action' => 'add', '?' => ['region' => $region->id]],
+		['class' => $this->Bootstrap->navPillLinkClasses()]
+	),
+	$this->Html->link(__('List Regions'),
+		['action' => 'index'],
+		['class' => $this->Bootstrap->navPillLinkClasses()]
+	),
+	$this->Html->iconLink('edit_32.png',
+		['action' => 'edit', '?' => ['region' => $region->id, 'return' => AppController::_return()]],
+		['alt' => __('Edit'), 'title' => __('Edit Region')]
+	),
+	$this->Form->iconPostLink('delete_32.png',
+		['action' => 'delete', '?' => ['region' => $region->id]],
+		['alt' => __('Delete'), 'title' => __('Delete Region')],
+		['confirm' => __('Are you sure you want to delete this region?')]
+	),
+	$this->Html->iconLink('add_32.png',
+		['action' => 'add'],
+		['alt' => __('Add'), 'title' => __('Add Region')]
+	),
+]);
 ?>
-	</ul>
 </div>

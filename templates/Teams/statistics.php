@@ -2,6 +2,15 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Division[] $divisions
+ * @var \App\Model\Entity\Team[] $teams
+ * @var \App\Model\Entity\Team[] $top_rating
+ * @var \App\Model\Entity\Team[] $lowest_rating
+ * @var \App\Model\Entity\Team[] $defaulting
+ * @var \App\Model\Entity\Team[] $no_scores
+ * @var \App\Model\Entity\Team[] $top_spirit
+ * @var \App\Model\Entity\Team[] $lowest_spirit
+ * @var string[] $affiliates
+ * @var string[] $years
  */
 
 use App\Controller\AppController;
@@ -443,12 +452,11 @@ endif;
 </div>
 <div class="actions columns">
 	<p><?= __('Other years') ?>:</p>
-	<ul class="nav nav-pills">
 <?php
-foreach ($years as $y) {
-	echo $this->Html->tag('li', $this->Html->link($y->year, ['?' => ['year' => $y->year]]));
+$links = [];
+foreach ($years as $year) {
+	$links[] = $this->Html->link($year, ['?' => ['year' => $year]], ['class' => $this->Bootstrap->navPillLinkClasses()]);
 }
+echo $this->Bootstrap->navPills($links);
 ?>
-
-	</ul>
 </div>

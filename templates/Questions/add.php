@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Question $question
+ * @var string[] $affiliates
  */
 
 use Cake\Core\Configure;
@@ -43,9 +44,9 @@ echo $this->Form->control('anonymous', [
 	<?= $this->Form->end() ?>
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('List Questions'), ['action' => 'index']));
+echo $this->Bootstrap->navPills([
+	$this->Html->link(__('List Questions'), ['action' => 'index'], ['class' => $this->Bootstrap->navPillLinkClasses()]),
+]);
 ?>
-	</ul>
 </div>

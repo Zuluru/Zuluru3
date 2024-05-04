@@ -257,17 +257,19 @@ if (Configure::read('scoring.most_spirited')) {
 if (!$division->isNew()):
 ?>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-	['action' => 'delete', '?' => ['division' => $division->id]],
-	['alt' => __('Delete'), 'title' => __('Delete Division')],
-	['confirm' => __('Are you sure you want to delete this division?')]));
-echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
-	['action' => 'add'],
-	['alt' => __('Add'), 'title' => __('Add Division')]));
+echo $this->Bootstrap->navPills([
+	$this->Form->iconPostLink('delete_32.png',
+		['action' => 'delete', '?' => ['division' => $division->id]],
+		['alt' => __('Delete'), 'title' => __('Delete Division')],
+		['confirm' => __('Are you sure you want to delete this division?')]
+	),
+	$this->Html->iconLink('add_32.png',
+		['action' => 'add'],
+		['alt' => __('Add'), 'title' => __('Add Division')]
+	),
+]);
 ?>
-	</ul>
 </div>
 <?php
 endif;

@@ -79,18 +79,21 @@ if ($<%= $singularVar %>->isNew()) {
 	<?= $this->Form->end() ?>
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('List <%= $pluralHumanName %>'), ['action' => 'index']));
+$links = [
+	$this->Html->link(__('List <%= $pluralHumanName %>'), ['action' => 'index']),
+];
 if (!$<%= $singularVar %>->isNew()) {
-	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
+	$links[] = $this->Form->iconPostLink('delete_32.png',
 		['action' => 'delete', '?' => ['<%= $singularVar %>' => $<%= $singularVar %>-><%= $primaryKey[0] %>]],
 		['alt' => __('Delete'), 'title' => __('Delete <%= $singularHumanName %>')],
-		['confirm' => __('Are you sure you want to delete this <%= strtolower($singularHumanName) %>?')]));
-	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
+		['confirm' => __('Are you sure you want to delete this <%= strtolower($singularHumanName) %>?')]
+	);
+	$links[] = $this->Html->iconLink('add_32.png',
 		['action' => 'add'],
-		['alt' => __('Add'), 'title' => __('Add <%= $singularHumanName %>')]));
+		['alt' => __('Add'), 'title' => __('Add <%= $singularHumanName %>')]
+	);
 }
+echo $this->Bootstrap->navPills($links);
 ?>
-	</ul>
 </div>

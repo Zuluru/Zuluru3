@@ -103,7 +103,7 @@ class TeamEventsController extends AppController {
 									$team_event['dates'][$i] = $this->TeamEvents->newEntity(array_merge($this->getRequest()->getData(), ['date' => $this->getRequest()->getData("dates.$i.date")]));
 									$this->TeamEvents->save($team_event['dates'][$i]);
 									if (in_array($team_event['dates'][$i]->date, $dates)) {
-										$team_event['dates'][$i]->setErrors('date', __('You cannot select the same date more than once.'));
+										$team_event['dates'][$i]->setError('date', __('You cannot select the same date more than once.'));
 									} else {
 										$dates[] = $team_event['dates'][$i]->date;
 									}

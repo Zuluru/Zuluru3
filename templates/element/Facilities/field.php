@@ -60,13 +60,13 @@ echo $this->Form->control("fields.$index.layout_url", [
 
 $this->end();
 
-echo $this->Accordion->panel(
-	$this->Accordion->panelHeading("Field{$index}", __('{0} Details', Configure::read('UI.field_cap')), [
+echo $this->Bootstrap->panel(
+	$this->Bootstrap->panelHeading("Field{$index}", __('{0} Details', Configure::read('UI.field_cap')), [
 		'extraContent' => $this->Form->i18nControls("fields.$index.num", [
 			'label' => __('Number'),
 			'placeholder' => __('{0} Number', Configure::read('UI.field_cap')),
 			'duplicate_help' => true,
 		]),
 	]),
-	$this->Accordion->panelContent("Field{$index}", $this->fetch('field_details'))
+	$this->Bootstrap->panelContent("Field{$index}", $this->fetch('field_details'))
 );

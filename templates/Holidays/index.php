@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Holiday[] $holidays
+ * @var string[] $affiliates
  */
 
 use Cake\Core\Configure;
@@ -64,11 +65,12 @@ endforeach;
 	</ul></nav>
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
-	['action' => 'add'],
-	['alt' => __('Add'), 'title' => __('Add Holiday')]));
+echo $this->Bootstrap->navPills([
+	$this->Html->iconLink('add_32.png',
+		['action' => 'add'],
+		['alt' => __('Add'), 'title' => __('Add Holiday')]
+	),
+]);
 ?>
-	</ul>
 </div>

@@ -83,7 +83,5 @@ echo $this->Form->end();
 </div>
 
 <div class="actions columns">
-	<ul class="nav nav-pills">
-		<?= $this->element('Registrations/actions', ['registration' => $registration, 'format' => 'list']) ?>
-	</ul>
+	<?= $this->element('Registrations/actions', ['registration' => $registration, 'format' => 'list']) ?>
 </div>

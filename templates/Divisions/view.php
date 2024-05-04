@@ -60,13 +60,11 @@ endif;
 	</dl>
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?= $this->element('Divisions/actions', [
 	'league' => $division->league,
 	'division' => $division,
 	'format' => 'list',
 ]) ?>
-	</ul>
 </div>
 <?php
 if (!empty($division->footer)):

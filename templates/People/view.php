@@ -332,33 +332,52 @@ endif;
 	</dl>
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
+$links = [];
 if ($this->Authorize->can('vcf', $person) && $has_visible_contact) {
-	echo $this->Html->tag('li', $this->Html->link(__('VCF'), ['action' => 'vcf', '?' => ['person' => $person->id]]));
+	$links[] = $this->Html->link(__('VCF'),
+        ['action' => 'vcf', '?' => ['person' => $person->id]],
+		['class' => $this->Bootstrap->navPillLinkClasses()]
+    );
 }
 if ($this->Authorize->can('note', $person)) {
-	echo $this->Html->tag('li', $this->Html->link(__('Add Note'), ['action' => 'note', '?' => ['person' => $person->id]]));
+	$links[] = $this->Html->link(__('Add Note'),
+        ['action' => 'note', '?' => ['person' => $person->id]],
+		['class' => $this->Bootstrap->navPillLinkClasses()]
+    );
 }
 if ($this->Authorize->can('edit', $person)) {
-	echo $this->Html->tag('li', $this->Html->iconLink('edit_24.png', ['action' => 'edit', '?' => ['person' => $person->id, 'return' => AppController::_return()]],
-		['alt' => __('Edit Profile'), 'title' => __('Edit Profile')]));
+	$links[] = $this->Html->iconLink('edit_24.png',
+        ['action' => 'edit', '?' => ['person' => $person->id, 'return' => AppController::_return()]],
+		['alt' => __('Edit Profile'), 'title' => __('Edit Profile')]
+    );
 }
 if ($this->Authorize->can('preferences', $person)) {
-	echo $this->Html->tag('li', $this->Html->link(__('Edit Preferences'), ['action' => 'preferences', '?' => ['person' => $person->id]]));
+	$links[] = $this->Html->link(__('Edit Preferences'),
+        ['action' => 'preferences', '?' => ['person' => $person->id]],
+		['class' => $this->Bootstrap->navPillLinkClasses()]
+    );
 }
 if ($person->user && $this->Authorize->can('change_password', $person->user)) {
-	echo $this->Html->tag('li', $this->Html->link(__('Change Password'), ['controller' => 'Users', 'action' => 'change_password', '?' => ['user' => $person->user_id]]));
+	$links[] = $this->Html->link(__('Change Password'),
+        ['controller' => 'Users', 'action' => 'change_password', '?' => ['user' => $person->user_id]],
+		['class' => $this->Bootstrap->navPillLinkClasses()]
+    );
 }
 if ($this->Authorize->can('act_as', $person)) {
-	echo $this->Html->tag('li', $this->Html->link(__('Act As'), ['controller' => 'People', 'action' => 'act_as', '?' => ['person' => $person->id]]));
+	$links[] = $this->Html->link(__('Act As'),
+        ['controller' => 'People', 'action' => 'act_as', '?' => ['person' => $person->id]],
+		['class' => $this->Bootstrap->navPillLinkClasses()]
+    );
 }
 if ($this->Authorize->can('delete', $person)) {
-	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_24.png', ['action' => 'delete', '?' => ['person' => $person->id]],
-		['alt' => __('Delete Player'), 'title' => __('Delete Player')], ['confirm' => __('Are you sure you want to delete this person?')]));
+	$links[] = $this->Form->iconPostLink('delete_24.png', ['action' => 'delete', '?' => ['person' => $person->id]],
+		['alt' => __('Delete Player'), 'title' => __('Delete Player')],
+        ['confirm' => __('Are you sure you want to delete this person?'), 'class' => $this->Bootstrap->navPillLinkClasses()]
+    );
 }
+echo $this->Bootstrap->navPills($links);
 ?>
-	</ul>
 </div>
 
 <?php
@@ -529,11 +548,14 @@ if (in_array('teams', $visible_properties) && ($is_player || !empty($all_teams))
 ?>
 
 	<div class="actions columns">
-		<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('Show Team History'), ['controller' => 'People', 'action' => 'teams', '?' => ['person' => $person->id]]));
+echo $this->Bootstrap->navPills([
+	$this->Html->link(__('Show Team History'),
+		['controller' => 'People', 'action' => 'teams', '?' => ['person' => $person->id]],
+		['class' => $this->Bootstrap->navPillLinkClasses()]
+	),
+]);
 ?>
-		</ul>
 	</div>
 </div>
 <?php
@@ -609,11 +631,14 @@ if ((in_array('relatives', $visible_properties)) && (!empty($person->relatives) 
 	if ($this->Authorize->can('link_relative', $person)):
 ?>
 	<div class="actions columns">
-		<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('Link a relative'), ['controller' => 'People', 'action' => 'link_relative']));
+echo $this->Bootstrap->navPills([
+	$this->Html->link(__('Link a relative'),
+		['controller' => 'People', 'action' => 'link_relative'],
+		['class' => $this->Bootstrap->navPillLinkClasses()]
+	),
+]);
 ?>
-		</ul>
 	</div>
 <?php
 	endif;
@@ -751,11 +776,14 @@ if (in_array('preregistrations', $visible_properties) || (!empty($person->prereg
 	if ($this->Authorize->can('add', \App\Controller\PreregistrationsController::class)):
 ?>
 	<div class="actions columns">
-		<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('Add Preregistration'), ['controller' => 'Preregistrations', 'action' => 'add', '?' => ['person' => $person->id]]));
+		echo $this->Bootstrap->navPills([
+			$this->Html->link(__('Add Preregistration'),
+				['controller' => 'Preregistrations', 'action' => 'add', '?' => ['person' => $person->id]],
+				['class' => $this->Bootstrap->navPillLinkClasses()]
+			),
+		]);
 ?>
-		</ul>
 	</div>
 <?php
 	endif;
@@ -796,11 +824,14 @@ if ((in_array('registrations', $visible_properties)) && !empty($person->registra
 		</table>
 	</div>
 	<div class="actions columns">
-		<ul class="nav nav-pills">
 <?php
-	echo $this->Html->tag('li', $this->Html->link(__('Show Registration History'), ['controller' => 'People', 'action' => 'registrations', '?' => ['person' => $person->id]]));
+	echo $this->Bootstrap->navPills([
+		$this->Html->link(__('Show Registration History'),
+			['controller' => 'People', 'action' => 'registrations', '?' => ['person' => $person->id]],
+			['class' => $this->Bootstrap->navPillLinkClasses()]
+		)
+	]);
 ?>
-		</ul>
 	</div>
 </div>
 <?php
@@ -873,16 +904,23 @@ if (!empty($person->credits)):
 endif;
 ?>
 	<div class="actions columns">
-		<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('Show Credit History'), ['controller' => 'People', 'action' => 'credits', '?' => ['person' => $person->id]]));
+$links = [
+	$this->Html->link(__('Show Credit History'),
+		['controller' => 'People', 'action' => 'credits', '?' => ['person' => $person->id]],
+		['class' => $this->Bootstrap->navPillLinkClasses()]
+	),
+];
 $dummy = new Credit();
 $dummy->person = $person;
 if ($this->Authorize->can('add', $dummy)) {
-	echo $this->Html->tag('li', $this->Html->link(__('Add'), ['controller' => 'Credits', 'action' => 'add', '?' => ['person' => $person->id]]));
+	$links[] = $this->Html->link(__('Add'),
+		['controller' => 'Credits', 'action' => 'add', '?' => ['person' => $person->id]],
+		['class' => $this->Bootstrap->navPillLinkClasses()]
+	);
 }
+echo $this->Bootstrap->navPills($links);
 ?>
-		</ul>
 	</div>
 </div>
 <?php
@@ -933,11 +971,14 @@ if (in_array('waivers', $visible_properties)):
 ?>
 
 	<div class="actions columns">
-		<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('Show Waiver History'), ['controller' => 'People', 'action' => 'waivers', '?' => ['person' => $person->id]]));
+echo $this->Bootstrap->navPills([
+	$this->Html->link(__('Show Waiver History'),
+		['controller' => 'People', 'action' => 'waivers', '?' => ['person' => $person->id]],
+		['class' => $this->Bootstrap->navPillLinkClasses()]
+	)
+]);
 ?>
-		</ul>
 	</div>
 </div>
 <?php
@@ -1007,11 +1048,14 @@ if (in_array('uploads', $visible_properties)):
 	endif;
 ?>
 	<div class="actions columns">
-		<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('Upload New Document'), ['action' => 'document_upload', '?' => ['person' => $person->id]]));
+echo $this->Bootstrap->navPills([
+	$this->Html->link(__('Upload New Document'),
+		['action' => 'document_upload', '?' => ['person' => $person->id]],
+		['class' => $this->Bootstrap->navPillLinkClasses()]
+	)
+]);
 ?>
-		</ul>
 	</div>
 </div>
 <?php

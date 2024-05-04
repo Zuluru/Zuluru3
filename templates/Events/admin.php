@@ -3,7 +3,7 @@
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Event[] $events
  * @var string $year
- * @var string[][] $years
+ * @var string[] $years
  * @var int[] $affiliates
  */
 
@@ -68,11 +68,11 @@ endforeach;
 ?>
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-foreach ($years as $y) {
-	echo $this->Html->tag('li', $this->Html->link($y['year'], ['?' => ['year' => $y['year']]]));
+$links = [];
+foreach ($years as $year) {
+	$links[] = $this->Html->link($year, ['?' => ['year' => $year]], ['class' => $this->Bootstrap->navPillLinkClasses()]);
 }
+echo $this->Bootstrap->navPills($links);
 ?>
-	</ul>
 </div>

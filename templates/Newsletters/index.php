@@ -2,6 +2,8 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Newsletter[] $newsletters
+ * @var string[] $affiliates
+ * @var bool $current
  */
 
 $this->Breadcrumbs->add(__('Newsletters'));
@@ -73,13 +75,16 @@ endforeach;
 	</ul></nav>
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->iconLink('newsletter_add_32.png',
-	['action' => 'add'],
-	['alt' => __('Add'), 'title' => __('Add Newsletter')]));
-echo $this->Html->tag('li', $this->Html->link($current ? __('All Newsletters') : __('Upcoming Newsletters'),
-	['action' => $current ? 'past' : 'index']));
+echo $this->Bootstrap->navPills([
+	$this->Html->iconLink('newsletter_add_32.png',
+		['action' => 'add'],
+		['alt' => __('Add'), 'title' => __('Add Newsletter')]
+	),
+	$this->Html->link($current ? __('All Newsletters') : __('Upcoming Newsletters'),
+		['action' => $current ? 'past' : 'index'],
+		['class' => $this->Bootstrap->navPillLinkClasses()]
+	),
+]);
 ?>
-	</ul>
 </div>

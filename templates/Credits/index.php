@@ -89,16 +89,19 @@ endforeach;
 	</ul></nav>
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
 if ($all) {
-	echo $this->Html->tag('li', $this->Html->link(__('Unused Credits'), ['action' => 'index']));
+	$links = [
+		$this->Html->link(__('Unused Credits'), ['action' => 'index'], ['class' => $this->Bootstrap->navPillLinkClasses()]),
+	];
 } else {
-	echo $this->Html->tag('li', $this->Html->link(__('All Credits'), ['action' => 'index', '?' => ['all' => true]]));
+	$links = [
+		$this->Html->link(__('All Credits'), ['action' => 'index', '?' => ['all' => true]], ['class' => $this->Bootstrap->navPillLinkClasses()]),
+	];
 }
 $params = $this->getRequest()->getQueryParams();
 unset($params['page']);
-echo $this->Html->tag('li', $this->Html->link(__('Download'), ['?' => $params, '_ext' => 'csv']));
+$links[] = $this->Html->link(__('Download'), ['?' => $params, '_ext' => 'csv'], ['class' => $this->Bootstrap->navPillLinkClasses()]);
+echo $this->Bootstrap->navPills($links);
 ?>
-	</ul>
 </div>

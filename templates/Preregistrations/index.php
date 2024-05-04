@@ -2,6 +2,8 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Event $event
+ * @var \App\Model\Entity\Preregistration[] $preregistrations
+ * @var string[] $affiliates
  */
 
 use Cake\Core\Configure;
@@ -89,20 +91,15 @@ endforeach;
 </div>
 <div class="actions columns">
 <?php
-if (isset($event)):
-?>
-	<?= $this->element('Events/actions', ['event' => $event, 'format' => 'list']) ?>
-<?php
-else:
-?>
-	<ul class="nav nav-pills">
-<?php
-echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
-	['action' => 'add'],
-	['alt' => __('Add'), 'title' => __('Add Preregistration')]));
-?>
-	</ul>
-<?php
-endif;
+if (isset($event)) {
+	echo $this->element('Events/actions', ['event' => $event, 'format' => 'list']);
+} else {
+	echo $this->Bootstrap->navPills([
+		$this->Html->iconLink('add_32.png',
+			['action' => 'add'],
+			['alt' => __('Add'), 'title' => __('Add Preregistration')]
+		),
+	]);
+}
 ?>
 </div>

@@ -176,6 +176,8 @@ class EventsController extends AppController {
 				'Events.affiliate_id IN' => $affiliates,
 			])
 			->order(['year'])
+			->all()
+			->extract('year')
 			->toArray();
 
 		$events = $events->toArray();

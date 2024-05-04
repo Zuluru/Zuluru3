@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Contact[] $contacts
+ * @var string[] $affiliates
  */
 
 $this->Breadcrumbs->add(__('Contacts'));
@@ -76,11 +77,12 @@ endif;
 ?>
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
-	['action' => 'add'],
-	['alt' => __('Add'), 'title' => __('Add Contact')]));
+echo $this->Bootstrap->navPills([
+	$this->Html->iconLink('add_32.png',
+		['action' => 'add'],
+		['alt' => __('Add'), 'title' => __('Add Contact')]
+	),
+]);
 ?>
-	</ul>
 </div>

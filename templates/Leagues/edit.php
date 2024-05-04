@@ -193,7 +193,7 @@ if (Configure::read('scoring.stat_tracking')):
 	]);
 ?>
 							<div id="StatDetails">
-<?= $this->Jquery->selectAll('#StatDetails', __('stats')) ?>
+<?= $this->Jquery->selectAll('#StatDetails', __('stats'), $this->Bootstrap->navPillLinkClasses()) ?>
 								<div id="StatFields">
 <?php
 	$options = [];
@@ -239,9 +239,9 @@ $this->end();
 
 $this->start('panels');
 
-echo $this->Accordion->panel(
-	$this->Accordion->panelHeading('League', $tournaments ? __('Tournament Details') : __('League Details'), ['collapsed' => false]),
-	$this->Accordion->panelContent('League', $this->fetch('league_details'), ['collapsed' => false])
+echo $this->Bootstrap->panel(
+	$this->Bootstrap->panelHeading('League', $tournaments ? __('Tournament Details') : __('League Details'), ['collapsed' => false]),
+	$this->Bootstrap->panelContent('League', $this->fetch('league_details'), ['collapsed' => false])
 );
 
 if (empty($league->divisions)) {
@@ -253,21 +253,25 @@ if (empty($league->divisions)) {
 }
 
 $this->end();
-echo $this->Accordion->accordion($this->fetch('panels'));
+echo $this->Bootstrap->accordion($this->fetch('panels'));
 ?>
 		<div class="actions columns">
-			<ul class="nav nav-pills">
 <?php
-	echo $this->Html->tag('li', $this->Jquery->ajaxLink($this->Html->iconImg('add_32.png', ['alt' => __('Add Division'), 'title' => __('Add Division')]), [
-		'url' => ['action' => 'add_division'],
-		'disposition' => 'append',
-		'selector' => '#accordion',
-	], [
-		'class' => 'icon',
-		'escape' => false,
-	]));
+echo $this->Bootstrap->navPills([
+	$this->Jquery->ajaxLink(
+		$this->Html->iconImg('add_32.png', ['alt' => __('Add Division'), 'title' => __('Add Division')]),
+		[
+			'url' => ['action' => 'add_division'],
+			'disposition' => 'append',
+			'selector' => '#accordion',
+		],
+		[
+			'class' => 'icon',
+			'escape' => false,
+		]
+	),
+]);
 ?>
-			</ul>
 		</div>
 	</fieldset>
 	<p><?= $this->Jquery->toggleLinkPair(
@@ -285,18 +289,19 @@ echo $this->Accordion->accordion($this->fetch('panels'));
 $this->Html->scriptBlock('zjQuery(".advanced").hide();', ['buffer' => true]);
 ?>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link($tournaments ? __('List Leagues') : __('List Leagues'), ['action' => 'index']));
+$links = [$this->Html->link($tournaments ? __('List Leagues') : __('List Leagues'), ['action' => 'index'], ['class' => $this->Bootstrap->navPillLinkClasses()])];
 if (!$league->isNew()) {
-	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
+	$links[] = $this->Form->iconPostLink('delete_32.png',
 		['action' => 'delete', '?' => ['league' => $league->id]],
 		['alt' => __('Delete'), 'title' => $tournaments ? __('Delete League') : __('Delete League')],
-		['confirm' => __('Are you sure you want to delete this league?')]));
-	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
+		['confirm' => __('Are you sure you want to delete this league?')]
+	);
+	$links[] = $this->Html->iconLink('add_32.png',
 		['action' => 'add'],
-		['alt' => __('Add'), 'title' => $tournaments ? __('Add League') : __('Add League')]));
+		['alt' => __('Add'), 'title' => $tournaments ? __('Add League') : __('Add League')]
+	);
 }
+echo $this->Bootstrap->navPills($links);
 ?>
-	</ul>
 </div>

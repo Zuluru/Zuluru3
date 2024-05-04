@@ -4,6 +4,7 @@
  * @var \App\Model\Entity\Team[] $teams
  * @var \App\Model\Entity\Team[] $past_teams
  * @var string $name
+ * @var int $id
  */
 
 use Cake\Core\Configure;
@@ -53,11 +54,14 @@ if (!empty($teams) || $past_teams > 0):
 	if ($past_teams > 0):
 ?>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('Show Team History'), ['controller' => 'People', 'action' => 'teams', '?' => ['person' => $id]]));
+echo $this->Bootstrap->navPills([
+	$this->Html->link(__('Show Team History'),
+		['controller' => 'People', 'action' => 'teams', '?' => ['person' => $id]],
+		['class' => $this->Bootstrap->navPillLinkClasses()]
+	),
+]);
 ?>
-	</ul>
 </div>
 <div class="clear-float"></div>
 <?php

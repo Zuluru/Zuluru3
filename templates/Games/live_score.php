@@ -4,8 +4,10 @@
  * @var \App\Model\Entity\Game $game
  * @var \App\Model\Entity\Team $team
  * @var \App\Model\Entity\Team $opponent
+ * @var \App\Model\Entity\Person $submitter
  */
 
+use App\Model\Entity\Game;
 use Cake\Core\Configure;
 
 $this->Breadcrumbs->add(__('Games'));
@@ -46,15 +48,16 @@ $timeouts = collection($game->score_details)->match(['team_id' => $opponent->id,
 echo $this->element('Games/score_box', ['game' => $game, 'submitter' => $submitter, 'team' => $opponent, 'score' => $opponent_score, 'has_stats' => $has_stats, 'timeouts' => count($timeouts)]);
 ?>
 <div class="actions columns clear-float">
-	<ul class="nav nav-pills">
 <?php
 if (!$submitter) {
-	echo $this->Html->tag('li', $this->Html->link(__('Finalize'), ['action' => 'edit', '?' => ['game' => $game->id, 'stats' => $has_stats]]));
+	$url = ['action' => 'edit', '?' => ['game' => $game->id, 'stats' => $has_stats]];
 } else {
-	echo $this->Html->tag('li', $this->Html->link(__('Finalize'), ['action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $submitter]]));
+	$url = ['action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $submitter]];
 }
+echo $this->Bootstrap->navPills([
+	$this->Html->link(__('Finalize'), $url, ['class' => $this->Bootstrap->navPillLinkClasses()]),
+]);
 ?>
-	</ul>
 </div>
 <?php
 if (Configure::read('feature.twitter')) {

@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Franchise $franchise
+ * @var string[] $affiliates
  */
 
 use Cake\Core\Configure;
@@ -41,18 +42,19 @@ if (Configure::read('feature.urls')) {
 	<?= $this->Form->end() ?>
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->link(__('List Franchises'), ['action' => 'index']));
+$links = [$this->Html->link(__('List Franchises'), ['action' => 'index'], ['class' => $this->Bootstrap->navPillLinkClasses()])];
 if (!$franchise->isNew()) {
-	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
+	$links[] = $this->Form->iconPostLink('delete_32.png',
 		['action' => 'delete', '?' => ['franchise' => $franchise->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Franchise')],
-		['confirm' => __('Are you sure you want to delete this franchise?')]));
-	echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
+		['confirm' => __('Are you sure you want to delete this franchise?')]
+	);
+	$links[] = $this->Html->iconLink('add_32.png',
 		['action' => 'add'],
-		['alt' => __('Add'), 'title' => __('Add Franchise')]));
+		['alt' => __('Add'), 'title' => __('Add Franchise')]
+	);
 }
+echo $this->Bootstrap->navPills($links);
 ?>
-	</ul>
 </div>

@@ -127,12 +127,18 @@ if ($this->Authorize->getIdentity()->isManagerOf($registration->event)):
 		if ($payment->payment_amount != $payment->refunded_amount && in_array($payment->payment_type, Configure::read('payment_payment'))):
 ?>
 	<div class="actions columns">
-		<ul class="nav nav-pills">
 <?php
-			echo $this->Html->tag('li', $this->Html->link(__('Issue Refund'), ['action' => 'refund_payment', '?' => ['payment' => $payment->id]]));
-			echo $this->Html->tag('li', $this->Html->link(__('Issue Credit'), ['action' => 'credit_payment', '?' => ['payment' => $payment->id]]));
+			echo $this->Bootstrap->navPills([
+				$this->Html->link(__('Issue Refund'),
+					['action' => 'refund_payment', '?' => ['payment' => $payment->id]],
+					['class' => $this->Bootstrap->navPillLinkClasses()]
+				),
+				$this->Html->link(__('Issue Credit'),
+					['action' => 'credit_payment', '?' => ['payment' => $payment->id]],
+					['class' => $this->Bootstrap->navPillLinkClasses()]
+				),
+			]);
 ?>
-		</ul>
 	</div>
 <?php
 		endif;
@@ -176,7 +182,5 @@ endif;
 </div>
 
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?= $this->element('Registrations/actions', ['registration' => $registration, 'format' => 'list']) ?>
-	</ul>
 </div>

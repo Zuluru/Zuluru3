@@ -531,7 +531,7 @@ class RegistrationsTable extends AppTable {
 				$request->getFlash()->warning(__('The refund could not be saved. Please correct the errors below and try again.'));
 
 				if ($payment->getError('payment_amount')) {
-					$refund->setErrors(['payment_amount' => $payment->getError('payment_amount')]);
+					$refund->setError('payment_amount', $payment->getError('payment_amount'));
 				}
 
 				// Reset the payment status; it might have been changed in beforeSave

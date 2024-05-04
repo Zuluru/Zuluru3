@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Questionnaire $questionnaire
+ * @var string[] $affiliates
  */
 
 use App\Controller\AppController;
@@ -34,23 +35,27 @@ endif;
 </div>
 
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->iconLink('view_32.png',
-	['action' => 'index'],
-	['alt' => __('List'), 'title' => __('List Questionnaires')]));
-echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
-	['action' => 'edit', '?' => ['questionnaire' => $questionnaire->id]],
-	['alt' => __('Edit'), 'title' => __('Edit Questionnaire')]));
-echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
-	['action' => 'delete', '?' => ['questionnaire' => $questionnaire->id]],
-	['alt' => __('Delete'), 'title' => __('Delete Questionnaire')],
-	['confirm' => __('Are you sure you want to delete this questionnaire?')]));
-echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
-	['action' => 'add'],
-	['alt' => __('Add'), 'title' => __('Add Questionnaire')]));
+echo $this->Bootstrap->navPills([
+	$this->Html->iconLink('view_32.png',
+		['action' => 'index'],
+		['alt' => __('List'), 'title' => __('List Questionnaires')]
+	),
+	$this->Html->iconLink('edit_32.png',
+		['action' => 'edit', '?' => ['questionnaire' => $questionnaire->id]],
+		['alt' => __('Edit'), 'title' => __('Edit Questionnaire')]
+	),
+	$this->Form->iconPostLink('delete_32.png',
+		['action' => 'delete', '?' => ['questionnaire' => $questionnaire->id]],
+		['alt' => __('Delete'), 'title' => __('Delete Questionnaire')],
+		['confirm' => __('Are you sure you want to delete this questionnaire?')]
+	),
+	$this->Html->iconLink('add_32.png',
+		['action' => 'add'],
+		['alt' => __('Add'), 'title' => __('Add Questionnaire')]
+	),
+]);
 ?>
-	</ul>
 </div>
 <?php
 if (!empty($questionnaire->events)):

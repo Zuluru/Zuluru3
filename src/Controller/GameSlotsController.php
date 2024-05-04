@@ -57,6 +57,8 @@ class GameSlotsController extends AppController {
 
 	/**
 	 * Add method
+	 * @todo: If the initial data fails validation, and there were multiple days selected, only one of the days stays
+	 * selected when the form re-renders.
 	 *
 	 * @return void|\Cake\Http\Response Redirects on successful add, renders view otherwise.
 	 */

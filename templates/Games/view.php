@@ -138,7 +138,7 @@ if ($this->Authorize->can('attendance', $game_context) && $game_context->team_id
 }
 
 if ($this->Authorize->can('note', $game_context)) {
-	$actions[] = $this->Html->link(__('Add Note'), ['action' => 'note', '?' => ['game' => $game->id]]);
+	$actions[] = $this->Html->link(__('Add Note'), ['action' => 'note', '?' => ['game' => $game->id]], ['class' => $this->Bootstrap->navPillLinkClasses()]);
 }
 
 if ($this->Authorize->can('edit', $game)) {
@@ -162,7 +162,7 @@ if ($this->Authorize->can('stats', $game_context)) {
 
 if (!empty($actions)) {
 	echo $this->Html->tag('div',
-		$this->Html->nestedList($actions, ['class' => 'nav nav-pills']),
+		$this->Bootstrap->navPills($actions),
 		['class' => 'actions columns']);
 }
 

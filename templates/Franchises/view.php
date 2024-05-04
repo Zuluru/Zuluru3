@@ -2,8 +2,8 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Franchise $franchise
+ * @var string[] $affiliates
  */
-
 
 use App\Authorization\ContextResource;
 use Cake\Core\Configure;
@@ -53,31 +53,35 @@ endif;
 </div>
 
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
+$links = [];
 if ($this->Authorize->can('add_team', $franchise)) {
-	echo $this->Html->tag('li', $this->Html->iconLink('team_add_32.png',
+	$links[] = $this->Html->iconLink('team_add_32.png',
 		['action' => 'add_team', '?' => ['franchise' => $franchise->id]],
-		['alt' => __('Add Team'), 'title' => __('Add Team')]));
+		['alt' => __('Add Team'), 'title' => __('Add Team')]
+	);
 }
 if ($this->Authorize->can('edit', $franchise)) {
-	echo $this->Html->tag('li', $this->Html->iconLink('edit_32.png',
+	$links[] = $this->Html->iconLink('edit_32.png',
 		['action' => 'edit', '?' => ['franchise' => $franchise->id]],
-		['alt' => __('Edit'), 'title' => __('Edit Franchise')]));
+		['alt' => __('Edit'), 'title' => __('Edit Franchise')]
+	);
 }
 if ($this->Authorize->can('add_owner', $franchise)) {
-	echo $this->Html->tag('li', $this->Html->iconLink('move_32.png',
+	$links[] = $this->Html->iconLink('move_32.png',
 		['action' => 'add_owner', '?' => ['franchise' => $franchise->id]],
-		['alt' => __('Add an Owner'), 'title' => __('Add an Owner')]));
+		['alt' => __('Add an Owner'), 'title' => __('Add an Owner')]
+	);
 }
 if ($this->Authorize->can('delete', $franchise)) {
-	echo $this->Html->tag('li', $this->Form->iconPostLink('delete_32.png',
+	$links[] = $this->Form->iconPostLink('delete_32.png',
 		['action' => 'delete', '?' => ['franchise' => $franchise->id]],
 		['alt' => __('Delete'), 'title' => __('Delete Franchise')],
-		['confirm' => __('Are you sure you want to delete this franchise?')]));
+		['confirm' => __('Are you sure you want to delete this franchise?')]
+	);
 }
+echo $this->Bootstrap->navPills($links);
 ?>
-	</ul>
 </div>
 
 <?php

@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Region[] $regions
+ * @var string[] $affiliates
  */
 
 $this->Breadcrumbs->add(__('Regions'));
@@ -57,11 +58,12 @@ endforeach;
 	</div>
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
-echo $this->Html->tag('li', $this->Html->iconLink('add_32.png',
-	['action' => 'add'],
-	['alt' => __('Add'), 'title' => __('Add Region')]));
+echo $this->Bootstrap->navPills([
+	$this->Html->iconLink('add_32.png',
+		['action' => 'add'],
+		['alt' => __('Add'), 'title' => __('Add Region')]
+	),
+]);
 ?>
-	</ul>
 </div>

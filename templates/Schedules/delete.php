@@ -3,6 +3,11 @@
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Division $division
  * @var \App\Model\Entity\League $league
+ * @var \App\Model\Entity\Game[] $games
+ * @var \App\Model\Entity\Pool $pool
+ * @var int $division_id
+ * @var int $league_id
+ * @var int $pool_id
  */
 
 if (isset($division)) {
@@ -67,8 +72,6 @@ endif;
 ?>
 
 <div class="actions columns">
-	<ul class="nav nav-pills">
-		<li>
 <?php
 if (isset($division)) {
 	$id_field = 'division';
@@ -78,13 +81,15 @@ if (isset($division)) {
 	$id = $league_id;
 }
 // TODOBOOTSTRAP: Format this as a submit button, not an action link
-echo $this->Html->link(__('Proceed'), ['?' => [$id_field => $id, 'date' => $date->toDateString(), 'pool' => $pool_id, 'confirm' => true]]);
+echo $this->Bootstrap->navPills([
+	$this->Html->link(__('Proceed'),
+		['?' => [$id_field => $id, 'date' => $date->toDateString(), 'pool' => $pool_id, 'confirm' => true]],
+		['class' => $this->Bootstrap->navPillLinkClasses()]
+	)
+]);
 ?>
-		</li>
-	</ul>
 </div>
 <div class="actions columns">
-	<ul class="nav nav-pills">
 <?php
 if (isset($division)) {
 	echo $this->element('Divisions/actions', [
@@ -99,5 +104,4 @@ if (isset($division)) {
 	]);
 }
 ?>
-	</ul>
 </div>
