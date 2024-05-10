@@ -184,12 +184,12 @@ class FieldsController extends AppController {
 		$slot_conditions = [];
 
 		$query = TableRegistry::getTableLocator()->get('Divisions')->find();
-		$min_date = $query->select(['min' => $query->func()->min('open')])->where($conditions)->first()->min;
+		$min_date = $query->select(['min' => $query->func()->min('open', ['date'])])->where($conditions)->first()->min;
 		if ($min_date) {
 			$slot_conditions['GameSlots.game_date >='] = $min_date;
 		}
 		if (!$this->Authentication->getIdentity()->isManager()) {
-			$max_date = $query->select(['max' => $query->func()->max('close')])->where($conditions)->first()->max;
+			$max_date = $query->select(['max' => $query->func()->max('close', ['date'])])->where($conditions)->first()->max;
 			if ($max_date) {
 				$slot_conditions['GameSlots.game_date <='] = $max_date;
 			}

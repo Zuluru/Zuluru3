@@ -309,10 +309,10 @@ class GameSlotsTable extends AppTable {
 							// TODO: Database-independent way of doing the interval?
 							$start = $query->func()->date_add([
 								"'{$options['date']}', INTERVAL -6 DAY" => 'literal',
-							]);
+							], ['date']);
 							$end = $query->func()->date_add([
 								"'{$options['date']}', INTERVAL 6 DAY" => 'literal',
-							]);
+							], ['date']);
 							return $exp->between('GameSlots.game_date', $start, $end, 'date');
 						},
 						'GameSlots.game_date !=' => $options['date'],
