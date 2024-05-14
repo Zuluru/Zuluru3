@@ -25,7 +25,7 @@ class I18nSeed extends AbstractSeed {
 				'Affiliates', 'Countries', 'EventTypes', 'Provinces', 'Regions',
 				'Badges' => ['name', 'description'],
 				'Days' => ['name', 'short_name'],
-				'Groups' => ['name', 'description'],
+				'UserGroups' => ['name', 'description'],
 				'MembershipTypes' => ['description'],
 				'Notices' => ['notice'],
 				'RosterRoles' => ['description'],

@@ -2,8 +2,6 @@
 namespace StripePayment\Controller;
 
 use App\Controller\PaymentsTrait;
-use App\Controller\RegistrationsController;
-use Cake\Core\Configure;
 use StripePayment\Http\API;
 
 /**
@@ -63,7 +61,7 @@ class PaymentController extends AppController {
 
 	public function index() {
 		// Stripe sends data back through an event
-		$data = $this->getRequest()->input();
+		$data = (string)$this->getRequest()->getBody();
 		[$result, $audit, $registration_ids, $debit_ids] = $this->getAPI(API::isTestData($data))->parsePayment($data);
 
 		// Stripe payments processed outside of Zuluru are still sent to us. Just accept them.

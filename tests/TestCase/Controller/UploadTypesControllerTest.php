@@ -18,7 +18,7 @@ class UploadTypesControllerTest extends ControllerTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Groups',
+		'app.UserGroups',
 		'app.Settings',
 	];
 

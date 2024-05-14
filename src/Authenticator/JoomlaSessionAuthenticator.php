@@ -3,10 +3,10 @@ namespace App\Authenticator;
 
 use App\Core\UserCache;
 use Authentication\Authenticator\Result;
+use Authentication\Authenticator\ResultInterface;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\TableRegistry;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -30,7 +30,7 @@ class JoomlaSessionAuthenticator extends CMSSessionAuthenticator {
 
 	public $hasher = 'Joomla';
 
-	public function authenticate(ServerRequestInterface $request, ResponseInterface $response) {
+	public function authenticate(ServerRequestInterface $request): ResultInterface {
 		Configure::write('feature.control_account_creation', false);
 		Configure::write('feature.authenticate_through', 'Joomla');
 
@@ -64,7 +64,7 @@ class JoomlaSessionAuthenticator extends CMSSessionAuthenticator {
 		if ($joomla_user && !empty($joomla_user->id)) {
 			try {
 				$user = TableRegistry::getTableLocator()->get('UserJoomla')->get($joomla_user->id, [
-					'contain' => ['People' => ['Groups']]
+					'contain' => ['People' => ['UserGroups']]
 				]);
 			} catch (RecordNotFoundException $ex) {
 				$user = null;
@@ -72,13 +72,13 @@ class JoomlaSessionAuthenticator extends CMSSessionAuthenticator {
 
 			if (!$user || empty($user->id)) {
 				$this->clearIdentity($request, $response);
-				return new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND);
+				return new Result(null, ResultInterface::FAILURE_IDENTITY_NOT_FOUND);
 			}
 
-			return new Result($user, Result::SUCCESS);
+			return new Result($user, ResultInterface::SUCCESS);
 		}
 
-		return new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND);
+		return new Result(null, ResultInterface::FAILURE_IDENTITY_NOT_FOUND);
 	}
 
 }

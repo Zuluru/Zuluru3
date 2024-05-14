@@ -90,11 +90,11 @@ class PeopleController extends AppController {
 			->order(['Affiliates.name']);
 
 		if ($group_id) {
-			$query->matching('Groups', function (Query $q) use ($group_id) {
-				return $q->where(['Groups.id' => $group_id]);
+			$query->matching('UserGroups', function (Query $q) use ($group_id) {
+				return $q->where(['UserGroups.id' => $group_id]);
 			});
 			try {
-				$group = $this->People->Groups->field('name', ['Groups.id' => $group_id]);
+				$group = $this->People->UserGroups->field('name', ['UserGroups.id' => $group_id]);
 			} catch (RecordNotFoundException $ex) {
 				$this->Flash->info(__('Invalid group.'));
 				return $this->redirect('/');
@@ -135,7 +135,7 @@ class PeopleController extends AppController {
 		// @todo Cake4: With the default strategy, the queries below all generate "Unable to load association. Ensure foreign key is selected." errors
 		$this->People->Affiliates->setStrategy('subquery');
 		$this->People->AffiliatesPeople->setStrategy('subquery');
-		$this->People->Groups->setStrategy('subquery');
+		$this->People->UserGroups->setStrategy('subquery');
 
 		// Get the list of accounts by status
 		$query = $this->People->find();
@@ -158,8 +158,8 @@ class PeopleController extends AppController {
 			->matching('Affiliates', function (Query $q) use ($affiliates) {
 				return $q->where(['Affiliates.id IN' => $affiliates]);
 			})
-			->matching('Groups', function (Query $q) {
-				return $q->where(['Groups.id' => GROUP_PLAYER]);
+			->matching('UserGroups', function (Query $q) {
+				return $q->where(['UserGroups.id' => GROUP_PLAYER]);
 			})
 			->leftJoinWith('Skills')
 			->where(['Skills.enabled' => true, 'People.status' => 'active'])
@@ -177,8 +177,8 @@ class PeopleController extends AppController {
 				->matching('Affiliates', function (Query $q) use ($affiliates) {
 					return $q->where(['Affiliates.id IN' => $affiliates]);
 				})
-				->matching('Groups', function (Query $q) {
-					return $q->where(['Groups.id' => GROUP_PLAYER]);
+				->matching('UserGroups', function (Query $q) {
+					return $q->where(['UserGroups.id' => GROUP_PLAYER]);
 				})
 				->leftJoinWith('Skills')
 				->where(['Skills.enabled' => true, 'People.status' => 'active'])
@@ -192,22 +192,22 @@ class PeopleController extends AppController {
 		$this->set('group_count', $query
 			->select([Configure::read('gender.column'), 'person_count' => $query->func()->count('People.id')])
 			->select($this->People->Affiliates)
-			->select($this->People->Groups)
+			->select($this->People->UserGroups)
 			->matching('Affiliates', function (Query $q) use ($affiliates) {
 				return $q->where(['Affiliates.id IN' => $affiliates]);
 			})
-			->matching('Groups')
+			->matching('UserGroups')
 			->where(['People.status' => 'active'])
-			->group(['AffiliatesPeople.affiliate_id', 'Groups.id'])
-			->order(['Affiliates.name', 'Groups.id'])
+			->group(['AffiliatesPeople.affiliate_id', 'UserGroups.id'])
+			->order(['Affiliates.name', 'UserGroups.id'])
 		);
 
 		// Get the list of players by age
 		if (Configure::read('profile.birthdate')) {
 			// @todo Cake4: Better solution for all of this; the toArray call can go away when the behavior mods do
-			$groupConfig = $this->People->Groups->getBehavior('Translate')->getConfig();
+			$groupConfig = $this->People->UserGroups->getBehavior('Translate')->getConfig();
 			$affiliateConfig = $this->People->Affiliates->getBehavior('Translate')->getConfig();
-			$this->People->Groups->removeBehavior('Translate');
+			$this->People->UserGroups->removeBehavior('Translate');
 			$this->People->Affiliates->removeBehavior('Translate');
 
 			$query = $this->People->find();
@@ -218,12 +218,12 @@ class PeopleController extends AppController {
 					'Skills.sport',
 				])
 				->select($this->People->Affiliates)
-				->select($this->People->Groups)
+				->select($this->People->UserGroups)
 				->matching('Affiliates', function (Query $q) use ($affiliates) {
 					return $q->where(['Affiliates.id IN' => $affiliates]);
 				})
-				->matching('Groups', function (Query $q) {
-					return $q->where(['Groups.id' => GROUP_PLAYER]);
+				->matching('UserGroups', function (Query $q) {
+					return $q->where(['UserGroups.id' => GROUP_PLAYER]);
 				})
 				->leftJoinWith('Skills')
 				->where([
@@ -236,7 +236,7 @@ class PeopleController extends AppController {
 				->toArray()
 			);
 
-			$this->People->Groups->addBehavior('Translate', $groupConfig);
+			$this->People->UserGroups->addBehavior('Translate', $groupConfig);
 			$this->People->Affiliates->addBehavior('Translate', $affiliateConfig);
 		}
 
@@ -250,8 +250,8 @@ class PeopleController extends AppController {
 				->matching('Affiliates', function (Query $q) use ($affiliates) {
 					return $q->where(['Affiliates.id IN' => $affiliates]);
 				})
-				->matching('Groups', function (Query $q) {
-					return $q->where(['Groups.id' => GROUP_PLAYER]);
+				->matching('UserGroups', function (Query $q) {
+					return $q->where(['UserGroups.id' => GROUP_PLAYER]);
 				})
 				->leftJoinWith('Skills')
 				->where(['Skills.enabled' => true, 'People.status' => 'active'])
@@ -270,8 +270,8 @@ class PeopleController extends AppController {
 				->matching('Affiliates', function (Query $q) use ($affiliates) {
 					return $q->where(['Affiliates.id IN' => $affiliates]);
 				})
-				->matching('Groups', function (Query $q) {
-					return $q->where(['Groups.id' => GROUP_PLAYER]);
+				->matching('UserGroups', function (Query $q) {
+					return $q->where(['UserGroups.id' => GROUP_PLAYER]);
 				})
 				->leftJoinWith('Skills')
 				->where(['Skills.enabled' => true, 'People.status' => 'active'])
@@ -290,8 +290,8 @@ class PeopleController extends AppController {
 				->matching('Affiliates', function (Query $q) use ($affiliates) {
 					return $q->where(['Affiliates.id IN' => $affiliates]);
 				})
-				->matching('Groups', function (Query $q) {
-					return $q->where(['Groups.id' => GROUP_PLAYER]);
+				->matching('UserGroups', function (Query $q) {
+					return $q->where(['UserGroups.id' => GROUP_PLAYER]);
 				})
 				->leftJoinWith('Skills')
 				->where(['Skills.enabled' => true, 'People.status' => 'active'])
@@ -403,8 +403,8 @@ class PeopleController extends AppController {
 				->matching('Skills', function (Query $q) use ($sport) {
 					return $q->where(['Skills.enabled' => true, 'Skills.sport' => $sport]);
 				})
-				->matching('Groups', function (Query $q) {
-					return $q->where(['Groups.id' => GROUP_PLAYER]);
+				->matching('UserGroups', function (Query $q) {
+					return $q->where(['UserGroups.id' => GROUP_PLAYER]);
 				})
 				->group(['AffiliatesPeople.affiliate_id', 'People.gender', 'bucket'])
 				->order(['Affiliates.name', 'People.gender', 'bucket'])
@@ -516,7 +516,7 @@ class PeopleController extends AppController {
 
 		$this->Authorization->authorize($person);
 
-		$person->groups = $this->UserCache->read('Groups', $person->id);
+		$person->user_groups = $this->UserCache->read('UserGroups', $person->id);
 		$person->skills = collection($this->UserCache->read('Skills', $person->id))->filter(function ($skill) { return $skill->enabled; })->toArray();
 		$person->teams = $this->UserCache->read('Teams', $person->id);
 		$photo = null;
@@ -675,12 +675,12 @@ class PeopleController extends AppController {
 
 		$this->_loadAddressOptions();
 		// We always want to include players, even if they aren't a valid "create account" group.
-		$this->set('groups', $this->People->Groups->find('options', ['Groups.require_player' => true])->toArray());
+		$this->set('groups', $this->People->UserGroups->find('options', ['UserGroups.require_player' => true])->toArray());
 		$this->_loadAffiliateOptions();
 
 		$users_table = $this->fetchTable(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'));
 		try {
-			$contain = $associated = ['Affiliates', 'Skills', 'Groups'];
+			$contain = $associated = ['Affiliates', 'Skills', 'UserGroups'];
 			if ($users_table->manageUsers) {
 				$contain[] = Configure::read('Security.authModel');
 				$associated[] = Configure::read('Security.authModel');
@@ -1083,7 +1083,7 @@ class PeopleController extends AppController {
 			$data['is_child'] = true;
 			$person = $this->People->patchEntity($person, $data, [
 				'validate' => 'create',
-				'associated' => ['Affiliates', 'Groups', 'Skills'],
+				'associated' => ['Affiliates', 'UserGroups', 'Skills'],
 			]);
 
 			if ($this->People->getConnection()->transactional(function () use ($person) {
@@ -2111,7 +2111,7 @@ class PeopleController extends AppController {
 
 		$this->Authorization->authorize($person);
 
-		$dependencies = $this->People->dependencies($id, ['Affiliates', 'Groups', 'Relatives', 'Related', 'Skills', 'Settings', 'Subscriptions', 'CreatedNotes']);
+		$dependencies = $this->People->dependencies($id, ['Affiliates', 'UserGroups', 'Relatives', 'Related', 'Skills', 'Settings', 'Subscriptions', 'CreatedNotes']);
 		if ($dependencies !== false) {
 			$this->Flash->warning(__('The following records reference this person, so it cannot be deleted.') . '<br>' . $dependencies, ['params' => ['escape' => false]]);
 			return $this->redirect('/');
@@ -2510,8 +2510,8 @@ class PeopleController extends AppController {
 						$admins = $this->People->find()
 							->enableHydration(false)
 							->select(['People.id'])
-							->matching('Groups', function (Query $q) {
-								return $q->where(['Groups.id' => GROUP_ADMIN]);
+							->matching('UserGroups', function (Query $q) {
+								return $q->where(['UserGroups.id' => GROUP_ADMIN]);
 							})
 							->extract('id')
 							->toArray();
@@ -2576,7 +2576,7 @@ class PeopleController extends AppController {
 				$query = $this->People->find()
 					->contain([
 						Configure::read('Security.authModel'),
-						'Groups',
+						'UserGroups',
 					])
 					->where(['People.id IN' => $people]);
 
@@ -2645,7 +2645,7 @@ class PeopleController extends AppController {
 		$id = $this->getRequest()->getQuery('person');
 
 		// We don't need to contain Relatives here; those will be handled in the updateAll calls
-		$contain = [Configure::read('Security.authModel'), 'AffiliatesPeople', 'Skills', 'Groups', 'Related', 'Settings'];
+		$contain = [Configure::read('Security.authModel'), 'AffiliatesPeople', 'Skills', 'UserGroups', 'Related', 'Settings'];
 
 		try {
 			/** @var Person $person */

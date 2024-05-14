@@ -78,7 +78,7 @@ class ApiTest extends TestCase
 		$this->assertEquals($this->amount, $data['charge_total']);
 		$this->assertEquals(902010341, $data['transaction_id']);
 		$this->assertEquals('RETURN', $data['approval_code']);
-		$this->assertEquals('0', $data['response_code']);
+		$this->assertEquals('000', $data['response_code']);
 	}
 
 	public function returnJson(string $endpoint, string $data): string {

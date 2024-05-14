@@ -17,6 +17,8 @@ declare(strict_types=1);
 
 use Cake\Chronos\Chronos;
 use Cake\Core\Configure;
+use Cake\Database\Connection;
+use Cake\Database\Driver\Mysql;
 use Cake\Datasource\ConnectionManager;
 use Migrations\TestSuite\Migrator;
 
@@ -48,12 +50,21 @@ if (empty($_SERVER['HTTP_HOST']) && !Configure::read('App.fullBaseUrl')) {
 // But since PagesControllerTest is run with debug enabled and DebugKit is loaded
 // in application, without setting up these config DebugKit errors out.
 ConnectionManager::setConfig('test_debug_kit', [
-    'className' => 'Cake\Database\Connection',
-    'driver' => 'Cake\Database\Driver\Sqlite',
-    'database' => TMP . 'debug_kit.sqlite',
-    'encoding' => 'utf8',
-    'cacheMetadata' => true,
-    'quoteIdentifiers' => false,
+	'className' => Connection::class,
+	'driver' => 'Cake\\Database\\Driver\\' . env('SQL_DRIVER'),
+	'persistent' => false,
+	'timezone' => env('APP_DEFAULT_TIMEZONE', 'UTC'),
+	'host' => env('SQL_TEST_HOSTNAME'),
+	'port' => env('SQL_TEST_PORT'),
+	'username' => env('SQL_TEST_USERNAME'),
+	'password' => env('SQL_TEST_PASSWORD'),
+	'database' => env('SQL_TEST_DATABASE'),
+	'url' => env('DATABASE_TEST_URL', null),
+	'encoding' => 'utf8mb4',
+	'flags' => [],
+	'cacheMetadata' => true,
+	'log' => filter_var(env('DEBUG_SQL_LOG', false), FILTER_VALIDATE_BOOLEAN),
+	'quoteIdentifiers' => false,
 ]);
 
 ConnectionManager::alias('test_debug_kit', 'debug_kit');

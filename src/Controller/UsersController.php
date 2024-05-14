@@ -103,7 +103,7 @@ class UsersController extends AppController {
 		$this->_loadAddressOptions();
 		$this->_loadAffiliateOptions();
 		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'));
-		$groups = $users_table->People->Groups->find('options', ['Groups.min_level' => 3])->toArray();
+		$groups = $users_table->People->UserGroups->find('options', ['UserGroups.min_level' => 3])->toArray();
 
 		$this->set([
 			'user_field' => $users_table->userField,
@@ -128,11 +128,11 @@ class UsersController extends AppController {
 			$user = $users_table->patchEntity($user, $data, [
 				'associated' => [
 					'People' => ['validate' => 'create'],
-					'People.Groups',
+					'People.UserGroups',
 					'People.Affiliates',
 					'People.Skills',
 					'People.Relatives' => ['validate' => 'create'],
-					'People.Relatives.Groups',
+					'People.Relatives.UserGroups',
 					'People.Relatives.Affiliates',
 					'People.Relatives.Skills',
 				],
@@ -174,12 +174,12 @@ class UsersController extends AppController {
 		} else {
 			// By default, select the first group
 			$user = $users_table->patchEntity($user, [
-				'person' => ['groups' => ['_ids' => [current(array_keys($groups))]]]
+				'person' => ['user_groups' => ['_ids' => [current(array_keys($groups))]]]
 			], [
 				'validate' => false,
 				'associated' => [
 					'People' => ['validate' => false],
-					'People.Groups',
+					'People.UserGroups',
 				],
 			]);
 		}
@@ -188,7 +188,7 @@ class UsersController extends AppController {
 
 	public function TODOLATER_import() {
 		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . Configure::read('Security.authModel'));
-		$this->set('groups', $users_table->People->Groups->find('options', ['Groups.min_level' => 3])->toArray());
+		$this->set('groups', $users_table->People->UserGroups->find('options', ['UserGroups.min_level' => 3])->toArray());
 
 		// TODO: Centralize checking of profile fields
 		$columns = $this->Users->People->getSchema()->columns();

@@ -227,7 +227,7 @@ class LeaguesController extends AppController {
 		if ($this->getRequest()->is('csv')) {
 			$contain['Divisions']['Teams']['People'] = [
 				Configure::read('Security.authModel'),
-				'Groups',
+				'UserGroups',
 				'Related' => [Configure::read('Security.authModel')],
 			];
 			try {

@@ -70,7 +70,7 @@ class RegistrationsController extends AppController {
 			$query->contain([
 				'People' => [
 					Configure::read('Security.authModel'),
-					'Groups',
+					'UserGroups',
 					'Related' => [Configure::read('Security.authModel')],
 				],
 				'Payments' => ['RegistrationAudits'],
@@ -1090,7 +1090,7 @@ class RegistrationsController extends AppController {
 
 			case TEST_PAYMENTS_ADMINS:
 				// TODO: Better way to do this
-				$groups = UserCache::getInstance()->read('Groups');
+				$groups = UserCache::getInstance()->read('UserGroups');
 				return collection($groups)->some(function ($group) {
 					return in_array($group->id, [GROUP_ADMIN, GROUP_MANAGER]);
 				});

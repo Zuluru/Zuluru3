@@ -21,7 +21,7 @@ $this->Breadcrumbs->add(__('Add Child'));
 echo $this->Form->create($person, ['align' => 'horizontal']);
 
 // Assume any secondary profiles are players
-echo $this->Form->hidden('groups.0.id', ['value' => GROUP_PLAYER]);
+echo $this->Form->hidden('user_groups.0.id', ['value' => GROUP_PLAYER]);
 
 echo $this->Form->control('first_name', [
 	'help' => __('First (and, if desired, middle) name.'),

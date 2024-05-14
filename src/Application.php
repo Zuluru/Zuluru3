@@ -80,7 +80,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 
 		if (array_key_exists('REQUEST_URI', $_SERVER) && strpos($_SERVER['REQUEST_URI'], '/installer/') !== false) {
 			Configure::write('Installer.config', ['installer']);
-			$this->addPlugin('Installer', ['bootstrap' => true, 'routes' => true]);
+			$this->addPlugin('CakePHPAppInstaller');
 		} else {
 			if (PHP_SAPI === 'cli') {
 				$this->bootstrapCli();
@@ -111,7 +111,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 			$this->addPlugin('ZuluruBootstrap');
 			$this->addPlugin('ZuluruJquery');
 
-			if (Configure::read('App.theme') && (!defined('DOMAIN_PLUGIN') || Configure::read('App.theme') != DOMAIN_PLUGIN)) {
+			if (Configure::read('App.theme') && (!defined('DOMAIN_PLUGIN') || Configure::read('App.theme') !== DOMAIN_PLUGIN)) {
 				$this->addPlugin(Configure::read('App.theme'), ['bootstrap' => false, 'routes' => false]);
 			}
 
@@ -416,7 +416,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 				RequestHandlerInterface $handler
 			): ResponseInterface {
 				// Do not attempt authentication for the installer
-				if ($request->getParam('plugin') != 'Installer') {
+				if ($request->getParam('plugin') != 'CakePHPAppInstaller') {
 					return (new AuthenticationMiddleware($this))->process($request, $handler);
 				}
 
@@ -476,7 +476,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 				RequestHandlerInterface $handler
 			): ResponseInterface {
 				// Do not attempt authorization for the installer
-				if ($request && $request->getParam('plugin') != 'Installer') {
+				if ($request && $request->getParam('plugin') != 'CakePHPAppInstaller') {
 					// We wrap this in a function, so that by the time the Router::url calls below happen,
 					// the router has been initialized by its middleware, and the base path is set.
 					$authorization = new AuthorizationMiddleware($this, [

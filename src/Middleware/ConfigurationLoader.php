@@ -21,9 +21,8 @@ class ConfigurationLoader implements MiddlewareInterface {
 	public static function loadConfiguration(ServerRequestInterface $request = null): void {
 		Configure::load('options');
 
-		// Test cases don't have a request object, but need this done anyway.
 		// This happens before the routing middleware has run, so we have to look at the raw URL, not the plugin property.
-		if (!Configure::read('Installer')) {
+		if (!$request || strpos($request->getEnv('REQUEST_URI'), '/installer') === false) {
 			// Load configuration from database or cache
 			TableRegistry::getTableLocator()->get('Configuration')->loadSystem();
 		}

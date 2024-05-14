@@ -20,14 +20,14 @@ class RuleRegistered extends Rule {
 	 *
 	 * @var int[]
 	 */
-	protected $event_ids;
+	protected array $event_ids;
 
 	/**
 	 * Events to look for
 	 *
 	 * @var string[]
 	 */
-	protected $events;
+	protected array $events;
 
 	public function parse($config) {
 		$config = trim($config, '"\'');

@@ -19,7 +19,7 @@ class AffiliateConfigurationLoader implements MiddlewareInterface {
 	}
 
 	public static function loadConfiguration(ServerRequestInterface $request = null): void {
-		if ($request && $request->getParam('plugin') != 'Installer' && $request->getAttribute('identity')) {
+		if ($request && $request->getParam('plugin') != 'CakePHPAppInstaller' && $request->getAttribute('identity')) {
 			$identity = $request->getAttribute('identity');
 			if (Configure::read('feature.affiliates')) {
 				$affiliates = $identity->applicableAffiliateIDs();

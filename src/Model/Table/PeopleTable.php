@@ -1,7 +1,7 @@
 <?php
 namespace App\Model\Table;
 
-use App\Model\Entity\Group;
+use App\Model\Entity\UserGroup;
 use App\Model\Entity\Person;
 use ArrayObject;
 use Cake\Core\Configure;
@@ -39,7 +39,7 @@ use App\Model\Rule\InDateConfigRule;
  * @property \Cake\ORM\Association\BelongsToMany $Badges
  * @property \Cake\ORM\Association\BelongsToMany $Divisions
  * @property \Cake\ORM\Association\BelongsToMany $Franchises
- * @property \Cake\ORM\Association\BelongsToMany $Groups
+ * @property \Cake\ORM\Association\BelongsToMany $UserGroups
  * @property \Cake\ORM\Association\BelongsToMany $Teams
  * @property \Cake\ORM\Association\BelongsToMany $Waivers
  */
@@ -223,7 +223,7 @@ class PeopleTable extends AppTable {
 			'targetForeignKey' => 'franchise_id',
 			'saveStrategy' => 'replace',
 		]);
-		$this->belongsToMany('Groups', [
+		$this->belongsToMany('UserGroups', [
 			'joinTable' => 'groups_people',
 			'foreignKey' => 'person_id',
 			'targetForeignKey' => 'group_id',
@@ -394,7 +394,7 @@ class PeopleTable extends AppTable {
 
 						// Anyone that hasn't selected the parent group, but still sends
 						// child information, is also a spambot.
-						if (!is_array($context['data']['groups']['_ids']) || !in_array(GROUP_PARENT, $context['data']['groups']['_ids'])) {
+						if (!is_array($context['data']['user_groups']['_ids']) || !in_array(GROUP_PARENT, $context['data']['user_groups']['_ids'])) {
 							return false;
 						}
 
@@ -577,7 +577,7 @@ class PeopleTable extends AppTable {
 		// current user, and the UsersTable is associated with the PeopleTable, meaning that this function
 		// right here is called before the settings are actually loaded into the global config. :-(
 		$rules->add(function (EntityInterface $entity, array $options) {
-			if (!Configure::read('profile.height') || empty($entity->groups) || !collection($entity->groups)->some(function (Group $group) {
+			if (!Configure::read('profile.height') || empty($entity->user_groups) || !collection($entity->user_groups)->some(function (UserGroup $group) {
 				return $group->id == GROUP_PLAYER;
 			})) {
 				return true;
@@ -604,21 +604,21 @@ class PeopleTable extends AppTable {
 		]);
 
 		$rules->add(function (EntityInterface $entity, array $options) {
-			if (empty($entity->groups)) {
+			if (empty($entity->user_groups)) {
 				return true;
 			}
 
 			// Start with the list of valid group options for the user making the edit
-			$valid_groups = $this->Groups->find('options', ['Groups.require_player' => true])
+			$valid_groups = $this->UserGroups->find('options', ['UserGroups.require_player' => true])
 				// then limit by the groups that were requested.
 				->where([
-					'Groups.id IN' => collection($entity->groups)->extract('id')->toList(),
-					'Groups.active' => true,
+					'UserGroups.id IN' => collection($entity->user_groups)->extract('id')->toList(),
+					'UserGroups.active' => true,
 				]);
 			// The resulting set should have the same number of rows as there were groups selected
-			return $valid_groups->count() == count(collection($entity->groups)->match(['active' => true])->toArray());
+			return $valid_groups->count() == count(collection($entity->user_groups)->match(['active' => true])->toArray());
 		}, 'validGroup', [
-			'errorField' => 'groups',
+			'errorField' => 'user_groups',
 			'message' => __('You have selected an invalid group.'),
 		]);
 
@@ -642,13 +642,13 @@ class PeopleTable extends AppTable {
 
 		// Seems the simplest way to handle these optional fields is via custom validators accessed as a rule...
 		$rules->add(function(EntityInterface $entity, array $options) {
-			if (empty($entity->groups)) {
+			if (empty($entity->user_groups)) {
 				return true;
 			}
 
 			$data = $entity->extract($this->getSchema()->columns());
 
-			foreach (collection($entity->groups)->extract('id') as $group) {
+			foreach (collection($entity->user_groups)->extract('id') as $group) {
 				switch ($group) {
 					case GROUP_PLAYER:
 						$validator = $this->getValidator('player');
@@ -681,7 +681,7 @@ class PeopleTable extends AppTable {
 
 		// Don't delete the only admin
 		$rules->addDelete(function ($entity, $options) {
-			if (in_array(GROUP_ADMIN, UserCache::getInstance()->read('GroupIDs', $entity->id))) {
+			if (in_array(GROUP_ADMIN, UserCache::getInstance()->read('UserGroupIDs', $entity->id))) {
 				$admins = $this->People->GroupsPeople->find()->where(['group_id' => GROUP_ADMIN])->count();
 				if ($admins == 1) {
 					return false;
@@ -699,7 +699,7 @@ class PeopleTable extends AppTable {
 			$cache = UserCache::getInstance();
 			foreach ($entity->relatives as $relative) {
 				if (empty($relative->user_id) && count($cache->read('RelatedToIDs', $relative->id)) == 1) {
-					$dependencies = $this->dependencies($relative->id, ['Affiliates', 'Groups', 'Relatives', 'Related', 'Skills', 'Settings']);
+					$dependencies = $this->dependencies($relative->id, ['Affiliates', 'UserGroups', 'Relatives', 'Related', 'Skills', 'Settings']);
 					if ($dependencies !== false) {
 						return false;
 					}
@@ -726,11 +726,11 @@ class PeopleTable extends AppTable {
 		if ($options['validate'] === 'create') {
 			// Maybe adjust the primary status
 			if (Configure::read('feature.auto_approve')) {
-				if (!empty($data['groups']['_ids'])) {
+				if (!empty($data['user_groups']['_ids'])) {
 					// Check the requested groups and do not auto-approve above a certain level
-					$invalid_groups = $this->Groups->find()
+					$invalid_groups = $this->UserGroups->find()
 						->where([
-							'Groups.id IN' => $data['groups']['_ids'],
+							'UserGroups.id IN' => $data['user_groups']['_ids'],
 							'level >' => 1,
 						]);
 					if ($invalid_groups->count() == 0) {
@@ -760,7 +760,7 @@ class PeopleTable extends AppTable {
 				foreach (array_keys($data['relatives']) as $key) {
 					$data['relatives'][$key]['status'] = $relative_status;
 					$data['relatives'][$key]['is_child'] = true;
-					$data['relatives'][$key]['groups'] = ['_ids' => [GROUP_PLAYER]];
+					$data['relatives'][$key]['user_groups'] = ['_ids' => [GROUP_PLAYER]];
 					if ($data->offsetExists('affiliates')) {
 						$data['relatives'][$key]['affiliates'] = $data['affiliates'];
 					}
@@ -806,14 +806,14 @@ class PeopleTable extends AppTable {
 		if (!empty($options['manage_groups'])) {
 			if (!$entity->isNew()) {
 				// Preserve any higher-level groups that a relative editing the profile won't have access to
-				if (!$entity->has('groups')) {
-					$entity->groups = [];
+				if (!$entity->has('user_groups')) {
+					$entity->user_groups = [];
 				}
-				$groups = $this->Groups->find('options')->toArray();
-				foreach ($user_cache->read('Groups', $entity->id) as $group) {
+				$groups = $this->UserGroups->find('options')->toArray();
+				foreach ($user_cache->read('UserGroups', $entity->id) as $group) {
 					if (!array_key_exists($group->id, $groups)) {
-						$entity->groups[] = $group;
-						$entity->setDirty('groups', true);
+						$entity->user_groups[] = $group;
+						$entity->setDirty('user_groups', true);
 					}
 				}
 			}
@@ -858,9 +858,9 @@ class PeopleTable extends AppTable {
 			if ($entity->has('skills')) {
 				$cache->clear('Skills', $entity->id);
 			}
-			if ($entity->has('groups')) {
-				$cache->clear('Groups', $entity->id);
-				$cache->clear('GroupIDs', $entity->id);
+			if ($entity->has('user_groups')) {
+				$cache->clear('UserGroups', $entity->id);
+				$cache->clear('UserGroupIDs', $entity->id);
 			}
 		}
 

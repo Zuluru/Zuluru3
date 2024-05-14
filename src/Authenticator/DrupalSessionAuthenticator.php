@@ -3,11 +3,11 @@ namespace App\Authenticator;
 
 use App\Core\UserCache;
 use Authentication\Authenticator\Result;
+use Authentication\Authenticator\ResultInterface;
 use Authentication\Identifier\IdentifierInterface;
 use Cake\Core\Configure;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -45,7 +45,7 @@ class DrupalSessionAuthenticator extends CMSSessionAuthenticator {
 		parent::__construct($identifiers, $config);
 	}
 
-	public function authenticate(ServerRequestInterface $request, ResponseInterface $response) {
+	public function authenticate(ServerRequestInterface $request): ResultInterface {
 		Configure::write('feature.control_account_creation', $this->getConfig('zuluruDrupalModule'));
 		Configure::write('feature.authenticate_through', 'Drupal');
 
@@ -78,19 +78,19 @@ class DrupalSessionAuthenticator extends CMSSessionAuthenticator {
 					return $q->where(['DrupalSessions.sid' => $drupal_session_id]);
 				})
 				->contain([
-					'People' => ['Groups'],
+					'People' => ['UserGroups'],
 				])
 				->first();
 
 			if (!$user || empty($user->uid)) {
 				$this->clearIdentity($request, $response);
-				return new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND);
+				return new Result(null, ResultInterface::FAILURE_IDENTITY_NOT_FOUND);
 			}
 
-			return new Result($user, Result::SUCCESS);
+			return new Result($user, ResultInterface::SUCCESS);
 		}
 
-		return new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND);
+		return new Result(null, ResultInterface::FAILURE_IDENTITY_NOT_FOUND);
 	}
 
 }

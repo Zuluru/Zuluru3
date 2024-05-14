@@ -1,7 +1,7 @@
 <?php
 /**
  * @var \App\View\AppView $this
- * @var \App\Model\Entity\Group[] $groups
+ * @var \App\Model\Entity\UserGroup[] $groups
  */
 
 $this->Breadcrumbs->add(__('Groups'));

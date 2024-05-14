@@ -2,7 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Person $person
- * @var \App\Model\Entity\Group[] $groups
+ * @var \App\Model\Entity\UserGroup[] $groups
  * @var string[] $provinces
  * @var string[] $countries
  * @var string[] $affiliates
@@ -80,7 +80,7 @@ if (($person->user_id && count($groups) > 1) || $is_manager):
 		<legend><?= __('Account Type') ?></legend>
 <?php
 	if ($person->user_id) {
-		echo $this->Jquery->toggleInput('groups._ids', [
+		echo $this->Jquery->toggleInput('user_groups._ids', [
 			'label' => __('Select all roles that apply to you.'),
 			'type' => 'select',
 			'multiple' => 'checkbox',
@@ -110,7 +110,7 @@ if (($person->user_id && count($groups) > 1) || $is_manager):
 	</fieldset>
 <?php
 elseif ($person->user_id):
-	echo $this->Jquery->toggleInput('groups._ids', [
+	echo $this->Jquery->toggleInput('user_groups._ids', [
 		'label' => __('Select all roles that apply to you.'),
 		'type' => 'select',
 		'multiple' => 'checkbox',
@@ -124,7 +124,7 @@ elseif ($person->user_id):
 		],
 	]);
 endif;
-$this->Form->unlockField('groups._ids');
+$this->Form->unlockField('user_groups._ids');
 ?>
 
 	<fieldset>

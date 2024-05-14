@@ -3,15 +3,15 @@ namespace App\Authenticator;
 
 use App\Core\UserCache;
 use Authentication\Authenticator\Result;
+use Authentication\Authenticator\ResultInterface;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\TableRegistry;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class ZikulaSessionAuthenticator extends CMSSessionAuthenticator {
 
-	public function authenticate(ServerRequestInterface $request, ResponseInterface $response) {
+	public function authenticate(ServerRequestInterface $request): ResultInterface {
 		Configure::write('feature.control_account_creation', $this->getConfig('zuluruDrupalModule'));
 		Configure::write('feature.authenticate_through', 'Zikula');
 
@@ -39,7 +39,7 @@ class ZikulaSessionAuthenticator extends CMSSessionAuthenticator {
 		if ($zikula_user_id) {
 			try {
 				$user = TableRegistry::getTableLocator()->get('UserZikula')->get($zikula_user_id, [
-					'contain' => ['People' => ['Groups']]
+					'contain' => ['People' => ['UserGroups']]
 				]);
 			} catch (RecordNotFoundException $ex) {
 				$user = null;
@@ -47,13 +47,13 @@ class ZikulaSessionAuthenticator extends CMSSessionAuthenticator {
 
 			if (!$user || empty($user->uid)) {
 				$this->clearIdentity($request, $response);
-				return new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND);
+				return new Result(null, ResultInterface::FAILURE_IDENTITY_NOT_FOUND);
 			}
 
-			return new Result($user, Result::SUCCESS);
+			return new Result($user, ResultInterface::SUCCESS);
 		}
 
-		return new Result(null, Result::FAILURE_IDENTITY_NOT_FOUND);
+		return new Result(null, ResultInterface::FAILURE_IDENTITY_NOT_FOUND);
 	}
 
 }

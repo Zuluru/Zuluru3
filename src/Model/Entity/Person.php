@@ -84,7 +84,7 @@ use Cake\Routing\Router;
  * @property \App\Model\Entity\Badge[] $badges
  * @property \App\Model\Entity\Division[] $divisions
  * @property \App\Model\Entity\Franchise[] $franchises
- * @property \App\Model\Entity\Group[] $groups
+ * @property \App\Model\Entity\UserGroup[] $user_groups
  * @property \App\Model\Entity\Person[] $relatives Profiles that this person controls
  * @property \App\Model\Entity\Person[] $related Profiles that control this person
  * @property \App\Model\Entity\Team[] $teams
@@ -171,7 +171,7 @@ class Person extends Entity {
 		'allstars',
 		'badges',
 		'credits',
-		'groups',
+		'user_groups',
 		'notes',
 		'preregistrations',
 		'registrations',
@@ -371,10 +371,10 @@ class Person extends Entity {
 				$my_owned_division_ids = [];
 			}
 
-			$is_player = collection($this->groups)->some(function ($group) {
+			$is_player = collection($this->user_groups)->some(function ($group) {
 				return $group->id == GROUP_PLAYER;
 			});
-			$is_parent = collection($this->groups)->some(function ($group) {
+			$is_parent = collection($this->user_groups)->some(function ($group) {
 				return $group->id == GROUP_PARENT;
 			});
 
@@ -449,7 +449,7 @@ class Person extends Entity {
 					'birthdate' => true,
 					'height' => true,
 					'shirt_size' => true,
-					'groups' => true,
+					'user_groups' => true,
 					'status' => true,
 					'has_dog' => true,
 					'contact_for_feedback' => true,

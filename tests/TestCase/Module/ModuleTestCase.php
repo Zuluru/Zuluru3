@@ -31,6 +31,7 @@ class ModuleTestCase extends TestCase {
 		parent::tearDown();
 		Cache::clear('long_term');
 		FrozenTime::setTestNow();
+		$this->clearPlugins();
 	}
 
 }

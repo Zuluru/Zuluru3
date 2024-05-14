@@ -7,9 +7,9 @@ use Cake\Datasource\Exception\RecordNotFoundException;
 /**
  * Groups Controller
  *
- * @property \App\Model\Table\GroupsTable $Groups
+ * @property \App\Model\Table\UserGroupsTable $UserGroups
  */
-class GroupsController extends AppController {
+class UserGroupsController extends AppController {
 
 	/**
 	 * Index method
@@ -18,7 +18,7 @@ class GroupsController extends AppController {
 	 */
 	public function index() {
 		$this->Authorization->authorize($this);
-		$this->set('groups', $this->Groups->find('all'));
+		$this->set('groups', $this->UserGroups->find('all'));
 	}
 
 	/**
@@ -31,7 +31,7 @@ class GroupsController extends AppController {
 
 		$id = $this->getRequest()->getQuery('group');
 		try {
-			$group = $this->Groups->get($id);
+			$group = $this->UserGroups->get($id);
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid group.'));
 			return $this->redirect(['action' => 'index']);
@@ -40,7 +40,7 @@ class GroupsController extends AppController {
 		$this->Authorization->authorize($group);
 
 		$group->active = true;
-		if (!$this->Groups->save($group)) {
+		if (!$this->UserGroups->save($group)) {
 			$this->Flash->warning(__('Failed to activate group "{0}".', addslashes($group->name)));
 			return $this->redirect(['action' => 'index']);
 		}
@@ -58,7 +58,7 @@ class GroupsController extends AppController {
 
 		$id = $this->getRequest()->getQuery('group');
 		try {
-			$group = $this->Groups->get($id);
+			$group = $this->UserGroups->get($id);
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid group.'));
 			return $this->redirect(['action' => 'index']);
@@ -67,7 +67,7 @@ class GroupsController extends AppController {
 		$this->Authorization->authorize($group);
 
 		$group->active = false;
-		if (!$this->Groups->save($group)) {
+		if (!$this->UserGroups->save($group)) {
 			$this->Flash->warning(__('Failed to deactivate group "{0}".', addslashes($group->name)));
 			return $this->redirect(['action' => 'index']);
 		}

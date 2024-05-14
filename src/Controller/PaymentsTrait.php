@@ -1,11 +1,16 @@
 <?php
 namespace App\Controller;
 
+use App\Exception\ForbiddenRedirectException;
 use Cake\ORM\TableRegistry;
 
 trait PaymentsTrait {
 
 	private function _processPayment($result, $audit, $registration_ids, $debit_ids) {
+		if (empty($registration_ids) && empty($debit_ids)) {
+			throw new ForbiddenRedirectException('Invalid data');
+		}
+
 		$credits_table = TableRegistry::getTableLocator()->get('Credits');
 
 		$errors = [];

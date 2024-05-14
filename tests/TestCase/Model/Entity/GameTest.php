@@ -21,7 +21,7 @@ class GameTest extends TestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Groups',
+		'app.UserGroups',
 	];
 
 	public $autoFixtures = false;

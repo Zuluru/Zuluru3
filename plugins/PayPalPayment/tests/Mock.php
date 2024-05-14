@@ -1,16 +1,17 @@
 <?php
 namespace PayPalPayment\Test;
 
+use App\Model\Entity\Registration;
 use Cake\I18n\FrozenTime;
 
 abstract class Mock {
 
 	/**
-	 * @param \PHPUnit_Framework_TestCase $test
+	 * @param \PHPUnit\Framework\TestCase $test
 	 * @return \PayPalPayment\Http\API
 	 * @throws \ReflectionException
 	 */
-	public static function setup(\PHPUnit_Framework_TestCase $test) {
+	public static function setup(\PHPUnit\Framework\TestCase $test, Registration $registration) {
 		$method = (new \ReflectionClass($test))->getMethod('getMockBuilder');
 		$method->setAccessible(true);
 		$api = $method->invoke($test, 'PayPalPayment\Http\API')
@@ -28,14 +29,14 @@ abstract class Mock {
 
 		$api->method('GetExpressCheckoutDetails')
 			->will($test->returnValue([
-				'PAYERID' => PERSON_ID_CAPTAIN,
+				'PAYERID' => $registration->person_id,
 				'TOKEN' => 'testing',
 				'PAYMENTREQUEST_0_AMT' => 1.50, // There are already payments totalling 10 of 11.50
 				'PAYMENTREQUEST_0_CURRENCYCODE' => 'CAD',
-				'PAYMENTREQUEST_0_INVNUM' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP,
+				'PAYMENTREQUEST_0_INVNUM' => $registration->id,
 				'FIRSTNAME' => 'Crystal',
 				'LASTNAME' => 'Captain',
-				'PAYMENTREQUEST_0_CUSTOM' => PERSON_ID_CAPTAIN . ':' . REGISTRATION_ID_CAPTAIN_MEMBERSHIP,
+				'PAYMENTREQUEST_0_CUSTOM' => $registration->person_id . ':' . $registration->id,
 			]));
 
 		$api->method('DoExpressCheckoutPayment')

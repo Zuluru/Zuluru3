@@ -43,7 +43,7 @@ class PeopleControllerTest extends ControllerTestCase {
 	 */
 	public $fixtures = [
 		'app.Countries',
-		'app.Groups',
+		'app.UserGroups',
 		'app.Provinces',
 		'app.RosterRoles',
 		'app.Settings',
@@ -1094,7 +1094,7 @@ class PeopleControllerTest extends ControllerTestCase {
 
 		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'add_relative'],
 			$parent->id, [
-				'groups' => ['_ids' => [GROUP_PLAYER]],
+				'user_groups' => ['_ids' => [GROUP_PLAYER]],
 				'affiliates' => [['id' => $parent->affiliates[0]->id]],
 				'first_name' => 'Young',
 				'last_name' => 'Test',
@@ -1128,7 +1128,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		/** @var Person $child */
 		$child = TableRegistry::getTableLocator()->get('People')->get($parent->id + 1, ['contain' => [
 			'Affiliates',
-			'Groups',
+			'UserGroups',
 			'Skills',
 		]]);
 		$this->assertEquals('Young', $child->first_name);
@@ -1137,8 +1137,8 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertEquals(FrozenDate::now(), $child->modified);
 		$this->assertCount(1, $child->affiliates);
 		$this->assertEquals($parent->affiliates[0]->id, $child->affiliates[0]->id);
-		$this->assertCount(1, $child->groups);
-		$this->assertEquals(GROUP_PLAYER, $child->groups[0]->id);
+		$this->assertCount(1, $child->user_groups);
+		$this->assertEquals(GROUP_PLAYER, $child->user_groups[0]->id);
 		$this->assertCount(2, $child->skills);
 		$this->assertEquals('baseball', $child->skills[0]->sport);
 		$this->assertFalse($child->skills[0]->enabled);
@@ -2439,14 +2439,14 @@ class PeopleControllerTest extends ControllerTestCase {
 		// Make sure that everything is still there
 		/** @var Person $person */
 		$person = TableRegistry::getTableLocator()->get('People')->get($new->id, [
-			'contain' => [Configure::read('Security.authModel'), 'Affiliates', 'Groups', 'Settings', 'Skills', 'Preregistrations', 'Franchises']
+			'contain' => [Configure::read('Security.authModel'), 'Affiliates', 'UserGroups', 'Settings', 'Skills', 'Preregistrations', 'Franchises']
 		]);
 		$this->assertEquals('active', $person->status);
 		$this->assertEquals($new->user_id, $person->user_id);
 		$this->assertNotNull($person->user);
 		$this->assertEquals($new->user_id, $person->user->id);
 		$this->assertCount(1, $person->affiliates);
-		$this->assertCount(1, $person->groups);
+		$this->assertCount(1, $person->user_groups);
 		$this->assertCount(2, $person->settings);
 		$this->assertCount(2, $person->skills);
 	}
@@ -2548,7 +2548,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$authModel = Configure::read('Security.authModel');
 		/** @var Person $person */
 		$person = $table->get($player->id, [
-			'contain' => [$authModel, 'Affiliates', 'Groups', 'Settings', 'Skills', 'Preregistrations', 'Franchises']
+			'contain' => [$authModel, 'Affiliates', 'UserGroups', 'Settings', 'Skills', 'Preregistrations', 'Franchises']
 		]);
 		$this->assertEquals($new->last_name, $person->last_name);
 		$this->assertEquals('active', $person->status);
@@ -2562,7 +2562,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertNotNull($person->user);
 		$this->assertEquals($player->user_id, $person->user->id);
 		$this->assertCount(1, $person->affiliates);
-		$this->assertCount(1, $person->groups);
+		$this->assertCount(1, $person->user_groups);
 		$this->assertCount(2, $person->settings);
 		$this->assertCount(2, $person->skills);
 

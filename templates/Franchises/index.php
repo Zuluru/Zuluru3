@@ -24,9 +24,9 @@ else:
 	<p><?php
 		echo __('Locate by letter: ');
 		$links = [];
-		foreach ($letters as $l) {
-			$l = strtoupper($l);
-			$links[] = $this->Html->link($l, ['action' => 'letter', '?' => ['letter' => $l]], ['rel' => 'nofollow']);
+		foreach ($letters as $letter) {
+			$l = strtoupper($letter);
+			$links[] = $this->Html->link($letter, ['action' => 'letter', '?' => ['letter' => $letter]], ['rel' => 'nofollow']);
 		}
 		echo implode('&nbsp;&nbsp;', $links);
 	?></p>

@@ -64,8 +64,8 @@ class PersonFactory extends BaseFactory
 	 * @return self
 	 */
 	public function withGroup(int $group_id): self {
-		$group = $this->getTable()->Groups->get($group_id);
-		return $this->with('Groups', $group);
+		$group = $this->getTable()->UserGroups->get($group_id);
+		return $this->with('UserGroups', $group);
 	}
 
 	/**
@@ -75,9 +75,9 @@ class PersonFactory extends BaseFactory
 	public function withGroups(array $group_ids): self {
 		$groups = [];
 		foreach ($group_ids as $group_id) {
-			$groups[] = $this->getTable()->Groups->get($group_id);
+			$groups[] = $this->getTable()->UserGroups->get($group_id);
 		}
-		return $this->with('Groups', $groups);
+		return $this->with('UserGroups', $groups);
 	}
 
 	public function admin(array $data = []): self {

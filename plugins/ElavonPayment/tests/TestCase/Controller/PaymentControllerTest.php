@@ -1,11 +1,15 @@
 <?php
 namespace ElavonPayment\Test\TestCase\Controller;
 
+use App\Test\Factory\PluginFactory;
+use App\Test\Scenario\DiverseRegistrationsScenario;
+use App\Test\Scenario\DiverseUsersScenario;
 use App\Test\TestCase\Controller\ControllerTestCase;
 use Cake\Controller\Controller;
 use Cake\Event\EventInterface;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * ElavonPayment\Controller\PaymentController Test Case
@@ -14,6 +18,8 @@ use Cake\ORM\TableRegistry;
  */
 class PaymentControllerTest extends ControllerTestCase {
 
+	use ScenarioAwareTrait;
+
 	/**
 	 * Fixtures
 	 *
@@ -21,30 +27,8 @@ class PaymentControllerTest extends ControllerTestCase {
 	 */
 	public $fixtures = [
 		'app.EventTypes',
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-					'app.PeoplePeople',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-			'app.Questions',
-				'app.Answers',
-			'app.Questionnaires',
-				'app.QuestionnairesQuestions',
-			'app.Events',
-				'app.Prices',
-					'app.Registrations',
-						'app.Payments',
-							'app.RegistrationAudits',
-						'app.Responses',
-				'app.Preregistrations',
-			'app.Settings',
-		'app.I18n',
-		'app.Plugins',
+		'app.UserGroups',
+		'app.Settings',
 	];
 
 	/**
@@ -60,7 +44,8 @@ class PaymentControllerTest extends ControllerTestCase {
 				->disableArgumentCloning()
 				->disallowMockingUnknownTypes()
 				->setMethods(null)
-				->getMock();
+				->getMock()
+				->setTest(true);
 		}
 	}
 
@@ -69,36 +54,41 @@ class PaymentControllerTest extends ControllerTestCase {
 	 *
 	 * @return void
 	 */
-	public function testIndexAsCaptain() {
-		// Elavon sends parameters in the URL.
+	public function testIndexAsPlayer() {
+		PluginFactory::make(['name' => 'Elavon', 'load_name' => 'ElavonPayment', 'path' => 'plugins/ElavonPayment'])
+			->persist();
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
+		$registrations = $this->loadFixtureScenario(DiverseRegistrationsScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'member' => $player,
+		]);
+		$membership = $registrations[DiverseRegistrationsScenario::$MEMBERSHIP];
+
+		// Elavon posts parameters. Posts don't use CSRF or form security.
 		$data = [
-			'trnApproved' => '1',
-			'trnId' => '123456',
-			'authCode' => 'TEST',
-			'messageId' => '1',
-			'messageText' => 'Approved',
-			'trnAmount' => '7.00',
-			'trnOrderNumber' => 'R00000000' . REGISTRATION_ID_CAPTAIN_MEMBERSHIP,
-			'cardType' => 'VI',
-			'trnDate' => FrozenTime::now()->format('n/j/y g:i:s A'),
-			'trnType' => 'P',
-			'paymentMethod' => 'CC',
-			'ref1' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP,
-			'ref2' => EVENT_ID_MEMBERSHIP,
-			'ref3' => PERSON_ID_CAPTAIN,
+			'ssl_txn_id' => '123456789-123A4567-B8C9-123D-4567-66AB6666ABCD',
+			'ssl_approval_code' => '123456',
+			'ssl_result' => '0',
+			'ssl_result_message' => 'APPROVAL',
+			'ssl_amount' => '7.00',
+			'ssl_invoice_number' => 'R' . $membership->id,
+			'ssl_card_short_description' => '',
+			'ssl_transaction_type' => 'SALE',
+			'ssl_card_number' => '45**********0123',
+			'ssl_txn_time' => FrozenTime::now()->format('n/j/y g:i:s A'),
+			'ssl_description' => $membership->id,
 		];
-		$x = http_build_query($data);
 		$data['hashValue'] = sha1(http_build_query($data) . '12345678-ABCD-EFGH-1234-12345678');
 
-		$this->assertGetAsAccessOk(array_merge(['plugin' => 'ElavonPayment', 'controller' => 'Payment', 'action' => 'index'], $data), PERSON_ID_CAPTAIN);
+		$this->assertPostAsAccessOk(['plugin' => 'ElavonPayment', 'controller' => 'Payment', 'action' => 'index'], $player->id, $data);
 
-		$registration = TableRegistry::getTableLocator()->get('Registrations')->get(REGISTRATION_ID_CAPTAIN_MEMBERSHIP, [
+		$registration = TableRegistry::getTableLocator()->get('Registrations')->get($membership->id, [
 			'contain' => ['Payments']
 		]);
 		$this->assertResponseContains('Your Transaction has been Approved');
 		$this->assertResponseNotContains('Your payment was declined');
 		$this->assertEquals('Paid', $registration->payment);
-		$this->assertEquals(3, count($registration->payments));
+		$this->assertEquals(1, count($registration->payments));
 	}
 
 	/**
@@ -107,8 +97,18 @@ class PaymentControllerTest extends ControllerTestCase {
 	 * @return void
 	 */
 	public function testIndexAsAnonymous() {
-		// Elavon sends parameters in the URL.
-		$this->assertGetAnonymousAccessDenied(['plugin' => 'ElavonPayment', 'controller' => 'Payment', 'action' => 'index']);
+		PluginFactory::make(['name' => 'Elavon', 'load_name' => 'ElavonPayment', 'path' => 'plugins/ElavonPayment'])
+			->persist();
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
+		$registrations = $this->loadFixtureScenario(DiverseRegistrationsScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'member' => $player,
+		]);
+		$membership = $registrations[DiverseRegistrationsScenario::$MEMBERSHIP];
+
+		// Elavon posts parameters. Posts don't use CSRF or form security.
+		// @todo: Is this really the right thing? Does it really need to be a no-auth-required function?
+		$this->assertPostAnonymousAccessRedirect(['plugin' => 'ElavonPayment', 'controller' => 'Payment', 'action' => 'index'], [], '/', 'Invalid data');
 	}
 
 }

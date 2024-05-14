@@ -31,7 +31,7 @@
         "zuluru/cakephp-bootstrap": "dev-cake4",
         "trentrichardson/cakephp-scheduler": "^3.0",
         "josegonzalez/dotenv": "^3.2",
-        "cakephp-app-installer/installer": "dev-master#de2ce42",
+        "cakephp-app-installer/installer": "^4.0",
         "ozee31/cakephp-cors": "^2.0",
         "cakephp/authentication": "^2.9",
         "cakephp/authorization": "^2.4",
@@ -46,7 +46,7 @@
     "require-dev": {
         "cakephp/debug_kit": "^4.2",
         "psy/psysh": "@stable",
-        "phpunit/phpunit": "^8.0",
+        "phpunit/phpunit": "^9",
         "vierge-noire/cakephp-fixture-factories": "^2.5",
         "vierge-noire/cakephp-test-migrator": "^2.5",
         "dereuromark/cakephp-transifex": "^1.2"

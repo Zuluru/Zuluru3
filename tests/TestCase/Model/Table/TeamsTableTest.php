@@ -36,7 +36,7 @@ class TeamsTableTest extends TableTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Groups',
+		'app.UserGroups',
 		'app.RosterRoles',
 	];
 

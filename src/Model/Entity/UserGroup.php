@@ -18,7 +18,7 @@ use Cake\ORM\Entity;
  *
  * @property string $long_name
  */
-class Group extends Entity {
+class UserGroup extends Entity {
 
 	use TranslateTrait;
 	use TranslateFieldTrait;

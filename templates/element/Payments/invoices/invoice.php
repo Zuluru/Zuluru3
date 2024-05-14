@@ -29,7 +29,7 @@ endif;
 	<tr><td>&nbsp;</td></tr>
 	<tr><td align="center" colspan="4"><?= Configure::read('organization.phone') ?></td></tr>
 
-	<tr><td align="center" colspan="4"><a href="<?= $_SERVER['REQUEST_SCHEME'] ?>://<?= $_SERVER['HTTP_HOST'] ?>/"><?= $_SERVER['HTTP_HOST'] ?></a></td></tr>
+	<tr><td align="center" colspan="4"><a href="<?= $_SERVER['REQUEST_SCHEME'] ?? 'https' ?>://<?= $_SERVER['HTTP_HOST'] ?>/"><?= $_SERVER['HTTP_HOST'] ?></a></td></tr>
 <?php
 if (!empty(Configure::read('organization.hst_registration'))):
 ?>

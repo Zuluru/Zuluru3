@@ -102,7 +102,7 @@ class EventType {
 		// Get everything from the user record that the decisions below might need
 		$cache = UserCache::getInstance();
 		$person = $cache->read('Person', $registration->person_id);
-		$person->group_ids = $cache->read('GroupIDs', $registration->person_id);
+		$person->group_ids = $cache->read('UserGroupIDs', $registration->person_id);
 		$person->teams = $cache->read('AllTeams', $registration->person_id);
 		$person->preregistrations = $cache->read('Preregistrations', $registration->person_id);
 		$person->registrations = array_merge(

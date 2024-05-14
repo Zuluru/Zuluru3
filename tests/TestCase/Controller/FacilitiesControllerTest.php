@@ -22,7 +22,7 @@ class FacilitiesControllerTest extends ControllerTestCase {
 	 */
 	public $fixtures = [
 		'app.Countries',
-		'app.Groups',
+		'app.UserGroups',
 		'app.Provinces',
 		'app.Settings',
 	];

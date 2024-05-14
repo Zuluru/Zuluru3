@@ -242,15 +242,15 @@ class UserCache {
 					}
 					break;
 
-				case 'Groups':
+				case 'UserGroups':
 					if ($self->read('Person', $id, true)) {
-						$self->data[$id][$key] = $self->data[$id]['Person']->groups;
+						$self->data[$id][$key] = $self->data[$id]['Person']->user_groups;
 					}
 					break;
 
-				case 'GroupIDs':
-					if ($self->read('Groups', $id, true)) {
-						$self->data[$id][$key] = collection($self->data[$id]['Groups'])->extract('id')->toArray();
+				case 'UserGroupIDs':
+					if ($self->read('UserGroups', $id, true)) {
+						$self->data[$id][$key] = collection($self->data[$id]['UserGroups'])->extract('id')->toArray();
 					}
 					break;
 
@@ -286,7 +286,7 @@ class UserCache {
 						$self->data[$id][$key] = TableRegistry::getTableLocator()->get('People')->get($id, [
 							'contain' => [
 								Configure::read('Security.authModel'),
-								'Groups',
+								'UserGroups',
 							]
 						]);
 					} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {

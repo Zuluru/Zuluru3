@@ -4,7 +4,7 @@ namespace App\Test\Factory;
 use CakephpFixtureFactories\Factory\BaseFactory;
 use Faker\Generator;
 
-class GroupFactory extends BaseFactory
+class PluginFactory extends BaseFactory
 {
 	/**
 	 * Defines the Table Registry used to generate entities with
@@ -12,7 +12,7 @@ class GroupFactory extends BaseFactory
 	 */
 	protected function getRootTableRegistryName(): string
 	{
-		return 'Groups';
+		return 'Plugins';
 	}
 
 	/**
@@ -25,7 +25,7 @@ class GroupFactory extends BaseFactory
 	{
 		$this->setDefaultData(function(Generator $faker) {
 			return [
-				'name' => $faker->word(),
+				'enabled' => true,
 			];
 		});
 	}

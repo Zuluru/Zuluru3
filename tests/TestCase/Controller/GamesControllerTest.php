@@ -37,7 +37,7 @@ class GamesControllerTest extends ControllerTestCase {
 	 */
 	public $fixtures = [
 		'app.Days',
-		'app.Groups',
+		'app.UserGroups',
 		'app.RosterRoles',
 		'app.Settings',
 		'app.StatTypes',

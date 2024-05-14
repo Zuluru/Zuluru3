@@ -31,7 +31,7 @@ class RegistrationsControllerTest extends ControllerTestCase {
 	 */
 	public $fixtures = [
 		'app.EventTypes',
-		'app.Groups',
+		'app.UserGroups',
 		'app.Settings',
 	];
 

@@ -278,12 +278,12 @@ class PersonPolicy extends AppPolicy {
 		}
 
 		if ($identity->isAdmin()) {
-			if (in_array(GROUP_ADMIN, UserCache::getInstance()->read('GroupIDs', $person->id))) {
+			if (in_array(GROUP_ADMIN, UserCache::getInstance()->read('UserGroupIDs', $person->id))) {
 				throw new ForbiddenRedirectException(__('Administrators cannot act as other administrators.'));
 			}
 			return true;
 		} else if ($identity->isManager()) {
-			$intersect = array_intersect([GROUP_ADMIN, GROUP_MANAGER], UserCache::getInstance()->read('GroupIDs', $person->id));
+			$intersect = array_intersect([GROUP_ADMIN, GROUP_MANAGER], UserCache::getInstance()->read('UserGroupIDs', $person->id));
 			if (!empty($intersect)) {
 				throw new ForbiddenRedirectException(__('Managers cannot act as other managers.'));
 			}

@@ -308,7 +308,7 @@ class UsersTable extends AppTable {
 			'status' => Configure::read('feature.auto_approve') ? 'active' : 'new',
 			'complete' => false,
 			'gender' => '',
-			'groups' => ['_ids' => [GROUP_PLAYER]],
+			'user_groups' => ['_ids' => [GROUP_PLAYER]],
 			'affiliates' => ['_ids' => [AFFILIATE_DUMMY]],
 		];
 		if (!empty($this->nameField)) {

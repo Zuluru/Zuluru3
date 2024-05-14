@@ -20,7 +20,7 @@ if ($id == $identity->getIdentifier()) {
 } else {
 	$act_as = $id;
 }
-$isPlayer = $person ? in_array(GROUP_PLAYER, $this->UserCache->read('GroupIDs', $person->id)) : $identity->isPlayer();
+$isPlayer = $person ? in_array(GROUP_PLAYER, $this->UserCache->read('UserGroupIDs', $person->id)) : $identity->isPlayer();
 
 if ($this->Authorize->can('index', \App\Controller\AffiliatesController::class)):
 	if (empty($affiliates)):

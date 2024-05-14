@@ -42,6 +42,7 @@ class ControllerTestCase extends TestCase {
 	public function tearDown(): void {
 		Cache::clear('long_term');
 		FrozenTime::setTestNow();
+		$this->clearPlugins();
 		parent::tearDown();
 	}
 

@@ -3,6 +3,7 @@
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Person $person
  * @var \App\Model\Entity\Person[] $duplicates
+ * @var bool $activated
  */
 
 use Cake\Core\Configure;
@@ -21,8 +22,8 @@ $dispositions = [
 	'approved' => __('Approved'),
 ];
 
-$this_is_player = collection($person->groups)->some(function ($group) { return $group->id == GROUP_PLAYER; });
-$this_is_coach = collection($person->groups)->some(function ($group) { return $group->id == GROUP_COACH; });
+$this_is_player = collection($person->user_groups)->some(function ($group) { return $group->id == GROUP_PLAYER; });
+$this_is_coach = collection($person->user_groups)->some(function ($group) { return $group->id == GROUP_COACH; });
 
 $use_shirt_size = Configure::read('profile.shirt_size');
 if ($use_shirt_size == PROFILE_REGISTRATION) {
@@ -33,7 +34,7 @@ $rows = [
 	'full_name' => ['name' => 'Name'],
 ];
 
-$rows['name'] = ['name' => 'Group', 'model' => 'groups', 'func' => 'groups'];
+$rows['name'] = ['name' => 'Group', 'model' => 'user_groups', 'func' => 'groups'];
 
 if (!empty($person->user_name)) {
 	$rows['user_name'] = ['name' => 'Username'];

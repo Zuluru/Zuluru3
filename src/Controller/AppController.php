@@ -78,7 +78,7 @@ class AppController extends Controller {
 		}
 
 		// Don't attempt to do anything database- or user-related during installation
-		if ($this->getPlugin() === 'Installer') {
+		if ($this->getPlugin() === 'CakePHPAppInstaller') {
 			return;
 		}
 
@@ -137,7 +137,7 @@ class AppController extends Controller {
 		parent::beforeFilter($cakeEvent);
 
 		// Don't attempt to do anything database- or user-related during installation
-		if ($this->getPlugin() === 'Installer') {
+		if ($this->getPlugin() === 'CakePHPAppInstaller') {
 			return;
 		}
 
@@ -414,7 +414,7 @@ class AppController extends Controller {
 		$this->menu_items = [];
 
 		$identity = $this->Authentication->getIdentity();
-		$groups = $this->UserCache->read('GroupIDs');
+		$groups = $this->UserCache->read('UserGroupIDs');
 		if ($identity && $identity->isManager()) {
 			$affiliates = $this->Authentication->applicableAffiliates(true);
 		}
@@ -618,16 +618,16 @@ class AppController extends Controller {
 			}
 
 			$this->_addMenuItem(__('List All'), ['plugin' => false, 'controller' => 'People', 'action' => 'index'], __('People'));
-			$groups = $this->People->Groups->find()
+			$groups = $this->People->UserGroups->find()
 				->enableHydration(false)
 				->where([
 					'OR' => [
 						// We always want to include players, even if they aren't a valid "create account" group.
-						'Groups.id' => GROUP_PLAYER,
-						'Groups.active' => true,
+						'UserGroups.id' => GROUP_PLAYER,
+						'UserGroups.active' => true,
 					],
 				])
-				->order(['Groups.level', 'Groups.id'])
+				->order(['UserGroups.level', 'UserGroups.id'])
 				->all()
 				->combine('id', 'name')
 				->toArray();
@@ -689,7 +689,7 @@ class AppController extends Controller {
 				$this->_addMenuItem(__('Affiliates'), ['plugin' => false, 'controller' => 'Affiliates', 'action' => 'index'], __('Configuration'));
 			}
 
-			$this->_addMenuItem(__('Permissions'), ['plugin' => false, 'controller' => 'Groups', 'action' => 'index'], __('Configuration'));
+			$this->_addMenuItem(__('Permissions'), ['plugin' => false, 'controller' => 'UserGroups', 'action' => 'index'], __('Configuration'));
 		}
 
 		if ($identity && $identity->isManager()) {
@@ -1196,7 +1196,7 @@ class AppController extends Controller {
 				$this->People = $this->fetchTable('People');
 				$query = $this->People->find()
 					->distinct(['People.id'])
-					->contain(['Affiliates', 'Groups']);
+					->contain(['Affiliates', 'UserGroups']);
 
 				$columns = $this->People->getSchema()->columns();
 				$search_conditions = [];
@@ -1221,8 +1221,8 @@ class AppController extends Controller {
 					$admins = $this->People->find()
 						->enableHydration(false)
 						->select(['People.id'])
-						->matching('Groups', function (Query $q) {
-							return $q->where(['Groups.id' => GROUP_ADMIN]);
+						->matching('UserGroups', function (Query $q) {
+							return $q->where(['UserGroups.id' => GROUP_ADMIN]);
 						})
 						->all()
 						->extract('id')
@@ -1236,8 +1236,8 @@ class AppController extends Controller {
 				}
 
 				if (array_key_exists('group_id IN', $conditions)) {
-					$query->matching('Groups', function (Query $q) use ($conditions) {
-						return $q->where(['Groups.id IN' => $conditions['group_id IN']]);
+					$query->matching('UserGroups', function (Query $q) use ($conditions) {
+						return $q->where(['UserGroups.id IN' => $conditions['group_id IN']]);
 					});
 				}
 
@@ -1278,15 +1278,15 @@ class AppController extends Controller {
 		}
 
 		// Special cases for children only apply to players
-		if ($person->has('groups')) {
-			$groups = $person->groups;
-		} else if ($person->has('_matchingData') && array_key_exists('Groups', $person->_matchingData)) {
-			$groups = $person->_matchingData['Groups'];
+		if ($person->has('user_groups')) {
+			$groups = $person->user_groups;
+		} else if ($person->has('_matchingData') && array_key_exists('UserGroups', $person->_matchingData)) {
+			$groups = $person->_matchingData['UserGroups'];
 			if (!is_array($groups)) {
 				$groups = [$groups];
 			}
 		} else {
-			$groups = UserCache::getInstance()->read('Groups', $person->id);
+			$groups = UserCache::getInstance()->read('UserGroups', $person->id);
 		}
 		if (!collection($groups)->some(function ($group) {
 			return $group->id == GROUP_PLAYER;

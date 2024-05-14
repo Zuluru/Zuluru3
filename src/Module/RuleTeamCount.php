@@ -16,14 +16,14 @@ class RuleTeamCount extends Rule implements RuleHaving {
 	 *
 	 * @var FrozenDate[]
 	 */
-	protected $range;
+	protected array $range;
 
 	/**
 	 * List of roles to look for
 	 *
 	 * @var string[]
 	 */
-	protected $roles;
+	protected array $roles;
 
 	public function parse($config) {
 		$config = array_map(function($item) {

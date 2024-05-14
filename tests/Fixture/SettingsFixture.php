@@ -44,6 +44,13 @@ class SettingsFixture extends TestFixture {
 			],
 			[
 				'person_id' => null,
+				'category' => 'organization',
+				'name' => 'first_day',
+				'value' => 1,
+				'affiliate_id' => null,
+			],
+			[
+				'person_id' => null,
 				'category' => 'profile',
 				'name' => 'first_name',
 				'value' => 1,
@@ -455,6 +462,20 @@ class SettingsFixture extends TestFixture {
 				'category' => 'payment',
 				'name' => 'elavon_test_hash_key',
 				'value' => '',
+				'affiliate_id' => null,
+			],
+			[
+				'person_id' => null,
+				'category' => 'payment',
+				'name' => 'stripe_test_secret_key',
+				'value' => '12345',
+				'affiliate_id' => null,
+			],
+			[
+				'person_id' => null,
+				'category' => 'payment',
+				'name' => 'stripe_test_webhook_signing',
+				'value' => 'ABCDE',
 				'affiliate_id' => null,
 			],
 		];

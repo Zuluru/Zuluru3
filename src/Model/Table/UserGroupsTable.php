@@ -6,11 +6,11 @@ use Cake\Validation\Validator;
 use App\Core\UserCache;
 
 /**
- * Groups Model
+ * UserGroups Model
  *
  * @property \Cake\ORM\Association\BelongsToMany $People
  */
-class GroupsTable extends AppTable {
+class UserGroupsTable extends AppTable {
 
 	/**
 	 * Initialize method
@@ -21,7 +21,7 @@ class GroupsTable extends AppTable {
 	public function initialize(array $config): void {
 		parent::initialize($config);
 
-		$this->setTable('groups');
+		$this->setTable('user_groups');
 		$this->setDisplayField('name');
 		$this->setPrimaryKey('id');
 
@@ -74,7 +74,7 @@ class GroupsTable extends AppTable {
 	 */
 	public function findOptions(Query $query, array $options) {
 		$user_cache = UserCache::getInstance();
-		$groups = $user_cache->read('Groups');
+		$groups = $user_cache->read('UserGroups');
 
 		$options += ['min_level' => 1, 'require_player' => false];
 		if (empty($groups)) {
@@ -83,18 +83,18 @@ class GroupsTable extends AppTable {
 			$level = max(collection($groups)->max('level')->level, $options['min_level']);
 		}
 
-		$query->where(['Groups.level <=' => $level]);
+		$query->where(['UserGroups.level <=' => $level]);
 		if (!empty($options['force_players'])) {
 			$query->andWhere([
 				'OR' => [
-					'Groups.id' => GROUP_PLAYER,
-					'Groups.active' => true,
+					'UserGroups.id' => GROUP_PLAYER,
+					'UserGroups.active' => true,
 				]
 			]);
 		} else {
-			$query->andWhere(['Groups.active' => true]);
+			$query->andWhere(['UserGroups.active' => true]);
 		}
-		$query->order(['Groups.level', 'Groups.id']);
+		$query->order(['UserGroups.level', 'UserGroups.id']);
 		return $query->formatResults(function ($results) {
 			return $results->combine('id', 'long_name');
 		});

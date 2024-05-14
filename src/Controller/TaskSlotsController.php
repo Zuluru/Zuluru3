@@ -272,8 +272,8 @@ class TaskSlotsController extends AppController {
 		// Read some data required to correctly build the output
 		$affiliates = $this->Authentication->applicableAffiliates(true);
 		$people = $this->TaskSlots->Tasks->People->find()
-			->matching('Groups', function (Query $q) {
-				return $q->where(['Groups.id IN' => [GROUP_VOLUNTEER, GROUP_OFFICIAL, GROUP_MANAGER, GROUP_ADMIN]]);
+			->matching('UserGroups', function (Query $q) {
+				return $q->where(['UserGroups.id IN' => [GROUP_VOLUNTEER, GROUP_OFFICIAL, GROUP_MANAGER, GROUP_ADMIN]]);
 			})
 			->matching('Affiliates', function (Query $q) use ($affiliates) {
 				return $q->where(['Affiliates.id IN' => array_keys($affiliates)]);

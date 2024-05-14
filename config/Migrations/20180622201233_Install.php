@@ -1326,7 +1326,7 @@ class Install extends AbstractMigration {
 			)
 			->create();
 
-		$this->table('groups')
+		$this->table('user_groups')
 			->addColumn('name', 'string', [
 				'default' => null,
 				'limit' => 32,
@@ -2042,7 +2042,7 @@ class Install extends AbstractMigration {
 			])
 			->addColumn('addr_postalcode', 'string', [
 				'default' => null,
-				'limit' => 7,
+				'limit' => 10,
 				'null' => true,
 			])
 			->addColumn('gender', 'string', [
@@ -3892,7 +3892,7 @@ class Install extends AbstractMigration {
 				'Affiliates', 'Notices', 'Settings', 'Waivers',
 				'Countries', 'Provinces', 'Regions', 'Days',
 				'Badges', 'EventTypes', 'MembershipTypes', 'StatTypes', 'RosterRoles',
-				'Users', 'People', 'AffiliatesPeople', 'Groups', 'GroupsPeople',
+				'Users', 'People', 'AffiliatesPeople', 'UserGroups', 'GroupsPeople',
 			];
 			foreach ($seeds as $seed) {
 				$migrations->seed(['seed' => "{$seed}Seed"]);
@@ -3901,87 +3901,87 @@ class Install extends AbstractMigration {
 	}
 
 	public function down() {
-		$this->dropTable('activity_logs');
-		$this->dropTable('affiliates');
-		$this->dropTable('affiliates_people');
-		$this->dropTable('answers');
-		$this->dropTable('attendances');
-		$this->dropTable('badges');
-		$this->dropTable('badges_people');
-		$this->dropTable('categories');
-		$this->dropTable('contacts');
-		$this->dropTable('countries');
-		$this->dropTable('credits');
-		$this->dropTable('days');
-		$this->dropTable('divisions');
-		$this->dropTable('divisions_days');
-		$this->dropTable('divisions_gameslots');
-		$this->dropTable('divisions_people');
-		$this->dropTable('event_types');
-		$this->dropTable('events');
-		$this->dropTable('events_connections');
-		$this->dropTable('facilities');
-		$this->dropTable('field_ranking_stats');
-		$this->dropTable('fields');
-		$this->dropTable('franchises');
-		$this->dropTable('franchises_people');
-		$this->dropTable('franchises_teams');
-		$this->dropTable('game_slots');
-		$this->dropTable('games');
-		$this->dropTable('games_allstars');
-		$this->dropTable('groups');
-		$this->dropTable('groups_people');
-		$this->dropTable('holidays');
-		$this->dropTable('incidents');
-		$this->dropTable('leagues');
-		$this->dropTable('leagues_stat_types');
-		$this->dropTable('locks');
-		$this->dropTable('logs');
-		$this->dropTable('mailing_lists');
-		$this->dropTable('membership_types');
-		$this->dropTable('newsletters');
-		$this->dropTable('notes');
-		$this->dropTable('notices');
-		$this->dropTable('notices_people');
-		$this->dropTable('payments');
-		$this->dropTable('people');
-		$this->dropTable('people_people');
-		$this->dropTable('pools');
-		$this->dropTable('pools_teams');
-		$this->dropTable('preregistrations');
-		$this->dropTable('prices');
-		$this->dropTable('provinces');
-		$this->dropTable('questionnaires');
-		$this->dropTable('questionnaires_questions');
-		$this->dropTable('questions');
-		$this->dropTable('regions');
-		$this->dropTable('registration_answers');
-		$this->dropTable('registration_audits');
-		$this->dropTable('registrations');
-		$this->dropTable('reports');
-		$this->dropTable('responses');
-		$this->dropTable('roster_roles');
-		$this->dropTable('score_detail_stats');
-		$this->dropTable('score_details');
-		$this->dropTable('score_entries');
-		$this->dropTable('sessions');
-		$this->dropTable('settings');
-		$this->dropTable('skills');
-		$this->dropTable('spirit_entries');
-		$this->dropTable('stat_types');
-		$this->dropTable('stats');
-		$this->dropTable('subscriptions');
-		$this->dropTable('task_slots');
-		$this->dropTable('tasks');
-		$this->dropTable('team_events');
-		$this->dropTable('team_site_ranking');
-		$this->dropTable('teams');
-		$this->dropTable('teams_facilities');
-		$this->dropTable('teams_people');
-		$this->dropTable('upload_types');
-		$this->dropTable('uploads');
-		$this->dropTable('users');
-		$this->dropTable('waivers');
-		$this->dropTable('waivers_people');
+		$this->table('activity_logs')->drop()->save();
+		$this->table('affiliates')->drop()->save();
+		$this->table('affiliates_people')->drop()->save();
+		$this->table('answers')->drop()->save();
+		$this->table('attendances')->drop()->save();
+		$this->table('badges')->drop()->save();
+		$this->table('badges_people')->drop()->save();
+		$this->table('categories')->drop()->save();
+		$this->table('contacts')->drop()->save();
+		$this->table('countries')->drop()->save();
+		$this->table('credits')->drop()->save();
+		$this->table('days')->drop()->save();
+		$this->table('divisions')->drop()->save();
+		$this->table('divisions_days')->drop()->save();
+		$this->table('divisions_gameslots')->drop()->save();
+		$this->table('divisions_people')->drop()->save();
+		$this->table('event_types')->drop()->save();
+		$this->table('events')->drop()->save();
+		$this->table('events_connections')->drop()->save();
+		$this->table('facilities')->drop()->save();
+		$this->table('field_ranking_stats')->drop()->save();
+		$this->table('fields')->drop()->save();
+		$this->table('franchises')->drop()->save();
+		$this->table('franchises_people')->drop()->save();
+		$this->table('franchises_teams')->drop()->save();
+		$this->table('game_slots')->drop()->save();
+		$this->table('games')->drop()->save();
+		$this->table('games_allstars')->drop()->save();
+		$this->table('user_groups')->drop()->save();
+		$this->table('groups_people')->drop()->save();
+		$this->table('holidays')->drop()->save();
+		$this->table('incidents')->drop()->save();
+		$this->table('leagues')->drop()->save();
+		$this->table('leagues_stat_types')->drop()->save();
+		$this->table('locks')->drop()->save();
+		$this->table('logs')->drop()->save();
+		$this->table('mailing_lists')->drop()->save();
+		$this->table('membership_types')->drop()->save();
+		$this->table('newsletters')->drop()->save();
+		$this->table('notes')->drop()->save();
+		$this->table('notices')->drop()->save();
+		$this->table('notices_people')->drop()->save();
+		$this->table('payments')->drop()->save();
+		$this->table('people')->drop()->save();
+		$this->table('people_people')->drop()->save();
+		$this->table('pools')->drop()->save();
+		$this->table('pools_teams')->drop()->save();
+		$this->table('preregistrations')->drop()->save();
+		$this->table('prices')->drop()->save();
+		$this->table('provinces')->drop()->save();
+		$this->table('questionnaires')->drop()->save();
+		$this->table('questionnaires_questions')->drop()->save();
+		$this->table('questions')->drop()->save();
+		$this->table('regions')->drop()->save();
+		$this->table('registration_answers')->drop()->save();
+		$this->table('registration_audits')->drop()->save();
+		$this->table('registrations')->drop()->save();
+		$this->table('reports')->drop()->save();
+		$this->table('responses')->drop()->save();
+		$this->table('roster_roles')->drop()->save();
+		$this->table('score_detail_stats')->drop()->save();
+		$this->table('score_details')->drop()->save();
+		$this->table('score_entries')->drop()->save();
+		$this->table('sessions')->drop()->save();
+		$this->table('settings')->drop()->save();
+		$this->table('skills')->drop()->save();
+		$this->table('spirit_entries')->drop()->save();
+		$this->table('stat_types')->drop()->save();
+		$this->table('stats')->drop()->save();
+		$this->table('subscriptions')->drop()->save();
+		$this->table('task_slots')->drop()->save();
+		$this->table('tasks')->drop()->save();
+		$this->table('team_events')->drop()->save();
+		$this->table('team_site_ranking')->drop()->save();
+		$this->table('teams')->drop()->save();
+		$this->table('teams_facilities')->drop()->save();
+		$this->table('teams_people')->drop()->save();
+		$this->table('upload_types')->drop()->save();
+		$this->table('uploads')->drop()->save();
+		$this->table('users')->drop()->save();
+		$this->table('waivers')->drop()->save();
+		$this->table('waivers_people')->drop()->save();
 	}
 }

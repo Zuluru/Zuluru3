@@ -10,33 +10,25 @@ use App\Model\Entity\Team;
 class RuleEngine {
 	/**
 	 * The object implementing the rule functionality
-	 *
-	 * @var Rule
 	 */
-	protected $rule = null;
+	protected ?Rule $rule = null;
 
 	// TODOLATER: Turn all of these into functions that call the same function in the rule?
 
 	/**
 	 * Parse error text, to give help to rule writers
-	 *
-	 * @var string
 	 */
-	public $parse_error = null;
+	public ?string $parse_error = null;
 
 	/**
 	 * Reason why the rule passed or failed
-	 *
-	 * @var string
 	 */
-	public $reason = 'Unknown reason!';
+	public string $reason = 'Unknown reason!';
 
 	/**
 	 * Where to redirect to for prerequisite completion, if applicable
-	 *
-	 * @var array
 	 */
-	public $redirect = null;
+	public ?array $redirect = null;
 
 	/**
 	 * Initialize the rule engine, loading all required modules and

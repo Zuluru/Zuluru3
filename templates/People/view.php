@@ -27,7 +27,7 @@ $this->Breadcrumbs->add(__('View'));
 <?php
 $has_visible_contact = false;
 $visible_properties = $person->getVisible();
-$is_player = collection($person->groups)->some(function ($group) { return $group->id == GROUP_PLAYER; });
+$is_player = collection($person->user_groups)->some(function ($group) { return $group->id == GROUP_PLAYER; });
 $identity = $this->Authorize->getIdentity();
 ?>
 	<dl class="row">
@@ -291,12 +291,12 @@ if (in_array('skills', $visible_properties) && !empty($person->skills)):
 	endif;
 endif;
 
-if (in_array('groups', $visible_properties)):
+if (in_array('user_groups', $visible_properties)):
 ?>
-		<dt class="col-sm-3 text-end"><?= __n('Account Class', 'Account Classes', count($person->groups)) ?></dt>
+		<dt class="col-sm-3 text-end"><?= __n('Account Class', 'Account Classes', count($person->user_groups)) ?></dt>
 		<dd class="col-sm-9 mb-0"><?php
 			$names = [];
-			foreach ($person->groups as $group) {
+			foreach ($person->user_groups as $group) {
 				$names[] = $group->translateField('name');
 			}
 			if (empty($names)) {

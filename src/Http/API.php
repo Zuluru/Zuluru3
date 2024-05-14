@@ -21,8 +21,9 @@ abstract class API {
 		$this->test = $test;
 	}
 
-	public function setTest(bool $test): void {
+	public function setTest(bool $test): API {
 		$this->test = $test;
+		return $this;
 	}
 
 	public function isTest(): bool {
@@ -37,7 +38,8 @@ abstract class API {
 		// Pull out any IDs that are for debits
 		$registration_ids = $debit_ids = [];
 		foreach (explode(',', $ids) as $id) {
-			if ($id[0] === 'D') {
+			if ($id === '') {
+			} else if ($id[0] === 'D') {
 				$debit_ids[] = substr($id, 1);
 			} else {
 				$registration_ids[] = $id;

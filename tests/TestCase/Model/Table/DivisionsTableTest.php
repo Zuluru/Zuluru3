@@ -34,7 +34,7 @@ class DivisionsTableTest extends TableTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Groups',
+		'app.UserGroups',
 	];
 
 	/**

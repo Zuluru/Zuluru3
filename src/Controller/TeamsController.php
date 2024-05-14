@@ -464,7 +464,7 @@ class TeamsController extends AppController {
 						return $q->where(['TeamsPeople.status' => ROSTER_APPROVED]);
 					},
 					Configure::read('Security.authModel'),
-					'Groups',
+					'UserGroups',
 					'Related' => [Configure::read('Security.authModel')],
 				],
 				'Divisions' => ['Leagues'],
@@ -620,7 +620,7 @@ class TeamsController extends AppController {
 							],
 							'Waivers',
 							'Uploads',
-							'Groups',
+							'UserGroups',
 						]
 					]);
 
@@ -1601,22 +1601,41 @@ class TeamsController extends AppController {
 
 			$days = array_unique(collection($team->division->days)->extract('id')->toArray());
 			if (!empty($days) && $team->division->schedule_type !== 'none') {
-				$play_day = min($days);
-				for ($date = $team->division->open; $date <= $team->division->close; $date = $date->addDays(1)) {
-					$day = $date->format('N');
-					// TODO: If it is a holiday, and the division plays on multiple days,
-					// try the other days to see if one is valid
-					if ($day == $play_day && (
-						// It's not a holiday, or it's a date that has a game explicitly scheduled
-						!in_array($date, $holidays) || in_array($date, $game_dates)
-					)) {
-						$dates[] = $date;
-					}
+				// Back the start date up to whatever this organization considers the first day of the week
+				$start = $team->division->open;
+				$first_weekday = Configure::read('organization.first_day');
+				while ($start->format('N') != $first_weekday) {
+					$start = $start->subDays(1);
 				}
 
-				// Daylight savings time can result in dates being duplicated
-				// TODOLATER: Still true?
-				$dates = array_unique($dates);
+				// Now move it forward to whatever is the first day that this division plays on
+				$first_playday = min($days);
+				while ($start->format('N') != $first_playday) {
+					$start = $start->addDays(1);
+				}
+
+				for ($week_start = $start; $week_start <= $team->division->close; $week_start = $week_start->addWeeks(1)) {
+					$week_end = $week_start->addDays(6);
+					$week_game_scheduled = $week_non_holiday = false;
+					for ($date = $week_start; $date <= $week_end; $date = $date->addDays(1)) {
+						// If there is a game scheduled, show it
+						if (in_array($date, $game_dates)) {
+							$dates[] = $date;
+							$week_game_scheduled = true;
+							continue;
+						}
+
+						// If it's not a holiday, this week is a week that might have a game in it
+						if (!in_array($date, $holidays)) {
+							$week_non_holiday = true;
+						}
+					}
+
+					// If we don't already have a game scheduled this week, but it's not all holidays, include the starting date
+					if (!$week_game_scheduled && $week_non_holiday) {
+						$dates[] = $week_start;
+					}
+				}
 			}
 
 			$attendance = $this->Teams->Divisions->Games->readAttendance($team, $days, null, $dates);
@@ -2309,7 +2328,7 @@ class TeamsController extends AppController {
 		}
 
 		// Check for some group membership
-		$groups = $this->UserCache->read('GroupIDs', $person_id);
+		$groups = $this->UserCache->read('UserGroupIDs', $person_id);
 		if (!in_array(GROUP_PLAYER, $groups)) {
 			foreach (Configure::read('extended_playing_roster_roles') as $playing_role) {
 				unset($roster_role_options[$playing_role]);
@@ -2519,8 +2538,8 @@ class TeamsController extends AppController {
 			} else {
 				$has_waivers = true;
 			}
-			if (!$person->has('groups')) {
-				$person->groups = $this->UserCache->read('Groups', $person->id);
+			if (!$person->has('user_groups')) {
+				$person->uset_groups = $this->UserCache->read('UserGroups', $person->id);
 				$has_groups = false;
 			} else {
 				$has_groups = true;
@@ -2549,7 +2568,7 @@ class TeamsController extends AppController {
 				unset($person->waivers);
 			}
 			if (!$has_groups) {
-				unset($person->groups);
+				unset($person->user_groups);
 			}
 			if (!$has_uploads) {
 				unset($person->uploads);

@@ -3,9 +3,6 @@
 use Cake\Controller\Controller;
 use Cake\Core\Configure;
 use Migrations\Migrations;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Input\InputDefinition;
-use Symfony\Component\Console\Input\InputOption;
 
 // Override some default settings for the installer
 return [

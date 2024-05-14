@@ -12,8 +12,9 @@ class API extends \App\Http\API {
 	 */
 	private $client = null;
 
-	public function setClient(Client $client) {
+	public function setClient(Client $client): API {
 		$this->client = $client;
+		return $this;
 	}
 
 	private function client(): Client {

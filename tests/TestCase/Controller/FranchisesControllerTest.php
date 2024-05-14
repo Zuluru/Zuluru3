@@ -25,7 +25,7 @@ class FranchisesControllerTest extends ControllerTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Groups',
+		'app.UserGroups',
 		'app.RosterRoles',
 		'app.Settings',
 	];

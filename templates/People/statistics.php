@@ -102,10 +102,10 @@ foreach ($group_count as $group):
 ?>
 				<tr>
 					<td><?php
-						if (empty($group->_matchingData['Groups']->name)) {
+						if (empty($group->_matchingData['UserGroups']->name)) {
 							echo __('None');
 						} else {
-							echo $group->_matchingData['Groups']->name;
+							echo $group->_matchingData['UserGroups']->name;
 						}
 					?></td>
 					<td><?= $group->person_count ?></td>

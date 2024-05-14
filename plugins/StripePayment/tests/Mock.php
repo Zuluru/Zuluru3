@@ -1,38 +1,40 @@
 <?php
 namespace StripePayment\Test;
 
+use App\Model\Entity\Registration;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
+use Stripe\PaymentIntent;
+use StripePayment\Http\API;
 use StripePayment\Test\Mocks\MockCheckoutSession;
-use StripePayment\Test\Mocks\MockPaymentIntent;
 
 abstract class Mock {
 
 	/**
-	 * @param \PHPUnit_Framework_TestCase $test
+	 * @param \PHPUnit\Framework\TestCase $test
 	 * @return \StripePayment\Http\API
 	 * @throws \ReflectionException
 	 */
-	public static function setup(\PHPUnit_Framework_TestCase $test) {
+	public static function setup(\PHPUnit\Framework\TestCase $test, Registration $registration): API {
 		$method = (new \ReflectionClass($test))->getMethod('getMockBuilder');
 		$method->setAccessible(true);
-		$api = $method->invoke($test, 'StripePayment\Http\API')
-			->disableOriginalConstructor()
+		$client = $method->invoke($test, 'StripePayment\Http\Client')
+			->setConstructorArgs([true])
 			->disableOriginalClone()
 			->disableArgumentCloning()
 			->disallowMockingUnknownTypes()
 			->setMethods(['checkoutSessionCreate', 'paymentIntentsRetrieve', 'getRegistrationIds'])
 			->getMock();
 
-		$api->method('checkoutSessionCreate')
+		$client->method('checkoutSessionCreate')
 			->will($test->returnValue(new MockCheckoutSession()));
 
-		$api->method('paymentIntentsRetrieve')
+		$client->method('paymentIntentsRetrieve')
 			// Easy way to convert an array into nested objects
-			->will($test->returnValue(json_decode(json_encode([
+			->will($test->returnValue(PaymentIntent::constructFrom([
 				'status' => 'succeeded',
 				'created' => FrozenTime::now()->getTimestamp(),
-				'amount' => 799,
+				'amount' => 1150,
 				'charges' => [
 					'data' => [
 						[
@@ -54,12 +56,11 @@ abstract class Mock {
 						],
 					],
 				],
-			]))));
+			])));
 
-		$api->method('getRegistrationIds')
-			->will($test->returnValue([REGISTRATION_ID_CAPTAIN_MEMBERSHIP]));
+		$client->method('getRegistrationIds')
+			->will($test->returnValue([[$registration->id], []]));
 
-		return $api;
+		return (new API(true))->setClient($client);
 	}
-
 }

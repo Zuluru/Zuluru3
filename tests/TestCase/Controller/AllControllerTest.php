@@ -21,7 +21,7 @@ class AllControllerTest extends ControllerTestCase {
 	 * @var array
 	 */
 	public $fixtures = [
-		'app.Groups',
+		'app.UserGroups',
 		'app.RosterRoles',
 		'app.Settings',
 	];
@@ -110,7 +110,7 @@ class AllControllerTest extends ControllerTestCase {
 	 * Should redirect to login, include URL back to the thing, and set "you must log in" message, but in JSON.
 	 */
 	public function testAuth2bUnauthenticatedAccessToProtectedResourceAjax(): void {
-		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'Groups', 'action' => 'activate', '?' => ['group' => GROUP_OFFICIAL]]);
+		$this->assertGetAjaxAnonymousAccessDenied(['controller' => 'UserGroups', 'action' => 'activate', '?' => ['group' => GROUP_OFFICIAL]]);
 	}
 
 	/**
@@ -163,7 +163,7 @@ class AllControllerTest extends ControllerTestCase {
 	public function testAuth4bUnauthorizedAccessToProtectedResourceAjaxForbiddenException(): void {
 		$player = PersonFactory::make()->player()->persist();
 
-		$this->assertGetAjaxAsAccessDenied(['controller' => 'Groups', 'action' => 'activate', '?' => ['group' => GROUP_OFFICIAL]],
+		$this->assertGetAjaxAsAccessDenied(['controller' => 'UserGroups', 'action' => 'activate', '?' => ['group' => GROUP_OFFICIAL]],
 			$player->id);
 	}
 

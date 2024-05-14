@@ -8,7 +8,7 @@ class ConvertTranslationsToShadowStrategy extends AbstractMigration
 {
 	private $models = [
 		'Affiliates',
-		'Badges', 'Groups', 'Notices', 'Waivers',
+		'Badges', 'UserGroups', 'Notices', 'Waivers',
 		'MembershipTypes', 'RosterRoles', 'StatTypes',
 		'Countries', 'Provinces', 'Regions', 'Facilities', 'Fields',
 		'Days', 'Leagues', 'Divisions', 'Pools',

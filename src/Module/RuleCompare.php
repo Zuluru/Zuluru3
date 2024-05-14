@@ -11,12 +11,10 @@ class RuleCompare extends Rule {
 
 	/**
 	 * Comparison operator to use
-	 *
-	 * @var string
 	 */
-	protected $operator;
+	protected string $operator;
 
-	private $reverse = ['=' => '=', '<' => '>', '<=' => '>=', '>' => '<', '>=' => '<=', '!=' => '!='];
+	private array $reverse = ['=' => '=', '<' => '>', '<=' => '>=', '>' => '<', '>=' => '<=', '!=' => '!='];
 
 	public function parse($config) {
 		$this->rule = [];

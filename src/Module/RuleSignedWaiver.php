@@ -21,21 +21,17 @@ class RuleSignedWaiver extends Rule {
 	 *
 	 * @var int[]
 	 */
-	protected $waiver_ids;
+	protected array $waiver_ids;
 
 	/**
 	 * Waiver name
-	 *
-	 * @var string
 	 */
-	protected $waiver;
+	protected string $waiver;
 
 	/**
 	 * Date to look at
-	 *
-	 * @var FrozenDate
 	 */
-	protected $date;
+	protected FrozenDate $date;
 
 	public function parse($config) {
 		$config = array_map('trim', explode(',', $config));

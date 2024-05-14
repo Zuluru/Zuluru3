@@ -191,7 +191,7 @@ class WaiversController extends AppController {
 		try {
 			$person = $this->Waivers->People->get($person_id, [
 				'contain' => [
-					'Groups',
+					'UserGroups',
 					'WaiversPeople' => [
 						'queryBuilder' => function (Query $q) use ($id) {
 							return $q->where(['WaiversPeople.waiver_id' => $id]);

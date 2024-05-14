@@ -48,7 +48,7 @@ class TeamsControllerTest extends ControllerTestCase {
 	 */
 	public $fixtures = [
 		'app.EventTypes',
-		'app.Groups',
+		'app.UserGroups',
 		'app.RosterRoles',
 		'app.Settings',
 		'app.StatTypes',

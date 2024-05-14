@@ -13,14 +13,14 @@ use Cake\ORM\TableRegistry;
 
 class RuleMemberType extends Rule {
 
-	public $desc = 'have a membership type';
+	public string $desc = 'have a membership type';
 
 	/**
 	 * Date range to look at
 	 *
 	 * @var FrozenDate[]
 	 */
-	protected $range;
+	protected array $range;
 
 	public function parse($config) {
 		$config = trim($config, '"\'');

@@ -144,7 +144,7 @@ class EventPolicy extends AppPolicy {
 					'class' => 'warning-message',
 				]];
 			}
-			$this->_person->group_ids = $userCache->read('GroupIDs', $person_id);
+			$this->_person->group_ids = $userCache->read('UserGroupIDs', $person_id);
 			$this->_person->teams = $userCache->read('AllTeams', $person_id);
 			$this->_person->preregistrations = $userCache->read('Preregistrations', $person_id);
 			$this->_person->registrations = array_merge(

@@ -11,7 +11,7 @@ use Cake\ORM\Entity;
  * @property int $group_id
  *
  * @property \App\Model\Entity\Person $person
- * @property \App\Model\Entity\Group $group
+ * @property \App\Model\Entity\UserGroup $group
  */
 class GroupsPerson extends Entity {
 

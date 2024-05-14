@@ -1,12 +1,15 @@
 <?php
 namespace ChasePayment\Test\TestCase\Controller;
 
+use App\Test\Factory\PluginFactory;
+use App\Test\Scenario\DiverseRegistrationsScenario;
+use App\Test\Scenario\DiverseUsersScenario;
 use App\Test\TestCase\Controller\ControllerTestCase;
 use Cake\Controller\Controller;
-use Cake\Core\Configure;
 use Cake\Event\EventInterface;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * ChasePayment\Controller\PaymentController Test Case
@@ -15,6 +18,8 @@ use Cake\ORM\TableRegistry;
  */
 class PaymentControllerTest extends ControllerTestCase {
 
+	use ScenarioAwareTrait;
+
 	/**
 	 * Fixtures
 	 *
@@ -22,30 +27,8 @@ class PaymentControllerTest extends ControllerTestCase {
 	 */
 	public $fixtures = [
 		'app.EventTypes',
-		'app.Affiliates',
-			'app.Users',
-				'app.People',
-					'app.AffiliatesPeople',
-					'app.PeoplePeople',
-			'app.Groups',
-				'app.GroupsPeople',
-			'app.Leagues',
-				'app.Divisions',
-					'app.Teams',
-			'app.Questions',
-				'app.Answers',
-			'app.Questionnaires',
-				'app.QuestionnairesQuestions',
-			'app.Events',
-				'app.Prices',
-					'app.Registrations',
-						'app.Payments',
-							'app.RegistrationAudits',
-						'app.Responses',
-				'app.Preregistrations',
-			'app.Settings',
-		'app.I18n',
-
+		'app.UserGroups',
+		'app.Settings',
 	];
 
 	/**
@@ -61,7 +44,8 @@ class PaymentControllerTest extends ControllerTestCase {
 				->disableArgumentCloning()
 				->disallowMockingUnknownTypes()
 				->setMethods(null)
-				->getMock();
+				->getMock()
+				->setTest(true);
 		}
 	}
 
@@ -72,13 +56,23 @@ class PaymentControllerTest extends ControllerTestCase {
 	 */
 	public function testIndexAsAnonymous() {
 		// Chase posts parameters. Posts don't use CSRF or form security.
-		$login = Configure::read('payment.chase_test_store');
-		$key = Configure::read('payment.chase_test_response');
+		// @todo: Any way to get these settings from the config instead?
+		$login = 'ABC-ABCDE-123';
+		$key = 'a1b2c3d4e5f6g7h8i9j0';
 		$calculated_hash = md5("{$key}{$login}12345678907.00");
+
+		PluginFactory::make(['name' => 'Chase Paymentech', 'load_name' => 'ChasePayment', 'path' => 'plugins/ChasePayment'])
+			->persist();
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
+		$registrations = $this->loadFixtureScenario(DiverseRegistrationsScenario::class, [
+			'affiliate' => $admin->affiliates[0],
+			'member' => $player,
+		]);
+		$membership = $registrations[DiverseRegistrationsScenario::$MEMBERSHIP];
 
 		$this->assertPostAnonymousAccessOk(['plugin' => 'ChasePayment', 'controller' => 'Payment', 'action' => 'index'], [
 			'exact_ctr' => 'DATE/TIME: ' . FrozenTime::now()->format('d M y H:i:s'),
-			'Reference_No' => 'R00000000' . REGISTRATION_ID_CAPTAIN_MEMBERSHIP,
+			'Reference_No' => 'R' . $membership->id,
 			'Bank_Resp_Code' => '000',
 			'Bank_Message' => 'APPROVED',
 			'CardHoldersName' => 'Crystal Captain',
@@ -90,16 +84,16 @@ class PaymentControllerTest extends ControllerTestCase {
 			'x_auth_code' => '12345A',
 			'x_amount' => '7.00',
 			'x_MD5_Hash' => $calculated_hash,
-			'x_description' => REGISTRATION_ID_CAPTAIN_MEMBERSHIP,
+			'x_description' => $membership->id,
 		]);
 
-		$registration = TableRegistry::getTableLocator()->get('Registrations')->get(REGISTRATION_ID_CAPTAIN_MEMBERSHIP, [
+		$registration = TableRegistry::getTableLocator()->get('Registrations')->get($membership->id, [
 			'contain' => ['Payments']
 		]);
 		$this->assertResponseContains('Your Transaction has been Approved');
 		$this->assertResponseNotContains('Your payment was declined');
 		$this->assertEquals('Paid', $registration->payment);
-		$this->assertEquals(3, count($registration->payments));
+		$this->assertEquals(1, count($registration->payments));
 	}
 
 }

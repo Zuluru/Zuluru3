@@ -86,9 +86,9 @@ class ActAsIdentity implements AuthenticationInterface, AuthorizationInterface {
 		$user_cache = UserCache::getInstance();
 
 		// We explicitly don't save group details in the session, so that any external changes to them will take effect immediately
-		$groups = $user_cache->read('Groups', $this->identity->person->id);
+		$groups = $user_cache->read('UserGroups', $this->identity->person->id);
 		if ($this->identity->real_person) {
-			$real_groups = $user_cache->read('Groups', $this->identity->real_person->id);
+			$real_groups = $user_cache->read('UserGroups', $this->identity->real_person->id);
 			if (!empty($real_groups)) {
 				$real_group_levels = collection($real_groups)->extract('level')->toArray();
 			} else {

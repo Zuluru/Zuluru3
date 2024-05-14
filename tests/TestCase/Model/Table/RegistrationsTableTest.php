@@ -31,7 +31,7 @@ class RegistrationsTableTest extends TableTestCase {
 	 */
 	public $fixtures = [
 		'app.EventTypes',
-		'app.Groups',
+		'app.UserGroups',
 		'app.Settings',
 	];
 

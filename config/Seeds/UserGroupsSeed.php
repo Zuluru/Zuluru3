@@ -4,7 +4,7 @@ use Migrations\AbstractSeed;
 /**
  * Groups seed.
  */
-class GroupsSeed extends AbstractSeed {
+class UserGroupsSeed extends AbstractSeed {
 	/**
 	 * Data Method.
 	 *
@@ -63,7 +63,7 @@ class GroupsSeed extends AbstractSeed {
 	 * @return void
 	 */
 	public function run() {
-		$table = $this->table('groups');
+		$table = $this->table('user_groups');
 		$table->insert($this->data())->save();
 	}
 }

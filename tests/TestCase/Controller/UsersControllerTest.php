@@ -28,7 +28,7 @@ class UsersControllerTest extends ControllerTestCase {
 	 */
 	public $fixtures = [
 		'app.Countries',
-		'app.Groups',
+		'app.UserGroups',
 		'app.Provinces',
 		'app.Settings',
 	];
@@ -155,7 +155,7 @@ class UsersControllerTest extends ControllerTestCase {
 				'confirm_password' => 'password',
 				'timestamp' => FrozenTime::now()->subMinutes(1)->toUnixString(),
 				'person' => [
-					'groups' => ['_ids' => [GROUP_PLAYER]],
+					'user_groups' => ['_ids' => [GROUP_PLAYER]],
 					'affiliates' => [['id' => $affiliate->id]],
 					'first_name' => 'Test',
 					'last_name' => 'Test',
@@ -205,7 +205,7 @@ class UsersControllerTest extends ControllerTestCase {
 		$user = TableRegistry::getTableLocator()->get('Users')->get(1, ['contain' => [
 			'People' => [
 				'Affiliates',
-				'Groups',
+				'UserGroups',
 				'Skills',
 			],
 		]]);
@@ -219,8 +219,8 @@ class UsersControllerTest extends ControllerTestCase {
 		$this->assertEquals(FrozenDate::now(), $user->person->modified);
 		$this->assertCount(1, $user->person->affiliates);
 		$this->assertEquals($affiliate->id, $user->person->affiliates[0]->id);
-		$this->assertCount(1, $user->person->groups);
-		$this->assertEquals(GROUP_PLAYER, $user->person->groups[0]->id);
+		$this->assertCount(1, $user->person->user_groups);
+		$this->assertEquals(GROUP_PLAYER, $user->person->user_groups[0]->id);
 		$this->assertCount(2, $user->person->skills);
 		$this->assertEquals('baseball', $user->person->skills[0]->sport);
 		$this->assertFalse($user->person->skills[0]->enabled);
@@ -246,7 +246,7 @@ class UsersControllerTest extends ControllerTestCase {
 				'confirm_password' => 'password',
 				'timestamp' => FrozenTime::now()->subMinutes(1)->toUnixString(),
 				'person' => [
-					'groups' => ['_ids' => [GROUP_PARENT]],
+					'user_groups' => ['_ids' => [GROUP_PARENT]],
 					'affiliates' => [['id' => $affiliate->id]],
 					'first_name' => 'Test',
 					'last_name' => 'Test',
@@ -302,11 +302,11 @@ class UsersControllerTest extends ControllerTestCase {
 		$user = TableRegistry::getTableLocator()->get('Users')->get(1, ['contain' => [
 			'People' => [
 				'Affiliates',
-				'Groups',
+				'UserGroups',
 				'Skills',
 				'Relatives' => [
 					'Affiliates',
-					'Groups',
+					'UserGroups',
 					'Skills',
 				],
 			],
@@ -321,8 +321,8 @@ class UsersControllerTest extends ControllerTestCase {
 		$this->assertEquals(FrozenDate::now(), $user->person->modified);
 		$this->assertEquals(1, count($user->person->affiliates));
 		$this->assertEquals($affiliate->id, $user->person->affiliates[0]->id);
-		$this->assertEquals(1, count($user->person->groups));
-		$this->assertEquals(GROUP_PARENT, $user->person->groups[0]->id);
+		$this->assertEquals(1, count($user->person->user_groups));
+		$this->assertEquals(GROUP_PARENT, $user->person->user_groups[0]->id);
 		$this->assertEmpty(count($user->person->skills));
 
 		$this->assertEquals(1, count($user->person->relatives));
@@ -334,8 +334,8 @@ class UsersControllerTest extends ControllerTestCase {
 		$this->assertEquals(FrozenDate::now(), $user->person->relatives[0]->modified);
 		$this->assertEquals(1, count($user->person->relatives[0]->affiliates));
 		$this->assertEquals($affiliate->id, $user->person->relatives[0]->affiliates[0]->id);
-		$this->assertEquals(1, count($user->person->relatives[0]->groups));
-		$this->assertEquals(GROUP_PLAYER, $user->person->relatives[0]->groups[0]->id);
+		$this->assertEquals(1, count($user->person->relatives[0]->user_groups));
+		$this->assertEquals(GROUP_PLAYER, $user->person->relatives[0]->user_groups[0]->id);
 		$this->assertEquals(2, count($user->person->relatives[0]->skills));
 		$this->assertEquals('baseball', $user->person->relatives[0]->skills[0]->sport);
 		$this->assertFalse($user->person->relatives[0]->skills[0]->enabled);
@@ -361,7 +361,7 @@ class UsersControllerTest extends ControllerTestCase {
 				'confirm_password' => 'password',
 				'timestamp' => FrozenTime::now()->subMinutes(1)->toUnixString(),
 				'person' => [
-					'groups' => ['_ids' => [GROUP_PARENT]],
+					'user_groups' => ['_ids' => [GROUP_PARENT]],
 					'affiliates' => [['id' => $affiliate->id]],
 					'first_name' => 'Test',
 					'last_name' => 'Test',
@@ -473,9 +473,9 @@ class UsersControllerTest extends ControllerTestCase {
 		$this->assertArrayHasKey('data', $response);
 		$this->assertArrayHasKey('token', $response['data']);
 		$token_data = JWT::decode($response['data']['token'], new Key(\Cake\Utility\Security::getSalt(), 'HS256'));
-		$this->assertObjectHasAttribute('sub', $token_data);
+		$this->assertObjectHasProperty('sub', $token_data);
 		$this->assertEquals($admin->user_id, $token_data->sub);
-		$this->assertObjectHasAttribute('exp', $token_data);
+		$this->assertObjectHasProperty('exp', $token_data);
 		$this->assertEquals(FrozenTime::now()->addWeeks(1)->toUnixString(), $token_data->exp);
 	}
 
