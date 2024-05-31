@@ -31,7 +31,7 @@
         "zuluru/cakephp-bootstrap": "dev-cake4",
         "trentrichardson/cakephp-scheduler": "^3.0",
         "josegonzalez/dotenv": "^3.2",
-        "cakephp-app-installer/installer": "^4.0",
+        "cakephp-app-installer/installer": "dev-master",
         "ozee31/cakephp-cors": "^2.0",
         "cakephp/authentication": "^2.9",
         "cakephp/authorization": "^2.4",
@@ -59,6 +59,10 @@
         {
             "type": "vcs",
             "url": "git@github.com:Zuluru/cakephp-bootstrap.git"
+        },
+        {
+            "type": "vcs",
+            "url": "git@github.com:Zuluru/CakePHP-App-Installer.git"
         }
     ],
     "suggest": {
