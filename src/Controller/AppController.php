@@ -67,6 +67,11 @@ class AppController extends Controller {
 			]
 		]);
 
+		// Don't attempt to do anything database- or user-related during installation
+		if ($this->getPlugin() === 'CakePHPAppInstaller') {
+			return;
+		}
+
 		// TODO: Find a better solution for black-holing of Ajax requests?
 		if (!$this->getRequest()->is('ajax') && !$this->getRequest()->is('json')) {
 			$this->loadComponent('FormProtection', [
@@ -75,11 +80,6 @@ class AppController extends Controller {
 					throw $exception;
 				},
 			]);
-		}
-
-		// Don't attempt to do anything database- or user-related during installation
-		if ($this->getPlugin() === 'CakePHPAppInstaller') {
-			return;
 		}
 
 		$this->UserCache = UserCache::getInstance(true);

@@ -195,7 +195,7 @@ ConnectionManager::setConfig(Configure::consume('Datasources'));
 TransportFactory::setConfig(Configure::consume('EmailTransport'));
 Mailer::setConfig(Configure::consume('Email'));
 Log::setConfig(Configure::consume('Log'));
-Security::setSalt(Configure::consume('Security.salt'));
+Security::setSalt(Configure::consume('Security.salt') ?? '');
 
 /*
  * Setup detectors for mobile and tablet.
@@ -234,7 +234,7 @@ if (Configure::check('App.globalListeners')) {
 }
 Configure::write('App.globalListeners', $globalListeners);
 
-if (!defined('ZULURU_VERSION')) {
+if (!defined('ZULURU_MAJOR')) {
 	define('ZULURU_MAJOR', 3);
 	define('ZULURU_MINOR', 5);
 	define('ZULURU_REVISION', 0);

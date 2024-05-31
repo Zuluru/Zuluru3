@@ -108,7 +108,11 @@ class I18nSeed extends AbstractSeed {
 			}
 
 			// Get the data from the tables
-			$records = TableRegistry::getTableLocator()->get($model)->find();
+			$table = TableRegistry::getTableLocator()->get($model);
+			if ($table->hasBehavior('Translate')) {
+				$table->removeBehavior('Translate');
+			}
+			$records = $table->find();
 			$data = [];
 			foreach ($records as $record) {
 				foreach ($fields as $field) {

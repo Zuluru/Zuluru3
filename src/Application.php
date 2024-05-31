@@ -116,17 +116,17 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 			}
 
 			$this->addPlugin('Invoices', ['bootstrap' => false, 'routes' => true]);
+
+			try {
+				foreach (TableRegistry::getTableLocator()->get('Plugins')->find()->where(['enabled' => true])->order('Plugins.name') as $plugin) {
+					$this->addPlugin($plugin->load_name, ['bootstrap' => true, 'routes' => true]);
+				}
+			} catch (\Exception $ex) {
+				// The plugins table may not exist, if the migration hasn't run.
+			}
 		}
 
 		$this->addPlugin('BootstrapUI', ['bootstrap' => true]);
-
-		try {
-			foreach (TableRegistry::getTableLocator()->get('Plugins')->find()->where(['enabled' => true])->order('Plugins.name') as $plugin) {
-				$this->addPlugin($plugin->load_name, ['bootstrap' => true, 'routes' => true]);
-			}
-		} catch (\Exception $ex) {
-			// The plugins table may not exist, if the migration hasn't run.
-		}
 	}
 
 	/**
@@ -402,7 +402,17 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 			)
 
 			// Add encrypted cookie middleware.
-			->add(new EncryptedCookieMiddleware(['ZuluruAuth'], Security::getSalt()))
+			->add(function (
+				ServerRequestInterface $request,
+				RequestHandlerInterface $handler
+			): ResponseInterface {
+				// Do not attempt cookie encryption for the installer
+				if ($request->getParam('plugin') !== 'CakePHPAppInstaller') {
+					return (new EncryptedCookieMiddleware(['ZuluruAuth'], Security::getSalt()))->process($request, $handler);
+				}
+
+				return $handler->handle($request);
+			})
 
 			// Adjust cookie paths
 			->add(CookiePathMiddleware::class)
@@ -416,7 +426,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 				RequestHandlerInterface $handler
 			): ResponseInterface {
 				// Do not attempt authentication for the installer
-				if ($request->getParam('plugin') != 'CakePHPAppInstaller') {
+				if ($request->getParam('plugin') !== 'CakePHPAppInstaller') {
 					return (new AuthenticationMiddleware($this))->process($request, $handler);
 				}
 
@@ -476,7 +486,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 				RequestHandlerInterface $handler
 			): ResponseInterface {
 				// Do not attempt authorization for the installer
-				if ($request && $request->getParam('plugin') != 'CakePHPAppInstaller') {
+				if ($request->getParam('plugin') !== 'CakePHPAppInstaller') {
 					// We wrap this in a function, so that by the time the Router::url calls below happen,
 					// the router has been initialized by its middleware, and the base path is set.
 					$authorization = new AuthorizationMiddleware($this, [
