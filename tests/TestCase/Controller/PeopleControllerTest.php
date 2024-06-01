@@ -2425,7 +2425,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		$new = $this->createDuplicate($player, $admin->affiliates[0]);
 
 		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'approve', '?' => ['person' => $new->id]],
-			$admin->id, ['disposition' => 'approved'], ['controller' => 'People', 'action' => 'list_new']);
+			$admin->id, ['disposition' => 'approve'], ['controller' => 'People', 'action' => 'list_new']);
 
 		// Confirm the notification email
 		$this->assertMailCount(1);
@@ -2565,6 +2565,79 @@ class PeopleControllerTest extends ControllerTestCase {
 		$this->assertCount(1, $person->user_groups);
 		$this->assertCount(2, $person->settings);
 		$this->assertCount(2, $person->skills);
+
+		// And all the old stuff is gone
+		$this->assertEquals(0, $table->find()->where(['id' => $new->id])->count());
+		$this->assertEquals(0, $table->$authModel->find()->where(['id' => $new->id])->count());
+		$this->assertEquals(0, $table->AffiliatesPeople->find()->where(['person_id' => $new->id])->count());
+		$this->assertEquals(0, $table->GroupsPeople->find()->where(['person_id' => $new->id])->count());
+		$this->assertEquals(0, $table->Settings->find()->where(['person_id' => $new->id])->count());
+		$this->assertEquals(0, $table->Skills->find()->where(['person_id' => $new->id])->count());
+	}
+
+	/**
+	 * Test approve method as an admin, merging the duplicate with another
+	 */
+	public function testApproveAsAdminMergeParentToPlayer(): void {
+		$this->enableSecurityToken();
+
+		[$admin, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class, ['admin', 'player']);
+		SettingFactory::make(['person_id' => $player->id, 'category' => 'cat', 'value' => 'val'])->persist();
+		SkillFactory::make(['person_id' => $player->id])->persist();
+		$shirt = $player->shirt_size;
+		$height = $player->height;
+
+		// Create a duplicate account to delete
+		$new = PersonFactory::make([
+			'first_name' => $player->first_name,
+			'last_name' => $player->last_name,
+			'status' => 'new',
+		])
+			->parent()
+			->with('Affiliates', $admin->affiliates[0])
+			->with('Settings')
+			->persist();
+
+		$this->assertPostAsAccessRedirect(['controller' => 'People', 'action' => 'approve', '?' => ['person' => $new->id]],
+			$admin->id, ['disposition' => 'merge_duplicate:' . $player->id], ['controller' => 'People', 'action' => 'list_new']);
+
+		// Confirm the notification email
+		$this->assertMailCount(1);
+		$this->assertMailSentFrom('admin@zuluru.org');
+		$this->assertMailSentWithArray([], 'ReplyTo');
+		$this->assertMailSentTo($player->email);
+		$this->assertMailSentTo($new->email);
+		$this->assertMailSentWithArray([], 'CC');
+		$this->assertMailSentWith('Test Zuluru Affiliate Account Update', 'Subject');
+		$this->assertMailContains('You seem to have created a duplicate TZA account. You already have an account.');
+		$this->assertMailContains('this old account has been merged with your new information');
+
+		// Make sure that everything was correctly merged
+		/** @var PeopleTable $table */
+		$table = TableRegistry::getTableLocator()->get('People');
+		$authModel = Configure::read('Security.authModel');
+		/** @var Person $person */
+		$person = $table->get($player->id, [
+			'contain' => [$authModel, 'Affiliates', 'UserGroups', 'Settings', 'Skills', 'Preregistrations', 'Franchises']
+		]);
+		$this->assertEquals($new->last_name, $person->last_name);
+		$this->assertEquals('active', $person->status);
+		$this->assertFalse($person->publish_email);
+		$this->assertEquals($new->home_phone, $person->home_phone);
+		$this->assertEquals($new->mobile_phone, $person->mobile_phone);
+		$this->assertEquals($new->work_phone, $person->work_phone);
+		$this->assertEquals($new->addr_street, $person->addr_street);
+		$this->assertEquals($shirt, $person->shirt_size);
+		$this->assertEquals($height, $person->height);
+		$this->assertEquals($player->user_id, $person->user_id);
+		$this->assertNotNull($person->user);
+		$this->assertEquals($player->user_id, $person->user->id);
+		$this->assertCount(1, $person->affiliates);
+		$this->assertCount(2, $person->user_groups);
+		$this->assertEquals(GROUP_PLAYER, $person->user_groups[0]->id);
+		$this->assertEquals(GROUP_PARENT, $person->user_groups[1]->id);
+		$this->assertCount(2, $person->settings);
+		$this->assertCount(1, $person->skills);
 
 		// And all the old stuff is gone
 		$this->assertEquals(0, $table->find()->where(['id' => $new->id])->count());
@@ -2748,10 +2821,9 @@ class PeopleControllerTest extends ControllerTestCase {
 		return PersonFactory::make([
 			'first_name' => $player->first_name,
 			'last_name' => $player->last_name,
-			'shirt_size' => 'Womens Large', // required field to save
 			'status' => 'new',
 		])
-			->player()
+			->player(['shirt_size' => 'Womens Large']) // required field to save
 			->with('Affiliates', $affiliate)
 			->with('Skills[2]')
 			->with('Settings[2]')

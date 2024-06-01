@@ -217,11 +217,11 @@ class AppControllerTest extends ControllerTestCase {
 		$this->assertFalse(AppController::_isChild($admin));
 
 		/** @var Person $adult */
-		$adult = PersonFactory::make(['birthdate' => FrozenDate::now()->subYears(19)])->player()->getEntity();
+		$adult = PersonFactory::make()->player(['birthdate' => FrozenDate::now()->subYears(19)])->getEntity();
 		$this->assertFalse(AppController::_isChild($adult));
 
 		/** @var Person $child */
-		$child = PersonFactory::make(['birthdate' => FrozenDate::now()->subYears(17)])->player()->getEntity();
+		$child = PersonFactory::make()->player(['birthdate' => FrozenDate::now()->subYears(17)])->getEntity();
 		$this->assertTrue(AppController::_isChild($child));
 	}
 

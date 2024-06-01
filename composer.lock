@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "48951dc17b774bd7805b4d48657fa910",
+    "content-hash": "bc5c67712959391bab0d962bb30778e0",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -209,16 +209,16 @@
         },
         {
             "name": "cakephp-app-installer/installer",
-            "version": "dev-master",
+            "version": "v4.0.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Zuluru/CakePHP-App-Installer.git",
-                "reference": "c121ca40a4084155fc99d8f9a748b75d9ba77cda"
+                "url": "https://github.com/anuj9196/CakePHP-App-Installer.git",
+                "reference": "523e49f002fa0fe98f9e672b3e89501471594a75"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Zuluru/CakePHP-App-Installer/zipball/c121ca40a4084155fc99d8f9a748b75d9ba77cda",
-                "reference": "c121ca40a4084155fc99d8f9a748b75d9ba77cda",
+                "url": "https://api.github.com/repos/anuj9196/CakePHP-App-Installer/zipball/523e49f002fa0fe98f9e672b3e89501471594a75",
+                "reference": "523e49f002fa0fe98f9e672b3e89501471594a75",
                 "shasum": ""
             },
             "require": {
@@ -228,19 +228,13 @@
             "require-dev": {
                 "phpunit/phpunit": "@stable"
             },
-            "default-branch": true,
             "type": "cakephp-plugin",
             "autoload": {
                 "psr-4": {
                     "CakePHPAppInstaller\\": "src/"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "CakePHPAppInstaller\\Test\\": "tests/",
-                    "Cake\\Test\\": "vendor/cakephp/cakephp/tests/"
-                }
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -263,7 +257,7 @@
                 "issues": "https://github.com/anuj9196/CakePHP-App-Installer/issues",
                 "source": "https://github.com/anuj9196/CakePHP-App-Installer"
             },
-            "time": "2024-05-31T16:41:21+00:00"
+            "time": "2024-06-01T03:50:51+00:00"
         },
         {
             "name": "cakephp/authentication",
@@ -8225,7 +8219,6 @@
     "stability-flags": {
         "zuluru/cakephp-jquery": 20,
         "zuluru/cakephp-bootstrap": 20,
-        "cakephp-app-installer/installer": 20,
         "psy/psysh": 0
     },
     "prefer-stable": true,

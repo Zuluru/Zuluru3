@@ -48,20 +48,20 @@ class DiverseUsersScenario implements FixtureScenarioInterface {
 
 		// The different types of users, and how to create them
 		$types = [
-			'admin' => function (PersonFactory $factory) use ($affiliates) {
-				return $factory->admin()
+			'admin' => function (PersonFactory $factory, array $details = []) use ($affiliates) {
+				return $factory->admin($details)
 					->with('Affiliates', $affiliates);
 			},
-			'manager' => function (PersonFactory $factory) use ($affiliates) {
-				return $factory->manager()
+			'manager' => function (PersonFactory $factory, array $details = []) use ($affiliates) {
+				return $factory->manager($details)
 					->with('AffiliatesPeople', AffiliatesPersonFactory::make(['position' => 'manager', 'affiliate_id' => $affiliates[0]->id]));
 				},
-			'volunteer' => function (PersonFactory $factory) use ($affiliates) {
-				return $factory->volunteer()
+			'volunteer' => function (PersonFactory $factory, array $details = []) use ($affiliates) {
+				return $factory->volunteer($details)
 					->with('Affiliates', $affiliates[0]);
 			},
-			'player' => function (PersonFactory $factory) use ($affiliates) {
-				return $factory->player()
+			'player' => function (PersonFactory $factory, array $details = []) use ($affiliates) {
+				return $factory->player($details)
 					->with('Affiliates', $affiliates[0]);
 			},
 		];
@@ -90,7 +90,7 @@ class DiverseUsersScenario implements FixtureScenarioInterface {
 					$this->addUser($func, $detail);
 				}
 			} else {
-				$this->people[] = $func(PersonFactory::make($details))->persist();
+				$this->people[] = $func(PersonFactory::make(), $details)->persist();
 			}
 		} else {
 			throw new \BadMethodCallException('User detail must be true or number of users to create or array of entity details or array of those things.');

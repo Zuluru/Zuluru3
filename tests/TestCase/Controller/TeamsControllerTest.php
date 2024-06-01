@@ -1599,6 +1599,7 @@ class TeamsControllerTest extends ControllerTestCase {
 		// Also add a relative to the player on the affiliate Bears
 		/** @var Person $relative */
 		$relative = PersonFactory::make()
+			->player()
 			->withGroup(GROUP_PLAYER)
 			->with('Affiliates', $admin->affiliates[1])
 			->persist();

@@ -19,7 +19,7 @@ $this->Breadcrumbs->add($person->full_name);
 
 <?php
 $dispositions = [
-	'approved' => __('Approved'),
+	'approve' => __('Approved'),
 ];
 
 $this_is_player = collection($person->user_groups)->some(function ($group) { return $group->id == GROUP_PLAYER; });

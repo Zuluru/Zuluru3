@@ -2,6 +2,9 @@
 namespace App\Controller;
 
 use App\Authorization\ContextResource;
+use App\Exception\ApproveException;
+use App\Exception\EmailException;
+use App\Service\People\ApproveService;
 use Authorization\Exception\ForbiddenException;
 use Cake\Cache\Cache;
 use Cake\Core\App;
@@ -2645,11 +2648,12 @@ class PeopleController extends AppController {
 		$id = $this->getRequest()->getQuery('person');
 
 		// We don't need to contain Relatives here; those will be handled in the updateAll calls
-		$contain = [Configure::read('Security.authModel'), 'AffiliatesPeople', 'Skills', 'UserGroups', 'Related', 'Settings'];
+		$user_model = Configure::read('Security.authModel');
+		$contain = [$user_model, 'AffiliatesPeople', 'Skills', 'UserGroups', 'Related', 'Settings'];
 
 		try {
 			/** @var Person $person */
-			$person = $this->People->get($id, ['contain' => $contain]);
+			$person = $this->People->get($id, compact('contain'));
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid person.'));
 			return $this->redirect(['action' => 'list_new']);
@@ -2657,180 +2661,48 @@ class PeopleController extends AppController {
 
 		$this->Authorization->authorize($person);
 
-		$duplicates = $this->People->find('duplicates', compact('person'))
-			->contain($contain);
-
 		if ($this->getRequest()->is(['patch', 'post', 'put'])) {
-			if (empty($this->getRequest()->getData('disposition'))) {
+			$disposition = $this->getRequest()->getData('disposition');
+			if (empty($disposition)) {
 				$this->Flash->info(__('You must select a disposition for this account.'));
 			} else {
-				if (strpos($this->getRequest()->getData('disposition'), ':') !== false) {
-					[$disposition, $dup_id] = explode(':', $this->getRequest()->getData('disposition'));
-					$duplicate = collection($duplicates)->firstMatch(['id' => $dup_id]);
-					if ($duplicate) {
-						if ($this->_approve($person, $disposition, $duplicate)) {
+				$service = new ApproveService();
+				try {
+					if (strpos($disposition, ':') !== false) {
+						[$disposition, $dup_id] = explode(':', $disposition);
+						try {
+							/** @var Person $duplicate */
+							$duplicate = $this->People->get($dup_id, compact('contain'));
+							try {
+								$service->$disposition($person, $duplicate);
+							} catch (EmailException $ex) {
+								$this->Flash->warning($ex->getMessage());
+							}
 							return $this->redirect(['action' => 'list_new']);
+						} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
+							$this->Flash->info(__('You have selected an invalid user!'));
 						}
-						// If this fails, we've messed up the duplicate record. Re-read the duplicates to reset it.
-						$duplicates = $this->People->find('duplicates', compact('person'))
-							->contain($contain);
 					} else {
-						$this->Flash->info(__('You have selected an invalid user!'));
-					}
-				} else {
-					if ($this->_approve($person, $this->getRequest()->getData('disposition'))) {
+						try {
+							$service->$disposition($person);
+						} catch (EmailException $ex) {
+							$this->Flash->warning($ex->getMessage());
+						}
 						return $this->redirect(['action' => 'list_new']);
 					}
+				} catch (ApproveException $ex) {
+					$this->Flash->warning($ex->getMessage());
 				}
 			}
 		}
 
-		$user_model = Configure::read('Security.authModel');
+		$duplicates = $this->People->find('duplicates', compact('person'))
+			->contain($contain);
+
 		$users_table = TableRegistry::getTableLocator()->get(Configure::read('Security.authPlugin') . $user_model);
 		$activated = $users_table->activated($person);
 
 		$this->set(compact('person', 'duplicates', 'activated'));
-	}
-
-	protected function _approve(Person $person, $disposition, Person $duplicate = null) {
-		$delete = $save = $fail_message = null;
-
-		// First, take whatever steps are required to prepare the data for saving and/or deleting.
-		// Also prepare the options for sending the notification email, if any.
-		switch($disposition) {
-			case 'approved':
-				$person->status = 'active';
-				$save = $person;
-				$fail_message = __('Couldn\'t save new member activation');
-
-				$mail_opts = [
-					'subject' => function() use ($person) {
-						return __('{0} {1} Activation for {2}',
-							Configure::read('organization.name'),
-							empty($person->user_id) ? __('Profile') : __('Account'),
-							empty($person->user_id) ? $person->full_name : $person->user_name
-						);
-					},
-					'template' => 'account_approved',
-				];
-				break;
-
-			/** @noinspection PhpMissingBreakStatementInspection */
-			case 'delete_duplicate':
-				$mail_opts = [
-					'subject' => function() { return __('{0} Account Update', Configure::read('organization.name')); },
-					'template' => 'account_delete_duplicate',
-				];
-				// Intentionally fall through to the next option
-
-			case 'delete':
-				$delete = $person;
-				break;
-
-			// This is basically the same as delete duplicate, except
-			// that some old information (e.g. user ID) is preserved
-			case 'merge_duplicate':
-				$duplicate->merge($person);
-				$save = $duplicate;
-				$delete = $person;
-				$fail_message = __('Couldn\'t save new member information');
-
-				$mail_opts = [
-					'subject' => function() { return __('{0} Account Update', Configure::read('organization.name')); },
-					'template' => 'account_merge_duplicate',
-				];
-				break;
-		}
-
-		if (!$this->People->getConnection()->transactional(function () use ($disposition, $save, $delete, $fail_message) {
-			// If we are merging, we want to migrate all records that aren't part of the in-memory record.
-			if ($disposition === 'merge_duplicate') {
-				// For anything that we have in memory, we must skip doing a direct query
-				$ignore = ['Affiliates'];
-				$save->setHidden([]);
-				foreach ($save->getVisible() as $prop) {
-					if ($save->isAccessible($prop) && (is_array($delete->$prop))) {
-						$ignore[] = Inflector::camelize($prop);
-					}
-				}
-
-				$associations = $this->People->associations();
-
-				foreach ($associations->getByType('BelongsToMany') as $association) {
-					if (!in_array($association->getName(), $ignore)) {
-						$foreign_key = $association->getForeignKey();
-						$conditions = [$foreign_key => $delete->id];
-						$association_conditions = $association->getConditions();
-						if (!empty($association_conditions)) {
-							$conditions += $association_conditions;
-						}
-						$association->junction()->updateAll([$foreign_key => $save->id], $conditions);
-					}
-
-					// BelongsToMany associations also create HasMany associations for the join tables.
-					// Ignore them when we get there.
-					$ignore[] = $association->junction()->getAlias();
-				}
-
-				foreach ($associations->getByType('HasMany') as $association) {
-					if (!in_array($association->getName(), $ignore)) {
-						$foreign_key = $association->getForeignKey();
-						$conditions = [$foreign_key => $delete->id];
-						$association_conditions = $association->getConditions();
-						if (!empty($association_conditions)) {
-							$conditions += $association_conditions;
-						}
-						$association->getTarget()->updateAll([$foreign_key => $save->id], $conditions);
-					}
-				}
-			}
-
-			if ($delete && !$this->People->delete($delete)) {
-				$this->Flash->warning(__('Failed to delete {0}.', $delete->full_name));
-				return false;
-			}
-
-			if ($save && !$this->People->save($save)) {
-				$this->Flash->warning($fail_message);
-				return false;
-			}
-
-			return true;
-		})) {
-			return false;
-		}
-
-		// Clear any related cached information
-		// TODO: It's conceivable that there could also be stored teams, division, stats, etc. with the deleted person_id in them.
-		// For now, we'll just clear everything whenever this happens...
-		Cache::clear('long_term');
-		/*
-		Cache::delete("person_{$person->id}", 'long_term');
-		foreach ($person->related as $relative) {
-			$this->UserCache->clear('Relatives', $relative->id);
-			$this->UserCache->clear('RelativeIDs', $relative->id);
-		}
-		if (isset($duplicate)) {
-			Cache::delete("person_{$duplicate->id}", 'long_term');
-			foreach ($duplicate->related as $relative) {
-				$this->UserCache->clear('Relatives', $relative->id);
-				$this->UserCache->clear('RelativeIDs', $relative->id);
-			}
-		}
-		*/
-
-		// Take care of any required notifications
-		if (isset($mail_opts)) {
-			if (!$this->_sendMail(array_merge($mail_opts, [
-				'to' => isset($duplicate) ? [$person, $duplicate] : $person,
-				'sendAs' => 'both',
-				'viewVars' => compact('person', 'duplicate'),
-			]))) {
-				$this->Flash->warning(__('Error sending email to {0}.', $person->full_name));
-			}
-		}
-
-		return true;
 	}
 
 	public function vcf() {
