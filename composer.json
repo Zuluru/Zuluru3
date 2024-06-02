@@ -98,7 +98,12 @@
     "config": {
         "allow-plugins": {
             "cakephp/plugin-installer": false,
-            "composer/installers": false
+            "composer/installers": true
         }
+    },
+    "extra": {
+        "installer-disable": [
+            "cakephp"
+        ]
     }
 }
