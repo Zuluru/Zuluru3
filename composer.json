@@ -14,6 +14,7 @@
         "ext-intl": "*",
         "ext-json": "*",
         "cakephp/cakephp": "4.3",
+        "cakephp/plugin-installer": "^1.3",
         "mobiledetect/mobiledetectlib": "2.*",
         "cakephp/migrations": "^3.1",
         "dereuromark/cakephp-ajax": "^2.1",
@@ -38,7 +39,6 @@
         "firebase/php-jwt": "^6",
         "stripe/stripe-php": "^7.39",
         "symfony/yaml": "3.4.37",
-        "cakephp/plugin-installer": "^1.3",
         "boronczyk/localization-middleware": "^2.0",
         "friendsofcake/bootstrap-ui": "^4.0",
         "dereuromark/cakephp-calendar": "^1.5"
@@ -98,7 +98,7 @@
     "config": {
         "allow-plugins": {
             "cakephp/plugin-installer": false,
-            "composer/installers": true
+            "composer/installers": false
         }
     }
 }
