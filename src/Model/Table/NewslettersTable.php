@@ -121,11 +121,13 @@ class NewslettersTable extends AppTable {
 	 * @param ArrayObject $options Unused
 	 */
 	public function beforeMarshal(CakeEvent $cakeEvent, ArrayObject $data, ArrayObject $options) {
-		$server = Router::fullBaseUrl();
-		$data['text'] = strtr($data['text'], [
-			'src="/' => "src=\"{$server}/",
-			'href="/' => "href=\"{$server}/",
-		]);
+		if ($options->offsetExists('text')) {
+			$server = Router::fullBaseUrl();
+			$data['text'] = strtr($data['text'], [
+				'src="/' => "src=\"{$server}/",
+				'href="/' => "href=\"{$server}/",
+			]);
+		}
 	}
 
 	public function affiliate($id) {

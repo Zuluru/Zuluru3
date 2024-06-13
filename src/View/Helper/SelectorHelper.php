@@ -115,7 +115,7 @@ class SelectorHelper extends Helper {
 
 	private function value(object $item, $value) {
 		if (is_string($value)) {
-			return $item->$value;
+			return (string)$item->$value;
 		}
 
 		if (is_callable($value)) {

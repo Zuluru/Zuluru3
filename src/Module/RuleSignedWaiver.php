@@ -24,9 +24,9 @@ class RuleSignedWaiver extends Rule {
 	protected array $waiver_ids;
 
 	/**
-	 * Waiver name
+	 * Waiver
 	 */
-	protected string $waiver;
+	protected $waiver;
 
 	/**
 	 * Date to look at

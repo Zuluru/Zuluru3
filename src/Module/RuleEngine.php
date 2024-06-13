@@ -23,7 +23,7 @@ class RuleEngine {
 	/**
 	 * Reason why the rule passed or failed
 	 */
-	public string $reason = 'Unknown reason!';
+	public $reason = 'Unknown reason!';
 
 	/**
 	 * Where to redirect to for prerequisite completion, if applicable
