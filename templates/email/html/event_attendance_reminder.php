@@ -54,4 +54,4 @@ endif;
 	$this->Html->link(__('click here'),
 		Router::url(['controller' => 'TeamEvents', 'action' => 'attendance_change', '?' => ['event' => $team_event->id, 'person' => $person->id, 'code' => $code, 'status' => ATTENDANCE_ABSENT]], true))
 ) ?></p>
-<?= $this->element('Email/html/footer');
+<?= $this->element('email/html/footer');
