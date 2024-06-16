@@ -6,6 +6,10 @@
 
 use Cake\Core\Configure;
 
+if ($team === null) {
+	return;
+}
+
 $id = "teams_team_{$team->id}";
 
 if (isset($options)) {

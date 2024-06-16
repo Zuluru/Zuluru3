@@ -19,10 +19,11 @@ if ($params['continue']) {
 	$message .= $this->Html->para(null, __('Please proceed with entering your next child\'s details below.'));
 }
 
-echo $this->element('BootstrapUI.Flash/default', [
+echo $this->element('BootstrapUI.flash/default', [
 	'message' => $message,
 	'params' => [
 		'class' => ['alert-success', 'alert', 'alert-dismissible', 'fade', 'show', 'd-flex', 'align-items-center'],
+		'icon' => false,
 		'escape' => false,
 		'attributes' => ['role' => 'alert'],
 	],

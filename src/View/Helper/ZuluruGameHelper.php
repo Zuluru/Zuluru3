@@ -131,15 +131,9 @@ class ZuluruGameHelper extends Helper {
 				$text .= __('score mismatch') . "\n";
 
 				if ($team_id) {
-					if ($score_entry->status === 'in_progress') {
-						$links[] = $this->Html->link(
-							__('Live Score'),
-							['controller' => 'Games', 'action' => 'live_score', '?' => ['game' => $game->id, 'team' => $team_id]]);
-					} else {
-						$links[] = $this->Html->link(
-							__('Edit Score'),
-							['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $team_id]]);
-					}
+					$links[] = $this->Html->link(
+						__('Edit Score'),
+						['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $team_id]]);
 				}
 			} else if ($game->game_slot->end_time->subHours(1)->isPast()) {
 				if ($division->schedule_type !== 'competition') {

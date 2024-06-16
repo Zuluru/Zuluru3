@@ -24,8 +24,8 @@ $show_spirit = $this->Authorize->can('view_spirit', $division_context);
 $show_spirit_scores = $show_spirit && $this->Authorize->can('view_spirit_scores', $division_context);
 
 $carbon_flip_options = [
-	2 => __('{0} won', $game->home_team_id !== null ? $game->home_team->name : $game->home_dependency),
-	0 => __('{0} won', $game->away_team_id !== null ? $game->away_team->name : $game->away_dependency),
+	2 => __('{0} won', $game->home_team ? $game->home_team->name : $game->home_dependency),
+	0 => __('{0} won', $game->away_team ? $game->away_team->name : $game->away_dependency),
 	1 => __('tie'),
 ];
 ?>
@@ -37,7 +37,7 @@ $carbon_flip_options = [
 		<dd class="col-sm-9 mb-0"><?= $this->element('Divisions/block', ['division' => $game->division, 'field' => 'full_league_name']) ?></dd>
 		<dt class="col-sm-3 text-end"><?= $game->division->schedule_type == 'competition' ? __('Team') : __('Home Team') ?></dt>
 		<dd class="col-sm-9 mb-0"><?php
-			if ($game->home_team_id === null) {
+			if ($game->home_team === null) {
 				if ($game->has('home_dependency')) {
 					echo $game->home_dependency;
 				} else {
@@ -50,7 +50,7 @@ $carbon_flip_options = [
 				}
 				if ($game->division->schedule_type != 'tournament') {
 					echo __(' ({0})', __('currently rated: {0}', $game->home_team->rating));
-					if (!$preliminary && !$game->isFinalized() && $game->division->schedule_type != 'competition') {
+					if (!$preliminary && !$game->isFinalized() && $game->division->schedule_type != 'competition' && $game->away_team) {
 						printf(' (%0.1f%% %s)', $ratings_obj->calculateExpectedWin($game->home_team->rating, $game->away_team->rating) * 100, __('chance to win'));
 					}
 				}
@@ -61,7 +61,7 @@ if ($game->division->schedule_type != 'competition'):
 ?>
 		<dt class="col-sm-3 text-end"><?= __('Away Team') ?></dt>
 		<dd class="col-sm-9 mb-0"><?php
-			if ($game->away_team_id === null) {
+			if ($game->away_team === null) {
 				if ($game->has('away_dependency')) {
 					echo $game->away_dependency;
 				} else {
@@ -180,10 +180,10 @@ if (!empty($game->spirit_entries) || Configure::read('scoring.spirit_default')) 
 	$homeSpiritEntry = $awaySpiritEntry = false;
 }
 $team_names = [];
-if ($game->home_team_id) {
+if ($game->home_team) {
 	$team_names[$game->home_team_id] = $game->home_team->name;
 }
-if ($game->away_team_id) {
+if ($game->away_team) {
 	$team_names[$game->away_team_id] = $game->away_team->name;
 }
 ?>
@@ -197,7 +197,7 @@ if ($game->isFinalized()):
 <?php
 	if (!in_array($game->status, Configure::read('unplayed_status'))):
 ?>
-			<dt class="col-sm-3 text-end"><?= $this->Text->truncate($game->home_team->name, 28) ?></dt>
+			<dt class="col-sm-3 text-end"><?= $this->Text->truncate($game->home_team->name ?? '', 28) ?></dt>
 			<dd class="col-sm-9 mb-0"><?php
 				echo $game->home_score;
 				if ($game->division->women_present && isset($homeScoreEntry) && $homeScoreEntry->women_present) {
@@ -207,7 +207,7 @@ if ($game->isFinalized()):
 <?php
 		if ($game->division->schedule_type != 'competition'):
 ?>
-			<dt class="col-sm-3 text-end"><?= $this->Text->truncate($game->away_team->name, 28) ?></dt>
+			<dt class="col-sm-3 text-end"><?= $this->Text->truncate($game->away_team->name ?? '', 28) ?></dt>
 			<dd class="col-sm-9 mb-0"><?php
 				echo $game->away_score;
 				if ($game->division->women_present && isset($awayScoreEntry) && $awayScoreEntry->women_present) {
@@ -226,14 +226,14 @@ if ($game->isFinalized()):
 
 		if ($show_spirit):
 ?>
-			<dt class="col-sm-3 text-end"><?= __('Spirit for {0}', $this->Text->truncate($game->home_team->name, 18)) ?></dt>
+			<dt class="col-sm-3 text-end"><?= __('Spirit for {0}', $this->Text->truncate($game->home_team->name ?? '', 18)) ?></dt>
 			<dd class="col-sm-9 mb-0"><?= $this->element('Spirit/symbol', [
 				'spirit_obj' => $spirit_obj,
 				'league' => $game->division->league,
 				'show_spirit_scores' => $show_spirit_scores,
 				'entry' => $awaySpiritEntry,
 			]) ?></dd>
-			<dt class="col-sm-3 text-end"><?= __('Spirit for {0}', $this->Text->truncate($game->away_team->name, 18)) ?></dt>
+			<dt class="col-sm-3 text-end"><?= __('Spirit for {0}', $this->Text->truncate($game->away_team->name ?? '', 18)) ?></dt>
 			<dd class="col-sm-9 mb-0"><?= $this->element('Spirit/symbol', [
 				'spirit_obj' => $spirit_obj,
 				'league' => $game->division->league,
@@ -272,8 +272,8 @@ else:
 			<thead>
 				<tr>
 					<th></th>
-					<th><?= $this->Text->truncate($game->home_team->name, 23) . __(' ({0})', __('home')) ?></th>
-					<th><?= $this->Text->truncate($game->away_team->name, 23) . __(' ({0})', __('away')) ?></th>
+					<th><?= $this->Text->truncate($game->home_team->name ?? '', 23) . __(' ({0})', __('home')) ?></th>
+					<th><?= $this->Text->truncate($game->away_team->name ?? '', 23) . __(' ({0})', __('away')) ?></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -388,9 +388,9 @@ else:
 			}
 		?></p>
 		<dl class="row">
-			<dt class="col-sm-3 text-end"><?= $this->Text->truncate($game->home_team->name, 28) ?></dt>
+			<dt class="col-sm-3 text-end"><?= $this->Text->truncate($game->home_team->name ?? '', 28) ?></dt>
 			<dd class="col-sm-9 mb-0"><?= ($entry->team_id != $game->away_team_id ? $entry->score_for : $entry->score_against) ?></dd>
-			<dt class="col-sm-3 text-end"><?= $this->Text->truncate($game->away_team->name, 28) ?></dt>
+			<dt class="col-sm-3 text-end"><?= $this->Text->truncate($game->away_team->name ?? '', 28) ?></dt>
 			<dd class="col-sm-9 mb-0"><?= ($entry->team_id == $game->away_team_id ? $entry->score_for : $entry->score_against) ?></dd>
 		</dl>
 <?php

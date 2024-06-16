@@ -30,7 +30,8 @@ class API extends \App\Http\API {
 
 	public function parsePayment(array $data, bool $checkHash = true): array {
 		// Retrieve the parameters sent from the server
-		$audit = ['payment_plugin' => 'Chase'];
+		$audit = ['payment_plugin' => 'Chase', 'transaction_id' => '', 'charge_total' => 0, 'iso_code' => ''];
+		$data += ['exact_ctr' => ''];
 		foreach ([
 			'order_id' => 'Reference_No',
 			'response_code' => 'Bank_Resp_Code',
@@ -63,6 +64,8 @@ class API extends \App\Http\API {
 				$audit['charge_total'] *= 1000;
 				$audit['charge_total'] += array_shift($total_arr);
 			}
+		} else {
+			$audit['card'] = '';
 		}
 
 		// TODO: no better way to get these from the response?
@@ -131,6 +134,7 @@ class API extends \App\Http\API {
 	public function parseRefund(array $data): array {
 		// Retrieve the parameters sent from the server
 		$audit = ['payment_plugin' => 'Chase'];
+		$data += ['ctr' => ''];
 		foreach ([
 			 'response_code' => 'bank_resp_code',
 			 'transaction_id' => 'transaction_tag',

@@ -11,7 +11,7 @@
 use App\Model\Entity\Division;
 use Cake\Core\Configure;
 
-$tournaments = collection($league->divisions)->every(function (Division $division) {
+$tournaments = collection($league->divisions ?? [])->every(function (Division $division) {
 	return $division->schedule_type == 'tournament';
 });
 $this->Breadcrumbs->add($tournaments ? __('Tournaments') : __('Leagues'));
@@ -34,13 +34,13 @@ endif;
 <div class="leagues schedule">
 <h2><?= ($tournaments ? __('Tournament Schedule') : __('League Schedule')) . ': ' . $league->full_name ?></h2>
 <?php
-if (collection($league->divisions)->some(function ($division) { return $division->schedule_type == 'tournament'; })) {
+if (collection($league->divisions ?? [])->some(function ($division) { return $division->schedule_type == 'tournament'; })) {
 	echo $this->element('Leagues/schedule/tournament/notice');
 }
 
 if (!empty($league->games)):
 	$future_week = 99;
-	$dates = collection($league->games);
+	$dates = collection($league->games ?? []);
 	if (!$this->Authorize->can('edit_schedule', $league)) {
 		$dates = $dates->filter(function ($game) { return $game->published; });
 	}
@@ -77,7 +77,7 @@ if (!empty($league->games)):
 			<table class="table table-striped table-hover table-condensed">
 				<thead>
 <?php
-	$competition = collection($league->divisions)->every(function ($division) { return $division->schedule_type == 'competition'; });
+	$competition = collection($league->divisions ?? [])->every(function ($division) { return $division->schedule_type == 'competition'; });
 ?>
 					<tr>
 						<th><?= $is_tournament ? __('Game') : '' ?></th>

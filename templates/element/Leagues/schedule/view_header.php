@@ -41,7 +41,7 @@ if (!$finalized) {
 			['action' => 'slots', '?' => [$id_field => $id, 'date' => $week[0]->toDateString()]],
 			['alt' => __(Configure::read("sports.{$league->sport}.fields_cap")), 'title' => __('Available {0}', __(Configure::read("sports.{$league->sport}.fields_cap")))]);
 		echo $this->Html->iconLink('edit_24.png',
-			['action' => 'schedule', '?' => [$id_field => $id, 'edit_date' => $week[0]->toDateString(), '#' => $week[0]->toDateString()]],
+			['action' => 'schedule', '?' => [$id_field => $id, 'edit_date' => $week[0]->toDateString()], '#' => $week[0]->toDateString()],
 			['alt' => __('Edit Week'), 'title' => __('Edit Week')]);
 		echo $this->Form->iconPostLink('delete_24.png',
 			['controller' => 'Schedules', 'action' => 'delete', '?' => [$id_field => $id, 'date' => $week[0]->toDateString()]],

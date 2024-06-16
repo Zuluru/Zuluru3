@@ -33,19 +33,12 @@ echo $this->element('People/gender_inputs', ['prefix' => '', 'secure' => true, '
 if (Configure::read('profile.birthdate')) {
 	if (Configure::read('feature.birth_year_only')) {
 		echo $this->Form->control('birthdate', [
-			'templates' => [
-				'dateWidget' => '{{year}}',
-				// Change the input container template, removing the "date" class, so it doesn't get a date picker added
-				'inputContainer' => '<div class="mb-3 form-group row {{required}}">{{content}}</div>',
-				'inputContainerError' => '<div class="mb-3 form-group row {{required}} has-error">{{content}}</div>',
-			],
-			'minYear' => Configure::read('options.year.born.min'),
-			'maxYear' => Configure::read('options.year.born.max'),
+			'type' => 'year',
+			'min' => Configure::read('options.year.born.min'),
+			'max' => Configure::read('options.year.born.max'),
 			'empty' => '---',
 			'help' => __('Please enter a correct birthdate; having accurate information is important for insurance purposes.'),
 		]);
-		echo $this->Form->hidden('birthdate.month', ['value' => 1]);
-		echo $this->Form->hidden('birthdate.day', ['value' => 1]);
 	} else {
 		echo $this->Form->control('birthdate', [
 			'minYear' => Configure::read('options.year.born.min'),

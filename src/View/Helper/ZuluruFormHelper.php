@@ -187,9 +187,9 @@ class ZuluruFormHelper extends FormHelper {
 	public function iconPostLink($img, $url = null, array $imgOptions = [], array $linkOptions = []): string {
 		if (array_key_exists('class', $linkOptions)) {
 			if (is_array($linkOptions['class'])) {
-				$linkOptions[] = 'icon';
+				$linkOptions['class'][] = 'icon';
 			} else {
-				$linkOptions .= ' icon';
+				$linkOptions['class'] .= ' icon';
 			}
 		} else {
 			$linkOptions['class'] = 'icon';

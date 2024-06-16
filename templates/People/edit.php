@@ -484,27 +484,14 @@ if (Configure::read('profile.gender') || Configure::read('profile.pronouns') || 
 	if (in_array(Configure::read('profile.birthdate'), $access)) {
 		if (Configure::read('feature.birth_year_only')) {
 			echo $this->Form->control('birthdate', [
-				'templates' => [
-					'dateWidget' => '{{year}}',
-					// Change the input container template, removing the "date" class, so it doesn't get a date picker added
-					'inputContainer' => '<div class="mb-3 form-group row {{required}}">{{content}}</div>',
-					'inputContainerError' => '<div class="mb-3 form-group row {{required}} has-error">{{content}}</div>',
-				],
-				'minYear' => Configure::read('options.year.born.min'),
-				'maxYear' => Configure::read('options.year.born.max'),
+				'type' => 'year',
+				'min' => Configure::read('options.year.born.min'),
+				'max' => Configure::read('options.year.born.max'),
 				'empty' => '---',
 				'default' => '',
 				'help' => __('Please enter a correct birthdate; having accurate information is important for insurance purposes.'),
 				'secure' => false,
 			]);
-			echo $this->Form->hidden('birthdate.month', [
-				'value' => 1,
-			]);
-			echo $this->Form->hidden('birthdate.day', [
-				'value' => 1,
-			]);
-			$this->Form->unlockField('birthdate.month');
-			$this->Form->unlockField('birthdate.day');
 		} else {
 			echo $this->Form->control('birthdate', [
 				'minYear' => Configure::read('options.year.born.min'),
@@ -516,22 +503,25 @@ if (Configure::read('profile.gender') || Configure::read('profile.pronouns') || 
 			]);
 		}
 	} else if (Configure::read('profile.birthdate')) {
-		echo $this->Form->control('birthdate', [
-			'disabled' => true,
-			'year' => [
-				'class' => 'disabled',
-			],
-			'month' => [
-				'class' => 'disabled',
-			],
-			'day' => [
-				'class' => 'disabled',
-			],
-			'minYear' => Configure::read('options.year.born.min'),
-			'maxYear' => Configure::read('options.year.born.max'),
-			'help' => __('To prevent system abuses, this can only be changed by an administrator. To change this, please email your {0} to {1}.', __('correct birthdate'), $this->Html->link($admin, "mailto:$admin")),
-			'secure' => false,
-		]);
+		if (Configure::read('feature.birth_year_only')) {
+			echo $this->Form->control('birthdate', [
+				'type' => 'year',
+				'disabled' => true,
+				'min' => Configure::read('options.year.born.min'),
+				'max' => Configure::read('options.year.born.max'),
+				'help' => __('To prevent system abuses, this can only be changed by an administrator. To change this, please email your {0} to {1}.', __('correct birthdate'), $this->Html->link($admin, "mailto:$admin")),
+				'secure' => false,
+			]);
+		} else {
+			// @todo: Disabling this doesn't actually disable it. Any other date inputs with the same issue?
+			echo $this->Form->control('birthdate', [
+				'disabled' => true,
+				'minYear' => Configure::read('options.year.born.min'),
+				'maxYear' => Configure::read('options.year.born.max'),
+				'help' => __('To prevent system abuses, this can only be changed by an administrator. To change this, please email your {0} to {1}.', __('correct birthdate'), $this->Html->link($admin, "mailto:$admin")),
+				'secure' => false,
+			]);
+		}
 	}
 	if (in_array(Configure::read('profile.height'), $access)) {
 		if (Configure::read('feature.units') == 'Metric') {

@@ -290,16 +290,16 @@ $this->Html->scriptBlock('zjQuery(".advanced").hide();', ['buffer' => true]);
 ?>
 <div class="actions columns">
 <?php
-$links = [$this->Html->link($tournaments ? __('List Leagues') : __('List Leagues'), ['action' => 'index'], ['class' => $this->Bootstrap->navPillLinkClasses()])];
+$links = [$this->Html->link($tournaments ? __('List Tournaments') : __('List Leagues'), ['action' => 'index'], ['class' => $this->Bootstrap->navPillLinkClasses()])];
 if (!$league->isNew()) {
 	$links[] = $this->Form->iconPostLink('delete_32.png',
 		['action' => 'delete', '?' => ['league' => $league->id]],
-		['alt' => __('Delete'), 'title' => $tournaments ? __('Delete League') : __('Delete League')],
+		['alt' => __('Delete'), 'title' => $tournaments ? __('Delete Tournament') : __('Delete League')],
 		['confirm' => __('Are you sure you want to delete this league?')]
 	);
 	$links[] = $this->Html->iconLink('add_32.png',
 		['action' => 'add'],
-		['alt' => __('Add'), 'title' => $tournaments ? __('Add League') : __('Add League')]
+		['alt' => __('Add'), 'title' => $tournaments ? __('Add Tournament') : __('Add League')]
 	);
 }
 echo $this->Bootstrap->navPills($links);

@@ -50,16 +50,16 @@ if (!empty($division->capt_list)):
 endif;
 ?>
 <dt class="col-sm-3 text-end"><?= __('Status') ?></dt>
-<dd class="col-sm-9 mb-0"><?= $division->is_open ? __('Open') : ($division->open->isFuture() ? __('Opening Soon') : __('Closed')) ?></dd>
+<dd class="col-sm-9 mb-0"><?= $division->is_open ? __('Open') : ($division->open && $division->open->isFuture() ? __('Opening Soon') : __('Closed')) ?></dd>
 <?php
-if ($division->open != '0000-00-00'):
+if ($division->open != null):
 ?>
 <dt class="col-sm-3 text-end"><?= __('First Game') ?></dt>
 <dd class="col-sm-9 mb-0"><?= $this->Time->date($division->open) ?></dd>
 <?php
 endif;
 
-if ($division->close != '0000-00-00'):
+if ($division->close != null):
 ?>
 <dt class="col-sm-3 text-end"><?= __('Last Game') ?></dt>
 <dd class="col-sm-9 mb-0"><?= $this->Time->date($division->close) ?></dd>

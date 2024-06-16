@@ -63,7 +63,7 @@ if (count($groups) > 1):
 <?php
 endif;
 
-echo $this->Jquery->toggleInput('person.groups._ids', [
+echo $this->Jquery->toggleInput('person.user_groups._ids', [
 	'label' => __('Select all roles that apply to you.') . ' ' . __('You will be able to change these later, if required.'),
 	'type' => 'select',
 	'multiple' => 'checkbox',
@@ -326,24 +326,11 @@ echo $this->element('People/gender_inputs', ['prefix' => 'person.', 'secure' => 
 if (Configure::read('profile.birthdate')) {
 	if (Configure::read('feature.birth_year_only')) {
 		echo $this->Form->control('person.birthdate', [
-			'templates' => [
-				'dateWidget' => '{{year}}',
-				// Change the input container template, removing the "date" class, so it doesn't get a date picker added
-				'inputContainer' => '<div class="mb-3 form-group row {{required}}">{{content}}</div>',
-				'inputContainerError' => '<div class="mb-3 form-group row {{required}} has-error">{{content}}</div>',
-			],
-			'minYear' => Configure::read('options.year.born.min'),
-			'maxYear' => Configure::read('options.year.born.max'),
+			'type' => 'year',
+			'min' => Configure::read('options.year.born.min'),
+			'max' => Configure::read('options.year.born.max'),
 			'empty' => '---',
 			'help' => __('Please enter a correct birthdate; having accurate information is important for insurance purposes.'),
-			'secure' => false,
-		]);
-		echo $this->Form->hidden('person.birthdate.month', [
-			'value' => 1,
-			'secure' => false,
-		]);
-		echo $this->Form->hidden('person.birthdate.day', [
-			'value' => 1,
 			'secure' => false,
 		]);
 	} else {
@@ -424,24 +411,11 @@ if (array_key_exists(GROUP_PARENT, $groups)):
 	if (Configure::read('profile.birthdate')) {
 		if (Configure::read('feature.birth_year_only')) {
 			echo $this->Form->control('person.relatives.0.birthdate', [
-				'templates' => [
-					'dateWidget' => '{{year}}',
-					// Change the input container template, removing the "date" class, so it doesn't get a date picker added
-					'inputContainer' => '<div class="mb-3 form-group row {{required}}">{{content}}</div>',
-					'inputContainerError' => '<div class="mb-3 form-group row {{required}} has-error">{{content}}</div>',
-				],
-				'minYear' => Configure::read('options.year.born.min'),
-				'maxYear' => Configure::read('options.year.born.max'),
+				'type' => 'year',
+				'min' => Configure::read('options.year.born.min'),
+				'max' => Configure::read('options.year.born.max'),
 				'empty' => '---',
 				'help' => __('Please enter a correct birthdate; having accurate information is important for insurance purposes.'),
-				'secure' => false,
-			]);
-			echo $this->Form->hidden('person.relatives.0.birthdate.month', [
-				'value' => 1,
-				'secure' => false,
-			]);
-			echo $this->Form->hidden('person.relatives.0.birthdate.day', [
-				'value' => 1,
 				'secure' => false,
 			]);
 		} else {

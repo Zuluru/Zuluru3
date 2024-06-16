@@ -71,8 +71,9 @@ class DivisionsController extends AppController {
 		$this->Configuration->loadAffiliate($division->league->affiliate_id);
 		$this->Divisions->prepForView($division);
 		$league_obj = $this->moduleRegistry->load("LeagueType:{$division->schedule_type}");
+		$can_edit = $this->Authorization->can($division, 'edit_schedule');
 
-		$this->set(compact('division', 'league_obj'));
+		$this->set(compact('division', 'league_obj', 'can_edit'));
 		$this->viewBuilder()->setOption('serialize', ['division']);
 	}
 
@@ -643,12 +644,12 @@ class DivisionsController extends AppController {
 			]);
 		} catch (RecordNotFoundException|InvalidPrimaryKeyException $ex) {
 			$this->Flash->info(__('Invalid division.'));
-			return null;
+			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
 
 		if (empty($division->games)) {
 			$this->Flash->info(__('This division has no games scheduled yet.'));
-			return null;
+			return $this->redirect(['controller' => 'Leagues', 'action' => 'index']);
 		}
 
 		// Sort games by date, time and field

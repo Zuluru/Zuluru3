@@ -13,7 +13,12 @@ if (!isset($format)) {
 	$format = 'links';
 }
 if (!isset($size)) {
-	$size = ($format == 'links' ? 24 : 32);
+	$size = ($format === 'links' ? 24 : 32);
+}
+if ($format == 'links') {
+	$pillClasses = '';
+} else {
+	$pillClasses = $this->Bootstrap->navPillLinkClasses();
 }
 
 $links = new ArrayObject();
@@ -33,7 +38,7 @@ if (($this->getRequest()->getParam('controller') != 'Registrations' || $this->ge
 ) {
 	$links[] = $this->Html->link(__('Add Payment'),
 		['controller' => 'Registrations', 'action' => 'add_payment', '?' => ['registration' => $registration->id]],
-		['class' => $this->Bootstrap->navPillLinkClasses()]
+		['class' => $pillClasses]
 	);
 }
 
@@ -51,14 +56,14 @@ if (($this->getRequest()->getParam('controller') != 'Registrations' || $this->ge
 ) {
 	$links[] = $this->Html->link(__('View Invoice'),
 		['controller' => 'Registrations', 'action' => 'invoice','?' => ['registration' => $registration->id]],
-		['class' => $this->Bootstrap->navPillLinkClasses()]
+		['class' => $pillClasses]
 	);
 }
 
 if ($this->Authorize->can('unregister', $registration)) {
 	$links[] = $this->Html->link(__('Unregister'),
 		['controller' => 'Registrations', 'action' => 'unregister', '?' => ['registration' => $registration->id, 'return' => AppController::_return()]],
-		['confirm' => __('Are you sure you want to delete this registration?'), 'class' => $this->Bootstrap->navPillLinkClasses()]
+		['confirm' => __('Are you sure you want to delete this registration?'), 'class' => $pillClasses]
 	);
 }
 

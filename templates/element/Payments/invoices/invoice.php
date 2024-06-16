@@ -158,7 +158,11 @@ foreach ($registrations as $registration):
 	if (isset($audit)) {
 		[$cost, $tax1, $tax2] = $registration->paymentAmounts();
 	} else {
-		$scale = $registration->total_amount / ($registration->price->cost + $registration->price->tax1 + $registration->price->tax2);
+		if ($registration->price->cost == 0) {
+			$scale = 1;
+		} else {
+			$scale = $registration->total_amount / ($registration->price->cost + $registration->price->tax1 + $registration->price->tax2);
+		}
 		$cost = round($registration->price->cost * $scale, 2);
 		$tax1 = round($registration->price->tax1 * $scale, 2);
 		$tax2 = round($registration->price->tax2 * $scale, 2);

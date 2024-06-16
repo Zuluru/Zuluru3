@@ -399,11 +399,12 @@ class PeopleTable extends AppTable {
 						}
 
 						// Anyone who says their child is older than they are is a spambot.
-						if ($value[0]['birthdate']['year'] &&
-							array_key_exists('birthdate', $context['data']) && $context['data']['birthdate']['year'] &&
-							$value[0]['birthdate']['year'] < $context['data']['birthdate']['year'] + 12
-						) {
-							return false;
+						if ($value[0]['birthdate'] && array_key_exists('birthdate', $context['data']) && $context['data']['birthdate']) {
+							$parent = (int)substr($context['data']['birthdate'], 0, 4);
+							$child = (int)substr($value[0]['birthdate'], 0, 4);
+							if ($child < $parent + 12) {
+								return false;
+							}
 						}
 
 						return true;
@@ -767,6 +768,10 @@ class PeopleTable extends AppTable {
 					$data['relatives'][$key]['_joinData'] = ['approved' => true];
 				}
 			}
+		}
+
+		if (Configure::read('feature.birth_year_only') && $data->offsetExists('birthdate')) {
+			$data['birthdate'] = $data['birthdate'] . '-01-01';
 		}
 	}
 

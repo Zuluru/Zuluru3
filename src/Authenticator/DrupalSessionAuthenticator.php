@@ -63,7 +63,7 @@ class DrupalSessionAuthenticator extends CMSSessionAuthenticator {
 			// this will happen when a logged-in user is merged or deleted, for example.
 			if ($user->has('_matchingData') &&
 				array_key_exists('DrupalSessions', $user->_matchingData) &&
-				$user->_matchingData['DrupalSessions']->sid == $drupal_session_id &&
+				$user->_matchingData['DrupalSessions']->sid == $this->drupal_hash_base64($drupal_session_id) &&
 				$user->has('person') &&
 				!empty(UserCache::getInstance()->read('Person', $user->person->id))
 			) {

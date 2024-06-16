@@ -5,6 +5,7 @@
  * @var \App\Model\Entity\League $league
  * @var \App\Model\Entity\Team[] $teams
  * @var \App\Module\LeagueType $league_obj
+ * @var bool $can_edit
  */
 
 ?>
@@ -25,7 +26,7 @@ if (!empty($teams)):
 		}
 		$team->consolidateRoster($league->sport);
 		echo $this->element("Leagues/view/{$league_obj->render_element}/team",
-			compact('team', 'division', 'league', 'seed', 'classes'));
+			compact('team', 'division', 'league', 'seed', 'classes', 'can_edit'));
 	}
 ?>
 			</tbody>

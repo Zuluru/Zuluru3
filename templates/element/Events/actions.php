@@ -14,7 +14,12 @@ if (!isset($format)) {
 	$format = 'links';
 }
 if (!isset($size)) {
-	$size = ($format == 'links' ? 24 : 32);
+	$size = ($format === 'links' ? 24 : 32);
+}
+if ($format == 'links') {
+	$pillClasses = '';
+} else {
+	$pillClasses = $this->Bootstrap->navPillLinkClasses();
 }
 
 $links = new ArrayObject();
@@ -30,7 +35,7 @@ if (Configure::read('registration.register_now')) {
 	if ($this->getRequest()->getParam('controller') != 'Registrations' || $this->getRequest()->getParam('action') != 'register') {
 		$links[] = $this->Html->link(__('Register Now!'),
 			['controller' => 'Registrations', 'action' => 'register', '?' => ['event' => $event->id]],
-			['class' => $this->Bootstrap->navPillLinkClasses()]
+			['class' => $pillClasses]
 		);
 	}
 }
@@ -38,7 +43,7 @@ if (Configure::read('registration.register_now')) {
 if (!empty($event->division_id)) {
 	$links[] = $this->Html->link(__('View Division'),
 		['controller' => 'Divisions', 'action' => 'view', '?' => ['division' => $event->division->id]],
-		['class' => $this->Bootstrap->navPillLinkClasses()]
+		['class' => $pillClasses]
 	);
 }
 

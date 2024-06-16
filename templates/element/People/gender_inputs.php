@@ -22,7 +22,7 @@ if (!empty($prefix)) {
 }
 
 echo Configure::read('organization.gender_equity_statement');
-if (!$edit || in_array(Configure::read('profile.gender'), $access)) {
+if (!$edit || empty($person->gender) || in_array(Configure::read('profile.gender'), $access)) {
 	echo $this->Jquery->toggleInput("{$prefix}gender", [
 		'label' => __('Gender Identification'),
 		'type' => 'select',
@@ -59,7 +59,7 @@ echo $this->Form->control("{$prefix}publish_gender", [
 ]);
 
 if (Configure::read('gender.column') == 'roster_designation') {
-	if (!$edit || in_array(Configure::read('profile.gender'), $access)) {
+	if (!$edit || empty($person->roster_designation) || in_array(Configure::read('profile.gender'), $access)) {
 		echo $this->Form->control("{$prefix}roster_designation", [
 			'options' => Configure::read('options.roster_designation'),
 			'empty' => '---',
@@ -76,7 +76,7 @@ if (Configure::read('gender.column') == 'roster_designation') {
 }
 
 if (Configure::read('profile.pronouns')) {
-	if (!$edit || in_array(Configure::read('profile.pronouns'), $access)) {
+	if (!$edit || empty($person->pronouns) || in_array(Configure::read('profile.pronouns'), $access)) {
 		echo $this->Form->control("{$prefix}pronouns", [
 			'label' => __('Pronouns'),
 			'help' => __('In case we need to get in touch with you or introduce you to another player, captain, or volunteer, what pronouns should we use? (Optional)'),

@@ -12,6 +12,10 @@
  */
 
 /** General Style Info **/
+body
+{
+	font-size: 14px;
+}
 #content
 {
 	background: #fff;
@@ -329,10 +333,6 @@
 }
 
 /* Extra dropdown menu formatting */
-.navbar a
-{
-	font-size: 90%;
-}
 .navbar .nav-link
 {
 	padding: 12px !important;
@@ -349,7 +349,6 @@
 /* Add in some overrides of styles from Bootstrap */
 .zuluru div.form-group.has-error ul
 {
-	font-size: 90%;
 	color: #A94442;
 }
 

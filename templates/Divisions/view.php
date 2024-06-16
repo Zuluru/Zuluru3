@@ -2,6 +2,7 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Division $division
+ * @var bool $can_edit
  */
 
 use Cake\Core\Configure;
@@ -77,5 +78,6 @@ echo $this->element('Divisions/teams', [
 	'league' => $division->league,
 	'division' => $division,
 	'teams' => $division->teams,
+	'can_edit' => $can_edit,
 ]);
 echo $this->element('Divisions/register', ['events' => $division->events]);

@@ -51,13 +51,13 @@ if ($attendance->status == ATTENDANCE_AVAILABLE):
 
 <?php
 $url = Router::url(['controller' => 'Games', 'action' => 'attendance_change', '?' => ['team' => $team->id, $arg => $val, 'person' => $person->id, 'code' => $code, 'status' => ATTENDANCE_ATTENDING]], true);
-echo $this->Html->link($url, $url);
+echo $this->Html->link(__('click here'), $url);
 ?></p>
 <p><?= __('If you know <b>for sure</b> that you don\'t need {0} for this game:', $person->first_name) ?>
 
 <?php
 $url = Router::url(['controller' => 'Games', 'action' => 'attendance_change', '?' => ['team' => $team->id, $arg => $val, 'person' => $person->id, 'code' => $code, 'status' => ATTENDANCE_ABSENT]], true);
-echo $this->Html->link($url, $url);
+echo $this->Html->link(__('click here'), $url);
 ?></p>
 <p><?= __('Either of these actions will generate an automatic email to {0} indicating your selection. If you are unsure whether you will need {0} for this game, it\'s best to leave them listed as available, and take action later when you know for sure. You can always update their status on the web site, there is no need to keep this email for that purpose.',
 	$person->first_name

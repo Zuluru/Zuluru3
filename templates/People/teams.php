@@ -43,7 +43,7 @@ echo $this->Selector->selector('Role', $this->Selector->extractOptions(
 <?php
 $last_year = null;
 foreach ($teams as $team):
-	if ($team->division->open->year != 0) {
+	if ($team->division->open) {
 		$year = $year_text = $team->division->open->year;
 	} else {
 		$year = '0000';

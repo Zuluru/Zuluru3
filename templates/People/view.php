@@ -370,6 +370,11 @@ if ($this->Authorize->can('act_as', $person)) {
 		['class' => $this->Bootstrap->navPillLinkClasses()]
     );
 }
+if ($this->Authorize->can('add_account', $person)) {
+	$links[] = $this->Html->iconLink('add_24.png',
+		['controller' => 'People', 'action' => 'add_account', '?' => ['person' => $person->id, 'return' => AppController::_return()]],
+		['alt' => __('Create Login'), 'title' => __('Create Login')]);
+}
 if ($this->Authorize->can('delete', $person)) {
 	$links[] = $this->Form->iconPostLink('delete_24.png', ['action' => 'delete', '?' => ['person' => $person->id]],
 		['alt' => __('Delete Player'), 'title' => __('Delete Player')],

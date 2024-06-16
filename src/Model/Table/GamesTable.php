@@ -655,7 +655,12 @@ class GamesTable extends AppTable {
 
 	private function checkDoubleHeader(EntityInterface $entity, array $options, $team, $opp) {
 		// Tournaments just inherently have all kinds of double headers
-		if ($entity->division->schedule_type === 'tournament') {
+		if ($entity->division) {
+			$division = $entity->division;
+		} else {
+			$division = $this->Divisions->get($entity->division_id);
+		}
+		if ($division->schedule_type === 'tournament') {
 			return true;
 		}
 

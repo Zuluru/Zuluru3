@@ -165,7 +165,8 @@ elseif (isset($people)):
 				['class' => $this->Bootstrap->navPillLinkClasses()]
 			),
 		]);
-	endif;
-endif;
 ?>
 </div>
+<?php
+	endif;
+endif;

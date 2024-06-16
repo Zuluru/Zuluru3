@@ -4,6 +4,7 @@
  * @var \App\Model\Entity\League $league
  * @var \App\Module\LeagueType $league_obj
  * @var int[] $affiliates
+ * @var bool $can_edit
  */
 
 use App\Model\Entity\Division;
@@ -142,6 +143,7 @@ if ($collapse) {
 		'league' => $league,
 		'division' => $league->divisions[0],
 		'teams' => $league->divisions[0]->teams,
+		'can_edit' => $can_edit,
 	]);
 	echo $this->element('Divisions/register', ['events' => $league->divisions[0]->events]);
 }
