@@ -196,31 +196,6 @@ class PricesTable extends AppTable {
 		}
 	}
 
-	/**
-	 * Perform additional operations after it is saved.
-	 *
-	 * @param \Cake\Event\Event $cakeEvent The afterSave event that was fired
-	 * @param \Cake\Datasource\EntityInterface $entity The entity that was saved
-	 * @param \ArrayObject $options The options passed to the save method
-	 * @return void
-	 */
-	public function afterSave(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
-		// Update this price's event open and close dates, if required
-		$event = $this->Events->get($entity->event_id, [
-			'contain' => ['Prices']
-		]);
-
-		$open = min(collection($event->prices)->extract('open')->toArray());
-		if ($open != $event->open) {
-			$event->open = $open;
-		}
-		$close = max(collection($event->prices)->extract('close')->toArray());
-		if ($close != $event->close) {
-			$event->close = $close;
-		}
-		$this->Events->save($event);
-	}
-
 	public function event($id) {
 		try {
 			return $this->field('event_id', ['Prices.id' => $id]);

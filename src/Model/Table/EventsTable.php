@@ -331,6 +331,28 @@ class EventsTable extends AppTable {
 	}
 
 	/**
+	 * Modifies the entity before rules are run. Updates done in here rely on the earlier games in the set already
+	 * having been saved so their ID is available, so they can't be done in beforeMarshal.
+	 *
+	 * @param \Cake\Event\Event $cakeEvent The beforeRules event that was fired
+	 * @param Registration $entity The entity that is going to be saved
+	 * @param \ArrayObject $options The options passed to the save method
+	 * @param mixed $operation The operation (e.g. create, delete) about to be run
+	 * @return void
+	 */
+	public function beforeRules(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options, $operation) {
+		// Update this price's event open and close dates, if required
+		$open = collection($entity->prices)->min('open')->open;
+		if ($open != $entity->open) {
+			$entity->open = $open;
+		}
+		$close = collection($entity->prices)->max('close')->close;
+		if ($close != $entity->close) {
+			$entity->close = $close;
+		}
+	}
+
+	/**
 	 * Perform post-processing to ensure that any required event-type-specific steps are taken.
 	 *
 	 * @param \Cake\Event\Event $cakeEvent The afterSave event that was fired

@@ -838,7 +838,9 @@ class PeopleController extends AppController {
 			$this->Flash->warning(__('The account could not be saved. Please correct the errors below and try again.'));
 
 			// Force the various rules checks to run, for better feedback to the user
-			$users_table->checkRules($person->user, RulesChecker::CREATE);
+			if ($person->user) {
+				$users_table->checkRules($person->user, RulesChecker::CREATE);
+			}
 			$this->People->checkRules($person, RulesChecker::UPDATE);
 		}
 

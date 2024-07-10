@@ -86,7 +86,7 @@ class UserDrupalTable extends UsersTable {
 			// This hack is adapted from Drupal's methods...
 			// It will leave extra records in the sequences table,
 			// but Drupal will take care of that for us.
-			$sequences_table = TableRegistry::getTableLocator()->get(Configure::read('Security.drupalPrefix') . 'sequences');
+			$sequences_table = TableRegistry::getTableLocator()->get('DrupalSequences');
 			$sequence = $sequences_table->newEntity(['value' => null]);
 			if (!$sequences_table->save($sequence)) {
 				return false;

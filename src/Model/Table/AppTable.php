@@ -96,6 +96,9 @@ class AppTable extends Table {
 		/** @var HasMany $association */
 		foreach ($associations->getByType('HasMany') as $association) {
 			$class = $association->getName();
+			if (substr($class, -12) === 'Translations') {
+				continue;
+			}
 			$foreign_key = $association->getForeignKey();
 			$dependent = $association->getTarget()->find()->where(["$class.$foreign_key" => $id]);
 

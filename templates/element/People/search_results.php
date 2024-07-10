@@ -48,7 +48,7 @@ elseif (isset($people)):
 			<tbody>
 <?php
 	foreach ($people as $person):
-		$affiliates = collection($person->affiliates)->extract('id')->toArray();
+		$affiliates = collection($person->affiliates ?? [])->extract('id')->toArray();
 		$mine = array_intersect($affiliates, $this->UserCache->read('ManagedAffiliateIDs'));
 		$is_person_manager = !empty($mine);
 ?>

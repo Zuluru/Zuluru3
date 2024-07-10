@@ -1618,6 +1618,11 @@ class TeamsController extends AppController {
 					$week_end = $week_start->addDays(6);
 					$week_game_scheduled = $week_non_holiday = false;
 					for ($date = $week_start; $date <= $week_end; $date = $date->addDays(1)) {
+						// If the league doesn't play on this day, skip it
+						if (!in_array($date->format('N'), $days)) {
+							continue;
+						}
+
 						// If there is a game scheduled, show it
 						if (in_array($date, $game_dates)) {
 							$dates[] = $date;

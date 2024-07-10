@@ -549,6 +549,7 @@ class UsersController extends AppController {
 					$this->setRequest($this->getRequest()->withoutData($field));
 				}
 			}
+			$this->setRequest($this->getRequest()->withoutData('_Token'));
 			if (!empty($this->getRequest()->getData())) {
 				// Find the user and send the email
 				$matches = $users_table->find()
