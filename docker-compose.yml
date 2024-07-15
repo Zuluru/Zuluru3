@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   db:
-    image: mariadb
+    image: mariadb:10.5
     command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
