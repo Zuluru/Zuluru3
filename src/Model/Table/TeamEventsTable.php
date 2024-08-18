@@ -85,13 +85,13 @@ class TeamEventsTable extends AppTable {
 			->allowEmptyString('website')
 
 			->date('date', ['ymd'], __('You must provide a valid date.'))
-			->allowEmptyDate('date')
+			->notEmptyDate('date')
 
 			->time('start', __('You must select a valid start time.'))
-			->allowEmptyTime('start')
+			->notEmptyTime('start')
 
 			->time('end', __('You must select a valid end time.'))
-			->allowEmptyTime('end')
+			->notEmptyTime('end')
 
 			->notEmptyString('location_name', __('Location name must not be blank.'))
 
