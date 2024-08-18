@@ -48,8 +48,7 @@
         "psy/psysh": "@stable",
         "phpunit/phpunit": "^9",
         "vierge-noire/cakephp-fixture-factories": "^2.5",
-        "vierge-noire/cakephp-test-migrator": "^2.5",
-        "dereuromark/cakephp-transifex": "^1.2"
+        "vierge-noire/cakephp-test-migrator": "^2.5"
     },
     "repositories": [
         {
@@ -97,7 +96,7 @@
     "prefer-stable": true,
     "config": {
         "allow-plugins": {
-            "cakephp/plugin-installer": false,
+            "cakephp/plugin-installer": true,
             "composer/installers": true
         }
     },
