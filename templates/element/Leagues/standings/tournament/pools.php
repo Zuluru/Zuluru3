@@ -108,7 +108,7 @@ foreach ($games as $stage_id => $stage):
 					$matched_games = collection($pool->games)->match(['home_dependency_type' => 'copy']);
 				} else {
 					$matched_games = collection($pool->games)->filter(function ($game) use ($date, $time) {
-						return $game->has('game_slot') && $game->game_slot->start_time == DateTimeCombinator::combine($date, $time);
+						return $game->has('game_slot') && $game->game_slot->start_time == DateTimeCombinator::combine($date, $time, 0, 0);
 					});
 				}
 

@@ -42,10 +42,16 @@ endif;
 ?>
 		<dt class="col-sm-3 text-end"><?= __('Date') ?></dt>
 		<dd class="col-sm-9 mb-0"><?= $this->Time->date($team_event->date) ?></dd>
+<?php
+if ($team_event->start):
+?>
 		<dt class="col-sm-3 text-end"><?= __('Start') ?></dt>
 		<dd class="col-sm-9 mb-0"><?= $this->Time->time($team_event->start) ?></dd>
 		<dt class="col-sm-3 text-end"><?= __('End') ?></dt>
 		<dd class="col-sm-9 mb-0"><?= $this->Time->time($team_event->end) ?></dd>
+<?php
+endif;
+?>
 		<dt class="col-sm-3 text-end"><?= __('Location') ?></dt>
 		<dd class="col-sm-9 mb-0"><?= h($team_event->location_name) ?></dd>
 		<dt class="col-sm-3 text-end"><?= __('Address') ?></dt>

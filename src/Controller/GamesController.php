@@ -261,7 +261,7 @@ class GamesController extends AppController {
 
 		$this->set('calendar_type', 'Game');
 		$this->set('calendar_name', 'Game');
-		$this->getResponse()->withDownload("$game_id.ics");
+		$this->setResponse($this->getResponse()->withDownload("$game_id.ics"));
 		$this->set(compact('game', 'team_id'));
 		$this->viewBuilder()->setLayoutPath('ics')->setClassName('Ical');
 	}
@@ -2233,7 +2233,7 @@ class GamesController extends AppController {
 
 		$this->set(compact('game', 'team_id', 'team', 'opponent', 'sport_obj'));
 		if ($this->getRequest()->is('csv')) {
-			$this->getResponse()->withDownload("Stats - Game {$game->id}.csv");
+			$this->setResponse($this->getResponse()->withDownload("Stats - Game {$game->id}.csv"));
 		}
 	}
 

@@ -341,6 +341,10 @@ class EventsTable extends AppTable {
 	 * @return void
 	 */
 	public function beforeRules(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options, $operation) {
+		if (empty($entity->prices)) {
+			return;
+		}
+
 		// Update this price's event open and close dates, if required
 		$open = collection($entity->prices)->min('open')->open;
 		if ($open != $entity->open) {

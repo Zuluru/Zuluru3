@@ -500,7 +500,7 @@ class TeamsController extends AppController {
 
 		if ($this->getRequest()->is('csv')) {
 			$this->Authorization->authorize($team, 'download');
-			$this->getResponse()->withDownload("{$team->name}.csv");
+			$this->setResponse($this->getResponse()->withDownload("{$team->name}.csv"));
 			$include_gender = $this->Authorization->can(new ContextResource($team, ['division' => $team->division]), 'display_gender');
 			\App\lib\context_usort($team->people, [TeamsTable::class, 'compareRoster'], ['include_gender' => $include_gender]);
 			$this->set(compact('team'));
@@ -869,7 +869,7 @@ class TeamsController extends AppController {
 		$this->set(compact('team', 'sport_obj'));
 
 		if ($this->getRequest()->is('csv')) {
-			$this->getResponse()->withDownload("Stats - {$team->name}.csv");
+			$this->setResponse($this->getResponse()->withDownload("Stats - {$team->name}.csv"));
 		}
 	}
 
@@ -1475,7 +1475,7 @@ class TeamsController extends AppController {
 
 		$this->set('calendar_type', 'Team Schedule');
 		$this->set('calendar_name', "{$team->name} schedule");
-		$this->getResponse()->withDownload("$id.ics");
+		$this->setResponse($this->getResponse()->withDownload("$id.ics"));
 		$this->set('team_id', $id);
 		$this->set('games', $games);
 		$this->set('events', $events);

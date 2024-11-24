@@ -43,7 +43,7 @@ class TasksController extends AppController {
 				->where(['Categories.affiliate_id IN' => $affiliates])
 				->order(['Categories.name'])
 				->toArray();
-			$this->getResponse()->withDownload('Tasks.csv');
+			$this->setResponse($this->getResponse()->withDownload('Tasks.csv'));
 		} else {
 			$tasks = $this->Tasks->find()
 				->contain([

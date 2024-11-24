@@ -7,6 +7,7 @@ namespace App\PasswordHasher;
 use App\Model\Table\UserJoomlaTable;
 use Authentication\PasswordHasher\PasswordHasherInterface;
 use Cake\Auth\AbstractPasswordHasher;
+use Cake\Core\Configure;
 
 /**
  * Password hashing class that uses Joomla hashing algorithms. This class is
@@ -19,6 +20,12 @@ class JoomlaPasswordHasher extends AbstractPasswordHasher implements PasswordHas
 	 * @inheritDoc
 	 */
 	public function hash($password): string {
+		if (!defined('JPATH_BASE')) {
+			$root = Configure::read('Security.joomlaRoot');
+			define('JPATH_BASE', $root);
+			define('JPATH_LIBRARIES', $root);
+		}
+
 		UserJoomlaTable::initializeJoomlaConfig();
 
 		require_once JPATH_BASE . '/includes/defines.php';
@@ -30,6 +37,12 @@ class JoomlaPasswordHasher extends AbstractPasswordHasher implements PasswordHas
 	}
 
 	public function check($password, $hashedPassword): bool {
+		if (!defined('JPATH_BASE')) {
+			$root = Configure::read('Security.joomlaRoot');
+			define('JPATH_BASE', $root);
+			define('JPATH_LIBRARIES', $root);
+		}
+
 		UserJoomlaTable::initializeJoomlaConfig();
 
 		require_once JPATH_BASE . '/includes/defines.php';

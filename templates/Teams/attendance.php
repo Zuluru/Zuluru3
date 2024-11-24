@@ -43,7 +43,10 @@ foreach ($dates as $date) {
 	}
 	if (!empty($games_on_date)) {
 		foreach ($games_on_date as $game) {
-			if (!in_array($game->status, ['cancelled', 'rescheduled'])) {
+			// Don't add cancelled or rescheduled games, or games already in the list
+			if (!in_array($game->status, ['cancelled', 'rescheduled']) &&
+				collection($all_items)->match(['id' => $game->id])->count() === 0
+			) {
 				$all_items[] = $game;
 			}
 		}

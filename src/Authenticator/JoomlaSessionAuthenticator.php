@@ -44,7 +44,7 @@ class JoomlaSessionAuthenticator extends CMSSessionAuthenticator {
 		}
 
 		// Check if there's already a Zuluru session
-		$result = $this->_sessionAuth->authenticate($request, $response);
+		$result = $this->_sessionAuth->authenticate($request);
 		if ($result->isValid()) {
 			$user = $result->getData();
 
@@ -58,6 +58,7 @@ class JoomlaSessionAuthenticator extends CMSSessionAuthenticator {
 				return new Result($user, Result::SUCCESS);
 			}
 
+			$response = new Response();
 			$this->clearIdentity($request, $response);
 		}
 
@@ -71,6 +72,7 @@ class JoomlaSessionAuthenticator extends CMSSessionAuthenticator {
 			}
 
 			if (!$user || empty($user->id)) {
+				$response = new Response();
 				$this->clearIdentity($request, $response);
 				return new Result(null, ResultInterface::FAILURE_IDENTITY_NOT_FOUND);
 			}

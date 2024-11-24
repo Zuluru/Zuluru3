@@ -543,9 +543,9 @@ class UsersController extends AppController {
 				}
 			}
 		} else if ($this->getRequest()->is(['patch', 'post', 'put'])) {
-			// Remove any empty fields
+			// Remove any empty or unexpected fields
 			foreach ($this->getRequest()->getData() as $field => $value) {
-				if (empty($value)) {
+				if (empty($value) || !in_array($field, [$users_table->userField, $users_table->emailField])) {
 					$this->setRequest($this->getRequest()->withoutData($field));
 				}
 			}

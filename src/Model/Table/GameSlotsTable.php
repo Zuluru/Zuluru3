@@ -121,7 +121,7 @@ class GameSlotsTable extends AppTable {
 				'rule' => function ($value, $context) {
 					$end = $context['data']['game_end'];
 					// If it's an edit or sunset time is not selected, it's okay.
-					if (!($context['newRecord'] && empty($end['hour']) && empty($end['minute']) && empty($end['meridian']))) {
+					if (!$context['newRecord'] || !empty($end)) {
 						return true;
 					}
 					// Otherwise, it's okay if the length is zero

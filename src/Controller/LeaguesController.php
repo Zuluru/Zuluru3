@@ -256,7 +256,7 @@ class LeaguesController extends AppController {
 		$this->Configuration->loadAffiliate($league->affiliate_id);
 
 		if ($this->getRequest()->is('csv')) {
-			$this->getResponse()->withDownload("Participation - {$league->full_name}.csv");
+			$this->setResponse($this->getResponse()->withDownload("Participation - {$league->full_name}.csv"));
 		}
 		$this->set(compact('league'));
 	}
