@@ -1583,7 +1583,7 @@ class PeopleController extends AppController {
 		$this->Authorization->authorize($document);
 
 		foreach (Configure::read('new_mime_types') as $type => $mime) {
-			$this->setResponse($this->getResponse()->setTypeMap($type, $mime));
+			$this->getResponse()->setTypeMap($type, $mime);
 		}
 		$f = new File($document->filename);
 		return $this->getResponse()->withFile(Configure::read('App.paths.uploads') . DS . $document->filename, [
