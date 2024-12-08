@@ -435,6 +435,10 @@ class Game extends Entity {
 	 * @return ScoreEntry Entity with the requested score entry, or false if the team hasn't entered a final score yet.
 	 */
 	public function getScoreEntry($team_id) {
+		if (!$team_id) {
+			return null;
+		}
+
 		if (!empty($this->score_entries)) {
 			foreach ($this->score_entries as $entry) {
 				if ($entry->team_id == $team_id) {

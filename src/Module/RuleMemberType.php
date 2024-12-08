@@ -113,8 +113,13 @@ class RuleMemberType extends Rule {
 			$events = $model->find()
 				->where([
 					'Events.event_type_id IN' => array_keys($types),
+				]);
+			if ($affiliate) {
+				$events = $events->where([
 					'Events.affiliate_id IN' => $affiliate,
-				])->toArray();
+				]);
+			}
+			$events = $events->toArray();
 
 			foreach ($events as $key => $event) {
 				if ($event->membership_begins > $this->range[1] || $event->membership_ends < $this->range[0]) {

@@ -111,19 +111,21 @@ class Badge {
 		$success = true;
 
 		foreach ([$game->home_team, $game->away_team] as $team) {
-			TableRegistry::getTableLocator()->get('BadgesPeople')->deleteAll([
-				'badge_id' => $badge->id,
-				'team_id' => $team->id,
-				'game_id' => $game->id,
-			]);
-			if ($handler->applicable($game, $team->id)) {
-				foreach ($team->roster as $person) {
-					$person->_joinData = new BadgesPerson([
-						'team_id' => $team->id,
-						'game_id' => $game->id,
-						'approved' => true,
-					]);
-					$success &= TableRegistry::getTableLocator()->get('Badges')->People->link($badge, [$person]);
+			if ($team) {
+				TableRegistry::getTableLocator()->get('BadgesPeople')->deleteAll([
+					'badge_id' => $badge->id,
+					'team_id' => $team->id,
+					'game_id' => $game->id,
+				]);
+				if ($handler->applicable($game, $team->id)) {
+					foreach ($team->roster as $person) {
+						$person->_joinData = new BadgesPerson([
+							'team_id' => $team->id,
+							'game_id' => $game->id,
+							'approved' => true,
+						]);
+						$success &= TableRegistry::getTableLocator()->get('Badges')->People->link($badge, [$person]);
+					}
 				}
 			}
 		}
@@ -157,6 +159,9 @@ class Badge {
 	}
 
 	public function registration($badge, $registration, $paid, $handler) {
+		if (!$registration->id) {
+			return true;
+		}
 		if (!$registration->has('person')) {
 			TableRegistry::getTableLocator()->get('Registrations')->loadInto($registration, ['People']);
 		}
