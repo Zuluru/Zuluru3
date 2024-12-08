@@ -1,6 +1,7 @@
 <?php
 
 use App\Model\Table\GameSlotsTable;
+use BootstrapUI\View\Helper\FormHelper;
 
 /**
  * @var \App\View\AppView $this
@@ -118,10 +119,11 @@ if ($editing_tournament):
 <?php
 endif;
 
+// We don't have any labels here, so set the label width to 0 and the input to the full 12
 if (isset($division)) {
-	echo $this->Form->create($division, ['align' => 'horizontal']);
+	echo $this->Form->create($division, ['align' => [FormHelper::GRID_COLUMN_ONE => 0, FormHelper::GRID_COLUMN_TWO => 12]]);
 } else {
-	echo $this->Form->create($league, ['align' => 'horizontal']);
+	echo $this->Form->create($league, ['align' => [FormHelper::GRID_COLUMN_ONE => 0, FormHelper::GRID_COLUMN_TWO => 12]]);
 }
 
 $last_date = $last_slot = null;

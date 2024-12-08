@@ -147,8 +147,10 @@ else:
 			</fieldset>
 <?php
 	endforeach;
-	$this->Form->unlockField('facilities');
-	$this->Form->unlockField('fields');
+	if ($this->Form->hasFormProtector()) {
+		$this->Form->unlockField('facilities');
+		$this->Form->unlockField('fields');
+	}
 ?>
 		</fieldset>
 <?php
@@ -214,7 +216,9 @@ if (empty($divisions)) {
 		'hiddenField' => false,
 	]);
 }
-$this->Form->unlockField('divisions._ids');
+if ($this->Form->hasFormProtector()) {
+	$this->Form->unlockField('divisions._ids');
+}
 ?>
 			</div>
 		</fieldset>

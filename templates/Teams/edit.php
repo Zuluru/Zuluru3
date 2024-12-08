@@ -134,8 +134,10 @@ if ($options):
 			'title' => __('Select your preferred facilities'),
 			'secure' => false,
 		]);
-		$this->Form->unlockField('asmSelect0');
-		$this->Form->unlockField('facilities._ids');
+		if ($this->Form->hasFormProtector()) {
+			$this->Form->unlockField('asmSelect0');
+			$this->Form->unlockField('facilities._ids');
+		}
 		$this->Html->css('jquery.asmselect.css', ['block' => true]);
 		$this->Html->script('jquery.asmselect.js', ['block' => true]);
 		$this->Html->scriptBlock('zjQuery("select[multiple]").asmSelect({sortable:true});', ['buffer' => true]);

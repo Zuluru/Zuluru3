@@ -109,7 +109,9 @@ echo $this->Form->control('days._ids', [
 	'hiddenField' => false,
 	'help' => __('Day, or days, on which this division will play.'),
 ]);
-$this->Form->unlockField('days._ids');
+if ($this->Form->hasFormProtector()) {
+	$this->Form->unlockField('days._ids');
+}
 echo $this->Form->control('ratio_rule', [
 	'options' => Configure::read("sports.{$division->league->sport}.ratio_rule"),
 	'hide_single' => true,

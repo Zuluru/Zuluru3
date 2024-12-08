@@ -22,7 +22,7 @@ if ($params['continue']) {
 echo $this->element('BootstrapUI.flash/default', [
 	'message' => $message,
 	'params' => [
-		'class' => ['alert-success', 'alert', 'alert-dismissible', 'fade', 'show', 'd-flex', 'align-items-center'],
+		'class' => ['alert-success', 'alert', 'alert-dismissible', 'show', 'd-flex', 'align-items-center'],
 		'icon' => false,
 		'escape' => false,
 		'attributes' => ['role' => 'alert'],

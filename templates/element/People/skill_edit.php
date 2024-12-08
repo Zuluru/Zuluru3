@@ -53,13 +53,17 @@ foreach ($sports as $sport => $name):
 			'value' => true,
 			'secure' => false,
 		]);
-		$this->Form->unlockField("{$prefix}skills.{$i}.enabled");
+		if ($this->Form->hasFormProtector()) {
+			$this->Form->unlockField("{$prefix}skills.{$i}.enabled");
+		}
 	endif;
 
 	echo $this->Form->hidden("{$prefix}skills.{$i}.sport", [
 		'value' => $sport,
 	]);
-	$this->Form->unlockField("{$prefix}skills.{$i}.sport");
+	if ($this->Form->hasFormProtector()) {
+		$this->Form->unlockField("{$prefix}skills.{$i}.sport");
+	}
 ?>
 		<div id="<?= $id_prefix ?>Skill<?= $i ?>Details">
 <?php

@@ -25,7 +25,7 @@ foreach ($fields as $field => $values) {
 		// Reference discussion in Template/Schedules/date.ctp
 		// Only occurrences are in administrative-type things (game slot creation, schedule
 		// creation/editing), so not a serious concern at this time.
-		if (is_numeric($field)) {
+		if (is_numeric($field) && $this->Form->hasFormProtector()) {
 			$this->Form->unlockField(rtrim($model, '.'));
 		}
 	}

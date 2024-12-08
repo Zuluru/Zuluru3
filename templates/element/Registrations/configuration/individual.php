@@ -21,11 +21,15 @@ echo $this->Form->control('division_id', [
 	'help' => __('This is only used internally to improve event/division linkage.'),
 	'secure' => false,
 ]);
-$this->Form->unlockField('division_id');
+if ($this->Form->hasFormProtector()) {
+	$this->Form->unlockField('division_id');
+}
 
 echo $this->Form->control('level_of_play', [
 	'size' => 70,
 	'help' => __('Indicate the expected level(s) of play in this division.'),
 	'secure' => false,
 ]);
-$this->Form->unlockField('membership_begins');
+if ($this->Form->hasFormProtector()) {
+	$this->Form->unlockField('membership_begins');
+}

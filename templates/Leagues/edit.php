@@ -175,7 +175,9 @@ echo $this->Form->control('tie_breakers', [
 	'hiddenField' => false,
 	'title' => __('Order of tie-breakers to use in standings'),
 ]);
-$this->Form->unlockField('asmSelect0');
+if ($this->Form->hasFormProtector()) {
+	$this->Form->unlockField('asmSelect0');
+}
 $this->Html->css('jquery.asmselect.css', ['block' => true]);
 $this->Html->script('jquery.asmselect.js', ['block' => true]);
 $this->Html->scriptBlock('zjQuery("select[multiple]").asmSelect({sortable:true});', ['buffer' => true]);

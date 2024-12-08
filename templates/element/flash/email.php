@@ -13,7 +13,7 @@
             'size' => 'xl',
             'class' => 'me-2',
         ],
-		'class' => ['alert-email', 'alert', 'alert-dismissible', 'fade', 'show', 'd-flex', 'align-items-center'],
+		'class' => ['alert-email', 'alert', 'alert-dismissible', 'show', 'd-flex', 'align-items-center'],
 		'escape' => false,
 		'attributes' => ['role' => 'alert'],
 	],

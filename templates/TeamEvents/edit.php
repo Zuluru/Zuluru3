@@ -46,7 +46,9 @@ if ($team_event->isNew()):
 		'label' => __('Number of events to create'),
 		'size' => 6,
 	]);
-	$this->Form->unlockField('repeat_count');
+	if ($this->Form->hasFormProtector()) {
+		$this->Form->unlockField('repeat_count');
+	}
 	echo $this->Form->control('repeat_type', [
 		'label' => __('Create events'),
 		'options' => [
@@ -57,7 +59,9 @@ if ($team_event->isNew()):
 			'custom' => __('On days that I will specify'),
 		],
 	]);
-	$this->Form->unlockField('repeat_type');
+	if ($this->Form->hasFormProtector()) {
+		$this->Form->unlockField('repeat_type');
+	}
 ?>
 		</fieldset>
 <?php

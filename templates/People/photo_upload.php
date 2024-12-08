@@ -81,7 +81,9 @@ $this->Html->scriptBlock('
 echo $this->Form->create($upload, ['align' => 'horizontal', 'type' => 'file']);
 echo $this->Form->hidden('person_id', ['value' => $person->id]);
 echo $this->Form->hidden('cropped', ['id' => 'CroppedData']);
-$this->Form->unlockField('cropped');
+if ($this->Form->hasFormProtector()) {
+	$this->Form->unlockField('cropped');
+}
 echo $this->Form->button(__('Rotate Left'), ['class' => 'step2', 'id' => 'RotateLeftButton']);
 echo $this->Form->button(__('Rotate Right'), ['class' => 'step2', 'id' => 'RotateRightButton']);
 echo $this->Form->button(__('Upload'), ['class' => 'btn-success step2', 'id' => 'UploadButton']);

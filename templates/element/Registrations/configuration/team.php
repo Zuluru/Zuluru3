@@ -22,14 +22,18 @@ echo $this->Form->control('division_id', [
 	'help' => __('Registrations performed through this event will create team records in this division.'),
 	'secure' => false,
 ]);
-$this->Form->unlockField('division_id');
+if ($this->Form->hasFormProtector()) {
+	$this->Form->unlockField('division_id');
+}
 
 echo $this->Form->control('level_of_play', [
 	'size' => 70,
 	'help' => __('Indicate the expected level(s) of play in this division.'),
 	'secure' => false,
 ]);
-$this->Form->unlockField('level_of_play');
+if ($this->Form->hasFormProtector()) {
+	$this->Form->unlockField('level_of_play');
+}
 
 echo $this->Form->control('ask_status', [
 	'label' => __('Team status'),
@@ -37,7 +41,9 @@ echo $this->Form->control('ask_status', [
 	'help' => __('Ask whether team rosters will be open or closed during registration?'),
 	'secure' => false,
 ]);
-$this->Form->unlockField('ask_status');
+if ($this->Form->hasFormProtector()) {
+	$this->Form->unlockField('ask_status');
+}
 
 if (Configure::read('feature.region_preference')) {
 	echo $this->Form->control('ask_region', [
@@ -46,7 +52,9 @@ if (Configure::read('feature.region_preference')) {
 		'help' => __('Ask teams for their regional preference during registration?'),
 		'secure' => false,
 	]);
-	$this->Form->unlockField('ask_region');
+	if ($this->Form->hasFormProtector()) {
+		$this->Form->unlockField('ask_region');
+	}
 }
 
 echo $this->Form->control('ask_attendance', [
@@ -55,4 +63,6 @@ echo $this->Form->control('ask_attendance', [
 	'help' => __('Ask teams whether they want to use attendance tracking during registration?'),
 	'secure' => false,
 ]);
-$this->Form->unlockField('ask_attendance');
+if ($this->Form->hasFormProtector()) {
+	$this->Form->unlockField('ask_attendance');
+}

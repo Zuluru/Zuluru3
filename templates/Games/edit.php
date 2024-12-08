@@ -142,7 +142,6 @@ endif;
 	</dl>
 
 	<fieldset class="wide-labels normal default">
-		<legend><?= __('Scoring') ?></legend>
 <?php
 $homeScoreEntry = $game->getScoreEntry($game->home_team_id);
 $awayScoreEntry = $game->getScoreEntry($game->away_team_id);
@@ -152,7 +151,9 @@ if ($homeScoreEntry->id) {
 		'value' => $homeScoreEntry->id,
 	]);
 	// TODO: Add security to this, somehow. Low priority, as it's already restricted by permissions to people we purportedly trust.
-	$this->Form->unlockField('score_entries.0.id');
+	if ($this->Form->hasFormProtector()) {
+		$this->Form->unlockField('score_entries.0.id');
+	}
 } else {
 	echo $this->Form->hidden('score_entries.0.game_id', [
 		'value' => $homeScoreEntry->game_id,
@@ -161,28 +162,38 @@ if ($homeScoreEntry->id) {
 		'value' => $homeScoreEntry->team_id,
 	]);
 	// TODO: Add security to this, somehow. Low priority, as it's already restricted by permissions to people we purportedly trust.
-	$this->Form->unlockField('score_entries.0.game_id');
-	$this->Form->unlockField('score_entries.0.team_id');
+	if ($this->Form->hasFormProtector()) {
+		$this->Form->unlockField('score_entries.0.game_id');
+		$this->Form->unlockField('score_entries.0.team_id');
+	}
 }
 
-if ($awayScoreEntry->id) {
-	echo $this->Form->hidden('score_entries.1.id', [
-		'value' => $awayScoreEntry->id,
-	]);
-	// TODO: Add security to this, somehow. Low priority, as it's already restricted by permissions to people we purportedly trust.
-	$this->Form->unlockField('score_entries.1.id');
-} else {
-	echo $this->Form->hidden('score_entries.1.game_id', [
-		'value' => $awayScoreEntry->game_id,
-	]);
-	echo $this->Form->hidden('score_entries.1.team_id', [
-		'value' => $awayScoreEntry->team_id,
-	]);
-	// TODO: Add security to this, somehow. Low priority, as it's already restricted by permissions to people we purportedly trust.
-	$this->Form->unlockField('score_entries.1.game_id');
-	$this->Form->unlockField('score_entries.1.team_id');
+if ($awayScoreEntry) {
+	if ($awayScoreEntry->id) {
+		echo $this->Form->hidden('score_entries.1.id', [
+			'value' => $awayScoreEntry->id,
+		]);
+		// TODO: Add security to this, somehow. Low priority, as it's already restricted by permissions to people we purportedly trust.
+		if ($this->Form->hasFormProtector()) {
+			$this->Form->unlockField('score_entries.1.id');
+		}
+	} else {
+		echo $this->Form->hidden('score_entries.1.game_id', [
+			'value' => $awayScoreEntry->game_id,
+		]);
+		echo $this->Form->hidden('score_entries.1.team_id', [
+			'value' => $awayScoreEntry->team_id,
+		]);
+		// TODO: Add security to this, somehow. Low priority, as it's already restricted by permissions to people we purportedly trust.
+		if ($this->Form->hasFormProtector()) {
+			$this->Form->unlockField('score_entries.1.game_id');
+			$this->Form->unlockField('score_entries.1.team_id');
+		}
+	}
 }
-
+?>
+		<legend><?= __('Scoring') ?></legend>
+<?php
 if ($game->isFinalized()):
 	$league_obj = ModuleRegistry::getInstance()->load("LeagueType:{$game->division->schedule_type}");
 ?>

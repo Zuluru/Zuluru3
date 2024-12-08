@@ -124,7 +124,9 @@ elseif ($person->user_id):
 		],
 	]);
 endif;
-$this->Form->unlockField('user_groups._ids');
+if ($this->Form->hasFormProtector()) {
+	$this->Form->unlockField('user_groups._ids');
+}
 ?>
 
 	<fieldset>
@@ -323,7 +325,9 @@ if (Configure::read('feature.affiliates') && !$identity->isAdmin() &&
 			'multiple' => 'checkbox',
 			'hide_single' => !$identity->isManager(),
 		]);
-		$this->Form->unlockField('affiliates._ids');
+		if ($this->Form->hasFormProtector()) {
+			$this->Form->unlockField('affiliates._ids');
+		}
 	} else {
 		echo $this->Form->control('affiliates.0.id', [
 			'label' => __('Affiliate'),
