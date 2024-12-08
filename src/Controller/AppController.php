@@ -472,7 +472,7 @@ class AppController extends Controller {
 
 				$can_pay = count($this->UserCache->read('RegistrationsCanPay'));
 				if ($can_pay) {
-					$this->_addMenuItem(__('Checkout {0}', "<span class=\"badge\">$can_pay</span>"), ['plugin' => false, 'controller' => 'Registrations', 'action' => 'checkout'], __('Registration'));
+					$this->_addMenuItem(__('Checkout {0}', "<span class=\"badge rounded-pill bg-primary\">$can_pay</span>"), ['plugin' => false, 'controller' => 'Registrations', 'action' => 'checkout'], __('Registration'));
 				}
 			}
 
@@ -511,7 +511,7 @@ class AppController extends Controller {
 					->count();
 				if ($new > 0) {
 					$this->set('unassigned_teams', $new);
-					$this->_addMenuItem(__('Unassigned Teams') . ' ' . "<span class=\"badge\">$new</span>", ['plugin' => false, 'controller' => 'Teams', 'action' => 'unassigned'], __('Teams'));
+					$this->_addMenuItem(__('Unassigned Teams') . ' ' . "<span class=\"badge rounded-pill bg-primary\">$new</span>", ['plugin' => false, 'controller' => 'Teams', 'action' => 'unassigned'], __('Teams'));
 				}
 				$this->_addMenuItem(__('Statistics'), ['plugin' => false, 'controller' => 'Teams', 'action' => 'statistics'], __('Teams'));
 			}
@@ -582,7 +582,7 @@ class AppController extends Controller {
 					->count();
 				if ($new > 0) {
 					$this->set('new_accounts', $new);
-					$this->_addMenuItem(__('Approve New Accounts') . ' ' . "<span class=\"badge\">$new</span>", ['plugin' => false, 'controller' => 'People', 'action' => 'list_new'], __('People'));
+					$this->_addMenuItem(__('Approve New Accounts') . ' ' . "<span class=\"badge rounded-pill bg-primary\">$new</span>", ['plugin' => false, 'controller' => 'People', 'action' => 'list_new'], __('People'));
 				}
 
 				if (Configure::read('feature.photos') && Configure::read('feature.approve_photos')) {
@@ -594,7 +594,7 @@ class AppController extends Controller {
 						->count();
 					if ($new > 0) {
 						$this->set('new_photos', $new);
-						$this->_addMenuItem(__('Approve New Photos') . ' ' . "<span class=\"badge\">$new</span>", ['plugin' => false, 'controller' => 'People', 'action' => 'approve_photos'], __('People'));
+						$this->_addMenuItem(__('Approve New Photos') . ' ' . "<span class=\"badge rounded-pill bg-primary\">$new</span>", ['plugin' => false, 'controller' => 'People', 'action' => 'approve_photos'], __('People'));
 					}
 				}
 
@@ -607,7 +607,7 @@ class AppController extends Controller {
 						->count();
 					if ($new > 0) {
 						$this->set('new_documents', $new);
-						$this->_addMenuItem(__('Approve New Documents') . ' ' . "<span class=\"badge\">$new</span>", ['plugin' => false, 'controller' => 'People', 'action' => 'approve_documents'], __('People'));
+						$this->_addMenuItem(__('Approve New Documents') . ' ' . "<span class=\"badge rounded-pill bg-primary\">$new</span>", ['plugin' => false, 'controller' => 'People', 'action' => 'approve_documents'], __('People'));
 					}
 				}
 			}
@@ -652,7 +652,7 @@ class AppController extends Controller {
 						->count();
 					if ($new > 0) {
 						$this->set('new_nominations', $new);
-						$this->_addMenuItem(__('Approve Nominations') . ' ' . "<span class=\"badge\">$new</span>", ['plugin' => false, 'controller' => 'People', 'action' => 'approve_badges'], [__('People'), __('Badges')]);
+						$this->_addMenuItem(__('Approve Nominations') . ' ' . "<span class=\"badge rounded-pill bg-primary\">$new</span>", ['plugin' => false, 'controller' => 'People', 'action' => 'approve_badges'], [__('People'), __('Badges')]);
 					}
 					$this->_addMenuItem(__('Deactivated'), ['plugin' => false, 'controller' => 'Badges', 'action' => 'deactivated'], [__('People'), __('Badges')]);
 				}
