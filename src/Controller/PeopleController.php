@@ -1637,12 +1637,12 @@ class PeopleController extends AppController {
 				'filename' => [
 					// Callbacks for adjusting the file name before saving. Both are required. :-(
 					'nameCallback' => function (Table $table, Entity $entity, $data, $field, $settings) use ($filename) {
-						$f = new File($data['name']);
+						$f = new File($data->getClientFilename());
 						return $filename . '.' . strtolower($f->ext());
 					},
 					'transformer' => function (Table $table, Entity $entity, $data, $field, $settings) use ($filename) {
-						$f = new File($data['name']);
-						return [$data['tmp_name'] => $filename . '.' . strtolower($f->ext())];
+						$f = new File($data->getClientFilename());
+						return [$data->getStream()->getMetadata('uri') => $filename . '.' . strtolower($f->ext())];
 					},
 				],
 			]);
