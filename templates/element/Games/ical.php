@@ -14,7 +14,7 @@ if (!is_array($team_id)) {
 	$team_id = [$team_id];
 }
 
-if (in_array($game->home_team->id, $team_id)) {
+if ($game->home_team && in_array($game->home_team->id, $team_id)) {
 	$my_team = $game->home_team;
 	$my_home_away = __('home');
 	$opponent = $game->away_team;
@@ -53,16 +53,34 @@ GEO:<?= $game->game_slot->field->latitude ?>;<?= $game->game_slot->field->longit
 
 X-LOCATION-URL:<?= $field_url ?>
 
-SUMMARY:<?= __('{0} vs {1}', \App\Lib\ical_encode("{$my_team->name} ($my_home_away)"), \App\Lib\ical_encode("{$opponent->name} ($opp_home_away)")) ?>
+SUMMARY:<?php
+if ($opponent) {
+	echo __('{0} vs {1}', \App\Lib\ical_encode("{$my_team->name} ($my_home_away)"), \App\Lib\ical_encode("{$opponent->name} ($opp_home_away)"));
+} else {
+	echo __('{0}', \App\Lib\ical_encode($my_team->name));
+}
+?>
 
-DESCRIPTION:<?= __('{0} vs {1} at {2} on {3}',
-	\App\Lib\ical_encode("{$my_team->name} ($my_home_away)"),
-	\App\Lib\ical_encode("{$opponent->name} ($opp_home_away)"),
-	\App\Lib\ical_encode($field),
-	$this->Time->iCalDateTimeRange($game->game_slot)
-);
-if (Configure::read('feature.shirt_colour') && !empty($opponent->shirt_colour)):
-	echo __(' ({0})', __('they wear {0}', \App\Lib\ical_encode($opponent->shirt_colour)));
+DESCRIPTION:<?php
+if ($opponent) {
+	echo __('{0} vs {1} at {2} on {3}',
+		\App\Lib\ical_encode("{$my_team->name} ($my_home_away)"),
+		\App\Lib\ical_encode("{$opponent->name} ($opp_home_away)"),
+		\App\Lib\ical_encode($field),
+		$this->Time->iCalDateTimeRange($game->game_slot)
+	);
+	if (Configure::read('feature.shirt_colour') && !empty($opponent->shirt_colour)) {
+		echo __(' ({0})', __('they wear {0}', \App\Lib\ical_encode($opponent->shirt_colour)));
+	}
+} else {
+	echo __('{0} at {1} on {2}',
+		\App\Lib\ical_encode($my_team->name),
+		\App\Lib\ical_encode($field),
+		$this->Time->iCalDateTimeRange($game->game_slot)
+	);
+}
+
+if ($opponent):
 ?>
 
 X-OPPONENT-COLOUR:<?= $opponent->shirt_colour ?>

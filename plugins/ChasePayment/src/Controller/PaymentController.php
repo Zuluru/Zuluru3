@@ -81,6 +81,7 @@ class PaymentController extends AppController {
 			}
 
 			[$result, $audit, $registration_ids, $debit_ids] = $this->getAPI(API::isTestData($values))->parsePayment($values, false);
+
 			if (!$result) {
 				$this->Flash->warning(__('Unable to extract payment information from the text provided.'));
 				return;
@@ -129,7 +130,7 @@ class PaymentController extends AppController {
 
 		$matched = preg_match_all('/([\\w\\d_]+) *: (.*)/', $text, $matches, PREG_SET_ORDER);
 		if (!$matched) {
-			$this->Flash('warning', __('Unable to extract payment information from the text provided.'));
+			$this->Flash->warning(__('Unable to extract payment information from the text provided.'));
 			return false;
 		}
 
@@ -139,7 +140,7 @@ class PaymentController extends AppController {
 			// https://stackoverflow.com/questions/50110007/regex-to-match-names-and-optional-values/50111862#50111862
 			$matched = preg_match_all('/(\\w+) ?: ?(.*?)(?= ?\\w+ ?:|$)/', $text, $matches, PREG_SET_ORDER);
 			if (!$matched) {
-				$this->Flash('warning', __('Unable to extract payment information from the text provided.'));
+				$this->Flash->warning(__('Unable to extract payment information from the text provided.'));
 				return false;
 			}
 		}

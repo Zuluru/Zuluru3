@@ -30,7 +30,7 @@ class API extends \App\Http\API {
 
 	public function parsePayment(array $data, bool $checkHash = true): array {
 		// Retrieve the parameters sent from the server
-		$audit = ['payment_plugin' => 'Chase', 'transaction_id' => '', 'charge_total' => 0, 'iso_code' => ''];
+		$audit = ['payment_plugin' => 'Chase', 'transaction_id' => '', 'charge_total' => 0, 'iso_code' => 0];
 		$data += ['exact_ctr' => ''];
 		foreach ([
 			'order_id' => 'Reference_No',

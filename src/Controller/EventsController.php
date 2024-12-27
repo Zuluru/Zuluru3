@@ -134,12 +134,12 @@ class EventsController extends AppController {
 		if ($year) {
 			$conditions = ['OR' => [
 				[
-					'Events.open >' => $year,
-					'Events.open <' => (string) ($year + 1),
+					'Events.open >' => $year . '-01-01',
+					'Events.open <' => (string) ($year + 1) . '-01-01',
 				],
 				[
-					'Events.close >' => $year,
-					'Events.close <' => (string) ($year + 1),
+					'Events.close >' => $year . '-01-01',
+					'Events.close <' => (string) ($year + 1) . '-01-01',
 				],
 			]];
 		} else {

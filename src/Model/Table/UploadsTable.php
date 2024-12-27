@@ -83,46 +83,56 @@ class UploadsTable extends AppTable {
 	 * @return \Cake\Validation\Validator
 	 */
 	public function validationDefault(Validator $validator): \Cake\Validation\Validator {
+		$max = ini_get('upload_max_filesize');
+		$unit = substr($max,-1);
+		if ($unit == 'M' || $unit == 'K') {
+			$max .= 'b';
+		}
+		$too_large_message = __('The selected document is too large. Documents must be less than {0}.', $max);
+
+		$validator->setProvider('upload', UploadValidation::class);
+
 		$validator
 			->numeric('id')
 			->allowEmptyString('id', null, 'create')
 
 			->requirePresence('filename', 'create', __('There was an unexpected error uploading the file. Please try again.'))
 			->notEmptyFile('filename', __('You must select a document to upload.'))
-			->add('filename', 'noErrors', [
-				'rule' => function ($value, $context) {
-					// We may just get a plain filename here, from cropped photo uploads
-					if (!is_array($value)) {
-						return true;
-					}
 
-					// TODO: Use validation functions provided by the Upload behavior
-					if ($value['error'] == UPLOAD_ERR_NO_FILE) {
-						return __('You must select a document to upload.');
-					}
-					if ($value['error'] == UPLOAD_ERR_INI_SIZE) {
-						$max = ini_get('upload_max_filesize');
-						$unit = substr($max,-1);
-						if ($unit == 'M' || $unit == 'K') {
-							$max .= 'b';
-						}
-						return __('The selected document is too large. Documents must be less than {0}.', $max);
-					}
-					if ($value['error'] == UPLOAD_ERR_NO_TMP_DIR || $value['error'] == UPLOAD_ERR_CANT_WRITE) {
-						return __('This system does not appear to be properly configured for document uploads. Please contact your administrator to have them correct this.');
-					}
-					if ($value['error'] == UPLOAD_ERR_PARTIAL) {
-						return __('The file was not fully uploaded. Please try again.');
-					}
-					if ($value['error'] != 0) {
-						return __('There was an unexpected error uploading the file. Please try again.');
-					}
-					if ($value['size'] == 0) {
-						return __('You uploaded an empty file. Please try again.');
-					}
+			->add('filename', 'fileFileUpload', [
+				'rule' => 'isFileUpload',
+				'message' => __('You must select a document to upload.'),
+				'provider' => 'upload'
+			])
 
-					return true;
-				},
+			->add('filename', 'fileUnderPhpSizeLimit', [
+				'rule' => 'isUnderPhpSizeLimit',
+				'message' => $too_large_message,
+				'provider' => 'upload'
+			])
+
+			->add('filename', 'fileUnderFormSizeLimit', [
+				'rule' => 'isUnderFormSizeLimit',
+				'message' => $too_large_message,
+				'provider' => 'upload'
+			])
+
+			->add('filename', 'fileSuccessfulWrite', [
+				'rule' => 'isSuccessfulWrite',
+				'message' => __('This system does not appear to be properly configured for document uploads. Please contact your administrator to have them correct this.'),
+				'provider' => 'upload'
+			])
+
+			->add('filename', 'fileCompletedUpload', [
+				'rule' => 'isCompletedUpload',
+				'message' => __('The file was not fully uploaded. Please try again.'),
+				'provider' => 'upload'
+			])
+
+			->add('filename', 'fileAboveMinSize', [
+				'rule' => ['isAboveMinSize', 0],
+				'message' => __('You uploaded an empty file. Please try again.'),
+				'provider' => 'upload'
 			])
 
 			->boolean('approved')

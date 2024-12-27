@@ -1955,6 +1955,7 @@ class GamesController extends AppController {
 		if ($game->division->league->hasSpirit()) {
 			$spirit_obj = $game->division->league->hasSpirit() ? $this->moduleRegistry->load("Spirit:{$game->division->league->sotg_questions}") : null;
 			$this->Games->SpiritEntries->addValidation($spirit_obj, $game->division->league);
+			$this->set(compact('spirit_obj'));
 		}
 
 		$opponent_score = $game->getScoreEntry($opponent->id);
@@ -2009,7 +2010,7 @@ class GamesController extends AppController {
 			}
 		}
 
-		$this->set(compact('game', 'team_id', 'opponent_score', 'spirit_obj'));
+		$this->set(compact('game', 'team_id', 'opponent_score'));
 	}
 
 	public function submit_stats() {
