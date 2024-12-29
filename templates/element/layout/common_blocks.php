@@ -151,9 +151,13 @@ zjQuery.widget.bridge("uibutton", zjQuery.ui.button);
 	$this->end();
 }
 
-if (Configure::read('feature.ckeditor') && !$this->fetch('editor_scripts')) {
+if (Configure::read('feature.ckeditor') && Configure::read('feature.ckeditor_license') && !$this->fetch('editor_scripts')) {
 	$this->start('editor_scripts');
-	echo $this->Html->script('https://cdn.ckeditor.com/4.8.0/full/ckeditor.js');
+	echo $this->Html->css('https://cdn.ckeditor.com/ckeditor5/44.1.0/ckeditor5.css', ['crossorigin' => 'anonymous']);
+	$ckeditorKey = Configure::read('feature.ckeditor_license');
+	echo $this->Html->scriptBlock("const LICENSE_KEY = '$ckeditorKey';");
+	echo $this->Html->script('https://cdn.ckeditor.com/ckeditor5/44.1.0/ckeditor5.umd.js', ['crossorigin' => 'anonymous']);
+	echo $this->Html->script('ckeditor.js');
 	$this->end();
 }
 

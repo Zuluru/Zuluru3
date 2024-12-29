@@ -883,75 +883,73 @@ function initializeStatus() {
 	/**
 	 * Initialize CKEditor on any applicable input fields
 	 */
-	if (typeof CKEDITOR !== 'undefined') {
-		CKEDITOR.replaceAll(function (textarea, config) {
-			textarea = zjQuery(textarea);
-			if (CKEDITOR.instances[textarea.attr('id')] != undefined) {
-				return false;
-			} else if (textarea.hasClass('wysiwyg_advanced')) {
-				config.toolbar = [
-					{
-						name: 'clipboard',
-						items: ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo']
-					},
-					{name: 'editing', items: ['SpellChecker', 'Scayt']},
-					{name: 'links', items: ['Link', 'Unlink', 'Anchor']},
-					{name: 'insert', items: ['Image', 'Table', 'HorizontalRule', 'SpecialChar', 'PageBreak']},
-					'/',
-					{
-						name: 'basicstyles',
-						items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat']
-					},
-					{
-						name: 'paragraph',
-						items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv',
-							'-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock']
-					},
-					'/',
-					{name: 'styles', items: ['Format', 'Font', 'FontSize']},
-					{name: 'colors', items: ['TextColor', 'BGColor']},
-					{name: 'tools', items: ['Maximize', 'ShowBlocks', '-', 'About']},
-					{name: 'document', items: ['Source']}
-				];
-			} else if (textarea.hasClass('wysiwyg_simple')) {
-				config.toolbar = [
-					{name: 'clipboard', items: ['Cut', 'Copy', 'PasteText', '-', 'Undo', 'Redo']},
-					{
-						name: 'basicstyles',
-						items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat']
-					},
-					{name: 'paragraph', items: ['NumberedList', 'BulletedList']},
-					{name: 'styles', items: ['Format']}
-				];
-			} else if (textarea.hasClass('wysiwyg_newsletter')) {
-				config.toolbar = [
-					{
-						name: 'clipboard',
-						items: ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo']
-					},
-					{name: 'editing', items: ['SpellChecker', 'Scayt']},
-					{name: 'links', items: ['Link', 'Unlink', 'Anchor']},
-					{name: 'insert', items: ['Image', 'Table', 'HorizontalRule', 'SpecialChar', 'PageBreak']},
-					'/',
-					{
-						name: 'basicstyles',
-						items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat']
-					},
-					{
-						name: 'paragraph',
-						items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote', 'CreateDiv',
-							'-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock']
-					},
-					'/',
-					{name: 'styles', items: ['Format', 'Font', 'FontSize']},
-					{name: 'colors', items: ['TextColor', 'BGColor']},
-					{name: 'tools', items: ['Maximize', 'ShowBlocks', '-', 'About']},
-					{name: 'document', items: ['Source']}
-				];
-			} else {
-				return false;
+	if (CKEDITOR !== undefined) {
+		if (CKEDITOR.instances === undefined) {
+			CKEDITOR.instances = [];
+		}
+		document.querySelectorAll('textarea').forEach(function (textarea) {
+			jtextarea = zjQuery(textarea);
+			if (CKEDITOR.instances[jtextarea.attr('id')] !== undefined) {
+				return;
 			}
-			config.resize_dir = 'both';
+
+			if (jtextarea.hasClass('wysiwyg_advanced') || jtextarea.hasClass('wysiwyg_newsletter')) {
+				editorConfig.toolbar.items = [
+					'heading',
+					'|',
+					'fontSize',
+					'fontFamily',
+					'fontColor',
+					'fontBackgroundColor',
+					'|',
+					'bold',
+					'italic',
+					'underline',
+					'|',
+					'link',
+					'insertTable',
+					'blockQuote',
+					'|',
+					'alignment',
+					'|',
+					'bulletedList',
+					'numberedList',
+					'todoList',
+					'outdent',
+					'indent',
+					'|',
+					'sourceEditing',
+				];
+				editorConfig.menuBar.isVisible = true;
+			} else if (jtextarea.hasClass('wysiwyg_simple')) {
+				editorConfig.toolbar.items = [
+					'undo',
+					'redo',
+					'|',
+					'bold',
+					'italic',
+					'underline',
+					'strikethrough',
+					'subscript',
+					'superscript',
+					'|',
+					'removeFormat',
+					'|',
+					'bulletedList',
+					'numberedList',
+					'|',
+					'heading',
+				];
+				editorConfig.menuBar.isVisible = false;
+			} else {
+				return;
+			}
+
+			ClassicEditor
+				.create(textarea, editorConfig)
+				.catch(error => console.log(error));
+
+			CKEDITOR.instances[jtextarea.attr('id')] = true;
 		});
 	}
 

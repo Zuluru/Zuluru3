@@ -98,6 +98,14 @@ if (!$affiliate) {
 			'options' => Configure::read('options.enable'),
 		],
 	]);
+	echo $this->element('Settings/input', [
+		'category' => 'feature',
+		'name' => 'ckeditor_license',
+		'options' => [
+			'label' => __('CKEditor WYSIWYG editor license key'),
+			'type' => 'text',
+		],
+	]);
 }
 echo $this->element('Settings/input', [
 	'category' => 'feature',
