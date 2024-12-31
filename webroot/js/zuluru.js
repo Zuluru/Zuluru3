@@ -883,7 +883,7 @@ function initializeStatus() {
 	/**
 	 * Initialize CKEditor on any applicable input fields
 	 */
-	if (CKEDITOR !== undefined) {
+	if (typeof CKEDITOR !== 'undefined') {
 		if (CKEDITOR.instances === undefined) {
 			CKEDITOR.instances = [];
 		}
