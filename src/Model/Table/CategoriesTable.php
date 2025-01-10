@@ -65,7 +65,7 @@ class CategoriesTable extends AppTable {
 			->allowEmptyString('id', null, 'create')
 
 			->requirePresence('affiliate_id', 'create')
-			->notEmptyString('affiliate_id')
+			->notEmptyString('affiliate_id', __('You must select a valid affiliate.'))
 
 			->requirePresence('type', 'create')
 			->notEmptyString('type')

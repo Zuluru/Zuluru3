@@ -95,6 +95,9 @@ class NewslettersTable extends AppTable {
 			->requirePresence('personalize', 'create', __('Indicate whether this newsletter will be personalized.'))
 			->notEmptyString('personalize', __('Indicate whether this newsletter will be personalized.'))
 
+			->requirePresence('mailing_list_id', 'create')
+			->notEmptyString('mailing_list_id', __('You must select a valid mailing list.'))
+
 			;
 
 		return $validator;
