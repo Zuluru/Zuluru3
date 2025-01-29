@@ -6,6 +6,7 @@
  * @var \App\Model\Entity\Attendance $attendance
  * @var \App\Model\Entity\Game $game
  * @var \Cake\I18n\Date $game_date
+ * @var bool $dedicated
  */
 
 $args = [
@@ -13,6 +14,7 @@ $args = [
 	'person_id' => $attendance->person_id,
 	'role' => $attendance->person->teams[0]->_joinData->role,
 	'attendance' => $attendance,
+	'dedicated' => $dedicated,
 ];
 if (!$game->isNew()) {
 	$args['game'] = $game;

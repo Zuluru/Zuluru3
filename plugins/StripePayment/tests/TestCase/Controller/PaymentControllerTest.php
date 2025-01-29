@@ -94,7 +94,7 @@ class PaymentControllerTest extends ControllerTestCase {
 		$this->assertResponseContains('OK');
 		$this->assertResponseNotContains('Your payment was declined');
 		$this->assertEquals('Paid', $registration->payment);
-		$this->assertEquals(1, count($registration->payments));
+		$this->assertCount(1, $registration->payments);
 		$this->assertEquals(11.50, $registration->payments[0]->registration_audit->charge_total);
 	}
 

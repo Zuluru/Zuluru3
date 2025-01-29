@@ -6,7 +6,6 @@
  */
 namespace App\Module;
 
-use App\Event\FlashTrait;
 use App\Exception\ForbiddenRedirectException;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
@@ -16,10 +15,9 @@ use App\Core\ModuleRegistry;
 use App\Model\Entity\Event;
 use App\Model\Entity\Question;
 use App\Model\Entity\Registration;
+use Cake\Routing\Router;
 
 class EventType {
-
-	use FlashTrait;
 
 	/**
 	 * Return the list of field names used for configuration.
@@ -188,7 +186,7 @@ class EventType {
 		if (Configure::read('feature.badges')) {
 			$badge_obj = ModuleRegistry::getInstance()->load('Badge');
 			if (!$badge_obj->update('registration', $registration, true)) {
-				$this->Flash('warning', __('Failed to update badge information!'));
+				Router::getRequest()->getFlash()->warning(__('Failed to update badge information!'));
 				return false;
 			}
 		}
@@ -207,7 +205,7 @@ class EventType {
 		if (Configure::read('feature.badges')) {
 			$badge_obj = ModuleRegistry::getInstance()->load('Badge');
 			if (!$badge_obj->update('registration', $registration, false)) {
-				$this->Flash('warning', __('Failed to update badge information!'));
+				Router::getRequest()->getFlash()->warning(__('Failed to update badge information!'));
 				return false;
 			}
 		}

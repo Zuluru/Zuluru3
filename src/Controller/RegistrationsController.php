@@ -276,9 +276,8 @@ class RegistrationsController extends AppController {
 			$this->set('registrations', $query);
 			$this->setResponse($this->getResponse()->withDownload("Registrations $start_date to $end_date.csv"));
 		} else {
-			$query->order(['Events.affiliate_id']);
 			$this->paginate = [
-				'order' => ['Registrations.payment' => 'DESC'],
+				'order' => ['Events.affiliate_id', 'Registrations.payment' => 'DESC', 'Registrations.created'],
 			];
 			$this->set('registrations', $this->paginate($query));
 		}

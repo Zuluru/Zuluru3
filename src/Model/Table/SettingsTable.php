@@ -1,9 +1,6 @@
 <?php
 namespace App\Model\Table;
 
-use App\Event\FlashTrait;
-use Cake\Datasource\EntityInterface;
-use Cake\Event\Event;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
 
@@ -14,8 +11,6 @@ use Cake\Validation\Validator;
  * @property \Cake\ORM\Association\BelongsTo $Affiliates
  */
 class SettingsTable extends AppTable {
-
-	use FlashTrait;
 
 	/**
 	 * Initialize method

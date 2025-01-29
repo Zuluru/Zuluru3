@@ -20,12 +20,14 @@ use App\Test\Scenario\LeagueWithRostersScenario;
 use App\Test\Scenario\SingleGameScenario;
 use App\TestSuite\ZuluruEmailTrait;
 use Cake\Core\Configure;
+use Cake\Database\TypeFactory;
 use Cake\Filesystem\Folder;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\I18n;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\EmailTrait;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
+use Josegonzalez\Upload\Database\Type\FileType;
 
 /**
  * App\Controller\PeopleController Test Case
@@ -1133,7 +1135,7 @@ class PeopleControllerTest extends ControllerTestCase {
 		]]);
 		$this->assertEquals('Young', $child->first_name);
 		$this->assertEquals('new', $child->status);
-		$this->assertEquals(true, $child->complete);
+		$this->assertTrue($child->complete);
 		$this->assertEquals(FrozenDate::now(), $child->modified);
 		$this->assertCount(1, $child->affiliates);
 		$this->assertEquals($parent->affiliates[0]->id, $child->affiliates[0]->id);
@@ -1573,6 +1575,8 @@ class PeopleControllerTest extends ControllerTestCase {
 	 */
 	public function testDocument(): void {
 		[$admin, $manager, $volunteer, $player] = $this->loadFixtureScenario(DiverseUsersScenario::class);
+
+		TypeFactory::map('upload.file', FileType::class);
 
 		/** @var Upload $upload */
 		$upload = UploadFactory::make(['person_id' => $player->id])

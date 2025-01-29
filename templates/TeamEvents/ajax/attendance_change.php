@@ -5,6 +5,7 @@
  * @var \App\Model\Entity\Person $person
  * @var \App\Model\Entity\Attendance $attendance
  * @var \App\Model\Entity\TeamEvent $event
+ * @var bool $dedicated
  */
 
 $args = [
@@ -14,5 +15,6 @@ $args = [
 	'attendance' => $attendance,
 	'event_id' => $event->id,
 	'event' => $event,
+	'dedicated' => $dedicated,
 ];
 echo $this->element('TeamEvents/attendance_change', $args);

@@ -2,14 +2,12 @@
 namespace App\Model\Table;
 
 use App\Authorization\ContextResource;
-use App\Model\Traits\DateTimeCombinator;
 use ArrayObject;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Event\Event as CakeEvent;
 use Cake\Datasource\EntityInterface;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
 use Cake\ORM\Rule\ExistsIn;
 use Cake\ORM\RulesChecker;
@@ -19,7 +17,6 @@ use App\Core\ModuleRegistry;
 use App\Model\Entity\TeamsPerson;
 use App\Model\Rule\InConfigRule;
 use App\Model\Rule\ValidScoreRule;
-use App\Model\Table\TeamsTable;
 use InvalidArgumentException;
 
 /**
@@ -396,6 +393,10 @@ class GamesTable extends AppTable {
 		// This does a subset of the Update checks, trusting that the game slots will have been correctly set by the
 		// creation algorithm. This will need to be revisited if we provide a manual bulk game creation mechanism.
 		$rules->addCreate(function (EntityInterface $entity, array $options) {
+			if (array_key_exists('double_booking', $options) && $options['double_booking']) {
+				return true;
+			}
+
 			// Make sure that some other coordinator hasn't scheduled a game in a
 			// different league on one of the unused slots.
 			if ($this->find()

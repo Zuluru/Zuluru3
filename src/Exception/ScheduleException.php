@@ -17,7 +17,7 @@ class ScheduleException extends CakeException {
 			$params = ['class' => 'info'];
 		}
 		if (is_array($message)) {
-			parent::__construct(null);
+			parent::__construct();
 			$this->_messages = $message;
 		} else {
 			parent::__construct($message);

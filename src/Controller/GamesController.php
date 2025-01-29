@@ -913,10 +913,13 @@ class GamesController extends AppController {
 				])
 				->first();
 
-			if (!empty($attendance) && !empty($attendance->person->teams[0])) {
-				$past = false;
-				$team = $attendance->person->teams[0];
+			if (empty($attendance) || empty($attendance->person->teams[0])) {
+				$this->Flash->info(__('Cannot find an attendance for you on that team on that date.'));
+				return $this->redirect('/');
 			}
+
+			$past = false;
+			$team = $attendance->person->teams[0];
 		}
 
 		$code = $this->getRequest()->getQuery('code');
@@ -925,13 +928,13 @@ class GamesController extends AppController {
 		$this->Authorization->authorize($context);
 
 		$identity = $this->Authentication->getIdentity();
+		// The is_player and is_captain may have been set by TeamPolicy::canAttendance_change
 		$is_me = $context->is_player || ($identity && ($identity->isMe($attendance) || $identity->isRelative($attendance)));
 		$is_captain = $context->is_captain || ($identity && $identity->isCaptainOf($attendance));
 
 		if ($code) {
 			// Fake the posted data array with the status from the URL
 			$data = ['status' => $this->getRequest()->getQuery('status')];
-			$this->setRequest($this->getRequest()->withData('status', $this->getRequest()->getQuery('status')));
 		} else {
 			$data = $this->getRequest()->getData();
 		}
@@ -940,15 +943,14 @@ class GamesController extends AppController {
 		$attendance_options = $this->Games->attendanceOptions($role, $attendance->status, $past, $is_captain);
 
 		if ($code || $this->getRequest()->is(['patch', 'post', 'put'])) {
-			// Future dates give a negative diff; a positive number is more logical here.
-			$days_to_game = - $game_date->diffInDays(null, false);
+			$days_to_game = FrozenDate::now()->diffInDays($game_date, false);
 
 			if (array_key_exists('status', $data) && $data['status'] == 'comment') {
 				// Comments that come via Ajax will have the status set to comment, which is not useful.
-				$this->setRequest($this->getRequest()->withoutData('status'));
-				$result = $this->_updateAttendanceComment($attendance, $game, $game_date, $team, $opponent, $is_me, $days_to_game, $past);
+				unset($data['status']);
+				$result = $this->_updateAttendanceComment($data, $attendance, $game, $game_date, $team, $opponent, $is_me, $days_to_game, $past);
 			} else {
-				$result = $this->_updateAttendanceStatus($attendance, $game, $game_date, $team, $opponent, $is_captain, $is_me, $days_to_game, $past, $attendance_options);
+				$result = $this->_updateAttendanceStatus($data, $attendance, $game, $game_date, $team, $opponent, $is_captain, $is_me, $days_to_game, $past, $attendance_options);
 			}
 
 			// Where do we go from here? It depends...
@@ -972,13 +974,13 @@ class GamesController extends AppController {
 		$this->set(compact('attendance', 'game', 'game_date', 'team', 'opponent', 'attendance_options', 'is_captain', 'is_me'));
 	}
 
-	protected function _updateAttendanceStatus($attendance, $game, $date, $team, $opponent, $is_captain, $is_me, $days_to_game, $past, $attendance_options) {
-		if (!array_key_exists($this->getRequest()->getData('status'), $attendance_options)) {
+	protected function _updateAttendanceStatus($data, $attendance, $game, $date, $team, $opponent, $is_captain, $is_me, $days_to_game, $past, $attendance_options) {
+		if (!array_key_exists($data['status'], $attendance_options)) {
 			$this->Flash->info(__('That is not currently a valid attendance status for this person for this game.'));
 			return false;
 		}
 
-		$attendance = $this->Games->Attendances->patchEntity($attendance, $this->getRequest()->getData());
+		$attendance = $this->Games->Attendances->patchEntity($attendance, $data);
 		if (!$attendance->isDirty('status') && !$attendance->isDirty('comment') && !$attendance->isDirty('note')) {
 			return true;
 		}
@@ -1039,8 +1041,8 @@ class GamesController extends AppController {
 		return true;
 	}
 
-	protected function _updateAttendanceComment($attendance, $game, $date, $team, $opponent, $is_me, $days_to_game, $past) {
-		$attendance = $this->Games->Attendances->patchEntity($attendance, $this->getRequest()->getData());
+	protected function _updateAttendanceComment($data, $attendance, $game, $date, $team, $opponent, $is_me, $days_to_game, $past) {
+		$attendance = $this->Games->Attendances->patchEntity($attendance, $data);
 		if (!$attendance->isDirty('comment')) {
 			return true;
 		}

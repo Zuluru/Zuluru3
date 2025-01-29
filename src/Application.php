@@ -115,8 +115,6 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 				$this->addPlugin(Configure::read('App.theme'), ['bootstrap' => false, 'routes' => false]);
 			}
 
-			$this->addPlugin('Invoices', ['bootstrap' => false, 'routes' => true]);
-
 			try {
 				foreach (TableRegistry::getTableLocator()->get('Plugins')->find()->where(['enabled' => true])->order('Plugins.name') as $plugin) {
 					$this->addPlugin($plugin->load_name, ['bootstrap' => true, 'routes' => true]);
@@ -158,23 +156,26 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 
 		if (empty($authenticators)) {
 			// If Zuluru is managing authentication alone, handle old passwords and migrate them
-			$hashMethod = Configure::read('Security.hashMethod', 'sha256');
-			$hasher = [
-				'className' => 'Authentication.Fallback',
-				'hashers' => [
-					[
-						'className' => 'Authentication.Default',
+			$hasher = Configure::read('Security.hashers');
+			if (empty($hashers)) {
+				$hashMethod = Configure::read('Security.hashMethod', 'sha256');
+				$hasher = [
+					'className' => 'Authentication.Fallback',
+					'hashers' => [
+						[
+							'className' => 'Authentication.Default',
+						],
+						[
+							'className' => 'Authentication.Legacy',
+							'hashType' => $hashMethod,
+						],
+						[
+							'className' => 'LegacyNoSalt',
+							'hashType' => $hashMethod,
+						],
 					],
-					[
-						'className' => 'Authentication.Legacy',
-						'hashType' => $hashMethod,
-					],
-					[
-						'className' => 'LegacyNoSalt',
-						'hashType' => $hashMethod,
-					],
-				],
-			];
+				];
+			}
 
 			// Load the session-based authenticator
 			$service->loadAuthenticator('Authentication.Session');

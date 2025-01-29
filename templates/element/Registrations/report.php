@@ -25,12 +25,12 @@ if (isset($registrations)):
 		<table class="table table-striped table-hover table-condensed">
 			<thead>
 				<tr class="paginator">
-					<th><?= $this->Paginator->sort('created', __('Created Date')) ?></th>
-					<th><?= $this->Paginator->sort('id', __('Order ID')) ?></th>
-					<th><?= $this->Paginator->sort('event_id', __('Event ID')) ?></th>
+					<th><?= __('Created Date') ?></th>
+					<th><?= __('Order ID') ?></th>
+					<th><?= __('Event ID') ?></th>
 					<th><?= __('Event') ?></th>
 					<th><?= __('Price Point') ?></th>
-					<th><?= $this->Paginator->sort('person_id', __('Person ID')) ?></th>
+					<th><?= __('Person ID') ?></th>
 					<th><?= Configure::read('profile.legal_name') ? __('Preferred Name') : __('First Name') ?></th>
 					<th><?= __('Last Name') ?></th>
 					<th><?= __('Payment') ?></th>

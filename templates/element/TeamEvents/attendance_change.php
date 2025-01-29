@@ -4,6 +4,7 @@
  * @var \App\Model\Entity\Team $team
  * @var \App\Model\Entity\Attendance $attendance
  * @var \App\Model\Entity\TeamEvent $event
+ * @var bool $dedicated
  * @var string $role
  * @var int $person_id
  * @var bool $future_only
@@ -47,7 +48,7 @@ if ($team->track_attendance) {
 	if ($this->Authorize->can('attendance_change', $context)) {
 		$identity = $this->Authorize->getIdentity();
 
-		$url = ['controller' => 'TeamEvents', 'action' => 'attendance_change', '?' => ['event' => $event->id]];
+		$url = ['controller' => 'TeamEvents', 'action' => 'attendance_change', '?' => ['event' => $event->id, 'dedicated' => $dedicated]];
 		if (!$identity->isMe($person_id)) {
 			$url['?']['person'] = $person_id;
 		}

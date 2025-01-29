@@ -5,6 +5,7 @@
  * @var \App\Model\Entity\Attendance $attendance
  * @var \App\Model\Entity\Game $game
  * @var \Cake\I18n\Date $game_date
+ * @var bool $dedicated
  * @var string $role
  * @var int $person_id
  * @var bool $future_only
@@ -49,7 +50,7 @@ if ($team->track_attendance || (isset($force) && $force)) {
 	if ($this->Authorize->can('attendance_change', $context)) {
 		$identity = $this->Authorize->getIdentity();
 
-		$url = ['controller' => 'Games', 'action' => 'attendance_change', '?' => ['team' => $team->id]];
+		$url = ['controller' => 'Games', 'action' => 'attendance_change', '?' => ['team' => $team->id, 'dedicated' => $dedicated]];
 		if (isset($game_date)) {
 			$url['?']['date'] = $game_date->format('Y-m-d');
 		} else if ($game->id) {

@@ -1,6 +1,7 @@
 <?php
 namespace App\Test\TestCase\Controller;
 
+use App\Model\Entity\Game;
 use App\Model\Entity\Person;
 use App\Test\Factory\AttendanceFactory;
 use App\Test\Factory\GameFactory;
@@ -2289,6 +2290,7 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertGetAsAccessOk($url, $captain->id);
 
 		$this->enableSecurityToken();
+		$this->enableRetainFlashMessages();
 		$this->assertPostAsAccessRedirect($url,
 			$captain->id, [
 				'score_entries' => [
@@ -2314,23 +2316,38 @@ class GamesControllerTest extends ControllerTestCase {
 						'highlights' => '',
 					]
 				],
-				'has_incident' => false,
+				'has_incident' => true,
+				'incidents' => [
+					[
+						'type' => 'Field Condition',
+						'details' => 'Incident report text goes here.',
+					],
+				],
 			], '/', 'This score has been saved. Once your opponent has entered their score, it will be officially posted. The score you have submitted indicates that this game was {0}. If this is incorrect, you can {1} to correct it.'
 		);
 		$this->assertSession('a win for your team', 'Flash.flash.0.params.replacements.0.text');
 
-		$this->assertMailCount(1);
-		$this->assertMailSentFrom('admin@zuluru.org');
-		$this->assertMailSentWithArray([$captain->user->email => $captain->full_name], 'ReplyTo');
-		$this->assertMailSentTo($game->away_team->people[0]->user->email);
-		$this->assertMailSentWithArray([], 'CC');
-		$this->assertMailSentWith('Opponent score submission', 'Subject');
-		$this->assertMailContains("Your opponent has indicated that the game between your team {$game->away_team->name} and {$game->home_team->name}, starting at 7:00PM on {$game->game_slot->game_date->format('M j, Y')} in {$game->division->full_league_name} was a 17-10 loss for your team.");
+		$this->assertMailCount(2);
+		$this->assertMailSentFromAt(0, 'admin@zuluru.org');
+		$this->assertMailSentWithArrayAt(0, [$captain->user->email => $captain->full_name], 'ReplyTo');
+		$this->assertMailSentToAt(0, $game->away_team->people[0]->user->email);
+		$this->assertMailSentWithArrayAt(0, [], 'CC');
+		$this->assertMailSentWithAt(0, 'Opponent score submission', 'Subject');
+		$this->assertMailContainsAt(0, "Your opponent has indicated that the game between your team {$game->away_team->name} and {$game->home_team->name}, starting at 7:00PM on {$game->game_slot->game_date->format('M j, Y')} in {$game->division->full_league_name} was a 17-10 loss for your team.");
 
+		$this->assertMailSentFromAt(1, 'admin@zuluru.org');
+		$this->assertMailSentWithArrayAt(1, [$captain->user->email => $captain->full_name], 'ReplyTo');
+		$this->assertMailSentToAt(1, 'incidents@zuluru.org');
+		$this->assertMailSentWithArrayAt(1, [], 'CC');
+		$this->assertMailSentWithAt(1, 'Incident report: Field Condition', 'Subject');
+		$this->assertMailContainsAt(1, 'The following incident report was submitted:');
+		$this->assertMailContainsAt(1, 'Incident report text goes here.');
+
+		/** @var Game $game */
 		$game = GameFactory::get($game->id, ['contain' => ['ScoreEntries', 'SpiritEntries']]);
 		$this->assertFalse($game->isFinalized());
 
-		$this->assertEquals(1, count($game->score_entries));
+		$this->assertCount(1, $game->score_entries);
 		$this->assertEquals($captain->id, $game->score_entries[0]->person_id);
 		$this->assertEquals($game->home_team_id, $game->score_entries[0]->team_id);
 		$this->assertEquals($game->id, $game->score_entries[0]->game_id);
@@ -2339,7 +2356,7 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertEquals(10, $game->score_entries[0]->score_against);
 		$this->assertEquals(1, $game->score_entries[0]->home_carbon_flip);
 
-		$this->assertEquals(1, count($game->spirit_entries));
+		$this->assertCount(1, $game->spirit_entries);
 		$this->assertEquals($game->away_team_id, $game->spirit_entries[0]->team_id);
 		$this->assertEquals($game->home_team_id, $game->spirit_entries[0]->created_team_id);
 		$this->assertEquals($game->id, $game->spirit_entries[0]->game_id);
@@ -2348,6 +2365,8 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertEquals(2, $game->spirit_entries[0]->q3);
 		$this->assertEquals(2, $game->spirit_entries[0]->q4);
 		$this->assertEquals(2, $game->spirit_entries[0]->q5);
+
+		$this->assertFlashMessage('Your incident report details have been sent for handling.');
 	}
 
 	/**
@@ -2417,7 +2436,7 @@ class GamesControllerTest extends ControllerTestCase {
 		$game = GameFactory::get($game->id, ['contain' => ['ScoreEntries', 'SpiritEntries']]);
 		$this->assertFalse($game->isFinalized());
 
-		$this->assertEquals(1, count($game->score_entries));
+		$this->assertCount(1, $game->score_entries);
 		$this->assertEquals($captain->id, $game->score_entries[0]->person_id);
 		$this->assertEquals($game->home_team_id, $game->score_entries[0]->team_id);
 		$this->assertEquals($game->id, $game->score_entries[0]->game_id);
@@ -2426,7 +2445,7 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertEquals(10, $game->score_entries[0]->score_against);
 		$this->assertEquals(1, $game->score_entries[0]->home_carbon_flip);
 
-		$this->assertEquals(1, count($game->spirit_entries));
+		$this->assertCount(1, $game->spirit_entries);
 		$this->assertEquals($game->away_team_id, $game->spirit_entries[0]->team_id);
 		$this->assertEquals($game->home_team_id, $game->spirit_entries[0]->created_team_id);
 		$this->assertEquals($game->id, $game->spirit_entries[0]->game_id);
@@ -2507,7 +2526,7 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertTrue($game->isFinalized());
 		$this->assertEquals(4, $game->home_score);
 		$this->assertEquals(5, $game->away_score);
-		$this->assertEquals(2, count($game->spirit_entries));
+		$this->assertCount(2, $game->spirit_entries);
 		$this->assertEquals($home->id, $game->spirit_entries[0]->team_id);
 		$this->assertEquals($away->id, $game->spirit_entries[0]->created_team_id);
 		$this->assertEquals($game->id, $game->spirit_entries[0]->game_id);
@@ -2609,7 +2628,7 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertFalse($game->isFinalized());
 		$this->assertNull($game->home_score);
 		$this->assertNull($game->away_score);
-		$this->assertEquals(2, count($game->spirit_entries));
+		$this->assertCount(2, $game->spirit_entries);
 		$this->assertEquals($home->id, $game->spirit_entries[0]->team_id);
 		$this->assertEquals($away->id, $game->spirit_entries[0]->created_team_id);
 		$this->assertEquals($game->id, $game->spirit_entries[0]->game_id);
@@ -2714,7 +2733,7 @@ class GamesControllerTest extends ControllerTestCase {
 		$this->assertTrue($game->isFinalized());
 		$this->assertEquals(15, $game->home_score);
 		$this->assertEquals(14, $game->away_score);
-		$this->assertEquals(2, count($game->spirit_entries));
+		$this->assertCount(2, $game->spirit_entries);
 		$this->assertEquals($home->id, $game->spirit_entries[0]->team_id);
 		$this->assertEquals($away->id, $game->spirit_entries[0]->created_team_id);
 		$this->assertEquals($game->id, $game->spirit_entries[0]->game_id);

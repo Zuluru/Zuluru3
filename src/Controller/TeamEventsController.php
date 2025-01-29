@@ -6,6 +6,7 @@ use Authorization\Exception\MissingIdentityException;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
+use Cake\I18n\FrozenDate;
 use Cake\ORM\Query;
 use App\PasswordHasher\HasherTrait;
 use App\Model\Table\GamesTable;
@@ -315,6 +316,7 @@ class TeamEventsController extends AppController {
 		$past = $team_event->start_time->isPast();
 
 		$identity = $this->Authentication->getIdentity();
+		// The is_player and is_captain may have been set by TeamPolicy::canAttendance_change
 		$is_me = $context->is_player || ($identity && ($identity->isMe($attendance) || $identity->isRelative($attendance)));
 		$is_captain = $context->is_captain || ($identity && $identity->isCaptainOf($attendance));
 
@@ -329,8 +331,7 @@ class TeamEventsController extends AppController {
 				$data = $this->getRequest()->getData();
 			}
 
-			// Future dates give a negative diff; a positive number is more logical here.
-			$days_to_event = - $date->diffInDays(null, false);
+			$days_to_event = FrozenDate::now()->diffInDays($date, false);
 
 			if (array_key_exists('status', $data) && $data['status'] == 'comment') {
 				// Comments that come via Ajax will have the status set to comment, which is not useful.

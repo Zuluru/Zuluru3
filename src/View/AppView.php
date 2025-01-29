@@ -12,6 +12,9 @@ use App\View\Helper\ZuluruTimeHelper;
 use Authentication\View\Helper\IdentityHelper;
 use BootstrapUI\View\Helper\PaginatorHelper;
 use BootstrapUI\View\UIViewTrait;
+use Cake\Event\EventManager;
+use Cake\Http\Response;
+use Cake\Http\ServerRequest;
 use Cake\View\Helper\NumberHelper;
 use Cake\View\Helper\TextHelper;
 use Cake\View\View;
@@ -39,6 +42,16 @@ use ZuluruJquery\View\Helper\JqueryHelper;
 class AppView extends View {
 
 	use UIViewTrait;
+
+	public function __construct(?ServerRequest $request = null, ?Response $response = null, ?EventManager $eventManager = null, array $viewOptions = [])
+	{
+		parent::__construct($request, $response, $eventManager, $viewOptions);
+
+		// The default "fade" class that Bootstrap wants to use conflicts with other things sometimes, making flash messages invisible.
+		// Can't do this with default configuration in the initialize function, because that merges provided config with the default,
+		// which allows adding more classes, but not removing default ones.
+		$this->Flash->setConfig('class', ['alert', 'alert-dismissible', 'show', 'd-flex', 'align-items-center'], false);
+	}
 
 	/**
 	 * Initialization hook method.

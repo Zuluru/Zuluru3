@@ -149,7 +149,7 @@ class Game extends Entity {
 		$away_score_entry = $this->getScoreEntry($this->away_team_id);
 		$penalty = Configure::read('scoring.missing_score_spirit_penalty');
 
-		if ($home_score_entry->person_id && $away_score_entry->person_id) {
+		if ($home_score_entry && $home_score_entry->person_id && $away_score_entry && $away_score_entry->person_id) {
 			if ($this->scoreEntriesAgree($home_score_entry, $away_score_entry)) {
 				$this->status = $home_score_entry->status;
 
@@ -172,7 +172,7 @@ class Game extends Entity {
 				EventManager::instance()->dispatch($event);
 				return false;
 			}
-		} else if ($home_score_entry->person_id && !$away_score_entry->person_id ) {
+		} else if ($home_score_entry && $home_score_entry->person_id && (!$away_score_entry || !$away_score_entry->person_id)) {
 			$this->status = $home_score_entry->status;
 
 			switch ($home_score_entry->status) {
@@ -204,7 +204,7 @@ class Game extends Entity {
 			$this->approved_by_id = APPROVAL_AUTOMATIC_HOME;
 			$event = new CakeEvent('Model.Game.scoreApproval', $this, [$this, $this->away_team, $this->home_team]);
 			EventManager::instance()->dispatch($event);
-		} else if (!$home_score_entry->person_id && $away_score_entry->person_id) {
+		} else if ((!$home_score_entry || !$home_score_entry->person_id) && $away_score_entry && $away_score_entry->person_id) {
 			$this->status = $away_score_entry->status;
 
 			switch ($away_score_entry->status) {

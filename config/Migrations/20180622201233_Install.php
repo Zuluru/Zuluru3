@@ -3045,7 +3045,7 @@ class Install extends AbstractMigration {
 			->addColumn('person_id', 'integer', [
 				'default' => '0',
 				'limit' => 11,
-				'null' => false,
+				'null' => true,
 			])
 			->addColumn('entered_sotg', 'integer', [
 				'default' => null,

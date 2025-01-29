@@ -33,6 +33,7 @@ class ZuluruHtmlHelper extends HtmlHelper {
 
 	/**
 	 * Add a "buffer" option, which will result in the provided script being included in the jQuery ".ready" block
+	 * Just using 'block' => 'footer_script' would wrap it in an extra <script> tag that we don't want.
 	 */
 	public function scriptBlock(string $script, array $options = []): ?string {
 		if (!empty($options['buffer'])) {

@@ -81,7 +81,7 @@ class FacilityTest extends TestCase {
 
 		// All of XYZ's should be empty and just give me dir info
 		foreach ($xyz->permits as $seasonName => $fileDetails) {
-			$this->assertEquals(1, count($fileDetails), 'Empty season file details or too many elements ');
+			$this->assertCount(1, $fileDetails, 'Empty season file details or too many elements ');
 			if (array_key_exists('dir', $fileDetails)) {
 				// Validate the end of the dir name
 				$dirName = $fileDetails['dir'];

@@ -339,6 +339,13 @@ class SettingsFixture extends TestFixture {
 			[
 				'person_id' => null,
 				'category' => 'scoring',
+				'name' => 'incident_reports',
+				'value' => 1,
+				'affiliate_id' => null,
+			],
+			[
+				'person_id' => null,
+				'category' => 'scoring',
 				'name' => 'stat_tracking',
 				'value' => 1,
 				'affiliate_id' => null,
@@ -355,6 +362,13 @@ class SettingsFixture extends TestFixture {
 				'category' => 'email',
 				'name' => 'admin_email',
 				'value' => 'admin@zuluru.org',
+				'affiliate_id' => null,
+			],
+			[
+				'person_id' => null,
+				'category' => 'email',
+				'name' => 'incident_report_email',
+				'value' => 'incidents@zuluru.org',
 				'affiliate_id' => null,
 			],
 			[
