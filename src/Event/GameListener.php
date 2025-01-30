@@ -162,19 +162,21 @@ class GameListener implements EventListenerInterface {
 			}
 		}
 
-		Router::getRequest()->getFlash()->set(__('This score doesn\'t agree with the one your opponent submitted. Because of this, the score will not be posted until your coordinator approves it. Alternately, whichever coach or captain made an error can {0}.'), [
-			'element' => 'html',
-			'params' => [
-				'class' => 'warning',
-				'replacements' => [
-					[
-						'type' => 'link',
-						'link' => __('edit their submission'),
-						'target' => ['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $game->score_entries[0]->team_id]],
+		if (Router::getRequest()) {
+			Router::getRequest()->getFlash()->set(__('This score doesn\'t agree with the one your opponent submitted. Because of this, the score will not be posted until your coordinator approves it. Alternately, whichever coach or captain made an error can {0}.'), [
+				'element' => 'html',
+				'params' => [
+					'class' => 'warning',
+					'replacements' => [
+						[
+							'type' => 'link',
+							'link' => __('edit their submission'),
+							'target' => ['controller' => 'Games', 'action' => 'submit_score', '?' => ['game' => $game->id, 'team' => $game->score_entries[0]->team_id]],
+						],
 					],
 				],
-			],
-		]);
+			]);
+		}
 	}
 
 	public function scoreApproval(CakeEvent $cakeEvent, Game $game, Team $team, Team $opponent) {
