@@ -157,7 +157,7 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
 		if (empty($authenticators)) {
 			// If Zuluru is managing authentication alone, handle old passwords and migrate them
 			$hasher = Configure::read('Security.hashers');
-			if (empty($hashers)) {
+			if (empty($hasher)) {
 				$hashMethod = Configure::read('Security.hashMethod', 'sha256');
 				$hasher = [
 					'className' => 'Authentication.Fallback',
