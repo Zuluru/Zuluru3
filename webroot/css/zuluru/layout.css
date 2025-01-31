@@ -135,6 +135,11 @@ TODOBOOTSTRAP: Fix the below for the games view page
 {
 	text-align: right;
 }
+/* Fix alignment of input elements inside a dl, e.g. the game edit page */
+.zuluru dl.row dd div.row > *
+{
+	padding: 0;
+}
 .zuluru p.help-block
 {
 	margin-top: 5px;

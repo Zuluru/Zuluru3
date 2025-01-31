@@ -787,15 +787,17 @@ class GamesTable extends AppTable {
 	 * @param \Cake\Event\Event $cakeEvent The beforeSave event that was fired
 	 * @param \Cake\Datasource\EntityInterface $entity The entity that is going to be saved
 	 * @param \ArrayObject $options The options passed to the save method
-	 * @return void
+	 * @return false|void
 	 */
 	public function beforeSave(\Cake\Event\EventInterface $cakeEvent, EntityInterface $entity, ArrayObject $options) {
-		// If we're saving a batch of games, and the game slot formerly assigned to this game
-		// is now not assigned to any of this batch, we must free it up.
-		if ($options->offsetExists('games') && $entity->isDirty('game_slot_id') && !collection($options['games'])->firstMatch(['game_slot_id' => $entity->getOriginal('game_slot_id')])) {
-			if (!$this->GameSlots->updateAll(['assigned' => false], ['GameSlots.id' => $entity->getOriginal('game_slot_id')])) {
-				return false;
-			}
+		// If we're saving a batch of games (i.e. editing a schedule), and the game slot formerly assigned to this game
+		// is now not assigned to any game, we must free it up.
+		if ($options->offsetExists('games') &&
+			$entity->isDirty('game_slot_id') &&
+			$this->find()->where(['id !=' => $entity->id, 'game_slot_id' => $entity->getOriginal('game_slot_id')])->count() === 0 &&
+			!$this->GameSlots->updateAll(['assigned' => false], ['GameSlots.id' => $entity->getOriginal('game_slot_id')])
+		) {
+			return false;
 		}
 
 		if (!empty($entity->score_entries)) {

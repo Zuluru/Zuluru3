@@ -119,12 +119,3 @@ if (!empty($confirm)) {
 		trigger_error("The 'confirm' option has not been implemented for the {$options['type']} input type.", E_USER_WARNING);
 	}
 }
-
-// TODO: Is there a fix that could be done in Cake, based on the template, that would eliminate this necessity?
-if ($options['type'] == 'date' && !empty($options['templates']['dateWidget'])) {
-	foreach (['year', 'month', 'day'] as $subfield) {
-		if (strpos($options['templates']['dateWidget'], '{{' . $subfield . '}}') === false) {
-			$this->Form->unlockField("$id.value.$subfield");
-		}
-	}
-}

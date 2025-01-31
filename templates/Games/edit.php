@@ -141,7 +141,7 @@ endif;
 ?>
 	</dl>
 
-	<fieldset class="wide-labels normal default">
+	<fieldset class="normal default">
 <?php
 $homeScoreEntry = $game->getScoreEntry($game->home_team_id);
 $awayScoreEntry = $game->getScoreEntry($game->away_team_id);
@@ -357,8 +357,8 @@ endif;
 if (!$preliminary):
 ?>
 		<dl class="row">
-			<dt class="normal default"><?= $this->Text->truncate($game->home_team->name, 28) ?></dt>
-			<dd class="normal default"><?= $this->Form->control('home_score', [
+			<dt class="col-sm-3 text-end normal default"><?= $this->Text->truncate($game->home_team->name, 28) ?></dt>
+			<dd class="col-sm-9 mb-0 normal default"><?= $this->Form->control('home_score', [
 				'id' => 'ScoreHome',
 				'label' => false,
 				'size' => 2,
@@ -368,8 +368,8 @@ if (!$preliminary):
 <?php
 	if ($game->division->schedule_type !== 'competition'):
 ?>
-			<dt class="normal default"><?= $this->Text->truncate($game->away_team->name, 28) ?></dt>
-			<dd class="normal default"><?= $this->Form->control('away_score', [
+			<dt class="col-sm-3 text-end normal default"><?= $this->Text->truncate($game->away_team->name, 28) ?></dt>
+			<dd class="col-sm-9 mb-0 normal default"><?= $this->Form->control('away_score', [
 				'id' => 'ScoreAway',
 				'label' => false,
 				'size' => 2,
@@ -386,8 +386,8 @@ if (!$preliminary):
 
 	if ($game->division->league->hasCarbonFlip()):
 ?>
-			<dt class="normal"><?= __('Carbon Flip') ?></dt>
-			<dd class="normal"><?= $this->Form->control('home_carbon_flip', [
+			<dt class="col-sm-3 text-end normal"><?= __('Carbon Flip') ?></dt>
+			<dd class="col-sm-9 mb-0 normal"><?= $this->Form->control('home_carbon_flip', [
 				'label' => false,
 				'empty' => '---',
 				'options' => $carbon_flip_options,
@@ -399,13 +399,13 @@ if (!$preliminary):
 
 	if ($game->division->women_present):
 ?>
-			<dt class="normal"><?= __('Home Team Women Designated Players') ?></dt>
-			<dd class="normal"><?= $this->Form->control('score_entries.0.women_present', [
+			<dt class="col-sm-3 text-end normal"><?= __('Home Team Women Designated Players') ?></dt>
+			<dd class="col-sm-9 mb-0 normal"><?= $this->Form->control('score_entries.0.women_present', [
 				'label' => false,
 				'secure' => false,
 			]) ?></dd>
-			<dt class="normal"><?= __('Away Team Women Designated Players') ?></dt>
-			<dd class="normal"><?= $this->Form->control('score_entries.1.women_present', [
+			<dt class="col-sm-3 text-end normal"><?= __('Away Team Women Designated Players') ?></dt>
+			<dd class="col-sm-9 mb-0 normal"><?= $this->Form->control('score_entries.1.women_present', [
 				'label' => false,
 				'secure' => false,
 			]) ?></dd>

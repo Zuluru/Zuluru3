@@ -37,7 +37,11 @@ class GamePolicy extends AppPolicy {
 		}
 
 		$division = $resource->division;
-		$preliminary = ($game->home_team_id === null || ($division->schedule_type != 'competition' && $game->away_team_id === null));
+		if ($division->schedule_type === 'competition') {
+			throw new ForbiddenRedirectException(__('Ratings table does not apply to competition divisions.'),
+				['action' => 'view', '?' => ['game' => $game->id]]);
+		}
+		$preliminary = ($game->home_team_id === null || $game->away_team_id === null);
 
 		return !$preliminary && $division->schedule_type != 'roundrobin' && $ratings_obj->perGameRatings() && !$game->isFinalized() && $identity && $identity->isLoggedIn();
 	}

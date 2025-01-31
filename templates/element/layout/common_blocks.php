@@ -180,6 +180,8 @@ if (!$this->fetch('javascript_variables') && method_exists($this->Html, 'iconImg
 	];
 	if ($this->getRequest()->getAttribute('csrfToken')) {
 		$vars['zuluru_csrf_token'] = $this->getRequest()->getAttribute('csrfToken');
+	} else {
+		$vars['zuluru_csrf_token'] = '';
 	}
 
 	echo $this->Html->scriptBlock(implode("\n", array_map(function ($var, $value) {

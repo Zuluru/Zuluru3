@@ -340,6 +340,7 @@ endforeach;
 			echo $this->Form->control('options.double_booking', [
 				'label' => __('Allow double-booking?'),
 				'type' => 'checkbox',
+				'checked',
 			]);
 		}
 		if ($cross_division) {

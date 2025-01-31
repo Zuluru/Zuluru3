@@ -79,17 +79,6 @@ echo $this->element('Settings/input', [
 		'help' => __('Enable or disable attachment of Flickr slideshows to team records.'),
 	],
 ]);
-echo $this->element('Settings/input', [
-	'category' => 'plugin',
-	'name' => 'Javelin',
-	'options' => [
-		'label' => 'Javelin',
-		'type' => 'radio',
-		'options' => Configure::read('options.enable'),
-		'help' => __('Enable or disable integration with the {0}.', $this->Html->link(__('Javelin mobile app'), 'https://www.javelinsportsinc.com/')),
-		'confirm' => __('Note that {0} is not a free service.\n\nEither contact them to discuss payment options, or notify your teams that they will be responsible for this.', 'Javelin'),
-	],
-]);
 ?>
 	</fieldset>
 
