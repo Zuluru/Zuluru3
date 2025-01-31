@@ -56,7 +56,7 @@ if ($question->type == 'radio' || $question->type == 'select' || $question->type
 
 		<div class="actions columns">
 <?php
-	if (in_array($question->type, ['select', 'radio'])) {
+	if (in_array($question->type, ['select', 'radio', 'checkbox'])) {
 		echo $this->Bootstrap->navPills([
 			$this->Jquery->ajaxLink(
 				__('Add an answer to this question'),
