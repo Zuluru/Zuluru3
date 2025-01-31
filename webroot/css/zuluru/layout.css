@@ -2,9 +2,9 @@
  * Styles controlling the layout of Zuluru pages (e.g. positioning, borders, etc.).
  * These should not generally need to be changed from site to site.
  *
- * Almost everything here has .zuluru on the beginning.  This is because we don't
+ * Almost everything here has .zuluru on the beginning. This is because we don't
  * want styles on general elements (e.g. fieldset, td, etc.) to change the look
- * of the rest of the site, just the Zuluru parts.  But because of the cascade
+ * of the rest of the site, just the Zuluru parts. But because of the cascade
  * rules, things with IDs are seen as being more specific than general classes.
  * Thus, even where we are really only defining a class that will be used internally
  * (e.g. .error-message), we need to make it more specific by putting .zuluru on
@@ -168,16 +168,16 @@ TODOBOOTSTRAP: Fix the below for the games view page
 }
 
 /* From https://github.com/heartcombo/simple_form-bootstrap/blob/main/app/assets/stylesheets/simple_form-bootstrap/_form_legend_clear.scss
-   In bootstrap 5 legend floats left and requires the following element
-   to be cleared. In a radio button or checkbox group the element after
-   the legend will be the automatically generated hidden input; the fix
-   in https://github.com/twbs/bootstrap/pull/30345 applies to the hidden
-   input and has no visual effect. Here we try to fix matters by
-   applying the clear to the div wrapping the first following radio button
-   or checkbox.
+	In bootstrap 5 legend floats left and requires the following element
+	to be cleared. In a radio button or checkbox group the element after
+	the legend will be the automatically generated hidden input; the fix
+	in https://github.com/twbs/bootstrap/pull/30345 applies to the hidden
+	input and has no visual effect. Here we try to fix matters by
+	applying the clear to the div wrapping the first following radio button
+	or checkbox.
  */
 legend ~ div.form-group:first-of-type {
-   clear: left;
+	clear: left;
 }
 
 /** Notices and Errors **/
@@ -211,7 +211,7 @@ legend ~ div.form-group:first-of-type {
 	margin: 1em 0;
 }
 
-/**  Actions  **/
+/** Actions **/
 .zuluru div.actions ul
 {
 	padding: 0.5em 0;
@@ -340,10 +340,14 @@ div.related
 	margin-top: 0;
 }
 
-/* Tooltip styling. By default the element to be styled is .ui-tooltip  */
+/* Tooltip styling. By default the element to be styled is .ui-tooltip */
 .ui-tooltip
 {
 	text-align: left;
+}
+.ui-tooltip dl.row
+{
+	margin: 0;
 }
 .ui-tooltip h2
 {
@@ -354,15 +358,11 @@ div.related
 {
 	line-height: 1.5em;
 	margin-bottom: 0;
-	float: none;
-	width: 10em;
 }
 .ui-tooltip dd
 {
 	line-height: 1.5em;
-	margin: -1.5em 0 0 11em;
 }
-
 .ui-tooltip img.thumbnail
 {
 	float: right;
@@ -636,20 +636,16 @@ div.register-help img
 	margin: 0;
 }
 
-/* Fix for Firefox rendering issue: details are at
- * https://stackoverflow.com/questions/17408815/fieldset-resizes-wrong-appears-to-have-unremovable-min-width-min-content/17863685#17863685
-@-moz-document url-prefix() {
-	fieldset {
-		display: table-cell;
-	}
-}
- */
-
 /* Adjustments for mobile devices */
-@media all and (max-width: 480px) {
+@media all and (max-width: 575px) {
 	.zuluru
 	{
 		padding: 0;
+	}
+
+	dt.text-end
+	{
+		text-align: left !important;
 	}
 }
 

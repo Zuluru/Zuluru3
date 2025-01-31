@@ -53,6 +53,9 @@ endif;
 				$this->Html->link(__('Schedule'), ['controller' => 'Teams', 'action' => 'schedule', '?' => ['team' => $team->id]]) .
 				' / ' .
 				$this->Html->link(__('Standings'), ['controller' => 'Divisions', 'action' => 'standings', '?' => ['division' => $team->division_id, 'team' => $team->id]]);
+			if ($this->Authorize->can('attendance', $team)) {
+				echo ' / ' . $this->Html->link(__('Attendance'), ['controller' => 'Teams', 'action' => 'attendance', '?' => ['team' => $team->id]]);
+			}
 			if ($this->Authorize->can('stats', new ContextResource($team, ['league' => $team->division_id ? $team->division->league : null]))) {
 				echo ' / ' . $this->Html->link(__('Stats'), ['controller' => 'Teams', 'action' => 'stats', '?' => ['team' => $team->id]]);
 			}

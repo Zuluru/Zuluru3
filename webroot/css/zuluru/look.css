@@ -2,9 +2,9 @@
  * Styles controlling the look of Zuluru pages (primarily, colours).
  * These can easily be changed from site to site to match your branding.
  *
- * Almost everything here has .zuluru on the beginning.  This is because we don't
+ * Almost everything here has .zuluru on the beginning. This is because we don't
  * want styles on general elements (e.g. fieldset, td, etc.) to change the look
- * of the rest of the site, just the Zuluru parts.  But because of the cascade
+ * of the rest of the site, just the Zuluru parts. But because of the cascade
  * rules, things with IDs are seen as being more specific than general classes.
  * Thus, even where we are really only defining a class that will be used internally
  * (e.g. .error-message), we need to make it more specific by putting .zuluru on
@@ -55,6 +55,19 @@ body
 .zuluru optgroup option
 {
 	margin-left: 2em;
+}
+
+label {
+	font-weight: normal;
+}
+
+div.required label.form-label, div.required label.col-form-label {
+	font-weight: bold;
+}
+
+div.required label.form-label::after, div.required label.col-form-label::after {
+	content: ' *';
+	color: red;
 }
 
 /** Notices and Errors **/
@@ -131,7 +144,7 @@ body
 	background-image: url('images/message/error.png');
 }
 
-/**  Actions  **/
+/** Actions **/
 .zuluru .actions a
 {
 	background: #d1d9ec;
@@ -234,7 +247,7 @@ body
 	color: #cc0000;
 }
 
-/* Tooltip styling. By default the element to be styled is .ui-tooltip  */
+/* Tooltip styling. By default the element to be styled is .ui-tooltip */
 .ui-tooltip
 {
 	height: 166px;
@@ -355,16 +368,16 @@ body
 .zuluru .panel-heading .accordion-toggle:before
 {
 	/* symbol for "opening" panels */
-	font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
-	content: "\e114";    /* adjust as needed, taken from bootstrap.css */
-	color: grey;         /* adjust as needed */
+	font-family: 'Glyphicons Halflings'; /* essential for enabling glyphicon */
+	content: "\e114"; /* adjust as needed, taken from bootstrap.css */
+	color: grey; /* adjust as needed */
 	padding-right: 0.5em;
 }
 
 .zuluru .panel-heading .accordion-toggle.collapsed:before
 {
 	/* symbol for "collapsed" panels */
-	content: "\e080";    /* adjust as needed, taken from bootstrap.css */
+	content: "\e080"; /* adjust as needed, taken from bootstrap.css */
 }
 
 .zuluru a.accordion-button
@@ -382,9 +395,9 @@ body
 /* For the bulk refund table checklist */
 .zuluru table.table .checkbox input[type="checkbox"]
 {
-    position: relative;
-    margin-left: 0;
-    margin-top: 10px;
+	position: relative;
+	margin-left: 0;
+	margin-top: 10px;
 }
 
 .zuluru .form-group.time .form-control, .zuluru .form-group.date .form-control, .zuluru .form-group.datetime .form-control

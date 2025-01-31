@@ -1034,6 +1034,7 @@ function initializeStatus() {
 	if (zuluru_mobile) {
 		// Mobile devices don't have "hover" semantics, so instead
 		// we'll add a bunch of separate icons to toggle tooltips.
+		zjQuery('img.tooltip_toggle').remove();
 		zjQuery('.trigger').before(zuluru_popup + ' ');
 		zjQuery('.tooltip_toggle').uitooltip({
 				items: '.tooltip_toggle',

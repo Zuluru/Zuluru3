@@ -181,10 +181,6 @@ class EventsController extends AppController {
 			->toArray();
 
 		$events = $events->toArray();
-		if (empty($events)) {
-			$this->Flash->info(__('No matching events.'));
-			return $this->redirect('/');
-		}
 
 		$this->set(compact('affiliates', 'events', 'year', 'years'));
 	}
