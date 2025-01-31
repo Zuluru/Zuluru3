@@ -46,8 +46,8 @@ if ($question->type == 'radio' || $question->type == 'select' || $question->type
 <?php
 	$i = 0;
 	foreach ($question->answers as $answer) {
-		++$i;
 		echo $this->element('Questions/edit_answer', compact('answer', 'i'));
+		++$i;
 	}
 ?>
 
@@ -56,19 +56,17 @@ if ($question->type == 'radio' || $question->type == 'select' || $question->type
 
 		<div class="actions columns">
 <?php
-	if (in_array($question->type, ['select', 'radio', 'checkbox'])) {
-		echo $this->Bootstrap->navPills([
-			$this->Jquery->ajaxLink(
-				__('Add an answer to this question'),
-				[
-					'url' => ['action' => 'add_answer', '?' => ['question' => $question->id]],
-					'disposition' => 'append',
-					'selector' => '#Answers > tbody',
-				],
-				['class' => $this->Bootstrap->navPillLinkClasses()]
-			),
-		]);
-	}
+	echo $this->Bootstrap->navPills([
+		$this->Jquery->ajaxLink(
+			__('Add an answer to this question'),
+			[
+				'url' => ['action' => 'add_answer', '?' => ['question' => $question->id]],
+				'disposition' => 'append',
+				'selector' => '#Answers > tbody',
+			],
+			['class' => $this->Bootstrap->navPillLinkClasses()]
+		),
+	]);
 ?>
 		</div>
 <?php
