@@ -69,7 +69,7 @@ if (isset($audit)):
 	<tr>
 		<td><?= __('Date / Time') ?>:</td><td><?= "{$audit->date}  {$audit->time}" ?></td>
 <?php
-	if (array_key_exists('approval_code', $audit)):
+	if ($audit->has('approval_code')):
 ?>
 		<td><?= __('Approval Code') ?>:</td><td><?= $audit->approval_code ?></td>
 <?php
@@ -83,7 +83,7 @@ if (isset($audit)):
 	<tr>
 		<td nowrap><?= __('Sequence Number') ?>:</td><td><?= $audit->transaction_id ?></td>
 <?php
-	if (array_key_exists('iso_code', $audit)):
+	if ($audit->has('iso_code')):
 ?>
 		<td><?= __('Response&nbsp;/&nbsp;ISO Code') ?>:</td><td nowrap><?= "{$audit->response_code}/{$audit->iso_code}" ?></td>
 <?php
@@ -97,7 +97,7 @@ if (isset($audit)):
 	<tr>
 		<td><?= __('Amount') ?>:</td><td><?= $this->Number->Currency($audit->charge_total) ?></td>
 <?php
-	if (array_key_exists('f4l4', $audit)):
+	if ($audit->has('f4l4')):
 ?>
 		<td><?= __('Card #') ?>:</td><td><?= $audit->f4l4 ?></td>
 <?php
@@ -109,7 +109,7 @@ if (isset($audit)):
 ?>
 	</tr>
 <?php
-	if (array_key_exists('message', $audit)):
+	if ($audit->has('message')):
 ?>
 	<tr><td colspan="4" nowrap><?= __('Message') ?>: <?= $audit->message ?></td></tr>
 <?php
