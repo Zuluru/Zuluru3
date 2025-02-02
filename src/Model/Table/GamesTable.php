@@ -793,6 +793,8 @@ class GamesTable extends AppTable {
 		// If we're saving a batch of games (i.e. editing a schedule), and the game slot formerly assigned to this game
 		// is now not assigned to any game, we must free it up.
 		if ($options->offsetExists('games') &&
+			!$entity->isNew() &&
+			$entity->getOriginal('game_slot_id') &&
 			$entity->isDirty('game_slot_id') &&
 			$this->find()->where(['id !=' => $entity->id, 'game_slot_id' => $entity->getOriginal('game_slot_id')])->count() === 0 &&
 			!$this->GameSlots->updateAll(['assigned' => false], ['GameSlots.id' => $entity->getOriginal('game_slot_id')])
