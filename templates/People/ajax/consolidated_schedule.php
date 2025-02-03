@@ -4,6 +4,7 @@
  * @var \Cake\ORM\Entity[] $items
  * @var \App\Model\Entity\Person[] $relatives
  * @var \App\Model\Entity\Team[] $teams
+ * @var int $id
  */
 ?>
 <div class="schedule table-responsive">

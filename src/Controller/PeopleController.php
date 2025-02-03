@@ -2357,9 +2357,9 @@ class PeopleController extends AppController {
 		foreach ($people as $person_id) {
 			$teams = array_merge($teams, $this->UserCache->read('Teams', $person_id));
 		}
-		$teams = collection($teams)->indexBy('id')->toArray();
+		$team_ids = collection($teams)->extract('id')->toList();
 
-		$items = $this->_schedule($people, array_keys($teams));
+		$items = $this->_schedule($people, $team_ids);
 		$this->set(compact('id', 'items', 'relatives', 'teams'));
 	}
 
