@@ -83,6 +83,7 @@ if (($person->user_id && count($groups) > 1) || $is_manager):
 		echo $this->Jquery->toggleInput('user_groups._ids', [
 			'label' => __('Select all roles that apply to you.'),
 			'type' => 'select',
+			'class' => 'form-check-input',
 			'multiple' => 'checkbox',
 			'options' => $groups,
 			'hide_single' => true,

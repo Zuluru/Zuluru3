@@ -393,7 +393,7 @@ div.required label.form-label::after, div.required label.col-form-label::after {
 }
 
 /* For the bulk refund table checklist */
-.zuluru table.table .checkbox input[type="checkbox"]
+.zuluru div.refund table.table .checkbox input[type="checkbox"]
 {
 	position: relative;
 	margin-left: 0;

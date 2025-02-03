@@ -116,7 +116,7 @@ if (!empty($dates)) {
 
 <?php
 if (Configure::read('feature.allow_past_games') && empty($division->_options->past)) {
-	echo $this->Form->create($division, ['align' => 'horizontal']);
+	echo $this->Form->create($division, ['class' => 'mt-2']);
 	$division->_options->step = $saved_step;
 	$division->_options->past = true;
 	echo $this->element('hidden', ['model' => '_options', 'fields' => $division->_options]);

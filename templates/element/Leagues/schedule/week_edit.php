@@ -318,7 +318,6 @@ endforeach;
 
 <tr>
 	<td colspan="<?= 3 + $multi_day + !$competition ?>"><?php
-		// TODOBOOTSTRAP: This is creating a wide (though transparent) div that partially "covers up" the Submit button so that only the bottom of it is clickable
 		echo $this->Form->control('options.publish', [
 			'label' => __('Set as published for player viewing?'),
 			'type' => 'checkbox',
