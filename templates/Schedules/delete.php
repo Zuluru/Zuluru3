@@ -83,7 +83,7 @@ if (isset($division)) {
 // TODOBOOTSTRAP: Format this as a submit button, not an action link
 echo $this->Bootstrap->navPills([
 	$this->Html->link(__('Proceed'),
-		['?' => [$id_field => $id, 'date' => $date->toDateString(), 'pool' => $pool_id, 'confirm' => true]],
+		['?' => [$id_field => $id, 'date' => $date ? $date->toDateString() : null, 'pool' => $pool_id, 'confirm' => true]],
 		['class' => $this->Bootstrap->navPillLinkClasses()]
 	)
 ]);

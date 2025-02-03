@@ -837,9 +837,9 @@ class SchedulesController extends AppController {
 
 		// Set defaults
 		$reset_pools = $same_pool = $dependent = [];
-		$date = new FrozenDate($date);
 
 		if ($date) {
+			$date = new FrozenDate($date);
 			$query->contain(['GameSlots']);
 			if ($multi_day) {
 				$query->andWhere([
