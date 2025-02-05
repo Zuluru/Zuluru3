@@ -2,14 +2,13 @@
 namespace App\Controller;
 
 use App\Model\Entity\League;
+use App\Service\Games\ScheduleService;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Event\Event;
 use Cake\I18n\FrozenDate;
 use Cake\ORM\Query;
-use App\Exception\ScheduleException;
 use App\Model\Table\GamesTable;
 use App\Model\Table\LeaguesTable;
 
@@ -434,6 +433,7 @@ class LeaguesController extends AppController {
 		$id = intval($this->getRequest()->getQuery('league') ?: $this->getRequest()->getQuery('tournament'));
 
 		try {
+			/** @var League $league */
 			$league = $this->Leagues->get($id, [
 				'contain' => [
 					'Divisions' => [
@@ -539,55 +539,9 @@ class LeaguesController extends AppController {
 		// Save posted data
 		if ($this->getRequest()->is(['patch', 'post', 'put']) && $can_edit) {
 			$this->loadComponent('Lock');
-
-			if ($this->Lock->lock('scheduling', $this->Leagues->affiliate($league->id), 'schedule creation or edit')) {
-				try {
-					$edit_games = $this->Leagues->Divisions->Games->patchEntities($league->games, $this->getRequest()->getData('games'),
-						array_merge($this->getRequest()->getData('options'), ['validate' => 'scheduleEdit'])
-					);
-
-					$edit_ids = collection($edit_games)->extract('id')->toArray();
-					$other_games = collection($league->games)->reject(function ($game) use ($edit_ids) {
-						return in_array($game->id, $edit_ids);
-					})->toArray();
-					$league->games = array_merge($edit_games, $other_games);
-					usort($league->games, [GamesTable::class, 'compareDateAndField']);
-
-					if ($this->Leagues->Divisions->Games->getConnection()->transactional(function () use ($edit_games, $game_slots) {
-						$success = true;
-						$options = array_merge($this->getRequest()->getData('options'), [
-							'games' => $edit_games,
-							'game_slots' => $game_slots,
-							'validate' => 'scheduleEdit',
-						]);
-						// We intentionally do not use saveMany here; it returns immediately when one save fails,
-						// whereas this method will generate error messages for everything applicable.
-						foreach ($edit_games as $game) {
-							if (!$this->Leagues->Divisions->Games->save($game, $options)) {
-								$success = false;
-							}
-						}
-						return $success;
-					})) {
-						$this->Flash->success(__('Schedule changes saved!'));
-
-						// With the saves being inside a transaction, afterSaveCommit is not called.
-						$event = new Event('Model.afterSaveCommit', $this, [null]);
-						$this->getEventManager()->dispatch($event);
-
-						return $this->redirect (['action' => 'schedule', '?' => ['league' => $id]]);
-					}
-
-					$this->Flash->warning(__('The games could not be saved. Please correct the errors below and try again.'));
-
-					$event = new Event('Model.afterSaveRollback', $this, [null]);
-					$this->getEventManager()->dispatch($event);
-				} catch (ScheduleException $ex) {
-					$this->Flash->html($ex->getMessages(), ['params' => $ex->getAttributes()]);
-
-					$event = new Event('Model.afterSaveRollback', $this, [null]);
-					$this->getEventManager()->dispatch($event);
-				}
+			$schedule = new ScheduleService($this->Leagues->Divisions->Games->getTarget(), $this->Flash, $this->Lock);
+			if ($schedule->update($league, $league->games, $game_slots, $this->getRequest()->getData())) {
+				return $this->redirect (['action' => 'schedule', '?' => ['league' => $id]]);
 			}
 		}
 

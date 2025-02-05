@@ -4,18 +4,17 @@ namespace App\Controller;
 use App\Authorization\ContextResource;
 use App\Model\Entity\Division;
 use App\Model\Entity\Game;
+use App\Service\Games\ScheduleService;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Database\Type\DateType;
 use Cake\Datasource\Exception\InvalidPrimaryKeyException;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\Event\Event;
 use Cake\Http\Response;
 use Cake\I18n\FrozenDate;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
-use App\Exception\ScheduleException;
 use App\Model\Entity\DivisionsPerson;
 use App\Model\Results\Comparison;
 use App\Model\Table\GamesTable;
@@ -600,6 +599,7 @@ class DivisionsController extends AppController {
 		$id = intval($this->getRequest()->getQuery('division'));
 
 		try {
+			/** @var Division $division */
 			$division = $this->Divisions->get($id, [
 				'contain' => [
 					'Days' => [
@@ -686,55 +686,9 @@ class DivisionsController extends AppController {
 		// Save posted data
 		if ($this->getRequest()->is(['patch', 'post', 'put']) && $this->Authorization->can($division, 'edit_schedule')) {
 			$this->loadComponent('Lock');
-
-			if ($this->Lock->lock('scheduling', $this->Divisions->affiliate($id), 'schedule creation or edit')) {
-				try {
-					$edit_games = $this->Divisions->Games->patchEntities($division->games, $this->getRequest()->getData('games'),
-						array_merge($this->getRequest()->getData('options'), ['validate' => 'scheduleEdit'])
-					);
-
-					$edit_ids = collection($edit_games)->extract('id')->toArray();
-					$other_games = collection($division->games)->reject(function ($game) use ($edit_ids) {
-						return in_array($game->id, $edit_ids);
-					})->toArray();
-					$division->games = array_merge($edit_games, $other_games);
-					usort($division->games, [GamesTable::class, 'compareDateAndField']);
-
-					if ($this->Divisions->Games->getConnection()->transactional(function () use ($division, $edit_games, $game_slots) {
-						$success = true;
-						$options = array_merge($this->getRequest()->getData('options'), [
-							'games' => $edit_games,
-							'game_slots' => $game_slots,
-							'validate' => 'scheduleEdit',
-						]);
-						// We intentionally do not use saveMany here; it returns immediately when one save fails,
-						// whereas this method will generate error messages for everything applicable.
-						foreach ($division->games as $game) {
-							if (!$this->Divisions->Games->save($game, $options)) {
-								$success = false;
-							}
-						}
-						return $success;
-					})) {
-						$this->Flash->success(__('Schedule changes saved!'));
-
-						// With the saves being inside a transaction, afterSaveCommit is not called.
-						$event = new Event('Model.afterSaveCommit', $this, [null]);
-						$this->getEventManager()->dispatch($event);
-
-						return $this->redirect(['action' => 'schedule', '?' => ['division' => $id]]);
-					}
-
-					$this->Flash->warning(__('The games could not be saved. Please correct the errors below and try again.'));
-
-					$event = new Event('Model.afterSaveRollback', $this, [null]);
-					$this->getEventManager()->dispatch($event);
-				} catch (ScheduleException $ex) {
-					$this->Flash->html($ex->getMessages(), ['params' => $ex->getAttributes()]);
-
-					$event = new Event('Model.afterSaveRollback', $this, [null]);
-					$this->getEventManager()->dispatch($event);
-				}
+			$schedule = new ScheduleService($this->Divisions->Games->getTarget(), $this->Flash, $this->Lock);
+			if ($schedule->update($division->league, $division->games, $game_slots, $this->getRequest()->getData())) {
+				return $this->redirect (['action' => 'schedule', '?' => ['league' => $id]]);
 			}
 		}
 

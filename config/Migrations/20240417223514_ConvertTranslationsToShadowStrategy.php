@@ -27,23 +27,25 @@ class ConvertTranslationsToShadowStrategy extends AbstractMigration
 		} catch (InvalidArgumentException $ex) {
 		}
 
-		$defaultLocale = substr(env('APP_DEFAULT_LOCALE', 'en'), 0, 2);
-		$i18n = TableRegistry::getTableLocator()->get('I18n');
-		$locales = $i18n->find()
-			->distinct('locale')
-			->select('locale')
-			->where(['locale !=' => $defaultLocale])
-			->all()
-			->extract('locale')
-			->toArray();
-		array_unshift($locales, $defaultLocale);
+		if (!defined('PHPUNIT_TESTSUITE') || !PHPUNIT_TESTSUITE) {
+			$defaultLocale = substr(env('APP_DEFAULT_LOCALE', 'en'), 0, 2);
+			$i18n = TableRegistry::getTableLocator()->get('I18n');
+			$locales = $i18n->find()
+				->distinct('locale')
+				->select('locale')
+				->where(['locale !=' => $defaultLocale])
+				->all()
+				->extract('locale')
+				->toArray();
+			array_unshift($locales, $defaultLocale);
 
-		$mapper = function ($record, $key, $mapReduce) {
-			$mapReduce->emitIntermediate($record, $record['foreign_key']);
-		};
-		$reducer = function ($records, $key, $mapReduce) {
-			$mapReduce->emit(collection($records)->combine('field', 'content')->toArray(), $key);
-		};
+			$mapper = function ($record, $key, $mapReduce) {
+				$mapReduce->emitIntermediate($record, $record['foreign_key']);
+			};
+			$reducer = function ($records, $key, $mapReduce) {
+				$mapReduce->emit(collection($records)->combine('field', 'content')->toArray(), $key);
+			};
+		}
 
 		foreach ($this->models as $model) {
 			// Get details about the existing table
@@ -76,47 +78,50 @@ class ConvertTranslationsToShadowStrategy extends AbstractMigration
 			}
 			$newTable->create();
 
-			if ($table->hasBehavior('Timestamp')) {
-				$table->removeBehavior('Timestamp');
-			}
+			if (!defined('PHPUNIT_TESTSUITE') || !PHPUNIT_TESTSUITE) {
+				if ($table->hasBehavior('Timestamp')) {
+					$table->removeBehavior('Timestamp');
+				}
 
-			$table->getEventManager()->off('Model.beforeSave');
-			$table->getEventManager()->off('Model.afterSave');
-			$table->getEventManager()->off('Model.afterSaveCommit');
+				$table->getEventManager()->off('Model.beforeSave');
+				$table->getEventManager()->off('Model.afterSave');
+				$table->getEventManager()->off('Model.afterSaveCommit');
 
-			foreach ($locales as $locale) {
-				// Load all the existing translations
-				$translations = $i18n->find()
-					->select(['foreign_key', 'field', 'content'])
-					->where(['model' => $model, 'locale' => $locale])
-					->disableHydration()
-					->mapReduce($mapper, $reducer)
-					->toArray();
+				foreach ($locales as $locale) {
+					// Load all the existing translations
+					$translations = $i18n->find()
+						->select(['foreign_key', 'field', 'content'])
+						->where(['model' => $model, 'locale' => $locale])
+						->disableHydration()
+						->mapReduce($mapper, $reducer)
+						->toArray();
 
-				if ($locale === $defaultLocale) {
-					$defaultTranslations = $translations;
+					if ($locale === $defaultLocale) {
+						$defaultTranslations = $translations;
 
-					// Update the primary records with their translations
-					$records = $table->find();
-					foreach ($records as $record) {
-						if (array_key_exists($record->id, $translations)) {
-							$record = $table->patchEntity($record, $translations[$record->id]);
-							$table->save($record, ['checkRules' => false]);
-						}
-					}
-				} else {
-					foreach ($translations as $id => $translation) {
-						// Remove any "translations" that match the default locale, it's not a real translation and not useful
-						foreach ($translation as $field => $value) {
-							if ($value === $defaultTranslations[$id][$field]) {
-								unset($translation[$field]);
+						// Update the primary records with their translations
+						$records = $table->find();
+						foreach ($records as $record) {
+							if (array_key_exists($record->id, $translations)) {
+								$record = $table->patchEntity($record, $translations[$record->id]);
+								$table->save($record, ['checkRules' => false]);
 							}
 						}
+					} else {
+						foreach ($translations as $id => $translation) {
+							// Remove any "translations" that match the default locale, it's not a real translation and not useful
+							foreach ($translation as $field => $value) {
+								// @todo: Deal with Trying to access array offset on value of type null
+								if ($value === $defaultTranslations[$id][$field]) {
+									unset($translation[$field]);
+								}
+							}
 
-						// Create shadow table records
-						if (!empty($translation)) {
-							$record = $shadow->newEntity(compact('id', 'locale') + $translation);
-							$shadow->save($record, ['checkRules' => false]);
+							// Create shadow table records
+							if (!empty($translation)) {
+								$record = $shadow->newEntity(compact('id', 'locale') + $translation);
+								$shadow->save($record, ['checkRules' => false]);
+							}
 						}
 					}
 				}

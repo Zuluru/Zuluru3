@@ -5,7 +5,6 @@ use App\Model\Results\DivisionResults;
 use App\Model\Traits\TranslateFieldTrait;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\RecordNotFoundException;
-use Cake\I18n\I18n;
 use Cake\ORM\Behavior\Translate\TranslateTrait;
 use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
@@ -16,11 +15,11 @@ use InvalidArgumentException;
  *
  * @property int $id
  * @property string $name
- * @property \Cake\I18n\FrozenTime $open
- * @property \Cake\I18n\FrozenTime $close
+ * @property \Cake\I18n\FrozenDate $open
+ * @property \Cake\I18n\FrozenDate $close
  * @property string $ratio
  * @property string $current_round
- * @property \Cake\I18n\FrozenTime $roster_deadline
+ * @property \Cake\I18n\FrozenDate $roster_deadline
  * @property string $roster_rule
  * @property bool $is_open
  * @property string $schedule_type

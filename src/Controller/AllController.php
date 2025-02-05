@@ -2,7 +2,6 @@
 namespace App\Controller;
 
 use Cake\Cache\Cache;
-use Cake\Http\Cookie\Cookie;
 use Cake\I18n\I18n;
 
 class AllController extends AppController {

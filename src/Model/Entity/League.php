@@ -3,7 +3,6 @@ namespace App\Model\Entity;
 
 use App\Model\Traits\TranslateFieldTrait;
 use Cake\Core\Configure;
-use Cake\I18n\I18n;
 use Cake\ORM\Behavior\Translate\TranslateTrait;
 use Cake\ORM\Entity;
 use Cake\Utility\Inflector;
