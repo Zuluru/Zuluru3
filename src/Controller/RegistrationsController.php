@@ -63,8 +63,7 @@ class RegistrationsController extends AppController {
 
 		$query = $this->Registrations->find()
 			->contain(['People', 'Payments'])
-			->where(['Registrations.event_id' => $id])
-			->order(['Registrations.payment' => 'DESC', 'Registrations.created' => 'DESC']);
+			->where(['Registrations.event_id' => $id]);
 
 		if ($this->getRequest()->is('csv')) {
 			$query->contain([
@@ -277,7 +276,7 @@ class RegistrationsController extends AppController {
 			$this->setResponse($this->getResponse()->withDownload("Registrations $start_date to $end_date.csv"));
 		} else {
 			$this->paginate = [
-				'order' => ['Events.affiliate_id', 'Registrations.payment' => 'DESC', 'Registrations.created'],
+				'order' => ['Events.affiliate_id', 'Registrations.payment' => 'DESC', 'Registrations.created' => 'DESC'],
 			];
 			$this->set('registrations', $this->paginate($query));
 		}
