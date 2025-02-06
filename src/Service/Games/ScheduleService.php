@@ -61,12 +61,13 @@ class ScheduleService
 							->extract(function (Game $game) { return $game->getOriginal('game_slot_id'); })
 							->toList()
 					);
+					$updated_ids = collection($updated_games)->extract('id')->toArray();
 					if (!empty($slot_ids)) {
 						$used_elsewhere = $this->Games->find()
 							->distinct('Games.game_slot_id')
 							->where([
 								'Games.game_slot_id IN' => $slot_ids,
-								'Games.id NOT IN' => $edit_ids,
+								'Games.id NOT IN' => $updated_ids,
 							])
 							->extract('game_slot_id')
 							->toArray();
