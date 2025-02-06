@@ -251,7 +251,7 @@ endif;
 $extra = [];
 if ($this->Authorize->can('download', $team)) {
 	$extra[__('Download')] = [
-		'url' => ['action' => 'view', '?' => ['team' => $team->id, '_ext' => 'csv']],
+		'url' => ['action' => 'view', '?' => ['team' => $team->id], '_ext' => 'csv'],
 	];
 }
 
