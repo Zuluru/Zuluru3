@@ -111,7 +111,6 @@ class ConvertTranslationsToShadowStrategy extends AbstractMigration
 						foreach ($translations as $id => $translation) {
 							// Remove any "translations" that match the default locale, it's not a real translation and not useful
 							foreach ($translation as $field => $value) {
-								// @todo: Deal with Trying to access array offset on value of type null
 								if ($value === $defaultTranslations[$id][$field]) {
 									unset($translation[$field]);
 								}
