@@ -688,7 +688,7 @@ class DivisionsController extends AppController {
 			$this->loadComponent('Lock');
 			$schedule = new ScheduleService($this->Divisions->Games->getTarget(), $this->Flash, $this->Lock);
 			if ($schedule->update($division->league, $division->games, $game_slots, $this->getRequest()->getData())) {
-				return $this->redirect (['action' => 'schedule', '?' => ['league' => $id]]);
+				return $this->redirect (['action' => 'schedule', '?' => ['division' => $id]]);
 			}
 		}
 
