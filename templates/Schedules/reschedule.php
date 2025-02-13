@@ -2,6 +2,8 @@
 /**
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Division $division
+ * @var FrozenDate $date
+ * @var FrozenDate[] $dates
  */
 
 use Cake\Core\Configure;

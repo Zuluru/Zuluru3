@@ -374,7 +374,8 @@ abstract class LeagueType {
 		$games_table->getConnection()->transactional(function () use ($division, $games, $games_table) {
 			foreach ($games as $game) {
 				$validate = ($game->isNew() ? 'scheduleAdd' : 'scheduleEdit');
-				if (!$games_table->save($game, ['validate' => $validate, 'games' => $games, 'game_slots' => $division->used_slots])) {
+				$double_header = $division->_options->double_header ?? false;
+				if (!$games_table->save($game, ['validate' => $validate, 'double_header' => $double_header, 'games' => $games, 'game_slots' => $division->used_slots])) {
 					$errors = [__('Failed to save a game.')];
 					foreach ($game->getErrors() as $field => $error) {
 						$errors[] = $field . ': ';

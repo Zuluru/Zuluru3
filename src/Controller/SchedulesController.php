@@ -1009,8 +1009,10 @@ class SchedulesController extends AppController {
 			try {
 				// Save the list of games to be rescheduled; we'll overwrite it in startSchedule
 				$games = $division->games;
+				$slot_ids = collection($games)->extract('game_slot_id')->toArray();
+
 				$new_date = new FrozenDate($this->getRequest()->getData('new_date'));
-				$division->_options = new Entity(['ignore_games' => $games]);
+				$division->_options = new Entity(['ignore_games' => $games, 'double_header' => true]);
 				$league_obj->startSchedule($division, $new_date);
 				$league_obj->assignFieldsByPreferences($division, $new_date, $games);
 				$league_obj->finishSchedule($division, $games);
@@ -1018,6 +1020,9 @@ class SchedulesController extends AppController {
 				$ids = collection($games)->extract('id')->toArray();
 				TableRegistry::getTableLocator()->get('ActivityLogs')
 					->deleteAll(['game_id IN' => $ids]);
+
+				TableRegistry::getTableLocator()->get('GameSlots')
+					->updateAll(['assigned' => false], ['id IN' => $slot_ids]);
 
 				$this->Flash->success(__('Games rescheduled.'));
 				return $this->redirect(['controller' => 'Divisions', 'action' => 'schedule', '?' => ['division' => $id]]);

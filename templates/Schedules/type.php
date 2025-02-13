@@ -3,6 +3,7 @@
  * @var \App\View\AppView $this
  * @var \App\Model\Entity\Division $division
  * @var \App\Model\Entity\Pool $pool
+ * @var string[] $types
  */
 
 use Cake\Core\Configure;
