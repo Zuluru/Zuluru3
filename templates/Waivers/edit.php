@@ -63,25 +63,25 @@ echo $this->Jquery->toggleInput('expiry_type', [
 			<legend><?= __('Expiry Options') ?></legend>
 			<div id="fixed_dates_options">
 <?php
+$months = [];
+for ($month = 1; $month <= 12; ++ $month) {
+	$months[$month] = \Cake\I18n\FrozenDate::create(2000, $month, 1)->format('F');
+}
 echo $this->Form->control('start_month', [
-	'type' => 'month',
 	'label' => __('From month'),
-	'value' => sprintf('%02f', $waiver->start_month),
+	'options' => $months,
 ]);
 echo $this->Form->control('start_day', [
 	'type' => 'day',
 	'label' => __('From day'),
-	'value' => sprintf('%02f', $waiver->start_day),
 ]);
 echo $this->Form->control('end_month', [
-	'type' => 'month',
 	'label' => __('Through month'),
-	'value' => sprintf('%02f', $waiver->end_month),
+	'options' => $months,
 ]);
 echo $this->Form->control('end_day', [
 	'type' => 'day',
 	'label' => __('Through day'),
-	'value' => sprintf('%02f', $waiver->end_day),
 ]);
 ?>
 			</div>

@@ -4,8 +4,10 @@ namespace App\Model\Table;
 use App\Model\Entity\WaiversPerson;
 use ArrayObject;
 use Cake\Chronos\ChronosInterface;
+use Cake\Datasource\EntityInterface;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Event\Event as CakeEvent;
+use Cake\I18n\FrozenDate;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\Validation\Validator;
@@ -114,22 +116,35 @@ class WaiversTable extends AppTable {
 			'message' => __('You must select a valid expiry type.'),
 		]);
 
-		return $rules;
-	}
-
-	/**
-	 * Deal with array structure of incoming data
-	 *
-	 * @param CakeEvent $cakeEvent Unused
-	 * @param ArrayObject $data The data record being patched in
-	 * @param ArrayObject $options The options passed to the new/patchEntity method
-	 */
-	public function beforeMarshal(CakeEvent $cakeEvent, ArrayObject $data, ArrayObject $options) {
-		foreach (['start_month' => 'month', 'start_day' => 'day', 'end_month' => 'month', 'end_day' => 'day'] as $field => $type) {
-			if ($data->offsetExists($field) && is_array($data[$field]) && array_key_exists($type, $data[$field])) {
-				$data[$field] = $data[$field][$type];
+		$rules->add(function (EntityInterface $entity, array $options) {
+			if (!$entity->start_month) {
+				return __('Invalid start day.');
 			}
-		}
+			$date = FrozenDate::create(2001, $entity->start_month);
+			if ($entity->start_day < 1 || $entity->start_day > $date->lastOfMonth()->day) {
+				return __('Invalid start day.');
+			}
+
+			return true;
+		}, 'valid', [
+			'errorField' => 'start_day',
+		]);
+
+		$rules->add(function (EntityInterface $entity, array $options) {
+			if (!$entity->end_month) {
+				return __('Invalid end day.');
+			}
+			$date = FrozenDate::create(2001, $entity->end_month);
+			if ($entity->end_day < 1 || $entity->end_day > $date->lastOfMonth()->day) {
+				return __('Invalid end day.');
+			}
+
+			return true;
+		}, 'valid', [
+			'errorField' => 'end_day',
+		]);
+
+		return $rules;
 	}
 
 	public function findActive(Query $query, array $options) {

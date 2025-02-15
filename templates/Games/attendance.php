@@ -112,8 +112,9 @@ endif;
 			<tbody>
 <?php
 foreach ($attendance->people as $person):
-	if (!array_key_exists(0, $person->attendances))
+	if (!array_key_exists(0, $person->attendances)) {
 		continue;
+	}
 	$record = $person->attendances[0];
 ?>
 				<tr>

@@ -2,6 +2,7 @@
 namespace App\Model\Entity;
 
 use App\Core\ModuleRegistry;
+use App\Model\Table\GamesTable;
 use App\Module\Spirit;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
@@ -708,4 +709,19 @@ class Game extends Entity {
 		$this->spirit_entries = $spirit_entries;
 	}
 
+	public function getAttendance(array $attendances, array $days): ?Attendance {
+		if ($this->id) {
+			return collection($attendances)->firstMatch(['game_id' => $this->id]);
+		}
+
+		$game_dates = GamesTable::matchDates($this->game_slot->game_date, $days);
+		foreach ($game_dates as $date) {
+			$record = collection($attendances)->firstMatch(['game_date' => $date]);
+			if ($record) {
+				return $record;
+			}
+		}
+
+		return null;
+	}
 }

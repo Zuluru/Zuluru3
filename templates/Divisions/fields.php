@@ -188,12 +188,13 @@ foreach ($division->teams as $team) {
 // Output totals line
 $total_row = [[__('Total games'), ['colspan' => 2 + $region_prefs]]];
 $avg_row = [[__('Average'), ['colspan' => 2 + $region_prefs]]];
-$region_total = 0;
+$overall_total = $region_total = 0;
 $last_region = null;
 foreach ($game_slots as $game_slot) {
 	if ($regions > 1 && $last_region != $game_slot->field->facility->region->name) {
 		if ($last_region !== null) {
 			$total_row[] = [$region_total, ['class' => 'sub-total']];
+			$overall_total += $region_total;
 			$avg = $region_total / $numteams;
 			if ($division->schedule_type != 'competition') {
 				$avg *= 2;	// Each game has 2 teams participating
@@ -223,6 +224,7 @@ foreach ($game_slots as $game_slot) {
 
 if ($regions > 1) {
 	$total_row[] = [$region_total, ['class' => 'sub-total']];
+	$overall_total += $region_total;
 	$avg = $region_total / $numteams;
 	if ($division->schedule_type != 'competition') {
 		$avg *= 2;
@@ -230,8 +232,8 @@ if ($regions > 1) {
 	$avg_row[] = [sprintf('%0.1f', $avg), ['class' => 'sub-total']];
 }
 
-$total = $total_row[] = array_sum($total_row);
-$avg = $total / $numteams;
+$total_row[] = $overall_total;
+$avg = $overall_total / $numteams;
 if ($division->schedule_type != 'competition') {
 	$avg *= 2;
 }

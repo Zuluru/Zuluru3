@@ -100,11 +100,7 @@ foreach ($people as $person):
 	$total = 0;
 	foreach ($all_items as $key => $item):
 		if (is_a($item, \App\Model\Entity\Game::class)) {
-			if ($item->id) {
-				$record = collection($person->attendances)->firstMatch(['game_id' => $item->id]);
-			} else {
-				$record = collection($person->attendances)->firstMatch(['game_date' => $item->game_slot->game_date]);
-			}
+			$record = $item->getAttendance($person->attendances, collection($team->division->days)->extract('id')->toArray());
 			if (empty($record)) {
 				$out = __('N/A');
 				$status = ATTENDANCE_UNKNOWN;
