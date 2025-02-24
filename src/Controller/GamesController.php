@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Authorization\ContextResource;
+use App\Model\Table\GamesTable;
 use Authorization\Exception\MissingIdentityException;
 use Cake\Cache\Cache;
 use Cake\Core\App;
@@ -894,6 +895,15 @@ class GamesController extends AppController {
 			$game = $this->Games->newEmptyEntity();
 			$opponent = $this->Games->HomeTeam->newEmptyEntity();
 
+			$team = $this->Games->HomeTeam->get($team_id, [
+				'contain' => [
+					'People' => $captains_contain,
+					'Divisions' => ['Days']
+				]
+			]);
+
+			$game_dates = GamesTable::matchDates($game_date, collection($team->division->days)->extract('id')->toArray());
+
 			$attendance = $this->Games->Attendances->find()
 				->contain([
 					'People' => [
@@ -902,24 +912,22 @@ class GamesController extends AppController {
 							'queryBuilder' => function (Query $q) use ($team_id) {
 								return $q->where(compact('team_id'));
 							},
-							'People' => $captains_contain,
 						],
 					],
 				])
 				->where([
 					'person_id' => $person_id,
 					'team_id' => $team_id,
-					'game_date' => $game_date,
+					'game_date IN' => $game_dates,
 				])
 				->first();
 
-			if (empty($attendance) || empty($attendance->person->teams[0])) {
+			if (empty($attendance)) {
 				$this->Flash->info(__('Cannot find an attendance for you on that team on that date.'));
 				return $this->redirect('/');
 			}
 
 			$past = false;
-			$team = $attendance->person->teams[0];
 		}
 
 		$code = $this->getRequest()->getQuery('code');
